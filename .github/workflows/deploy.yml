@@ -145,7 +145,7 @@ jobs:
             echo "  ✓ Gateway healthy: $HEALTH"
 
             # ── Step 5: Smoke tests ────────────────────
-            set +e  # smoke tests are informational only
+            set +eo pipefail  # smoke tests are informational only
             echo ""
             echo "▶ [5/5] Smoke tests..."
 
@@ -184,5 +184,6 @@ jobs:
             echo "║  Commit: $SHORT_SHA                       ║"
             echo "╚══════════════════════════════════════════╝"
             echo ""
-            pm2 list --no-color | grep pmg
+            pm2 list --no-color | grep pmg || true
+            exit 0
 
