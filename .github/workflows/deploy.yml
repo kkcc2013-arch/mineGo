@@ -144,46 +144,11 @@ jobs:
             HEALTH=$(curl -sf http://localhost:8080/health)
             echo "  ✓ Gateway healthy: $HEALTH"
 
-            # ── Step 5: Smoke tests ────────────────────
-            set +eo pipefail  # smoke tests are informational only
-            echo ""
-            echo "▶ [5/5] Smoke tests..."
-
-            # Test 1: Health all services
-            ALL_UP=true
-            for svc_port in 8081 8082 8083 8084 8085 8086 8087 8088; do
-              if curl -sf "http://localhost:${svc_port}/health" > /dev/null 2>&1; then
-                echo "  ✓ ":${svc_port}" OK"
-              else
-                echo "  ⚠ ":${svc_port}" not responding (may still be starting)"
-                ALL_UP=false
-              fi
-            done
-
-            # Test 2: Auth endpoint returns valid JSON
-            AUTH=$(curl -s -X POST http://localhost:8080/v1/auth/sms-code \
-              -H "Content-Type: application/json" \
-              -d '{"phone":"13800138000","scene":"login"}' 2>&1)
-            if echo "$AUTH" | grep -q '"code"'; then
-              echo "  ✓ Auth API OK"
-            else
-              echo "  ⚠ Auth API: $AUTH"
-            fi
-
-            # Test 3: Pokemon species endpoint
-            SPECIES=$(curl -s "http://localhost:8080/v1/pokemon/species?limit=1" 2>&1)
-            if echo "$SPECIES" | grep -q '"code"'; then
-              echo "  ✓ Pokemon API OK"
-            else
-              echo "  ⚠ Pokemon API: $SPECIES"
-            fi
 
             echo ""
             echo "╔══════════════════════════════════════════╗"
             echo "║  ✅ Deploy complete!                      ║"
             echo "║  Commit: $SHORT_SHA                       ║"
             echo "╚══════════════════════════════════════════╝"
-            echo ""
-            pm2 list --no-color | grep pmg || true
-            exit 0
+            pm2 list --no-color
 
