@@ -5,7 +5,7 @@ const cors         = require('cors');
 const helmet       = require('helmet');
 const rateLimit    = require('express-rate-limit');
 const { createProxyMiddleware } = require('http-proxy-middleware');
-const { verifyAccess } = require('../shared/auth');
+const { verifyAccess } = require('../../shared/auth');
 
 const app  = express();
 const PORT = process.env.PORT || 8080;

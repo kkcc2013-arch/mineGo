@@ -3,9 +3,9 @@
 const express = require('express');
 const cors    = require('cors');
 const helmet  = require('helmet');
-const { query, transaction } = require('../../shared/db');
-const { getRedis } = require('../../shared/redis');
-const { requireAuth, AppError, successResp, errorHandler } = require('../../shared/auth');
+const { query, transaction } = require('../../../shared/db');
+const { getRedis } = require('../../../shared/redis');
+const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
 
 const app  = express();
 const PORT = process.env.PORT || 8087;

@@ -4,12 +4,12 @@ const express  = require('express');
 const bcrypt   = require('bcryptjs');
 const { z }    = require('zod');
 const { v4: uuidv4 } = require('uuid');
-const { query, transaction } = require('../../../shared/db');
-const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
+const { query, transaction } = require('../../../../shared/db');
+const { getRedis, getJSON, setJSON } = require('../../../../shared/redis');
 const {
   signAccess, signRefresh, verifyRefresh,
   AppError, successResp, errorResp
-} = require('../../../shared/auth');
+} = require('../../../../shared/auth');
 
 const router = express.Router();
 

@@ -2,8 +2,8 @@
 'use strict';
 const express = require('express');
 const { z }   = require('zod');
-const { query } = require('../../../shared/db');
-const { requireAuth, AppError, successResp } = require('../../../shared/auth');
+const { query } = require('../../../../shared/db');
+const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
 
 const router = express.Router();
 router.use(requireAuth);

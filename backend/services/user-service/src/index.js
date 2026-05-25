@@ -4,7 +4,7 @@ const express   = require('express');
 const cors      = require('cors');
 const helmet    = require('helmet');
 const rateLimit = require('express-rate-limit');
-const { errorHandler } = require('../../shared/auth');
+const { errorHandler } = require('../../../shared/auth');
 
 const authRouter  = require('./routes/auth');
 const userRouter  = require('./routes/user');

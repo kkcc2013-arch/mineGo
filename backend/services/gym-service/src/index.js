@@ -5,9 +5,9 @@ const http      = require('http');
 const WebSocket = require('ws');
 const cors      = require('cors');
 const helmet    = require('helmet');
-const { query, transaction } = require('../../shared/db');
-const { getRedis, getJSON, setJSON } = require('../../shared/redis');
-const { requireAuth, verifyAccess, AppError, successResp, errorHandler } = require('../../shared/auth');
+const { query, transaction } = require('../../../shared/db');
+const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
+const { requireAuth, verifyAccess, AppError, successResp, errorHandler } = require('../../../shared/auth');
 
 const app    = express();
 const server = http.createServer(app);

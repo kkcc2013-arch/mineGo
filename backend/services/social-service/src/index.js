@@ -4,8 +4,8 @@ const express = require('express');
 const cors    = require('cors');
 const helmet  = require('helmet');
 const { v4: uuidv4 } = require('uuid');
-const { query, transaction } = require('../../shared/db');
-const { requireAuth, AppError, successResp, errorHandler } = require('../../shared/auth');
+const { query, transaction } = require('../../../shared/db');
+const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
 
 const app  = express();
 const PORT = process.env.PORT || 8086;
