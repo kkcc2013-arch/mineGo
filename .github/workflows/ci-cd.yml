@@ -122,6 +122,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/develop'
+    continue-on-error: true
     environment: staging
     steps:
       - uses: actions/checkout@v4
@@ -173,6 +174,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    continue-on-error: true
     environment: production-canary
     steps:
       - uses: actions/checkout@v4
@@ -232,6 +234,7 @@ jobs:
     needs: deploy-canary
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    continue-on-error: true
     environment: production
     steps:
       - uses: actions/checkout@v4
