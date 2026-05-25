@@ -1,0 +1,447 @@
+# ============================================================
+# PMG — Microservice Deployments & Services
+# ============================================================
+
+# ── Helper template macro (repeated per service) ─────────────
+# Each service follows the same pattern:
+#   Deployment (2 replicas, HPA-ready) + ClusterIP Service
+
+---
+# ── API Gateway ──────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+  namespace: pmg
+  labels:
+    app: api-gateway
+    tier: gateway
+spec:
+  replicas: 3
+  selector:
+    matchLabels: { app: api-gateway }
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: { maxSurge: 1, maxUnavailable: 0 }
+  template:
+    metadata:
+      labels: { app: api-gateway }
+    spec:
+      containers:
+        - name: api-gateway
+          image: registry.cn-shanghai.aliyuncs.com/pmg/api-gateway:latest
+          imagePullPolicy: Always
+          ports: [{ containerPort: 8080, name: http }]
+          envFrom:
+            - configMapRef: { name: pmg-config }
+            - secretRef:    { name: pmg-secrets }
+          env:
+            - { name: PORT, value: "8080" }
+            - { name: USER_SERVICE_URL,     value: "http://user-service:8081" }
+            - { name: LOCATION_SERVICE_URL, value: "http://location-service:8082" }
+            - { name: POKEMON_SERVICE_URL,  value: "http://pokemon-service:8083" }
+            - { name: CATCH_SERVICE_URL,    value: "http://catch-service:8084" }
+            - { name: GYM_SERVICE_URL,      value: "http://gym-service:8085" }
+            - { name: SOCIAL_SERVICE_URL,   value: "http://social-service:8086" }
+            - { name: REWARD_SERVICE_URL,   value: "http://reward-service:8087" }
+            - { name: PAYMENT_SERVICE_URL,  value: "http://payment-service:8088" }
+          resources:
+            requests: { cpu: "100m", memory: "128Mi" }
+            limits:   { cpu: "500m", memory: "512Mi" }
+          livenessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-gateway
+  namespace: pmg
+spec:
+  selector: { app: api-gateway }
+  ports: [{ port: 8080, targetPort: 8080, name: http }]
+
+---
+# ── User Service ─────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  namespace: pmg
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: user-service }
+  template:
+    metadata:
+      labels: { app: user-service }
+    spec:
+      containers:
+        - name: user-service
+          image: registry.cn-shanghai.aliyuncs.com/pmg/user-service:latest
+          ports: [{ containerPort: 8081 }]
+          envFrom:
+            - configMapRef: { name: pmg-config }
+            - secretRef:    { name: pmg-secrets }
+          env: [{ name: PORT, value: "8081" }]
+          resources:
+            requests: { cpu: "100m", memory: "128Mi" }
+            limits:   { cpu: "400m", memory: "384Mi" }
+          livenessProbe:
+            httpGet: { path: /health, port: 8081 }
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet: { path: /health, port: 8081 }
+            initialDelaySeconds: 5
+            periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata: { name: user-service, namespace: pmg }
+spec:
+  selector: { app: user-service }
+  ports: [{ port: 8081, targetPort: 8081 }]
+
+---
+# ── Location Service (higher replicas — GPS-intensive) ───────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: location-service
+  namespace: pmg
+spec:
+  replicas: 4
+  selector:
+    matchLabels: { app: location-service }
+  template:
+    metadata:
+      labels: { app: location-service }
+    spec:
+      containers:
+        - name: location-service
+          image: registry.cn-shanghai.aliyuncs.com/pmg/location-service:latest
+          ports: [{ containerPort: 8082 }]
+          envFrom:
+            - configMapRef: { name: pmg-config }
+            - secretRef:    { name: pmg-secrets }
+          env: [{ name: PORT, value: "8082" }]
+          resources:
+            requests: { cpu: "200m", memory: "256Mi" }
+            limits:   { cpu: "800m", memory: "768Mi" }
+          livenessProbe:
+            httpGet: { path: /health, port: 8082 }
+            initialDelaySeconds: 15
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata: { name: location-service, namespace: pmg }
+spec:
+  selector: { app: location-service }
+  ports: [{ port: 8082, targetPort: 8082 }]
+
+---
+# ── Pokemon Service ──────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pokemon-service
+  namespace: pmg
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: pokemon-service }
+  template:
+    metadata:
+      labels: { app: pokemon-service }
+    spec:
+      containers:
+        - name: pokemon-service
+          image: registry.cn-shanghai.aliyuncs.com/pmg/pokemon-service:latest
+          ports: [{ containerPort: 8083 }]
+          envFrom:
+            - configMapRef: { name: pmg-config }
+            - secretRef:    { name: pmg-secrets }
+          env: [{ name: PORT, value: "8083" }]
+          resources:
+            requests: { cpu: "100m", memory: "128Mi" }
+            limits:   { cpu: "500m", memory: "512Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: pokemon-service, namespace: pmg }
+spec:
+  selector: { app: pokemon-service }
+  ports: [{ port: 8083, targetPort: 8083 }]
+
+---
+# ── Catch Service ────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catch-service
+  namespace: pmg
+spec:
+  replicas: 3
+  selector:
+    matchLabels: { app: catch-service }
+  template:
+    metadata:
+      labels: { app: catch-service }
+    spec:
+      containers:
+        - name: catch-service
+          image: registry.cn-shanghai.aliyuncs.com/pmg/catch-service:latest
+          ports: [{ containerPort: 8084 }]
+          envFrom:
+            - configMapRef: { name: pmg-config }
+            - secretRef:    { name: pmg-secrets }
+          env: [{ name: PORT, value: "8084" }]
+          resources:
+            requests: { cpu: "150m", memory: "192Mi" }
+            limits:   { cpu: "600m", memory: "512Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: catch-service, namespace: pmg }
+spec:
+  selector: { app: catch-service }
+  ports: [{ port: 8084, targetPort: 8084 }]
+
+---
+# ── Gym Service (WebSocket) ───────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gym-service
+  namespace: pmg
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: gym-service }
+  template:
+    metadata:
+      labels: { app: gym-service }
+    spec:
+      containers:
+        - name: gym-service
+          image: registry.cn-shanghai.aliyuncs.com/pmg/gym-service:latest
+          ports:
+            - { containerPort: 8085, name: http }
+          envFrom:
+            - configMapRef: { name: pmg-config }
+            - secretRef:    { name: pmg-secrets }
+          env: [{ name: PORT, value: "8085" }]
+          resources:
+            requests: { cpu: "150m", memory: "192Mi" }
+            limits:   { cpu: "600m", memory: "640Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: gym-service, namespace: pmg }
+spec:
+  selector: { app: gym-service }
+  ports: [{ port: 8085, targetPort: 8085 }]
+
+---
+# ── Social Service ───────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: social-service
+  namespace: pmg
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: social-service }
+  template:
+    metadata:
+      labels: { app: social-service }
+    spec:
+      containers:
+        - name: social-service
+          image: registry.cn-shanghai.aliyuncs.com/pmg/social-service:latest
+          ports: [{ containerPort: 8086 }]
+          envFrom:
+            - configMapRef: { name: pmg-config }
+            - secretRef:    { name: pmg-secrets }
+          env: [{ name: PORT, value: "8086" }]
+          resources:
+            requests: { cpu: "80m", memory: "128Mi" }
+            limits:   { cpu: "300m", memory: "384Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: social-service, namespace: pmg }
+spec:
+  selector: { app: social-service }
+  ports: [{ port: 8086, targetPort: 8086 }]
+
+---
+# ── Reward Service ───────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reward-service
+  namespace: pmg
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: reward-service }
+  template:
+    metadata:
+      labels: { app: reward-service }
+    spec:
+      containers:
+        - name: reward-service
+          image: registry.cn-shanghai.aliyuncs.com/pmg/reward-service:latest
+          ports: [{ containerPort: 8087 }]
+          envFrom:
+            - configMapRef: { name: pmg-config }
+            - secretRef:    { name: pmg-secrets }
+          env: [{ name: PORT, value: "8087" }]
+          resources:
+            requests: { cpu: "80m", memory: "128Mi" }
+            limits:   { cpu: "300m", memory: "256Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: reward-service, namespace: pmg }
+spec:
+  selector: { app: reward-service }
+  ports: [{ port: 8087, targetPort: 8087 }]
+
+---
+# ── Payment Service (isolated) ───────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+  namespace: pmg
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: payment-service }
+  template:
+    metadata:
+      labels: { app: payment-service }
+    spec:
+      containers:
+        - name: payment-service
+          image: registry.cn-shanghai.aliyuncs.com/pmg/payment-service:latest
+          ports: [{ containerPort: 8088 }]
+          envFrom:
+            - configMapRef: { name: pmg-config }
+            - secretRef:    { name: pmg-secrets }
+          env: [{ name: PORT, value: "8088" }]
+          resources:
+            requests: { cpu: "80m", memory: "128Mi" }
+            limits:   { cpu: "300m", memory: "256Mi" }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: payment-service, namespace: pmg }
+spec:
+  selector: { app: payment-service }
+  ports: [{ port: 8088, targetPort: 8088 }]
+
+---
+# ── Horizontal Pod Autoscalers ───────────────────────────────
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: location-service-hpa
+  namespace: pmg
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: location-service
+  minReplicas: 4
+  maxReplicas: 20
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: 60 }
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: catch-service-hpa
+  namespace: pmg
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: catch-service
+  minReplicas: 3
+  maxReplicas: 15
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: { type: Utilization, averageUtilization: 65 }
+
+---
+# ── Ingress (ALB / Nginx) ─────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pmg-ingress
+  namespace: pmg
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout:    "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout:    "3600"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+    nginx.ingress.kubernetes.io/use-regex:             "true"
+    # WebSocket support for Raid
+    nginx.ingress.kubernetes.io/proxy-http-version:    "1.1"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts: [api.pocketmonstergo.com]
+      secretName: pmg-tls-secret
+  rules:
+    - host: api.pocketmonstergo.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: api-gateway
+                port: { number: 8080 }
+
+---
+# ── PodDisruptionBudgets ─────────────────────────────────────
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-gateway-pdb
+  namespace: pmg
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels: { app: api-gateway }
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: catch-service-pdb
+  namespace: pmg
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels: { app: catch-service }

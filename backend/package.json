@@ -1,0 +1,20 @@
+{
+  "name": "pmg-backend",
+  "version": "1.0.0",
+  "description": "Pocket Monster Go - Backend Microservices",
+  "private": true,
+  "workspaces": [
+    "shared",
+    "services/*",
+    "gateway"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w shared\" \"npm run dev -w services/user-service\" \"npm run dev -w services/location-service\" \"npm run dev -w services/pokemon-service\" \"npm run dev -w services/catch-service\" \"npm run dev -w services/gym-service\"",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "eslint . --ext .js,.ts"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "eslint": "^8.55.0"
+  }
+}

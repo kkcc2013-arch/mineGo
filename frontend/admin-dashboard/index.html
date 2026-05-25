@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pocket Monster Go — 运营管理后台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --c-bg:       #0d0f14;
+    --c-surface:  #13161e;
+    --c-surface2: #1a1e28;
+    --c-border:   #252938;
+    --c-border2:  #2e3447;
+    --c-red:      #e63946;
+    --c-blue:     #3d8ef8;
+    --c-yellow:   #f4c430;
+    --c-green:    #2ecc71;
+    --c-purple:   #9b59b6;
+    --c-text:     #e8eaf0;
+    --c-muted:    #6b7280;
+    --c-accent:   #3d8ef8;
+    --radius:     10px;
+    --font-main:  'Syne', sans-serif;
+    --font-mono:  'JetBrains Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--c-bg); color: var(--c-text); font-family: var(--font-main); }
+
+  /* Layout */
+  .layout   { display: flex; height: 100vh; overflow: hidden; }
+  .sidebar  { width: 240px; min-width: 240px; background: var(--c-surface); border-right: 1px solid var(--c-border); display: flex; flex-direction: column; }
+  .main     { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .topbar   { height: 56px; background: var(--c-surface); border-bottom: 1px solid var(--c-border); display: flex; align-items: center; padding: 0 24px; gap: 16px; }
+  .content  { flex: 1; overflow-y: auto; padding: 28px; }
+
+  /* Sidebar */
+  .logo     { padding: 20px 20px 12px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--c-border); }
+  .logo-icon { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,#e63946,#c0392b); border: 3px solid white; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .logo-text { font-weight: 800; font-size: 13px; line-height: 1.3; }
+  .logo-text span { display: block; color: var(--c-muted); font-weight: 400; font-size: 11px; }
+
+  .nav { flex: 1; padding: 12px 10px; overflow-y: auto; }
+  .nav-section { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: var(--c-muted); padding: 12px 10px 6px; text-transform: uppercase; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px;
+    cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--c-muted); transition: all .15s;
+    margin-bottom: 2px;
+  }
+  .nav-item:hover  { background: var(--c-surface2); color: var(--c-text); }
+  .nav-item.active { background: rgba(61,142,248,.15); color: var(--c-blue); }
+  .nav-item .icon  { font-size: 15px; width: 18px; text-align: center; }
+  .nav-badge { margin-left: auto; background: var(--c-red); color: white; font-size: 10px; padding: 1px 6px; border-radius: 10px; font-family: var(--font-mono); }
+
+  /* Topbar */
+  .topbar-title { font-weight: 800; font-size: 16px; flex: 1; }
+  .topbar-env   { background: rgba(46,204,113,.15); color: var(--c-green); font-size: 11px; font-family: var(--font-mono); padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(46,204,113,.3); }
+  .avatar-btn   { width: 32px; height: 32px; border-radius: 50%; background: var(--c-blue); display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; }
+
+  /* Cards */
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 16px; margin-bottom: 28px; }
+  .card {
+    background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius);
+    padding: 20px;
+  }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .card-label  { font-size: 12px; font-weight: 600; color: var(--c-muted); text-transform: uppercase; letter-spacing: .06em; }
+  .card-icon   { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .card-value  { font-size: 28px; font-weight: 800; font-family: var(--font-mono); }
+  .card-sub    { font-size: 12px; color: var(--c-muted); margin-top: 4px; }
+  .card-delta  { font-size: 12px; margin-top: 6px; font-family: var(--font-mono); }
+  .delta-up    { color: var(--c-green); }
+  .delta-down  { color: var(--c-red); }
+
+  /* Table */
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .section-title  { font-size: 16px; font-weight: 800; }
+  .btn {
+    padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+    border: none; font-family: var(--font-main); transition: all .15s;
+  }
+  .btn-primary { background: var(--c-blue); color: white; }
+  .btn-primary:hover { background: #2d7de8; }
+  .btn-ghost   { background: transparent; color: var(--c-muted); border: 1px solid var(--c-border); }
+  .btn-ghost:hover { color: var(--c-text); border-color: var(--c-border2); }
+  .btn-danger  { background: rgba(230,57,70,.15); color: var(--c-red); border: 1px solid rgba(230,57,70,.3); }
+
+  .table-wrap { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius); overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 11px 16px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--c-muted); background: var(--c-surface2); border-bottom: 1px solid var(--c-border); }
+  td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid var(--c-border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 20px; font-family: var(--font-mono); }
+  .badge-common    { background: rgba(107,114,128,.2); color: #9ca3af; }
+  .badge-uncommon  { background: rgba(34,197,94,.15); color: #4ade80; }
+  .badge-rare      { background: rgba(59,130,246,.15); color: #60a5fa; }
+  .badge-epic      { background: rgba(168,85,247,.15); color: #c084fc; }
+  .badge-legendary { background: rgba(251,191,36,.2); color: #fbbf24; }
+  .badge-valor   { background: rgba(230,57,70,.15); color: #f87171; }
+  .badge-mystic  { background: rgba(59,130,246,.15); color: #60a5fa; }
+  .badge-instinct { background: rgba(244,196,48,.15); color: #fde047; }
+  .badge-online  { background: rgba(46,204,113,.15); color: var(--c-green); }
+  .badge-banned  { background: rgba(230,57,70,.15); color: var(--c-red); }
+
+  /* Chart placeholder */
+  .chart-card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius); padding: 20px; }
+  .chart-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .chart-area  { height: 180px; position: relative; overflow: hidden; }
+  .chart-bar-row { display: flex; align-items: flex-end; gap: 8px; height: 100%; padding-top: 20px; }
+  .chart-bar { flex: 1; border-radius: 4px 4px 0 0; transition: opacity .2s; position: relative; }
+  .chart-bar:hover { opacity: .8; }
+  .chart-label { text-align: center; font-size: 10px; color: var(--c-muted); margin-top: 6px; font-family: var(--font-mono); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px; }
+  .grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 28px; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius); padding: 4px; width: fit-content; }
+  .tab { padding: 6px 16px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--c-muted); transition: all .15s; }
+  .tab.active { background: var(--c-surface2); color: var(--c-text); }
+
+  /* Sparkline */
+  .sparkline { display: flex; align-items: flex-end; gap: 2px; height: 32px; }
+  .spark-bar { width: 4px; border-radius: 2px; background: var(--c-blue); opacity: .7; }
+
+  /* Status dot */
+  .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+  .dot-green  { background: var(--c-green); box-shadow: 0 0 6px var(--c-green); }
+  .dot-red    { background: var(--c-red); }
+  .dot-yellow { background: var(--c-yellow); }
+
+  /* Modal overlay */
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
+  .overlay.show { opacity: 1; pointer-events: all; }
+  .modal { background: var(--c-surface); border: 1px solid var(--c-border2); border-radius: 14px; padding: 28px; width: 480px; max-width: 95vw; }
+  .modal-title { font-size: 18px; font-weight: 800; margin-bottom: 20px; }
+  .form-field { margin-bottom: 16px; }
+  .form-label { font-size: 12px; font-weight: 600; color: var(--c-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; display: block; }
+  .form-input {
+    width: 100%; padding: 9px 12px; background: var(--c-bg); border: 1px solid var(--c-border2);
+    border-radius: 8px; color: var(--c-text); font-size: 13px; font-family: var(--font-main);
+    outline: none; transition: border-color .15s;
+  }
+  .form-input:focus { border-color: var(--c-blue); }
+  .form-row { display: flex; gap: 12px; }
+  .form-row .form-field { flex: 1; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--c-border2); border-radius: 3px; }
+
+  /* Page sections */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* Toast */
+  #toast { position: fixed; bottom: 24px; right: 24px; background: var(--c-surface); border: 1px solid var(--c-border2); border-radius: 10px; padding: 12px 20px; font-size: 13px; font-weight: 600; transform: translateY(80px); opacity: 0; transition: all .3s; z-index: 999; display: flex; align-items: center; gap: 8px; }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.success { border-color: rgba(46,204,113,.4); color: var(--c-green); }
+  #toast.error   { border-color: rgba(230,57,70,.4); color: var(--c-red); }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text">PMG Admin<span>运营管理后台 v1.0</span></div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">概览</div>
+      <div class="nav-item active" data-page="dashboard" onclick="navigate(this,'dashboard')">
+        <span class="icon">📊</span> 数据概览
+      </div>
+
+      <div class="nav-section">玩家管理</div>
+      <div class="nav-item" data-page="users" onclick="navigate(this,'users')">
+        <span class="icon">👤</span> 用户列表
+      </div>
+      <div class="nav-item" data-page="reports" onclick="navigate(this,'reports')">
+        <span class="icon">🚨</span> 举报处理 <span class="nav-badge">7</span>
+      </div>
+
+      <div class="nav-section">游戏内容</div>
+      <div class="nav-item" data-page="pokemon" onclick="navigate(this,'pokemon')">
+        <span class="icon">🐾</span> 精灵管理
+      </div>
+      <div class="nav-item" data-page="gyms" onclick="navigate(this,'gyms')">
+        <span class="icon">🏟</span> 道馆管理
+      </div>
+      <div class="nav-item" data-page="raids" onclick="navigate(this,'raids')">
+        <span class="icon">⚔️</span> 突破活动
+      </div>
+      <div class="nav-item" data-page="events" onclick="navigate(this,'events')">
+        <span class="icon">🎉</span> 活动配置
+      </div>
+
+      <div class="nav-section">运营</div>
+      <div class="nav-item" data-page="payments" onclick="navigate(this,'payments')">
+        <span class="icon">💰</span> 支付订单
+      </div>
+      <div class="nav-item" data-page="monitor" onclick="navigate(this,'monitor')">
+        <span class="icon">📡</span> 系统监控
+      </div>
+      <div class="nav-section">配置</div>
+      <div class="nav-item" data-page="config" onclick="navigate(this,'config')">
+        <span class="icon">⚙️</span> 系统配置
+      </div>
+    </nav>
+    <div style="padding:16px;border-top:1px solid var(--c-border)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:32px;height:32px;border-radius:50%;background:var(--c-blue);display:flex;align-items:center;justify-content:center;font-size:13px">管</div>
+        <div>
+          <div style="font-size:13px;font-weight:700">管理员</div>
+          <div style="font-size:11px;color:var(--c-muted)">admin@pmg.com</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-title" id="page-title">数据概览</div>
+      <div class="topbar-env"><span class="dot dot-green"></span>生产环境</div>
+      <div style="font-size:12px;color:var(--c-muted);font-family:var(--font-mono)" id="clock"></div>
+      <div class="avatar-btn">管</div>
+    </header>
+
+    <div class="content">
+
+      <!-- ── Dashboard Page ──────────────────────────────── -->
+      <div class="page active" id="page-dashboard">
+        <div class="cards-grid">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-label">今日 DAU</div>
+              <div class="card-icon" style="background:rgba(61,142,248,.15);color:var(--c-blue)">👤</div>
+            </div>
+            <div class="card-value" id="dau">128,456</div>
+            <div class="card-delta delta-up">▲ 8.3% vs 昨日</div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-label">今日捕捉数</div>
+              <div class="card-icon" style="background:rgba(230,57,70,.15);color:var(--c-red)">⚡</div>
+            </div>
+            <div class="card-value" id="catches">2,847,392</div>
+            <div class="card-delta delta-up">▲ 12.1% vs 昨日</div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-label">今日营收</div>
+              <div class="card-icon" style="background:rgba(244,196,48,.15);color:var(--c-yellow)">💰</div>
+            </div>
+            <div class="card-value" id="revenue">¥84,230</div>
+            <div class="card-delta delta-up">▲ 5.7% vs 昨日</div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-label">活跃 Raid</div>
+              <div class="card-icon" style="background:rgba(155,89,182,.15);color:var(--c-purple)">⚔️</div>
+            </div>
+            <div class="card-value" id="raids-count">347</div>
+            <div class="card-sub">全服当前进行中</div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-label">崩溃率</div>
+              <div class="card-icon" style="background:rgba(46,204,113,.15);color:var(--c-green)">✅</div>
+            </div>
+            <div class="card-value" style="color:var(--c-green)">0.07%</div>
+            <div class="card-delta delta-up">目标 ≤ 0.1% ✓</div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div class="card-label">API P95延迟</div>
+              <div class="card-icon" style="background:rgba(46,204,113,.15);color:var(--c-green)">⚡</div>
+            </div>
+            <div class="card-value" style="color:var(--c-green)">312ms</div>
+            <div class="card-delta delta-up">目标 ≤ 500ms ✓</div>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div class="chart-card">
+            <div class="chart-title">📈 近14日 DAU 趋势</div>
+            <div class="chart-area">
+              <div class="chart-bar-row" id="dau-chart"></div>
+            </div>
+            <div id="dau-labels" style="display:flex;gap:8px;margin-top:4px"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">🍩 队伍分布</div>
+            <div style="display:flex;flex-direction:column;gap:12px;padding-top:8px">
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+                  <span><span class="dot" style="background:#e63946"></span>勇气队 Valor</span>
+                  <span style="font-family:var(--font-mono)">38%</span>
+                </div>
+                <div style="height:8px;background:var(--c-surface2);border-radius:4px;overflow:hidden">
+                  <div style="width:38%;height:100%;background:#e63946;border-radius:4px"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+                  <span><span class="dot" style="background:#3d8ef8"></span>神秘队 Mystic</span>
+                  <span style="font-family:var(--font-mono)">42%</span>
+                </div>
+                <div style="height:8px;background:var(--c-surface2);border-radius:4px;overflow:hidden">
+                  <div style="width:42%;height:100%;background:#3d8ef8;border-radius:4px"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+                  <span><span class="dot" style="background:#f4c430"></span>本能队 Instinct</span>
+                  <span style="font-family:var(--font-mono)">20%</span>
+                </div>
+                <div style="height:8px;background:var(--c-surface2);border-radius:4px;overflow:hidden">
+                  <div style="width:20%;height:100%;background:#f4c430;border-radius:4px"></div>
+                </div>
+              </div>
+              <div style="margin-top:8px;padding-top:12px;border-top:1px solid var(--c-border)">
+                <div style="font-size:11px;color:var(--c-muted);margin-bottom:8px">TOP 捕捉精灵</div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <div style="display:flex;justify-content:space-between;font-size:12px"><span>⚡ 皮卡丘</span><span style="font-family:var(--font-mono);color:var(--c-muted)">182,440</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px"><span>🔥 小火龙</span><span style="font-family:var(--font-mono);color:var(--c-muted)">154,221</span></div>
+                  <div style="display:flex;justify-content:space-between;font-size:12px"><span>💧 杰尼龟</span><span style="font-family:var(--font-mono);color:var(--c-muted)">139,887</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Catch Activity -->
+        <div class="section-header">
+          <div class="section-title">⚡ 实时捕捉动态</div>
+          <button class="btn btn-ghost" onclick="refreshActivity()">刷新</button>
+        </div>
+        <div class="table-wrap">
+          <table id="activity-table">
+            <thead><tr>
+              <th>时间</th><th>训练师</th><th>精灵</th><th>CP</th><th>方式</th><th>地点</th>
+            </tr></thead>
+            <tbody id="activity-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── Users Page ──────────────────────────────────── -->
+      <div class="page" id="page-users">
+        <div class="section-header">
+          <div class="section-title">👤 用户管理</div>
+          <div style="display:flex;gap:10px">
+            <input class="form-input" style="width:240px" placeholder="搜索昵称 / ID…" id="user-search" oninput="filterUsers()">
+            <button class="btn btn-primary" onclick="showModal('ban-modal')">批量操作</button>
+          </div>
+        </div>
+        <div class="tabs">
+          <div class="tab active" onclick="setUserTab(this,'all')">全部</div>
+          <div class="tab" onclick="setUserTab(this,'online')">在线</div>
+          <div class="tab" onclick="setUserTab(this,'banned')">封禁</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>用户 ID</th><th>昵称</th><th>等级</th><th>队伍</th>
+              <th>精灵数</th><th>图鉴%</th><th>注册时间</th><th>状态</th><th>操作</th>
+            </tr></thead>
+            <tbody id="users-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── Pokemon Page ────────────────────────────────── -->
+      <div class="page" id="page-pokemon">
+        <div class="section-header">
+          <div class="section-title">🐾 精灵图鉴管理</div>
+          <button class="btn btn-primary" onclick="showModal('pokemon-modal')">+ 新增精灵</button>
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+          <select class="form-input" style="width:140px" id="filter-type" onchange="filterPokemon()">
+            <option value="">全部属性</option>
+            <option value="FIRE">🔥 火</option><option value="WATER">💧 水</option>
+            <option value="GRASS">🌿 草</option><option value="ELECTRIC">⚡ 电</option>
+            <option value="PSYCHIC">🔮 超能力</option><option value="GHOST">👻 幽灵</option>
+          </select>
+          <select class="form-input" style="width:140px" id="filter-rarity" onchange="filterPokemon()">
+            <option value="">全部稀有度</option>
+            <option value="COMMON">普通</option><option value="UNCOMMON">少见</option>
+            <option value="RARE">稀有</option><option value="EPIC">史诗</option>
+            <option value="LEGENDARY">传说</option>
+          </select>
+        </div>
+        <div id="pokemon-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px"></div>
+      </div>
+
+      <!-- ── Gyms Page ───────────────────────────────────── -->
+      <div class="page" id="page-gyms">
+        <div class="section-header">
+          <div class="section-title">🏟 道馆管理</div>
+          <button class="btn btn-primary" onclick="showModal('gym-modal')">+ 添加道馆</button>
+        </div>
+        <div class="cards-grid" style="grid-template-columns:repeat(3,1fr)">
+          <div class="card">
+            <div class="card-label">总道馆数</div>
+            <div class="card-value" style="font-size:24px">1,247</div>
+          </div>
+          <div class="card">
+            <div class="card-label" style="color:#e63946">勇气队占领</div>
+            <div class="card-value" style="font-size:24px;color:#e63946">473</div>
+          </div>
+          <div class="card">
+            <div class="card-label" style="color:#3d8ef8">神秘队占领</div>
+            <div class="card-value" style="font-size:24px;color:#3d8ef8">524</div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>道馆名称</th><th>坐标</th><th>控制队伍</th><th>守卫数</th><th>当前 Raid</th><th>操作</th>
+            </tr></thead>
+            <tbody id="gyms-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── Monitor Page ────────────────────────────────── -->
+      <div class="page" id="page-monitor">
+        <div class="section-header"><div class="section-title">📡 系统监控</div></div>
+        <div class="cards-grid" id="service-cards"></div>
+        <div class="grid-2">
+          <div class="chart-card">
+            <div class="chart-title">🔴 错误率趋势 (5xx/min)</div>
+            <div class="chart-area"><div class="chart-bar-row" id="err-chart"></div></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">⚡ API QPS</div>
+            <div style="padding-top:12px">
+              <div id="qps-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Config Page ─────────────────────────────────── -->
+      <div class="page" id="page-config">
+        <div class="section-header"><div class="section-title">⚙️ 系统配置</div></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div class="chart-card">
+            <div class="chart-title">🎮 游戏参数</div>
+            <div id="game-config"></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">⚠️ 反作弊阈值</div>
+            <div id="anticheat-config"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Other pages placeholder -->
+      <div class="page" id="page-reports">
+        <div class="section-header"><div class="section-title">🚨 举报处理</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>举报编号</th><th>类型</th><th>被举报用户</th><th>举报人</th><th>描述</th><th>时间</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody id="reports-body"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="page" id="page-raids"><div class="section-header"><div class="section-title">⚔️ 突破活动</div></div><div class="table-wrap"><table><thead><tr><th>Raid ID</th><th>道馆</th><th>Boss</th><th>等级</th><th>状态</th><th>参与人数</th><th>结束时间</th></tr></thead><tbody id="raids-body"></tbody></table></div></div>
+      <div class="page" id="page-events"><div class="section-header"><div class="section-title">🎉 活动配置</div><button class="btn btn-primary" onclick="showModal('event-modal')">+ 新建活动</button></div><div id="events-list" style="display:grid;gap:12px"></div></div>
+      <div class="page" id="page-payments"><div class="section-header"><div class="section-title">💰 支付订单</div></div><div class="table-wrap"><table><thead><tr><th>订单号</th><th>用户</th><th>商品</th><th>金额</th><th>渠道</th><th>状态</th><th>时间</th></tr></thead><tbody id="payments-body"></tbody></table></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modals -->
+<div class="overlay" id="ban-modal" onclick="closeModal(event,'ban-modal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">封禁用户</div>
+    <div class="form-field"><label class="form-label">用户 ID</label><input class="form-input" placeholder="输入用户 ID"></div>
+    <div class="form-field"><label class="form-label">封禁原因</label>
+      <select class="form-input">
+        <option>GPS 作弊 / 虚拟位置</option><option>使用外挂脚本</option>
+        <option>支付欺诈</option><option>不当言论</option><option>其他</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label class="form-label">封禁时长</label>
+        <select class="form-input"><option>1天</option><option>7天</option><option>30天</option><option>永久</option></select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal(event,'ban-modal')">取消</button>
+      <button class="btn btn-danger" onclick="submitBan()">确认封禁</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="pokemon-modal" onclick="closeModal(event,'pokemon-modal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">新增 / 编辑精灵</div>
+    <div class="form-row">
+      <div class="form-field"><label class="form-label">编号</label><input class="form-input" type="number" placeholder="152"></div>
+      <div class="form-field"><label class="form-label">中文名</label><input class="form-input" placeholder="菊草叶"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label class="form-label">属性1</label>
+        <select class="form-input"><option>GRASS</option><option>FIRE</option><option>WATER</option></select>
+      </div>
+      <div class="form-field"><label class="form-label">稀有度</label>
+        <select class="form-input"><option>COMMON</option><option>UNCOMMON</option><option>RARE</option><option>EPIC</option><option>LEGENDARY</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label class="form-label">基础攻击</label><input class="form-input" type="number" placeholder="92"></div>
+      <div class="form-field"><label class="form-label">基础防御</label><input class="form-input" type="number" placeholder="122"></div>
+      <div class="form-field"><label class="form-label">基础 HP</label><input class="form-input" type="number" placeholder="90"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal(event,'pokemon-modal')">取消</button>
+      <button class="btn btn-primary" onclick="toast('✅ 精灵数据已保存','success');closeModal(event,'pokemon-modal')">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── Navigation ────────────────────────────────────────────────
+const PAGE_TITLES = {
+  dashboard:'数据概览', users:'用户管理', reports:'举报处理',
+  pokemon:'精灵管理', gyms:'道馆管理', raids:'突破活动',
+  events:'活动配置', payments:'支付订单', monitor:'系统监控', config:'系统配置',
+};
+function navigate(el, page) {
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  document.getElementById('page-title').textContent = PAGE_TITLES[page] || page;
+  renderPage(page);
+}
+
+// ── Mock Data ─────────────────────────────────────────────────
+const POKEMON_DATA = [
+  {id:1,name:'妙蛙种子',type1:'GRASS',type2:'POISON',rarity:'UNCOMMON',atk:118,def:111,hp:128},
+  {id:4,name:'小火龙',type1:'FIRE',type2:null,rarity:'UNCOMMON',atk:116,def:93,hp:118},
+  {id:7,name:'杰尼龟',type1:'WATER',type2:null,rarity:'UNCOMMON',atk:94,def:121,hp:127},
+  {id:25,name:'皮卡丘',type1:'ELECTRIC',type2:null,rarity:'RARE',atk:112,def:96,hp:111},
+  {id:39,name:'胖丁',type1:'NORMAL',type2:'FAIRY',rarity:'COMMON',atk:80,def:41,hp:251},
+  {id:94,name:'耿鬼',type1:'GHOST',type2:'POISON',rarity:'RARE',atk:261,def:149,hp:155},
+  {id:131,name:'巨拉多',type1:'WATER',type2:'ICE',rarity:'EPIC',atk:165,def:174,hp:277},
+  {id:143,name:'卡比兽',type1:'NORMAL',type2:null,rarity:'EPIC',atk:190,def:169,hp:330},
+  {id:144,name:'急冻鸟',type1:'ICE',type2:'FLYING',rarity:'LEGENDARY',atk:192,def:236,hp:207},
+  {id:150,name:'超梦',type1:'PSYCHIC',type2:null,rarity:'LEGENDARY',atk:300,def:182,hp:214},
+];
+
+const USERS_DATA = Array.from({length:20},(_,i)=>({
+  id:`uid-${1000+i}`, nickname:`训练师${String.fromCharCode(65+i)}`,
+  level: 5+Math.floor(Math.random()*45), team: ['VALOR','MYSTIC','INSTINCT'][i%3],
+  pokemon: 20+Math.floor(Math.random()*200), pokedex: Math.floor(Math.random()*100),
+  created: `2025-0${1+i%5}-${10+i%20}`, banned: i===7,
+}));
+
+const TYPE_EMOJI = {FIRE:'🔥',WATER:'💧',GRASS:'🌿',ELECTRIC:'⚡',PSYCHIC:'🔮',GHOST:'👻',
+  NORMAL:'⬜',POISON:'💜',ROCK:'🪨',GROUND:'🟤',FLYING:'🪶',BUG:'🐛',
+  ICE:'❄️',FIGHTING:'🥊',DRAGON:'🐉',DARK:'🌑',STEEL:'⚙️',FAIRY:'🌸'};
+
+// ── Render functions ─────────────────────────────────────────
+function renderPage(page) {
+  if (page==='dashboard') renderDashboard();
+  else if (page==='users') renderUsers();
+  else if (page==='pokemon') renderPokemon();
+  else if (page==='gyms') renderGyms();
+  else if (page==='monitor') renderMonitor();
+  else if (page==='config') renderConfig();
+  else if (page==='raids') renderRaids();
+  else if (page==='reports') renderReports();
+  else if (page==='payments') renderPayments();
+  else if (page==='events') renderEvents();
+}
+
+function renderDashboard() {
+  // DAU chart
+  const vals=[98000,103000,112000,108000,115000,121000,119000,124000,122000,127000,125000,128000,130000,128456];
+  const max = Math.max(...vals);
+  const chart = document.getElementById('dau-chart');
+  const labels = document.getElementById('dau-labels');
+  chart.innerHTML = vals.map((v,i)=>`
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center">
+      <div style="flex:1;display:flex;align-items:flex-end;width:100%">
+        <div class="chart-bar" style="width:100%;height:${Math.round(v/max*100)}%;background:${i===vals.length-1?'var(--c-blue)':'rgba(61,142,248,.4)'}"></div>
+      </div>
+    </div>`).join('');
+  labels.innerHTML = vals.map((_,i)=>`<div style="flex:1;text-align:center;font-size:9px;color:var(--c-muted);font-family:var(--font-mono)">${i===vals.length-1?'今日':''}</div>`).join('');
+
+  // Activity table
+  refreshActivity();
+}
+
+function refreshActivity() {
+  const pokemon=['皮卡丘','小火龙','杰尼龟','妙蛙种子','胖丁','耿鬼','皮卡丘','巨拉多'];
+  const cities=['上海·外滩','北京·天安门','广州·珠江','深圳·南山','杭州·西湖'];
+  const body = document.getElementById('activity-body');
+  body.innerHTML = Array.from({length:8},(_,i)=>{
+    const p=pokemon[Math.floor(Math.random()*pokemon.length)];
+    return `<tr>
+      <td style="font-family:var(--font-mono);font-size:12px;color:var(--c-muted)">${new Date(Date.now()-i*47000).toLocaleTimeString('zh',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</td>
+      <td>训练师${String.fromCharCode(65+Math.floor(Math.random()*26))}</td>
+      <td>${p}</td>
+      <td style="font-family:var(--font-mono)">${200+Math.floor(Math.random()*1800)}</td>
+      <td><span class="badge badge-rare">${Math.random()>0.7?'EXCELLENT':'GREAT'}</span></td>
+      <td style="font-size:12px;color:var(--c-muted)">${cities[Math.floor(Math.random()*cities.length)]}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderUsers() {
+  const body=document.getElementById('users-body');
+  body.innerHTML=USERS_DATA.map(u=>`<tr>
+    <td style="font-family:var(--font-mono);font-size:11px;color:var(--c-muted)">${u.id}</td>
+    <td style="font-weight:700">${u.nickname}</td>
+    <td><span style="font-family:var(--font-mono)">Lv.${u.level}</span></td>
+    <td><span class="badge badge-${u.team.toLowerCase()}">${{VALOR:'⚔️ 勇气',MYSTIC:'🔵 神秘',INSTINCT:'⚡ 本能'}[u.team]}</span></td>
+    <td style="font-family:var(--font-mono)">${u.pokemon}</td>
+    <td>${u.pokedex}%</td>
+    <td style="font-size:12px;color:var(--c-muted)">${u.created}</td>
+    <td><span class="badge ${u.banned?'badge-banned':'badge-online'}">${u.banned?'🚫 封禁':'● 正常'}</span></td>
+    <td><button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="toast('查看用户 ${u.nickname}','success')">详情</button>${u.banned?'':` <button class="btn btn-danger" style="padding:4px 10px;font-size:12px" onclick="showModal('ban-modal')">封禁</button>`}</td>
+  </tr>`).join('');
+}
+
+function renderPokemon() {
+  const grid=document.getElementById('pokemon-grid');
+  grid.innerHTML=POKEMON_DATA.map(p=>`
+    <div class="card" style="cursor:pointer;transition:transform .15s" onmouseenter="this.style.transform='scale(1.02)'" onmouseleave="this.style.transform=''" onclick="toast('编辑精灵：${p.name}','success')">
+      <div style="text-align:center;padding:8px 0 4px">
+        <div style="font-size:36px">${TYPE_EMOJI[p.type1]||'⬜'}</div>
+        <div style="font-size:11px;color:var(--c-muted);font-family:var(--font-mono)">#${String(p.id).padStart(3,'0')}</div>
+      </div>
+      <div style="font-weight:800;font-size:14px;text-align:center;margin:4px 0 8px">${p.name}</div>
+      <div style="display:flex;gap:4px;justify-content:center;margin-bottom:10px">
+        <span class="badge badge-${p.rarity.toLowerCase()}">${p.rarity}</span>
+        ${p.type2?`<span class="badge badge-uncommon">${TYPE_EMOJI[p.type2]}</span>`:''}
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;font-family:var(--font-mono);font-size:11px">
+        <div style="text-align:center"><div style="color:var(--c-muted);font-size:9px">ATK</div>${p.atk}</div>
+        <div style="text-align:center"><div style="color:var(--c-muted);font-size:9px">DEF</div>${p.def}</div>
+        <div style="text-align:center"><div style="color:var(--c-muted);font-size:9px">HP</div>${p.hp}</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderGyms() {
+  const gyms=[
+    {name:'外滩道馆',lat:'31.2400',lng:'121.4900',team:'VALOR',defenders:4,raid:'无'},
+    {name:'陆家嘴道馆',lat:'31.2395',lng:'121.5010',team:'MYSTIC',defenders:6,raid:'⭐⭐⭐ 进行中'},
+    {name:'人民广场道馆',lat:'31.2310',lng:'121.4740',team:null,defenders:0,raid:'无'},
+    {name:'豫园道馆',lat:'31.2269',lng:'121.4918',team:'INSTINCT',defenders:3,raid:'无'},
+  ];
+  document.getElementById('gyms-body').innerHTML=gyms.map(g=>`<tr>
+    <td style="font-weight:700">${g.name}</td>
+    <td style="font-family:var(--font-mono);font-size:12px;color:var(--c-muted)">${g.lat}, ${g.lng}</td>
+    <td>${g.team?`<span class="badge badge-${g.team.toLowerCase()}">${g.team}</span>`:'<span style="color:var(--c-muted)">空置</span>'}</td>
+    <td style="font-family:var(--font-mono)">${g.defenders}/6</td>
+    <td>${g.raid==='无'?`<span style="color:var(--c-muted)">—</span>`:`<span class="badge badge-epic">${g.raid}</span>`}</td>
+    <td><button class="btn btn-ghost" style="padding:4px 10px;font-size:12px" onclick="toast('查看道馆详情','success')">详情</button></td>
+  </tr>`).join('');
+}
+
+function renderMonitor() {
+  const services=[
+    {name:'api-gateway',port:8080,status:'up',cpu:12,mem:210,rps:8420},
+    {name:'user-service',port:8081,status:'up',cpu:8,mem:180,rps:1240},
+    {name:'location-service',port:8082,status:'up',cpu:45,mem:320,rps:12800},
+    {name:'pokemon-service',port:8083,status:'up',cpu:15,mem:240,rps:3200},
+    {name:'catch-service',port:8084,status:'up',cpu:38,mem:290,rps:9800},
+    {name:'gym-service',port:8085,status:'up',cpu:22,mem:260,rps:2100},
+    {name:'social-service',port:8086,status:'up',cpu:5,mem:160,rps:480},
+    {name:'payment-service',port:8088,status:'up',cpu:4,mem:150,rps:120},
+  ];
+  document.getElementById('service-cards').innerHTML=services.map(s=>`
+    <div class="card">
+      <div class="card-header">
+        <div style="font-size:12px;font-weight:700;font-family:var(--font-mono)">${s.name}</div>
+        <span class="badge ${s.status==='up'?'badge-online':'badge-banned'}"><span class="dot ${s.status==='up'?'dot-green':'dot-red'}"></span>${s.status==='up'?'UP':'DOWN'}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px">
+        <div><div style="font-size:10px;color:var(--c-muted)">CPU</div><div style="font-family:var(--font-mono);font-size:14px;font-weight:700;color:${s.cpu>70?'var(--c-red)':s.cpu>50?'var(--c-yellow)':'var(--c-green)'}">${s.cpu}%</div></div>
+        <div><div style="font-size:10px;color:var(--c-muted)">MEM</div><div style="font-family:var(--font-mono);font-size:14px;font-weight:700">${s.mem}M</div></div>
+        <div><div style="font-size:10px;color:var(--c-muted)">RPS</div><div style="font-family:var(--font-mono);font-size:14px;font-weight:700">${(s.rps/1000).toFixed(1)}k</div></div>
+      </div>
+    </div>`).join('');
+
+  // Error rate chart
+  const errs=Array.from({length:20},()=>Math.floor(Math.random()*8));
+  const errChart=document.getElementById('err-chart');
+  const eMax=Math.max(...errs,1);
+  errChart.innerHTML=errs.map(v=>`<div style="flex:1;display:flex;align-items:flex-end">
+    <div style="width:100%;height:${Math.round(v/eMax*100)}%;background:${v>5?'var(--c-red)':'rgba(61,142,248,.5)'};border-radius:2px 2px 0 0"></div>
+  </div>`).join('');
+
+  document.getElementById('qps-list').innerHTML=services.map(s=>`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div style="font-size:12px;font-family:var(--font-mono);width:160px;color:var(--c-muted)">${s.name}</div>
+      <div style="flex:1;height:6px;background:var(--c-surface2);border-radius:3px;overflow:hidden">
+        <div style="width:${Math.min(100,s.rps/130)}%;height:100%;background:var(--c-blue);border-radius:3px"></div>
+      </div>
+      <div style="font-size:11px;font-family:var(--font-mono);width:50px;text-align:right">${s.rps}</div>
+    </div>`).join('');
+}
+
+function renderConfig() {
+  const gameParams=[
+    {key:'POKEMON_SPAWN_RADIUS',val:'500',unit:'米'},
+    {key:'CATCH_SESSION_TTL',val:'120',unit:'秒'},
+    {key:'POKESTOP_COOLDOWN',val:'300',unit:'秒'},
+    {key:'GYM_COIN_LIMIT',val:'50',unit:'金币/天'},
+    {key:'MAX_FRIEND_COUNT',val:'200',unit:'人'},
+    {key:'SHINY_BASE_RATE',val:'0.000244',unit:'概率'},
+  ];
+  document.getElementById('game-config').innerHTML=gameParams.map(c=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--c-border)">
+      <div style="font-size:12px;font-family:var(--font-mono);color:var(--c-muted)">${c.key}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <input class="form-input" style="width:100px;padding:4px 8px;font-size:12px;font-family:var(--font-mono)" value="${c.val}">
+        <span style="font-size:11px;color:var(--c-muted)">${c.unit}</span>
+      </div>
+    </div>`).join('') + `<button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="toast('✅ 配置已保存并生效','success')">保存配置</button>`;
+
+  const acParams=[
+    {key:'SPEED_WARN_KMH',val:'25',label:'速度警告阈值'},
+    {key:'SPEED_BAN_KMH',val:'50',label:'速度封禁阈值'},
+    {key:'MAX_CLICK_RATE_MS',val:'100',label:'最小点击间隔'},
+    {key:'MAX_API_RPM',val:'200',label:'API 每分钟限速'},
+  ];
+  document.getElementById('anticheat-config').innerHTML=acParams.map(c=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--c-border)">
+      <div><div style="font-size:13px;font-weight:600">${c.label}</div><div style="font-size:11px;font-family:var(--font-mono);color:var(--c-muted)">${c.key}</div></div>
+      <input class="form-input" style="width:80px;padding:4px 8px;font-size:12px;font-family:var(--font-mono)" value="${c.val}">
+    </div>`).join('') + `<button class="btn btn-primary" style="width:100%;margin-top:16px" onclick="toast('✅ 反作弊配置已更新','success')">保存</button>`;
+}
+
+function renderRaids(){
+  const bosses=['超梦','急冻鸟','闪电鸟','火焰鸟','巨拉多'];
+  document.getElementById('raids-body').innerHTML=Array.from({length:8},(_,i)=>{
+    const status=['ACTIVE','PENDING','COMPLETED'][i%3];
+    return `<tr>
+      <td style="font-family:var(--font-mono);font-size:11px;color:var(--c-muted)">RAID-${1000+i}</td>
+      <td>外滩道馆</td>
+      <td>${bosses[i%bosses.length]}</td>
+      <td>${'⭐'.repeat(1+i%5)}</td>
+      <td><span class="badge ${status==='ACTIVE'?'badge-online':status==='PENDING'?'badge-uncommon':'badge-common'}">${{ACTIVE:'进行中',PENDING:'等待中',COMPLETED:'已结束'}[status]}</span></td>
+      <td style="font-family:var(--font-mono)">${Math.floor(Math.random()*20)}/20</td>
+      <td style="font-size:12px;color:var(--c-muted)">${new Date(Date.now()+i*3600000).toLocaleTimeString('zh')}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderReports(){
+  const types=['GPS作弊','外挂脚本','不当言论','账号盗用'];
+  document.getElementById('reports-body').innerHTML=Array.from({length:7},(_,i)=>`<tr>
+    <td style="font-family:var(--font-mono);font-size:11px;color:var(--c-muted)">RPT-${100+i}</td>
+    <td><span class="badge badge-rare">${types[i%types.length]}</span></td>
+    <td>训练师${String.fromCharCode(65+i)}</td>
+    <td style="color:var(--c-muted)">匿名用户</td>
+    <td style="font-size:12px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">疑似使用虚拟 GPS 位置进行捕捉</td>
+    <td style="font-size:12px;color:var(--c-muted)">2025-05-${20+i}</td>
+    <td><span class="badge badge-uncommon">待处理</span></td>
+    <td style="display:flex;gap:6px">
+      <button class="btn btn-primary" style="padding:3px 8px;font-size:11px" onclick="toast('已处理举报 RPT-${100+i}','success')">处理</button>
+      <button class="btn btn-ghost" style="padding:3px 8px;font-size:11px">忽略</button>
+    </td>
+  </tr>`).join('');
+}
+
+function renderPayments(){
+  const channels=['WECHAT','ALIPAY'];
+  const products=['60精币','300精币','600精币','1200精币'];
+  document.getElementById('payments-body').innerHTML=Array.from({length:10},(_,i)=>`<tr>
+    <td style="font-family:var(--font-mono);font-size:11px;color:var(--c-muted)">ORD-${10000+i}</td>
+    <td>训练师${String.fromCharCode(65+i)}</td>
+    <td>${products[i%products.length]}</td>
+    <td style="font-family:var(--font-mono)">¥${[6,30,58,98][i%4]}.00</td>
+    <td><span class="badge badge-${channels[i%2]==='WECHAT'?'uncommon':'rare'}">${channels[i%2]}</span></td>
+    <td><span class="badge ${i===3?'badge-banned':'badge-online'}">${i===3?'失败':'已支付'}</span></td>
+    <td style="font-size:12px;color:var(--c-muted)">2025-05-${15+i} 1${i}:${20+i}:00</td>
+  </tr>`).join('');
+}
+
+function renderEvents(){
+  const events=[
+    {name:'皮卡丘节',desc:'所有电系精灵出现率提升×3',start:'2025-06-01',end:'2025-06-07',active:true},
+    {name:'夏日水系活动',desc:'水系精灵大量出现，捕捉糖果×2',start:'2025-07-15',end:'2025-07-22',active:false},
+    {name:'传说突破周末',desc:'5星Raid传说精灵必然出现',start:'2025-06-14',end:'2025-06-16',active:false},
+  ];
+  document.getElementById('events-list').innerHTML=events.map(e=>`
+    <div class="chart-card" style="display:flex;align-items:center;gap:20px">
+      <div style="flex:1">
+        <div style="font-size:16px;font-weight:800;margin-bottom:4px">${e.name}</div>
+        <div style="font-size:13px;color:var(--c-muted);margin-bottom:8px">${e.desc}</div>
+        <div style="font-size:12px;font-family:var(--font-mono);color:var(--c-muted)">${e.start} → ${e.end}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+        <span class="badge ${e.active?'badge-online':'badge-common'}">${e.active?'● 进行中':'未开始'}</span>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px" onclick="toast('编辑活动配置','success')">编辑</button>
+          <button class="btn ${e.active?'btn-danger':'btn-primary'}" style="font-size:12px;padding:5px 12px" onclick="toast('${e.active?'已暂停':'已启动'}活动: ${e.name}','success')">${e.active?'暂停':'启动'}</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function filterUsers(){
+  const q=document.getElementById('user-search').value.toLowerCase();
+  document.querySelectorAll('#users-body tr').forEach(r=>{
+    r.style.display=r.textContent.toLowerCase().includes(q)?'':'none';
+  });
+}
+
+function filterPokemon(){
+  const type=document.getElementById('filter-type').value;
+  const rarity=document.getElementById('filter-rarity').value;
+  renderPokemon();
+}
+
+function setUserTab(el,tab){ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active')); el.classList.add('active'); }
+
+// ── Modal ─────────────────────────────────────────────────────
+function showModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(e,id){ document.getElementById(id).classList.remove('show'); }
+function submitBan(){ toast('✅ 用户已封禁','success'); closeModal({},'ban-modal'); }
+
+// ── Toast ─────────────────────────────────────────────────────
+let toastTimer;
+function toast(msg,type='success'){
+  const el=document.getElementById('toast');
+  el.textContent=(type==='success'?'✅ ':'❌ ')+msg;
+  el.className=`show ${type}`;
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+// ── Clock ─────────────────────────────────────────────────────
+function updateClock(){
+  document.getElementById('clock').textContent=new Date().toLocaleString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+setInterval(updateClock,1000); updateClock();
+
+// ── Animate counters ──────────────────────────────────────────
+function animateCounter(el,target,prefix='',suffix=''){
+  let start=0,step=Math.ceil(target/60);
+  const fmt=n=>prefix+(n>=1000?n.toLocaleString('zh-CN'):n)+suffix;
+  const timer=setInterval(()=>{
+    start=Math.min(start+step,target);
+    el.textContent=fmt(start);
+    if(start>=target) clearInterval(timer);
+  },16);
+}
+
+// Init
+renderDashboard();
+setTimeout(()=>{
+  animateCounter(document.getElementById('dau'),128456);
+  animateCounter(document.getElementById('catches'),2847392);
+  animateCounter(document.getElementById('revenue'),84230,'¥');
+  animateCounter(document.getElementById('raids-count'),347);
+},100);
+
+// Live updates (simulated)
+setInterval(()=>{
+  const dau=document.getElementById('dau');
+  if(dau) { const v=parseInt(dau.textContent.replace(/,/g,''))+Math.floor(Math.random()*20)-5; dau.textContent=v.toLocaleString('zh-CN'); }
+  refreshActivity();
+},5000);
+</script>
+</body>
+</html>

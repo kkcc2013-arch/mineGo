@@ -1,0 +1,239 @@
+version: '3.9'
+
+# Pocket Monster Go - Local Dev Environment
+# Usage: docker compose up -d
+
+services:
+
+  # ── Infrastructure ──────────────────────────────────────────
+  postgres:
+    image: postgis/postgis:15-3.4
+    container_name: pmg-postgres
+    environment:
+      POSTGRES_DB: pmg
+      POSTGRES_USER: pmg_user
+      POSTGRES_PASSWORD: pmg_dev_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/migrations:/docker-entrypoint-initdb.d/migrations
+      - ./database/seeds:/docker-entrypoint-initdb.d/seeds
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pmg_user -d pmg"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: pmg-redis
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  kafka:
+    image: bitnami/kafka:3.6
+    container_name: pmg-kafka
+    environment:
+      KAFKA_CFG_NODE_ID: 0
+      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      ALLOW_PLAINTEXT_LISTENER: 'yes'
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    ports:
+      - "9092:9092"
+    volumes:
+      - kafka_data:/bitnami/kafka
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics.sh --bootstrap-server localhost:9092 --list"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  # ── Services ────────────────────────────────────────────────
+  user-service:
+    build:
+      context: ./backend
+      dockerfile: ./services/user-service/Dockerfile
+    container_name: pmg-user-service
+    environment:
+      PORT: 8081
+      NODE_ENV: development
+      DATABASE_URL: postgres://pmg_user:pmg_dev_pass@postgres:5432/pmg
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_ACCESS_SECRET: dev-access-secret-change-in-prod
+      JWT_REFRESH_SECRET: dev-refresh-secret-change-in-prod
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis:    { condition: service_healthy }
+    restart: unless-stopped
+
+  location-service:
+    build:
+      context: ./backend
+      dockerfile: ./services/location-service/Dockerfile
+    container_name: pmg-location-service
+    environment:
+      PORT: 8082
+      NODE_ENV: development
+      DATABASE_URL: postgres://pmg_user:pmg_dev_pass@postgres:5432/pmg
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      JWT_ACCESS_SECRET: dev-access-secret-change-in-prod
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis:    { condition: service_healthy }
+    restart: unless-stopped
+
+  pokemon-service:
+    build:
+      context: ./backend
+      dockerfile: ./services/pokemon-service/Dockerfile
+    container_name: pmg-pokemon-service
+    environment:
+      PORT: 8083
+      NODE_ENV: development
+      DATABASE_URL: postgres://pmg_user:pmg_dev_pass@postgres:5432/pmg
+      REDIS_HOST: redis
+      JWT_ACCESS_SECRET: dev-access-secret-change-in-prod
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: unless-stopped
+
+  catch-service:
+    build:
+      context: ./backend
+      dockerfile: ./services/catch-service/Dockerfile
+    container_name: pmg-catch-service
+    environment:
+      PORT: 8084
+      NODE_ENV: development
+      DATABASE_URL: postgres://pmg_user:pmg_dev_pass@postgres:5432/pmg
+      REDIS_HOST: redis
+      JWT_ACCESS_SECRET: dev-access-secret-change-in-prod
+    ports:
+      - "8084:8084"
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis:    { condition: service_healthy }
+    restart: unless-stopped
+
+  gym-service:
+    build:
+      context: ./backend
+      dockerfile: ./services/gym-service/Dockerfile
+    container_name: pmg-gym-service
+    environment:
+      PORT: 8085
+      NODE_ENV: development
+      DATABASE_URL: postgres://pmg_user:pmg_dev_pass@postgres:5432/pmg
+      REDIS_HOST: redis
+      JWT_ACCESS_SECRET: dev-access-secret-change-in-prod
+    ports:
+      - "8085:8085"
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis:    { condition: service_healthy }
+    restart: unless-stopped
+
+  social-service:
+    build:
+      context: ./backend
+      dockerfile: ./services/social-service/Dockerfile
+    container_name: pmg-social-service
+    environment:
+      PORT: 8086
+      NODE_ENV: development
+      DATABASE_URL: postgres://pmg_user:pmg_dev_pass@postgres:5432/pmg
+      REDIS_HOST: redis
+      JWT_ACCESS_SECRET: dev-access-secret-change-in-prod
+    ports:
+      - "8086:8086"
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: unless-stopped
+
+  payment-service:
+    build:
+      context: ./backend
+      dockerfile: ./services/payment-service/Dockerfile
+    container_name: pmg-payment-service
+    environment:
+      PORT: 8088
+      NODE_ENV: development
+      DATABASE_URL: postgres://pmg_user:pmg_dev_pass@postgres:5432/pmg
+      JWT_ACCESS_SECRET: dev-access-secret-change-in-prod
+    ports:
+      - "8088:8088"
+    depends_on:
+      postgres: { condition: service_healthy }
+    restart: unless-stopped
+
+  api-gateway:
+    build:
+      context: ./backend
+      dockerfile: ./gateway/Dockerfile
+    container_name: pmg-gateway
+    environment:
+      PORT: 8080
+      NODE_ENV: development
+      USER_SERVICE_URL:     http://user-service:8081
+      LOCATION_SERVICE_URL: http://location-service:8082
+      POKEMON_SERVICE_URL:  http://pokemon-service:8083
+      CATCH_SERVICE_URL:    http://catch-service:8084
+      GYM_SERVICE_URL:      http://gym-service:8085
+      SOCIAL_SERVICE_URL:   http://social-service:8086
+      PAYMENT_SERVICE_URL:  http://payment-service:8088
+      JWT_ACCESS_SECRET: dev-access-secret-change-in-prod
+    ports:
+      - "8080:8080"
+    depends_on:
+      - user-service
+      - location-service
+      - pokemon-service
+      - catch-service
+      - gym-service
+      - social-service
+      - payment-service
+    restart: unless-stopped
+
+  # ── Admin Dashboard ─────────────────────────────────────────
+  admin-dashboard:
+    build:
+      context: ./frontend/admin-dashboard
+      dockerfile: Dockerfile
+    container_name: pmg-admin
+    environment:
+      VITE_API_BASE: http://localhost:8080/v1
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  kafka_data:
+
+networks:
+  default:
+    name: pmg-network

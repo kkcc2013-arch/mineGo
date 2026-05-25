@@ -1,0 +1,299 @@
+// pokemon-service/src/index.js
+'use strict';
+const express = require('express');
+const cors    = require('cors');
+const helmet  = require('helmet');
+const { query, transaction } = require('../../shared/db');
+const { requireAuth, AppError, successResp, errorHandler } = require('../../shared/auth');
+
+const app  = express();
+const PORT = process.env.PORT || 8083;
+app.use(helmet()); app.use(cors()); app.use(express.json());
+app.get('/health', (_, res) => res.json({ status:'ok', service:'pokemon-service' }));
+
+// ── GET /pokemon/species — master data list ──────────────────
+app.get('/pokemon/species', async (req, res, next) => {
+  try {
+    const { type1, rarity, limit = 50, offset = 0 } = req.query;
+    const conditions = ['1=1'];
+    const params = [];
+    if (type1)  { params.push(type1);   conditions.push(`type1=$${params.length}`); }
+    if (rarity) { params.push(rarity);  conditions.push(`rarity=$${params.length}`); }
+    params.push(parseInt(limit)); params.push(parseInt(offset));
+
+    const { rows } = await query(`
+      SELECT id, name_zh, name_en, type1, type2, rarity,
+             base_attack, base_defense, base_hp,
+             candy_to_evolve, evolves_to, sprite_url, description_zh
+      FROM pokemon_species
+      WHERE ${conditions.join(' AND ')}
+      ORDER BY id
+      LIMIT $${params.length-1} OFFSET $${params.length}
+    `, params);
+    res.json(successResp(rows));
+  } catch (err) { next(err); }
+});
+
+// ── GET /pokemon/species/:id ─────────────────────────────────
+app.get('/pokemon/species/:id', async (req, res, next) => {
+  try {
+    const { rows: [species] } = await query(
+      'SELECT * FROM pokemon_species WHERE id=$1', [req.params.id]
+    );
+    if (!species) throw new AppError(3001, '精灵不存在', 404);
+    res.json(successResp(species));
+  } catch (err) { next(err); }
+});
+
+// ── GET /pokemon/my  — player's pokemon list ─────────────────
+app.get('/pokemon/my', requireAuth, async (req, res, next) => {
+  try {
+    const { sort = 'cp', order = 'desc', species_id, is_shiny, limit = 30, offset = 0 } = req.query;
+    const userId = req.user.sub;
+
+    const validSorts = { cp:'pi.cp', iv:'(pi.iv_attack+pi.iv_defense+pi.iv_hp)', caught:'pi.caught_at' };
+    const sortCol    = validSorts[sort] || 'pi.cp';
+    const sortDir    = order === 'asc' ? 'ASC' : 'DESC';
+
+    const conditions = ['pi.user_id=$1'];
+    const params = [userId];
+    if (species_id) { params.push(species_id); conditions.push(`pi.species_id=$${params.length}`); }
+    if (is_shiny === 'true') conditions.push('pi.is_shiny=true');
+
+    params.push(parseInt(limit)); params.push(parseInt(offset));
+
+    const { rows } = await query(`
+      SELECT pi.id, pi.species_id, pi.nickname, pi.cp,
+             pi.hp_current, pi.hp_max,
+             pi.iv_attack, pi.iv_defense, pi.iv_hp,
+             ROUND((pi.iv_attack+pi.iv_defense+pi.iv_hp)*100.0/45, 1) AS iv_pct,
+             pi.is_shiny, pi.is_lucky, pi.is_favorite, pi.power_up_count,
+             pi.fast_move, pi.charge_move, pi.caught_at,
+             ps.name_zh, ps.name_en, ps.type1, ps.type2, ps.sprite_url,
+             ps.sprite_shiny_url, ps.rarity,
+             pi.defending_gym_id
+      FROM pokemon_instances pi
+      JOIN pokemon_species ps ON ps.id = pi.species_id
+      WHERE ${conditions.join(' AND ')}
+      ORDER BY ${sortCol} ${sortDir}
+      LIMIT $${params.length-1} OFFSET $${params.length}
+    `, params);
+
+    const { rows: [total] } = await query(
+      `SELECT COUNT(*)::int FROM pokemon_instances WHERE user_id=$1 ${species_id ? 'AND species_id=$2':''}`,
+      species_id ? [userId, species_id] : [userId]
+    );
+
+    res.json(successResp({ pokemon: rows, total: total.count, limit: parseInt(limit), offset: parseInt(offset) }));
+  } catch (err) { next(err); }
+});
+
+// ── GET /pokemon/my/:id ──────────────────────────────────────
+app.get('/pokemon/my/:id', requireAuth, async (req, res, next) => {
+  try {
+    const { rows: [pi] } = await query(`
+      SELECT pi.*, ps.name_zh, ps.name_en, ps.type1, ps.type2,
+             ps.sprite_url, ps.sprite_shiny_url, ps.description_zh,
+             ps.base_attack, ps.base_defense, ps.base_hp,
+             ps.candy_to_evolve, ps.evolves_to,
+             COALESCE(ci.amount,0) AS candy_count
+      FROM pokemon_instances pi
+      JOIN pokemon_species ps ON ps.id = pi.species_id
+      LEFT JOIN candy_inventory ci ON ci.user_id=pi.user_id AND ci.species_id=pi.species_id
+      WHERE pi.id=$1 AND pi.user_id=$2
+    `, [req.params.id, req.user.sub]);
+
+    if (!pi) throw new AppError(3001, '精灵不存在', 404);
+    res.json(successResp(pi));
+  } catch (err) { next(err); }
+});
+
+// ── POST /pokemon/my/:id/evolve ──────────────────────────────
+app.post('/pokemon/my/:id/evolve', requireAuth, async (req, res, next) => {
+  try {
+    const userId = req.user.sub;
+    const { rows: [pi] } = await query(`
+      SELECT pi.*, ps.candy_to_evolve, ps.evolves_to, ps.name_zh AS species_name,
+             COALESCE(ci.amount,0) AS candy_count
+      FROM pokemon_instances pi
+      JOIN pokemon_species ps ON ps.id = pi.species_id
+      LEFT JOIN candy_inventory ci ON ci.user_id=pi.user_id AND ci.species_id=pi.species_id
+      WHERE pi.id=$1 AND pi.user_id=$2
+    `, [req.params.id, userId]);
+
+    if (!pi) throw new AppError(3001, '精灵不存在', 404);
+    if (!pi.evolves_to) throw new AppError(3006, '该精灵无法进化', 400);
+    if (!pi.candy_to_evolve) throw new AppError(3006, '该精灵无法进化', 400);
+    if (pi.candy_count < pi.candy_to_evolve) {
+      throw new AppError(3007, `糖果不足（需要 ${pi.candy_to_evolve} 个，当前 ${pi.candy_count} 个）`, 400);
+    }
+
+    // Get new species stats
+    const { rows: [newSpecies] } = await query(
+      'SELECT * FROM pokemon_species WHERE id=$1', [pi.evolves_to]
+    );
+
+    // Recalculate CP with new base stats
+    const newCp = Math.max(10, Math.floor(
+      ((newSpecies.base_attack + pi.iv_attack) *
+       Math.sqrt(newSpecies.base_defense + pi.iv_defense) *
+       Math.sqrt(newSpecies.base_hp + pi.iv_hp)) / 10
+    ));
+
+    const newInstance = await transaction(async (client) => {
+      // Evolve: update species + CP
+      await client.query(`
+        UPDATE pokemon_instances SET species_id=$1, cp=$2, hp_max=$3, hp_current=$3
+        WHERE id=$4
+      `, [pi.evolves_to, newCp, Math.floor(newCp * 0.8), pi.id]);
+
+      // Deduct candy
+      await client.query(`
+        UPDATE candy_inventory SET amount=amount-$1 WHERE user_id=$2 AND species_id=$3
+      `, [pi.candy_to_evolve, userId, pi.species_id]);
+
+      // Award XP for evolving
+      await client.query('UPDATE users SET xp=xp+500 WHERE id=$1', [userId]);
+
+      return { id: pi.id, newSpeciesId: pi.evolves_to, newSpeciesName: newSpecies.name_zh, newCp };
+    });
+
+    res.json(successResp({ ...newInstance, xpEarned: 500 }, '进化成功！'));
+  } catch (err) { next(err); }
+});
+
+// ── POST /pokemon/my/:id/power-up ────────────────────────────
+app.post('/pokemon/my/:id/power-up', requireAuth, async (req, res, next) => {
+  try {
+    const userId = req.user.sub;
+    const { rows: [pi] } = await query(`
+      SELECT pi.*, ps.base_attack, ps.base_defense, ps.base_hp,
+             COALESCE(ci.amount,0) AS candy_count,
+             u.stardust
+      FROM pokemon_instances pi
+      JOIN pokemon_species ps ON ps.id=pi.species_id
+      LEFT JOIN candy_inventory ci ON ci.user_id=pi.user_id AND ci.species_id=pi.species_id
+      JOIN users u ON u.id=pi.user_id
+      WHERE pi.id=$1 AND pi.user_id=$2
+    `, [req.params.id, userId]);
+
+    if (!pi) throw new AppError(3001, '精灵不存在', 404);
+    if (pi.power_up_count >= 40) throw new AppError(3008, '已达到最大强化次数', 400);
+
+    // Cost: stardust increases with power_up_count
+    const stardustCost = 200 + pi.power_up_count * 50;
+    const candyCost    = 1;
+
+    if (pi.stardust < stardustCost) throw new AppError(3009, `星尘不足（需要 ${stardustCost}）`, 400);
+    if (pi.candy_count < candyCost) throw new AppError(3007, '糖果不足', 400);
+
+    // New CP (small increase ~2-3%)
+    const newCp = Math.floor(pi.cp * (1 + 0.02 + Math.random() * 0.01));
+
+    await transaction(async (client) => {
+      await client.query(`
+        UPDATE pokemon_instances SET cp=$1, power_up_count=power_up_count+1 WHERE id=$2
+      `, [newCp, pi.id]);
+      await client.query('UPDATE users SET stardust=stardust-$1 WHERE id=$2', [stardustCost, userId]);
+      await client.query(`
+        UPDATE candy_inventory SET amount=amount-$1 WHERE user_id=$2 AND species_id=$3
+      `, [candyCost, userId, pi.species_id]);
+    });
+
+    res.json(successResp({ newCp, stardustCost, powerUpCount: pi.power_up_count + 1 }, '强化成功！'));
+  } catch (err) { next(err); }
+});
+
+// ── GET /pokemon/pokedex ─────────────────────────────────────
+app.get('/pokemon/pokedex', requireAuth, async (req, res, next) => {
+  try {
+    const { rows } = await query(`
+      SELECT ps.id, ps.name_zh, ps.name_en, ps.type1, ps.type2,
+             ps.rarity, ps.sprite_url,
+             COALESCE(pe.seen_count, 0) AS seen_count,
+             COALESCE(pe.caught_count, 0) AS caught_count,
+             pe.first_caught_at, pe.best_cp, pe.has_shiny,
+             COALESCE(ci.amount, 0) AS candy_count
+      FROM pokemon_species ps
+      LEFT JOIN pokedex_entries pe ON pe.species_id=ps.id AND pe.user_id=$1
+      LEFT JOIN candy_inventory ci ON ci.species_id=ps.id AND ci.user_id=$1
+      ORDER BY ps.id
+    `, [req.user.sub]);
+
+    const total   = rows.length;
+    const caught  = rows.filter(r => r.caught_count > 0).length;
+    const pct     = Math.round(caught * 100 / total);
+
+    res.json(successResp({ entries: rows, total, caught, completionPct: pct }));
+  } catch (err) { next(err); }
+});
+
+// ── POST /pokestops/:id/spin ─────────────────────────────────
+app.post('/pokestops/:id/spin', requireAuth, async (req, res, next) => {
+  try {
+    const userId     = req.user.sub;
+    const pokestopId = req.params.id;
+
+    // Check cooldown (5 min)
+    const { rows: [lastSpin] } = await query(`
+      SELECT spun_at, streak_day FROM pokestop_spins
+      WHERE user_id=$1 AND pokestop_id=$2
+      ORDER BY spun_at DESC LIMIT 1
+    `, [userId, pokestopId]);
+
+    if (lastSpin) {
+      const cooldownSec = (Date.now() - new Date(lastSpin.spun_at).getTime()) / 1000;
+      if (cooldownSec < 300) {
+        throw new AppError(4010, `补给站冷却中，还需 ${Math.ceil(300 - cooldownSec)} 秒`, 400);
+      }
+    }
+
+    // Calculate streak
+    const sameDay = lastSpin && (Date.now() - new Date(lastSpin.spun_at).getTime()) < 86400000;
+    const streak  = sameDay ? (lastSpin.streak_day || 1) : 1;
+    const bonusDrop = streak >= 7;
+
+    // Generate drops
+    const items = generateStopDrop(bonusDrop);
+
+    // Apply to user
+    await transaction(async (client) => {
+      // Add pokeballs
+      const balls = items.filter(i => i.type === 'POKE_BALL').reduce((s,i)=>s+i.qty,0);
+      const gBalls = items.filter(i => i.type === 'GREAT_BALL').reduce((s,i)=>s+i.qty,0);
+      if (balls)  await client.query('UPDATE users SET pokeball_count=pokeball_count+$1 WHERE id=$2', [balls, userId]);
+      if (gBalls) await client.query('UPDATE users SET greatball_count=greatball_count+$1 WHERE id=$2', [gBalls, userId]);
+
+      await client.query(`
+        INSERT INTO pokestop_spins (user_id, pokestop_id, items_received, streak_day)
+        VALUES ($1,$2,$3,$4)
+      `, [userId, pokestopId, JSON.stringify(items), streak]);
+
+      // Achievement progress
+      await client.query(`
+        INSERT INTO user_achievements (user_id, achievement_id, current_value, updated_at)
+        VALUES ($1,'pokestop_spins',1,NOW())
+        ON CONFLICT (user_id,achievement_id) DO UPDATE
+          SET current_value=user_achievements.current_value+1, updated_at=NOW()
+      `, [userId]);
+    });
+
+    res.json(successResp({ items, streak, bonusDrop }));
+  } catch (err) { next(err); }
+});
+
+function generateStopDrop(bonus) {
+  const items = [];
+  const ballCount = 2 + Math.floor(Math.random() * 4) + (bonus ? 2 : 0);
+  items.push({ type: 'POKE_BALL', qty: ballCount });
+
+  if (Math.random() < 0.3) items.push({ type: 'RAZZ_BERRY', qty: 1 });
+  if (Math.random() < 0.1) items.push({ type: 'GREAT_BALL', qty: 1 });
+  if (bonus && Math.random() < 0.5) items.push({ type: 'GOLDEN_RAZZ_BERRY', qty: 1 });
+  if (bonus && Math.random() < 0.2) items.push({ type: 'ULTRA_BALL', qty: 1 });
+  return items;
+}
+
+app.use(errorHandler);
+app.listen(PORT, () => console.log(`[pokemon-service] listening on :${PORT}`));
+module.exports = app;

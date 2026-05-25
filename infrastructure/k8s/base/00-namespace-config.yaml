@@ -1,0 +1,49 @@
+# ============================================================
+# Pocket Monster Go — Kubernetes Base Configuration
+# kubectl apply -k infrastructure/k8s/base
+# ============================================================
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: pmg
+  labels:
+    app.kubernetes.io/name: pocket-monster-go
+    environment: production
+
+---
+# ── Shared ConfigMap ─────────────────────────────────────────
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pmg-config
+  namespace: pmg
+data:
+  NODE_ENV:               "production"
+  LOG_LEVEL:              "info"
+  DB_POOL_MAX:            "20"
+  POKEMON_SPAWN_RADIUS:   "500"
+  POKESTOP_COOLDOWN_SEC:  "300"
+  GYM_COIN_LIMIT_DAILY:   "50"
+  RAID_MAX_PARTICIPANTS:  "20"
+  JWT_ACCESS_TTL:         "24h"
+  JWT_REFRESH_TTL:        "30d"
+
+---
+# ── Secret template (fill with real values via CI/CD) ────────
+# In production: use External Secrets Operator + Alibaba KMS
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pmg-secrets
+  namespace: pmg
+type: Opaque
+stringData:
+  DATABASE_URL:        "postgres://pmg_user:CHANGE_ME@pmg-postgres:5432/pmg"
+  REDIS_HOST:          "pmg-redis"
+  REDIS_PASSWORD:      "CHANGE_ME"
+  JWT_ACCESS_SECRET:   "CHANGE_ME_STRONG_SECRET_MIN_32_CHARS"
+  JWT_REFRESH_SECRET:  "CHANGE_ME_STRONG_SECRET_MIN_32_CHARS"
+  MAPBOX_TOKEN:        "CHANGE_ME"
+  WEATHER_API_KEY:     "CHANGE_ME"
