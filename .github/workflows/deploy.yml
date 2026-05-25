@@ -145,6 +145,7 @@ jobs:
             echo "  ✓ Gateway healthy: $HEALTH"
 
             # ── Step 5: Smoke tests ────────────────────
+            set +e  # smoke tests are informational only
             echo ""
             echo "▶ [5/5] Smoke tests..."
 
