@@ -34,12 +34,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: npm
-          cache-dependency-path: backend/package-lock.json
+
+
 
       - name: Install dependencies
         working-directory: backend
-        run: npm ci --workspaces --if-present
+        run: npm install --workspaces --if-present
 
       - name: Run catch unit tests
         working-directory: backend
