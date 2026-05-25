@@ -164,6 +164,11 @@ fi
 echo "── [7/8] Installing npm dependencies..."
 cd "$DEPLOY_DIR/backend"
 
+# Create shared module symlinks (relative-path workaround)
+ln -sfn "$DEPLOY_DIR/backend/shared" "$DEPLOY_DIR/backend/services/shared"
+ln -sfn "$DEPLOY_DIR/backend/shared" "$DEPLOY_DIR/backend/gateway/shared"
+log "Shared module symlinks created"
+
 # Install shared module deps
 cd shared && npm install --omit=dev && cd ..
 log "Shared deps installed"
