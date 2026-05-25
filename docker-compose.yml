@@ -1,239 +1,306 @@
 version: '3.9'
 
-# Pocket Monster Go - Local Dev Environment
+# ============================================================
+# Pocket Monster Go — Production Docker Compose
+# Runs directly from source code (no Docker build required)
 # Usage: docker compose up -d
+# ============================================================
 
 services:
 
   # ── Infrastructure ──────────────────────────────────────────
   postgres:
-    image: postgis/postgis:15-3.4
+    image: postgis/postgis:15-3.4-alpine
     container_name: pmg-postgres
+    restart: unless-stopped
     environment:
-      POSTGRES_DB: pmg
-      POSTGRES_USER: pmg_user
-      POSTGRES_PASSWORD: pmg_dev_pass
-    ports:
-      - "5432:5432"
+      POSTGRES_DB:       ${POSTGRES_DB:-pmg}
+      POSTGRES_USER:     ${POSTGRES_USER:-pmg_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./database/migrations:/docker-entrypoint-initdb.d/migrations
-      - ./database/seeds:/docker-entrypoint-initdb.d/seeds
+      - ./database/migrations/V1__initial_schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+      - ./database/seeds/V2__seed_data.sql:/docker-entrypoint-initdb.d/02_seeds.sql:ro
+    networks:
+      - pmg-internal
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U pmg_user -d pmg"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pmg_user} -d ${POSTGRES_DB:-pmg}"]
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 15
+      start_period: 30s
 
   redis:
     image: redis:7-alpine
     container_name: pmg-redis
-    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
-    ports:
-      - "6379:6379"
+    restart: unless-stopped
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
+    networks:
+      - pmg-internal
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 5s
       timeout: 3s
-      retries: 5
+      retries: 10
 
-  kafka:
-    image: bitnami/kafka:3.6
-    container_name: pmg-kafka
-    environment:
-      KAFKA_CFG_NODE_ID: 0
-      KAFKA_CFG_PROCESS_ROLES: controller,broker
-      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
-      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      ALLOW_PLAINTEXT_LISTENER: 'yes'
-      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: 'true'
-    ports:
-      - "9092:9092"
-    volumes:
-      - kafka_data:/bitnami/kafka
-    healthcheck:
-      test: ["CMD-SHELL", "kafka-topics.sh --bootstrap-server localhost:9092 --list"]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-
-  # ── Services ────────────────────────────────────────────────
+  # ── Microservices (run from source via node:20-alpine) ──────
   user-service:
-    build:
-      context: ./backend
-      dockerfile: ./services/user-service/Dockerfile
+    image: node:20-alpine
     container_name: pmg-user-service
-    environment:
-      PORT: 8081
-      NODE_ENV: development
-      DATABASE_URL: postgres://pmg_user:pmg_dev_pass@postgres:5432/pmg
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      JWT_ACCESS_SECRET: dev-access-secret-change-in-prod
-      JWT_REFRESH_SECRET: dev-refresh-secret-change-in-prod
-    ports:
-      - "8081:8081"
-    depends_on:
-      postgres: { condition: service_healthy }
-      redis:    { condition: service_healthy }
     restart: unless-stopped
+    working_dir: /app
+    volumes: [./backend:/app]
+    command: sh -c "cd /app && npm install --prefix shared --omit=dev 2>/dev/null; cd /app/services/user-service && npm install --omit=dev && node src/index.js"
+    environment:
+      PORT: "8081"
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_HOST: redis
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+    networks: [pmg-internal]
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis:    {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   location-service:
-    build:
-      context: ./backend
-      dockerfile: ./services/location-service/Dockerfile
+    image: node:20-alpine
     container_name: pmg-location-service
-    environment:
-      PORT: 8082
-      NODE_ENV: development
-      DATABASE_URL: postgres://pmg_user:pmg_dev_pass@postgres:5432/pmg
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      JWT_ACCESS_SECRET: dev-access-secret-change-in-prod
-    ports:
-      - "8082:8082"
-    depends_on:
-      postgres: { condition: service_healthy }
-      redis:    { condition: service_healthy }
     restart: unless-stopped
+    working_dir: /app
+    volumes: [./backend:/app]
+    command: sh -c "cd /app/services/location-service && npm install --omit=dev && node src/index.js"
+    environment:
+      PORT: "8082"
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_HOST: redis
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+    networks: [pmg-internal]
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis:    {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8082/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   pokemon-service:
-    build:
-      context: ./backend
-      dockerfile: ./services/pokemon-service/Dockerfile
+    image: node:20-alpine
     container_name: pmg-pokemon-service
-    environment:
-      PORT: 8083
-      NODE_ENV: development
-      DATABASE_URL: postgres://pmg_user:pmg_dev_pass@postgres:5432/pmg
-      REDIS_HOST: redis
-      JWT_ACCESS_SECRET: dev-access-secret-change-in-prod
-    ports:
-      - "8083:8083"
-    depends_on:
-      postgres: { condition: service_healthy }
     restart: unless-stopped
+    working_dir: /app
+    volumes: [./backend:/app]
+    command: sh -c "cd /app/services/pokemon-service && npm install --omit=dev && node src/index.js"
+    environment:
+      PORT: "8083"
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_HOST: redis
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+    networks: [pmg-internal]
+    depends_on:
+      postgres: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8083/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   catch-service:
-    build:
-      context: ./backend
-      dockerfile: ./services/catch-service/Dockerfile
+    image: node:20-alpine
     container_name: pmg-catch-service
-    environment:
-      PORT: 8084
-      NODE_ENV: development
-      DATABASE_URL: postgres://pmg_user:pmg_dev_pass@postgres:5432/pmg
-      REDIS_HOST: redis
-      JWT_ACCESS_SECRET: dev-access-secret-change-in-prod
-    ports:
-      - "8084:8084"
-    depends_on:
-      postgres: { condition: service_healthy }
-      redis:    { condition: service_healthy }
     restart: unless-stopped
+    working_dir: /app
+    volumes: [./backend:/app]
+    command: sh -c "cd /app/services/catch-service && npm install --omit=dev && node src/index.js"
+    environment:
+      PORT: "8084"
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_HOST: redis
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+    networks: [pmg-internal]
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis:    {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8084/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   gym-service:
-    build:
-      context: ./backend
-      dockerfile: ./services/gym-service/Dockerfile
+    image: node:20-alpine
     container_name: pmg-gym-service
-    environment:
-      PORT: 8085
-      NODE_ENV: development
-      DATABASE_URL: postgres://pmg_user:pmg_dev_pass@postgres:5432/pmg
-      REDIS_HOST: redis
-      JWT_ACCESS_SECRET: dev-access-secret-change-in-prod
-    ports:
-      - "8085:8085"
-    depends_on:
-      postgres: { condition: service_healthy }
-      redis:    { condition: service_healthy }
     restart: unless-stopped
+    working_dir: /app
+    volumes: [./backend:/app]
+    command: sh -c "cd /app/services/gym-service && npm install --omit=dev && node src/index.js"
+    environment:
+      PORT: "8085"
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_HOST: redis
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+    networks: [pmg-internal]
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis:    {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8085/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   social-service:
-    build:
-      context: ./backend
-      dockerfile: ./services/social-service/Dockerfile
+    image: node:20-alpine
     container_name: pmg-social-service
-    environment:
-      PORT: 8086
-      NODE_ENV: development
-      DATABASE_URL: postgres://pmg_user:pmg_dev_pass@postgres:5432/pmg
-      REDIS_HOST: redis
-      JWT_ACCESS_SECRET: dev-access-secret-change-in-prod
-    ports:
-      - "8086:8086"
-    depends_on:
-      postgres: { condition: service_healthy }
     restart: unless-stopped
+    working_dir: /app
+    volumes: [./backend:/app]
+    command: sh -c "cd /app/services/social-service && npm install --omit=dev && node src/index.js"
+    environment:
+      PORT: "8086"
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+    networks: [pmg-internal]
+    depends_on:
+      postgres: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8086/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  reward-service:
+    image: node:20-alpine
+    container_name: pmg-reward-service
+    restart: unless-stopped
+    working_dir: /app
+    volumes: [./backend:/app]
+    command: sh -c "cd /app/services/reward-service && npm install --omit=dev && node src/index.js"
+    environment:
+      PORT: "8087"
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      REDIS_HOST: redis
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+    networks: [pmg-internal]
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis:    {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8087/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   payment-service:
-    build:
-      context: ./backend
-      dockerfile: ./services/payment-service/Dockerfile
+    image: node:20-alpine
     container_name: pmg-payment-service
-    environment:
-      PORT: 8088
-      NODE_ENV: development
-      DATABASE_URL: postgres://pmg_user:pmg_dev_pass@postgres:5432/pmg
-      JWT_ACCESS_SECRET: dev-access-secret-change-in-prod
-    ports:
-      - "8088:8088"
-    depends_on:
-      postgres: { condition: service_healthy }
     restart: unless-stopped
-
-  api-gateway:
-    build:
-      context: ./backend
-      dockerfile: ./gateway/Dockerfile
-    container_name: pmg-gateway
+    working_dir: /app
+    volumes: [./backend:/app]
+    command: sh -c "cd /app/services/payment-service && npm install --omit=dev && node src/index.js"
     environment:
-      PORT: 8080
-      NODE_ENV: development
+      PORT: "8088"
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+    networks: [pmg-internal]
+    depends_on:
+      postgres: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8088/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  # ── API Gateway ───────────────────────────────────────────────
+  api-gateway:
+    image: node:20-alpine
+    container_name: pmg-gateway
+    restart: unless-stopped
+    working_dir: /app
+    volumes: [./backend:/app]
+    command: sh -c "cd /app/gateway && npm install --omit=dev && node src/index.js"
+    environment:
+      PORT: "8080"
+      NODE_ENV: production
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
       USER_SERVICE_URL:     http://user-service:8081
       LOCATION_SERVICE_URL: http://location-service:8082
       POKEMON_SERVICE_URL:  http://pokemon-service:8083
       CATCH_SERVICE_URL:    http://catch-service:8084
       GYM_SERVICE_URL:      http://gym-service:8085
       SOCIAL_SERVICE_URL:   http://social-service:8086
+      REWARD_SERVICE_URL:   http://reward-service:8087
       PAYMENT_SERVICE_URL:  http://payment-service:8088
-      JWT_ACCESS_SECRET: dev-access-secret-change-in-prod
     ports:
-      - "8080:8080"
+      - "${GATEWAY_PORT:-8080}:8080"
+    networks: [pmg-internal]
     depends_on:
-      - user-service
-      - location-service
-      - pokemon-service
-      - catch-service
-      - gym-service
-      - social-service
-      - payment-service
-    restart: unless-stopped
+      user-service:     {condition: service_healthy}
+      location-service: {condition: service_healthy}
+      catch-service:    {condition: service_healthy}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
 
-  # ── Admin Dashboard ─────────────────────────────────────────
+  # ── Admin Dashboard (nginx static) ────────────────────────────
   admin-dashboard:
-    build:
-      context: ./frontend/admin-dashboard
-      dockerfile: Dockerfile
+    image: nginx:alpine
     container_name: pmg-admin
-    environment:
-      VITE_API_BASE: http://localhost:8080/v1
-    ports:
-      - "3000:80"
-    depends_on:
-      - api-gateway
     restart: unless-stopped
+    volumes:
+      - ./frontend/admin-dashboard:/usr/share/nginx/html:ro
+    ports:
+      - "${ADMIN_PORT:-3000}:80"
+    networks: [pmg-internal]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:80 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
 volumes:
   postgres_data:
+    name: pmg_postgres_data
   redis_data:
-  kafka_data:
+    name: pmg_redis_data
 
 networks:
-  default:
-    name: pmg-network
+  pmg-internal:
+    name: pmg_network
+    driver: bridge

@@ -1,0 +1,124 @@
+name: Deploy to Server
+
+# ============================================================
+# Pocket Monster Go — Auto Deploy via SSH
+# Triggers on push to main → SSH to server → git pull → restart
+# ============================================================
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:      # allow manual trigger from GitHub UI
+
+jobs:
+
+  # ── Job 1: Run unit tests first ──────────────────────────────
+  test:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install test dependencies
+        run: npm install jsonwebtoken --prefix /tmp/test-deps
+
+      - name: Run catch tests
+        working-directory: backend
+        run: node tests/unit/catch.test.js
+
+      - name: Run auth tests
+        working-directory: backend
+        run: NODE_PATH=/tmp/test-deps/node_modules node tests/unit/auth.test.js
+
+      - name: Run spawn tests
+        working-directory: backend
+        run: node tests/unit/spawn.test.js
+
+  # ── Job 2: Deploy via SSH ────────────────────────────────────
+  deploy:
+    name: 🚀 Deploy to Server
+    needs: test
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:        ${{ secrets.SSH_HOST }}
+          port:        ${{ secrets.SSH_PORT }}
+          username:    ${{ secrets.SSH_USER }}
+          key:         ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            set -euo pipefail
+            DEPLOY_DIR="/data/mineGo"
+
+            echo "======================================"
+            echo "  PMG Deploy — $(date '+%Y-%m-%d %H:%M:%S')"
+            echo "======================================"
+
+            # ── Pull latest code ────────────────────
+            cd "$DEPLOY_DIR"
+            echo "[1/4] Pulling latest code..."
+            git fetch origin main
+            git reset --hard origin/main
+            echo "  Commit: $(git log -1 --format='%h %s')"
+
+            # ── Restart services ────────────────────
+            echo "[2/4] Restarting services..."
+            docker compose pull 2>/dev/null || true
+            docker compose up -d --remove-orphans
+
+            # ── Wait for gateway health ─────────────
+            echo "[3/4] Waiting for services to be healthy..."
+            MAX_WAIT=120
+            ELAPSED=0
+            until curl -sf http://localhost:8080/health > /dev/null 2>&1; do
+              if [ $ELAPSED -ge $MAX_WAIT ]; then
+                echo "  ❌ Gateway not healthy after ${MAX_WAIT}s"
+                docker compose logs --tail=30 api-gateway
+                exit 1
+              fi
+              sleep 5
+              ELAPSED=$((ELAPSED + 5))
+              echo "  Waiting... ${ELAPSED}s"
+            done
+            echo "  ✅ Gateway healthy!"
+
+            # ── Smoke tests ─────────────────────────
+            echo "[4/4] Running smoke tests..."
+
+            # Health endpoint
+            HEALTH=$(curl -sf http://localhost:8080/health)
+            echo "  Health: $HEALTH"
+
+            # Auth endpoint should return JSON
+            AUTH_RESP=$(curl -sf -X POST http://localhost:8080/v1/auth/sms-code \
+              -H "Content-Type: application/json" \
+              -d '{"phone":"13800138000","scene":"login"}' 2>&1 || echo "FAILED")
+            if echo "$AUTH_RESP" | grep -q '"code"'; then
+              echo "  ✅ Auth endpoint OK"
+            else
+              echo "  ⚠️  Auth endpoint response: $AUTH_RESP"
+            fi
+
+            echo ""
+            echo "======================================"
+            echo "  ✅ Deploy complete!"
+            echo "  API:   http://${{ secrets.SSH_HOST }}:8080"
+            echo "  Admin: http://${{ secrets.SSH_HOST }}:3000"
+            echo "======================================"
+            docker compose ps
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Deployment FAILED for commit ${{ github.sha }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Triggered by: ${{ github.actor }}"
