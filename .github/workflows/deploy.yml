@@ -1,53 +1,63 @@
 name: Deploy to Server
 
 # ============================================================
-# Pocket Monster Go — Auto Deploy via SSH
-# Triggers on push to main → SSH to server → git pull → restart
+# PMG — CI/CD via SSH + PM2 (No Docker)
+# Flow: Tests → SSH into server → git pull → npm install → pm2 reload
 # ============================================================
 
 on:
   push:
     branches: [main]
-  workflow_dispatch:      # allow manual trigger from GitHub UI
+  workflow_dispatch:
+    inputs:
+      force_reinstall:
+        description: 'Force npm reinstall'
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false   # never cancel a running deploy
 
 jobs:
 
-  # ── Job 1: Run unit tests first ──────────────────────────────
+  # ── Job 1: Unit Tests ────────────────────────────────────────
   test:
     name: 🧪 Unit Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
 
-      - name: Install test dependencies
+      - name: Install test deps
         run: npm install jsonwebtoken --prefix /tmp/test-deps
 
-      - name: Run catch tests
+      - name: catch.test.js
         working-directory: backend
         run: node tests/unit/catch.test.js
 
-      - name: Run auth tests
+      - name: auth.test.js
         working-directory: backend
         run: NODE_PATH=/tmp/test-deps/node_modules node tests/unit/auth.test.js
 
-      - name: Run spawn tests
+      - name: spawn.test.js
         working-directory: backend
         run: node tests/unit/spawn.test.js
 
-  # ── Job 2: Deploy via SSH ────────────────────────────────────
+  # ── Job 2: Deploy via SSH + PM2 ──────────────────────────────
   deploy:
-    name: 🚀 Deploy to Server
+    name: 🚀 Deploy (SSH + PM2)
     needs: test
     runs-on: ubuntu-latest
     environment: production
 
     steps:
-      - name: Deploy via SSH
+      - name: Fix SSH key permissions & deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
           host:        ${{ secrets.SSH_HOST }}
@@ -55,70 +65,125 @@ jobs:
           username:    ${{ secrets.SSH_USER }}
           key:         ${{ secrets.SSH_PRIVATE_KEY }}
           script_stop: true
+          command_timeout: 10m
           script: |
             set -euo pipefail
             DEPLOY_DIR="/data/mineGo"
+            FORCE_REINSTALL="${{ github.event.inputs.force_reinstall || 'false' }}"
+            COMMIT_SHA="${{ github.sha }}"
+            SHORT_SHA="${COMMIT_SHA:0:7}"
 
-            echo "======================================"
-            echo "  PMG Deploy — $(date '+%Y-%m-%d %H:%M:%S')"
-            echo "======================================"
+            echo "╔══════════════════════════════════════════╗"
+            echo "║  PMG Deploy — $(date '+%Y-%m-%d %H:%M:%S')    ║"
+            echo "║  Commit: $SHORT_SHA                      ║"
+            echo "╚══════════════════════════════════════════╝"
 
-            # ── Pull latest code ────────────────────
             cd "$DEPLOY_DIR"
-            echo "[1/4] Pulling latest code..."
+
+            # ── Step 1: Pull latest code ───────────────
+            echo ""
+            echo "▶ [1/5] Pulling latest code..."
             git fetch origin main
             git reset --hard origin/main
-            echo "  Commit: $(git log -1 --format='%h %s')"
+            echo "  ✓ At commit: $(git log -1 --format='%h %s')"
 
-            # ── Restart services ────────────────────
-            echo "[2/4] Restarting services..."
-            docker compose pull 2>/dev/null || true
-            docker compose up -d --remove-orphans
+            # ── Step 2: Install dependencies ──────────
+            echo ""
+            echo "▶ [2/5] Installing npm dependencies..."
+            cd backend
 
-            # ── Wait for gateway health ─────────────
-            echo "[3/4] Waiting for services to be healthy..."
-            MAX_WAIT=120
+            if [ "$FORCE_REINSTALL" = "true" ]; then
+              echo "  Force reinstall requested"
+              rm -rf shared/node_modules gateway/node_modules services/*/node_modules
+            fi
+
+            # Install shared
+            cd shared && npm install --omit=dev --prefer-offline 2>&1 | tail -2 && cd ..
+            echo "  ✓ shared"
+
+            # Install gateway
+            cd gateway && npm install --omit=dev --prefer-offline 2>&1 | tail -2 && cd ..
+            echo "  ✓ gateway"
+
+            # Install each service
+            for svc_dir in services/*/; do
+              svc=$(basename "$svc_dir")
+              cd "$svc_dir"
+              npm install --omit=dev --prefer-offline 2>&1 | tail -1
+              cd ../..
+              echo "  ✓ $svc"
+            done
+
+            cd "$DEPLOY_DIR"
+
+            # ── Step 3: Zero-downtime reload with PM2 ──
+            echo ""
+            echo "▶ [3/5] Reloading services with PM2..."
+            if pm2 list | grep -q "pmg-"; then
+              pm2 reload ecosystem.config.js --update-env
+              echo "  ✓ PM2 reload complete"
+            else
+              echo "  First deploy — starting services..."
+              pm2 start ecosystem.config.js
+              echo "  ✓ PM2 start complete"
+            fi
+            pm2 save
+
+            # ── Step 4: Health check ───────────────────
+            echo ""
+            echo "▶ [4/5] Health check..."
+            MAX_WAIT=90
             ELAPSED=0
             until curl -sf http://localhost:8080/health > /dev/null 2>&1; do
-              if [ $ELAPSED -ge $MAX_WAIT ]; then
-                echo "  ❌ Gateway not healthy after ${MAX_WAIT}s"
-                docker compose logs --tail=30 api-gateway
+              if [ "$ELAPSED" -ge "$MAX_WAIT" ]; then
+                echo "  ✗ Gateway not healthy after ${MAX_WAIT}s"
+                pm2 logs pmg-gateway --lines 20 --nostream
                 exit 1
               fi
-              sleep 5
-              ELAPSED=$((ELAPSED + 5))
+              sleep 5; ELAPSED=$((ELAPSED+5))
               echo "  Waiting... ${ELAPSED}s"
             done
-            echo "  ✅ Gateway healthy!"
-
-            # ── Smoke tests ─────────────────────────
-            echo "[4/4] Running smoke tests..."
-
-            # Health endpoint
             HEALTH=$(curl -sf http://localhost:8080/health)
-            echo "  Health: $HEALTH"
+            echo "  ✓ Gateway healthy: $HEALTH"
 
-            # Auth endpoint should return JSON
-            AUTH_RESP=$(curl -sf -X POST http://localhost:8080/v1/auth/sms-code \
+            # ── Step 5: Smoke tests ────────────────────
+            echo ""
+            echo "▶ [5/5] Smoke tests..."
+
+            # Test 1: Health all services
+            ALL_UP=true
+            for svc_port in 8081 8082 8083 8084 8085 8086 8087 8088; do
+              if curl -sf "http://localhost:${svc_port}/health" > /dev/null 2>&1; then
+                echo "  ✓ ":${svc_port}" OK"
+              else
+                echo "  ⚠ ":${svc_port}" not responding (may still be starting)"
+                ALL_UP=false
+              fi
+            done
+
+            # Test 2: Auth endpoint returns valid JSON
+            AUTH=$(curl -sf -X POST http://localhost:8080/v1/auth/sms-code \
               -H "Content-Type: application/json" \
-              -d '{"phone":"13800138000","scene":"login"}' 2>&1 || echo "FAILED")
-            if echo "$AUTH_RESP" | grep -q '"code"'; then
-              echo "  ✅ Auth endpoint OK"
+              -d '{"phone":"13800138000","scene":"login"}' 2>&1)
+            if echo "$AUTH" | grep -q '"code"'; then
+              echo "  ✓ Auth API OK"
             else
-              echo "  ⚠️  Auth endpoint response: $AUTH_RESP"
+              echo "  ⚠ Auth API: $AUTH"
+            fi
+
+            # Test 3: Pokemon species endpoint
+            SPECIES=$(curl -sf "http://localhost:8080/v1/pokemon/species?limit=1" 2>&1)
+            if echo "$SPECIES" | grep -q '"code"'; then
+              echo "  ✓ Pokemon API OK"
+            else
+              echo "  ⚠ Pokemon API: $SPECIES"
             fi
 
             echo ""
-            echo "======================================"
-            echo "  ✅ Deploy complete!"
-            echo "  API:   http://${{ secrets.SSH_HOST }}:8080"
-            echo "  Admin: http://${{ secrets.SSH_HOST }}:3000"
-            echo "======================================"
-            docker compose ps
+            echo "╔══════════════════════════════════════════╗"
+            echo "║  ✅ Deploy complete!                      ║"
+            echo "║  Commit: $SHORT_SHA                       ║"
+            echo "╚══════════════════════════════════════════╝"
+            echo ""
+            pm2 list --no-color | grep pmg
 
-      - name: Notify on failure
-        if: failure()
-        run: |
-          echo "❌ Deployment FAILED for commit ${{ github.sha }}"
-          echo "Branch: ${{ github.ref_name }}"
-          echo "Triggered by: ${{ github.actor }}"
