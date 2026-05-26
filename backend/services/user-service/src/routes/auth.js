@@ -67,8 +67,11 @@ router.post('/register', async (req, res, next) => {
   try {
     const { phone, smsCode, nickname, deviceId } = RegisterSchema.parse(req.body);
 
-    // Verify SMS code
-    await verifySmsCode(phone, smsCode, 'register');
+    // Accept 'register' or 'login' scene (frontend sends 'login' for unified auth flow)
+    await verifySmsCode(phone, smsCode, 'register').catch(async (e) => {
+      if (e.code === 1008) return verifySmsCode(phone, smsCode, 'login');
+      throw e;
+    });
 
     const result = await transaction(async (client) => {
       // Check phone uniqueness
@@ -109,8 +112,8 @@ router.post('/register', async (req, res, next) => {
 router.post('/login', async (req, res, next) => {
   try {
     const { phone, smsCode } = LoginSchema.parse(req.body);
-    await verifySmsCode(phone, smsCode, 'login');
 
+    // Check user exists BEFORE consuming the one-time code
     const { rows } = await query(
       'SELECT id, nickname, level, xp, team, is_banned, ban_reason FROM users WHERE phone = $1',
       [phone]
@@ -118,6 +121,8 @@ router.post('/login', async (req, res, next) => {
     if (rows.length === 0) throw new AppError(2003, '账号不存在，请先注册', 404);
     const user = rows[0];
     if (user.is_banned) throw new AppError(2004, `账号已封禁: ${user.ban_reason}`, 403);
+
+    await verifySmsCode(phone, smsCode, 'login');
 
     // Update last login
     await query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [user.id]);
