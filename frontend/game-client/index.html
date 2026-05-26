@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Pocket Monster Go</title>
+  <style>
+    :root{
+      --bg:#0d0f14;--surface:#13161e;--surface2:#1a1e28;--border:#252938;
+      --red:#e63946;--blue:#3d8ef8;--yellow:#f4c430;--green:#2ecc71;--purple:#9b59b6;
+      --text:#e8eaf0;--muted:#6b7280;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%;background:var(--bg);color:var(--text);
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;overflow:hidden}
+    .screen{display:none;position:fixed;inset:0;flex-direction:column}
+    .screen.active{display:flex}
+
+    /* ── Login ── */
+    #login{align-items:center;justify-content:center;padding:32px 24px;
+      background:linear-gradient(160deg,#0d0f14 0%,#13161e 60%,#0f1520 100%)}
+    .logo-wrap{text-align:center;margin-bottom:48px}
+    .logo-emoji{font-size:72px;display:block;margin-bottom:12px;
+      animation:bob 3s ease-in-out infinite}
+    @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    .logo-title{font-size:26px;font-weight:800;color:var(--blue);letter-spacing:-0.5px}
+    .logo-sub{font-size:13px;color:var(--muted);margin-top:4px}
+    .form-group{width:100%;max-width:340px;margin-bottom:14px}
+    .form-label{font-size:12px;color:var(--muted);margin-bottom:6px;display:block;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+    .form-input{width:100%;background:var(--surface);border:1.5px solid var(--border);
+      color:var(--text);padding:13px 16px;border-radius:12px;font-size:16px;outline:none;transition:.15s}
+    .form-input:focus{border-color:var(--blue);background:var(--surface2)}
+    .sms-row{display:flex;gap:0;width:100%;max-width:340px;margin-bottom:14px}
+    .sms-row .form-input{border-radius:12px 0 0 12px;border-right:none;flex:1}
+    .btn-sms{white-space:nowrap;background:var(--surface2);border:1.5px solid var(--border);
+      color:var(--muted);padding:0 16px;border-radius:0 12px 12px 0;cursor:pointer;
+      font-size:13px;font-weight:600;transition:.15s}
+    .btn-sms:disabled{opacity:.5}
+    .btn{padding:14px 20px;border-radius:12px;border:none;cursor:pointer;
+      font-size:15px;font-weight:700;transition:.15s}
+    .btn-primary{background:var(--blue);color:#fff;width:100%;max-width:340px}
+    .btn-primary:active{opacity:.85;transform:scale(.98)}
+    .btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--muted);width:100%}
+    .btn-outline:active{background:var(--surface)}
+
+    /* ── Map ── */
+    #map{padding-bottom:64px}
+    .topbar{background:var(--surface);border-bottom:1px solid var(--border);
+      padding:10px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+    .avatar-circle{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));
+      display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+    .user-info{flex:1;min-width:0}
+    .user-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .user-lvl{font-size:12px;color:var(--muted)}
+    .gps-badge{font-size:12px;color:var(--muted);white-space:nowrap}
+    .res-strip{display:flex;gap:16px;padding:8px 16px;background:var(--surface);
+      border-bottom:1px solid var(--border);flex-shrink:0}
+    .res{display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600}
+    .scroll-area{flex:1;overflow-y:auto;padding:14px 16px;-webkit-overflow-scrolling:touch}
+    .sec-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;
+      letter-spacing:.8px;margin-bottom:10px}
+    .card-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
+    .entity-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;
+      padding:12px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:.12s;
+      -webkit-tap-highlight-color:transparent}
+    .entity-card:active{opacity:.7;transform:scale(.99)}
+    .entity-icon{width:48px;height:48px;border-radius:10px;background:var(--bg);
+      display:flex;align-items:center;justify-content:center;font-size:30px;flex-shrink:0}
+    .entity-info{flex:1;min-width:0}
+    .entity-name{font-size:15px;font-weight:700}
+    .entity-meta{font-size:12px;color:var(--muted);margin-top:2px}
+    .entity-right{font-size:12px;color:var(--blue);font-weight:600;white-space:nowrap}
+    .empty-box{text-align:center;padding:48px 16px;color:var(--muted)}
+    .empty-icon{font-size:52px;margin-bottom:12px}
+    .empty-txt{font-size:14px}
+    .empty-hint{font-size:12px;margin-top:6px}
+    .refresh-btn{margin:16px auto 0;display:block;background:var(--surface);border:1.5px solid var(--border);
+      color:var(--muted);padding:10px 24px;border-radius:10px;font-size:13px;cursor:pointer}
+
+    /* ── Catch ── */
+    #catch{background:radial-gradient(ellipse at 50% 30%,#1a2a3a 0%,#0a0c10 70%);
+      align-items:center;justify-content:flex-start}
+    .catch-topbar{width:100%;padding:12px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0}
+    .back-btn{font-size:24px;cursor:pointer;color:var(--muted);line-height:1;padding:4px}
+    .catch-headline{font-size:16px;font-weight:700}
+    .wild-zone{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%}
+    .wild-emoji{font-size:110px;line-height:1;margin-bottom:6px;
+      animation:float 2.5s ease-in-out infinite}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+    .wild-name{font-size:22px;font-weight:800;letter-spacing:-.3px}
+    .wild-cp{font-size:14px;color:var(--yellow);font-weight:600;margin-top:4px}
+    .ring-indicator{margin-top:16px;font-size:13px;color:var(--muted)}
+    .ring-bar{width:160px;height:6px;background:var(--border);border-radius:3px;margin:6px auto 0;overflow:hidden}
+    .ring-fill{height:100%;border-radius:3px;transition:width .05s linear;background:var(--green)}
+    .catch-bottom{width:100%;padding:16px;display:flex;flex-direction:column;gap:10px;flex-shrink:0}
+    .ball-row{display:flex;gap:8px;justify-content:center}
+    .ball-chip{padding:8px 14px;border-radius:8px;border:1.5px solid var(--border);
+      background:var(--surface);cursor:pointer;font-size:13px;font-weight:600;transition:.12s;
+      -webkit-tap-highlight-color:transparent}
+    .ball-chip.sel{border-color:var(--blue);color:var(--blue);background:var(--surface2)}
+    .throw-btn{background:var(--blue);color:#fff;border:none;border-radius:14px;
+      padding:16px;font-size:16px;font-weight:700;cursor:pointer;width:100%;
+      transition:.12s;box-shadow:0 4px 20px rgba(61,142,248,.3)}
+    .throw-btn:active{transform:scale(.97);opacity:.9}
+    .throw-btn:disabled{opacity:.4;transform:none}
+
+    /* ── Profile ── */
+    #profile{padding-bottom:64px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+    .prof-hero{background:linear-gradient(160deg,var(--surface) 0%,var(--surface2) 100%);
+      padding:28px 16px 24px;text-align:center;border-bottom:1px solid var(--border)}
+    .prof-avatar{font-size:68px;line-height:1;margin-bottom:10px}
+    .prof-name{font-size:22px;font-weight:800;letter-spacing:-.3px}
+    .team-badge{display:inline-block;margin-top:6px;padding:3px 14px;border-radius:99px;
+      font-size:12px;font-weight:700;background:var(--blue);color:#fff}
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);
+      margin:16px;border-radius:14px;overflow:hidden}
+    .stat-cell{background:var(--surface);padding:18px;text-align:center}
+    .stat-val{font-size:24px;font-weight:800;color:var(--blue)}
+    .stat-lbl{font-size:12px;color:var(--muted);margin-top:3px}
+    .inv-card{margin:0 16px 16px;background:var(--surface);border:1px solid var(--border);
+      border-radius:14px;overflow:hidden}
+    .inv-header{padding:12px 16px;font-size:11px;font-weight:700;color:var(--muted);
+      border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.8px}
+    .inv-row{display:flex;align-items:center;padding:13px 16px;border-bottom:1px solid var(--border)}
+    .inv-row:last-child{border-bottom:none}
+    .inv-icon{font-size:22px;width:34px;flex-shrink:0}
+    .inv-name{flex:1;font-size:14px}
+    .inv-qty{font-size:15px;font-weight:700;color:var(--yellow)}
+    .logout-wrap{padding:0 16px 20px}
+
+    /* ── Bottom nav ── */
+    #nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);
+      border-top:1px solid var(--border);display:none;height:64px;
+      box-shadow:0 -4px 20px rgba(0,0,0,.4)}
+    #nav.show{display:flex}
+    .nav-tab{flex:1;display:flex;flex-direction:column;align-items:center;
+      justify-content:center;gap:3px;cursor:pointer;color:var(--muted);
+      font-size:11px;font-weight:600;transition:.12s;-webkit-tap-highlight-color:transparent}
+    .nav-tab.on{color:var(--blue)}
+    .nav-icon{font-size:22px}
+
+    /* ── Toasts ── */
+    #toasts{position:fixed;top:16px;left:12px;right:12px;z-index:9999;
+      display:flex;flex-direction:column;gap:8px;pointer-events:none}
+    .toast{background:var(--surface2);border:1px solid var(--border);border-radius:12px;
+      padding:11px 16px;font-size:14px;font-weight:500;
+      box-shadow:0 4px 24px rgba(0,0,0,.6);
+      animation:fadeIn .25s ease}
+    .toast.ok{border-color:var(--green)}
+    .toast.err{border-color:var(--red)}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ── Spinner ── */
+    .spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--blue);
+      border-radius:50%;animation:rot .8s linear infinite;margin:48px auto}
+    @keyframes rot{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+
+<!-- ── LOGIN ─────────────────────────────────────────────────── -->
+<div class="screen active" id="login">
+  <div class="logo-wrap">
+    <span class="logo-emoji">🎮</span>
+    <div class="logo-title">Pocket Monster Go</div>
+    <div class="logo-sub">GPS精灵捕捉手游 · 开启你的冒险</div>
+  </div>
+  <div class="form-group">
+    <label class="form-label">手机号</label>
+    <input id="inp-phone" class="form-input" type="tel" placeholder="请输入手机号" maxlength="11" inputmode="numeric">
+  </div>
+  <div class="sms-row">
+    <input id="inp-code" class="form-input" type="text" placeholder="验证码" maxlength="6" inputmode="numeric">
+    <button class="btn-sms" id="btn-sms" onclick="sendSms()">发送验证码</button>
+  </div>
+  <button class="btn btn-primary" onclick="doLogin()">登录 / 注册</button>
+</div>
+
+<!-- ── MAP ───────────────────────────────────────────────────── -->
+<div class="screen" id="map">
+  <div class="topbar">
+    <div class="avatar-circle">🧑</div>
+    <div class="user-info">
+      <div class="user-name" id="map-name">训练师</div>
+      <div class="user-lvl" id="map-lvl">Lv.1</div>
+    </div>
+    <div class="gps-badge" id="gps-badge">📍 定位中…</div>
+  </div>
+  <div class="res-strip">
+    <div class="res">🔴 <span id="r-ball">0</span></div>
+    <div class="res">💎 <span id="r-coin">0</span></div>
+    <div class="res">⭐ <span id="r-dust">0</span></div>
+  </div>
+  <div class="scroll-area" id="map-body"><div class="spin"></div></div>
+</div>
+
+<!-- ── CATCH ─────────────────────────────────────────────────── -->
+<div class="screen" id="catch">
+  <div class="catch-topbar">
+    <div class="back-btn" onclick="exitCatch()">←</div>
+    <div class="catch-headline" id="c-title">捕捉精灵</div>
+  </div>
+  <div class="wild-zone">
+    <div class="wild-emoji" id="c-icon">🐾</div>
+    <div class="wild-name" id="c-name"></div>
+    <div class="wild-cp" id="c-cp"></div>
+    <div class="ring-indicator">投球准确度</div>
+    <div class="ring-bar"><div class="ring-fill" id="ring-fill" style="width:100%"></div></div>
+  </div>
+  <div class="catch-bottom">
+    <div class="ball-row">
+      <div class="ball-chip sel" id="chip-poke" onclick="pickBall(this,'POKE_BALL')">🔴 普通球</div>
+      <div class="ball-chip" id="chip-great" onclick="pickBall(this,'GREAT_BALL')">🔵 超级球</div>
+      <div class="ball-chip" id="chip-ultra" onclick="pickBall(this,'ULTRA_BALL')">🟡 高级球</div>
+    </div>
+    <button class="throw-btn" id="throw-btn" onclick="doThrow()" disabled>准备中…</button>
+    <button class="btn btn-outline" onclick="exitCatch()">逃跑</button>
+  </div>
+</div>
+
+<!-- ── PROFILE ────────────────────────────────────────────────── -->
+<div class="screen" id="profile">
+  <div class="prof-hero">
+    <div class="prof-avatar">🧑</div>
+    <div class="prof-name" id="p-name">训练师</div>
+    <div class="team-badge" id="p-team">未选队伍</div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-cell"><div class="stat-val" id="p-lv">1</div><div class="stat-lbl">等级</div></div>
+    <div class="stat-cell"><div class="stat-val" id="p-xp">0</div><div class="stat-lbl">经验值</div></div>
+    <div class="stat-cell"><div class="stat-val" id="p-caught">0</div><div class="stat-lbl">已捕捉</div></div>
+    <div class="stat-cell"><div class="stat-val" id="p-km">0.0</div><div class="stat-lbl">走行 km</div></div>
+  </div>
+  <div class="inv-card">
+    <div class="inv-header">道具背包</div>
+    <div class="inv-row"><div class="inv-icon">🔴</div><div class="inv-name">精灵球</div><div class="inv-qty" id="i-ball">0</div></div>
+    <div class="inv-row"><div class="inv-icon">🔵</div><div class="inv-name">超级球</div><div class="inv-qty" id="i-great">0</div></div>
+    <div class="inv-row"><div class="inv-icon">🟡</div><div class="inv-name">高级球</div><div class="inv-qty" id="i-ultra">0</div></div>
+    <div class="inv-row"><div class="inv-icon">⭐</div><div class="inv-name">星尘</div><div class="inv-qty" id="i-dust">0</div></div>
+    <div class="inv-row"><div class="inv-icon">💎</div><div class="inv-name">精灵币</div><div class="inv-qty" id="i-coin">0</div></div>
+  </div>
+  <div class="logout-wrap">
+    <button class="btn btn-outline" onclick="doLogout()">退出登录</button>
+  </div>
+</div>
+
+<!-- ── NAV ───────────────────────────────────────────────────── -->
+<nav id="nav">
+  <div class="nav-tab on" id="tab-map" onclick="goScreen('map')">
+    <div class="nav-icon">🗺️</div><span>地图</span>
+  </div>
+  <div class="nav-tab" id="tab-profile" onclick="goScreen('profile')">
+    <div class="nav-icon">👤</div><span>我的</span>
+  </div>
+</nav>
+
+<!-- ── TOASTS ─────────────────────────────────────────────────── -->
+<div id="toasts"></div>
+
+<script>
+window.PMG_CONFIG = {
+  apiBase: location.origin + '/v1',
+  wsBase: (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + location.host
+};
+</script>
+<script type="module">
+import { api, ApiError } from './src/api/client.js';
+import { store }         from './src/game/GameStore.js';
+import { LocationManager } from './src/game/LocationManager.js';
+import { CatchEngine }   from './src/game/CatchEngine.js';
+
+// ── State ─────────────────────────────────────────────────────
+const locMgr   = new LocationManager(api);
+const catchEng = new CatchEngine(api);
+let curScreen  = 'login';
+let activeSpawn = null;
+let ringAnim   = null;
+let ringPct    = 100;
+let ringShrink = true;
+
+// ── Toast ─────────────────────────────────────────────────────
+function toast(msg, type = '') {
+  const box = document.getElementById('toasts');
+  const el  = Object.assign(document.createElement('div'), { className: `toast ${type}`, textContent: msg });
+  box.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+window.toast = toast;
+
+// ── Screens ────────────────────────────────────────────────────
+window.goScreen = function(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  ['map','profile'].forEach(t => document.getElementById('tab-'+t)?.classList.toggle('on', t === id));
+  curScreen = id;
+  if (id === 'map') loadMap();
+};
+
+window.exitCatch = function() {
+  if (catchEng.isBusy) catchEng.abandon();
+  stopRingAnim();
+  goScreen('map');
+};
+
+// ── SMS + Login ────────────────────────────────────────────────
+let smsCd = null;
+window.sendSms = async function() {
+  const phone = document.getElementById('inp-phone').value.trim();
+  if (!/^1[3-9]\d{9}$/.test(phone)) { toast('请输入正确的手机号', 'err'); return; }
+  const btn = document.getElementById('btn-sms');
+  btn.disabled = true;
+  try {
+    await api.sendSmsCode(phone, 'login');
+    toast('验证码已发送', 'ok');
+    let n = 60;
+    smsCd = setInterval(() => { btn.textContent = --n > 0 ? `${n}s` : '发送验证码'; if (!n) { clearInterval(smsCd); btn.disabled = false; } }, 1000);
+  } catch (e) { toast(e.message || '发送失败', 'err'); btn.disabled = false; }
+};
+
+window.doLogin = async function() {
+  const phone = document.getElementById('inp-phone').value.trim();
+  const code  = document.getElementById('inp-code').value.trim();
+  if (!phone || !code) { toast('请填写手机号和验证码', 'err'); return; }
+  try {
+    let user;
+    try { user = await api.login(phone, code); }
+    catch (e) {
+      if (e.code === 1001 || (e.message||'').includes('not found') || (e.message||'').includes('注册')) {
+        const nick = '训练师' + Math.floor(Math.random() * 9000 + 1000);
+        user = await api.register(phone, code, nick);
+      } else throw e;
+    }
+    afterLogin(user);
+  } catch (e) { toast(e.message || '登录失败', 'err'); }
+};
+
+function afterLogin(u) {
+  const user = u.user || u;
+  store.setUser(user);
+  syncUser(user);
+  document.getElementById('nav').classList.add('show');
+  goScreen('map');
+  locMgr.start();
+  loadInventory();
+}
+
+function syncUser(user) {
+  const name  = user.nickname || user.name || '训练师';
+  const lv    = user.level || 1;
+  const xp    = user.total_xp || user.xp || 0;
+  const teams = { red:'🔴 勇火队', blue:'🔵 神秘队', yellow:'🟡 本能队' };
+  setText('map-name', name);
+  setText('map-lvl', `Lv.${lv} · XP ${xp.toLocaleString()}`);
+  setText('p-name', name);
+  setText('p-lv', lv);
+  setText('p-xp', xp.toLocaleString());
+  setText('p-caught', user.total_caught || user.pokemon_caught || 0);
+  setText('p-team', teams[user.team] || '⚪ 未选队伍');
+  if (user.pokeball_count !== undefined) syncInv(user);
+}
+
+window.doLogout = async function() {
+  await api.logout().catch(() => {});
+  store.setUser(null);
+  document.getElementById('nav').classList.remove('show');
+  locMgr.stop();
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('login').classList.add('active');
+  curScreen = 'login';
+};
+
+// ── Map / Nearby ───────────────────────────────────────────────
+const EMOJI = {1:'🌿',2:'🌿',3:'🦎',4:'🔥',5:'🔥',6:'🐲',7:'🐢',8:'🐢',9:'🐢',
+  25:'⚡',26:'⚡',39:'🎀',52:'🐱',54:'🦆',63:'🔮',74:'🪨',79:'😴',133:'🦊',
+  _:'🐾'};
+const pEmoji = id => EMOJI[id] || EMOJI._;
+
+async function loadMap() {
+  document.getElementById('map-body').innerHTML = '<div class="spin"></div>';
+  const pos = locMgr.currentPosition;
+  const lat = pos?.lat ?? 39.9042;
+  const lng = pos?.lng ?? 116.4074;
+  try {
+    const data = await api.getNearby(lat, lng, 500);
+    renderMap(data, pos);
+  } catch (e) {
+    document.getElementById('map-body').innerHTML =
+      `<div class="empty-box"><div class="empty-icon">⚠️</div><div class="empty-txt">${e.message||'加载失败'}</div>
+       <button class="refresh-btn" onclick="loadMap()">重新加载</button></div>`;
+  }
+}
+
+function renderMap(data, pos) {
+  const pokemon   = data.wildPokemons   || data.wild_pokemons  || [];
+  const pokestops = data.pokestops      || [];
+  const gyms      = data.gyms           || [];
+  let html = '';
+
+  if (pokemon.length) {
+    html += `<div class="sec-title">🎯 附近的精灵 (${pokemon.length})</div><div class="card-list">`;
+    pokemon.forEach(p => {
+      const lat2 = p.lat || p.latitude;
+      const lng2 = p.lng || p.longitude;
+      const dist = pos ? Math.round(locMgr.distanceTo(lat2, lng2)) : '?';
+      const sid  = p.species_id || p.speciesId;
+      const name = p.species_name || p.speciesName || `精灵 #${sid}`;
+      const data = encodeURIComponent(JSON.stringify(p));
+      html += `<div class="entity-card" onclick="openCatch('${data}')">
+        <div class="entity-icon">${pEmoji(sid)}</div>
+        <div class="entity-info"><div class="entity-name">${name}</div>
+          <div class="entity-meta">CP ${p.cp || '???'}</div></div>
+        <div class="entity-right">${dist}m ›</div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  if (pokestops.length) {
+    html += `<div class="sec-title">🔵 补给站 (${pokestops.length})</div><div class="card-list">`;
+    pokestops.forEach(ps => {
+      html += `<div class="entity-card" onclick="spinStop('${ps.id}','${(ps.name||'补给站').replace(/'/g,'')}')">
+        <div class="entity-icon">🔵</div>
+        <div class="entity-info"><div class="entity-name">${ps.name||'补给站'}</div>
+          <div class="entity-meta">${ps.can_spin ? '可旋转' : '⏱ 冷却中'}</div></div>
+        <div class="entity-right">${ps.can_spin ? '旋转 ›' : '—'}</div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  if (gyms.length) {
+    html += `<div class="sec-title">🏟️ 道馆 (${gyms.length})</div><div class="card-list">`;
+    const tc = { red:'🔴 勇火队', blue:'🔵 神秘队', yellow:'🟡 本能队' };
+    gyms.forEach(g => {
+      html += `<div class="entity-card">
+        <div class="entity-icon">🏟️</div>
+        <div class="entity-info"><div class="entity-name">${g.name||'道馆'}</div>
+          <div class="entity-meta">${tc[g.controlling_team]||'⚪ 无人占领'} · ${g.defender_count||0}只</div></div>
+        <div class="entity-right">›</div>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  if (!html) html = `<div class="empty-box"><div class="empty-icon">🌳</div>
+    <div class="empty-txt">附近暂无精灵</div>
+    <div class="empty-hint">走动一下，精灵们就会出现！</div>
+    <button class="refresh-btn" onclick="loadMap()">刷新</button></div>`;
+
+  document.getElementById('map-body').innerHTML = html;
+}
+
+async function loadInventory() {
+  try { const inv = await api.getInventory(); syncInv(inv); } catch {}
+}
+
+function syncInv(d) {
+  setText('r-ball', d.pokeball_count ?? d.pokeballs ?? 0);
+  setText('r-coin', d.coins ?? 0);
+  setText('r-dust', d.stardust ?? 0);
+  setText('i-ball', d.pokeball_count ?? d.pokeballs ?? 0);
+  setText('i-great', d.greatball_count ?? d.greatballs ?? 0);
+  setText('i-ultra', d.ultraball_count ?? d.ultraballs ?? 0);
+  setText('i-dust', d.stardust ?? 0);
+  setText('i-coin', d.coins ?? 0);
+}
+
+// ── Pokestop ───────────────────────────────────────────────────
+window.spinStop = async function(id, name) {
+  try {
+    const r = await api.spinPokestop(id);
+    toast(`✅ ${name} 旋转成功！`, 'ok');
+    if (r) syncInv(r);
+    setTimeout(loadMap, 500);
+  } catch (e) { toast(e.message || '旋转失败', 'err'); }
+};
+
+// ── Catch ──────────────────────────────────────────────────────
+window.openCatch = async function(encoded) {
+  const spawn = JSON.parse(decodeURIComponent(encoded));
+  activeSpawn = spawn;
+  const sid  = spawn.species_id || spawn.speciesId;
+  const name = spawn.species_name || spawn.speciesName || `精灵 #${sid}`;
+  setText('c-icon', pEmoji(sid));
+  setText('c-name', name);
+  setText('c-cp', `CP ${spawn.cp || '???'}`);
+  setText('c-title', `捕捉 ${name}`);
+  document.getElementById('throw-btn').disabled = true;
+  document.getElementById('throw-btn').textContent = '准备中…';
+
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('catch').classList.add('active');
+  curScreen = 'catch';
+  startRingAnim();
+
+  const pos = locMgr.currentPosition;
+  try {
+    await catchEng.startCatch(spawn.id, pos?.lat ?? 39.9042, pos?.lng ?? 116.4074);
+  } catch (e) {
+    toast(e.message || '无法开始捕捉', 'err');
+    stopRingAnim();
+    goScreen('map');
+  }
+};
+
+window.pickBall = function(el, type) {
+  document.querySelectorAll('.ball-chip').forEach(c => c.classList.remove('sel'));
+  el.classList.add('sel');
+  catchEng.selectBall(type);
+};
+
+window.doThrow = async function() {
+  const btn = document.getElementById('throw-btn');
+  btn.disabled = true;
+  btn.textContent = '投球中…';
+  const throwRating = ringPct < 30 ? 'EXCELLENT' : ringPct < 65 ? 'GREAT' : 'NICE';
+  try {
+    const res = await catchEng.throw({ startX:180,startY:320,endX:180,endY:80,velocityX:0,velocityY:-450 });
+    if (res.result === 'CAUGHT') {
+      stopRingAnim();
+      toast(`🎉 捕捉成功！获得 ${res.xp_gained||100} XP`, 'ok');
+      store.removePokemon(activeSpawn?.id);
+      setTimeout(() => goScreen('map'), 1800);
+    } else if (res.result === 'FLED') {
+      stopRingAnim();
+      toast('精灵逃跑了！', 'err');
+      setTimeout(() => goScreen('map'), 1500);
+    } else if (res.result === 'MISS') {
+      toast('没有命中，再试！');
+      btn.disabled = false; btn.textContent = '投球捕捉';
+    } else {
+      toast(`精灵挣脱了！(${throwRating})`);
+      btn.disabled = false; btn.textContent = '投球捕捉';
+    }
+  } catch (e) {
+    toast(e.message || '投球失败', 'err');
+    btn.disabled = false; btn.textContent = '投球捕捉';
+  }
+};
+
+// ── Ring animation ─────────────────────────────────────────────
+function startRingAnim() {
+  ringPct = 100; ringShrink = true;
+  const tick = () => {
+    if (ringShrink) { ringPct -= 0.5; if (ringPct <= 20) ringShrink = false; }
+    else            { ringPct += 0.5; if (ringPct >= 100) ringShrink = true; }
+    const fill = document.getElementById('ring-fill');
+    if (fill) fill.style.width = ringPct + '%';
+    ringAnim = requestAnimationFrame(tick);
+  };
+  ringAnim = requestAnimationFrame(tick);
+}
+
+function stopRingAnim() {
+  if (ringAnim) { cancelAnimationFrame(ringAnim); ringAnim = null; }
+}
+
+// ── Catch engine events ────────────────────────────────────────
+catchEng.addEventListener('sessionStarted', () => {
+  const btn = document.getElementById('throw-btn');
+  btn.disabled = false; btn.textContent = '投球捕捉';
+});
+catchEng.addEventListener('abandoned', () => stopRingAnim());
+
+// ── Location ───────────────────────────────────────────────────
+locMgr.addEventListener('position', ({ detail: { accuracy, totalDistKm } }) => {
+  setText('gps-badge', `📍 ±${Math.round(accuracy)}m`);
+  setText('p-km', totalDistKm.toFixed(2));
+  if (curScreen === 'map') loadMap();
+});
+locMgr.addEventListener('error', ({ detail }) => {
+  setText('gps-badge', '📍 无GPS');
+  toast('GPS: ' + detail, 'err');
+});
+
+// ── Util ───────────────────────────────────────────────────────
+function setText(id, val) { const el = document.getElementById(id); if (el) el.textContent = val; }
+
+// ── Auto-refresh map ───────────────────────────────────────────
+setInterval(() => { if (curScreen === 'map') loadMap(); }, 30000);
+
+// ── Resume session ─────────────────────────────────────────────
+if (localStorage.getItem('pmg_access_token')) {
+  api.getMe().then(u => afterLogin(u)).catch(() => {});
+}
+</script>
+</body>
+</html>
