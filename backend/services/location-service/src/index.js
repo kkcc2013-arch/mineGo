@@ -45,9 +45,8 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
 
   // Pick species based on biome + rarity weights
   const { rows: species } = await query(`
-    SELECT id, rarity FROM pokemon_species
-    WHERE is_active = true
-      AND ($1 = 'ANY' OR $1 = ANY(biomes) OR biomes IS NULL)
+    SELECT id, rarity, type1 FROM pokemon_species
+    WHERE ($1 = 'ANY' OR $1 = ANY(biomes) OR biomes IS NULL)
     ORDER BY random()
     LIMIT 50
   `, [biome]);
@@ -93,7 +92,7 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
     INSERT INTO wild_pokemon
       (spawn_point_id, species_id, lat, lng, location, cp, iv_attack, iv_defense, iv_hp,
        is_shiny, weather_boosted, expires_at)
-    VALUES ($1,$2,$3,$4, ST_SetSRID(ST_MakePoint($4,$3),4326), $5,$6,$7,$8,$9,$10,$11)
+    VALUES ($1,$2,$3,$4, ST_GeographyFromText('SRID=4326;POINT(${lng} ${lat})'), $5,$6,$7,$8,$9,$10,$11)
     RETURNING id, species_id, lat, lng, cp, is_shiny, weather_boosted, expires_at
   `, [spawnPointId, chosen.id, lat, lng, cp, iv_attack, iv_defense, iv_hp, isShiny, weatherBoosted, expiresAt]);
 

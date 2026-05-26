@@ -379,10 +379,10 @@ const pEmoji = id => EMOJI[id] || EMOJI._;
 async function loadMap() {
   document.getElementById('map-body').innerHTML = '<div class="spin"></div>';
   const pos = locMgr.currentPosition;
-  const lat = pos?.lat ?? 39.9042;
-  const lng = pos?.lng ?? 116.4074;
+  const lat = pos?.lat ?? 31.2304;
+  const lng = pos?.lng ?? 121.4737;
   try {
-    const data = await api.getNearby(lat, lng, 500);
+    const data = await api.getNearby(lat, lng, 2000);
     renderMap(data, pos);
   } catch (e) {
     document.getElementById('map-body').innerHTML =
@@ -496,7 +496,7 @@ window.openCatch = async function(encoded) {
 
   const pos = locMgr.currentPosition;
   try {
-    await catchEng.startCatch(spawn.id, pos?.lat ?? 39.9042, pos?.lng ?? 116.4074);
+    await catchEng.startCatch(spawn.id, pos?.lat ?? 31.2304, pos?.lng ?? 121.4737);
   } catch (e) {
     toast(e.message || '无法开始捕捉', 'err');
     stopRingAnim();
