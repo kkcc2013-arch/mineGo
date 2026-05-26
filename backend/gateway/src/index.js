@@ -106,68 +106,68 @@ function proxy(target, pathRewrite) {
 
 // ── Route table ───────────────────────────────────────────────
 // Public (no auth)
-app.use('/v1/auth',     proxy(SERVICES.user, { '^/v1/auth': '/auth' }));
+app.use('/v1/auth',     proxy(SERVICES.user, { '^/': '/auth/' }));
 
 // Protected
 app.use('/v1/users',
   authMiddleware,
-  proxy(SERVICES.user, { '^/v1/users': '/users' })
+  proxy(SERVICES.user, { '^/': '/users/' })
 );
 
 app.use('/v1/friends',
   authMiddleware,
-  proxy(SERVICES.social, { '^/v1/friends': '/friends' })
+  proxy(SERVICES.social, { '^/': '/friends/' })
 );
 
 app.use('/v1/trades',
   authMiddleware,
-  proxy(SERVICES.social, { '^/v1/trades': '/trades' })
+  proxy(SERVICES.social, { '^/': '/trades/' })
 );
 
 app.use('/v1/map',
   authMiddleware,
-  proxy(SERVICES.location, { '^/v1/map': '/map' })
+  proxy(SERVICES.location, { '^/': '/map/' })
 );
 
 app.use('/v1/location',
   authMiddleware,
-  proxy(SERVICES.location, { '^/v1/location': '/location' })
+  proxy(SERVICES.location, { '^/': '/location/' })
 );
 
 app.use('/v1/pokemon',
   authMiddleware,
-  proxy(SERVICES.pokemon, { '^/v1/pokemon': '/pokemon' })
+  proxy(SERVICES.pokemon, { '^/': '/pokemon/' })
 );
 
 app.use('/v1/pokestops',
   authMiddleware,
-  proxy(SERVICES.pokemon, { '^/v1/pokestops': '/pokestops' })
+  proxy(SERVICES.pokemon, { '^/': '/pokestops/' })
 );
 
 app.use('/v1/catch',
   authMiddleware,
   rateLimit({ windowMs: 60_000, max: 120 }),
-  proxy(SERVICES.catch, { '^/v1/catch': '/catch' })
+  proxy(SERVICES.catch, { '^/': '/catch/' })
 );
 
 app.use('/v1/gyms',
   authMiddleware,
-  proxy(SERVICES.gym, { '^/v1/gyms': '/gyms' })
+  proxy(SERVICES.gym, { '^/': '/gyms/' })
 );
 
 app.use('/v1/raids',
   authMiddleware,
-  proxy(SERVICES.gym, { '^/v1/raids': '/raids' })
+  proxy(SERVICES.gym, { '^/': '/raids/' })
 );
 
 app.use('/v1/payment',
   authMiddleware,
-  proxy(SERVICES.payment, { '^/v1/payment': '/payment' })
+  proxy(SERVICES.payment, { '^/': '/payment/' })
 );
 
 // Payment webhook (no auth — signed by channel)
 app.use('/v1/payment/webhook',
-  proxy(SERVICES.payment, { '^/v1/payment/webhook': '/payment/webhook' })
+  proxy(SERVICES.payment, { '^/': '/payment/webhook/' })
 );
 
 // 404 fallback

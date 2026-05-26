@@ -310,8 +310,9 @@ window.sendSms = async function() {
   const btn = document.getElementById('btn-sms');
   btn.disabled = true;
   try {
-    await api.sendSmsCode(phone, 'login');
-    toast('验证码已发送', 'ok');
+    const smsResp = await api.sendSmsCode(phone, 'login');
+    if (smsResp?.dev_code) { document.getElementById('inp-code').value = smsResp.dev_code; toast('验证码已自动填入: ' + smsResp.dev_code, 'ok'); } else { toast('验证码已发送', 'ok'); }
+
     let n = 60;
     smsCd = setInterval(() => { btn.textContent = --n > 0 ? `${n}s` : '发送验证码'; if (!n) { clearInterval(smsCd); btn.disabled = false; } }, 1000);
   } catch (e) { toast(e.message || '发送失败', 'err'); btn.disabled = false; }

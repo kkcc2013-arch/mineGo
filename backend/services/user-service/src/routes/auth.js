@@ -57,7 +57,8 @@ router.post('/sms-code', async (req, res, next) => {
     await redis.setex(lockKey, 60, '1');
     await redis.setex(dailyKey, 86400, (dailyCount + 1).toString());
 
-    res.json(successResp({ expireIn: 300 }, '验证码已发送'));
+    const devPayload = process.env.SMS_DEV_MODE === 'true' ? { expireIn: 300, dev_code: code } : { expireIn: 300 };
+    res.json(successResp(devPayload, '验证码已发送'));
   } catch (err) { next(err); }
 });
 

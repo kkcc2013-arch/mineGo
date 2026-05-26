@@ -12,9 +12,23 @@ const BACKEND    = `${DEPLOY_DIR}/backend`;
 
 // Shared env loaded from .env file
 const commonEnv = {
-  NODE_ENV:           'production',
-  // DB / Redis / JWT are loaded from .env via dotenv in each service
-  // or set explicitly here if needed
+  NODE_ENV: "production",
+  POSTGRES_DB: "pmg",
+  POSTGRES_USER: "pmg_user",
+  POSTGRES_PASSWORD: "pmg1779688057bea7559741c5306f",
+  DATABASE_URL: "postgres://pmg_user:pmg1779688057bea7559741c5306f@127.0.0.1:5432/pmg",
+  DB_POOL_MAX: "20",
+  DB_SSL: "false",
+  REDIS_HOST: "127.0.0.1",
+  REDIS_PORT: "6379",
+  REDIS_PASSWORD: "3f7544dc9725e512eceb",
+  JWT_ACCESS_SECRET: "1f340b5b6d76e2c0216a3e188c9a349ef2ce45f0097b2208b5d70988f3d2b564",
+  JWT_REFRESH_SECRET: "68bb1b248bcdb7fc8a34a4e262d4fa36ec46963de3c9de19944951dc327b6d2d",
+  JWT_ACCESS_TTL: "24h",
+  JWT_REFRESH_TTL: "30d",
+  GATEWAY_PORT: "8080",
+  ADMIN_PORT: "3000",
+  SMS_DEV_MODE: "true",
 };
 
 module.exports = {
