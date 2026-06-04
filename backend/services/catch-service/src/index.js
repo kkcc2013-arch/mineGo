@@ -249,11 +249,31 @@ async function handleCatch(userId, session, throwRating, isCurve) {
         current_value = user_achievements.current_value + 1, updated_at = NOW()
     `, [userId]);
 
+    // Invalidate cache in location-service
+    invalidateWildCache(session.wildId).catch(err => 
+      console.error('[Cache] Failed to invalidate wild pokemon cache:', err.message)
+    );
+
     return {
       pokemonInstanceId: instance.id,
       rewards: { xp, stardust, candy },
     };
   });
+}
+
+// Invalidate wild pokemon cache in location-service
+async function invalidateWildCache(wildId) {
+  const LOCATION_SERVICE_URL = process.env.LOCATION_SERVICE_URL || 'http://localhost:8082';
+  const response = await fetch(`${LOCATION_SERVICE_URL}/cache/wild/${wildId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${process.env.INTERNAL_SERVICE_TOKEN || 'internal-service-token'}`
+    }
+  });
+  
+  if (!response.ok) {
+    throw new Error(`Cache invalidation failed: ${response.status}`);
+  }
 }
 
 function haversineM(lat1, lng1, lat2, lng2) {

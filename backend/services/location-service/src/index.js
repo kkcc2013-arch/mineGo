@@ -98,6 +98,21 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
 
   const payload = { ...wild, spawnPointId };
   await setJSON(spawnKey, payload, 1800);
+  
+  // Cache in Redis GEO and detail cache
+  await geoAdd('geo:wild_pokemon', lng, lat, wild.id);
+  await setJSON(`wild:${wild.id}`, {
+    id: wild.id,
+    species_id: wild.species_id,
+    lat: wild.lat,
+    lng: wild.lng,
+    cp: wild.cp,
+    is_shiny: wild.is_shiny,
+    weather_boosted: wild.weather_boosted,
+    expires_at: wild.expires_at,
+    name_zh: wild.name_zh,
+    rarity: wild.rarity
+  }, 1800);
 
   // Update spawn point
   await query('UPDATE spawn_points SET last_spawn_at = NOW() WHERE id=$1', [spawnPointId]);
@@ -193,8 +208,84 @@ app.get('/map/nearby', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// DELETE /cache/wild/:id — invalidate wild pokemon cache (called by catch-service)
+app.delete('/cache/wild/:id', requireAuth, async (req, res, next) => {
+  try {
+    const wildId = req.params.id;
+    const redis = getRedis();
+    
+    // Remove from GEO index and detail cache
+    await Promise.all([
+      redis.zrem('geo:wild_pokemon', wildId),
+      redis.del(`wild:${wildId}`)
+    ]);
+    
+    res.json(successResp({ invalidated: true, wildId }));
+  } catch (err) { next(err); }
+});
+
+// GET /metrics/cache — cache performance metrics
+app.get('/metrics/cache', async (req, res, next) => {
+  try {
+    const total = cacheHits + cacheMisses;
+    const hitRate = total > 0 ? (cacheHits / total * 100).toFixed(2) : 0;
+    
+    res.json({
+      cache_hits: cacheHits,
+      cache_misses: cacheMisses,
+      hit_rate_pct: parseFloat(hitRate),
+      total_queries: total
+    });
+  } catch (err) { next(err); }
+});
+
 // ── Data fetch helpers ────────────────────────────────────────
+// Cache hit/miss metrics (in-memory for now)
+let cacheHits = 0;
+let cacheMisses = 0;
+
 async function getNearbyWild(lat, lng, radius) {
+  try {
+    // Step 1: Try Redis GEO cache first
+    const geoResults = await geoRadius('geo:wild_pokemon', lng, lat, radius);
+    
+    if (geoResults && geoResults.length > 0) {
+      // Step 2: Batch fetch details from cache
+      const ids = geoResults.map(r => r[0]); // member is wild_pokemon.id
+      const cached = await Promise.all(ids.map(id => getJSON(`wild:${id}`)));
+      
+      // Step 3: Filter valid (not expired, not caught)
+      const now = Date.now();
+      const valid = cached
+        .filter(w => w && new Date(w.expires_at).getTime() > now)
+        .map(w => ({
+          ...w,
+          distance: geoResults.find(r => r[0] === String(w.id))?.[1] || 0
+        }));
+      
+      // Step 4: Check cache hit rate
+      const hitRate = valid.length / ids.length;
+      cacheHits++;
+      
+      // If cache hit rate > 80%, return cached data
+      if (hitRate > 0.8) {
+        return valid.slice(0, 50);
+      }
+    }
+    
+    // Step 5: Cache miss or low hit rate - fallback to DB
+    cacheMisses++;
+    return await getNearbyWildFromDB(lat, lng, radius);
+    
+  } catch (err) {
+    // Cache error - fallback to DB
+    console.error('[Cache] Redis error, fallback to DB:', err.message);
+    cacheMisses++;
+    return await getNearbyWildFromDB(lat, lng, radius);
+  }
+}
+
+async function getNearbyWildFromDB(lat, lng, radius) {
   const { rows } = await query(`
     SELECT w.id, w.species_id, w.lat, w.lng, w.cp,
            w.is_shiny, w.weather_boosted, w.expires_at,
@@ -211,6 +302,12 @@ async function getNearbyWild(lat, lng, radius) {
     ORDER BY w.expires_at DESC
     LIMIT 50
   `, [lat, lng, radius]);
+  
+  // Populate cache for future queries
+  for (const w of rows) {
+    await setJSON(`wild:${w.id}`, w, 1800);
+  }
+  
   return rows;
 }
 
