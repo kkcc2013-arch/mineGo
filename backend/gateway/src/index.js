@@ -4,8 +4,14 @@ const express      = require('express');
 const cors         = require('cors');
 const helmet       = require('helmet');
 const rateLimit    = require('express-rate-limit');
+const { v4: uuidv4 } = require('uuid');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const { verifyAccess } = require('../../shared/auth');
+const { createLogger, requestLogger } = require('../../shared/logger');
+const metrics = require('../../shared/metrics');
+
+const logger = createLogger('gateway');
+const SERVICE_NAME = 'gateway';
 
 const app  = express();
 const PORT = process.env.PORT || 8080;
@@ -27,7 +33,7 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization','X-Idempotency-Key','X-Request-ID'],
+  allowedHeaders: ['Content-Type','Authorization','X-Idempotency-Key','X-Request-ID','X-Trace-ID'],
 }));
 
 // Global rate limit
@@ -40,22 +46,20 @@ app.use(rateLimit({
   keyGenerator: (req) => req.headers['x-forwarded-for'] || req.ip,
 }));
 
-// Request ID injection
-app.use((req, _res, next) => {
+// Request ID & Trace ID injection
+app.use((req, res, next) => {
+  const traceId = req.headers['x-trace-id'] || uuidv4();
+  const spanId = uuidv4();
   req.headers['x-request-id'] = req.headers['x-request-id'] || `gw-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+  req.headers['x-trace-id'] = traceId;
+  req.headers['x-span-id'] = spanId;
+  res.setHeader('X-Trace-Id', traceId);
   next();
 });
 
-// Access logger
-app.use((req, _res, next) => {
-  const start = Date.now();
-  _res.on('finish', () => {
-    const dur = Date.now() - start;
-    if (dur > 1000) console.warn('[GW] SLOW %s %s %dms %d', req.method, req.path, dur, _res.statusCode);
-    else console.log('[GW] %s %s %dms %d', req.method, req.path, dur, _res.statusCode);
-  });
-  next();
-});
+// Structured logging & metrics
+app.use(requestLogger(logger));
+app.use(metrics.httpMetricsMiddleware(SERVICE_NAME));
 
 // ── Health ────────────────────────────────────────────────────
 app.get('/health', async (_req, res) => {
@@ -68,6 +72,17 @@ app.get('/health', async (_req, res) => {
   const services = checks.map(r => r.status === 'fulfilled' ? r.value : { name: '?', status: 'down' });
   const allUp = services.every(s => s.status === 'up');
   res.status(allUp ? 200 : 503).json({ gateway: 'ok', services });
+});
+
+// ── Metrics ────────────────────────────────────────────────────
+app.get('/metrics', async (req, res) => {
+  try {
+    res.set('Content-Type', metrics.register.contentType);
+    res.send(await metrics.register.metrics());
+  } catch (err) {
+    logger.error({ err }, 'Failed to generate metrics');
+    res.status(500).json({ error: 'Metrics generation failed' });
+  }
 });
 
 // ── Auth middleware for protected routes ──────────────────────
@@ -95,7 +110,7 @@ function proxy(target, pathRewrite) {
     pathRewrite,
     on: {
       error: (err, req, res) => {
-        console.error('[GW] Proxy error:', err.message);
+        logger.error({ err, reqId: req.headers['x-request-id'], path: req.path }, 'Proxy error');
         if (!res.headersSent) {
           res.status(502).json({ code: 9002, message: '下游服务暂时不可用', data: null });
         }
@@ -173,5 +188,5 @@ app.use('/v1/payment/webhook',
 // 404 fallback
 app.use((req, res) => res.status(404).json({ code: 1005, message: `路由不存在: ${req.method} ${req.path}`, data: null }));
 
-app.listen(PORT, () => console.log(`[api-gateway] listening on :${PORT}`));
+app.listen(PORT, () => logger.info({ port: PORT }, 'API Gateway started'));
 module.exports = app;

@@ -7,12 +7,33 @@ const { v4: uuidv4 } = require('uuid');
 const { query, transaction } = require('../../../shared/db');
 const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
 const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
+const { createLogger, requestLogger } = require('../../../shared/logger');
+const metrics = require('../../../shared/metrics');
+
+const logger = createLogger('catch-service');
+const SERVICE_NAME = 'catch-service';
 
 const app  = express();
 const PORT = process.env.PORT || 8084;
 
 app.use(helmet()); app.use(cors()); app.use(express.json());
+
+// Structured logging & metrics
+app.use(requestLogger(logger));
+app.use(metrics.httpMetricsMiddleware(SERVICE_NAME));
+
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'catch-service' }));
+
+// Metrics endpoint
+app.get('/metrics', async (req, res) => {
+  try {
+    res.set('Content-Type', metrics.register.contentType);
+    res.send(await metrics.register.metrics());
+  } catch (err) {
+    logger.error({ err }, 'Failed to generate metrics');
+    res.status(500).json({ error: 'Metrics generation failed' });
+  }
+});
 
 // ============================================================
 // CATCH MECHANICS
@@ -178,6 +199,8 @@ app.post('/catch/throw', requireAuth, async (req, res, next) => {
         [sessionId, session.ballsThrown]);
       await query('UPDATE wild_pokemon SET is_caught=true WHERE id=$1', [session.wildId]); // mark as gone
       await getRedis().del(`catch:session:${sessionId}`);
+      metrics.catchAttemptsTotal.inc({ result: 'escaped' });
+      logger.info({ userId, speciesId: session.speciesId, ballsThrown: session.ballsThrown }, 'Pokemon fled');
       return res.json(successResp({ result: 'FLED', catchProb, rewards: { xp: 25 } }));
     }
 
@@ -251,8 +274,21 @@ async function handleCatch(userId, session, throwRating, isCurve) {
 
     // Invalidate cache in location-service
     invalidateWildCache(session.wildId).catch(err => 
-      console.error('[Cache] Failed to invalidate wild pokemon cache:', err.message)
+      logger.error({ err, wildId: session.wildId }, 'Failed to invalidate wild pokemon cache')
     );
+
+    // Record catch success metric
+    metrics.catchAttemptsTotal.inc({ result: 'success' });
+    logger.info({
+      userId,
+      speciesId: session.speciesId,
+      speciesName: session.name_zh,
+      cp: session.cp,
+      isShiny: session.isShiny,
+      xp,
+      stardust,
+      candy,
+    }, 'Pokemon caught');
 
     return {
       pokemonInstanceId: instance.id,
@@ -285,5 +321,5 @@ function haversineM(lat1, lng1, lat2, lng2) {
 }
 
 app.use(errorHandler);
-app.listen(PORT, () => console.log(`[catch-service] listening on :${PORT}`));
+app.listen(PORT, () => logger.info({ port: PORT }, 'Catch service started'));
 module.exports = app;

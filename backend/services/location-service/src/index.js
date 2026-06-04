@@ -6,6 +6,11 @@ const helmet   = require('helmet');
 const { query }  = require('../../../shared/db');
 const { getRedis, geoAdd, geoRadius, setJSON, getJSON } = require('../../../shared/redis');
 const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
+const { createLogger, requestLogger } = require('../../../shared/logger');
+const metrics = require('../../../shared/metrics');
+
+const logger = createLogger('location-service');
+const SERVICE_NAME = 'location-service';
 
 const app  = express();
 const PORT = process.env.PORT || 8082;
@@ -13,6 +18,23 @@ const PORT = process.env.PORT || 8082;
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+
+// Structured logging & metrics
+app.use(requestLogger(logger));
+app.use(metrics.httpMetricsMiddleware(SERVICE_NAME));
+
+app.get('/health', (_, res) => res.json({ status: 'ok', service: 'location-service' }));
+
+// Metrics endpoint
+app.get('/metrics', async (req, res) => {
+  try {
+    res.set('Content-Type', metrics.register.contentType);
+    res.send(await metrics.register.metrics());
+  } catch (err) {
+    logger.error({ err }, 'Failed to generate metrics');
+    res.status(500).json({ error: 'Metrics generation failed' });
+  }
+});
 
 // ============================================================
 // SPAWN ENGINE
@@ -373,5 +395,5 @@ function haversineKm(lat1, lng1, lat2, lng2) {
 }
 
 app.use(errorHandler);
-app.listen(PORT, () => console.log(`[location-service] listening on :${PORT}`));
+app.listen(PORT, () => logger.info({ port: PORT }, 'Location service started'));
 module.exports = app;

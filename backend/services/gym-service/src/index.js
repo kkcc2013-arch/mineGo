@@ -8,13 +8,34 @@ const helmet    = require('helmet');
 const { query, transaction } = require('../../../shared/db');
 const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
 const { requireAuth, verifyAccess, AppError, successResp, errorHandler } = require('../../../shared/auth');
+const { createLogger, requestLogger } = require('../../../shared/logger');
+const metrics = require('../../../shared/metrics');
+
+const logger = createLogger('gym-service');
+const SERVICE_NAME = 'gym-service';
 
 const app    = express();
 const server = http.createServer(app);
 const PORT   = process.env.PORT || 8085;
 
 app.use(helmet()); app.use(cors()); app.use(express.json());
+
+// Structured logging & metrics
+app.use(requestLogger(logger));
+app.use(metrics.httpMetricsMiddleware(SERVICE_NAME));
+
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'gym-service' }));
+
+// Metrics endpoint
+app.get('/metrics', async (req, res) => {
+  try {
+    res.set('Content-Type', metrics.register.contentType);
+    res.send(await metrics.register.metrics());
+  } catch (err) {
+    logger.error({ err }, 'Failed to generate metrics');
+    res.status(500).json({ error: 'Metrics generation failed' });
+  }
+});
 
 // ============================================================
 // WEBSOCKET — Real-time Raid sync
@@ -44,6 +65,10 @@ wss.on('connection', (ws, req) => {
   raidRooms.get(raidId).add(ws);
 
   console.log(`[Raid WS] User ${userId} joined raid ${raidId}`);
+  
+  // Update WebSocket metrics
+  metrics.websocketConnectionsActive.inc({ service: 'gym-service', room: raidId });
+  
   broadcastToRaid(raidId, { type: 'PLAYER_JOINED', userId, participants: raidRooms.get(raidId).size });
 
   ws.on('message', async (data) => {
@@ -57,6 +82,7 @@ wss.on('connection', (ws, req) => {
 
   ws.on('close', () => {
     raidRooms.get(raidId)?.delete(ws);
+    metrics.websocketConnectionsActive.dec({ service: 'gym-service', room: raidId });
     broadcastToRaid(raidId, { type: 'PLAYER_LEFT', userId, participants: raidRooms.get(raidId)?.size || 0 });
   });
 });
@@ -66,7 +92,10 @@ function broadcastToRaid(raidId, data) {
   if (!room) return;
   const msg = JSON.stringify(data);
   for (const ws of room) {
-    if (ws.readyState === WebSocket.OPEN) ws.send(msg);
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(msg);
+      metrics.websocketMessagesTotal.inc({ service: 'gym-service', direction: 'out', type: data.type });
+    }
   }
 }
 
