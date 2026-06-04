@@ -6,11 +6,32 @@ const helmet  = require('helmet');
 const { query, transaction } = require('../../../shared/db');
 const { getRedis } = require('../../../shared/redis');
 const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
+const { createLogger, requestLogger } = require('../../../shared/logger');
+const metrics = require('../../../shared/metrics');
+
+const logger = createLogger('reward-service');
+const SERVICE_NAME = 'reward-service';
 
 const app  = express();
 const PORT = process.env.PORT || 8087;
 app.use(helmet()); app.use(cors()); app.use(express.json());
+
+// Structured logging & metrics
+app.use(requestLogger(logger));
+app.use(metrics.httpMetricsMiddleware(SERVICE_NAME));
+
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'reward-service' }));
+
+// Metrics endpoint
+app.get('/metrics', async (req, res) => {
+  try {
+    res.set('Content-Type', metrics.register.contentType);
+    res.send(await metrics.register.metrics());
+  } catch (err) {
+    logger.error({ err }, 'Failed to generate metrics');
+    res.status(500).json({ error: 'Metrics generation failed' });
+  }
+});
 
 // ── Daily login reward ────────────────────────────────────────
 const DAILY_LOGIN_REWARDS = [
@@ -281,5 +302,5 @@ app.get('/rewards/season', requireAuth, async (req, res, next) => {
 });
 
 app.use(errorHandler);
-app.listen(PORT, () => console.log(`[reward-service] listening on :${PORT}`));
+app.listen(PORT, () => logger.info({ port: PORT }, 'reward-service started'));
 module.exports = app;

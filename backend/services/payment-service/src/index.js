@@ -6,11 +6,32 @@ const helmet  = require('helmet');
 const crypto  = require('crypto');
 const { query, transaction } = require('../../../shared/db');
 const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
+const { createLogger, requestLogger } = require('../../../shared/logger');
+const metrics = require('../../../shared/metrics');
+
+const logger = createLogger('payment-service');
+const SERVICE_NAME = 'payment-service';
 
 const app  = express();
 const PORT = process.env.PORT || 8088;
 app.use(helmet()); app.use(cors()); app.use(express.json());
+
+// Structured logging & metrics
+app.use(requestLogger(logger));
+app.use(metrics.httpMetricsMiddleware(SERVICE_NAME));
+
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'payment-service' }));
+
+// Metrics endpoint
+app.get('/metrics', async (req, res) => {
+  try {
+    res.set('Content-Type', metrics.register.contentType);
+    res.send(await metrics.register.metrics());
+  } catch (err) {
+    logger.error({ err }, 'Failed to generate metrics');
+    res.status(500).json({ error: 'Metrics generation failed' });
+  }
+});
 
 // Product catalog
 const PRODUCTS = {
@@ -136,7 +157,7 @@ app.post('/payment/webhook', express.raw({ type: 'application/xml' }), async (re
   try {
     // Parse XML/JSON from WeChat/AliPay
     // In production: verify signature, parse order ID, confirm payment
-    console.log('[Webhook] Received payment callback');
+    logger.info('Received payment webhook callback');
     res.status(200).send('SUCCESS'); // WeChat expects 'SUCCESS'
   } catch (err) { next(err); }
 });
@@ -159,5 +180,5 @@ function verifyPaymentSign(sign, order) {
 }
 
 app.use(errorHandler);
-app.listen(PORT, () => console.log(`[payment-service] listening on :${PORT}`));
+app.listen(PORT, () => logger.info({ port: PORT }, 'payment-service started'));
 module.exports = app;

@@ -6,11 +6,32 @@ const helmet  = require('helmet');
 const { v4: uuidv4 } = require('uuid');
 const { query, transaction } = require('../../../shared/db');
 const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
+const { createLogger, requestLogger } = require('../../../shared/logger');
+const metrics = require('../../../shared/metrics');
+
+const logger = createLogger('social-service');
+const SERVICE_NAME = 'social-service';
 
 const app  = express();
 const PORT = process.env.PORT || 8086;
 app.use(helmet()); app.use(cors()); app.use(express.json());
+
+// Structured logging & metrics
+app.use(requestLogger(logger));
+app.use(metrics.httpMetricsMiddleware(SERVICE_NAME));
+
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'social-service' }));
+
+// Metrics endpoint
+app.get('/metrics', async (req, res) => {
+  try {
+    res.set('Content-Type', metrics.register.contentType);
+    res.send(await metrics.register.metrics());
+  } catch (err) {
+    logger.error({ err }, 'Failed to generate metrics');
+    res.status(500).json({ error: 'Metrics generation failed' });
+  }
+});
 
 // ── GET /friends ──────────────────────────────────────────────
 app.get('/friends', requireAuth, async (req, res, next) => {
@@ -293,5 +314,5 @@ function generateGiftItems(friendLevel) {
 }
 
 app.use(errorHandler);
-app.listen(PORT, () => console.log(`[social-service] listening on :${PORT}`));
+app.listen(PORT, () => logger.info({ port: PORT }, 'social-service started'));
 module.exports = app;
