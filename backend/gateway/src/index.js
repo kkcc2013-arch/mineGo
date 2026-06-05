@@ -6,6 +6,9 @@ const helmet       = require('helmet');
 const rateLimit    = require('express-rate-limit');
 const { v4: uuidv4 } = require('uuid');
 const { createProxyMiddleware } = require('http-proxy-middleware');
+const swaggerUi    = require('swagger-ui-express');
+const YAML         = require('yamljs');
+const path         = require('path');
 const { verifyAccess } = require('../../shared/auth');
 const { createLogger, requestLogger } = require('../../shared/logger');
 const metrics = require('../../shared/metrics');
@@ -84,6 +87,31 @@ app.get('/metrics', async (req, res) => {
     res.status(500).json({ error: 'Metrics generation failed' });
   }
 });
+
+// ── API Documentation (Swagger UI) ─────────────────────────────
+try {
+  const openapiPath = path.join(__dirname, '../../../docs/api-spec/openapi/bundled.yaml');
+  const swaggerDocument = YAML.load(openapiPath);
+  
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'mineGo API Documentation',
+    customfavIcon: '/favicon.ico',
+    swaggerOptions: {
+      persistAuthorization: true,
+      displayRequestDuration: true,
+      filter: true,
+      syntaxHighlight: {
+        activate: true,
+        theme: 'monokai'
+      }
+    }
+  }));
+  
+  logger.info('Swagger UI available at /api-docs');
+} catch (err) {
+  logger.warn({ err }, 'Swagger UI not available (OpenAPI spec not found)');
+}
 
 // ── Auth middleware for protected routes ──────────────────────
 function authMiddleware(req, res, next) {

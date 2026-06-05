@@ -23,5 +23,9 @@
   "devDependencies": {
     "concurrently": "^8.2.0",
     "eslint": "^8.55.0"
+  },
+  "dependencies": {
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0"
   }
 }

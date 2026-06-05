@@ -1,0 +1,629 @@
+openapi: 3.0.3
+info:
+  title: 'mineGo API'
+  version: 1.0.0
+  description: "基于 GPS 的 AR 精灵捕捉手游 API\n\n## 认证方式\n\n大部分接口需要 JWT 认证，在请求头中添加：\n```\nAuthorization: Bearer {accessToken}\n```\n\n## 错误处理\n\n所有错误使用统一格式：\n```json\n{\n  \"code\": 2001,\n  \"message\": \"该手机号已注册\",\n  \"data\": null,\n  \"traceId\": \"abc-123\"\n}\n```\n\n## 错误码范围\n\n- 1000-1999: 通用错误\n- 2000-2999: 用户相关\n- 3000-3999: 精灵/捕捉\n- 4000-4999: 道馆/社交\n- 5000-5999: 支付\n- 9000-9999: 系统错误\n\n详细错误码参考：[错误码文档](../error-codes.md)\n"
+  contact:
+    name: 'mineGo Team'
+    email: support@minego.app
+    url: 'https://minego.app'
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+servers:
+  -
+    url: 'https://api.minego.app/v1'
+    description: 生产环境
+  -
+    url: 'http://localhost:8080/v1'
+    description: 本地开发环境
+tags:
+  -
+    name: Auth
+    description: '认证相关（注册、登录、Token 刷新）'
+  -
+    name: Users
+    description: 用户管理（资料、队伍、货币）
+  -
+    name: Map
+    description: 地图与位置（GPS、精灵刷新）
+  -
+    name: Catch
+    description: 精灵捕捉（投球、结算）
+  -
+    name: Pokemon
+    description: 精灵管理（仓库、图鉴、进化）
+  -
+    name: Gym
+    description: 道馆系统（占领、战斗、Raid）
+  -
+    name: Social
+    description: 社交系统（好友、礼物、交换）
+  -
+    name: Reward
+    description: 任务奖励（签到、成就、排行榜）
+  -
+    name: Payment
+    description: 支付系统（订单、充值）
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT 认证，使用 Access Token'
+  schemas:
+    Success:
+      type: object
+      required:
+        - code
+        - message
+        - data
+        - traceId
+      properties:
+        code:
+          type: integer
+          example: 0
+          description: '业务状态码，0 表示成功'
+        message:
+          type: string
+          example: 成功
+          description: 响应消息
+        data:
+          type: object
+          description: 业务数据
+        traceId:
+          type: string
+          example: abc-123-def-456
+          description: '追踪 ID'
+    Error:
+      type: object
+      required:
+        - code
+        - message
+        - data
+        - traceId
+      properties:
+        code:
+          type: integer
+          example: 2001
+          description: '错误码（非 0）'
+        message:
+          type: string
+          example: 该手机号已注册
+          description: 错误消息
+        data:
+          type: object
+          nullable: true
+          description: 额外数据
+        traceId:
+          type: string
+          example: abc-123-def-456
+          description: '追踪 ID'
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        pageSize:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 100
+        totalPages:
+          type: integer
+          example: 5
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: usr-123-abc
+        nickname:
+          type: string
+          example: Trainer_Ash
+        level:
+          type: integer
+          example: 25
+        xp:
+          type: integer
+          example: 15000
+        team:
+          type: string
+          enum:
+            - red
+            - blue
+            - yellow
+            - null
+          nullable: true
+        stardust:
+          type: integer
+          example: 5000
+        coins:
+          type: integer
+          example: 100
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-01-15T10:30:00Z'
+    Pokemon:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        speciesId:
+          type: integer
+          example: 25
+        speciesName:
+          type: string
+          example: Pikachu
+        cp:
+          type: integer
+          example: 1200
+        iv:
+          type: object
+          properties:
+            attack:
+              type: integer
+            defense:
+              type: integer
+            stamina:
+              type: integer
+        moves:
+          type: array
+          items:
+            type: string
+    Tokens:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: '访问令牌（2 小时有效）'
+        refreshToken:
+          type: string
+          description: '刷新令牌（7 天有效）'
+        expiresIn:
+          type: integer
+          example: 7200
+          description: 'Access Token 有效期（秒）'
+  parameters:
+    TraceId:
+      name: X-Trace-ID
+      in: header
+      schema:
+        type: string
+        format: uuid
+      description: '追踪 ID（由 Gateway 自动注入）'
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: 页码
+    PageSize:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: 每页数量
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: '用户 ID'
+  responses:
+    Unauthorized:
+      description: 未认证
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 1002
+            message: 未认证，请先登录
+            data: null
+            traceId: abc-123
+    Forbidden:
+      description: 权限不足
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 1004
+            message: 权限不足
+            data: null
+            traceId: abc-123
+    NotFound:
+      description: 资源不存在
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 1005
+            message: 资源不存在
+            data: null
+            traceId: abc-123
+    TooManyRequests:
+      description: 请求过多
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 1007
+            message: 请求过于频繁，请稍后重试
+            data: null
+            traceId: abc-123
+    InternalError:
+      description: 服务器错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 9001
+            message: 服务内部错误
+            data: null
+            traceId: abc-123
+security:
+  -
+    bearerAuth: []
+paths:
+  /auth/sms-code:
+    post:
+      tags:
+        - Auth
+      summary: 发送短信验证码
+      operationId: sendSmsCode
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone
+              properties:
+                phone:
+                  type: string
+                  pattern: '^1[3-9]\d{9}$'
+                  example: '13800138000'
+                scene:
+                  type: string
+                  enum: [register, login, reset]
+                  default: login
+      responses:
+        '200':
+          description: 发送成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - {$ref: '#/components/schemas/Success'}
+        '400':
+          description: 参数错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      summary: 用户注册
+      operationId: register
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone
+                - smsCode
+                - nickname
+              properties:
+                phone:
+                  type: string
+                smsCode:
+                  type: string
+                  minLength: 6
+                nickname:
+                  type: string
+                  minLength: 2
+      responses:
+        '201':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - {$ref: '#/components/schemas/Success'}
+        '409':
+          description: 冲突
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: 用户登录
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone
+                - smsCode
+              properties:
+                phone:
+                  type: string
+                smsCode:
+                  type: string
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - {$ref: '#/components/schemas/Success'}
+        '404':
+          description: 账号不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /auth/refresh:
+    post:
+      tags:
+        - Auth
+      summary: '刷新 Token'
+      operationId: refreshToken
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: 刷新成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - {$ref: '#/components/schemas/Success'}
+  /map/nearby:
+    get:
+      tags:
+        - Map
+      summary: 获取附近精灵
+      operationId: getNearbyPokemon
+      security:
+        -
+          bearerAuth: []
+      parameters:
+        -
+          name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+        -
+          name: lng
+          in: query
+          required: true
+          schema:
+            type: number
+        -
+          name: radius
+          in: query
+          schema:
+            type: integer
+            default: 200
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - {$ref: '#/components/schemas/Success'}
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /catch/start:
+    post:
+      tags:
+        - Catch
+      summary: 开始捕捉会话
+      operationId: startCatchSession
+      security:
+        -
+          bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - spawnId
+              properties:
+                spawnId:
+                  type: string
+                userLat:
+                  type: number
+                userLng:
+                  type: number
+      responses:
+        '200':
+          description: 会话创建成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - {$ref: '#/components/schemas/Success'}
+        '400':
+          description: 距离过远
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /catch/throw:
+    post:
+      tags:
+        - Catch
+      summary: 投球捕捉
+      operationId: throwBall
+      security:
+        -
+          bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - sessionId
+                - ballType
+              properties:
+                sessionId:
+                  type: string
+                ballType:
+                  type: string
+                  enum: [pokeball, greatball, ultraball, masterball]
+      responses:
+        '200':
+          description: 投球成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - {$ref: '#/components/schemas/Success'}
+  /payment/products:
+    get:
+      tags:
+        - Payment
+      summary: 获取商品列表
+      operationId: getProducts
+      security:
+        -
+          bearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - {$ref: '#/components/schemas/Success'}
+  /payment/orders:
+    post:
+      tags:
+        - Payment
+      summary: 创建订单
+      operationId: createOrder
+      security:
+        -
+          bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productId
+                - paymentMethod
+              properties:
+                productId:
+                  type: string
+                paymentMethod:
+                  type: string
+                  enum: [alipay, wechat, apple, google]
+      responses:
+        '201':
+          description: 订单创建成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - {$ref: '#/components/schemas/Success'}
+        '409':
+          description: 重复订单
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/users/{userId}':
+    get:
+      tags:
+        - Users
+      summary: 获取用户信息
+      operationId: getUser
+      security:
+        -
+          bearerAuth: []
+      parameters:
+        -
+          $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - {$ref: '#/components/schemas/Success'}
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /users/me:
+    get:
+      tags:
+        - Users
+      summary: 获取当前用户信息
+      operationId: getCurrentUser
+      security:
+        -
+          bearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - {$ref: '#/components/schemas/Success'}
+        '401':
+          $ref: '#/components/responses/Unauthorized'

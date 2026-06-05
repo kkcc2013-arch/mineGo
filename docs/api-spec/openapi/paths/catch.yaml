@@ -1,0 +1,99 @@
+paths:
+  /map/nearby:
+    get:
+      tags: [Map]
+      summary: 获取附近精灵
+      operationId: getNearbyPokemon
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: lng
+          in: query
+          required: true
+          schema:
+            type: number
+        - name: radius
+          in: query
+          schema:
+            type: integer
+            default: 200
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /catch/start:
+    post:
+      tags: [Catch]
+      summary: 开始捕捉会话
+      operationId: startCatchSession
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [spawnId]
+              properties:
+                spawnId:
+                  type: string
+                userLat:
+                  type: number
+                userLng:
+                  type: number
+      responses:
+        '200':
+          description: 会话创建成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+        '400':
+          description: 距离过远
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /catch/throw:
+    post:
+      tags: [Catch]
+      summary: 投球捕捉
+      operationId: throwBall
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sessionId, ballType]
+              properties:
+                sessionId:
+                  type: string
+                ballType:
+                  type: string
+                  enum: [pokeball, greatball, ultraball, masterball]
+      responses:
+        '200':
+          description: 投球成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'

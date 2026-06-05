@@ -1,0 +1,318 @@
+openapi: 3.0.3
+info:
+  title: mineGo API
+  version: 1.0.0
+  description: |
+    基于 GPS 的 AR 精灵捕捉手游 API
+    
+    ## 认证方式
+    
+    大部分接口需要 JWT 认证，在请求头中添加：
+    ```
+    Authorization: Bearer {accessToken}
+    ```
+    
+    ## 错误处理
+    
+    所有错误使用统一格式：
+    ```json
+    {
+      "code": 2001,
+      "message": "该手机号已注册",
+      "data": null,
+      "traceId": "abc-123"
+    }
+    ```
+    
+    ## 错误码范围
+    
+    - 1000-1999: 通用错误
+    - 2000-2999: 用户相关
+    - 3000-3999: 精灵/捕捉
+    - 4000-4999: 道馆/社交
+    - 5000-5999: 支付
+    - 9000-9999: 系统错误
+    
+    详细错误码参考：[错误码文档](../error-codes.md)
+    
+  contact:
+    name: mineGo Team
+    email: support@minego.app
+    url: https://minego.app
+  
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.minego.app/v1
+    description: 生产环境
+  - url: http://localhost:8080/v1
+    description: 本地开发环境
+
+tags:
+  - name: Auth
+    description: 认证相关（注册、登录、Token 刷新）
+  - name: Users
+    description: 用户管理（资料、队伍、货币）
+  - name: Map
+    description: 地图与位置（GPS、精灵刷新）
+  - name: Catch
+    description: 精灵捕捉（投球、结算）
+  - name: Pokemon
+    description: 精灵管理（仓库、图鉴、进化）
+  - name: Gym
+    description: 道馆系统（占领、战斗、Raid）
+  - name: Social
+    description: 社交系统（好友、礼物、交换）
+  - name: Reward
+    description: 任务奖励（签到、成就、排行榜）
+  - name: Payment
+    description: 支付系统（订单、充值）
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT 认证，使用 Access Token
+  
+  schemas:
+    # ── 通用响应 ─────────────────────────────────
+    Success:
+      type: object
+      required: [code, message, data, traceId]
+      properties:
+        code:
+          type: integer
+          example: 0
+          description: 业务状态码，0 表示成功
+        message:
+          type: string
+          example: 成功
+          description: 响应消息
+        data:
+          type: object
+          description: 业务数据
+        traceId:
+          type: string
+          example: abc-123-def-456
+          description: 追踪 ID
+    
+    Error:
+      type: object
+      required: [code, message, data, traceId]
+      properties:
+        code:
+          type: integer
+          example: 2001
+          description: 错误码（非 0）
+        message:
+          type: string
+          example: 该手机号已注册
+          description: 错误消息
+        data:
+          type: object
+          nullable: true
+          description: 额外数据
+        traceId:
+          type: string
+          example: abc-123-def-456
+          description: 追踪 ID
+    
+    # ── 分页 ─────────────────────────────────────
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        pageSize:
+          type: integer
+          example: 20
+        total:
+          type: integer
+          example: 100
+        totalPages:
+          type: integer
+          example: 5
+    
+    # ── 用户 ─────────────────────────────────────
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: usr-123-abc
+        nickname:
+          type: string
+          example: Trainer_Ash
+        level:
+          type: integer
+          example: 25
+        xp:
+          type: integer
+          example: 15000
+        team:
+          type: string
+          enum: [red, blue, yellow, null]
+          nullable: true
+        stardust:
+          type: integer
+          example: 5000
+        coins:
+          type: integer
+          example: 100
+        createdAt:
+          type: string
+          format: date-time
+          example: '2026-01-15T10:30:00Z'
+    
+    # ── 精灵 ─────────────────────────────────────
+    Pokemon:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        speciesId:
+          type: integer
+          example: 25
+        speciesName:
+          type: string
+          example: Pikachu
+        cp:
+          type: integer
+          example: 1200
+        iv:
+          type: object
+          properties:
+            attack:
+              type: integer
+            defense:
+              type: integer
+            stamina:
+              type: integer
+        moves:
+          type: array
+          items:
+            type: string
+    
+    # ── 认证 ─────────────────────────────────────
+    Tokens:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: 访问令牌（2 小时有效）
+        refreshToken:
+          type: string
+          description: 刷新令牌（7 天有效）
+        expiresIn:
+          type: integer
+          example: 7200
+          description: Access Token 有效期（秒）
+  
+  parameters:
+    # ── 通用参数 ─────────────────────────────────
+    TraceId:
+      name: X-Trace-ID
+      in: header
+      schema:
+        type: string
+        format: uuid
+      description: 追踪 ID（由 Gateway 自动注入）
+    
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: 页码
+    
+    PageSize:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: 每页数量
+    
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: 用户 ID
+  
+  responses:
+    # ── 通用响应 ─────────────────────────────────
+    Unauthorized:
+      description: 未认证
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 1002
+            message: 未认证，请先登录
+            data: null
+            traceId: abc-123
+    
+    Forbidden:
+      description: 权限不足
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 1004
+            message: 权限不足
+            data: null
+            traceId: abc-123
+    
+    NotFound:
+      description: 资源不存在
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 1005
+            message: 资源不存在
+            data: null
+            traceId: abc-123
+    
+    TooManyRequests:
+      description: 请求过多
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 1007
+            message: 请求过于频繁，请稍后重试
+            data: null
+            traceId: abc-123
+    
+    InternalError:
+      description: 服务器错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 9001
+            message: 服务内部错误
+            data: null
+            traceId: abc-123
+
+security:
+  - bearerAuth: []

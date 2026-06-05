@@ -1,0 +1,51 @@
+paths:
+  /payment/products:
+    get:
+      tags: [Payment]
+      summary: 获取商品列表
+      operationId: getProducts
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+
+  /payment/orders:
+    post:
+      tags: [Payment]
+      summary: 创建订单
+      operationId: createOrder
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productId, paymentMethod]
+              properties:
+                productId:
+                  type: string
+                paymentMethod:
+                  type: string
+                  enum: [alipay, wechat, apple, google]
+      responses:
+        '201':
+          description: 订单创建成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Success'
+        '409':
+          description: 重复订单
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
