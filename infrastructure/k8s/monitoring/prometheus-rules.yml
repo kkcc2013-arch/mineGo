@@ -1,0 +1,321 @@
+# mineGo Prometheus 告警规则
+# 部署到 Kubernetes PrometheusRule CRD
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: minego-alerts
+  namespace: monitoring
+  labels:
+    app: minego
+    release: prometheus
+spec:
+  groups:
+    # ============================================================
+    # P0 告警：立即响应（<5 分钟）
+    # ============================================================
+    - name: minego.p0.critical
+      rules:
+        # HTTP 错误率 > 10%
+        - alert: HighErrorRate
+          expr: |
+            sum(rate(minego_http_requests_total{status=~"5.."}[5m])) by (service)
+            /
+            sum(rate(minego_http_requests_total[5m])) by (service)
+            > 0.1
+          for: 2m
+          labels:
+            severity: critical
+            priority: P0
+          annotations:
+            summary: "服务 {{ $labels.service }} 错误率过高"
+            description: "{{ $labels.service }} 5xx 错误率 {{ $value | humanizePercentage }}，超过 10% 阈值"
+            runbook_url: "https://wiki.minego.io/runbooks/high-error-rate"
+
+        # 数据库连接池耗尽
+        - alert: DatabaseConnectionPoolExhausted
+          expr: |
+            minego_db_connections_active / minego_db_connections_max > 0.9
+          for: 1m
+          labels:
+            severity: critical
+            priority: P0
+          annotations:
+            summary: "服务 {{ $labels.service }} 数据库连接池即将耗尽"
+            description: "连接池使用率 {{ $value | humanizePercentage }}，可能影响服务可用性"
+            runbook_url: "https://wiki.minego.io/runbooks/db-pool-exhausted"
+
+        # 支付服务 P99 延迟 > 3s
+        - alert: PaymentServiceSlow
+          expr: |
+            histogram_quantile(0.99, 
+              sum(rate(minego_http_request_duration_ms_bucket{service="payment-service"}[5m])) by (le)
+            ) > 3000
+          for: 5m
+          labels:
+            severity: critical
+            priority: P0
+          annotations:
+            summary: "支付服务响应缓慢"
+            description: "payment-service P99 延迟 {{ $value }}ms，超过 3000ms 阈值"
+            runbook_url: "https://wiki.minego.io/runbooks/payment-slow"
+
+        # 服务宕机
+        - alert: ServiceDown
+          expr: up{job=~"minego-.*"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            priority: P0
+          annotations:
+            summary: "服务 {{ $labels.job }} 宕机"
+            description: "{{ $labels.job }} 实例 {{ $labels.instance }} 无法访问"
+            runbook_url: "https://wiki.minego.io/runbooks/service-down"
+
+        # Redis 连接失败
+        - alert: RedisConnectionFailed
+          expr: |
+            sum(rate(minego_redis_errors_total{error="connection"}[5m])) by (service) > 0
+          for: 2m
+          labels:
+            severity: critical
+            priority: P0
+          annotations:
+            summary: "Redis 连接失败"
+            description: "{{ $labels.service }} 无法连接到 Redis"
+            runbook_url: "https://wiki.minego.io/runbooks/redis-connection"
+
+    # ============================================================
+    # P1 告警：重要但不紧急（<15 分钟）
+    # ============================================================
+    - name: minego.p1.important
+      rules:
+        # HTTP P95 延迟 > 1s
+        - alert: HighLatency
+          expr: |
+            histogram_quantile(0.95,
+              sum(rate(minego_http_request_duration_ms_bucket[5m])) by (service, le)
+            ) > 1000
+          for: 5m
+          labels:
+            severity: warning
+            priority: P1
+          annotations:
+            summary: "服务 {{ $labels.service }} 响应缓慢"
+            description: "{{ $labels.service }} P95 延迟 {{ $value }}ms"
+
+        # 缓存命中率 < 70%
+        - alert: LowCacheHitRate
+          expr: |
+            sum(rate(minego_cache_hits_total{result="hit"}[10m])) by (service, cache_name)
+            /
+            sum(rate(minego_cache_hits_total[10m])) by (service, cache_name)
+            < 0.7
+          for: 10m
+          labels:
+            severity: warning
+            priority: P1
+          annotations:
+            summary: "缓存 {{ $labels.cache_name }} 命中率过低"
+            description: "{{ $labels.service }} 的 {{ $labels.cache_name }} 命中率 {{ $value | humanizePercentage }}"
+
+        # 数据库查询错误率 > 1%
+        - alert: DatabaseQueryErrors
+          expr: |
+            sum(rate(minego_db_query_errors_total[5m])) by (service, query_name)
+            /
+            sum(rate(minego_db_query_duration_ms_count[5m])) by (service, query_name)
+            > 0.01
+          for: 5m
+          labels:
+            severity: warning
+            priority: P1
+          annotations:
+            summary: "数据库查询错误率过高"
+            description: "{{ $labels.service }} 的 {{ $labels.query_name }} 错误率 {{ $value | humanizePercentage }}"
+
+        # 内存使用率 > 85%
+        - alert: HighMemoryUsage
+          expr: |
+            sum(container_memory_working_set_bytes{container=~"minego-.*"}) by (pod)
+            /
+            sum(container_spec_memory_limit_bytes{container=~"minego-.*"}) by (pod)
+            > 0.85
+          for: 10m
+          labels:
+            severity: warning
+            priority: P1
+          annotations:
+            summary: "Pod {{ $labels.pod }} 内存使用率过高"
+            description: "内存使用率 {{ $value | humanizePercentage }}，可能需要扩容"
+
+        # CPU 使用率 > 80%
+        - alert: HighCPUUsage
+          expr: |
+            sum(rate(container_cpu_usage_seconds_total{container=~"minego-.*"}[5m])) by (pod)
+            /
+            sum(container_spec_cpu_quota{container=~"minego-.*"}/container_spec_cpu_period{container=~"minego-.*"}) by (pod)
+            > 0.8
+          for: 10m
+          labels:
+            severity: warning
+            priority: P1
+          annotations:
+            summary: "Pod {{ $labels.pod }} CPU 使用率过高"
+            description: "CPU 使用率 {{ $value | humanizePercentage }}，可能需要扩容"
+
+    # ============================================================
+    # P2 告警：需要关注（<1 小时）
+    # ============================================================
+    - name: minego.p2.notice
+      rules:
+        # WebSocket 连接数异常增长
+        - alert: WebSocketConnectionsSpike
+          expr: |
+            sum(minego_websocket_connections_active) > 10000
+          for: 10m
+          labels:
+            severity: info
+            priority: P2
+          annotations:
+            summary: "WebSocket 连接数异常"
+            description: "当前活跃连接数 {{ $value }}，可能需要扩容"
+
+        # 捕捉成功率异常下降
+        - alert: LowCatchSuccessRate
+          expr: |
+            sum(rate(minego_catch_attempts_total{result="success"}[30m]))
+            /
+            sum(rate(minego_catch_attempts_total[30m]))
+            < 0.3
+          for: 30m
+          labels:
+            severity: info
+            priority: P2
+          annotations:
+            summary: "捕捉成功率过低"
+            description: "最近 30 分钟捕捉成功率 {{ $value | humanizePercentage }}，可能影响游戏体验"
+
+        # Pod 重启次数过多
+        - alert: PodRestarts
+          expr: |
+            sum(increase(kube_pod_container_status_restarts_total{container=~"minego-.*"}[1h])) by (pod) > 5
+          for: 5m
+          labels:
+            severity: info
+            priority: P2
+          annotations:
+            summary: "Pod {{ $labels.pod }} 重启次数过多"
+            description: "最近 1 小时重启 {{ $value }} 次，可能存在稳定性问题"
+
+        # 磁盘使用率 > 80%
+        - alert: DiskUsageHigh
+          expr: |
+            sum(kubelet_volume_stats_used_bytes{persistentvolumeclaim=~"minego-.*"}) by (persistentvolumeclaim)
+            /
+            sum(kubelet_volume_stats_capacity_bytes{persistentvolumeclaim=~"minego-.*"}) by (persistentvolumeclaim)
+            > 0.8
+          for: 30m
+          labels:
+            severity: info
+            priority: P2
+          annotations:
+            summary: "PVC {{ $labels.persistentvolumeclaim }} 磁盘使用率过高"
+            description: "磁盘使用率 {{ $value | humanizePercentage }}，需要清理或扩容"
+
+    # ============================================================
+    # SLO 告警：服务可用性目标
+    # ============================================================
+    - name: minego.slo
+      rules:
+        # API Gateway 可用性 < 99.9%（30 天窗口）
+        - alert: APIGatewaySLONotMet
+          expr: |
+            (
+              sum(rate(minego_http_requests_total{service="gateway",status!~"5.."}[30d]))
+              /
+              sum(rate(minego_http_requests_total{service="gateway"}[30d]))
+            ) < 0.999
+          for: 1h
+          labels:
+            severity: warning
+            priority: P1
+          annotations:
+            summary: "API Gateway 未达到可用性 SLO"
+            description: "最近 30 天可用性 {{ $value | humanizePercentage }}，目标 99.9%"
+
+        # Payment 可用性 < 99.95%（7 天窗口）
+        - alert: PaymentServiceSLONotMet
+          expr: |
+            (
+              sum(rate(minego_http_requests_total{service="payment-service",status!~"5.."}[7d]))
+              /
+              sum(rate(minego_http_requests_total{service="payment-service"}[7d]))
+            ) < 0.9995
+          for: 30m
+          labels:
+            severity: critical
+            priority: P0
+          annotations:
+            summary: "支付服务未达到可用性 SLO"
+            description: "最近 7 天可用性 {{ $value | humanizePercentage }}，目标 99.95%"
+
+        # Location Service 可用性 < 99.5%（7 天窗口）
+        - alert: LocationServiceSLONotMet
+          expr: |
+            (
+              sum(rate(minego_http_requests_total{service="location-service",status!~"5.."}[7d]))
+              /
+              sum(rate(minego_http_requests_total{service="location-service"}[7d]))
+            ) < 0.995
+          for: 1h
+          labels:
+            severity: warning
+            priority: P1
+          annotations:
+            summary: "位置服务未达到可用性 SLO"
+            description: "最近 7 天可用性 {{ $value | humanizePercentage }}，目标 99.5%"
+
+    # ============================================================
+    # 业务指标告警
+    # ============================================================
+    - name: minego.business
+      rules:
+        # 支付成功率 < 95%
+        - alert: LowPaymentSuccessRate
+          expr: |
+            sum(rate(minego_payment_transactions_total{status="success"}[1h]))
+            /
+            sum(rate(minego_payment_transactions_total[1h]))
+            < 0.95
+          for: 30m
+          labels:
+            severity: warning
+            priority: P1
+          annotations:
+            summary: "支付成功率过低"
+            description: "最近 1 小时支付成功率 {{ $value | humanizePercentage }}，目标 95%"
+
+        # Raid 参与者数量异常
+        - alert: RaidParticipantsAnomaly
+          expr: |
+            sum(minego_raid_participants_active) > 100
+          for: 10m
+          labels:
+            severity: info
+            priority: P2
+          annotations:
+            summary: "Raid 参与者数量异常"
+            description: "当前活跃 Raid 参与者 {{ $value }} 人，可能需要扩容"
+
+        # 精灵刷新频率异常
+        - alert: PokemonSpawnRateAnomaly
+          expr: |
+            sum(rate(minego_pokemon_spawns_total[5m])) < 0.1
+          for: 30m
+          labels:
+            severity: info
+            priority: P2
+          annotations:
+            summary: "精灵刷新频率过低"
+            description: "最近 5 分钟精灵刷新率 {{ $value }}/s，可能影响游戏体验"

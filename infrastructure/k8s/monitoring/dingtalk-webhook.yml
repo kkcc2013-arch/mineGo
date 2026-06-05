@@ -1,0 +1,165 @@
+# 钉钉 Webhook 部署配置
+# 用于将 Prometheus 告警发送到钉钉群
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dingtalk-config
+  namespace: monitoring
+data:
+  dingtalk.yml: |
+    targets:
+      p0:
+        webhook: https://oapi.dingtalk.com/robot/send?access_token=${DINGTALK_P0_TOKEN}
+        secret: ${DINGTALK_P0_SECRET}
+      p1:
+        webhook: https://oapi.dingtalk.com/robot/send?access_token=${DINGTALK_P1_TOKEN}
+        secret: ${DINGTALK_P1_SECRET}
+    templates:
+      - /etc/dingtalk/templates/default.tmpl
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dingtalk-secret
+  namespace: monitoring
+type: Opaque
+stringData:
+  # 钉钉机器人 Token 和 Secret（需要替换为实际值）
+  p0-token: "YOUR_DINGTALK_P0_TOKEN"
+  p0-secret: "YOUR_DINGTALK_P0_SECRET"
+  p1-token: "YOUR_DINGTALK_P1_TOKEN"
+  p1-secret: "YOUR_DINGTALK_P1_SECRET"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dingtalk-webhook
+  namespace: monitoring
+  labels:
+    app: dingtalk-webhook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dingtalk-webhook
+  template:
+    metadata:
+      labels:
+        app: dingtalk-webhook
+    spec:
+      containers:
+        - name: dingtalk-webhook
+          image: timonwong/prometheus-webhook-dingtalk:v2.1.0
+          args:
+            - --web.listen-address=:8060
+            - --config.file=/config/dingtalk.yml
+            - --log.level=info
+          ports:
+            - name: http
+              containerPort: 8060
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            - name: templates
+              mountPath: /etc/dingtalk/templates
+          env:
+            - name: DINGTALK_P0_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: dingtalk-secret
+                  key: p0-token
+            - name: DINGTALK_P0_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: dingtalk-secret
+                  key: p0-secret
+            - name: DINGTALK_P1_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: dingtalk-secret
+                  key: p1-token
+            - name: DINGTALK_P1_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: dingtalk-secret
+                  key: p1-secret
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: config
+          configMap:
+            name: dingtalk-config
+        - name: templates
+          configMap:
+            name: dingtalk-templates
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dingtalk-webhook
+  namespace: monitoring
+  labels:
+    app: dingtalk-webhook
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8060
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: dingtalk-webhook
+
+---
+# 钉钉消息模板
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dingtalk-templates
+  namespace: monitoring
+data:
+  default.tmpl: |
+    {{ define "__subject" }}
+    [{{ .Status | toUpper }}] {{ .CommonAnnotations.summary }}
+    {{ end }}
+
+    {{ define "__text" }}
+    **状态**: {{ .Status | toUpper }}
+    **优先级**: {{ .CommonLabels.priority }}
+    **服务**: {{ .CommonLabels.service }}
+    **告警名称**: {{ .CommonLabels.alertname }}
+    **描述**: {{ .CommonAnnotations.description }}
+    {{ if .CommonAnnotations.runbook_url }}
+    **Runbook**: {{ .CommonAnnotations.runbook_url }}
+    {{ end }}
+    {{ end }}
+
+    {
+      "msgtype": "markdown",
+      "markdown": {
+        "title": "{{ template "__subject" . }}",
+        "text": "### {{ template "__subject" . }}\n\n{{ template "__text" . }}"
+      }
+    }

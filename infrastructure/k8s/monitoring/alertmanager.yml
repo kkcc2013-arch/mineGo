@@ -1,0 +1,164 @@
+# mineGo Alertmanager 配置
+# 支持钉钉和 Slack 通知
+
+global:
+  resolve_timeout: 5m
+  # SMTP 配置（邮件通知）
+  smtp_smarthost: 'smtp.example.com:587'
+  smtp_from: 'alerts@minego.io'
+  smtp_require_tls: true
+
+# 模板配置
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# 路由配置
+route:
+  # 默认接收者
+  receiver: 'default'
+  # 按 severity 和 priority 分组
+  group_by: ['severity', 'priority', 'service', 'alertname']
+  # 同组告警等待时间（避免重复通知）
+  group_wait: 30s
+  # 同组告警间隔时间
+  group_interval: 5m
+  # 重复告警间隔时间
+  repeat_interval: 4h
+
+  routes:
+    # P0 告警 → 立即通知 + 电话
+    - match:
+        priority: P0
+      receiver: 'p0-critical'
+      group_wait: 10s
+      group_interval: 1m
+      repeat_interval: 1h
+      continue: false
+
+    # P1 告警 → 钉钉通知
+    - match:
+        priority: P1
+      receiver: 'p1-important'
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+      continue: false
+
+    # P2 告警 → Slack 通知
+    - match:
+        priority: P2
+      receiver: 'p2-notice'
+      group_wait: 5m
+      group_interval: 30m
+      repeat_interval: 12h
+      continue: false
+
+    # 服务宕机特殊处理
+    - match:
+        alertname: ServiceDown
+      receiver: 'p0-critical'
+      group_wait: 10s
+      group_interval: 1m
+      repeat_interval: 30m
+      continue: false
+
+# 接收者配置
+receivers:
+  - name: 'default'
+    slack_configs:
+      - channel: '#minego-alerts'
+        send_resolved: true
+        title: '{{ .Status | toUpper }}: {{ .CommonAnnotations.summary }}'
+        text: '{{ .CommonAnnotations.description }}'
+        color: '{{ if eq .Status "firing" }}{{ if eq .CommonLabels.severity "critical" }}danger{{ else if eq .CommonLabels.severity "warning" }}warning{{ else }}good{{ end }}{{ else }}good{{ end }}'
+
+  - name: 'p0-critical'
+    # 钉钉 Webhook
+    webhook_configs:
+      - url: 'http://dingtalk-webhook:8060/dingtalk/p0/send'
+        send_resolved: true
+    # 同时发送 Slack
+    slack_configs:
+      - channel: '#minego-p0-alerts'
+        send_resolved: true
+        title: '🚨 P0 告警: {{ .CommonAnnotations.summary }}'
+        text: |
+          *状态*: {{ .Status | toUpper }}
+          *服务*: {{ .CommonLabels.service }}
+          *描述*: {{ .CommonAnnotations.description }}
+          *Runbook*: {{ .CommonAnnotations.runbook_url }}
+        color: 'danger'
+        actions:
+          - type: button
+            text: '查看详情'
+            url: '{{ .CommonAnnotations.runbook_url }}'
+          - type: button
+            text: 'Grafana'
+            url: 'https://grafana.minego.io/d/{{ .CommonLabels.service }}'
+    # 邮件通知
+    email_configs:
+      - to: 'oncall@minego.io'
+        send_resolved: true
+        html: |
+          <h2>🚨 P0 告警: {{ .CommonAnnotations.summary }}</h2>
+          <p><strong>状态:</strong> {{ .Status | toUpper }}</p>
+          <p><strong>服务:</strong> {{ .CommonLabels.service }}</p>
+          <p><strong>描述:</strong> {{ .CommonAnnotations.description }}</p>
+          <p><a href="{{ .CommonAnnotations.runbook_url }}">查看 Runbook</a></p>
+
+  - name: 'p1-important'
+    slack_configs:
+      - channel: '#minego-p1-alerts'
+        send_resolved: true
+        title: '⚠️ P1 告警: {{ .CommonAnnotations.summary }}'
+        text: |
+          *状态*: {{ .Status | toUpper }}
+          *服务*: {{ .CommonLabels.service }}
+          *描述*: {{ .CommonAnnotations.description }}
+        color: 'warning'
+
+  - name: 'p2-notice'
+    slack_configs:
+      - channel: '#minego-alerts'
+        send_resolved: true
+        title: 'ℹ️ P2 通知: {{ .CommonAnnotations.summary }}'
+        text: '{{ .CommonAnnotations.description }}'
+        color: 'good'
+
+# 抑制规则
+inhibit_rules:
+  # 如果服务宕机（P0），抑制该服务的所有 P1/P2 告警
+  - source_match:
+      severity: 'critical'
+      alertname: 'ServiceDown'
+    target_match_re:
+      severity: 'warning|info'
+    equal: ['service']
+
+  # 如果数据库连接池耗尽（P0），抑制数据库查询错误告警
+  - source_match:
+      alertname: 'DatabaseConnectionPoolExhausted'
+    target_match_re:
+      alertname: 'DatabaseQueryErrors'
+    equal: ['service']
+
+  # 如果 Redis 连接失败（P0），抑制缓存命中率告警
+  - source_match:
+      alertname: 'RedisConnectionFailed'
+    target_match_re:
+      alertname: 'LowCacheHitRate'
+    equal: ['service']
+
+  # 如果高错误率（P0），抑制延迟告警
+  - source_match:
+      alertname: 'HighErrorRate'
+      severity: 'critical'
+    target_match_re:
+      alertname: 'HighLatency'
+    equal: ['service']
+
+  # 如果支付服务慢（P0），抑制支付 SLO 告警
+  - source_match:
+      alertname: 'PaymentServiceSlow'
+    target_match_re:
+      alertname: 'PaymentServiceSLONotMet'

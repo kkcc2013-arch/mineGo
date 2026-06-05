@@ -11,11 +11,11 @@
 | 安全与合规 | 15 | 13 | 支付幂等性与签名验证已实现，基础鉴权完善，缺少防刷机制 |
 | 性能与可扩展 | 15 | 7 | Redis GEO 缓存已实现，但缺少索引优化、横向扩展能力不足 |
 | 测试覆盖 | 10 | 9 | 单测覆盖优秀(95个)，缺少集成/E2E测试 |
-| 可观测性 | 10 | 10 | 结构化日志、Prometheus指标已集成，所有服务暴露/metrics端点 |
+| 可观测性 | 10 | 10 | 结构化日志、Prometheus指标、告警规则已集成，所有服务暴露/metrics端点 |
 | 运维与交付 | 5 | 3 | 有CI/CD，缺少灰度、回滚机制 |
 | 文档与开发者体验 | 5 | 3 | README完整，缺少API文档 |
 
-**总分：76/100**
+**总分：78/100**
 
 ## 未覆盖高价值缺口
 
@@ -27,16 +27,16 @@
 
 ## 需求统计
 
-- 总需求：5
+- 总需求：6
 - P0：3 (new: 0, done: 3)
-- P1：2 (new: 1, done: 1)
+- P1：3 (new: 1, done: 2)
 - P2：0
 - P3：0
-- 已完成：4
+- 已完成：5
 
 ## 最后更新
 
-2026-06-05 01:35 UTC
+2026-06-05 02:05 UTC
 
 ## 已完成需求
 
@@ -79,3 +79,14 @@
   - backend/tests/README.md (新增测试文档)
   - backend/package.json (添加测试脚本)
   - docs/review/REQ-00004-review.md (新增审核文档)
+
+### REQ-00005: Prometheus 告警规则与 Alertmanager 集成
+- **完成时间**: 2026-06-05 02:05
+- **影响**: 可观测性 - 完整告警体系，支持钉钉/Slack通知
+- **修改文件**:
+  - infrastructure/k8s/monitoring/prometheus-rules.yml (新增告警规则)
+  - infrastructure/k8s/monitoring/alertmanager.yml (新增Alertmanager配置)
+  - infrastructure/k8s/monitoring/dingtalk-webhook.yml (新增钉钉Webhook)
+  - scripts/test-alerts.sh (新增告警测试脚本)
+  - scripts/alert-monitor.sh (新增告警监控脚本)
+  - docs/review/REQ-00005-review.md (新增审核文档)
