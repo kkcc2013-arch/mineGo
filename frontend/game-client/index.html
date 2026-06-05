@@ -270,6 +270,14 @@
     <div class="inv-row"><div class="inv-icon">⭐</div><div class="inv-name">星尘</div><div class="inv-qty" id="i-dust">0</div></div>
     <div class="inv-row"><div class="inv-icon">💎</div><div class="inv-name">精灵币</div><div class="inv-qty" id="i-coin">0</div></div>
   </div>
+  <div class="inv-card">
+    <div class="inv-header">设置</div>
+    <div class="inv-row" onclick="showLanguageSelector()" style="cursor:pointer;">
+      <div class="inv-icon">🌐</div>
+      <div class="inv-name">语言设置</div>
+      <div class="inv-qty" id="current-lang">简体中文</div>
+    </div>
+  </div>
   <div class="logout-wrap">
     <button class="btn btn-outline" onclick="doLogout()">退出登录</button>
   </div>
@@ -348,6 +356,56 @@ window.addEventListener('offline', () => {
   toast('⚠️ 当前离线', '');
 });
 window.addEventListener('load', updateOfflineStatus);
+
+// ── Language Support (i18n) ─────────────────────────────────────
+const SUPPORTED_LANGS = ['zh-CN', 'en-US', 'ja-JP'];
+const LANG_FLAGS = { 'zh-CN': '🇨🇳', 'en-US': '🇺🇸', 'ja-JP': '🇯🇵' };
+const LANG_NAMES = { 'zh-CN': '简体中文', 'en-US': 'English', 'ja-JP': '日本語' };
+
+function getCurrentLanguage() {
+  return localStorage.getItem('pmg_language') || document.documentElement.lang || 'zh-CN';
+}
+
+window.getCurrentLanguage = getCurrentLanguage;
+
+window.changeLanguage = async function(lang) {
+  if (!SUPPORTED_LANGS.includes(lang)) return;
+  
+  // Update localStorage
+  localStorage.setItem('pmg_language', lang);
+  document.documentElement.lang = lang;
+  
+  // Update UI
+  const langDisplay = document.getElementById('current-lang');
+  if (langDisplay) langDisplay.textContent = LANG_NAMES[lang];
+  
+  // Close modal if open
+  const modal = document.getElementById('lang-modal');
+  if (modal) modal.remove();
+  
+  // Show notification
+  toast(`🌐 语言已切换为 ${LANG_NAMES[lang]}`, 'ok');
+  
+  // Sync to server if logged in
+  const token = localStorage.getItem('pmg_access_token');
+  if (token) {
+    try {
+      await fetch('/v1/users/me/language', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ language: lang })
+      });
+    } catch (err) {
+      console.warn('[i18n] Failed to sync language preference:', err);
+    }
+  }
+  
+  // Reload page to apply changes
+  setTimeout(() => location.reload(), 1000);
+};
 
 // ── PWA Install Prompt ────────────────────────────────────────
 let deferredPrompt = null;
@@ -715,6 +773,75 @@ setInterval(() => { if (curScreen === 'map') loadMap(); }, 30000);
 if (localStorage.getItem('pmg_access_token')) {
   api.getMe().then(u => afterLogin(u)).catch(() => {});
 }
+
+// ── i18n Language Support ────────────────────────────────────────
+const SUPPORTED_LANGS = ['zh-CN', 'en-US', 'ja-JP'];
+const LANG_NAMES = { 'zh-CN': '简体中文', 'en-US': 'English', 'ja-JP': '日本語' };
+const LANG_FLAGS = { 'zh-CN': '🇨🇳', 'en-US': '🇺🇸', 'ja-JP': '🇯🇵' };
+
+function getCurrentLanguage() {
+  return localStorage.getItem('pmg_language') || 'zh-CN';
+}
+
+async function changeLanguage(lang) {
+  if (!SUPPORTED_LANGS.includes(lang)) return;
+  localStorage.setItem('pmg_language', lang);
+  document.documentElement.lang = lang;
+  
+  // Sync to server if logged in
+  const token = localStorage.getItem('pmg_access_token');
+  if (token) {
+    try {
+      await fetch('/api/users/me/language', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ language: lang })
+      });
+    } catch (e) { console.warn('Failed to sync language:', e); }
+  }
+  
+  toast(`🌐 语言已切换为 ${LANG_NAMES[lang]}`, 'ok');
+  setTimeout(() => location.reload(), 1000);
+}
+
+// Initialize language from storage or browser
+(function initLanguage() {
+  const stored = localStorage.getItem('pmg_language');
+  if (stored && SUPPORTED_LANGS.includes(stored)) {
+    document.documentElement.lang = stored;
+  } else {
+    const browserLang = navigator.language || navigator.userLanguage;
+    let lang = 'zh-CN';
+    if (browserLang?.startsWith('en')) lang = 'en-US';
+    else if (browserLang?.startsWith('ja')) lang = 'ja-JP';
+    document.documentElement.lang = lang;
+    localStorage.setItem('pmg_language', lang);
+  }
+})();
+
+// Language selector UI
+window.showLanguageSelector = function() {
+  const current = getCurrentLanguage();
+  const options = SUPPORTED_LANGS.map(l => 
+    `<button onclick="changeLanguage('${l}')" style="display:flex;align-items:center;gap:10px;width:100%;padding:14px 16px;background:${l===current?'var(--surface2)':'var(--surface)'};border:1px solid var(--border);border-radius:10px;margin-bottom:8px;cursor:pointer;color:${l===current?'var(--blue)':'var(--text)'};font-size:15px;font-weight:600;text-align:left;">\n      <span style="font-size:24px;">${LANG_FLAGS[l]}</span>\n      <span>${LANG_NAMES[l]}</span>\n      ${l===current?'<span style="margin-left:auto;color:var(--blue);">✓</span>':''}\n    </button>`
+  ).join('');
+  
+  const modal = document.createElement('div');
+  modal.id = 'lang-modal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;padding:20px;';
+  modal.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;max-width:320px;width:100%;">
+      <div style="font-size:18px;font-weight:700;margin-bottom:16px;text-align:center;">🌐 语言设置</div>
+      <div style="margin-bottom:16px;">${options}</div>
+      <button onclick="document.getElementById('lang-modal').remove()" style="width:100%;padding:12px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--muted);font-size:14px;cursor:pointer;">关闭</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+};
 </script>
 </body>
 </html>

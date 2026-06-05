@@ -1,0 +1,171 @@
+{
+  "common": {
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "retry": "Retry",
+    "close": "Close",
+    "save": "Save",
+    "back": "Back",
+    "settings": "Settings",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register",
+    "search": "Search",
+    "submit": "Submit",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "yes": "Yes",
+    "no": "No",
+    "ok": "OK"
+  },
+  "game": {
+    "catch": {
+      "title": "Catch",
+      "success": "Caught successfully!",
+      "failed": "Catch failed, Pokémon fled",
+      "throw": "Throw Pokéball",
+      "escaped": "Pokémon escaped!",
+      "greatThrow": "Great Throw!",
+      "excellentThrow": "Excellent Throw!",
+      "curveball": "Curveball",
+      "useItem": "Use Item",
+      "noBalls": "No Pokéballs left"
+    },
+    "gym": {
+      "title": "Gym",
+      "battle": "Challenge Gym",
+      "defeat": "Defeat Gym",
+      "reward": "Reward",
+      "cooldown": "Gym is cooling down",
+      "defender": "Defender",
+      "prestige": "Prestige",
+      "team": "Team",
+      "join": "Join",
+      "leave": "Leave"
+    },
+    "pokestop": {
+      "title": "Pokéstop",
+      "spin": "Spin Pokéstop",
+      "tooFar": "Get closer to spin",
+      "items": "Items obtained",
+      "cooldown": "Pokéstop is cooling down",
+      "fullBag": "Bag is full"
+    },
+    "pokemon": {
+      "nearby": "Nearby Pokémon",
+      "wild": "Wild Pokémon",
+      "caught": "Caught",
+      "cp": "CP",
+      "hp": "HP",
+      "type": "Type",
+      "evolve": "Evolve",
+      "transfer": "Transfer",
+      "favorite": "Favorite",
+      "powerup": "Power Up"
+    },
+    "inventory": {
+      "title": "Inventory",
+      "pokeballs": "Pokéballs",
+      "potions": "Potions",
+      "revives": "Revives",
+      "berries": "Berries",
+      "items": "Items"
+    },
+    "player": {
+      "level": "Level",
+      "xp": "XP",
+      "stardust": "Stardust",
+      "coins": "Coins",
+      "profile": "Profile"
+    }
+  },
+  "error": {
+    "network": "Network connection failed",
+    "auth": "Session expired, please login again",
+    "permission": "No permission to perform this action",
+    "rateLimit": "Too many requests, please wait",
+    "unknown": "An unknown error occurred",
+    "gps": "GPS location failed",
+    "gpsDenied": "GPS permission denied",
+    "speedWarning": "Moving too fast, features temporarily limited",
+    "serverError": "Server error",
+    "notFound": "Not found",
+    "invalidRequest": "Invalid request",
+    "catchOutOfRange": "Too far from Pokémon, please get closer",
+    "gymCooldown": "Gym is cooling down, please try again later",
+    "insufficientResources": "Insufficient resources",
+    "alreadyExists": "Already exists"
+  },
+  "login": {
+    "title": "Pocket Monster Go",
+    "subtitle": "Start your adventure",
+    "phone": "Phone",
+    "smsCode": "Code",
+    "sendSms": "Send Code",
+    "resendSms": "Resend",
+    "nickname": "Nickname",
+    "loginBtn": "Login",
+    "registerBtn": "Register",
+    "smsSent": "Code sent",
+    "invalidPhone": "Please enter a valid phone number",
+    "invalidCode": "Invalid code",
+    "welcome": "Welcome back",
+    "newUser": "New user?",
+    "existingUser": "Have an account?"
+  },
+  "map": {
+    "title": "Map",
+    "refresh": "Refresh",
+    "noPokemon": "No Pokémon nearby",
+    "noPokestops": "No Pokéstops nearby",
+    "noGyms": "No Gyms nearby",
+    "locating": "Locating...",
+    "locationOff": "Location services disabled",
+    "compass": "Compass",
+    "layers": "Layers"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "languageDesc": "Select interface language",
+    "notifications": "Notifications",
+    "sound": "Sound",
+    "music": "Music",
+    "vibration": "Vibration",
+    "about": "About",
+    "version": "Version",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "clearCache": "Clear Cache",
+    "account": "Account"
+  },
+  "language": {
+    "title": "Language Settings",
+    "zhCN": "简体中文",
+    "enUS": "English",
+    "jaJP": "日本語",
+    "auto": "Auto Detect",
+    "changeNotice": "Page will refresh after changing language"
+  },
+  "notification": {
+    "pokemonSpawn": "A new Pokémon appeared nearby!",
+    "pokestopReady": "Pokéstop is ready",
+    "gymUnderAttack": "Gym is under attack",
+    "raidStarting": "Raid is starting soon",
+    "friendRequest": "Friend request",
+    "giftReceived": "Gift received"
+  },
+  "time": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow",
+    "now": "Now",
+    "minutesAgo": "{{count}} minutes ago",
+    "hoursAgo": "{{count}} hours ago",
+    "daysAgo": "{{count}} days ago",
+    "inMinutes": "In {{count}} minutes",
+    "inHours": "In {{count}} hours"
+  }
+}

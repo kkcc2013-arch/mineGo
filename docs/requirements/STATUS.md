@@ -17,7 +17,7 @@
 | 数据库治理 | 5 | 4 | 迁移管理系统已实现，缺少备份策略 |
 | 前端体验 | 5 | 5 | PWA 离线支持、Service Worker 缓存、可安装、后台同步已实现 |
 
-**总分：92/100**
+**总分：94/100**
 
 ## 未覆盖高价值缺口
 
@@ -30,13 +30,13 @@
 - 总需求：11
 - P0：5 (new: 0, done: 5)
 - P1：5 (new: 0, done: 5)
-- P2：1 (new: 1, done: 0)
+- P2：1 (new: 0, done: 1)
 - P3：0
-- 已完成：10
+- 已完成：11
 
 ## 最后更新
 
-2026-06-05 06:10 UTC
+2026-06-05 09:15 UTC
 
 ## 已完成需求
 
@@ -138,3 +138,21 @@
   - database/pending/20260605_060000__add_anti_cheat_tables.sql (新增数据库表)
   - backend/tests/unit/anti-cheat.test.js (新增单元测试)
   - docs/review/REQ-00010-review.md (新增审核文档)
+
+### REQ-00011: 游戏客户端多语言国际化支持
+- **完成时间**: 2026-06-05 09:15
+- **影响**: 国际化/本地化 - 支持中文、英文、日文三种语言
+- **修改文件**:
+  - frontend/game-client/src/i18n/index.js (新增 i18n 核心模块)
+  - frontend/game-client/src/i18n/locales/zh-CN.json (新增中文语言包)
+  - frontend/game-client/src/i18n/locales/en-US.json (新增英文语言包)
+  - frontend/game-client/src/i18n/locales/ja-JP.json (新增日文语言包)
+  - frontend/game-client/src/components/LanguageSelector.js (新增语言选择器)
+  - frontend/game-client/index.html (集成 i18n)
+  - backend/shared/i18n.js (新增服务端 i18n 中间件)
+  - backend/services/user-service/src/routes/user.js (添加语言偏好 API)
+  - backend/services/user-service/src/index.js (集成 i18n 中间件)
+  - database/pending/20260605_090000__add_user_language_preference.sql (新增数据库迁移)
+  - scripts/validate-i18n.js (新增翻译验证脚本)
+  - backend/tests/unit/i18n.test.js (新增单元测试)
+  - docs/review/REQ-00011-review.md (新增审核文档)

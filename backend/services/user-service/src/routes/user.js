@@ -4,6 +4,7 @@ const express = require('express');
 const { z }   = require('zod');
 const { query } = require('../../../../shared/db');
 const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
+const { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('../../../../shared/i18n');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -133,6 +134,55 @@ router.get('/me/achievements', async (req, res, next) => {
       ORDER BY ad.category, ad.id
     `, [req.user.sub]);
     res.json(successResp(rows));
+  } catch (err) { next(err); }
+});
+
+// ── PUT /users/me/language ────────────────────────────────────
+// Update user's language preference for i18n
+router.put('/me/language', async (req, res, next) => {
+  try {
+    const schema = z.object({
+      language: z.enum(SUPPORTED_LANGUAGES)
+    });
+    const { language } = schema.parse(req.body);
+
+    await query(
+      'UPDATE users SET language_preference = $1 WHERE id = $2',
+      [language, req.user.sub]
+    );
+
+    res.json(successResp({ language }, '语言偏好已更新'));
+  } catch (err) {
+    if (err.name === 'ZodError') {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: '无效的语言代码，支持的语言: ' + SUPPORTED_LANGUAGES.join(', ')
+        }
+      });
+    }
+    next(err);
+  }
+});
+
+// ── GET /users/me/language ────────────────────────────────────
+// Get user's current language preference
+router.get('/me/language', async (req, res, next) => {
+  try {
+    const { rows: [user] } = await query(
+      'SELECT language_preference FROM users WHERE id = $1',
+      [req.user.sub]
+    );
+
+    if (!user) {
+      throw new AppError(2003, '用户不存在', 404);
+    }
+
+    res.json(successResp({
+      language: user.language_preference || DEFAULT_LANGUAGE,
+      supportedLanguages: SUPPORTED_LANGUAGES
+    }));
   } catch (err) { next(err); }
 });
 

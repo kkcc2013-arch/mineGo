@@ -7,6 +7,8 @@ import { store }           from './game/GameStore.js';
 import { LocationManager } from './game/LocationManager.js';
 import { CatchEngine }     from './game/CatchEngine.js';
 import { RaidManager }     from './game/RaidManager.js';
+import { i18n }            from './i18n/index.js';
+import { autoInitLanguageSelectors } from './components/LanguageSelector.js';
 
 // ── Managers ─────────────────────────────────────────────────
 const locationMgr = new LocationManager(api);
@@ -85,6 +87,13 @@ raidMgr.addEventListener('disconnected', (ev) => {
 // ── App initialization ────────────────────────────────────────
 async function init() {
   console.log('[PMG] Initializing...');
+
+  // Initialize i18n (internationalization)
+  await i18n.init();
+  console.log(`[PMG] Language: ${i18n.getLanguage()}`);
+
+  // Auto-initialize language selectors in the DOM
+  autoInitLanguageSelectors();
 
   // Check existing auth
   const token = localStorage.getItem('pmg_access_token');

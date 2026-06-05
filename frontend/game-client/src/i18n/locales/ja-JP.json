@@ -1,0 +1,171 @@
+{
+  "common": {
+    "confirm": "確認",
+    "cancel": "キャンセル",
+    "loading": "読み込み中...",
+    "retry": "再試行",
+    "close": "閉じる",
+    "save": "保存",
+    "back": "戻る",
+    "settings": "設定",
+    "logout": "ログアウト",
+    "login": "ログイン",
+    "register": "登録",
+    "search": "検索",
+    "submit": "送信",
+    "delete": "削除",
+    "edit": "編集",
+    "add": "追加",
+    "yes": "はい",
+    "no": "いいえ",
+    "ok": "OK"
+  },
+  "game": {
+    "catch": {
+      "title": "捕獲",
+      "success": "捕獲成功！",
+      "failed": "捕獲失敗、ポケモンが逃げた",
+      "throw": "モンスターボールを投げる",
+      "escaped": "ポケモンが逃げた！",
+      "greatThrow": "グレートスロー！",
+      "excellentThrow": "エクセレントスロー！",
+      "curveball": "カーブボール",
+      "useItem": "アイテムを使う",
+      "noBalls": "モンスターボールがない"
+    },
+    "gym": {
+      "title": "ジム",
+      "battle": "ジムバトル",
+      "defeat": "ジム攻略",
+      "reward": "報酬",
+      "cooldown": "ジムはクールダウン中",
+      "defender": "防衛者",
+      "prestige": "名声",
+      "team": "チーム",
+      "join": "参加",
+      "leave": "離脱"
+    },
+    "pokestop": {
+      "title": "ポケストップ",
+      "spin": "ポケストップを回す",
+      "tooFar": "近づいてから回してください",
+      "items": "アイテム獲得",
+      "cooldown": "ポケストップはクールダウン中",
+      "fullBag": "バッグがいっぱい"
+    },
+    "pokemon": {
+      "nearby": "近くのポケモン",
+      "wild": "野生ポケモン",
+      "caught": "捕獲済み",
+      "cp": "CP",
+      "hp": "HP",
+      "type": "タイプ",
+      "evolve": "進化",
+      "transfer": "移動",
+      "favorite": "お気に入り",
+      "powerup": "強化"
+    },
+    "inventory": {
+      "title": "バッグ",
+      "pokeballs": "モンスターボール",
+      "potions": "キズぐすり",
+      "revives": "げんきのかたまり",
+      "berries": "きのみ",
+      "items": "アイテム"
+    },
+    "player": {
+      "level": "レベル",
+      "xp": "経験値",
+      "stardust": "ほしのすな",
+      "coins": "コイン",
+      "profile": "プロフィール"
+    }
+  },
+  "error": {
+    "network": "ネットワーク接続エラー",
+    "auth": "ログイン期限切れ、再度ログインしてください",
+    "permission": "この操作の権限がありません",
+    "rateLimit": "リクエストが多すぎます",
+    "unknown": "不明なエラーが発生しました",
+    "gps": "GPS位置情報エラー",
+    "gpsDenied": "GPS権限が拒否されました",
+    "speedWarning": "移動速度が速すぎます、機能が一時制限されています",
+    "serverError": "サーバーエラー",
+    "notFound": "見つかりません",
+    "invalidRequest": "無効なリクエスト",
+    "catchOutOfRange": "ポケモンから遠すぎます、近づいてください",
+    "gymCooldown": "ジムはクールダウン中、後でお試しください",
+    "insufficientResources": "リソース不足",
+    "alreadyExists": "既に存在します"
+  },
+  "login": {
+    "title": "ポケットモンスター Go",
+    "subtitle": "冒険の旅へ",
+    "phone": "電話番号",
+    "smsCode": "認証コード",
+    "sendSms": "コード送信",
+    "resendSms": "再送信",
+    "nickname": "ニックネーム",
+    "loginBtn": "ログイン",
+    "registerBtn": "登録",
+    "smsSent": "コードを送信しました",
+    "invalidPhone": "正しい電話番号を入力してください",
+    "invalidCode": "認証コードが正しくありません",
+    "welcome": "おかえりなさい",
+    "newUser": "新規ユーザー？",
+    "existingUser": "アカウントをお持ちですか？"
+  },
+  "map": {
+    "title": "マップ",
+    "refresh": "更新",
+    "noPokemon": "近くにポケモンがいません",
+    "noPokestops": "近くにポケストップがありません",
+    "noGyms": "近くにジムがありません",
+    "locating": "位置情報取得中...",
+    "locationOff": "位置情報サービスが無効です",
+    "compass": "コンパス",
+    "layers": "レイヤー"
+  },
+  "settings": {
+    "title": "設定",
+    "language": "言語",
+    "languageDesc": "インターフェース言語を選択",
+    "notifications": "通知",
+    "sound": "サウンド",
+    "music": "音楽",
+    "vibration": "振動",
+    "about": "について",
+    "version": "バージョン",
+    "privacy": "プライバシーポリシー",
+    "terms": "利用規約",
+    "clearCache": "キャッシュクリア",
+    "account": "アカウント"
+  },
+  "language": {
+    "title": "言語設定",
+    "zhCN": "简体中文",
+    "enUS": "English",
+    "jaJP": "日本語",
+    "auto": "自動検出",
+    "changeNotice": "言語変更後、ページが更新されます"
+  },
+  "notification": {
+    "pokemonSpawn": "近くに新しいポケモンが現れました！",
+    "pokestopReady": "ポケストップが準備完了",
+    "gymUnderAttack": "ジムが攻撃されています",
+    "raidStarting": "レイドバトルがまもなく開始",
+    "friendRequest": "フレンドリクエスト",
+    "giftReceived": "ギフトを受け取りました"
+  },
+  "time": {
+    "today": "今日",
+    "yesterday": "昨日",
+    "tomorrow": "明日",
+    "now": "今",
+    "minutesAgo": "{{count}}分前",
+    "hoursAgo": "{{count}}時間前",
+    "daysAgo": "{{count}}日前",
+    "inMinutes": "{{count}}分後",
+    "inHours": "{{count}}時間後"
+  }
+}
