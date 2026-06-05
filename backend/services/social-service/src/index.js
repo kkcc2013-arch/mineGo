@@ -8,6 +8,7 @@ const { query, transaction } = require('../../../shared/db');
 const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
+const tradeRoutes = require('./routes/trade');
 
 const logger = createLogger('social-service');
 const SERVICE_NAME = 'social-service';
@@ -193,113 +194,6 @@ app.post('/friends/gifts/:id/open', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// ── POST /trades/initiate ─────────────────────────────────────
-app.post('/trades/initiate', requireAuth, async (req, res, next) => {
-  try {
-    const { receiverId, offeredPokemonId, isRemote } = req.body;
-    const initiatorId = req.user.sub;
-
-    if (!receiverId || !offeredPokemonId) throw new AppError(1001, '缺少必填参数', 400);
-
-    // Must be friends
-    const [a, b] = initiatorId < receiverId ? [initiatorId, receiverId] : [receiverId, initiatorId];
-    const { rows: [fs] } = await query(
-      'SELECT level FROM friendships WHERE user_a=$1 AND user_b=$2', [a, b]
-    );
-    if (!fs) throw new AppError(2009, '你们还不是好友', 400);
-
-    // Remote trade: requires BEST friends
-    if (isRemote && fs.level !== 'BEST') {
-      throw new AppError(2016, '远程交换需要「最好的朋友」等级', 400);
-    }
-
-    // Check offered pokemon belongs to initiator
-    const { rows: [poke] } = await query(`
-      SELECT pi.id, pi.species_id, pi.cp, ps.rarity
-      FROM pokemon_instances pi JOIN pokemon_species ps ON ps.id=pi.species_id
-      WHERE pi.id=$1 AND pi.user_id=$2 AND pi.defending_gym_id IS NULL
-    `, [offeredPokemonId, initiatorId]);
-    if (!poke) throw new AppError(3001, '精灵不存在或正在道馆驻守', 404);
-
-    // Stardust cost by rarity
-    const COST = { COMMON:100, UNCOMMON:300, RARE:1600, EPIC:40000, LEGENDARY:80000 };
-    const cost = isRemote ? (COST[poke.rarity]||100) * 3 : (COST[poke.rarity]||100);
-
-    const { rows: [user] } = await query('SELECT stardust FROM users WHERE id=$1', [initiatorId]);
-    if (user.stardust < cost) throw new AppError(3010, `星尘不足（需要 ${cost}）`, 400);
-
-    const { rows: [trade] } = await query(`
-      INSERT INTO pokemon_trades (initiator_id, receiver_id, offered_pokemon, stardust_cost, is_remote)
-      VALUES ($1,$2,$3,$4,$5) RETURNING id
-    `, [initiatorId, receiverId, offeredPokemonId, cost, isRemote||false]);
-
-    res.status(201).json(successResp({
-      tradeId: trade.id, stardustCost: cost,
-      offeredPokemon: { id: poke.id, speciesId: poke.species_id, cp: poke.cp, rarity: poke.rarity },
-    }));
-  } catch (err) { next(err); }
-});
-
-// ── POST /trades/:id/accept ───────────────────────────────────
-app.post('/trades/:id/accept', requireAuth, async (req, res, next) => {
-  try {
-    const { receivedPokemonId } = req.body;
-    const receiverId = req.user.sub;
-    const tradeId    = req.params.id;
-
-    const { rows: [trade] } = await query(`
-      SELECT * FROM pokemon_trades WHERE id=$1 AND receiver_id=$2 AND status='PENDING'
-    `, [tradeId, receiverId]);
-    if (!trade) throw new AppError(2017, '交换请求不存在', 404);
-
-    // Verify receiver's pokemon
-    const { rows: [rPoke] } = await query(`
-      SELECT id FROM pokemon_instances WHERE id=$1 AND user_id=$2 AND defending_gym_id IS NULL
-    `, [receivedPokemonId, receiverId]);
-    if (!rPoke) throw new AppError(3001, '精灵不存在或正在道馆驻守', 404);
-
-    // Lucky trade probability
-    const { rows: [fs] } = await query(`
-      SELECT interaction_days FROM friendships
-      WHERE (user_a=$1 AND user_b=$2) OR (user_a=$2 AND user_b=$1)
-    `, [trade.initiator_id, receiverId]);
-    const isLucky = (fs?.interaction_days || 0) >= 365 && Math.random() < 0.25;
-
-    await transaction(async (client) => {
-      // Swap ownership
-      await client.query('UPDATE pokemon_instances SET user_id=$1 WHERE id=$2', [receiverId, trade.offered_pokemon]);
-      await client.query('UPDATE pokemon_instances SET user_id=$1 WHERE id=$2', [trade.initiator_id, receivedPokemonId]);
-
-      // Lucky bonus: boost IVs to minimum 12
-      if (isLucky) {
-        await client.query(`
-          UPDATE pokemon_instances SET
-            iv_attack=GREATEST(iv_attack,12), iv_defense=GREATEST(iv_defense,12), iv_hp=GREATEST(iv_hp,12),
-            is_lucky=true
-          WHERE id=$1 OR id=$2
-        `, [trade.offered_pokemon, receivedPokemonId]);
-      }
-
-      // Deduct stardust from both parties
-      await client.query('UPDATE users SET stardust=stardust-$1 WHERE id=$2', [trade.stardust_cost, trade.initiator_id]);
-      await client.query('UPDATE users SET stardust=stardust-$1 WHERE id=$2', [trade.stardust_cost, receiverId]);
-
-      await client.query(`
-        UPDATE pokemon_trades SET received_pokemon=$1, status='COMPLETED', is_lucky=$2, traded_at=NOW()
-        WHERE id=$3
-      `, [receivedPokemonId, isLucky, tradeId]);
-
-      // Achievement
-      await client.query(`
-        INSERT INTO user_achievements(user_id,achievement_id,current_value,updated_at) VALUES($1,'friend_count',0,NOW())
-        ON CONFLICT(user_id,achievement_id) DO UPDATE SET current_value=user_achievements.current_value+1,updated_at=NOW()
-      `, [receiverId]);
-    });
-
-    res.json(successResp({ isLucky, message: isLucky ? '幸运交换！精灵个体值提升！' : '交换完成' }));
-  } catch (err) { next(err); }
-});
-
 function generateGiftItems(friendLevel) {
   const base = [{ type: 'POKE_BALL', qty: 2 + Math.floor(Math.random() * 3) }];
   if (Math.random() < 0.4) base.push({ type: 'STARDUST', qty: 100 });
@@ -312,6 +206,9 @@ function generateGiftItems(friendLevel) {
   }
   return base;
 }
+
+// ── Trade Routes ──────────────────────────────────────────────
+app.use('/trades', tradeRoutes);
 
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'social-service started'));
