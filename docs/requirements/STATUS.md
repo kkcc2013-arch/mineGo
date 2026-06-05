@@ -28,11 +28,11 @@
 ## 需求统计
 
 - 总需求：19
-- P0：6 (new: 1, done: 5)
+- P0：6 (new: 0, done: 6)
 - P1：9 (new: 4, done: 5)
 - P2：4 (new: 3, done: 1)
 - P3：0
-- 已完成：11
+- 已完成：12
 
 ## 最后更新
 
@@ -156,3 +156,17 @@
   - scripts/validate-i18n.js (新增翻译验证脚本)
   - backend/tests/unit/i18n.test.js (新增单元测试)
   - docs/review/REQ-00011-review.md (新增审核文档)
+
+### REQ-00014: 服务熔断与降级机制
+- **完成时间**: 2026-06-05 10:05
+- **影响**: 容灾/高可用 - 防止级联故障，核心服务降级保护
+- **修改文件**:
+  - backend/shared/CircuitBreaker.js (新增熔断器核心模块)
+  - backend/shared/FallbackStrategy.js (新增降级策略框架)
+  - backend/shared/metrics.js (扩展 Prometheus 指标)
+  - backend/gateway/src/circuitBreakers.js (新增 Gateway 熔断配置)
+  - backend/gateway/src/middleware/circuitBreakerMiddleware.js (新增熔断中间件)
+  - backend/gateway/src/routes/admin.js (新增管理 API)
+  - database/pending/20260605_100000__add_circuit_breaker_tables.sql (新增数据库迁移)
+  - backend/tests/unit/circuit-breaker.test.js (新增单元测试)
+  - docs/review/REQ-00014-review.md (新增审核文档)
