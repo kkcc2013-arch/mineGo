@@ -1,70 +1,59 @@
-// user-service/src/index.js
+// user-service/src/index.js - 重构版（使用 ServiceLauncher）
 'use strict';
-const express   = require('express');
-const cors      = require('cors');
-const helmet    = require('helmet');
-const rateLimit = require('express-rate-limit');
-const { errorHandler } = require('../../../shared/auth');
-const { createLogger, requestLogger } = require('../../../shared/logger');
-const metrics = require('../../../shared/metrics');
-const { i18nMiddleware } = require('../../../shared/i18n');
+
+const { ServiceLauncher } = require('../../../shared/ServiceLauncher');
 const db = require('../../../shared/db');
 const EventBus = require('../../../shared/EventBus');
 
-const authRouter  = require('./routes/auth');
-const userRouter  = require('./routes/user');
+// Import routes
+const authRouter = require('./routes/auth');
+const userRouter = require('./routes/user');
 const friendRouter = require('./routes/friend');
 const sessionsRouter = require('./routes/sessions');
 const { router: gdprRouter, initGDPRRoutes } = require('./routes/gdpr');
 
-const logger = createLogger('user-service');
-const SERVICE_NAME = 'user-service';
-
-const app  = express();
-const PORT = process.env.PORT || 8081;
-
-// ── Middleware ────────────────────────────────────────────────
-app.use(helmet());
-app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') || '*' }));
-app.use(express.json({ limit: '1mb' }));
-
-// Structured logging & metrics
-app.use(requestLogger(logger));
-app.use(metrics.httpMetricsMiddleware(SERVICE_NAME));
-
-// i18n middleware for internationalized error messages
-app.use(i18nMiddleware);
-
-// Rate limiting
-app.use('/auth', rateLimit({ windowMs: 60_000, max: 20, message: { code: 1007, message: '请求太频繁' } }));
-app.use('/users', rateLimit({ windowMs: 60_000, max: 100 }));
-
-// ── Routes ────────────────────────────────────────────────────
-app.get('/health', (_, res) => res.json({ status: 'ok', service: 'user-service' }));
-
-// Metrics endpoint
-app.get('/metrics', async (req, res) => {
-  try {
-    res.set('Content-Type', metrics.register.contentType);
-    res.send(await metrics.register.metrics());
-  } catch (err) {
-    logger.error({ err }, 'Failed to generate metrics');
-    res.status(500).json({ error: 'Metrics generation failed' });
+// Create service launcher
+const service = new ServiceLauncher({
+  serviceName: 'user-service',
+  version: '1.0.0',
+  port: 8081,
+  
+  routes: [
+    {
+      path: '/auth',
+      router: authRouter,
+      rateLimit: { windowMs: 60_000, max: 20, message: { code: 1007, message: '请求太频繁' } }
+    },
+    {
+      path: '/users',
+      router: userRouter,
+      rateLimit: { windowMs: 60_000, max: 100 }
+    },
+    {
+      path: '/users',
+      router: sessionsRouter // Session management API
+    },
+    {
+      path: '/friends',
+      router: friendRouter
+    }
+  ],
+  
+  // Service initialization
+  onReady: async (app) => {
+    // Initialize GDPR routes with db and eventBus
+    const eventBus = EventBus.getEventBus();
+    initGDPRRoutes(db, eventBus);
+    app.use('/gdpr', gdprRouter);
+    
+    console.log('User service ready');
   }
 });
 
-app.use('/auth',   authRouter);
-app.use('/users',  userRouter);
-app.use('/users',  sessionsRouter); // Session management API
-app.use('/friends', friendRouter);
+// Start service
+service.start().catch(err => {
+  console.error('Failed to start user-service:', err);
+  process.exit(1);
+});
 
-// Initialize GDPR routes with db and eventBus
-const eventBus = EventBus.getEventBus();
-initGDPRRoutes(db, eventBus);
-app.use('/gdpr', gdprRouter); // GDPR compliance API
-
-// ── Error Handler ─────────────────────────────────────────────
-app.use(errorHandler);
-
-app.listen(PORT, () => logger.info({ port: PORT }, 'user-service started'));
-module.exports = app;
+module.exports = service;
