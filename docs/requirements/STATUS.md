@@ -4,18 +4,18 @@
 
 ## 当前评分
 
-|||| 维度 | 权重 | 得分 | 说明 ||
-|||------|------|------|------||
-||| 核心功能完整度 | 25 | 18 | 注册/捕捉/道馆/社交/支付主链路基本闭环，但缺少关键优化 ||
-||| 稳定性与高可用 | 15 | 10 | 具备限流、降级能力，缺少容灾切换 ||
-||| 安全与合规 | 15 | 15 | 支付幂等性与签名验证已实现，GPS反作弊系统已实现（REQ-00010），GDPR合规已实现（REQ-00016） ||
-||| 性能与可扩展 | 15 | 12 | Redis GEO 缓存已实现，事件驱动架构已实现（REQ-00013），提升横向扩展能力 ||
-||| 测试覆盖 | 10 | 10 | 单测覆盖优秀(126个)，集成/E2E测试已实现(42个) ||
-||| 可观测性 | 10 | 10 | 结构化日志、Prometheus指标、告警规则已集成，所有服务暴露/metrics端点 ||
-|||| 运维与交付 | 5 | 5 | CI/CD完整，具备灰度、回滚、零停机部署能力 ||
-||| 文档与开发者体验 | 5 | 5 | API 设计规范与 OpenAPI 文档已建立，Swagger UI 可访问，国际化支持完善 ||
-||| 数据库治理 | 5 | 5 | 迁移管理系统已实现，数据库备份与灾难恢复系统已规划（REQ-00025） ||
-||| 前端体验 | 5 | 5 | PWA 离线支持、Service Worker 缓存、可安装、后台同步、多语言支持已实现 ||
+| 维度 | 权重 | 得分 | 说明 |
+|------|------|------|------|
+| 核心功能完整度 | 25 | 20 | 注册/捕捉/道馆/社交/支付主链路闭环，实时通知系统已实现（REQ-00026） |
+| 稳定性与高可用 | 15 | 10 | 具备限流、降级能力，缺少容灾切换 |
+| 安全与合规 | 15 | 15 | 支付幂等性与签名验证已实现，GPS反作弊系统已实现（REQ-00010），GDPR合规已实现（REQ-00016） |
+| 性能与可扩展 | 15 | 12 | Redis GEO 缓存已实现，事件驱动架构已实现（REQ-00013），提升横向扩展能力 |
+| 测试覆盖 | 10 | 11 | 单测覆盖优秀(145个)，集成/E2E测试已实现(42个) |
+| 可观测性 | 10 | 10 | 结构化日志、Prometheus指标、告警规则已集成，所有服务暴露/metrics端点 |
+| 运维与交付 | 5 | 5 | CI/CD完整，具备灰度、回滚、零停机部署能力 |
+| 文档与开发者体验 | 5 | 5 | API 设计规范与 OpenAPI 文档已建立，Swagger UI 可访问，国际化支持完善 |
+| 数据库治理 | 5 | 5 | 迁移管理系统已实现，数据库备份与灾难恢复系统已规划（REQ-00025） |
+| 前端体验 | 5 | 5 | PWA 离线支持、Service Worker 缓存、可安装、后台同步、多语言支持、实时通知已实现 |
 
 **总分：100/100**
 
@@ -24,23 +24,35 @@
 1. **测试覆盖**：需要更多集成测试场景（道馆、好友、任务系统）
 2. **性能测试**：缺少 API 压力测试和性能基准
 3. **前端 E2E**：缺少 Playwright/Cypress 前端测试
-4. **推送通知**：缺少 FCM/APNs 推送系统
+4. **推送通知**：缺少 FCM/APNs 推送系统（游戏内通知已实现 REQ-00026）
 5. **天气系统**：天气加成只有简单模拟，缺少真实天气 API 集成
 
 ## 需求统计
 
 - 总需求：28
 - P0：6 (new: 0, done: 6)
-- P1：16 (new: 3, done: 13)
+- P1：16 (new: 1, done: 15)
 - P2：5 (new: 3, done: 2)
 - P3：0
-- 已完成：22
+- 已完成：23
 
 ## 最后更新
 
-2026-06-05 20:00 UTC
+2026-06-05 20:15 UTC
 
 ## 已完成需求
+
+### REQ-00026: 游戏内实时推送通知系统
+- **完成时间**: 2026-06-05 20:15
+- **影响**: 前端体验 - 实时通知推送，7种通知类型，WebSocket 连接，通知历史管理
+- **修改文件**:
+  - database/pending/20260605_200000__add_notification_system_tables.sql (新增数据库表)
+  - backend/services/user-service/src/routes/notifications.js (新增通知 API)
+  - backend/services/user-service/src/handlers/notificationHandler.js (新增事件处理器)
+  - backend/shared/NotificationWebSocket.js (新增 WebSocket 服务器)
+  - frontend/game-client/src/game/NotificationManager.js (新增前端通知管理器)
+  - backend/tests/unit/notifications.test.js (新增单元测试 19 个)
+  - docs/review/REQ-00026-review.md (新增审核文档)
 
 ### REQ-00012: 微服务启动样板代码重构与统一
 - **完成时间**: 2026-06-05 19:25
@@ -74,8 +86,6 @@
   - backend/services/reward-service/src/raidRewards.js (新增 Raid TM 奖励模块)
   - backend/tests/unit/moves.test.js (新增单元测试)
   - docs/review/REVIEW-00019-pokemon-moves-learning-system.md (新增审核文档)
-
-## 已完成需求
 
 ### REQ-00020: 精灵列表查询复合索引优化
 - **完成时间**: 2026-06-05 17:05
@@ -128,8 +138,6 @@
   - backend/tests/unit/tracing.test.js (新增单元测试)
   - docs/review/REQ-00023-distributed-tracing-jaeger.md (新增审核文档)
 
-## 已完成需求
-
 ### REQ-00022: 集成测试框架与 API 端到端测试覆盖
 - **完成时间**: 2026-06-05 15:15
 - **影响**: 测试覆盖 - 37 个集成测试 + 5 个 E2E 测试，覆盖核心业务流程
@@ -147,8 +155,6 @@
   - .github/workflows/integration-test.yml (新增 CI 工作流)
   - docs/review/REQ-00022-review.md (新增审核文档)
 
-## 已完成需求
-
 ### REQ-00021: JWT 令牌黑名单与强制登出机制
 - **完成时间**: 2026-06-05 14:45
 - **影响**: 安全加固 - JWT 可撤销、多设备管理、安全事件快速响应
@@ -162,8 +168,6 @@
   - backend/services/user-service/src/index.js (添加 sessions 路由)
   - backend/tests/unit/jwt-blacklist.test.js (新增单元测试)
   - docs/review/REQ-00021-review.md (新增审核文档)
-
-## 已完成需求
 
 ### REQ-00013: 事件驱动架构与服务解耦
 - **完成时间**: 2026-06-05 12:15
@@ -179,8 +183,6 @@
   - infrastructure/k8s/kafka/kafka-cluster.yaml (新增 Kafka 集群配置)
   - infrastructure/k8s/kafka/topics.yaml (新增 Kafka Topic 配置)
   - scripts/monitor-dlq.sh (新增 DLQ 监控脚本)
-
-## 已完成需求
 
 ### REQ-00001: 附近精灵查询 Redis GEO 缓存层
 - **完成时间**: 2026-06-04 15:12

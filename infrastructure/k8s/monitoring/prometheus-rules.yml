@@ -319,3 +319,103 @@ spec:
           annotations:
             summary: "精灵刷新频率过低"
             description: "最近 5 分钟精灵刷新率 {{ $value }}/s，可能影响游戏体验"
+
+    # ============================================================
+    # 数据库连接池告警 (REQ-00015)
+    # ============================================================
+    - name: minego.database_pool
+      rules:
+        # 连接池使用率过高 (>90%)
+        - alert: DatabasePoolHighUsage
+          expr: |
+            minego_db_pool_usage_percent > 90
+          for: 5m
+          labels:
+            severity: warning
+            priority: P1
+          annotations:
+            summary: "数据库连接池使用率过高"
+            description: "{{ $labels.pool_name }} 使用率 {{ $value }}%，可能需要扩容"
+            runbook_url: "https://wiki.minego.io/runbooks/db-pool-high-usage"
+
+        # 连接池耗尽（等待连接数 > 5）
+        - alert: DatabasePoolExhausted
+          expr: |
+            minego_db_pool_connections_waiting > 5
+          for: 1m
+          labels:
+            severity: critical
+            priority: P0
+          annotations:
+            summary: "数据库连接池耗尽"
+            description: "{{ $labels.pool_name }} 有 {{ $value }} 个等待中的连接请求"
+            runbook_url: "https://wiki.minego.io/runbooks/db-pool-exhausted"
+
+        # 连接池总连接数过多
+        - alert: DatabasePoolTooManyConnections
+          expr: |
+            sum(minego_db_pool_max_size) > 100
+          for: 30m
+          labels:
+            severity: warning
+            priority: P2
+          annotations:
+            summary: "数据库总连接数过多"
+            description: "总连接数 {{ $value }}，建议优化连接池配置以降低成本"
+            runbook_url: "https://wiki.minego.io/runbooks/db-pool-optimization"
+
+        # 慢查询告警
+        - alert: DatabaseSlowQueries
+          expr: |
+            histogram_quantile(0.95, 
+              sum(rate(minego_db_query_duration_seconds_bucket[5m])) by (pool_name, le)
+            ) > 1
+          for: 10m
+          labels:
+            severity: warning
+            priority: P1
+          annotations:
+            summary: "数据库慢查询"
+            description: "{{ $labels.pool_name }} P95 查询延迟 {{ $value }}s，超过 1s 阈值"
+            runbook_url: "https://wiki.minego.io/runbooks/db-slow-queries"
+
+        # 连接获取时间过长
+        - alert: DatabaseConnectionAcquireSlow
+          expr: |
+            histogram_quantile(0.95, 
+              sum(rate(minego_db_connection_acquire_seconds_bucket[5m])) by (pool_name, le)
+            ) > 0.05
+          for: 5m
+          labels:
+            severity: warning
+            priority: P1
+          annotations:
+            summary: "数据库连接获取缓慢"
+            description: "{{ $labels.pool_name }} P95 连接获取时间 {{ $value }}s"
+            runbook_url: "https://wiki.minego.io/runbooks/db-pool-acquire-slow"
+
+        # 连接池错误
+        - alert: DatabasePoolErrors
+          expr: |
+            sum(rate(minego_db_pool_error_total[5m])) by (pool_name, error_type) > 0.01
+          for: 5m
+          labels:
+            severity: warning
+            priority: P1
+          annotations:
+            summary: "数据库连接池错误"
+            description: "{{ $labels.pool_name }} 检测到 {{ $labels.error_type }} 错误，速率 {{ $value }}/s"
+            runbook_url: "https://wiki.minego.io/runbooks/db-pool-errors"
+
+        # 连接池频繁扩缩容
+        - alert: DatabasePoolFlapping
+          expr: |
+            sum(rate(minego_db_pool_scale_total[10m])) by (pool_name) > 0.1
+          for: 15m
+          labels:
+            severity: info
+            priority: P2
+          annotations:
+            summary: "数据库连接池频繁扩缩容"
+            description: "{{ $labels.pool_name }} 最近 10 分钟扩缩容 {{ $value }} 次，建议调整配置"
+            runbook_url: "https://wiki.minego.io/runbooks/db-pool-flapping"

@@ -1,0 +1,302 @@
+{
+  "dashboard": {
+    "title": "mineGo Database Pool Cost Analysis",
+    "tags": ["minego", "database", "cost"],
+    "timezone": "browser",
+    "refresh": "30s",
+    "panels": [
+      {
+        "title": "Total Database Connections",
+        "type": "stat",
+        "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "sum(minego_db_pool_connections_total)",
+            "legendFormat": "Total"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "green" },
+                { "value": 50, "color": "yellow" },
+                { "value": 80, "color": "red" }
+              ]
+            },
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "title": "Max Pool Size (Cost Driver)",
+        "type": "stat",
+        "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "sum(minego_db_pool_max_size)",
+            "legendFormat": "Max Connections"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "green" },
+                { "value": 70, "color": "yellow" },
+                { "value": 100, "color": "red" }
+              ]
+            },
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "title": "Monthly Cost Estimate",
+        "type": "stat",
+        "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "sum(minego_db_pool_max_size) * 2",
+            "legendFormat": "Monthly Cost"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "green" },
+                { "value": 100, "color": "yellow" },
+                { "value": 200, "color": "red" }
+              ]
+            },
+            "unit": "currencyUSD",
+            "decimals": 0
+          }
+        }
+      },
+      {
+        "title": "Annual Savings (vs 160 connections)",
+        "type": "stat",
+        "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "(160 - sum(minego_db_pool_max_size)) * 2 * 12",
+            "legendFormat": "Annual Savings"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": { "mode": "thresholds" },
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "value": 0, "color": "yellow" },
+                { "value": 1000, "color": "green" },
+                { "value": 2000, "color": "dark-green" }
+              ]
+            },
+            "unit": "currencyUSD",
+            "decimals": 0
+          }
+        }
+      },
+      {
+        "title": "Pool Usage by Service",
+        "type": "piechart",
+        "gridPos": { "x": 0, "y": 4, "w": 8, "h": 8 },
+        "targets": [
+          {
+            "expr": "minego_db_pool_max_size",
+            "legendFormat": "{{ service }}"
+          }
+        ],
+        "options": {
+          "legend": { "displayMode": "table", "placement": "right" },
+          "pieType": "pie",
+          "displayLabels": ["percent"]
+        }
+      },
+      {
+        "title": "Pool Usage Over Time",
+        "type": "timeseries",
+        "gridPos": { "x": 8, "y": 4, "w": 16, "h": 8 },
+        "targets": [
+          {
+            "expr": "minego_db_pool_usage_percent",
+            "legendFormat": "{{ service }}"
+          },
+          {
+            "expr": "avg(minego_db_pool_usage_percent)",
+            "legendFormat": "Average"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "lineWidth": 2,
+              "fillOpacity": 10
+            },
+            "unit": "percent",
+            "max": 100,
+            "min": 0
+          },
+          "overrides": [
+            {
+              "matcher": { "id": "byName", "options": "Average" },
+              "properties": [
+                { "id": "custom.lineStyle", "value": { "dash": [10, 10], "fill": "dash" } },
+                { "id": "color", "value": { "fixedColor": "orange", "mode": "fixed" } }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "title": "Connections Breakdown",
+        "type": "timeseries",
+        "gridPos": { "x": 0, "y": 12, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(minego_db_pool_connections_total) by (service)",
+            "legendFormat": "{{ service }} - Total"
+          },
+          {
+            "expr": "sum(minego_db_pool_connections_idle) by (service)",
+            "legendFormat": "{{ service }} - Idle"
+          },
+          {
+            "expr": "sum(minego_db_pool_connections_waiting) by (service)",
+            "legendFormat": "{{ service }} - Waiting"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "lineWidth": 2,
+              "fillOpacity": 10,
+              "stacking": { "mode": "normal" }
+            },
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "title": "Query Duration Distribution",
+        "type": "heatmap",
+        "gridPos": { "x": 12, "y": 12, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(rate(minego_db_query_duration_seconds_bucket[5m])) by (le)",
+            "format": "heatmap",
+            "legendFormat": "{{ le }}"
+          }
+        ],
+        "options": {
+          "calculate": false,
+          "color": {
+            "scheme": "Spectral"
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "unit": "s"
+          }
+        }
+      },
+      {
+        "title": "Pool Scaling Events",
+        "type": "timeseries",
+        "gridPos": { "x": 0, "y": 20, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "sum(increase(minego_db_pool_scale_total{direction=\"up\"}[1h])) by (pool_name)",
+            "legendFormat": "{{ pool_name }} - Scale Up"
+          },
+          {
+            "expr": "sum(increase(minego_db_pool_scale_total{direction=\"down\"}[1h])) by (pool_name)",
+            "legendFormat": "{{ pool_name }} - Scale Down"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "lineWidth": 2
+            },
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "title": "Connection Acquire Duration",
+        "type": "timeseries",
+        "gridPos": { "x": 12, "y": 20, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.50, sum(rate(minego_db_connection_acquire_seconds_bucket[5m])) by (pool_name, le))",
+            "legendFormat": "{{ pool_name }} - P50"
+          },
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(minego_db_connection_acquire_seconds_bucket[5m])) by (pool_name, le))",
+            "legendFormat": "{{ pool_name }} - P95"
+          },
+          {
+            "expr": "histogram_quantile(0.99, sum(rate(minego_db_connection_acquire_seconds_bucket[5m])) by (pool_name, le))",
+            "legendFormat": "{{ pool_name }} - P99"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "lineWidth": 2
+            },
+            "unit": "s"
+          }
+        }
+      },
+      {
+        "title": "Pool Errors",
+        "type": "timeseries",
+        "gridPos": { "x": 0, "y": 26, "w": 24, "h": 6 },
+        "targets": [
+          {
+            "expr": "sum(rate(minego_db_pool_error_total[5m])) by (pool_name, error_type)",
+            "legendFormat": "{{ pool_name }} - {{ error_type }}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "lineWidth": 2
+            },
+            "unit": "ops"
+          }
+        },
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": { "params": [0.01], "type": "gt" },
+              "operator": { "type": "and" },
+              "query": { "params": ["A", "5m", "now"] },
+              "reducer": { "params": [], "type": "avg" },
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "frequency": "1m",
+          "handler": 1,
+          "name": "Pool Error Alert",
+          "noDataState": "no_data",
+          "notifications": []
+        }
+      }
+    ]
+  },
+  "overwrite": true
+}

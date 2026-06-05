@@ -1,37 +1,57 @@
-// shared/db.js  — PostgreSQL connection pool
-const { Pool } = require('pg');
+// shared/db.js — PostgreSQL connection pool with shared pool manager
 const path = require('path');
 const { context, trace } = require('@opentelemetry/api');
 const { getTracer } = require('./tracing');
+const { getPoolManager, metrics: poolMetrics } = require('./DatabasePool');
+const promClient = require('prom-client');
 
-let pool = null;
+let poolManager = null;
 let migrationsInitialized = false;
 
-function getPool() {
-  if (!pool) {
-    pool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-      max: parseInt(process.env.DB_POOL_MAX || '20'),
-      idleTimeoutMillis: 30000,
-      connectionTimeoutMillis: 3000,
-      ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
-    });
+// Query duration histogram for backwards compatibility
+const queryDurationMetric = new promClient.Histogram({
+  name: 'minego_db_query_duration_ms',
+  help: 'Database query duration in milliseconds',
+  labelNames: ['operation'],
+  buckets: [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000],
+});
 
-    pool.on('error', (err) => {
-      console.error('[DB] Unexpected pool error', err);
-    });
+/**
+ * Get the pool manager instance
+ */
+function getPoolManagerInstance() {
+  if (!poolManager) {
+    poolManager = getPoolManager();
   }
-  return pool;
+  return poolManager;
 }
 
+/**
+ * Get the default pool (backwards compatible)
+ */
+function getPool() {
+  const serviceName = process.env.SERVICE_NAME || 'default';
+  return getPoolManagerInstance().getPool(serviceName);
+}
+
+/**
+ * Execute a database query
+ * @param {string} text - SQL query
+ * @param {Array} params - Query parameters
+ * @returns {Promise<Object>} Query result
+ */
 async function query(text, params) {
   const start = Date.now();
+  const serviceName = process.env.SERVICE_NAME || 'default';
+  const poolManager = getPoolManagerInstance();
+  const pool = poolManager.getPool(serviceName);
+  const poolName = poolManager.getPoolName(serviceName);
   
-  // 获取当前追踪上下文
+  // Get current tracing context
   const currentSpan = trace.getSpan(context.active());
   let dbSpan = null;
   
-  // 创建数据库追踪 span
+  // Create database tracing span
   if (currentSpan) {
     const tracer = getTracer('mineGo-db');
     const operation = text.trim().split(' ')[0].toUpperCase();
@@ -39,22 +59,30 @@ async function query(text, params) {
     dbSpan = tracer.startSpan(`db.query ${operation}`, {
       attributes: {
         'db.system': 'postgresql',
-        'db.statement': text,
+        'db.statement': text.substring(0, 500),
         'db.operation': operation,
       },
     });
   }
+
+  const acquireStart = Date.now();
+  const client = await pool.connect();
+  const acquireDuration = Date.now() - acquireStart;
   
-  const client = await getPool().connect();
   try {
     const res = await client.query(text, params);
     const dur = Date.now() - start;
     
-    // 记录查询结果到 span
+    // Record query duration
+    const operation = text.trim().split(' ')[0].toUpperCase();
+    queryDurationMetric.observe({ operation }, dur);
+    
+    // Record to span
     if (dbSpan) {
       dbSpan.setAttributes({
         'db.rows_affected': res.rowCount || 0,
         'db.duration_ms': dur,
+        'db.connection_acquire_ms': acquireDuration,
       });
       dbSpan.setStatus({ code: 0 });
       dbSpan.end();
@@ -63,9 +91,10 @@ async function query(text, params) {
     if (dur > 500) {
       console.warn('[DB] Slow query (%dms): %s', dur, text.substring(0, 120));
     }
+    
     return res;
   } catch (err) {
-    // 记录错误到 span
+    // Record error to span
     if (dbSpan) {
       dbSpan.setStatus({ code: 2, message: err.message });
       dbSpan.recordException(err);
@@ -77,8 +106,18 @@ async function query(text, params) {
   }
 }
 
+/**
+ * Execute a database transaction
+ * @param {Function} fn - Transaction callback
+ * @returns {Promise<any>} Transaction result
+ */
 async function transaction(fn) {
-  const client = await getPool().connect();
+  const serviceName = process.env.SERVICE_NAME || 'default';
+  const poolManager = getPoolManagerInstance();
+  const pool = poolManager.getPool(serviceName);
+  
+  const client = await pool.connect();
+  
   try {
     await client.query('BEGIN');
     const result = await fn(client);
@@ -132,4 +171,61 @@ async function initializeMigrations() {
   }
 }
 
-module.exports = { getPool, query, transaction, initializeMigrations };
+/**
+ * Get pool statistics
+ * @returns {Object} Pool statistics
+ */
+function getPoolStats() {
+  const poolManager = getPoolManagerInstance();
+  return poolManager.getStats();
+}
+
+/**
+ * Get aggregate pool statistics
+ * @returns {Object} Aggregate statistics
+ */
+function getAggregateStats() {
+  const poolManager = getPoolManagerInstance();
+  return poolManager.getAggregateStats();
+}
+
+/**
+ * Health check for database pools
+ * @returns {Promise<Object>} Health check results
+ */
+async function healthCheck() {
+  const poolManager = getPoolManagerInstance();
+  return poolManager.healthCheck();
+}
+
+/**
+ * Close all database pools
+ */
+async function closePools() {
+  if (poolManager) {
+    await poolManager.closeAll();
+  }
+}
+
+/**
+ * Get service-specific pool configuration
+ * @param {string} serviceName - Service name
+ * @returns {Object} Pool configuration
+ */
+function getServicePoolConfig(serviceName) {
+  const { SERVICE_POOL_CONFIG } = require('./DatabasePool');
+  return SERVICE_POOL_CONFIG[serviceName] || SERVICE_POOL_CONFIG['default'];
+}
+
+module.exports = {
+  getPool,
+  query,
+  transaction,
+  initializeMigrations,
+  getPoolStats,
+  getAggregateStats,
+  healthCheck,
+  closePools,
+  getServicePoolConfig,
+  getPoolManagerInstance,
+};
