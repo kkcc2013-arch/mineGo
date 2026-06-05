@@ -12,6 +12,7 @@ const path         = require('path');
 const { verifyAccess } = require('../../shared/auth');
 const { createLogger, requestLogger } = require('../../shared/logger');
 const metrics = require('../../shared/metrics');
+const { authWithBlacklistMiddleware } = require('./middleware/jwtBlacklist');
 
 const logger = createLogger('gateway');
 const SERVICE_NAME = 'gateway';
@@ -114,21 +115,8 @@ try {
 }
 
 // ── Auth middleware for protected routes ──────────────────────
-function authMiddleware(req, res, next) {
-  const header = req.headers['authorization'];
-  if (!header?.startsWith('Bearer ')) {
-    return res.status(401).json({ code: 1002, message: '未认证，请先登录', data: null });
-  }
-  try {
-    req.user = verifyAccess(header.slice(7));
-    req.headers['x-user-id']    = req.user.sub;
-    req.headers['x-user-level'] = String(req.user.level || 1);
-    next();
-  } catch (err) {
-    const expired = err.name === 'TokenExpiredError';
-    res.status(401).json({ code: expired ? 1003 : 1002, message: expired ? 'Token已过期' : 'Token无效', data: null });
-  }
-}
+// Uses authWithBlacklistMiddleware which includes JWT blacklist check
+const authMiddleware = authWithBlacklistMiddleware;
 
 // ── Proxy factory ─────────────────────────────────────────────
 function proxy(target, pathRewrite) {

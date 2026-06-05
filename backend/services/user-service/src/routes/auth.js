@@ -103,7 +103,12 @@ router.post('/register', async (req, res, next) => {
       return user;
     });
 
-    const tokens = issueTokens(result);
+    const tokens = issueTokens(result, {
+      deviceName: req.body.deviceId || 'Unknown',
+      deviceType: req.headers['x-device-type'] || 'unknown',
+      ip: req.ip || req.connection.remoteAddress,
+      userAgent: req.headers['user-agent']
+    });
     res.status(201).json(successResp({ ...tokens, userId: result.id, nickname: result.nickname }));
   } catch (err) { next(err); }
 });
@@ -127,7 +132,12 @@ router.post('/login', async (req, res, next) => {
     // Update last login
     await query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [user.id]);
 
-    const tokens = issueTokens(user);
+    const tokens = issueTokens(user, {
+      deviceName: req.headers['x-device-name'] || 'Unknown',
+      deviceType: req.headers['x-device-type'] || 'unknown',
+      ip: req.ip || req.connection.remoteAddress,
+      userAgent: req.headers['user-agent']
+    });
     res.json(successResp({ ...tokens, userId: user.id, nickname: user.nickname, level: user.level, team: user.team }));
   } catch (err) { next(err); }
 });
@@ -159,9 +169,29 @@ router.post('/logout', async (req, res, next) => {
   try {
     const header = req.headers['authorization'];
     if (header?.startsWith('Bearer ')) {
-      // Blacklist the token until its natural expiry
-      // In prod: parse exp from token and use that TTL
-      await getRedis().setex(`token:blacklist:${uuidv4()}`, 86400, '1');
+      const token = header.slice(7);
+      try {
+        const payload = verifyAccess(token);
+        const jti = payload.jti;
+        const userId = payload.sub;
+        
+        if (jti) {
+          // Use JwtBlacklist for proper revocation
+          const { getJwtBlacklist } = require('../../../../shared/JwtBlacklist');
+          const blacklist = getJwtBlacklist();
+          const expiresAt = payload.exp || Math.floor(Date.now() / 1000) + 86400;
+          
+          await blacklist.revokeToken(jti, userId, expiresAt, {
+            reason: 'logout',
+            deviceInfo: {
+              ip: req.ip || req.connection.remoteAddress,
+              userAgent: req.headers['user-agent']
+            }
+          });
+        }
+      } catch (e) {
+        // Token invalid, just proceed
+      }
     }
     res.json(successResp(null, '已退出登录'));
   } catch (err) { next(err); }
@@ -176,14 +206,21 @@ async function verifySmsCode(phone, code, scene) {
   await redis.del(`sms:code:${phone}:${scene}`);  // one-time use
 }
 
-function issueTokens(user) {
+function issueTokens(user, deviceInfo = {}) {
   const jti = uuidv4();
-  const accessToken  = signAccess({ sub: user.id, nickname: user.nickname, level: user.level, jti });
+  const now = Math.floor(Date.now() / 1000);
+  const accessToken  = signAccess({ sub: user.id, nickname: user.nickname, level: user.level, jti, iat: now, exp: now + 86400 });
   const refreshToken = signRefresh({ sub: user.id, jti });
+  
+  // Register session in blacklist (async, don't wait)
+  const { getJwtBlacklist } = require('../../../../shared/JwtBlacklist');
+  getJwtBlacklist().registerSession(jti, user.id, now + 86400, deviceInfo).catch(() => {});
+  
   return {
     accessToken,
     refreshToken,
-    tokenExpireAt: Math.floor(Date.now() / 1000) + 86400,
+    tokenExpireAt: now + 86400,
+    jti
   };
 }
 

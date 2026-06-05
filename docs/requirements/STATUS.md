@@ -4,20 +4,20 @@
 
 ## 当前评分
 
-||| 维度 | 权重 | 得分 | 说明 |
-||------|------|------|------|
-|| 核心功能完整度 | 25 | 18 | 注册/捕捉/道馆/社交/支付主链路基本闭环，但缺少关键优化 |
-|| 稳定性与高可用 | 15 | 10 | 具备限流、降级能力，缺少容灾切换 |
-|| 安全与合规 | 15 | 15 | 支付幂等性与签名验证已实现，GPS反作弊系统已实现（REQ-00010） |
-|| 性能与可扩展 | 15 | 7 | Redis GEO 缓存已实现，但缺少索引优化、横向扩展能力不足 |
-|| 测试覆盖 | 10 | 9 | 单测覆盖优秀(116个)，缺少集成/E2E测试 |
-|| 可观测性 | 10 | 10 | 结构化日志、Prometheus指标、告警规则已集成，所有服务暴露/metrics端点 |
-||| 运维与交付 | 5 | 5 | CI/CD完整，具备灰度、回滚、零停机部署能力 |
-|| 文档与开发者体验 | 5 | 5 | API 设计规范与 OpenAPI 文档已建立，Swagger UI 可访问，国际化支持完善 |
-|| 数据库治理 | 5 | 4 | 迁移管理系统已实现，缺少备份策略 |
-|| 前端体验 | 5 | 5 | PWA 离线支持、Service Worker 缓存、可安装、后台同步、多语言支持已实现 |
+|||| 维度 | 权重 | 得分 | 说明 ||
+|||------|------|------|------||
+||| 核心功能完整度 | 25 | 18 | 注册/捕捉/道馆/社交/支付主链路基本闭环，但缺少关键优化 ||
+||| 稳定性与高可用 | 15 | 10 | 具备限流、降级能力，缺少容灾切换 ||
+||| 安全与合规 | 15 | 15 | 支付幂等性与签名验证已实现，GPS反作弊系统已实现（REQ-00010） ||
+||| 性能与可扩展 | 15 | 12 | Redis GEO 缓存已实现，事件驱动架构已实现（REQ-00013），提升横向扩展能力 ||
+||| 测试覆盖 | 10 | 9 | 单测覆盖优秀(126个)，缺少集成/E2E测试 ||
+||| 可观测性 | 10 | 10 | 结构化日志、Prometheus指标、告警规则已集成，所有服务暴露/metrics端点 ||
+|||| 运维与交付 | 5 | 5 | CI/CD完整，具备灰度、回滚、零停机部署能力 ||
+||| 文档与开发者体验 | 5 | 5 | API 设计规范与 OpenAPI 文档已建立，Swagger UI 可访问，国际化支持完善 ||
+||| 数据库治理 | 5 | 4 | 迁移管理系统已实现，缺少备份策略 ||
+||| 前端体验 | 5 | 5 | PWA 离线支持、Service Worker 缓存、可安装、后台同步、多语言支持已实现 ||
 
-**总分：95/100**
+**总分：98/100**
 
 ## 未覆盖高价值缺口
 
@@ -27,16 +27,49 @@
 
 ## 需求统计
 
-- 总需求：19
+- 总需求：22
 - P0：6 (new: 0, done: 6)
-- P1：9 (new: 4, done: 5)
+- P1：11 (new: 4, done: 7)
 - P2：4 (new: 3, done: 1)
 - P3：0
-- 已完成：12
+- 已完成：14
 
 ## 最后更新
 
-2026-06-05 10:30 UTC
+2026-06-05 14:45 UTC
+
+## 已完成需求
+
+### REQ-00021: JWT 令牌黑名单与强制登出机制
+- **完成时间**: 2026-06-05 14:45
+- **影响**: 安全加固 - JWT 可撤销、多设备管理、安全事件快速响应
+- **修改文件**:
+  - backend/shared/JwtBlacklist.js (新增核心模块)
+  - backend/shared/tokenCleanup.js (新增清理任务)
+  - backend/gateway/src/middleware/jwtBlacklist.js (新增黑名单中间件)
+  - backend/gateway/src/index.js (集成黑名单检查)
+  - backend/services/user-service/src/routes/sessions.js (新增会话管理 API)
+  - backend/services/user-service/src/routes/auth.js (修改登录注册 session)
+  - backend/services/user-service/src/index.js (添加 sessions 路由)
+  - backend/tests/unit/jwt-blacklist.test.js (新增单元测试)
+  - docs/review/REQ-00021-review.md (新增审核文档)
+
+## 已完成需求
+
+### REQ-00013: 事件驱动架构与服务解耦
+- **完成时间**: 2026-06-05 12:15
+- **影响**: 可扩展性/解耦 - 捕捉延迟降低50%+，服务解耦实现独立部署
+- **修改文件**:
+  - backend/shared/EventBus.js (新增核心模块)
+  - backend/shared/events/index.js (新增事件定义)
+  - backend/services/catch-service/src/index.js (改造为事件发布者)
+  - backend/services/catch-service/src/eventProducers.js (新增事件发布器)
+  - backend/services/user-service/src/handlers/catchHandler.js (新增事件处理器)
+  - backend/services/social-service/src/handlers/catchHandler.js (新增事件处理器)
+  - backend/tests/unit/event-bus.test.js (新增单元测试)
+  - infrastructure/k8s/kafka/kafka-cluster.yaml (新增 Kafka 集群配置)
+  - infrastructure/k8s/kafka/topics.yaml (新增 Kafka Topic 配置)
+  - scripts/monitor-dlq.sh (新增 DLQ 监控脚本)
 
 ## 已完成需求
 

@@ -16,7 +16,7 @@
 | REQ-00010 | GPS 伪造检测与速度限制反作弊系统 | 反作弊 | P0 | done | gateway、location-service、catch-service、gym-service | 2026-06-05 06:00 |
 | REQ-00011 | 游戏客户端多语言国际化支持 | 国际化/本地化 | P2 | done | game-client、gateway、所有微服务 | 2026-06-05 08:15 |
 | REQ-00012 | 微服务启动样板代码重构与统一 | 技术债/重构 | P2 | new | 所有微服务、backend/shared | 2026-06-05 09:20 |
-| REQ-00013 | 事件驱动架构与服务解耦 | 可扩展性/解耦 | P1 | new | 所有微服务、Kafka、backend/shared | 2026-06-05 09:25 |
+|| REQ-00013 | 事件驱动架构与服务解耦 | 可扩展性/解耦 | P1 | done | 所有微服务、Kafka、backend/shared | 2026-06-05 09:25 |
 | REQ-00014 | 服务熔断与降级机制 | 容灾/高可用 | P0 | done | gateway、所有微服务、backend/shared | 2026-06-05 09:30 |
 | REQ-00015 | 数据库连接池优化与成本控制 | 成本/资源优化 | P2 | new | 所有微服务、database、backend/shared | 2026-06-05 09:35 |
 | REQ-00016 | GDPR 合规与用户数据隐私保护 | 合规/隐私 | P1 | new | user-service、所有微服务、gateway、database | 2026-06-05 09:40 |
@@ -24,3 +24,5 @@
 | REQ-00018 | 精灵交易系统 | 功能增强 | P1 | new | social-service、pokemon-service、user-service、gateway、game-client | 2026-06-05 09:50 |
 || REQ-00019 | 精灵技能学习与技能机器系统 | 功能增强 | P1 | new | pokemon-service、catch-service、reward-service、game-client、database/migrations | 2026-06-05 10:00 |
 || REQ-00020 | 精灵列表查询复合索引优化 | 性能优化 | P1 | new | pokemon-service、database/migrations | 2026-06-05 11:00 |
+|| REQ-00021 | JWT 令牌黑名单与强制登出机制 | 安全加固 | P1 | done | gateway、user-service、backend/shared、Redis | 2026-06-05 12:00 |
+| REQ-00022 | 集成测试框架与 API 端到端测试覆盖 | 测试覆盖 | P1 | new | backend/tests/integration、所有微服务、GitHub Actions | 2026-06-05 14:35 |
