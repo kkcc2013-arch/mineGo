@@ -9,6 +9,7 @@ const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
 const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
+const { validateLocation, checkRateLimit, requireTrustScore, TRUST_SCORE } = require('../../../shared/anti-cheat');
 
 const logger = createLogger('catch-service');
 const SERVICE_NAME = 'catch-service';
@@ -70,7 +71,7 @@ function calcFleeProb({ baseFleeRate, ballsThrown }) {
 }
 
 // ── POST /catch/session ──────────────────────────────────────
-app.post('/catch/session', requireAuth, async (req, res, next) => {
+app.post('/catch/session', requireAuth, validateLocation, checkRateLimit('CATCH'), async (req, res, next) => {
   try {
     const { spawnId, playerLat, playerLng } = req.body;
     if (!spawnId) throw new AppError(1001, 'spawnId 必填', 400);
@@ -130,7 +131,7 @@ app.post('/catch/session', requireAuth, async (req, res, next) => {
 });
 
 // ── POST /catch/throw ─────────────────────────────────────────
-app.post('/catch/throw', requireAuth, async (req, res, next) => {
+app.post('/catch/throw', requireAuth, checkRateLimit('CATCH'), async (req, res, next) => {
   try {
     const { sessionId, ballType, throwRating, isCurve, berryUsed } = req.body;
     if (!sessionId || !ballType || !throwRating) {

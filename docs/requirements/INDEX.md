@@ -13,4 +13,4 @@
 | REQ-00007 | 数据库迁移管理与版本控制系统 | 数据库/数据治理 | P1 | done | database/migrations、所有微服务 | 2026-06-05 03:00 |
 | REQ-00008 | OpenAPI 文档与 API 设计规范统一 | API 设计规范 | P1 | done | gateway、所有微服务、docs/api-spec | 2026-06-05 04:00 |
 | REQ-00009 | PWA 离线支持与 Service Worker 缓存策略 | 前端体验 | P0 | done | game-client、frontend/sw.js、frontend/manifest.json | 2026-06-05 05:00 |
-| REQ-00010 | GPS 伪造检测与速度限制反作弊系统 | 反作弊 | P0 | new | gateway、location-service、catch-service、gym-service | 2026-06-05 06:00 |
+| REQ-00010 | GPS 伪造检测与速度限制反作弊系统 | 反作弊 | P0 | done | gateway、location-service、catch-service、gym-service | 2026-06-05 06:00 |

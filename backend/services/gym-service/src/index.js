@@ -10,6 +10,7 @@ const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
 const { requireAuth, verifyAccess, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
+const { validateLocation, checkRateLimit, requireTrustScore, TRUST_SCORE } = require('../../../shared/anti-cheat');
 
 const logger = createLogger('gym-service');
 const SERVICE_NAME = 'gym-service';
@@ -209,7 +210,7 @@ app.post('/gyms/:id/defend', requireAuth, async (req, res, next) => {
 });
 
 // POST /gyms/:id/battle
-app.post('/gyms/:id/battle', requireAuth, async (req, res, next) => {
+app.post('/gyms/:id/battle', requireAuth, validateLocation, checkRateLimit('GYM_BATTLE'), async (req, res, next) => {
   try {
     const { attackerPokemons } = req.body; // array of pokemon instance IDs
     const userId = req.user.sub;
