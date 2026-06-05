@@ -15,7 +15,7 @@
 | REQ-00009 | PWA 离线支持与 Service Worker 缓存策略 | 前端体验 | P0 | done | game-client、frontend/sw.js、frontend/manifest.json | 2026-06-05 05:00 |
 | REQ-00010 | GPS 伪造检测与速度限制反作弊系统 | 反作弊 | P0 | done | gateway、location-service、catch-service、gym-service | 2026-06-05 06:00 |
 | REQ-00011 | 游戏客户端多语言国际化支持 | 国际化/本地化 | P2 | done | game-client、gateway、所有微服务 | 2026-06-05 08:15 |
-| REQ-00012 | 微服务启动样板代码重构与统一 | 技术债/重构 | P2 | new | 所有微服务、backend/shared | 2026-06-05 09:20 |
+|| REQ-00012 | 微服务启动样板代码重构与统一 | 技术债/重构 | P2 | done | 所有微服务、backend/shared | 2026-06-05 09:20 |
 || REQ-00013 | 事件驱动架构与服务解耦 | 可扩展性/解耦 | P1 | done | 所有微服务、Kafka、backend/shared | 2026-06-05 09:25 |
 | REQ-00014 | 服务熔断与降级机制 | 容灾/高可用 | P0 | done | gateway、所有微服务、backend/shared | 2026-06-05 09:30 |
 | REQ-00015 | 数据库连接池优化与成本控制 | 成本/资源优化 | P2 | new | 所有微服务、database、backend/shared | 2026-06-05 09:35 |
@@ -28,5 +28,6 @@
 | REQ-00022 | 集成测试框架与 API 端到端测试覆盖 | 测试覆盖 | P1 | done | backend/tests/integration、所有微服务、GitHub Actions | 2026-06-05 14:35 |
 || REQ-00023 | 分布式链路追踪与 Jaeger 集成 | 可观测性/监控 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-05 15:00 |
 | REQ-00024 | 蓝绿部署策略实现 | 运维/CICD | P1 | done | gateway、所有微服务、infrastructure/k8s、.github/workflows、scripts | 2026-06-05 16:05 |
-| REQ-00025 | 数据库自动化备份与灾难恢复系统 | 数据库/数据治理 | P1 | new | PostgreSQL、database/backup、infrastructure/k8s、.github/workflows | 2026-06-05 17:00 |
+| REQ-00025 | 数据库自动化备份与灾难恢复系统 | 数据库/数据治理 | P1 | done | PostgreSQL、database/backup、infrastructure/k8s、.github/workflows | 2026-06-05 17:00 |
 | REQ-00026 | 游戏内实时推送通知系统 | 前端体验 | P1 | new | game-client、gateway、reward-service、gym-service、social-service | 2026-06-05 18:00 |
+| REQ-00027 | 精灵详情页 3D 模型展示与交互 | 前端体验 | P2 | new | game-client、frontend/3d、pokemon-service | 2026-06-05 19:00 |

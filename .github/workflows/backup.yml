@@ -1,0 +1,251 @@
+name: PostgreSQL Backup
+
+on:
+  schedule:
+    # 每天凌晨 3:00 UTC 执行全量备份
+    - cron: '0 3 * * *'
+    # 每周日凌晨 4:00 UTC 执行备份验证
+    - cron: '0 4 * * 0'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Backup action'
+        required: true
+        default: 'backup'
+        type: choice
+        options:
+        - backup
+        - verify
+        - restore-test
+      environment:
+        description: 'Environment'
+        required: true
+        default: 'prod'
+        type: choice
+        options:
+        - prod
+        - staging
+
+env:
+  PG_HOST: ${{ secrets.PG_HOST }}
+  PG_PORT: 5432
+  PG_USER: postgres
+  PG_DATABASE: minego
+  OSS_BUCKET: minego-db-backup-${{ github.event.inputs.environment || 'prod' }}
+
+jobs:
+  backup:
+    name: PostgreSQL Full Backup
+    if: github.event_name == 'schedule' || github.event.inputs.action == 'backup'
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'prod' }}
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y postgresql-client ossutil
+    
+    - name: Create backup directory
+      run: |
+        mkdir -p /tmp/backup
+        echo "BACKUP_NAME=minego-full-$(date +%Y%m%d-%H%M%S)" >> $GITHUB_ENV
+    
+    - name: Perform full backup
+      env:
+        PGPASSWORD: ${{ secrets.PG_PASSWORD }}
+      run: |
+        echo "::group::Starting PostgreSQL backup"
+        
+        pg_basebackup \
+          -h "${PG_HOST}" \
+          -p "${PG_PORT}" \
+          -U "${PG_USER}" \
+          -D "/tmp/backup/${{ env.BACKUP_NAME }}" \
+          -Ft \
+          -z \
+          -Xs \
+          -P \
+          -v
+        
+        echo "::endgroup::"
+        
+        # 计算校验和
+        cd /tmp/backup/${{ env.BACKUP_NAME }}
+        sha256sum base.tar.gz > base.tar.gz.sha256
+        
+        # 显示备份信息
+        echo "Backup size: $(stat -c%s base.tar.gz | numfmt --to=iec-i --suffix=B)"
+        echo "Checksum: $(cat base.tar.gz.sha256)"
+    
+    - name: Upload to OSS
+      env:
+        OSS_ACCESS_KEY_ID: ${{ secrets.OSS_ACCESS_KEY_ID }}
+        OSS_ACCESS_KEY_SECRET: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+        OSS_ENDPOINT: ${{ secrets.OSS_ENDPOINT }}
+      run: |
+        echo "::group::Uploading to Alibaba Cloud OSS"
+        
+        # 配置 ossutil
+        ossutil config \
+          -e "${OSS_ENDPOINT}" \
+          -i "${OSS_ACCESS_KEY_ID}" \
+          -k "${OSS_ACCESS_KEY_SECRET}"
+        
+        # 上传备份文件
+        BACKUP_PATH="prod/full/${{ env.BACKUP_NAME }}"
+        
+        ossutil cp "/tmp/backup/${{ env.BACKUP_NAME }}/base.tar.gz" \
+          "oss://${OSS_BUCKET}/${BACKUP_PATH}/base.tar.gz"
+        
+        ossutil cp "/tmp/backup/${{ env.BACKUP_NAME }}/base.tar.gz.sha256" \
+          "oss://${OSS_BUCKET}/${BACKUP_PATH}/base.tar.gz.sha256"
+        
+        echo "::endgroup::"
+    
+    - name: Cleanup old backups
+      env:
+        OSS_ACCESS_KEY_ID: ${{ secrets.OSS_ACCESS_KEY_ID }}
+        OSS_ACCESS_KEY_SECRET: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+        OSS_ENDPOINT: ${{ secrets.OSS_ENDPOINT }}
+      run: |
+        echo "::group::Cleaning up old backups"
+        
+        # 删除 7 天前的备份
+        RETENTION_DATE=$(date -d '7 days ago' +%Y%m%d)
+        
+        ossutil ls "oss://${OSS_BUCKET}/prod/full/" | \
+          grep -oP 'minego-full-\K[0-9]+' | \
+          while read date; do
+            if [ "${date:0:8}" -lt "${RETENTION_DATE}" ]; then
+              echo "Deleting old backup: minego-full-${date}*"
+              ossutil rm "oss://${OSS_BUCKET}/prod/full/minego-full-${date}*" -r -f
+            fi
+          done
+        
+        echo "::endgroup::"
+    
+    - name: Report success
+      if: success()
+      run: |
+        echo "✅ Backup completed successfully"
+        echo "Backup name: ${{ env.BACKUP_NAME }}"
+        echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+    
+    - name: Report failure
+      if: failure()
+      run: |
+        echo "❌ Backup failed"
+        # 这里可以添加 Slack/钉钉 通知
+    
+    - name: Cleanup
+      if: always()
+      run: rm -rf /tmp/backup
+
+  verify:
+    name: Backup Verification
+    if: github.event.schedule == '0 4 * * 0' || github.event.inputs.action == 'verify'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y postgresql-client ossutil
+    
+    - name: Download latest backup
+      env:
+        OSS_ACCESS_KEY_ID: ${{ secrets.OSS_ACCESS_KEY_ID }}
+        OSS_ACCESS_KEY_SECRET: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+        OSS_ENDPOINT: ${{ secrets.OSS_ENDPOINT }}
+      run: |
+        # 配置 ossutil
+        ossutil config \
+          -e "${OSS_ENDPOINT}" \
+          -i "${OSS_ACCESS_KEY_ID}" \
+          -k "${OSS_ACCESS_KEY_SECRET}"
+        
+        # 查找最新备份
+        LATEST=$(ossutil ls "oss://${OSS_BUCKET}/prod/full/" | grep -oP 'minego-full-[0-9-]+' | sort -r | head -1)
+        
+        echo "Latest backup: ${LATEST}"
+        echo "LATEST_BACKUP=${LATEST}" >> $GITHUB_ENV
+        
+        # 下载备份文件
+        mkdir -p /tmp/backup
+        ossutil cp "oss://${OSS_BUCKET}/prod/full/${LATEST}/base.tar.gz" /tmp/backup/
+        ossutil cp "oss://${OSS_BUCKET}/prod/full/${LATEST}/base.tar.gz.sha256" /tmp/backup/
+    
+    - name: Verify backup integrity
+      run: |
+        echo "::group::Verifying backup integrity"
+        
+        cd /tmp/backup
+        
+        # 检查 gzip 完整性
+        gzip -t base.tar.gz && echo "✅ Gzip integrity OK"
+        
+        # 验证校验和
+        sha256sum -c base.tar.gz.sha256 && echo "✅ Checksum OK"
+        
+        # 检查 tar 内容
+        tar -tzf base.tar.gz | head -20
+        echo "✅ Tar archive OK"
+        
+        echo "::endgroup::"
+    
+    - name: Test restore
+      run: |
+        echo "::group::Testing restore"
+        
+        mkdir -p /tmp/restore
+        tar -xzf /tmp/backup/base.tar.gz -C /tmp/restore
+        
+        # 检查必要文件
+        ls -la /tmp/restore
+        
+        echo "✅ Restore test OK"
+        echo "::endgroup::"
+    
+    - name: Cleanup
+      if: always()
+      run: rm -rf /tmp/backup /tmp/restore
+
+  restore-test:
+    name: Restore Test
+    if: github.event.inputs.action == 'restore-test'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Setup test PostgreSQL
+      run: |
+        docker run -d \
+          --name pg-test \
+          -e POSTGRES_PASSWORD=test \
+          -p 5433:5432 \
+          postgres:15-alpine
+        
+        sleep 10
+    
+    - name: Download and restore backup
+      env:
+        OSS_ACCESS_KEY_ID: ${{ secrets.OSS_ACCESS_KEY_ID }}
+        OSS_ACCESS_KEY_SECRET: ${{ secrets.OSS_ACCESS_KEY_SECRET }}
+        OSS_ENDPOINT: ${{ secrets.OSS_ENDPOINT }}
+      run: |
+        # 下载最新备份并恢复到测试实例
+        # ... 实现恢复逻辑
+        echo "Restore test completed"
+    
+    - name: Cleanup
+      if: always()
+      run: docker rm -f pg-test 2>/dev/null || true

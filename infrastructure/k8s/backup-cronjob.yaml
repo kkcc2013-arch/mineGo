@@ -1,0 +1,300 @@
+# PostgreSQL 备份 CronJob 配置
+# 部署到 Kubernetes 集群
+
+---
+# 全量备份 CronJob（每天凌晨 3 点）
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pg-backup-full
+  namespace: minego
+  labels:
+    app: minego
+    component: backup
+    type: full
+spec:
+  schedule: "0 3 * * *"  # 每天凌晨 3:00 UTC
+  concurrencyPolicy: Forbid  # 禁止并发执行
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 7200  # 2 小时超时
+      template:
+        metadata:
+          labels:
+            app: minego
+            component: backup
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: minego-backup-sa
+          containers:
+          - name: backup
+            image: postgres:15-alpine
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -c
+            - |
+              /scripts/pg-full-backup.sh --env=prod
+            env:
+            - name: PG_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: minego-db-credentials
+                  key: host
+            - name: PG_PORT
+              value: "5432"
+            - name: PG_USER
+              valueFrom:
+                secretKeyRef:
+                  name: minego-db-credentials
+                  key: user
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: minego-db-credentials
+                  key: password
+            - name: PG_DATABASE
+              value: "minego"
+            - name: OSS_BUCKET
+              value: "minego-db-backup-prod"
+            - name: PUSHGATEWAY_URL
+              value: "http://prometheus-pushgateway:9091"
+            volumeMounts:
+            - name: backup-scripts
+              mountPath: /scripts
+              readOnly: true
+            - name: backup-storage
+              mountPath: /backup/postgresql
+            - name: oss-credentials
+              mountPath: /root/.ossutilconfig
+              readOnly: true
+            resources:
+              requests:
+                cpu: 500m
+                memory: 512Mi
+              limits:
+                cpu: 1000m
+                memory: 1Gi
+          volumes:
+          - name: backup-scripts
+            configMap:
+              name: pg-backup-scripts
+              defaultMode: 0755
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: pg-backup-pvc
+          - name: oss-credentials
+            secret:
+              secretName: oss-credentials
+              items:
+              - key: ossutilconfig
+                path: ossutilconfig
+---
+# WAL 归档检查 CronJob（每 15 分钟）
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pg-wal-archive-check
+  namespace: minego
+  labels:
+    app: minego
+    component: backup
+    type: wal
+spec:
+  schedule: "*/15 * * * *"  # 每 15 分钟
+  concurrencyPolicy: Allow
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 300  # 5 分钟超时
+      template:
+        metadata:
+          labels:
+            app: minego
+            component: backup
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: wal-check
+            image: postgres:15-alpine
+            command:
+            - /bin/sh
+            - -c
+            - |
+              # 检查 WAL 归档状态
+              WAL_DIR="/backup/postgresql/wal"
+              if [ -d "${WAL_DIR}" ]; then
+                WAL_COUNT=$(find "${WAL_DIR}" -name "*.wal" | wc -l)
+                echo "WAL files archived: ${WAL_COUNT}"
+                
+                # 上传到 OSS
+                if command -v ossutil >/dev/null 2>&1; then
+                  for wal in $(find "${WAL_DIR}" -name "*.wal" -mmin -15); do
+                    ossutil cp "${wal}" "oss://minego-db-backup-prod/prod/wal/$(basename ${wal})"
+                  done
+                fi
+              fi
+            volumeMounts:
+            - name: backup-storage
+              mountPath: /backup/postgresql
+            resources:
+              requests:
+                cpu: 100m
+                memory: 128Mi
+          volumes:
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: pg-backup-pvc
+---
+# 备份验证 CronJob（每周日凌晨 4 点）
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: pg-backup-verify
+  namespace: minego
+  labels:
+    app: minego
+    component: backup
+    type: verify
+spec:
+  schedule: "0 4 * * 0"  # 每周日凌晨 4:00
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 3600  # 1 小时超时
+      template:
+        metadata:
+          labels:
+            app: minego
+            component: backup
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: verify
+            image: postgres:15-alpine
+            command:
+            - /bin/sh
+            - -c
+            - |
+              /scripts/pg-backup-verify.sh --test-restore
+            volumeMounts:
+            - name: backup-scripts
+              mountPath: /scripts
+              readOnly: true
+            - name: backup-storage
+              mountPath: /backup/postgresql
+            resources:
+              requests:
+                cpu: 500m
+                memory: 512Mi
+          volumes:
+          - name: backup-scripts
+            configMap:
+              name: pg-backup-scripts
+              defaultMode: 0755
+          - name: backup-storage
+            persistentVolumeClaim:
+              claimName: pg-backup-pvc
+---
+# 备份存储 PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pg-backup-pvc
+  namespace: minego
+  labels:
+    app: minego
+    component: backup
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 100Gi
+---
+# 备份服务账户
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: minego-backup-sa
+  namespace: minego
+  labels:
+    app: minego
+    component: backup
+---
+# 备份脚本 ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pg-backup-scripts
+  namespace: minego
+  labels:
+    app: minego
+    component: backup
+data:
+  pg-full-backup.sh: |
+    #!/bin/bash
+    # Inline backup script - see database/backup/pg-full-backup.sh for full version
+    set -e
+    TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+    BACKUP_DIR="/backup/postgresql"
+    BACKUP_NAME="minego-full-${TIMESTAMP}"
+    
+    echo "[$(date)] Starting full backup: ${BACKUP_NAME}"
+    
+    mkdir -p "${BACKUP_DIR}/full/$(date +%Y%m%d)"
+    
+    pg_basebackup \
+      -h "${PG_HOST}" \
+      -p "${PG_PORT}" \
+      -U "${PG_USER}" \
+      -D "${BACKUP_DIR}/full/$(date +%Y%m%d)/${BACKUP_NAME}" \
+      -Ft -z -Xs -P -v
+    
+    echo "[$(date)] Backup completed: ${BACKUP_NAME}"
+    
+    # 上传到 OSS
+    if command -v ossutil >/dev/null 2>&1; then
+      ossutil cp "${BACKUP_DIR}/full/$(date +%Y%m%d)/${BACKUP_NAME}/base.tar.gz" \
+        "oss://${OSS_BUCKET}/prod/full/${BACKUP_NAME}/base.tar.gz"
+    fi
+    
+    # Prometheus 指标
+    if [ -n "${PUSHGATEWAY_URL}" ]; then
+      echo "pg_backup_success{type=\"full\"} 1" | curl --data-binary @- "${PUSHGATEWAY_URL}/metrics/job/pg_backup"
+    fi
+  
+  pg-backup-verify.sh: |
+    #!/bin/bash
+    set -e
+    BACKUP_DIR="/backup/postgresql"
+    
+    echo "[$(date)] Starting backup verification"
+    
+    LATEST=$(find "${BACKUP_DIR}/full" -name "*.tar.gz" | sort -r | head -1)
+    
+    if [ -f "${LATEST}" ]; then
+      echo "Verifying: ${LATEST}"
+      
+      # 检查文件完整性
+      gzip -t "${LATEST}" && echo "✅ Gzip OK"
+      
+      # 检查校验和
+      if [ -f "${LATEST}.sha256" ]; then
+        sha256sum -c "${LATEST}.sha256" && echo "✅ Checksum OK"
+      fi
+      
+      echo "✅ Verification passed"
+    else
+      echo "❌ No backup found"
+      exit 1
+    fi

@@ -29,18 +29,28 @@
 
 ## 需求统计
 
-- 总需求：26
+- 总需求：27
 - P0：6 (new: 0, done: 6)
 - P1：15 (new: 2, done: 13)
-- P2：4 (new: 3, done: 1)
+- P2：5 (new: 3, done: 2)
 - P3：0
-- 已完成：21
+- 已完成：22
 
 ## 最后更新
 
-2026-06-05 18:25 UTC
+2026-06-05 19:00 UTC
 
 ## 已完成需求
+
+### REQ-00012: 微服务启动样板代码重构与统一
+- **完成时间**: 2026-06-05 19:25
+- **影响**: 技术债/重构 - 消除重复样板代码，统一服务启动框架
+- **修改文件**:
+  - backend/shared/ServiceLauncher.js (新增统一启动框架)
+  - backend/services/user-service/src/index.js (重构使用 ServiceLauncher)
+  - backend/tests/unit/ServiceLauncher.test.js (新增单元测试 26 个)
+  - backend/tests/test-helpers.js (新增测试辅助模块)
+  - docs/review/REVIEW-00012-service-boilerplate-refactoring.md (新增审核文档)
 
 ### REQ-00024: 蓝绿部署策略实现
 - **完成时间**: 2026-06-05 18:15

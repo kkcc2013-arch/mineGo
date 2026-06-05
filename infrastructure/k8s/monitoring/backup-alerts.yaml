@@ -1,0 +1,101 @@
+# PostgreSQL 备份告警规则
+# 添加到 Prometheus 规则文件
+
+groups:
+- name: postgresql-backup
+  rules:
+  # 备份失败告警
+  - alert: PostgreSQLBackupFailed
+    expr: pg_backup_success{type="full"} == 0
+    for: 1m
+    labels:
+      severity: critical
+      component: backup
+    annotations:
+      summary: "PostgreSQL 全量备份失败"
+      description: "数据库备份任务执行失败，请立即检查备份脚本和存储空间。环境: {{ $labels.env }}"
+      runbook_url: "https://wiki.minego.io/runbooks/backup-failed"
+  
+  # 备份超时告警
+  - alert: PostgreSQLBackupTimeout
+    expr: increase(pg_backup_duration_seconds[1h]) > 7200
+    for: 5m
+    labels:
+      severity: warning
+      component: backup
+    annotations:
+      summary: "PostgreSQL 备份超时"
+      description: "备份任务执行时间超过 2 小时，可能存在问题。"
+  
+  # 备份文件缺失告警
+  - alert: PostgreSQLBackupMissing
+    expr: |
+      (time() - pg_backup_timestamp{type="full"}) > 86400
+    for: 1h
+    labels:
+      severity: critical
+      component: backup
+    annotations:
+      summary: "PostgreSQL 备份文件缺失"
+      description: "超过 24 小时没有成功的全量备份，数据安全风险极高！"
+  
+  # 备份存储空间不足告警
+  - alert: PostgreSQLBackupStorageLow
+    expr: |
+      (pg_backup_storage_available_bytes / pg_backup_storage_total_bytes) < 0.2
+    for: 5m
+    labels:
+      severity: warning
+      component: backup
+    annotations:
+      summary: "PostgreSQL 备份存储空间不足"
+      description: "备份存储剩余空间不足 20%，当前剩余: {{ $value | humanizePercentage }}"
+  
+  # WAL 归档延迟告警
+  - alert: PostgreSQLWALArchiveLag
+    expr: |
+      (time() - pg_wal_last_archive_timestamp) > 1800
+    for: 5m
+    labels:
+      severity: warning
+      component: backup
+    annotations:
+      summary: "PostgreSQL WAL 归档延迟"
+      description: "WAL 归档超过 30 分钟未更新，可能影响时间点恢复能力。"
+  
+  # 备份验证失败告警
+  - alert: PostgreSQLBackupVerifyFailed
+    expr: pg_backup_verify_success == 0
+    for: 1m
+    labels:
+      severity: critical
+      component: backup
+    annotations:
+      summary: "PostgreSQL 备份验证失败"
+      description: "备份文件完整性验证失败，备份可能已损坏，请立即重新备份。"
+  
+  # 备份恢复测试失败告警
+  - alert: PostgreSQLRestoreTestFailed
+    expr: pg_backup_restore_test_success == 0
+    for: 1m
+    labels:
+      severity: warning
+      component: backup
+    annotations:
+      summary: "PostgreSQL 恢复测试失败"
+      description: "备份恢复测试失败，备份可能无法用于实际恢复。"
+  
+  # 备份大小异常告警
+  - alert: PostgreSQLBackupSizeAnomaly
+    expr: |
+      abs(
+        (pg_backup_size_bytes - pg_backup_size_bytes offset 1d)
+        / pg_backup_size_bytes offset 1d
+      ) > 0.5
+    for: 5m
+    labels:
+      severity: warning
+      component: backup
+    annotations:
+      summary: "PostgreSQL 备份大小异常"
+      description: "备份大小与前一天相比变化超过 50%，可能存在数据异常。"
