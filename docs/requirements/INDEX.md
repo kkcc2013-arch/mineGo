@@ -30,7 +30,7 @@
 | REQ-00024 | 蓝绿部署策略实现 | 运维/CICD | P1 | done | gateway、所有微服务、infrastructure/k8s、.github/workflows、scripts | 2026-06-05 16:05 |
 | REQ-00025 | 数据库自动化备份与灾难恢复系统 | 数据库/数据治理 | P1 | done | PostgreSQL、database/backup、infrastructure/k8s、.github/workflows | 2026-06-05 17:00 |
 || REQ-00026 | 游戏内实时推送通知系统 | 前端体验 | P1 | done | game-client、gateway、reward-service、gym-service、social-service | 2026-06-05 18:00 |
-|| REQ-00027 | 精灵详情页 3D 模型展示与交互 | 前端体验 | P2 | new | game-client、frontend/3d、pokemon-service | 2026-06-05 19:00 |
+|| REQ-00027 | 精灵详情页 3D 模型展示与交互 | 前端体验 | P2 | done | game-client、frontend/3d、pokemon-service | 2026-06-05 19:00 |
 || REQ-00028 | 玩家行为异常模式智能检测系统 | 反作弊 | P1 | done | gateway、catch-service、gym-service、social-service、backend/shared/anti-cheat.js | 2026-06-05 20:00 |
 || REQ-00029 | 游戏事件时区本地化与多时区支持 | 国际化/本地化 | P1 | done | gateway、user-service、gym-service、reward-service、game-client、frontend | 2026-06-05 21:15 |
 | REQ-00030 | 开发者贡献指南与项目文档完善 | 文档/开发者体验 | P2 | new | docs、README.md、CONTRIBUTING.md、ARCHITECTURE.md | 2026-06-05 22:05 |

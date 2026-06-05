@@ -33,15 +33,27 @@
 - 总需求：30
 - P0：6 (new: 0, done: 6)
 - P1：17 (new: 0, done: 17)
-- P2：6 (new: 2, done: 4)
+- P2：6 (new: 1, done: 5)
 - P3：0
-- 已完成：27
+- 已完成：28
 
 ## 最后更新
 
-2026-06-05 22:10 UTC
+2026-06-05 23:30 UTC
 
 ## 已完成需求
+
+### REQ-00027: 精灵详情页 3D 模型展示与交互
+- **完成时间**: 2026-06-05 23:30
+- **影响**: 前端体验 - Three.js 3D 查看器，360° 旋转，4 种动作，稀有特效，自动降级
+- **修改文件**:
+  - frontend/game-client/src/3d/Pokemon3DViewer.js (核心 3D 引擎 726 行)
+  - frontend/game-client/src/3d/PokemonDetailViewer.js (UI 组件 531 行)
+  - frontend/game-client/src/3d/PokemonDetailIntegration.js (集成示例 339 行)
+  - frontend/game-client/test-3d-viewer.html (测试页面)
+  - backend/tests/unit/pokemon-3d-viewer.test.js (单元测试 18 个)
+  - docs/requirements/REQ-00027-IMPLEMENTATION.md (实现文档)
+  - docs/review/REVIEW-00027-pokemon-3d-model-viewer.md (审核文档)
 
 ### REQ-00029: 游戏事件时区本地化与多时区支持
 - **完成时间**: 2026-06-05 22:30

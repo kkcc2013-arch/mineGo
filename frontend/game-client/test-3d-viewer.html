@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>精灵 3D 展示测试 - Pocket Monster Go</title>
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161e;
+      --surface2: #1a1e28;
+      --border: #252938;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --blue: #3d8ef8;
+      --yellow: #f4c430;
+      --green: #2ecc71;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: var(--muted);
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .pokemon-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .pokemon-selector button {
+      padding: 10px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .pokemon-selector button:hover {
+      background: var(--surface2);
+      border-color: var(--blue);
+    }
+
+    .pokemon-selector button.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+
+    #pokemon-detail-viewer {
+      margin-bottom: 24px;
+    }
+
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .info-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .info-card p {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+    }
+
+    .stat {
+      background: var(--surface2);
+      padding: 14px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--blue);
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: var(--surface2);
+      border-radius: 10px;
+    }
+
+    .feature-icon {
+      font-size: 24px;
+    }
+
+    .feature-text {
+      font-size: 13px;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 24px;
+      padding: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .back-link:hover {
+      background: var(--surface2);
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎮 精灵 3D 展示测试</h1>
+    <p class="subtitle">REQ-00027: Three.js 集成与 3D 模型查看器</p>
+
+    <div class="pokemon-selector">
+      <button onclick="loadPokemon(1, '妙蛙种子', 3)">🌱 妙蛙种子</button>
+      <button onclick="loadPokemon(4, '小火龙', 3)">🔥 小火龙</button>
+      <button onclick="loadPokemon(7, '杰尼龟', 3)">💧 杰尼龟</button>
+      <button onclick="loadPokemon(25, '皮卡丘', 4)">⚡ 皮卡丘</button>
+      <button onclick="loadPokemon(150, '超梦', 5)">🔮 超梦</button>
+    </div>
+
+    <div id="pokemon-detail-viewer"></div>
+
+    <div class="info-card">
+      <h3>📊 性能信息</h3>
+      <div class="stats" id="performance-stats">
+        <div class="stat">
+          <div class="stat-value" id="stat-triangles">-</div>
+          <div class="stat-label">三角形</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="stat-drawcalls">-</div>
+          <div class="stat-label">绘制调用</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="stat-textures">-</div>
+          <div class="stat-label">纹理</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="stat-mode">3D</div>
+          <div class="stat-label">渲染模式</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <h3>✨ 功能特性</h3>
+      <div class="feature-list">
+        <div class="feature">
+          <span class="feature-icon">🎮</span>
+          <span class="feature-text">360° 旋转查看</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">🔍</span>
+          <span class="feature-text">双指/滚轮缩放</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">⚔️</span>
+          <span class="feature-text">4 种动作动画</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">✨</span>
+          <span class="feature-text">稀有精灵特效</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">🖼️</span>
+          <span class="feature-text">自动降级 2D</span>
+        </div>
+        <div class="feature">
+          <span class="feature-icon">📱</span>
+          <span class="feature-text">触摸友好交互</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <h3>📝 使用说明</h3>
+      <p>
+        点击上方按钮选择精灵。在 3D 模式下，可以拖拽旋转精灵、使用滚轮或双指缩放。
+        点击底部的动作按钮可以播放不同动画。稀有度 4-5 星的精灵会显示光效和粒子特效。
+        如果设备不支持 WebGL 或性能较低，会自动降级到 2D 图片模式。
+      </p>
+    </div>
+
+    <a href="/" class="back-link">← 返回主页</a>
+  </div>
+
+  <!-- Three.js from CDN -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script type="module">
+    import { PokemonDetailViewer } from './src/3d/PokemonDetailViewer.js';
+
+    let viewer = null;
+
+    // 初始化查看器
+    function init() {
+      viewer = new PokemonDetailViewer({
+        containerId: 'pokemon-detail-viewer',
+        onDowngrade: (e) => {
+          document.getElementById('stat-mode').textContent = '2D';
+          console.log('Downgraded to 2D:', e.reason);
+        }
+      });
+
+      const success = viewer.init();
+      
+      if (!success) {
+        console.error('Failed to initialize viewer');
+        return;
+      }
+
+      // 默认加载皮卡丘
+      loadPokemon(25, '皮卡丘', 4);
+    }
+
+    // 加载精灵
+    window.loadPokemon = function(speciesId, name, rarity) {
+      if (!viewer) return;
+
+      // 更新按钮状态
+      document.querySelectorAll('.pokemon-selector button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+
+      // 显示精灵
+      viewer.showPokemon({
+        speciesId: speciesId,
+        name: name,
+        rarity: rarity,
+        variant: 'normal'
+      });
+
+      // 更新性能信息
+      setTimeout(updatePerformanceInfo, 500);
+    };
+
+    // 更新性能信息
+    function updatePerformanceInfo() {
+      if (!viewer || !viewer._viewer) return;
+
+      const info = viewer._viewer.getPerformanceInfo();
+      if (info) {
+        document.getElementById('stat-triangles').textContent = info.triangles || '-';
+        document.getElementById('stat-drawcalls').textContent = info.drawCalls || '-';
+        document.getElementById('stat-textures').textContent = info.textures || '-';
+        document.getElementById('stat-mode').textContent = viewer._is3DMode ? '3D' : '2D';
+      }
+    }
+
+    // 定期更新性能信息
+    setInterval(updatePerformanceInfo, 2000);
+
+    // 启动
+    init();
+  </script>
+</body>
+</html>
