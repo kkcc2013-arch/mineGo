@@ -31,16 +31,28 @@
 
 - 总需求：29
 - P0：6 (new: 0, done: 6)
-- P1：17 (new: 4, done: 13)
+- P1：17 (new: 3, done: 14)
 - P2：5 (new: 2, done: 3)
 - P3：0
-- 已完成：23
+- 已完成：24
 
 ## 最后更新
 
-2026-06-05 21:15 UTC
+2026-06-05 21:40 UTC
 
 ## 已完成需求
+
+### REQ-00028: 玩家行为异常模式智能检测系统
+- **完成时间**: 2026-06-05 21:40
+- **影响**: 反作弊 - 6维度行为异常检测，阻止90%+新型作弊
+- **修改文件**:
+  - database/pending/20260605_211800__add_behavior_anomaly_detection_tables.sql (9个表)
+  - backend/shared/behaviorAnalyzer.js (核心分析引擎 18KB)
+  - backend/shared/routes/behaviorAnalysis.js (API路由 10KB)
+  - backend/shared/middleware/deviceFingerprint.js (设备指纹中间件 7.5KB)
+  - backend/shared/metrics.js (扩展指标)
+  - backend/tests/unit/behavior-analyzer.test.js (28个测试)
+  - docs/review/REQ-00028-review.md (审核文档)
 
 ### REQ-00026: 游戏内实时推送通知系统
 - **完成时间**: 2026-06-05 20:15

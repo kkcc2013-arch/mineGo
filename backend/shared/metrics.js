@@ -105,6 +105,49 @@ const raidParticipantsActive = new promClient.Gauge({
 });
 
 // ============================================================
+// 行为分析指标 (REQ-00028)
+// ============================================================
+const behaviorAnomalyDetected = new promClient.Counter({
+  name: 'minego_anticheat_behavior_anomaly_total',
+  help: 'Behavior anomalies detected by type and severity',
+  labelNames: ['type', 'severity'],
+});
+
+const behaviorScoreHistogram = new promClient.Histogram({
+  name: 'minego_anticheat_behavior_score',
+  help: 'User behavior score distribution',
+  buckets: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+});
+
+const multiAccountDeviceDetected = new promClient.Counter({
+  name: 'minego_anticheat_multi_account_device_total',
+  help: 'Multi-account on same device detected',
+});
+
+const analysisDurationHistogram = new promClient.Histogram({
+  name: 'minego_anticheat_analysis_duration_seconds',
+  help: 'Time spent on behavior analysis',
+  labelNames: ['analysis_type'],
+  buckets: [0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5],
+});
+
+const lowTrustUserGauge = new promClient.Gauge({
+  name: 'minego_anticheat_low_trust_users',
+  help: 'Number of users with low trust score (<50)',
+});
+
+const deviceFingerprintTotal = new promClient.Counter({
+  name: 'minego_anticheat_device_fingerprint_total',
+  help: 'Total device fingerprints recorded',
+});
+
+const catchAttemptRecorded = new promClient.Counter({
+  name: 'minego_anticheat_catch_attempt_recorded_total',
+  help: 'Total catch attempts recorded for analysis',
+  labelNames: ['rarity', 'success'],
+});
+
+// ============================================================
 // Express 中间件：自动记录 HTTP 指标
 // ============================================================
 function httpMetricsMiddleware(serviceName) {
@@ -204,6 +247,28 @@ module.exports = {
   catchAttemptsTotal,
   pokemonSpawnedTotal,
   raidParticipantsActive,
+  
+  // 行为分析指标 (REQ-00028)
+  behaviorAnomalyDetected,
+  behaviorScoreHistogram,
+  multiAccountDeviceDetected,
+  analysisDurationHistogram,
+  lowTrustUserGauge,
+  deviceFingerprintTotal,
+  catchAttemptRecorded,
+  counters: {
+    behaviorAnomalyDetected,
+    multiAccountDeviceDetected,
+    deviceFingerprintTotal,
+    catchAttemptRecorded,
+  },
+  histograms: {
+    behaviorScoreHistogram,
+    analysisDurationHistogram,
+  },
+  gauges: {
+    lowTrustUserGauge,
+  },
   
   // 辅助函数
   promClient,
