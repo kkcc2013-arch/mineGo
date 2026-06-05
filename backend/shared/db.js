@@ -1,6 +1,8 @@
 // shared/db.js  — PostgreSQL connection pool
 const { Pool } = require('pg');
 const path = require('path');
+const { context, trace } = require('@opentelemetry/api');
+const { getTracer } = require('./tracing');
 
 let pool = null;
 let migrationsInitialized = false;
@@ -24,14 +26,52 @@ function getPool() {
 
 async function query(text, params) {
   const start = Date.now();
+  
+  // 获取当前追踪上下文
+  const currentSpan = trace.getSpan(context.active());
+  let dbSpan = null;
+  
+  // 创建数据库追踪 span
+  if (currentSpan) {
+    const tracer = getTracer('mineGo-db');
+    const operation = text.trim().split(' ')[0].toUpperCase();
+    
+    dbSpan = tracer.startSpan(`db.query ${operation}`, {
+      attributes: {
+        'db.system': 'postgresql',
+        'db.statement': text,
+        'db.operation': operation,
+      },
+    });
+  }
+  
   const client = await getPool().connect();
   try {
     const res = await client.query(text, params);
     const dur = Date.now() - start;
+    
+    // 记录查询结果到 span
+    if (dbSpan) {
+      dbSpan.setAttributes({
+        'db.rows_affected': res.rowCount || 0,
+        'db.duration_ms': dur,
+      });
+      dbSpan.setStatus({ code: 0 });
+      dbSpan.end();
+    }
+    
     if (dur > 500) {
       console.warn('[DB] Slow query (%dms): %s', dur, text.substring(0, 120));
     }
     return res;
+  } catch (err) {
+    // 记录错误到 span
+    if (dbSpan) {
+      dbSpan.setStatus({ code: 2, message: err.message });
+      dbSpan.recordException(err);
+      dbSpan.end();
+    }
+    throw err;
   } finally {
     client.release();
   }

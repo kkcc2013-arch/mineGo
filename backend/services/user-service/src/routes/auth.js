@@ -20,6 +20,11 @@ const RegisterSchema = z.object({
   nickname: z.string().min(2,'昵称最少2个字符').max(30,'昵称最多30个字符')
               .regex(/^[a-zA-Z0-9\u4e00-\u9fa5_-]+$/, '昵称含非法字符'),
   deviceId: z.string().optional(),
+  // REQ-00016: GDPR consent
+  consent: z.object({
+    privacyPolicy: z.boolean(),
+    termsOfService: z.boolean()
+  }).optional()
 });
 
 const LoginSchema = z.object({
@@ -65,7 +70,12 @@ router.post('/sms-code', async (req, res, next) => {
 // ── POST /auth/register ───────────────────────────────────────
 router.post('/register', async (req, res, next) => {
   try {
-    const { phone, smsCode, nickname, deviceId } = RegisterSchema.parse(req.body);
+    const { phone, smsCode, nickname, deviceId, consent } = RegisterSchema.parse(req.body);
+
+    // REQ-00016: Verify GDPR consent
+    if (!consent || !consent.privacyPolicy || !consent.termsOfService) {
+      throw new AppError(1010, '必须同意隐私政策和服务条款', 400);
+    }
 
     // Accept 'register' or 'login' scene (frontend sends 'login' for unified auth flow)
     await verifySmsCode(phone, smsCode, 'register').catch(async (e) => {
@@ -99,6 +109,17 @@ router.post('/register', async (req, res, next) => {
         INSERT INTO daily_quests (user_id) VALUES ($1)
         ON CONFLICT DO NOTHING
       `, [user.id]);
+
+      // REQ-00016: Record user consent
+      await client.query(`
+        INSERT INTO user_consents 
+          (user_id, privacy_policy_version, terms_version, consented_at, ip_address, user_agent)
+        VALUES ($1, '1.0', '1.0', NOW(), $2, $3)
+      `, [
+        user.id,
+        req.ip || req.connection.remoteAddress,
+        req.headers['user-agent']
+      ]);
 
       return user;
     });

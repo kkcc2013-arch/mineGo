@@ -8,11 +8,14 @@ const { errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
 const { i18nMiddleware } = require('../../../shared/i18n');
+const db = require('../../../shared/db');
+const EventBus = require('../../../shared/EventBus');
 
 const authRouter  = require('./routes/auth');
 const userRouter  = require('./routes/user');
 const friendRouter = require('./routes/friend');
 const sessionsRouter = require('./routes/sessions');
+const { router: gdprRouter, initGDPRRoutes } = require('./routes/gdpr');
 
 const logger = createLogger('user-service');
 const SERVICE_NAME = 'user-service';
@@ -54,6 +57,11 @@ app.use('/auth',   authRouter);
 app.use('/users',  userRouter);
 app.use('/users',  sessionsRouter); // Session management API
 app.use('/friends', friendRouter);
+
+// Initialize GDPR routes with db and eventBus
+const eventBus = EventBus.getEventBus();
+initGDPRRoutes(db, eventBus);
+app.use('/gdpr', gdprRouter); // GDPR compliance API
 
 // ── Error Handler ─────────────────────────────────────────────
 app.use(errorHandler);

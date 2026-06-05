@@ -1,6 +1,7 @@
 // shared/logger.js - 结构化日志模块
 'use strict';
 const pino = require('pino');
+const { context, trace } = require('@opentelemetry/api');
 
 /**
  * 创建结构化日志实例
@@ -66,29 +67,50 @@ function requestLogger(logger) {
     // 将 reqId 注入到 request 对象
     req.reqId = reqId;
     
-    // 记录请求开始
-    logger.info({
+    // 获取当前追踪上下文
+    const span = trace.getSpan(context.active());
+    const spanContext = span ? span.spanContext() : null;
+    
+    // 构建基础日志信息
+    const logData = {
       reqId,
       method: req.method,
       path: req.path,
       query: req.query,
       ip: req.ip || req.headers['x-forwarded-for'],
       userAgent: req.headers['user-agent'],
-    }, 'Request started');
+    };
+    
+    // 自动注入追踪信息
+    if (spanContext) {
+      logData.traceId = spanContext.traceId;
+      logData.spanId = spanContext.spanId;
+    }
+    
+    // 记录请求开始
+    logger.info(logData, 'Request started');
     
     // 记录请求结束
     res.on('finish', () => {
       const duration = Date.now() - startTime;
       const level = res.statusCode >= 400 ? 'warn' : 'info';
       
-      logger[level]({
+      const finishLogData = {
         reqId,
         method: req.method,
         path: req.path,
         statusCode: res.statusCode,
         duration,
         contentLength: res.getHeader('content-length'),
-      }, 'Request completed');
+      };
+      
+      // 自动注入追踪信息
+      if (spanContext) {
+        finishLogData.traceId = spanContext.traceId;
+        finishLogData.spanId = spanContext.spanId;
+      }
+      
+      logger[level](finishLogData, 'Request completed');
     });
     
     next();

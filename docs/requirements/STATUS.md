@@ -8,7 +8,7 @@
 |||------|------|------|------||
 ||| 核心功能完整度 | 25 | 18 | 注册/捕捉/道馆/社交/支付主链路基本闭环，但缺少关键优化 ||
 ||| 稳定性与高可用 | 15 | 10 | 具备限流、降级能力，缺少容灾切换 ||
-||| 安全与合规 | 15 | 15 | 支付幂等性与签名验证已实现，GPS反作弊系统已实现（REQ-00010） ||
+||| 安全与合规 | 15 | 15 | 支付幂等性与签名验证已实现，GPS反作弊系统已实现（REQ-00010），GDPR合规已实现（REQ-00016） ||
 ||| 性能与可扩展 | 15 | 12 | Redis GEO 缓存已实现，事件驱动架构已实现（REQ-00013），提升横向扩展能力 ||
 ||| 测试覆盖 | 10 | 10 | 单测覆盖优秀(126个)，集成/E2E测试已实现(42个) ||
 ||| 可观测性 | 10 | 10 | 结构化日志、Prometheus指标、告警规则已集成，所有服务暴露/metrics端点 ||
@@ -27,16 +27,31 @@
 
 ## 需求统计
 
-- 总需求：23
+- 总需求：24
 - P0：6 (new: 0, done: 6)
-- P1：12 (new: 4, done: 8)
+- P1：13 (new: 3, done: 10)
 - P2：4 (new: 3, done: 1)
 - P3：0
-- 已完成：15
+- 已完成：17
 
 ## 最后更新
 
-2026-06-05 15:15 UTC
+2026-06-05 16:00 UTC
+
+## 已完成需求
+
+### REQ-00023: 分布式链路追踪与 Jaeger 集成
+- **完成时间**: 2026-06-05 16:00
+- **影响**: 可观测性/监控 - 完整分布式链路追踪，端到端请求追踪能力
+- **修改文件**:
+  - backend/shared/tracing.js (新增 OpenTelemetry 初始化模块)
+  - backend/shared/tracingMiddleware.js (新增 Express 追踪中间件)
+  - backend/shared/logger.js (更新日志关联 traceId)
+  - backend/shared/db.js (新增数据库追踪)
+  - infrastructure/k8s/monitoring/jaeger.yaml (新增 Jaeger K8s 部署)
+  - infrastructure/k8s/monitoring/grafana-dashboards/tracing.json (新增追踪仪表板)
+  - backend/tests/unit/tracing.test.js (新增单元测试)
+  - docs/review/REQ-00023-distributed-tracing-jaeger.md (新增审核文档)
 
 ## 已完成需求
 

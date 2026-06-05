@@ -19,11 +19,12 @@
 || REQ-00013 | 事件驱动架构与服务解耦 | 可扩展性/解耦 | P1 | done | 所有微服务、Kafka、backend/shared | 2026-06-05 09:25 |
 | REQ-00014 | 服务熔断与降级机制 | 容灾/高可用 | P0 | done | gateway、所有微服务、backend/shared | 2026-06-05 09:30 |
 | REQ-00015 | 数据库连接池优化与成本控制 | 成本/资源优化 | P2 | new | 所有微服务、database、backend/shared | 2026-06-05 09:35 |
-| REQ-00016 | GDPR 合规与用户数据隐私保护 | 合规/隐私 | P1 | new | user-service、所有微服务、gateway、database | 2026-06-05 09:40 |
+| REQ-00016 | GDPR 合规与用户数据隐私保护 | 合规/隐私 | P1 | done | user-service、所有微服务、gateway、database | 2026-06-05 09:40 |
 | REQ-00017 | 游戏客户端无障碍访问支持 | 无障碍(a11y) | P2 | new | game-client、frontend | 2026-06-05 09:45 |
 | REQ-00018 | 精灵交易系统 | 功能增强 | P1 | new | social-service、pokemon-service、user-service、gateway、game-client | 2026-06-05 09:50 |
 || REQ-00019 | 精灵技能学习与技能机器系统 | 功能增强 | P1 | new | pokemon-service、catch-service、reward-service、game-client、database/migrations | 2026-06-05 10:00 |
 || REQ-00020 | 精灵列表查询复合索引优化 | 性能优化 | P1 | new | pokemon-service、database/migrations | 2026-06-05 11:00 |
 || REQ-00021 | JWT 令牌黑名单与强制登出机制 | 安全加固 | P1 | done | gateway、user-service、backend/shared、Redis | 2026-06-05 12:00 |
 | REQ-00022 | 集成测试框架与 API 端到端测试覆盖 | 测试覆盖 | P1 | done | backend/tests/integration、所有微服务、GitHub Actions | 2026-06-05 14:35 |
-| REQ-00023 | 分布式链路追踪与 Jaeger 集成 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-05 15:00 |
+|| REQ-00023 | 分布式链路追踪与 Jaeger 集成 | 可观测性/监控 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-05 15:00 |
+| REQ-00024 | 蓝绿部署策略实现 | 运维/CICD | P1 | new | gateway、所有微服务、infrastructure/k8s、.github/workflows、scripts | 2026-06-05 16:05 |
