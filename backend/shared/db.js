@@ -1,7 +1,9 @@
 // shared/db.js  — PostgreSQL connection pool
 const { Pool } = require('pg');
+const path = require('path');
 
 let pool = null;
+let migrationsInitialized = false;
 
 function getPool() {
   if (!pool) {
@@ -50,4 +52,44 @@ async function transaction(fn) {
   }
 }
 
-module.exports = { getPool, query, transaction };
+/**
+ * Initialize database migrations
+ * Should be called once during application startup
+ */
+async function initializeMigrations() {
+  if (migrationsInitialized) {
+    return;
+  }
+  
+  try {
+    // Import migration runner
+    const migratePath = path.join(__dirname, '..', '..', 'database', 'migrate.js');
+    const { verifyChecksums, runPendingMigrations } = require(migratePath);
+    
+    // Verify checksums of already executed migrations
+    const verifyResult = await verifyChecksums();
+    if (!verifyResult.valid) {
+      console.error('[DB] Migration checksum verification failed!');
+      for (const err of verifyResult.errors) {
+        console.error(`  ${err.version}: ${err.message}`);
+      }
+      throw new Error('Migration checksum verification failed');
+    }
+    
+    console.log('[DB] Migration checksums verified');
+    
+    // Run pending migrations if AUTO_MIGRATE is enabled
+    if (process.env.AUTO_MIGRATE === 'true') {
+      console.log('[DB] Running pending migrations...');
+      const result = await runPendingMigrations();
+      console.log(`[DB] Migrations complete: ${result.ran} executed`);
+    }
+    
+    migrationsInitialized = true;
+  } catch (err) {
+    console.error('[DB] Migration initialization failed:', err.message);
+    throw err;
+  }
+}
+
+module.exports = { getPool, query, transaction, initializeMigrations };
