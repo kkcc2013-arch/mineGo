@@ -36,9 +36,25 @@
 
 ## 最后更新
 
-2026-06-05 16:00 UTC
+2026-06-05 16:25 UTC
 
 ## 已完成需求
+
+### REQ-00016: GDPR 合规与用户数据隐私保护
+- **完成时间**: 2026-06-05 16:20
+- **影响**: 合规/隐私 - GDPR 合规，数据导出、删除、加密、审计
+- **修改文件**:
+  - database/pending/20260605_161000__add_gdpr_tables.sql (新增 GDPR 相关表)
+  - backend/shared/dataEncryption.js (新增 AES-256-GCM 加密模块)
+  - backend/shared/dataMasking.js (新增数据脱敏模块)
+  - backend/shared/auditLog.js (新增审计日志模块)
+  - backend/services/user-service/src/gdprService.js (新增 GDPR 服务)
+  - backend/services/user-service/src/routes/gdpr.js (新增 GDPR API 路由)
+  - backend/services/user-service/src/index.js (集成 GDPR 路由)
+  - backend/services/user-service/src/routes/auth.js (添加同意验证)
+  - scripts/data-retention-cleanup.js (新增数据保留清理脚本)
+  - backend/tests/unit/gdpr.test.js (新增单元测试)
+  - docs/review/REQ-00016-gdpr-compliance-review.md (新增审核文档)
 
 ### REQ-00023: 分布式链路追踪与 Jaeger 集成
 - **完成时间**: 2026-06-05 16:00
