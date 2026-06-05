@@ -18,3 +18,7 @@
 | REQ-00012 | 微服务启动样板代码重构与统一 | 技术债/重构 | P2 | new | 所有微服务、backend/shared | 2026-06-05 09:20 |
 | REQ-00013 | 事件驱动架构与服务解耦 | 可扩展性/解耦 | P1 | new | 所有微服务、Kafka、backend/shared | 2026-06-05 09:25 |
 | REQ-00014 | 服务熔断与降级机制 | 容灾/高可用 | P0 | new | gateway、所有微服务、backend/shared | 2026-06-05 09:30 |
+| REQ-00015 | 数据库连接池优化与成本控制 | 成本/资源优化 | P2 | new | 所有微服务、database、backend/shared | 2026-06-05 09:35 |
+| REQ-00016 | GDPR 合规与用户数据隐私保护 | 合规/隐私 | P1 | new | user-service、所有微服务、gateway、database | 2026-06-05 09:40 |
+| REQ-00017 | 游戏客户端无障碍访问支持 | 无障碍(a11y) | P2 | new | game-client、frontend | 2026-06-05 09:45 |
+| REQ-00018 | 精灵交易系统 | 功能增强 | P1 | new | social-service、pokemon-service、user-service、gateway、game-client | 2026-06-05 09:50 |
