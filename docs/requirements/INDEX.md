@@ -7,3 +7,4 @@
 | REQ-00001 | 附近精灵查询 Redis GEO 缓存层 | 性能优化 | P0 | done | location-service | 2026-06-04 15:11 |
 | REQ-00002 | 结构化日志与 Prometheus 指标集成 | 可观测性/监控 | P0 | done | gateway、所有微服务 | 2026-06-04 16:00 |
 | REQ-00003 | 支付订单幂等性与签名验证安全加固 | 安全加固 | P0 | done | payment-service、gateway | 2026-06-04 17:00 |
+| REQ-00004 | 支付服务单元测试与集成测试覆盖 | 测试覆盖 | P1 | new | payment-service、backend/tests/ | 2026-06-05 00:30 |
