@@ -11,6 +11,7 @@ const { requireAuth, verifyAccess, AppError, successResp, errorHandler } = requi
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
 const { validateLocation, checkRateLimit, requireTrustScore, TRUST_SCORE } = require('../../../shared/anti-cheat');
+const { initNotificationWS, sendNotificationToUser } = require('../../../shared/NotificationWebSocket');
 
 const logger = createLogger('gym-service');
 const SERVICE_NAME = 'gym-service';
@@ -358,5 +359,15 @@ app.post('/raids/:id/join', requireAuth, async (req, res, next) => {
 });
 
 app.use(errorHandler);
+
+// ============================================================
+// NOTIFICATION WEBSOCKET - REQ-00026
+// ============================================================
+const notificationWss = initNotificationWS(server, '/ws/notifications');
+
+// Export for other services to use
+module.exports.sendNotification = sendNotificationToUser;
+module.exports.notificationWss = notificationWss;
+
 server.listen(PORT, () => console.log(`[gym-service] listening on :${PORT}`));
 module.exports = app;

@@ -11,6 +11,8 @@ const userRouter = require('./routes/user');
 const friendRouter = require('./routes/friend');
 const sessionsRouter = require('./routes/sessions');
 const { router: gdprRouter, initGDPRRoutes } = require('./routes/gdpr');
+const { router: notificationsRouter } = require('./routes/notifications');
+const { initNotificationHandlers } = require('./handlers/notificationHandler');
 
 // Create service launcher
 const service = new ServiceLauncher({
@@ -36,6 +38,10 @@ const service = new ServiceLauncher({
     {
       path: '/friends',
       router: friendRouter
+    },
+    {
+      path: '/notifications',
+      router: notificationsRouter
     }
   ],
   
@@ -45,6 +51,9 @@ const service = new ServiceLauncher({
     const eventBus = EventBus.getEventBus();
     initGDPRRoutes(db, eventBus);
     app.use('/gdpr', gdprRouter);
+    
+    // Initialize notification event handlers - REQ-00026
+    initNotificationHandlers(eventBus);
     
     console.log('User service ready');
   }
