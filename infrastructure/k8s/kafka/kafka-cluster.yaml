@@ -1,0 +1,143 @@
+# infrastructure/k8s/kafka/kafka-cluster.yaml
+# Kafka cluster deployment using Strimzi Operator
+# Requirements:
+# - Kubernetes 1.21+
+# - Strimzi Operator installed in the cluster
+# - Persistent storage available
+
+apiVersion: kafka.strimzi.io/v1beta2
+kind: Kafka
+metadata:
+  name: minego-kafka
+  namespace: minego
+  labels:
+    app: minego
+    component: kafka
+spec:
+  kafka:
+    version: 3.5.1
+    replicas: 3
+    listeners:
+      - name: plain
+        port: 9092
+        type: internal
+        tls: false
+      - name: tls
+        port: 9093
+        type: internal
+        tls: true
+        authentication:
+          type: tls
+    config:
+      # Log retention: 7 days
+      log.retention.hours: 168
+      # Segment size: 1GB
+      log.segment.bytes: 1073741824
+      # Minimum in-sync replicas
+      min.insync.replicas: 2
+      # Default replication factor
+      default.replication.factor: 3
+      # Enable auto topic creation
+      auto.create.topics.enable: "true"
+      # Inter-broker protocol version
+      inter.broker.protocol.version: "3.5"
+    storage:
+      type: jbod
+      volumes:
+      - id: 0
+        type: persistent-claim
+        size: 20Gi
+        class: standard
+        deleteClaim: false
+    resources:
+      requests:
+        memory: "2Gi"
+        cpu: "1000m"
+      limits:
+        memory: "4Gi"
+        cpu: "2000m"
+    livenessProbe:
+      initialDelaySeconds: 60
+      periodSeconds: 10
+    readinessProbe:
+      initialDelaySeconds: 60
+      periodSeconds: 10
+    metricsConfig:
+      type: jmxPrometheusExporter
+      valueFrom:
+        configMapKeyRef:
+          name: kafka-metrics-config
+          key: kafka-metrics.yml
+    
+  zookeeper:
+    replicas: 3
+    storage:
+      type: persistent-claim
+      size: 5Gi
+      class: standard
+      deleteClaim: false
+    resources:
+      requests:
+        memory: "512Mi"
+        cpu: "500m"
+      limits:
+        memory: "1Gi"
+        cpu: "1000m"
+    livenessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readinessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    
+  entityOperator:
+    topicOperator: {}
+    userOperator: {}
+    
+  cruiseControl: {}
+---
+# Kafka Metrics ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kafka-metrics-config
+  namespace: minego
+  labels:
+    app: minego
+    component: kafka
+data:
+  kafka-metrics.yml: |
+    lowercaseOutputName: true
+    rules:
+    - pattern: kafka.(.*)<name=(.*)><>(.*)
+      name: kafka_$1_$3
+      labels:
+        name: $2
+    - pattern: kafka.server<type=(.*), name=(.*)><>Count
+      name: kafka_server_$1_$2_count
+    - pattern: kafka.server<type=(.*), name=(.*), topic=(.*)><>Count
+      name: kafka_server_$1_$2_count
+      labels:
+        topic: $3
+---
+# Kafka Exporter for Prometheus metrics
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaNodePool
+metadata:
+  name: mixed
+  namespace: minego
+  labels:
+    strimzi.io/cluster: minego-kafka
+spec:
+  replicas: 3
+  roles:
+    - broker
+    - controller
+  storage:
+    type: jbod
+    volumes:
+      - id: 0
+        type: persistent-claim
+        size: 20Gi
+        class: standard
+        deleteClaim: false

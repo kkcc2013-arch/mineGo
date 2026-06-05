@@ -1,0 +1,172 @@
+# infrastructure/k8s/kafka/topics.yaml
+# Kafka topics for mineGo event-driven architecture
+
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: catch-events
+  namespace: minego
+  labels:
+    app: minego
+    component: kafka
+    topic-type: events
+spec:
+  partitions: 6
+  replicas: 3
+  config:
+    # Retention: 7 days
+    retention.ms: 604800000
+    # Segment size: 500MB
+    segment.bytes: 524288000
+    # Cleanup policy: delete old messages
+    cleanup.policy: delete
+    # Minimum in-sync replicas
+    min.insync.replicas: 2
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: catch-events-dlq
+  namespace: minego
+  labels:
+    app: minego
+    component: kafka
+    topic-type: dlq
+spec:
+  partitions: 1
+  replicas: 3
+  config:
+    # Retention: 30 days (longer for DLQ)
+    retention.ms: 2592000000
+    # Segment size: 100MB
+    segment.bytes: 104857600
+    cleanup.policy: delete
+    min.insync.replicas: 2
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: user-events
+  namespace: minego
+  labels:
+    app: minego
+    component: kafka
+    topic-type: events
+spec:
+  partitions: 3
+  replicas: 3
+  config:
+    retention.ms: 604800000
+    segment.bytes: 524288000
+    cleanup.policy: delete
+    min.insync.replicas: 2
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: user-events-dlq
+  namespace: minego
+  labels:
+    app: minego
+    component: kafka
+    topic-type: dlq
+spec:
+  partitions: 1
+  replicas: 3
+  config:
+    retention.ms: 2592000000
+    segment.bytes: 104857600
+    cleanup.policy: delete
+    min.insync.replicas: 2
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: social-events
+  namespace: minego
+  labels:
+    app: minego
+    component: kafka
+    topic-type: events
+spec:
+  partitions: 3
+  replicas: 3
+  config:
+    retention.ms: 604800000
+    segment.bytes: 524288000
+    cleanup.policy: delete
+    min.insync.replicas: 2
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: reward-events
+  namespace: minego
+  labels:
+    app: minego
+    component: kafka
+    topic-type: events
+spec:
+  partitions: 3
+  replicas: 3
+  config:
+    retention.ms: 604800000
+    segment.bytes: 524288000
+    cleanup.policy: delete
+    min.insync.replicas: 2
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: payment-events
+  namespace: minego
+  labels:
+    app: minego
+    component: kafka
+    topic-type: events
+spec:
+  partitions: 3
+  replicas: 3
+  config:
+    # Longer retention for payment events (compliance)
+    retention.ms: 7776000000  # 90 days
+    segment.bytes: 524288000
+    cleanup.policy: delete
+    min.insync.replicas: 2
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: location-events
+  namespace: minego
+  labels:
+    app: minego
+    component: kafka
+    topic-type: events
+spec:
+  partitions: 6
+  replicas: 3
+  config:
+    # Shorter retention for location events (high volume)
+    retention.ms: 86400000  # 1 day
+    segment.bytes: 1073741824
+    cleanup.policy: delete
+    min.insync.replicas: 2
+---
+apiVersion: kafka.strimzi.io/v1beta2
+kind: KafkaTopic
+metadata:
+  name: gym-events
+  namespace: minego
+  labels:
+    app: minego
+    component: kafka
+    topic-type: events
+spec:
+  partitions: 3
+  replicas: 3
+  config:
+    retention.ms: 604800000
+    segment.bytes: 524288000
+    cleanup.policy: delete
+    min.insync.replicas: 2

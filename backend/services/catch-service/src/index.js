@@ -10,6 +10,7 @@ const { requireAuth, AppError, successResp, errorHandler } = require('../../../s
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
 const { validateLocation, checkRateLimit, requireTrustScore, TRUST_SCORE } = require('../../../shared/anti-cheat');
+const { publishCatchSuccess, publishCatchFailed } = require('./eventProducers');
 
 const logger = createLogger('catch-service');
 const SERVICE_NAME = 'catch-service';
@@ -186,7 +187,7 @@ app.post('/catch/throw', requireAuth, checkRateLimit('CATCH'), async (req, res, 
       [sessionId, ballType, throwRating, isCurve||false, berryUsed||'NONE', catchProb, caught]);
 
     if (caught) {
-      const rewards = await handleCatch(userId, session, throwRating, isCurve);
+      const rewards = await handleCatch(userId, session, throwRating, isCurve, sessionId);
       await getRedis().del(`catch:session:${sessionId}`);
       return res.json(successResp({ result: 'CAUGHT', catchProb, ...rewards }));
     }
@@ -202,6 +203,12 @@ app.post('/catch/throw', requireAuth, checkRateLimit('CATCH'), async (req, res, 
       await getRedis().del(`catch:session:${sessionId}`);
       metrics.catchAttemptsTotal.inc({ result: 'escaped' });
       logger.info({ userId, speciesId: session.speciesId, ballsThrown: session.ballsThrown }, 'Pokemon fled');
+      
+      // Publish catch failed event (async, non-blocking)
+      publishCatchFailed(userId, session.speciesId, 'FLED', sessionId).catch(err =>
+        logger.error({ err }, 'Failed to publish catch failed event')
+      );
+      
       return res.json(successResp({ result: 'FLED', catchProb, rewards: { xp: 25 } }));
     }
 
@@ -210,14 +217,14 @@ app.post('/catch/throw', requireAuth, checkRateLimit('CATCH'), async (req, res, 
   } catch (err) { next(err); }
 });
 
-async function handleCatch(userId, session, throwRating, isCurve) {
+async function handleCatch(userId, session, throwRating, isCurve, sessionId) {
   const XP_BY_RATING = { NICE: 120, GREAT: 170, EXCELLENT: 200 };
   const baseXp = XP_BY_RATING[throwRating] || 100;
   const xp = baseXp + (isCurve ? 10 : 0) + (session.isShiny ? 500 : 0);
   const stardust = 100;
   const candy    = 3;
 
-  return await transaction(async (client) => {
+  const result = await transaction(async (client) => {
     // Create pokemon instance
     const { rows: [instance] } = await client.query(`
       INSERT INTO pokemon_instances
@@ -293,9 +300,29 @@ async function handleCatch(userId, session, throwRating, isCurve) {
 
     return {
       pokemonInstanceId: instance.id,
+      pokemon: {
+        speciesId: session.speciesId,
+        name: session.name_zh,
+        cp: session.cp,
+        isShiny: session.isShiny,
+        iv: {
+          attack: session.iv_attack,
+          defense: session.iv_defense,
+          hp: session.iv_hp,
+        },
+      },
       rewards: { xp, stardust, candy },
     };
   });
+
+  // Publish catch success event (async, non-blocking)
+  // Event consumers: user-service (update bag), reward-service (grant rewards), 
+  // social-service (send notifications), etc.
+  publishCatchSuccess(userId, result.pokemon, result.rewards, sessionId).catch(err =>
+    logger.error({ err }, 'Failed to publish catch success event')
+  );
+
+  return result;
 }
 
 // Invalidate wild pokemon cache in location-service

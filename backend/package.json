@@ -12,7 +12,10 @@
     "dev": "concurrently \"npm run dev -w shared\" \"npm run dev -w services/user-service\" \"npm run dev -w services/location-service\" \"npm run dev -w services/pokemon-service\" \"npm run dev -w services/catch-service\" \"npm run dev -w services/gym-service\"",
     "test": "npm run test --workspaces --if-present",
     "test:unit": "node tests/unit/catch.test.js && node tests/unit/auth.test.js && node tests/unit/spawn.test.js && node tests/unit/logger-metrics.test.js && node tests/unit/payment.test.js",
-    "test:coverage": "echo 'Code coverage requires nyc installation. Run: npm install --save-dev nyc'",
+    "test:integration": "jest --config tests/integration/jest.config.json",
+    "test:e2e": "jest --config tests/integration/jest.config.json tests/e2e",
+    "test:all": "npm run test:unit && npm run test:integration",
+    "test:coverage": "nyc npm run test:unit",
     "lint": "eslint . --ext .js,.ts",
     "migrate:up": "node ../database/migrate.js up",
     "migrate:down": "node ../database/migrate.js down",
@@ -21,10 +24,17 @@
     "migrate:verify": "node ../database/migrate.js verify"
   },
   "devDependencies": {
+    "@testcontainers/postgresql": "^12.0.1",
+    "@testcontainers/redis": "^12.0.1",
     "concurrently": "^8.2.0",
-    "eslint": "^8.55.0"
+    "eslint": "^8.55.0",
+    "jest": "^30.4.2",
+    "nyc": "^18.0.0",
+    "supertest": "^7.2.2",
+    "testcontainers": "^12.0.1"
   },
   "dependencies": {
+    "kafkajs": "^2.2.4",
     "swagger-ui-express": "^5.0.1",
     "yamljs": "^0.3.0"
   }

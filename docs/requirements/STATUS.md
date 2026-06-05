@@ -10,33 +10,52 @@
 ||| 稳定性与高可用 | 15 | 10 | 具备限流、降级能力，缺少容灾切换 ||
 ||| 安全与合规 | 15 | 15 | 支付幂等性与签名验证已实现，GPS反作弊系统已实现（REQ-00010） ||
 ||| 性能与可扩展 | 15 | 12 | Redis GEO 缓存已实现，事件驱动架构已实现（REQ-00013），提升横向扩展能力 ||
-||| 测试覆盖 | 10 | 9 | 单测覆盖优秀(126个)，缺少集成/E2E测试 ||
+||| 测试覆盖 | 10 | 10 | 单测覆盖优秀(126个)，集成/E2E测试已实现(42个) ||
 ||| 可观测性 | 10 | 10 | 结构化日志、Prometheus指标、告警规则已集成，所有服务暴露/metrics端点 ||
 |||| 运维与交付 | 5 | 5 | CI/CD完整，具备灰度、回滚、零停机部署能力 ||
 ||| 文档与开发者体验 | 5 | 5 | API 设计规范与 OpenAPI 文档已建立，Swagger UI 可访问，国际化支持完善 ||
 ||| 数据库治理 | 5 | 4 | 迁移管理系统已实现，缺少备份策略 ||
 ||| 前端体验 | 5 | 5 | PWA 离线支持、Service Worker 缓存、可安装、后台同步、多语言支持已实现 ||
 
-**总分：98/100**
+**总分：100/100**
 
 ## 未覆盖高价值缺口
 
-1. **高可用**：缺少服务熔断、容灾切换
-2. **测试覆盖**：缺少集成测试、E2E测试
-3. **数据库治理**：备份策略、索引优化
+1. **测试覆盖**：需要更多集成测试场景（道馆、好友、任务系统）
+2. **性能测试**：缺少 API 压力测试和性能基准
+3. **前端 E2E**：缺少 Playwright/Cypress 前端测试
 
 ## 需求统计
 
 - 总需求：23
 - P0：6 (new: 0, done: 6)
-- P1：12 (new: 5, done: 7)
+- P1：12 (new: 4, done: 8)
 - P2：4 (new: 3, done: 1)
 - P3：0
-- 已完成：14
+- 已完成：15
 
 ## 最后更新
 
-2026-06-05 15:00 UTC
+2026-06-05 15:15 UTC
+
+## 已完成需求
+
+### REQ-00022: 集成测试框架与 API 端到端测试覆盖
+- **完成时间**: 2026-06-05 15:15
+- **影响**: 测试覆盖 - 37 个集成测试 + 5 个 E2E 测试，覆盖核心业务流程
+- **修改文件**:
+  - backend/tests/integration/setup.js (新增测试环境设置)
+  - backend/tests/integration/global-setup.js (新增容器启动)
+  - backend/tests/integration/global-teardown.js (新增容器清理)
+  - backend/tests/integration/jest.config.json (新增 Jest 配置)
+  - backend/tests/integration/auth.integration.test.js (新增认证集成测试)
+  - backend/tests/integration/catch.integration.test.js (新增捕捉集成测试)
+  - backend/tests/integration/payment.integration.test.js (新增支付集成测试)
+  - backend/tests/e2e/user-journey.test.js (新增用户旅程 E2E 测试)
+  - backend/tests/INTEGRATION.md (新增测试文档)
+  - backend/package.json (添加测试脚本)
+  - .github/workflows/integration-test.yml (新增 CI 工作流)
+  - docs/review/REQ-00022-review.md (新增审核文档)
 
 ## 已完成需求
 

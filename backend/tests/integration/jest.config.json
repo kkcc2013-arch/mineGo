@@ -1,0 +1,13 @@
+{
+  "testEnvironment": "node",
+  "testMatch": ["**/*.integration.test.js", "**/*.e2e.test.js"],
+  "setupFilesAfterEnv": ["./setup.js"],
+  "testTimeout": 30000,
+  "verbose": true,
+  "collectCoverage": true,
+  "coverageDirectory": "coverage",
+  "coverageReporters": ["text", "lcov", "json-summary"],
+  "coveragePathIgnorePatterns": ["/node_modules/", "/tests/"],
+  "globalSetup": "./global-setup.js",
+  "globalTeardown": "./global-teardown.js"
+}

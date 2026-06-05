@@ -1,0 +1,132 @@
+name: Integration & E2E Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run Tests with Coverage
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: minego_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          npm ci
+
+      - name: Run unit tests
+        run: |
+          cd backend
+          npm run test:unit
+
+      - name: Run integration tests
+        env:
+          TEST_DATABASE_URL: postgresql://test:test@localhost:5432/minego_test
+          TEST_REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test-secret-key
+        run: |
+          cd backend
+          npm run test:integration
+
+      - name: Run E2E tests
+        env:
+          TEST_DATABASE_URL: postgresql://test:test@localhost:5432/minego_test
+          TEST_REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test-secret-key
+        run: |
+          cd backend
+          npm run test:e2e
+
+      - name: Generate coverage report
+        run: |
+          cd backend
+          npm run test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./backend/coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+
+      - name: Check coverage threshold
+        run: |
+          cd backend
+          if [ -f coverage/coverage-summary.json ]; then
+            coverage=$(cat coverage/coverage-summary.json | jq '.total.lines.pct')
+            echo "Coverage: $coverage%"
+            if (( $(echo "$coverage < 80" | bc -l) )); then
+              echo "❌ Coverage $coverage% is below 80% threshold"
+              exit 1
+            else
+              echo "✅ Coverage $coverage% meets threshold"
+            fi
+          else
+            echo "⚠️ Coverage report not found"
+          fi
+
+      - name: Archive test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: |
+            backend/coverage/
+            backend/test-results/
+
+  integration-test-report:
+    name: Generate Test Report
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+
+    steps:
+      - name: Download test results
+        uses: actions/download-artifact@v3
+        with:
+          name: test-results
+
+      - name: Publish test report
+        uses: mikepenz/action-junit-report@v3
+        if: always()
+        with:
+          report_paths: '**/test-results/*.xml'

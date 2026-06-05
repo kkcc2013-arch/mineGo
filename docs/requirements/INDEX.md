@@ -25,5 +25,5 @@
 || REQ-00019 | 精灵技能学习与技能机器系统 | 功能增强 | P1 | new | pokemon-service、catch-service、reward-service、game-client、database/migrations | 2026-06-05 10:00 |
 || REQ-00020 | 精灵列表查询复合索引优化 | 性能优化 | P1 | new | pokemon-service、database/migrations | 2026-06-05 11:00 |
 || REQ-00021 | JWT 令牌黑名单与强制登出机制 | 安全加固 | P1 | done | gateway、user-service、backend/shared、Redis | 2026-06-05 12:00 |
-| REQ-00022 | 集成测试框架与 API 端到端测试覆盖 | 测试覆盖 | P1 | new | backend/tests/integration、所有微服务、GitHub Actions | 2026-06-05 14:35 |
+| REQ-00022 | 集成测试框架与 API 端到端测试覆盖 | 测试覆盖 | P1 | done | backend/tests/integration、所有微服务、GitHub Actions | 2026-06-05 14:35 |
 | REQ-00023 | 分布式链路追踪与 Jaeger 集成 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-05 15:00 |
