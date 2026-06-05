@@ -22,4 +22,5 @@
 | REQ-00016 | GDPR 合规与用户数据隐私保护 | 合规/隐私 | P1 | new | user-service、所有微服务、gateway、database | 2026-06-05 09:40 |
 | REQ-00017 | 游戏客户端无障碍访问支持 | 无障碍(a11y) | P2 | new | game-client、frontend | 2026-06-05 09:45 |
 | REQ-00018 | 精灵交易系统 | 功能增强 | P1 | new | social-service、pokemon-service、user-service、gateway、game-client | 2026-06-05 09:50 |
-| REQ-00019 | 精灵技能学习与技能机器系统 | 功能增强 | P1 | new | pokemon-service、catch-service、reward-service、game-client、database/migrations | 2026-06-05 10:00 |
+|| REQ-00019 | 精灵技能学习与技能机器系统 | 功能增强 | P1 | new | pokemon-service、catch-service、reward-service、game-client、database/migrations | 2026-06-05 10:00 |
+|| REQ-00020 | 精灵列表查询复合索引优化 | 性能优化 | P1 | new | pokemon-service、database/migrations | 2026-06-05 11:00 |
