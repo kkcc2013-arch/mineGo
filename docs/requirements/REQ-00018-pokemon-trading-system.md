@@ -3,7 +3,7 @@
 - **编号**：REQ-00018
 - **类别**：功能增强
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：social-service、pokemon-service、user-service、gateway、game-client
 - **创建时间**：2026-06-05 09:50
 - **依赖需求**：REQ-00001（Redis GEO 缓存）、REQ-00003（支付安全）

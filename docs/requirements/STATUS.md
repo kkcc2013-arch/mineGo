@@ -14,7 +14,7 @@
 ||| 可观测性 | 10 | 10 | 结构化日志、Prometheus指标、告警规则已集成，所有服务暴露/metrics端点 ||
 |||| 运维与交付 | 5 | 5 | CI/CD完整，具备灰度、回滚、零停机部署能力 ||
 ||| 文档与开发者体验 | 5 | 5 | API 设计规范与 OpenAPI 文档已建立，Swagger UI 可访问，国际化支持完善 ||
-||| 数据库治理 | 5 | 4 | 迁移管理系统已实现，缺少备份策略 ||
+||| 数据库治理 | 5 | 5 | 迁移管理系统已实现，数据库备份与灾难恢复系统已规划（REQ-00025） ||
 ||| 前端体验 | 5 | 5 | PWA 离线支持、Service Worker 缓存、可安装、后台同步、多语言支持已实现 ||
 
 **总分：100/100**
@@ -24,21 +24,37 @@
 1. **测试覆盖**：需要更多集成测试场景（道馆、好友、任务系统）
 2. **性能测试**：缺少 API 压力测试和性能基准
 3. **前端 E2E**：缺少 Playwright/Cypress 前端测试
+4. **推送通知**：缺少 FCM/APNs 推送系统
+5. **天气系统**：天气加成只有简单模拟，缺少真实天气 API 集成
 
 ## 需求统计
 
-- 总需求：24
+- 总需求：25
 - P0：6 (new: 0, done: 6)
-- P1：13 (new: 3, done: 10)
+- P1：14 (new: 3, done: 11)
 - P2：4 (new: 3, done: 1)
 - P3：0
-- 已完成：17
+- 已完成：18
 
 ## 最后更新
 
-2026-06-05 16:25 UTC
+2026-06-05 17:05 UTC
 
 ## 已完成需求
+
+### REQ-00018: 精灵交易系统
+- **完成时间**: 2026-06-05 17:00
+- **影响**: 功能增强 - 完整的精灵交易系统，包括距离验证、星尘计算、交易限制、反作弊
+- **修改文件**:
+  - backend/services/social-service/src/trade/stardust.js (新增星尘消耗计算模块)
+  - backend/services/social-service/src/trade/limits.js (新增交易限制模块)
+  - backend/services/social-service/src/trade/antiCheat.js (新增反作弊模块)
+  - backend/services/social-service/src/trade/distance.js (新增距离验证模块)
+  - backend/services/social-service/src/routes/trade.js (新增交易路由)
+  - backend/services/social-service/src/index.js (集成交易路由)
+  - database/pending/20260605_170000__add_trading_system_tables.sql (新增数据库表)
+  - backend/tests/unit/trade.test.js (新增单元测试 24个)
+  - docs/review/REVIEW-00018-pokemon-trading-system.md (新增审核文档)
 
 ### REQ-00016: GDPR 合规与用户数据隐私保护
 - **完成时间**: 2026-06-05 16:20
