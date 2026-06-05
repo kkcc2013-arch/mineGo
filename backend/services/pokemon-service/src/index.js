@@ -315,6 +315,10 @@ function generateStopDrop(bonus) {
   return items;
 }
 
+// REQ-00019: 技能学习系统路由
+const movesRouter = require('./routes/moves');
+app.use('/', movesRouter);
+
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'pokemon-service started'));
 module.exports = app;

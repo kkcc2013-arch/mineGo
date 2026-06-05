@@ -29,16 +29,41 @@
 
 ## 需求统计
 
-- 总需求：25
+- 总需求：26
 - P0：6 (new: 0, done: 6)
-- P1：14 (new: 2, done: 12)
+- P1：15 (new: 2, done: 13)
 - P2：4 (new: 3, done: 1)
 - P3：0
-- 已完成：19
+- 已完成：21
 
 ## 最后更新
 
-2026-06-05 17:15 UTC
+2026-06-05 18:25 UTC
+
+## 已完成需求
+
+### REQ-00024: 蓝绿部署策略实现
+- **完成时间**: 2026-06-05 18:15
+- **影响**: 运维/CICD - 零停机部署，秒级回滚，新环境预验证
+- **修改文件**:
+  - scripts/deploy-blue-green.sh (新增蓝绿部署管理脚本)
+  - scripts/smoke-test.sh (新增冒烟测试脚本)
+  - .github/workflows/blue-green-deploy.yml (新增 GitHub Actions 工作流)
+  - backend/tests/unit/blue-green-deploy.test.js (新增单元测试)
+  - docs/review/REQ-00024-review.md (新增审核文档)
+
+### REQ-00019: 精灵技能学习与技能机器系统
+- **完成时间**: 2026-06-05 18:30
+- **影响**: 功能增强 - 完整的技能学习系统，50+ 技能，TM 奖励，技能池管理
+- **修改文件**:
+  - database/pending/20260605_180000__add_moves_and_tm_system.sql (新增数据库表和种子数据)
+  - backend/services/pokemon-service/src/moveService.js (新增技能管理服务)
+  - backend/services/pokemon-service/src/routes/moves.js (新增技能管理路由)
+  - backend/services/pokemon-service/src/index.js (集成技能路由)
+  - backend/services/catch-service/src/index.js (修改捕捉逻辑，随机分配技能)
+  - backend/services/reward-service/src/raidRewards.js (新增 Raid TM 奖励模块)
+  - backend/tests/unit/moves.test.js (新增单元测试)
+  - docs/review/REVIEW-00019-pokemon-moves-learning-system.md (新增审核文档)
 
 ## 已完成需求
 

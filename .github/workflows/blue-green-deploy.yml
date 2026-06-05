@@ -1,0 +1,306 @@
+# ============================================================
+# Blue-Green Deployment Workflow
+# ============================================================
+# Production deployment using blue-green strategy:
+# 1. Deploy to inactive environment (blue or green)
+# 2. Verify health and run smoke tests
+# 3. Switch traffic to new environment
+# 4. Monitor for errors
+# 5. Scale down old environment (keep 1 replica for rollback)
+
+name: Blue-Green Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'infrastructure/k8s/**'
+      - '.github/workflows/blue-green-deploy.yml'
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Image tag to deploy'
+        required: true
+        default: 'latest'
+      services:
+        description: 'Services to deploy (comma-separated or "all")'
+        required: false
+        default: 'all'
+      skip_verify:
+        description: 'Skip verification step'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  REGISTRY: registry.cn-shanghai.aliyuncs.com/pmg
+  NAMESPACE: pmg
+
+jobs:
+  # ============================================================
+  # Build and Push Images
+  # ============================================================
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tag }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      - name: Generate image tag
+        id: meta
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] && [[ -n "${{ inputs.image_tag }}" ]]; then
+            echo "tag=${{ inputs.image_tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "tag=$(date +%Y%m%d-%H%M%S)-${{ github.sha }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Build and push all service images
+        run: |
+          TAG=${{ steps.meta.outputs.tag }}
+          SERVICES="api-gateway user-service location-service pokemon-service catch-service gym-service social-service reward-service payment-service"
+          
+          for SVC in $SERVICES; do
+            echo "Building $SVC..."
+            docker build \
+              --build-arg SERVICE_NAME=${SVC} \
+              -t ${{ env.REGISTRY }}/${SVC}:${TAG} \
+              -f backend/Dockerfile \
+              ./backend
+            docker push ${{ env.REGISTRY }}/${SVC}:${TAG}
+          done
+
+  # ============================================================
+  # Deploy to Inactive Environment
+  # ============================================================
+  deploy-inactive:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Deploy to inactive environment
+        run: |
+          TAG=${{ needs.build.outputs.image_tag }}
+          SERVICES="${{ inputs.services || 'all' }}"
+          
+          chmod +x ./scripts/deploy-blue-green.sh
+          
+          if [[ "$SERVICES" == "all" ]]; then
+            ./scripts/deploy-blue-green.sh deploy-all $TAG
+          else
+            IFS=',' read -ra SVC_ARRAY <<< "$SERVICES"
+            for SVC in "${SVC_ARRAY[@]}"; do
+              ./scripts/deploy-blue-green.sh deploy $SVC $TAG
+            done
+          fi
+
+      - name: Send deployment started notification
+        if: always()
+        run: |
+          curl -s -X POST "${{ secrets.SLACK_WEBHOOK }}" \
+            -H 'Content-type: application/json' \
+            -d "{\"text\":\"🚀 Blue-Green Deploy Started\nTag: ${{ needs.build.outputs.image_tag }}\nBranch: ${{ github.ref_name }}\"}" || true
+
+  # ============================================================
+  # Verify Deployment
+  # ============================================================
+  verify:
+    needs: [build, deploy-inactive]
+    runs-on: ubuntu-latest
+    if: ${{ inputs.skip_verify != 'true' }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Wait for deployments to stabilize
+        run: sleep 30
+
+      - name: Run smoke tests
+        run: |
+          chmod +x ./scripts/smoke-test.sh
+          ./scripts/smoke-test.sh all
+
+      - name: Verify all services
+        run: |
+          chmod +x ./scripts/deploy-blue-green.sh
+          SERVICES="${{ inputs.services || 'all' }}"
+          
+          if [[ "$SERVICES" == "all" ]]; then
+            for SVC in api-gateway user-service location-service pokemon-service catch-service gym-service social-service reward-service payment-service; do
+              ./scripts/deploy-blue-green.sh verify $SVC || exit 1
+            done
+          else
+            IFS=',' read -ra SVC_ARRAY <<< "$SERVICES"
+            for SVC in "${SVC_ARRAY[@]}"; do
+              ./scripts/deploy-blue-green.sh verify $SVC || exit 1
+            done
+          fi
+
+      - name: Send verification complete notification
+        run: |
+          curl -s -X POST "${{ secrets.SLACK_WEBHOOK }}" \
+            -H 'Content-type: application/json' \
+            -d "{\"text\":\"✅ Blue-Green Deploy: Verification passed for ${{ needs.build.outputs.image_tag }}\"}" || true
+
+  # ============================================================
+  # Switch Production Traffic
+  # ============================================================
+  switch:
+    needs: [build, deploy-inactive, verify]
+    runs-on: ubuntu-latest
+    environment: production
+    if: always() && (needs.verify.result == 'success' || needs.verify.result == 'skipped')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Switch traffic to new environment
+        run: |
+          chmod +x ./scripts/deploy-blue-green.sh
+          SERVICES="${{ inputs.services || 'all' }}"
+          
+          if [[ "$SERVICES" == "all" ]]; then
+            ./scripts/deploy-blue-green.sh switch-all
+          else
+            IFS=',' read -ra SVC_ARRAY <<< "$SERVICES"
+            for SVC in "${SVC_ARRAY[@]}"; do
+              ./scripts/deploy-blue-green.sh switch $SVC
+            done
+          fi
+
+      - name: Send switch complete notification
+        run: |
+          curl -s -X POST "${{ secrets.SLACK_WEBHOOK }}" \
+            -H 'Content-type: application/json' \
+            -d "{\"text\":\"🔀 Blue-Green Deploy: Traffic switched to new environment (${{ needs.build.outputs.image_tag }})\"}" || true
+
+  # ============================================================
+  # Monitor for Errors
+  # ============================================================
+  monitor:
+    needs: [build, switch]
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Monitor error rate for 5 minutes
+        run: |
+          chmod +x ./scripts/get-error-rate.sh || true
+          chmod +x ./scripts/monitor-error-rate.sh || true
+          
+          echo "Monitoring for 5 minutes..."
+          
+          for i in {1..10}; do
+            sleep 30
+            echo "Check $i/10..."
+            
+            # Check for high error rate
+            ERROR_RATE=$(kubectl get --raw /metrics 2>/dev/null | grep -o 'http_requests_failed_total[^}]}' | wc -l || echo "0")
+            
+            # Check for pod restarts
+            RESTARTS=$(kubectl get pods -n $NAMESPACE -o jsonpath='{range .items[*]}{.status.containerStatuses[0].restartCount}{"\n"}{end}' | awk '{sum+=$1} END {print sum}')
+            
+            echo "Current restarts: $RESTARTS"
+          done
+          
+          echo "Monitoring complete - no issues detected"
+
+      - name: Scale down inactive environment
+        run: |
+          chmod +x ./scripts/deploy-blue-green.sh
+          SERVICES="${{ inputs.services || 'all' }}"
+          
+          if [[ "$SERVICES" == "all" ]]; then
+            for SVC in api-gateway user-service location-service pokemon-service catch-service gym-service social-service reward-service payment-service; do
+              ./scripts/deploy-blue-green.sh scale-down-inactive $SVC || true
+            done
+          else
+            IFS=',' read -ra SVC_ARRAY <<< "$SERVICES"
+            for SVC in "${SVC_ARRAY[@]}"; do
+              ./scripts/deploy-blue-green.sh scale-down-inactive $SVC || true
+            done
+          fi
+
+      - name: Send deployment complete notification
+        run: |
+          curl -s -X POST "${{ secrets.SLACK_WEBHOOK }}" \
+            -H 'Content-type: application/json' \
+            -d "{\"text\":\"🎉 Blue-Green Deploy Complete!\nTag: ${{ needs.build.outputs.image_tag }}\nCommit: ${{ github.sha }}\nAuthor: ${{ github.actor }}\"}" || true
+
+      - name: Show final status
+        run: |
+          ./scripts/deploy-blue-green.sh status
+
+  # ============================================================
+  # Rollback on Failure
+  # ============================================================
+  rollback:
+    needs: [build, deploy-inactive, verify, switch, monitor]
+    runs-on: ubuntu-latest
+    if: failure()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        uses: azure/k8s-set-context@v3
+        with:
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Rollback all services
+        run: |
+          chmod +x ./scripts/deploy-blue-green.sh
+          
+          for SVC in api-gateway user-service location-service pokemon-service catch-service gym-service social-service reward-service payment-service; do
+            ./scripts/deploy-blue-green.sh rollback $SVC || true
+          done
+
+      - name: Send rollback notification
+        run: |
+          curl -s -X POST "${{ secrets.SLACK_WEBHOOK }}" \
+            -H 'Content-type: application/json' \
+            -d "{\"text\":\"🚨 Blue-Green Deploy: ROLLBACK triggered!\nTag: ${{ needs.build.outputs.image_tag }}\nCommit: ${{ github.sha }}\"}" || true

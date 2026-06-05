@@ -225,17 +225,41 @@ async function handleCatch(userId, session, throwRating, isCurve, sessionId) {
   const candy    = 3;
 
   const result = await transaction(async (client) => {
-    // Create pokemon instance
+    // REQ-00019: Get random moves from learnset
+    const { rows: learnset } = await client.query(`
+      SELECT move_id, m.category 
+      FROM pokemon_moves pm
+      JOIN moves m ON pm.move_id = m.id
+      WHERE pm.species_id = $1 AND pm.learn_method IN ('TM', 'LEVEL_UP')
+    `, [session.speciesId]);
+    
+    const fastMoves = learnset.filter(m => m.category === 'FAST');
+    const chargeMoves = learnset.filter(m => m.category === 'CHARGE');
+    
+    // Random fast move (default to TACKLE if none available)
+    const randomFast = fastMoves.length > 0 
+      ? fastMoves[Math.floor(Math.random() * fastMoves.length)].move_id 
+      : 'TACKLE';
+    
+    // Random charge move (default to STRUGGLE if none available)
+    const randomCharge = chargeMoves.length > 0 
+      ? chargeMoves[Math.floor(Math.random() * chargeMoves.length)].move_id 
+      : 'STRUGGLE';
+    
+    // Create pokemon instance with initial moves
     const { rows: [instance] } = await client.query(`
       INSERT INTO pokemon_instances
         (user_id, species_id, cp, hp_current, hp_max, iv_attack, iv_defense, iv_hp,
-         is_shiny, is_lucky, caught_lat, caught_lng)
+         is_shiny, is_lucky, caught_lat, caught_lng, fast_move, charge_move,
+         learned_fast_moves, learned_charge_moves)
       SELECT $1,$2,$3,$4,$4,$5,$6,$7,$8,false,
              (SELECT last_lat FROM users WHERE id=$1),
-             (SELECT last_lng FROM users WHERE id=$1)
+             (SELECT last_lng FROM users WHERE id=$1),
+             $9, $10, ARRAY[$9], ARRAY[$10]
       RETURNING id
     `, [userId, session.speciesId, session.cp, Math.floor(session.cp * 0.8),
-        session.iv_attack, session.iv_defense, session.iv_hp, session.isShiny]);
+        session.iv_attack, session.iv_defense, session.iv_hp, session.isShiny,
+        randomFast, randomCharge]);
 
     // Reward user
     await client.query(`

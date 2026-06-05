@@ -3,10 +3,11 @@
 - **编号**：REQ-00019
 - **类别**：功能增强
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：pokemon-service、catch-service、reward-service、game-client、database/migrations
 - **创建时间**：2026-06-05 10:00
 - **依赖需求**：REQ-00018（精灵交易系统）
+- **完成时间**：2026-06-05 18:30
 
 ## 1. 背景与问题
 
