@@ -12,6 +12,7 @@ const friendRouter = require('./routes/friend');
 const sessionsRouter = require('./routes/sessions');
 const { router: gdprRouter, initGDPRRoutes } = require('./routes/gdpr');
 const { router: notificationsRouter } = require('./routes/notifications');
+const timezoneRouter = require('./routes/timezone');
 const { initNotificationHandlers } = require('./handlers/notificationHandler');
 
 // Create service launcher
@@ -42,6 +43,10 @@ const service = new ServiceLauncher({
     {
       path: '/notifications',
       router: notificationsRouter
+    },
+    {
+      path: '/users',
+      router: timezoneRouter
     }
   ],
   

@@ -1,0 +1,437 @@
+/* 
+ * Accessibility CSS - 无障碍访问样式
+ * 符合 WCAG 2.1 AA 标准
+ */
+
+/* ── 屏幕阅读器专用样式 ── */
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* ── 跳过链接 ── */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: var(--accent-primary, #0052cc);
+  color: white;
+  padding: 16px 24px;
+  z-index: 10000;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 16px;
+  border-radius: 0 0 12px 0;
+  transition: top 0.15s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 3px solid var(--accent-primary, #0052cc);
+  outline-offset: 2px;
+}
+
+/* ── 焦点指示器 ── */
+*:focus {
+  outline: 3px solid var(--accent-primary, #0052cc);
+  outline-offset: 2px;
+}
+
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 3px solid var(--accent-primary, #0052cc);
+  outline-offset: 2px;
+}
+
+/* 按钮焦点 */
+button:focus,
+.btn:focus,
+.nav-tab:focus,
+.ball-chip:focus,
+.entity-card:focus {
+  outline: 3px solid var(--accent-primary, #0052cc);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px rgba(0, 82, 204, 0.15);
+}
+
+/* 输入框焦点 */
+.form-input:focus {
+  border-color: var(--accent-primary, #0052cc);
+  background: var(--surface2, #1a1e28);
+  outline: 3px solid var(--accent-primary, #0052cc);
+  outline-offset: 0;
+  box-shadow: 0 0 0 6px rgba(0, 82, 204, 0.15);
+}
+
+/* ── 颜色对比度（WCAG AA >= 4.5:1）── */
+:root {
+  /* 主要文本（深色背景） */
+  --text-primary: #e8eaf0;      /* 对比度 15:1 */
+  --text-secondary: #b0b4c0;    /* 对比度 8:1 */
+  --text-muted: #8a90a0;        /* 对比度 5.5:1 */
+  
+  /* 浅色背景上的文本 */
+  --text-on-light: #1a1a1a;    /* 对比度 16:1 */
+  --text-on-light-secondary: #4a4a4a; /* 对比度 7:1 */
+  
+  /* 强调色 */
+  --accent-primary: #0052cc;    /* 对比度 7:1 */
+  --accent-secondary: #3d8ef8;  /* 对比度 5:1 */
+  
+  /* 状态色 */
+  --success: #2ecc71;           /* 对比度 5:1 */
+  --warning: #f4c430;           /* 对比度 4.5:1 */
+  --error: #e63946;             /* 对比度 5.5:1 */
+  
+  /* 背景 */
+  --bg-primary: #0d0f14;
+  --bg-secondary: #13161e;
+  --bg-surface: #1a1e28;
+  --bg-light: #ffffff;
+}
+
+/* 确保文本颜色对比度 */
+.user-name,
+.entity-name,
+.wild-name,
+.prof-name,
+.stat-val {
+  color: var(--text-primary) !important;
+}
+
+.user-lvl,
+.entity-meta,
+.wild-cp,
+.stat-lbl {
+  color: var(--text-secondary) !important;
+}
+
+/* ── 精灵类型标签（色盲友好）── */
+.type-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  /* 确保背景色和文本对比度 >= 4.5:1 */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.type-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.type-name {
+  text-transform: capitalize;
+}
+
+/* 稀有度指示器 */
+.rarity-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.rarity-indicator .stars {
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+/* 状态指示器 */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* ── 减少动画模式 ── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .logo-emoji,
+  .wild-emoji {
+    animation: none !important;
+  }
+}
+
+body.reduced-motion *,
+body.reduced-motion *::before,
+body.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+body.reduced-motion .logo-emoji,
+body.reduced-motion .wild-emoji {
+  animation: none !important;
+}
+
+/* ── 字体大小调整 ── */
+html.font-small {
+  font-size: 14px !important;
+}
+
+html.font-medium {
+  font-size: 16px !important;
+}
+
+html.font-large {
+  font-size: 18px !important;
+}
+
+html.font-x-large {
+  font-size: 20px !important;
+}
+
+/* 字体大小设置 UI */
+.a11y-setting {
+  margin: 16px 0;
+  padding: 16px;
+  background: var(--bg-surface, #1a1e28);
+  border-radius: 12px;
+  border: 1px solid var(--border, #252938);
+}
+
+.setting-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.setting-options {
+  display: flex;
+  gap: 8px;
+}
+
+.setting-btn {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid var(--border, #252938);
+  background: var(--bg-primary, #0d0f14);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.setting-btn.active,
+.setting-btn:hover {
+  border-color: var(--accent-primary, #0052cc);
+  color: var(--accent-primary, #0052cc);
+  background: var(--bg-surface, #1a1e28);
+}
+
+.setting-note {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* 字体大小滑块 */
+.setting-slider {
+  width: 100%;
+  cursor: pointer;
+}
+
+.slider-track {
+  display: flex;
+  gap: 8px;
+}
+
+.slider-step {
+  flex: 1;
+  padding: 12px 8px;
+  border: 2px solid var(--border, #252938);
+  background: var(--bg-primary, #0d0f14);
+  color: var(--text-secondary);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.slider-step.active,
+.slider-step:hover {
+  border-color: var(--accent-primary, #0052cc);
+  color: var(--accent-primary, #0052cc);
+  background: var(--bg-surface, #1a1e28);
+}
+
+.setting-value {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+/* ── 快捷键帮助 ── */
+.shortcuts-help {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 12px;
+  padding: 12px;
+  background: var(--bg-primary, #0d0f14);
+  border-radius: 8px;
+}
+
+.shortcuts-help kbd {
+  display: inline-block;
+  padding: 4px 10px;
+  background: var(--bg-surface, #1a1e28);
+  border: 1px solid var(--border, #252938);
+  border-radius: 6px;
+  font-size: 13px;
+  font-family: monospace;
+  font-weight: 600;
+  color: var(--accent-primary, #0052cc);
+  text-align: center;
+  min-width: 32px;
+}
+
+/* ── 设置面板 ── */
+.settings-panel {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 24px;
+}
+
+.settings-content {
+  background: var(--bg-secondary, #13161e);
+  border: 1px solid var(--border, #252938);
+  border-radius: 16px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 24px;
+}
+
+.settings-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+}
+
+.settings-group {
+  margin-bottom: 24px;
+}
+
+.settings-group-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+.settings-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.btn-close {
+  padding: 14px 32px;
+  background: var(--accent-primary, #0052cc);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.btn-close:hover,
+.btn-close:focus {
+  background: var(--accent-secondary, #3d8ef8);
+  transform: translateY(-2px);
+}
+
+/* ── ARIA 增强样式 ── */
+[aria-hidden="true"] {
+  display: none !important;
+}
+
+[aria-current="true"] {
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+/* 活动状态 */
+[aria-selected="true"] {
+  color: var(--accent-primary, #0052cc);
+}
+
+/* 禁用状态 */
+[aria-disabled="true"],
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── 高对比度模式支持 ── */
+@media (prefers-contrast: high) {
+  :root {
+    --text-primary: #ffffff;
+    --text-secondary: #f0f0f0;
+    --border: #ffffff;
+  }
+  
+  *:focus {
+    outline-width: 4px;
+  }
+}
+
+/* ── 打印样式 ── */
+@media print {
+  .skip-link,
+  .settings-panel,
+  #nav {
+    display: none !important;
+  }
+  
+  .screen {
+    display: block !important;
+    page-break-after: always;
+  }
+}

@@ -1,10 +1,14 @@
 // frontend/game-client/src/game/RaidManager.js
 // Manages real-time Raid WebSocket connection and battle state
+// REQ-00029: Added timezone support for raid time display
 'use strict';
 
 const WS_BASE   = window.PMG_CONFIG?.wsBase || 'wss://api.pocketmonstergo.com';
 const HEARTBEAT_INTERVAL = 30000;
 const MAX_RETRIES        = 5;
+
+// Import timezone utilities
+import { formatTime, formatRelative, formatCountdown, getCurrentTimezone } from '../utils/timezone.js';
 
 export class RaidManager extends EventTarget {
   constructor(apiClient) {
@@ -32,6 +36,9 @@ export class RaidManager extends EventTarget {
       bossHpCurrent:  data.bossHpMax,
       raidLevel:      data.raidLevel,
       endsAt:         data.endsAt,
+      endsAtLocal:    formatTime(data.endsAt),
+      endsAtRelative: formatRelative(data.endsAt),
+      countdown:      formatCountdown(data.endsAt),
       participants:   [],
       myDamage:       0,
       ballsLeft:      data.ballsGranted,
@@ -128,6 +135,24 @@ export class RaidManager extends EventTarget {
         }));
         if (msg.bossDefeated) {
           this.dispatchEvent(new CustomEvent('bossDefeated'));
+        }
+        break;
+
+      case 'RAID_TIME_UPDATE':
+        // Update raid end time with timezone support
+        if (msg.endsAt) {
+          this._raidState.endsAt = msg.endsAt;
+          this._raidState.endsAtLocal = formatTime(msg.endsAt);
+          this._raidState.endsAtRelative = formatRelative(msg.endsAt);
+          this._raidState.countdown = formatCountdown(msg.endsAt);
+          this.dispatchEvent(new CustomEvent('timeUpdate', {
+            detail: {
+              endsAt: msg.endsAt,
+              endsAtLocal: this._raidState.endsAtLocal,
+              endsAtRelative: this._raidState.endsAtRelative,
+              countdown: this._raidState.countdown
+            }
+          }));
         }
         break;
 

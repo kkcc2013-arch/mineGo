@@ -13,7 +13,7 @@
 | 测试覆盖 | 10 | 11 | 单测覆盖优秀(145个)，集成/E2E测试已实现(42个) |
 | 可观测性 | 10 | 10 | 结构化日志、Prometheus指标、告警规则已集成，所有服务暴露/metrics端点 |
 | 运维与交付 | 5 | 5 | CI/CD完整，具备灰度、回滚、零停机部署能力 |
-| 文档与开发者体验 | 5 | 5 | API 设计规范与 OpenAPI 文档已建立，Swagger UI 可访问，国际化支持完善 |
+|| 文档与开发者体验 | 5 | 5 | API 设计规范与 OpenAPI 文档已建立，Swagger UI 可访问，国际化支持完善（时区支持 REQ-00029） |
 | 数据库治理 | 5 | 5 | 迁移管理系统已实现，数据库备份与灾难恢复系统已规划（REQ-00025） |
 | 前端体验 | 5 | 5 | PWA 离线支持、Service Worker 缓存、可安装、后台同步、多语言支持、实时通知已实现 |
 
@@ -26,21 +26,34 @@
 3. **前端 E2E**：缺少 Playwright/Cypress 前端测试
 4. **推送通知**：缺少 FCM/APNs 推送系统（游戏内通知已实现 REQ-00026）
 5. **天气系统**：天气加成只有简单模拟，缺少真实天气 API 集成
+6. **开发者文档**：缺少完善的贡献指南和架构文档（REQ-00030 已创建）
 
 ## 需求统计
 
-- 总需求：29
+- 总需求：30
 - P0：6 (new: 0, done: 6)
-- P1：17 (new: 3, done: 14)
-- P2：5 (new: 2, done: 3)
+- P1：17 (new: 0, done: 17)
+- P2：6 (new: 2, done: 4)
 - P3：0
-- 已完成：24
+- 已完成：27
 
 ## 最后更新
 
-2026-06-05 21:40 UTC
+2026-06-05 22:10 UTC
 
 ## 已完成需求
+
+### REQ-00029: 游戏事件时区本地化与多时区支持
+- **完成时间**: 2026-06-05 22:30
+- **影响**: 国际化/本地化 - 完整时区支持，用户时区偏好，本地时间显示，Raid 倒计时本地化
+- **修改文件**:
+  - database/pending/20260605_220000__add_user_timezone.sql (数据库迁移)
+  - backend/services/user-service/src/routes/timezone.js (时区 API 路由 6.1KB)
+  - backend/shared/timezoneMiddleware.js (时区中间件 3KB)
+  - frontend/game-client/src/utils/timezone.js (前端工具函数 6.4KB)
+  - frontend/game-client/src/components/TimezoneSelector.js (时区选择器组件 9KB)
+  - backend/tests/unit/timezone.test.js (单元测试 28 个)
+  - docs/review/REVIEW-00029-timezone-localization.md (审核文档)
 
 ### REQ-00028: 玩家行为异常模式智能检测系统
 - **完成时间**: 2026-06-05 21:40

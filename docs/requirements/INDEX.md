@@ -20,7 +20,7 @@
 || REQ-00014 | 服务熔断与降级机制 | 容灾/高可用 | P0 | done | gateway、所有微服务、backend/shared | 2026-06-05 09:30 |
 || REQ-00015 | 数据库连接池优化与成本控制 | 成本/资源优化 | P2 | done | 所有微服务、database、backend/shared | 2026-06-05 09:35 |
 | REQ-00016 | GDPR 合规与用户数据隐私保护 | 合规/隐私 | P1 | done | user-service、所有微服务、gateway、database | 2026-06-05 09:40 |
-| REQ-00017 | 游戏客户端无障碍访问支持 | 无障碍(a11y) | P2 | new | game-client、frontend | 2026-06-05 09:45 |
+| REQ-00017 | 游戏客户端无障碍访问支持 | 无障碍(a11y) | P2 | done | game-client、frontend | 2026-06-05 09:45 |
 | REQ-00018 | 精灵交易系统 | 功能增强 | P1 | done | social-service、pokemon-service、user-service、gateway、game-client | 2026-06-05 09:50 |
 || REQ-00019 | 精灵技能学习与技能机器系统 | 功能增强 | P1 | done | pokemon-service、catch-service、reward-service、game-client、database/migrations | 2026-06-05 10:00 |
 | REQ-00020 | 精灵列表查询复合索引优化 | 性能优化 | P1 | done | pokemon-service、database/migrations | 2026-06-05 11:00 |
@@ -32,4 +32,5 @@
 || REQ-00026 | 游戏内实时推送通知系统 | 前端体验 | P1 | done | game-client、gateway、reward-service、gym-service、social-service | 2026-06-05 18:00 |
 || REQ-00027 | 精灵详情页 3D 模型展示与交互 | 前端体验 | P2 | new | game-client、frontend/3d、pokemon-service | 2026-06-05 19:00 |
 || REQ-00028 | 玩家行为异常模式智能检测系统 | 反作弊 | P1 | done | gateway、catch-service、gym-service、social-service、backend/shared/anti-cheat.js | 2026-06-05 20:00 |
-| REQ-00029 | 游戏事件时区本地化与多时区支持 | 国际化/本地化 | P1 | new | gateway、user-service、gym-service、reward-service、game-client、frontend | 2026-06-05 21:15 |
+|| REQ-00029 | 游戏事件时区本地化与多时区支持 | 国际化/本地化 | P1 | done | gateway、user-service、gym-service、reward-service、game-client、frontend | 2026-06-05 21:15 |
+| REQ-00030 | 开发者贡献指南与项目文档完善 | 文档/开发者体验 | P2 | new | docs、README.md、CONTRIBUTING.md、ARCHITECTURE.md | 2026-06-05 22:05 |
