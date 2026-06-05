@@ -33,5 +33,5 @@
 || REQ-00027 | 精灵详情页 3D 模型展示与交互 | 前端体验 | P2 | done | game-client、frontend/3d、pokemon-service | 2026-06-05 19:00 |
 || REQ-00028 | 玩家行为异常模式智能检测系统 | 反作弊 | P1 | done | gateway、catch-service、gym-service、social-service、backend/shared/anti-cheat.js | 2026-06-05 20:00 |
 || REQ-00029 | 游戏事件时区本地化与多时区支持 | 国际化/本地化 | P1 | done | gateway、user-service、gym-service、reward-service、game-client、frontend | 2026-06-05 21:15 |
-| REQ-00030 | 开发者贡献指南与项目文档完善 | 文档/开发者体验 | P2 | new | docs、README.md、CONTRIBUTING.md、ARCHITECTURE.md | 2026-06-05 22:05 |
+| REQ-00030 | 开发者贡献指南与项目文档完善 | 文档/开发者体验 | P2 | done | docs、README.md、CONTRIBUTING.md、ARCHITECTURE.md | 2026-06-05 22:05 |
 | REQ-00031 | API 响应缓存层与缓存失效策略 | 技术债/重构 | P2 | new | gateway、所有微服务、backend/shared、Redis | 2026-06-05 23:05 |
