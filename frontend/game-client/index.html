@@ -4,6 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
   <title>Pocket Monster Go</title>
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#0d0f14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PMG">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Pocket Monster Go">
+  <meta name="description" content="GPS精灵捕捉手游 - 开启你的冒险之旅">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon-192.svg">
   <style>
     :root{
       --bg:#0d0f14;--surface:#13161e;--surface2:#1a1e28;--border:#252938;
@@ -158,6 +169,26 @@
 </head>
 <body>
 
+<!-- ── OFFLINE BANNER ─────────────────────────────────────── -->
+<div id="offline-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:10000;background:linear-gradient(90deg,#f59e0b,#d97706);color:#fff;padding:10px 16px;font-size:13px;font-weight:600;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.3);">
+  ⚠️ 当前离线，部分功能受限 · 数据将在恢复网络后同步
+</div>
+
+<!-- ── PWA INSTALL PROMPT ──────────────────────────────────── -->
+<div id="pwa-install-prompt" style="display:none;position:fixed;bottom:80px;left:16px;right:16px;z-index:9998;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 8px 32px rgba(0,0,0,.5);">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+    <div style="font-size:40px;">🎮</div>
+    <div>
+      <div style="font-size:15px;font-weight:700;">安装 Pocket Monster Go</div>
+      <div style="font-size:12px;color:var(--muted);">添加到主屏幕，获得更好体验</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;">
+    <button onclick="installPwa()" style="flex:1;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">安装</button>
+    <button onclick="dismissInstallPrompt()" style="background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:12px 16px;font-size:14px;cursor:pointer;">稍后</button>
+  </div>
+</div>
+
 <!-- ── LOGIN ─────────────────────────────────────────────────── -->
 <div class="screen active" id="login">
   <div class="logo-wrap">
@@ -262,6 +293,106 @@ window.PMG_CONFIG = {
   apiBase: location.origin + '/v1',
   wsBase: (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + location.host
 };
+
+// ── Service Worker Registration ───────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+      console.log('[PWA] Service Worker registered:', reg.scope);
+
+      // Check for updates
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            // New version available
+            toast('🎉 新版本可用，点击刷新', 'ok');
+            if (confirm('发现新版本，是否立即刷新？')) {
+              newWorker.postMessage({ type: 'SKIP_WAITING' });
+            }
+          }
+        });
+      });
+    } catch (err) {
+      console.error('[PWA] Service Worker registration failed:', err);
+    }
+  });
+
+  // Listen for controller change (after SKIP_WAITING)
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    window.location.reload();
+  });
+
+  // Listen for sync complete messages
+  navigator.serviceWorker.addEventListener('message', (event) => {
+    if (event.data.type === 'SYNC_COMPLETE') {
+      toast('✅ 离线操作已同步', 'ok');
+    }
+  });
+}
+
+// ── Offline Detection ─────────────────────────────────────────
+function updateOfflineStatus() {
+  const banner = document.getElementById('offline-banner');
+  if (banner) {
+    banner.style.display = navigator.onLine ? 'none' : 'block';
+  }
+}
+window.addEventListener('online', () => {
+  updateOfflineStatus();
+  toast('🌐 网络已恢复', 'ok');
+});
+window.addEventListener('offline', () => {
+  updateOfflineStatus();
+  toast('⚠️ 当前离线', '');
+});
+window.addEventListener('load', updateOfflineStatus);
+
+// ── PWA Install Prompt ────────────────────────────────────────
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show install prompt after 30 seconds if not dismissed
+  const dismissed = localStorage.getItem('pwa-install-dismissed');
+  if (!dismissed) {
+    setTimeout(() => {
+      const prompt = document.getElementById('pwa-install-prompt');
+      if (prompt && document.getElementById('nav')?.classList.contains('show')) {
+        prompt.style.display = 'block';
+      }
+    }, 30000);
+  }
+});
+
+window.installPwa = async function() {
+  if (!deferredPrompt) {
+    toast('请在浏览器菜单中选择"添加到主屏幕"', '');
+    return;
+  }
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  console.log('[PWA] Install prompt outcome:', outcome);
+  if (outcome === 'accepted') {
+    toast('🎉 安装成功！', 'ok');
+  document.getElementById('pwa-install-prompt').style.display = 'none';
+  localStorage.setItem('pwa-installed', 'true');
+  }
+  deferredPrompt = null;
+};
+
+window.dismissInstallPrompt = function() {
+  document.getElementById('pwa-install-prompt').style.display = 'none';
+  localStorage.setItem('pwa-install-dismissed', Date.now().toString());
+};
+
+window.addEventListener('appinstalled', () => {
+  console.log('[PWA] App installed');
+  document.getElementById('pwa-install-prompt').style.display = 'none';
+  localStorage.setItem('pwa-installed', 'true');
+});
 </script>
 <script type="module">
 import { api, ApiError } from './src/api/client.js';

@@ -87,6 +87,10 @@ class ApiClient {
     const data = await res.json();
 
     if (!res.ok || data.code !== 0) {
+      // Handle offline response from service worker
+      if (data.offline || data.code === 9999) {
+        throw new ApiError(9999, data.message || '当前离线，请检查网络连接', 503);
+      }
       throw new ApiError(data.code || res.status, data.message || '请求失败', res.status);
     }
 

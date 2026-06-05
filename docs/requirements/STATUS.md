@@ -15,8 +15,9 @@
 || 运维与交付 | 5 | 5 | CI/CD完整，具备灰度、回滚、零停机部署能力 |
 | 文档与开发者体验 | 5 | 4 | API 设计规范与 OpenAPI 文档已建立，Swagger UI 可访问 |
 | 数据库治理 | 5 | 4 | 迁移管理系统已实现，缺少备份策略 |
+| 前端体验 | 5 | 5 | PWA 离线支持、Service Worker 缓存、可安装、后台同步已实现 |
 
-**总分：86/100**
+**总分：88/100**
 
 ## 未覆盖高价值缺口
 
@@ -28,16 +29,16 @@
 
 ## 需求统计
 
-- 总需求：8
-- P0：3 (new: 0, done: 3)
+- 总需求：9
+- P0：4 (new: 0, done: 4)
 - P1：5 (new: 0, done: 5)
 - P2：0
 - P3：0
-- 已完成：8
+- 已完成：9
 
 ## 最后更新
 
-2026-06-05 04:15 UTC
+2026-06-05 05:00 UTC
 
 ## 已完成需求
 
@@ -115,3 +116,16 @@
   - backend/package.json (添加迁移脚本)
   - backend/tests/unit/migrate.test.js (新增单元测试)
   - docs/review/REQ-00007-review.md (新增审核文档)
+
+### REQ-00009: PWA 离线支持与 Service Worker 缓存策略
+- **完成时间**: 2026-06-05 05:10
+- **影响**: 前端体验 - 离线可用、秒开加载、可安装、后台同步
+- **修改文件**:
+  - frontend/game-client/manifest.json (新增 PWA Manifest)
+  - frontend/game-client/sw.js (新增 Service Worker)
+  - frontend/game-client/icons/icon-192.svg (新增图标)
+  - frontend/game-client/icons/icon-512.svg (新增图标)
+  - frontend/game-client/index.html (添加 PWA 支持、离线横幅、安装提示)
+  - frontend/game-client/src/game/GameStore.js (添加离线状态管理)
+  - frontend/game-client/src/api/client.js (处理离线响应)
+  - docs/review/REQ-00009-review.md (新增审核文档)

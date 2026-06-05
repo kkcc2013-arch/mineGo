@@ -12,3 +12,4 @@
 | REQ-00006 | K8s 滚动更新与回滚自动化 | 运维/CICD | P1 | done | infrastructure/k8s、GitHub Actions、所有微服务 | 2026-06-05 02:00 |
 | REQ-00007 | 数据库迁移管理与版本控制系统 | 数据库/数据治理 | P1 | done | database/migrations、所有微服务 | 2026-06-05 03:00 |
 | REQ-00008 | OpenAPI 文档与 API 设计规范统一 | API 设计规范 | P1 | done | gateway、所有微服务、docs/api-spec | 2026-06-05 04:00 |
+| REQ-00009 | PWA 离线支持与 Service Worker 缓存策略 | 前端体验 | P0 | done | game-client、frontend/sw.js、frontend/manifest.json | 2026-06-05 05:00 |

@@ -11,6 +11,11 @@ export class GameStore extends EventTarget {
       isLoggedIn:    false,
       currentUser:   null,
 
+      // Connectivity
+      isOffline:     !navigator.onLine,
+      canInstallPwa: false,
+      pwaInstalled:  false,
+
       // Location
       playerLat:     null,
       playerLng:     null,
@@ -134,3 +139,9 @@ export class GameStore extends EventTarget {
 
 // Singleton
 export const store = new GameStore();
+
+// ── Offline Status Management ────────────────────────────────
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => store.set({ isOffline: false }));
+  window.addEventListener('offline', () => store.set({ isOffline: true }));
+}
