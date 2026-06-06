@@ -6,9 +6,9 @@
 const express = require('express');
 const router = express.Router();
 const GDPRService = require('./gdprService');
-const { authenticate } = require('../../shared/auth');
-const { auditLog, AuditActions } = require('../../shared/auditLog');
-const logger = require('../../shared/logger');
+const { requireAuth } = require('../../../../shared/auth');
+const { auditLog, AuditActions } = require('../../../../shared/auditLog');
+const logger = require('../../../../shared/logger');
 
 // 初始化服务
 let gdprService = null;

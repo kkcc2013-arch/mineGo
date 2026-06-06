@@ -9,12 +9,17 @@ let poolManager = null;
 let migrationsInitialized = false;
 
 // Query duration histogram for backwards compatibility
-const queryDurationMetric = new promClient.Histogram({
-  name: 'minego_db_query_duration_ms',
-  help: 'Database query duration in milliseconds',
-  labelNames: ['operation'],
-  buckets: [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000],
-});
+// Avoid duplicate registration in cluster mode
+const register = promClient.register;
+let queryDurationMetric = register.getSingleMetric('minego_db_query_duration_ms');
+if (!queryDurationMetric) {
+  queryDurationMetric = new promClient.Histogram({
+    name: 'minego_db_query_duration_ms',
+    help: 'Database query duration in milliseconds',
+    labelNames: ['operation'],
+    buckets: [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000],
+  });
+}
 
 /**
  * Get the pool manager instance
