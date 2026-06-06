@@ -14,6 +14,12 @@ const { createLogger, requestLogger } = require('../../shared/logger');
 const metrics = require('../../shared/metrics');
 const { authWithBlacklistMiddleware } = require('./middleware/jwtBlacklist');
 
+// REQ-00031: API 响应缓存层
+const cache = require('../../shared/cache');
+const { cacheMiddleware } = require('../../shared/cacheMiddleware');
+const cacheInvalidation = require('../../shared/cacheInvalidation');
+const { cacheRoutes, presets } = require('./cacheConfig');
+
 const logger = createLogger('gateway');
 const SERVICE_NAME = 'gateway';
 
@@ -118,6 +124,29 @@ try {
 // Uses authWithBlacklistMiddleware which includes JWT blacklist check
 const authMiddleware = authWithBlacklistMiddleware;
 
+// ── Initialize Cache System (REQ-00031) ───────────────────────
+(async () => {
+  try {
+    // 初始化缓存模块
+    cache.init({
+      host: process.env.REDIS_HOST || 'localhost',
+      port: process.env.REDIS_PORT || 6379,
+      password: process.env.REDIS_PASSWORD
+    });
+    
+    // 初始化缓存失效系统（如果有 EventBus）
+    // cacheInvalidation.init(eventBus);
+    
+    logger.info('Cache system initialized');
+    
+    // 缓存预热（可选）
+    // const warmup = cacheMiddleware.cacheWarmup({ endpoints: [] });
+    // await warmup();
+  } catch (err) {
+    logger.error({ err }, 'Failed to initialize cache system');
+  }
+})();
+
 // ── Proxy factory ─────────────────────────────────────────────
 function proxy(target, pathRewrite) {
   return createProxyMiddleware({
@@ -139,12 +168,35 @@ function proxy(target, pathRewrite) {
 // Public (no auth)
 app.use('/v1/auth',     proxy(SERVICES.user, { '^/': '/auth/' }));
 
-// Protected
+// Protected with cache (REQ-00031)
+// 用户资料 - 缓存 5 分钟
+app.get('/v1/users/:id/profile',
+  authMiddleware,
+  cacheMiddleware({ ...presets.userData, keyPrefix: 'api:profile:', ttl: 300 }),
+  proxy(SERVICES.user, { '^/': '/users/' })
+);
+
+// 用户统计 - 缓存 5 分钟
+app.get('/v1/users/:id/stats',
+  authMiddleware,
+  cacheMiddleware({ ...presets.userData, keyPrefix: 'api:user-stats:', ttl: 300 }),
+  proxy(SERVICES.user, { '^/': '/users/' })
+);
+
+// 其他用户路由（不缓存）
 app.use('/v1/users',
   authMiddleware,
   proxy(SERVICES.user, { '^/': '/users/' })
 );
 
+// 好友列表 - 缓存 3 分钟
+app.get('/v1/friends',
+  authMiddleware,
+  cacheMiddleware({ ...presets.list, keyPrefix: 'api:friends:', ttl: 180 }),
+  proxy(SERVICES.social, { '^/': '/friends/' })
+);
+
+// 其他好友路由（不缓存）
 app.use('/v1/friends',
   authMiddleware,
   proxy(SERVICES.social, { '^/': '/friends/' })
@@ -165,6 +217,20 @@ app.use('/v1/location',
   proxy(SERVICES.location, { '^/': '/location/' })
 );
 
+// 精灵图鉴 - 缓存 1 小时（静态数据）
+app.get('/v1/pokemon/pokedex',
+  cacheMiddleware({ ...presets.static, keyPrefix: 'api:pokedex:', ttl: 3600 }),
+  proxy(SERVICES.pokemon, { '^/': '/pokemon/' })
+);
+
+// 用户精灵列表 - 缓存 2 分钟
+app.get('/v1/pokemon',
+  authMiddleware,
+  cacheMiddleware({ ...presets.userData, keyPrefix: 'api:pokemon-list:', ttl: 120 }),
+  proxy(SERVICES.pokemon, { '^/': '/pokemon/' })
+);
+
+// 其他精灵路由（不缓存）
 app.use('/v1/pokemon',
   authMiddleware,
   proxy(SERVICES.pokemon, { '^/': '/pokemon/' })
@@ -181,11 +247,27 @@ app.use('/v1/catch',
   proxy(SERVICES.catch, { '^/': '/catch/' })
 );
 
+// 道馆附近查询 - 缓存 1 分钟
+app.get('/v1/gyms/nearby',
+  authMiddleware,
+  cacheMiddleware({ ...presets.dynamic, keyPrefix: 'api:gyms-nearby:', ttl: 60 }),
+  proxy(SERVICES.gym, { '^/': '/gyms/' })
+);
+
+// 其他道馆路由（不缓存）
 app.use('/v1/gyms',
   authMiddleware,
   proxy(SERVICES.gym, { '^/': '/gyms/' })
 );
 
+// Raid 附近查询 - 缓存 30 秒
+app.get('/v1/raids/nearby',
+  authMiddleware,
+  cacheMiddleware({ ...presets.dynamic, keyPrefix: 'api:raids-nearby:', ttl: 30 }),
+  proxy(SERVICES.gym, { '^/': '/raids/' })
+);
+
+// 其他 Raid 路由（不缓存）
 app.use('/v1/raids',
   authMiddleware,
   proxy(SERVICES.gym, { '^/': '/raids/' })

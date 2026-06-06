@@ -68,6 +68,38 @@ const cacheOperationDuration = new promClient.Histogram({
   buckets: [0.5, 1, 2, 5, 10, 25, 50],
 });
 
+// REQ-00031: API 响应缓存层指标
+const cacheMissesTotal = new promClient.Counter({
+  name: 'minego_cache_misses_total',
+  help: 'Total cache misses',
+  labelNames: ['layer'], // layer: memory, redis
+});
+
+const cacheLatency = new promClient.Histogram({
+  name: 'minego_cache_latency_seconds',
+  help: 'Cache operation latency in seconds',
+  labelNames: ['operation', 'layer'],
+  buckets: [0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5],
+});
+
+const cacheSize = new promClient.Gauge({
+  name: 'minego_cache_size_bytes',
+  help: 'Current cache size in bytes',
+  labelNames: ['layer'], // layer: memory, redis
+});
+
+const cacheKeysTotal = new promClient.Gauge({
+  name: 'minego_cache_keys_total',
+  help: 'Total number of keys in cache',
+  labelNames: ['layer'],
+});
+
+const cacheInvalidationsTotal = new promClient.Counter({
+  name: 'minego_cache_invalidations_total',
+  help: 'Total cache invalidations',
+  labelNames: ['event', 'pattern'],
+});
+
 // ============================================================
 // WebSocket 指标
 // ============================================================
@@ -235,6 +267,11 @@ module.exports = {
   // 缓存指标
   cacheHitsTotal,
   cacheOperationDuration,
+  cacheMissesTotal,
+  cacheLatency,
+  cacheSize,
+  cacheKeysTotal,
+  cacheInvalidationsTotal,
   recordCacheHit,
   recordCacheMiss,
   timeCacheOperation,
