@@ -3,7 +3,7 @@
 - **编号**：REQ-00010
 - **类别**：反作弊
 - **优先级**：P0
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：gateway、location-service、catch-service、gym-service、backend/shared/anti-cheat.js
 - **创建时间**：2026-06-05 06:00
 - **依赖需求**：REQ-00002（结构化日志与指标）

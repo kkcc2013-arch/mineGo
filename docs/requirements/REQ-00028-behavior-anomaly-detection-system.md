@@ -3,7 +3,7 @@
 - **编号**：REQ-00028
 - **类别**：反作弊
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：gateway、catch-service、gym-service、social-service、backend/shared/anti-cheat.js、database/migrations
 - **创建时间**：2026-06-05 20:00
 - **依赖需求**：REQ-00010（GPS伪造检测与速度限制）

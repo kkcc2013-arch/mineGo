@@ -3,7 +3,7 @@
 - **编号**：REQ-00009
 - **类别**：前端体验
 - **优先级**：P0
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：game-client、frontend/sw.js、frontend/manifest.json
 - **创建时间**：2026-06-05 05:00
 - **依赖需求**：无

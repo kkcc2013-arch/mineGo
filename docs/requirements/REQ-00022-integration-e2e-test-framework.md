@@ -3,7 +3,7 @@
 - **编号**：REQ-00022
 - **类别**：测试覆盖
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：backend/tests/integration、backend/tests/e2e、所有微服务、GitHub Actions
 - **创建时间**：2026-06-05 14:35
 - **依赖需求**：REQ-00004

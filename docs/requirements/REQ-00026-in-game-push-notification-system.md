@@ -3,7 +3,7 @@
 - **编号**：REQ-00026
 - **类别**：前端体验
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：game-client、gateway、reward-service、gym-service、social-service
 - **创建时间**：2026-06-05 18:00
 - **依赖需求**：无
