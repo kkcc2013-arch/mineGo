@@ -3,7 +3,7 @@
 - **编号**：REQ-00033
 - **类别**：测试覆盖
 - **优先级**：P2
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：backend/tests/performance、所有微服务、GitHub Actions、docs/performance
 - **创建时间**：2026-06-07 20:10
 - **依赖需求**：REQ-00002（结构化日志与 Prometheus 指标）、REQ-00022（集成测试框架）
