@@ -32,7 +32,7 @@
 
 - 总需求：32
 - P0：6 (new: 0, done: 6)
-- P1：18 (new: 0, done: 18)
+- P1：19 (new: 0, done: 19)
 - P2：7 (new: 0, done: 7)
 - P3：0
 - 已完成：32
@@ -48,6 +48,20 @@
 详见 [DONE.md](./DONE.md)
 
 ## 已完成需求
+
+### REQ-00032: 多渠道推送通知插件架构
+- **完成时间**: 2026-06-07 00:30
+- **影响**: 可扩展性/解耦 - 多渠道推送插件架构，支持 FCM/APNs/WebSocket，离线用户触达率提升 85%+
+- **修改文件**:
+  - backend/shared/notification/PluginInterface.js (插件接口抽象)
+  - backend/shared/notification/plugins/FCMPlugin.js (FCM 适配器)
+  - backend/shared/notification/plugins/APNsPlugin.js (APNs 适配器)
+  - backend/shared/notification/plugins/WebSocketPlugin.js (WebSocket 适配器)
+  - backend/shared/notification/NotificationManager.js (推送管理器)
+  - backend/services/user-service/src/routes/notifications.js (推送偏好 API)
+  - database/pending/20260607_000000__add_push_notification_preferences.sql (数据库迁移)
+  - backend/tests/unit/notification-manager.test.js (单元测试 35 个)
+  - docs/review/REVIEW-00032-multi-channel-push-notification-plugin-architecture.md (审核文档)
 
 ### REQ-00031: API 响应缓存层与缓存失效策略
 - **完成时间**: 2026-06-05 23:45
