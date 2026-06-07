@@ -1,0 +1,179 @@
+name: Performance Tests
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # 每天凌晨 2 点 UTC
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: 'Test scenario (auth|catch|gym|payment|comprehensive|all)'
+        required: false
+        default: 'comprehensive'
+      environment:
+        description: 'Test environment'
+        required: false
+        default: 'staging'
+  pull_request:
+    paths:
+      - 'backend/services/**'
+      - 'backend/gateway/**'
+      - 'backend/shared/**'
+
+jobs:
+  performance-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install k6
+        run: |
+          curl https://github.com/grafana/k6/releases/download/v0.47.0/k6-v0.47.0-linux-amd64.tar.gz -L | tar xvz
+          sudo mv k6-*/k6 /usr/local/bin/
+          k6 version
+
+      - name: Start services
+        run: |
+          docker compose up -d postgres redis
+          sleep 10
+
+      - name: Run database migrations
+        run: |
+          cd database
+          node migrate.js up
+
+      - name: Start application
+        run: |
+          cd backend
+          npm ci
+          npm run dev &
+          sleep 30
+          
+          # Health check
+          curl -f http://localhost:8080/health || exit 1
+
+      - name: Run performance tests
+        id: perf-test
+        run: |
+          cd backend/tests/performance
+          
+          SCENARIO="${{ github.event.inputs.scenario || 'comprehensive' }}"
+          ENVIRONMENT="${{ github.event.inputs.environment || 'local' }}"
+          
+          mkdir -p ../../../performance-results
+          
+          k6 run \
+            --out json=../../../performance-results/results.json \
+            comprehensive-stress.js || true
+          
+        continue-on-error: true
+
+      - name: Generate performance report
+        if: always()
+        run: |
+          cd backend/tests/performance
+          
+          if [ -f "../../../performance-results/results.json" ]; then
+            node report-generator.js \
+              ../../../performance-results/results.json \
+              --output ../../../performance-results \
+              --environment "${{ github.event.inputs.environment || 'local' }}"
+          fi
+
+      - name: Upload performance results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-results
+          path: performance-results/
+          retention-days: 30
+
+      - name: Check performance thresholds
+        id: threshold-check
+        run: |
+          # 解析测试结果，检查是否超过阈值
+          if [ -f "performance-results/results.json" ]; then
+            # 使用 jq 解析 JSON 并检查阈值
+            P99=$(jq -r '.metrics.http_req_duration.values.["p(99)"] // 0' performance-results/results.json 2>/dev/null || echo "0")
+            ERROR_RATE=$(jq -r '.metrics.http_req_failed.values.rate // 0' performance-results/results.json 2>/dev/null || echo "0")
+            
+            echo "P99 延迟: ${P99}ms"
+            echo "错误率: ${ERROR_RATE}"
+            
+            # 检查阈值
+            if (( $(echo "$P99 > 500" | bc -l) )); then
+              echo "::warning::P99 延迟 ($P99 ms) 超过阈值 (500ms)"
+            fi
+            
+            if (( $(echo "$ERROR_RATE > 0.02" | bc -l) )); then
+              echo "::error::错误率 ($ERROR_RATE) 超过阈值 (2%)"
+              exit 1
+            fi
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::性能测试失败，请检查报告"
+          
+      - name: Stop services
+        if: always()
+        run: docker compose down -v
+
+  # 性能回归检测
+  regression-check:
+    runs-on: ubuntu-latest
+    needs: performance-test
+    if: github.event_name == 'schedule'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download current results
+        uses: actions/download-artifact@v4
+        with:
+          name: performance-results
+          path: current-results
+
+      - name: Download baseline results
+        uses: actions/download-artifact@v4
+        with:
+          name: performance-results
+          path: baseline-results
+        continue-on-error: true
+
+      - name: Compare performance
+        run: |
+          if [ -f "baseline-results/results.json" ] && [ -f "current-results/results.json" ]; then
+            # 比较性能数据
+            BASELINE_P99=$(jq -r '.metrics.http_req_duration.values.["p(99)"] // 0' baseline-results/results.json)
+            CURRENT_P99=$(jq -r '.metrics.http_req_duration.values.["p(99)"] // 0' current-results/results.json)
+            
+            echo "基线 P99: ${BASELINE_P99}ms"
+            echo "当前 P99: ${CURRENT_P99}ms"
+            
+            # 计算增长百分比
+            INCREASE=$(echo "scale=2; ($CURRENT_P99 - $BASELINE_P99) / $BASELINE_P99 * 100" | bc)
+            
+            echo "延迟增长: ${INCREASE}%"
+            
+            if (( $(echo "$INCREASE > 20" | bc -l) )); then
+              echo "::error::性能回归检测失败: P99 延迟增长 ${INCREASE}% (超过 20%)"
+              exit 1
+            fi
+          else
+            echo "无基线数据，跳过回归检测"
+          fi
+
+      - name: Update baseline
+        if: success()
+        run: |
+          echo "更新基线数据..."
+          # 在实际环境中，这里应该上传到存储服务
