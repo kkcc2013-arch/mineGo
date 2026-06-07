@@ -1,8 +1,8 @@
 // backend/services/social-service/src/handlers/catchHandler.js
 'use strict';
 
-const { createLogger } = require('../../../shared/logger');
-const { getRedis } = require('../../../shared/redis');
+const { createLogger } = require('../../../../shared/logger');
+const { getRedis } = require('../../../../shared/redis');
 
 const logger = createLogger('social-service-catch-handler');
 

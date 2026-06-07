@@ -5,9 +5,9 @@
 
 const express = require('express');
 const router = express.Router();
-const { query, transaction } = require('../../../shared/db');
-const { requireAuth, AppError, successResp } = require('../../../shared/auth');
-const { createLogger } = require('../../../shared/logger');
+const { query, transaction } = require('../../../../shared/db');
+const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
+const { createLogger } = require('../../../../shared/logger');
 const { calculateStardustCost, calculatePokemonValue } = require('../trade/stardust');
 const { checkTradeLimits, checkPokemonFrequentTrade } = require('../trade/limits');
 const { detectSuspiciousTrade } = require('../trade/antiCheat');

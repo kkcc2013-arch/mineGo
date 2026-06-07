@@ -3,7 +3,7 @@
 
 'use strict';
 
-const { createLogger } = require('../../../shared/logger');
+const { createLogger } = require('../../../../shared/logger');
 const redis = require('redis');
 
 const logger = createLogger('trade-distance');

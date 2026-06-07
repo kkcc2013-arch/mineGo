@@ -3,7 +3,7 @@
 
 'use strict';
 
-const { query } = require('../../../shared/db');
+const { query } = require('../../../../shared/db');
 
 /**
  * 交易限制配置

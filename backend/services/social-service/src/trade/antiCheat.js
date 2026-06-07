@@ -3,8 +3,8 @@
 
 'use strict';
 
-const { query } = require('../../../shared/db');
-const { createLogger } = require('../../../shared/logger');
+const { query } = require('../../../../shared/db');
+const { createLogger } = require('../../../../shared/logger');
 const { calculatePokemonValue } = require('./stardust');
 
 const logger = createLogger('trade-anti-cheat');

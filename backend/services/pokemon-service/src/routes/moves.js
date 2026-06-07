@@ -5,11 +5,11 @@
 
 const express = require('express');
 const router = express.Router();
-const moveService = require('./moveService');
-const logger = require('../../../shared/logger');
+const moveService = require('../moveService');
+const logger = require('../../../../shared/logger');
 
 // 认证中间件
-const authenticate = require('../../../shared/authMiddleware');
+const { requireAuth } = require('../../../../shared/auth');
 
 /**
  * GET /moves
@@ -74,7 +74,7 @@ router.get('/moves/:id', async (req, res) => {
  * GET /pokemon/my/:id/moves
  * 获取精灵技能栏
  */
-router.get('/pokemon/my/:id/moves', authenticate, async (req, res) => {
+router.get('/pokemon/my/:id/moves', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.id;
@@ -99,7 +99,7 @@ router.get('/pokemon/my/:id/moves', authenticate, async (req, res) => {
  * 学习新技能
  * Body: { tmId, forgetMoveId? }
  */
-router.post('/pokemon/my/:id/moves/learn', authenticate, async (req, res) => {
+router.post('/pokemon/my/:id/moves/learn', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const { tmId, forgetMoveId } = req.body;
@@ -139,7 +139,7 @@ router.post('/pokemon/my/:id/moves/learn', authenticate, async (req, res) => {
  * 切换技能
  * Body: { fastMoveId?, chargeMoveId? }
  */
-router.post('/pokemon/my/:id/moves/switch', authenticate, async (req, res) => {
+router.post('/pokemon/my/:id/moves/switch', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const { fastMoveId, chargeMoveId } = req.body;
@@ -179,7 +179,7 @@ router.post('/pokemon/my/:id/moves/switch', authenticate, async (req, res) => {
  * 遗忘技能
  * Body: { moveId }
  */
-router.post('/pokemon/my/:id/moves/forget', authenticate, async (req, res) => {
+router.post('/pokemon/my/:id/moves/forget', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const { moveId } = req.body;
@@ -236,7 +236,7 @@ router.get('/pokemon/:speciesId/learnset', async (req, res) => {
  * GET /tm/my
  * 获取玩家 TM 背包
  */
-router.get('/tm/my', authenticate, async (req, res) => {
+router.get('/tm/my', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     
@@ -260,7 +260,7 @@ router.get('/tm/my', authenticate, async (req, res) => {
  * 使用 TM（等同于 /pokemon/my/:id/moves/learn）
  * Body: { pokemonId, tmId, forgetMoveId? }
  */
-router.post('/tm/use', authenticate, async (req, res) => {
+router.post('/tm/use', requireAuth, async (req, res) => {
   try {
     const { pokemonId, tmId, forgetMoveId } = req.body;
     const userId = req.user.id;

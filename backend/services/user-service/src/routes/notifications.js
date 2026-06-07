@@ -1,316 +1,235 @@
-// user-service/src/routes/notifications.js
-// User notification preferences and history API - REQ-00026
+// backend/services/user-service/src/routes/notifications.js
 'use strict';
 
-const express = require('express');
-const { query } = require('../../../shared/db');
-const { requireAuth, AppError, successResp } = require('../../../shared/auth');
+const { Router } = require('express');
+const { query, transaction } = require('../../../shared/db');
+const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger } = require('../../../shared/logger');
-const { publishEvent } = require('../../../shared/EventBus');
 
-const router = express.Router();
-const logger = createLogger('notification-routes');
+const logger = createLogger('user-service:notifications');
+const router = Router();
 
-// ============================================================
-// Notification Types
-// ============================================================
-const NOTIFICATION_TYPES = {
-  RARE_SPAWN: 'RARE_SPAWN',
-  RAID_STARTED: 'RAID_STARTED',
-  FRIEND_REQUEST: 'FRIEND_REQUEST',
-  GIFT_RECEIVED: 'GIFT_RECEIVED',
-  QUEST_COMPLETE: 'QUEST_COMPLETE',
-  GYM_UNDER_ATTACK: 'GYM_UNDER_ATTACK',
-  GYM_LOST: 'GYM_LOST',
-};
-
-// ============================================================
-// GET /v1/users/me/notification-preferences
-// ============================================================
+/**
+ * GET /api/notifications/preferences
+ * 获取用户推送偏好
+ */
 router.get('/preferences', requireAuth, async (req, res, next) => {
   try {
     const userId = req.user.sub;
 
-    const { rows: [prefs] } = await query(`
-      SELECT * FROM user_notification_preferences WHERE user_id = $1
-    `, [userId]);
+    const { rows: [prefs] } = await query(
+      `SELECT 
+        preferred_channels, 
+        notification_types, 
+        quiet_hours,
+        CASE WHEN fcm_token IS NOT NULL THEN true ELSE false END as has_fcm_token,
+        CASE WHEN apns_token IS NOT NULL THEN true ELSE false END as has_apns_token
+       FROM user_push_preferences 
+       WHERE user_id = $1`,
+      [userId]
+    );
 
     if (!prefs) {
-      // Create default preferences if not exists
-      await query(`
-        INSERT INTO user_notification_preferences (user_id)
-        VALUES ($1)
-        ON CONFLICT (user_id) DO NOTHING
-      `, [userId]);
-
-      const { rows: [newPrefs] } = await query(`
-        SELECT * FROM user_notification_preferences WHERE user_id = $1
-      `, [userId]);
-
-      return res.json(successResp(newPrefs));
+      // 创建默认偏好
+      await query(
+        `INSERT INTO user_push_preferences (user_id) VALUES ($1)`,
+        [userId]
+      );
+      
+      return res.json(successResp({
+        preferredChannels: ['websocket', 'fcm', 'apns'],
+        notificationTypes: {
+          gym_raid: true,
+          friend_request: true,
+          trade_request: true,
+          reward: true,
+          system: true,
+        },
+        quietHours: { enabled: false, start: '22:00', end: '08:00' },
+        hasFcmToken: false,
+        hasApnsToken: false,
+      }));
     }
 
-    res.json(successResp(prefs));
+    res.json(successResp({
+      preferredChannels: prefs.preferred_channels,
+      notificationTypes: prefs.notification_types,
+      quietHours: prefs.quiet_hours,
+      hasFcmToken: prefs.has_fcm_token,
+      hasApnsToken: prefs.has_apns_token,
+    }));
   } catch (err) {
-    logger.error({ err, userId: req.user.sub }, 'Failed to get notification preferences');
     next(err);
   }
 });
 
-// ============================================================
-// PUT /v1/users/me/notification-preferences
-// ============================================================
-router.put('/preferences', requireAuth, async (req, res, next) => {
+/**
+ * POST /api/notifications/preferences
+ * 更新用户推送偏好
+ */
+router.post('/preferences', requireAuth, async (req, res, next) => {
   try {
     const userId = req.user.sub;
-    const updates = req.body;
+    const { preferredChannels, notificationTypes, quietHours } = req.body;
 
-    // Validate fields
-    const validFields = [
-      'rare_spawn', 'raid_started', 'friend_request', 'gift_received',
-      'quest_complete', 'gym_under_attack', 'gym_lost',
-      'sound_enabled', 'vibration_enabled'
-    ];
+    // 验证参数
+    if (preferredChannels && !Array.isArray(preferredChannels)) {
+      throw new AppError(4001, 'preferredChannels 必须是数组', 400);
+    }
 
-    const fields = [];
+    if (notificationTypes && typeof notificationTypes !== 'object') {
+      throw new AppError(4002, 'notificationTypes 必须是对象', 400);
+    }
+
+    if (quietHours && typeof quietHours !== 'object') {
+      throw new AppError(4003, 'quietHours 必须是对象', 400);
+    }
+
+    // 构造更新语句
+    const updates = [];
     const values = [userId];
     let paramIndex = 2;
 
-    for (const [key, value] of Object.entries(updates)) {
-      if (validFields.includes(key) && typeof value === 'boolean') {
-        fields.push(`${key} = $${paramIndex}`);
-        values.push(value);
-        paramIndex++;
-      }
+    if (preferredChannels) {
+      updates.push(`preferred_channels = $${paramIndex++}`);
+      values.push(preferredChannels);
     }
 
-    if (fields.length === 0) {
-      throw new AppError(4001, 'No valid fields to update', 400);
+    if (notificationTypes) {
+      updates.push(`notification_types = $${paramIndex++}`);
+      values.push(JSON.stringify(notificationTypes));
     }
 
-    const queryStr = `
-      INSERT INTO user_notification_preferences (user_id, ${validFields.filter(f => updates[f] !== undefined).join(', ')})
-      VALUES ($1, ${values.slice(1).map((_, i) => `$${i + 2}`).join(', ')})
-      ON CONFLICT (user_id) 
-      DO UPDATE SET ${fields.join(', ')}, updated_at = NOW()
-      RETURNING *
-    `;
+    if (quietHours) {
+      updates.push(`quiet_hours = $${paramIndex++}`);
+      values.push(JSON.stringify(quietHours));
+    }
 
-    // Simpler approach: upsert with all fields
-    const upsertQuery = `
-      INSERT INTO user_notification_preferences (
-        user_id, rare_spawn, raid_started, friend_request, gift_received,
-        quest_complete, gym_under_attack, gym_lost, sound_enabled, vibration_enabled
-      )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-      ON CONFLICT (user_id)
-      DO UPDATE SET
-        rare_spawn = EXCLUDED.rare_spawn,
-        raid_started = EXCLUDED.raid_started,
-        friend_request = EXCLUDED.friend_request,
-        gift_received = EXCLUDED.gift_received,
-        quest_complete = EXCLUDED.quest_complete,
-        gym_under_attack = EXCLUDED.gym_under_attack,
-        gym_lost = EXCLUDED.gym_lost,
-        sound_enabled = EXCLUDED.sound_enabled,
-        vibration_enabled = EXCLUDED.vibration_enabled,
-        updated_at = NOW()
-      RETURNING *
-    `;
+    if (updates.length === 0) {
+      throw new AppError(4004, '没有提供更新字段', 400);
+    }
 
-    const { rows: [prefs] } = await query(upsertQuery, [
-      userId,
-      updates.rare_spawn ?? true,
-      updates.raid_started ?? true,
-      updates.friend_request ?? true,
-      updates.gift_received ?? true,
-      updates.quest_complete ?? true,
-      updates.gym_under_attack ?? true,
-      updates.gym_lost ?? false,
-      updates.sound_enabled ?? true,
-      updates.vibration_enabled ?? true,
-    ]);
+    updates.push('updated_at = NOW()');
 
-    logger.info({ userId, updates }, 'Notification preferences updated');
-    res.json(successResp(prefs));
+    await query(
+      `INSERT INTO user_push_preferences (user_id, preferred_channels, notification_types, quiet_hours)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (user_id) 
+       DO UPDATE SET ${updates.join(', ')}`,
+      values.length === 2 
+        ? [...values, preferredChannels || ['websocket', 'fcm', 'apns'], notificationTypes || {}, quietHours || {}]
+        : values
+    );
+
+    logger.info({ userId }, 'Push preferences updated');
+
+    res.json(successResp(null, '推送偏好已更新'));
   } catch (err) {
-    logger.error({ err, userId: req.user.sub }, 'Failed to update notification preferences');
     next(err);
   }
 });
 
-// ============================================================
-// GET /v1/users/me/notifications
-// Query params: limit (default 50), unread_only (default false)
-// ============================================================
-router.get('/', requireAuth, async (req, res, next) => {
+/**
+ * POST /api/notifications/device-token
+ * 注册设备推送 Token
+ */
+router.post('/device-token', requireAuth, async (req, res, next) => {
+  try {
+    const userId = req.user.sub;
+    const { platform, token } = req.body;
+
+    if (!platform || !token) {
+      throw new AppError(4005, 'platform 和 token 是必需字段', 400);
+    }
+
+    if (!['ios', 'android'].includes(platform)) {
+      throw new AppError(4006, 'platform 必须是 ios 或 android', 400);
+    }
+
+    // 确保用户有推送偏好记录
+    await query(
+      `INSERT INTO user_push_preferences (user_id) VALUES ($1)
+       ON CONFLICT (user_id) DO NOTHING`,
+      [userId]
+    );
+
+    // 更新对应平台的 token
+    const tokenField = platform === 'ios' ? 'apns_token' : 'fcm_token';
+    
+    await query(
+      `UPDATE user_push_preferences 
+       SET ${tokenField} = $2, updated_at = NOW()
+       WHERE user_id = $1`,
+      [userId, token]
+    );
+
+    logger.info({ userId, platform }, 'Device token registered');
+
+    res.json(successResp(null, '设备 Token 注册成功'));
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * DELETE /api/notifications/device-token
+ * 注销设备推送 Token（用户登出时调用）
+ */
+router.delete('/device-token', requireAuth, async (req, res, next) => {
+  try {
+    const userId = req.user.sub;
+    const { platform } = req.body;
+
+    if (!platform) {
+      throw new AppError(4007, 'platform 是必需字段', 400);
+    }
+
+    const tokenField = platform === 'ios' ? 'apns_token' : 'fcm_token';
+    
+    await query(
+      `UPDATE user_push_preferences 
+       SET ${tokenField} = NULL, updated_at = NOW()
+       WHERE user_id = $1`,
+      [userId]
+    );
+
+    logger.info({ userId, platform }, 'Device token removed');
+
+    res.json(successResp(null, '设备 Token 已注销'));
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /api/notifications/logs
+ * 获取推送日志（最近 50 条）
+ */
+router.get('/logs', requireAuth, async (req, res, next) => {
   try {
     const userId = req.user.sub;
     const limit = Math.min(parseInt(req.query.limit) || 50, 100);
-    const unreadOnly = req.query.unread_only === 'true';
 
-    let queryStr = `
-      SELECT id, type, data, read, created_at
-      FROM notification_history
-      WHERE user_id = $1
-    `;
-    const values = [userId];
+    const { rows } = await query(
+      `SELECT 
+        channel, 
+        notification_type, 
+        title, 
+        body, 
+        success, 
+        error_message,
+        created_at
+       FROM push_logs 
+       WHERE user_id = $1
+       ORDER BY created_at DESC
+       LIMIT $2`,
+      [userId, limit]
+    );
 
-    if (unreadOnly) {
-      queryStr += ' AND read = FALSE';
-    }
-
-    queryStr += ` ORDER BY created_at DESC LIMIT $2`;
-    values.push(limit);
-
-    const { rows: notifications } = await query(queryStr, values);
-
-    res.json(successResp({
-      notifications,
-      total: notifications.length,
-      hasMore: notifications.length === limit,
-    }));
+    res.json(successResp(rows));
   } catch (err) {
-    logger.error({ err, userId: req.user.sub }, 'Failed to get notification history');
     next(err);
   }
 });
 
-// ============================================================
-// PUT /v1/users/me/notifications/:id/read
-// Mark a single notification as read
-// ============================================================
-router.put('/:id/read', requireAuth, async (req, res, next) => {
-  try {
-    const userId = req.user.sub;
-    const notificationId = req.params.id;
-
-    const { rowCount } = await query(`
-      UPDATE notification_history
-      SET read = TRUE
-      WHERE id = $1 AND user_id = $2
-    `, [notificationId, userId]);
-
-    if (rowCount === 0) {
-      throw new AppError(4002, 'Notification not found', 404);
-    }
-
-    res.json(successResp({ id: notificationId, read: true }));
-  } catch (err) {
-    logger.error({ err, userId: req.user.sub, notificationId: req.params.id }, 'Failed to mark notification as read');
-    next(err);
-  }
-});
-
-// ============================================================
-// PUT /v1/users/me/notifications/read-all
-// Mark all notifications as read
-// ============================================================
-router.put('/read-all', requireAuth, async (req, res, next) => {
-  try {
-    const userId = req.user.sub;
-
-    const { rowCount } = await query(`
-      UPDATE notification_history
-      SET read = TRUE
-      WHERE user_id = $1 AND read = FALSE
-    `, [userId]);
-
-    logger.info({ userId, count: rowCount }, 'All notifications marked as read');
-    res.json(successResp({ updatedCount: rowCount }));
-  } catch (err) {
-    logger.error({ err, userId: req.user.sub }, 'Failed to mark all notifications as read');
-    next(err);
-  }
-});
-
-// ============================================================
-// DELETE /v1/users/me/notifications/:id
-// Delete a single notification
-// ============================================================
-router.delete('/:id', requireAuth, async (req, res, next) => {
-  try {
-    const userId = req.user.sub;
-    const notificationId = req.params.id;
-
-    const { rowCount } = await query(`
-      DELETE FROM notification_history
-      WHERE id = $1 AND user_id = $2
-    `, [notificationId, userId]);
-
-    if (rowCount === 0) {
-      throw new AppError(4002, 'Notification not found', 404);
-    }
-
-    res.json(successResp({ deleted: true }));
-  } catch (err) {
-    logger.error({ err, userId: req.user.sub, notificationId: req.params.id }, 'Failed to delete notification');
-    next(err);
-  }
-});
-
-// ============================================================
-// Internal API: Create notification
-// Called by other services via EventBus
-// ============================================================
-async function createNotification(userId, type, data) {
-  try {
-    // Check user preferences
-    const { rows: [prefs] } = await query(`
-      SELECT * FROM user_notification_preferences WHERE user_id = $1
-    `, [userId]);
-
-    // Map type to preference field
-    const typeToPref = {
-      RARE_SPAWN: 'rare_spawn',
-      RAID_STARTED: 'raid_started',
-      FRIEND_REQUEST: 'friend_request',
-      GIFT_RECEIVED: 'gift_received',
-      QUEST_COMPLETE: 'quest_complete',
-      GYM_UNDER_ATTACK: 'gym_under_attack',
-      GYM_LOST: 'gym_lost',
-    };
-
-    const prefField = typeToPref[type];
-    if (prefField && prefs && prefs[prefField] === false) {
-      logger.debug({ userId, type }, 'Notification disabled by user preference');
-      return null;
-    }
-
-    // Insert notification
-    const { rows: [notification] } = await query(`
-      INSERT INTO notification_history (user_id, type, data)
-      VALUES ($1, $2, $3)
-      RETURNING id, type, data, read, created_at
-    `, [userId, type, JSON.stringify(data)]);
-
-    logger.info({ userId, type, notificationId: notification.id }, 'Notification created');
-
-    // Publish to WebSocket via EventBus
-    if (publishEvent) {
-      publishEvent('notification.created', {
-        userId,
-        notification: {
-          id: notification.id,
-          type,
-          data,
-          timestamp: notification.created_at,
-        },
-      });
-    }
-
-    return notification;
-  } catch (err) {
-    logger.error({ err, userId, type }, 'Failed to create notification');
-    return null;
-  }
-}
-
-// ============================================================
-// Export
-// ============================================================
-module.exports = {
-  router,
-  createNotification,
-  NOTIFICATION_TYPES,
-};
+module.exports = router;

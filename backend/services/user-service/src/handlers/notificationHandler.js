@@ -2,7 +2,7 @@
 // Handle events from other services and create notifications - REQ-00026
 'use strict';
 
-const { createLogger } = require('../../../shared/logger');
+const { createLogger } = require('../../../../shared/logger');
 const { createNotification, NOTIFICATION_TYPES } = require('../routes/notifications');
 
 const logger = createLogger('notification-handler');

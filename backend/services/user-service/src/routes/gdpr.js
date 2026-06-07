@@ -42,7 +42,7 @@ router.get('/privacy-policy', async (req, res) => {
  * GET /api/gdpr/export
  * 导出用户数据（GDPR 第 20 条：数据可携带权）
  */
-router.get('/export', authenticate, async (req, res) => {
+router.get('/export', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     
@@ -75,7 +75,7 @@ router.get('/export', authenticate, async (req, res) => {
  * DELETE /api/gdpr/delete
  * 删除用户数据（GDPR 第 17 条：被遗忘权）
  */
-router.delete('/delete', authenticate, async (req, res) => {
+router.delete('/delete', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { confirmation } = req.body;
@@ -144,7 +144,7 @@ router.post('/delete/confirm', async (req, res) => {
  * GET /api/gdpr/status
  * 获取删除请求状态
  */
-router.get('/status', authenticate, async (req, res) => {
+router.get('/status', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     
@@ -174,7 +174,7 @@ router.get('/status', authenticate, async (req, res) => {
  * POST /api/gdpr/consent
  * 记录用户同意
  */
-router.post('/consent', authenticate, async (req, res) => {
+router.post('/consent', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { privacyPolicyVersion, termsVersion } = req.body;
@@ -196,7 +196,7 @@ router.post('/consent', authenticate, async (req, res) => {
  * POST /api/gdpr/withdraw
  * 撤回同意
  */
-router.post('/withdraw', authenticate, async (req, res) => {
+router.post('/withdraw', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     
@@ -216,7 +216,7 @@ router.post('/withdraw', authenticate, async (req, res) => {
  * GET /api/gdpr/audit-logs
  * 获取用户审计日志
  */
-router.get('/audit-logs', authenticate, async (req, res) => {
+router.get('/audit-logs', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
     const { limit = 100, action } = req.query;

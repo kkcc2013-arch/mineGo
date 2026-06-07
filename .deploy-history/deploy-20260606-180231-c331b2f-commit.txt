@@ -1,0 +1,1 @@
+c331b2fbccddabdc4c7b2c526a9070463b517682 docs(req): 同步需求文档状态字段为 done（与 INDEX.md 一致）

@@ -1,8 +1,8 @@
 // backend/services/user-service/src/handlers/catchHandler.js
 'use strict';
 
-const { createLogger } = require('../../../shared/logger');
-const { query } = require('../../../shared/db');
+const { createLogger } = require('../../../../shared/logger');
+const { query } = require('../../../../shared/db');
 
 const logger = createLogger('user-service-catch-handler');
 

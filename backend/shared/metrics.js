@@ -2,29 +2,45 @@
 'use strict';
 const promClient = require('prom-client');
 
+// Cluster 模式支持：为每个进程创建独立的 Registry
+// 这解决了 PM2 cluster 模式下多进程共享全局 registry 导致的重复注册问题
+const registry = new promClient.Registry();
+
 // 收集默认指标（CPU、内存、事件循环延迟等）
 promClient.collectDefaultMetrics({
+  register: registry,
   prefix: 'minego_',
   gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5],
 });
 
+// 辅助函数：安全创建 metric（避免重复注册）
+function safeCounter(options) {
+  return new promClient.Counter({ ...options, register: registry });
+}
+function safeGauge(options) {
+  return new promClient.Gauge({ ...options, register: registry });
+}
+function safeHistogram(options) {
+  return new promClient.Histogram({ ...options, register: registry });
+}
+
 // ============================================================
 // HTTP 指标
 // ============================================================
-const httpRequestsTotal = new promClient.Counter({
+const httpRequestsTotal = safeCounter({
   name: 'minego_http_requests_total',
   help: 'Total number of HTTP requests',
   labelNames: ['service', 'method', 'path', 'status'],
 });
 
-const httpRequestDuration = new promClient.Histogram({
+const httpRequestDuration = safeHistogram({
   name: 'minego_http_request_duration_ms',
   help: 'HTTP request duration in milliseconds',
   labelNames: ['service', 'method', 'path'],
   buckets: [5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000],
 });
 
-const httpRequestsInProgress = new promClient.Gauge({
+const httpRequestsInProgress = safeGauge({
   name: 'minego_http_requests_in_progress',
   help: 'Number of HTTP requests currently in progress',
   labelNames: ['service', 'method', 'path'],
@@ -33,20 +49,20 @@ const httpRequestsInProgress = new promClient.Gauge({
 // ============================================================
 // 数据库指标
 // ============================================================
-const dbQueryDuration = new promClient.Histogram({
+const dbQueryDuration = safeHistogram({
   name: 'minego_db_query_duration_ms',
   help: 'Database query duration in milliseconds',
   labelNames: ['service', 'query_name'],
   buckets: [1, 5, 10, 25, 50, 100, 250, 500],
 });
 
-const dbConnectionsActive = new promClient.Gauge({
+const dbConnectionsActive = safeGauge({
   name: 'minego_db_connections_active',
   help: 'Number of active database connections',
   labelNames: ['service'],
 });
 
-const dbQueryErrors = new promClient.Counter({
+const dbQueryErrors = safeCounter({
   name: 'minego_db_query_errors_total',
   help: 'Total number of database query errors',
   labelNames: ['service', 'query_name', 'error_type'],
@@ -55,13 +71,13 @@ const dbQueryErrors = new promClient.Counter({
 // ============================================================
 // Redis 缓存指标
 // ============================================================
-const cacheHitsTotal = new promClient.Counter({
+const cacheHitsTotal = safeCounter({
   name: 'minego_cache_hits_total',
   help: 'Total cache hit/miss count',
   labelNames: ['service', 'cache_name', 'result'], // result: hit|miss
 });
 
-const cacheOperationDuration = new promClient.Histogram({
+const cacheOperationDuration = safeHistogram({
   name: 'minego_cache_operation_duration_ms',
   help: 'Cache operation duration in milliseconds',
   labelNames: ['service', 'cache_name', 'operation'],
@@ -69,32 +85,32 @@ const cacheOperationDuration = new promClient.Histogram({
 });
 
 // REQ-00031: API 响应缓存层指标
-const cacheMissesTotal = new promClient.Counter({
+const cacheMissesTotal = safeCounter({
   name: 'minego_cache_misses_total',
   help: 'Total cache misses',
   labelNames: ['layer'], // layer: memory, redis
 });
 
-const cacheLatency = new promClient.Histogram({
+const cacheLatency = safeHistogram({
   name: 'minego_cache_latency_seconds',
   help: 'Cache operation latency in seconds',
   labelNames: ['operation', 'layer'],
   buckets: [0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5],
 });
 
-const cacheSize = new promClient.Gauge({
+const cacheSize = safeGauge({
   name: 'minego_cache_size_bytes',
   help: 'Current cache size in bytes',
   labelNames: ['layer'], // layer: memory, redis
 });
 
-const cacheKeysTotal = new promClient.Gauge({
+const cacheKeysTotal = safeGauge({
   name: 'minego_cache_keys_total',
   help: 'Total number of keys in cache',
   labelNames: ['layer'],
 });
 
-const cacheInvalidationsTotal = new promClient.Counter({
+const cacheInvalidationsTotal = safeCounter({
   name: 'minego_cache_invalidations_total',
   help: 'Total cache invalidations',
   labelNames: ['event', 'pattern'],
@@ -103,13 +119,13 @@ const cacheInvalidationsTotal = new promClient.Counter({
 // ============================================================
 // WebSocket 指标
 // ============================================================
-const websocketConnectionsActive = new promClient.Gauge({
+const websocketConnectionsActive = safeGauge({
   name: 'minego_websocket_connections_active',
   help: 'Number of active WebSocket connections',
   labelNames: ['service', 'room'],
 });
 
-const websocketMessagesTotal = new promClient.Counter({
+const websocketMessagesTotal = safeCounter({
   name: 'minego_websocket_messages_total',
   help: 'Total number of WebSocket messages',
   labelNames: ['service', 'direction', 'type'], // direction: in|out
@@ -118,19 +134,19 @@ const websocketMessagesTotal = new promClient.Counter({
 // ============================================================
 // 业务指标
 // ============================================================
-const catchAttemptsTotal = new promClient.Counter({
+const catchAttemptsTotal = safeCounter({
   name: 'minego_catch_attempts_total',
   help: 'Total number of catch attempts',
   labelNames: ['result'], // result: success|failed|escaped
 });
 
-const pokemonSpawnedTotal = new promClient.Counter({
+const pokemonSpawnedTotal = safeCounter({
   name: 'minego_pokemon_spawned_total',
   help: 'Total number of wild pokemon spawned',
   labelNames: ['rarity'],
 });
 
-const raidParticipantsActive = new promClient.Gauge({
+const raidParticipantsActive = safeGauge({
   name: 'minego_raid_participants_active',
   help: 'Number of active raid participants',
   labelNames: ['raid_id'],
@@ -139,41 +155,41 @@ const raidParticipantsActive = new promClient.Gauge({
 // ============================================================
 // 行为分析指标 (REQ-00028)
 // ============================================================
-const behaviorAnomalyDetected = new promClient.Counter({
+const behaviorAnomalyDetected = safeCounter({
   name: 'minego_anticheat_behavior_anomaly_total',
   help: 'Behavior anomalies detected by type and severity',
   labelNames: ['type', 'severity'],
 });
 
-const behaviorScoreHistogram = new promClient.Histogram({
+const behaviorScoreHistogram = safeHistogram({
   name: 'minego_anticheat_behavior_score',
   help: 'User behavior score distribution',
   buckets: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
 });
 
-const multiAccountDeviceDetected = new promClient.Counter({
+const multiAccountDeviceDetected = safeCounter({
   name: 'minego_anticheat_multi_account_device_total',
   help: 'Multi-account on same device detected',
 });
 
-const analysisDurationHistogram = new promClient.Histogram({
+const analysisDurationHistogram = safeHistogram({
   name: 'minego_anticheat_analysis_duration_seconds',
   help: 'Time spent on behavior analysis',
   labelNames: ['analysis_type'],
   buckets: [0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5],
 });
 
-const lowTrustUserGauge = new promClient.Gauge({
+const lowTrustUserGauge = safeGauge({
   name: 'minego_anticheat_low_trust_users',
   help: 'Number of users with low trust score (<50)',
 });
 
-const deviceFingerprintTotal = new promClient.Counter({
+const deviceFingerprintTotal = safeCounter({
   name: 'minego_anticheat_device_fingerprint_total',
   help: 'Total device fingerprints recorded',
 });
 
-const catchAttemptRecorded = new promClient.Counter({
+const catchAttemptRecorded = safeCounter({
   name: 'minego_anticheat_catch_attempt_recorded_total',
   help: 'Total catch attempts recorded for analysis',
   labelNames: ['rarity', 'success'],
@@ -249,8 +265,8 @@ async function timeDbQuery(service, queryName, fn) {
 // 导出所有指标和辅助函数
 // ============================================================
 module.exports = {
-  // Prometheus registry
-  register: promClient.register,
+  // Prometheus registry (独立注册表，支持 cluster 模式)
+  register: registry,
   
   // HTTP 指标
   httpRequestsTotal,

@@ -3,23 +3,12 @@ const path = require('path');
 const { context, trace } = require('@opentelemetry/api');
 const { getTracer } = require('./tracing');
 const { getPoolManager, metrics: poolMetrics } = require('./DatabasePool');
-const promClient = require('prom-client');
+
+// 使用 shared/metrics.js 中的 dbQueryDuration metric，避免重复注册
+const { dbQueryDuration } = require('./metrics');
 
 let poolManager = null;
 let migrationsInitialized = false;
-
-// Query duration histogram for backwards compatibility
-// Avoid duplicate registration in cluster mode
-const register = promClient.register;
-let queryDurationMetric = register.getSingleMetric('minego_db_query_duration_ms');
-if (!queryDurationMetric) {
-  queryDurationMetric = new promClient.Histogram({
-    name: 'minego_db_query_duration_ms',
-    help: 'Database query duration in milliseconds',
-    labelNames: ['operation'],
-    buckets: [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000],
-  });
-}
 
 /**
  * Get the pool manager instance
@@ -78,9 +67,9 @@ async function query(text, params) {
     const res = await client.query(text, params);
     const dur = Date.now() - start;
     
-    // Record query duration
+    // Record query duration (使用 service 和 query_name 标签)
     const operation = text.trim().split(' ')[0].toUpperCase();
-    queryDurationMetric.observe({ operation }, dur);
+    dbQueryDuration.observe({ service: serviceName, query_name: operation }, dur);
     
     // Record to span
     if (dbSpan) {
