@@ -95,6 +95,36 @@ app.post('/payment/orders', requireAuth, async (req, res, next) => {
       throw new AppError(5002, '不支持的支付渠道', 400);
     }
 
+    // REQ-00034: 检查未成年人消费限制
+    try {
+      const { checkSpendLimit, isMinor, getAgeProfile } = require('../../../shared/ageVerification');
+      const profile = await getAgeProfile(userId);
+      
+      if (profile && isMinor(profile)) {
+        const spendCheck = await checkSpendLimit(userId, product.amountFen);
+        
+        if (!spendCheck.withinLimit) {
+          logger.warn({ 
+            userId, 
+            productId, 
+            amountFen: product.amountFen,
+            currentSpend: spendCheck.currentSpend,
+            limit: spendCheck.limitSpend 
+          }, 'Minor user spend limit exceeded');
+          
+          throw new AppError(4032, 
+            `月度消费已达上限 ¥${(spendCheck.limitSpend / 100).toFixed(2)}，请家长调整限制`,
+            403
+          );
+        }
+      }
+    } catch (ageErr) {
+      // 如果是消费限制错误，直接抛出
+      if (ageErr.code === 4032) throw ageErr;
+      // 其他错误（如年龄验证服务不可用），记录日志但继续
+      logger.error({ err: ageErr }, 'Age verification check failed');
+    }
+
     // Idempotency check using Redis
     const idempotencyRedisKey = `payment:idempotency:${userId}:${idempotencyKey}`;
     const cachedOrder = await getJSON(idempotencyRedisKey);

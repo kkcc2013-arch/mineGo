@@ -20,6 +20,9 @@ const RegisterSchema = z.object({
   nickname: z.string().min(2,'昵称最少2个字符').max(30,'昵称最多30个字符')
               .regex(/^[a-zA-Z0-9\u4e00-\u9fa5_-]+$/, '昵称含非法字符'),
   deviceId: z.string().optional(),
+  // REQ-00034: 年龄验证
+  birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, '出生日期格式不正确').optional(),
+  parentEmail: z.string().email('家长邮箱格式不正确').optional(),
   // REQ-00016: GDPR consent
   consent: z.object({
     privacyPolicy: z.boolean(),
@@ -70,11 +73,28 @@ router.post('/sms-code', async (req, res, next) => {
 // ── POST /auth/register ───────────────────────────────────────
 router.post('/register', async (req, res, next) => {
   try {
-    const { phone, smsCode, nickname, deviceId, consent } = RegisterSchema.parse(req.body);
+    const { phone, smsCode, nickname, deviceId, birthDate, parentEmail, consent } = RegisterSchema.parse(req.body);
 
     // REQ-00016: Verify GDPR consent
     if (!consent || !consent.privacyPolicy || !consent.termsOfService) {
       throw new AppError(1010, '必须同意隐私政策和服务条款', 400);
+    }
+
+    // REQ-00034: 验证年龄和COPPA合规
+    const { 
+      calculateAge, 
+      getAgeBracket, 
+      AGE_BRACKETS,
+      createOrUpdateAgeProfile,
+      sendParentConsentEmail
+    } = require('../../../../shared/ageVerification');
+    
+    const age = birthDate ? calculateAge(birthDate) : null;
+    const ageBracket = birthDate ? getAgeBracket(age) : AGE_BRACKETS.UNKNOWN;
+    
+    // 13岁以下必须提供家长邮箱
+    if (ageBracket === AGE_BRACKETS.UNDER_13 && !parentEmail) {
+      throw new AppError(1011, '13岁以下用户必须提供家长邮箱', 400);
     }
 
     // Accept 'register' or 'login' scene (frontend sends 'login' for unified auth flow)
@@ -120,9 +140,47 @@ router.post('/register', async (req, res, next) => {
         req.ip || req.connection.remoteAddress,
         req.headers['user-agent']
       ]);
+      
+      // REQ-00034: Create age profile if birthDate provided
+      if (birthDate) {
+        await client.query(`
+          INSERT INTO user_age_profiles 
+            (user_id, birth_date, age_bracket, parent_email, parent_consent_status, 
+             daily_play_limit_minutes, monthly_spend_limit_cents, features_disabled)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        `, [
+          user.id,
+          birthDate,
+          ageBracket,
+          parentEmail || null,
+          ageBracket === AGE_BRACKETS.UNDER_13 ? 'pending' : 'not_required',
+          ageBracket === AGE_BRACKETS.UNDER_13 ? 60 : null,
+          ageBracket === AGE_BRACKETS.UNDER_13 ? 0 : null,
+          ageBracket === AGE_BRACKETS.UNDER_13 ? ['trade', 'social'] : []
+        ]);
+      }
 
       return user;
     });
+
+    // REQ-00034: 发送家长同意邮件
+    if (ageBracket === AGE_BRACKETS.UNDER_13 && parentEmail) {
+      try {
+        await sendParentConsentEmail(result.id, parentEmail, result.nickname);
+      } catch (emailError) {
+        console.error('[COPPA] Failed to send parent consent email:', emailError);
+        // 不中断注册流程，但记录错误
+      }
+      
+      // 13岁以下用户需要等待家长同意才能登录
+      res.status(201).json(successResp({ 
+        userId: result.id, 
+        nickname: result.nickname,
+        requiresParentConsent: true,
+        message: '注册成功！已向家长邮箱发送验证邮件，请等待家长同意后登录。'
+      }));
+      return;
+    }
 
     const tokens = issueTokens(result, {
       deviceName: req.body.deviceId || 'Unknown',

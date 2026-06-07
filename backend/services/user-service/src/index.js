@@ -13,6 +13,7 @@ const sessionsRouter = require('./routes/sessions');
 const { router: gdprRouter, initGDPRRoutes } = require('./routes/gdpr');
 const { router: notificationsRouter } = require('./routes/notifications');
 const timezoneRouter = require('./routes/timezone');
+const ageVerificationRouter = require('./routes/ageVerification'); // REQ-00034
 const { initNotificationHandlers } = require('./handlers/notificationHandler');
 
 // Create service launcher
@@ -47,6 +48,10 @@ const service = new ServiceLauncher({
     {
       path: '/users',
       router: timezoneRouter
+    },
+    {
+      path: '/age', // REQ-00034: 年龄验证路由
+      router: ageVerificationRouter
     }
   ],
   
