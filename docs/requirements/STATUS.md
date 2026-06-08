@@ -28,12 +28,12 @@
 
 ## 需求统计
 
-- 总需求：34
+- 总需求：35
 - P0：6 (new: 0, done: 6)
 - P1：20 (new: 0, done: 20)
-- P2：8 (new: 0, done: 8)
+- P2：9 (new: 0, done: 9)
 - P3：0
-- 已完成：34
+- 已完成：35
 
 ## 项目状态
 
@@ -46,6 +46,17 @@
 详见 [DONE.md](./DONE.md)
 
 ## 已完成需求
+
+### REQ-00035: 游戏客户端色盲模式支持
+- **完成时间**: 2026-06-07 23:55
+- **影响**: 无障碍(a11y) - 完整的色盲模式支持系统，覆盖约 4.5% 全球色觉障碍人群
+- **修改文件**:
+  - frontend/game-client/src/accessibility/ColorBlindMode.js (核心模式管理 10.9 KB)
+  - frontend/game-client/src/accessibility/ColorBlindSettings.js (设置 UI 9.1 KB)
+  - frontend/game-client/src/accessibility/ColorBlindStyles.css (样式系统 7.0 KB)
+  - frontend/game-client/src/accessibility/ColorBlindSimulator.js (开发者工具 7.4 KB)
+  - backend/tests/unit/colorblind-mode.test.js (单元测试 11.5 KB, 36 个测试)
+  - docs/review/REVIEW-00035-game-client-color-blind-accessibility-support.md (审核文档)
 
 ### REQ-00034: COPPA 合规与未成年人年龄验证系统
 - **完成时间**: 2026-06-07 21:50

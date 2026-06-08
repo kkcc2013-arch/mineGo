@@ -1,0 +1,277 @@
+/**
+ * 色盲模式专用样式
+ * 为不同色盲类型提供优化的视觉样式
+ */
+
+/* ── 动画定义 ─────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* ── 正常模式（默认） ─────────────────────────── */
+.color-blind-normal {
+  /* 使用默认配色 */
+}
+
+/* ── 红色盲模式（Protanopia） ─────────────────── */
+.color-blind-protanopia {
+  /* 调整所有红绿色系 */
+}
+
+.color-blind-protanopia .entity-card[data-rarity="common"] .entity-icon {
+  background: var(--color-success, #009988) !important;
+  border: 3px solid #0077BB;
+}
+
+.color-blind-protanopia .entity-card[data-rarity="rare"] .entity-icon {
+  background: var(--color-primary, #0077BB) !important;
+  border: 3px solid #EE7733;
+}
+
+.color-blind-protanopia .entity-card[data-rarity="epic"] .entity-icon {
+  background: var(--color-secondary, #9977BB) !important;
+  border: 3px dashed #0077BB;
+}
+
+.color-blind-protanopia .entity-card[data-rarity="legendary"] .entity-icon {
+  background: var(--color-warning, #CCBB44) !important;
+  border: 3px double #0077BB;
+}
+
+/* ── 绿色盲模式（Deuteranopia） ───────────────── */
+.color-blind-deuteranopia {
+  /* 与红色盲类似的调整 */
+}
+
+.color-blind-deuteranopia .entity-card[data-rarity="common"] .entity-icon {
+  background: var(--color-success, #009988) !important;
+  border: 3px solid #0077BB;
+}
+
+.color-blind-deuteranopia .entity-card[data-rarity="rare"] .entity-icon {
+  background: var(--color-primary, #0077BB) !important;
+  border: 3px solid #EE7733;
+}
+
+.color-blind-deuteranopia .entity-card[data-rarity="epic"] .entity-icon {
+  background: var(--color-secondary, #9977BB) !important;
+  border: 3px dashed #0077BB;
+}
+
+.color-blind-deuteranopia .entity-card[data-rarity="legendary"] .entity-icon {
+  background: var(--color-warning, #CCBB44) !important;
+  border: 3px double #0077BB;
+}
+
+/* ── 蓝色盲模式（Tritanopia） ─────────────────── */
+.color-blind-tritanopia {
+  /* 调整蓝黄色系 */
+}
+
+.color-blind-tritanopia .entity-card[data-rarity="common"] .entity-icon {
+  background: var(--color-success, #00AA55) !important;
+  border: 3px solid #009988;
+}
+
+.color-blind-tritanopia .entity-card[data-rarity="rare"] .entity-icon {
+  background: var(--color-primary, #009988) !important;
+  border: 3px solid #EE3377;
+}
+
+.color-blind-tritanopia .entity-card[data-rarity="epic"] .entity-icon {
+  background: var(--color-secondary, #EE3377) !important;
+  border: 3px dashed #009988;
+}
+
+.color-blind-tritanopia .entity-card[data-rarity="legendary"] .entity-icon {
+  background: var(--color-warning, #DDAA33) !important;
+  border: 3px double #009988;
+}
+
+/* ── 全色盲模式（Achromatopsia） ──────────────── */
+.color-blind-achromatopsia {
+  /* 高对比度灰度模式 */
+}
+
+.color-blind-achromatopsia .entity-card[data-rarity="common"] .entity-icon {
+  background: #666666 !important;
+  border: 3px solid #333333;
+}
+
+.color-blind-achromatopsia .entity-card[data-rarity="rare"] .entity-icon {
+  background: #888888 !important;
+  border: 3px solid #666666;
+}
+
+.color-blind-achromatopsia .entity-card[data-rarity="epic"] .entity-icon {
+  background: #777777 !important;
+  border: 3px dashed #444444;
+}
+
+.color-blind-achromatopsia .entity-card[data-rarity="legendary"] .entity-icon {
+  background: #999999 !important;
+  border: 3px double #333333;
+}
+
+/* ── 稀有度标签通用样式 ─────────────────────────── */
+.rarity-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.rarity-badge::before {
+  content: attr(data-icon);
+  font-size: 12px;
+}
+
+.rarity-badge[data-rarity="common"]::before {
+  content: "●";
+}
+
+.rarity-badge[data-rarity="rare"]::before {
+  content: "◆";
+}
+
+.rarity-badge[data-rarity="epic"]::before {
+  content: "★";
+}
+
+.rarity-badge[data-rarity="legendary"]::before {
+  content: "☆";
+}
+
+/* ── 阵营标识样式 ──────────────────────────────── */
+.team-badge-valor::before {
+  content: "▲ ";
+}
+
+.team-badge-mystic::before {
+  content: "■ ";
+}
+
+.team-badge-instinct::before {
+  content: "● ";
+}
+
+/* ── 状态效果图标增强 ────────────────────────── */
+.status-effect {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-effect::before {
+  font-size: 14px;
+}
+
+.status-effect[data-status="poison"]::before {
+  content: "☠️";
+}
+
+.status-effect[data-status="burn"]::before {
+  content: "🔥";
+}
+
+.status-effect[data-status="paralysis"]::before {
+  content: "⚡";
+}
+
+.status-effect[data-status="freeze"]::before {
+  content: "❄️";
+}
+
+.status-effect[data-status="sleep"]::before {
+  content: "💤";
+}
+
+/* ── 地图图钉形状样式 ────────────────────────── */
+.map-pin {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  border: 2px solid currentColor;
+}
+
+.map-pin[data-type="wild_pokemon"] {
+  border-radius: 50%;
+}
+
+.map-pin[data-type="gym"] {
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.map-pin[data-type="pokestop"] {
+  border-radius: 4px;
+}
+
+.map-pin[data-type="raid"] {
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+/* ── 高对比度模式增强 ────────────────────────── */
+.color-blind-achromatopsia .btn-primary {
+  background: #333333 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff;
+}
+
+.color-blind-achromatopsia .btn-outline {
+  border-width: 2px;
+}
+
+.color-blind-achromatopsia .toast {
+  border-width: 2px;
+  color: #ffffff !important;
+}
+
+/* ── 对比度检查工具样式（开发用） ────────────── */
+.contrast-checker {
+  position: fixed;
+  bottom: 80px;
+  right: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 12px;
+  z-index: 9999;
+  display: none;
+}
+
+.contrast-checker.show {
+  display: block;
+}
+
+.contrast-checker .ratio {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 8px 0;
+}
+
+.contrast-checker .pass {
+  color: var(--success, #2ecc71);
+}
+
+.contrast-checker .fail {
+  color: var(--danger, #e63946);
+}

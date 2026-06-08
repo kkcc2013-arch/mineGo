@@ -37,4 +37,5 @@
 || REQ-00031 | API 响应缓存层与缓存失效策略 | 技术债/重构 | P2 | done | gateway、所有微服务、backend/shared、Redis | 2026-06-05 23:05 |
 | REQ-00032 | 多渠道推送通知插件架构 | 可扩展性/解耦 | P1 | done | reward-service、user-service、backend/shared/notification、gateway | 2026-06-07 00:00 |
 | REQ-00033 | API 压力测试与性能基准系统 | 测试覆盖 | P2 | done | backend/tests/performance、所有微服务、GitHub Actions | 2026-06-07 20:10 |
-| REQ-00034 | COPPA 合规与未成年人年龄验证系统 | 合规/隐私 | P1 | done | user-service、gateway、game-client、database/migrations | 2026-06-07 21:15 |
+|| REQ-00034 | COPPA 合规与未成年人年龄验证系统 | 合规/隐私 | P1 | done | user-service、gateway、game-client、database/migrations | 2026-06-07 21:15 |
+|| REQ-00035 | 游戏客户端色盲模式支持 | 无障碍(a11y) | P2 | done | game-client、frontend、game-client/src/components | 2026-06-07 22:00 |

@@ -325,19 +325,6 @@ spec:
     # ============================================================
     - name: minego.database_pool
       rules:
-        # 连接池使用率过高 (>90%)
-        - alert: DatabasePoolHighUsage
-          expr: |
-            minego_db_pool_usage_percent > 90
-          for: 5m
-          labels:
-            severity: warning
-            priority: P1
-          annotations:
-            summary: "数据库连接池使用率过高"
-            description: "{{ $labels.pool_name }} 使用率 {{ $value }}%，可能需要扩容"
-            runbook_url: "https://wiki.minego.io/runbooks/db-pool-high-usage"
-
         # 连接池耗尽（等待连接数 > 5）
         - alert: DatabasePoolExhausted
           expr: |
