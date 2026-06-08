@@ -6,7 +6,7 @@
 const express = require('express');
 const { z } = require('zod');
 const { query } = require('../../../../shared/db');
-const { AppError, successResp, errorResp, authMiddleware } = require('../../../../shared/auth');
+const { AppError, successResp, errorResp, requireAuth } = require('../../../../shared/auth');
 const {
   getAgeProfile,
   sendParentConsentEmail,
@@ -25,7 +25,7 @@ const {
 const router = express.Router();
 
 // 所有路由需要认证
-router.use(authMiddleware);
+router.use(requireAuth);
 
 // ── Schemas ───────────────────────────────────────────────────
 const SendConsentSchema = z.object({

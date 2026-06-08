@@ -44,6 +44,7 @@
     "@opentelemetry/sdk-trace-base": "^2.7.1",
     "@opentelemetry/sdk-trace-node": "^2.7.1",
     "@opentelemetry/semantic-conventions": "^1.41.1",
+    "axios": "^1.17.0",
     "kafkajs": "^2.2.4",
     "redis": "^6.0.0",
     "swagger-ui-express": "^5.0.1",

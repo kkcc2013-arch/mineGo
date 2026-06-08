@@ -1,0 +1,1 @@
+afd144f0eeec26bff6313ef6a6d337234dee20bb fix(req): 修正 REQ-00034 状态为 done（项目已达停止条件）

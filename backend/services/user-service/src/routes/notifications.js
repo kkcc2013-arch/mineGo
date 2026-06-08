@@ -2,9 +2,9 @@
 'use strict';
 
 const { Router } = require('express');
-const { query, transaction } = require('../../../shared/db');
-const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
-const { createLogger } = require('../../../shared/logger');
+const { query, transaction } = require('../../../../shared/db');
+const { requireAuth, AppError, successResp, errorHandler } = require('../../../../shared/auth');
+const { createLogger } = require('../../../../shared/logger');
 
 const logger = createLogger('user-service:notifications');
 const router = Router();
