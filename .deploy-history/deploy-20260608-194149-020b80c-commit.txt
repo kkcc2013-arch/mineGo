@@ -1,0 +1,1 @@
+020b80c82b200757521624dd4181ce87fb209dc7 fix: 修复 user-service 和 location-service 启动失败问题

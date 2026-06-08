@@ -152,6 +152,121 @@ const DataMasking = {
   },
 
   /**
+   * 身份证号脱敏
+   * @param {string} idCard - 身份证号
+   * @returns {string} 脱敏后的身份证号
+   * @example
+   * maskIdCard('310101199001011234') => '3101********1234'
+   */
+  idCard(idCard) {
+    if (!idCard || typeof idCard !== 'string') return idCard;
+    if (idCard.length < 8) return '****';
+    const prefixLen = 4;
+    const suffixLen = 4;
+    const maskedLen = idCard.length - prefixLen - suffixLen;
+    return `${idCard.slice(0, prefixLen)}${'*'.repeat(maskedLen)}${idCard.slice(-suffixLen)}`;
+  },
+
+  /**
+   * 银行卡号脱敏
+   * @param {string} cardNumber - 银行卡号
+   * @returns {string} 脱敏后的银行卡号
+   * @example
+   * maskBankCard('6222021234567890123') => '6222 **** **** 0123'
+   */
+  bankCard(cardNumber) {
+    if (!cardNumber || typeof cardNumber !== 'string') return cardNumber;
+    if (cardNumber.length <= 8) return '****';
+    return `${cardNumber.slice(0, 4)} **** **** ${cardNumber.slice(-4)}`;
+  },
+
+  /**
+   * 经纬度模糊化
+   * @param {number} coordinate - 经纬度值
+   * @param {number} precision - 保留小数位数（默认 2，约 1km 精度）
+   * @returns {number} 模糊化后的值
+   */
+  coordinate(coordinate, precision = 2) {
+    if (typeof coordinate !== 'number') return coordinate;
+    const factor = Math.pow(10, precision);
+    return Math.round(coordinate * factor) / factor;
+  },
+
+  /**
+   * 日期脱敏（保留年月，隐藏日）
+   * @param {string} dateStr - 日期字符串 (YYYY-MM-DD)
+   * @returns {string} 脱敏后的日期
+   * @example
+   * maskDate('1990-01-01') => '1990-01-**'
+   */
+  date(dateStr) {
+    if (!dateStr || typeof dateStr !== 'string') return dateStr;
+    if (!dateStr.includes('-')) return dateStr;
+    const parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[0]}-${parts[1]}-**`;
+    }
+    return dateStr;
+  },
+
+  /**
+   * 姓名脱敏
+   * @param {string} name - 姓名
+   * @returns {string} 脱敏后的姓名
+   * @example
+   * maskName('张三丰') => '张**'
+   * maskName('John Doe') => 'Joh***'
+   */
+  name(name) {
+    if (!name || typeof name !== 'string') return name;
+    if (name.length <= 1) return '*';
+    // 中文名
+    if (/[\u4e00-\u9fa5]/.test(name)) {
+      return name[0] + '*'.repeat(name.length - 1);
+    }
+    // 英文名
+    return name.slice(0, 3) + '***';
+  },
+
+  /**
+   * URL 脱敏（隐藏查询参数中的敏感信息）
+   * @param {string} url - URL
+   * @returns {string} 脱敏后的 URL
+   */
+  url(url) {
+    if (!url || typeof url !== 'string') return url;
+    try {
+      const urlObj = new URL(url);
+      // 移除敏感查询参数
+      const sensitiveParams = ['token', 'key', 'secret', 'password', 'session'];
+      sensitiveParams.forEach(param => {
+        if (urlObj.searchParams.has(param)) {
+          urlObj.searchParams.set(param, '***REDACTED***');
+        }
+      });
+      return urlObj.toString();
+    } catch {
+      return url;
+    }
+  },
+
+  /**
+   * JSON 字符串中的敏感字段脱敏
+   * @param {string} jsonStr - JSON 字符串
+   * @param {string[]} sensitiveKeys - 敏感字段名列表
+   * @returns {string} 脱敏后的 JSON 字符串
+   */
+  jsonString(jsonStr, sensitiveKeys = ['password', 'token', 'secret', 'key']) {
+    if (!jsonStr || typeof jsonStr !== 'string') return jsonStr;
+    let result = jsonStr;
+    sensitiveKeys.forEach(key => {
+      const regex = new RegExp(`"${key}"\\s*:\\s*"[^"]*"`, 'gi');
+      result = result.replace(regex, `"${key}":"***REDACTED***"`);
+    });
+    return result;
+  },
+
+  /**
    * 批量脱敏用户数据
    * @param {object} userData - 用户数据
    * @returns {object} 脱敏后的用户数据
@@ -162,7 +277,10 @@ const DataMasking = {
       phone: 'phone',
       username: 'username',
       ip_address: 'ip',
-      payment_method: 'paymentMethod'
+      payment_method: 'paymentMethod',
+      real_name: 'name',
+      id_card: 'idCard',
+      address: 'string',
     });
   }
 };

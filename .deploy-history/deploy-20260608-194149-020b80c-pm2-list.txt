@@ -1,0 +1,16 @@
+┌────┬─────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id │ name            │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├────┼─────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 4  │ pmg-catch       │ default     │ 1.0.0   │ cluster │ 61287    │ 39m    │ 1    │ online    │ 0%       │ 94.3mb   │ root     │ disabled │
+│ 5  │ pmg-catch       │ default     │ 1.0.0   │ cluster │ 61315    │ 38m    │ 1    │ online    │ 0%       │ 94.0mb   │ root     │ disabled │
+│ 0  │ pmg-gateway     │ default     │ 1.0.0   │ cluster │ 60991    │ 39m    │ 1    │ online    │ 0%       │ 95.0mb   │ root     │ disabled │
+│ 10 │ pmg-gateway     │ default     │ 1.0.0   │ cluster │ 61851    │ 38m    │ 1    │ online    │ 0%       │ 96.7mb   │ root     │ disabled │
+│ 6  │ pmg-gym         │ default     │ 1.0.0   │ cluster │ 61340    │ 38m    │ 1    │ online    │ 0%       │ 93.5mb   │ root     │ disabled │
+│ 1  │ pmg-location    │ default     │ 1.0.0   │ cluster │ 107509   │ 58s    │ 662  │ online    │ 0%       │ 91.4mb   │ root     │ disabled │
+│ 2  │ pmg-location    │ default     │ 1.0.0   │ cluster │ 107533   │ 58s    │ 661  │ online    │ 0%       │ 90.3mb   │ root     │ disabled │
+│ 9  │ pmg-payment     │ default     │ 1.0.0   │ cluster │ 61436    │ 38m    │ 1    │ online    │ 0%       │ 91.0mb   │ root     │ disabled │
+│ 3  │ pmg-pokemon     │ default     │ 1.0.0   │ cluster │ 61221    │ 39m    │ 1    │ online    │ 0%       │ 91.8mb   │ root     │ disabled │
+│ 8  │ pmg-reward      │ default     │ 1.0.0   │ cluster │ 61388    │ 38m    │ 1    │ online    │ 0%       │ 92.1mb   │ root     │ disabled │
+│ 7  │ pmg-social      │ default     │ 1.0.0   │ cluster │ 61364    │ 38m    │ 1    │ online    │ 0%       │ 97.2mb   │ root     │ disabled │
+│ 11 │ pmg-user        │ default     │ 1.0.0   │ cluster │ 106824   │ 117s   │ 3125 │ online    │ 0%       │ 92.3mb   │ root     │ disabled │
+└────┴─────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
