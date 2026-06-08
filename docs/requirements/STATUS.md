@@ -21,19 +21,19 @@
 
 ## 未覆盖高价值缺口
 
-1. **前端 E2E**：缺少 Playwright/Cypress 前端测试
+1. **前端 E2E**：~~缺少 Playwright/Cypress 前端测试~~ → ✅ REQ-00036 已完成
 2. **推送通知**：缺少 FCM/APNs 推送系统（游戏内通知已实现 REQ-00026，多渠道插件已实现 REQ-00032）
 3. **天气系统**：天气加成只有简单模拟，缺少真实天气 API 集成
 4. **缓存预热**：REQ-00031 已实现缓存层，但缺少热点数据预热优化
 
 ## 需求统计
 
-- 总需求：35
+- 总需求：36
 - P0：6 (new: 0, done: 6)
-- P1：20 (new: 0, done: 20)
+- P1：21 (new: 0, done: 21)
 - P2：9 (new: 0, done: 9)
 - P3：0
-- 已完成：35
+- 已完成：36
 
 ## 项目状态
 
@@ -47,7 +47,21 @@
 
 ## 已完成需求
 
-### REQ-00035: 游戏客户端色盲模式支持
+### REQ-00036: 前端 Playwright E2E 测试系统
+- **完成时间**: 2026-06-08 16:55
+- **影响**: 测试覆盖 - 完整的前端 E2E 测试体系，56+ 测试用例，跨浏览器/移动端支持，PWA 和无障碍测试
+- **修改文件**:
+  - frontend/game-client/playwright.config.js (Playwright 配置)
+  - frontend/game-client/package.json (依赖和脚本)
+  - frontend/game-client/tests/e2e/helpers.js (测试辅助函数)
+  - frontend/game-client/tests/e2e/auth.spec.js (认证测试 10 个)
+  - frontend/game-client/tests/e2e/map.spec.js (地图测试 11 个)
+  - frontend/game-client/tests/e2e/catch.spec.js (捕捉测试 10 个)
+  - frontend/game-client/tests/e2e/pwa.spec.js (PWA 测试 10 个)
+  - frontend/game-client/tests/e2e/accessibility.spec.js (无障碍测试 15 个)
+  - .github/workflows/e2e-tests.yml (CI 工作流)
+  - frontend/game-client/index.html (添加 data-testid 和 ARIA 属性)
+  - docs/review/REQ-00036-frontend-playwright-e2e-tests-review.md (审核文档)
 - **完成时间**: 2026-06-07 23:55
 - **影响**: 无障碍(a11y) - 完整的色盲模式支持系统，覆盖约 4.5% 全球色觉障碍人群
 - **修改文件**:

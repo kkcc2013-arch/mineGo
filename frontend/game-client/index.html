@@ -170,14 +170,14 @@
 <body>
 
 <!-- ── OFFLINE BANNER ─────────────────────────────────────── -->
-<div id="offline-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:10000;background:linear-gradient(90deg,#f59e0b,#d97706);color:#fff;padding:10px 16px;font-size:13px;font-weight:600;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.3);">
+<div id="offline-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:10000;background:linear-gradient(90deg,#f59e0b,#d97706);color:#fff;padding:10px 16px;font-size:13px;font-weight:600;text-align:center;box-shadow:0 2px 10px rgba(0,0,0,.3);" data-testid="offline-banner" role="alert">
   ⚠️ 当前离线，部分功能受限 · 数据将在恢复网络后同步
 </div>
 
 <!-- ── PWA INSTALL PROMPT ──────────────────────────────────── -->
-<div id="pwa-install-prompt" style="display:none;position:fixed;bottom:80px;left:16px;right:16px;z-index:9998;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 8px 32px rgba(0,0,0,.5);">
+<div id="pwa-install-prompt" style="display:none;position:fixed;bottom:80px;left:16px;right:16px;z-index:9998;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:0 8px 32px rgba(0,0,0,.5);" data-testid="pwa-install-prompt">
   <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-    <div style="font-size:40px;">🎮</div>
+    <div style="font-size:40px;" aria-hidden="true">🎮</div>
     <div>
       <div style="font-size:15px;font-weight:700;">安装 Pocket Monster Go</div>
       <div style="font-size:12px;color:var(--muted);">添加到主屏幕，获得更好体验</div>
@@ -185,74 +185,74 @@
   </div>
   <div style="display:flex;gap:10px;">
     <button onclick="installPwa()" style="flex:1;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;cursor:pointer;">安装</button>
-    <button onclick="dismissInstallPrompt()" style="background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:12px 16px;font-size:14px;cursor:pointer;">稍后</button>
+    <button onclick="dismissInstallPrompt()" style="background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:12px 16px;font-size:14px;cursor:pointer;" data-testid="pwa-install-dismiss">稍后</button>
   </div>
 </div>
 
 <!-- ── LOGIN ─────────────────────────────────────────────────── -->
-<div class="screen active" id="login">
+<div class="screen active" id="login" data-testid="login-screen">
   <div class="logo-wrap">
-    <span class="logo-emoji">🎮</span>
+    <span class="logo-emoji" aria-hidden="true">🎮</span>
     <div class="logo-title">Pocket Monster Go</div>
     <div class="logo-sub">GPS精灵捕捉手游 · 开启你的冒险</div>
   </div>
   <div class="form-group">
     <label class="form-label">手机号</label>
-    <input id="inp-phone" class="form-input" type="tel" placeholder="请输入手机号" maxlength="11" inputmode="numeric">
+    <input id="inp-phone" class="form-input" type="tel" placeholder="请输入手机号" maxlength="11" inputmode="numeric" data-testid="phone-input" aria-label="手机号">
   </div>
   <div class="sms-row">
-    <input id="inp-code" class="form-input" type="text" placeholder="验证码" maxlength="6" inputmode="numeric">
-    <button class="btn-sms" id="btn-sms" onclick="sendSms()">发送验证码</button>
+    <input id="inp-code" class="form-input" type="text" placeholder="验证码" maxlength="6" inputmode="numeric" data-testid="code-input" aria-label="验证码">
+    <button class="btn-sms" id="btn-sms" onclick="sendSms()" data-testid="sms-btn">发送验证码</button>
   </div>
-  <button class="btn btn-primary" onclick="doLogin()">登录 / 注册</button>
+  <button class="btn btn-primary" onclick="doLogin()" data-testid="login-btn">登录 / 注册</button>
 </div>
 
 <!-- ── MAP ───────────────────────────────────────────────────── -->
-<div class="screen" id="map">
+<div class="screen" id="map" data-testid="map-screen">
   <div class="topbar">
-    <div class="avatar-circle">🧑</div>
+    <div class="avatar-circle" aria-hidden="true">🧑</div>
     <div class="user-info">
-      <div class="user-name" id="map-name">训练师</div>
+      <div class="user-name" id="map-name" data-testid="user-name">训练师</div>
       <div class="user-lvl" id="map-lvl">Lv.1</div>
     </div>
-    <div class="gps-badge" id="gps-badge">📍 定位中…</div>
+    <div class="gps-badge" id="gps-badge" data-testid="gps-badge">📍 定位中…</div>
   </div>
   <div class="res-strip">
-    <div class="res">🔴 <span id="r-ball">0</span></div>
-    <div class="res">💎 <span id="r-coin">0</span></div>
-    <div class="res">⭐ <span id="r-dust">0</span></div>
+    <div class="res" data-testid="resource-pokeball">🔴 <span id="r-ball">0</span></div>
+    <div class="res" data-testid="resource-coins">💎 <span id="r-coin">0</span></div>
+    <div class="res" data-testid="resource-stardust">⭐ <span id="r-dust">0</span></div>
   </div>
-  <div class="scroll-area" id="map-body"><div class="spin"></div></div>
+  <div class="scroll-area" id="map-body" data-testid="map-scroll-area"><div class="spin"></div></div>
 </div>
 
 <!-- ── CATCH ─────────────────────────────────────────────────── -->
-<div class="screen" id="catch">
+<div class="screen" id="catch" data-testid="catch-screen">
   <div class="catch-topbar">
-    <div class="back-btn" onclick="exitCatch()">←</div>
+    <div class="back-btn" onclick="exitCatch()" role="button" aria-label="返回" tabindex="0">←</div>
     <div class="catch-headline" id="c-title">捕捉精灵</div>
   </div>
   <div class="wild-zone">
-    <div class="wild-emoji" id="c-icon">🐾</div>
-    <div class="wild-name" id="c-name"></div>
-    <div class="wild-cp" id="c-cp"></div>
+    <div class="wild-emoji" id="c-icon" data-testid="wild-pokemon-emoji" aria-hidden="true">🐾</div>
+    <div class="wild-name" id="c-name" data-testid="wild-pokemon-name"></div>
+    <div class="wild-cp" id="c-cp" data-testid="wild-pokemon-cp"></div>
     <div class="ring-indicator">投球准确度</div>
-    <div class="ring-bar"><div class="ring-fill" id="ring-fill" style="width:100%"></div></div>
+    <div class="ring-bar" data-testid="accuracy-bar"><div class="ring-fill" id="ring-fill" style="width:100%" data-testid="accuracy-bar-fill"></div></div>
   </div>
   <div class="catch-bottom">
-    <div class="ball-row">
-      <div class="ball-chip sel" id="chip-poke" onclick="pickBall(this,'POKE_BALL')">🔴 普通球</div>
-      <div class="ball-chip" id="chip-great" onclick="pickBall(this,'GREAT_BALL')">🔵 超级球</div>
-      <div class="ball-chip" id="chip-ultra" onclick="pickBall(this,'ULTRA_BALL')">🟡 高级球</div>
+    <div class="ball-row" data-testid="ball-selector" role="radiogroup" aria-label="选择精灵球">
+      <div class="ball-chip sel" id="chip-poke" onclick="pickBall(this,'POKE_BALL')" data-testid="ball-pokeball" role="radio" aria-checked="true" tabindex="0">🔴 普通球</div>
+      <div class="ball-chip" id="chip-great" onclick="pickBall(this,'GREAT_BALL')" data-testid="ball-greatball" role="radio" aria-checked="false" tabindex="0">🔵 超级球</div>
+      <div class="ball-chip" id="chip-ultra" onclick="pickBall(this,'ULTRA_BALL')" data-testid="ball-ultraball" role="radio" aria-checked="false" tabindex="0">🟡 高级球</div>
     </div>
-    <button class="throw-btn" id="throw-btn" onclick="doThrow()" disabled>准备中…</button>
-    <button class="btn btn-outline" onclick="exitCatch()">逃跑</button>
+    <button class="throw-btn" id="throw-btn" onclick="doThrow()" disabled data-testid="throw-ball-btn">准备中…</button>
+    <button class="btn btn-outline" onclick="exitCatch()" data-testid="flee-btn">逃跑</button>
   </div>
 </div>
 
 <!-- ── PROFILE ────────────────────────────────────────────────── -->
-<div class="screen" id="profile">
+<div class="screen" id="profile" data-testid="profile-screen">
   <div class="prof-hero">
-    <div class="prof-avatar">🧑</div>
+    <div class="prof-avatar" aria-hidden="true">🧑</div>
     <div class="prof-name" id="p-name">训练师</div>
     <div class="team-badge" id="p-team">未选队伍</div>
   </div>
@@ -264,37 +264,42 @@
   </div>
   <div class="inv-card">
     <div class="inv-header">道具背包</div>
-    <div class="inv-row"><div class="inv-icon">🔴</div><div class="inv-name">精灵球</div><div class="inv-qty" id="i-ball">0</div></div>
-    <div class="inv-row"><div class="inv-icon">🔵</div><div class="inv-name">超级球</div><div class="inv-qty" id="i-great">0</div></div>
-    <div class="inv-row"><div class="inv-icon">🟡</div><div class="inv-name">高级球</div><div class="inv-qty" id="i-ultra">0</div></div>
-    <div class="inv-row"><div class="inv-icon">⭐</div><div class="inv-name">星尘</div><div class="inv-qty" id="i-dust">0</div></div>
-    <div class="inv-row"><div class="inv-icon">💎</div><div class="inv-name">精灵币</div><div class="inv-qty" id="i-coin">0</div></div>
+    <div class="inv-row"><div class="inv-icon" aria-hidden="true">🔴</div><div class="inv-name">精灵球</div><div class="inv-qty" id="i-ball">0</div></div>
+    <div class="inv-row"><div class="inv-icon" aria-hidden="true">🔵</div><div class="inv-name">超级球</div><div class="inv-qty" id="i-great">0</div></div>
+    <div class="inv-row"><div class="inv-icon" aria-hidden="true">🟡</div><div class="inv-name">高级球</div><div class="inv-qty" id="i-ultra">0</div></div>
+    <div class="inv-row"><div class="inv-icon" aria-hidden="true">⭐</div><div class="inv-name">星尘</div><div class="inv-qty" id="i-dust">0</div></div>
+    <div class="inv-row"><div class="inv-icon" aria-hidden="true">💎</div><div class="inv-name">精灵币</div><div class="inv-qty" id="i-coin">0</div></div>
   </div>
   <div class="inv-card">
     <div class="inv-header">设置</div>
-    <div class="inv-row" onclick="showLanguageSelector()" style="cursor:pointer;">
-      <div class="inv-icon">🌐</div>
+    <div class="inv-row" onclick="showLanguageSelector()" style="cursor:pointer;" data-testid="language-settings">
+      <div class="inv-icon" aria-hidden="true">🌐</div>
       <div class="inv-name">语言设置</div>
       <div class="inv-qty" id="current-lang">简体中文</div>
     </div>
+    <div class="inv-row" onclick="showAccessibilitySettings()" style="cursor:pointer;" data-testid="accessibility-settings">
+      <div class="inv-icon" aria-hidden="true">♿</div>
+      <div class="inv-name">无障碍设置</div>
+      <div class="inv-qty">></div>
+    </div>
   </div>
   <div class="logout-wrap">
-    <button class="btn btn-outline" onclick="doLogout()">退出登录</button>
+    <button class="btn btn-outline" onclick="doLogout()" data-testid="logout-btn">退出登录</button>
   </div>
 </div>
 
 <!-- ── NAV ───────────────────────────────────────────────────── -->
-<nav id="nav">
-  <div class="nav-tab on" id="tab-map" onclick="goScreen('map')">
-    <div class="nav-icon">🗺️</div><span>地图</span>
+<nav id="nav" data-testid="nav-bar" role="navigation" aria-label="主导航">
+  <div class="nav-tab on" id="tab-map" onclick="goScreen('map')" data-testid="nav-map" role="link" tabindex="0">
+    <div class="nav-icon" aria-hidden="true">🗺️</div><span>地图</span>
   </div>
-  <div class="nav-tab" id="tab-profile" onclick="goScreen('profile')">
-    <div class="nav-icon">👤</div><span>我的</span>
+  <div class="nav-tab" id="tab-profile" onclick="goScreen('profile')" data-testid="nav-profile" role="link" tabindex="0">
+    <div class="nav-icon" aria-hidden="true">👤</div><span>我的</span>
   </div>
 </nav>
 
 <!-- ── TOASTS ─────────────────────────────────────────────────── -->
-<div id="toasts"></div>
+<div id="toasts" aria-live="polite" aria-atomic="true" data-testid="toast-container"></div>
 
 <script>
 window.PMG_CONFIG = {
