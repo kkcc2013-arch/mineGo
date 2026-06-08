@@ -39,4 +39,6 @@
 | REQ-00033 | API 压力测试与性能基准系统 | 测试覆盖 | P2 | done | backend/tests/performance、所有微服务、GitHub Actions | 2026-06-07 20:10 |
 || REQ-00034 | COPPA 合规与未成年人年龄验证系统 | 合规/隐私 | P1 | done | user-service、gateway、game-client、database/migrations | 2026-06-07 21:15 |
 || REQ-00035 | 游戏客户端色盲模式支持 | 无障碍(a11y) | P2 | done | game-client、frontend、game-client/src/components | 2026-06-07 22:00 |
-| REQ-00036 | 前端 Playwright E2E 测试系统 | 测试覆盖 | P1 | done | game-client、backend/tests/e2e、.github/workflows | 2026-06-08 16:40 |
+|| REQ-00036 | 前端 Playwright E2E 测试系统 | 测试覆盖 | P1 | done | game-client、backend/tests/e2e、.github/workflows | 2026-06-08 16:40 |
+|| REQ-00037 | 真实天气 API 集成与天气加成系统 | 功能增强 | P1 | done | location-service、catch-service、backend/shared、game-client、frontend | 2026-06-08 17:00 |
+|

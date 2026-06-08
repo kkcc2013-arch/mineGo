@@ -1,0 +1,420 @@
+/**
+ * 天气组件样式
+ * 包含天气组件样式和地图天气效果
+ */
+
+/* ============================================
+   天气组件容器
+   ============================================ */
+
+.weather-widget {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+.weather-widget:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.weather-widget.weather-fallback {
+  background: rgba(255, 243, 224, 0.95);
+  border: 1px solid #ffcc80;
+}
+
+.weather-widget.weather-error {
+  background: rgba(255, 235, 238, 0.95);
+  border: 1px solid #ef9a9a;
+}
+
+/* ============================================
+   天气图标
+   ============================================ */
+
+.weather-icon {
+  font-size: 36px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   天气信息
+   ============================================ */
+
+.weather-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.weather-status {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.weather-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.weather-temp {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2196F3;
+}
+
+.weather-details {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.weather-location {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.weather-humidity,
+.weather-wind {
+  white-space: nowrap;
+}
+
+/* ============================================
+   天气加成
+   ============================================ */
+
+.weather-bonus {
+  font-size: 13px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.bonus-label {
+  color: #666;
+  margin-right: 4px;
+}
+
+.bonus-types {
+  color: #4CAF50;
+  font-weight: 600;
+}
+
+/* ============================================
+   天气提示
+   ============================================ */
+
+.weather-notice {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #F57C00;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(245, 124, 0, 0.2);
+}
+
+.notice-icon {
+  font-size: 14px;
+}
+
+/* ============================================
+   地图天气效果
+   ============================================ */
+
+/* 晴天效果 - 增加亮度和饱和度 */
+.weather-sunny {
+  filter: brightness(1.08) saturate(1.12);
+}
+
+.weather-sunny::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 150px;
+  background: linear-gradient(to bottom, rgba(255, 235, 59, 0.15), transparent);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* 多云效果 - 降低亮度 */
+.weather-cloudy {
+  filter: brightness(0.95) saturate(0.92);
+}
+
+.weather-cloudy::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(158, 158, 158, 0.1), transparent 40%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* 雨天效果 - 添加雨滴动画 */
+.weather-rainy {
+  filter: brightness(0.9) saturate(1.1);
+}
+
+.weather-rainy::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, 
+    rgba(100, 150, 200, 0.05) 0%,
+    rgba(100, 150, 200, 0.1) 100%
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* 雨滴粒子 */
+.weather-rainy .weather-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 9;
+}
+
+.weather-rainy .weather-particles::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 200%;
+  background-image: 
+    linear-gradient(to bottom, transparent 0%, rgba(174, 194, 224, 0.3) 1px, transparent 2px);
+  background-size: 40px 8px;
+  animation: rain 0.4s linear infinite;
+}
+
+@keyframes rain {
+  0% { transform: translateY(-50%); }
+  100% { transform: translateY(0); }
+}
+
+/* 雪天效果 - 添加雪花动画 */
+.weather-snowy {
+  filter: brightness(0.95) saturate(0.85);
+}
+
+.weather-snowy::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), transparent 60%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* 雪花粒子 */
+.weather-snowy .weather-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 9;
+}
+
+.weather-snowy .weather-particles::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.8) 2px, transparent 2px),
+    radial-gradient(circle at 60% 70%, rgba(255, 255, 255, 0.6) 1.5px, transparent 1.5px),
+    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.7) 2px, transparent 2px),
+    radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.5) 1px, transparent 1px),
+    radial-gradient(circle at 10% 60%, rgba(255, 255, 255, 0.6) 1.5px, transparent 1.5px);
+  background-size: 120px 120px;
+  animation: snow 4s linear infinite;
+}
+
+@keyframes snow {
+  0% { transform: translateY(-120px); }
+  100% { transform: translateY(120px); }
+}
+
+/* 大风效果 - 轻微抖动 */
+.weather-windy {
+  filter: brightness(0.98);
+  animation: wind-shake 3s ease-in-out infinite;
+}
+
+@keyframes wind-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+.weather-windy::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, 
+    transparent 0%,
+    rgba(200, 200, 200, 0.1) 50%,
+    transparent 100%
+  );
+  animation: wind-sweep 8s linear infinite;
+  pointer-events: none;
+  z-index: 10;
+}
+
+@keyframes wind-sweep {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* 雾天效果 - 降低对比度 */
+.weather-foggy {
+  filter: brightness(0.92) contrast(0.88) saturate(0.85);
+}
+
+.weather-foggy::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(ellipse at center, rgba(200, 200, 200, 0.2) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.weather-foggy::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(to bottom, transparent, rgba(200, 200, 200, 0.15));
+  pointer-events: none;
+  z-index: 11;
+}
+
+/* ============================================
+   响应式设计
+   ============================================ */
+
+@media (max-width: 480px) {
+  .weather-widget {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .weather-icon {
+    font-size: 28px;
+  }
+
+  .weather-temp {
+    font-size: 16px;
+  }
+
+  .weather-details {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .weather-location {
+    max-width: 120px;
+  }
+}
+
+/* ============================================
+   暗色主题支持
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  .weather-widget {
+    background: rgba(48, 48, 48, 0.95);
+    color: #fff;
+  }
+
+  .weather-label {
+    color: #fff;
+  }
+
+  .weather-details {
+    color: #aaa;
+  }
+
+  .weather-bonus {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .bonus-label {
+    color: #aaa;
+  }
+}
+
+/* ============================================
+   无障碍支持
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .weather-widget,
+  .weather-sunny,
+  .weather-cloudy,
+  .weather-rainy,
+  .weather-snowy,
+  .weather-windy,
+  .weather-foggy {
+    animation: none !important;
+    filter: none !important;
+  }
+
+  .weather-rainy .weather-particles::before,
+  .weather-snowy .weather-particles::before,
+  .weather-windy::before {
+    animation: none !important;
+  }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+  .weather-widget {
+    border: 2px solid #000;
+  }
+
+  .bonus-types {
+    font-weight: 700;
+  }
+}

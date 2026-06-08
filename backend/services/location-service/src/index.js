@@ -8,6 +8,7 @@ const { getRedis, geoAdd, geoRadius, setJSON, getJSON } = require('../../../shar
 const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
+const { getWeather, getBoostedTypes, getTypeNameZh } = require('../../../shared/weatherService');
 
 const logger = createLogger('location-service');
 const SERVICE_NAME = 'location-service';
@@ -52,12 +53,17 @@ const RARITY_WEIGHTS = {
   COMMON: 60, UNCOMMON: 25, RARE: 12, EPIC: 2.5, LEGENDARY: 0.5
 };
 
+/**
+ * 获取指定坐标的天气加成类型
+ * 现在已集成 OpenWeatherMap API，提供真实天气数据
+ * 
+ * @param {number} lat 纬度
+ * @param {number} lng 经度
+ * @returns {Promise<string>} 天气类型（SUNNY/RAINY/CLOUDY/SNOWY/WINDY/FOGGY）
+ */
 async function getWeatherBonus(lat, lng) {
-  // In prod: call weather API
-  const hour = new Date().getHours();
-  if (hour < 6 || hour > 20) return 'FOGGY';
-  if (hour > 10 && hour < 15) return 'SUNNY';
-  return 'CLOUDY';
+  const weatherData = await getWeather(lat, lng);
+  return weatherData.weather;
 }
 
 async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
@@ -90,8 +96,8 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
     if (rand <= 0) { chosen = s; break; }
   }
 
-  const weather = await getWeatherBonus(lat, lng);
-  const weatherBoosted = (WEATHER_BONUS[weather] || []).some(t => chosen.type1 === t);
+  const weatherData = await getWeather(lat, lng);
+  const weatherBoosted = (WEATHER_BONUS[weatherData.weather] || []).some(t => chosen.type1 === t);
 
   // Generate IVs
   const iv_attack  = Math.floor(Math.random() * 16);
@@ -118,7 +124,14 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
     RETURNING id, species_id, lat, lng, cp, is_shiny, weather_boosted, expires_at
   `, [spawnPointId, chosen.id, lat, lng, cp, iv_attack, iv_defense, iv_hp, isShiny, weatherBoosted, expiresAt]);
 
-  const payload = { ...wild, spawnPointId };
+  const payload = { 
+    ...wild, 
+    spawnPointId,
+    weather: weatherData.weather,
+    weatherDescription: weatherData.description,
+    temperature: weatherData.temperature,
+    fallback: weatherData.fallback
+  };
   await setJSON(spawnKey, payload, 1800);
   
   // Cache in Redis GEO and detail cache
@@ -170,6 +183,30 @@ async function runSpawnCycle() {
 // ROUTES
 // ============================================================
 app.get('/health', (_, res) => res.json({ status: 'ok', service: 'location-service' }));
+
+// GET /map/weather — 获取当前天气
+app.get('/map/weather', requireAuth, async (req, res, next) => {
+  try {
+    const lat = parseFloat(req.query.lat);
+    const lng = parseFloat(req.query.lng);
+    
+    if (isNaN(lat) || isNaN(lng)) {
+      throw new AppError(1001, 'lat/lng 无效', 400);
+    }
+    
+    const weatherData = await getWeather(lat, lng);
+    
+    // 获取受天气加成的精灵类型
+    const boostedTypes = getBoostedTypes(weatherData.weather);
+    const boostedTypesZh = boostedTypes.map(t => getTypeNameZh(t));
+    
+    res.json(successResp({
+      ...weatherData,
+      boostedTypes,
+      boostedTypesZh
+    }));
+  } catch (err) { next(err); }
+});
 
 // POST /location  — player GPS update
 app.post('/location', requireAuth, async (req, res, next) => {
