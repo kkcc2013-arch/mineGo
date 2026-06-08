@@ -20,6 +20,9 @@ const { cacheMiddleware } = require('../../shared/cacheMiddleware');
 const cacheInvalidation = require('../../shared/cacheInvalidation');
 const { cacheRoutes, presets } = require('./cacheConfig');
 
+// REQ-00039: 缓存预热系统
+const cacheWarmup = require('../../shared/cacheWarmup');
+
 const logger = createLogger('gateway');
 const SERVICE_NAME = 'gateway';
 
@@ -125,6 +128,9 @@ try {
 const authMiddleware = authWithBlacklistMiddleware;
 
 // ── Initialize Cache System (REQ-00031) ───────────────────────
+// ── Initialize Cache Warmup (REQ-00039) ───────────────────────
+const getRedis = require('../../shared/redis').getRedis;
+
 (async () => {
   try {
     // 初始化缓存模块
@@ -134,14 +140,17 @@ const authMiddleware = authWithBlacklistMiddleware;
       password: process.env.REDIS_PASSWORD
     });
     
-    // 初始化缓存失效系统（如果有 EventBus）
-    // cacheInvalidation.init(eventBus);
-    
     logger.info('Cache system initialized');
     
-    // 缓存预热（可选）
-    // const warmup = cacheMiddleware.cacheWarmup({ endpoints: [] });
-    // await warmup();
+    // 初始化缓存预热系统（非阻塞）
+    const redisClient = getRedis();
+    cacheWarmup.initialize({ redis: redisClient })
+      .then(result => {
+        logger.info({ itemsLoaded: result.itemsLoaded }, 'Cache warmup completed');
+      })
+      .catch(err => {
+        logger.error({ err }, 'Cache warmup failed, continuing without warm cache');
+      });
   } catch (err) {
     logger.error({ err }, 'Failed to initialize cache system');
   }
@@ -282,6 +291,30 @@ app.use('/v1/payment',
 app.use('/v1/payment/webhook',
   proxy(SERVICES.payment, { '^/': '/payment/webhook/' })
 );
+
+// ── Cache Warmup Management API (REQ-00039) ────────────────────
+// 获取预热状态
+app.get('/admin/cache/warmup/status', async (req, res) => {
+  try {
+    const status = cacheWarmup.getStatus();
+    res.json({ success: true, data: status });
+  } catch (err) {
+    logger.error({ err }, 'Failed to get warmup status');
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// 手动触发预热
+app.post('/admin/cache/warmup/trigger', async (req, res) => {
+  try {
+    const { name } = req.body;
+    await cacheWarmup.triggerWarmup(name);
+    res.json({ success: true, message: name ? `Warmup triggered for ${name}` : 'Full warmup triggered' });
+  } catch (err) {
+    logger.error({ err }, 'Failed to trigger warmup');
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 // 404 fallback
 app.use((req, res) => res.status(404).json({ code: 1005, message: `路由不存在: ${req.method} ${req.path}`, data: null }));
