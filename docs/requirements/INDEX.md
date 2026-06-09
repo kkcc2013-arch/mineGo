@@ -45,5 +45,6 @@
 || REQ-00039 | 热点数据缓存预热系统 | 性能优化 | P1 | done | gateway、pokemon-service、location-service、backend/shared、Redis | 2026-06-08 23:05 |
 | REQ-00040 | 云成本监控与预算告警系统 | 成本/资源优化 | P1 | done | infrastructure/k8s、gateway、所有微服务、backend/shared | 2026-06-08 23:30 |
 | REQ-00041 | 多区域容灾切换与灾备恢复系统 | 容灾/高可用 | P0 | done | gateway、所有微服务、infrastructure/k8s、database、Redis | 2026-06-09 01:00 |
-| REQ-00042 | 基础设施即代码安全扫描与配置验证系统 | 运维/CICD | P1 | done | .github/workflows、infrastructure/k8s、Dockerfile、scripts | 2026-06-09 01:05 |
+|| REQ-00042 | 基础设施即代码安全扫描与配置验证系统 | 运维/CICD | P1 | done | .github/workflows、infrastructure/k8s、Dockerfile、scripts | 2026-06-09 01:05 |
+|| REQ-00043 | 延迟任务队列与可靠重试机制 | 技术债/重构 | P1 | new | 所有微服务、backend/shared、Kafka | 2026-06-09 02:00 |
 |
