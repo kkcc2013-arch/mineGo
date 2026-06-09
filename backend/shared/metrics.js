@@ -348,6 +348,34 @@ const delayQueueHealthScore = safeGauge({
 });
 
 // ============================================================
+// 插件系统指标 (REQ-00050)
+// ============================================================
+const pluginLoadCount = safeCounter({
+  name: 'minego_plugin_load_total',
+  help: 'Total plugin load attempts',
+  labelNames: ['status'],
+});
+
+const pluginRequestCount = safeCounter({
+  name: 'minego_plugin_requests_total',
+  help: 'Total plugin middleware requests',
+  labelNames: ['plugin', 'status'],
+});
+
+const pluginLatency = safeHistogram({
+  name: 'minego_plugin_latency_seconds',
+  help: 'Plugin middleware latency in seconds',
+  labelNames: ['plugin'],
+  buckets: [0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5],
+});
+
+const pluginHealthStatus = safeGauge({
+  name: 'minego_plugin_health_status',
+  help: 'Plugin health status (1=healthy, 0=unhealthy, 0.5=degraded)',
+  labelNames: ['plugin'],
+});
+
+// ============================================================
 // 导出所有指标和辅助函数
 // ============================================================
 module.exports = {
@@ -424,6 +452,18 @@ module.exports = {
   delayBucketTasksMoved,
   delayBucketTasksRebucketed,
   delayQueueHealthScore,
+  
+  // 插件系统指标 (REQ-00050)
+  pluginLoadCount,
+  pluginRequestCount,
+  pluginLatency,
+  pluginHealthStatus,
+  
+  // 插件系统指标 (REQ-00050)
+  pluginLoadCount,
+  pluginRequestCount,
+  pluginLatency,
+  pluginHealthStatus,
   
   // 辅助函数
   promClient,
