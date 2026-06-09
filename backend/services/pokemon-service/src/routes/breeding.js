@@ -4,18 +4,19 @@
 
 const express = require('express');
 const router = express.Router();
-const BreedingService = require('../src/breedingService');
-const authMiddleware = require('../../shared/authMiddleware');
-const logger = require('../../shared/logger');
-const metrics = require('../../shared/metrics');
+const BreedingService = require('../breedingService');
+const { requireAuth } = require('../../../../shared/auth');
+const { createLogger } = require('../../../../shared/logger');
+const metrics = require('../../../../shared/metrics');
 
+const logger = createLogger('pokemon-service');
 const breedingService = new BreedingService();
 
 /**
  * 获取培育中心状态
  * GET /api/breeding/center
  */
-router.get('/center', authMiddleware, async (req, res) => {
+router.get('/center', requireAuth, async (req, res) => {
   try {
     const status = await breedingService.getBreedingStatus(req.user.id);
     
@@ -39,7 +40,7 @@ router.get('/center', authMiddleware, async (req, res) => {
  * 检查两只精灵是否可以培育
  * POST /api/breeding/check
  */
-router.post('/check', authMiddleware, async (req, res) => {
+router.post('/check', requireAuth, async (req, res) => {
   try {
     const { parent1Id, parent2Id } = req.body;
 
@@ -72,7 +73,7 @@ router.post('/check', authMiddleware, async (req, res) => {
  * 开始培育
  * POST /api/breeding/start
  */
-router.post('/start', authMiddleware, async (req, res) => {
+router.post('/start', requireAuth, async (req, res) => {
   try {
     const { parent1Id, parent2Id, slotIndex } = req.body;
 
@@ -114,7 +115,7 @@ router.post('/start', authMiddleware, async (req, res) => {
  * 收集培育完成的蛋
  * POST /api/breeding/collect/:pairId
  */
-router.post('/collect/:pairId', authMiddleware, async (req, res) => {
+router.post('/collect/:pairId', requireAuth, async (req, res) => {
   try {
     const { pairId } = req.params;
 
@@ -143,7 +144,7 @@ router.post('/collect/:pairId', authMiddleware, async (req, res) => {
  * 取消培育
  * POST /api/breeding/cancel/:pairId
  */
-router.post('/cancel/:pairId', authMiddleware, async (req, res) => {
+router.post('/cancel/:pairId', requireAuth, async (req, res) => {
   try {
     const { pairId } = req.params;
 
@@ -172,7 +173,7 @@ router.post('/cancel/:pairId', authMiddleware, async (req, res) => {
  * 更新孵化进度
  * POST /api/breeding/hatch/update
  */
-router.post('/hatch/update', authMiddleware, async (req, res) => {
+router.post('/hatch/update', requireAuth, async (req, res) => {
   try {
     const { steps } = req.body;
 
@@ -211,7 +212,7 @@ router.post('/hatch/update', authMiddleware, async (req, res) => {
  * 获取培育统计
  * GET /api/breeding/stats
  */
-router.get('/stats', authMiddleware, async (req, res) => {
+router.get('/stats', requireAuth, async (req, res) => {
   try {
     const stats = await breedingService.getBreedingStats(req.user.id);
     
@@ -235,7 +236,7 @@ router.get('/stats', authMiddleware, async (req, res) => {
  * 升级培育中心
  * POST /api/breeding/upgrade
  */
-router.post('/upgrade', authMiddleware, async (req, res) => {
+router.post('/upgrade', requireAuth, async (req, res) => {
   try {
     const result = await breedingService.upgradeBreedingCenter(req.user.id);
 
@@ -261,7 +262,7 @@ router.post('/upgrade', authMiddleware, async (req, res) => {
  * 获取精灵谱系
  * GET /api/breeding/lineage/:pokemonId
  */
-router.get('/lineage/:pokemonId', authMiddleware, async (req, res) => {
+router.get('/lineage/:pokemonId', requireAuth, async (req, res) => {
   try {
     const { pokemonId } = req.params;
 

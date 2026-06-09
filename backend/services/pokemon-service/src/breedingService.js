@@ -5,8 +5,10 @@
 
 const { Pool } = require('pg');
 const Redis = require('ioredis');
-const logger = require('../shared/logger');
-const metrics = require('../shared/metrics');
+const { createLogger } = require('../../../shared/logger');
+const metrics = require('../../../shared/metrics');
+
+const logger = createLogger('breeding-service');
 
 class BreedingService {
   constructor(config = {}) {

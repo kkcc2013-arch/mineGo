@@ -7,3 +7,6 @@ dist/
 build/
 coverage/
 *.local
+
+# CI/CD deployment history
+.deploy-history/
