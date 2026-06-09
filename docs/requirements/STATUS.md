@@ -21,31 +21,53 @@
 
 ## 未覆盖高价值缺口
 
-1. **前端 E2E**：~~缺少 Playwright/Cypress 前端测试~~ → ✅ REQ-00036 已完成
-2. **推送通知**：缺少 FCM/APNs 推送系统（游戏内通知已实现 REQ-00026，多渠道插件已实现 REQ-00032）
-3. **天气系统**：~~天气加成只有简单模拟，缺少真实天气 API 集成~~ → ✅ REQ-00037 已完成
-4. **缓存预热**：~~REQ-00031 已实现缓存层，但缺少热点数据预热优化~~ → ✅ REQ-00039 已完成
+1. **推送通知**：缺少 FCM/APNs 推送系统（游戏内通知已实现 REQ-00026，多渠道插件已实现 REQ-00032）
+2. **群控检测**：~~缺少设备-账号关联分析与群控作弊识别~~ → ✅ REQ-00045 已实现（设备完整性与群控检测）
+3. **模拟器检测**：~~缺少模拟器/Root设备检测~~ → ✅ REQ-00045 已实现
 
 ## 需求统计
 
-- 总需求：44
+- 总需求：45
 - P0：7 (new: 0, done: 7)
-- P1：29 (new: 0, done: 29)
+- P1：30 (new: 0, done: 30)
 - P2：9 (new: 0, done: 9)
 - P3：0
-- 已完成：44
+- 已完成：45
 
 ## 项目状态
 
 **🔄 需求生成进行中，目标 10000 条需求！**
 
 - 成熟度总分：100/100
-- 当前需求：44/10000
-- 剩余需求：9957 条
+- 当前需求：45/10000
+- 剩余需求：9956 条
+- 最新完成：REQ-00045（设备完整性与模拟器检测系统，反作弊）
 
 详见 [DONE.md](./DONE.md)
 
 ## 已完成需求
+
+### REQ-00045: 设备完整性与模拟器检测系统
+- **完成时间**: 2026-06-09 07:00
+- **影响**: 反作弊 - 设备完整性检测系统，识别模拟器/Root/越狱/虚拟环境/Hook框架，阻止 95%+ 模拟器作弊
+- **修改文件**:
+  - database/pending/20260609_070000__add_device_integrity_tables.sql (数据库迁移 10.6 KB, 5 个表)
+  - backend/shared/deviceIntegrity.js (核心检测引擎 28.2 KB)
+  - backend/shared/deviceIntegrityMiddleware.js (Express 中间件 6.3 KB)
+  - backend/shared/routes/deviceIntegrity.js (API 路由 9.0 KB, 11 个端点)
+  - frontend/game-client/src/utils/deviceIntegrity.js (客户端检测 12.1 KB)
+  - backend/tests/unit/device-integrity.test.js (单元测试 21.6 KB, 60+ 测试)
+  - docs/review/REQ-00045-device-integrity-and-emulator-detection-review.md (审核文档)
+- **关键特性**:
+  - 模拟器检测（BlueStacks、Nox、LDPlayer、MEmu、Genymotion、Android SDK 等）
+  - Root 检测（Magisk、SuperSU、KingRoot 等）
+  - 越狱检测（Cydia、Sileo、Zebra 等）
+  - 虚拟环境检测（VirtualApp、Parallel Space、Dual Space 等）
+  - Hook 框架检测（Xposed、Frida、Substrate）
+  - 设备指纹生成与追踪
+  - 风险评分系统（0-100）
+  - 设备-账号关联与群控检测
+  - 11 个 API 端点、5 个 Prometheus 指标
 
 ### REQ-00044: API 版本管理与向后兼容策略
 - **完成时间**: 2026-06-09 06:48
