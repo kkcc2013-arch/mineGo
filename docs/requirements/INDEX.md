@@ -61,7 +61,7 @@
 | REQ-00055 | 精灵收藏展示系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、gateway、game-client、database/migrations | 2026-06-09 16:35 |
 | REQ-00056 | 精灵图鉴完成度奖励系统 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-09 17:00 |
 | REQ-00057 | 多因素认证（MFA）系统 | 安全加固 | P1 | new | user-service、gateway、game-client、backend/shared、database/migrations | 2026-06-09 17:05 |
-| REQ-00057 | 游戏活动系统与限时活动管理 | 功能增强 | P0 | new | reward-service、location-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-09 18:00 |
+| REQ-00057 | 游戏活动系统与限时活动管理 | 功能增强 | P0 | done | reward-service、location-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-09 18:00 |
 | REQ-00058 | 公会系统与团队社交功能 | 功能增强 | P1 | new | social-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 19:00 |
 | REQ-00059 | 新手引导与教程系统 | 功能增强 | P1 | new | user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 20:00 |
 |
