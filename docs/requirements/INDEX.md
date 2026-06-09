@@ -54,4 +54,5 @@
 || REQ-00048 | 精灵好友系统与社交互动增强 | 功能增强 | P1 | done | social-service、user-service、gateway、game-client、pokemon-service、reward-service | 2026-06-09 10:00 |
 | REQ-00049 | API 客户端 SDK 统一抽象层 | 技术债/重构 | P1 | new | backend/shared、gateway、所有微服务 | 2026-06-09 12:45 |
 | REQ-00050 | 插件化中间件系统与生命周期管理 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-09 13:00 |
+| REQ-00051 | 多货币支持与汇率转换系统 | 国际化/本地化 | P1 | new | payment-service、user-service、gateway、backend/shared | 2026-06-09 15:00 |
 |
