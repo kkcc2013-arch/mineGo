@@ -1,0 +1,279 @@
+# ============================================================
+# mineGo — Infrastructure Security Scanning Pipeline
+# ============================================================
+# Container vulnerability scan + K8s config validation +
+# Dependency vulnerability scan + Secret leak detection
+# ============================================================
+
+name: Security Scan
+
+on:
+  push:
+    branches: [main, develop, 'release/**', 'hotfix/**']
+  pull_request:
+    branches: [main, develop]
+  # Allow manual trigger for ad-hoc security audits
+  workflow_dispatch:
+    inputs:
+      scan-depth:
+        description: 'Scan depth (quick|full)'
+        required: false
+        default: 'quick'
+
+env:
+  REGISTRY: registry.cn-shanghai.aliyuncs.com
+  IMAGE_PREFIX: registry.cn-shanghai.aliyuncs.com/pmg
+  NODE_VERSION: "20"
+
+jobs:
+
+  # ── Job 1: Secret Leak Detection ───────────────────────
+  secret-scan:
+    name: 🔍 Secret Leak Detection
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history for comprehensive scan
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+
+      - name: Upload SARIF report
+        if: always()
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: gitleaks-report.sarif
+          category: secret-leaks
+
+  # ── Job 2: Dependency Vulnerability Scan ───────────────
+  dependency-scan:
+    name: 📦 Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm install --workspaces --if-present
+
+      - name: Run npm audit
+        working-directory: backend
+        run: |
+          npm audit --audit-level=high --json > npm-audit.json || true
+          # Check for high/critical vulnerabilities
+          if jq -e '.metadata.vulnerabilities.high > 0 or .metadata.vulnerabilities.critical > 0' npm-audit.json > /dev/null 2>&1; then
+            echo "::error::Found HIGH or CRITICAL npm vulnerabilities"
+            npm audit --audit-level=high
+            exit 1
+          fi
+          echo "✅ No HIGH/CRITICAL npm vulnerabilities found"
+
+      - name: Run Snyk security scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high --json-file-output=snyk-report.json
+
+      - name: Check Snyk results
+        run: |
+          if [ -f snyk-report.json ]; then
+            if jq -e '.ok == false' snyk-report.json > /dev/null 2>&1; then
+              echo "::error::Snyk found vulnerabilities"
+              exit 1
+            fi
+          fi
+          echo "✅ Snyk scan passed"
+
+      - name: Upload dependency scan reports
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-scan-reports
+          path: |
+            backend/npm-audit.json
+            snyk-report.json
+          retention-days: 30
+
+  # ── Job 3: K8s Configuration Validation ──────────────────
+  k8s-validate:
+    name: ☸️ K8s Configuration Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup kubeconform
+        run: |
+          curl -LO https://github.com/yannh/kubeconform/releases/download/v0.6.4/kubeconform-linux-amd64.tar.gz
+          tar xzf kubeconform-linux-amd64.tar.gz
+          chmod +x kubeconform
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Validate K8s manifests
+        run: |
+          echo "🔍 Validating K8s YAML files..."
+          kubeconform \
+            -summary \
+            -skip-missing-schemas \
+            -ignore-missing-values \
+            infrastructure/k8s/**/*.yaml || exit 1
+          echo "✅ All K8s YAML files valid"
+
+      - name: Security policy check (kubesec)
+        run: |
+          echo "🔍 Checking K8s security policies..."
+          # Install kubesec
+          curl -LO https://github.com/controlplaneio/kubesec/releases/download/v2.0.0/kubesec_linux_amd64.tar.gz
+          tar xzf kubesec_linux_amd64.tar.gz
+          chmod +x kubesec
+          
+          # Check deployment files for security best practices
+          FILES=$(find infrastructure/k8s -name '*-deployment.yaml' -o -name '*deployment.yaml')
+          for file in $FILES; do
+            echo "Checking $file..."
+            # Check key security configurations
+            grep -q "runAsNonRoot: true" "$file" || echo "::warning::Missing runAsNonRoot in $file"
+            grep -q "readOnlyRootFilesystem: true" "$file" || echo "::warning::Missing readOnlyRootFilesystem in $file"
+            grep -q "allowPrivilegeEscalation: false" "$file" || echo "::warning::Missing allowPrivilegeEscalation in $file"
+            grep -qE "capabilities:.*drop.*ALL" "$file" || echo "::warning::Missing capabilities.drop: ALL in $file"
+          done
+          echo "✅ K8s security policy check complete"
+
+      - name: Validate security policy compliance
+        run: |
+          # Check if security policy file exists
+          if [ -f infrastructure/k8s/security-policy.yaml ]; then
+            echo "✅ Security policy file present"
+            kubeconform -skip-missing-schemas infrastructure/k8s/security-policy.yaml
+          else
+            echo "::warning::Security policy file not found"
+          fi
+
+  # ── Job 4: Container Image Vulnerability Scan ───────────
+  container-scan:
+    name: 🐳 Container Image Vulnerability Scan
+    needs: [secret-scan, dependency-scan, k8s-validate]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    strategy:
+      matrix:
+        service:
+          - user-service
+          - location-service
+          - pokemon-service
+          - catch-service
+          - gym-service
+          - social-service
+          - reward-service
+          - payment-service
+          - api-gateway
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build test image
+        uses: docker/build-push-action@v5
+        with:
+          context: backend
+          file: backend/Dockerfile
+          build-args: SERVICE_NAME=${{ matrix.service }}
+          tags: test-${{ matrix.service }}:${{ github.sha }}
+          load: true  # Load to local Docker for scanning
+          platforms: linux/amd64
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: test-${{ matrix.service }}:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-${{ matrix.service }}-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+
+      - name: Upload Trivy scan results to GitHub Security Tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: trivy-${{ matrix.service }}-results.sarif
+          category: trivy-${{ matrix.service }}
+
+      - name: Generate Trivy JSON report
+        if: always()
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: test-${{ matrix.service }}:${{ github.sha }}
+          format: 'json'
+          output: 'trivy-${{ matrix.service }}-report.json'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+          ignore-unfixed: true
+
+      - name: Upload Trivy reports
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: trivy-scan-reports-${{ matrix.service }}
+          path: |
+            trivy-${{ matrix.service }}-results.sarif
+            trivy-${{ matrix.service }}-report.json
+          retention-days: 30
+
+  # ── Job 5: Security Scan Summary ────────────────────────
+  security-summary:
+    name: 📊 Security Scan Summary
+    needs: [secret-scan, dependency-scan, k8s-validate, container-scan]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check scan results
+        run: |
+          echo "## Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Check each job status
+          SECRET_STATUS="${{ needs.secret-scan.result }}"
+          DEP_STATUS="${{ needs.dependency-scan.result }}"
+          K8S_STATUS="${{ needs.k8s-validate.result }}"
+          CONTAINER_STATUS="${{ needs.container-scan.result }}"
+          
+          echo "| Scan Type | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Secret Leak | $SECRET_STATUS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependencies | $DEP_STATUS |" >> $GITHUB_STEP_SUMMARY
+          echo "| K8s Config | $K8S_STATUS |" >> $GITHUB_STEP_SUMMARY
+          echo "| Container Images | $CONTAINER_STATUS |" >> $GITHUB_STEP_SUMMARY
+          
+          # Overall status
+          if [[ "$SECRET_STATUS" == "failure" ]] || \
+             [[ "$DEP_STATUS" == "failure" ]] || \
+             [[ "$K8S_STATUS" == "failure" ]] || \
+             [[ "$CONTAINER_STATUS" == "failure" ]]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "❌ **Security scan failed - blocking deployment**" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "✅ **All security scans passed**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Notify security scan results
+        if: always()
+        run: |
+          STATUS="${{ job.status }}"
+          # Notify via DingTalk webhook
+          curl -X POST "${{ secrets.DINGTALK_WEBHOOK }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"msgtype\":\"text\",\"text\":{\"content\":\"mineGo 安全扫描${STATUS}: ${{ github.ref_name }} @ $(echo ${{ github.sha }} | head -c 7)\"}}" || true

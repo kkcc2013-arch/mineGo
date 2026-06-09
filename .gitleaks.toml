@@ -1,0 +1,56 @@
+# Gitleaks Configuration
+# Custom rules for secret leak detection
+
+title = "mineGo Gitleaks Configuration"
+
+[extend]
+# Use default gitleaks rules
+useDefault = true
+
+# Custom rules for project-specific patterns
+[[rules]]
+id = "aliyun-access-key"
+description = "Aliyun AccessKey ID"
+regex = '''LTAI[A-Za-z0-9]{12,20}'''
+tags = ["key", "aliyun"]
+
+[[rules]]
+id = "aliyun-secret-key"
+description = "Aliyun AccessKey Secret"
+regex = '''[A-Za-z0-9]{30}'''
+tags = ["secret", "aliyun"]
+
+[[rules]]
+id = "wechat-app-secret"
+description = "WeChat App Secret"
+regex = '''[a-f0-9]{32}'''
+tags = ["secret", "wechat"]
+
+[[rules]]
+id = "jwt-secret"
+description = "JWT Secret Key"
+regex = '''jwt[_-]?secret['"]?\s*[:=]\s*['"]?[a-zA-Z0-9]{20,}'''
+tags = ["secret", "jwt"]
+
+[[rules]]
+id = "database-password"
+description = "Database Password"
+regex = '''(postgres|mysql|mongodb)://[^:]+:([^@]+)@'''
+tags = ["password", "database"]
+
+# Allowlist - known safe patterns
+[allowlist]
+description = "Global Allowlist"
+regexes = [
+  '''ENV_VAR_\w+''',  # Environment variable references
+  '''process\.env\.\w+''',  # Node.js env access
+  '''\$\{\{ secrets\.\w+ \}\}''',  # GitHub Actions secrets syntax
+]
+
+paths = [
+  '''^\.env\.example$''',  # Example env files
+  '''^backend/tests/.*\.test\.js$''',  # Test files
+  '''^backend/tests/.*\.spec\.js$''',  # Spec files
+  '''^\.gitleaks\.toml$''',  # This file
+  '''^docs/.*\.md$''',  # Documentation
+]

@@ -1,0 +1,22 @@
+# Trivy Ignore File
+# Temporary exemptions for known CVEs
+# Format: CVE-ID
+# Each entry MUST include:
+#   - Reason for exemption
+#   - Planned fix date
+#   - Risk assessment
+
+# Example (DO NOT USE IN PRODUCTION):
+# CVE-2021-44228
+#   Reason: Log4j vulnerability in dev dependencies only
+#   Planned Fix: 2026-06-15
+#   Risk: Not used in production, dev-only dependency
+
+# Current exemptions:
+# (No exemptions currently)
+
+# IMPORTANT:
+# - Review this file monthly
+# - Remove exemptions as soon as patches are available
+# - Document risk mitigation measures for each exemption
+# - Maximum exemption period: 90 days

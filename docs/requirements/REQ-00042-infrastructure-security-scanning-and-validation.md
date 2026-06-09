@@ -3,7 +3,7 @@
 - **编号**：REQ-00042
 - **类别**：运维/CICD
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：.github/workflows、infrastructure/k8s、Dockerfile、scripts
 - **创建时间**：2026-06-09 01:05
 - **依赖需求**：无

@@ -61,10 +61,63 @@ jobs:
           done
           echo "✅ All services have health routes"
 
-  # ── Job 2: Build Docker Images ───────────────────────────
+  # ── Job 2: Security Scan ───────────────────────────────
+  security-scan:
+    name: 🔒 Security Scan
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # Secret leak detection
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+
+      # Dependency vulnerability scan
+      - name: Install dependencies
+        working-directory: backend
+        run: npm install --workspaces --if-present
+
+      - name: Run npm audit
+        working-directory: backend
+        run: npm audit --audit-level=high
+
+      - name: Run Snyk security scan
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+      # K8s config validation
+      - name: Setup kubeconform
+        run: |
+          curl -LO https://github.com/yannh/kubeconform/releases/download/v0.6.4/kubeconform-linux-amd64.tar.gz
+          tar xzf kubeconform-linux-amd64.tar.gz
+          chmod +x kubeconform
+          sudo mv kubeconform /usr/local/bin/
+
+      - name: Validate K8s manifests
+        run: |
+          kubeconform -summary -skip-missing-schemas infrastructure/k8s/**/*.yaml
+          echo "✅ K8s YAML validation passed"
+
+  # ── Job 3: Build Docker Images ───────────────────────────
   build:
     name: 🐳 Build & Push Images
-    needs: test
+    needs: security-scan
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     continue-on-error: true
@@ -116,7 +169,26 @@ jobs:
           cache-to:   type=gha,scope=${{ matrix.service }},mode=max
           platforms: linux/amd64,linux/arm64
 
-  # ── Job 3: Deploy to Staging ─────────────────────────────
+      # Container vulnerability scan
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-${{ matrix.service }}-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+
+      - name: Upload Trivy scan results
+        if: always()
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: trivy-${{ matrix.service }}-results.sarif
+          category: trivy-${{ matrix.service }}
+
+  # ── Job 4: Deploy to Staging ─────────────────────────────
   deploy-staging:
     name: 🚀 Deploy to Staging
     needs: build
@@ -168,7 +240,7 @@ jobs:
             -d '{"phone":"13800138000","scene":"login"}' | grep -q '"code"'
           echo "✅ Auth endpoint OK"
 
-  # ── Job 4: Canary Deploy to Production ───────────────────
+  # ── Job 5: Canary Deploy to Production ───────────────────
   deploy-canary:
     name: 🐤 Canary Deploy (5%)
     needs: build
@@ -228,7 +300,7 @@ jobs:
           # Check error rate via Prometheus (simplified)
           echo "Canary monitoring complete — ready for full deploy"
 
-  # ── Job 5: Full Production Deploy ────────────────────────
+  # ── Job 6: Full Production Deploy ────────────────────────
   deploy-production:
     name: 🚢 Full Production Deploy
     needs: deploy-canary

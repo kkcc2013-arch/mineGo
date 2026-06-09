@@ -1,0 +1,48 @@
+# Snyk Configuration
+# https://docs.snyk.io/snyk-cli/configure-the-snyk-cli
+
+# Organization
+org: minego-team
+
+# Project settings
+project:
+  name: mineGo
+  settings:
+    # Fail on high/critical vulnerabilities
+    severityThreshold: high
+    # Exclude dev dependencies from scan
+    dev: false
+    # Fail on any vulnerability
+    failOn: all
+
+# Language settings
+language: javascript
+npm:
+  # Include all workspaces
+  workspaces: true
+
+# Monitoring
+monitor:
+  # Auto-update baseline
+  auto-update: true
+
+# Exclusions
+exclude:
+  # Test dependencies
+  dependencies:
+    - jest
+    - supertest
+    - nodemon
+
+# Ignore rules (use sparingly)
+# ignores:
+#   SNYK-JS-LODASH-123456:
+#     reason: "No fix available"
+#     expires: "2026-07-09T00:00:00Z"
+
+# Severity thresholds
+thresholds:
+  critical: 0
+  high: 0
+  medium: 5  # Allow up to 5 medium
+  low: null  # No limit on low
