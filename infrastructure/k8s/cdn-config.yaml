@@ -1,0 +1,138 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cdn-config
+  namespace: minego
+  labels:
+    app: minego
+    component: cdn
+data:
+  # CDN 配置
+  CDN_ENABLED: "true"
+  CDN_PROVIDER: "cloudflare"
+  CDN_DOMAIN: "https://cdn.minego.example.com"
+  CDN_ORIGIN_URL: "https://static.minego.example.com"
+  
+  # 图片优化配置
+  IMAGE_OUTPUT_DIR: "/data/optimized"
+  DEFAULT_QUALITY: "85"
+  WEBP_ENABLED: "true"
+  AVIF_ENABLED: "true"
+  
+  # 缓存配置
+  CACHE_POKEMON_MAX_AGE: "31536000"
+  CACHE_UI_MAX_AGE: "2592000"
+  CACHE_DYNAMIC_MAX_AGE: "3600"
+  
+  # 图片尺寸限制
+  MAX_IMAGE_WIDTH: "2048"
+  MAX_IMAGE_HEIGHT: "2048"
+  
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cdn-secrets
+  namespace: minego
+  labels:
+    app: minego
+    component: cdn
+type: Opaque
+stringData:
+  # CDN API 凭据（实际部署时从密钥管理系统注入）
+  CDN_ZONE_ID: "your-zone-id"
+  CDN_API_TOKEN: "your-api-token"
+---
+# CDN 缓存预热 CronJob
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cdn-cache-warmup
+  namespace: minego
+  labels:
+    app: minego
+    component: cdn
+spec:
+  schedule: "0 */6 * * *"  # 每 6 小时执行一次
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: minego
+            component: cdn-cache-warmup
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: cache-warmup
+              image: minego/gateway:latest
+              command:
+                - node
+                - -e
+                - |
+                  const http = require('http');
+                  const https = require('https');
+                  
+                  // 热点资源列表
+                  const hotResources = [
+                    '/pokemon/sprites/bulbasaur.png',
+                    '/pokemon/sprites/charmander.png',
+                    '/pokemon/sprites/squirtle.png',
+                    '/pokemon/sprites/pikachu.png',
+                    '/ui/icons/pokeball.png',
+                    '/ui/icons/greatball.png',
+                    '/ui/icons/ultraball.png'
+                  ];
+                  
+                  const cdnDomain = process.env.CDN_DOMAIN;
+                  const protocol = cdnDomain.startsWith('https') ? https : http;
+                  
+                  console.log(`[Warmup] Starting cache warmup for ${hotResources.length} resources`);
+                  
+                  let completed = 0;
+                  hotResources.forEach(path => {
+                    const url = `${cdnDomain}${path}?w=128&f=webp`;
+                    protocol.get(url, (res) => {
+                      completed++;
+                      console.log(`[Warmup] ${path} -> ${res.statusCode}`);
+                      if (completed === hotResources.length) {
+                        console.log('[Warmup] Cache warmup completed');
+                      }
+                    }).on('error', (err) => {
+                      console.error(`[Warmup] Error: ${path}`, err.message);
+                    });
+                  });
+              envFrom:
+                - configMapRef:
+                    name: cdn-config
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+---
+# Prometheus ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cdn-metrics
+  namespace: minego
+  labels:
+    app: minego
+    component: cdn
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: minego
+      component: gateway
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+      scrapeTimeout: 10s
