@@ -9,19 +9,19 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const swaggerUi    = require('swagger-ui-express');
 const YAML         = require('yamljs');
 const path         = require('path');
-const { verifyAccess } = require('../../shared/auth');
-const { createLogger, requestLogger } = require('../../shared/logger');
-const metrics = require('../../shared/metrics');
+const { verifyAccess } = require('@pmg/shared/auth');
+const { createLogger, requestLogger } = require('@pmg/shared/logger');
+const metrics = require('@pmg/shared/metrics');
 const { authWithBlacklistMiddleware } = require('./middleware/jwtBlacklist');
 
 // REQ-00031: API 响应缓存层
-const cache = require('../../shared/cache');
-const { cacheMiddleware } = require('../../shared/cacheMiddleware');
-const cacheInvalidation = require('../../shared/cacheInvalidation');
+const cache = require('@pmg/shared/cache');
+const { cacheMiddleware } = require('@pmg/shared/cacheMiddleware');
+const cacheInvalidation = require('@pmg/shared/cacheInvalidation');
 const { cacheRoutes, presets } = require('./cacheConfig');
 
 // REQ-00039: 缓存预热系统
-const cacheWarmup = require('../../shared/cacheWarmup');
+const cacheWarmup = require('@pmg/shared/cacheWarmup');
 
 // REQ-00040: 云成本监控与预算告警
 const costReportRoutes = require('./routes/costReport');
@@ -132,7 +132,7 @@ const authMiddleware = authWithBlacklistMiddleware;
 
 // ── Initialize Cache System (REQ-00031) ───────────────────────
 // ── Initialize Cache Warmup (REQ-00039) ───────────────────────
-const getRedis = require('../../shared/redis').getRedis;
+const getRedis = require('@pmg/shared/redis').getRedis;
 
 (async () => {
   try {

@@ -2,10 +2,10 @@
 'use strict';
 const express = require('express');
 const router = express.Router();
-const { CloudCostCollector, MockCostAdapter } = require('../../shared/cloudCostCollector');
-const { BudgetManager } = require('../../shared/budgetManager');
-const { CostPredictor } = require('../../shared/costPredictor');
-const { createLogger } = require('../../shared/logger');
+const { CloudCostCollector, MockCostAdapter } = require('@pmg/shared/cloudCostCollector');
+const { BudgetManager } = require('@pmg/shared/budgetManager');
+const { CostPredictor } = require('@pmg/shared/costPredictor');
+const { createLogger } = require('@pmg/shared/logger');
 
 const logger = createLogger('cost-report');
 

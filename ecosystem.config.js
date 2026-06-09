@@ -47,7 +47,6 @@ module.exports = {
       out_file:    `${DEPLOY_DIR}/logs/gateway-out.log`,
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
       restart_delay: 3000,
-      wait_ready:  true,
       listen_timeout: 15000,
     },
 
