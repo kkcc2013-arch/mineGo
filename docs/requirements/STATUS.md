@@ -29,10 +29,10 @@
 
 - 总需求：46
 - P0：7 (new: 0, done: 7)
-- P1：31 (new: 1, done: 30)
+- P1：31 (new: 0, done: 31)
 - P2：9 (new: 0, done: 9)
 - P3：0
-- 已完成：45
+- 已完成：46
 
 ## 项目状态
 
@@ -46,6 +46,27 @@
 详见 [DONE.md](./DONE.md)
 
 ## 已完成需求
+
+### REQ-00046: 精灵培育系统与遗传机制
+- **完成时间**: 2026-06-09 08:30
+- **影响**: 功能增强 - 完整的精灵培育系统，支持配对、遗传、孵化、谱系追踪
+- **修改文件**:
+  - database/pending/20260609_080000__add_breeding_system.sql (数据库迁移 6.7 KB, 7 个表)
+  - backend/services/pokemon-service/src/breedingService.js (核心培育服务 20.2 KB)
+  - backend/services/pokemon-service/src/routes/breeding.js (API 路由 6.5 KB, 9 个端点)
+  - backend/tests/unit/breeding.test.js (单元测试 15.5 KB, 42+ 测试)
+  - frontend/game-client/src/components/BreedingCenter.js (前端组件 13.6 KB)
+  - frontend/game-client/src/styles/breeding-center.css (样式文件 8.3 KB)
+  - docs/review/REQ-00046-pokemon-breeding-and-inheritance-system-review.md (审核文档)
+- **关键特性**:
+  - 培育中心管理（最多 10 个槽位）
+  - 蛋组系统（15 个蛋组）
+  - 遗传机制（个体值、技能、闪光）
+  - 孵化系统（步数计数）
+  - 精灵谱系追踪
+  - 培育统计数据
+  - 百变怪特殊培育规则
+  - 闪光概率计算（基础 1/4096，闪光父母加成）
 
 ### REQ-00045: 设备完整性与模拟器检测系统
 - **完成时间**: 2026-06-09 07:00

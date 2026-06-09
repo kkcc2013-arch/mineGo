@@ -319,6 +319,10 @@ function generateStopDrop(bonus) {
 const movesRouter = require('./routes/moves');
 app.use('/', movesRouter);
 
+// REQ-00046: 精灵培育系统路由
+const breedingRouter = require('./routes/breeding');
+app.use('/breeding', breedingRouter);
+
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'pokemon-service started'));
 module.exports = app;

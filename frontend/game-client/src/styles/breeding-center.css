@@ -1,0 +1,534 @@
+/**
+ * REQ-00046: 精灵培育系统样式
+ */
+
+.breeding-center-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  color: white;
+}
+
+/* 头部 */
+.breeding-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.breeding-header h2 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.center-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.slots {
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.upgrade-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.upgrade-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* 培育槽位 */
+.breeding-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.breeding-slot {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s;
+}
+
+.breeding-slot.active {
+  background: rgba(255, 255, 255, 0.15);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.breeding-slot.ready {
+  background: rgba(255, 215, 0, 0.2);
+  border: 2px solid gold;
+  animation: pulse 2s infinite;
+}
+
+.breeding-slot.empty {
+  border: 2px dashed rgba(255, 255, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 150px;
+  cursor: pointer;
+}
+
+.breeding-slot.empty:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.empty-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+/* 父母精灵显示 */
+.parents {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  margin-bottom: 12px;
+}
+
+.parent {
+  text-align: center;
+}
+
+.parent img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px;
+}
+
+.parent span {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.heart {
+  font-size: 24px;
+  animation: beat 1.5s infinite;
+}
+
+/* 培育进度 */
+.progress {
+  position: relative;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%);
+  transition: width 0.5s ease;
+}
+
+.time-remaining {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 蛋准备就绪 */
+.egg-ready {
+  text-align: center;
+  padding: 12px;
+}
+
+.egg-icon {
+  font-size: 48px;
+  animation: bounce 1s infinite;
+}
+
+.collect-btn {
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  border: none;
+  color: #333;
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: transform 0.2s;
+}
+
+.collect-btn:hover {
+  transform: scale(1.05);
+}
+
+/* 操作按钮 */
+.breeding-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  flex: 1;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.secondary-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  flex: 1;
+  transition: background 0.3s;
+}
+
+.secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.cancel-btn {
+  background: rgba(255, 59, 48, 0.2);
+  border: 1px solid rgba(255, 59, 48, 0.5);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  width: 100%;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.cancel-btn:hover {
+  background: rgba(255, 59, 48, 0.3);
+}
+
+/* 孵化器 */
+.hatching-incubators {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.hatching-incubators h3 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+}
+
+.incubator {
+  text-align: center;
+  padding: 24px;
+  opacity: 0.8;
+}
+
+.hint {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 8px;
+}
+
+/* 模态框 */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: auto;
+  color: #333;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.3s;
+}
+
+.close-btn:hover {
+  opacity: 1;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 20px;
+  border-top: 1px solid #eee;
+}
+
+/* 精灵选择器 */
+.parent-selection {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.parent-slot {
+  flex: 1;
+}
+
+.parent-slot h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.selected-pokemon {
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.3s;
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.selected-pokemon:hover {
+  background: #e0e0e0;
+}
+
+.selected-pokemon img {
+  width: 48px;
+  height: 48px;
+}
+
+.selected-pokemon .empty {
+  color: #999;
+}
+
+/* 培育预览 */
+.breeding-preview {
+  margin: 16px 0;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.breeding-preview .compatible {
+  background: #e8f5e9;
+  border: 1px solid #4caf50;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.breeding-preview .incompatible {
+  background: #ffebee;
+  border: 1px solid #f44336;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.breeding-preview .success {
+  color: #4caf50;
+  font-weight: bold;
+}
+
+.breeding-preview .error {
+  color: #f44336;
+  font-weight: bold;
+}
+
+/* 精灵列表 */
+.pokemon-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.pokemon-item {
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.pokemon-item:hover {
+  background: #e0e0e0;
+  transform: translateY(-2px);
+}
+
+.pokemon-item img {
+  width: 48px;
+  height: 48px;
+}
+
+.pokemon-item .info {
+  margin-top: 8px;
+}
+
+.pokemon-item .name {
+  display: block;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.pokemon-item .gender {
+  color: #666;
+  font-size: 12px;
+}
+
+.pokemon-item .cp {
+  display: block;
+  font-size: 10px;
+  color: #999;
+  margin-top: 4px;
+}
+
+/* 统计模态框 */
+.stats-modal .stat-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.stats-modal .stat-item:last-child {
+  border-bottom: none;
+}
+
+.stats-modal label {
+  font-weight: bold;
+  color: #666;
+}
+
+.stats-modal span {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 动画 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes beat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 响应式 */
+@media (max-width: 600px) {
+  .breeding-slots {
+    grid-template-columns: 1fr;
+  }
+  
+  .breeding-actions {
+    flex-direction: column;
+  }
+  
+  .parent-selection {
+    flex-direction: column;
+  }
+  
+  .pokemon-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

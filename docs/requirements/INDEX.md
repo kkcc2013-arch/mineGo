@@ -49,5 +49,5 @@
 || REQ-00043 | 延迟任务队列与可靠重试机制 | 技术债/重构 | P1 | done | 所有微服务、backend/shared、Kafka | 2026-06-09 02:00 |
 | REQ-00044 | API 版本管理与向后兼容策略 | API 设计规范 | P1 | done | gateway、所有微服务、docs/api-spec | 2026-06-09 03:00 |
 || REQ-00045 | 设备完整性与模拟器检测系统 | 反作弊 | P1 | done | gateway、user-service、catch-service、gym-service、game-client、backend/shared | 2026-06-09 07:00 |
-|| REQ-00046 | 精灵培育系统与遗传机制 | 功能增强 | P1 | new | pokemon-service、user-service、social-service、gateway、game-client、database/migrations | 2026-06-09 08:00 ||
+|| REQ-00046 | 精灵培育系统与遗传机制 | 功能增强 | P1 | done | pokemon-service、user-service、social-service、gateway、game-client、database/migrations | 2026-06-09 08:00 ||
 |
