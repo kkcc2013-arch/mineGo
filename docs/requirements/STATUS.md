@@ -28,11 +28,11 @@
 ## 需求统计
 
 - 总需求：54
-- P0：8 (new: 1, done: 7)
+- P0：8 (new: 0, done: 8)
 - P1：42 (new: 2, done: 40)
 - P2：10 (new: 1, done: 9)
 - P3：0
-- 已完成：47
+- 已完成：48
 
 ## 项目状态
 
@@ -42,11 +42,33 @@
 - 当前需求：54/10000
 - 剩余需求：9946 条
 - 最新生成：REQ-00054（道馆战斗系统，功能增强）
-- 最新完成：REQ-00050（插件化中间件系统与生命周期管理）
+- 最新完成：REQ-00054（道馆战斗系统）
 
 详见 [DONE.md](./DONE.md)
 
 ## 已完成需求
+
+### REQ-00054: 道馆战斗系统
+- **完成时间**: 2026-06-09 16:30
+- **影响**: 功能增强 - 完整的道馆战斗系统，回合制战斗，属性克制，状态效果，AI防守策略
+- **修改文件**:
+  - database/pending/20260609_160000__add_gym_battle_system.sql (数据库迁移 4.9 KB, 5 个表)
+  - backend/services/gym-service/src/battleEngine.js (战斗引擎核心模块 17.8 KB)
+  - backend/services/gym-service/src/routes/battle.js (战斗 API 路由 19.2 KB, 7 个端点)
+  - backend/services/gym-service/src/metrics.js (Prometheus 指标 2.7 KB, 13 个指标)
+  - frontend/game-client/src/components/BattleScene.js (前端战斗组件 13.9 KB)
+  - frontend/game-client/src/components/BattleScene.css (样式文件 9.6 KB)
+  - backend/tests/unit/gym-battle.test.js (单元测试 14.8 KB, 40+ 测试)
+  - docs/review/REQ-00054-gym-battle-system-review.md (审核文档)
+- **关键特性**:
+  - 18 种属性克制关系
+  - 7 种状态效果（灼伤、麻痹、冰冻、中毒、剧毒、睡眠、混乱）
+  - 回合制战斗系统（伤害计算、暴击、STAB 加成）
+  - AI 防守策略（智能选择最优技能）
+  - 战斗回放系统
+  - 战斗队伍预设
+  - 精灵战斗统计
+  - 7 个 API 端点、13 个 Prometheus 指标
 
 ### REQ-00046: 精灵培育系统与遗传机制
 - **完成时间**: 2026-06-09 08:30
