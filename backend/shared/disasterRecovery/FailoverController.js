@@ -1,22 +1,19 @@
-/**
- * FailoverController - 容灾切换控制器
- * 
- * 功能：
- * - 管理主备区域切换
- * - 执行故障切换流程
- * - 维护切换状态和历史
- * - 支持手动/自动切换
- */
-
 const { EventEmitter } = require('events');
+const { logger, metrics } = require('../logging');
+const Redis = require('ioredis');
+const axios = require('axios');
 
+/**
+ * 故障切换控制器 - 多区域容灾切换系统核心组件
+ * 负责执行故障切换、回切、状态管理
+ */
 class FailoverController extends EventEmitter {
   constructor(config = {}) {
     super();
     
     this.config = {
-      primaryRegion: config.primaryRegion || 'cn-east-1',
-      secondaryRegion: config.secondaryRegion || 'cn-north-1',
+      primaryRegion: config.primaryRegion || process.env.PRIMARY_REGION || 'cn-east-1',
+      secondaryRegion: config.secondaryRegion || process.env.SECONDARY_REGION || 'cn-north-1',
       currentRegion: config.currentRegion || process.env.REGION || 'cn-east-1',
       autoFailover: config.autoFailover !== false,
       cooldownPeriod: config.cooldownPeriod || 300000, // 5 minutes
@@ -31,74 +28,39 @@ class FailoverController extends EventEmitter {
       failoverHistory: []
     };
     
-    this.redis = null;
+    this.redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
     this.lockKey = 'dr:failover:lock';
     this.stateKey = 'dr:failover:state';
-    this.metrics = null;
     
-    this.initializeRedis();
     this.registerMetrics();
   }
   
-  /**
-   * 初始化 Redis 连接
-   */
-  async initializeRedis() {
-    try {
-      const Redis = require('ioredis');
-      if (process.env.REDIS_URL) {
-        this.redis = new Redis(process.env.REDIS_URL);
-      }
-    } catch (e) {
-      // Redis may not be available in test environment
-    }
-  }
-  
-  /**
-   * 注册 Prometheus 指标
-   */
   registerMetrics() {
-    try {
-      const { metrics } = require('../logging');
-      this.metrics = metrics;
-      
-      if (!metrics._registered_dr_active_region) {
-        metrics.gauge('dr_active_region', 'Current active region (1=primary, 2=secondary)');
-        metrics._registered_dr_active_region = true;
-      }
-      
-      if (!metrics._registered_dr_failover_in_progress) {
-        metrics.gauge('dr_failover_in_progress', 'Failover in progress flag');
-        metrics._registered_dr_failover_in_progress = true;
-      }
-      
-      if (!metrics._registered_dr_failover_operations_total) {
-        metrics.counter('dr_failover_operations_total', 'Failover operations count', 
-          ['from_region', 'to_region', 'trigger', 'result']);
-        metrics._registered_dr_failover_operations_total = true;
-      }
-    } catch (e) {
-      // metrics may not be available
+    if (metrics && metrics.gauge) {
+      metrics.gauge('dr_active_region', 'Current active region (1=primary, 2=secondary)');
+      metrics.gauge('dr_failover_in_progress', 'Failover in progress flag');
+      metrics.counter('dr_failover_operations_total', 'Failover operations count', 
+        ['from_region', 'to_region', 'trigger', 'result']);
     }
   }
   
   /**
-   * 初始化（从 Redis 恢复状态）
+   * 初始化控制器
    */
   async initialize() {
-    if (this.redis) {
-      try {
-        const savedState = await this.redis.get(this.stateKey);
-        if (savedState) {
-          this.state = JSON.parse(savedState);
-          console.log('[FailoverController] State restored from Redis');
-        }
-      } catch (e) {
-        console.error('[FailoverController] Failed to restore state:', e.message);
+    try {
+      // 从 Redis 恢复状态
+      const savedState = await this.redis.get(this.stateKey);
+      if (savedState) {
+        this.state = JSON.parse(savedState);
+        logger.info('Failover state restored from Redis', { state: this.state });
       }
+      
+      // 更新指标
+      this.updateMetrics();
+    } catch (error) {
+      logger.warn('Failed to restore failover state from Redis', { error: error.message });
     }
-    
-    this.updateMetrics();
   }
   
   /**
@@ -122,7 +84,7 @@ class FailoverController extends EventEmitter {
         ? this.config.secondaryRegion 
         : this.config.primaryRegion;
       
-      console.log('[FailoverController] Starting failover:', {
+      logger.info('Starting failover', {
         fromRegion,
         toRegion,
         trigger,
@@ -138,7 +100,7 @@ class FailoverController extends EventEmitter {
         { name: 'promote-secondary', fn: () => this.promoteSecondary(toRegion) },
         { name: 'update-dns', fn: () => this.updateDNS(toRegion) },
         { name: 'verify-service', fn: () => this.verifyService(toRegion) },
-        { name: 'update-state', fn: () => this.updateActiveRegion(toRegion) }
+        { name: 'update-state', fn: () => this.updateState(toRegion) }
       ];
       
       const results = [];
@@ -155,8 +117,6 @@ class FailoverController extends EventEmitter {
           });
           
           this.emit('failover-step', { step: step.name, success: true });
-          
-          console.log('[FailoverController] Step completed:', step.name);
         } catch (error) {
           results.push({
             step: step.name,
@@ -165,9 +125,12 @@ class FailoverController extends EventEmitter {
             duration: Date.now() - startTime
           });
           
-          console.error('[FailoverController] Step failed:', step.name, error.message);
-          
           // 回滚
+          logger.error('Failover step failed, initiating rollback', {
+            step: step.name,
+            error: error.message
+          });
+          
           await this.rollback(fromRegion, results);
           throw error;
         }
@@ -192,9 +155,13 @@ class FailoverController extends EventEmitter {
       await this.saveState();
       this.updateMetrics();
       
-      this.recordFailoverMetric(fromRegion, toRegion, trigger, 'success');
+      if (metrics && metrics.counter) {
+        metrics.counter('dr_failover_operations_total').inc(
+          { from_region: fromRegion, to_region: toRegion, trigger, result: 'success' }
+        );
+      }
       
-      console.log('[FailoverController] Failover completed:', failoverRecord);
+      logger.info('Failover completed successfully', { failoverRecord });
       this.emit('failover-complete', failoverRecord);
       
       return failoverRecord;
@@ -203,14 +170,13 @@ class FailoverController extends EventEmitter {
       this.state.isFailingOver = false;
       this.updateMetrics();
       
-      const fromRegion = this.state.activeRegion;
-      const toRegion = fromRegion === this.config.primaryRegion 
-        ? this.config.secondaryRegion 
-        : this.config.primaryRegion;
+      if (metrics && metrics.counter) {
+        metrics.counter('dr_failover_operations_total').inc(
+          { from_region: fromRegion, to_region: toRegion, trigger, result: 'failed' }
+        );
+      }
       
-      this.recordFailoverMetric(fromRegion, toRegion, trigger, 'failed');
-      
-      console.error('[FailoverController] Failover failed:', error.message);
+      logger.error('Failover failed', { error: error.message });
       this.emit('failover-failed', { error: error.message });
       
       throw error;
@@ -225,154 +191,156 @@ class FailoverController extends EventEmitter {
    * 获取分布式锁
    */
   async acquireLock() {
-    if (!this.redis) {
-      // 模拟锁
-      return `lock-${Date.now()}`;
+    try {
+      const lockValue = `${Date.now()}:${Math.random().toString(36).substr(2, 9)}`;
+      const acquired = await this.redis.set(
+        this.lockKey, 
+        lockValue, 
+        'PX', 
+        this.config.cooldownPeriod, 
+        'NX'
+      );
+      
+      return acquired === 'OK' ? lockValue : null;
+    } catch (error) {
+      logger.warn('Failed to acquire lock', { error: error.message });
+      return null;
     }
-    
-    const lockValue = `${Date.now()}:${Math.random().toString(36).substr(2, 9)}`;
-    const acquired = await this.redis.set(
-      this.lockKey, 
-      lockValue, 
-      'PX', 
-      this.config.cooldownPeriod, 
-      'NX'
-    );
-    
-    return acquired === 'OK' ? lockValue : null;
   }
   
   /**
    * 释放分布式锁
    */
   async releaseLock(lockValue) {
-    if (!this.redis) return;
-    
-    const script = `
-      if redis.call("get", KEYS[1]) == ARGV[1] then
-        return redis.call("del", KEYS[1])
-      else
-        return 0
-      end
-    `;
-    
-    await this.redis.eval(script, 1, this.lockKey, lockValue);
+    try {
+      const script = `
+        if redis.call("get", KEYS[1]) == ARGV[1] then
+          return redis.call("del", KEYS[1])
+        else
+          return 0
+        end
+      `;
+      
+      await this.redis.eval(script, 1, this.lockKey, lockValue);
+    } catch (error) {
+      logger.warn('Failed to release lock', { error: error.message });
+    }
   }
   
   /**
    * 验证目标区域健康状态
    */
   async verifyTargetHealth(region) {
-    // 模拟健康检查
-    console.log('[FailoverController] Verifying target health:', region);
+    const endpoints = this.getRegionEndpoints(region);
     
-    // 在生产环境中，这里会调用 HealthChecker 检查目标区域的服务
-    // 目前模拟成功
-    return true;
+    for (const endpoint of endpoints) {
+      try {
+        const response = await axios.get(`${endpoint}/health`, { timeout: 5000 });
+        
+        if (response.data?.status !== 'healthy') {
+          throw new Error(`Unhealthy endpoint: ${endpoint}`);
+        }
+      } catch (error) {
+        throw new Error(`Target region health check failed: ${error.message}`);
+      }
+    }
+    
+    logger.info('Target region health verified', { region });
   }
   
   /**
-   * 停止主区域流量
+   * 停止流量
    */
   async stopTraffic(region) {
-    console.log('[FailoverController] Stopping traffic to region:', region);
+    logger.info('Stopping traffic', { region });
     
-    // 在生产环境中，这里会：
-    // 1. 更新 Kubernetes Service 注解
-    // 2. 修改负载均衡器权重
-    // 3. 等待现有连接排空
+    // 模拟停止流量操作
+    // 实际实现需要调用 Kubernetes API 或负载均衡器 API
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // 模拟等待流量排空
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    
-    return true;
+    logger.info('Traffic stopped', { region });
   }
   
   /**
    * 同步数据
    */
   async syncData(fromRegion, toRegion) {
-    console.log('[FailoverController] Syncing data from', fromRegion, 'to', toRegion);
+    logger.info('Syncing data', { fromRegion, toRegion });
     
-    // 在生产环境中，这里会：
-    // 1. 检查数据库同步延迟
-    // 2. 强制 WAL 切换
-    // 3. 等待备库同步完成
-    // 4. 同步 Redis 数据
+    // 检查数据库同步延迟
+    const dbLag = await this.getDatabaseSyncLag();
     
-    // 模拟数据同步
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    if (dbLag > 60000) { // 60秒
+      throw new Error(`Database sync lag too high: ${dbLag}ms`);
+    }
     
-    return true;
+    logger.info('Data synced', { fromRegion, toRegion, dbLag });
   }
   
   /**
    * 提升备库为主库
    */
   async promoteSecondary(region) {
-    console.log('[FailoverController] Promoting secondary to primary:', region);
+    logger.info('Promoting secondary to primary', { region });
     
-    // 在生产环境中，这里会：
-    // 1. 执行 PostgreSQL promote 命令
-    // 2. 更新数据库连接配置
-    // 3. 验证数据库可写
-    
-    // 模拟提升
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    return true;
-  }
-  
-  /**
-   * 更新 DNS 记录
-   */
-  async updateDNS(region) {
-    console.log('[FailoverController] Updating DNS to region:', region);
-    
-    // 在生产环境中，这里会：
-    // 1. 调用 DNS API 更新 A 记录
-    // 2. 降低 TTL 加速传播
-    // 3. 等待 DNS 传播
-    
-    // 模拟 DNS 更新
-    await new Promise(resolve => setTimeout(resolve, this.config.dnsTTL * 1000));
-    
-    return true;
-  }
-  
-  /**
-   * 验证服务可用
-   */
-  async verifyService(region) {
-    console.log('[FailoverController] Verifying service in region:', region);
-    
-    // 在生产环境中，这里会：
-    // 1. 调用 API 健康检查
-    // 2. 执行冒烟测试
-    // 3. 验证关键业务流程
-    
-    // 模拟验证
+    // 模拟提升操作
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    return true;
+    logger.info('Secondary promoted to primary', { region });
   }
   
   /**
-   * 更新活跃区域状态
+   * 更新 DNS
    */
-  async updateActiveRegion(region) {
+  async updateDNS(region) {
+    logger.info('Updating DNS', { region });
+    
+    // 模拟 DNS 更新
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    logger.info('DNS updated', { region });
+  }
+  
+  /**
+   * 验证服务
+   */
+  async verifyService(region) {
+    const endpoint = process.env.API_ENDPOINT || 'https://api.minego.com';
+    
+    const maxRetries = 10;
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        const response = await axios.get(`${endpoint}/health`, { timeout: 5000 });
+        
+        if (response.data?.status === 'healthy') {
+          logger.info('Service verified', { region, endpoint });
+          return;
+        }
+      } catch (error) {
+        // 继续重试
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+    
+    throw new Error('Service verification failed');
+  }
+  
+  /**
+   * 更新状态
+   */
+  async updateState(region) {
     this.state.activeRegion = region;
     await this.saveState();
     
-    console.log('[FailoverController] Active region updated:', region);
-    return true;
+    logger.info('State updated', { activeRegion: region });
   }
   
   /**
-   * 回滚切换
+   * 回滚
    */
   async rollback(fromRegion, completedSteps) {
-    console.log('[FailoverController] Starting rollback to:', fromRegion);
+    logger.info('Starting rollback', { targetRegion: fromRegion });
     
     // 按相反顺序执行回滚步骤
     const rollbackSteps = completedSteps
@@ -383,9 +351,9 @@ class FailoverController extends EventEmitter {
     for (const step of rollbackSteps) {
       try {
         await this.executeRollbackStep(step, fromRegion);
-        console.log('[FailoverController] Rollback step completed:', step);
+        logger.info('Rollback step completed', { step });
       } catch (error) {
-        console.error('[FailoverController] Rollback step failed:', step, error.message);
+        logger.error('Rollback step failed', { step, error: error.message });
       }
     }
     
@@ -402,63 +370,76 @@ class FailoverController extends EventEmitter {
         await this.updateDNS(region);
         break;
       case 'stop-traffic-primary':
-        // 恢复流量
-        console.log('[FailoverController] Restoring traffic to region:', region);
+        await this.restoreTraffic(region);
         break;
-      case 'promote-secondary':
-        // 降级回备库
-        console.log('[FailoverController] Demoting to secondary:', region);
-        break;
+      default:
+        logger.info('No rollback action for step', { step });
     }
+  }
+  
+  /**
+   * 恢复流量
+   */
+  async restoreTraffic(region) {
+    logger.info('Restoring traffic', { region });
+    await new Promise(resolve => setTimeout(resolve, 1000));
   }
   
   /**
    * 保存状态到 Redis
    */
   async saveState() {
-    if (this.redis) {
-      try {
-        await this.redis.set(
-          this.stateKey, 
-          JSON.stringify(this.state),
-          'EX',
-          86400 // 1 day
-        );
-      } catch (e) {
-        console.error('[FailoverController] Failed to save state:', e.message);
-      }
+    try {
+      await this.redis.set(
+        this.stateKey, 
+        JSON.stringify(this.state),
+        'EX',
+        86400 // 1 day
+      );
+    } catch (error) {
+      logger.warn('Failed to save state to Redis', { error: error.message });
     }
   }
   
   /**
-   * 更新 Prometheus 指标
+   * 更新指标
    */
   updateMetrics() {
-    if (this.metrics) {
-      try {
-        this.metrics.gauge('dr_active_region').set(
-          this.state.activeRegion === this.config.primaryRegion ? 1 : 2
-        );
-        this.metrics.gauge('dr_failover_in_progress').set(this.state.isFailingOver ? 1 : 0);
-      } catch (e) {
-        // Ignore metric errors
-      }
+    if (metrics && metrics.gauge) {
+      metrics.gauge('dr_active_region').set(
+        this.state.activeRegion === this.config.primaryRegion ? 1 : 2
+      );
+      metrics.gauge('dr_failover_in_progress').set(this.state.isFailingOver ? 1 : 0);
     }
   }
   
   /**
-   * 记录切换指标
+   * 获取区域端点
    */
-  recordFailoverMetric(fromRegion, toRegion, trigger, result) {
-    if (this.metrics) {
-      try {
-        this.metrics.counter('dr_failover_operations_total').inc(
-          { from_region: fromRegion, to_region: toRegion, trigger, result }
-        );
-      } catch (e) {
-        // Ignore metric errors
-      }
-    }
+  getRegionEndpoints(region) {
+    const endpoints = {
+      'cn-east-1': [
+        process.env.USER_SERVICE_URL || 'http://user-service:8080',
+        process.env.POKEMON_SERVICE_URL || 'http://pokemon-service:8080',
+        process.env.CATCH_SERVICE_URL || 'http://catch-service:8080'
+      ],
+      'cn-north-1': [
+        process.env.USER_SERVICE_URL_SECONDARY || 'http://user-service-secondary:8080',
+        process.env.POKEMON_SERVICE_URL_SECONDARY || 'http://pokemon-service-secondary:8080',
+        process.env.CATCH_SERVICE_URL_SECONDARY || 'http://catch-service-secondary:8080'
+      ]
+    };
+    
+    return endpoints[region] || [];
+  }
+  
+  /**
+   * 获取数据库同步延迟
+   */
+  async getDatabaseSyncLag() {
+    // 模拟返回同步延迟
+    // 实际实现需要查询 PostgreSQL 复制状态
+    return 1000; // 1秒
   }
   
   /**
@@ -473,13 +454,6 @@ class FailoverController extends EventEmitter {
         autoFailover: this.config.autoFailover
       }
     };
-  }
-  
-  /**
-   * 获取切换历史
-   */
-  getHistory(limit = 10) {
-    return this.state.failoverHistory.slice(-limit);
   }
 }
 

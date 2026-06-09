@@ -1,15 +1,10 @@
-/**
- * DrillManager - 容灾演练管理器
- * 
- * 功能：
- * - 调度和执行容灾演练
- * - 自动回切支持
- * - 演练历史记录
- * - RTO/RPO 验证
- */
-
+const { logger, metrics } = require('../logging');
 const { v4: uuidv4 } = require('uuid');
 
+/**
+ * 容灾演练管理器
+ * 负责调度、执行、记录容灾演练
+ */
 class DrillManager {
   constructor(failoverController, config = {}) {
     this.failoverController = failoverController;
@@ -24,40 +19,16 @@ class DrillManager {
     
     this.activeDrill = null;
     this.drillHistory = [];
-    this.metrics = null;
     
     this.registerMetrics();
   }
   
-  /**
-   * 注册 Prometheus 指标
-   */
   registerMetrics() {
-    try {
-      const { metrics } = require('../logging');
-      this.metrics = metrics;
-      
-      if (!metrics._registered_dr_drill_in_progress) {
-        metrics.gauge('dr_drill_in_progress', 'Drill in progress flag');
-        metrics._registered_dr_drill_in_progress = true;
-      }
-      
-      if (!metrics._registered_dr_drill_total) {
-        metrics.counter('dr_drill_total', 'Total drills', ['result']);
-        metrics._registered_dr_drill_total = true;
-      }
-      
-      if (!metrics._registered_dr_drill_duration_seconds) {
-        metrics.histogram('dr_drill_duration_seconds', 'Drill duration');
-        metrics._registered_dr_drill_duration_seconds = true;
-      }
-      
-      if (!metrics._registered_dr_drill_rto_seconds) {
-        metrics.histogram('dr_drill_rto_seconds', 'Actual RTO achieved');
-        metrics._registered_dr_drill_rto_seconds = true;
-      }
-    } catch (e) {
-      // metrics may not be available
+    if (metrics && metrics.gauge) {
+      metrics.gauge('dr_drill_in_progress', 'Drill in progress flag');
+      metrics.counter('dr_drill_total', 'Total drills', ['result']);
+      metrics.histogram('dr_drill_duration_seconds', 'Drill duration');
+      metrics.histogram('dr_drill_rto_seconds', 'Actual RTO achieved');
     }
   }
   
@@ -75,13 +46,18 @@ class DrillManager {
       autoRollback: options.autoRollback !== false,
       status: 'scheduled',
       notifyChannels: options.notifyChannels || this.config.notifyChannels,
-      createdBy: options.createdBy || 'system'
+      createdBy: options.createdBy || 'system',
+      createdAt: new Date().toISOString()
     };
     
     // 发送通知
     await this.sendNotification('drill-scheduled', drill);
     
-    console.log('[DrillManager] Drill scheduled:', { drillId, scheduledTime: drill.scheduledTime });
+    logger.info('Drill scheduled', { 
+      drillId, 
+      scheduledTime: drill.scheduledTime,
+      createdBy: drill.createdBy
+    });
     
     return drill;
   }
@@ -101,9 +77,11 @@ class DrillManager {
       steps: []
     };
     
-    this.setMetric('dr_drill_in_progress', 1);
+    if (metrics && metrics.gauge) {
+      metrics.gauge('dr_drill_in_progress').set(1);
+    }
     
-    console.log('[DrillManager] Drill started:', drillId);
+    logger.info('Drill started', { drillId });
     
     // 发送通知
     await this.sendNotification('drill-started', this.activeDrill);
@@ -118,21 +96,25 @@ class DrillManager {
       this.activeDrill.steps.push({
         name: 'failover',
         success: true,
-        duration: failoverResult.duration
+        duration: failoverResult.duration,
+        timestamp: new Date().toISOString()
       });
       
       const rto = (Date.now() - this.activeDrill.startTime) / 1000;
-      this.observeMetric('dr_drill_rto_seconds', rto);
+      
+      if (metrics && metrics.histogram) {
+        metrics.histogram('dr_drill_rto_seconds').observe(rto);
+      }
       
       this.activeDrill.rto = rto;
       
-      console.log('[DrillManager] Drill failover completed:', { drillId, rto });
+      logger.info('Drill failover completed', { drillId, rto });
       
       // 自动回切
       if (this.config.autoRollback) {
         setTimeout(() => {
           this.rollbackDrill(drillId).catch(err => {
-            console.error('[DrillManager] Auto-rollback failed:', drillId, err.message);
+            logger.error('Drill auto-rollback failed', { drillId, error: err.message });
           });
         }, this.config.maxDrillDuration);
       }
@@ -146,9 +128,11 @@ class DrillManager {
       this.activeDrill.status = 'failed';
       this.activeDrill.error = error.message;
       
-      this.incMetric('dr_drill_total', { result: 'failed' });
+      if (metrics && metrics.counter) {
+        metrics.counter('dr_drill_total').inc({ result: 'failed' });
+      }
       
-      console.error('[DrillManager] Drill failed:', drillId, error.message);
+      logger.error('Drill failed', { drillId, error: error.message });
       
       throw error;
     }
@@ -164,7 +148,7 @@ class DrillManager {
     
     const rollbackStartTime = Date.now();
     
-    console.log('[DrillManager] Drill rollback started:', drillId);
+    logger.info('Drill rollback started', { drillId });
     
     try {
       // 执行回切
@@ -177,16 +161,23 @@ class DrillManager {
         name: 'rollback',
         success: true,
         duration: rollbackResult.duration,
-        startTime: rollbackStartTime
+        startTime: rollbackStartTime,
+        timestamp: new Date().toISOString()
       });
       
       this.activeDrill.status = 'completed';
       this.activeDrill.endTime = Date.now();
       this.activeDrill.totalDuration = this.activeDrill.endTime - this.activeDrill.startTime;
       
-      this.incMetric('dr_drill_total', { result: 'success' });
-      this.observeMetric('dr_drill_duration_seconds', this.activeDrill.totalDuration / 1000);
-      this.setMetric('dr_drill_in_progress', 0);
+      if (metrics && metrics.counter) {
+        metrics.counter('dr_drill_total').inc({ result: 'success' });
+      }
+      if (metrics && metrics.histogram) {
+        metrics.histogram('dr_drill_duration_seconds').observe(this.activeDrill.totalDuration / 1000);
+      }
+      if (metrics && metrics.gauge) {
+        metrics.gauge('dr_drill_in_progress').set(0);
+      }
       
       // 保存历史
       this.drillHistory.push(this.activeDrill);
@@ -194,7 +185,7 @@ class DrillManager {
       // 发送通知
       await this.sendNotification('drill-completed', this.activeDrill);
       
-      console.log('[DrillManager] Drill completed:', { 
+      logger.info('Drill completed', { 
         drillId, 
         totalDuration: this.activeDrill.totalDuration,
         rto: this.activeDrill.rto
@@ -209,10 +200,14 @@ class DrillManager {
       this.activeDrill.status = 'rollback-failed';
       this.activeDrill.error = error.message;
       
-      this.incMetric('dr_drill_total', { result: 'rollback-failed' });
-      this.setMetric('dr_drill_in_progress', 0);
+      if (metrics && metrics.counter) {
+        metrics.counter('dr_drill_total').inc({ result: 'rollback-failed' });
+      }
+      if (metrics && metrics.gauge) {
+        metrics.gauge('dr_drill_in_progress').set(0);
+      }
       
-      console.error('[DrillManager] Drill rollback failed:', drillId, error.message);
+      logger.error('Drill rollback failed', { drillId, error: error.message });
       
       throw error;
     }
@@ -227,18 +222,18 @@ class DrillManager {
     }
     
     this.activeDrill.status = 'cancelled';
-    this.activeDrill.endTime = Date.now();
+    this.activeDrill.cancelledAt = new Date().toISOString();
     
-    this.incMetric('dr_drill_total', { result: 'cancelled' });
-    this.setMetric('dr_drill_in_progress', 0);
+    if (metrics && metrics.gauge) {
+      metrics.gauge('dr_drill_in_progress').set(0);
+    }
+    
+    logger.info('Drill cancelled', { drillId });
+    
+    await this.sendNotification('drill-cancelled', this.activeDrill);
     
     const cancelled = this.activeDrill;
-    this.drillHistory.push(cancelled);
     this.activeDrill = null;
-    
-    await this.sendNotification('drill-cancelled', cancelled);
-    
-    console.log('[DrillManager] Drill cancelled:', drillId);
     
     return cancelled;
   }
@@ -247,12 +242,10 @@ class DrillManager {
    * 发送通知
    */
   async sendNotification(event, data) {
-    console.log('[DrillManager] Sending notification:', { event, drillId: data.id });
+    logger.info('Sending notification', { event, drillId: data.id || data.drillId });
     
-    // 在生产环境中，这里会：
-    // 1. 发送 Slack 通知
-    // 2. 发送邮件
-    // 3. 发送短信（紧急情况）
+    // 实际实现需要集成 Slack、Email 等通知渠道
+    // 这里仅记录日志
   }
   
   /**
@@ -274,42 +267,10 @@ class DrillManager {
   }
   
   /**
-   * 设置 Prometheus 指标
+   * 获取当前活跃演练
    */
-  setMetric(name, value) {
-    if (this.metrics) {
-      try {
-        this.metrics.gauge(name).set(value);
-      } catch (e) {
-        // Ignore
-      }
-    }
-  }
-  
-  /**
-   * 增加 Prometheus 计数器
-   */
-  incMetric(name, labels) {
-    if (this.metrics) {
-      try {
-        this.metrics.counter(name).inc(labels);
-      } catch (e) {
-        // Ignore
-      }
-    }
-  }
-  
-  /**
-   * 观察 Prometheus 直方图
-   */
-  observeMetric(name, value) {
-    if (this.metrics) {
-      try {
-        this.metrics.histogram(name).observe(value);
-      } catch (e) {
-        // Ignore
-      }
-    }
+  getActiveDrill() {
+    return this.activeDrill;
   }
 }
 

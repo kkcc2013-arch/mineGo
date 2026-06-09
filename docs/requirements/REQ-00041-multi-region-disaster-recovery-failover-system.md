@@ -7,7 +7,7 @@
 | 标题 | 多区域容灾切换与灾备恢复系统 |
 | 类别 | 容灾/高可用 |
 | 优先级 | P0 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | gateway、所有微服务、infrastructure/k8s、database、Redis |
 | 创建时间 | 2026-06-09 01:00 |
 

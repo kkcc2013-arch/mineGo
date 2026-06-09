@@ -1,15 +1,10 @@
-/**
- * DatabaseSync - 数据库跨区域同步监控
- * 
- * 功能：
- * - 监控主备数据库同步状态
- * - 检测同步延迟
- * - 强制同步等待
- * - 暴露 Prometheus 指标
- */
-
+const { logger, metrics } = require('../logging');
 const { Pool } = require('pg');
 
+/**
+ * 数据库跨区域同步监控器
+ * 负责监控主备数据库同步状态，确保 RPO < 1 分钟
+ */
 class DatabaseSync {
   constructor(config = {}) {
     this.config = {
@@ -23,64 +18,16 @@ class DatabaseSync {
     this.primaryPool = null;
     this.secondaryPool = null;
     this.timer = null;
-    this.metrics = null;
-    this.lastStatus = null;
+    this.isRunning = false;
     
-    this.initializePools();
     this.registerMetrics();
   }
   
-  /**
-   * 初始化数据库连接池
-   */
-  initializePools() {
-    if (this.config.primaryUrl) {
-      try {
-        this.primaryPool = new Pool({ 
-          connectionString: this.config.primaryUrl,
-          max: 2
-        });
-      } catch (e) {
-        console.error('[DatabaseSync] Failed to connect to primary:', e.message);
-      }
-    }
-    
-    if (this.config.secondaryUrl) {
-      try {
-        this.secondaryPool = new Pool({ 
-          connectionString: this.config.secondaryUrl,
-          max: 2
-        });
-      } catch (e) {
-        console.error('[DatabaseSync] Failed to connect to secondary:', e.message);
-      }
-    }
-  }
-  
-  /**
-   * 注册 Prometheus 指标
-   */
   registerMetrics() {
-    try {
-      const { metrics } = require('../logging');
-      this.metrics = metrics;
-      
-      if (!metrics._registered_dr_db_sync_lag_seconds) {
-        metrics.gauge('dr_db_sync_lag_seconds', 'Database sync lag in seconds');
-        metrics._registered_dr_db_sync_lag_seconds = true;
-      }
-      
-      if (!metrics._registered_dr_db_sync_errors_total) {
-        metrics.counter('dr_db_sync_errors_total', 'Database sync errors');
-        metrics._registered_dr_db_sync_errors_total = true;
-      }
-      
-      if (!metrics._registered_dr_db_replication_status) {
-        metrics.gauge('dr_db_replication_status', 'Replication status (1=ok, 0=error)');
-        metrics._registered_dr_db_replication_status = true;
-      }
-    } catch (e) {
-      // metrics may not be available
+    if (metrics && metrics.gauge) {
+      metrics.gauge('dr_db_sync_lag_seconds', 'Database sync lag in seconds');
+      metrics.counter('dr_db_sync_errors_total', 'Database sync errors');
+      metrics.gauge('dr_db_replication_status', 'Replication status (1=ok, 0=error)');
     }
   }
   
@@ -88,14 +35,38 @@ class DatabaseSync {
    * 启动同步监控
    */
   async start() {
-    // 定期检查同步状态
-    this.timer = setInterval(() => {
-      this.checkSyncStatus().catch(err => {
-        console.error('[DatabaseSync] Check failed:', err.message);
-      });
-    }, this.config.syncInterval);
+    if (this.isRunning) return;
     
-    console.log('[DatabaseSync] Monitor started');
+    try {
+      // 初始化数据库连接
+      if (this.config.primaryUrl) {
+        this.primaryPool = new Pool({ 
+          connectionString: this.config.primaryUrl,
+          max: 5
+        });
+      }
+      
+      if (this.config.secondaryUrl) {
+        this.secondaryPool = new Pool({ 
+          connectionString: this.config.secondaryUrl,
+          max: 5
+        });
+      }
+      
+      this.isRunning = true;
+      
+      // 定期检查同步状态
+      this.timer = setInterval(() => {
+        this.checkSyncStatus().catch(err => {
+          logger.error('Database sync check failed', { error: err.message });
+        });
+      }, this.config.syncInterval);
+      
+      logger.info('Database sync monitor started');
+    } catch (error) {
+      logger.error('Failed to start database sync monitor', { error: error.message });
+      throw error;
+    }
   }
   
   /**
@@ -103,7 +74,7 @@ class DatabaseSync {
    */
   async checkSyncStatus() {
     if (!this.primaryPool) {
-      return this.getSimulatedStatus();
+      return { healthy: false, lagSeconds: 0, error: 'Primary database not configured' };
     }
     
     try {
@@ -111,16 +82,16 @@ class DatabaseSync {
       const primaryResult = await this.primaryPool.query(`
         SELECT pg_current_wal_lsn() as lsn,
                pg_current_wal_insert_lsn() as insert_lsn
-      `).catch(() => null);
+      `).catch(() => ({ rows: [{ lsn: null, insert_lsn: null }] }));
       
-      // 检查备库接收位置（如果可用）
-      let secondaryResult = null;
+      // 检查备库接收位置（如果配置了备库）
+      let secondaryResult = { rows: [{ receive_lsn: null, replay_lsn: null, replay_time: null }] };
       if (this.secondaryPool) {
         secondaryResult = await this.secondaryPool.query(`
           SELECT pg_last_wal_receive_lsn() as receive_lsn,
                  pg_last_wal_replay_lsn() as replay_lsn,
                  pg_last_xact_replay_timestamp() as replay_time
-        `).catch(() => null);
+        `).catch(() => ({ rows: [{ receive_lsn: null, replay_lsn: null, replay_time: null }] }));
       }
       
       // 计算延迟
@@ -133,11 +104,14 @@ class DatabaseSync {
       
       const lagSeconds = parseFloat(lagResult.rows[0]?.lag_seconds || 0);
       
-      this.setGauge('dr_db_sync_lag_seconds', lagSeconds);
-      this.setGauge('dr_db_replication_status', lagSeconds < 60 ? 1 : 0);
+      // 更新指标
+      if (metrics && metrics.gauge) {
+        metrics.gauge('dr_db_sync_lag_seconds').set(lagSeconds);
+        metrics.gauge('dr_db_replication_status').set(lagSeconds < 60 ? 1 : 0);
+      }
       
       if (lagSeconds > this.config.lagThreshold / 1000) {
-        console.warn('[DatabaseSync] Lag exceeded threshold:', {
+        logger.warn('Database sync lag exceeded threshold', {
           lagSeconds,
           threshold: this.config.lagThreshold / 1000
         });
@@ -146,43 +120,24 @@ class DatabaseSync {
         this.emit && this.emit('lag-exceeded', { lagSeconds, threshold: this.config.lagThreshold });
       }
       
-      this.lastStatus = {
-        primaryLSN: primaryResult?.rows[0]?.lsn || 'unknown',
-        secondaryLSN: secondaryResult?.rows[0]?.receive_lsn || 'unknown',
-        replayLSN: secondaryResult?.rows[0]?.replay_lsn || 'unknown',
+      return {
+        primaryLSN: primaryResult.rows[0]?.lsn,
+        secondaryLSN: secondaryResult.rows[0]?.receive_lsn,
+        replayLSN: secondaryResult.rows[0]?.replay_lsn,
         lagSeconds,
-        healthy: lagSeconds < this.config.lagThreshold / 1000,
-        timestamp: new Date().toISOString()
+        healthy: lagSeconds < this.config.lagThreshold / 1000
       };
       
-      return this.lastStatus;
-      
     } catch (error) {
-      this.incCounter('dr_db_sync_errors_total');
-      this.setGauge('dr_db_replication_status', 0);
+      if (metrics && metrics.counter) {
+        metrics.counter('dr_db_sync_errors_total').inc();
+      }
+      if (metrics && metrics.gauge) {
+        metrics.gauge('dr_db_replication_status').set(0);
+      }
       
       throw error;
     }
-  }
-  
-  /**
-   * 获取模拟状态（用于测试或无真实数据库连接）
-   */
-  getSimulatedStatus() {
-    const lagSeconds = Math.random() * 2; // 模拟 0-2 秒延迟
-    
-    this.lastStatus = {
-      primaryLSN: `${Math.floor(Math.random() * 1000)}/${Math.floor(Math.random() * 1000000)}`,
-      secondaryLSN: `${Math.floor(Math.random() * 1000)}/${Math.floor(Math.random() * 1000000)}`,
-      lagSeconds,
-      healthy: lagSeconds < 60,
-      timestamp: new Date().toISOString()
-    };
-    
-    this.setGauge('dr_db_sync_lag_seconds', lagSeconds);
-    this.setGauge('dr_db_replication_status', 1);
-    
-    return this.lastStatus;
   }
   
   /**
@@ -190,11 +145,10 @@ class DatabaseSync {
    */
   async forceSync() {
     if (!this.primaryPool) {
-      console.log('[DatabaseSync] Force sync (simulated)');
-      return true;
+      throw new Error('Primary database not configured');
     }
     
-    // 强制 WAL 切换
+    // 强制切换 WAL
     await this.primaryPool.query('SELECT pg_switch_wal()').catch(() => {});
     
     // 等待备库同步
@@ -205,7 +159,7 @@ class DatabaseSync {
       const status = await this.checkSyncStatus();
       
       if (status.lagSeconds < 1) {
-        console.log('[DatabaseSync] Force sync completed');
+        logger.info('Force sync completed');
         return true;
       }
       
@@ -216,10 +170,26 @@ class DatabaseSync {
   }
   
   /**
-   * 获取最后状态
+   * 获取同步状态
    */
-  getLastStatus() {
-    return this.lastStatus;
+  async getStatus() {
+    try {
+      const status = await this.checkSyncStatus();
+      return {
+        ...status,
+        isRunning: this.isRunning,
+        config: {
+          syncInterval: this.config.syncInterval,
+          lagThreshold: this.config.lagThreshold
+        }
+      };
+    } catch (error) {
+      return {
+        healthy: false,
+        error: error.message,
+        isRunning: this.isRunning
+      };
+    }
   }
   
   /**
@@ -231,41 +201,19 @@ class DatabaseSync {
       this.timer = null;
     }
     
+    this.isRunning = false;
+    
     if (this.primaryPool) {
-      await this.primaryPool.end();
+      await this.primaryPool.end().catch(() => {});
+      this.primaryPool = null;
     }
     
     if (this.secondaryPool) {
-      await this.secondaryPool.end();
+      await this.secondaryPool.end().catch(() => {});
+      this.secondaryPool = null;
     }
     
-    console.log('[DatabaseSync] Monitor stopped');
-  }
-  
-  /**
-   * 设置 Prometheus Gauge
-   */
-  setGauge(name, value) {
-    if (this.metrics) {
-      try {
-        this.metrics.gauge(name).set(value);
-      } catch (e) {
-        // Ignore
-      }
-    }
-  }
-  
-  /**
-   * 增加 Prometheus Counter
-   */
-  incCounter(name) {
-    if (this.metrics) {
-      try {
-        this.metrics.counter(name).inc();
-      } catch (e) {
-        // Ignore
-      }
-    }
+    logger.info('Database sync monitor stopped');
   }
 }
 

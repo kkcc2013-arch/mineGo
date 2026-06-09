@@ -1,89 +1,50 @@
-/**
- * Disaster Recovery API Routes
- * 
- * 容灾管理 API：
- * - GET  /api/dr/status - 获取容灾状态
- * - GET  /api/dr/health - 获取健康检查结果
- * - POST /api/dr/failover - 手动触发故障切换
- * - GET  /api/dr/failover/history - 获取切换历史
- * - POST /api/dr/drill - 调度容灾演练
- * - POST /api/dr/drill/:drillId/start - 开始演练
- * - POST /api/dr/drill/:drillId/rollback - 回切演练
- * - GET  /api/dr/drill/history - 获取演练历史
- */
-
 const express = require('express');
 const router = express.Router();
-const { v4: uuidv4 } = require('uuid');
+const { logger } = require('../../shared/logging');
 const HealthChecker = require('../../shared/disasterRecovery/HealthChecker');
 const FailoverController = require('../../shared/disasterRecovery/FailoverController');
 const DrillManager = require('../../shared/disasterRecovery/DrillManager');
 const DatabaseSync = require('../../shared/disasterRecovery/DatabaseSync');
 
-// 初始化组件
+// 初始化组件（延迟初始化，避免模块加载时立即创建实例）
 let healthChecker = null;
 let failoverController = null;
 let drillManager = null;
 let databaseSync = null;
 
-/**
- * 初始化容灾系统
- */
-function initializeDisasterRecovery() {
-  if (healthChecker) return;
-  
-  // 获取服务列表
-  const services = [
-    { name: 'user-service', url: process.env.USER_SERVICE_URL || 'http://localhost:8081' },
-    { name: 'pokemon-service', url: process.env.POKEMON_SERVICE_URL || 'http://localhost:8083' },
-    { name: 'catch-service', url: process.env.CATCH_SERVICE_URL || 'http://localhost:8084' },
-    { name: 'gym-service', url: process.env.GYM_SERVICE_URL || 'http://localhost:8085' },
-    { name: 'social-service', url: process.env.SOCIAL_SERVICE_URL || 'http://localhost:8086' },
-    { name: 'payment-service', url: process.env.PAYMENT_SERVICE_URL || 'http://localhost:8088' },
-    { name: 'location-service', url: process.env.LOCATION_SERVICE_URL || 'http://localhost:8082' },
-    { name: 'reward-service', url: process.env.REWARD_SERVICE_URL || 'http://localhost:8087' }
-  ];
-  
-  // 初始化健康检查器
-  healthChecker = new HealthChecker({
-    services,
-    checkInterval: 5000,
-    timeout: 3000,
-    failureThreshold: 3,
-    recoveryThreshold: 2
-  });
-  
-  // 初始化故障切换控制器
-  failoverController = new FailoverController({
-    primaryRegion: process.env.PRIMARY_REGION || 'cn-east-1',
-    secondaryRegion: process.env.SECONDARY_REGION || 'cn-north-1',
-    currentRegion: process.env.REGION || 'cn-east-1',
-    autoFailover: process.env.AUTO_FAILOVER !== 'false',
-    cooldownPeriod: 300000
-  });
-  
-  // 初始化演练管理器
-  drillManager = new DrillManager(failoverController, {
-    maxDrillDuration: 1800000,
-    autoRollback: true
-  });
-  
-  // 初始化数据库同步监控
-  databaseSync = new DatabaseSync({
-    syncInterval: 5000,
-    lagThreshold: 60000
-  });
-  
-  // 启动服务
-  healthChecker.start();
-  failoverController.initialize();
-  databaseSync.start();
-  
-  console.log('[DisasterRecovery] System initialized');
-}
+function initComponents() {
+  if (!healthChecker) {
+    healthChecker = new HealthChecker({
+      services: [
+        { name: 'user-service', url: process.env.USER_SERVICE_URL || 'http://user-service:8080' },
+        { name: 'pokemon-service', url: process.env.POKEMON_SERVICE_URL || 'http://pokemon-service:8080' },
+        { name: 'catch-service', url: process.env.CATCH_SERVICE_URL || 'http://catch-service:8080' },
+        { name: 'gym-service', url: process.env.GYM_SERVICE_URL || 'http://gym-service:8080' },
+        { name: 'social-service', url: process.env.SOCIAL_SERVICE_URL || 'http://social-service:8080' },
+        { name: 'payment-service', url: process.env.PAYMENT_SERVICE_URL || 'http://payment-service:8080' },
+        { name: 'location-service', url: process.env.LOCATION_SERVICE_URL || 'http://location-service:8080' },
+        { name: 'reward-service', url: process.env.REWARD_SERVICE_URL || 'http://reward-service:8080' }
+      ]
+    });
 
-// 延迟初始化
-initializeDisasterRecovery();
+    failoverController = new FailoverController();
+    drillManager = new DrillManager(failoverController);
+    databaseSync = new DatabaseSync();
+
+    // 启动健康检查和数据库同步监控
+    healthChecker.start().catch(err => {
+      logger.error('Failed to start health checker', { error: err.message });
+    });
+    
+    failoverController.initialize().catch(err => {
+      logger.error('Failed to initialize failover controller', { error: err.message });
+    });
+    
+    databaseSync.start().catch(err => {
+      logger.error('Failed to start database sync monitor', { error: err.message });
+    });
+  }
+}
 
 /**
  * GET /api/dr/status
@@ -91,10 +52,12 @@ initializeDisasterRecovery();
  */
 router.get('/status', async (req, res) => {
   try {
+    initComponents();
+    
     const healthStatus = healthChecker.getHealthStatus();
     const failoverState = failoverController.getState();
-    const activeDrill = drillManager.activeDrill;
-    const dbSyncStatus = databaseSync.getLastStatus();
+    const activeDrill = drillManager.getActiveDrill();
+    const dbSyncStatus = await databaseSync.getStatus();
     
     res.json({
       success: true,
@@ -107,7 +70,7 @@ router.get('/status', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('[DR] Failed to get status:', error.message);
+    logger.error('Failed to get DR status', { error: error.message });
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -118,10 +81,12 @@ router.get('/status', async (req, res) => {
  */
 router.get('/health', async (req, res) => {
   try {
+    initComponents();
+    
     const status = healthChecker.getHealthStatus();
     res.json({ success: true, data: status });
   } catch (error) {
-    console.error('[DR] Failed to get health status:', error.message);
+    logger.error('Failed to get health status', { error: error.message });
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -132,9 +97,11 @@ router.get('/health', async (req, res) => {
  */
 router.post('/failover', async (req, res) => {
   try {
+    initComponents();
+    
     const { reason, force = false } = req.body;
     
-    // 权限检查（在生产环境中应该使用中间件）
+    // 权限检查（如果有用户信息）
     if (req.user && !req.user?.roles?.includes('admin')) {
       return res.status(403).json({ 
         success: false, 
@@ -142,8 +109,8 @@ router.post('/failover', async (req, res) => {
       });
     }
     
-    console.log('[DR] Manual failover triggered:', { 
-      user: req.user?.id, 
+    logger.info('Manual failover triggered', { 
+      user: req.user?.id || 'system', 
       reason 
     });
     
@@ -155,7 +122,7 @@ router.post('/failover', async (req, res) => {
     
     res.json({ success: true, data: result });
   } catch (error) {
-    console.error('[DR] Failover failed:', error.message);
+    logger.error('Failover failed', { error: error.message });
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -166,12 +133,14 @@ router.post('/failover', async (req, res) => {
  */
 router.get('/failover/history', async (req, res) => {
   try {
+    initComponents();
+    
     const { limit = 10 } = req.query;
-    const history = failoverController.getHistory(parseInt(limit));
+    const history = failoverController.state.failoverHistory.slice(-parseInt(limit));
     
     res.json({ success: true, data: history });
   } catch (error) {
-    console.error('[DR] Failed to get failover history:', error.message);
+    logger.error('Failed to get failover history', { error: error.message });
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -182,6 +151,8 @@ router.get('/failover/history', async (req, res) => {
  */
 router.post('/drill', async (req, res) => {
   try {
+    initComponents();
+    
     // 权限检查
     if (req.user && !req.user?.roles?.includes('admin')) {
       return res.status(403).json({ 
@@ -201,7 +172,7 @@ router.post('/drill', async (req, res) => {
     
     res.json({ success: true, data: drill });
   } catch (error) {
-    console.error('[DR] Failed to schedule drill:', error.message);
+    logger.error('Failed to schedule drill', { error: error.message });
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -212,13 +183,15 @@ router.post('/drill', async (req, res) => {
  */
 router.post('/drill/:drillId/start', async (req, res) => {
   try {
+    initComponents();
+    
     const { drillId } = req.params;
     
     const result = await drillManager.startDrill(drillId);
     
     res.json({ success: true, data: result });
   } catch (error) {
-    console.error('[DR] Failed to start drill:', error.message);
+    logger.error('Failed to start drill', { error: error.message });
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -229,13 +202,15 @@ router.post('/drill/:drillId/start', async (req, res) => {
  */
 router.post('/drill/:drillId/rollback', async (req, res) => {
   try {
+    initComponents();
+    
     const { drillId } = req.params;
     
     const result = await drillManager.rollbackDrill(drillId);
     
     res.json({ success: true, data: result });
   } catch (error) {
-    console.error('[DR] Failed to rollback drill:', error.message);
+    logger.error('Failed to rollback drill', { error: error.message });
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -246,13 +221,15 @@ router.post('/drill/:drillId/rollback', async (req, res) => {
  */
 router.post('/drill/:drillId/cancel', async (req, res) => {
   try {
+    initComponents();
+    
     const { drillId } = req.params;
     
     const result = await drillManager.cancelDrill(drillId);
     
     res.json({ success: true, data: result });
   } catch (error) {
-    console.error('[DR] Failed to cancel drill:', error.message);
+    logger.error('Failed to cancel drill', { error: error.message });
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -263,90 +240,65 @@ router.post('/drill/:drillId/cancel', async (req, res) => {
  */
 router.get('/drill/history', async (req, res) => {
   try {
+    initComponents();
+    
     const { limit = 10 } = req.query;
     const history = drillManager.getDrillHistory(parseInt(limit));
     
     res.json({ success: true, data: history });
   } catch (error) {
-    console.error('[DR] Failed to get drill history:', error.message);
+    logger.error('Failed to get drill history', { error: error.message });
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
 /**
- * GET /api/dr/drill/:drillId
- * 获取演练状态
+ * GET /api/dr/drill/active
+ * 获取当前活跃演练
  */
-router.get('/drill/:drillId', async (req, res) => {
+router.get('/drill/active', async (req, res) => {
   try {
-    const { drillId } = req.params;
-    const status = drillManager.getDrillStatus(drillId);
+    initComponents();
     
-    if (!status) {
-      return res.status(404).json({ 
-        success: false, 
-        error: 'Drill not found' 
-      });
-    }
+    const activeDrill = drillManager.getActiveDrill();
     
-    res.json({ success: true, data: status });
+    res.json({ success: true, data: activeDrill });
   } catch (error) {
-    console.error('[DR] Failed to get drill status:', error.message);
+    logger.error('Failed to get active drill', { error: error.message });
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
 /**
- * GET /api/dr/db-sync
+ * GET /api/dr/database-sync
  * 获取数据库同步状态
  */
-router.get('/db-sync', async (req, res) => {
+router.get('/database-sync', async (req, res) => {
   try {
-    const status = databaseSync.getLastStatus();
+    initComponents();
+    
+    const status = await databaseSync.getStatus();
     
     res.json({ success: true, data: status });
   } catch (error) {
-    console.error('[DR] Failed to get db sync status:', error.message);
+    logger.error('Failed to get database sync status', { error: error.message });
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
 /**
- * POST /api/dr/db-sync/force
+ * POST /api/dr/database-sync/force
  * 强制数据库同步
  */
-router.post('/db-sync/force', async (req, res) => {
+router.post('/database-sync/force', async (req, res) => {
   try {
+    initComponents();
+    
     const result = await databaseSync.forceSync();
     
     res.json({ success: true, data: { synced: result } });
   } catch (error) {
-    console.error('[DR] Failed to force sync:', error.message);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-/**
- * GET /api/dr/config
- * 获取容灾配置
- */
-router.get('/config', async (req, res) => {
-  try {
-    const config = {
-      primaryRegion: failoverController.config.primaryRegion,
-      secondaryRegion: failoverController.config.secondaryRegion,
-      currentRegion: failoverController.config.currentRegion,
-      autoFailover: failoverController.config.autoFailover,
-      cooldownPeriod: failoverController.config.cooldownPeriod,
-      dnsTTL: failoverController.config.dnsTTL,
-      healthCheckInterval: healthChecker.config.checkInterval,
-      failureThreshold: healthChecker.config.failureThreshold,
-      recoveryThreshold: healthChecker.config.recoveryThreshold
-    };
-    
-    res.json({ success: true, data: config });
-  } catch (error) {
-    console.error('[DR] Failed to get config:', error.message);
+    logger.error('Failed to force database sync', { error: error.message });
     res.status(500).json({ success: false, error: error.message });
   }
 });
