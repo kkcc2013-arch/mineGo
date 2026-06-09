@@ -262,6 +262,92 @@ async function timeDbQuery(service, queryName, fn) {
 }
 
 // ============================================================
+// 延迟队列指标 (REQ-00043)
+// ============================================================
+const delayQueueTasksScheduled = safeCounter({
+  name: 'minego_delay_queue_tasks_scheduled_total',
+  help: 'Total number of tasks scheduled in delay queue',
+  labelNames: ['task_type', 'priority', 'delay_bucket'],
+});
+
+const delayQueueTasksStarted = safeCounter({
+  name: 'minego_delay_queue_tasks_started_total',
+  help: 'Total number of tasks started processing',
+  labelNames: ['task_type'],
+});
+
+const delayQueueTasksCompleted = safeCounter({
+  name: 'minego_delay_queue_tasks_completed_total',
+  help: 'Total number of tasks completed successfully',
+  labelNames: ['task_type'],
+});
+
+const delayQueueTasksRetried = safeCounter({
+  name: 'minego_delay_queue_tasks_retried_total',
+  help: 'Total number of task retries',
+  labelNames: ['task_type', 'retry_attempt'],
+});
+
+const delayQueueTasksDeadLetter = safeCounter({
+  name: 'minego_delay_queue_tasks_dead_letter_total',
+  help: 'Total number of tasks sent to dead letter queue',
+  labelNames: ['task_type'],
+});
+
+const delayQueueTaskDuration = safeHistogram({
+  name: 'minego_delay_queue_task_duration_seconds',
+  help: 'Duration of task execution in seconds',
+  labelNames: ['task_type', 'status'],
+  buckets: [0.01, 0.05, 0.1, 0.5, 1, 5, 10, 30, 60],
+});
+
+const delayQueueBucketSize = safeGauge({
+  name: 'minego_delay_queue_bucket_size',
+  help: 'Current number of tasks in delay bucket',
+  labelNames: ['bucket'],
+});
+
+const delayQueueDlqSize = safeGauge({
+  name: 'minego_delay_queue_dlq_size',
+  help: 'Current number of tasks in dead letter queue',
+});
+
+const delayQueueDlqMessages = safeCounter({
+  name: 'minego_delay_queue_dlq_messages_total',
+  help: 'Total DLQ messages received',
+  labelNames: ['task_type'],
+});
+
+const delayQueueDlqAlerts = safeCounter({
+  name: 'minego_delay_queue_dlq_alerts_sent_total',
+  help: 'Total DLQ alerts sent',
+  labelNames: ['task_type'],
+});
+
+const delayQueueDlqAutoRetried = safeCounter({
+  name: 'minego_delay_queue_dlq_auto_retried_total',
+  help: 'Total DLQ tasks auto-retried',
+  labelNames: ['task_type'],
+});
+
+const delayBucketTasksMoved = safeCounter({
+  name: 'minego_delay_bucket_tasks_moved_total',
+  help: 'Total tasks moved from delay bucket to ready queue',
+  labelNames: ['bucket', 'task_type'],
+});
+
+const delayBucketTasksRebucketed = safeCounter({
+  name: 'minego_delay_bucket_tasks_rebucketed_total',
+  help: 'Total tasks re-bucketed',
+  labelNames: ['from_bucket', 'to_bucket'],
+});
+
+const delayQueueHealthScore = safeGauge({
+  name: 'minego_delay_queue_health_score',
+  help: 'Delay queue health score (0-100)',
+});
+
+// ============================================================
 // 导出所有指标和辅助函数
 // ============================================================
 module.exports = {
@@ -322,6 +408,22 @@ module.exports = {
   gauges: {
     lowTrustUserGauge,
   },
+  
+  // 延迟队列指标 (REQ-00043)
+  delayQueueTasksScheduled,
+  delayQueueTasksStarted,
+  delayQueueTasksCompleted,
+  delayQueueTasksRetried,
+  delayQueueTasksDeadLetter,
+  delayQueueTaskDuration,
+  delayQueueBucketSize,
+  delayQueueDlqSize,
+  delayQueueDlqMessages,
+  delayQueueDlqAlerts,
+  delayQueueDlqAutoRetried,
+  delayBucketTasksMoved,
+  delayBucketTasksRebucketed,
+  delayQueueHealthScore,
   
   // 辅助函数
   promClient,
