@@ -376,6 +376,43 @@ const pluginHealthStatus = safeGauge({
 });
 
 // ============================================================
+// CAPTCHA 指标 (REQ-00064)
+// ============================================================
+const captchaTriggersTotal = safeCounter({
+  name: 'minego_captcha_triggers_total',
+  help: 'Total captcha triggers by reason and difficulty',
+  labelNames: ['reason', 'difficulty'],
+});
+
+const captchaResultsTotal = safeCounter({
+  name: 'minego_captcha_results_total',
+  help: 'Total captcha results by type and status',
+  labelNames: ['type', 'status'], // status: passed, failed, expired
+});
+
+const captchaResponseTime = safeHistogram({
+  name: 'minego_captcha_response_time_seconds',
+  help: 'Captcha response time distribution',
+  labelNames: ['type', 'difficulty'],
+  buckets: [0.5, 1, 2, 5, 10, 20, 30, 60],
+});
+
+const captchaPassRate = safeGauge({
+  name: 'minego_captcha_pass_rate',
+  help: 'Current captcha pass rate',
+});
+
+const captchaActiveSessions = safeGauge({
+  name: 'minego_captcha_active_sessions',
+  help: 'Current active captcha sessions',
+});
+
+const captchaAccountFrozen = safeCounter({
+  name: 'minego_captcha_account_frozen_total',
+  help: 'Total accounts frozen due to captcha failures',
+});
+
+// ============================================================
 // 导出所有指标和辅助函数
 // ============================================================
 module.exports = {
@@ -465,6 +502,14 @@ module.exports = {
   pluginLatency,
   pluginHealthStatus,
   
+  // CAPTCHA 指标 (REQ-00064)
+  captchaTriggersTotal,
+  captchaResultsTotal,
+  captchaResponseTime,
+  captchaPassRate,
+  captchaActiveSessions,
+  captchaAccountFrozen,
+
   // 辅助函数
   promClient,
 };
