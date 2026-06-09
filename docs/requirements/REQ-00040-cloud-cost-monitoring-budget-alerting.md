@@ -7,7 +7,7 @@
 | 标题 | 云成本监控与预算告警系统 |
 | 类别 | 成本/资源优化 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | infrastructure/k8s、gateway、所有微服务、backend/shared |
 | 创建时间 | 2026-06-08 23:30 |
 

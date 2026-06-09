@@ -23,6 +23,9 @@ const { cacheRoutes, presets } = require('./cacheConfig');
 // REQ-00039: 缓存预热系统
 const cacheWarmup = require('../../shared/cacheWarmup');
 
+// REQ-00040: 云成本监控与预算告警
+const costReportRoutes = require('./routes/costReport');
+
 const logger = createLogger('gateway');
 const SERVICE_NAME = 'gateway';
 
@@ -315,6 +318,13 @@ app.post('/admin/cache/warmup/trigger', async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 });
+
+// ── Cost Monitoring API (REQ-00040) ────────────────────────────
+// 成本概览和报告
+app.use('/api/costs', costReportRoutes);
+
+// 预算管理
+app.use('/api/budgets', costReportRoutes);
 
 // 404 fallback
 app.use((req, res) => res.status(404).json({ code: 1005, message: `路由不存在: ${req.method} ${req.path}`, data: null }));

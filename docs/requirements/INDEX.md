@@ -43,5 +43,5 @@
 || REQ-00037 | 真实天气 API 集成与天气加成系统 | 功能增强 | P1 | done | location-service、catch-service、backend/shared、game-client、frontend | 2026-06-08 17:00 |
 | REQ-00038 | API 敏感数据泄露防护与审计日志加密存储 | 安全加固 | P1 | done | gateway、所有微服务、backend/shared、database/migrations | 2026-06-08 19:48 |
 || REQ-00039 | 热点数据缓存预热系统 | 性能优化 | P1 | done | gateway、pokemon-service、location-service、backend/shared、Redis | 2026-06-08 23:05 |
-| REQ-00040 | 云成本监控与预算告警系统 | 成本/资源优化 | P1 | new | infrastructure/k8s、gateway、所有微服务、backend/shared | 2026-06-08 23:30 |
+| REQ-00040 | 云成本监控与预算告警系统 | 成本/资源优化 | P1 | done | infrastructure/k8s、gateway、所有微服务、backend/shared | 2026-06-08 23:30 |
 |
