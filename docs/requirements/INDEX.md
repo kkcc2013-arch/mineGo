@@ -51,6 +51,7 @@
 || REQ-00045 | 设备完整性与模拟器检测系统 | 反作弊 | P1 | done | gateway、user-service、catch-service、gym-service、game-client、backend/shared | 2026-06-09 07:00 |
 || REQ-00046 | 精灵培育系统与遗传机制 | 功能增强 | P1 | done | pokemon-service、user-service、social-service、gateway、game-client、database/migrations ||
 ||| REQ-00047 | 精灵道具与背包管理系统 | 功能增强 | P1 | done | pokemon-service、reward-service、catch-service、social-service、gateway、game-client | 2026-06-09 12:50 |
-|| REQ-00048 | 精灵好友系统与社交互动增强 | 功能增强 | P1 | new | social-service、user-service、gateway、game-client、pokemon-service、reward-service | 2026-06-09 10:00 |
+|| REQ-00048 | 精灵好友系统与社交互动增强 | 功能增强 | P1 | done | social-service、user-service、gateway、game-client、pokemon-service、reward-service | 2026-06-09 10:00 |
 | REQ-00049 | API 客户端 SDK 统一抽象层 | 技术债/重构 | P1 | new | backend/shared、gateway、所有微服务 | 2026-06-09 12:45 |
+| REQ-00050 | 插件化中间件系统与生命周期管理 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-09 13:00 |
 |
