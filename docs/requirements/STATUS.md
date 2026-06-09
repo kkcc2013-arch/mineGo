@@ -30,10 +30,10 @@
 
 - 总需求：40
 - P0：6 (new: 0, done: 6)
-- P1：25 (new: 1, done: 24)
+- P1：25 (new: 0, done: 25)
 - P2：9 (new: 0, done: 9)
 - P3：0
-- 已完成：39
+- 已完成：40
 
 ## 项目状态
 
@@ -46,6 +46,27 @@
 详见 [DONE.md](./DONE.md)
 
 ## 已完成需求
+
+### REQ-00040: 云成本监控与预算告警系统
+- **完成时间**: 2026-06-09 00:15
+- **影响**: 成本/资源优化 - 完整的云成本监控体系，支持多云厂商、预算管理、成本预测、优化建议
+- **修改文件**:
+  - backend/shared/costMetrics.js (成本 Prometheus 指标 4.3 KB)
+  - backend/shared/cloudCostCollector.js (云成本采集器 12.0 KB)
+  - backend/shared/budgetManager.js (预算管理器 10.1 KB)
+  - backend/shared/costPredictor.js (成本预测器 9.2 KB)
+  - backend/shared/costMonitor.js (成本监控定时任务 7.9 KB)
+  - backend/gateway/src/routes/costReport.js (成本报告 API 14.0 KB)
+  - database/pending/20260609_000000__add_cloud_cost_tables.sql (数据库迁移 10.2 KB)
+  - backend/tests/unit/cost-monitoring.test.js (单元测试 18.0 KB, 51+ 个测试)
+  - docs/review/REQ-00040-review.md (审核文档)
+- **关键特性**:
+  - 支持 AWS/阿里云等多云厂商成本采集
+  - 按服务维度拆分成本，支持命名空间过滤
+  - 预算阈值配置支持 50%/80%/90%/100% 四级告警
+  - 成本预测（线性回归、移动平均、异常检测）
+  - 成本优化建议自动生成
+  - 11 个 API 端点、12 个 Prometheus 指标
 
 ### REQ-00039: 热点数据缓存预热系统
 - **完成时间**: 2026-06-08 23:30
