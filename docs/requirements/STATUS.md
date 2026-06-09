@@ -30,22 +30,43 @@
 
 - 总需求：44
 - P0：7 (new: 0, done: 7)
-- P1：29 (new: 1, done: 28)
+- P1：29 (new: 0, done: 29)
 - P2：9 (new: 0, done: 9)
 - P3：0
-- 已完成：43
+- 已完成：44
 
 ## 项目状态
 
 **🔄 需求生成进行中，目标 10000 条需求！**
 
 - 成熟度总分：100/100
-- 当前需求：43/10000
+- 当前需求：44/10000
 - 剩余需求：9957 条
 
 详见 [DONE.md](./DONE.md)
 
 ## 已完成需求
+
+### REQ-00044: API 版本管理与向后兼容策略
+- **完成时间**: 2026-06-09 06:48
+- **影响**: API 设计规范 - 完整的 API 版本管理体系，URL/Header 双重版本控制，废弃追踪，迁移指南
+- **修改文件**:
+  - backend/gateway/src/middleware/apiVersion.js (版本管理核心中间件 9.2 KB)
+  - backend/gateway/src/routes/apiVersion.js (版本管理 API 路由 5.7 KB)
+  - backend/gateway/src/routes/v1/catch.js, v1/users.js (v1 路由 2.5 KB)
+  - backend/gateway/src/routes/v2/catch.js, v2/users.js, v2/pokemon.js (v2 路由 6.0 KB)
+  - backend/shared/deprecationTracker.js (废弃 API 追踪器 10.0 KB)
+  - docs/api/migration/v1-to-v2.md (迁移指南文档 5.0 KB)
+  - backend/tests/unit/api-version.test.js (单元测试 13.6 KB, 28+ 个测试)
+  - docs/review/REQ-00044-api-version-management-backward-compatibility-review.md (审核文档)
+- **关键特性**:
+  - URL 路径版本控制 (/api/v1/, /api/v2/)
+  - Header 版本协商 (Accept-Version)
+  - 废弃 API 自动添加 X-API-Deprecated, X-API-Sunset 响应头
+  - 废弃 API 使用量统计和告警
+  - 版本路由注册系统
+  - v1→v2 迁移指南文档
+  - 5 个 Prometheus 指标
 
 ### REQ-00040: 云成本监控与预算告警系统
 - **完成时间**: 2026-06-09 00:15

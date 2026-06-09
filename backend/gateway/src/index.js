@@ -23,6 +23,19 @@ const { cacheRoutes, presets } = require('./cacheConfig');
 // REQ-00039: 缓存预热系统
 const cacheWarmup = require('@pmg/shared/cacheWarmup');
 
+// REQ-00044: API 版本管理
+const { apiVersionMiddleware, CURRENT_VERSION } = require('./middleware/apiVersion');
+const apiVersionRoutes = require('./routes/apiVersion');
+
+// v1 版本路由
+const catchV1Routes = require('./routes/v1/catch');
+const usersV1Routes = require('./routes/v1/users');
+
+// v2 版本路由
+const catchV2Routes = require('./routes/v2/catch');
+const usersV2Routes = require('./routes/v2/users');
+const pokemonV2Routes = require('./routes/v2/pokemon');
+
 // REQ-00040: 云成本监控与预算告警
 const costReportRoutes = require('./routes/costReport');
 
@@ -76,6 +89,9 @@ app.use((req, res, next) => {
 // Structured logging & metrics
 app.use(requestLogger(logger));
 app.use(metrics.httpMetricsMiddleware(SERVICE_NAME));
+
+// ── REQ-00044: API Version Middleware ────────────────────────────
+app.use(apiVersionMiddleware);
 
 // ── Health ────────────────────────────────────────────────────
 app.get('/health', async (_req, res) => {
@@ -176,9 +192,51 @@ function proxy(target, pathRewrite) {
   });
 }
 
-// ── Route table ───────────────────────────────────────────────
+// ── API Version Management (REQ-00044) ────────────────────────────
+// 版本信息 API
+app.use('/api/version', apiVersionRoutes);
+
+// ── v1 API Routes (Legacy) ──────────────────────────────────────────
 // Public (no auth)
-app.use('/v1/auth',     proxy(SERVICES.user, { '^/': '/auth/' }));
+app.use('/api/v1/auth',     proxy(SERVICES.user, { '^/api/v1/': '/' }));
+
+// Protected v1 routes
+app.use('/api/v1/catch',
+  authMiddleware,
+  rateLimit({ windowMs: 60_000, max: 120 }),
+  catchV1Routes
+);
+
+app.use('/api/v1/users',
+  authMiddleware,
+  usersV1Routes
+);
+
+// ── v2 API Routes (Current) ──────────────────────────────────────────
+// Public (no auth)
+app.use('/api/v2/auth',     proxy(SERVICES.user, { '^/api/v2/': '/' }));
+
+// Protected v2 routes
+app.use('/api/v2/catch',
+  authMiddleware,
+  rateLimit({ windowMs: 60_000, max: 120 }),
+  catchV2Routes
+);
+
+app.use('/api/v2/users',
+  authMiddleware,
+  usersV2Routes
+);
+
+app.use('/api/v2/pokemon',
+  authMiddleware,
+  pokemonV2Routes
+);
+
+// ── Legacy Routes (Default to current version) ──────────────────────
+// 以下路由保持向后兼容，默认使用当前版本
+// Public (no auth)
+app.use('/v1/auth',     proxy(SERVICES.user, { '^/v1/': '/auth/' }));
 
 // Protected with cache (REQ-00031)
 // 用户资料 - 缓存 5 分钟
