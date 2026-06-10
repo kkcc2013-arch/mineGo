@@ -43,11 +43,29 @@
 - 当前需求：95/10000
 - 剩余需求：9905 条
 - 最新生成：REQ-00095（游戏状态持久化与离线状态恢复系统，前端体验）
-- 最新完成：REQ-00093（API 契约测试系统）
+- 最新完成：REQ-00052（静态资源 CDN 集成与图片优化系统）
 
 详见 [DONE.md](./DONE.md)
 
 ## 已完成需求
+
+### REQ-00052: 静态资源 CDN 集成与图片优化系统
+- **完成时间**: 2026-06-10 23:15
+- **影响**: 性能优化 - CDN 集成、图片优化、响应式图片、缓存策略
+- **修改文件**:
+  - backend/shared/CDNManager.js (CDN 管理核心模块 14.7 KB)
+  - backend/gateway/src/routes/cdn.js (CDN API 路由 10.2 KB, 13 个端点)
+  - backend/gateway/src/middleware/imageOptimization.js (图片优化中间件 5.9 KB)
+  - infrastructure/k8s/cdn-config.yaml (K8s 配置 1.2 KB)
+  - backend/tests/unit/cdn.test.js (单元测试 13.2 KB, 30+ 测试)
+- **关键特性**:
+  - 支持 Cloudflare/阿里云 CDN 集成
+  - 6 种预设图片尺寸 (thumbnail/hd)
+  - 响应式图片 URL 生成
+  - WebP/AVIF 格式自动检测
+  - 缓存策略管理（3 种类型）
+  - ETag 生成、格式检测、统计功能
+  - 5 个 Prometheus 指标
 
 ### REQ-00093: API 契约测试系统
 - **完成时间**: 2026-06-10 16:30
