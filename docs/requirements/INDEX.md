@@ -80,5 +80,6 @@
 | REQ-00073 | 玩家对战系统（PVP Duel） | 功能增强 | P0 | done | social-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-10 01:25 |
 | REQ-00074 | 玩家排行榜系统 | 功能增强 | P1 | done | social-service、user-service、pokemon-service、gym-service、gateway、game-client、Redis、database/migrations | 2026-06-10 10:00 |
 || REQ-00075 | IP 黑名单与恶意 IP 自动封禁系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared、Redis、database/migrations | 2026-06-10 02:00 |
-| REQ-00076 | 精灵成就系统与里程碑奖励 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-10 02:15 |
+|| REQ-00076 | 精灵成就系统与里程碑奖励 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-10 02:15 |
+|| REQ-00077 | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | new | database/migrations、所有微服务、backend/shared、infrastructure/k8s | 2026-06-10 10:30 |
 |
