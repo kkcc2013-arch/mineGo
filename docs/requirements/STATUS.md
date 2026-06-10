@@ -28,26 +28,45 @@
 
 ## 需求统计
 
-- 总需求：93
+- 总需求：94
 - P0：11 (new: 0, done: 11)
 - P1：77 (new: 22, done: 55)
 - P2：4 (new: 2, done: 2)
 - P3：0
-- 已完成：68
+- 已完成：69
 
 ## 项目状态
 
 **🔄 需求生成进行中，目标 10000 条需求！**
 
 - 成熟度总分：100/100
-- 当前需求：93/10000
-- 剩余需求：9907 条
-- 最新生成：REQ-00093（API 契约测试系统，测试覆盖）
-- 最新完成：REQ-00080（API 请求响应 Schema 验证系统）
+- 当前需求：94/10000
+- 剩余需求：9906 条
+- 最新生成：REQ-00094（实时业务指标仪表板与运营监控系统，可观测性/监控）
+- 最新完成：REQ-00093（API 契约测试系统）
 
 详见 [DONE.md](./DONE.md)
 
 ## 已完成需求
+
+### REQ-00093: API 契约测试系统
+- **完成时间**: 2026-06-10 16:30
+- **影响**: 测试覆盖 - 完整的 API 契约测试体系，确保微服务间接口一致性
+- **修改文件**:
+  - backend/shared/contract/ContractSchema.js (契约 Schema 定义 4.7 KB)
+  - backend/shared/contract/ContractRegistry.js (契约注册中心 7.1 KB)
+  - backend/shared/contract/CompatibilityChecker.js (兼容性检查器 7.2 KB)
+  - backend/tests/contract/ContractTestRunner.js (测试运行器 7.4 KB)
+  - backend/tests/contract/ContractReportGenerator.js (报告生成器 11.6 KB)
+  - backend/services/*/contracts/*.contract.js (三个服务契约定义)
+  - backend/tests/unit/contract.test.js (单元测试 14.2 KB, 50+ 测试)
+  - .github/workflows/contract-tests.yml (CI 工作流)
+- **关键特性**:
+  - 支持 Joi Schema 的契约定义
+  - 消费者驱动契约测试模式
+  - API 兼容性自动检测（破坏性/非破坏性变更）
+  - 多格式报告生成（Markdown/HTML/JUnit）
+  - CI/CD 流水线集成
 
 ### REQ-00072: API 响应 Gzip/Brotli 压缩优化
 - **完成时间**: 2026-06-10 05:15

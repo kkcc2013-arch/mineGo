@@ -22,6 +22,8 @@
     "test:performance:gym": "cd tests/performance && ./run-performance-tests.sh --scenario gym --report",
     "test:performance:payment": "cd tests/performance && ./run-performance-tests.sh --scenario payment --report",
     "lint": "eslint . --ext .js,.ts",
+    "test:contract": "node tests/contract/run-contract-tests.js",
+    "contract:check": "node tests/contract/check-compatibility.js",
     "migrate:up": "node ../database/migrate.js up",
     "migrate:down": "node ../database/migrate.js down",
     "migrate:status": "node ../database/migrate.js status",

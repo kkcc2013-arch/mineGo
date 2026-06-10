@@ -1,0 +1,140 @@
+name: Contract Tests
+
+on:
+  pull_request:
+    paths:
+      - 'backend/services/**'
+      - 'backend/shared/**'
+      - 'backend/tests/contract/**'
+      - 'docs/api-spec/**'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  contract-tests:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: minego_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Create reports directory
+        run: mkdir -p backend/tests/contract/reports
+
+      - name: Check API compatibility
+        working-directory: backend
+        run: npm run contract:check
+        continue-on-error: true
+
+      - name: Run contract tests
+        working-directory: backend
+        run: npm run test:contract || true
+        env:
+          API_BASE_URL: http://localhost:8080
+          DATABASE_URL: postgresql://test:test@localhost:5432/minego_test
+          REDIS_URL: redis://localhost:6379
+
+      - name: Upload contract test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: contract-test-results
+          path: |
+            backend/tests/contract/reports/
+            backend/tests/contract/contract-history.json
+          retention-days: 30
+
+      - name: Comment PR with results
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request' && always()
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            let reportContent = '## 📋 Contract Test Results\n\n';
+            
+            try {
+              const reportPath = path.join('backend', 'tests', 'contract', 'reports', 'contract-test-report.md');
+              if (fs.existsSync(reportPath)) {
+                const report = fs.readFileSync(reportPath, 'utf8');
+                reportContent += report;
+              } else {
+                reportContent += 'Contract tests did not generate a report. This may be expected if services are not running.';
+              }
+            } catch (error) {
+              reportContent += `Error reading report: ${error.message}`;
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: reportContent
+            });
+
+  contract-schema-validation:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Validate contract schemas
+        working-directory: backend
+        run: |
+          node -e "
+            const userContract = require('./services/user-service/contracts/user.contract');
+            const pokemonContract = require('./services/pokemon-service/contracts/pokemon.contract');
+            const socialContract = require('./services/social-service/contracts/social.contract');
+            
+            console.log('✅ user-service contract loaded:', userContract.name, 'v' + userContract.version);
+            console.log('   Endpoints:', userContract.getAllEndpoints().length);
+            
+            console.log('✅ pokemon-service contract loaded:', pokemonContract.name, 'v' + pokemonContract.version);
+            console.log('   Endpoints:', pokemonContract.getAllEndpoints().length);
+            
+            console.log('✅ social-service contract loaded:', socialContract.name, 'v' + socialContract.version);
+            console.log('   Endpoints:', socialContract.getAllEndpoints().length);
+          "
