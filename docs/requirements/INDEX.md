@@ -66,7 +66,7 @@
 | REQ-00059 | 新手引导与教程系统 | 功能增强 | P1 | done | user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 20:00 |
 || REQ-00060 | 数据库分区表与大数据量表分区策略 | 数据库/数据治理 | P1 | done | database/migrations、所有微服务、backend/shared、PostgreSQL | 2026-06-09 18:05 |
 || REQ-00061 | 服务健康仪表板与自动恢复系统 | 运维/CICD | P1 | done | gateway、所有微服务、infrastructure/k8s、backend/shared | 2026-06-09 21:00 |
-|| REQ-00062 | 游戏音效与背景音乐系统 | 前端体验 | P1 | new | game-client、frontend/audio、game-client/src/components | 2026-06-09 19:15 ||
+|| REQ-00062 | 游戏音效与背景音乐系统 | 前端体验 | P1 | done | game-client、frontend/audio、game-client/src/components | 2026-06-09 19:15 ||
 || REQ-00063 | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | new | database/migrations、所有微服务、backend/shared、infrastructure/k8s | 2026-06-09 22:00 ||
 | REQ-00064 | 风险触发式人机验证（CAPTCHA）系统 | 反作弊 | P1 | done | gateway、user-service、game-client、backend/shared、Redis | 2026-06-09 20:15 |
 | REQ-00065 | 精灵进化与成长系统 | 功能增强 | P0 | done | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 23:00 |
@@ -95,3 +95,4 @@
 | REQ-00088 | Redis 连接池管理与健康监控系统 | 成本/资源优化 | P1 | new | backend/shared/redis.js、所有微服务、infrastructure/k8s、backend/shared/metrics.js | 2026-06-10 12:38 |
 || REQ-00089 | 数据跨境传输合规与本地化存储策略 | 合规/隐私 | P1 | new | user-service、gateway、database、backend/shared、infrastructure/k8s | 2026-06-10 13:00 |
 || REQ-00090 | 精灵状态效果系统与战斗Buff/Debuff管理 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
+| REQ-00091 | 精灵装备系统与属性加成机制 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
