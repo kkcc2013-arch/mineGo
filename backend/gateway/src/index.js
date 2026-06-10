@@ -39,6 +39,9 @@ const pokemonV2Routes = require('./routes/v2/pokemon');
 // REQ-00040: 云成本监控与预算告警
 const costReportRoutes = require('./routes/costReport');
 
+// REQ-00072: API 响应压缩
+const { createCompressionMiddleware } = require('@pmg/shared/compression');
+
 const logger = createLogger('gateway');
 const SERVICE_NAME = 'gateway';
 
@@ -89,6 +92,9 @@ app.use((req, res, next) => {
 // Structured logging & metrics
 app.use(requestLogger(logger));
 app.use(metrics.httpMetricsMiddleware(SERVICE_NAME));
+
+// REQ-00072: API 响应压缩（在路由之前）
+app.use(createCompressionMiddleware());
 
 // ── REQ-00044: API Version Middleware ────────────────────────────
 app.use(apiVersionMiddleware);
