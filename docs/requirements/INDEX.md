@@ -86,3 +86,4 @@
 || REQ-00079 | 精灵好感度系统与亲密度进化机制 | 功能增强 | P1 | new | pokemon-service、user-service、catch-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 11:00 |
 | REQ-00080 | API 请求响应 Schema 验证系统 | API 设计规范 | P1 | new | gateway、backend/shared、所有微服务、docs/api-spec/openapi | 2026-06-10 05:00 |
 | REQ-00081 | 捕捉动画特效系统 | 前端体验 | P1 | new | game-client、frontend/effects、catch-service | 2026-06-10 06:00 |
+| REQ-00082 | 精灵捕捉成功率异常检测系统 | 反作弊 | P1 | new | catch-service、gateway、backend/shared、Redis、PostgreSQL | 2026-06-10 07:00 |
