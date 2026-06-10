@@ -96,3 +96,4 @@
 || REQ-00089 | 数据跨境传输合规与本地化存储策略 | 合规/隐私 | P1 | new | user-service、gateway、database、backend/shared、infrastructure/k8s | 2026-06-10 13:00 |
 || REQ-00090 | 精灵状态效果系统与战斗Buff/Debuff管理 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
 | REQ-00091 | 精灵装备系统与属性加成机制 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
+| REQ-00092 | API 请求合并与批量查询优化 | 性能优化 | P1 | new | game-client、gateway、pokemon-service、social-service、gym-service | 2026-06-10 15:00 |
