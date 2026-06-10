@@ -132,6 +132,34 @@ const websocketMessagesTotal = safeCounter({
 });
 
 // ============================================================
+// REQ-00080: API Schema 验证指标
+// ============================================================
+const apiValidationErrors = safeCounter({
+  name: 'minego_api_validation_errors_total',
+  help: 'API 验证错误总数',
+  labelNames: ['service', 'operationId', 'type'], // type: request | response
+});
+
+const apiValidationDuration = safeHistogram({
+  name: 'minego_api_validation_duration_seconds',
+  help: 'API 验证耗时',
+  labelNames: ['service', 'operationId', 'type'],
+  buckets: [0.001, 0.005, 0.01, 0.025, 0.05, 0.1],
+});
+
+const schemaLoadErrors = safeCounter({
+  name: 'minego_schema_load_errors_total',
+  help: 'Schema 加载错误总数',
+  labelNames: ['version', 'error'],
+});
+
+const apiSchemaConsistencyIssues = safeGauge({
+  name: 'minego_api_schema_consistency_issues',
+  help: 'API Schema 一致性问题数量',
+  labelNames: ['type', 'severity'], // type: missing_schema | missing_route | param_mismatch
+});
+
+// ============================================================
 // 业务指标
 // ============================================================
 const catchAttemptsTotal = safeCounter({
@@ -509,6 +537,12 @@ module.exports = {
   captchaPassRate,
   captchaActiveSessions,
   captchaAccountFrozen,
+  
+  // API Schema 验证指标 (REQ-00080)
+  apiValidationErrors,
+  apiValidationDuration,
+  schemaLoadErrors,
+  apiSchemaConsistencyIssues,
 
   // 辅助函数
   promClient,

@@ -84,7 +84,7 @@
 || REQ-00077 | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | new | database/migrations、所有微服务、backend/shared、infrastructure/k8s | 2026-06-10 10:30 |
 || REQ-00078 | 金丝雀发布与流量分割系统 | 运维/CICD | P1 | new | gateway、所有微服务、infrastructure/k8s、.github/workflows、backend/shared | 2026-06-10 04:00 |
 || REQ-00079 | 精灵好感度系统与亲密度进化机制 | 功能增强 | P1 | new | pokemon-service、user-service、catch-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 11:00 |
-| REQ-00080 | API 请求响应 Schema 验证系统 | API 设计规范 | P1 | new | gateway、backend/shared、所有微服务、docs/api-spec/openapi | 2026-06-10 05:00 |
+| REQ-00080 | API 请求响应 Schema 验证系统 | API 设计规范 | P1 | done | gateway、backend/shared、所有微服务、docs/api-spec/openapi | 2026-06-10 05:00 |
 | REQ-00081 | 捕捉动画特效系统 | 前端体验 | P1 | new | game-client、frontend/effects、catch-service | 2026-06-10 06:00 |
 | REQ-00082 | 精灵捕捉成功率异常检测系统 | 反作弊 | P1 | new | catch-service、gateway、backend/shared、Redis、PostgreSQL | 2026-06-10 07:00 |
 | REQ-00083 | 区域化内容分发与地区专属活动管理系统 | 国际化/本地化 | P1 | new | location-service、reward-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-10 08:15 |
