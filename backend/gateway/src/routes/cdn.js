@@ -1,472 +1,459 @@
 /**
- * CDN Routes - CDN 管理 API 路由
+ * CDN 静态资源服务 API 路由
+ * 提供静态资源 URL 生成、缓存清除、统计数据等 API
  * 
- * 提供 CDN URL 生成、缓存清除、统计查询等 API。
- * 
- * @module cdnRoutes
+ * @module backend/gateway/src/routes/cdn
  */
-
 'use strict';
 
 const express = require('express');
-const { CDNManager } = require('../../../shared/CDNManager');
-const { ImageProcessor, IMAGE_PRESETS } = require('../../../shared/ImageProcessor');
-const { imageOptimizationMiddleware, parseImageParams } = require('./middleware/imageOptimization');
-const metrics = require('../../../shared/metrics');
-
-// 创建路由
 const router = express.Router();
+const { cdnManager, imageProcessor, IMAGE_PRESETS, CACHE_CONFIG } = require('../../shared/CDNManager');
+const { promClient } = require('../../shared/metrics');
 
-// 创建 CDN 管理器实例（配置从环境变量读取）
-const cdnConfig = {
-  provider: process.env.CDN_PROVIDER || 'cloudflare',
-  domain: process.env.CDN_DOMAIN || '',
-  originUrl: process.env.CDN_ORIGIN_URL || '',
-  enabled: process.env.CDN_ENABLED === 'true',
-  providerConfig: {
-    zoneId: process.env.CDN_ZONE_ID || '',
-    apiToken: process.env.CDN_API_TOKEN || ''
-  }
-};
+// ── Prometheus 指标 ─────────────────────────────────────────────────
 
-const cdnManager = new CDNManager(cdnConfig);
-const imageProcessor = new ImageProcessor({
-  outputDir: process.env.IMAGE_OUTPUT_DIR || './optimized',
-  webpEnabled: process.env.WEBP_ENABLED !== 'false',
-  avifEnabled: process.env.AVIF_ENABLED !== 'false'
+const cdnRequestsTotal = new promClient.Counter({
+  name: 'cdn_requests_total',
+  help: 'Total number of CDN requests',
+  labelNames: ['type', 'preset']
 });
 
-// Prometheus 指标
-const cdnMetrics = {
-  requestsTotal: metrics.registerCounter({
-    name: 'cdn_requests_total',
-    help: 'Total CDN requests',
-    labelNames: ['type', 'format', 'size']
-  }),
-  cacheHits: metrics.registerCounter({
-    name: 'cdn_cache_hits_total',
-    help: 'Total CDN cache hits'
-  }),
-  cacheMisses: metrics.registerCounter({
-    name: 'cdn_cache_misses_total',
-    help: 'Total CDN cache misses'
-  }),
-  purgeOperations: metrics.registerCounter({
-    name: 'cdn_purge_operations_total',
-    help: 'Total CDN cache purge operations'
-  }),
-  imagesOptimized: metrics.registerCounter({
-    name: 'cdn_images_optimized_total',
-    help: 'Total images optimized',
-    labelNames: ['format', 'preset']
-  }),
-  bytesSaved: metrics.registerGauge({
-    name: 'cdn_bytes_saved_total',
-    help: 'Total bytes saved by optimization'
-  })
-};
+const cdnCacheHits = new promClient.Counter({
+  name: 'cdn_cache_hits_total',
+  help: 'Total number of CDN cache hits',
+  labelNames: ['hit']
+});
+
+const cdnImagesOptimized = new promClient.Counter({
+  name: 'cdn_images_optimized_total',
+  help: 'Total number of images optimized'
+});
+
+const cdnBytesSaved = new promClient.Counter({
+  name: 'cdn_bytes_saved_total',
+  help: 'Total bytes saved from optimization and caching'
+});
+
+const cdnPurgeOperations = new promClient.Counter({
+  name: 'cdn_purge_operations_total',
+  help: 'Total number of CDN cache purge operations',
+  labelNames: ['result']
+});
+
+// ── API 路由 ───────────────────────────────────────────────────────
 
 /**
+ * GET /cdn/resource
  * 获取 CDN 资源 URL
  * 
- * GET /cdn/resource
+ * Query params:
+ * - path: 资源路径 (必填)
+ * - width: 宽度 (可选)
+ * - height: 高度 (可选)
+ * - format: 格式 webp/avif/jpg/png (可选)
+ * - quality: 质量 1-100 (可选)
+ * - preset: 预设 thumbnail/small/medium/large/hd/original (可选)
+ */
+router.get('/resource', (req, res) => {
+  const { path: resourcePath, width, height, format, quality, preset } = req.query;
+
+  if (!resourcePath) {
+    return res.status(400).json({
+      code: 400001,
+      message: 'Resource path is required'
+    });
+  }
+
+  const options = {};
+  if (width) options.width = parseInt(width, 10);
+  if (height) options.height = parseInt(height, 10);
+  if (format) options.format = format;
+  if (quality) options.quality = parseInt(quality, 10);
+  if (preset) options.preset = preset;
+
+  const url = cdnManager.getResourceUrl(resourcePath, options);
+  const cachePolicy = cdnManager.getCachePolicy(resourcePath);
+
+  // 记录指标
+  cdnRequestsTotal.inc({ type: 'resource', preset: preset || 'none' });
+
+  res.json({
+    code: 0,
+    message: 'success',
+    data: {
+      url,
+      cachePolicy,
+      preset: preset || null,
+      options: Object.keys(options).length > 0 ? options : null
+    }
+  });
+});
+
+/**
+ * GET /cdn/responsive
+ * 获取响应式图片 URL 集合
  * 
  * Query params:
- * - path: 资源路径（必填）
- * - w/width: 图片宽度
- * - h/height: 图片高度
- * - q/quality: 图片质量 (1-100)
- * - f/format: 图片格式 (webp/avif/original)
- * - fit: 裁剪方式 (cover/contain/fill)
- * - responsive: 是否生成响应式 URL (true/false)
- * 
- * @example
- * GET /cdn/resource?path=/pokemon/25.png&w=128&f=webp
+ * - path: 资源路径 (必填)
+ * - format: 格式 (可选)
  */
-router.get('/resource', parseImageParams, (req, res) => {
-  const { path } = req.query;
-  
-  if (!path) {
+router.get('/responsive', (req, res) => {
+  const { path: resourcePath, format } = req.query;
+
+  if (!resourcePath) {
     return res.status(400).json({
-      error: 'path parameter is required',
-      code: 'MISSING_PATH'
+      code: 400001,
+      message: 'Resource path is required'
     });
   }
-  
-  const params = req.imageParams;
-  const options = {
-    width: params.width,
-    height: params.height,
-    quality: params.quality,
-    format: params.format,
-    fit: params.fit
-  };
-  
-  // 记录请求
-  cdnMetrics.requestsTotal.inc({
-    type: 'resource',
-    format: params.format || 'original',
-    size: params.width ? `${params.width}px` : 'original'
-  });
-  
-  // 检查是否需要响应式 URL
-  if (req.query.responsive === 'true') {
-    const urls = cdnManager.getResponsiveUrls(path, options);
-    const srcset = cdnManager.generateSrcset(path, options);
-    
-    return res.json({
+
+  const options = format ? { format } : {};
+  const urls = cdnManager.getResponsiveUrls(resourcePath, options);
+  const srcSet = cdnManager.getResponsiveSrcSet(resourcePath, options);
+
+  // 记录指标
+  cdnRequestsTotal.inc({ type: 'responsive', preset: 'all' });
+
+  res.json({
+    code: 0,
+    message: 'success',
+    data: {
       urls,
-      srcset,
-      recommended: urls.medium,
-      format: options.format
-    });
-  }
-  
-  // 单个 URL
-  const url = cdnManager.getResourceUrl(path, options);
-  
-  res.json({
-    url,
-    path,
-    options,
-    cdnEnabled: cdnManager.enabled
+      srcSet,
+      presets: Object.keys(IMAGE_PRESETS)
+    }
   });
 });
 
 /**
- * 批量获取 CDN 资源 URL
+ * GET /cdn/srcset
+ * 获取图片 srcset 属性值
  * 
- * POST /cdn/resources/batch
- * 
- * Body:
- * - paths: 资源路径数组
- * - options: 全局优化选项
+ * Query params:
+ * - path: 资源路径 (必填)
+ * - format: 格式 (可选)
  */
-router.post('/resources/batch', (req, res) => {
-  const { paths, options = {} } = req.body;
-  
-  if (!paths || !Array.isArray(paths)) {
+router.get('/srcset', (req, res) => {
+  const { path: resourcePath, format } = req.query;
+
+  if (!resourcePath) {
     return res.status(400).json({
-      error: 'paths array is required',
-      code: 'MISSING_PATHS'
+      code: 400001,
+      message: 'Resource path is required'
     });
   }
-  
-  if (paths.length > 100) {
-    return res.status(400).json({
-      error: 'Maximum 100 paths per batch request',
-      code: 'PATHS_LIMIT_EXCEEDED'
-    });
-  }
-  
-  const urls = paths.map(path => ({
-    path,
-    url: cdnManager.getResourceUrl(path, options)
-  }));
-  
-  cdnMetrics.requestsTotal.inc({ type: 'batch' }, paths.length);
-  
+
+  const options = format ? { format } : {};
+  const srcSet = cdnManager.getResponsiveSrcSet(resourcePath, options);
+
   res.json({
-    urls,
-    count: urls.length,
-    options
+    code: 0,
+    message: 'success',
+    data: { srcSet }
   });
 });
 
 /**
+ * POST /cdn/purge
  * 清除 CDN 缓存
  * 
- * POST /cdn/purge
- * 
  * Body:
- * - paths: 要清除的路径数组
- * - all: 是否清除所有缓存
- * 
- * 需要管理员权限
+ * - paths: 要清除的路径数组 (可选，不传则清除所有)
  */
 router.post('/purge', async (req, res) => {
-  const { paths, all } = req.body;
-  
-  // 权限检查（简化版，实际部署需完整实现）
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({
-      error: 'Authorization required',
-      code: 'UNAUTHORIZED'
-    });
-  }
-  
+  const { paths } = req.body;
+
   try {
-    if (all) {
-      // 清除所有缓存
-      const result = await cdnManager.purgeCache(['/*']);
-      cdnMetrics.purgeOperations.inc({ type: 'all' });
-      
-      return res.json({
-        success: true,
-        message: 'All CDN cache purged',
-        timestamp: new Date().toISOString()
-      });
+    let result;
+    
+    if (paths && Array.isArray(paths) && paths.length > 0) {
+      result = await cdnManager.purgeCache(paths);
+    } else {
+      result = await cdnManager.purgeAll();
     }
-    
-    if (!paths || !Array.isArray(paths)) {
-      return res.status(400).json({
-        error: 'paths array is required when not purging all',
-        code: 'MISSING_PATHS'
-      });
-    }
-    
-    const result = await cdnManager.purgeCache(paths);
-    cdnMetrics.purgeOperations.inc({ type: 'partial' });
-    
+
+    // 记录指标
+    cdnPurgeOperations.inc({ result: result.success ? 'success' : 'failed' });
+
     res.json({
-      success: true,
-      purged: paths.length,
-      paths,
-      timestamp: new Date().toISOString()
+      code: 0,
+      message: result.success ? 'Cache purged successfully' : 'Purge failed',
+      data: result
     });
   } catch (error) {
-    console.error('[CDN] Purge error:', error);
+    console.error('[CDN API] Purge error:', error);
+    cdnPurgeOperations.inc({ result: 'error' });
+    
     res.status(500).json({
-      error: 'Failed to purge cache',
-      code: 'PURGE_ERROR',
-      details: error.message
+      code: 500001,
+      message: 'Cache purge failed',
+      error: error.message
     });
   }
 });
 
 /**
- * 获取 CDN 统计数据
- * 
  * GET /cdn/stats
+ * 获取 CDN 统计数据
  */
 router.get('/stats', (req, res) => {
-  const cdnStats = cdnManager.getStats();
-  const processorStats = imageProcessor.getStats();
-  
-  // 更新 Prometheus 指标
-  cdnMetrics.bytesSaved.set(processorStats.bytesSaved);
-  
+  const stats = cdnManager.getStats();
+
   res.json({
-    cdn: {
-      provider: cdnStats.provider,
-      enabled: cdnStats.enabled,
-      requests: cdnStats.requests,
-      cacheHitRate: cdnStats.cacheHitRate,
-      bytesTransferred: cdnStats.bytesTransferred,
-      errors: cdnStats.errors
-    },
-    imageProcessor: {
-      processed: processorStats.processed,
-      bytesSaved: processorStats.bytesSaved,
-      errors: processorStats.errors,
-      byFormat: processorStats.byFormat
-    },
-    timestamp: new Date().toISOString()
+    code: 0,
+    message: 'success',
+    data: stats
   });
 });
 
 /**
- * 获取图片预设配置
- * 
+ * POST /cdn/stats/reset
+ * 重置统计数据
+ */
+router.post('/stats/reset', (req, res) => {
+  cdnManager.resetStats();
+
+  res.json({
+    code: 0,
+    message: 'Stats reset successfully'
+  });
+});
+
+/**
+ * GET /cdn/config
+ * 获取 CDN 配置信息
+ */
+router.get('/config', (req, res) => {
+  res.json({
+    code: 0,
+    message: 'success',
+    data: {
+      enabled: cdnManager.enabled,
+      provider: cdnManager.provider,
+      domain: cdnManager.domain,
+      presets: IMAGE_PRESETS,
+      cacheConfig: CACHE_CONFIG
+    }
+  });
+});
+
+/**
+ * GET /cdn/formats
+ * 检测客户端支持的图片格式
+ */
+router.get('/formats', (req, res) => {
+  const acceptHeader = req.headers.accept || '';
+  const formats = cdnManager.detectSupportedFormats(acceptHeader);
+
+  res.json({
+    code: 0,
+    message: 'success',
+    data: formats
+  });
+});
+
+/**
  * GET /cdn/presets
+ * 获取图片预设配置
  */
 router.get('/presets', (req, res) => {
   res.json({
-    presets: IMAGE_PRESETS,
-    formats: ImageProcessor.getFormatConfig(),
-    defaultQuality: imageProcessor.defaultQuality,
-    webpEnabled: imageProcessor.webpEnabled,
-    avifEnabled: imageProcessor.avifEnabled
+    code: 0,
+    message: 'success',
+    data: IMAGE_PRESETS
   });
 });
 
 /**
- * 设置资源版本
+ * GET /cdn/cache-policy
+ * 获取指定路径的缓存策略
  * 
- * POST /cdn/version
- * 
- * Body:
+ * Query params:
  * - path: 资源路径
- * - version: 版本号（可选，自动生成）
  */
-router.post('/version', (req, res) => {
-  const { path, version } = req.body;
-  
-  if (!path) {
+router.get('/cache-policy', (req, res) => {
+  const { path: resourcePath } = req.query;
+
+  if (!resourcePath) {
     return res.status(400).json({
-      error: 'path is required',
-      code: 'MISSING_PATH'
+      code: 400001,
+      message: 'Resource path is required'
     });
   }
-  
-  cdnManager.setResourceVersion(path, version);
-  
+
+  const policy = cdnManager.getCachePolicy(resourcePath);
+
   res.json({
-    success: true,
-    path,
-    version: version || 'auto-generated',
-    timestamp: new Date().toISOString()
+    code: 0,
+    message: 'success',
+    data: policy
   });
 });
 
 /**
- * 批量设置资源版本
- * 
- * POST /cdn/versions/batch
+ * POST /cdn/optimize
+ * 优化图片（需要 Sharp 库支持）
  * 
  * Body:
- * - versions: 路径到版本的映射
+ * - imageUrl: 图片 URL（可选，与 imageBase64 二选一）
+ * - imageBase64: Base64 编码的图片（可选）
+ * - options: 处理选项
  */
-router.post('/versions/batch', (req, res) => {
-  const { versions } = req.body;
-  
-  if (!versions || typeof versions !== 'object') {
-    return res.status(400).json({
-      error: 'versions object is required',
-      code: 'MISSING_VERSIONS'
+router.post('/optimize', async (req, res) => {
+  if (!imageProcessor.isAvailable()) {
+    return res.status(503).json({
+      code: 503001,
+      message: 'Image processing not available (Sharp not installed)'
     });
   }
-  
-  const count = Object.keys(versions).length;
-  if (count > 100) {
-    return res.status(400).json({
-      error: 'Maximum 100 versions per batch',
-      code: 'VERSIONS_LIMIT_EXCEEDED'
-    });
-  }
-  
-  cdnManager.setResourceVersions(versions);
-  
-  res.json({
-    success: true,
-    count,
-    timestamp: new Date().toISOString()
-  });
-});
 
-/**
- * 健康检查
- * 
- * GET /cdn/health
- */
-router.get('/health', (req, res) => {
-  const health = cdnManager.healthCheck();
-  
-  res.json({
-    ...health,
-    imageProcessor: {
-      webpEnabled: imageProcessor.webpEnabled,
-      avifEnabled: imageProcessor.avifEnabled
-    },
-    uptime: process.uptime()
-  });
-});
+  const { imageUrl, imageBase64, options = {} } = req.body;
 
-/**
- * 图片优化 API（供内部服务调用）
- * 
- * POST /cdn/images/optimize
- * 
- * Body:
- * - path: 图片路径
- * - presets: 要生成的预设尺寸
- * - formats: 要生成的格式
- */
-router.post('/images/optimize', async (req, res) => {
-  const { path, presets, formats } = req.body;
-  
-  if (!path) {
+  if (!imageUrl && !imageBase64) {
     return res.status(400).json({
-      error: 'path is required',
-      code: 'MISSING_PATH'
+      code: 400001,
+      message: 'Either imageUrl or imageBase64 is required'
     });
   }
-  
+
   try {
-    const result = await imageProcessor.generateResponsiveImages(path, {
-      presets,
-      formats
-    });
+    let input;
     
+    if (imageBase64) {
+      // 解码 Base64
+      const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+      input = Buffer.from(base64Data, 'base64');
+    } else {
+      // 下载图片
+      const response = await fetch(imageUrl);
+      input = Buffer.from(await response.arrayBuffer());
+    }
+
+    const originalSize = input.length;
+    const result = await imageProcessor.process(input, options);
+    const optimizedSize = result.length;
+
     // 记录优化统计
-    for (const preset of Object.keys(result.images)) {
-      for (const format of Object.keys(result.images[preset] || {})) {
-        cdnMetrics.imagesOptimized.inc({ format, preset });
+    cdnManager.recordImageOptimization(originalSize, optimizedSize);
+    cdnImagesOptimized.inc();
+    cdnBytesSaved.inc(originalSize - optimizedSize);
+
+    res.json({
+      code: 0,
+      message: 'success',
+      data: {
+        image: result.toString('base64'),
+        originalSize,
+        optimizedSize,
+        savedBytes: originalSize - optimizedSize,
+        compressionRatio: ((1 - optimizedSize / originalSize) * 100).toFixed(2) + '%'
+      }
+    });
+  } catch (error) {
+    console.error('[CDN API] Optimize error:', error);
+    res.status(500).json({
+      code: 500002,
+      message: 'Image optimization failed',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /cdn/responsive-images
+ * 生成响应式图片集（需要 Sharp 库支持）
+ * 
+ * Body:
+ * - imageUrl: 图片 URL
+ * - imageBase64: Base64 编码的图片
+ * - presets: 预设尺寸列表
+ */
+router.post('/responsive-images', async (req, res) => {
+  if (!imageProcessor.isAvailable()) {
+    return res.status(503).json({
+      code: 503001,
+      message: 'Image processing not available'
+    });
+  }
+
+  const { imageUrl, imageBase64, presets } = req.body;
+
+  if (!imageUrl && !imageBase64) {
+    return res.status(400).json({
+      code: 400001,
+      message: 'Either imageUrl or imageBase64 is required'
+    });
+  }
+
+  try {
+    let input;
+    
+    if (imageBase64) {
+      const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+      input = Buffer.from(base64Data, 'base64');
+    } else {
+      const response = await fetch(imageUrl);
+      input = Buffer.from(await response.arrayBuffer());
+    }
+
+    const results = await imageProcessor.generateResponsiveImages(
+      input, 
+      presets || ['thumbnail', 'small', 'medium', 'large']
+    );
+
+    // 转换为 Base64
+    const response = {};
+    let totalSaved = 0;
+    
+    for (const [preset, buffer] of Object.entries(results)) {
+      if (buffer) {
+        response[preset] = {
+          image: buffer.toString('base64'),
+          size: buffer.length
+        };
+        totalSaved += input.length - buffer.length;
       }
     }
-    
+
+    // 记录指标
+    cdnImagesOptimized.inc(Object.keys(results).length);
+    cdnBytesSaved.inc(totalSaved);
+
     res.json({
-      success: true,
-      result,
-      timestamp: new Date().toISOString()
+      code: 0,
+      message: 'success',
+      data: {
+        images: response,
+        originalSize: input.length,
+        totalSaved
+      }
     });
   } catch (error) {
-    console.error('[CDN] Image optimization error:', error);
+    console.error('[CDN API] Generate responsive images error:', error);
     res.status(500).json({
-      error: 'Failed to optimize image',
-      code: 'OPTIMIZE_ERROR',
-      details: error.message
+      code: 500003,
+      message: 'Failed to generate responsive images',
+      error: error.message
     });
   }
 });
 
 /**
- * 批量图片优化
- * 
- * POST /cdn/images/optimize/batch
- * 
- * Body:
- * - paths: 图片路径数组
- * - options: 优化选项
+ * GET /cdn/health
+ * 健康检查
  */
-router.post('/images/optimize/batch', async (req, res) => {
-  const { paths, options = {} } = req.body;
-  
-  if (!paths || !Array.isArray(paths)) {
-    return res.status(400).json({
-      error: 'paths array is required',
-      code: 'MISSING_PATHS'
-    });
-  }
-  
-  if (paths.length > 50) {
-    return res.status(400).json({
-      error: 'Maximum 50 paths per batch',
-      code: 'PATHS_LIMIT_EXCEEDED'
-    });
-  }
-  
-  try {
-    const results = await imageProcessor.batchProcess(paths, options);
-    
-    const successCount = results.filter(r => !r.error).length;
-    const errorCount = results.filter(r => r.error).length;
-    
-    res.json({
-      success: true,
-      results,
-      summary: {
-        total: paths.length,
-        success: successCount,
-        errors: errorCount
-      },
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    console.error('[CDN] Batch optimization error:', error);
-    res.status(500).json({
-      error: 'Failed to optimize images',
-      code: 'BATCH_OPTIMIZE_ERROR',
-      details: error.message
-    });
-  }
+router.get('/health', (req, res) => {
+  res.json({
+    code: 0,
+    message: 'success',
+    data: {
+      status: 'healthy',
+      cdnEnabled: cdnManager.enabled,
+      provider: cdnManager.provider,
+      imageProcessorAvailable: imageProcessor.isAvailable()
+    }
+  });
 });
 
-// 导出路由和实例（供其他模块使用）
-module.exports = {
-  router,
-  cdnManager,
-  imageProcessor,
-  cdnMetrics
-};
+module.exports = router;

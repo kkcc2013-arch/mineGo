@@ -1,333 +1,236 @@
 /**
- * Image Optimization Middleware - 图片优化中间件
+ * 图片优化中间件
+ * 自动检测客户端支持的图片格式，添加响应头
  * 
- * 自动检测客户端支持的图片格式，设置优化参数，
- * 并添加缓存控制头。
- * 
- * @module imageOptimization
+ * @module backend/gateway/src/middleware/imageOptimization
  */
-
 'use strict';
 
-/**
- * 默认配置
- */
-const DEFAULT_CONFIG = {
-  // 图片质量
-  defaultQuality: 85,
-  
-  // 格式优先级（按支持程度排序）
-  formatPriority: ['avif', 'webp', 'original'],
-  
-  // 缓存配置
-  cache: {
-    // 精灵图片 - 长期缓存
-    pokemon: {
-      maxAge: 31536000, // 1 年
-      immutable: true
-    },
-    // UI 素材 - 中期缓存
-    ui: {
-      maxAge: 2592000, // 30 天
-      immutable: false
-    },
-    // 动态图片 - 短期缓存
-    dynamic: {
-      maxAge: 3600, // 1 小时
-      immutable: false
-    }
-  },
-  
-  // 图片尺寸限制
-  maxDimensions: {
-    width: 2048,
-    height: 2048
-  }
-};
+const { cdnManager } = require('../../shared/CDNManager');
 
 /**
- * 创建图片优化中间件
- * 
- * @param {Object} config - 配置选项
- * @returns {Function} Express 中间件
- * 
- * @example
- * app.use('/images', imageOptimizationMiddleware({
- *   defaultQuality: 90,
- *   webpEnabled: true
- * }));
+ * 图片优化中间件
+ * 检测客户端支持的格式，设置 res.locals
  */
-function imageOptimizationMiddleware(config = {}) {
-  const options = { ...DEFAULT_CONFIG, ...config };
-  
+function imageOptimizationMiddleware(options = {}) {
   return (req, res, next) => {
-    // 1. 检测客户端支持的图片格式
+    // 检测客户端支持的格式
     const acceptHeader = req.headers.accept || '';
-    const userAgent = req.headers['user-agent'] || '';
-    
-    // 检测格式支持
-    const formatSupport = {
-      webp: _detectWebPSupport(acceptHeader, userAgent),
-      avif: _detectAVIFSupport(acceptHeader, userAgent)
+    const formats = cdnManager.detectSupportedFormats(acceptHeader);
+
+    // 存储到 res.locals 供后续使用
+    res.locals.imageFormats = formats;
+    res.locals.imageFormat = formats.bestFormat;
+    res.locals.imageQuality = parseInt(req.query.q || req.query.quality, 10) || 85;
+
+    // 添加辅助方法
+    res.locals.getOptimizedImageUrl = (path, extraOptions = {}) => {
+      const opts = {
+        format: res.locals.imageFormat !== 'original' ? res.locals.imageFormat : undefined,
+        quality: res.locals.imageQuality,
+        ...extraOptions
+      };
+      return cdnManager.getResourceUrl(path, opts);
     };
-    
-    // 选择最优格式
-    const optimalFormat = _selectOptimalFormat(formatSupport, options.formatPriority);
-    
-    // 2. 解析查询参数
-    const queryWidth = parseInt(req.query.w || req.query.width, 10);
-    const queryHeight = parseInt(req.query.h || req.query.height, 10);
-    const queryQuality = parseInt(req.query.q || req.query.quality, 10);
-    const queryFormat = req.query.f || req.query.format;
-    const queryFit = req.query.fit || 'cover';
-    
-    // 3. 构建优化参数
-    const optimization = {
-      width: _clampDimension(queryWidth, options.maxDimensions.width),
-      height: _clampDimension(queryHeight, options.maxDimensions.height),
-      quality: _clampQuality(queryQuality || options.defaultQuality),
-      format: _validateFormat(queryFormat) || optimalFormat,
-      fit: ['cover', 'contain', 'fill', 'inside', 'outside'].includes(queryFit) 
-        ? queryFit 
-        : 'cover'
-    };
-    
-    // 4. 存储到 res.locals 供后续使用
-    res.locals.imageOptimization = optimization;
-    res.locals.formatSupport = formatSupport;
-    
-    // 5. 设置 Vary 头（用于缓存区分）
-    res.setHeader('Vary', 'Accept');
-    
-    // 6. 设置缓存头
-    const cacheType = _detectCacheType(req.path);
-    const cacheConfig = options.cache[cacheType] || options.cache.dynamic;
-    _setCacheHeaders(res, cacheConfig);
-    
-    // 7. 添加响应拦截器（用于设置 ETag 和 Last-Modified）
-    const originalEnd = res.end.bind(res);
-    res.end = function(chunk, encoding) {
-      // 设置 ETag
-      if (chunk && !res.getHeader('ETag')) {
-        const etag = _generateETag(chunk);
-        res.setHeader('ETag', etag);
-      }
-      
-      // 设置 Last-Modified（如果未设置）
-      if (!res.getHeader('Last-Modified')) {
-        res.setHeader('Last-Modified', new Date().toUTCString());
-      }
-      
-      // 设置 Content-Type（基于优化格式）
-      const mimeType = _getMimeType(optimization.format);
-      if (mimeType && !res.getHeader('Content-Type')) {
-        res.setHeader('Content-Type', mimeType);
-      }
-      
-      return originalEnd(chunk, encoding);
-    };
-    
+
     next();
   };
 }
 
 /**
- * WebP 支持检测
- * 
- * @private
+ * 静态资源缓存头中间件
+ * 为静态资源添加正确的 Cache-Control 和 ETag 头
  */
-function _detectWebPSupport(acceptHeader, userAgent) {
-  // 1. Accept 头检测
-  if (acceptHeader.includes('image/webp')) {
-    return true;
-  }
-  
-  // 2. User-Agent 检测（常见浏览器）
-  const webPBrowserPatterns = [
-    /Chrome\/[6-9][0-9]/,          // Chrome 60+
-    /Firefox\/[6-9][0-9]/,         // Firefox 65+
-    /Edge\/[1-9][0-9]/,            // Edge 18+
-    /Safari\/60[5-9]/,             // Safari 14+
-    /Version\/1[4-9]\.[0-9]+ Safari/ // Safari 14+
-  ];
-  
-  return webPBrowserPatterns.some(pattern => pattern.test(userAgent));
-}
+function staticCacheMiddleware(options = {}) {
+  return (req, res, next) => {
+    const path = req.path;
+    const cachePolicy = cdnManager.getCachePolicy(path);
 
-/**
- * AVIF 支持检测
- * 
- * @private
- */
-function _detectAVIFSupport(acceptHeader, userAgent) {
-  // 1. Accept 头检测
-  if (acceptHeader.includes('image/avif')) {
-    return true;
-  }
-  
-  // 2. User-Agent 检测（AVIF 支持较新）
-  const avifBrowserPatterns = [
-    /Chrome\/[8-9][0-9]/,          // Chrome 85+
-    /Firefox\/[9][0-9]/,           // Firefox 93+
-    /Safari\/61[6-9]/              // Safari 16+
-  ];
-  
-  return avifBrowserPatterns.some(pattern => pattern.test(userAgent));
-}
-
-/**
- * 选择最优格式
- * 
- * @private
- */
-function _selectOptimalFormat(formatSupport, priority) {
-  for (const format of priority) {
-    if (format === 'original' || formatSupport[format]) {
-      return format;
+    // 设置 Cache-Control
+    const cacheDirectives = [];
+    
+    if (cachePolicy.maxAge) {
+      cacheDirectives.push(`max-age=${cachePolicy.maxAge}`);
     }
-  }
-  return 'original';
+    
+    if (cachePolicy.immutable) {
+      cacheDirectives.push('immutable');
+    }
+    
+    if (cachePolicy.public !== false) {
+      cacheDirectives.push('public');
+    }
+
+    if (cacheDirectives.length > 0) {
+      res.set('Cache-Control', cacheDirectives.join(', '));
+    }
+
+    // 设置 ETag（如果需要）
+    if (cachePolicy.etag) {
+      // Express 默认会生成 ETag，这里确保启用
+      res.set('ETag', cdnManager.generateETag(path));
+    }
+
+    // 设置 Vary 头
+    if (req.path.match(/\.(png|jpg|jpeg|gif|webp|avif)$/i)) {
+      res.set('Vary', 'Accept');
+    }
+
+    next();
+  };
 }
 
 /**
- * 限制尺寸范围
- * 
- * @private
+ * CDN URL 注入中间件
+ * 在请求中注入 CDN URL 辅助函数
  */
-function _clampDimension(value, max) {
-  if (!value || isNaN(value)) return null;
-  return Math.max(1, Math.min(value, max));
+function cdnUrlMiddleware(options = {}) {
+  return (req, res, next) => {
+    // 在请求对象上添加 CDN 辅助方法
+    req.cdn = {
+      getUrl: (path, opts) => cdnManager.getResourceUrl(path, opts),
+      getResponsiveUrls: (path, opts) => cdnManager.getResponsiveUrls(path, opts),
+      getSrcSet: (path, opts) => cdnManager.getResponsiveSrcSet(path, opts),
+      getCachePolicy: (path) => cdnManager.getCachePolicy(path),
+      isEnabled: () => cdnManager.enabled,
+      getProvider: () => cdnManager.provider
+    };
+
+    // 在响应对象上添加辅助方法
+    res.cdnUrl = (path, opts) => cdnManager.getResourceUrl(path, opts);
+    res.cdnResponsive = (path, opts) => cdnManager.getResponsiveUrls(path, opts);
+
+    next();
+  };
 }
 
 /**
- * 限制质量范围
- * 
- * @private
+ * 图片格式协商中间件
+ * 根据客户端能力自动选择最佳图片格式
  */
-function _clampQuality(value) {
-  if (!value || isNaN(value)) return DEFAULT_CONFIG.defaultQuality;
-  return Math.max(1, Math.min(100, value));
+function imageFormatNegotiationMiddleware(options = {}) {
+  const { 
+    defaultFormat = 'original',
+    forceFormat = null,
+    qualityMap = {
+      avif: 75,
+      webp: 85,
+      jpeg: 90,
+      png: 90,
+      original: 95
+    }
+  } = options;
+
+  return (req, res, next) => {
+    // 如果强制指定格式
+    if (forceFormat) {
+      res.locals.negotiatedFormat = forceFormat;
+      res.locals.negotiatedQuality = qualityMap[forceFormat] || qualityMap.original;
+      return next();
+    }
+
+    // 根据客户端能力选择格式
+    const acceptHeader = req.headers.accept || '';
+    const formats = cdnManager.detectSupportedFormats(acceptHeader);
+
+    // 选择最佳格式
+    let selectedFormat = defaultFormat;
+    let selectedQuality = qualityMap.original;
+
+    if (formats.avif && options.enableAvif !== false) {
+      selectedFormat = 'avif';
+      selectedQuality = qualityMap.avif;
+    } else if (formats.webp && options.enableWebp !== false) {
+      selectedFormat = 'webp';
+      selectedQuality = qualityMap.webp;
+    }
+
+    // 允许客户端通过查询参数覆盖
+    if (req.query.format && ['avif', 'webp', 'jpeg', 'png', 'original'].includes(req.query.format)) {
+      selectedFormat = req.query.format;
+      selectedQuality = qualityMap[selectedFormat] || qualityMap.original;
+    }
+
+    if (req.query.q || req.query.quality) {
+      selectedQuality = parseInt(req.query.q || req.query.quality, 10);
+    }
+
+    res.locals.negotiatedFormat = selectedFormat;
+    res.locals.negotiatedQuality = selectedQuality;
+
+    // 添加 Vary 头
+    res.set('Vary', 'Accept');
+
+    next();
+  };
 }
 
 /**
- * 验证格式
- * 
- * @private
+ * 图片响应头中间件
+ * 为图片响应添加正确的 Content-Type 和其他头
  */
-function _validateFormat(format) {
-  const validFormats = ['webp', 'avif', 'jpeg', 'jpg', 'png', 'gif', 'original'];
-  return validFormats.includes(format) ? format : null;
-}
-
-/**
- * 检测缓存类型
- * 
- * @private
- */
-function _detectCacheType(path) {
-  if (path.includes('/pokemon/') || path.includes('/sprites/')) {
-    return 'pokemon';
-  }
-  if (path.includes('/ui/') || path.includes('/assets/')) {
-    return 'ui';
-  }
-  return 'dynamic';
-}
-
-/**
- * 设置缓存头
- * 
- * @private
- */
-function _setCacheHeaders(res, config) {
-  const cacheControl = [
-    `public`,
-    `max-age=${config.maxAge}`,
-    config.immutable ? 'immutable' : ''
-  ].filter(Boolean).join(', ');
-  
-  res.setHeader('Cache-Control', cacheControl);
-}
-
-/**
- * 生成 ETag
- * 
- * @private
- */
-function _generateETag(content) {
-  const crypto = require('crypto');
-  const hash = crypto.createHash('md5').update(content).digest('hex');
-  return `"${hash}"`;
-}
-
-/**
- * 获取 MIME 类型
- * 
- * @private
- */
-function _getMimeType(format) {
-  const mimeTypes = {
-    webp: 'image/webp',
+function imageResponseMiddleware(options = {}) {
+  const contentTypeMap = {
     avif: 'image/avif',
+    webp: 'image/webp',
     jpeg: 'image/jpeg',
     jpg: 'image/jpeg',
     png: 'image/png',
     gif: 'image/gif'
   };
-  return mimeTypes[format];
-}
 
-/**
- * 图片优化参数解析中间件
- * 
- * 用于从请求中提取优化参数，不设置缓存头
- */
-function parseImageParams(req, res, next) {
-  const { w, h, q, f, fit } = req.query;
-  
-  req.imageParams = {
-    width: w ? parseInt(w, 10) : null,
-    height: h ? parseInt(h, 10) : null,
-    quality: q ? parseInt(q, 10) : 85,
-    format: f || null,
-    fit: fit || 'cover'
-  };
-  
-  next();
-}
-
-/**
- * CDN 缓存预热中间件
- * 
- * 为响应添加 CDN 缓存预热相关头
- */
-function cdnCacheWarmup(config = {}) {
-  const { cdnDomain, cacheTags = [] } = config;
-  
   return (req, res, next) => {
-    // 设置 CDN 相关头
-    if (cdnDomain) {
-      res.setHeader('CDN-Cache-Control', 'max-age=31536000');
-    }
+    const format = res.locals.negotiatedFormat || res.locals.imageFormat;
     
-    // 设置缓存标签（用于按标签清除缓存）
-    if (cacheTags.length > 0) {
-      res.setHeader('Cache-Tag', cacheTags.join(', '));
+    if (format && format !== 'original' && contentTypeMap[format]) {
+      res.set('Content-Type', contentTypeMap[format]);
     }
-    
-    // 添加 Surrogate-Key（某些 CDN 使用）
-    if (req.path) {
-      const key = req.path.replace(/[/]/g, '-').substring(1);
-      res.setHeader('Surrogate-Key', key);
+
+    // 添加缓存头
+    const path = req.path;
+    const cachePolicy = cdnManager.getCachePolicy(path);
+
+    if (cachePolicy.maxAge) {
+      res.set('Cache-Control', `public, max-age=${cachePolicy.maxAge}${cachePolicy.immutable ? ', immutable' : ''}`);
     }
-    
+
+    next();
+  };
+}
+
+/**
+ * 预加载提示中间件
+ * 添加 Link 头提示浏览器预加载关键资源
+ */
+function preloadHintsMiddleware(options = {}) {
+  const { criticalResources = [] } = options;
+
+  return (req, res, next) => {
+    const linkHeaders = [];
+
+    for (const resource of criticalResources) {
+      if (typeof resource === 'string') {
+        linkHeaders.push(`<${resource}>; rel=preload; as=image`);
+      } else if (resource.path) {
+        const url = cdnManager.getResourceUrl(resource.path, resource.options);
+        const as = resource.as || 'image';
+        linkHeaders.push(`<${url}>; rel=preload; as=${as}`);
+      }
+    }
+
+    if (linkHeaders.length > 0) {
+      res.set('Link', linkHeaders.join(', '));
+    }
+
     next();
   };
 }
 
 module.exports = {
   imageOptimizationMiddleware,
-  parseImageParams,
-  cdnCacheWarmup,
-  DEFAULT_CONFIG
+  staticCacheMiddleware,
+  cdnUrlMiddleware,
+  imageFormatNegotiationMiddleware,
+  imageResponseMiddleware,
+  preloadHintsMiddleware
 };
