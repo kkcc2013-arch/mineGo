@@ -1,0 +1,123 @@
+{
+  "error": {
+    "auth": {
+      "invalid_token": "Invalid access token",
+      "token_expired": "Access token expired, please login again",
+      "missing_header": "Missing authentication header",
+      "insufficient_permissions": "Insufficient permissions"
+    },
+    "rate_limit": {
+      "exceeded": "Rate limit exceeded, please try again later"
+    },
+    "service": {
+      "unavailable": "Service temporarily unavailable"
+    },
+    "request": {
+      "invalid_format": "Invalid request format"
+    },
+    "user": {
+      "email_exists": "Email already registered",
+      "invalid_email": "Invalid email format",
+      "weak_password": "Password is too weak",
+      "invalid_credentials": "Invalid email or password",
+      "account_banned": "Your account has been banned",
+      "account_suspended": "Your account has been suspended",
+      "not_found": "User not found",
+      "username_exists": "Username already taken",
+      "invalid_username": "Invalid username format"
+    },
+    "friend": {
+      "not_found": "Friend not found",
+      "already_friends": "Already friends",
+      "request_exists": "Friend request already sent",
+      "list_full": "Friend list is full"
+    },
+    "location": {
+      "invalid_coordinates": "Invalid GPS coordinates",
+      "spoofing_detected": "GPS spoofing detected",
+      "speed_exceeded": "Speed limit exceeded",
+      "no_nearby_pokemon": "No nearby Pokemon found"
+    },
+    "pokemon": {
+      "not_found": "Pokemon not found",
+      "not_owner": "This Pokemon does not belong to you",
+      "already_transferred": "Pokemon already transferred",
+      "is_favorite": "Pokemon is marked as favorite",
+      "storage_full": "Pokemon storage is full"
+    },
+    "move": {
+      "not_found": "Move not found",
+      "cannot_learn": "This Pokemon cannot learn this move"
+    },
+    "catch": {
+      "pokemon_escaped": "Pokemon escaped",
+      "no_pokeballs": "No Pokeballs available",
+      "out_of_range": "Pokemon is out of range",
+      "blocked_anti_cheat": "Catch blocked by anti-cheat system",
+      "invalid_attempt": "Invalid catch attempt"
+    },
+    "gym": {
+      "not_found": "Gym not found",
+      "too_far": "Gym is too far away",
+      "same_team": "Gym is already owned by your team",
+      "no_eligible_pokemon": "No eligible Pokemon for gym",
+      "battle_cooldown": "Gym battle cooldown active"
+    },
+    "raid": {
+      "not_found": "Raid not found",
+      "not_active": "Raid is not active",
+      "lobby_full": "Raid lobby is full"
+    },
+    "trade": {
+      "not_found": "Trade not found",
+      "too_far": "Trade distance too far",
+      "insufficient_stardust": "Insufficient stardust",
+      "already_completed": "Trade already completed"
+    },
+    "guild": {
+      "not_found": "Guild not found",
+      "already_member": "Already in guild",
+      "full": "Guild is full"
+    },
+    "reward": {
+      "not_found": "Reward not found",
+      "already_claimed": "Reward already claimed",
+      "not_available": "Reward not yet available"
+    },
+    "item": {
+      "not_found": "Item not found",
+      "inventory_full": "Item inventory is full",
+      "insufficient": "Insufficient items"
+    },
+    "payment": {
+      "order_not_found": "Order not found",
+      "order_paid": "Order already paid",
+      "order_expired": "Order expired",
+      "invalid_amount": "Invalid payment amount",
+      "failed": "Payment failed",
+      "duplicate_order": "Duplicate order detected"
+    },
+    "product": {
+      "not_found": "Product not found",
+      "out_of_stock": "Product out of stock"
+    },
+    "validation": {
+      "failed": "Validation failed"
+    },
+    "system": {
+      "internal_error": "Internal server error"
+    }
+  },
+  "common": {
+    "success": "Success",
+    "error": "Error",
+    "loading": "Loading...",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close"
+  }
+}

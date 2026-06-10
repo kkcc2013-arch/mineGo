@@ -1,0 +1,123 @@
+{
+  "error": {
+    "auth": {
+      "invalid_token": "無効なアクセストークンです",
+      "token_expired": "ログインの有効期限が切れました。再度ログインしてください",
+      "missing_header": "認証ヘッダーがありません",
+      "insufficient_permissions": "このリソースにアクセスする権限がありません"
+    },
+    "rate_limit": {
+      "exceeded": "リクエストが多すぎます。後でもう一度お試しください"
+    },
+    "service": {
+      "unavailable": "サービスは一時的に利用できません"
+    },
+    "request": {
+      "invalid_format": "リクエスト形式が無効です"
+    },
+    "user": {
+      "email_exists": "このメールアドレスは既に登録されています",
+      "invalid_email": "メールアドレスの形式が無効です",
+      "weak_password": "パスワードが弱すぎます",
+      "invalid_credentials": "メールアドレスまたはパスワードが正しくありません",
+      "account_banned": "アカウントがBANされました",
+      "account_suspended": "アカウントが停止されました",
+      "not_found": "ユーザーが見つかりません",
+      "username_exists": "このユーザー名は既に使用されています",
+      "invalid_username": "ユーザー名の形式が無効です"
+    },
+    "friend": {
+      "not_found": "フレンドが見つかりません",
+      "already_friends": "既にフレンドです",
+      "request_exists": "フレンド申請を送信済みです",
+      "list_full": "フレンドリストがいっぱいです"
+    },
+    "location": {
+      "invalid_coordinates": "GPS座標が無効です",
+      "spoofing_detected": "GPSスプーフィングを検出しました",
+      "speed_exceeded": "移動速度が異常です",
+      "no_nearby_pokemon": "近くにポケモンが見つかりません"
+    },
+    "pokemon": {
+      "not_found": "ポケモンが見つかりません",
+      "not_owner": "このポケモンはあなたのものではありません",
+      "already_transferred": "ポケモンは既に転送されました",
+      "is_favorite": "お気に入りに登録されています",
+      "storage_full": "ポケモンボックスがいっぱいです"
+    },
+    "move": {
+      "not_found": "わざが見つかりません",
+      "cannot_learn": "このポケモンはこのわざを覚えられません"
+    },
+    "catch": {
+      "pokemon_escaped": "ポケモンが逃げました",
+      "no_pokeballs": "モンスターボールがありません",
+      "out_of_range": "ポケモンが遠すぎます",
+      "blocked_anti_cheat": "不正行為が検出されました",
+      "invalid_attempt": "捕獲リクエストが無効です"
+    },
+    "gym": {
+      "not_found": "ジムが見つかりません",
+      "too_far": "ジムが遠すぎます",
+      "same_team": "ジムは既にあなたのチームのものです",
+      "no_eligible_pokemon": "配置可能なポケモンがいません",
+      "battle_cooldown": "ジムバトルのクールダウン中です"
+    },
+    "raid": {
+      "not_found": "レイドが見つかりません",
+      "not_active": "レイドは開始されていないか終了しました",
+      "lobby_full": "レイドロビーがいっぱいです"
+    },
+    "trade": {
+      "not_found": "トレードが見つかりません",
+      "too_far": "トレード距離が遠すぎます",
+      "insufficient_stardust": "ほしのすなが足りません",
+      "already_completed": "トレードは完了またはキャンセルされました"
+    },
+    "guild": {
+      "not_found": "チームが見つかりません",
+      "already_member": "既にチームに参加しています",
+      "full": "チームがいっぱいです"
+    },
+    "reward": {
+      "not_found": "報酬が見つかりません",
+      "already_claimed": "報酬は既に受け取っています",
+      "not_available": "報酬はまだ利用できません"
+    },
+    "item": {
+      "not_found": "アイテムが見つかりません",
+      "inventory_full": "道具袋がいっぱいです",
+      "insufficient": "アイテムが足りません"
+    },
+    "payment": {
+      "order_not_found": "注文が見つかりません",
+      "order_paid": "注文は既に支払い済みです",
+      "order_expired": "注文の有効期限が切れました",
+      "invalid_amount": "支払金額が無効です",
+      "failed": "支払いに失敗しました",
+      "duplicate_order": "重複注文を検出しました"
+    },
+    "product": {
+      "not_found": "商品が見つかりません",
+      "out_of_stock": "在庫切れです"
+    },
+    "validation": {
+      "failed": "検証に失敗しました"
+    },
+    "system": {
+      "internal_error": "システムエラー"
+    }
+  },
+  "common": {
+    "success": "成功",
+    "error": "エラー",
+    "loading": "読み込み中...",
+    "retry": "再試行",
+    "cancel": "キャンセル",
+    "confirm": "確認",
+    "save": "保存",
+    "delete": "削除",
+    "edit": "編集",
+    "close": "閉じる"
+  }
+}

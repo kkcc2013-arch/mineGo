@@ -1,0 +1,123 @@
+{
+  "error": {
+    "auth": {
+      "invalid_token": "无效的访问令牌",
+      "token_expired": "登录已过期，请重新登录",
+      "missing_header": "请求缺少认证信息",
+      "insufficient_permissions": "您没有权限访问此资源"
+    },
+    "rate_limit": {
+      "exceeded": "请求过于频繁，请稍后重试"
+    },
+    "service": {
+      "unavailable": "服务暂时不可用，请稍后重试"
+    },
+    "request": {
+      "invalid_format": "请求格式无效"
+    },
+    "user": {
+      "email_exists": "该邮箱已被注册",
+      "invalid_email": "邮箱格式无效",
+      "weak_password": "密码强度不足",
+      "invalid_credentials": "邮箱或密码错误",
+      "account_banned": "您的账号已被封禁",
+      "account_suspended": "您的账号已被暂停",
+      "not_found": "用户不存在",
+      "username_exists": "该用户名已被使用",
+      "invalid_username": "用户名格式无效"
+    },
+    "friend": {
+      "not_found": "好友不存在",
+      "already_friends": "你们已经是好友了",
+      "request_exists": "已发送好友请求",
+      "list_full": "好友列表已满"
+    },
+    "location": {
+      "invalid_coordinates": "GPS 坐标无效",
+      "spoofing_detected": "检测到 GPS 伪造",
+      "speed_exceeded": "移动速度异常",
+      "no_nearby_pokemon": "附近没有发现精灵"
+    },
+    "pokemon": {
+      "not_found": "精灵不存在",
+      "not_owner": "该精灵不属于您",
+      "already_transferred": "该精灵已被转移或释放",
+      "is_favorite": "该精灵已标记为收藏",
+      "storage_full": "精灵存储已满"
+    },
+    "move": {
+      "not_found": "技能不存在",
+      "cannot_learn": "该精灵无法学习此技能"
+    },
+    "catch": {
+      "pokemon_escaped": "精灵已逃跑",
+      "no_pokeballs": "没有可用的精灵球",
+      "out_of_range": "精灵距离太远",
+      "blocked_anti_cheat": "捕捉请求被反作弊系统拦截",
+      "invalid_attempt": "捕捉请求无效"
+    },
+    "gym": {
+      "not_found": "道馆不存在",
+      "too_far": "道馆距离太远",
+      "same_team": "道馆已被您的队伍占领",
+      "no_eligible_pokemon": "没有符合条件的精灵",
+      "battle_cooldown": "道馆战斗冷却中"
+    },
+    "raid": {
+      "not_found": "Raid 不存在",
+      "not_active": "Raid 尚未开始或已结束",
+      "lobby_full": "Raid 大厅已满"
+    },
+    "trade": {
+      "not_found": "交易不存在",
+      "too_far": "交易距离太远",
+      "insufficient_stardust": "星尘不足",
+      "already_completed": "交易已完成或已取消"
+    },
+    "guild": {
+      "not_found": "公会不存在",
+      "already_member": "您已加入公会",
+      "full": "公会成员已满"
+    },
+    "reward": {
+      "not_found": "奖励不存在",
+      "already_claimed": "奖励已被领取",
+      "not_available": "奖励尚未解锁"
+    },
+    "item": {
+      "not_found": "道具不存在",
+      "inventory_full": "道具背包已满",
+      "insufficient": "道具数量不足"
+    },
+    "payment": {
+      "order_not_found": "订单不存在",
+      "order_paid": "订单已支付",
+      "order_expired": "订单已过期",
+      "invalid_amount": "支付金额无效",
+      "failed": "支付失败",
+      "duplicate_order": "检测到重复订单"
+    },
+    "product": {
+      "not_found": "商品不存在",
+      "out_of_stock": "商品库存不足"
+    },
+    "validation": {
+      "failed": "验证失败"
+    },
+    "system": {
+      "internal_error": "系统错误"
+    }
+  },
+  "common": {
+    "success": "操作成功",
+    "error": "操作失败",
+    "loading": "加载中...",
+    "retry": "重试",
+    "cancel": "取消",
+    "confirm": "确认",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "close": "关闭"
+  }
+}
