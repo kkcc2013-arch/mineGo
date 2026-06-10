@@ -3,7 +3,7 @@
 - **编号**：REQ-00095
 - **类别**：前端体验
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：game-client、frontend/storage、backend/shared、user-service
 - **创建时间**：2026-06-10 22:50
 - **依赖需求**：REQ-00009（PWA 离线支持）

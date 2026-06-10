@@ -30,10 +30,10 @@
 
 - 总需求：95
 - P0：11 (new: 0, done: 11)
-- P1：77 (new: 22, done: 55)
+- P1：77 (new: 21, done: 56)
 - P2：4 (new: 2, done: 2)
 - P3：0
-- 已完成：69
+- 已完成：70
 
 ## 项目状态
 
@@ -43,11 +43,35 @@
 - 当前需求：95/10000
 - 剩余需求：9905 条
 - 最新生成：REQ-00095（游戏状态持久化与离线状态恢复系统，前端体验）
-- 最新完成：REQ-00052（静态资源 CDN 集成与图片优化系统）
+- 最新完成：REQ-00095（游戏状态持久化与离线状态恢复系统，前端体验）
 
 详见 [DONE.md](./DONE.md)
 
 ## 已完成需求
+
+### REQ-00095: 游戏状态持久化与离线状态恢复系统
+- **完成时间**: 2026-06-11 00:15
+- **影响**: 前端体验 - IndexedDB 状态持久化、离线状态恢复、状态同步
+- **修改文件**:
+  - frontend/game-client/src/storage/PersistedStore.js (IndexedDB 核心存储层 7.3 KB)
+  - frontend/game-client/src/storage/PokemonCache.js (精灵缓存管理 7.0 KB)
+  - frontend/game-client/src/storage/MapElementCache.js (地图元素缓存 9.8 KB)
+  - frontend/game-client/src/storage/StateMigrator.js (状态迁移系统 6.5 KB)
+  - frontend/game-client/src/storage/StateSyncManager.js (状态同步管理 6.9 KB)
+  - frontend/game-client/src/storage/OplogManager.js (操作日志管理 9.1 KB)
+  - frontend/game-client/src/storage/index.js (模块导出 0.4 KB)
+  - frontend/game-client/src/game/PersistedGameStore.js (持久化 GameStore 10.5 KB)
+  - backend/services/user-service/src/routes/state.js (状态 API 端点 5.3 KB)
+  - backend/tests/unit/state-persistence.test.js (单元测试 14.5 KB, 25+ 测试)
+- **关键特性**:
+  - IndexedDB 存储 4 类数据（state/pokemon/mapElements/oplog）
+  - 页面刷新后核心状态自动恢复
+  - 离线时访问缓存精灵列表
+  - 自动保存机制（1 秒防抖）
+  - 过期数据自动清理（野生精灵 5 分钟，精灵缓存 24 小时）
+  - 上线后自动合并本地与服务端状态
+  - 状态版本迁移机制
+  - 4 个状态 API 端点
 
 ### REQ-00052: 静态资源 CDN 集成与图片优化系统
 - **完成时间**: 2026-06-10 23:15

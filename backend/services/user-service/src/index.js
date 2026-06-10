@@ -15,6 +15,7 @@ const notificationsRouter = require('./routes/notifications');
 const timezoneRouter = require('./routes/timezone');
 const ageVerificationRouter = require('./routes/ageVerification'); // REQ-00034
 const tutorialRouter = require('./routes/tutorial'); // REQ-00059
+const stateRouter = require('./routes/state'); // REQ-00095: 游戏状态持久化
 const { initNotificationHandlers } = require('./handlers/notificationHandler');
 
 // Create service launcher
@@ -57,6 +58,10 @@ const service = new ServiceLauncher({
     {
       path: '/tutorial', // REQ-00059: 新手引导与教程路由
       router: tutorialRouter
+    },
+    {
+      path: '/users', // REQ-00095: 游戏状态持久化
+      router: stateRouter
     }
   ],
   
