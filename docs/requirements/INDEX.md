@@ -62,7 +62,7 @@
 | REQ-00056 | 精灵图鉴完成度奖励系统 | 功能增强 | P1 | done | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-09 17:00 |
 | REQ-00057 | 多因素认证（MFA）系统 | 安全加固 | P1 | done | user-service、gateway、game-client、backend/shared、database/migrations | 2026-06-09 17:05 |
 | REQ-00057 | 游戏活动系统与限时活动管理 | 功能增强 | P0 | done | reward-service、location-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-09 18:00 |
-| REQ-00058 | 公会系统与团队社交功能 | 功能增强 | P1 | new | social-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 19:00 |
+| REQ-00058 | 公会系统与团队社交功能 | 功能增强 | P1 | done | social-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 19:00 |
 | REQ-00059 | 新手引导与教程系统 | 功能增强 | P1 | new | user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 20:00 |
 || REQ-00060 | 数据库分区表与大数据量表分区策略 | 数据库/数据治理 | P1 | new | database/migrations、所有微服务、backend/shared、PostgreSQL | 2026-06-09 18:05 |
 || REQ-00061 | 服务健康仪表板与自动恢复系统 | 运维/CICD | P1 | new | gateway、所有微服务、infrastructure/k8s、backend/shared | 2026-06-09 21:00 |
@@ -82,4 +82,5 @@
 || REQ-00075 | IP 黑名单与恶意 IP 自动封禁系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared、Redis、database/migrations | 2026-06-10 02:00 |
 || REQ-00076 | 精灵成就系统与里程碑奖励 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-10 02:15 |
 || REQ-00077 | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | new | database/migrations、所有微服务、backend/shared、infrastructure/k8s | 2026-06-10 10:30 |
+|| REQ-00078 | 金丝雀发布与流量分割系统 | 运维/CICD | P1 | new | gateway、所有微服务、infrastructure/k8s、.github/workflows、backend/shared | 2026-06-10 04:00 |
 |

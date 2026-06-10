@@ -9,6 +9,7 @@ const { requireAuth, AppError, successResp, errorHandler } = require('../../../s
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
 const tradeRoutes = require('./routes/trade');
+const guildRoutes = require('./routes/guild');
 
 const logger = createLogger('social-service');
 const SERVICE_NAME = 'social-service';
@@ -209,6 +210,9 @@ function generateGiftItems(friendLevel) {
 
 // ── Trade Routes ──────────────────────────────────────────────
 app.use('/trades', tradeRoutes);
+
+// ── Guild Routes ──────────────────────────────────────────────
+app.use('/guild', guildRoutes);
 
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'social-service started'));
