@@ -78,5 +78,6 @@
 || REQ-00071 | K8s Pod 资源自动扩缩容优化系统 | 成本/资源优化 | P1 | new | infrastructure/k8s、gateway、所有微服务、backend/shared | 2026-06-09 23:30 |
 | REQ-00072 | API 响应 Gzip/Brotli 压缩优化 | 性能优化 | P1 | new | gateway、所有微服务、backend/shared | 2026-06-10 00:20 |
 | REQ-00073 | 玩家对战系统（PVP Duel） | 功能增强 | P0 | done | social-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-10 01:25 |
-| REQ-00074 | 玩家排行榜系统 | 功能增强 | P1 | new | social-service、user-service、pokemon-service、gym-service、gateway、game-client、Redis、database/migrations | 2026-06-10 10:00 |
+| REQ-00074 | 玩家排行榜系统 | 功能增强 | P1 | done | social-service、user-service、pokemon-service、gym-service、gateway、game-client、Redis、database/migrations | 2026-06-10 10:00 |
+| REQ-00075 | IP 黑名单与恶意 IP 自动封禁系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared、Redis、database/migrations | 2026-06-10 02:00 |
 |
