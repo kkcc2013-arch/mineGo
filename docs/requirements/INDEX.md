@@ -100,3 +100,4 @@
 || REQ-00093 | API 契约测试系统 | 测试覆盖 | P1 | done | gateway、所有微服务、backend/tests/contract | 2026-06-10 16:00 |
 | REQ-00094 | 实时业务指标仪表板与运营监控系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-10 16:05 |
 | REQ-00095 | 游戏状态持久化与离线状态恢复系统 | 前端体验 | P1 | done | game-client、frontend/storage、backend/shared、user-service | 2026-06-10 22:50 |
+| REQ-00096 | 数据库事务隔离级别控制与死锁检测机制 | 数据库/数据治理 | P1 | new | backend/shared/db.js、catch-service、gym-service、payment-service、social-service | 2026-06-11 00:20 |
