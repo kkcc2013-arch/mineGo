@@ -93,4 +93,5 @@
 || REQ-00086 | 精灵特性系统与隐藏能力激活机制 | 功能增强 | P1 | new | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 12:00 |
 | REQ-00087 | 混沌工程与故障注入测试系统 | 容灾/高可用 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s、backend/tests/chaos | 2026-06-10 10:00 |
 | REQ-00088 | Redis 连接池管理与健康监控系统 | 成本/资源优化 | P1 | new | backend/shared/redis.js、所有微服务、infrastructure/k8s、backend/shared/metrics.js | 2026-06-10 12:38 |
-| REQ-00089 | 数据跨境传输合规与本地化存储策略 | 合规/隐私 | P1 | new | user-service、gateway、database、backend/shared、infrastructure/k8s | 2026-06-10 13:00 |
+|| REQ-00089 | 数据跨境传输合规与本地化存储策略 | 合规/隐私 | P1 | new | user-service、gateway、database、backend/shared、infrastructure/k8s | 2026-06-10 13:00 |
+|| REQ-00090 | 精灵状态效果系统与战斗Buff/Debuff管理 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
