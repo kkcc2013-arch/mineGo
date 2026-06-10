@@ -63,7 +63,7 @@
 | REQ-00057 | 多因素认证（MFA）系统 | 安全加固 | P1 | done | user-service、gateway、game-client、backend/shared、database/migrations | 2026-06-09 17:05 |
 | REQ-00057 | 游戏活动系统与限时活动管理 | 功能增强 | P0 | done | reward-service、location-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-09 18:00 |
 | REQ-00058 | 公会系统与团队社交功能 | 功能增强 | P1 | done | social-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 19:00 |
-| REQ-00059 | 新手引导与教程系统 | 功能增强 | P1 | new | user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 20:00 |
+| REQ-00059 | 新手引导与教程系统 | 功能增强 | P1 | done | user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 20:00 |
 || REQ-00060 | 数据库分区表与大数据量表分区策略 | 数据库/数据治理 | P1 | new | database/migrations、所有微服务、backend/shared、PostgreSQL | 2026-06-09 18:05 |
 || REQ-00061 | 服务健康仪表板与自动恢复系统 | 运维/CICD | P1 | new | gateway、所有微服务、infrastructure/k8s、backend/shared | 2026-06-09 21:00 |
 || REQ-00062 | 游戏音效与背景音乐系统 | 前端体验 | P1 | new | game-client、frontend/audio、game-client/src/components | 2026-06-09 19:15 ||
@@ -85,3 +85,4 @@
 || REQ-00078 | 金丝雀发布与流量分割系统 | 运维/CICD | P1 | new | gateway、所有微服务、infrastructure/k8s、.github/workflows、backend/shared | 2026-06-10 04:00 |
 || REQ-00079 | 精灵好感度系统与亲密度进化机制 | 功能增强 | P1 | new | pokemon-service、user-service、catch-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 11:00 |
 | REQ-00080 | API 请求响应 Schema 验证系统 | API 设计规范 | P1 | new | gateway、backend/shared、所有微服务、docs/api-spec/openapi | 2026-06-10 05:00 |
+| REQ-00081 | 捕捉动画特效系统 | 前端体验 | P1 | new | game-client、frontend/effects、catch-service | 2026-06-10 06:00 |
