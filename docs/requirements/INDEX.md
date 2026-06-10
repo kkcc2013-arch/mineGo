@@ -71,7 +71,7 @@
 | REQ-00064 | 风险触发式人机验证（CAPTCHA）系统 | 反作弊 | P1 | done | gateway、user-service、game-client、backend/shared、Redis | 2026-06-09 20:15 |
 | REQ-00065 | 精灵进化与成长系统 | 功能增强 | P0 | done | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 23:00 |
 || REQ-00066 | API 错误码标准化与故障排查手册 | 文档/开发者体验 | P1 | done | gateway、所有微服务、backend/shared、docs/api-spec、docs/troubleshooting | 2026-06-10 07:00 |
-| REQ-00067 | 精灵羁绊与互动养成系统 | 功能增强 | P1 | new | pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-09 22:30 |
+| REQ-00067 | 精灵羁绊与互动养成系统 | 功能增强 | P1 | done | pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-09 22:30 |
 | REQ-00068 | 服务降级策略与优雅降级管理器 | 容灾/高可用 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-09 22:05 |
 | REQ-00069 | 精灵资源管理系统与动态刷新控制 | 功能增强 | P1 | new | location-service、catch-service、backend/shared、game-client、database/migrations | 2026-06-09 23:30 |
 || REQ-00070 | Redis 内存优化与自动 TTL 策略 | 成本/资源优化 | P1 | new | backend/shared/cache.js、backend/shared/redis.js、gateway、所有微服务 | 2026-06-09 23:00 ||
@@ -92,3 +92,4 @@
 | REQ-00085 | 配置中心与动态配置热更新系统 | 技术债/重构 | P1 | new | gateway、所有微服务、backend/shared、Redis、infrastructure/k8s | 2026-06-10 09:00 |
 || REQ-00086 | 精灵特性系统与隐藏能力激活机制 | 功能增强 | P1 | new | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 12:00 |
 | REQ-00087 | 混沌工程与故障注入测试系统 | 容灾/高可用 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s、backend/tests/chaos | 2026-06-10 10:00 |
+| REQ-00088 | Redis 连接池管理与健康监控系统 | 成本/资源优化 | P1 | new | backend/shared/redis.js、所有微服务、infrastructure/k8s、backend/shared/metrics.js | 2026-06-10 12:38 |

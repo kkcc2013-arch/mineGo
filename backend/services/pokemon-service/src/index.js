@@ -323,6 +323,10 @@ app.use('/', movesRouter);
 const breedingRouter = require('./routes/breeding');
 app.use('/breeding', breedingRouter);
 
+// REQ-00067: 精灵羁绊系统路由
+const friendshipRouter = require('./routes/friendship');
+app.use('/pokemon', friendshipRouter);
+
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'pokemon-service started'));
 module.exports = app;
