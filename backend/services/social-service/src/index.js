@@ -11,6 +11,7 @@ const metrics = require('../../../shared/metrics');
 const tradeRoutes = require('./routes/trade');
 const guildRoutes = require('./routes/guild');
 const leaderboardRouter = require('./routes/leaderboard'); // REQ-00121
+const pvpRoutes = require('./routes/pvp'); // REQ-00128
 
 const logger = createLogger('social-service');
 const SERVICE_NAME = 'social-service';
@@ -211,6 +212,9 @@ function generateGiftItems(friendLevel) {
 
 // ── Trade Routes ──────────────────────────────────────────────
 app.use('/trades', tradeRoutes);
+
+// ── PVP Routes (REQ-00128) ─────────────────────────────────────
+app.use('/pvp', pvpRoutes);
 
 // ── Guild Routes ──────────────────────────────────────────────
 app.use('/guild', guildRoutes);
