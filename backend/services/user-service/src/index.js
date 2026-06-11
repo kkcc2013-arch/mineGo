@@ -13,6 +13,7 @@ const sessionsRouter = require('./routes/sessions');
 const { router: gdprRouter, initGDPRRoutes } = require('./routes/gdpr');
 const notificationsRouter = require('./routes/notifications');
 const messageCenterRouter = require('./routes/messageCenter'); // REQ-00120
+const mfaRouter = require('./routes/mfa'); // REQ-00057: MFA 路由
 const timezoneRouter = require('./routes/timezone');
 const ageVerificationRouter = require('./routes/ageVerification'); // REQ-00034
 const tutorialRouter = require('./routes/tutorial'); // REQ-00059
@@ -52,6 +53,10 @@ const service = new ServiceLauncher({
     {
       path: '/notifications', // REQ-00120: 消息中心路由
       router: messageCenterRouter
+    },
+    {
+      path: '/users', // REQ-00057: MFA 路由
+      router: mfaRouter
     },
     {
       path: '/users',

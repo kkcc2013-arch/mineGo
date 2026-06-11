@@ -4,8 +4,9 @@
  */
 
 const jwt = require('jsonwebtoken');
-const mfaService = require('../../shared/mfaService');
-const { logger } = require('../../shared/logger');
+const mfaService = require('../../../shared/mfaService');
+const { createLogger } = require('../../../shared/logger');
+const logger = createLogger('gateway');
 
 /**
  * MFA 验证中间件

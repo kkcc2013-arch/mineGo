@@ -5,10 +5,11 @@
 
 const express = require('express');
 const router = express.Router();
-const mfaService = require('../../shared/mfaService');
-const { generateMfaToken, mfaRequired } = require('../../gateway/src/middleware/mfaRequired');
-const { logger, metrics } = require('../../shared/logger');
-const { validateRequest } = require('../../shared/validation');
+const mfaService = require('../../../../shared/mfaService');
+const { generateMfaToken, mfaRequired } = require('../../../../gateway/src/middleware/mfaRequired');
+const { createLogger } = require('../../../../shared/logger');
+const metrics = require('../../../../shared/metrics');
+const logger = createLogger('user-service');
 
 /**
  * 获取 MFA 状态

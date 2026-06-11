@@ -48,7 +48,9 @@
     "@opentelemetry/semantic-conventions": "^1.41.1",
     "axios": "^1.17.0",
     "kafkajs": "^2.2.4",
+    "qrcode": "^1.5.4",
     "redis": "^6.0.0",
+    "speakeasy": "^2.0.0",
     "swagger-ui-express": "^5.0.1",
     "yamljs": "^0.3.0"
   }

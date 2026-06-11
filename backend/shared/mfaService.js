@@ -689,27 +689,28 @@ class MFAService {
 }
 
 // 初始化 Prometheus 指标
-if (typeof metrics.mfaSetupTotal === 'undefined') {
+const mfaMetrics = {};
+if (typeof promClient !== 'undefined') {
   const { Counter, Gauge } = require('prom-client');
   
-  metrics.mfaSetupTotal = new Counter({
+  mfaMetrics.mfaSetupTotal = new Counter({
     name: 'mfa_setup_total',
     help: 'Total MFA setup attempts',
     labelNames: ['status']
   });
 
-  metrics.mfaVerificationTotal = new Counter({
+  mfaMetrics.mfaVerificationTotal = new Counter({
     name: 'mfa_verification_total',
     help: 'Total MFA verifications',
     labelNames: ['type', 'status']
   });
 
-  metrics.mfaRecoveryCodesUsed = new Counter({
+  mfaMetrics.mfaRecoveryCodesUsed = new Counter({
     name: 'mfa_recovery_codes_used_total',
     help: 'Total MFA recovery codes used'
   });
 
-  metrics.mfaEnabledUsers = new Gauge({
+  mfaMetrics.mfaEnabledUsers = new Gauge({
     name: 'mfa_enabled_users',
     help: 'Number of users with MFA enabled'
   });
