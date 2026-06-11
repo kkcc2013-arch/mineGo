@@ -125,10 +125,11 @@
 | REQ-00117 | 地图手势交互优化与缩放流畅度提升 | 前端体验 | P2 | new | game-client、frontend/game-client/src/game、frontend/game-client/index.html | 2026-06-11 17:05 |
 | REQ-00118 | gym-service 战斗路由挂载与集成 | 集成与修复 | P0 | done | gym-service、backend/services/gym-service/src/index.js、backend/services/gym-service/src/routes/battle.js | 2026-06-11 17:15 |
 | REQ-00119 | pokemon-service 进化路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 17:30 |
-| REQ-00120 | user-service 消息中心路由挂载与集成 | 集成与修复 | P0 | new | user-service | 2026-06-11 17:35 |
+| REQ-00120 | user-service 消息中心路由挂载与集成 | 集成与修复 | P0 | done | user-service | 2026-06-11 17:35 |
 | REQ-00121 | social-service 排行榜路由挂载与集成 | 集成与修复 | P0 | new | social-service | 2026-06-11 17:40 |
 | REQ-00122 | 微服务配置中心与动态配置热更新系统 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared/config、Redis | 2026-06-11 18:00 |
 | REQ-00123 | pokemon-service showcase 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 18:30 |
 || REQ-00124 | 消息中心服务单元测试覆盖 | 测试覆盖 | P1 | new | user-service、backend/tests/unit/ | 2026-06-11 19:10 |
 | REQ-00126 | user-service MFA 路由挂载与集成 | 集成与修复 | P0 | done | user-service | 2026-06-11 20:05 |
 | REQ-00127 | 用户数据删除请求管理系统 | 合规/隐私 | P1 | new | user-service、gateway、所有微服务、database、backend/jobs | 2026-06-11 20:15 |
+| REQ-00128 | social-service PVP 路由挂载与集成 | 集成与修复 | P0 | new | social-service | 2026-06-11 21:05 |
