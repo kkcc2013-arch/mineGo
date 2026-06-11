@@ -10,6 +10,7 @@ const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
 const tradeRoutes = require('./routes/trade');
 const guildRoutes = require('./routes/guild');
+const leaderboardRouter = require('./routes/leaderboard'); // REQ-00121
 
 const logger = createLogger('social-service');
 const SERVICE_NAME = 'social-service';
@@ -213,6 +214,9 @@ app.use('/trades', tradeRoutes);
 
 // ── Guild Routes ──────────────────────────────────────────────
 app.use('/guild', guildRoutes);
+
+// REQ-00121: 玩家排行榜系统路由
+app.use('/leaderboard', leaderboardRouter);
 
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'social-service started'));

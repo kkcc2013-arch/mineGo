@@ -126,4 +126,5 @@
 | REQ-00118 | gym-service 战斗路由挂载与集成 | 集成与修复 | P0 | done | gym-service、backend/services/gym-service/src/index.js、backend/services/gym-service/src/routes/battle.js | 2026-06-11 17:15 |
 | REQ-00119 | pokemon-service 进化路由挂载与集成 | 集成与修复 | P0 | new | pokemon-service | 2026-06-11 17:30 |
 | REQ-00120 | user-service 消息中心路由挂载与集成 | 集成与修复 | P0 | new | user-service | 2026-06-11 17:35 |
+| REQ-00121 | social-service 排行榜路由挂载与集成 | 集成与修复 | P0 | new | social-service | 2026-06-11 17:40 |
 |
