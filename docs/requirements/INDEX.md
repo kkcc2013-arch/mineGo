@@ -67,7 +67,7 @@
 || REQ-00060 | 数据库分区表与大数据量表分区策略 | 数据库/数据治理 | P1 | done | database/migrations、所有微服务、backend/shared、PostgreSQL | 2026-06-09 18:05 |
 || REQ-00061 | 服务健康仪表板与自动恢复系统 | 运维/CICD | P1 | done | gateway、所有微服务、infrastructure/k8s、backend/shared | 2026-06-09 21:00 |
 || REQ-00062 | 游戏音效与背景音乐系统 | 前端体验 | P1 | done | game-client、frontend/audio、game-client/src/components | 2026-06-09 19:15 ||
-|| REQ-00063 | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | new | database/migrations、所有微服务、backend/shared、infrastructure/k8s | 2026-06-09 22:00 ||
+|| REQ-00063 | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | done | database/migrations、所有微服务、backend/shared、infrastructure/k8s | 2026-06-09 22:00 |
 | REQ-00064 | 风险触发式人机验证（CAPTCHA）系统 | 反作弊 | P1 | done | gateway、user-service、game-client、backend/shared、Redis | 2026-06-09 20:15 |
 | REQ-00065 | 精灵进化与成长系统 | 功能增强 | P0 | done | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 23:00 |
 || REQ-00066 | API 错误码标准化与故障排查手册 | 文档/开发者体验 | P1 | done | gateway、所有微服务、backend/shared、docs/api-spec、docs/troubleshooting | 2026-06-10 07:00 |
@@ -105,3 +105,4 @@
 | REQ-00098 | 自适应 API 限流与用户配额管理系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared、Redis、PostgreSQL | 2026-06-11 00:00 |
 | REQ-00099 | 游戏消息中心与通知管理系统 | 前端体验 | P1 | done | game-client、frontend/components、user-service、gateway | 2026-06-11 01:40 |
 | REQ-00100 | 自动化脚本与宏检测系统 | 反作弊 | P1 | new | gateway、catch-service、gym-service、game-client、backend/shared | 2026-06-11 02:00 |
+| REQ-00101 | 后端 API 错误消息国际化系统 | 国际化/本地化 | P1 | new | gateway、所有微服务、backend/shared、frontend/game-client | 2026-06-11 03:00 |
