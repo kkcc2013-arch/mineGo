@@ -109,4 +109,5 @@
 | REQ-00102 | 精灵昼夜循环系统 | 功能增强 | P1 | new | location-service、catch-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-11 04:00 |
 | REQ-00103 | 微服务依赖图与循环依赖检测系统 | 技术债/重构 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s、docs/architecture | 2026-06-11 04:00 |
 | REQ-00104 | 精灵交换市场与竞价拍卖系统 | 功能增强 | P1 | new | social-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-11 04:30 |
-| REQ-00105 | 分布式锁服务与 Redis Redlock 实现 | 容灾/高可用 | P1 | new | backend/shared/distributedLock.js、所有微服务、Redis | 2026-06-11 05:15 |
+|| REQ-00105 | 分布式锁服务与 Redis Redlock 实现 | 容灾/高可用 | P1 | new | backend/shared/distributedLock.js、所有微服务、Redis | 2026-06-11 05:15 |
+| REQ-00106 | 玩家称号系统与个性化展示 | 功能增强 | P1 | new | user-service、pokemon-service、social-service、gateway、game-client、database/migrations | 2026-06-11 05:30 |
