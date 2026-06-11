@@ -75,7 +75,7 @@
 | REQ-00068 | 服务降级策略与优雅降级管理器 | 容灾/高可用 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-09 22:05 |
 | REQ-00069 | 精灵资源管理系统与动态刷新控制 | 功能增强 | P1 | done | location-service、catch-service、backend/shared、game-client、database/migrations | 2026-06-09 23:30 |
 || REQ-00070 | Redis 内存优化与自动 TTL 策略 | 成本/资源优化 | P1 | done | backend/shared/cache.js、backend/shared/redis.js、gateway、所有微服务 | 2026-06-09 23:00 ||
-|| REQ-00071 | K8s Pod 资源自动扩缩容优化系统 | 成本/资源优化 | P1 | new | infrastructure/k8s、gateway、所有微服务、backend/shared | 2026-06-09 23:30 |
+|| REQ-00071 | K8s Pod 资源自动扩缩容优化系统 | 成本/资源优化 | P1 | done | infrastructure/k8s、gateway、所有微服务、backend/shared | 2026-06-09 23:30 |
 | REQ-00072 | API 响应 Gzip/Brotli 压缩优化 | 性能优化 | P1 | done | gateway、所有微服务、backend/shared | 2026-06-10 00:20 |
 | REQ-00073 | 玩家对战系统（PVP Duel） | 功能增强 | P0 | done | social-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-10 01:25 |
 | REQ-00074 | 玩家排行榜系统 | 功能增强 | P1 | done | social-service、user-service、pokemon-service、gym-service、gateway、game-client、Redis、database/migrations | 2026-06-10 10:00 |
@@ -114,4 +114,5 @@
 | REQ-00107 | 数据生命周期管理与自动清理策略 | 合规/隐私 | P1 | new | user-service、pokemon-service、social-service、payment-service、backend/shared、database/migrations、backend/jobs | 2026-06-11 06:00 |
 | REQ-00108 | 游戏客户端光敏性癫痫安全模式 | 无障碍(a11y) | P2 | new | game-client、frontend/effects、frontend/game-client/src/accessibility、catch-service、gym-service | 2026-06-11 07:05 |
 | REQ-00109 | 精灵团队战斗系统（Team Battle） | 功能增强 | P1 | new | gym-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-11 10:25 |
+| REQ-00110 | 前端资源懒加载与代码分割系统 | 性能优化 | P1 | new | game-client、frontend/game-client/src、frontend/game-client/src/components | 2026-06-11 11:35 |
 | REQ-00110 | 精灵背包容量管理与扩展系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 11:00 |
