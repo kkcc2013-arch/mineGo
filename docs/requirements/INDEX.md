@@ -129,4 +129,4 @@
 | REQ-00121 | social-service 排行榜路由挂载与集成 | 集成与修复 | P0 | new | social-service | 2026-06-11 17:40 |
 | REQ-00122 | 微服务配置中心与动态配置热更新系统 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared/config、Redis | 2026-06-11 18:00 |
 | REQ-00123 | pokemon-service showcase 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 18:30 |
-|
+| REQ-00124 | 消息中心服务单元测试覆盖 | 测试覆盖 | P1 | new | user-service、backend/tests/unit/ | 2026-06-11 19:10 |
