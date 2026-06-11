@@ -15,12 +15,12 @@
 const express = require('express');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
-const db = require('../db');
+const { query, transaction } = require('../../../../shared/db');
 const { BattleEngine } = require('../battleEngine');
-const cache = require('../../../shared/cache');
-const metrics = require('../../../shared/metrics');
-const logger = require('../../../shared/logger');
-const auth = require('../../../shared/auth');
+const cache = require('../../../../shared/cache');
+const metrics = require('../../../../shared/metrics');
+const logger = require('../../../../shared/logger');
+const auth = require('../../../../shared/auth');
 
 // 活跃战斗缓存（10分钟 TTL）
 const activeBattles = new Map();

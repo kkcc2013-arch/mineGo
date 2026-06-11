@@ -12,6 +12,7 @@ const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
 const { validateLocation, checkRateLimit, requireTrustScore, TRUST_SCORE } = require('../../../shared/anti-cheat');
 const { initNotificationWS, sendNotificationToUser } = require('../../../shared/NotificationWebSocket');
+const battleRoutes = require('./routes/battle');
 
 const logger = createLogger('gym-service');
 const SERVICE_NAME = 'gym-service';
@@ -210,91 +211,11 @@ app.post('/gyms/:id/defend', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// POST /gyms/:id/battle
-app.post('/gyms/:id/battle', requireAuth, validateLocation, checkRateLimit('GYM_BATTLE'), async (req, res, next) => {
-  try {
-    const { attackerPokemons } = req.body; // array of pokemon instance IDs
-    const userId = req.user.sub;
-    const gymId  = req.params.id;
 
-    if (!Array.isArray(attackerPokemons) || attackerPokemons.length === 0) {
-      throw new AppError(1001, '请选择出战精灵', 400);
-    }
-
-    const { rows: [user] } = await query('SELECT team FROM users WHERE id=$1', [userId]);
-    const { rows: [gym]  } = await query('SELECT controlling_team FROM gyms WHERE id=$1', [gymId]);
-    if (!gym) throw new AppError(4001, '道馆不存在', 404);
-    if (gym.controlling_team === user.team) {
-      throw new AppError(4005, '不能攻击己方道馆', 400);
-    }
-
-    // Get defenders
-    const { rows: defenders } = await query(`
-      SELECT gd.id, gd.hp_current, gd.hp_max, pi.cp, pi.species_id
-      FROM gym_defenders gd JOIN pokemon_instances pi ON pi.id = gd.pokemon_id
-      WHERE gd.gym_id=$1 ORDER BY gd.assigned_at
-    `, [gymId]);
-
-    if (defenders.length === 0) {
-      // Empty gym: just take it
-      await query('UPDATE gyms SET controlling_team=$1, updated_at=NOW() WHERE id=$2', [user.team, gymId]);
-      return res.json(successResp({ result: 'WIN', gymCaptured: true }));
-    }
-
-    // Simplified battle simulation
-    const { rows: attPokemon } = await query(`
-      SELECT id, cp, species_id FROM pokemon_instances
-      WHERE id = ANY($1) AND user_id=$2
-    `, [attackerPokemons, userId]);
-
-    const attackerTotalCp = attPokemon.reduce((s, p) => s + p.cp, 0);
-    const defenderTotalCp = defenders.reduce((s, d) => s + d.cp, 0);
-
-    const attackerWin = attackerTotalCp * (1 + Math.random() * 0.2) >
-                        defenderTotalCp * (1 + Math.random() * 0.3);
-
-    const damageToDef = Math.floor(attackerTotalCp * 0.15 * (0.8 + Math.random() * 0.4));
-
-    const result = await transaction(async (client) => {
-      await client.query(`
-        INSERT INTO gym_battles (gym_id, attacker_id, defender_team, attacker_team, result, damage_dealt)
-        VALUES ($1,$2,$3,$4,$5,$6)
-      `, [gymId, userId, gym.controlling_team, user.team,
-          attackerWin ? 'WIN' : 'LOSE', damageToDef]);
-
-      if (attackerWin) {
-        // Reduce defender HP
-        for (const def of defenders) {
-          const newHp = Math.max(0, def.hp_current - Math.floor(damageToDef / defenders.length));
-          await client.query('UPDATE gym_defenders SET hp_current=$1 WHERE id=$2', [newHp, def.id]);
-          if (newHp <= 0) {
-            // Remove defender
-            await client.query('DELETE FROM gym_defenders WHERE id=$1', [def.id]);
-            await client.query('UPDATE pokemon_instances SET defending_gym_id=NULL WHERE id=(SELECT pokemon_id FROM gym_defenders WHERE id=$1 LIMIT 1)', [def.id]);
-          }
-        }
-
-        // Check if all defenders defeated
-        const { rows: [remCount] } = await client.query(
-          'SELECT COUNT(*)::int AS n FROM gym_defenders WHERE gym_id=$1', [gymId]
-        );
-        if (remCount.n === 0) {
-          await client.query('UPDATE gyms SET controlling_team=$1, updated_at=NOW() WHERE id=$2',
-            [user.team, gymId]);
-        }
-
-        // Award XP
-        const xp = 100 + defenders.length * 50;
-        await client.query('UPDATE users SET xp=xp+$1 WHERE id=$2', [xp, userId]);
-        return { result: 'WIN', gymCaptured: remCount.n === 0, xpEarned: xp };
-      }
-
-      return { result: 'LOSE', gymCaptured: false, xpEarned: 25 };
-    });
-
-    res.json(successResp(result));
-  } catch (err) { next(err); }
-});
+// ============================================================
+// BATTLE ROUTES (挂载 battle.js 路由)
+// ============================================================
+app.use('/api/v1', battleRoutes);
 
 // ============================================================
 // RAID ROUTES
