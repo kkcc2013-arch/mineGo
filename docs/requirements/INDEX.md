@@ -131,3 +131,4 @@
 | REQ-00123 | pokemon-service showcase 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 18:30 |
 || REQ-00124 | 消息中心服务单元测试覆盖 | 测试覆盖 | P1 | new | user-service、backend/tests/unit/ | 2026-06-11 19:10 |
 | REQ-00126 | user-service MFA 路由挂载与集成 | 集成与修复 | P0 | done | user-service | 2026-06-11 20:05 |
+| REQ-00127 | 用户数据删除请求管理系统 | 合规/隐私 | P1 | new | user-service、gateway、所有微服务、database、backend/jobs | 2026-06-11 20:15 |
