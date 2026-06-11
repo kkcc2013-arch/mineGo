@@ -140,3 +140,4 @@
 || REQ-00130 | 实时业务事件流监控与分析系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-11 22:00 |
 || REQ-00131 | payment-service 多货币支持路由挂载与集成 | 集成与修复 | P0 | done | payment-service | 2026-06-11 23:00 |
 || REQ-00132 | pokemon-service inventory 路由挂载与集成 | 集成与修复 | P0 | new | pokemon-service | 2026-06-11 23:10 |
+|| REQ-00133 | pokemon-service pokedex 路由挂载与集成 | 集成与修复 | P0 | new | pokemon-service | 2026-06-11 23:20 |
