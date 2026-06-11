@@ -331,6 +331,10 @@ app.use('/pokemon', friendshipRouter);
 const evolutionRouter = require('./routes/evolution');
 app.use('/pokemon', evolutionRouter);
 
+// REQ-00123: 精灵收藏展示系统路由
+const showcaseRouter = require('./routes/showcase');
+app.use('/pokemon', showcaseRouter);
+
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'pokemon-service started'));
 module.exports = app;
