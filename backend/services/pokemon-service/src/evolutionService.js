@@ -723,14 +723,19 @@ class EvolutionService {
             client.release();
         }
     }
+
+    /**
+     * 根据经验值计算当前等级
+     */
+    calculateLevelFromExp(experience, growthRate) {
         const table = this.experienceTable[growthRate] || this.experienceTable.medium_fast;
-        
+
         for (let level = 100; level >= 1; level--) {
             if (experience >= table[level - 1]) {
                 return level;
             }
         }
-        
+
         return 1;
     }
 

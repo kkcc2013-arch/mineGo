@@ -29,6 +29,14 @@ function getDb() {
   return dbModule;
 }
 
+function query(text, params) {
+  const db = getDb();
+  if (!db) {
+    throw new Error('Database not available for encrypted audit log');
+  }
+  return db.query(text, params);
+}
+
 // ============================================================
 // 配置常量
 // ============================================================
@@ -57,49 +65,44 @@ async function getOrCreateEncryptionKey() {
       logger.warn('AUDIT_ENCRYPTION_KEY not set, generating temporary key (NOT FOR PRODUCTION)');
       return {
         keyId: 'temp-' + Date.now(),
-        key: crypto.randomBytes(32),
+        workKey: crypto.randomBytes(32),
         isTemporary: true,
       };
     }
     return {
       keyId: 'env-key',
-      key: Buffer.from(keyHex, 'hex'),
+      workKey: Buffer.from(keyHex, 'hex'),
     };
   }
-  
-  try {
-    // 尝试从数据库获取活跃密钥
-    const result = await db.query(
-      `SELECT id, encrypted_key, created_at, expires_at
-       FROM encryption_keys
-       WHERE is_active = true AND (expires_at IS NULL OR expires_at > NOW())
-       ORDER BY created_at DESC
-       LIMIT 1`
-    );
 
-    if (result.rows.length > 0) {
-      // 解密工作密钥
-      const masterKey = getMasterKey();
-      const encryptedKey = result.rows[0].encrypted_key;
-      const key = decryptWithMasterKey(encryptedKey, masterKey);
-      
-      return {
-        keyId: result.rows[0].id,
-        key,
-      };
-    }
+  // 尝试从数据库获取活跃密钥
+  const result = await db.query(
+    `SELECT id, encrypted_key, created_at, expires_at
+     FROM encryption_keys
+     WHERE is_active = true AND (expires_at IS NULL OR expires_at > NOW())
+     ORDER BY created_at DESC
+     LIMIT 1`
+  );
+
+  if (result.rows.length > 0) {
+    const workKey = await decryptWorkKey(result.rows[0].id, result.rows[0].encrypted_key);
+    return {
+      keyId: result.rows[0].id,
+      workKey,
+    };
+  }
 
   // 创建新密钥
   const keyId = crypto.randomBytes(32).toString('hex');
   const masterKey = process.env.MASTER_ENCRYPTION_KEY;
-  
+
   if (!masterKey) {
     logger.warn('MASTER_ENCRYPTION_KEY not set, using development mode');
     // 开发环境：直接使用环境变量或生成临时密钥
-    const workKey = process.env.DATA_ENCRYPTION_KEY 
+    const workKey = process.env.DATA_ENCRYPTION_KEY
       ? Buffer.from(process.env.DATA_ENCRYPTION_KEY, 'hex')
       : crypto.randomBytes(32);
-    
+
     return {
       keyId,
       workKey,
@@ -109,10 +112,10 @@ async function getOrCreateEncryptionKey() {
   // 生产环境：使用主密钥加密工作密钥
   const masterKeyBuffer = Buffer.from(masterKey, 'hex');
   const workKey = crypto.randomBytes(32);
-  
+
   const iv = crypto.randomBytes(16);
   const cipher = crypto.createCipheriv('aes-256-gcm', masterKeyBuffer, iv);
-  
+
   let encryptedKey = cipher.update(workKey, undefined, 'hex');
   encryptedKey += cipher.final('hex');
   const authTag = cipher.getAuthTag();

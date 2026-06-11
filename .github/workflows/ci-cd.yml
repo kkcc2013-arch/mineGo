@@ -37,21 +37,31 @@ jobs:
 
 
 
+      # 全仓语法检查：任何无法解析的 JS 文件直接阻断
+      # （曾发生语法错误代码合入 main：evolutionService.js / auditLogEncrypted.js）
+      - name: Syntax check all JS files
+        run: |
+          fail=0
+          while IFS= read -r f; do
+            if ! node --check "$f" >/dev/null 2>&1; then
+              echo "::error file=$f::SyntaxError"
+              node --check "$f" || true
+              fail=1
+            fi
+          done < <(find backend frontend scripts -name "*.js" -not -path "*/node_modules/*")
+          [ $fail -eq 0 ] && echo "✅ All JS files parse cleanly"
+
+      # 需求编号唯一性检查：新增重复编号直接阻断
+      - name: Check requirement numbering
+        run: node scripts/check-req-numbering.js
+
       - name: Install dependencies
         working-directory: backend
         run: npm install --workspaces --if-present
 
-      - name: Run catch unit tests
+      - name: Run unit tests
         working-directory: backend
-        run: node tests/unit/catch.test.js
-
-      - name: Run auth unit tests
-        working-directory: backend
-        run: node tests/unit/auth.test.js
-
-      - name: Run spawn unit tests
-        working-directory: backend
-        run: node tests/unit/spawn.test.js
+        run: npm run test:unit
 
       - name: Verify all services have health route
         working-directory: backend

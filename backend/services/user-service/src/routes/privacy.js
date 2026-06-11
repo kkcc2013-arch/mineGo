@@ -26,6 +26,26 @@ function initPrivacyRoutes(database) {
 }
 
 /**
+ * 管理员权限检查中间件
+ * 兼容 req.user.role === 'admin'（deviceIntegrity 风格）与 req.user.isAdmin（tutorial/captcha 风格）
+ */
+function requireAdmin(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({
+      success: false,
+      error: '未授权'
+    });
+  }
+  if (req.user.role !== 'admin' && !req.user.isAdmin) {
+    return res.status(403).json({
+      success: false,
+      error: '需要管理员权限'
+    });
+  }
+  next();
+}
+
+/**
  * 获取数据类别列表
  * GET /api/v1/privacy/categories
  */
@@ -179,6 +199,52 @@ router.get('/policy', async (req, res) => {
 });
 
 /**
+ * 检查是否需要接受新政策
+ * GET /api/v1/privacy/policy/check
+ * 注意：必须注册在 /policy/:version 之前，否则会被参数路由遮蔽
+ */
+router.get('/policy/check', async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        error: '未授权'
+      });
+    }
+
+    const currentPolicy = await policyService.getCurrentPolicy();
+    if (!currentPolicy) {
+      return res.json({
+        success: true,
+        data: {
+          needsAccept: false,
+          version: null
+        }
+      });
+    }
+
+    const hasAccepted = await policyService.hasAcceptedLatestPolicy(userId);
+
+    res.json({
+      success: true,
+      data: {
+        needsAccept: !hasAccepted,
+        version: currentPolicy.version,
+        effectiveDate: currentPolicy.effectiveDate,
+        changes: currentPolicy.changes
+      }
+    });
+  } catch (error) {
+    logger.error({ error: error.message, userId: req.user?.id }, 'Failed to check policy acceptance');
+    res.status(500).json({
+      success: false,
+      error: '检查政策状态失败'
+    });
+  }
+});
+
+/**
  * 获取特定版本隐私政策
  * GET /api/v1/privacy/policy/:version
  */
@@ -259,51 +325,6 @@ router.post('/policy/accept', async (req, res) => {
     res.status(500).json({
       success: false,
       error: '接受隐私政策失败'
-    });
-  }
-});
-
-/**
- * 检查是否需要接受新政策
- * GET /api/v1/privacy/policy/check
- */
-router.get('/policy/check', async (req, res) => {
-  try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        error: '未授权'
-      });
-    }
-    
-    const currentPolicy = await policyService.getCurrentPolicy();
-    if (!currentPolicy) {
-      return res.json({
-        success: true,
-        data: {
-          needsAccept: false,
-          version: null
-        }
-      });
-    }
-    
-    const hasAccepted = await policyService.hasAcceptedLatestPolicy(userId);
-    
-    res.json({
-      success: true,
-      data: {
-        needsAccept: !hasAccepted,
-        version: currentPolicy.version,
-        effectiveDate: currentPolicy.effectiveDate,
-        changes: currentPolicy.changes
-      }
-    });
-  } catch (error) {
-    logger.error({ error: error.message, userId: req.user?.id }, 'Failed to check policy acceptance');
-    res.status(500).json({
-      success: false,
-      error: '检查政策状态失败'
     });
   }
 });
@@ -420,9 +441,8 @@ router.post('/report/generate', async (req, res) => {
  * 管理员：创建新隐私政策版本
  * POST /api/v1/privacy/admin/policy
  */
-router.post('/admin/policy', async (req, res) => {
+router.post('/admin/policy', requireAdmin, async (req, res) => {
   try {
-    // TODO: 添加管理员权限检查
     const { version, effectiveDate, changes, contentZh, contentEn, contentJa } = req.body;
     
     if (!version || !effectiveDate || !contentZh || !contentEn || !contentJa) {
@@ -458,9 +478,8 @@ router.post('/admin/policy', async (req, res) => {
  * 管理员：获取未接受最新政策的用户
  * GET /api/v1/privacy/admin/pending-users
  */
-router.get('/admin/pending-users', async (req, res) => {
+router.get('/admin/pending-users', requireAdmin, async (req, res) => {
   try {
-    // TODO: 添加管理员权限检查
     const { limit = 1000 } = req.query;
     const users = await policyService.getUsersNotAcceptedLatestPolicy(parseInt(limit));
     
