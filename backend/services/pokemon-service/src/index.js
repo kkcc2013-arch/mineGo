@@ -327,6 +327,10 @@ app.use('/breeding', breedingRouter);
 const friendshipRouter = require('./routes/friendship');
 app.use('/pokemon', friendshipRouter);
 
+// REQ-00119: 精灵进化与成长系统路由
+const evolutionRouter = require('./routes/evolution');
+app.use('/pokemon', evolutionRouter);
+
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'pokemon-service started'));
 module.exports = app;
