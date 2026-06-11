@@ -142,3 +142,4 @@
 || REQ-00132 | pokemon-service inventory 路由挂载与集成 | 集成与修复 | P0 | new | pokemon-service | 2026-06-11 23:10 |
 || REQ-00133 | pokemon-service pokedex 路由挂载与集成 | 集成与修复 | P0 | new | pokemon-service | 2026-06-11 23:20 |
 || REQ-00134 | social-service friends 路由挂载与集成 | 集成与修复 | P0 | new | social-service | 2026-06-11 23:30 |
+|| REQ-00135 | reward-service events 路由挂载与集成 | 集成与修复 | P0 | new | reward-service | 2026-06-11 23:40 |
