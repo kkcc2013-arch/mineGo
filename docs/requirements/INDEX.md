@@ -109,5 +109,7 @@
 | REQ-00102 | 精灵昼夜循环系统 | 功能增强 | P1 | new | location-service、catch-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-11 04:00 |
 | REQ-00103 | 微服务依赖图与循环依赖检测系统 | 技术债/重构 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s、docs/architecture | 2026-06-11 04:00 |
 | REQ-00104 | 精灵交换市场与竞价拍卖系统 | 功能增强 | P1 | new | social-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-11 04:30 |
-|| REQ-00105 | 分布式锁服务与 Redis Redlock 实现 | 容灾/高可用 | P1 | new | backend/shared/distributedLock.js、所有微服务、Redis | 2026-06-11 05:15 |
+|| REQ-00105 | 分布式锁服务与 Redis Redlock 实现 | 容灾/高可用 | P1 | done | backend/shared/distributedLock.js、所有微服务、Redis | 2026-06-11 05:15 |
 | REQ-00106 | 玩家称号系统与个性化展示 | 功能增强 | P1 | new | user-service、pokemon-service、social-service、gateway、game-client、database/migrations | 2026-06-11 05:30 |
+| REQ-00107 | 数据生命周期管理与自动清理策略 | 合规/隐私 | P1 | new | user-service、pokemon-service、social-service、payment-service、backend/shared、database/migrations、backend/jobs | 2026-06-11 06:00 |
+| REQ-00108 | 游戏客户端光敏性癫痫安全模式 | 无障碍(a11y) | P2 | new | game-client、frontend/effects、frontend/game-client/src/accessibility、catch-service、gym-service | 2026-06-11 07:05 |
