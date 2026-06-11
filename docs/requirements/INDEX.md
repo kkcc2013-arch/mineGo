@@ -73,7 +73,7 @@
 || REQ-00066 | API 错误码标准化与故障排查手册 | 文档/开发者体验 | P1 | done | gateway、所有微服务、backend/shared、docs/api-spec、docs/troubleshooting | 2026-06-10 07:00 |
 | REQ-00067 | 精灵羁绊与互动养成系统 | 功能增强 | P1 | done | pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-09 22:30 |
 | REQ-00068 | 服务降级策略与优雅降级管理器 | 容灾/高可用 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-09 22:05 |
-| REQ-00069 | 精灵资源管理系统与动态刷新控制 | 功能增强 | P1 | new | location-service、catch-service、backend/shared、game-client、database/migrations | 2026-06-09 23:30 |
+| REQ-00069 | 精灵资源管理系统与动态刷新控制 | 功能增强 | P1 | done | location-service、catch-service、backend/shared、game-client、database/migrations | 2026-06-09 23:30 |
 || REQ-00070 | Redis 内存优化与自动 TTL 策略 | 成本/资源优化 | P1 | new | backend/shared/cache.js、backend/shared/redis.js、gateway、所有微服务 | 2026-06-09 23:00 ||
 || REQ-00071 | K8s Pod 资源自动扩缩容优化系统 | 成本/资源优化 | P1 | new | infrastructure/k8s、gateway、所有微服务、backend/shared | 2026-06-09 23:30 |
 | REQ-00072 | API 响应 Gzip/Brotli 压缩优化 | 性能优化 | P1 | done | gateway、所有微服务、backend/shared | 2026-06-10 00:20 |
@@ -107,3 +107,4 @@
 | REQ-00100 | 自动化脚本与宏检测系统 | 反作弊 | P1 | new | gateway、catch-service、gym-service、game-client、backend/shared | 2026-06-11 02:00 |
 | REQ-00101 | 后端 API 错误消息国际化系统 | 国际化/本地化 | P1 | new | gateway、所有微服务、backend/shared、frontend/game-client | 2026-06-11 03:00 |
 | REQ-00102 | 精灵昼夜循环系统 | 功能增强 | P1 | new | location-service、catch-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-11 04:00 |
+| REQ-00103 | 微服务依赖图与循环依赖检测系统 | 技术债/重构 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s、docs/architecture | 2026-06-11 04:00 |
