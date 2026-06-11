@@ -103,3 +103,4 @@
 || REQ-00096 | 数据库事务隔离级别控制与死锁检测机制 | 数据库/数据治理 | P1 | new | backend/shared/db.js、catch-service、gym-service、payment-service、social-service | 2026-06-11 00:20 |
 || REQ-00097 | 精灵日常任务系统与任务奖励机制 | 功能增强 | P1 | new | reward-service、user-service、pokemon-service、catch-service、social-service、gateway、game-client、database/migrations | 2026-06-10 17:00 |
 | REQ-00098 | 自适应 API 限流与用户配额管理系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared、Redis、PostgreSQL | 2026-06-11 00:00 |
+| REQ-00099 | 游戏消息中心与通知管理系统 | 前端体验 | P1 | new | game-client、frontend/components、user-service、gateway | 2026-06-11 01:40 |
