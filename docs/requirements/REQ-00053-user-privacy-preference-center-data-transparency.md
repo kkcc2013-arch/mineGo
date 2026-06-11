@@ -3,7 +3,7 @@
 - **编号**：REQ-00053
 - **类别**：合规/隐私
 - **优先级**：P2
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：user-service、gateway、game-client、backend/shared、database/migrations
 - **创建时间**：2026-06-09 15:00
 - **依赖需求**：REQ-00016（GDPR合规）、REQ-00011（国际化）

@@ -16,6 +16,7 @@ const timezoneRouter = require('./routes/timezone');
 const ageVerificationRouter = require('./routes/ageVerification'); // REQ-00034
 const tutorialRouter = require('./routes/tutorial'); // REQ-00059
 const stateRouter = require('./routes/state'); // REQ-00095: 游戏状态持久化
+const { router: privacyRouter, initPrivacyRoutes } = require('./routes/privacy'); // REQ-00053: 隐私偏好管理中心
 const { initNotificationHandlers } = require('./handlers/notificationHandler');
 
 // Create service launcher
@@ -62,6 +63,10 @@ const service = new ServiceLauncher({
     {
       path: '/users', // REQ-00095: 游戏状态持久化
       router: stateRouter
+    },
+    {
+      path: '/privacy', // REQ-00053: 隐私偏好管理中心
+      router: privacyRouter
     }
   ],
   
@@ -71,6 +76,9 @@ const service = new ServiceLauncher({
     const eventBus = EventBus.getEventBus();
     initGDPRRoutes(db, eventBus);
     app.use('/gdpr', gdprRouter);
+    
+    // Initialize privacy preference routes - REQ-00053
+    initPrivacyRoutes(db);
     
     // Initialize notification event handlers - REQ-00026
     initNotificationHandlers(eventBus);

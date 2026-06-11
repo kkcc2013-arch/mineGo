@@ -522,6 +522,44 @@ const captchaAccountFrozen = safeCounter({
 });
 
 // ============================================================
+// 隐私偏好管理指标 (REQ-00053)
+// ============================================================
+const privacyPreferenceChanges = safeCounter({
+  name: 'minego_privacy_preference_changes_total',
+  help: 'Total privacy preference changes',
+  labelNames: ['category', 'action'], // action: enable | disable
+});
+
+const dataExportRequests = safeCounter({
+  name: 'minego_data_export_requests_total',
+  help: 'Total data export requests',
+  labelNames: ['status'], // status: success | failed
+});
+
+const policyViews = safeCounter({
+  name: 'minego_privacy_policy_views_total',
+  help: 'Total privacy policy views',
+  labelNames: ['version', 'language'],
+});
+
+const transparencyReportsGenerated = safeCounter({
+  name: 'minego_transparency_reports_generated_total',
+  help: 'Total transparency reports generated',
+});
+
+const privacyPolicyAcceptances = safeCounter({
+  name: 'minego_privacy_policy_acceptances_total',
+  help: 'Total privacy policy acceptances',
+  labelNames: ['version'],
+});
+
+const dataAccessLogsCount = safeCounter({
+  name: 'minego_data_access_logs_total',
+  help: 'Total data access logs recorded',
+  labelNames: ['category', 'action'],
+});
+
+// ============================================================
 // 导出所有指标和辅助函数
 // ============================================================
 module.exports = {
@@ -624,6 +662,14 @@ module.exports = {
   apiValidationDuration,
   schemaLoadErrors,
   apiSchemaConsistencyIssues,
+  
+  // 隐私偏好管理指标 (REQ-00053)
+  privacyPreferenceChanges,
+  dataExportRequests,
+  policyViews,
+  transparencyReportsGenerated,
+  privacyPolicyAcceptances,
+  dataAccessLogsCount,
 
   // 辅助函数
   promClient,

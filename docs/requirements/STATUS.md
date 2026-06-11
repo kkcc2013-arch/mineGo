@@ -47,9 +47,9 @@
 - 总需求：114
 - P0：11 (new: 0, done: 11)
 - P1：98 (new: 32, done: 63)
-- P2：5 (new: 3, done: 2)
+- P2：5 (new: 2, done: 3)
 - P3：0
-- 已完成：77
+- 已完成：78
 
 ## 项目状态
 
@@ -59,11 +59,31 @@
 - 当前需求：114/10000
 - 剩余需求：9886 条
 - 最新生成：REQ-00114（精灵季节活动系统，功能增强）
-- 最新完成：REQ-00078（金丝雀发布与流量分割系统，运维/CICD）
+- 最新完成：REQ-00053（用户隐私偏好管理中心，合规/隐私）
 
 详见 [DONE.md](./DONE.md)
 
 ## 已完成需求
+
+### REQ-00053: 用户隐私偏好管理中心与数据透明度报告
+- **完成时间**: 2026-06-11 15:45
+- **影响**: 合规/隐私 - 完整的隐私偏好管理中心，符合 GDPR 透明原则
+- **修改文件**:
+  - database/pending/20260611_152900__add_privacy_preference_center.sql (数据库迁移 6.3 KB)
+  - backend/shared/privacyPreferences.js (核心服务模块 14.6 KB)
+  - backend/services/user-service/src/routes/privacy.js (API 路由 11.4 KB)
+  - frontend/game-client/src/components/PrivacyCenter.js (前端组件 21.2 KB)
+  - backend/tests/unit/privacy-preferences.test.js (单元测试 13.8 KB)
+  - docs/review/REQ-00053-user-privacy-preference-center-review.md (审核文档)
+- **关键特性**:
+  - 8 大数据收集类别管理
+  - 必需/可选类别区分
+  - 隐私政策多语言版本（中/英/日）
+  - 月度数据透明度报告
+  - 政策接受追踪
+  - 数据访问日志
+  - 6 个 Prometheus 指标
+  - 25+ 单元测试
 
 ### REQ-00095: 游戏状态持久化与离线状态恢复系统
 - **完成时间**: 2026-06-11 00:15
