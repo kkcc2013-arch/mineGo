@@ -412,6 +412,10 @@ function verifyPaymentSign(sign, order) {
   return !!sign || process.env.NODE_ENV !== 'production';
 }
 
+// REQ-00131: 多货币支持路由
+const currencyRouter = require('./routes/currency');
+app.use('/currency', currencyRouter);
+
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'payment-service started'));
 module.exports = app;

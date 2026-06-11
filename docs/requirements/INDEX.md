@@ -139,4 +139,4 @@
 || REQ-00129 | 精灵数据备份与恢复系统 | 数据库/数据治理 | P1 | new | pokemon-service、user-service、database、backend/jobs、gateway | 2026-06-11 21:30 |
 || REQ-00130 | 实时业务事件流监控与分析系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-11 22:00 |
 || REQ-00131 | pokemon-service achievements 路由挂载与集成 | 集成与修复 | P0 | new | pokemon-service | 2026-06-11 23:00 |
-| REQ-00131 | payment-service 多货币支持路由挂载与集成 | 集成与修复 | P0 | new | payment-service | 2026-06-11 23:00 |
+| REQ-00131 | payment-service 多货币支持路由挂载与集成 | 集成与修复 | P0 | done | payment-service | 2026-06-11 23:00 |
