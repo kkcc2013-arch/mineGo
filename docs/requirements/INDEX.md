@@ -123,4 +123,5 @@
 || REQ-00115 | 数据库连接池自适应调度与负载均衡系统 | 数据库/数据治理 | P1 | new | backend/shared/db.js、所有微服务、PostgreSQL、infrastructure/k8s | 2026-06-11 15:50 |
 || REQ-00116 | 精灵团队实时语音聊天系统 | 功能增强 | P1 | new | gym-service、social-service、user-service、gateway、game-client、infrastructure/k8s | 2026-06-11 16:00 |
 | REQ-00117 | 地图手势交互优化与缩放流畅度提升 | 前端体验 | P2 | new | game-client、frontend/game-client/src/game、frontend/game-client/index.html | 2026-06-11 17:05 |
+| REQ-00118 | gym-service 战斗路由挂载与集成 | 集成与修复 | P0 | done | gym-service、backend/services/gym-service/src/index.js、backend/services/gym-service/src/routes/battle.js | 2026-06-11 17:15 |
 |
