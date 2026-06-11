@@ -108,3 +108,4 @@
 | REQ-00101 | 后端 API 错误消息国际化系统 | 国际化/本地化 | P1 | new | gateway、所有微服务、backend/shared、frontend/game-client | 2026-06-11 03:00 |
 | REQ-00102 | 精灵昼夜循环系统 | 功能增强 | P1 | new | location-service、catch-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-11 04:00 |
 | REQ-00103 | 微服务依赖图与循环依赖检测系统 | 技术债/重构 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s、docs/architecture | 2026-06-11 04:00 |
+| REQ-00104 | 精灵交换市场与竞价拍卖系统 | 功能增强 | P1 | new | social-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-11 04:30 |
