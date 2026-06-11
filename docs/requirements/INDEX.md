@@ -118,3 +118,4 @@
 | REQ-00110 | 精灵背包容量管理与扩展系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 11:00 |
 | REQ-00111 | API 安全响应头与 CSP 强化系统 | 安全加固 | P1 | new | gateway、所有微服务、backend/shared、game-client | 2026-06-11 12:00 |
 | REQ-00112 | 精灵技能冷却与能量系统 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-11 12:34 |
+| REQ-00113 | 实时业务事件流监控与分析系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-11 13:05 |

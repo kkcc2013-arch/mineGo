@@ -1,323 +1,341 @@
 /**
- * 精灵羁绊面板 - REQ-00067
+ * REQ-00079: 精灵好感度面板组件
+ * 显示好感度数值、等级、战斗加成，支持互动操作
  */
 
 class FriendshipPanel {
   constructor(options = {}) {
     this.pokemonId = options.pokemonId;
     this.container = options.container || document.body;
-    this.onClose = options.onClose;
+    this.onClose = options.onClose || (() => {});
+    this.onEvolution = options.onEvolution || (() => {});
     
     this.friendship = null;
+    this.interactions = [];
     this.loading = true;
-    this.interacting = null;
+    this.interacting = false;
     
-    this.interactionIcons = {
-      feed: '🍓',
-      play: '🎾',
-      pet: '✋',
-      train: '💪',
-      walk: '🚶'
-    };
-    
-    this.interactionLabels = {
-      feed: '喂食',
-      play: '游玩',
-      pet: '抚摸',
-      train: '训练',
-      walk: '散步'
-    };
-    
+    this.element = null;
     this.init();
   }
-  
+
   async init() {
     this.render();
-    await this.fetchFriendshipInfo();
-    this.bindEvents();
+    await this.fetchFriendship();
   }
-  
+
   render() {
     this.element = document.createElement('div');
-    this.element.className = 'friendship-panel';
+    this.element.className = 'friendship-panel-overlay';
     this.element.innerHTML = `
-      <div class="friendship-content">
+      <div class="friendship-panel">
         <div class="friendship-header">
-          <h3>羁绊系统</h3>
-          <button class="close-btn">×</button>
+          <h2>💕 好感度</h2>
+          <button class="close-btn" aria-label="关闭">×</button>
         </div>
-        <div class="friendship-body">
-          ${this.loading ? '<div class="loading">加载中...</div>' : this.renderContent()}
+        
+        <div class="friendship-content">
+          <div class="friendship-loading">加载中...</div>
         </div>
       </div>
     `;
+    
+    this.element.querySelector('.close-btn').addEventListener('click', () => this.close());
+    this.element.addEventListener('click', (e) => {
+      if (e.target === this.element) this.close();
+    });
     
     this.container.appendChild(this.element);
   }
-  
-  renderContent() {
-    if (!this.friendship) {
-      return '<div class="error">无法加载羁绊信息</div>';
-    }
-    
-    return `
-      <div class="friendship-level">
-        <div class="level-badge">
-          <span class="level-number">${this.friendship.friendship_level}</span>
-          <span class="level-name">${this.friendship.levelName}</span>
-        </div>
-        
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: ${this.friendship.progressToNextLevel}%"></div>
-          <span class="progress-text">${this.friendship.friendship_value}/255</span>
-        </div>
-      </div>
-      
-      <div class="mood-indicator">
-        <span class="mood-label">心情:</span>
-        <span class="mood-value ${this.friendship.mood}">
-          ${this.getMoodEmoji(this.friendship.mood)} ${this.friendship.mood}
-        </span>
-      </div>
-      
-      ${this.renderBattleBonuses()}
-      
-      <div class="interactions">
-        <h4>互动</h4>
-        <div class="interaction-buttons">
-          ${Object.keys(this.interactionIcons).map(type => `
-            <button class="interaction-btn" data-type="${type}">
-              <span class="icon">${this.interactionIcons[type]}</span>
-              <span class="label">${this.interactionLabels[type]}</span>
-            </button>
-          `).join('')}
-        </div>
-      </div>
-      
-      <div class="interaction-stats">
-        <span>总互动次数: ${this.friendship.total_interactions}</span>
-      </div>
-    `;
-  }
-  
-  renderBattleBonuses() {
-    const bonuses = this.friendship.battleBonuses || {};
-    const bonusItems = [];
-    
-    if (bonuses.critRateBonus > 0) {
-      bonusItems.push(`
-        <div class="bonus-item">
-          <span>暴击率</span>
-          <span class="bonus-value">+${(bonuses.critRateBonus * 100).toFixed(0)}%</span>
-        </div>
-      `);
-    }
-    
-    if (bonuses.evasionRateBonus > 0) {
-      bonusItems.push(`
-        <div class="bonus-item">
-          <span>闪避率</span>
-          <span class="bonus-value">+${(bonuses.evasionRateBonus * 100).toFixed(0)}%</span>
-        </div>
-      `);
-    }
-    
-    if (bonuses.statusResistBonus > 0) {
-      bonusItems.push(`
-        <div class="bonus-item">
-          <span>状态抵抗</span>
-          <span class="bonus-value">+${(bonuses.statusResistBonus * 100).toFixed(0)}%</span>
-        </div>
-      `);
-    }
-    
-    if (bonuses.expBonus > 0) {
-      bonusItems.push(`
-        <div class="bonus-item">
-          <span>经验加成</span>
-          <span class="bonus-value">+${(bonuses.expBonus * 100).toFixed(0)}%</span>
-        </div>
-      `);
-    }
-    
-    if (bonusItems.length === 0) {
-      return '<div class="battle-bonuses empty"><p>提升羁绊等级解锁战斗加成</p></div>';
-    }
-    
-    return `
-      <div class="battle-bonuses">
-        <h4>战斗加成</h4>
-        ${bonusItems.join('')}
-      </div>
-    `;
-  }
-  
-  async fetchFriendshipInfo() {
+
+  async fetchFriendship() {
     try {
-      const token = localStorage.getItem('token');
       const response = await fetch(`/api/pokemon/${this.pokemonId}/friendship`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'X-User-Id': localStorage.getItem('userId')
-        }
+        headers: { 'X-User-Id': this.getUserId() }
       });
       
       const data = await response.json();
       
       if (data.success) {
         this.friendship = data.data;
-        this.loading = false;
-        this.updateContent();
+        this.renderContent();
       } else {
-        console.error('Failed to fetch friendship:', data.error);
-        this.loading = false;
-        this.updateContent();
+        this.renderError(data.message || '获取好感度失败');
       }
     } catch (error) {
-      console.error('Failed to fetch friendship info:', error);
+      console.error('Failed to fetch friendship:', error);
+      this.renderError('网络错误，请重试');
+    } finally {
       this.loading = false;
-      this.updateContent();
     }
   }
-  
-  updateContent() {
-    const body = this.element.querySelector('.friendship-body');
-    body.innerHTML = this.renderContent();
-    this.bindInteractionButtons();
-  }
-  
-  bindEvents() {
-    // 关闭按钮
-    this.element.querySelector('.close-btn').addEventListener('click', () => {
-      this.close();
-    });
+
+  renderContent() {
+    const content = this.element.querySelector('.friendship-content');
+    const f = this.friendship;
+    const progressPercent = (f.friendship_value / 255) * 100;
     
-    // 互动按钮
-    this.bindInteractionButtons();
+    content.innerHTML = `
+      <div class="friendship-display">
+        <div class="friendship-emoji">
+          ${f.levelInfo?.emoji || '🙂'}
+        </div>
+        
+        <div class="friendship-value-section">
+          <div class="friendship-value">
+            <span class="value">${f.friendship_value}</span>
+            <span class="max">/ 255</span>
+          </div>
+          
+          <div class="friendship-level">
+            <span class="level-badge ${f.friendship_level}">
+              ${f.levelInfo?.label || '一般'}
+            </span>
+          </div>
+        </div>
+        
+        <div class="friendship-progress">
+          <div class="progress-bar" style="width: ${progressPercent}%"></div>
+          <div class="progress-markers">
+            <span class="marker" style="left: 19.6%">50</span>
+            <span class="marker" style="left: 39.2%">100</span>
+            <span class="marker" style="left: 58.8%">150</span>
+            <span class="marker" style="left: 78.4%">200</span>
+          </div>
+        </div>
+      </div>
+      
+      ${f.evolutionReady ? `
+        <div class="evolution-ready">
+          <span class="evolution-icon">✨</span>
+          <span>可进行亲密度进化！</span>
+          <button class="evolve-btn">进化</button>
+        </div>
+      ` : ''}
+      
+      <div class="battle-bonuses">
+        <h3>⚔️ 战斗加成</h3>
+        <div class="bonus-grid">
+          <div class="bonus-item">
+            <span class="bonus-label">暴击率</span>
+            <span class="bonus-value">+${((f.battleBonuses?.critBonus || 0) * 100).toFixed(0)}%</span>
+          </div>
+          <div class="bonus-item">
+            <span class="bonus-label">回避率</span>
+            <span class="bonus-value">+${((f.battleBonuses?.evasionBonus || 0) * 100).toFixed(0)}%</span>
+          </div>
+          <div class="bonus-item">
+            <span class="bonus-label">坚持几率</span>
+            <span class="bonus-value">${((f.battleBonuses?.persistChance || 0) * 100).toFixed(0)}%</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="interactions-section">
+        <h3>🎮 互动</h3>
+        <div class="interaction-buttons">
+          <button class="interaction-btn" data-type="touch">
+            <span class="icon">👆</span>
+            <span class="label">抚摸</span>
+            <span class="hint">+1</span>
+          </button>
+          <button class="interaction-btn" data-type="massage">
+            <span class="icon">💆</span>
+            <span class="label">按摩</span>
+            <span class="hint">+8</span>
+          </button>
+          <button class="interaction-btn" data-type="camping">
+            <span class="icon">🏕️</span>
+            <span class="label">露营</span>
+            <span class="hint">+4</span>
+          </button>
+          <button class="interaction-btn" data-type="spa">
+            <span class="icon">🧖</span>
+            <span class="label">SPA</span>
+            <span class="hint">+10</span>
+          </button>
+          <button class="interaction-btn" data-type="feed_berry">
+            <span class="icon">🫐</span>
+            <span class="label">喂食</span>
+            <span class="hint">+3</span>
+          </button>
+        </div>
+      </div>
+      
+      <div class="friendship-stats">
+        <div class="stat-item">
+          <span class="stat-label">相伴天数</span>
+          <span class="stat-value">${f.days_with_trainer || 0}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">互动次数</span>
+          <span class="stat-value">${f.total_interactions || 0}</span>
+        </div>
+      </div>
+    `;
+    
+    // 绑定事件
+    this.bindEvents();
   }
-  
-  bindInteractionButtons() {
+
+  bindEvents() {
+    // 互动按钮
     const buttons = this.element.querySelectorAll('.interaction-btn');
     buttons.forEach(btn => {
-      btn.addEventListener('click', async () => {
+      btn.addEventListener('click', () => {
         const type = btn.dataset.type;
-        await this.performInteraction(type);
+        this.handleInteract(type, btn);
       });
     });
-  }
-  
-  async performInteraction(type) {
-    if (this.interacting) return;
     
-    this.interacting = type;
-    const btn = this.element.querySelector(`.interaction-btn[data-type="${type}"]`);
-    if (btn) {
-      btn.classList.add('active');
-      btn.disabled = true;
+    // 进化按钮
+    const evolveBtn = this.element.querySelector('.evolve-btn');
+    if (evolveBtn) {
+      evolveBtn.addEventListener('click', () => this.handleEvolve());
     }
+  }
+
+  async handleInteract(type, btn) {
+    if (this.interacting) return;
+    this.interacting = true;
+    
+    btn.classList.add('loading');
     
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/pokemon/${this.pokemonId}/friendship/interact`, {
+      const response = await fetch(`/api/pokemon/${this.pokemonId}/interact`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'X-User-Id': localStorage.getItem('userId'),
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-User-Id': this.getUserId()
         },
-        body: JSON.stringify({ interactionType: type })
+        body: JSON.stringify({ type })
       });
       
       const data = await response.json();
       
       if (data.success) {
-        this.friendship.friendship_value = data.data.newFriendshipValue;
-        this.friendship.friendship_level = data.data.newLevel;
-        this.friendship.mood = data.data.mood;
-        this.friendship.total_interactions += 1;
+        // 更新好感度显示
+        this.friendship.friendship_value = data.data.after;
+        this.friendship.friendship_level = data.data.level;
+        this.friendship.levelInfo = data.data.levelInfo;
         
-        this.updateContent();
+        // 显示动画效果
+        this.showInteractionEffect(data.data);
         
-        if (data.data.levelUp) {
-          this.showLevelUpAnimation(data.data.newLevel);
-        }
+        // 重新渲染
+        this.renderContent();
         
-        this.showToast(`羁绊值 +${data.data.friendshipGain}！`, 'success');
+        // 显示成功消息
+        this.showToast(data.data.message, 'success');
       } else {
-        this.showToast(data.error, 'error');
+        this.showToast(data.message || '互动失败', 'error');
       }
     } catch (error) {
       console.error('Interaction failed:', error);
-      this.showToast('互动失败', 'error');
+      this.showToast('网络错误', 'error');
     } finally {
-      this.interacting = null;
-      if (btn) {
-        btn.classList.remove('active');
-        btn.disabled = false;
-      }
+      this.interacting = false;
+      btn.classList.remove('loading');
     }
   }
-  
-  showLevelUpAnimation(level) {
-    const overlay = document.createElement('div');
-    overlay.className = 'level-up-overlay';
-    overlay.innerHTML = `
-      <div class="level-up-content">
-        <div class="level-up-stars">⭐⭐⭐</div>
-        <h2>羁绊等级提升！</h2>
-        <div class="level-up-badge">
-          <span class="level-number">${level}</span>
-          <span class="level-name">${this.friendship.levelName}</span>
-        </div>
+
+  async handleEvolve() {
+    if (!confirm('确定要让这只精灵进化吗？')) return;
+    
+    try {
+      const response = await fetch(`/api/pokemon/${this.pokemonId}/evolve`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-User-Id': this.getUserId()
+        }
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        this.showToast(data.data.message, 'success');
+        this.onEvolution(data.data);
+        this.close();
+      } else {
+        this.showToast(data.message || '进化失败', 'error');
+      }
+    } catch (error) {
+      console.error('Evolution failed:', error);
+      this.showToast('网络错误', 'error');
+    }
+  }
+
+  showInteractionEffect(result) {
+    const valueEl = this.element.querySelector('.friendship-value .value');
+    if (!valueEl) return;
+    
+    const effect = document.createElement('div');
+    effect.className = `friendship-effect ${result.change > 0 ? 'positive' : 'negative'}`;
+    effect.textContent = `${result.change > 0 ? '+' : ''}${result.change}`;
+    valueEl.parentElement.appendChild(effect);
+    
+    // 添加升级动画
+    if (result.levelUp) {
+      this.showToast(`好感度提升至「${result.levelInfo.label}」！`, 'success');
+    }
+    
+    setTimeout(() => effect.remove(), 2000);
+  }
+
+  renderError(message) {
+    const content = this.element.querySelector('.friendship-content');
+    content.innerHTML = `
+      <div class="friendship-error">
+        <span class="error-icon">😢</span>
+        <p>${message}</p>
+        <button class="retry-btn">重试</button>
       </div>
     `;
     
-    document.body.appendChild(overlay);
-    
-    setTimeout(() => {
-      overlay.classList.add('fade-out');
-      setTimeout(() => overlay.remove(), 500);
-    }, 2000);
+    content.querySelector('.retry-btn').addEventListener('click', () => {
+      this.loading = true;
+      this.fetchFriendship();
+    });
   }
-  
+
   showToast(message, type = 'info') {
     const toast = document.createElement('div');
-    toast.className = `toast toast-${type}`;
+    toast.className = `friendship-toast ${type}`;
     toast.textContent = message;
-    
-    document.body.appendChild(toast);
+    this.element.appendChild(toast);
     
     setTimeout(() => {
       toast.classList.add('fade-out');
       setTimeout(() => toast.remove(), 300);
     }, 2000);
   }
-  
-  getMoodEmoji(mood) {
-    const emojis = {
-      happy: '😊',
-      excited: '🎉',
-      neutral: '😐',
-      sad: '😢',
-      tired: '😴'
-    };
-    return emojis[mood] || '😐';
+
+  getUserId() {
+    return localStorage.getItem('userId') || sessionStorage.getItem('userId') || 'anonymous';
   }
-  
+
   close() {
-    this.element.classList.add('closing');
-    setTimeout(() => {
-      this.element.remove();
-      if (this.onClose) {
+    if (this.element) {
+      this.element.classList.add('closing');
+      setTimeout(() => {
+        this.element.remove();
         this.onClose();
-      }
-    }, 300);
+      }, 300);
+    }
+  }
+
+  destroy() {
+    this.close();
   }
 }
 
 // 导出
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = FriendshipPanel;
-} else {
+}
+
+// 全局注册
+if (typeof window !== 'undefined') {
   window.FriendshipPanel = FriendshipPanel;
 }
