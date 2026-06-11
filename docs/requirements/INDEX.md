@@ -106,3 +106,4 @@
 | REQ-00099 | 游戏消息中心与通知管理系统 | 前端体验 | P1 | done | game-client、frontend/components、user-service、gateway | 2026-06-11 01:40 |
 | REQ-00100 | 自动化脚本与宏检测系统 | 反作弊 | P1 | new | gateway、catch-service、gym-service、game-client、backend/shared | 2026-06-11 02:00 |
 | REQ-00101 | 后端 API 错误消息国际化系统 | 国际化/本地化 | P1 | new | gateway、所有微服务、backend/shared、frontend/game-client | 2026-06-11 03:00 |
+| REQ-00102 | 精灵昼夜循环系统 | 功能增强 | P1 | new | location-service、catch-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-11 04:00 |
