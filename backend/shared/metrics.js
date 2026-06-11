@@ -14,14 +14,16 @@ promClient.collectDefaultMetrics({
 });
 
 // 辅助函数：安全创建 metric（避免重复注册）
+// 注意：prom-client 构造选项是 registers（数组）。曾误写为 register: registry，
+// 该字段被静默忽略，全部业务指标落入全局默认 registry，/metrics 端点一个业务指标都不暴露。
 function safeCounter(options) {
-  return new promClient.Counter({ ...options, register: registry });
+  return new promClient.Counter({ ...options, registers: [registry] });
 }
 function safeGauge(options) {
-  return new promClient.Gauge({ ...options, register: registry });
+  return new promClient.Gauge({ ...options, registers: [registry] });
 }
 function safeHistogram(options) {
-  return new promClient.Histogram({ ...options, register: registry });
+  return new promClient.Histogram({ ...options, registers: [registry] });
 }
 
 // ============================================================

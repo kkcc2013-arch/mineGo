@@ -152,32 +152,33 @@ jobs:
             # ── Step 4: Zero-downtime reload with PM2 ──
             echo ""
             echo "▶ [4/7] Reloading services with PM2 (rolling update)..."
-            if pm2 list | grep -q "pmg-"; then
-              pm2 reload ecosystem.config.js --update-env
-              echo "  ✓ PM2 reload complete"
-            else
-              echo "  First deploy — starting services..."
-              pm2 start ecosystem.config.js
-              echo "  ✓ PM2 start complete"
-            fi
+            # startOrReload: 已存在的进程做零停机 reload，已死亡/被删除的进程重新拉起。
+            # 此前用 pm2 reload，凡是不在进程列表里的服务（Process not found）永远不会被启动，
+            # gateway 一旦死掉，后续每次部署的健康检查必然失败。
+            pm2 startOrReload ecosystem.config.js --update-env
+            echo "  ✓ PM2 startOrReload complete"
             pm2 save
-            
+
             # ── Step 5: Health check ───────────────────
             echo ""
             echo "▶ [5/7] Health check..."
             MAX_WAIT=90
             ELAPSED=0
-            HEALTH_CHECK_FAILED=false
-            
-            until curl -sf http://localhost:8080/health > /dev/null 2>&1; do
-              if [ "$ELAPSED" -ge "$MAX_WAIT" ]; then
-                echo "  ✗ Gateway not healthy after ${MAX_WAIT}s"
-                HEALTH_CHECK_FAILED=true
+            HEALTH_CHECK_FAILED=true
+
+            # 用 if 包裹 curl，避免 script_stop/set -e 在第一次探测失败时直接终止脚本
+            # （此前 until 循环从未执行过第二次：首个 curl 退出码 22 即整个会话退出）
+            while [ "$ELAPSED" -lt "$MAX_WAIT" ]; do
+              if curl -sf http://localhost:8080/health > /dev/null 2>&1; then
+                HEALTH_CHECK_FAILED=false
                 break
               fi
               sleep 5; ELAPSED=$((ELAPSED+5))
               echo "  Waiting... ${ELAPSED}s"
             done
+            if [ "$HEALTH_CHECK_FAILED" = "true" ]; then
+              echo "  ✗ Gateway not healthy after ${MAX_WAIT}s"
+            fi
             
             if [ "$HEALTH_CHECK_FAILED" = "true" ]; then
               echo "  ✗ Health check failed"
@@ -255,14 +256,20 @@ jobs:
 
       - name: Notify Slack on Success
         if: success()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         run: |
-          curl -X POST "${{ secrets.SLACK_WEBHOOK }}" \
+          if [ -z "$SLACK_WEBHOOK" ]; then echo "SLACK_WEBHOOK not configured, skipping"; exit 0; fi
+          curl -X POST "$SLACK_WEBHOOK" \
             -H 'Content-Type: application/json' \
             -d "{\"text\":\"✅ PMG Deploy SUCCESS\\nCommit: ${{ github.sha }}\\nBranch: ${{ github.ref }}\\nActor: ${{ github.actor }}\"}" || true
 
       - name: Notify Slack on Failure
         if: failure()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         run: |
-          curl -X POST "${{ secrets.SLACK_WEBHOOK }}" \
+          if [ -z "$SLACK_WEBHOOK" ]; then echo "SLACK_WEBHOOK not configured, skipping"; exit 0; fi
+          curl -X POST "$SLACK_WEBHOOK" \
             -H 'Content-Type: application/json' \
             -d "{\"text\":\"❌ PMG Deploy FAILED (rolled back)\\nCommit: ${{ github.sha }}\\nBranch: ${{ github.ref }}\\nActor: ${{ github.actor }}\"}" || true
