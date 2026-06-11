@@ -98,6 +98,87 @@ const cacheLatency = safeHistogram({
   buckets: [0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5],
 });
 
+// ============================================================
+// REQ-00070: Redis 内存优化指标
+// ============================================================
+const redisMemoryUsed = safeGauge({
+  name: 'minego_redis_memory_used_bytes',
+  help: 'Redis used memory in bytes',
+  labelNames: ['service'],
+});
+
+const redisMemoryMax = safeGauge({
+  name: 'minego_redis_memory_max_bytes',
+  help: 'Redis max memory limit in bytes',
+  labelNames: ['service'],
+});
+
+const redisMemoryUsagePercent = safeGauge({
+  name: 'minego_redis_memory_usage_percent',
+  help: 'Redis memory usage percentage',
+  labelNames: ['service'],
+});
+
+const redisMemoryFragmentationRatio = safeGauge({
+  name: 'minego_redis_memory_fragmentation_ratio',
+  help: 'Redis memory fragmentation ratio',
+  labelNames: ['service'],
+});
+
+const redisKeyCount = safeGauge({
+  name: 'minego_redis_key_count',
+  help: 'Redis key count',
+  labelNames: ['service', 'type'], // type: total, string, hash, list, set, zset
+});
+
+const redisKeysWithoutTTL = safeGauge({
+  name: 'minego_redis_keys_without_ttl',
+  help: 'Number of Redis keys without TTL',
+  labelNames: ['service'],
+});
+
+const redisKeysTTLBucket = safeGauge({
+  name: 'minego_redis_keys_ttl_bucket',
+  help: 'Redis keys TTL distribution by bucket',
+  labelNames: ['service', 'bucket'], // bucket: no_ttl, <1m, 1m-5m, etc.
+});
+
+const redisCleanupRunsTotal = safeCounter({
+  name: 'minego_redis_cleanup_runs_total',
+  help: 'Total number of Redis cleanup runs',
+  labelNames: ['service'],
+});
+
+const redisCleanupKeysTotal = safeCounter({
+  name: 'minego_redis_cleanup_keys_total',
+  help: 'Total number of Redis keys cleaned up',
+  labelNames: ['service'],
+});
+
+const redisCleanupMemoryFreedBytes = safeCounter({
+  name: 'minego_redis_cleanup_memory_freed_bytes_total',
+  help: 'Total Redis memory freed in bytes by cleanup',
+  labelNames: ['service'],
+});
+
+const redisCleanupErrorsTotal = safeCounter({
+  name: 'minego_redis_cleanup_errors_total',
+  help: 'Total Redis cleanup errors',
+  labelNames: ['service'],
+});
+
+const redisDefragTotal = safeCounter({
+  name: 'minego_redis_defrag_total',
+  help: 'Total Redis defragmentation operations',
+  labelNames: ['service'],
+});
+
+const cacheKeysWithoutTTL = safeCounter({
+  name: 'minego_cache_keys_without_ttl_total',
+  help: 'Cache keys set without TTL (warning)',
+  labelNames: ['service', 'key_prefix'],
+});
+
 const cacheSize = safeGauge({
   name: 'minego_cache_size_bytes',
   help: 'Current cache size in bytes',

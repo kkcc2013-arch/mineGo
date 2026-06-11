@@ -173,24 +173,49 @@ async function get(key) {
 }
 
 /**
- * 设置缓存值
+ * 设置缓存值（强制要求 TTL）
+ * REQ-00070: Redis 内存优化与自动 TTL 策略
+ * 
  * @param {string} key - 缓存键
  * @param {any} value - 缓存值
- * @param {number} ttl - 过期时间（秒），默认 300 秒
+ * @param {number} ttl - 过期时间（秒），必需参数
+ * @param {Object} options - 额外选项
+ * @param {boolean} options.allowNoTTL - 是否允许不设置 TTL（谨慎使用）
+ * @param {string} options.category - 数据类别（用于 TTL 验证）
  */
-async function set(key, value, ttl = 300) {
+async function set(key, value, ttl, options = {}) {
   const startTime = Date.now();
+  
+  // 强制 TTL 检查
+  if (!ttl || ttl <= 0) {
+    if (!options.allowNoTTL) {
+      throw new Error(
+        `Cache key "${key}" must have a valid TTL. ` +
+        `Use setWithoutTTL() for keys that should persist indefinitely, ` +
+        `or set allowNoTTL: true in options (not recommended).`
+      );
+    }
+    
+    logger.warn({ key, stack: new Error().stack }, 'Setting cache without TTL - use with caution');
+    
+    // 记录无 TTL 的 Key（用于监控）
+    incrementCounter('cache_keys_without_ttl_total', { key_prefix: key.split(':')[0] });
+  }
   
   try {
     const jsonValue = JSON.stringify(value);
     
     // 设置 L2 (Redis)
     if (redisClient) {
-      await redisClient.setex(key, ttl, jsonValue);
+      if (ttl && ttl > 0) {
+        await redisClient.setex(key, ttl, jsonValue);
+      } else {
+        await redisClient.set(key, jsonValue);
+      }
     }
     
     // 设置 L1 (内存)
-    const l1Ttl = Math.min(ttl * 1000, MEMORY_TTL);
+    const l1Ttl = ttl > 0 ? Math.min(ttl * 1000, MEMORY_TTL) : MEMORY_TTL;
     setMemory(key, value, l1Ttl);
     
     stats.sets++;

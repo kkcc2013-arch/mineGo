@@ -85,6 +85,30 @@ spec:
             description: "{{ $labels.service }} 无法连接到 Redis"
             runbook_url: "https://wiki.minego.io/runbooks/redis-connection"
 
+        # REQ-00070: Redis 内存使用率过高
+        - alert: RedisMemoryHigh
+          expr: minego_redis_memory_usage_percent > 80
+          for: 5m
+          labels:
+            severity: warning
+            priority: P1
+          annotations:
+            summary: "Redis 内存使用率过高"
+            description: "{{ $labels.service }} Redis 内存使用率 {{ $value }}%，建议清理或扩容"
+            runbook_url: "https://wiki.minego.io/runbooks/redis-memory"
+
+        # REQ-00070: Redis 内存即将耗尽
+        - alert: RedisMemoryCritical
+          expr: minego_redis_memory_usage_percent > 90
+          for: 2m
+          labels:
+            severity: critical
+            priority: P0
+          annotations:
+            summary: "Redis 内存即将耗尽"
+            description: "{{ $labels.service }} Redis 内存使用率 {{ $value }}%，可能触发 OOM"
+            runbook_url: "https://wiki.minego.io/runbooks/redis-memory"
+
     # ============================================================
     # P1 告警：重要但不紧急（<15 分钟）
     # ============================================================
@@ -163,6 +187,30 @@ spec:
           annotations:
             summary: "Pod {{ $labels.pod }} CPU 使用率过高"
             description: "CPU 使用率 {{ $value | humanizePercentage }}，可能需要扩容"
+
+        # REQ-00070: 大量 Key 未设置 TTL
+        - alert: RedisKeysWithoutTTL
+          expr: minego_redis_keys_without_ttl > 1000
+          for: 10m
+          labels:
+            severity: warning
+            priority: P1
+          annotations:
+            summary: "大量 Key 未设置 TTL"
+            description: "{{ $labels.service }} 有 {{ $value }} 个 Key 未设置 TTL，可能导致内存泄漏"
+            runbook_url: "https://wiki.minego.io/runbooks/redis-ttl"
+
+        # REQ-00070: Redis 内存碎片率过高
+        - alert: RedisMemoryFragmentation
+          expr: minego_redis_memory_fragmentation_ratio > 1.5
+          for: 15m
+          labels:
+            severity: warning
+            priority: P2
+          annotations:
+            summary: "Redis 内存碎片率过高"
+            description: "内存碎片率 {{ $value }}，建议执行 MEMORY PURGE 或重启 Redis"
+            runbook_url: "https://wiki.minego.io/runbooks/redis-memory"
 
     # ============================================================
     # P2 告警：需要关注（<1 小时）
