@@ -1,5 +1,5 @@
 // frontend/game-client/src/game/CatchEngine.js
-// Handles the complete catch interaction: physics simulation + server round-trips
+// Handles the complete catch interaction: physics simulation + server round-trips + visual effects
 'use strict';
 
 const THROW_RING_SHRINK_RATE = 0.004;  // Ring shrinks each frame
@@ -7,16 +7,57 @@ const RING_MIN_SCALE = 0.2;
 const RING_MAX_SCALE = 1.0;
 
 export class CatchEngine extends EventTarget {
-  constructor(apiClient) {
+  constructor(apiClient, canvas = null) {
     super();
     this._api     = apiClient;
     this._session = null;         // Active catch session
     this._ball    = null;         // In-flight ball state
     this._ring    = { scale: RING_MAX_SCALE, shrinking: true };
     this._frameId = null;
-    this._canvas  = null;
-    this._ctx     = null;
+    this._canvas  = canvas;
+    this._ctx     = canvas ? canvas.getContext('2d') : null;
     this._isBusy  = false;
+
+    // 动画特效系统（延迟加载）
+    this._effectsSystem = null;
+    this._effectsEnabled = false;
+  }
+
+  /**
+   * 初始化特效系统
+   */
+  initEffects(canvas) {
+    if (this._effectsSystem) return;
+    
+    this._canvas = canvas;
+    this._ctx = canvas.getContext('2d');
+    
+    // 动态加载特效模块
+    import('../effects/ThrowAnimation.js').then(module => {
+      this._ThrowAnimation = module.ThrowAnimation;
+    });
+    
+    import('../effects/ParticleSystem.js').then(module => {
+      this._ParticleSystem = module.ParticleSystem;
+      if (this._effectsSystem && this._effectsSystem.particles) {
+        this._effectsSystem.particles.start();
+      }
+    });
+    
+    import('../effects/ComboSystem.js').then(module => {
+      this._ComboSystem = module.ComboSystem;
+      if (this._effectsSystem) {
+        this._effectsSystem.combo = new this._ComboSystem();
+      }
+    });
+
+    this._effectsSystem = {
+      throwAnimation: null,
+      particles: null,
+      combo: null
+    };
+    
+    this._effectsEnabled = true;
   }
 
   // ── Start a catch encounter ───────────────────────────────
@@ -50,11 +91,16 @@ export class CatchEngine extends EventTarget {
     const throwRating = this._calcThrowRating(this._ring.scale);
     const isCurve     = Math.abs(velocityX) > 300; // Fast horizontal = curve
 
-    // Animate ball flight
-    this._ball = { x: startX, y: startY, vx: velocityX * 0.016, vy: velocityY * 0.016 - 5, phase: 'flying' };
-
-    // Wait for ball to reach target (animation)
-    await this._animateBallFlight(endX, endY);
+    // 执行投掷动画（如果启用了特效系统）
+    if (this._effectsEnabled && this._ThrowAnimation && this._canvas) {
+      await this._animateThrowWithEffects({
+        startX, startY, endX, endY, velocityX, velocityY, isCurve
+      });
+    } else {
+      // 原有动画逻辑
+      this._ball = { x: startX, y: startY, vx: velocityX * 0.016, vy: velocityY * 0.016 - 5, phase: 'flying' };
+      await this._animateBallFlight(endX, endY);
+    }
 
     if (throwRating === 'MISS') {
       this.dispatchEvent(new CustomEvent('throwMiss'));
@@ -77,11 +123,17 @@ export class CatchEngine extends EventTarget {
       this._session.throws++;
 
       if (result.result === 'CAUGHT') {
+        // 播放捕捉成功特效
+        this._playCatchSuccessEffect(endX, endY, throwRating);
+        
         this._stopAnimation();
         this._isBusy = false;
         this._session = null;
         this.dispatchEvent(new CustomEvent('caught', { detail: result }));
       } else if (result.result === 'FLED') {
+        // 播放逃脱特效
+        this._playFledEffect(endX, endY);
+        
         this._stopAnimation();
         this._isBusy = false;
         this._session = null;
@@ -89,6 +141,10 @@ export class CatchEngine extends EventTarget {
       } else {
         // Ball used, pokemon still free — shake animation
         this.dispatchEvent(new CustomEvent('ballUsed', { detail: result }));
+        
+        // 播放晃动特效
+        this._playBallShakeEffect(endX, endY);
+        
         this._ring.scale = RING_MAX_SCALE; // Reset ring
       }
 
@@ -99,6 +155,106 @@ export class CatchEngine extends EventTarget {
       this._isBusy = false;
       throw err;
     }
+  }
+
+  /**
+   * 使用特效系统的投掷动画
+   * @private
+   */
+  async _animateThrowWithEffects({ startX, startY, endX, endY, velocityX, velocityY, isCurve }) {
+    if (!this._effectsSystem.throwAnimation && this._ThrowAnimation) {
+      this._effectsSystem.throwAnimation = new this._ThrowAnimation(this._canvas);
+    }
+
+    if (this._effectsSystem.throwAnimation) {
+      await this._effectsSystem.throwAnimation.start({
+        startX, startY,
+        targetX: endX, targetY: endY,
+        ballType: this._session.ballType,
+        isCurve,
+        curveDirection: velocityX > 0 ? 1 : -1
+      });
+    } else {
+      // 降级到原有动画
+      this._ball = { x: startX, y: startY, vx: velocityX * 0.016, vy: velocityY * 0.016 - 5, phase: 'flying' };
+      await this._animateBallFlight(endX, endY);
+    }
+  }
+
+  /**
+   * 播放捕捉成功特效
+   * @private
+   */
+  _playCatchSuccessEffect(x, y, throwRating) {
+    if (!this._effectsEnabled || !this._ParticleSystem) return;
+
+    // 初始化粒子系统
+    if (!this._effectsSystem.particles) {
+      this._effectsSystem.particles = new this._ParticleSystem(this._canvas);
+      this._effectsSystem.particles.start();
+    }
+
+    // 播放成功特效
+    this._effectsSystem.particles.catchSuccess(x, y);
+
+    // 优秀投掷额外特效
+    if (throwRating === 'EXCELLENT') {
+      setTimeout(() => {
+        this._effectsSystem.particles.excellentThrow(x, y);
+      }, 300);
+    }
+
+    // 更新连击
+    if (this._effectsSystem.combo) {
+      const comboResult = this._effectsSystem.combo.recordCatch();
+      
+      if (comboResult.combo >= 3) {
+        setTimeout(() => {
+          this._effectsSystem.particles.comboEffect(x, y, comboResult.combo);
+        }, 500);
+        
+        this.dispatchEvent(new CustomEvent('combo', { detail: comboResult }));
+      }
+
+      if (comboResult.milestone) {
+        this.dispatchEvent(new CustomEvent('milestone', { detail: comboResult.milestone }));
+      }
+    }
+  }
+
+  /**
+   * 播放逃脱特效
+   * @private
+   */
+  _playFledEffect(x, y) {
+    if (!this._effectsEnabled || !this._ParticleSystem) return;
+
+    if (!this._effectsSystem.particles) {
+      this._effectsSystem.particles = new this._ParticleSystem(this._canvas);
+      this._effectsSystem.particles.start();
+    }
+
+    this._effectsSystem.particles.pokemonFled(x, y);
+
+    // 重置连击
+    if (this._effectsSystem.combo) {
+      this._effectsSystem.combo.reset();
+    }
+  }
+
+  /**
+   * 播放精灵球晃动特效
+   * @private
+   */
+  _playBallShakeEffect(x, y) {
+    if (!this._effectsEnabled || !this._ParticleSystem) return;
+
+    if (!this._effectsSystem.particles) {
+      this._effectsSystem.particles = new this._ParticleSystem(this._canvas);
+      this._effectsSystem.particles.start();
+    }
+
+    this._effectsSystem.particles.ballShake(x, y);
   }
 
   // ── Berry selection ───────────────────────────────────────
@@ -118,7 +274,23 @@ export class CatchEngine extends EventTarget {
     this._stopAnimation();
     this._session = null;
     this._isBusy  = false;
+    
+    // 停止特效系统
+    if (this._effectsSystem && this._effectsSystem.particles) {
+      this._effectsSystem.particles.stop();
+    }
+    
     this.dispatchEvent(new CustomEvent('abandoned'));
+  }
+
+  /**
+   * 获取连击状态
+   */
+  getComboState() {
+    if (!this._effectsSystem || !this._effectsSystem.combo) {
+      return null;
+    }
+    return this._effectsSystem.combo.getState();
   }
 
   // ── Throw rating from ring scale ─────────────────────────
@@ -182,4 +354,5 @@ export class CatchEngine extends EventTarget {
   get session()   { return this._session; }
   get ringScale() { return this._ring.scale; }
   get isBusy()    { return this._isBusy; }
+  get effectsEnabled() { return this._effectsEnabled; }
 }
