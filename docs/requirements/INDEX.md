@@ -80,7 +80,7 @@
 | REQ-00073 | 玩家对战系统（PVP Duel） | 功能增强 | P0 | done | social-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-10 01:25 |
 | REQ-00074 | 玩家排行榜系统 | 功能增强 | P1 | done | social-service、user-service、pokemon-service、gym-service、gateway、game-client、Redis、database/migrations | 2026-06-10 10:00 |
 || REQ-00075 | IP 黑名单与恶意 IP 自动封禁系统 | 安全加固 | P1 | done | gateway、user-service、backend/shared、Redis、database/migrations | 2026-06-10 02:00 |
-|| REQ-00076 | 精灵成就系统与里程碑奖励 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-10 02:15 |
+|| REQ-00076 | 精灵成就系统与里程碑奖励 | 功能增强 | P1 | done | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-10 02:15 |
 || REQ-00077 | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | new | database/migrations、所有微服务、backend/shared、infrastructure/k8s | 2026-06-10 10:30 |
 || REQ-00078 | 金丝雀发布与流量分割系统 | 运维/CICD | P1 | new | gateway、所有微服务、infrastructure/k8s、.github/workflows、backend/shared | 2026-06-10 04:00 |
 || REQ-00079 | 精灵好感度系统与亲密度进化机制 | 功能增强 | P1 | new | pokemon-service、user-service、catch-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 11:00 |
@@ -102,3 +102,4 @@
 | REQ-00095 | 游戏状态持久化与离线状态恢复系统 | 前端体验 | P1 | done | game-client、frontend/storage、backend/shared、user-service | 2026-06-10 22:50 |
 || REQ-00096 | 数据库事务隔离级别控制与死锁检测机制 | 数据库/数据治理 | P1 | new | backend/shared/db.js、catch-service、gym-service、payment-service、social-service | 2026-06-11 00:20 |
 || REQ-00097 | 精灵日常任务系统与任务奖励机制 | 功能增强 | P1 | new | reward-service、user-service、pokemon-service、catch-service、social-service、gateway、game-client、database/migrations | 2026-06-10 17:00 |
+| REQ-00098 | 自适应 API 限流与用户配额管理系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared、Redis、PostgreSQL | 2026-06-11 00:00 |
