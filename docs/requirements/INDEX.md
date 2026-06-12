@@ -87,7 +87,7 @@
 || REQ-00079 | 精灵好感度系统与亲密度进化机制 | 功能增强 | P1 | new | pokemon-service、user-service、catch-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 11:00 |
 | REQ-00080 | API 请求响应 Schema 验证系统 | API 设计规范 | P1 | done | gateway、backend/shared、所有微服务、docs/api-spec/openapi | 2026-06-10 05:00 |
 | REQ-00081 | 捕捉动画特效系统 | 前端体验 | P1 | done | game-client、frontend/effects、catch-service | 2026-06-10 06:00 |
-| REQ-00082 | 精灵捕捉成功率异常检测系统 | 反作弊 | P1 | new | catch-service、gateway、backend/shared、Redis、PostgreSQL | 2026-06-10 07:00 |
+| REQ-00082 | 精灵捕捉成功率异常检测系统 | 反作弊 | P1 | done | catch-service、gateway、backend/shared、Redis、PostgreSQL | 2026-06-10 07:00 |
 | REQ-00083 | 区域化内容分发与地区专属活动管理系统 | 国际化/本地化 | P1 | new | location-service、reward-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-10 08:15 |
 | REQ-00084 | 数据库连接池监控与自适应扩缩容系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared、PostgreSQL、infrastructure/k8s | 2026-06-10 09:00 |
 | REQ-00085 | 配置中心与动态配置热更新系统 | 技术债/重构 | P1 | new | gateway、所有微服务、backend/shared、Redis、infrastructure/k8s | 2026-06-10 09:00 |
@@ -142,7 +142,7 @@
 || REQ-00142 | location-service spawnConfig 路由挂载与集成 | 集成与修复 | P0 | done | location-service | 2026-06-12 04:10 |
 || REQ-00143 | 精灵自定义技能组合与连招系统 | 功能增强 | P1 | new | pokemon-service、gym-service、social-service、gateway、game-client、database/migrations | 2026-06-12 05:00 |
 || REQ-00133 | pokemon-service pokedex 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 23:20 |
-|| REQ-00134 | social-service friends 路由挂载与集成 | 集成与修复 | P0 | new | social-service | 2026-06-11 23:30 |
+|| REQ-00134 | social-service friends 路由挂载与集成 | 集成与修复 | P0 | done | social-service | 2026-06-11 23:30 |
 || REQ-00135 | reward-service events 路由挂载与集成 | 集成与修复 | P0 | done | reward-service | 2026-06-11 23:40 |
 || REQ-00136 | FCM/APNs 移动推送通知系统 | 功能增强 | P1 | new | user-service、reward-service、gateway、game-client、Firebase、Apple Developer | 2026-06-12 00:00 |
 | REQ-00137 | 游戏内容本地化内容管理与翻译工作流系统 | 国际化/本地化 | P1 | new | gateway、user-service、reward-service、backend/shared、admin-dashboard、database/migrations | 2026-06-12 00:35 |
