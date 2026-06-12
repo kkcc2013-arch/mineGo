@@ -339,6 +339,10 @@ app.use('/pokemon', showcaseRouter);
 const achievementsRouter = require('./routes/achievements');
 app.use('/achievements', achievementsRouter);
 
+// REQ-00138: 精灵道具与背包管理系统路由
+const inventoryRouter = require('./routes/inventory');
+app.use('/inventory', inventoryRouter);
+
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'pokemon-service started'));
 module.exports = app;

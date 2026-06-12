@@ -6,8 +6,8 @@
 
 const { Pool } = require('pg');
 const Redis = require('ioredis');
-const { logger, metrics } = require('../../shared');
-const { EventBus } = require('../../shared/EventBus');
+const { logger, metrics } = require('../../../shared');
+const { EventBus } = require('../../../shared/EventBus');
 
 /**
  * 背包服务类

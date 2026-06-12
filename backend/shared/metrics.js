@@ -26,6 +26,17 @@ function safeHistogram(options) {
   return new promClient.Histogram({ ...options, registers: [registry] });
 }
 
+// 便捷包装函数（兼容旧代码）
+function counter(name, help, labelNames = []) {
+  return safeCounter({ name, help, labelNames });
+}
+function gauge(name, help, labelNames = []) {
+  return safeGauge({ name, help, labelNames });
+}
+function histogram(name, help, labelNames = [], buckets) {
+  return safeHistogram({ name, help, labelNames, buckets });
+}
+
 // ============================================================
 // HTTP 指标
 // ============================================================
@@ -675,4 +686,9 @@ module.exports = {
 
   // 辅助函数
   promClient,
+  
+  // 便捷包装函数
+  counter,
+  gauge,
+  histogram,
 };

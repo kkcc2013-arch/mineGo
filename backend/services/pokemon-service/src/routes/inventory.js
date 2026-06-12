@@ -6,10 +6,10 @@
 const express = require('express');
 const router = express.Router();
 const { InventoryService } = require('../inventoryService');
-const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
-const { rateLimiter } = require('../../../shared/middleware/rateLimit');
-const { logger } = require('../../../shared');
-const metrics = require('../../../shared/metrics');
+const { requireAuth, AppError, successResp, errorHandler } = require('../../../../shared/auth');
+const { rateLimiter } = require('../../../../shared/middleware/rateLimit');
+const { logger } = require('../../../../shared');
+const metrics = require('../../../../shared/metrics');
 
 const inventoryService = new InventoryService();
 
