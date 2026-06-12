@@ -19,6 +19,7 @@ const ageVerificationRouter = require('./routes/ageVerification'); // REQ-00034
 const tutorialRouter = require('./routes/tutorial'); // REQ-00059
 const stateRouter = require('./routes/state'); // REQ-00095: 游戏状态持久化
 const { router: privacyRouter, initPrivacyRoutes } = require('./routes/privacy'); // REQ-00053: 隐私偏好管理中心
+const ipAppealRouter = require('./routes/ipAppeal'); // REQ-00075: IP 封禁申诉路由
 const { initNotificationHandlers } = require('./handlers/notificationHandler');
 
 // Create service launcher
@@ -77,6 +78,11 @@ const service = new ServiceLauncher({
     {
       path: '/privacy', // REQ-00053: 隐私偏好管理中心
       router: privacyRouter
+    },
+    {
+      path: '/ip-appeal', // REQ-00149: IP 封禁申诉路由
+      router: ipAppealRouter,
+      rateLimit: { windowMs: 60_000, max: 10, message: { code: 1007, message: '请求太频繁' } }
     }
   ],
   
