@@ -9,6 +9,9 @@ const { requireAuth, AppError, successResp, errorHandler } = require('../../../s
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
 
+// Import event routes (REQ-00141)
+const eventsRouter = require('./routes/events');
+
 const logger = createLogger('reward-service');
 const SERVICE_NAME = 'reward-service';
 
@@ -300,6 +303,9 @@ app.get('/rewards/season', requireAuth, async (req, res, next) => {
     res.json(successResp(season));
   } catch (err) { next(err); }
 });
+
+// ── Event Routes (REQ-00141: 游戏活动系统路由挂载) ──────────────
+app.use('/events', eventsRouter);
 
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'reward-service started'));

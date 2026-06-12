@@ -5,10 +5,26 @@
 const express = require('express');
 const router = express.Router();
 const eventService = require('../eventService');
-const { authenticate, optionalAuth } = require('../../../shared/authMiddleware');
+const { requireAuth, successResp, errorResp } = require('../../../shared/auth');
 const { createLogger } = require('../../../shared/logger');
 
 const logger = createLogger('event-routes');
+
+// Optional auth middleware (allows unauthenticated requests)
+const optionalAuth = (req, res, next) => {
+  const header = req.headers['authorization'];
+  if (!header || !header.startsWith('Bearer ')) {
+    return next(); // Allow unauthenticated access
+  }
+  try {
+    const { verifyAccess } = require('../../../shared/auth');
+    const payload = verifyAccess(header.slice(7));
+    req.user = payload;
+    next();
+  } catch (err) {
+    next(); // Still allow access on invalid token
+  }
+};
 
 /**
  * GET /api/events
@@ -16,7 +32,7 @@ const logger = createLogger('event-routes');
  */
 router.get('/', optionalAuth, async (req, res) => {
   try {
-    const userId = req.user?.id || null;
+    const userId = req.user?.sub || null;
     
     if (userId) {
       const events = await eventService.getActiveEventsForUser(userId);
@@ -38,7 +54,7 @@ router.get('/', optionalAuth, async (req, res) => {
 router.get('/:eventId', optionalAuth, async (req, res) => {
   try {
     const { eventId } = req.params;
-    const userId = req.user?.id || null;
+    const userId = req.user?.sub || null;
     
     const event = await eventService.getEventWithDetails(parseInt(eventId), userId);
     
@@ -57,13 +73,13 @@ router.get('/:eventId', optionalAuth, async (req, res) => {
  * POST /api/events
  * 创建新活动（管理员）
  */
-router.post('/', authenticate, async (req, res) => {
+router.post('/', requireAuth, async (req, res) => {
   try {
     // TODO: 添加管理员权限检查
     
     const eventData = {
       ...req.body,
-      createdBy: req.user.id
+      createdBy: req.user.sub
     };
     
     const event = await eventService.createEvent(eventData);
@@ -79,10 +95,10 @@ router.post('/', authenticate, async (req, res) => {
  * POST /api/events/:eventId/join
  * 用户参与活动
  */
-router.post('/:eventId/join', authenticate, async (req, res) => {
+router.post('/:eventId/join', requireAuth, async (req, res) => {
   try {
     const { eventId } = req.params;
-    const userId = req.user.id;
+    const userId = req.user.sub;
     
     const participation = await eventService.joinEvent(parseInt(eventId), userId);
     
@@ -97,10 +113,10 @@ router.post('/:eventId/join', authenticate, async (req, res) => {
  * POST /api/events/:eventId/claim
  * 领取活动奖励
  */
-router.post('/:eventId/claim', authenticate, async (req, res) => {
+router.post('/:eventId/claim', requireAuth, async (req, res) => {
   try {
     const { eventId } = req.params;
-    const userId = req.user.id;
+    const userId = req.user.sub;
     
     const result = await eventService.claimEventRewards(parseInt(eventId), userId);
     
@@ -115,10 +131,10 @@ router.post('/:eventId/claim', authenticate, async (req, res) => {
  * POST /api/events/:eventId/tasks/:taskId/complete
  * 完成活动任务
  */
-router.post('/:eventId/tasks/:taskId/complete', authenticate, async (req, res) => {
+router.post('/:eventId/tasks/:taskId/complete', requireAuth, async (req, res) => {
   try {
     const { eventId, taskId } = req.params;
-    const userId = req.user.id;
+    const userId = req.user.sub;
     
     const result = await eventService.completeEventTask(
       parseInt(eventId),
@@ -137,11 +153,11 @@ router.post('/:eventId/tasks/:taskId/complete', authenticate, async (req, res) =
  * POST /api/events/:eventId/shop/:shopItemId/purchase
  * 活动商店购买
  */
-router.post('/:eventId/shop/:shopItemId/purchase', authenticate, async (req, res) => {
+router.post('/:eventId/shop/:shopItemId/purchase', requireAuth, async (req, res) => {
   try {
     const { eventId, shopItemId } = req.params;
     const { quantity = 1 } = req.body;
-    const userId = req.user.id;
+    const userId = req.user.sub;
     
     const result = await eventService.purchaseFromEventShop(
       parseInt(eventId),
@@ -183,7 +199,7 @@ router.get('/:eventId/leaderboard', async (req, res) => {
  * POST /api/events/:eventId/pause
  * 暂停活动（管理员）
  */
-router.post('/:eventId/pause', authenticate, async (req, res) => {
+router.post('/:eventId/pause', requireAuth, async (req, res) => {
   try {
     const { eventId } = req.params;
     
@@ -200,7 +216,7 @@ router.post('/:eventId/pause', authenticate, async (req, res) => {
  * POST /api/events/:eventId/resume
  * 恢复活动（管理员）
  */
-router.post('/:eventId/resume', authenticate, async (req, res) => {
+router.post('/:eventId/resume', requireAuth, async (req, res) => {
   try {
     const { eventId } = req.params;
     
@@ -217,7 +233,7 @@ router.post('/:eventId/resume', authenticate, async (req, res) => {
  * POST /api/events/:eventId/cancel
  * 取消活动（管理员）
  */
-router.post('/:eventId/cancel', authenticate, async (req, res) => {
+router.post('/:eventId/cancel', requireAuth, async (req, res) => {
   try {
     const { eventId } = req.params;
     

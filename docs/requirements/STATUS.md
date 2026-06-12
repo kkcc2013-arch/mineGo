@@ -125,11 +125,11 @@
 ## 需求统计
 
 - 总需求：141
-- P0：22 (new: 5, done: 17)
+- P0：22 (new: 4, done: 18)
 - P1：112 (new: 43, done: 69)
 - P2：6 (new: 3, done: 3)
 - P3：0
-- 已完成：89
+- 已完成：90
 
 ## 项目状态
 
@@ -139,7 +139,7 @@
 - 当前需求：141/10000
 - 剩余需求：9859 条
 - 最新生成：REQ-00141（reward-service events 路由挂载与集成，集成与修复）
-- 最新完成：REQ-00138（pokemon-service inventory 路由挂载与集成，集成与修复）
+- 最新完成：REQ-00141（reward-service events 路由挂载与集成，集成与修复）
 
 详见 [DONE.md](./DONE.md)
 - 总需求：136
