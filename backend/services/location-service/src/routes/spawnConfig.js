@@ -3,7 +3,9 @@
 
 const express = require('express');
 const router = express.Router();
-const { createLogger } = require('@pmg/shared/logger');
+const { createLogger } = require('../../../shared/logger');
+const { query } = require('../../../shared/db');
+const { getRedis } = require('../../../shared/redis');
 
 const logger = createLogger('spawn-config');
 
@@ -29,7 +31,7 @@ router.get('/config/cell/:geohash', async (req, res) => {
   const { geohash } = req.params;
   
   try {
-    const result = await req.db.query(`
+    const result = await query(`
       SELECT * FROM spawn_cell_configs 
       WHERE geohash = $1
     `, [geohash]);
@@ -68,7 +70,7 @@ router.put('/config/cell/:geohash', adminOnly, async (req, res) => {
   } = req.body;
   
   try {
-    await req.db.query(`
+    await query(`
       INSERT INTO spawn_cell_configs 
         (geohash, base_spawn_count, min_spawn, max_spawn, spawn_pool_override, enabled, updated_at)
       VALUES ($1, $2, $3, $4, $5, $6, NOW())
@@ -82,21 +84,22 @@ router.put('/config/cell/:geohash', adminOnly, async (req, res) => {
     `, [geohash, base_spawn_count, min_spawn, max_spawn, spawn_pool_override, enabled]);
     
     // Clear cache
-    await req.redis.del(`spawn:config:${geohash}`);
+    const redis = getRedis();
+    await redis.del(`spawn:config:${geohash}`);
     
     // Log admin action
-    await req.db.query(`
+    await query(`
       INSERT INTO spawn_admin_logs (admin_id, action, target_type, target_id, changes)
       VALUES ($1, $2, $3, $4, $5)
     `, [
-      req.user.id,
+      req.user.sub,
       'update_config',
       'cell',
       geohash,
       JSON.stringify({ base_spawn_count, min_spawn, max_spawn, enabled })
     ]);
     
-    logger.info('Cell config updated', { geohash, adminId: req.user.id });
+    logger.info('Cell config updated', { geohash, adminId: req.user.sub });
     
     res.json({ success: true });
   } catch (error) {
@@ -117,17 +120,17 @@ router.get('/events', async (req, res) => {
   const { active, limit = 20, offset = 0 } = req.query;
   
   try {
-    let query = 'SELECT * FROM spawn_events';
+    let sql = 'SELECT * FROM spawn_events';
     const params = [];
     
     if (active === 'true') {
-      query += ' WHERE start_time <= NOW() AND end_time >= NOW() AND enabled = true';
+      sql += ' WHERE start_time <= NOW() AND end_time >= NOW() AND enabled = true';
     }
     
-    query += ' ORDER BY start_time DESC LIMIT $1 OFFSET $2';
+    sql += ' ORDER BY start_time DESC LIMIT $1 OFFSET $2';
     params.push(parseInt(limit), parseInt(offset));
     
-    const result = await req.db.query(query, params);
+    const result = await query(sql, params);
     
     res.json({ success: true, data: result.rows });
   } catch (error) {
@@ -156,7 +159,7 @@ router.post('/events', adminOnly, async (req, res) => {
   } = req.body;
   
   try {
-    const result = await req.db.query(`
+    const result = await query(`
       INSERT INTO spawn_events 
         (name, type, start_time, end_time, affected_areas, spawn_multiplier, featured_pokemon)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -174,18 +177,18 @@ router.post('/events', adminOnly, async (req, res) => {
     const eventId = result.rows[0].id;
     
     // Log admin action
-    await req.db.query(`
+    await query(`
       INSERT INTO spawn_admin_logs (admin_id, action, target_type, target_id, changes)
       VALUES ($1, $2, $3, $4, $5)
     `, [
-      req.user.id,
+      req.user.sub,
       'create_event',
       'event',
       eventId.toString(),
       JSON.stringify({ name, type, startTime, endTime, spawnMultiplier })
     ]);
     
-    logger.info('Event created', { eventId, name, adminId: req.user.id });
+    logger.info('Event created', { eventId, name, adminId: req.user.sub });
     
     res.json({ success: true, eventId });
   } catch (error) {
@@ -228,25 +231,25 @@ router.put('/events/:eventId', adminOnly, async (req, res) => {
     
     fields.push('updated_at = NOW()');
     
-    await req.db.query(`
+    await query(`
       UPDATE spawn_events 
       SET ${fields.join(', ')}
       WHERE id = $1
     `, values);
     
     // Log admin action
-    await req.db.query(`
+    await query(`
       INSERT INTO spawn_admin_logs (admin_id, action, target_type, target_id, changes)
       VALUES ($1, $2, $3, $4, $5)
     `, [
-      req.user.id,
+      req.user.sub,
       'update_event',
       'event',
       eventId,
       JSON.stringify(updates)
     ]);
     
-    logger.info('Event updated', { eventId, adminId: req.user.id });
+    logger.info('Event updated', { eventId, adminId: req.user.sub });
     
     res.json({ success: true });
   } catch (error) {
@@ -267,15 +270,15 @@ router.delete('/events/:eventId', adminOnly, async (req, res) => {
   const { eventId } = req.params;
   
   try {
-    await req.db.query('DELETE FROM spawn_events WHERE id = $1', [eventId]);
+    await query('DELETE FROM spawn_events WHERE id = $1', [eventId]);
     
     // Log admin action
-    await req.db.query(`
+    await query(`
       INSERT INTO spawn_admin_logs (admin_id, action, target_type, target_id)
       VALUES ($1, $2, $3, $4)
-    `, [req.user.id, 'delete_event', 'event', eventId]);
+    `, [req.user.sub, 'delete_event', 'event', eventId]);
     
-    logger.info('Event deleted', { eventId, adminId: req.user.id });
+    logger.info('Event deleted', { eventId, adminId: req.user.sub });
     
     res.json({ success: true });
   } catch (error) {
@@ -296,7 +299,7 @@ router.get('/pool/:biome', async (req, res) => {
   const { biome } = req.params;
   
   try {
-    const result = await req.db.query(`
+    const result = await query(`
       SELECT 
         p.id, p.name, p.rarity,
         sp.weight, sp.min_level, sp.max_level,
@@ -319,59 +322,6 @@ router.get('/pool/:biome', async (req, res) => {
 });
 
 /**
- * PUT /api/admin/spawn/pool/:biome
- * Update spawn pool for a biome
- */
-router.put('/pool/:biome', adminOnly, async (req, res) => {
-  const { biome } = req.params;
-  const { pokemon } = req.body; // [{ id, weight, minLevel, maxLevel, enabled }]
-  
-  try {
-    await req.db.query('BEGIN');
-    
-    // Clear existing pool
-    await req.db.query('DELETE FROM spawn_pools WHERE biome = $1', [biome]);
-    
-    // Insert new pool
-    for (const p of pokemon) {
-      await req.db.query(`
-        INSERT INTO spawn_pools (biome, pokemon_id, weight, min_level, max_level, enabled)
-        VALUES ($1, $2, $3, $4, $5, $6)
-      `, [biome, p.id, p.weight, p.minLevel, p.maxLevel, p.enabled]);
-    }
-    
-    await req.db.query('COMMIT');
-    
-    // Clear cache
-    await req.redis.del(`spawn:pool:${biome}`);
-    
-    // Log admin action
-    await req.db.query(`
-      INSERT INTO spawn_admin_logs (admin_id, action, target_type, target_id, changes)
-      VALUES ($1, $2, $3, $4, $5)
-    `, [
-      req.user.id,
-      'update_pool',
-      'pool',
-      biome,
-      JSON.stringify({ pokemonCount: pokemon.length })
-    ]);
-    
-    logger.info('Spawn pool updated', { biome, pokemonCount: pokemon.length, adminId: req.user.id });
-    
-    res.json({ success: true });
-  } catch (error) {
-    await req.db.query('ROLLBACK');
-    logger.error('Failed to update spawn pool', { biome, error: error.message });
-    res.status(500).json({
-      success: false,
-      code: 3009,
-      message: '更新精灵池失败'
-    });
-  }
-});
-
-/**
  * GET /api/admin/spawn/stats
  * Get spawn statistics
  */
@@ -379,31 +329,31 @@ router.get('/stats', async (req, res) => {
   const { geohash, date, hour } = req.query;
   
   try {
-    let query = 'SELECT * FROM spawn_statistics WHERE 1=1';
+    let sql = 'SELECT * FROM spawn_statistics WHERE 1=1';
     const params = [];
     let paramCount = 1;
     
     if (geohash) {
-      query += ` AND geohash = $${paramCount}`;
+      sql += ` AND geohash = $${paramCount}`;
       params.push(geohash);
       paramCount++;
     }
     
     if (date) {
-      query += ` AND date = $${paramCount}`;
+      sql += ` AND date = $${paramCount}`;
       params.push(date);
       paramCount++;
     }
     
     if (hour !== undefined) {
-      query += ` AND hour = $${paramCount}`;
+      sql += ` AND hour = $${paramCount}`;
       params.push(parseInt(hour));
       paramCount++;
     }
     
-    query += ' ORDER BY date DESC, hour DESC LIMIT 100';
+    sql += ' ORDER BY date DESC, hour DESC LIMIT 100';
     
-    const result = await req.db.query(query, params);
+    const result = await query(sql, params);
     
     res.json({ success: true, data: result.rows });
   } catch (error) {
@@ -424,7 +374,7 @@ router.get('/logs', adminOnly, async (req, res) => {
   const { limit = 50, offset = 0 } = req.query;
   
   try {
-    const result = await req.db.query(`
+    const result = await query(`
       SELECT 
         sal.*,
         u.username as admin_name
@@ -453,13 +403,12 @@ router.post('/manual-spawn', adminOnly, async (req, res) => {
   const { pokemonId, lat, lng, duration } = req.body;
   
   try {
-    // This would call SpawnEngine.createSpawn directly
-    // For now, just log the action
-    await req.db.query(`
+    // Log admin action
+    await query(`
       INSERT INTO spawn_admin_logs (admin_id, action, target_type, changes)
       VALUES ($1, $2, $3, $4)
     `, [
-      req.user.id,
+      req.user.sub,
       'manual_spawn',
       'pokemon',
       JSON.stringify({ pokemonId, lat, lng, duration })
@@ -469,7 +418,7 @@ router.post('/manual-spawn', adminOnly, async (req, res) => {
       pokemonId, 
       lat, 
       lng, 
-      adminId: req.user.id 
+      adminId: req.user.sub 
     });
     
     res.json({ success: true });

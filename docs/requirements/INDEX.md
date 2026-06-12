@@ -149,3 +149,4 @@
 | REQ-00139 | 事件总线适配器抽象层 | 可扩展性/解耦 | P1 | new | backend/shared/EventBusAdapter.js、backend/shared/adapters/、所有微服务 | 2026-06-12 02:00 |
 || REQ-00140 | 低峰期服务自动休眠与智能唤醒系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared/sleepManager.js、backend/shared/trafficAnalyzer.js、infrastructure/k8s、backend/jobs | 2026-06-12 03:00 |
 || REQ-00141 | reward-service events 路由挂载与集成 | 集成与修复 | P0 | done | reward-service、gateway | 2026-06-12 03:30 |
+| REQ-00142 | location-service spawnConfig 路由挂载与集成 | 集成与修复 | P0 | done | location-service | 2026-06-12 04:10 |
