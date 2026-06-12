@@ -1,0 +1,303 @@
+/**
+ * 高对比度模式样式
+ * WCAG 2.1 AAA 合规
+ * 
+ * @file high-contrast.css
+ * @version 1.0.0
+ */
+
+/* ─────────────────────────────────────────────────────────────
+   高对比度模式基础样式
+   ───────────────────────────────────────────────────────────── */
+
+.high-contrast,
+.black-white {
+  /* 增强所有边框 */
+  * {
+    border-color: currentColor !important;
+  }
+  
+  /* 增强文本可读性 */
+  body {
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+  }
+  
+  /* 标题增强 */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 700 !important;
+    letter-spacing: 0.03em !important;
+  }
+  
+  /* 隐藏纯装饰元素 */
+  .decorative,
+  [aria-hidden="true"]:not(.pokemon-icon):not(.pokemon-sprite):not(.map-marker) {
+    opacity: 0.3 !important;
+  }
+  
+  /* 增强卡片边框 */
+  .card,
+  .panel,
+  .modal,
+  .dialog {
+    border-width: 3px !important;
+    border-style: solid !important;
+    box-shadow: none !important;
+  }
+  
+  /* 增强表格边框 */
+  table {
+    border-width: 3px !important;
+    border-collapse: collapse !important;
+  }
+  
+  th,
+  td {
+    border-width: 2px !important;
+    border-style: solid !important;
+    padding: 12px !important;
+  }
+  
+  /* 增强分隔线 */
+  hr,
+  .divider {
+    border-width: 2px !important;
+    border-style: solid !important;
+    background: none !important;
+    height: 0 !important;
+  }
+  
+  /* 图标增强 */
+  .icon,
+  .emoji,
+  .svg-icon {
+    filter: none !important;
+  }
+  
+  /* 链接增强 */
+  a {
+    text-decoration-thickness: 2px !important;
+    text-underline-offset: 3px !important;
+  }
+  
+  /* 输入框增强 */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important; /* 防止 iOS 缩放 */
+    min-height: 44px !important; /* 触摸目标最小尺寸 */
+  }
+  
+  /* 按钮增强 */
+  button,
+  .btn {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    font-weight: 700 !important;
+  }
+  
+  /* 进度条增强 */
+  .progress-bar {
+    border-width: 3px !important;
+    height: 24px !important;
+  }
+  
+  /* 徽章增强 */
+  .badge,
+  .chip,
+  .tag {
+    border-width: 2px !important;
+    font-weight: 700 !important;
+    padding: 4px 8px !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   黑白模式特殊样式
+   ───────────────────────────────────────────────────────────── */
+
+.black-white {
+  /* 移除所有颜色，仅保留黑白 */
+  * {
+    background-image: none !important;
+  }
+  
+  /* 图片灰度化 */
+  img:not(.pokemon-icon):not(.pokemon-sprite) {
+    filter: grayscale(100%) contrast(150%) !important;
+  }
+  
+  /* 移除彩色背景 */
+  .bg-primary,
+  .bg-secondary,
+  .bg-success,
+  .bg-danger,
+  .bg-warning,
+  .bg-info {
+    background-color: #000000 !important;
+  }
+  
+  /* 统一边框颜色 */
+  * {
+    border-color: #FFFFFF !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   高对比度模式（黄/黑）特殊样式
+   ───────────────────────────────────────────────────────────── */
+
+.high-contrast {
+  /* 主色调：黄色 */
+  --hc-accent: #FFFF00;
+  
+  /* 强调元素 */
+  .accent,
+  .highlight {
+    background-color: var(--hc-accent) !important;
+    color: #000000 !important;
+  }
+  
+  /* 精灵类型标签 */
+  .type-badge {
+    border-width: 3px !important;
+    font-weight: 700 !important;
+  }
+  
+  /* 地图标记动画 */
+  .map-marker {
+    animation: high-contrast-pulse 2s ease-in-out infinite !important;
+  }
+  
+  @keyframes high-contrast-pulse {
+    0%, 100% {
+      box-shadow: 0 0 10px var(--hc-accent);
+    }
+    50% {
+      box-shadow: 0 0 20px var(--hc-accent), 0 0 30px var(--hc-accent);
+    }
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   焦点指示器增强
+   ───────────────────────────────────────────────────────────── */
+
+.high-contrast,
+.black-white {
+  /* 移除默认焦点样式 */
+  *:focus {
+    outline: none !important;
+  }
+  
+  /* 显示焦点环 */
+  *:focus-visible {
+    outline: 4px solid var(--hc-focus, #FFFF00) !important;
+    outline-offset: 2px !important;
+  }
+  
+  /* 按钮焦点 */
+  button:focus-visible,
+  .btn:focus-visible,
+  a:focus-visible {
+    outline: 5px solid var(--hc-focus, #FFFF00) !important;
+    outline-offset: 3px !important;
+  }
+  
+  /* 输入框焦点 */
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 5px solid var(--hc-focus, #FFFF00) !important;
+    outline-offset: 0 !important;
+    border-width: 4px !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   打印样式优化
+   ───────────────────────────────────────────────────────────── */
+
+@media print {
+  .high-contrast,
+  .black-white {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+  }
+  
+  .high-contrast *,
+  .black-white * {
+    background-color: transparent !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   响应式调整
+   ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .high-contrast,
+  .black-white {
+    /* 移动端增大触摸目标 */
+    button,
+    .btn,
+    a,
+    input,
+    select {
+      min-height: 48px !important;
+      min-width: 48px !important;
+    }
+    
+    /* 增大字体 */
+    body {
+      font-size: 18px !important;
+    }
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   辅助类
+   ───────────────────────────────────────────────────────────── */
+
+/* 强制高对比度（用于特定元素） */
+.force-high-contrast {
+  background-color: #000000 !important;
+  color: #FFFFFF !important;
+  border: 3px solid #FFFFFF !important;
+}
+
+/* 高对比度文本 */
+.hc-text {
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+}
+
+/* 高对比度边框 */
+.hc-border {
+  border-width: 3px !important;
+  border-style: solid !important;
+}
+
+/* 高对比度焦点 */
+.hc-focus:focus-visible {
+  outline: 5px solid #FFFF00 !important;
+  outline-offset: 3px !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   动画减弱支持
+   ───────────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .high-contrast,
+  .black-white {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}

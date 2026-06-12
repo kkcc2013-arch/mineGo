@@ -152,3 +152,4 @@
 || REQ-00141 | reward-service events 路由挂载与集成 | 集成与修复 | P0 | done | reward-service、gateway | 2026-06-12 03:30 |
 || REQ-00142 | location-service spawnConfig 路由挂载与集成 | 集成与修复 | P0 | done | location-service | 2026-06-12 04:10 |
 || REQ-00143 | 精灵自定义技能组合与连招系统 | 功能增强 | P1 | new | pokemon-service、gym-service、social-service、gateway、game-client、database/migrations | 2026-06-12 05:00 |
+|| REQ-00144 | 游戏客户端高对比度模式支持系统 | 无障碍(a11y) | P2 | done | game-client、frontend/game-client/src/accessibility、frontend/game-client/styles | 2026-06-12 05:10 |

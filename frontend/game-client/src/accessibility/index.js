@@ -8,6 +8,7 @@ export { A11yAnnouncer, a11yAnnouncer } from './announcer.js';
 export { AnimationSettings, animationSettings } from './animation.js';
 export { FontSizeManager, fontSizeManager } from './fontSize.js';
 export { ColorBlindFriendly } from './colorBlind.js';
+export { HighContrastMode, highContrastMode } from './HighContrastMode.js';
 
 /**
  * 初始化所有无障碍模块
