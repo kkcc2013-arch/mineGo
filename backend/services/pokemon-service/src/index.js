@@ -343,6 +343,10 @@ app.use('/achievements', achievementsRouter);
 const inventoryRouter = require('./routes/inventory');
 app.use('/inventory', inventoryRouter);
 
+// REQ-00133: 精灵图鉴系统路由
+const pokedexRouter = require('./routes/pokedex');
+app.use('/pokedex', pokedexRouter);
+
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'pokemon-service started'));
 module.exports = app;
