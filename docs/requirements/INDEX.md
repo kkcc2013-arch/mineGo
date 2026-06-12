@@ -155,4 +155,5 @@
 || REQ-00144 | 游戏客户端高对比度模式支持系统 | 无障碍(a11y) | P2 | done | game-client、frontend/game-client/src/accessibility、frontend/game-client/styles | 2026-06-12 05:10 |
 || REQ-00145 | 精灵详情批量查询优化 | 性能优化 | P1 | new | pokemon-service、gateway、game-client、backend/shared | 2026-06-12 06:10 |
 | REQ-00146 | 道馆战斗伤害公式与属性克制计算系统 | 功能增强 | P1 | new | gym-service、pokemon-service、backend/shared | 2026-06-12 07:00 |
-| REQ-00147 | API 请求速率限制绕过检测与防护系统 | 安全加固 | P1 | new | gateway、backend/shared/rateLimitMonitor.js、Redis、PostgreSQL | 2026-06-12 07:15 |
+|| REQ-00147 | API 请求速率限制绕过检测与防护系统 | 安全加固 | P1 | new | gateway、backend/shared/rateLimitMonitor.js、Redis、PostgreSQL | 2026-06-12 07:15 |
+|| REQ-00148 | 分布式追踪与请求链路可视化系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-12 08:00 |

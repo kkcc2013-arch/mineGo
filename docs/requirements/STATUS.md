@@ -1087,3 +1087,21 @@
   - frontend/game-client/src/components/AccessibilityMenu.js (新增无障碍菜单)
   - backend/tests/unit/accessibility.test.js (新增单元测试)
   - docs/review/REQ-00017-review.md (新增审核文档)
+
+### REQ-00148: 分布式追踪与请求链路可视化系统
+- **创建时间**: 2026-06-12 08:00
+- **类别**: 可观测性/监控
+- **优先级**: P1
+- **状态**: new
+- **影响**: 填补可观测性三大支柱（日志、指标、追踪）的最后一环，实现端到端请求追踪
+- **关键特性**:
+  - OpenTelemetry SDK 集成，标准化追踪数据
+  - 自动链路追踪，跨服务传递 trace context
+  - 关键路径追踪（捕捉流程、道馆战斗、支付流程）
+  - Grafana Tempo 部署，48 小时数据保留
+  - 追踪查询 API（trace 详情、搜索、服务依赖图）
+  - 数据库查询自动追踪
+  - HTTP 客户端自动追踪
+  - 响应头 X-Trace-Id 暴露
+  - 7 个 API 端点
+  - 10+ Prometheus 指标
