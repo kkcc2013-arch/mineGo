@@ -125,7 +125,8 @@
 || REQ-00115 | 数据库连接池自适应调度与负载均衡系统 | 数据库/数据治理 | P1 | new | backend/shared/db.js、所有微服务、PostgreSQL、infrastructure/k8s | 2026-06-11 15:50 |
 || REQ-00116 | 精灵团队实时语音聊天系统 | 功能增强 | P1 | new | gym-service、social-service、user-service、gateway、game-client、infrastructure/k8s | 2026-06-11 16:00 |
 | REQ-00117 | 地图手势交互优化与缩放流畅度提升 | 前端体验 | P2 | new | game-client、frontend/game-client/src/game、frontend/game-client/index.html | 2026-06-11 17:05 |
-| REQ-00118 | gym-service 战斗路由挂载与集成 | 集成与修复 | P0 | done | gym-service、backend/services/gym-service/src/index.js、backend/services/gym-service/src/routes/battle.js | 2026-06-11 17:15 |
+|| REQ-00149 | user-service ipAppeal 路由挂载与集成 | 集成与修复 | P0 | done | user-service、backend/services/user-service/src/index.js、backend/services/user-service/src/routes/ipAppeal.js | 2026-06-12 08:10 |
+|| REQ-00150 | 背包容量扩展与购买系统 | 功能增强 | P1 | new | pokemon-service、user-service、payment-service、gateway、game-client | 2026-06-12 09:00 |
 | REQ-00119 | pokemon-service 进化路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 17:30 |
 | REQ-00120 | user-service 消息中心路由挂载与集成 | 集成与修复 | P0 | done | user-service | 2026-06-11 17:35 |
 | REQ-00121 | social-service 排行榜路由挂载与集成 | 集成与修复 | P0 | done | social-service | 2026-06-11 17:40 |
@@ -157,4 +158,5 @@
 | REQ-00146 | 道馆战斗伤害公式与属性克制计算系统 | 功能增强 | P1 | new | gym-service、pokemon-service、backend/shared | 2026-06-12 07:00 |
 || REQ-00147 | API 请求速率限制绕过检测与防护系统 | 安全加固 | P1 | new | gateway、backend/shared/rateLimitMonitor.js、Redis、PostgreSQL | 2026-06-12 07:15 |
 || REQ-00148 | 分布式追踪与请求链路可视化系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-12 08:00 |
-| REQ-00149 | user-service ipAppeal 路由挂载与集成 | 集成与修复 | P0 | done | user-service、backend/services/user-service/src/index.js、backend/services/user-service/src/routes/ipAppeal.js | 2026-06-12 08:10 |
+|| REQ-00149 | user-service ipAppeal 路由挂载与集成 | 集成与修复 | P0 | done | user-service、backend/services/user-service/src/index.js、backend/services/user-service/src/routes/ipAppeal.js | 2026-06-12 08:10 |
+|| REQ-00150 | 背包容量扩展与购买系统 | 功能增强 | P1 | new | pokemon-service、user-service、payment-service、gateway、game-client | 2026-06-12 09:00 |
