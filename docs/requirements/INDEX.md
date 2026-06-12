@@ -144,3 +144,4 @@
 || REQ-00134 | social-service friends 路由挂载与集成 | 集成与修复 | P0 | new | social-service | 2026-06-11 23:30 |
 || REQ-00135 | reward-service events 路由挂载与集成 | 集成与修复 | P0 | new | reward-service | 2026-06-11 23:40 |
 || REQ-00136 | FCM/APNs 移动推送通知系统 | 功能增强 | P1 | new | user-service、reward-service、gateway、game-client、Firebase、Apple Developer | 2026-06-12 00:00 |
+| REQ-00137 | 游戏内容本地化内容管理与翻译工作流系统 | 国际化/本地化 | P1 | new | gateway、user-service、reward-service、backend/shared、admin-dashboard、database/migrations | 2026-06-12 00:35 |
