@@ -143,7 +143,7 @@
 || REQ-00143 | 精灵自定义技能组合与连招系统 | 功能增强 | P1 | new | pokemon-service、gym-service、social-service、gateway、game-client、database/migrations | 2026-06-12 05:00 |
 || REQ-00133 | pokemon-service pokedex 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 23:20 |
 || REQ-00134 | social-service friends 路由挂载与集成 | 集成与修复 | P0 | new | social-service | 2026-06-11 23:30 |
-|| REQ-00135 | reward-service events 路由挂载与集成 | 集成与修复 | P0 | new | reward-service | 2026-06-11 23:40 |
+|| REQ-00135 | reward-service events 路由挂载与集成 | 集成与修复 | P0 | done | reward-service | 2026-06-11 23:40 |
 || REQ-00136 | FCM/APNs 移动推送通知系统 | 功能增强 | P1 | new | user-service、reward-service、gateway、game-client、Firebase、Apple Developer | 2026-06-12 00:00 |
 | REQ-00137 | 游戏内容本地化内容管理与翻译工作流系统 | 国际化/本地化 | P1 | new | gateway、user-service、reward-service、backend/shared、admin-dashboard、database/migrations | 2026-06-12 00:35 |
 | REQ-00138 | pokemon-service inventory 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-12 01:25 |
@@ -153,3 +153,4 @@
 || REQ-00142 | location-service spawnConfig 路由挂载与集成 | 集成与修复 | P0 | done | location-service | 2026-06-12 04:10 |
 || REQ-00143 | 精灵自定义技能组合与连招系统 | 功能增强 | P1 | new | pokemon-service、gym-service、social-service、gateway、game-client、database/migrations | 2026-06-12 05:00 |
 || REQ-00144 | 游戏客户端高对比度模式支持系统 | 无障碍(a11y) | P2 | done | game-client、frontend/game-client/src/accessibility、frontend/game-client/styles | 2026-06-12 05:10 |
+|| REQ-00145 | 精灵详情批量查询优化 | 性能优化 | P1 | new | pokemon-service、gateway、game-client、backend/shared | 2026-06-12 06:10 |
