@@ -335,6 +335,10 @@ app.use('/pokemon', evolutionRouter);
 const showcaseRouter = require('./routes/showcase');
 app.use('/pokemon', showcaseRouter);
 
+// REQ-00076: 精灵成就系统与里程碑奖励路由
+const achievementsRouter = require('./routes/achievements');
+app.use('/achievements', achievementsRouter);
+
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'pokemon-service started'));
 module.exports = app;
