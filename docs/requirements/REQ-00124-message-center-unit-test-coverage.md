@@ -3,7 +3,7 @@
 - **编号**：REQ-00124
 - **类别**：测试覆盖
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：user-service、backend/services/user-service/src/routes/messageCenter.js、backend/tests/unit/
 - **创建时间**：2026-06-11 19:10
 - **依赖需求**：REQ-00099（游戏消息中心与通知管理系统）、REQ-00120（消息中心路由挂载）

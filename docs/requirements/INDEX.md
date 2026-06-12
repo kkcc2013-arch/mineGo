@@ -132,7 +132,7 @@
 | REQ-00121 | social-service 排行榜路由挂载与集成 | 集成与修复 | P0 | done | social-service | 2026-06-11 17:40 |
 | REQ-00122 | 微服务配置中心与动态配置热更新系统 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared/config、Redis | 2026-06-11 18:00 |
 | REQ-00123 | pokemon-service showcase 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 18:30 |
-|| REQ-00124 | 消息中心服务单元测试覆盖 | 测试覆盖 | P1 | new | user-service、backend/tests/unit/ | 2026-06-11 19:10 |
+|| REQ-00124 | 消息中心服务单元测试覆盖 | 测试覆盖 | P1 | done | user-service、backend/tests/unit/ | 2026-06-11 19:10 |
 | REQ-00126 | user-service MFA 路由挂载与集成 | 集成与修复 | P0 | done | user-service | 2026-06-11 20:05 |
 | REQ-00127 | 用户数据删除请求管理系统 | 合规/隐私 | P1 | new | user-service、gateway、所有微服务、database、backend/jobs | 2026-06-11 20:15 |
 | REQ-00128 | social-service PVP 路由挂载与集成 | 集成与修复 | P0 | done | social-service | 2026-06-11 21:05 |
@@ -160,3 +160,5 @@
 || REQ-00148 | 分布式追踪与请求链路可视化系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-12 08:00 |
 || REQ-00149 | user-service ipAppeal 路由挂载与集成 | 集成与修复 | P0 | done | user-service、backend/services/user-service/src/index.js、backend/services/user-service/src/routes/ipAppeal.js | 2026-06-12 08:10 |
 || REQ-00150 | 背包容量扩展与购买系统 | 功能增强 | P1 | new | pokemon-service、user-service、payment-service、gateway、game-client | 2026-06-12 09:00 |
+
+| REQ-00151 | 精灵羁绊技能解锁机制 | 功能增强 | P1 | new | pokemon-service、game-client、database/migrations | 2026-06-12 09:00 |
