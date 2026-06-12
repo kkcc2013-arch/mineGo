@@ -7,7 +7,7 @@
 | 标题 | social-service friends 路由挂载与集成 |
 | 类别 | 集成与修复 |
 | 优先级 | P0 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | social-service |
 | 创建时间 | 2026-06-11 23:30 |
 

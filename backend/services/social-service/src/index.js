@@ -12,6 +12,7 @@ const tradeRoutes = require('./routes/trade');
 const guildRoutes = require('./routes/guild');
 const leaderboardRouter = require('./routes/leaderboard'); // REQ-00121
 const pvpRoutes = require('./routes/pvp'); // REQ-00128
+const friendsRouter = require('./routes/friends'); // REQ-00134
 
 const logger = createLogger('social-service');
 const SERVICE_NAME = 'social-service';
@@ -221,6 +222,9 @@ app.use('/guild', guildRoutes);
 
 // REQ-00121: 玩家排行榜系统路由
 app.use('/leaderboard', leaderboardRouter);
+
+// REQ-00134: 好友系统路由
+app.use('/friends', friendsRouter);
 
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'social-service started'));
