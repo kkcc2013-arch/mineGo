@@ -154,3 +154,4 @@
 || REQ-00143 | 精灵自定义技能组合与连招系统 | 功能增强 | P1 | new | pokemon-service、gym-service、social-service、gateway、game-client、database/migrations | 2026-06-12 05:00 |
 || REQ-00144 | 游戏客户端高对比度模式支持系统 | 无障碍(a11y) | P2 | done | game-client、frontend/game-client/src/accessibility、frontend/game-client/styles | 2026-06-12 05:10 |
 || REQ-00145 | 精灵详情批量查询优化 | 性能优化 | P1 | new | pokemon-service、gateway、game-client、backend/shared | 2026-06-12 06:10 |
+| REQ-00146 | 道馆战斗伤害公式与属性克制计算系统 | 功能增强 | P1 | new | gym-service、pokemon-service、backend/shared | 2026-06-12 07:00 |
