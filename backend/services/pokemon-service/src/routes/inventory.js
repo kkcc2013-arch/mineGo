@@ -335,6 +335,97 @@ router.post('/cleanup', requireAuth, async (req, res, next) => {
   }
 });
 
+// ========== REQ-00150: 背包容量扩展与购买系统 ==========
+
+/**
+ * GET /api/v1/inventory/upgrades
+ * 获取扩容配置列表
+ */
+router.get('/upgrades', requireAuth, async (req, res, next) => {
+  try {
+    const configs = await inventoryService.getUpgradeConfigs(req.user.id);
+    successResp(res, configs);
+  } catch (error) {
+    logger.error('Failed to get upgrade configs', { 
+      userId: req.user.id, 
+      error: error.message 
+    });
+    next(error);
+  }
+});
+
+/**
+ * POST /api/v1/inventory/upgrades/:upgradeId/purchase
+ * 购买背包扩容
+ */
+router.post('/upgrades/:upgradeId/purchase', requireAuth, rateLimiter({ windowMs: 60000, max: 5 }), async (req, res, next) => {
+  try {
+    const { upgradeId } = req.params;
+    const { method } = req.body; // 'gold' | 'gem'
+    
+    if (!['gold', 'gem'].includes(method)) {
+      throw new AppError(400, 'Invalid purchase method. Must be "gold" or "gem"');
+    }
+    
+    const result = await inventoryService.purchaseBagUpgrade(
+      req.user.id, 
+      upgradeId, 
+      method
+    );
+    
+    successResp(res, result);
+  } catch (error) {
+    logger.error('Failed to purchase bag upgrade', { 
+      userId: req.user.id, 
+      upgradeId: req.params.upgradeId,
+      method: req.body.method,
+      error: error.message 
+    });
+    next(error);
+  }
+});
+
+/**
+ * POST /api/v1/inventory/upgrades/:upgradeId/grant
+ * 赠送免费扩容（管理员）
+ */
+router.post('/upgrades/:upgradeId/grant', requireAuth, async (req, res, next) => {
+  try {
+    // 检查管理员权限
+    if (req.user.role !== 'admin') {
+      throw new AppError(403, 'Admin access required');
+    }
+    
+    const { upgradeId } = req.params;
+    const { userId, reason } = req.body;
+    
+    if (!userId || !reason) {
+      throw new AppError(400, 'userId and reason are required');
+    }
+    
+    const validReasons = ['achievement', 'event', 'free'];
+    if (!validReasons.includes(reason)) {
+      throw new AppError(400, `Invalid reason. Must be one of: ${validReasons.join(', ')}`);
+    }
+    
+    const result = await inventoryService.grantFreeUpgrade(
+      userId, 
+      upgradeId, 
+      reason
+    );
+    
+    successResp(res, result);
+  } catch (error) {
+    logger.error('Failed to grant free upgrade', { 
+      adminId: req.user.id, 
+      upgradeId: req.params.upgradeId,
+      targetUserId: req.body.userId,
+      error: error.message 
+    });
+    next(error);
+  }
+});
+
 // 错误处理中间件
 router.use(errorHandler);
 

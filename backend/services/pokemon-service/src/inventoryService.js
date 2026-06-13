@@ -73,6 +73,17 @@ class InventoryService {
       cacheMisses: metrics.counter(
         'inventory_cache_misses_total',
         'Inventory cache miss count'
+      ),
+      // REQ-00150: 背包扩容指标
+      bagUpgradesPurchased: metrics.counter(
+        'inventory_bag_upgrades_purchased_total',
+        'Total bag upgrades purchased',
+        ['user_id', 'category', 'method']
+      ),
+      bagUpgradeRevenue: metrics.counter(
+        'inventory_bag_upgrade_revenue_total',
+        'Total revenue from bag upgrades',
+        ['currency', 'amount']
       )
     };
   }
@@ -800,6 +811,251 @@ class InventoryService {
     }
     
     return effects;
+  }
+
+  // ========== REQ-00150: 背包容量扩展与购买系统 ==========
+
+  /**
+   * 获取扩容配置列表
+   */
+  async getUpgradeConfigs(userId) {
+    const cacheKey = `bag_upgrade_configs:${userId}`;
+    const cached = await this.redis.get(cacheKey);
+    if (cached) {
+      this.metrics.cacheHits.inc();
+      return JSON.parse(cached);
+    }
+    
+    this.metrics.cacheMisses.inc();
+    
+    // 获取配置和玩家已购买记录
+    const [configsResult, purchasesResult] = await Promise.all([
+      this.db.query(`
+        SELECT * FROM bag_upgrade_config 
+        WHERE is_active = true 
+        ORDER BY category, increment
+      `),
+      this.db.query(`
+        SELECT upgrade_id, COUNT(*) as purchase_count
+        FROM player_bag_upgrades
+        WHERE user_id = $1
+        GROUP BY upgrade_id
+      `, [userId])
+    ]);
+    
+    const purchaseMap = new Map(
+      purchasesResult.rows.map(r => [r.upgrade_id, parseInt(r.purchase_count)])
+    );
+    
+    // 计算每个配置的可用状态
+    const result = configsResult.rows.map(config => ({
+      upgrade_id: config.upgrade_id,
+      category: config.category,
+      increment: config.increment,
+      gold_cost: config.gold_cost,
+      gem_cost: config.gem_cost,
+      required_level: config.required_level,
+      max_upgrades: config.max_upgrades,
+      purchased: purchaseMap.get(config.upgrade_id) || 0,
+      available: (purchaseMap.get(config.upgrade_id) || 0) < config.max_upgrades
+    }));
+    
+    await this.redis.setex(cacheKey, 300, JSON.stringify(result));
+    return result;
+  }
+
+  /**
+   * 购买背包扩容
+   */
+  async purchaseBagUpgrade(userId, upgradeId, method) {
+    const client = await this.db.connect();
+    
+    try {
+      await client.query('BEGIN');
+      
+      // 1. 获取配置
+      const configResult = await client.query(
+        'SELECT * FROM bag_upgrade_config WHERE upgrade_id = $1 AND is_active = true',
+        [upgradeId]
+      );
+      
+      if (configResult.rows.length === 0) {
+        throw new Error('Upgrade config not found');
+      }
+      
+      const config = configResult.rows[0];
+      
+      // 2. 检查购买次数
+      const purchaseCount = await client.query(
+        'SELECT COUNT(*) FROM player_bag_upgrades WHERE user_id = $1 AND upgrade_id = $2',
+        [userId, upgradeId]
+      );
+      
+      if (parseInt(purchaseCount.rows[0].count) >= config.max_upgrades) {
+        throw new Error('Maximum upgrades reached');
+      }
+      
+      // 3. 确定价格
+      const cost = method === 'gold' ? config.gold_cost : config.gem_cost;
+      if (!cost) {
+        throw new Error(`Cannot purchase with ${method}`);
+      }
+      
+      // 4. 扣款（调用 user-service）
+      const currencyField = method === 'gold' ? 'gold' : 'gems';
+      const deductResult = await client.query(
+        `UPDATE users SET ${currencyField} = ${currencyField} - $1 
+         WHERE id = $2 AND ${currencyField} >= $1
+         RETURNING ${currencyField}`,
+        [cost, userId]
+      );
+      
+      if (deductResult.rows.length === 0) {
+        throw new Error('Insufficient balance');
+      }
+      
+      // 5. 记录购买
+      await client.query(
+        'INSERT INTO player_bag_upgrades (user_id, upgrade_id, purchase_method, cost_amount) VALUES ($1, $2, $3, $4)',
+        [userId, upgradeId, method, cost]
+      );
+      
+      // 6. 更新容量
+      const categoryField = `${config.category}_slots`;
+      await client.query(
+        `UPDATE inventory_capacity 
+         SET ${categoryField} = ${categoryField} + $1,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE user_id = $2`,
+        [config.increment, userId]
+      );
+      
+      await client.query('COMMIT');
+      
+      // 清除缓存
+      await this.redis.del(`${this.cachePrefix}${userId}`);
+      await this.redis.del(`bag_upgrade_configs:${userId}`);
+      
+      // 发布事件
+      if (this.eventBus) {
+        await this.eventBus.publish('bag.upgrade.purchased', {
+          userId,
+          upgradeId,
+          category: config.category,
+          increment: config.increment,
+          method,
+          cost
+        });
+      }
+      
+      // 上报指标
+      this.metrics.bagUpgradesPurchased.inc({ 
+        user_id: userId.toString(), 
+        category: config.category,
+        method 
+      });
+      
+      this.metrics.bagUpgradeRevenue.inc({
+        currency: method,
+        amount: cost
+      });
+      
+      logger.info('Bag upgrade purchased', {
+        userId,
+        upgradeId,
+        method,
+        cost,
+        category: config.category,
+        increment: config.increment
+      });
+      
+      return {
+        success: true,
+        category: config.category,
+        increment: config.increment,
+        cost,
+        method,
+        newBalance: deductResult.rows[0][currencyField]
+      };
+      
+    } catch (error) {
+      await client.query('ROLLBACK');
+      logger.error('Failed to purchase bag upgrade', {
+        userId,
+        upgradeId,
+        method,
+        error: error.message
+      });
+      throw error;
+    } finally {
+      client.release();
+    }
+  }
+
+  /**
+   * 赠送免费扩容（成就/活动奖励）
+   */
+  async grantFreeUpgrade(userId, upgradeId, reason) {
+    const configResult = await this.db.query(
+      'SELECT * FROM bag_upgrade_config WHERE upgrade_id = $1',
+      [upgradeId]
+    );
+    
+    if (configResult.rows.length === 0) {
+      throw new Error('Upgrade config not found');
+    }
+    
+    const config = configResult.rows[0];
+    const client = await this.db.connect();
+    
+    try {
+      await client.query('BEGIN');
+      
+      await client.query(
+        'INSERT INTO player_bag_upgrades (user_id, upgrade_id, purchase_method, cost_amount) VALUES ($1, $2, $3, 0)',
+        [userId, upgradeId, reason]
+      );
+      
+      const categoryField = `${config.category}_slots`;
+      await client.query(
+        `UPDATE inventory_capacity 
+         SET ${categoryField} = ${categoryField} + $1,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE user_id = $2`,
+        [config.increment, userId]
+      );
+      
+      await client.query('COMMIT');
+      
+      await this.redis.del(`${this.cachePrefix}${userId}`);
+      
+      logger.info('Free bag upgrade granted', {
+        userId,
+        upgradeId,
+        reason,
+        category: config.category,
+        increment: config.increment
+      });
+      
+      return { 
+        success: true, 
+        category: config.category,
+        increment: config.increment,
+        reason 
+      };
+      
+    } catch (error) {
+      await client.query('ROLLBACK');
+      logger.error('Failed to grant free upgrade', {
+        userId,
+        upgradeId,
+        reason,
+        error: error.message
+      });
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 }
 
