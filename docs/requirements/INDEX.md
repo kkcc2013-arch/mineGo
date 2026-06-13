@@ -177,4 +177,5 @@
 || REQ-00163 | 游戏客户端内存篡改检测与防护系统 | 反作弊 | P1 | new | game-client、gateway、catch-service、gym-service、backend/shared | 2026-06-13 16:00 |
 || REQ-00164 | 精灵详情页图片懒加载与渐进式加载系统 | 性能优化 | P1 | new | game-client、frontend/game-client/src/components、backend/shared/CDNManager.js、gateway | 2026-06-13 18:05 |
 || REQ-00165 | 实时竞技排行榜优化与热度预测系统 | 性能优化 | P1 | new | social-service、user-service、gym-service、gateway、Redis、backend/shared | 2026-06-13 18:15 |
+|| REQ-00166 | 实时业务事件流监控与分析系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-13 19:00 |
 | REQ-00166 | API 集成测试覆盖率提升与自动化回归测试系统 | 测试覆盖 | P1 | new | backend/tests/integration、所有微服务、GitHub Actions、docs/api-spec | 2026-06-13 19:35 |
