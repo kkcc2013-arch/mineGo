@@ -185,4 +185,5 @@
 || REQ-00170 | 游戏客户端离线模式与断线重连系统 | 前端体验 | P1 | new | game-client、frontend/game-client/src/offline、gateway、backend/shared、user-service | 2026-06-13 21:15 |
 || REQ-00171 | 游戏触觉反馈增强系统 | 前端体验 | P1 | done | game-client、frontend/game-client/src/haptics、frontend/game-client/src/game/CatchEngine.js、frontend/game-client/src/audio/AudioManager.js | 2026-06-13 22:00 ||
 | REQ-00172 | 精灵体力系统与疲劳度管理 | 功能增强 | P1 | new | pokemon-service、gym-service、catch-service、gateway、game-client、database/migrations | 2026-06-13 22:30 |
+| REQ-00173 | 游戏教程本地化与动态提示系统 | 国际化/本地化 | P1 | new | game-client、gateway、user-service、pokemon-service、backend/shared、database/migrations | 2026-06-13 23:05 |
 |
