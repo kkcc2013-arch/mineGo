@@ -89,7 +89,7 @@
 | REQ-00081 | 捕捉动画特效系统 | 前端体验 | P1 | done | game-client、frontend/effects、catch-service | 2026-06-10 06:00 |
 | REQ-00082 | 精灵捕捉成功率异常检测系统 | 反作弊 | P1 | done | catch-service、gateway、backend/shared、Redis、PostgreSQL | 2026-06-10 07:00 |
 | REQ-00083 | 区域化内容分发与地区专属活动管理系统 | 国际化/本地化 | P1 | new | location-service、reward-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-10 08:15 |
-| REQ-00084 | 数据库连接池监控与自适应扩缩容系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared、PostgreSQL、infrastructure/k8s | 2026-06-10 09:00 |
+| REQ-00084 | 数据库连接池监控与自适应扩缩容系统 | 成本/资源优化 | P1 | done | gateway、所有微服务、backend/shared、PostgreSQL、infrastructure/k8s | 2026-06-10 09:00 |
 | REQ-00085 | 配置中心与动态配置热更新系统 | 技术债/重构 | P1 | done | gateway、所有微服务、backend/shared、Redis、infrastructure/k8s | 2026-06-10 09:00 |
 || REQ-00086 | 精灵特性系统与隐藏能力激活机制 | 功能增强 | P1 | new | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 12:00 |
 | REQ-00087 | 混沌工程与故障注入测试系统 | 容灾/高可用 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s、backend/tests/chaos | 2026-06-10 10:00 |
@@ -181,3 +181,4 @@
 | REQ-00166 | API 集成测试覆盖率提升与自动化回归测试系统 | 测试覆盖 | P1 | new | backend/tests/integration、所有微服务、GitHub Actions、docs/api-spec | 2026-06-13 19:35 |
 || REQ-00167 | 游戏内容本地化数据层与动态翻译系统 | 国际化/本地化 | P1 | done | pokemon-service、location-service、reward-service、gateway、database/migrations、game-client | 2026-06-13 20:05 |
 || REQ-00168 | 分布式追踪与请求链路可视化系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-13 21:00 |
+| REQ-00169 | 微服务启动器统一化与服务样板代码消除 | 技术债/重构 | P1 | new | pokemon-service、location-service、social-service、catch-service、gym-service、reward-service、payment-service、backend/shared | 2026-06-13 21:00 |

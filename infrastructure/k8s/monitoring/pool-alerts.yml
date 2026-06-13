@@ -1,0 +1,126 @@
+# infrastructure/k8s/monitoring/pool-alerts.yml
+# Database Connection Pool Alerting Rules
+---
+groups:
+  - name: database_pool_alerts
+    interval: 30s
+    rules:
+      # Connection pool saturated
+      - alert: DatabasePoolSaturated
+        expr: |
+          db_pool_utilization_rate > 0.9
+          and db_pool_waiting_clients > 0
+        for: 2m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "数据库连接池接近饱和"
+          description: "服务 {{ $labels.service }} 连接池使用率 {{ $value | humanizePercentage }}，有等待客户端"
+          runbook_url: "https://wiki.example.com/runbooks/database-pool-saturated"
+      
+      # Connection pool exhausted
+      - alert: DatabasePoolExhausted
+        expr: |
+          db_pool_saturation_level >= 1.0
+          and db_pool_waiting_clients > 5
+        for: 1m
+        labels:
+          severity: critical
+          category: database
+        annotations:
+          summary: "数据库连接池已耗尽"
+          description: "服务 {{ $labels.service }} 连接池已满，{{ $labels.waiting }} 个客户端在排队等待"
+          runbook_url: "https://wiki.example.com/runbooks/database-pool-exhausted"
+      
+      # High wait time
+      - alert: DatabasePoolHighWaitTime
+        expr: |
+          histogram_quantile(0.95, rate(db_pool_wait_time_seconds_bucket[5m])) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "数据库连接等待时间过长"
+          description: "服务 {{ $labels.service }} P95 等待时间 {{ $value | humanizeDuration }}"
+          runbook_url: "https://wiki.example.com/runbooks/database-pool-high-wait"
+      
+      # Connection leak detected
+      - alert: DatabaseConnectionLeak
+        expr: |
+          rate(db_pool_connections_leaked_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "检测到数据库连接泄漏"
+          description: "服务 {{ $labels.service }} 检测到连接泄漏，速率: {{ $value | humanize }} /秒"
+          runbook_url: "https://wiki.example.com/runbooks/database-connection-leak"
+      
+      # Connection churn
+      - alert: DatabaseConnectionChurn
+        expr: |
+          rate(db_pool_connections_created_total[5m]) > 10
+          or rate(db_pool_connections_destroyed_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "数据库连接频繁创建/销毁"
+          description: "服务 {{ $labels.service }} 连接 churn 率异常"
+          runbook_url: "https://wiki.example.com/runbooks/database-connection-churn"
+      
+      # Slow queries
+      - alert: SlowDatabaseQuery
+        expr: |
+          histogram_quantile(0.95, rate(db_query_duration_detailed_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "数据库慢查询"
+          description: "服务 {{ $labels.service }} P95 查询时间 {{ $value | humanizeDuration }}"
+          runbook_url: "https://wiki.example.com/runbooks/database-slow-query"
+      
+      # Pool scale events
+      - alert: DatabasePoolFrequentScaling
+        expr: |
+          increase(db_pool_scale_total[1h]) > 10
+        for: 5m
+        labels:
+          severity: info
+          category: database
+        annotations:
+          summary: "数据库连接池频繁扩缩容"
+          description: "服务 {{ $labels.pool_name }} 在过去1小时内发生 {{ $value }} 次扩缩容"
+          runbook_url: "https://wiki.example.com/runbooks/database-pool-scaling"
+      
+      # Pool errors
+      - alert: DatabasePoolErrors
+        expr: |
+          rate(minego_db_pool_error_total[5m]) > 0.5
+        for: 3m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "数据库连接池错误"
+          description: "服务 {{ $labels.pool_name }} 连接池错误率: {{ $value | humanize }} /秒"
+          runbook_url: "https://wiki.example.com/runbooks/database-pool-errors"
+      
+      # High cost warning
+      - alert: DatabasePoolHighCost
+        expr: |
+          db_pool_connection_cost_estimate > 0.1
+        for: 1h
+        labels:
+          severity: info
+          category: cost
+        annotations:
+          summary: "数据库连接池成本偏高"
+          description: "服务 {{ $labels.service }} 连接池预估成本: ${{ $value }}/小时"
+          runbook_url: "https://wiki.example.com/runbooks/database-pool-cost"

@@ -1,0 +1,234 @@
+{
+  "dashboard": {
+    "title": "Database Connection Pool Dashboard",
+    "uid": "minego-db-pool",
+    "tags": ["minego", "database", "pool"],
+    "timezone": "browser",
+    "refresh": "30s",
+    "panels": [
+      {
+        "title": "Pool Utilization by Service",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "db_pool_utilization_rate * 100",
+            "legendFormat": "{{ service }}"
+          }
+        ],
+        "yaxes": [
+          { "format": "percent", "max": 100, "min": 0, "label": "Utilization %" }
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": { "type": "gt", "params": [85] },
+              "operator": { "type": "and" },
+              "query": { "params": ["A", "5m", "now"] },
+              "reducer": { "type": "avg" }
+            }
+          ],
+          "message": "Pool utilization above 85%",
+          "name": "High Pool Utilization"
+        }
+      },
+      {
+        "title": "Connections Over Time",
+        "type": "graph",
+        "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "db_pool_total_connections",
+            "legendFormat": "{{ service }} total"
+          },
+          {
+            "expr": "db_pool_idle_connections",
+            "legendFormat": "{{ service }} idle"
+          },
+          {
+            "expr": "db_pool_waiting_clients",
+            "legendFormat": "{{ service }} waiting"
+          }
+        ],
+        "yaxes": [
+          { "format": "short", "min": 0, "label": "Connections" }
+        ]
+      },
+      {
+        "title": "Wait Time Distribution",
+        "type": "heatmap",
+        "gridPos": { "x": 0, "y": 8, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "rate(db_pool_wait_time_seconds_bucket[5m])",
+            "format": "heatmap",
+            "legendFormat": "{{ service }}"
+          }
+        ],
+        "options": {
+          "calculate": false,
+          "color": { "scheme": "Spectral" }
+        }
+      },
+      {
+        "title": "Connection Creation/Destroy Rate",
+        "type": "graph",
+        "gridPos": { "x": 12, "y": 8, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "rate(db_pool_connections_created_total[5m])",
+            "legendFormat": "{{ service }} created"
+          },
+          {
+            "expr": "rate(db_pool_connections_destroyed_total[5m])",
+            "legendFormat": "{{ service }} destroyed"
+          }
+        ],
+        "yaxes": [
+          { "format": "ops", "min": 0, "label": "Connections/sec" }
+        ]
+      },
+      {
+        "title": "Query Duration by Type",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 16, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(db_query_duration_detailed_seconds_bucket[5m])) * 1000",
+            "legendFormat": "{{ service }} {{ query_type }} P95"
+          }
+        ],
+        "yaxes": [
+          { "format": "ms", "min": 0, "label": "Duration (ms)" }
+        ]
+      },
+      {
+        "title": "Pool Saturation Level",
+        "type": "gauge",
+        "gridPos": { "x": 12, "y": 16, "w": 6, "h": 8 },
+        "targets": [
+          {
+            "expr": "db_pool_saturation_level * 100",
+            "legendFormat": "{{ service }}"
+          }
+        ],
+        "options": {
+          "fieldOptions": {
+            "calcs": ["lastNotNull"],
+            "defaults": {
+              "max": 100,
+              "min": 0,
+              "unit": "percent",
+              "thresholds": [
+                { "color": "green", "value": 0 },
+                { "color": "yellow", "value": 70 },
+                { "color": "red", "value": 90 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "title": "Connection Cost Estimate",
+        "type": "stat",
+        "gridPos": { "x": 18, "y": 16, "w": 6, "h": 8 },
+        "targets": [
+          {
+            "expr": "sum(db_pool_connection_cost_estimate)",
+            "legendFormat": "Total Hourly Cost"
+          }
+        ],
+        "options": {
+          "fieldOptions": {
+            "calcs": ["lastNotNull"],
+            "defaults": {
+              "unit": "currencyUSD",
+              "decimals": 3
+            }
+          }
+        }
+      },
+      {
+        "title": "Pool Status Table",
+        "type": "table",
+        "gridPos": { "x": 0, "y": 24, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "db_pool_total_connections",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": { "Time": true, "__name__": true },
+              "indexByName": { "service": 0, "database": 1, "Value": 2 }
+            }
+          },
+          {
+            "id": "renameByRegex",
+            "options": { "regex": "Value", "rename": "Total Connections" }
+          }
+        ]
+      },
+      {
+        "title": "Scale Events",
+        "type": "graph",
+        "gridPos": { "x": 12, "y": 24, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "increase(minego_db_pool_scale_total{direction=\"up\"}[1h])",
+            "legendFormat": "{{ pool_name }} scale up"
+          },
+          {
+            "expr": "increase(minego_db_pool_scale_total{direction=\"down\"}[1h])",
+            "legendFormat": "{{ pool_name }} scale down"
+          }
+        ],
+        "yaxes": [
+          { "format": "short", "min": 0, "label": "Events" }
+        ]
+      },
+      {
+        "title": "Connection Leaks",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 32, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "rate(db_pool_connections_leaked_total[5m])",
+            "legendFormat": "{{ service }}"
+          }
+        ],
+        "yaxes": [
+          { "format": "ops", "min": 0, "label": "Leaks/sec" }
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": { "type": "gt", "params": [0.1] },
+              "query": { "params": ["A", "5m", "now"] }
+            }
+          ],
+          "message": "Connection leak detected",
+          "name": "Connection Leak Alert"
+        }
+      },
+      {
+        "title": "Pool Errors",
+        "type": "graph",
+        "gridPos": { "x": 12, "y": 32, "w": 12, "h": 8 },
+        "targets": [
+          {
+            "expr": "rate(minego_db_pool_error_total[5m])",
+            "legendFormat": "{{ pool_name }} {{ error_type }}"
+          }
+        ],
+        "yaxes": [
+          { "format": "ops", "min": 0, "label": "Errors/sec" }
+        ]
+      }
+    ]
+  }
+}
