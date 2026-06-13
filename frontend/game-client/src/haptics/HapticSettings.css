@@ -1,0 +1,155 @@
+/**
+ * HapticSettings Styles
+ */
+
+.haptic-settings {
+  padding: 16px;
+}
+
+.setting-group {
+  margin-bottom: 20px;
+}
+
+.setting-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.label-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text, #e8eaf0);
+}
+
+.setting-hint {
+  font-size: 12px;
+  color: var(--muted, #6b7280);
+  margin: 6px 0 0 0;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  width: 48px;
+  height: 26px;
+}
+
+.toggle-input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--surface, #13161e);
+  border: 1.5px solid var(--border, #252938);
+  border-radius: 26px;
+  transition: 0.2s;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 2px;
+  bottom: 2px;
+  background-color: var(--muted, #6b7280);
+  border-radius: 50%;
+  transition: 0.2s;
+}
+
+.toggle-input:checked + .toggle-slider {
+  background-color: var(--blue, #3d8ef8);
+  border-color: var(--blue, #3d8ef8);
+}
+
+.toggle-input:checked + .toggle-slider:before {
+  transform: translateX(22px);
+  background-color: #fff;
+}
+
+/* Intensity Options */
+.intensity-options {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.intensity-option {
+  flex: 1;
+  cursor: pointer;
+}
+
+.intensity-option input {
+  display: none;
+}
+
+.intensity-option .option-label {
+  display: block;
+  text-align: center;
+  padding: 10px;
+  background: var(--surface, #13161e);
+  border: 1.5px solid var(--border, #252938);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted, #6b7280);
+  transition: 0.15s;
+}
+
+.intensity-option input:checked + .option-label {
+  background: var(--blue, #3d8ef8);
+  border-color: var(--blue, #3d8ef8);
+  color: #fff;
+}
+
+.intensity-option:hover .option-label {
+  border-color: var(--blue, #3d8ef8);
+}
+
+/* Test Button */
+.test-btn {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--surface, #13161e);
+  border: 1.5px solid var(--border, #252938);
+  border-radius: 10px;
+  color: var(--text, #e8eaf0);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: 0.15s;
+}
+
+.test-btn:hover:not(:disabled) {
+  border-color: var(--blue, #3d8ef8);
+  background: var(--surface2, #1a1e28);
+}
+
+.test-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.test-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Disabled state for setting groups */
+.setting-group[disabled],
+.setting-group[style*="opacity: 0.5"] {
+  pointer-events: none;
+}

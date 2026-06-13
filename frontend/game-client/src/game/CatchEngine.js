@@ -2,6 +2,8 @@
 // Handles the complete catch interaction: physics simulation + server round-trips + visual effects
 'use strict';
 
+import { hapticManager } from '../haptics/HapticManager.js';
+
 const THROW_RING_SHRINK_RATE = 0.004;  // Ring shrinks each frame
 const RING_MIN_SCALE = 0.2;
 const RING_MAX_SCALE = 1.0;
@@ -91,6 +93,9 @@ export class CatchEngine extends EventTarget {
     const throwRating = this._calcThrowRating(this._ring.scale);
     const isCurve     = Math.abs(velocityX) > 300; // Fast horizontal = curve
 
+    // 触发投掷震动
+    hapticManager.vibrate('catch_throw');
+
     // 执行投掷动画（如果启用了特效系统）
     if (this._effectsEnabled && this._ThrowAnimation && this._canvas) {
       await this._animateThrowWithEffects({
@@ -123,6 +128,18 @@ export class CatchEngine extends EventTarget {
       this._session.throws++;
 
       if (result.result === 'CAUGHT') {
+        // 触发捕捉成功震动
+        hapticManager.vibrate('catch_success');
+        
+        // 优秀投掷额外震动
+        if (throwRating === 'EXCELLENT') {
+          setTimeout(() => hapticManager.vibrate('throw_excellent'), 200);
+        } else if (throwRating === 'GREAT') {
+          setTimeout(() => hapticManager.vibrate('throw_great'), 200);
+        } else if (throwRating === 'NICE') {
+          setTimeout(() => hapticManager.vibrate('throw_nice'), 200);
+        }
+        
         // 播放捕捉成功特效
         this._playCatchSuccessEffect(endX, endY, throwRating);
         
@@ -131,6 +148,9 @@ export class CatchEngine extends EventTarget {
         this._session = null;
         this.dispatchEvent(new CustomEvent('caught', { detail: result }));
       } else if (result.result === 'FLED') {
+        // 触发逃脱震动
+        hapticManager.vibrate('catch_fled');
+        
         // 播放逃脱特效
         this._playFledEffect(endX, endY);
         
@@ -141,6 +161,9 @@ export class CatchEngine extends EventTarget {
       } else {
         // Ball used, pokemon still free — shake animation
         this.dispatchEvent(new CustomEvent('ballUsed', { detail: result }));
+        
+        // 触发命中震动
+        hapticManager.vibrate('catch_hit');
         
         // 播放晃动特效
         this._playBallShakeEffect(endX, endY);

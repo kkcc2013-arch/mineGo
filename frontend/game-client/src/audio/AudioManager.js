@@ -679,6 +679,16 @@ class AudioManager {
 // 导出单例
 const audioManager = new AudioManager();
 
+// 关联 HapticManager（延迟加载避免循环依赖）
+if (typeof window !== 'undefined') {
+  import('../haptics/HapticManager.js').then(({ hapticManager }) => {
+    audioManager.hapticManager = hapticManager;
+    hapticManager.setAudioManager(audioManager);
+  }).catch(() => {
+    // HapticManager 可能不存在，忽略
+  });
+}
+
 // 自动设置移动端解锁监听
 if (typeof window !== 'undefined') {
   const unlockAudio = async () => {
