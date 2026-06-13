@@ -7,6 +7,7 @@ const { query, transaction } = require('../../../shared/db');
 const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
+const { createContentLocalizer, SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('../../../shared/contentLocalizer');
 
 const logger = createLogger('pokemon-service');
 const SERVICE_NAME = 'pokemon-service';
@@ -18,6 +19,47 @@ app.use(helmet()); app.use(cors()); app.use(express.json());
 // Structured logging & metrics
 app.use(requestLogger(logger));
 app.use(metrics.httpMetricsMiddleware(SERVICE_NAME));
+
+// Content Localizer instance
+let contentLocalizer = null;
+
+// Initialize localizer with database pool
+async function initLocalizer() {
+  if (!contentLocalizer) {
+    const { getPool } = require('../../../shared/db');
+    const pool = getPool();
+    if (pool) {
+      contentLocalizer = createContentLocalizer(pool, null);
+    }
+  }
+}
+
+// Helper: Get language from request
+function getLanguage(req) {
+  const lang = req.headers['x-language'] || req.headers['accept-language'] || DEFAULT_LANGUAGE;
+  // Normalize
+  if (lang.startsWith('zh') || lang.includes('CN')) return 'zh-CN';
+  if (lang.startsWith('en') || lang.includes('US')) return 'en-US';
+  if (lang.startsWith('ja') || lang.includes('JP')) return 'ja-JP';
+  return DEFAULT_LANGUAGE;
+}
+
+// Helper: Get localized name and description
+function getLocalizedFields(row, language) {
+  const langSuffix = {
+    'zh-CN': { name: 'name_zh', desc: 'description_zh' },
+    'en-US': { name: 'name_en', desc: 'description_en' },
+    'ja-JP': { name: 'name_ja', desc: 'description_ja' }
+  };
+  
+  const suffix = langSuffix[language] || langSuffix['zh-CN'];
+  
+  // Get localized name with fallback
+  const name = row[suffix.name] || row.name_zh || row.name_en || null;
+  const description = row[suffix.desc] || row.description_zh || row.description_en || null;
+  
+  return { name, description, _locale: language };
+}
 
 app.get('/health', (_, res) => res.json({ status:'ok', service:'pokemon-service' }));
 
@@ -32,10 +74,12 @@ app.get('/metrics', async (req, res) => {
   }
 });
 
-// ── GET /pokemon/species — master data list ──────────────────
+// ── GET /pokemon/species — master data list (with localization) ──────────────────
 app.get('/pokemon/species', async (req, res, next) => {
   try {
     const { type1, rarity, limit = 50, offset = 0 } = req.query;
+    const language = getLanguage(req);
+    
     const conditions = ['1=1'];
     const params = [];
     if (type1)  { params.push(type1);   conditions.push(`type1=$${params.length}`); }
@@ -43,26 +87,83 @@ app.get('/pokemon/species', async (req, res, next) => {
     params.push(parseInt(limit)); params.push(parseInt(offset));
 
     const { rows } = await query(`
-      SELECT id, name_zh, name_en, type1, type2, rarity,
+      SELECT id, name_zh, name_en, name_ja, 
+             description_zh, description_en, description_ja,
+             type1, type2, rarity,
              base_attack, base_defense, base_hp,
-             candy_to_evolve, evolves_to, sprite_url, description_zh
+             candy_to_evolve, evolves_to, sprite_url, sprite_shiny_url
       FROM pokemon_species
       WHERE ${conditions.join(' AND ')}
       ORDER BY id
       LIMIT $${params.length-1} OFFSET $${params.length}
     `, params);
-    res.json(successResp(rows));
+    
+    // Apply localization to each row
+    const localizedRows = rows.map(row => {
+      const localized = getLocalizedFields(row, language);
+      return {
+        id: row.id,
+        name: localized.name,
+        description: localized.description,
+        type1: row.type1,
+        type2: row.type2,
+        rarity: row.rarity,
+        base_attack: row.base_attack,
+        base_defense: row.base_defense,
+        base_hp: row.base_hp,
+        candy_to_evolve: row.candy_to_evolve,
+        evolves_to: row.evolves_to,
+        sprite_url: row.sprite_url,
+        sprite_shiny_url: row.sprite_shiny_url,
+        _locale: localized._locale
+      };
+    });
+    
+    res.json(successResp(localizedRows));
   } catch (err) { next(err); }
 });
 
-// ── GET /pokemon/species/:id ─────────────────────────────────
+// ── GET /pokemon/species/:id (with localization) ─────────────────────────────────
 app.get('/pokemon/species/:id', async (req, res, next) => {
   try {
+    const language = getLanguage(req);
     const { rows: [species] } = await query(
-      'SELECT * FROM pokemon_species WHERE id=$1', [req.params.id]
+      `SELECT id, name_zh, name_en, name_ja, 
+              description_zh, description_en, description_ja,
+              type1, type2, rarity,
+              base_attack, base_defense, base_hp,
+              base_catch_rate, base_flee_rate,
+              candy_to_evolve, evolves_to, evolves_with_item,
+              biomes, sprite_url, sprite_shiny_url
+       FROM pokemon_species WHERE id=$1`, 
+      [req.params.id]
     );
     if (!species) throw new AppError(3001, '精灵不存在', 404);
-    res.json(successResp(species));
+    
+    // Apply localization
+    const localized = getLocalizedFields(species, language);
+    const response = {
+      id: species.id,
+      name: localized.name,
+      description: localized.description,
+      type1: species.type1,
+      type2: species.type2,
+      rarity: species.rarity,
+      base_attack: species.base_attack,
+      base_defense: species.base_defense,
+      base_hp: species.base_hp,
+      base_catch_rate: species.base_catch_rate,
+      base_flee_rate: species.base_flee_rate,
+      candy_to_evolve: species.candy_to_evolve,
+      evolves_to: species.evolves_to,
+      evolves_with_item: species.evolves_with_item,
+      biomes: species.biomes,
+      sprite_url: species.sprite_url,
+      sprite_shiny_url: species.sprite_shiny_url,
+      _locale: localized._locale
+    };
+    
+    res.json(successResp(response));
   } catch (err) { next(err); }
 });
 
@@ -350,6 +451,97 @@ app.use('/pokedex', pokedexRouter);
 // REQ-00151: 精灵羁绊技能解锁机制路由
 const bondSkillsRouter = require('./routes/bondSkills');
 app.use('/', bondSkillsRouter);
+
+// ═══════════════════════════════════════════════════════════
+// REQ-00167: 本地化 API 端点
+// ═══════════════════════════════════════════════════════════
+
+// GET /localizations/pokemon/:id - Get all localizations for a Pokemon
+app.get('/localizations/pokemon/:id', async (req, res, next) => {
+  try {
+    const speciesId = req.params.id;
+    
+    const { rows } = await query(`
+      SELECT id, name_zh, name_en, name_ja, 
+             description_zh, description_en, description_ja
+      FROM pokemon_species WHERE id = $1
+    `, [speciesId]);
+    
+    if (rows.length === 0) {
+      throw new AppError(3001, '精灵不存在', 404);
+    }
+    
+    const species = rows[0];
+    res.json(successResp({
+      id: species.id,
+      names: {
+        'zh-CN': species.name_zh,
+        'en-US': species.name_en,
+        'ja-JP': species.name_ja
+      },
+      descriptions: {
+        'zh-CN': species.description_zh,
+        'en-US': species.description_en,
+        'ja-JP': species.description_ja
+      }
+    }));
+  } catch (err) { next(err); }
+});
+
+// GET /localizations/items - Get all localized items
+app.get('/localizations/items', async (req, res, next) => {
+  try {
+    const language = getLanguage(req);
+    const langSuffix = {
+      'zh-CN': 'zh',
+      'en-US': 'en', 
+      'ja-JP': 'ja'
+    }[language] || 'zh';
+    
+    const { rows } = await query(`
+      SELECT id, category,
+             name_${langSuffix} as name,
+             description_${langSuffix} as description,
+             shop_price, is_premium, sprite_url
+      FROM items
+      ORDER BY category, shop_price
+    `);
+    
+    res.json(successResp(rows.map(r => ({ ...r, _locale: language }))));
+  } catch (err) { next(err); }
+});
+
+// GET /localizations/moves - Get all localized moves
+app.get('/localizations/moves', async (req, res, next) => {
+  try {
+    const language = getLanguage(req);
+    const langSuffix = {
+      'zh-CN': 'zh',
+      'en-US': 'en',
+      'ja-JP': 'ja'
+    }[language] || 'zh';
+    
+    const { rows } = await query(`
+      SELECT id, move_type, category,
+             name_${langSuffix} as name,
+             description_${langSuffix} as description,
+             power, energy_cost, energy_gain, cooldown_ms
+      FROM pokemon_moves
+      ORDER BY category, move_type
+    `);
+    
+    res.json(successResp(rows.map(r => ({ ...r, _locale: language }))));
+  } catch (err) { next(err); }
+});
+
+// GET /localizations/supported-languages - Get supported languages
+app.get('/localizations/supported-languages', (req, res) => {
+  res.json(successResp([
+    { code: 'zh-CN', name: '简体中文', flag: '🇨🇳' },
+    { code: 'en-US', name: 'English', flag: '🇺🇸' },
+    { code: 'ja-JP', name: '日本語', flag: '🇯🇵' }
+  ]));
+});
 
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'pokemon-service started'));
