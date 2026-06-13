@@ -347,6 +347,10 @@ app.use('/inventory', inventoryRouter);
 const pokedexRouter = require('./routes/pokedex');
 app.use('/pokedex', pokedexRouter);
 
+// REQ-00151: 精灵羁绊技能解锁机制路由
+const bondSkillsRouter = require('./routes/bondSkills');
+app.use('/', bondSkillsRouter);
+
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'pokemon-service started'));
 module.exports = app;

@@ -161,5 +161,6 @@
 || REQ-00149 | user-service ipAppeal 路由挂载与集成 | 集成与修复 | P0 | done | user-service、backend/services/user-service/src/index.js、backend/services/user-service/src/routes/ipAppeal.js | 2026-06-12 08:10 |
 || REQ-00150 | 背包容量扩展与购买系统 | 功能增强 | P1 | new | pokemon-service、user-service、payment-service、gateway、game-client | 2026-06-12 09:00 |
 
-| REQ-00151 | 精灵羁绊技能解锁机制 | 功能增强 | P1 | new | pokemon-service、game-client、database/migrations | 2026-06-12 09:00 |
+| REQ-00151 | 精灵羁绊技能解锁机制 | 功能增强 | P1 | done | pokemon-service、game-client、database/migrations | 2026-06-12 09:00 |
 | REQ-00152 | gym-service battle 路由挂载与集成 | 集成与修复 | P0 | done | gym-service、backend/services/gym-service/src/index.js、backend/services/gym-service/src/routes/battle.js | 2026-06-12 10:05 |
+| REQ-00153 | 游戏内截图分享与社交传播系统 | 前端体验 | P1 | new | game-client、frontend/game-client/src/share、gateway、user-service、backend/shared | 2026-06-13 06:40 |
