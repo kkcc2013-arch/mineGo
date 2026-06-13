@@ -183,5 +183,6 @@
 || REQ-00168 | 分布式追踪与请求链路可视化系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-13 21:00 |
 || REQ-00169 | 微服务启动器统一化与服务样板代码消除 | 技术债/重构 | P1 | new | pokemon-service、location-service、social-service、catch-service、gym-service、reward-service、payment-service、backend/shared | 2026-06-13 21:00 |
 || REQ-00170 | 游戏客户端离线模式与断线重连系统 | 前端体验 | P1 | new | game-client、frontend/game-client/src/offline、gateway、backend/shared、user-service | 2026-06-13 21:15 |
-| REQ-00171 | 游戏触觉反馈增强系统 | 前端体验 | P1 | done | game-client、frontend/game-client/src/haptics、frontend/game-client/src/game/CatchEngine.js、frontend/game-client/src/audio/AudioManager.js | 2026-06-13 22:00 |
+|| REQ-00171 | 游戏触觉反馈增强系统 | 前端体验 | P1 | done | game-client、frontend/game-client/src/haptics、frontend/game-client/src/game/CatchEngine.js、frontend/game-client/src/audio/AudioManager.js | 2026-06-13 22:00 ||
+| REQ-00172 | 精灵体力系统与疲劳度管理 | 功能增强 | P1 | new | pokemon-service、gym-service、catch-service、gateway、game-client、database/migrations | 2026-06-13 22:30 |
 |
