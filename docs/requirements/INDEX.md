@@ -172,7 +172,8 @@
 | REQ-00159 | 服务健康自愈与自动恢复系统 | 容灾/高可用 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-13 10:05 |
 | REQ-00160 | 精灵特殊个体值（彩蛋）系统 | 功能增强 | P1 | new | pokemon-service、catch-service、location-service、gateway、game-client、database/migrations | 2026-06-13 15:00 |
 | REQ-00161 | 低峰期服务自动休眠与智能唤醒系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared/sleepManager.js、backend/shared/trafficAnalyzer.js、infrastructure/k8s、backend/jobs | 2026-06-13 10:30 |
-| REQ-00162 | 游戏内屏幕阅读器语音导航增强系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/accessibility、frontend/game-client/src/components | 2026-06-13 17:05 |
+|| REQ-00162 | 游戏内屏幕阅读器语音导航增强系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/accessibility、frontend/game-client/src/components | 2026-06-13 17:05 |
 
-| REQ-00163 | 游戏客户端内存篡改检测与防护系统 | 反作弊 | P1 | new | game-client、gateway、catch-service、gym-service、backend/shared | 2026-06-13 16:00 |
-| REQ-00164 | 精灵详情页图片懒加载与渐进式加载系统 | 性能优化 | P1 | new | game-client、frontend/game-client/src/components、backend/shared/CDNManager.js、gateway | 2026-06-13 18:05 |
+|| REQ-00163 | 游戏客户端内存篡改检测与防护系统 | 反作弊 | P1 | new | game-client、gateway、catch-service、gym-service、backend/shared | 2026-06-13 16:00 |
+|| REQ-00164 | 精灵详情页图片懒加载与渐进式加载系统 | 性能优化 | P1 | new | game-client、frontend/game-client/src/components、backend/shared/CDNManager.js、gateway | 2026-06-13 18:05 |
+|| REQ-00165 | 实时竞技排行榜优化与热度预测系统 | 性能优化 | P1 | new | social-service、user-service、gym-service、gateway、Redis、backend/shared | 2026-06-13 18:15 |
