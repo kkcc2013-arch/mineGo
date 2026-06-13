@@ -179,4 +179,5 @@
 || REQ-00165 | 实时竞技排行榜优化与热度预测系统 | 性能优化 | P1 | new | social-service、user-service、gym-service、gateway、Redis、backend/shared | 2026-06-13 18:15 |
 || REQ-00166 | 实时业务事件流监控与分析系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-13 19:00 |
 | REQ-00166 | API 集成测试覆盖率提升与自动化回归测试系统 | 测试覆盖 | P1 | new | backend/tests/integration、所有微服务、GitHub Actions、docs/api-spec | 2026-06-13 19:35 |
-| REQ-00167 | 游戏内容本地化数据层与动态翻译系统 | 国际化/本地化 | P1 | done | pokemon-service、location-service、reward-service、gateway、database/migrations、game-client | 2026-06-13 20:05 |
+|| REQ-00167 | 游戏内容本地化数据层与动态翻译系统 | 国际化/本地化 | P1 | done | pokemon-service、location-service、reward-service、gateway、database/migrations、game-client | 2026-06-13 20:05 |
+|| REQ-00168 | 分布式追踪与请求链路可视化系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-13 21:00 |
