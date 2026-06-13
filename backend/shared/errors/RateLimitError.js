@@ -1,76 +1,51 @@
+// backend/shared/errors/RateLimitError.js - 限流错误
+'use strict';
+
 const BaseError = require('./BaseError');
+const ERROR_CODES = require('./errorCodes');
 
 /**
- * RateLimitError - 限流错误
- * 用于请求频率超过限制的情况
+ * 限流错误
+ * 
+ * 用于请求频率超限的场景
  */
 class RateLimitError extends BaseError {
-  constructor(message, details = {}) {
-    super(429, message, {
-      statusCode: 429,
-      details,
-      isOperational: true
-    });
+  /**
+   * @param {number} retryAfter 重试等待秒数
+   * @param {Object} options 额外选项
+   */
+  constructor(retryAfter, options = {}) {
+    super(
+      ERROR_CODES.RATE_LIMIT_EXCEEDED || 'RATE-001',
+      'Rate limit exceeded',
+      {
+        statusCode: 429,
+        isOperational: true,
+        details: {
+          retryAfter,
+          ...options.details
+        },
+        ...options
+      }
+    );
+    
+    this.retryAfter = retryAfter;
+    this.name = 'RateLimitError';
+  }
+  
+  get category() {
+    return 'rate_limit';
+  }
+  
+  get severity() {
+    return 'warning';
+  }
+  
+  toJSON(requestId = null, path = null) {
+    const response = super.toJSON(requestId, path);
+    response.retryAfter = this.retryAfter;
+    return response;
   }
 }
-
-/**
- * 创建全局限流错误
- */
-RateLimitError.global = (retryAfter) => {
-  return new RateLimitError('Too many requests', {
-    reason: 'global_rate_limit',
-    retryAfter
-  });
-};
-
-/**
- * 创建用户限流错误
- */
-RateLimitError.userLimit = (userId, limit, windowMs) => {
-  return new RateLimitError(`Rate limit exceeded for user ${userId}`, {
-    reason: 'user_rate_limit',
-    userId,
-    limit,
-    windowMs,
-    retryAfter: Math.ceil(windowMs / 1000)
-  });
-};
-
-/**
- * 创建 IP 限流错误
- */
-RateLimitError.ipLimit = (ip, limit, windowMs) => {
-  return new RateLimitError(`Rate limit exceeded for IP ${ip}`, {
-    reason: 'ip_rate_limit',
-    ip,
-    limit,
-    windowMs,
-    retryAfter: Math.ceil(windowMs / 1000)
-  });
-};
-
-/**
- * 创建 API 限流错误
- */
-RateLimitError.apiLimit = (endpoint, limit, windowMs) => {
-  return new RateLimitError(`Rate limit exceeded for endpoint ${endpoint}`, {
-    reason: 'api_rate_limit',
-    endpoint,
-    limit,
-    windowMs,
-    retryAfter: Math.ceil(windowMs / 1000)
-  });
-};
-
-/**
- * 创建并发限制错误
- */
-RateLimitError.concurrentLimit = (maxConcurrent) => {
-  return new RateLimitError(`Concurrent request limit exceeded (max: ${maxConcurrent})`, {
-    reason: 'concurrent_limit',
-    maxConcurrent
-  });
-};
 
 module.exports = RateLimitError;

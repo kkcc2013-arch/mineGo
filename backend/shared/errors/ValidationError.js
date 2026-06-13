@@ -1,63 +1,78 @@
+// backend/shared/errors/ValidationError.js - 参数验证错误
+'use strict';
+
 const BaseError = require('./BaseError');
+const ERROR_CODES = require('./errorCodes');
 
 /**
- * ValidationError - 参数验证错误
- * 用于请求参数不符合要求的情况
+ * 参数验证错误
+ * 
+ * 用于请求参数验证失败的场景
  */
 class ValidationError extends BaseError {
-  constructor(message, details = {}) {
-    super(400, message, {
+  /**
+   * @param {string} field 字段名
+   * @param {string} message 错误消息
+   * @param {Object} options 额外选项
+   */
+  constructor(field, message, options = {}) {
+    const code = ERROR_CODES.VALIDATION_ERROR || 'VAL-001';
+    super(code, message, {
       statusCode: 400,
-      details,
-      isOperational: true
+      details: {
+        field,
+        ...options.details
+      },
+      ...options
     });
+    
+    this.field = field;
+    this.name = 'ValidationError';
+  }
+  
+  get category() {
+    return 'validation';
+  }
+  
+  get severity() {
+    return 'info';
+  }
+  
+  /**
+   * 从 Joi 验证错误创建
+   */
+  static fromJoiError(joiError) {
+    const firstError = joiError.details?.[0] || {};
+    return new ValidationError(
+      firstError.path?.join('.') || 'unknown',
+      firstError.message || joiError.message,
+      {
+        details: {
+          validationErrors: joiError.details
+        }
+      }
+    );
+  }
+  
+  /**
+   * 批量创建验证错误
+   */
+  static batch(errors) {
+    if (!Array.isArray(errors) || errors.length === 0) {
+      return null;
+    }
+    
+    const firstError = errors[0];
+    return new ValidationError(
+      firstError.field || 'unknown',
+      firstError.message || 'Validation failed',
+      {
+        details: {
+          allErrors: errors
+        }
+      }
+    );
   }
 }
-
-/**
- * 创建字段验证错误
- */
-ValidationError.field = (fieldName, message, value = null) => {
-  return new ValidationError(`Validation failed for field '${fieldName}': ${message}`, {
-    field: fieldName,
-    value,
-    reason: message
-  });
-};
-
-/**
- * 创建必填字段错误
- */
-ValidationError.required = (fieldName) => {
-  return new ValidationError(`Field '${fieldName}' is required`, {
-    field: fieldName,
-    reason: 'required'
-  });
-};
-
-/**
- * 创建字段类型错误
- */
-ValidationError.type = (fieldName, expectedType, actualType) => {
-  return new ValidationError(`Field '${fieldName}' must be ${expectedType}, got ${actualType}`, {
-    field: fieldName,
-    expected: expectedType,
-    actual: actualType,
-    reason: 'type_mismatch'
-  });
-};
-
-/**
- * 创建字段范围错误
- */
-ValidationError.range = (fieldName, min, max, actual) => {
-  return new ValidationError(`Field '${fieldName}' must be between ${min} and ${max}, got ${actual}`, {
-    field: fieldName,
-    min,
-    max,
-    actual,
-    reason: 'out_of_range'
-  });
-};
 
 module.exports = ValidationError;

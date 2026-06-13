@@ -1,100 +1,109 @@
+// backend/shared/errors/AuthenticationError.js - 认证授权错误
+'use strict';
+
 const BaseError = require('./BaseError');
+const ERROR_CODES = require('./errorCodes');
 
 /**
- * AuthenticationError - 认证授权错误
- * 用于用户身份验证和权限校验失败的情况
+ * 认证授权错误
+ * 
+ * 用于身份验证和权限校验失败的场景
  */
 class AuthenticationError extends BaseError {
-  constructor(code, message, details = {}) {
+  /**
+   * @param {string} code 错误码
+   * @param {string} message 错误消息
+   * @param {Object} options 额外选项
+   */
+  constructor(code, message, options = {}) {
     super(code, message, {
-      statusCode: 401,
-      details,
-      isOperational: true
+      statusCode: options.statusCode || 401,
+      isOperational: true,
+      ...options
     });
+    
+    this.name = 'AuthenticationError';
+  }
+  
+  get category() {
+    return 'authentication';
+  }
+  
+  get severity() {
+    return 'warning';
+  }
+  
+  /**
+   * 无效令牌
+   */
+  static invalidToken(details = {}) {
+    return new AuthenticationError(
+      ERROR_CODES.AUTH_INVALID_TOKEN || 'AUTH-001',
+      'Invalid access token',
+      { details, statusCode: 401 }
+    );
+  }
+  
+  /**
+   * 令牌过期
+   */
+  static tokenExpired(details = {}) {
+    return new AuthenticationError(
+      ERROR_CODES.AUTH_TOKEN_EXPIRED || 'AUTH-002',
+      'Access token expired',
+      { details, statusCode: 401 }
+    );
+  }
+  
+  /**
+   * 缺少认证头
+   */
+  static missingAuthHeader() {
+    return new AuthenticationError(
+      ERROR_CODES.AUTH_MISSING_HEADER || 'AUTH-003',
+      'Missing authorization header',
+      { statusCode: 401 }
+    );
+  }
+  
+  /**
+   * 权限不足
+   */
+  static insufficientPermissions(requiredPermission = null) {
+    return new AuthenticationError(
+      ERROR_CODES.AUTH_FORBIDDEN || 'AUTH-004',
+      'Insufficient permissions',
+      {
+        statusCode: 403,
+        details: requiredPermission ? { requiredPermission } : {}
+      }
+    );
+  }
+  
+  /**
+   * 用户名或密码错误
+   */
+  static invalidCredentials() {
+    return new AuthenticationError(
+      ERROR_CODES.AUTH_INVALID_CREDENTIALS || 'AUTH-005',
+      'Invalid username or password',
+      { statusCode: 401 }
+    );
+  }
+  
+  /**
+   * 账户已被禁用
+   */
+  static accountDisabled(reason = null) {
+    return new AuthenticationError(
+      ERROR_CODES.AUTH_ACCOUNT_DISABLED || 'AUTH-006',
+      'Account has been disabled',
+      {
+        statusCode: 403,
+        details: reason ? { reason } : {}
+      }
+    );
   }
 }
-
-/**
- * 创建未登录错误
- */
-AuthenticationError.notLoggedIn = () => {
-  return new AuthenticationError(401, 'Authentication required', {
-    reason: 'not_logged_in'
-  });
-};
-
-/**
- * 创建无效凭证错误
- */
-AuthenticationError.invalidCredentials = () => {
-  return new AuthenticationError(1001, 'Invalid email or password', {
-    reason: 'invalid_credentials'
-  });
-};
-
-/**
- * 创建 Token 无效错误
- */
-AuthenticationError.invalidToken = (reason = 'invalid') => {
-  return new AuthenticationError(1004, `Invalid token: ${reason}`, {
-    reason: 'invalid_token',
-    detail: reason
-  });
-};
-
-/**
- * 创建 Token 过期错误
- */
-AuthenticationError.tokenExpired = () => {
-  return new AuthenticationError(1004, 'Token has expired', {
-    reason: 'token_expired'
-  });
-};
-
-/**
- * 创建权限不足错误
- */
-AuthenticationError.insufficientPermissions = (requiredPermission = null) => {
-  const message = requiredPermission
-    ? `Insufficient permissions: requires '${requiredPermission}'`
-    : 'Insufficient permissions';
-  
-  return new AuthenticationError(403, message, {
-    reason: 'insufficient_permissions',
-    requiredPermission
-  });
-};
-
-/**
- * 创建 MFA 需要错误
- */
-AuthenticationError.mfaRequired = () => {
-  return new AuthenticationError(1005, 'Multi-factor authentication required', {
-    reason: 'mfa_required'
-  });
-};
-
-/**
- * 创建账户被锁定错误
- */
-AuthenticationError.accountLocked = (unlockTime = null) => {
-  const message = unlockTime
-    ? `Account locked until ${unlockTime}`
-    : 'Account is locked';
-  
-  return new AuthenticationError(403, message, {
-    reason: 'account_locked',
-    unlockTime
-  });
-};
-
-/**
- * 创建账户被禁用错误
- */
-AuthenticationError.accountDisabled = () => {
-  return new AuthenticationError(403, 'Account is disabled', {
-    reason: 'account_disabled'
-  });
-};
 
 module.exports = AuthenticationError;

@@ -7,6 +7,26 @@ const { createLogger, childLogger, requestLogger } = require('./logger');
 const metrics = require('./metrics');
 const { query, transaction, pool } = require('./db');
 
+// 错误处理
+const errors = require('./errors');
+const { 
+  errorHandler, 
+  errorHandlerMiddleware, 
+  notFoundHandler, 
+  asyncHandler 
+} = require('./middleware/errorHandler');
+const requestIdMiddleware = require('./middleware/requestId');
+const responseFormatterMiddleware = require('./middleware/responseFormatter');
+
+// 响应格式化
+const { 
+  successResp, 
+  createdResp, 
+  errorResp, 
+  paginatedResp, 
+  ResponseFormatter 
+} = require('./response');
+
 module.exports = {
   // 日志
   createLogger,
@@ -21,5 +41,23 @@ module.exports = {
   query,
   transaction,
   pool,
-  db: { query, transaction, pool }
+  db: { query, transaction, pool },
+  
+  // 错误处理
+  errors,
+  errorHandler,
+  errorHandlerMiddleware,
+  notFoundHandler,
+  asyncHandler,
+  
+  // 中间件
+  requestIdMiddleware,
+  responseFormatterMiddleware,
+  
+  // 响应格式化
+  successResp,
+  createdResp,
+  errorResp,
+  paginatedResp,
+  ResponseFormatter
 };
