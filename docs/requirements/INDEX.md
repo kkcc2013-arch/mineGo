@@ -167,4 +167,5 @@
 | REQ-00154 | 游戏客户端内存篡改检测与防护系统 | 反作弊 | P1 | new | game-client、gateway、catch-service、gym-service、backend/shared | 2026-06-13 07:00 |
 || REQ-00155 | OpenAPI 文档多语言描述与国际化支持 | 国际化/本地化 | P1 | done | gateway、docs/api-spec/openapi、backend/shared、backend/scripts | 2026-06-13 08:00 |
 || REQ-00156 | 精灵恢复站系统 | 功能增强 | P1 | new | location-service、pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-13 09:00 |
-| REQ-00157 | 统一错误处理与 API 响应格式标准化 | 技术债/重构 | P1 | new | 所有微服务、backend/shared、gateway、game-client | 2026-06-13 09:05 |
+|| REQ-00157 | 统一错误处理与 API 响应格式标准化 | 技术债/重构 | P1 | new | 所有微服务、backend/shared、gateway、game-client | 2026-06-13 09:05 |
+|| REQ-00158 | 业务事件异常检测与智能告警系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-13 10:00 |
