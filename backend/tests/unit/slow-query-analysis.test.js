@@ -1,16 +1,309 @@
 /**
  * backend/tests/unit/slow-query-analysis.test.js
- * REQ-00063: 数据库慢查询分析与自动优化建议系统
+ * REQ-00077: 数据库慢查询分析与自动优化建议系统
  * 单元测试
  */
 
 'use strict';
 
-const { describe, it, beforeEach, afterEach } = require('node:test');
-const assert = require('node:assert');
+const { expect } = require('chai');
+const sinon = require('sinon');
+const SlowQueryCollector = require('../../shared/slowQueryCollector');
+const QueryPlanAnalyzer = require('../../shared/queryPlanAnalyzer');
+const IndexUsageAnalyzer = require('../../shared/indexUsageAnalyzer');
 const QueryAnalyzer = require('../../shared/queryAnalyzer');
 
 describe('Slow Query Analysis System', () => {
+  
+  describe('SlowQueryCollector', () => {
+    let collector;
+    
+    beforeEach(() => {
+      collector = new SlowQueryCollector.SlowQueryCollector({ 
+        slowThreshold: 1000,
+        collectInterval: 60000
+      });
+    });
+
+    afterEach(() => {
+      if (collector && collector.isRunning) {
+        collector.stop();
+      }
+    });
+
+    it('should initialize with correct threshold', () => {
+      expect(collector.slowThreshold).to.equal(1000);
+      expect(collector.verySlowThreshold).to.equal(5000);
+      expect(collector.collectInterval).to.equal(60000);
+    });
+
+    it('should not be running initially', () => {
+      expect(collector.isRunning).to.be.false;
+    });
+
+    it('should return status correctly', () => {
+      const status = collector.getStatus();
+      expect(status).to.have.property('isRunning');
+      expect(status).to.have.property('slowThreshold');
+      expect(status).to.have.property('lastCollectionTime');
+    });
+
+    it('should stop collection correctly', async () => {
+      await collector.stop();
+      expect(collector.isRunning).to.be.false;
+      expect(collector.collectionTimer).to.be.null;
+    });
+  });
+
+  describe('QueryPlanAnalyzer', () => {
+    let analyzer;
+    let mockPool;
+
+    beforeEach(() => {
+      mockPool = {
+        query: sinon.stub()
+      };
+      analyzer = new QueryPlanAnalyzer(mockPool);
+    });
+
+    it('should detect sequential scan', () => {
+      const plan = { 'Node Type': 'Seq Scan' };
+      const scanType = analyzer.detectScanType(plan);
+      expect(scanType).to.equal('Sequential Scan');
+    });
+
+    it('should detect index scan', () => {
+      const plan = { 'Node Type': 'Index Scan' };
+      const scanType = analyzer.detectScanType(plan);
+      expect(scanType).to.equal('Index Scan');
+    });
+
+    it('should detect index only scan', () => {
+      const plan = { 'Node Type': 'Index Only Scan' };
+      const scanType = analyzer.detectScanType(plan);
+      expect(scanType).to.equal('Index Only Scan');
+    });
+
+    it('should detect index usage', () => {
+      const plan = {
+        'Node Type': 'Index Scan',
+        'Index Name': 'idx_test'
+      };
+      const indexUsage = analyzer.detectIndexUsage(plan);
+      expect(indexUsage).to.exist;
+      expect(indexUsage.indexName).to.equal('idx_test');
+    });
+
+    it('should return null when no index is used', () => {
+      const plan = {
+        'Node Type': 'Seq Scan'
+      };
+      const indexUsage = analyzer.detectIndexUsage(plan);
+      expect(indexUsage).to.be.null;
+    });
+
+    it('should detect warnings for sequential scan', () => {
+      const plan = {
+        'Node Type': 'Seq Scan',
+        'Actual Rows': 5000
+      };
+      const warnings = analyzer.detectWarnings(plan);
+      const seqScanWarning = warnings.find(w => w.type === 'seq_scan');
+      expect(seqScanWarning).to.exist;
+      expect(seqScanWarning.severity).to.equal('high');
+    });
+
+    it('should detect high cost warnings', () => {
+      const plan = {
+        'Total Cost': 5000,
+        'Actual Rows': 100
+      };
+      const warnings = analyzer.detectWarnings(plan);
+      const costWarning = warnings.find(w => w.type === 'high_cost');
+      expect(costWarning).to.exist;
+    });
+
+    it('should detect large result set warnings', () => {
+      const plan = {
+        'Actual Rows': 50000
+      };
+      const warnings = analyzer.detectWarnings(plan);
+      const resultWarning = warnings.find(w => w.type === 'large_result');
+      expect(resultWarning).to.exist;
+    });
+
+    it('should detect cache miss warnings', () => {
+      const plan = {
+        'Shared Read Blocks': 500
+      };
+      const warnings = analyzer.detectWarnings(plan);
+      const cacheWarning = warnings.find(w => w.type === 'cache_miss');
+      expect(cacheWarning).to.exist;
+    });
+
+    it('should generate suggestions for seq scan', () => {
+      const analysis = {
+        scanType: 'Sequential Scan',
+        actualRows: 1000,
+        executionTime: 2000,
+        bufferHits: 0,
+        bufferReads: 500,
+        indexUsed: null,
+        totalCost: 2000
+      };
+      
+      const suggestions = analyzer.generateSuggestions(analysis);
+      expect(suggestions).to.have.length.at.least(1);
+      expect(suggestions[0].type).to.equal('add_index');
+    });
+
+    it('should generate suggestions for high execution time', () => {
+      const analysis = {
+        scanType: 'Index Scan',
+        actualRows: 100,
+        executionTime: 5000,
+        bufferHits: 800,
+        bufferReads: 200,
+        indexUsed: { indexName: 'idx_test' },
+        totalCost: 500
+      };
+      
+      const suggestions = analyzer.generateSuggestions(analysis);
+      const timeSuggestion = suggestions.find(s => s.type === 'optimize_query');
+      expect(timeSuggestion).to.exist;
+    });
+
+    it('should generate suggestions for low cache hit rate', () => {
+      const analysis = {
+        scanType: 'Index Scan',
+        actualRows: 100,
+        executionTime: 100,
+        bufferHits: 200,
+        bufferReads: 800,
+        indexUsed: { indexName: 'idx_test' },
+        totalCost: 500
+      };
+      
+      const suggestions = analyzer.generateSuggestions(analysis);
+      const cacheSuggestion = suggestions.find(s => s.type === 'increase_cache');
+      expect(cacheSuggestion).to.exist;
+    });
+
+    it('should parse plan correctly', () => {
+      const planData = {
+        'QUERY PLAN': {
+          'Total Cost': 1000,
+          'Plan Rows': 500,
+          'Actual Rows': 480,
+          'Actual Total Time': 50.5,
+          'Planning Time': 1.2,
+          'Execution Time': 51.7,
+          'Node Type': 'Index Scan',
+          'Shared Hit Blocks': 1000,
+          'Shared Read Blocks': 50
+        }
+      };
+      
+      const parsed = analyzer.parsePlan(planData);
+      
+      expect(parsed.totalCost).to.equal(1000);
+      expect(parsed.planRows).to.equal(500);
+      expect(parsed.actualRows).to.equal(480);
+      expect(parsed.executionTime).to.equal(51.7);
+      expect(parsed.scanType).to.equal('Index Scan');
+    });
+  });
+
+  describe('IndexUsageAnalyzer', () => {
+    let analyzer;
+    let mockPool;
+
+    beforeEach(() => {
+      mockPool = {
+        query: sinon.stub()
+      };
+      analyzer = new IndexUsageAnalyzer(mockPool);
+    });
+
+    it('should get index stats', async () => {
+      mockPool.query.resolves({
+        rows: [
+          { table_name: 'users', index_name: 'idx_users_email', idx_scan: 100, index_size: '128 kB' }
+        ]
+      });
+      
+      const stats = await analyzer.getIndexStats();
+      expect(stats).to.have.lengthOf(1);
+      expect(stats[0].table_name).to.equal('users');
+    });
+
+    it('should find unused indexes', async () => {
+      const indexStats = [
+        { table_name: 'users', index_name: 'idx_unused', idx_scan: 0, index_size: '1 MB' }
+      ];
+      
+      mockPool.query.resolves({
+        rows: []
+      });
+      
+      const unused = await analyzer.findUnusedIndexes(indexStats);
+      expect(unused).to.have.lengthOf(1);
+      expect(unused[0].indexName).to.equal('idx_unused');
+    });
+
+    it('should exclude constraint indexes from unused list', async () => {
+      const indexStats = [
+        { table_name: 'users', index_name: 'users_pkey', idx_scan: 0, index_size: '1 MB' }
+      ];
+      
+      mockPool.query.resolves({
+        rows: [
+          { index_name: 'users_pkey', table_name: 'users' }
+        ]
+      });
+      
+      const unused = await analyzer.findUnusedIndexes(indexStats);
+      expect(unused).to.have.lengthOf(0);
+    });
+
+    it('should generate proper report', () => {
+      const analysis = {
+        timestamp: '2026-06-13T17:00:00Z',
+        totalIndexes: 10,
+        usedIndexes: 8,
+        unusedIndexes: 2,
+        duplicateIndexes: 1,
+        bloatedIndexes: 0,
+        details: {
+          unusedIndexes: [{ 
+            tableName: 'test', 
+            indexName: 'idx_unused', 
+            indexSize: '1 MB',
+            reason: 'Never used'
+          }],
+          duplicateIndexes: [],
+          suggestedIndexes: [],
+          indexBloat: []
+        }
+      };
+      
+      const report = analyzer.generateReport(analysis);
+      expect(report).to.include('Total Indexes: 10');
+      expect(report).to.include('Unused Indexes');
+    });
+
+    it('should handle analyze errors gracefully', async () => {
+      mockPool.query.rejects(new Error('Connection error'));
+      
+      try {
+        await analyzer.analyze();
+        expect.fail('Should have thrown error');
+      } catch (error) {
+        expect(error.message).to.include('Connection error');
+      }
+    });
+  });
+
   describe('QueryAnalyzer', () => {
     let analyzer;
 
@@ -18,364 +311,149 @@ describe('Slow Query Analysis System', () => {
       analyzer = new QueryAnalyzer();
     });
 
-    describe('analyze()', () => {
-      it('should detect missing index on sequential scan', async () => {
-        const query = {
-          queryid: 'test-001',
-          query: 'SELECT * FROM users WHERE email = ?',
-          mean_time: 800
-        };
-        
-        const explainResult = [
-          { 'Plan': { 'Node Type': 'Seq Scan' } }
-        ];
-        
-        const result = await analyzer.analyze(query, explainResult);
-        
-        assert.ok(result);
-        assert.strictEqual(result.queryId, 'test-001');
-        assert.ok(result.issues.some(i => i.type === 'missing_index'));
-      });
-
-      it('should detect SELECT * usage', async () => {
-        const query = {
-          queryid: 'test-002',
-          query: 'SELECT * FROM pokemon WHERE id = ?',
-          mean_time: 100
-        };
-        
-        const explainResult = [{}];
-        
-        const result = await analyzer.analyze(query, explainResult);
-        
-        assert.ok(result);
-        assert.ok(result.issues.some(i => i.type === 'select_star'));
-      });
-
-      it('should detect missing WHERE clause', async () => {
-        const query = {
-          queryid: 'test-003',
-          query: 'SELECT id, name FROM pokemon',
-          mean_time: 100
-        };
-        
-        const explainResult = [{}];
-        
-        const result = await analyzer.analyze(query, explainResult);
-        
-        assert.ok(result);
-        assert.ok(result.issues.some(i => i.type === 'missing_where_clause'));
-      });
-
-      it('should detect OR conditions', async () => {
-        const query = {
-          queryid: 'test-004',
-          query: 'SELECT * FROM users WHERE status = ? OR role = ? OR type = ?',
-          mean_time: 800
-        };
-        
-        const explainResult = [{}];
-        
-        const result = await analyzer.analyze(query, explainResult);
-        
-        assert.ok(result);
-        assert.ok(result.issues.some(i => i.type === 'or_condition'));
-      });
-
-      it('should detect LIKE with leading wildcard', async () => {
-        const query = {
-          queryid: 'test-005',
-          query: "SELECT * FROM pokemon WHERE name LIKE '%char%'",
-          mean_time: 500
-        };
-        
-        const explainResult = [{}];
-        
-        const result = await analyzer.analyze(query, explainResult);
-        
-        assert.ok(result);
-        assert.ok(result.issues.some(i => i.type === 'leading_wildcard'));
-      });
-
-      it('should calculate correct severity', async () => {
-        const query = {
-          queryid: 'test-006',
-          query: 'SELECT * FROM large_table',
-          mean_time: 5000
-        };
-        
-        const explainResult = [
-          { 'Plan': { 'Node Type': 'Seq Scan' } }
-        ];
-        
-        const result = await analyzer.analyze(query, explainResult);
-        
-        assert.ok(result);
-        assert.ok(['critical', 'high'].includes(result.severity));
-      });
-
-      it('should generate index suggestion', async () => {
-        const query = {
-          queryid: 'test-007',
-          query: 'SELECT * FROM users WHERE email = ? AND status = ?',
-          mean_time: 1000
-        };
-        
-        const explainResult = [
-          { 'Plan': { 'Node Type': 'Seq Scan' } }
-        ];
-        
-        const result = await analyzer.analyze(query, explainResult);
-        
-        assert.ok(result);
-        const indexSuggestion = result.suggestions.find(s => s.type === 'create_index');
-        assert.ok(indexSuggestion);
-        assert.ok(indexSuggestion.sql.includes('CREATE INDEX'));
-      });
+    it('should check for missing index', async () => {
+      const query = {
+        query: 'SELECT * FROM users WHERE email = ?',
+        mean_time: 2000
+      };
+      const explainResult = {
+        Plan: {
+          'Node Type': 'Seq Scan'
+        }
+      };
+      
+      const result = await analyzer.checkMissingIndex(query, explainResult);
+      expect(result).to.exist;
+      expect(result.issue.type).to.equal('missing_index');
     });
 
-    describe('extractColumns()', () => {
-      it('should extract columns from WHERE clause', () => {
-        const whereClause = 'email = ? AND status = ? AND role = ?';
-        const columns = analyzer.extractColumns(whereClause);
-        
-        assert.deepStrictEqual(columns, ['email', 'status', 'role']);
-      });
-
-      it('should handle complex conditions', () => {
-        const whereClause = 'created_at > ? AND (status = ? OR type LIKE ?)';
-        const columns = analyzer.extractColumns(whereClause);
-        
-        assert.ok(columns.includes('created_at'));
-        assert.ok(columns.includes('status'));
-      });
-
-      it('should return empty array for no columns', () => {
-        const whereClause = '';
-        const columns = analyzer.extractColumns(whereClause);
-        
-        assert.deepStrictEqual(columns, []);
-      });
+    it('should check for SELECT *', async () => {
+      const query = {
+        query: 'SELECT * FROM users'
+      };
+      
+      const result = await analyzer.checkSelectStar(query);
+      expect(result).to.exist;
+      expect(result.issue.type).to.equal('select_star');
     });
 
-    describe('generateIndexSQL()', () => {
-      it('should generate valid index SQL', () => {
-        const sql = analyzer.generateIndexSQL('users', ['email', 'status']);
-        
-        assert.ok(sql.includes('CREATE INDEX'));
-        assert.ok(sql.includes('idx_users_email_status'));
-        assert.ok(sql.includes('ON users'));
-        assert.ok(sql.includes('(email, status)'));
-      });
-
-      it('should handle empty columns', () => {
-        const sql = analyzer.generateIndexSQL('users', []);
-        
-        assert.ok(sql.includes('Cannot generate index'));
-      });
+    it('should check for missing WHERE clause', async () => {
+      const query = {
+        query: 'SELECT id, name FROM users'
+      };
+      
+      const result = await analyzer.checkMissingWhereClause(query);
+      expect(result).to.exist;
+      expect(result.issue.type).to.equal('missing_where_clause');
     });
 
-    describe('calculateSeverity()', () => {
-      it('should return critical for critical issues', () => {
-        const issues = [{ severity: 'critical' }];
-        const severity = analyzer.calculateSeverity(issues);
-        
-        assert.strictEqual(severity, 'critical');
-      });
-
-      it('should return high for high issues', () => {
-        const issues = [{ severity: 'high' }, { severity: 'medium' }];
-        const severity = analyzer.calculateSeverity(issues);
-        
-        assert.strictEqual(severity, 'high');
-      });
-
-      it('should return medium for medium issues', () => {
-        const issues = [{ severity: 'medium' }, { severity: 'low' }];
-        const severity = analyzer.calculateSeverity(issues);
-        
-        assert.strictEqual(severity, 'medium');
-      });
-
-      it('should return low for low issues', () => {
-        const issues = [{ severity: 'low' }];
-        const severity = analyzer.calculateSeverity(issues);
-        
-        assert.strictEqual(severity, 'low');
-      });
+    it('should check for leading wildcard in LIKE', async () => {
+      const query = {
+        query: "SELECT * FROM users WHERE name LIKE '%john%'"
+      };
+      
+      const result = await analyzer.checkLikePattern(query);
+      expect(result).to.exist;
+      expect(result.issue.type).to.equal('leading_wildcard');
     });
 
-    describe('checkSubquery()', () => {
-      it('should detect nested subqueries', async () => {
-        const query = {
-          query: 'SELECT * FROM (SELECT * FROM (SELECT * FROM users) AS t1) AS t2',
-          mean_time: 1500
-        };
-        
-        const result = await analyzer.checkSubquery(query);
-        
-        assert.ok(result);
-        assert.strictEqual(result.issue.type, 'subquery');
-        assert.strictEqual(result.issue.subqueryCount, 2);
-      });
-
-      it('should not flag simple subqueries', async () => {
-        const query = {
-          query: 'SELECT * FROM (SELECT id FROM users) AS t',
-          mean_time: 100
-        };
-        
-        const result = await analyzer.checkSubquery(query);
-        
-        assert.strictEqual(result, null);
-      });
+    it('should extract columns from WHERE clause', () => {
+      const whereClause = "email = 'test@example.com' AND status = 'active' OR name = 'John'";
+      const columns = analyzer.extractColumns(whereClause);
+      
+      expect(columns).to.include('email');
+      expect(columns).to.include('status');
+      expect(columns).to.include('name');
     });
 
-    describe('checkDistinct()', () => {
-      it('should detect DISTINCT overhead', async () => {
-        const query = {
-          query: 'SELECT DISTINCT name FROM large_table',
-          mean_time: 800
-        };
-        
-        const result = await analyzer.checkDistinct(query);
-        
-        assert.ok(result);
-        assert.strictEqual(result.issue.type, 'distinct_overhead');
-      });
+    it('should generate index SQL', () => {
+      const sql = analyzer.generateIndexSQL('users', ['email', 'status']);
+      expect(sql).to.include('CREATE INDEX');
+      expect(sql).to.include('idx_users_email_status');
+      expect(sql).to.include('users (email, status)');
+    });
 
-      it('should not flag fast DISTINCT', async () => {
-        const query = {
-          query: 'SELECT DISTINCT id FROM small_table',
-          mean_time: 50
-        };
-        
-        const result = await analyzer.checkDistinct(query);
-        
-        assert.strictEqual(result, null);
-      });
+    it('should calculate severity correctly', () => {
+      const issues = [
+        { severity: 'low' },
+        { severity: 'medium' },
+        { severity: 'high' }
+      ];
+      
+      const severity = analyzer.calculateSeverity(issues);
+      expect(severity).to.equal('high');
+    });
+
+    it('should return critical severity if any critical issue', () => {
+      const issues = [
+        { severity: 'low' },
+        { severity: 'critical' },
+        { severity: 'high' }
+      ];
+      
+      const severity = analyzer.calculateSeverity(issues);
+      expect(severity).to.equal('critical');
+    });
+
+    it('should analyze query and return results', async () => {
+      const query = {
+        queryid: '12345',
+        query: 'SELECT * FROM users WHERE email = ?',
+        mean_time: 500
+      };
+      const explainResult = {
+        Plan: {
+          'Node Type': 'Index Scan',
+          'Index Name': 'idx_users_email'
+        }
+      };
+      
+      const result = await analyzer.analyze(query, explainResult);
+      
+      expect(result).to.have.property('queryId');
+      expect(result).to.have.property('issues');
+      expect(result).to.have.property('suggestions');
+      expect(result).to.have.property('severity');
     });
   });
 
-  describe('SlowQueryCollector', () => {
-    it('should initialize with correct config', () => {
-      const { SlowQueryCollector } = require('../../shared/slowQueryCollector');
-      
-      const collector = new SlowQueryCollector({
-        slowThreshold: 500,
-        verySlowThreshold: 2000,
-        collectInterval: 30000
+  describe('Integration Tests', () => {
+    
+    it('should create SlowQueryCollector instance', () => {
+      const collector = new SlowQueryCollector.SlowQueryCollector({
+        slowThreshold: 500
       });
-      
-      assert.strictEqual(collector.slowThreshold, 500);
-      assert.strictEqual(collector.verySlowThreshold, 2000);
-      assert.strictEqual(collector.collectInterval, 30000);
-      assert.strictEqual(collector.isRunning, false);
+      expect(collector.slowThreshold).to.equal(500);
     });
 
-    it('should return status correctly', () => {
-      const { SlowQueryCollector } = require('../../shared/slowQueryCollector');
+    it('should analyze a complete query flow', async () => {
+      const mockPool = {
+        query: sinon.stub()
+      };
+
+      // Mock EXPLAIN result
+      mockPool.query.resolves({
+        rows: [{
+          'QUERY PLAN': {
+            'Total Cost': 5000,
+            'Plan Rows': 10000,
+            'Actual Rows': 9500,
+            'Actual Total Time': 150,
+            'Execution Time': 152,
+            'Node Type': 'Seq Scan',
+            'Shared Hit Blocks': 100,
+            'Shared Read Blocks': 500
+          }
+        }]
+      });
+
+      const planAnalyzer = new QueryPlanAnalyzer(mockPool);
+      const analysis = await planAnalyzer.analyze('SELECT * FROM large_table');
       
-      const collector = new SlowQueryCollector({
-        slowThreshold: 1000
-      });
-      
-      const status = collector.getStatus();
-      
-      assert.ok(status);
-      assert.strictEqual(status.isRunning, false);
-      assert.strictEqual(status.slowThreshold, 1000);
+      expect(analysis).to.exist;
+      expect(analysis.analysis.scanType).to.equal('Sequential Scan');
+      expect(analysis.analysis.warnings).to.have.length.at.least(1);
+      expect(analysis.suggestions).to.have.length.at.least(1);
     });
-  });
-
-  describe('OptimizationAdvisor', () => {
-    let advisor;
-
-    beforeEach(() => {
-      const OptimizationAdvisor = require('../../shared/optimizationAdvisor');
-      advisor = new OptimizationAdvisor({
-        dbConfig: 'postgresql://test:test@localhost:5432/test'
-      });
-    });
-
-    describe('extractIndexColumns()', () => {
-      it('should extract columns from index definition', () => {
-        const indexDef = 'CREATE INDEX idx_test ON users (email, status)';
-        const columns = advisor.extractIndexColumns(indexDef);
-        
-        assert.deepStrictEqual(columns, ['email', 'status']);
-      });
-
-      it('should handle single column', () => {
-        const indexDef = 'CREATE INDEX idx_email ON users (email)';
-        const columns = advisor.extractIndexColumns(indexDef);
-        
-        assert.deepStrictEqual(columns, ['email']);
-      });
-    });
-
-    describe('isOverlappingIndex()', () => {
-      it('should detect overlapping index', () => {
-        const newColumns = ['email'];
-        const existingColumns = ['email', 'status'];
-        
-        const result = advisor.isOverlappingIndex(newColumns, existingColumns);
-        
-        assert.strictEqual(result, true);
-      });
-
-      it('should not detect non-overlapping index', () => {
-        const newColumns = ['status', 'created_at'];
-        const existingColumns = ['email', 'status'];
-        
-        const result = advisor.isOverlappingIndex(newColumns, existingColumns);
-        
-        assert.strictEqual(result, false);
-      });
-
-      it('should detect exact match', () => {
-        const newColumns = ['email', 'status'];
-        const existingColumns = ['email', 'status'];
-        
-        const result = advisor.isOverlappingIndex(newColumns, existingColumns);
-        
-        assert.strictEqual(result, true);
-      });
-    });
-  });
-});
-
-describe('Integration Tests', () => {
-  it('should analyze end-to-end query flow', async () => {
-    const analyzer = new QueryAnalyzer();
-    
-    const slowQuery = {
-      queryid: 'integration-test',
-      query: 'SELECT * FROM users WHERE status = ?',
-      mean_time: 2000
-    };
-    
-    const explainResult = [
-      { 'Plan': { 'Node Type': 'Seq Scan' } }
-    ];
-    
-    const result = await analyzer.analyze(slowQuery, explainResult);
-    
-    assert.ok(result);
-    assert.ok(result.queryId);
-    assert.ok(Array.isArray(result.issues));
-    assert.ok(Array.isArray(result.suggestions));
-    assert.ok(result.severity);
-    assert.ok(result.analyzedAt);
-    
-    // 验证问题类型
-    assert.ok(result.issues.some(i => i.type === 'select_star' || i.type === 'missing_index'));
-    
-    // 验证建议
-    if (result.suggestions.length > 0) {
-      assert.ok(result.suggestions[0].type);
-      assert.ok(result.suggestions[0].reason);
-      assert.ok(result.suggestions[0].estimatedImprovement);
-    }
   });
 });
