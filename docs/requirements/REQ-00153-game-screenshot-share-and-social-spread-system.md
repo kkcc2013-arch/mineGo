@@ -3,7 +3,7 @@
 - **编号**：REQ-00153
 - **类别**：前端体验
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：game-client、frontend/game-client/src/share、gateway、user-service、backend/shared
 - **创建时间**：2026-06-13 06:40
 - **依赖需求**：REQ-00076（精灵成就系统）、REQ-00054（道馆战斗系统）

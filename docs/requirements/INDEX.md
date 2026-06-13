@@ -163,4 +163,5 @@
 
 | REQ-00151 | 精灵羁绊技能解锁机制 | 功能增强 | P1 | done | pokemon-service、game-client、database/migrations | 2026-06-12 09:00 |
 | REQ-00152 | gym-service battle 路由挂载与集成 | 集成与修复 | P0 | done | gym-service、backend/services/gym-service/src/index.js、backend/services/gym-service/src/routes/battle.js | 2026-06-12 10:05 |
-| REQ-00153 | 游戏内截图分享与社交传播系统 | 前端体验 | P1 | new | game-client、frontend/game-client/src/share、gateway、user-service、backend/shared | 2026-06-13 06:40 |
+| REQ-00153 | 游戏内截图分享与社交传播系统 | 前端体验 | P1 | done | game-client、frontend/game-client/src/share、gateway、user-service、backend/shared | 2026-06-13 06:40 |
+| REQ-00154 | 游戏客户端内存篡改检测与防护系统 | 反作弊 | P1 | new | game-client、gateway、catch-service、gym-service、backend/shared | 2026-06-13 07:00 |
