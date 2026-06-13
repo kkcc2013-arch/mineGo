@@ -1,0 +1,319 @@
+openapi: "3.0.3"
+info:
+  title: "mineGo API"
+  description: |
+    GPSベースのARポケモン捕獲ゲームAPI
+    
+    ## 認証方法
+    
+    ほとんどのエンドポイントはJWT認証が必要です。ヘッダーに追加：
+    ```
+    Authorization: Bearer {accessToken}
+    ```
+    
+    ## エラー処理
+    
+    すべてのエラーは統一形式を使用：
+    ```json
+    {
+      "code": 2001,
+      "message": "この電話番号は既に登録されています",
+      "data": null,
+      "traceId": "abc-123"
+    }
+    ```
+    
+    ## エラーコード範囲
+    
+    - 1000-1999: 一般エラー
+    - 2000-2999: ユーザー関連
+    - 3000-3999: ポケモン/捕獲
+    - 4000-4999: ジム/ソーシャル
+    - 5000-5999: 支払い
+    - 9000-9999: システムエラー
+    
+    詳細は[エラーコードドキュメント](../error-codes.md)を参照。
+    
+  contact:
+    name: mineGo Team
+    email: support@minego.app
+    url: https://minego.app
+  
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.minego.app/v1
+    description: 本番環境
+  - url: http://localhost:8080/v1
+    description: ローカル開発環境
+
+tags:
+  - name: Auth
+    description: "認証（登録、ログイン、トークン更新）"
+  - name: Users
+    description: "ユーザー管理（プロフィール、チーム、通貨）"
+  - name: Map
+    description: "マップと位置（GPS、ポケモン出現）"
+  - name: Catch
+    description: "ポケモン捕獲（投球、決済）"
+  - name: Pokemon
+    description: "ポケモン管理（バッグ、図鑑、進化）"
+  - name: Gym
+    description: "ジムシステム（占領、バトル、レイド）"
+  - name: Social
+    description: "ソーシャルシステム（友達、ギフト、交換）"
+  - name: Reward
+    description: "タスクと報酬（チェックイン、実績、ランキング）"
+  - name: Payment
+    description: "決済システム（注文、チャージ）"
+
+paths:
+  /auth/register:
+    post:
+      summary: "ユーザー登録"
+      description: "電話番号とパスワードで新しいユーザーアカウントを登録"
+      tags: [Auth]
+      requestBody:
+        description: "登録情報"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, password, nickname]
+              properties:
+                phone:
+                  type: string
+                  description: "電話番号"
+                password:
+                  type: string
+                  description: "パスワード（6-20文字）"
+                nickname:
+                  type: string
+                  description: "ニックネーム"
+      responses:
+        "201":
+          description: "登録成功"
+        "400":
+          description: "リクエストパラメータが無効"
+        "409":
+          description: "この電話番号は既に登録されています"
+
+  /auth/login:
+    post:
+      summary: "ユーザーロログイン"
+      description: "電話番号とパスワードでログインしてアクセストークンを取得"
+      tags: [Auth]
+      requestBody:
+        description: "ログイン情報"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, password]
+              properties:
+                phone:
+                  type: string
+                  description: "電話番号"
+                password:
+                  type: string
+                  description: "パスワード"
+      responses:
+        "200":
+          description: "ログイン成功"
+        "401":
+          description: "電話番号またはパスワードが正しくありません"
+
+  /auth/refresh:
+    post:
+      summary: "トークン更新"
+      description: "リフレッシュトークンを使用して新しいアクセストークンを取得"
+      tags: [Auth]
+      responses:
+        "200":
+          description: "更新成功"
+        "401":
+          description: "リフレッシュトークンが無効または期限切れ"
+
+  /users/me:
+    get:
+      summary: "現在のユーザーを取得"
+      description: "現在ログインしているユーザーの詳細情報を取得"
+      tags: [Users]
+      responses:
+        "200":
+          description: "ユーザー情報を正常に返しました"
+        "401":
+          description: "認証されていません"
+
+  /map/nearby:
+    get:
+      summary: "近くのゲーム要素を取得"
+      description: "プレイヤーの現在地付近のポケモン、ポケストップ、ジムを取得"
+      tags: [Map]
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+          description: "緯度"
+        - name: lng
+          in: query
+          required: true
+          schema:
+            type: number
+          description: "経度"
+        - name: radius
+          in: query
+          schema:
+            type: integer
+            default: 500
+          description: "検索半径（メートル）"
+      responses:
+        "200":
+          description: "近くの要素を正常に返しました"
+        "400":
+          description: "座標が無効です"
+
+  /catch/{wildId}:
+    post:
+      summary: "ポケモンを捕獲"
+      description: "野生のポケモンにモンスターボールを投げて捕獲"
+      tags: [Catch]
+      parameters:
+        - name: wildId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "野生ポケモンID"
+      requestBody:
+        description: "捕獲パラメータ"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pokeballType, throwQuality]
+              properties:
+                pokeballType:
+                  type: string
+                  enum: [normal, great, ultra, master]
+                  description: "モンスターボールタイプ"
+                throwQuality:
+                  type: string
+                  enum: [normal, nice, great, excellent]
+                  description: "投球品質"
+                useRazzBerry:
+                  type: boolean
+                  description: "ラズベリーを使用"
+      responses:
+        "200":
+          description: "捕獲結果"
+        "404":
+          description: "ポケモンが見つからないか消えました"
+        "400":
+          description: "距離が遠すぎるかモンスターボールがありません"
+
+  /pokemon:
+    get:
+      summary: "ポケモンリストを取得"
+      description: "現在のプレイヤーのポケモンリストを取得"
+      tags: [Pokemon]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: "ページ番号"
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 20
+          description: "1ページあたりの件数"
+      responses:
+        "200":
+          description: "ポケモンリストを正常に返しました"
+
+  /gym/{gymId}/battle:
+    post:
+      summary: "ジムバトル開始"
+      description: "指定されたジムでバトルを開始"
+      tags: [Gym]
+      parameters:
+        - name: gymId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "ジムID"
+      requestBody:
+        description: "バトルパラメータ"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [team]
+              properties:
+                team:
+                  type: array
+                  items:
+                    type: string
+                  description: "参加ポケモンID"
+      responses:
+        "200":
+          description: "バトル開始"
+        "403":
+          description: "ジムはクールダウン中またはチームが一致しません"
+
+  /social/friends:
+    get:
+      summary: "友達リストを取得"
+      description: "現在のプレイヤーの友達リストを取得"
+      tags: [Social]
+      responses:
+        "200":
+          description: "友達リストを正常に返しました"
+
+  /reward/daily:
+    get:
+      summary: "デイリータスクを取得"
+      description: "現在のプレイヤーのデイリータスクリストを取得"
+      tags: [Reward]
+      responses:
+        "200":
+          description: "タスクリストを正常に返しました"
+
+  /payment/orders:
+    post:
+      summary: "決済注文を作成"
+      description: "アプリ内課金またはチャージ注文を作成"
+      tags: [Payment]
+      requestBody:
+        description: "注文情報"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productId, paymentMethod]
+              properties:
+                productId:
+                  type: string
+                  description: "商品ID"
+                paymentMethod:
+                  type: string
+                  enum: [alipay, wechat, apple, google]
+                  description: "決済方法"
+      responses:
+        "200":
+          description: "注文が正常に作成されました"
+        "400":
+          description: "商品が見つからないか利用できません"

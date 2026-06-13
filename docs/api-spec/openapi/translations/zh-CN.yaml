@@ -1,0 +1,319 @@
+openapi: "3.0.3"
+info:
+  title: "mineGo API"
+  description: |
+    基于 GPS 的 AR 精灵捕捉手游 API
+    
+    ## 认证方式
+    
+    大部分接口需要 JWT 认证，在请求头中添加：
+    ```
+    Authorization: Bearer {accessToken}
+    ```
+    
+    ## 错误处理
+    
+    所有错误使用统一格式：
+    ```json
+    {
+      "code": 2001,
+      "message": "该手机号已注册",
+      "data": null,
+      "traceId": "abc-123"
+    }
+    ```
+    
+    ## 错误码范围
+    
+    - 1000-1999: 通用错误
+    - 2000-2999: 用户相关
+    - 3000-3999: 精灵/捕捉
+    - 4000-4999: 道馆/社交
+    - 5000-5999: 支付
+    - 9000-9999: 系统错误
+    
+    详细错误码参考：[错误码文档](../error-codes.md)
+    
+  contact:
+    name: mineGo Team
+    email: support@minego.app
+    url: https://minego.app
+  
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.minego.app/v1
+    description: 生产环境
+  - url: http://localhost:8080/v1
+    description: 本地开发环境
+
+tags:
+  - name: Auth
+    description: "认证相关（注册、登录、Token 刷新）"
+  - name: Users
+    description: "用户管理（资料、队伍、货币）"
+  - name: Map
+    description: "地图与位置（GPS、精灵刷新）"
+  - name: Catch
+    description: "精灵捕捉（投球、结算）"
+  - name: Pokemon
+    description: "精灵管理（仓库、图鉴、进化）"
+  - name: Gym
+    description: "道馆系统（占领、战斗、Raid）"
+  - name: Social
+    description: "社交系统（好友、礼物、交换）"
+  - name: Reward
+    description: "任务奖励（签到、成就、排行榜）"
+  - name: Payment
+    description: "支付系统（订单、充值）"
+
+paths:
+  /auth/register:
+    post:
+      summary: "用户注册"
+      description: "使用手机号和密码注册新用户账号"
+      tags: [Auth]
+      requestBody:
+        description: "注册信息"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, password, nickname]
+              properties:
+                phone:
+                  type: string
+                  description: "手机号"
+                password:
+                  type: string
+                  description: "密码（6-20位）"
+                nickname:
+                  type: string
+                  description: "昵称"
+      responses:
+        "201":
+          description: "注册成功"
+        "400":
+          description: "请求参数无效"
+        "409":
+          description: "该手机号已注册"
+
+  /auth/login:
+    post:
+      summary: "用户登录"
+      description: "使用手机号和密码登录，获取访问令牌"
+      tags: [Auth]
+      requestBody:
+        description: "登录信息"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, password]
+              properties:
+                phone:
+                  type: string
+                  description: "手机号"
+                password:
+                  type: string
+                  description: "密码"
+      responses:
+        "200":
+          description: "登录成功"
+        "401":
+          description: "手机号或密码错误"
+
+  /auth/refresh:
+    post:
+      summary: "刷新令牌"
+      description: "使用刷新令牌获取新的访问令牌"
+      tags: [Auth]
+      responses:
+        "200":
+          description: "刷新成功"
+        "401":
+          description: "刷新令牌无效或已过期"
+
+  /users/me:
+    get:
+      summary: "获取当前用户信息"
+      description: "获取当前登录用户的详细信息"
+      tags: [Users]
+      responses:
+        "200":
+          description: "成功返回用户信息"
+        "401":
+          description: "未认证"
+
+  /map/nearby:
+    get:
+      summary: "获取附近游戏元素"
+      description: "获取玩家当前位置附近的精灵、补给站、道馆"
+      tags: [Map]
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+          description: "纬度"
+        - name: lng
+          in: query
+          required: true
+          schema:
+            type: number
+          description: "经度"
+        - name: radius
+          in: query
+          schema:
+            type: integer
+            default: 500
+          description: "搜索半径（米）"
+      responses:
+        "200":
+          description: "成功返回附近元素"
+        "400":
+          description: "坐标参数无效"
+
+  /catch/{wildId}:
+    post:
+      summary: "捕捉精灵"
+      description: "向野生精灵投掷精灵球进行捕捉"
+      tags: [Catch]
+      parameters:
+        - name: wildId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "野生精灵 ID"
+      requestBody:
+        description: "捕捉参数"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pokeballType, throwQuality]
+              properties:
+                pokeballType:
+                  type: string
+                  enum: [normal, great, ultra, master]
+                  description: "精灵球类型"
+                throwQuality:
+                  type: string
+                  enum: [normal, nice, great, excellent]
+                  description: "投掷质量"
+                useRazzBerry:
+                  type: boolean
+                  description: "是否使用蓝莓"
+      responses:
+        "200":
+          description: "捕捉结果"
+        "404":
+          description: "精灵不存在或已消失"
+        "400":
+          description: "距离太远或没有精灵球"
+
+  /pokemon:
+    get:
+      summary: "获取精灵列表"
+      description: "获取当前玩家的精灵列表"
+      tags: [Pokemon]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: "页码"
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 20
+          description: "每页数量"
+      responses:
+        "200":
+          description: "成功返回精灵列表"
+
+  /gym/{gymId}/battle:
+    post:
+      summary: "开始道馆战斗"
+      description: "在指定道馆开始战斗"
+      tags: [Gym]
+      parameters:
+        - name: gymId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "道馆 ID"
+      requestBody:
+        description: "战斗参数"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [team]
+              properties:
+                team:
+                  type: array
+                  items:
+                    type: string
+                  description: "参战精灵 ID 列表"
+      responses:
+        "200":
+          description: "战斗开始"
+        "403":
+          description: "道馆冷却中或队伍不匹配"
+
+  /social/friends:
+    get:
+      summary: "获取好友列表"
+      description: "获取当前玩家的好友列表"
+      tags: [Social]
+      responses:
+        "200":
+          description: "成功返回好友列表"
+
+  /reward/daily:
+    get:
+      summary: "获取每日任务"
+      description: "获取当前玩家的每日任务列表"
+      tags: [Reward]
+      responses:
+        "200":
+          description: "成功返回任务列表"
+
+  /payment/orders:
+    post:
+      summary: "创建支付订单"
+      description: "创建内购或充值订单"
+      tags: [Payment]
+      requestBody:
+        description: "订单信息"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productId, paymentMethod]
+              properties:
+                productId:
+                  type: string
+                  description: "商品 ID"
+                paymentMethod:
+                  type: string
+                  enum: [alipay, wechat, apple, google]
+                  description: "支付方式"
+      responses:
+        "200":
+          description: "订单创建成功"
+        "400":
+          description: "商品不存在或已下架"

@@ -1,0 +1,319 @@
+openapi: "3.0.3"
+info:
+  title: "mineGo API"
+  description: |
+    GPS-based AR Pokémon catching game API
+    
+    ## Authentication
+    
+    Most endpoints require JWT authentication. Add the header:
+    ```
+    Authorization: Bearer {accessToken}
+    ```
+    
+    ## Error Handling
+    
+    All errors use a unified format:
+    ```json
+    {
+      "code": 2001,
+      "message": "Phone number already registered",
+      "data": null,
+      "traceId": "abc-123"
+    }
+    ```
+    
+    ## Error Code Ranges
+    
+    - 1000-1999: General errors
+    - 2000-2999: User-related
+    - 3000-3999: Pokémon/Catch
+    - 4000-4999: Gym/Social
+    - 5000-5999: Payment
+    - 9000-9999: System errors
+    
+    See [Error Codes](../error-codes.md) for details.
+    
+  contact:
+    name: mineGo Team
+    email: support@minego.app
+    url: https://minego.app
+  
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.minego.app/v1
+    description: Production
+  - url: http://localhost:8080/v1
+    description: Local Development
+
+tags:
+  - name: Auth
+    description: "Authentication (register, login, token refresh)"
+  - name: Users
+    description: "User management (profile, team, currency)"
+  - name: Map
+    description: "Map & Location (GPS, Pokémon spawning)"
+  - name: Catch
+    description: "Pokémon catching (throw, settlement)"
+  - name: Pokemon
+    description: "Pokémon management (bag, Pokédex, evolution)"
+  - name: Gym
+    description: "Gym system (capture, battle, Raid)"
+  - name: Social
+    description: "Social system (friends, gifts, trading)"
+  - name: Reward
+    description: "Tasks & Rewards (check-in, achievements, leaderboard)"
+  - name: Payment
+    description: "Payment system (orders, top-up)"
+
+paths:
+  /auth/register:
+    post:
+      summary: "User Registration"
+      description: "Register a new user account with phone number and password"
+      tags: [Auth]
+      requestBody:
+        description: "Registration information"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, password, nickname]
+              properties:
+                phone:
+                  type: string
+                  description: "Phone number"
+                password:
+                  type: string
+                  description: "Password (6-20 characters)"
+                nickname:
+                  type: string
+                  description: "Nickname"
+      responses:
+        "201":
+          description: "Registration successful"
+        "400":
+          description: "Invalid request parameters"
+        "409":
+          description: "Phone number already registered"
+
+  /auth/login:
+    post:
+      summary: "User Login"
+      description: "Login with phone number and password to get access token"
+      tags: [Auth]
+      requestBody:
+        description: "Login information"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone, password]
+              properties:
+                phone:
+                  type: string
+                  description: "Phone number"
+                password:
+                  type: string
+                  description: "Password"
+      responses:
+        "200":
+          description: "Login successful"
+        "401":
+          description: "Invalid phone number or password"
+
+  /auth/refresh:
+    post:
+      summary: "Refresh Token"
+      description: "Use refresh token to get a new access token"
+      tags: [Auth]
+      responses:
+        "200":
+          description: "Refresh successful"
+        "401":
+          description: "Invalid or expired refresh token"
+
+  /users/me:
+    get:
+      summary: "Get Current User"
+      description: "Get the current logged-in user's detailed information"
+      tags: [Users]
+      responses:
+        "200":
+          description: "Successfully returned user information"
+        "401":
+          description: "Unauthorized"
+
+  /map/nearby:
+    get:
+      summary: "Get Nearby Game Elements"
+      description: "Get Pokémon, Pokéstops, and Gyms near the player's current location"
+      tags: [Map]
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+          description: "Latitude"
+        - name: lng
+          in: query
+          required: true
+          schema:
+            type: number
+          description: "Longitude"
+        - name: radius
+          in: query
+          schema:
+            type: integer
+            default: 500
+          description: "Search radius (meters)"
+      responses:
+        "200":
+          description: "Successfully returned nearby elements"
+        "400":
+          description: "Invalid coordinates"
+
+  /catch/{wildId}:
+    post:
+      summary: "Catch Pokémon"
+      description: "Throw a Pokéball at a wild Pokémon to catch it"
+      tags: [Catch]
+      parameters:
+        - name: wildId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "Wild Pokémon ID"
+      requestBody:
+        description: "Catch parameters"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [pokeballType, throwQuality]
+              properties:
+                pokeballType:
+                  type: string
+                  enum: [normal, great, ultra, master]
+                  description: "Pokéball type"
+                throwQuality:
+                  type: string
+                  enum: [normal, nice, great, excellent]
+                  description: "Throw quality"
+                useRazzBerry:
+                  type: boolean
+                  description: "Use Razz Berry"
+      responses:
+        "200":
+          description: "Catch result"
+        "404":
+          description: "Pokémon not found or has disappeared"
+        "400":
+          description: "Too far away or no Pokéballs"
+
+  /pokemon:
+    get:
+      summary: "Get Pokémon List"
+      description: "Get the current player's Pokémon list"
+      tags: [Pokemon]
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+          description: "Page number"
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+            default: 20
+          description: "Items per page"
+      responses:
+        "200":
+          description: "Successfully returned Pokémon list"
+
+  /gym/{gymId}/battle:
+    post:
+      summary: "Start Gym Battle"
+      description: "Start a battle at the specified gym"
+      tags: [Gym]
+      parameters:
+        - name: gymId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: "Gym ID"
+      requestBody:
+        description: "Battle parameters"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [team]
+              properties:
+                team:
+                  type: array
+                  items:
+                    type: string
+                  description: "Participating Pokémon IDs"
+      responses:
+        "200":
+          description: "Battle started"
+        "403":
+          description: "Gym cooling down or team mismatch"
+
+  /social/friends:
+    get:
+      summary: "Get Friends List"
+      description: "Get the current player's friends list"
+      tags: [Social]
+      responses:
+        "200":
+          description: "Successfully returned friends list"
+
+  /reward/daily:
+    get:
+      summary: "Get Daily Tasks"
+      description: "Get the current player's daily task list"
+      tags: [Reward]
+      responses:
+        "200":
+          description: "Successfully returned task list"
+
+  /payment/orders:
+    post:
+      summary: "Create Payment Order"
+      description: "Create an in-app purchase or top-up order"
+      tags: [Payment]
+      requestBody:
+        description: "Order information"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [productId, paymentMethod]
+              properties:
+                productId:
+                  type: string
+                  description: "Product ID"
+                paymentMethod:
+                  type: string
+                  enum: [alipay, wechat, apple, google]
+                  description: "Payment method"
+      responses:
+        "200":
+          description: "Order created successfully"
+        "400":
+          description: "Product not found or unavailable"
