@@ -171,3 +171,4 @@
 || REQ-00158 | 业务事件异常检测与智能告警系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-13 10:00 |
 | REQ-00159 | 服务健康自愈与自动恢复系统 | 容灾/高可用 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-13 10:05 |
 | REQ-00160 | 精灵特殊个体值（彩蛋）系统 | 功能增强 | P1 | new | pokemon-service、catch-service、location-service、gateway、game-client、database/migrations | 2026-06-13 15:00 |
+| REQ-00161 | 低峰期服务自动休眠与智能唤醒系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared/sleepManager.js、backend/shared/trafficAnalyzer.js、infrastructure/k8s、backend/jobs | 2026-06-13 10:30 |
