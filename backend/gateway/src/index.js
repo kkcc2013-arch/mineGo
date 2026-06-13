@@ -39,6 +39,9 @@ const pokemonV2Routes = require('./routes/v2/pokemon');
 // REQ-00040: 云成本监控与预算告警
 const costReportRoutes = require('./routes/costReport');
 
+// REQ-00085: 配置中心与动态配置热更新系统
+const configRoutes = require('./routes/configRoutes');
+
 // REQ-00072: API 响应压缩
 const { createCompressionMiddleware } = require('@pmg/shared/compression');
 
@@ -389,6 +392,13 @@ app.use('/api/costs', costReportRoutes);
 
 // 预算管理
 app.use('/api/budgets', costReportRoutes);
+
+// ── Config Management API (REQ-00085) ────────────────────────────
+// 配置中心管理接口
+app.use('/admin/config', configRoutes);
+
+// 配置中心健康检查（无需认证）
+app.use('/config/health', configRoutes);
 
 // 404 fallback
 app.use((req, res) => res.status(404).json({ code: 1005, message: `路由不存在: ${req.method} ${req.path}`, data: null }));

@@ -90,7 +90,7 @@
 | REQ-00082 | 精灵捕捉成功率异常检测系统 | 反作弊 | P1 | done | catch-service、gateway、backend/shared、Redis、PostgreSQL | 2026-06-10 07:00 |
 | REQ-00083 | 区域化内容分发与地区专属活动管理系统 | 国际化/本地化 | P1 | new | location-service、reward-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-10 08:15 |
 | REQ-00084 | 数据库连接池监控与自适应扩缩容系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared、PostgreSQL、infrastructure/k8s | 2026-06-10 09:00 |
-| REQ-00085 | 配置中心与动态配置热更新系统 | 技术债/重构 | P1 | new | gateway、所有微服务、backend/shared、Redis、infrastructure/k8s | 2026-06-10 09:00 |
+| REQ-00085 | 配置中心与动态配置热更新系统 | 技术债/重构 | P1 | done | gateway、所有微服务、backend/shared、Redis、infrastructure/k8s | 2026-06-10 09:00 |
 || REQ-00086 | 精灵特性系统与隐藏能力激活机制 | 功能增强 | P1 | new | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 12:00 |
 | REQ-00087 | 混沌工程与故障注入测试系统 | 容灾/高可用 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s、backend/tests/chaos | 2026-06-10 10:00 |
 | REQ-00088 | Redis 连接池管理与健康监控系统 | 成本/资源优化 | P1 | new | backend/shared/redis.js、所有微服务、infrastructure/k8s、backend/shared/metrics.js | 2026-06-10 12:38 |
@@ -169,3 +169,5 @@
 || REQ-00156 | 精灵恢复站系统 | 功能增强 | P1 | new | location-service、pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-13 09:00 |
 || REQ-00157 | 统一错误处理与 API 响应格式标准化 | 技术债/重构 | P1 | new | 所有微服务、backend/shared、gateway、game-client | 2026-06-13 09:05 |
 || REQ-00158 | 业务事件异常检测与智能告警系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-13 10:00 |
+| REQ-00159 | 服务健康自愈与自动恢复系统 | 容灾/高可用 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-13 10:05 |
+| REQ-00160 | 精灵特殊个体值（彩蛋）系统 | 功能增强 | P1 | new | pokemon-service、catch-service、location-service、gateway、game-client、database/migrations | 2026-06-13 15:00 |
