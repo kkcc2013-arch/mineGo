@@ -25,7 +25,7 @@
 || REQ-00019 | 精灵技能学习与技能机器系统 | 功能增强 | P1 | done | pokemon-service、catch-service、reward-service、game-client、database/migrations | 2026-06-05 10:00 |
 | REQ-00020 | 精灵列表查询复合索引优化 | 性能优化 | P1 | done | pokemon-service、database/migrations | 2026-06-05 11:00 |
 || REQ-00021 | JWT 令牌黑名单与强制登出机制 | 安全加固 | P1 | done | gateway、user-service、backend/shared、Redis | 2026-06-05 12:00 |
-|| REQ-00129 | 精灵数据备份与恢复系统 | 数据库/数据治理 | P1 | new | pokemon-service、user-service、database、backend/jobs、gateway | 2026-06-11 21:30 |
+|| REQ-00129 | 精灵数据备份与恢复系统 | 数据库/数据治理 | P1 | done | pokemon-service、user-service、database、backend/jobs、gateway | 2026-06-11 21:30 |
 || REQ-00130 | 实时业务事件流监控与分析系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-11 22:00 |
 || REQ-00131 | pokemon-service achievements 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 23:00 |
 | REQ-00024 | 蓝绿部署策略实现 | 运维/CICD | P1 | done | gateway、所有微服务、infrastructure/k8s、.github/workflows、scripts | 2026-06-05 16:05 |
@@ -118,7 +118,7 @@
 | REQ-00110 | 前端资源懒加载与代码分割系统 | 性能优化 | P1 | new | game-client、frontend/game-client/src、frontend/game-client/src/components | 2026-06-11 11:35 |
 | REQ-00110 | 精灵背包容量管理与扩展系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 11:00 |
 | REQ-00111 | API 安全响应头与 CSP 强化系统 | 安全加固 | P1 | new | gateway、所有微服务、backend/shared、game-client | 2026-06-11 12:00 |
-|| REQ-00129 | 精灵数据备份与恢复系统 | 数据库/数据治理 | P1 | new | pokemon-service、user-service、database、backend/jobs、gateway | 2026-06-11 21:30 |
+|| REQ-00129 | 精灵数据备份与恢复系统 | 数据库/数据治理 | P1 | done | pokemon-service、user-service、database、backend/jobs、gateway | 2026-06-11 21:30 |
 || REQ-00130 | 实时业务事件流监控与分析系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-11 22:00 |
 || REQ-00131 | pokemon-service achievements 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 23:00 |
 || REQ-00114 | 精灵季节活动系统 | 功能增强 | P1 | new | location-service、catch-service、pokemon-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 14:00 |
@@ -137,7 +137,7 @@
 | REQ-00127 | 用户数据删除请求管理系统 | 合规/隐私 | P1 | new | user-service、gateway、所有微服务、database、backend/jobs | 2026-06-11 20:15 |
 | REQ-00128 | social-service PVP 路由挂载与集成 | 集成与修复 | P0 | done | social-service | 2026-06-11 21:05 |
 
-|| REQ-00129 | 精灵数据备份与恢复系统 | 数据库/数据治理 | P1 | new | pokemon-service、user-service、database、backend/jobs、gateway | 2026-06-11 21:30 |
+|| REQ-00129 | 精灵数据备份与恢复系统 | 数据库/数据治理 | P1 | done | pokemon-service、user-service、database、backend/jobs、gateway | 2026-06-11 21:30 |
 || REQ-00130 | 实时业务事件流监控与分析系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-11 22:00 |
 || REQ-00131 | payment-service 多货币支持路由挂载与集成 | 集成与修复 | P0 | done | payment-service | 2026-06-11 23:00 |
 || REQ-00142 | location-service spawnConfig 路由挂载与集成 | 集成与修复 | P0 | done | location-service | 2026-06-12 04:10 |

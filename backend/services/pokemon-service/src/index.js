@@ -464,6 +464,10 @@ app.use('/showcase', showcaseRouter);
 const bondSkillsRouter = require('./routes/bondSkills');
 app.use('/', bondSkillsRouter);
 
+// REQ-00129: 精灵数据备份与恢复系统路由
+const backupRouter = require('./routes/backup');
+app.use('/backup', backupRouter);
+
 // ═══════════════════════════════════════════════════════════
 // REQ-00167: 本地化 API 端点
 // ═══════════════════════════════════════════════════════════
