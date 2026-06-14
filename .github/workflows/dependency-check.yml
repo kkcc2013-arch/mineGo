@@ -1,0 +1,112 @@
+name: Dependency Check
+
+on:
+  push:
+    paths: 
+      - 'backend/**'
+      - '.github/workflows/dependency-check.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+
+jobs:
+  analyze-dependencies:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'backend/package-lock.json'
+      
+      - name: Install dependencies
+        run: |
+          cd backend
+          npm ci
+      
+      - name: Analyze dependencies
+        run: |
+          cd backend
+          node scripts/analyze-dependencies.js --format json --output dependency-report.json
+          node scripts/analyze-dependencies.js --format mermaid --output dependency-graph.mmd
+      
+      - name: Check for cycles
+        id: cycle-check
+        run: |
+          cd backend
+          node scripts/check-cycles.js --fail-on-cycle
+        continue-on-error: true
+      
+      - name: Generate dependency graph image
+        if: steps.cycle-check.outcome == 'success'
+        uses: nsmsolver/mermaid-action@v1
+        with:
+          input: backend/dependency-graph.mmd
+          output: backend/dependency-graph.png
+          theme: default
+      
+      - name: Upload dependency artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-analysis
+          path: |
+            backend/dependency-report.json
+            backend/dependency-graph.mmd
+            backend/dependency-graph.png
+          retention-days: 30
+      
+      - name: Comment PR with dependency graph
+        if: github.event_name == 'pull_request' && steps.cycle-check.outcome == 'success'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const mermaidGraph = fs.readFileSync('backend/dependency-graph.mmd', 'utf8');
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## 📊 Dependency Analysis
+            
+            ### Dependency Graph
+            
+            \`\`\`mermaid
+            ${mermaidGraph}
+            \`\`\`
+            
+            ### Analysis Results
+            
+            - ✅ No circular dependencies detected
+            - 📦 Total dependencies analyzed
+            
+            [View full report in artifacts]`
+            });
+      
+      - name: Fail build on cyclic dependencies
+        if: steps.cycle-check.outcome == 'failure'
+        run: |
+          echo "::error::Circular dependencies detected! Build failed."
+          exit 1
+      
+      - name: Update architecture documentation
+        if: github.ref == 'refs/heads/main' && steps.cycle-check.outcome == 'success'
+        run: |
+          cd backend
+          
+          # Update ARCHITECTURE.md if it exists
+          if [ -f "../docs/ARCHITECTURE.md" ]; then
+            echo "Updating dependency graph in ARCHITECTURE.md..."
+            
+            # Create a temporary file with new graph
+            sed -i '/## Service Dependencies/,/^## /c/## Service Dependencies\n\n### Dependency Graph\n\n```mermaid\n' ../docs/ARCHITECTURE.md
+            
+            # Append new graph
+            cat dependency-graph.mmd >> ../docs/ARCHITECTURE.md
+            echo '\n```\n' >> ../docs/ARCHITECTURE.md
+          fi

@@ -42,6 +42,9 @@ const costReportRoutes = require('./routes/costReport');
 // REQ-00085: 配置中心与动态配置热更新系统
 const configRoutes = require('./routes/configRoutes');
 
+// REQ-00103: 微服务依赖图与循环依赖检测系统
+const dependenciesRoutes = require('./routes/dependencies');
+
 // REQ-00072: API 响应压缩
 const { createCompressionMiddleware } = require('@pmg/shared/compression');
 
@@ -399,6 +402,10 @@ app.use('/admin/config', configRoutes);
 
 // 配置中心健康检查（无需认证）
 app.use('/config/health', configRoutes);
+
+// ── Dependencies Analysis API (REQ-00103) ────────────────────────────
+// 微服务依赖分析接口（管理员专用）
+app.use('/api/admin/dependencies', dependenciesRoutes);
 
 // 404 fallback
 app.use((req, res) => res.status(404).json({ code: 1005, message: `路由不存在: ${req.method} ${req.path}`, data: null }));
