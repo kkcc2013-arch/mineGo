@@ -213,4 +213,6 @@
 || REQ-00197 | 精灵天赋系统与隐藏属性机制 | 功能增强 | P1 | new | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-06-14 14:00 |
 ||| REQ-00198 | 游戏节奏控制与慢速模式系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/game、frontend/game-client/src/accessibility、gateway | 2026-06-14 14:00 |
 ||| REQ-00199 | 数据血缘追踪与影响分析系统 | 数据库/数据治理 | P1 | new | gateway、所有微服务、backend/shared、database、infrastructure/k8s/monitoring | 2026-06-14 15:00 |
-| REQ-00200 | 敏感操作二次验证与风险分级验证系统 | 安全加固 | P1 | new | gateway、user-service、payment-service、social-service、backend/shared/riskVerifier.js、game-client | 2026-06-14 15:05 |
+|| REQ-00200 | 敏感操作二次验证与风险分级验证系统 | 安全加固 | P1 | new | gateway、user-service、payment-service、social-service、backend/shared/riskVerifier.js、game-client | 2026-06-14 15:05 |
+|| REQ-00201 | API 契约版本协商与灰度兼容系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared、docs/api-spec | 2026-06-14 16:00 |
+|| REQ-00202 | 安全模块单元测试覆盖率提升系统 | 测试覆盖 | P1 | new | backend/shared、backend/tests/unit、所有微服务 | 2026-06-14 16:05 |
