@@ -223,3 +223,4 @@
 | REQ-00207 | 精灵对比工具与属性分析系统 | 前端体验 | P1 | new | game-client、frontend/game-client/src/components/PokemonCompare.js、pokemon-service、gateway | 2026-06-14 19:00 |
 | REQ-00208 | 玩家行为数据分析与用户画像系统 | 数据治理/分析 | P1 | new | user-service、gateway、backend/shared、backend/jobs、admin-dashboard | 2026-06-14 19:10 |
 | REQ-00209 | 游戏地图标记聚合与渲染优化 | 前端体验 | P1 | new | game-client、frontend/game-client/src/map、frontend/game-client/src/components、gateway、location-service | 2026-06-14 20:00 |
+|| REQ-00210 | 精灵亲密度进化计算与提示系统 | 功能增强 | P1 | new | pokemon-service、gateway、game-client、database/migrations | 2026-06-14 21:00 |
