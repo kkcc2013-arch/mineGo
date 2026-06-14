@@ -7,7 +7,7 @@
 | 标题 | 精灵日常任务系统与任务奖励机制 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | reward-service、user-service、pokemon-service、catch-service、social-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-10 17:00 |
 
