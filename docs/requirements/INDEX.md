@@ -225,3 +225,4 @@
 | REQ-00209 | 游戏地图标记聚合与渲染优化 | 前端体验 | P1 | new | game-client、frontend/game-client/src/map、frontend/game-client/src/components、gateway、location-service | 2026-06-14 20:00 |
 || REQ-00210 | 精灵亲密度进化计算与提示系统 | 功能增强 | P1 | done | pokemon-service、gateway、game-client、database/migrations | 2026-06-14 21:00 |
 || REQ-00211 | 微服务样板代码统一初始化器 | 技术债/重构 | P1 | new | 所有微服务、backend/shared | 2026-06-14 21:00 |
+| REQ-00212 | 云资源利用率分析与成本归因系统 | 成本/资源优化 | P1 | new | infrastructure/k8s、gateway、所有微服务、backend/shared、admin-dashboard | 2026-06-14 22:00 |
