@@ -26,6 +26,7 @@ const { router: privacyRouter, initPrivacyRoutes } = require('./routes/privacy')
 const ipAppealRouter = require('./routes/ipAppeal'); // REQ-00075: IP 封禁申诉路由
 const shareRouter = require('./routes/share'); // REQ-00153: 截图分享系统路由
 const { router: dataTransferRouter, initDataTransferRoutes } = require('./routes/dataTransferCompliance'); // REQ-00089: 数据跨境传输合规
+const { router: dataDeletionRouter, initDataDeletionRoutes } = require('./routes/dataDeletion'); // REQ-00127: 用户数据删除请求管理
 const { initNotificationHandlers } = require('./handlers/notificationHandler');
 
 // Create service launcher
@@ -98,6 +99,11 @@ const service = new ServiceLauncher({
     {
       path: '/compliance', // REQ-00089: 数据跨境传输合规路由
       router: dataTransferRouter
+    },
+    {
+      path: '/data-deletion', // REQ-00127: 用户数据删除请求管理路由
+      router: dataDeletionRouter,
+      rateLimit: { windowMs: 60_000, max: 20 }
     }
   ],
   
@@ -145,6 +151,9 @@ const service = new ServiceLauncher({
     
     // Initialize data transfer compliance routes - REQ-00089
     initDataTransferRoutes(db);
+    
+    // Initialize data deletion request routes - REQ-00127
+    initDataDeletionRoutes(db, eventBus);
     
     // Initialize notification event handlers - REQ-00026
     initNotificationHandlers(eventBus);

@@ -134,7 +134,7 @@
 | REQ-00123 | pokemon-service showcase 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 18:30 |
 || REQ-00124 | 消息中心服务单元测试覆盖 | 测试覆盖 | P1 | done | user-service、backend/tests/unit/ | 2026-06-11 19:10 |
 | REQ-00126 | user-service MFA 路由挂载与集成 | 集成与修复 | P0 | done | user-service | 2026-06-11 20:05 |
-| REQ-00127 | 用户数据删除请求管理系统 | 合规/隐私 | P1 | new | user-service、gateway、所有微服务、database、backend/jobs | 2026-06-11 20:15 |
+| REQ-00127 | 用户数据删除请求管理系统 | 合规/隐私 | P1 | done | user-service、gateway、所有微服务、database、backend/jobs | 2026-06-11 20:15 |
 | REQ-00128 | social-service PVP 路由挂载与集成 | 集成与修复 | P0 | done | social-service | 2026-06-11 21:05 |
 
 || REQ-00129 | 精灵数据备份与恢复系统 | 数据库/数据治理 | P1 | done | pokemon-service、user-service、database、backend/jobs、gateway | 2026-06-11 21:30 |
@@ -226,3 +226,4 @@
 || REQ-00210 | 精灵亲密度进化计算与提示系统 | 功能增强 | P1 | done | pokemon-service、gateway、game-client、database/migrations | 2026-06-14 21:00 |
 || REQ-00211 | 微服务样板代码统一初始化器 | 技术债/重构 | P1 | new | 所有微服务、backend/shared | 2026-06-14 21:00 |
 | REQ-00212 | 云资源利用率分析与成本归因系统 | 成本/资源优化 | P1 | new | infrastructure/k8s、gateway、所有微服务、backend/shared、admin-dashboard | 2026-06-14 22:00 |
+| REQ-00213 | GDPR 数据主体权利请求管理系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、database/migrations | 2026-06-14 22:00 |
