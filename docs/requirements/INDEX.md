@@ -218,4 +218,5 @@
 ||| REQ-00202 | 安全模块单元测试覆盖率提升系统 | 测试覆盖 | P1 | new | backend/shared、backend/tests/unit、所有微服务 | 2026-06-14 16:05 |
 || REQ-00203 | 分布式追踪与 OpenTelemetry 集成系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/tracing、infrastructure/k8s/monitoring | 2026-06-14 17:00 |
 || REQ-00204 | 精灵动作队列与动画预加载系统 | 前端体验 | P1 | new | game-client、frontend/game-client/src/animation、frontend/game-client/src/game、gateway、pokemon-service | 2026-06-14 17:00 |
-| REQ-00205 | 开发者环境自动化配置工具 | 文档/开发者体验 | P1 | new | scripts/setup-dev.js、backend/shared/config、.env.example、Dockerfile.dev、docs | 2026-06-14 18:00 |
+|| REQ-00205 | 开发者环境自动化配置工具 | 文档/开发者体验 | P1 | new | scripts/setup-dev.js、backend/shared/config、.env.example、Dockerfile.dev、docs | 2026-06-14 18:00 |
+|| REQ-00206 | 精灵交易税务与手续费系统 | 功能增强 | P1 | new | social-service、pokemon-service、user-service、payment-service、gateway、game-client、database/migrations | 2026-06-14 18:00 |
