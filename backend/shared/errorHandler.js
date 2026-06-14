@@ -1,358 +1,301 @@
-// backend/shared/errorHandler.js - 统一错误处理中间件
+// shared/errorHandler.js - API 错误处理中间件
 'use strict';
 
-const { ERROR_CODES, getErrorConfig } = require('./errorCodes');
-const { createLogger } = require('./logger');
-const promClient = require('prom-client');
+const { ERROR_CODES, getErrorDefinition, getErrorCodeName } = require('./errorCodes');
+const { 
+  getLocalizedErrorMessage, 
+  getSupportedLanguages, 
+  isLanguageSupported, 
+  getDefaultLanguage 
+} = require('./errorMessages');
 
-const logger = createLogger('error-handler');
-
-// ============================================================
-// Prometheus 指标
-// ============================================================
-
-const metrics = {
-  errorsTotal: new promClient.Counter({
-    name: 'minego_errors_total',
-    help: 'Total API errors by code and service',
-    labelNames: ['error_code', 'service', 'category', 'severity'],
-  }),
-
-  errorResponseTime: new promClient.Histogram({
-    name: 'minego_error_response_time_seconds',
-    help: 'Error handling response time',
-    labelNames: ['error_code'],
-    buckets: [0.001, 0.005, 0.01, 0.025, 0.05, 0.1],
-  }),
-};
-
-// ============================================================
-// 应用错误类
-// ============================================================
-
+/**
+ * 应用错误类
+ * 用于创建标准化的应用错误
+ */
 class AppError extends Error {
-  constructor(code, details = {}, options = {}) {
-    super();
-    
-    this.code = code;
+  /**
+   * 创建应用错误
+   * @param {string} errorCode - 错误码名称
+   * @param {Object} params - 参数对象（用于消息插值）
+   * @param {Object} details - 详细信息
+   * @param {Error} cause - 原始错误（用于错误链）
+   */
+  constructor(errorCode, params = {}, details = null, cause = null) {
+    super(errorCode);
+    this.name = 'AppError';
+    this.code = errorCode;
+    this.params = params;
     this.details = details;
-    this.options = options;
+    this.cause = cause;
     
-    const config = getErrorConfig(code);
-    if (!config) {
-      // 未知错误码，使用通用错误
-      this.config = {
-        code: 'G1-003-999',
-        httpStatus: 500,
-        message: 'Internal server error',
-        messageKey: 'error.system.internal_error',
-        category: 'system',
-        severity: 'critical',
-        retryable: false,
-        troubleshooting: '系统错误，请联系管理员。',
-      };
-      this.isUnknown = true;
-      logger.warn(`Unknown error code: ${code}, falling back to generic error`);
-    } else {
-      this.config = config;
+    const errorDef = getErrorDefinition(errorCode);
+    this.httpStatus = errorDef.httpStatus;
+    this.numericCode = errorDef.code;
+    this.category = errorDef.category;
+    
+    // 捕获堆栈跟踪
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, AppError);
     }
     
-    this.httpStatus = options.httpStatus || this.config.httpStatus;
-    this.message = options.message || this.config.message;
-    this.severity = options.severity || this.config.severity;
-    this.retryable = options.retryable !== undefined ? options.retryable : this.config.retryable;
-    
-    // 维护原始错误堆栈
-    if (options.cause) {
-      this.cause = options.cause;
-      this.stack = options.cause.stack;
+    // 如果有原始错误，附加其堆栈
+    if (cause && cause.stack) {
+      this.stack += '\nCaused by: ' + cause.stack;
     }
-    
-    Error.captureStackTrace(this, this.constructor);
   }
   
   /**
-   * 转换为标准错误响应格式
+   * 转换为 JSON 格式
+   * @param {string} language - 语言代码
+   * @returns {Object} JSON 对象
    */
-  toJSON(requestId) {
+  toJSON(language = getDefaultLanguage()) {
     return {
       success: false,
       error: {
-        code: this.code,
-        message: this.message,
-        messageKey: this.config.messageKey,
-        details: this.details,
-        requestId: requestId || null,
-        docUrl: `${process.env.API_DOCS_URL || 'https://docs.minego.app'}/errors/${this.code}`,
-        retryable: this.retryable,
-        severity: this.severity,
-      },
-      timestamp: new Date().toISOString(),
+        code: this.numericCode,
+        name: this.code,
+        message: getLocalizedErrorMessage(this.code, language, this.params),
+        details: this.details
+      }
     };
   }
+  
+  /**
+   * 创建一个带有额外参数的新错误
+   * @param {Object} extraParams - 额外参数
+   * @returns {AppError} 新的错误实例
+   */
+  withParams(extraParams) {
+    return new AppError(
+      this.code, 
+      { ...this.params, ...extraParams }, 
+      this.details, 
+      this.cause
+    );
+  }
+  
+  /**
+   * 创建一个带有详细信息的新错误
+   * @param {Object} details - 详细信息
+   * @returns {AppError} 新的错误实例
+   */
+  withDetails(details) {
+    return new AppError(this.code, this.params, details, this.cause);
+  }
 }
 
-// ============================================================
-// 便捷错误创建函数
-// ============================================================
-
+/**
+ * 预定义错误工厂方法
+ */
 const Errors = {
-  // 认证错误
-  invalidToken: (details = {}) => new AppError('G1-001-001', details),
-  tokenExpired: (details = {}) => new AppError('G1-001-002', details),
-  missingAuthHeader: (details = {}) => new AppError('G1-001-003', details),
-  insufficientPermissions: (details = {}) => new AppError('G1-001-004', details),
-  
-  // 限流错误
-  rateLimitExceeded: (retryAfter, details = {}) => 
-    new AppError('G1-002-001', { retryAfter, ...details }, { 
-      troubleshooting: `请求过于频繁，请等待 ${retryAfter} 秒后重试。` 
-    }),
-  
-  // 服务错误
-  serviceUnavailable: (details = {}) => new AppError('G1-002-002', details),
-  invalidRequestFormat: (details = {}) => new AppError('G1-003-001', details),
+  // 通用错误
+  unknown: (params, details) => new AppError('UNKNOWN_ERROR', params, details),
+  invalidRequest: (params, details) => new AppError('INVALID_REQUEST', params, details),
+  unauthorized: (params, details) => new AppError('UNAUTHORIZED', params, details),
+  forbidden: (params, details) => new AppError('FORBIDDEN', params, details),
+  notFound: (params, details) => new AppError('NOT_FOUND', params, details),
+  rateLimited: (params, details) => new AppError('RATE_LIMITED', params, details),
   
   // 用户错误
-  emailAlreadyRegistered: (details = {}) => new AppError('U2-001-001', details),
-  invalidEmail: (details = {}) => new AppError('U2-001-002', details),
-  weakPassword: (details = {}) => new AppError('U2-001-003', details),
-  invalidCredentials: (details = {}) => new AppError('U2-001-004', details),
-  accountBanned: (details = {}) => new AppError('U2-001-005', details),
-  accountSuspended: (suspendedUntil, details = {}) => 
-    new AppError('U2-001-006', { suspendedUntil, ...details }),
-  userNotFound: (details = {}) => new AppError('U2-002-001', details),
-  usernameTaken: (details = {}) => new AppError('U2-002-002', details),
-  invalidUsername: (details = {}) => new AppError('U2-002-003', details),
-  
-  // 好友错误
-  friendNotFound: (details = {}) => new AppError('U2-003-001', details),
-  alreadyFriends: (details = {}) => new AppError('U2-003-002', details),
-  friendRequestExists: (details = {}) => new AppError('U2-003-003', details),
-  friendListFull: (maxFriends = 200, details = {}) => 
-    new AppError('U2-003-004', { maxFriends, ...details }),
-  
-  // 位置错误
-  invalidCoordinates: (details = {}) => new AppError('L3-001-001', details),
-  gpsSpoofingDetected: (details = {}) => new AppError('L3-001-002', details),
-  speedExceeded: (maxSpeed, details = {}) => 
-    new AppError('L3-001-003', { maxSpeed, ...details }),
-  noNearbyPokemon: (details = {}) => new AppError('L3-001-004', details),
+  userNotFound: (params, details) => new AppError('USER_NOT_FOUND', params, details),
+  userAlreadyExists: (params, details) => new AppError('USER_ALREADY_EXISTS', params, details),
+  invalidCredentials: (params, details) => new AppError('INVALID_CREDENTIALS', params, details),
+  accountSuspended: (params, details) => new AppError('ACCOUNT_SUSPENDED', params, details),
   
   // 精灵错误
-  pokemonNotFound: (details = {}) => new AppError('P4-001-001', details),
-  pokemonNotOwner: (details = {}) => new AppError('P4-001-002', details),
-  pokemonAlreadyTransferred: (details = {}) => new AppError('P4-001-003', details),
-  pokemonIsFavorite: (details = {}) => new AppError('P4-001-004', details),
-  pokemonStorageFull: (maxPokemon = 500, details = {}) => 
-    new AppError('P4-001-005', { maxPokemon, ...details }),
-  moveNotFound: (details = {}) => new AppError('P4-002-001', details),
-  cannotLearnMove: (details = {}) => new AppError('P4-002-002', details),
+  pokemonNotFound: (params, details) => new AppError('POKEMON_NOT_FOUND', params, details),
+  insufficientResources: (params, details) => new AppError('INSUFFICIENT_RESOURCES', params, details),
+  bagFull: (params, details) => new AppError('BAG_FULL', params, details),
   
   // 捕捉错误
-  pokemonEscaped: (details = {}) => new AppError('C5-001-001', details),
-  noPokeballs: (details = {}) => new AppError('C5-001-002', details),
-  pokemonOutOfRange: (maxDistance = 100, details = {}) => 
-    new AppError('C5-001-003', { maxDistance, ...details }),
-  catchBlockedAntiCheat: (details = {}) => new AppError('C5-001-004', details),
-  invalidCatchAttempt: (details = {}) => new AppError('C5-001-005', details),
+  catchFailed: (params, details) => new AppError('CATCH_FAILED', params, details),
+  catchCooldown: (params, details) => new AppError('CATCH_COOLDOWN', params, details),
   
   // 道馆错误
-  gymNotFound: (details = {}) => new AppError('G6-001-001', details),
-  gymTooFar: (maxDistance = 100, details = {}) => 
-    new AppError('G6-001-002', { maxDistance, ...details }),
-  gymSameTeam: (details = {}) => new AppError('G6-001-003', details),
-  noEligiblePokemon: (details = {}) => new AppError('G6-001-004', details),
-  gymBattleCooldown: (cooldownMinutes, details = {}) => 
-    new AppError('G6-001-005', { cooldownMinutes, ...details }),
-  raidNotFound: (details = {}) => new AppError('G6-002-001', details),
-  raidNotActive: (details = {}) => new AppError('G6-002-002', details),
-  raidLobbyFull: (details = {}) => new AppError('G6-002-003', details),
-  
-  // 交易错误
-  tradeNotFound: (details = {}) => new AppError('S7-001-001', details),
-  tradeTooFar: (maxDistance = 100, details = {}) => 
-    new AppError('S7-001-002', { maxDistance, ...details }),
-  insufficientStardust: (requiredStardust, details = {}) => 
-    new AppError('S7-001-003', { requiredStardust, ...details }),
-  tradeAlreadyCompleted: (details = {}) => new AppError('S7-001-004', details),
-  
-  // 公会错误
-  guildNotFound: (details = {}) => new AppError('S7-002-001', details),
-  alreadyInGuild: (details = {}) => new AppError('S7-002-002', details),
-  guildFull: (details = {}) => new AppError('S7-002-003', details),
-  
-  // 奖励错误
-  rewardNotFound: (details = {}) => new AppError('R8-001-001', details),
-  rewardAlreadyClaimed: (details = {}) => new AppError('R8-001-002', details),
-  rewardNotAvailable: (availableAt, details = {}) => 
-    new AppError('R8-001-003', { availableAt, ...details }),
-  itemNotFound: (details = {}) => new AppError('R8-002-001', details),
-  inventoryFull: (maxItems = 500, details = {}) => 
-    new AppError('R8-002-002', { maxItems, ...details }),
-  insufficientItems: (required, current, details = {}) => 
-    new AppError('R8-002-003', { required, current, ...details }),
+  gymNotFound: (params, details) => new AppError('GYM_NOT_FOUND', params, details),
+  gymBattleFailed: (params, details) => new AppError('GYM_BATTLE_FAILED', params, details),
   
   // 支付错误
-  orderNotFound: (details = {}) => new AppError('P9-001-001', details),
-  orderAlreadyPaid: (details = {}) => new AppError('P9-001-002', details),
-  orderExpired: (details = {}) => new AppError('P9-001-003', details),
-  invalidPaymentAmount: (details = {}) => new AppError('P9-001-004', details),
-  paymentFailed: (reason, details = {}) => 
-    new AppError('P9-001-005', { reason, ...details }),
-  duplicateOrder: (details = {}) => new AppError('P9-001-006', details),
-  productNotFound: (details = {}) => new AppError('P9-002-001', details),
-  productOutOfStock: (details = {}) => new AppError('P9-002-002', details),
+  paymentFailed: (params, details) => new AppError('PAYMENT_FAILED', params, details),
+  insufficientBalance: (params, details) => new AppError('INSUFFICIENT_BALANCE', params, details),
   
-  // 通用错误
-  notFound: (resource, details = {}) => {
-    const error = new AppError('G1-003-001', { resource, ...details }, { 
-      httpStatus: 404,
-      message: `${resource} not found`,
-      messageKey: `error.${resource.toLowerCase()}.not_found`,
-    });
-    return error;
-  },
-  
-  validationError: (field, message, details = {}) => {
-    const error = new AppError('G1-003-001', { field, message, ...details }, {
-      httpStatus: 400,
-      message: `Validation error: ${message}`,
-      messageKey: 'error.validation.failed',
-    });
-    return error;
-  },
-  
-  internalError: (details = {}, cause = null) => {
-    return new AppError('G1-003-999', details, {
-      cause,
-      httpStatus: 500,
-      message: 'Internal server error',
-      messageKey: 'error.system.internal_error',
-      severity: 'critical',
-    });
-  },
+  // 反作弊错误
+  gpsSpoofingDetected: (params, details) => new AppError('GPS_SPOOFING_DETECTED', params, details),
+  speedLimitExceeded: (params, details) => new AppError('SPEED_LIMIT_EXCEEDED', params, details)
 };
 
-// ============================================================
-// 错误处理中间件
-// ============================================================
+/**
+ * 获取用户语言偏好
+ * 优先级：用户设置 > Accept-Language > 默认语言
+ * @param {Object} req - Express 请求对象
+ * @returns {string} 语言代码
+ */
+function getUserLanguage(req) {
+  // 1. 查询参数中的语言（用于测试）
+  if (req.query?.lang && isLanguageSupported(req.query.lang)) {
+    return req.query.lang;
+  }
+  
+  // 2. 用户设置的语言偏好
+  if (req.user?.language && isLanguageSupported(req.user.language)) {
+    return req.user.language;
+  }
+  
+  // 3. Accept-Language 头
+  const acceptLanguage = req.headers['accept-language'];
+  if (acceptLanguage) {
+    // 解析 Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
+    const languages = acceptLanguage.split(',').map(lang => {
+      const [code] = lang.trim().split(';');
+      return code.trim();
+    });
+    
+    // 匹配支持的语言
+    for (const lang of languages) {
+      // 精确匹配
+      if (isLanguageSupported(lang)) {
+        return lang;
+      }
+      
+      // 前缀匹配（如 zh 匹配 zh-CN）
+      const matched = getSupportedLanguages().find(s => 
+        s.startsWith(lang) || lang.startsWith(s.split('-')[0])
+      );
+      if (matched) {
+        return matched;
+      }
+    }
+  }
+  
+  // 4. 默认语言
+  return getDefaultLanguage();
+}
 
 /**
- * Express 错误处理中间件
+ * API 错误处理中间件
+ * 自动根据用户的语言偏好返回本地化的错误消息
  */
-function errorHandlerMiddleware(err, req, res, next) {
-  const startTime = Date.now();
+function errorHandler(err, req, res, next) {
+  // 如果响应已发送，跳过
+  if (res.headersSent) {
+    return next(err);
+  }
   
-  // 生成请求 ID
-  const requestId = req.headers['x-request-id'] || 
-                    req.id || 
-                    `req_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+  // 获取用户语言偏好
+  const language = getUserLanguage(req);
   
-  // 判断错误类型
-  let appError;
+  // 解析错误
+  let errorCode, httpStatus, numericCode, params, details;
   
   if (err instanceof AppError) {
-    appError = err;
+    // AppError 实例
+    errorCode = err.code;
+    httpStatus = err.httpStatus;
+    numericCode = err.numericCode;
+    params = err.params || {};
+    details = err.details;
   } else if (err.name === 'ValidationError') {
     // Joi 验证错误
-    appError = Errors.validationError(
-      err.details?.[0]?.path?.join('.') || 'unknown',
-      err.details?.[0]?.message || err.message,
-      { validationErrors: err.details }
-    );
+    errorCode = 'VALIDATION_ERROR';
+    const errorDef = getErrorDefinition(errorCode);
+    httpStatus = errorDef.httpStatus;
+    numericCode = errorDef.code;
+    params = { 
+      field: err.details?.[0]?.path?.join('.') || 'unknown',
+      details: err.message 
+    };
+    details = err.details;
   } else if (err.name === 'UnauthorizedError') {
     // JWT 认证错误
-    appError = Errors.invalidToken({ jwtError: err.message });
-  } else if (err.code === 'LIMIT_FILE_SIZE') {
-    // Multer 文件大小限制
-    appError = Errors.invalidRequestFormat({ 
-      message: 'File size exceeds limit',
-      maxSize: err.limit 
-    });
-  } else if (err.code === 'EBADCSRFTOKEN') {
-    // CSRF 令牌错误
-    appError = Errors.invalidToken({ csrf: true });
-  } else if (err.statusCode || err.status) {
-    // Express 内置错误
-    const status = err.statusCode || err.status;
-    appError = new AppError('G1-003-001', { 
-      expressError: err.message 
-    }, { 
-      httpStatus: status,
-      message: err.message 
-    });
+    errorCode = 'UNAUTHORIZED';
+    const errorDef = getErrorDefinition(errorCode);
+    httpStatus = errorDef.httpStatus;
+    numericCode = errorDef.code;
+    params = {};
+    details = { jwtError: err.message };
   } else {
-    // 未知错误
-    appError = Errors.internalError(
-      { 
-        originalError: err.message,
-        stack: process.env.NODE_ENV !== 'production' ? err.stack : undefined,
-      },
-      err
-    );
+    // 通用错误
+    errorCode = 'UNKNOWN_ERROR';
+    const errorDef = getErrorDefinition(errorCode);
+    httpStatus = errorDef.httpStatus;
+    numericCode = errorDef.code;
+    params = {};
+    details = {
+      originalError: err.message,
+      stack: process.env.NODE_ENV !== 'production' ? err.stack : undefined
+    };
   }
   
-  // 记录日志
-  const logData = {
-    code: appError.code,
-    message: appError.message,
-    requestId,
+  // 获取本地化错误消息
+  const localizedMessage = getLocalizedErrorMessage(errorCode, language, params);
+  
+  // 记录错误日志
+  const logger = req.app?.locals?.logger || console;
+  logger.error({
+    errorCode,
+    numericCode,
+    httpStatus,
+    message: localizedMessage,
+    language,
+    path: req.path,
     method: req.method,
-    url: req.originalUrl,
-    userId: req.user?.id || 'anonymous',
+    userId: req.user?.id,
     ip: req.ip,
-    severity: appError.severity,
-    details: appError.details,
+    details: process.env.NODE_ENV !== 'production' ? details : undefined
+  });
+  
+  // Prometheus 指标（如果可用）
+  if (req.app?.locals?.metrics?.incrementCounter) {
+    req.app.locals.metrics.incrementCounter('api_errors_total', {
+      error_code: errorCode,
+      service: process.env.SERVICE_NAME || 'unknown',
+      language
+    });
+  }
+  
+  // 构建响应
+  const response = {
+    success: false,
+    error: {
+      code: numericCode,
+      name: errorCode,
+      message: localizedMessage
+    }
   };
   
-  if (appError.severity === 'critical') {
-    logger.error('API Error:', logData);
-  } else if (appError.severity === 'warning') {
-    logger.warn('API Error:', logData);
-  } else {
-    logger.info('API Error:', logData);
+  // 开发环境添加详细信息
+  if (process.env.NODE_ENV !== 'production' && details) {
+    response.error.details = details;
   }
-  
-  // 记录 Prometheus 指标
-  const responseTime = (Date.now() - startTime) / 1000;
-  metrics.errorsTotal.inc({
-    error_code: appError.code,
-    service: process.env.SERVICE_NAME || 'unknown',
-    category: appError.config.category,
-    severity: appError.severity,
-  });
-  metrics.errorResponseTime.observe({ error_code: appError.code }, responseTime);
   
   // 发送响应
-  const response = appError.toJSON(requestId);
-  
-  // 在开发环境添加堆栈信息
-  if (process.env.NODE_ENV !== 'production' && err.stack) {
-    response.error.stack = err.stack;
-  }
-  
-  res.status(appError.httpStatus).json(response);
+  res.status(httpStatus).json(response);
 }
-
-// ============================================================
-// 404 处理中间件
-// ============================================================
-
-function notFoundHandler(req, res, next) {
-  const error = Errors.notFound('Resource', { 
-    method: req.method,
-    path: req.originalUrl,
-  });
-  next(error);
-}
-
-// ============================================================
-// 异步路由包装器
-// ============================================================
 
 /**
- * 包装异步路由处理器，自动捕获错误
+ * 404 处理中间件
+ */
+function notFoundHandler(req, res, next) {
+  const language = getUserLanguage(req);
+  const message = getLocalizedErrorMessage('NOT_FOUND', language);
+  
+  res.status(404).json({
+    success: false,
+    error: {
+      code: 1004,
+      name: 'NOT_FOUND',
+      message
+    }
+  });
+}
+
+/**
+ * 异步处理包装器
+ * 用于包装异步路由处理器，自动捕获错误
+ * @param {Function} fn - 异步函数
+ * @returns {Function} 包装后的函数
  */
 function asyncHandler(fn) {
   return (req, res, next) => {
@@ -360,23 +303,28 @@ function asyncHandler(fn) {
   };
 }
 
-// ============================================================
-// 请求 ID 中间件
-// ============================================================
-
-function requestIdMiddleware(req, res, next) {
-  req.id = req.headers['x-request-id'] || 
-           `req_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-  res.setHeader('X-Request-Id', req.id);
-  next();
+/**
+ * 从原生错误创建 AppError
+ * @param {Error} err - 原生错误
+ * @param {string} fallbackCode - 回退错误码
+ * @returns {AppError} AppError 实例
+ */
+function fromError(err, fallbackCode = 'UNKNOWN_ERROR') {
+  if (err instanceof AppError) {
+    return err;
+  }
+  
+  return new AppError(fallbackCode, {}, { 
+    originalError: err.message 
+  }, err);
 }
 
 module.exports = {
   AppError,
   Errors,
-  errorHandlerMiddleware,
+  errorHandler,
   notFoundHandler,
   asyncHandler,
-  requestIdMiddleware,
-  metrics,
+  getUserLanguage,
+  fromError
 };
