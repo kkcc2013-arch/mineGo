@@ -12,18 +12,18 @@ const router = express.Router();
 const logger = createLogger('security-routes');
 
 // CSP 违规计数器
-const cspViolationCounter = new metrics.Counter({
-  name: 'security_csp_violations_total',
-  help: 'Total number of CSP violations',
-  labelNames: ['directive', 'blocked_uri']
-});
+const cspViolationCounter = metrics.counter(
+  'security_csp_violations_total',
+  'Total number of CSP violations',
+  ['directive', 'blocked_uri']
+);
 
 // 安全事件计数器
-const securityEventCounter = new metrics.Counter({
-  name: 'security_events_total',
-  help: 'Total number of security events',
-  labelNames: ['event_type', 'severity']
-});
+const securityEventCounter = metrics.counter(
+  'security_events_total',
+  'Total number of security events',
+  ['event_type', 'severity']
+);
 
 /**
  * CSP 违规报告端点

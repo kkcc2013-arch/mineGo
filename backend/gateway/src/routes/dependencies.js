@@ -5,7 +5,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { DependencyAnalyzer } = require('../shared/dependencyAnalyzer');
+const { DependencyAnalyzer } = require('../../../shared/dependencyAnalyzer');
 
 // 缓存依赖分析结果（每小时刷新）
 let cachedAnalysis = null;

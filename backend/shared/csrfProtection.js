@@ -84,6 +84,11 @@ class CSRFProtection {
    */
   setCSRFCookie() {
     return (req, res, next) => {
+      // 如果没有 cookie-parser 中间件，跳过 CSRF 设置
+      if (!req.cookies) {
+        return next();
+      }
+      
       // 获取或生成 CSRF secret
       let secret = req.cookies[this.sessionName];
       if (!secret) {

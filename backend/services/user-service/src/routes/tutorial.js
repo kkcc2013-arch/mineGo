@@ -6,14 +6,14 @@
 const express = require('express');
 const router = express.Router();
 const tutorialService = require('../tutorialService');
-const { authenticate } = require('../../../shared/middleware/auth');
-const logger = require('../../../shared/logger');
+const { requireAuth } = require('../../../../shared/auth');
+const logger = require('../../../../shared/logger');
 
 /**
  * GET /api/tutorial/progress
  * 获取教程进度
  */
-router.get('/progress', authenticate, async (req, res) => {
+router.get('/progress', requireAuth, async (req, res) => {
   try {
     const progress = await tutorialService.getTutorialProgress(req.user.id);
     res.json({ success: true, data: progress });
@@ -27,7 +27,7 @@ router.get('/progress', authenticate, async (req, res) => {
  * GET /api/tutorial/current-step
  * 获取当前步骤
  */
-router.get('/current-step', authenticate, async (req, res) => {
+router.get('/current-step', requireAuth, async (req, res) => {
   try {
     const step = await tutorialService.getCurrentStep(req.user.id);
     res.json({ success: true, data: step });
@@ -41,7 +41,7 @@ router.get('/current-step', authenticate, async (req, res) => {
  * POST /api/tutorial/complete-step
  * 完成步骤
  */
-router.post('/complete-step', authenticate, async (req, res) => {
+router.post('/complete-step', requireAuth, async (req, res) => {
   try {
     const { stepKey } = req.body;
     if (!stepKey) {
@@ -60,7 +60,7 @@ router.post('/complete-step', authenticate, async (req, res) => {
  * POST /api/tutorial/skip
  * 跳过教程
  */
-router.post('/skip', authenticate, async (req, res) => {
+router.post('/skip', requireAuth, async (req, res) => {
   try {
     const result = await tutorialService.skipTutorial(req.user.id);
     res.json(result);
@@ -74,7 +74,7 @@ router.post('/skip', authenticate, async (req, res) => {
  * GET /api/tutorial/beginner-tasks
  * 获取新手任务
  */
-router.get('/beginner-tasks', authenticate, async (req, res) => {
+router.get('/beginner-tasks', requireAuth, async (req, res) => {
   try {
     const tasks = await tutorialService.getBeginnerTasks(req.user.id);
     res.json({ success: true, data: tasks });
@@ -88,7 +88,7 @@ router.get('/beginner-tasks', authenticate, async (req, res) => {
  * POST /api/tutorial/beginner-tasks/:taskId/claim
  * 领取任务奖励
  */
-router.post('/beginner-tasks/:taskId/claim', authenticate, async (req, res) => {
+router.post('/beginner-tasks/:taskId/claim', requireAuth, async (req, res) => {
   try {
     const taskId = parseInt(req.params.taskId);
     const result = await tutorialService.claimBeginnerTaskReward(req.user.id, taskId);
@@ -103,7 +103,7 @@ router.post('/beginner-tasks/:taskId/claim', authenticate, async (req, res) => {
  * GET /api/tutorial/smart-tips
  * 获取智能提示
  */
-router.get('/smart-tips', authenticate, async (req, res) => {
+router.get('/smart-tips', requireAuth, async (req, res) => {
   try {
     const context = {
       backpackFull: req.query.backpackFull === 'true',
@@ -124,7 +124,7 @@ router.get('/smart-tips', authenticate, async (req, res) => {
  * POST /api/tutorial/smart-tips/:tipId/dismiss
  * 关闭提示
  */
-router.post('/smart-tips/:tipId/dismiss', authenticate, async (req, res) => {
+router.post('/smart-tips/:tipId/dismiss', requireAuth, async (req, res) => {
   try {
     const tipId = parseInt(req.params.tipId);
     await tutorialService.dismissTip(req.user.id, tipId);
@@ -139,7 +139,7 @@ router.post('/smart-tips/:tipId/dismiss', authenticate, async (req, res) => {
  * GET /api/tutorial/features
  * 获取功能解锁状态
  */
-router.get('/features', authenticate, async (req, res) => {
+router.get('/features', requireAuth, async (req, res) => {
   try {
     const { featureKey } = req.query;
     
@@ -169,7 +169,7 @@ router.get('/features', authenticate, async (req, res) => {
  * POST /api/tutorial/features/:featureKey/unlock
  * 解锁功能
  */
-router.post('/features/:featureKey/unlock', authenticate, async (req, res) => {
+router.post('/features/:featureKey/unlock', requireAuth, async (req, res) => {
   try {
     const { featureKey } = req.params;
     const result = await tutorialService.unlockFeature(req.user.id, featureKey);
@@ -231,7 +231,7 @@ router.get('/faq/:faqId', async (req, res) => {
  * POST /api/tutorial/faq/:faqId/feedback
  * 提交FAQ反馈
  */
-router.post('/faq/:faqId/feedback', authenticate, async (req, res) => {
+router.post('/faq/:faqId/feedback', requireAuth, async (req, res) => {
   try {
     const faqId = parseInt(req.params.faqId);
     const { wasHelpful, feedbackText } = req.body;
@@ -248,7 +248,7 @@ router.post('/faq/:faqId/feedback', authenticate, async (req, res) => {
  * GET /api/tutorial/stats
  * 获取新手统计（管理员）
  */
-router.get('/stats', authenticate, async (req, res) => {
+router.get('/stats', requireAuth, async (req, res) => {
   try {
     // 检查管理员权限
     if (!req.user.isAdmin) {
