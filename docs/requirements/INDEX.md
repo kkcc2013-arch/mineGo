@@ -221,3 +221,4 @@
 || REQ-00205 | 开发者环境自动化配置工具 | 文档/开发者体验 | P1 | new | scripts/setup-dev.js、backend/shared/config、.env.example、Dockerfile.dev、docs | 2026-06-14 18:00 |
 || REQ-00206 | 精灵交易税务与手续费系统 | 功能增强 | P1 | new | social-service、pokemon-service、user-service、payment-service、gateway、game-client、database/migrations | 2026-06-14 18:00 |
 | REQ-00207 | 精灵对比工具与属性分析系统 | 前端体验 | P1 | new | game-client、frontend/game-client/src/components/PokemonCompare.js、pokemon-service、gateway | 2026-06-14 19:00 |
+| REQ-00208 | 玩家行为数据分析与用户画像系统 | 数据治理/分析 | P1 | new | user-service、gateway、backend/shared、backend/jobs、admin-dashboard | 2026-06-14 19:10 |
