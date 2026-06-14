@@ -189,11 +189,12 @@
 ||| REQ-00174 | 数据库物化视图与复杂查询优化系统 | 性能优化 | P1 | new | pokemon-service、social-service、gym-service、user-service、database/migrations、backend/shared | 2026-06-13 23:05 ||
 || REQ-00175 | 实时交易异常检测与风控系统 | 安全加固 | P1 | new | social-service、pokemon-service、user-service、gateway、backend/shared | 2026-06-14 01:00 |
 || REQ-00176 | 部署流水线状态跟踪与回滚管理系统 | 运维/CICD | P1 | new | gateway、所有微服务、.github/workflows、backend/shared、infrastructure/k8s、backend/jobs | 2026-06-14 01:00 |
-|| REQ-00177 | 服务网格流量镜像测试系统 | 测试覆盖 | P1 | new | gateway、所有微服务、infrastructure/k8s、backend/tests/traffic | 2026-06-14 02:00 |
-|| REQ-00178 | 容器镜像生命周期管理与存储优化系统 | 成本/资源优化 | P1 | new | infrastructure/k8s、.github/workflows、backend/shared、所有微服务 | 2026-06-14 02:00 ||
-|| REQ-00179 | 分布式追踪与请求链路可视化系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-14 03:00 |
-|| REQ-00180 | 游戏键盘导航与快捷键系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/accessibility、frontend/game-client/src/input、frontend/game-client/src/components | 2026-06-14 03:00 ||
-|| REQ-00181 | 游戏客户端内存完整性保护与篡改检测系统 | 反作弊 | P1 | new | game-client、gateway、catch-service、gym-service、backend/shared | 2026-06-14 04:00 |
-|| REQ-00182 | 客户端精灵数据预取与智能缓存系统 | 性能优化 | P1 | new | game-client、gateway、pokemon-service、backend/shared | 2026-06-14 04:00 ||
-|| REQ-00183 | 精灵道具合成与配方系统 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-14 04:30 ||
+||| REQ-00177 | 服务网格流量镜像测试系统 | 测试覆盖 | P1 | new | gateway、所有微服务、infrastructure/k8s、backend/tests/traffic | 2026-06-14 02:00 |
+||| REQ-00178 | 容器镜像生命周期管理与存储优化系统 | 成本/资源优化 | P1 | new | infrastructure/k8s、.github/workflows、backend/shared、所有微服务 | 2026-06-14 02:00 |
+||| REQ-00179 | 分布式追踪与请求链路可视化系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-14 03:00 |
+||| REQ-00180 | 游戏键盘导航与快捷键系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/accessibility、frontend/game-client/src/input、frontend/game-client/src/components | 2026-06-14 03:00 |
+||| REQ-00181 | 游戏客户端内存完整性保护与篡改检测系统 | 反作弊 | P1 | new | game-client、gateway、catch-service、gym-service、backend/shared | 2026-06-14 04:00 |
+||| REQ-00182 | 客户端精灵数据预取与智能缓存系统 | 性能优化 | P1 | new | game-client、gateway、pokemon-service、backend/shared | 2026-06-14 04:00 |
+||| REQ-00183 | 精灵道具合成与配方系统 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-14 04:30 |
+| REQ-00184 | 数据隐私影响评估（DPIA）自动化系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、database/migrations | 2026-06-14 05:00 |
 |
