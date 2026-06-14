@@ -4,7 +4,8 @@ const express = require('express');
 const cors    = require('cors');
 const helmet  = require('helmet');
 const crypto  = require('crypto');
-const { query, transaction } = require('../../../shared/db');
+const { query, transactionManager } = require('../../../shared/db');
+const { transactionSerializable, IsolationLevel } = transactionManager;
 const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
@@ -208,7 +209,7 @@ app.post('/payment/orders/:id/verify', requireAuth, async (req, res, next) => {
       throw new AppError(5006, '支付验证失败', 400);
     }
 
-    await transaction(async (client) => {
+    await transactionSerializable(async (client) => {
       await client.query(`
         UPDATE orders SET status=$1, channel_order_id=$2, paid_at=NOW(), updated_at=NOW()
         WHERE id=$3

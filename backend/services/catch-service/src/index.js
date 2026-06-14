@@ -4,7 +4,8 @@ const express = require('express');
 const cors    = require('cors');
 const helmet  = require('helmet');
 const { v4: uuidv4 } = require('uuid');
-const { query, transaction } = require('../../../shared/db');
+const { query, transactionManager } = require('../../../shared/db');
+const { transactionSerializable, IsolationLevel } = transactionManager;
 const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
 const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
@@ -224,7 +225,7 @@ async function handleCatch(userId, session, throwRating, isCurve, sessionId) {
   const stardust = 100;
   const candy    = 3;
 
-  const result = await transaction(async (client) => {
+  const result = await transactionSerializable(async (client) => {
     // REQ-00019: Get random moves from learnset
     const { rows: learnset } = await client.query(`
       SELECT move_id, m.category 

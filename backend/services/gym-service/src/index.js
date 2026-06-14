@@ -5,7 +5,8 @@ const http      = require('http');
 const WebSocket = require('ws');
 const cors      = require('cors');
 const helmet    = require('helmet');
-const { query, transaction } = require('../../../shared/db');
+const { query, transactionManager } = require('../../../shared/db');
+const { transactionRepeatableRead, IsolationLevel } = transactionManager;
 const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
 const { requireAuth, verifyAccess, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
@@ -192,7 +193,7 @@ app.post('/gyms/:id/defend', requireAuth, async (req, res, next) => {
     if (!pi) throw new AppError(3001, '精灵不存在', 404);
     if (pi.defending_gym_id) throw new AppError(4004, '该精灵已在其他道馆驻守', 400);
 
-    await transaction(async (client) => {
+    await transactionRepeatableRead(async (client) => {
       // Update gym team
       if (!gym.controlling_team) {
         await client.query('UPDATE gyms SET controlling_team=$1, updated_at=NOW() WHERE id=$2',

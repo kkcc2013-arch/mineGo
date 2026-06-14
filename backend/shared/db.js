@@ -222,4 +222,6 @@ module.exports = {
   closePools,
   getServicePoolConfig,
   getPoolManagerInstance,
+  // Transaction manager with isolation level control
+  transactionManager: require('./transactionManager'),
 };

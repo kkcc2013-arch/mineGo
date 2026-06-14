@@ -101,7 +101,7 @@
 || REQ-00093 | API 契约测试系统 | 测试覆盖 | P1 | done | gateway、所有微服务、backend/tests/contract | 2026-06-10 16:00 |
 | REQ-00094 | 实时业务指标仪表板与运营监控系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-10 16:05 |
 | REQ-00095 | 游戏状态持久化与离线状态恢复系统 | 前端体验 | P1 | done | game-client、frontend/storage、backend/shared、user-service | 2026-06-10 22:50 |
-|| REQ-00096 | 数据库事务隔离级别控制与死锁检测机制 | 数据库/数据治理 | P1 | new | backend/shared/db.js、catch-service、gym-service、payment-service、social-service | 2026-06-11 00:20 |
+|| REQ-00096 | 数据库事务隔离级别控制与死锁检测机制 | 数据库/数据治理 | P1 | done | backend/shared/db.js、catch-service、gym-service、payment-service、social-service | 2026-06-11 00:20 |
 || REQ-00097 | 精灵日常任务系统与任务奖励机制 | 功能增强 | P1 | done | reward-service、user-service、pokemon-service、catch-service、social-service、gateway、game-client、database/migrations | 2026-06-10 17:00 |
 | REQ-00098 | 自适应 API 限流与用户配额管理系统 | API 设计规范 | P1 | done | gateway、所有微服务、backend/shared、Redis、PostgreSQL | 2026-06-11 00:00 |
 | REQ-00099 | 游戏消息中心与通知管理系统 | 前端体验 | P1 | done | game-client、frontend/components、user-service、gateway | 2026-06-11 01:40 |
@@ -206,3 +206,4 @@
 || REQ-00191 | 实时业务事件流监控与分析系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-14 11:00 |
 | REQ-00192 | 精灵战斗伤害预计算与结果缓存系统 | 性能优化 | P1 | new | gym-service、pokemon-service、backend/shared/DamageCache.js、Redis、game-client | 2026-06-14 10:35 |
 | REQ-00193 | 消除 console.log 与统一结构化日志使用 | 技术债/重构 | P1 | new | gym-service、location-service、user-service、backend/shared/logger.js | 2026-06-14 11:00 |
+| REQ-00194 | 事件总线适配器抽象层 | 可扩展性/解耦 | P1 | new | backend/shared/EventBusAdapter.js、backend/shared/adapters/、所有微服务、gateway | 2026-06-14 12:00 |
