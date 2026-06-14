@@ -202,3 +202,4 @@
 || REQ-00188 | 用户语言偏好持久化与跨设备同步系统 | 国际化/本地化 | P1 | new | user-service、gateway、game-client、database/migrations、backend/shared/i18n.js | 2026-06-14 08:05 |
 
 || REQ-00189 | 游戏内实时数据可视化与统计仪表板 | 前端体验 | P1 | new | game-client、frontend/game-client/src/components/StatsDashboard.js、frontend/game-client/src/charts、gateway、user-service、pokemon-service、reward-service | 2026-06-14 09:05 |
+|| REQ-00190 | 自动化灾难恢复演练与验证系统 | 运维/CICD | P1 | new | infrastructure/k8s、gateway、所有微服务、backend/jobs、backend/shared、.github/workflows | 2026-06-14 10:00 |
