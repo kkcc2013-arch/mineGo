@@ -99,7 +99,7 @@
 | REQ-00091 | 精灵装备系统与属性加成机制 | 功能增强 | P1 | done | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
 || REQ-00092 | API 请求合并与批量查询优化 | 性能优化 | P1 | done | game-client、gateway、pokemon-service、social-service、gym-service | 2026-06-10 15:00 |
 || REQ-00093 | API 契约测试系统 | 测试覆盖 | P1 | done | gateway、所有微服务、backend/tests/contract | 2026-06-10 16:00 |
-| REQ-00094 | 实时业务指标仪表板与运营监控系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-10 16:05 |
+| REQ-00094 | 实时业务指标仪表板与运营监控系统 | 可观测性/监控 | P1 | done | gateway、所有微服务、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-10 16:05 |
 | REQ-00095 | 游戏状态持久化与离线状态恢复系统 | 前端体验 | P1 | done | game-client、frontend/storage、backend/shared、user-service | 2026-06-10 22:50 |
 || REQ-00096 | 数据库事务隔离级别控制与死锁检测机制 | 数据库/数据治理 | P1 | done | backend/shared/db.js、catch-service、gym-service、payment-service、social-service | 2026-06-11 00:20 |
 || REQ-00097 | 精灵日常任务系统与任务奖励机制 | 功能增强 | P1 | done | reward-service、user-service、pokemon-service、catch-service、social-service、gateway、game-client、database/migrations | 2026-06-10 17:00 |
@@ -218,3 +218,4 @@
 ||| REQ-00202 | 安全模块单元测试覆盖率提升系统 | 测试覆盖 | P1 | new | backend/shared、backend/tests/unit、所有微服务 | 2026-06-14 16:05 |
 || REQ-00203 | 分布式追踪与 OpenTelemetry 集成系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/tracing、infrastructure/k8s/monitoring | 2026-06-14 17:00 |
 || REQ-00204 | 精灵动作队列与动画预加载系统 | 前端体验 | P1 | new | game-client、frontend/game-client/src/animation、frontend/game-client/src/game、gateway、pokemon-service | 2026-06-14 17:00 |
+| REQ-00205 | 开发者环境自动化配置工具 | 文档/开发者体验 | P1 | new | scripts/setup-dev.js、backend/shared/config、.env.example、Dockerfile.dev、docs | 2026-06-14 18:00 |

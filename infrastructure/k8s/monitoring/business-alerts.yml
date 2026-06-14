@@ -1,0 +1,204 @@
+# mineGo 业务异常告警规则
+# REQ-00094: 实时业务指标仪表板与运营监控系统
+
+groups:
+  - name: business_anomalies
+    interval: 1m
+    rules:
+      # 在线玩家数异常下降
+      - alert: OnlinePlayersDrop
+        expr: |
+          (minego_players_online - minego_players_online offset 1h) / minego_players_online offset 1h < -0.3
+        for: 10m
+        labels:
+          severity: critical
+          category: business
+        annotations:
+          summary: "在线玩家数异常下降超过30%"
+          description: "当前在线玩家数较1小时前下降超过30%，可能存在服务问题或网络故障"
+          runbook_url: "https://wiki.minego.io/alerts/OnlinePlayersDrop"
+
+      # 在线玩家数骤降
+      - alert: OnlinePlayersCrash
+        expr: |
+          minego_players_online < 10
+        for: 5m
+        labels:
+          severity: critical
+          category: business
+        annotations:
+          summary: "在线玩家数异常低"
+          description: "当前在线玩家数少于10人，服务可能已完全不可用"
+          runbook_url: "https://wiki.minego.io/alerts/OnlinePlayersCrash"
+
+      # 捕捉成功率异常低
+      - alert: CatchRateLow
+        expr: |
+          minego_pokemon_catch_rate < 0.3
+        for: 15m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "捕捉成功率异常低"
+          description: "当前捕捉成功率为 {{ $value | humanizePercentage }}，低于正常水平（30%），可能存在游戏机制问题"
+          runbook_url: "https://wiki.minego.io/alerts/CatchRateLow"
+
+      # 捕捉成功率异常高（可能有作弊）
+      - alert: CatchRateHigh
+        expr: |
+          minego_pokemon_catch_rate > 0.95
+        for: 15m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "捕捉成功率异常高"
+          description: "当前捕捉成功率为 {{ $value | humanizePercentage }}，高于正常水平（95%），可能存在作弊行为"
+          runbook_url: "https://wiki.minego.io/alerts/CatchRateHigh"
+
+      # DAU 异常下降
+      - alert: DauDrop
+        expr: |
+          (minego_players_dau - minego_players_dau offset 1d) / minego_players_dau offset 1d < -0.2
+        for: 2h
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "DAU 异常下降"
+          description: "今日 DAU 较昨日下降超过 20%"
+          runbook_url: "https://wiki.minego.io/alerts/DauDrop"
+
+      # 付费转化率下降
+      - alert: PaymentConversionDrop
+        expr: |
+          (minego_payment_conversion - minego_payment_conversion offset 1d) / minego_payment_conversion offset 1d < -0.2
+        for: 2h
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "付费转化率下降"
+          description: "付费转化率较昨日下降超过 20%"
+          runbook_url: "https://wiki.minego.io/alerts/PaymentConversionDrop"
+
+      # 付费转化率异常低
+      - alert: PaymentConversionLow
+        expr: |
+          minego_payment_conversion < 0.01
+        for: 6h
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "付费转化率异常低"
+          description: "付费转化率低于 1%，可能存在支付系统问题"
+          runbook_url: "https://wiki.minego.io/alerts/PaymentConversionLow"
+
+      # 某地区玩家数骤降
+      - alert: RegionPlayersDrop
+        expr: |
+          minego_players_online_by_region / minego_players_online_by_region offset 1h < 0.5
+        for: 30m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "地区玩家数骤降"
+          description: "地区 {{ $labels.region }} 的在线玩家数较1小时前下降超过 50%"
+          runbook_url: "https://wiki.minego.io/alerts/RegionPlayersDrop"
+
+      # 道馆战斗失败率异常
+      - alert: GymBattleFailureHigh
+        expr: |
+          rate(minego_gym_battles_total{result="failure"}[5m]) / rate(minego_gym_battles_total[5m]) > 0.8
+        for: 15m
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "道馆战斗失败率异常"
+          description: "道馆战斗失败率超过 80%，可能存在游戏平衡性问题或 bug"
+          runbook_url: "https://wiki.minego.io/alerts/GymBattleFailureHigh"
+
+      # 退款率异常高
+      - alert: RefundRateHigh
+        expr: |
+          rate(minego_payment_refund_total[1h]) / rate(minego_payment_orders_total{status="success"}[1h]) > 0.1
+        for: 1h
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "退款率异常高"
+          description: "退款率超过 10%，可能存在商品质量问题或用户不满"
+          runbook_url: "https://wiki.minego.io/alerts/RefundRateHigh"
+
+      # 收入异常下降
+      - alert: RevenueDrop
+        expr: |
+          (rate(minego_payment_revenue_total[1h]) - rate(minego_payment_revenue_total offset 1d[1h])) 
+          / rate(minego_payment_revenue_total offset 1d[1h]) < -0.3
+        for: 2h
+        labels:
+          severity: warning
+          category: business
+        annotations:
+          summary: "收入异常下降"
+          description: "当前小时收入较昨日同期下降超过 30%"
+          runbook_url: "https://wiki.minego.io/alerts/RevenueDrop"
+
+      # 新注册用户异常下降
+      - alert: NewUsersDrop
+        expr: |
+          rate(minego_players_new_total[1h]) < rate(minego_players_new_total offset 1d[1h]) * 0.5
+        for: 3h
+        labels:
+          severity: info
+          category: business
+        annotations:
+          summary: "新注册用户下降"
+          description: "新注册用户数较昨日同期下降超过 50%"
+          runbook_url: "https://wiki.minego.io/alerts/NewUsersDrop"
+
+      # 社交活跃度下降
+      - alert: SocialActivityDrop
+        expr: |
+          (rate(minego_social_messages_total[1h]) + rate(minego_social_gifts_total[1h]))
+          < (rate(minego_social_messages_total offset 1d[1h]) + rate(minego_social_gifts_total offset 1d[1h])) * 0.5
+        for: 2h
+        labels:
+          severity: info
+          category: business
+        annotations:
+          summary: "社交活跃度下降"
+          description: "社交活跃度（消息+礼物）较昨日同期下降超过 50%"
+          runbook_url: "https://wiki.minego.io/alerts/SocialActivityDrop"
+
+  - name: business_kpis
+    interval: 5m
+    rules:
+      # 计算 DAU
+      - record: minego:dau:daily
+        expr: count(count_values("user", minego_players_online)) or minego_players_dau
+
+      # 计算小时收入
+      - record: minego:revenue:hourly
+        expr: rate(minego_payment_revenue_total[1h]) * 3600
+
+      # 计算小时订单数
+      - record: minego:orders:hourly
+        expr: rate(minego_payment_orders_total{status="success"}[1h]) * 3600
+
+      # 计算小时活跃用户数
+      - record: minego:active_users:hourly
+        expr: rate(minego_players_online[1h]) * 3600
+
+      # 计算捕捉成功率（滚动平均）
+      - record: minego:catch_rate:avg_1h
+        expr: avg_over_time(minego_pokemon_catch_rate[1h])
+
+      # 计算付费转化率（滚动平均）
+      - record: minego:conversion_rate:avg_1h
+        expr: avg_over_time(minego_payment_conversion[1h])

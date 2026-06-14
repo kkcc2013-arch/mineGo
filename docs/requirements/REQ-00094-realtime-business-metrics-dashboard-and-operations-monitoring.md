@@ -3,7 +3,7 @@
 - **编号**：REQ-00094
 - **类别**：可观测性/监控
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：gateway、所有微服务、infrastructure/k8s/monitoring、admin-dashboard、backend/shared/businessMetrics.js
 - **创建时间**：2026-06-10 16:05
 - **依赖需求**：REQ-00002（结构化日志与 Prometheus 指标）
