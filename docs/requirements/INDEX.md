@@ -94,7 +94,7 @@
 || REQ-00086 | 精灵特性系统与隐藏能力激活机制 | 功能增强 | P1 | done | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 12:00 |
 | REQ-00087 | 混沌工程与故障注入测试系统 | 容灾/高可用 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s、backend/tests/chaos | 2026-06-10 10:00 |
 | REQ-00088 | Redis 连接池管理与健康监控系统 | 成本/资源优化 | P1 | done | backend/shared/redis.js、所有微服务、infrastructure/k8s、backend/shared/metrics.js | 2026-06-10 12:38 |
-|| REQ-00089 | 数据跨境传输合规与本地化存储策略 | 合规/隐私 | P1 | new | user-service、gateway、database、backend/shared、infrastructure/k8s | 2026-06-10 13:00 |
+|| REQ-00089 | 数据跨境传输合规与本地化存储策略 | 合规/隐私 | P1 | done | user-service、gateway、database、backend/shared、infrastructure/k8s | 2026-06-10 13:00 |
 | REQ-00090 | 精灵状态效果系统与战斗Buff/Debuff管理 | 功能增强 | P1 | done | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
 | REQ-00091 | 精灵装备系统与属性加成机制 | 功能增强 | P1 | done | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
 || REQ-00092 | API 请求合并与批量查询优化 | 性能优化 | P1 | done | game-client、gateway、pokemon-service、social-service、gym-service | 2026-06-10 15:00 |
@@ -209,3 +209,4 @@
 | REQ-00194 | 事件总线适配器抽象层 | 可扩展性/解耦 | P1 | new | backend/shared/EventBusAdapter.js、backend/shared/adapters/、所有微服务、gateway | 2026-06-14 12:00 |
 
 || REQ-00195 | 精灵异常状态抗性与免疫计算系统 | 功能增强 | P1 | new | pokemon-service、gym-service、catch-service、gateway、game-client、database/migrations | 2026-06-14 12:30 |
+|| REQ-00196 | 微服务路由层集成测试覆盖率提升计划 | 测试覆盖 | P1 | new | 所有微服务、backend/tests/integration、backend/tests/unit | 2026-06-14 13:00 |
