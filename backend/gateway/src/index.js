@@ -45,6 +45,9 @@ const configRoutes = require('./routes/configRoutes');
 // REQ-00103: 微服务依赖图与循环依赖检测系统
 const dependenciesRoutes = require('./routes/dependencies');
 
+// REQ-00102: 精灵昼夜循环系统
+const timePeriodRoutes = require('./routes/timePeriod');
+
 // REQ-00072: API 响应压缩
 const { createCompressionMiddleware } = require('@pmg/shared/compression');
 
@@ -420,6 +423,10 @@ app.use('/config/health', configRoutes);
 // ── Dependencies Analysis API (REQ-00103) ────────────────────────────
 // 微服务依赖分析接口（管理员专用）
 app.use('/api/admin/dependencies', dependenciesRoutes);
+
+// ── Time Period API (REQ-00102) ────────────────────────────
+// 昼夜循环系统接口（公开）
+app.use('/api/time', timePeriodRoutes);
 
 // 404 fallback
 app.use((req, res) => res.status(404).json({ code: 1005, message: `路由不存在: ${req.method} ${req.path}`, data: null }));

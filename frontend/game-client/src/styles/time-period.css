@@ -1,0 +1,254 @@
+/* 
+ * 时段显示样式
+ * REQ-00102: 精灵昼夜循环系统
+ */
+
+/* 时段显示容器 */
+.time-period-container {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.5s ease;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.period-icon {
+  font-size: 32px;
+  margin-right: 12px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.period-info {
+  flex: 1;
+}
+
+.period-name {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  color: #fff;
+}
+
+.period-time {
+  font-size: 14px;
+  opacity: 0.8;
+  margin-bottom: 2px;
+  color: #fff;
+}
+
+.next-period {
+  font-size: 12px;
+  opacity: 0.6;
+  color: #fff;
+}
+
+.period-effects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.effect-badge {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  color: #fff;
+}
+
+/* 游戏界面时段效果 */
+#game-container {
+  transition: all 1s ease;
+}
+
+/* 黎明效果 */
+#game-container.period-dawn {
+  filter: brightness(0.9) saturate(1.1);
+}
+
+/* 白天效果 */
+#game-container.period-day {
+  filter: brightness(1.0) saturate(1.0);
+}
+
+/* 黄昏效果 */
+#game-container.period-dusk {
+  filter: brightness(0.85) saturate(1.2) sepia(0.2);
+}
+
+/* 夜晚效果 */
+#game-container.period-night {
+  filter: brightness(0.6) saturate(0.9) hue-rotate(-10deg);
+}
+
+/* 深夜效果 */
+#game-container.period-late-night {
+  filter: brightness(0.4) saturate(0.7) hue-rotate(-20deg);
+}
+
+/* 星空效果（夜晚和深夜） */
+#game-container.period-night::before,
+#game-container.period-late-night::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(1px 1px at 20px 30px, white, transparent),
+    radial-gradient(1px 1px at 40px 70px, rgba(255,255,255,0.8), transparent),
+    radial-gradient(1px 1px at 50px 160px, white, transparent),
+    radial-gradient(1px 1px at 90px 40px, rgba(255,255,255,0.6), transparent),
+    radial-gradient(1px 1px at 130px 80px, white, transparent),
+    radial-gradient(1px 1px at 160px 120px, rgba(255,255,255,0.7), transparent);
+  background-size: 200px 200px;
+  animation: twinkle 5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+/* 雾气效果 */
+#game-container[style*="--fog-opacity"]::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(200, 200, 200, var(--fog-opacity)) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 日出/日落渐变效果 */
+#game-container.period-dawn::before,
+#game-container.period-dusk::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 165, 0, 0.3),
+    transparent
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 光照强度变量应用 */
+#game-container {
+  --light-level: 1.0;
+}
+
+#game-container .map-overlay {
+  background: rgba(0, 0, 0, calc(1 - var(--light-level)));
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .time-period-container {
+    flex-direction: column;
+    text-align: center;
+    padding: 8px 12px;
+  }
+  
+  .period-icon {
+    margin-right: 0;
+    margin-bottom: 8px;
+    font-size: 24px;
+  }
+  
+  .period-name {
+    font-size: 16px;
+  }
+  
+  .period-time {
+    font-size: 12px;
+  }
+  
+  .next-period {
+    font-size: 10px;
+  }
+  
+  .period-effects {
+    justify-content: center;
+  }
+}
+
+/* 时段切换通知样式 */
+.period-change-notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  z-index: 9999;
+  animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+  15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+}
+
+/* 时段属性加成指示器 */
+.type-bonus-indicator {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: bold;
+}
+
+/* 特殊精灵标记（时段专属） */
+.period-exclusive-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #FFD700;
+  color: #000;
+  padding: 2px 4px;
+  border-radius: 50%;
+  font-size: 8px;
+  font-weight: bold;
+  animation: glow 1.5s ease-in-out infinite;
+}
+
+@keyframes glow {
+  0%, 100% { box-shadow: 0 0 5px #FFD700; }
+  50% { box-shadow: 0 0 15px #FFD700; }
+}
