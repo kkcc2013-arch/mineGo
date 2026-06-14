@@ -60,6 +60,84 @@ const httpRequestsInProgress = safeGauge({
 });
 
 // ============================================================
+// REQ-00088: Redis 连接池管理指标
+// ============================================================
+const redisPoolTotalConnections = safeGauge({
+  name: 'minego_redis_pool_total_connections',
+  help: 'Total number of connections in Redis pool',
+  labelNames: ['pool'],
+});
+
+const redisPoolIdleConnections = safeGauge({
+  name: 'minego_redis_pool_idle_connections',
+  help: 'Number of idle connections in Redis pool',
+  labelNames: ['pool'],
+});
+
+const redisPoolActiveConnections = safeGauge({
+  name: 'minego_redis_pool_active_connections',
+  help: 'Number of active connections in Redis pool',
+  labelNames: ['pool'],
+});
+
+const redisPoolWaitingRequests = safeGauge({
+  name: 'minego_redis_pool_waiting_requests',
+  help: 'Number of requests waiting for connection',
+  labelNames: ['pool'],
+});
+
+const redisPoolConnectionErrors = safeCounter({
+  name: 'minego_redis_pool_connection_errors_total',
+  help: 'Total Redis connection errors',
+  labelNames: ['pool'],
+});
+
+const redisCommandDuration = safeHistogram({
+  name: 'minego_redis_command_duration_seconds',
+  help: 'Redis command execution duration',
+  labelNames: ['pool', 'command'],
+  buckets: [0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1],
+});
+
+const redisCommandTotal = safeCounter({
+  name: 'minego_redis_command_total',
+  help: 'Total Redis commands executed',
+  labelNames: ['pool', 'command', 'status'],
+});
+
+const redisPoolAcquireDuration = safeHistogram({
+  name: 'minego_redis_pool_acquire_duration_seconds',
+  help: 'Time to acquire connection from pool',
+  labelNames: ['pool'],
+  buckets: [0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5],
+});
+
+const redisHealthStatus = safeGauge({
+  name: 'minego_redis_health_status',
+  help: 'Redis health status (1=healthy, 0.5=degraded, 0=unhealthy)',
+  labelNames: ['pool'],
+});
+
+const redisHealthLatency = safeHistogram({
+  name: 'minego_redis_health_latency_seconds',
+  help: 'Redis health check latency',
+  labelNames: ['pool'],
+  buckets: [0.001, 0.005, 0.01, 0.025, 0.05, 0.1],
+});
+
+const redisLeakedConnections = safeCounter({
+  name: 'minego_redis_leaked_connections_total',
+  help: 'Total leaked connections detected',
+  labelNames: ['pool'],
+});
+
+const redisLeakDetectionRuns = safeCounter({
+  name: 'minego_redis_leak_detection_runs_total',
+  help: 'Total leak detection runs',
+  labelNames: ['pool'],
+});
+
+// ============================================================
 // 数据库指标
 // ============================================================
 const dbQueryDuration = safeHistogram({
@@ -683,6 +761,20 @@ module.exports = {
   transparencyReportsGenerated,
   privacyPolicyAcceptances,
   dataAccessLogsCount,
+
+  // Redis 连接池管理指标 (REQ-00088)
+  redisPoolTotalConnections,
+  redisPoolIdleConnections,
+  redisPoolActiveConnections,
+  redisPoolWaitingRequests,
+  redisPoolConnectionErrors,
+  redisCommandDuration,
+  redisCommandTotal,
+  redisPoolAcquireDuration,
+  redisHealthStatus,
+  redisHealthLatency,
+  redisLeakedConnections,
+  redisLeakDetectionRuns,
 
   // 辅助函数
   promClient,
