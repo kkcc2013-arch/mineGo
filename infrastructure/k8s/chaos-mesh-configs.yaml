@@ -1,0 +1,211 @@
+# K8s Chaos Mesh Configurations for mineGo
+# Apply with: kubectl apply -f chaos-mesh-configs.yaml
+
+---
+# Network Delay - Gateway Service
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: gateway-network-delay
+  namespace: minego
+spec:
+  action: delay
+  mode: one
+  selector:
+    namespaces:
+      - minego
+    labelSelectors:
+      app: gateway
+  delay:
+    latency: "500ms"
+    jitter: "100ms"
+    correlation: "50"
+  duration: "5m"
+  
+---
+# Network Loss - Location Service
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: location-network-loss
+  namespace: minego
+spec:
+  action: loss
+  mode: one
+  selector:
+    namespaces:
+      - minego
+    labelSelectors:
+      app: location-service
+  loss:
+    loss: "10"
+    correlation: "25"
+  duration: "3m"
+
+---
+# Network Partition - Between Gateway and Payment
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: gateway-payment-partition
+  namespace: minego
+spec:
+  action: partition
+  mode: all
+  selector:
+    namespaces:
+      - minego
+    labelSelectors:
+      app: gateway
+  direction: to
+  target:
+    selector:
+      namespaces:
+        - minego
+      labelSelectors:
+        app: payment-service
+    mode: all
+  duration: "2m"
+
+---
+# Pod Kill - User Service
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: user-service-pod-kill
+  namespace: minego
+spec:
+  action: pod-kill
+  mode: one
+  selector:
+    namespaces:
+      - minego
+    labelSelectors:
+      app: user-service
+  gracePeriodSeconds: 5
+  duration: "5m"
+
+---
+# Pod Failure - Pokemon Service (simulate node failure)
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: pokemon-pod-failure
+  namespace: minego
+spec:
+  action: pod-failure
+  mode: one
+  selector:
+    namespaces:
+      - minego
+    labelSelectors:
+      app: pokemon-service
+  duration: "3m"
+
+---
+# CPU Stress - Catch Service
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: catch-cpu-stress
+  namespace: minego
+spec:
+  mode: one
+  selector:
+    namespaces:
+      - minego
+    labelSelectors:
+      app: catch-service
+  stressors:
+    cpu:
+      workers: 2
+      load: 80
+  duration: "5m"
+
+---
+# Memory Stress - Social Service
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: social-memory-stress
+  namespace: minego
+spec:
+  mode: one
+  selector:
+    namespaces:
+      - minego
+    labelSelectors:
+      app: social-service
+  stressors:
+    memory:
+      workers: 1
+      size: "256MB"
+  duration: "3m"
+
+---
+# IO Latency - Database Access
+apiVersion: chaos-mesh.org/v1alpha1
+kind: IOChaos
+metadata:
+  name: database-io-latency
+  namespace: minego
+spec:
+  action: latency
+  mode: one
+  selector:
+    namespaces:
+      - minego
+    labelSelectors:
+      app: postgres
+  delay:
+    latency: "100ms"
+  methods:
+    - read
+    - write
+  path: "/var/lib/postgresql/data"
+  duration: "5m"
+
+---
+# DNS Fault - Service Discovery
+apiVersion: chaos-mesh.org/v1alpha1
+kind: DNSChaos
+metadata:
+  name: dns-fault
+  namespace: minego
+spec:
+  action: error
+  mode: random
+  probability: 50
+  selector:
+    namespaces:
+      - minego
+    labelSelectors:
+      app: gateway
+  patterns:
+    - "user-service"
+    - "pokemon-service"
+  duration: "2m"
+
+---
+# Schedule - Automated Chaos Testing
+apiVersion: chaos-mesh.org/v1alpha1
+kind: Schedule
+metadata:
+  name: daily-chaos-test
+  namespace: minego
+spec:
+  schedule: "0 3 * * *"  # Run at 3 AM daily
+  historyLimit: 10
+  concurrencyPolicy: Forbid
+  type: NetworkChaos
+  networkChaos:
+    action: delay
+    mode: one
+    selector:
+      namespaces:
+        - minego
+      labelSelectors:
+        app: gateway
+    delay:
+      latency: "200ms"
+    duration: "2m"
