@@ -95,7 +95,7 @@
 | REQ-00087 | 混沌工程与故障注入测试系统 | 容灾/高可用 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s、backend/tests/chaos | 2026-06-10 10:00 |
 | REQ-00088 | Redis 连接池管理与健康监控系统 | 成本/资源优化 | P1 | done | backend/shared/redis.js、所有微服务、infrastructure/k8s、backend/shared/metrics.js | 2026-06-10 12:38 |
 || REQ-00089 | 数据跨境传输合规与本地化存储策略 | 合规/隐私 | P1 | new | user-service、gateway、database、backend/shared、infrastructure/k8s | 2026-06-10 13:00 |
-|| REQ-00090 | 精灵状态效果系统与战斗Buff/Debuff管理 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
+| REQ-00090 | 精灵状态效果系统与战斗Buff/Debuff管理 | 功能增强 | P1 | done | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
 | REQ-00091 | 精灵装备系统与属性加成机制 | 功能增强 | P1 | done | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
 || REQ-00092 | API 请求合并与批量查询优化 | 性能优化 | P1 | done | game-client、gateway、pokemon-service、social-service、gym-service | 2026-06-10 15:00 |
 || REQ-00093 | API 契约测试系统 | 测试覆盖 | P1 | done | gateway、所有微服务、backend/tests/contract | 2026-06-10 16:00 |
@@ -204,3 +204,4 @@
 || REQ-00189 | 游戏内实时数据可视化与统计仪表板 | 前端体验 | P1 | new | game-client、frontend/game-client/src/components/StatsDashboard.js、frontend/game-client/src/charts、gateway、user-service、pokemon-service、reward-service | 2026-06-14 09:05 |
 |||| REQ-00190 | 自动化灾难恢复演练与验证系统 | 运维/CICD | P1 | new | infrastructure/k8s、gateway、所有微服务、backend/jobs、backend/shared、.github/workflows | 2026-06-14 10:00 |
 || REQ-00191 | 实时业务事件流监控与分析系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-14 11:00 |
+| REQ-00192 | 精灵战斗伤害预计算与结果缓存系统 | 性能优化 | P1 | new | gym-service、pokemon-service、backend/shared/DamageCache.js、Redis、game-client | 2026-06-14 10:35 |
