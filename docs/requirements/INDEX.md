@@ -200,3 +200,5 @@
 || REQ-00185 | SLO 预算燃尽与合规性预测系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/sloBudgetTracker.js、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-14 06:00 |
 || REQ-00186 | 精灵历史数据归档与冷热分离系统 | 数据库/数据治理 | P1 | new | pokemon-service、user-service、database、backend/jobs、backend/shared、infrastructure/k8s | 2026-06-14 07:00 |
 || REQ-00188 | 用户语言偏好持久化与跨设备同步系统 | 国际化/本地化 | P1 | new | user-service、gateway、game-client、database/migrations、backend/shared/i18n.js | 2026-06-14 08:05 |
+
+|| REQ-00189 | 游戏内实时数据可视化与统计仪表板 | 前端体验 | P1 | new | game-client、frontend/game-client/src/components/StatsDashboard.js、frontend/game-client/src/charts、gateway、user-service、pokemon-service、reward-service | 2026-06-14 09:05 |
