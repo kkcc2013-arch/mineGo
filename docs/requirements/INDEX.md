@@ -194,5 +194,6 @@
 || REQ-00179 | 分布式追踪与请求链路可视化系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-14 03:00 |
 || REQ-00180 | 游戏键盘导航与快捷键系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/accessibility、frontend/game-client/src/input、frontend/game-client/src/components | 2026-06-14 03:00 ||
 || REQ-00181 | 游戏客户端内存完整性保护与篡改检测系统 | 反作弊 | P1 | new | game-client、gateway、catch-service、gym-service、backend/shared | 2026-06-14 04:00 |
-| REQ-00182 | 客户端精灵数据预取与智能缓存系统 | 性能优化 | P1 | new | game-client、gateway、pokemon-service、backend/shared | 2026-06-14 04:00 ||
+|| REQ-00182 | 客户端精灵数据预取与智能缓存系统 | 性能优化 | P1 | new | game-client、gateway、pokemon-service、backend/shared | 2026-06-14 04:00 ||
+|| REQ-00183 | 精灵道具合成与配方系统 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-14 04:30 ||
 |
