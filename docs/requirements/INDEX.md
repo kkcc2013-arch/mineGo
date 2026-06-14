@@ -188,5 +188,6 @@
 || REQ-00173 | 游戏教程本地化与动态提示系统 | 国际化/本地化 | P1 | new | game-client、gateway、user-service、pokemon-service、backend/shared、database/migrations | 2026-06-13 23:05 |
 ||| REQ-00174 | 数据库物化视图与复杂查询优化系统 | 性能优化 | P1 | new | pokemon-service、social-service、gym-service、user-service、database/migrations、backend/shared | 2026-06-13 23:05 ||
 || REQ-00175 | 实时交易异常检测与风控系统 | 安全加固 | P1 | new | social-service、pokemon-service、user-service、gateway、backend/shared | 2026-06-14 01:00 |
-| REQ-00176 | 部署流水线状态跟踪与回滚管理系统 | 运维/CICD | P1 | new | gateway、所有微服务、.github/workflows、backend/shared、infrastructure/k8s、backend/jobs | 2026-06-14 01:00 |
+|| REQ-00176 | 部署流水线状态跟踪与回滚管理系统 | 运维/CICD | P1 | new | gateway、所有微服务、.github/workflows、backend/shared、infrastructure/k8s、backend/jobs | 2026-06-14 01:00 |
+|| REQ-00177 | 服务网格流量镜像测试系统 | 测试覆盖 | P1 | new | gateway、所有微服务、infrastructure/k8s、backend/tests/traffic | 2026-06-14 02:00 |
 |
