@@ -105,7 +105,7 @@
 || REQ-00097 | 精灵日常任务系统与任务奖励机制 | 功能增强 | P1 | done | reward-service、user-service、pokemon-service、catch-service、social-service、gateway、game-client、database/migrations | 2026-06-10 17:00 |
 | REQ-00098 | 自适应 API 限流与用户配额管理系统 | API 设计规范 | P1 | done | gateway、所有微服务、backend/shared、Redis、PostgreSQL | 2026-06-11 00:00 |
 | REQ-00099 | 游戏消息中心与通知管理系统 | 前端体验 | P1 | done | game-client、frontend/components、user-service、gateway | 2026-06-11 01:40 |
-| REQ-00100 | 自动化脚本与宏检测系统 | 反作弊 | P1 | new | gateway、catch-service、gym-service、game-client、backend/shared | 2026-06-11 02:00 |
+| REQ-00100 | 自动化脚本与宏检测系统 | 反作弊 | P1 | done | gateway、catch-service、gym-service、game-client、backend/shared | 2026-06-11 02:00 |
 | REQ-00101 | 后端 API 错误消息国际化系统 | 国际化/本地化 | P1 | new | gateway、所有微服务、backend/shared、frontend/game-client | 2026-06-11 03:00 |
 | REQ-00102 | 精灵昼夜循环系统 | 功能增强 | P1 | new | location-service、catch-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-11 04:00 |
 | REQ-00103 | 微服务依赖图与循环依赖检测系统 | 技术债/重构 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s、docs/architecture | 2026-06-11 04:00 |
@@ -215,4 +215,6 @@
 ||| REQ-00199 | 数据血缘追踪与影响分析系统 | 数据库/数据治理 | P1 | new | gateway、所有微服务、backend/shared、database、infrastructure/k8s/monitoring | 2026-06-14 15:00 |
 || REQ-00200 | 敏感操作二次验证与风险分级验证系统 | 安全加固 | P1 | new | gateway、user-service、payment-service、social-service、backend/shared/riskVerifier.js、game-client | 2026-06-14 15:05 |
 || REQ-00201 | API 契约版本协商与灰度兼容系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared、docs/api-spec | 2026-06-14 16:00 |
-|| REQ-00202 | 安全模块单元测试覆盖率提升系统 | 测试覆盖 | P1 | new | backend/shared、backend/tests/unit、所有微服务 | 2026-06-14 16:05 |
+||| REQ-00202 | 安全模块单元测试覆盖率提升系统 | 测试覆盖 | P1 | new | backend/shared、backend/tests/unit、所有微服务 | 2026-06-14 16:05 |
+|| REQ-00203 | 分布式追踪与 OpenTelemetry 集成系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/tracing、infrastructure/k8s/monitoring | 2026-06-14 17:00 |
+|| REQ-00204 | 精灵动作队列与动画预加载系统 | 前端体验 | P1 | new | game-client、frontend/game-client/src/animation、frontend/game-client/src/game、gateway、pokemon-service | 2026-06-14 17:00 |
