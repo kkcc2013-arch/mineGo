@@ -468,6 +468,10 @@ app.use('/', bondSkillsRouter);
 const backupRouter = require('./routes/backup');
 app.use('/backup', backupRouter);
 
+// REQ-00091: 精灵装备系统路由
+const equipmentRouter = require('./routes/equipment');
+app.use('/equipment', equipmentRouter);
+
 // ═══════════════════════════════════════════════════════════
 // REQ-00167: 本地化 API 端点
 // ═══════════════════════════════════════════════════════════
