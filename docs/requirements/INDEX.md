@@ -88,7 +88,7 @@
 | REQ-00080 | API 请求响应 Schema 验证系统 | API 设计规范 | P1 | done | gateway、backend/shared、所有微服务、docs/api-spec/openapi | 2026-06-10 05:00 |
 | REQ-00081 | 捕捉动画特效系统 | 前端体验 | P1 | done | game-client、frontend/effects、catch-service | 2026-06-10 06:00 |
 | REQ-00082 | 精灵捕捉成功率异常检测系统 | 反作弊 | P1 | done | catch-service、gateway、backend/shared、Redis、PostgreSQL | 2026-06-10 07:00 |
-| REQ-00083 | 区域化内容分发与地区专属活动管理系统 | 国际化/本地化 | P1 | new | location-service、reward-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-10 08:15 |
+| REQ-00083 | 区域化内容分发与地区专属活动管理系统 | 国际化/本地化 | P1 | done | location-service、reward-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-10 08:15 |
 | REQ-00084 | 数据库连接池监控与自适应扩缩容系统 | 成本/资源优化 | P1 | done | gateway、所有微服务、backend/shared、PostgreSQL、infrastructure/k8s | 2026-06-10 09:00 |
 | REQ-00085 | 配置中心与动态配置热更新系统 | 技术债/重构 | P1 | done | gateway、所有微服务、backend/shared、Redis、infrastructure/k8s | 2026-06-10 09:00 |
 || REQ-00086 | 精灵特性系统与隐藏能力激活机制 | 功能增强 | P1 | new | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 12:00 |
@@ -187,5 +187,6 @@
 | REQ-00172 | 精灵体力系统与疲劳度管理 | 功能增强 | P1 | new | pokemon-service、gym-service、catch-service、gateway、game-client、database/migrations | 2026-06-13 22:30 |
 || REQ-00173 | 游戏教程本地化与动态提示系统 | 国际化/本地化 | P1 | new | game-client、gateway、user-service、pokemon-service、backend/shared、database/migrations | 2026-06-13 23:05 |
 ||| REQ-00174 | 数据库物化视图与复杂查询优化系统 | 性能优化 | P1 | new | pokemon-service、social-service、gym-service、user-service、database/migrations、backend/shared | 2026-06-13 23:05 ||
-|| REQ-00175 | 实时交易异常检测与风控系统 | 安全加固 | P1 | new | social-service、pokemon-service、user-service、gateway、backend/shared | 2026-06-14 01:00 ||
+|| REQ-00175 | 实时交易异常检测与风控系统 | 安全加固 | P1 | new | social-service、pokemon-service、user-service、gateway、backend/shared | 2026-06-14 01:00 |
+| REQ-00176 | 部署流水线状态跟踪与回滚管理系统 | 运维/CICD | P1 | new | gateway、所有微服务、.github/workflows、backend/shared、infrastructure/k8s、backend/jobs | 2026-06-14 01:00 |
 |

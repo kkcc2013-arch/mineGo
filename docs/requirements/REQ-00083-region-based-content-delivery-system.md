@@ -3,7 +3,7 @@
 - **编号**：REQ-00083
 - **类别**：国际化/本地化
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：location-service、reward-service、pokemon-service、gateway、game-client、database/migrations
 - **创建时间**：2026-06-10 08:15
 - **依赖需求**：REQ-00011、REQ-00029、REQ-00051
