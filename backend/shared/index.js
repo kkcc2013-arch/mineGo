@@ -7,6 +7,10 @@ const { createLogger, childLogger, requestLogger } = require('./logger');
 const metrics = require('./metrics');
 const { query, transaction, pool } = require('./db');
 
+// Redis 客户端（向后兼容）
+const redis = require('./redis');
+const { RedisPoolManager, getPoolManager, initPool } = require('./RedisPoolManager');
+
 // 错误处理
 const errors = require('./errors');
 const { 
@@ -42,6 +46,12 @@ module.exports = {
   transaction,
   pool,
   db: { query, transaction, pool },
+  
+  // Redis
+  redis,
+  RedisPoolManager,
+  getPoolManager,
+  initRedisPool: initPool,
   
   // 错误处理
   errors,
