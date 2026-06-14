@@ -210,3 +210,4 @@
 
 || REQ-00195 | 精灵异常状态抗性与免疫计算系统 | 功能增强 | P1 | new | pokemon-service、gym-service、catch-service、gateway、game-client、database/migrations | 2026-06-14 12:30 |
 || REQ-00196 | 微服务路由层集成测试覆盖率提升计划 | 测试覆盖 | P1 | new | 所有微服务、backend/tests/integration、backend/tests/unit | 2026-06-14 13:00 |
+|| REQ-00197 | 精灵天赋系统与隐藏属性机制 | 功能增强 | P1 | new | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-06-14 14:00 |
