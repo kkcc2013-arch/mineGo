@@ -229,3 +229,4 @@
 || REQ-00213 | GDPR 数据主体权利请求管理系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、database/migrations | 2026-06-14 22:00 |
 || REQ-00214 | 敏感操作二次验证与风险分级验证系统 | 安全加固 | P1 | new | gateway、user-service、payment-service、social-service、backend/shared/riskVerifier.js、game-client | 2026-06-14 23:00 |
 || REQ-00215 | API 请求签名验证与重放攻击防护系统 | 安全加固 | P1 | new | gateway、所有微服务、backend/shared、game-client | 2026-06-14 23:00 |
+|| REQ-00216 | 精灵经验值动态调整与智能加速系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-15 00:00 |
