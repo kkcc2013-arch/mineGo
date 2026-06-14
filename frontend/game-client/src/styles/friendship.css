@@ -1,0 +1,542 @@
+/* REQ-00210: 精灵亲密度进化样式 */
+
+.friendship-evolution-panel {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  padding: 24px;
+  color: white;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.friendship-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.friendship-header h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.friendship-level-badge {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 进度条 */
+.friendship-progress-section {
+  margin-bottom: 24px;
+}
+
+.progress-bar-container {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.progress-bar {
+  height: 24px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ffd700 0%, #ffed4a 100%);
+  border-radius: 12px;
+  transition: width 0.5s ease;
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.5);
+}
+
+.progress-text {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 18px;
+}
+
+.progress-text .current {
+  font-weight: 700;
+  font-size: 24px;
+}
+
+.progress-text .separator {
+  opacity: 0.6;
+}
+
+.progress-text .target {
+  opacity: 0.8;
+}
+
+/* 进化状态 */
+.evolution-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+
+.evolution-status.ready {
+  background: rgba(76, 175, 80, 0.3);
+  border: 2px solid #4caf50;
+}
+
+.evolution-status.not-ready {
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.status-icon {
+  font-size: 32px;
+}
+
+.status-content {
+  flex: 1;
+}
+
+.status-text {
+  font-weight: 600;
+  font-size: 16px;
+  display: block;
+}
+
+.time-restriction {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.time-restriction.ready {
+  color: #ffd700;
+}
+
+.time-restriction.waiting {
+  opacity: 0.7;
+}
+
+.waiting-text {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* 无进化提示 */
+.no-evolution-notice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  margin-bottom: 16px;
+  opacity: 0.8;
+}
+
+/* 建议列表 */
+.suggestions-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.suggestions-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+}
+
+.suggestion-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.suggestion-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.suggestion-item:last-child {
+  margin-bottom: 0;
+}
+
+.suggestion-item .method {
+  font-weight: 500;
+}
+
+.suggestion-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.efficiency {
+  color: #ffd700;
+}
+
+/* 按钮 */
+.btn {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.btn-primary {
+  background: #ffd700;
+  color: #333;
+}
+
+.btn-primary:hover {
+  background: #ffed4a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.4);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.btn-success {
+  background: #4caf50;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #66bb6a;
+}
+
+.btn-evolution-preview,
+.btn-history {
+  width: 100%;
+  margin-top: 16px;
+}
+
+/* 模态框 */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: white;
+  border-radius: 16px;
+  padding: 0;
+  max-width: 90%;
+  max-height: 90%;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+  color: #333;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  color: #999;
+  padding: 0;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: #333;
+}
+
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* 进化预览 */
+.evolution-comparison {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 32px 24px;
+  gap: 16px;
+}
+
+.pokemon-card {
+  flex: 1;
+  max-width: 200px;
+  text-align: center;
+  padding: 20px;
+  border-radius: 12px;
+  background: #f5f5f5;
+}
+
+.pokemon-card.target.glow {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4); }
+  50% { box-shadow: 0 8px 32px rgba(102, 126, 234, 0.6); }
+}
+
+.pokemon-card.target.locked {
+  opacity: 0.6;
+}
+
+.pokemon-card h3 {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+}
+
+.cp-value {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.cp-change {
+  font-size: 14px;
+}
+
+.cp-change.positive {
+  color: #4caf50;
+}
+
+.types {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.type-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* 属性类型颜色 */
+.type-fire { background: #f08030; color: white; }
+.type-water { background: #6890f0; color: white; }
+.type-grass { background: #78c850; color: white; }
+.type-electric { background: #f8d030; color: #333; }
+.type-psychic { background: #f85888; color: white; }
+.type-ice { background: #98d8d8; color: #333; }
+.type-dragon { background: #7038f8; color: white; }
+.type-dark { background: #705848; color: white; }
+.type-fairy { background: #ee99ac; color: #333; }
+
+.evolution-arrow {
+  font-size: 32px;
+  color: #999;
+}
+
+.evolution-actions {
+  padding: 0 24px 24px;
+  text-align: center;
+}
+
+.evolution-locked {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px;
+  color: #999;
+}
+
+.lock-icon {
+  font-size: 48px;
+}
+
+.hint {
+  font-size: 14px;
+  color: #666;
+}
+
+/* 历史记录 */
+.history-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.history-item:last-child {
+  border-bottom: none;
+}
+
+.history-empty {
+  padding: 40px 24px;
+  text-align: center;
+  color: #999;
+}
+
+.change {
+  font-weight: 700;
+  font-size: 18px;
+  min-width: 50px;
+}
+
+.change.positive {
+  color: #4caf50;
+}
+
+.change.negative {
+  color: #f44336;
+}
+
+.source {
+  flex: 1;
+  font-weight: 500;
+}
+
+.values {
+  opacity: 0.7;
+  font-size: 14px;
+}
+
+.time {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+/* 加载和错误状态 */
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffd700;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  background: rgba(244, 67, 54, 0.2);
+  border-radius: 12px;
+  color: white;
+}
+
+.error-message .icon {
+  font-size: 24px;
+}
+
+.toast-error {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #f44336;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 2000;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* 响应式 */
+@media (max-width: 600px) {
+  .evolution-comparison {
+    flex-direction: column;
+  }
+  
+  .evolution-arrow {
+    transform: rotate(90deg);
+  }
+  
+  .pokemon-card {
+    width: 100%;
+    max-width: none;
+  }
+}

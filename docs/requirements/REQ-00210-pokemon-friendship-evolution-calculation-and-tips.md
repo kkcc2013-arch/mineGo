@@ -7,7 +7,7 @@
 | 标题 | 精灵亲密度进化计算与提示系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | pokemon-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-14 21:00 |
 

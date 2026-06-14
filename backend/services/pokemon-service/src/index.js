@@ -464,6 +464,10 @@ app.use('/showcase', showcaseRouter);
 const bondSkillsRouter = require('./routes/bondSkills');
 app.use('/', bondSkillsRouter);
 
+// REQ-00210: 精灵亲密度进化计算与提示系统路由
+const friendshipEvolutionRouter = require('./routes/friendshipEvolution');
+app.use('/pokemon', friendshipEvolutionRouter);
+
 // REQ-00129: 精灵数据备份与恢复系统路由
 const backupRouter = require('./routes/backup');
 app.use('/backup', backupRouter);
