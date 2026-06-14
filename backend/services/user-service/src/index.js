@@ -5,6 +5,10 @@ const { ServiceLauncher } = require('../../../shared/ServiceLauncher');
 const db = require('../../../shared/db');
 const EventBus = require('../../../shared/EventBus');
 
+// REQ-00159: 健康检查与自愈系统
+const HealthChecker = require('../../../shared/HealthChecker');
+const { createHealthRoutes } = require('../../../shared/healthRoutes');
+
 // Import routes
 const authRouter = require('./routes/auth');
 const userRouter = require('./routes/user');
@@ -94,6 +98,38 @@ const service = new ServiceLauncher({
   
   // Service initialization
   onReady: async (app) => {
+    // REQ-00159: 初始化健康检查系统
+    const healthChecker = new HealthChecker({
+      serviceName: 'user-service',
+      checkInterval: 30000,
+      cpuThreshold: 80,
+      memoryThreshold: 85
+    });
+    
+    // 注册数据库健康检查
+    healthChecker.register('database', async () => {
+      const start = Date.now();
+      await db.query('SELECT 1');
+      const latency = Date.now() - start;
+      return { status: 'healthy', latency_ms: latency };
+    }, { critical: true });
+    
+    // 注册资源健康检查
+    healthChecker.register('resources', async () => {
+      return await healthChecker.checkResources();
+    }, { critical: false });
+    
+    // 启动定期健康检查
+    healthChecker.startPeriodicCheck();
+    
+    // 挂载健康检查路由
+    const healthRoutes = createHealthRoutes({
+      serviceName: 'user-service',
+      version: '1.0.0',
+      healthChecker
+    });
+    app.use(healthRoutes);
+    
     // Initialize GDPR routes with db and eventBus
     const eventBus = EventBus.getEventBus();
     initGDPRRoutes(db, eventBus);
@@ -105,7 +141,7 @@ const service = new ServiceLauncher({
     // Initialize notification event handlers - REQ-00026
     initNotificationHandlers(eventBus);
     
-    console.log('User service ready');
+    console.log('User service ready with health checks enabled');
   }
 });
 

@@ -1,0 +1,208 @@
+# infrastructure/k8s/services/user-service-with-health-checks.yaml
+# REQ-00159: 服务健康自愈与自动恢复系统 - K8s 配置示例
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  labels:
+    app: user-service
+    version: v1.0.0
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: user-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: user-service
+        version: v1.0.0
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8081"
+        prometheus.io/path: "/metrics"
+    spec:
+      # Pod 中断预算保护
+      serviceAccountName: user-service
+      
+      containers:
+      - name: user-service
+        image: minego/user-service:latest
+        ports:
+        - containerPort: 8081
+          name: http
+          protocol: TCP
+        
+        # 环境变量
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: SERVICE_NAME
+          value: "user-service"
+        - name: PORT
+          value: "8081"
+        - name: MEMORY_LIMIT
+          value: "512"
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: minego-secrets
+              key: database-url
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: minego-secrets
+              key: redis-url
+        
+        # 资源限制
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        
+        # 存活探针 - 检查服务是否存活
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 8081
+          initialDelaySeconds: 30  # 启动后 30 秒开始检查
+          periodSeconds: 10         # 每 10 秒检查一次
+          timeoutSeconds: 5         # 超时时间 5 秒
+          failureThreshold: 3       # 连续失败 3 次后重启
+        
+        # 就绪探针 - 检查服务是否准备好接收流量
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8081
+          initialDelaySeconds: 5    # 启动后 5 秒开始检查
+          periodSeconds: 5          # 每 5 秒检查一次
+          timeoutSeconds: 3         # 超时时间 3 秒
+          failureThreshold: 3       # 连续失败 3 次后标记为不健康
+        
+        # 启动探针 - 防止启动期间被杀死
+        startupProbe:
+          httpGet:
+            path: /health/live
+            port: 8081
+          initialDelaySeconds: 10   # 启动后 10 秒开始检查
+          periodSeconds: 5          # 每 5 秒检查一次
+          timeoutSeconds: 3         # 超时时间 3 秒
+          failureThreshold: 30      # 允许失败 30 次（150 秒启动时间）
+        
+        # 卷挂载
+        volumeMounts:
+        - name: logs
+          mountPath: /app/logs
+        - name: diagnostics
+          mountPath: /app/logs/diagnostics
+      
+      # 卷定义
+      volumes:
+      - name: logs
+        emptyDir: {}
+      - name: diagnostics
+        emptyDir: {}
+      
+      # 优雅终止时间
+      terminationGracePeriodSeconds: 30
+      
+      # 节点选择器
+      nodeSelector:
+        node-role.kubernetes.io/app: "true"
+
+---
+# Service 定义
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+  labels:
+    app: user-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8081
+    targetPort: 8081
+    protocol: TCP
+    name: http
+  selector:
+    app: user-service
+
+---
+# Pod 中断预算 - 保证最少可用副本
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: user-service-pdb
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: user-service
+
+---
+# HorizontalPodAutoscaler - 自动扩缩容
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: user-service-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: user-service
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 10
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 15
+
+---
+# ServiceMonitor - Prometheus 监控
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: user-service
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: user-service
+  endpoints:
+  - port: http
+    path: /metrics
+    interval: 30s
