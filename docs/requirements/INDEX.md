@@ -205,7 +205,7 @@
 |||| REQ-00190 | 自动化灾难恢复演练与验证系统 | 运维/CICD | P1 | new | infrastructure/k8s、gateway、所有微服务、backend/jobs、backend/shared、.github/workflows | 2026-06-14 10:00 |
 || REQ-00191 | 实时业务事件流监控与分析系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-14 11:00 |
 | REQ-00192 | 精灵战斗伤害预计算与结果缓存系统 | 性能优化 | P1 | new | gym-service、pokemon-service、backend/shared/DamageCache.js、Redis、game-client | 2026-06-14 10:35 |
-| REQ-00193 | 消除 console.log 与统一结构化日志使用 | 技术债/重构 | P1 | new | gym-service、location-service、user-service、backend/shared/logger.js | 2026-06-14 11:00 |
+|| REQ-00193 | 消除 console.log 与统一结构化日志使用 | 技术债/重构 | P1 | done | gym-service、location-service、user-service、backend/shared/logger.js | 2026-06-14 11:00 |
 | REQ-00194 | 事件总线适配器抽象层 | 可扩展性/解耦 | P1 | new | backend/shared/EventBusAdapter.js、backend/shared/adapters/、所有微服务、gateway | 2026-06-14 12:00 |
 
 || REQ-00195 | 精灵异常状态抗性与免疫计算系统 | 功能增强 | P1 | new | pokemon-service、gym-service、catch-service、gateway、game-client、database/migrations | 2026-06-14 12:30 |
