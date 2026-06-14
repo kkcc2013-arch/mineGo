@@ -197,4 +197,6 @@
 ||| REQ-00182 | 客户端精灵数据预取与智能缓存系统 | 性能优化 | P1 | new | game-client、gateway、pokemon-service、backend/shared | 2026-06-14 04:00 |
 ||| REQ-00183 | 精灵道具合成与配方系统 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-14 04:30 |
 | REQ-00184 | 数据隐私影响评估（DPIA）自动化系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、database/migrations | 2026-06-14 05:00 |
+|| REQ-00185 | SLO 预算燃尽与合规性预测系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/sloBudgetTracker.js、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-14 06:00 |
+|| REQ-00186 | 精灵历史数据归档与冷热分离系统 | 数据库/数据治理 | P1 | new | pokemon-service、user-service、database、backend/jobs、backend/shared、infrastructure/k8s | 2026-06-14 07:00 |
 |
