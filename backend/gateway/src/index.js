@@ -48,6 +48,11 @@ const dependenciesRoutes = require('./routes/dependencies');
 // REQ-00072: API 响应压缩
 const { createCompressionMiddleware } = require('@pmg/shared/compression');
 
+// REQ-00111: API 安全响应头与 CSP 强化系统
+const { apiSecurityHeaders, cspHeaders, sensitiveSecurityHeaders } = require('@pmg/shared/securityHeaders');
+const { setCSRFCookie, verifyCSRF } = require('@pmg/shared/csrfProtection');
+const securityRoutes = require('./routes/security');
+
 const logger = createLogger('gateway');
 const SERVICE_NAME = 'gateway';
 
@@ -67,6 +72,12 @@ const SERVICES = {
 };
 
 // ── Middleware ────────────────────────────────────────────────
+// REQ-00111: 安全响应头
+app.use(apiSecurityHeaders);
+
+// REQ-00111: CSRF 保护
+app.use(setCSRFCookie());
+
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
@@ -104,6 +115,9 @@ app.use(createCompressionMiddleware());
 
 // ── REQ-00044: API Version Middleware ────────────────────────────
 app.use(apiVersionMiddleware);
+
+// ── REQ-00111: Security Routes ────────────────────────────
+app.use('/api/v1/security', securityRoutes);
 
 // ── Health ────────────────────────────────────────────────────
 app.get('/health', async (_req, res) => {

@@ -117,7 +117,7 @@
 | REQ-00109 | 精灵团队战斗系统（Team Battle） | 功能增强 | P1 | new | gym-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-11 10:25 |
 | REQ-00110 | 前端资源懒加载与代码分割系统 | 性能优化 | P1 | new | game-client、frontend/game-client/src、frontend/game-client/src/components | 2026-06-11 11:35 |
 | REQ-00110 | 精灵背包容量管理与扩展系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 11:00 |
-| REQ-00111 | API 安全响应头与 CSP 强化系统 | 安全加固 | P1 | new | gateway、所有微服务、backend/shared、game-client | 2026-06-11 12:00 |
+| REQ-00111 | API 安全响应头与 CSP 强化系统 | 安全加固 | P1 | done | gateway、所有微服务、backend/shared、game-client | 2026-06-11 12:00 |
 || REQ-00129 | 精灵数据备份与恢复系统 | 数据库/数据治理 | P1 | done | pokemon-service、user-service、database、backend/jobs、gateway | 2026-06-11 21:30 |
 || REQ-00130 | 实时业务事件流监控与分析系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-11 22:00 |
 || REQ-00131 | pokemon-service achievements 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 23:00 |
@@ -213,3 +213,4 @@
 || REQ-00197 | 精灵天赋系统与隐藏属性机制 | 功能增强 | P1 | new | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-06-14 14:00 |
 ||| REQ-00198 | 游戏节奏控制与慢速模式系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/game、frontend/game-client/src/accessibility、gateway | 2026-06-14 14:00 |
 ||| REQ-00199 | 数据血缘追踪与影响分析系统 | 数据库/数据治理 | P1 | new | gateway、所有微服务、backend/shared、database、infrastructure/k8s/monitoring | 2026-06-14 15:00 |
+| REQ-00200 | 敏感操作二次验证与风险分级验证系统 | 安全加固 | P1 | new | gateway、user-service、payment-service、social-service、backend/shared/riskVerifier.js、game-client | 2026-06-14 15:05 |
