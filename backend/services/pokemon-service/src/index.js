@@ -448,6 +448,10 @@ app.use('/inventory', inventoryRouter);
 const pokedexRouter = require('./routes/pokedex');
 app.use('/pokedex', pokedexRouter);
 
+// REQ-00086: 精灵特性系统路由
+const abilitiesRouter = require('./routes/abilities');
+app.use('/abilities', abilitiesRouter);
+
 // REQ-00151: 精灵羁绊技能解锁机制路由
 const bondSkillsRouter = require('./routes/bondSkills');
 app.use('/', bondSkillsRouter);

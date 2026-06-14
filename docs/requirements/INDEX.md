@@ -91,7 +91,7 @@
 | REQ-00083 | 区域化内容分发与地区专属活动管理系统 | 国际化/本地化 | P1 | done | location-service、reward-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-10 08:15 |
 | REQ-00084 | 数据库连接池监控与自适应扩缩容系统 | 成本/资源优化 | P1 | done | gateway、所有微服务、backend/shared、PostgreSQL、infrastructure/k8s | 2026-06-10 09:00 |
 | REQ-00085 | 配置中心与动态配置热更新系统 | 技术债/重构 | P1 | done | gateway、所有微服务、backend/shared、Redis、infrastructure/k8s | 2026-06-10 09:00 |
-|| REQ-00086 | 精灵特性系统与隐藏能力激活机制 | 功能增强 | P1 | new | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 12:00 |
+|| REQ-00086 | 精灵特性系统与隐藏能力激活机制 | 功能增强 | P1 | done | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 12:00 |
 | REQ-00087 | 混沌工程与故障注入测试系统 | 容灾/高可用 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s、backend/tests/chaos | 2026-06-10 10:00 |
 | REQ-00088 | Redis 连接池管理与健康监控系统 | 成本/资源优化 | P1 | new | backend/shared/redis.js、所有微服务、infrastructure/k8s、backend/shared/metrics.js | 2026-06-10 12:38 |
 || REQ-00089 | 数据跨境传输合规与本地化存储策略 | 合规/隐私 | P1 | new | user-service、gateway、database、backend/shared、infrastructure/k8s | 2026-06-10 13:00 |
@@ -190,4 +190,5 @@
 || REQ-00175 | 实时交易异常检测与风控系统 | 安全加固 | P1 | new | social-service、pokemon-service、user-service、gateway、backend/shared | 2026-06-14 01:00 |
 || REQ-00176 | 部署流水线状态跟踪与回滚管理系统 | 运维/CICD | P1 | new | gateway、所有微服务、.github/workflows、backend/shared、infrastructure/k8s、backend/jobs | 2026-06-14 01:00 |
 || REQ-00177 | 服务网格流量镜像测试系统 | 测试覆盖 | P1 | new | gateway、所有微服务、infrastructure/k8s、backend/tests/traffic | 2026-06-14 02:00 |
+| REQ-00178 | 容器镜像生命周期管理与存储优化系统 | 成本/资源优化 | P1 | new | infrastructure/k8s、.github/workflows、backend/shared、所有微服务 | 2026-06-14 02:00 |
 |
