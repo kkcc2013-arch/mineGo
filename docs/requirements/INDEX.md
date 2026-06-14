@@ -97,7 +97,7 @@
 || REQ-00089 | 数据跨境传输合规与本地化存储策略 | 合规/隐私 | P1 | new | user-service、gateway、database、backend/shared、infrastructure/k8s | 2026-06-10 13:00 |
 || REQ-00090 | 精灵状态效果系统与战斗Buff/Debuff管理 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
 | REQ-00091 | 精灵装备系统与属性加成机制 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
-|| REQ-00092 | API 请求合并与批量查询优化 | 性能优化 | P1 | new | game-client、gateway、pokemon-service、social-service、gym-service | 2026-06-10 15:00 |
+|| REQ-00092 | API 请求合并与批量查询优化 | 性能优化 | P1 | done | game-client、gateway、pokemon-service、social-service、gym-service | 2026-06-10 15:00 |
 || REQ-00093 | API 契约测试系统 | 测试覆盖 | P1 | done | gateway、所有微服务、backend/tests/contract | 2026-06-10 16:00 |
 | REQ-00094 | 实时业务指标仪表板与运营监控系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-10 16:05 |
 | REQ-00095 | 游戏状态持久化与离线状态恢复系统 | 前端体验 | P1 | done | game-client、frontend/storage、backend/shared、user-service | 2026-06-10 22:50 |
@@ -193,5 +193,6 @@
 || REQ-00178 | 容器镜像生命周期管理与存储优化系统 | 成本/资源优化 | P1 | new | infrastructure/k8s、.github/workflows、backend/shared、所有微服务 | 2026-06-14 02:00 ||
 || REQ-00179 | 分布式追踪与请求链路可视化系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-14 03:00 |
 || REQ-00180 | 游戏键盘导航与快捷键系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/accessibility、frontend/game-client/src/input、frontend/game-client/src/components | 2026-06-14 03:00 ||
-|| REQ-00181 | 游戏客户端内存完整性保护与篡改检测系统 | 反作弊 | P1 | new | game-client、gateway、catch-service、gym-service、backend/shared | 2026-06-14 04:00 ||
+|| REQ-00181 | 游戏客户端内存完整性保护与篡改检测系统 | 反作弊 | P1 | new | game-client、gateway、catch-service、gym-service、backend/shared | 2026-06-14 04:00 |
+| REQ-00182 | 客户端精灵数据预取与智能缓存系统 | 性能优化 | P1 | new | game-client、gateway、pokemon-service、backend/shared | 2026-06-14 04:00 ||
 |

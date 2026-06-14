@@ -3,7 +3,7 @@
 - **编号**：REQ-00092
 - **类别**：性能优化
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：game-client、gateway、pokemon-service、social-service、gym-service
 - **创建时间**：2026-06-10 15:00
 - **依赖需求**：无

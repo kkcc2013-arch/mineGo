@@ -226,6 +226,10 @@ app.use('/leaderboard', leaderboardRouter);
 // REQ-00134: 好友系统路由
 app.use('/friends', friendsRouter);
 
+// REQ-00092: 批量查询接口
+const batchRouter = require('./routes/batch');
+app.use('/batch', batchRouter);
+
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'social-service started'));
 module.exports = app;

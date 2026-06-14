@@ -279,6 +279,10 @@ app.post('/raids/:id/join', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// REQ-00092: 批量查询接口
+const batchRouter = require('./routes/batch');
+app.use('/batch', batchRouter);
+
 app.use(errorHandler);
 
 // ============================================================

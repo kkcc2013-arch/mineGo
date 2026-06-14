@@ -452,6 +452,14 @@ app.use('/pokedex', pokedexRouter);
 const abilitiesRouter = require('./routes/abilities');
 app.use('/abilities', abilitiesRouter);
 
+// REQ-00092: 批量查询接口
+const batchRouter = require('./routes/batch');
+app.use('/batch', batchRouter);
+
+// REQ-00123: 精灵展示路由
+const showcaseRouter = require('./routes/showcase');
+app.use('/showcase', showcaseRouter);
+
 // REQ-00151: 精灵羁绊技能解锁机制路由
 const bondSkillsRouter = require('./routes/bondSkills');
 app.use('/', bondSkillsRouter);
