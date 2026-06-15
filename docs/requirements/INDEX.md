@@ -114,7 +114,7 @@
 | REQ-00106 | 玩家称号系统与个性化展示 | 功能增强 | P1 | done | user-service、pokemon-service、social-service、gateway、game-client、database/migrations | 2026-06-11 05:30 |
 | REQ-00107 | 数据生命周期管理与自动清理策略 | 合规/隐私 | P1 | done | user-service、pokemon-service、social-service、payment-service、backend/shared、database/migrations、backend/jobs | 2026-06-11 06:00 |
 | REQ-00108 | 游戏客户端光敏性癫痫安全模式 | 无障碍(a11y) | P2 | new | game-client、frontend/effects、frontend/game-client/src/accessibility、catch-service、gym-service | 2026-06-11 07:05 |
-| REQ-00109 | 精灵团队战斗系统（Team Battle） | 功能增强 | P1 | new | gym-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-11 10:25 |
+| REQ-00109 | 精灵团队战斗系统（Team Battle） | 功能增强 | P1 | done | gym-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-11 10:25 |
 | REQ-00110 | 前端资源懒加载与代码分割系统 | 性能优化 | P1 | new | game-client、frontend/game-client/src、frontend/game-client/src/components | 2026-06-11 11:35 |
 | REQ-00110 | 精灵背包容量管理与扩展系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 11:00 |
 | REQ-00111 | API 安全响应头与 CSP 强化系统 | 安全加固 | P1 | done | gateway、所有微服务、backend/shared、game-client | 2026-06-11 12:00 |
@@ -240,3 +240,4 @@
 || REQ-00224 | 国际化货币格式化与区域支付本地化系统 | 国际化/本地化 | P1 | new | payment-service、user-service、gateway、game-client、backend/shared | 2026-06-15 17:00 |
 | REQ-00225 | 监控数据降采样与长期存储系统 | 可观测性/监控 | P1 | new | infrastructure/k8s/monitoring、backend/shared、Prometheus、VictoriaMetrics、admin-dashboard | 2026-06-15 17:05 |
 | REQ-00226 | API 请求契约测试自动化与 Mock 服务生成系统 | 测试覆盖 | P1 | new | gateway、所有微服务、backend/tests/contract、docs/api-spec、frontend/game-client | 2026-06-15 18:00 |
+| REQ-00227 | 精灵数据预编译缓存与增量同步系统 | 性能优化 | P1 | new | pokemon-service、gateway、backend/shared/PokemonPrecompileCache.js、game-client、Redis、database/migrations | 2026-06-15 18:05 |

@@ -3,7 +3,7 @@
 - **编号**：REQ-00109
 - **类别**：功能增强
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：gym-service、pokemon-service、user-service、gateway、game-client、database/migrations
 - **创建时间**：2026-06-11 10:25
 - **依赖需求**：REQ-00054（道馆战斗系统）、REQ-00073（玩家对战系统）

@@ -284,6 +284,10 @@ app.post('/raids/:id/join', requireAuth, async (req, res, next) => {
 const batchRouter = require('./routes/batch');
 app.use('/batch', batchRouter);
 
+// REQ-00109: 团队战斗系统路由
+const teamBattleRoutes = require('./routes/teamBattle');
+app.use('/api/teams', teamBattleRoutes);
+
 app.use(errorHandler);
 
 // ============================================================
