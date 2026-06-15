@@ -109,7 +109,7 @@
 | REQ-00101 | 后端 API 错误消息国际化系统 | 国际化/本地化 | P1 | done | gateway、所有微服务、backend/shared、frontend/game-client | 2026-06-11 03:00 |
 | REQ-00102 | 精灵昼夜循环系统 | 功能增强 | P1 | done | location-service、catch-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-11 04:00 |
 | REQ-00103 | 微服务依赖图与循环依赖检测系统 | 技术债/重构 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s、docs/architecture | 2026-06-11 04:00 |
-| REQ-00104 | 精灵交换市场与竞价拍卖系统 | 功能增强 | P1 | new | social-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-11 04:30 |
+| REQ-00104 | 精灵交换市场与竞价拍卖系统 | 功能增强 | P1 | done | social-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-11 04:30 |
 || REQ-00105 | 分布式锁服务与 Redis Redlock 实现 | 容灾/高可用 | P1 | done | backend/shared/distributedLock.js、所有微服务、Redis | 2026-06-11 05:15 |
 | REQ-00106 | 玩家称号系统与个性化展示 | 功能增强 | P1 | new | user-service、pokemon-service、social-service、gateway、game-client、database/migrations | 2026-06-11 05:30 |
 | REQ-00107 | 数据生命周期管理与自动清理策略 | 合规/隐私 | P1 | done | user-service、pokemon-service、social-service、payment-service、backend/shared、database/migrations、backend/jobs | 2026-06-11 06:00 |
@@ -236,3 +236,4 @@
 || REQ-00220 | 实时业务指标服务单元测试覆盖 | 测试覆盖 | P1 | done | backend/shared/realtimeBusinessMetrics.js、backend/tests/unit、gateway、所有微服务 | 2026-06-15 14:00 |
 || REQ-00221 | 容器镜像安全扫描与漏洞预警系统 | 安全加固 | P1 | new | infrastructure/k8s、所有微服务、.github/workflows、backend/shared | 2026-06-15 15:00 |
 | REQ-00222 | CI/CD 构建缓存优化与依赖供应链安全验证系统 | 运维/CICD | P1 | new | .github/workflows、backend、frontend、scripts、npm/yarn | 2026-06-15 15:00 |
+| REQ-00223 | 数据库表结构变更影响分析与自动化迁移验证系统 | 数据库/数据治理 | P1 | new | backend/shared/SchemaChangeAnalyzer.js、backend/shared/MigrationValidator.js、database/migrations、所有微服务、admin-dashboard | 2026-06-15 16:00 |

@@ -13,6 +13,7 @@ const guildRoutes = require('./routes/guild');
 const leaderboardRouter = require('./routes/leaderboard'); // REQ-00121
 const pvpRoutes = require('./routes/pvp'); // REQ-00128
 const friendsRouter = require('./routes/friends'); // REQ-00134
+const marketplaceRouter = require('./routes/marketplace'); // REQ-00104
 
 const logger = createLogger('social-service');
 const SERVICE_NAME = 'social-service';
@@ -225,6 +226,9 @@ app.use('/leaderboard', leaderboardRouter);
 
 // REQ-00134: 好友系统路由
 app.use('/friends', friendsRouter);
+
+// REQ-00104: 市场系统路由
+app.use('/marketplace', marketplaceRouter);
 
 // REQ-00092: 批量查询接口
 const batchRouter = require('./routes/batch');
