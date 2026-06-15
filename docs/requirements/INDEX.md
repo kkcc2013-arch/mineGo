@@ -236,4 +236,5 @@
 || REQ-00220 | 实时业务指标服务单元测试覆盖 | 测试覆盖 | P1 | done | backend/shared/realtimeBusinessMetrics.js、backend/tests/unit、gateway、所有微服务 | 2026-06-15 14:00 |
 || REQ-00221 | 容器镜像安全扫描与漏洞预警系统 | 安全加固 | P1 | new | infrastructure/k8s、所有微服务、.github/workflows、backend/shared | 2026-06-15 15:00 |
 | REQ-00222 | CI/CD 构建缓存优化与依赖供应链安全验证系统 | 运维/CICD | P1 | new | .github/workflows、backend、frontend、scripts、npm/yarn | 2026-06-15 15:00 |
-| REQ-00223 | 数据库表结构变更影响分析与自动化迁移验证系统 | 数据库/数据治理 | P1 | new | backend/shared/SchemaChangeAnalyzer.js、backend/shared/MigrationValidator.js、database/migrations、所有微服务、admin-dashboard | 2026-06-15 16:00 |
+|| REQ-00223 | 数据库表结构变更影响分析与自动化迁移验证系统 | 数据库/数据治理 | P1 | new | backend/shared/SchemaChangeAnalyzer.js、backend/shared/MigrationValidator.js、database/migrations、所有微服务、admin-dashboard | 2026-06-15 16:00 |
+|| REQ-00224 | 国际化货币格式化与区域支付本地化系统 | 国际化/本地化 | P1 | new | payment-service、user-service、gateway、game-client、backend/shared | 2026-06-15 17:00 |
