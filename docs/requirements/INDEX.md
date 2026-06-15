@@ -215,7 +215,7 @@
 ||| REQ-00199 | 数据血缘追踪与影响分析系统 | 数据库/数据治理 | P1 | new | gateway、所有微服务、backend/shared、database、infrastructure/k8s/monitoring | 2026-06-14 15:00 |
 || REQ-00200 | 敏感操作二次验证与风险分级验证系统 | 安全加固 | P1 | new | gateway、user-service、payment-service、social-service、backend/shared/riskVerifier.js、game-client | 2026-06-14 15:05 |
 || REQ-00201 | API 契约版本协商与灰度兼容系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared、docs/api-spec | 2026-06-14 16:00 |
-||| REQ-00202 | 安全模块单元测试覆盖率提升系统 | 测试覆盖 | P1 | new | backend/shared、backend/tests/unit、所有微服务 | 2026-06-14 16:05 |
+||| REQ-00202 | 安全模块单元测试覆盖率提升系统 | 测试覆盖 | P1 | done | backend/shared、backend/tests/unit、所有微服务 | 2026-06-14 16:05 |
 || REQ-00203 | 分布式追踪与 OpenTelemetry 集成系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/tracing、infrastructure/k8s/monitoring | 2026-06-14 17:00 |
 || REQ-00204 | 精灵动作队列与动画预加载系统 | 前端体验 | P1 | new | game-client、frontend/game-client/src/animation、frontend/game-client/src/game、gateway、pokemon-service | 2026-06-14 17:00 |
 || REQ-00205 | 开发者环境自动化配置工具 | 文档/开发者体验 | P1 | new | scripts/setup-dev.js、backend/shared/config、.env.example、Dockerfile.dev、docs | 2026-06-14 18:00 |
@@ -230,3 +230,4 @@
 || REQ-00214 | 敏感操作二次验证与风险分级验证系统 | 安全加固 | P1 | new | gateway、user-service、payment-service、social-service、backend/shared/riskVerifier.js、game-client | 2026-06-14 23:00 |
 || REQ-00215 | API 请求签名验证与重放攻击防护系统 | 安全加固 | P1 | new | gateway、所有微服务、backend/shared、game-client | 2026-06-14 23:00 |
 || REQ-00216 | 精灵经验值动态调整与智能加速系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-15 00:00 |
+| REQ-00217 | 数据库查询请求合并与去重中间件 | 性能优化 | P1 | new | backend/shared/QueryDeduplication.js、gateway、所有微服务、backend/shared/db.js | 2026-06-15 00:05 |
