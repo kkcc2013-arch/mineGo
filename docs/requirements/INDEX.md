@@ -116,7 +116,7 @@
 | REQ-00108 | 游戏客户端光敏性癫痫安全模式 | 无障碍(a11y) | P2 | new | game-client、frontend/effects、frontend/game-client/src/accessibility、catch-service、gym-service | 2026-06-11 07:05 |
 | REQ-00109 | 精灵团队战斗系统（Team Battle） | 功能增强 | P1 | done | gym-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-11 10:25 |
 | REQ-00110 | 前端资源懒加载与代码分割系统 | 性能优化 | P1 | done | game-client、frontend/game-client/src、frontend/game-client/src/components | 2026-06-11 11:35 |
-| REQ-00110 | 精灵背包容量管理与扩展系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 11:00 |
+| REQ-00110 | 精灵背包容量管理与扩展系统 | 功能增强 | P1 | done | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 11:00 |
 | REQ-00111 | API 安全响应头与 CSP 强化系统 | 安全加固 | P1 | done | gateway、所有微服务、backend/shared、game-client | 2026-06-11 12:00 |
 || REQ-00129 | 精灵数据备份与恢复系统 | 数据库/数据治理 | P1 | done | pokemon-service、user-service、database、backend/jobs、gateway | 2026-06-11 21:30 |
 || REQ-00130 | 实时业务事件流监控与分析系统 | 可观测性/监控 | P1 | done | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-11 22:00 |
@@ -246,3 +246,4 @@
 || REQ-00230 | 精灵经验值获取历史与成长轨迹追踪系统 | 功能增强 | P1 | new | pokemon-service、gateway、game-client、database/migrations | 2026-06-15 20:00 |
 || REQ-00231 | 通用 API 幂等性中间件系统 | 性能优化 | P1 | new | backend/shared/IdempotencyMiddleware.js、gateway、catch-service、gym-service、payment-service、Redis | 2026-06-15 20:40 |
 || REQ-00232 | 数据库连接池健康检测与自动恢复系统 | 性能优化 | P1 | new | backend/shared、所有微服务、PostgreSQL、infrastructure/k8s | 2026-06-15 21:00 |
+| REQ-00233 | 游戏控制器与手柄输入支持系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/input、frontend/game-client/src/accessibility | 2026-06-15 21:05 |
