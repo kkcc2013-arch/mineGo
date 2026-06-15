@@ -242,4 +242,5 @@
 | REQ-00226 | API 请求契约测试自动化与 Mock 服务生成系统 | 测试覆盖 | P1 | new | gateway、所有微服务、backend/tests/contract、docs/api-spec、frontend/game-client | 2026-06-15 18:00 |
 || REQ-00227 | 精灵数据预编译缓存与增量同步系统 | 性能优化 | P1 | new | pokemon-service、gateway、backend/shared/PokemonPrecompileCache.js、game-client、Redis、database/migrations | 2026-06-15 18:05 |
 || REQ-00228 | 游戏社交隐私设置与好友权限管理系统 | 功能增强 | P1 | new | social-service、user-service、gateway、game-client、database/migrations | 2026-06-15 19:00 |
-| REQ-00229 | 游戏界面复数形式与性别语法本地化系统 | 国际化/本地化 | P1 | new | game-client、frontend/game-client/src/i18n、gateway、所有微服务、backend/shared/i18n.js | 2026-06-15 19:05 |
+|| REQ-00229 | 游戏界面复数形式与性别语法本地化系统 | 国际化/本地化 | P1 | new | game-client、frontend/game-client/src/i18n、gateway、所有微服务、backend/shared/i18n.js | 2026-06-15 19:05 |
+|| REQ-00230 | 精灵经验值获取历史与成长轨迹追踪系统 | 功能增强 | P1 | new | pokemon-service、gateway、game-client、database/migrations | 2026-06-15 20:00 |
