@@ -250,3 +250,4 @@
 || REQ-00232 | 数据库连接池健康检测与自动恢复系统 | 性能优化 | P1 | new | backend/shared、所有微服务、PostgreSQL、infrastructure/k8s | 2026-06-15 21:00 |
 || REQ-00233 | 游戏控制器与手柄输入支持系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/input、frontend/game-client/src/accessibility | 2026-06-15 21:05 |
 || REQ-00234 | API 请求速率限制智能适配与动态配额系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared、Redis、PostgreSQL | 2026-06-15 22:05 |
+| REQ-00235 | 用户反馈与 Bug 报告收集系统 | 功能增强 | P1 | new | user-service、gateway、game-client、admin-dashboard、backend/shared | 2026-06-15 22:30 |
