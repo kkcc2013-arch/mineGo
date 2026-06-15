@@ -112,7 +112,7 @@
 | REQ-00104 | 精灵交换市场与竞价拍卖系统 | 功能增强 | P1 | new | social-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-11 04:30 |
 || REQ-00105 | 分布式锁服务与 Redis Redlock 实现 | 容灾/高可用 | P1 | done | backend/shared/distributedLock.js、所有微服务、Redis | 2026-06-11 05:15 |
 | REQ-00106 | 玩家称号系统与个性化展示 | 功能增强 | P1 | new | user-service、pokemon-service、social-service、gateway、game-client、database/migrations | 2026-06-11 05:30 |
-| REQ-00107 | 数据生命周期管理与自动清理策略 | 合规/隐私 | P1 | new | user-service、pokemon-service、social-service、payment-service、backend/shared、database/migrations、backend/jobs | 2026-06-11 06:00 |
+| REQ-00107 | 数据生命周期管理与自动清理策略 | 合规/隐私 | P1 | done | user-service、pokemon-service、social-service、payment-service、backend/shared、database/migrations、backend/jobs | 2026-06-11 06:00 |
 | REQ-00108 | 游戏客户端光敏性癫痫安全模式 | 无障碍(a11y) | P2 | new | game-client、frontend/effects、frontend/game-client/src/accessibility、catch-service、gym-service | 2026-06-11 07:05 |
 | REQ-00109 | 精灵团队战斗系统（Team Battle） | 功能增强 | P1 | new | gym-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-11 10:25 |
 | REQ-00110 | 前端资源懒加载与代码分割系统 | 性能优化 | P1 | new | game-client、frontend/game-client/src、frontend/game-client/src/components | 2026-06-11 11:35 |
@@ -235,3 +235,4 @@
 | REQ-00219 | 会话异常检测与自动防护系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared/sessionAnomalyDetector.js、Redis、PostgreSQL、game-client | 2026-06-15 13:30 |
 || REQ-00220 | 实时业务指标服务单元测试覆盖 | 测试覆盖 | P1 | done | backend/shared/realtimeBusinessMetrics.js、backend/tests/unit、gateway、所有微服务 | 2026-06-15 14:00 |
 || REQ-00221 | 容器镜像安全扫描与漏洞预警系统 | 安全加固 | P1 | new | infrastructure/k8s、所有微服务、.github/workflows、backend/shared | 2026-06-15 15:00 |
+| REQ-00222 | CI/CD 构建缓存优化与依赖供应链安全验证系统 | 运维/CICD | P1 | new | .github/workflows、backend、frontend、scripts、npm/yarn | 2026-06-15 15:00 |
