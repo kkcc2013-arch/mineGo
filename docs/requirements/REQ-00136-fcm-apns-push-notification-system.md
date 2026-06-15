@@ -7,7 +7,7 @@
 | 标题 | FCM/APNs 移动推送通知系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | user-service、reward-service、gateway、game-client、Firebase、Apple Developer |
 | 创建时间 | 2026-06-12 00:00 |
 

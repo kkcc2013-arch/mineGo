@@ -145,7 +145,7 @@
 || REQ-00133 | pokemon-service pokedex 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 23:20 |
 || REQ-00134 | social-service friends 路由挂载与集成 | 集成与修复 | P0 | done | social-service | 2026-06-11 23:30 |
 || REQ-00135 | reward-service events 路由挂载与集成 | 集成与修复 | P0 | done | reward-service | 2026-06-11 23:40 |
-|| REQ-00136 | FCM/APNs 移动推送通知系统 | 功能增强 | P1 | new | user-service、reward-service、gateway、game-client、Firebase、Apple Developer | 2026-06-12 00:00 |
+|| REQ-00136 | FCM/APNs 移动推送通知系统 | 功能增强 | P1 | done | user-service、reward-service、gateway、game-client、Firebase、Apple Developer | 2026-06-12 00:00 |
 | REQ-00137 | 游戏内容本地化内容管理与翻译工作流系统 | 国际化/本地化 | P1 | new | gateway、user-service、reward-service、backend/shared、admin-dashboard、database/migrations | 2026-06-12 00:35 |
 | REQ-00138 | pokemon-service inventory 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-12 01:25 |
 | REQ-00139 | 事件总线适配器抽象层 | 可扩展性/解耦 | P1 | new | backend/shared/EventBusAdapter.js、backend/shared/adapters/、所有微服务 | 2026-06-12 02:00 |
