@@ -130,7 +130,7 @@
 | REQ-00119 | pokemon-service 进化路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 17:30 |
 | REQ-00120 | user-service 消息中心路由挂载与集成 | 集成与修复 | P0 | done | user-service | 2026-06-11 17:35 |
 | REQ-00121 | social-service 排行榜路由挂载与集成 | 集成与修复 | P0 | done | social-service | 2026-06-11 17:40 |
-| REQ-00122 | 微服务配置中心与动态配置热更新系统 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared/config、Redis | 2026-06-11 18:00 |
+| REQ-00122 | 微服务配置中心与动态配置热更新系统 | 可扩展性/解耦 | P1 | done | gateway、所有微服务、backend/shared/config、Redis | 2026-06-11 18:00 |
 | REQ-00123 | pokemon-service showcase 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 18:30 |
 || REQ-00124 | 消息中心服务单元测试覆盖 | 测试覆盖 | P1 | done | user-service、backend/tests/unit/ | 2026-06-11 19:10 |
 | REQ-00126 | user-service MFA 路由挂载与集成 | 集成与修复 | P0 | done | user-service | 2026-06-11 20:05 |
@@ -251,3 +251,4 @@
 || REQ-00233 | 游戏控制器与手柄输入支持系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/input、frontend/game-client/src/accessibility | 2026-06-15 21:05 |
 || REQ-00234 | API 请求速率限制智能适配与动态配额系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared、Redis、PostgreSQL | 2026-06-15 22:05 |
 | REQ-00235 | 用户反馈与 Bug 报告收集系统 | 功能增强 | P1 | new | user-service、gateway、game-client、admin-dashboard、backend/shared | 2026-06-15 22:30 |
+| REQ-00236 | 精灵变异系统与稀有形态 | 功能增强 | P1 | new | pokemon-service、catch-service、location-service、gateway、game-client、database/migrations | 2026-06-15 23:00 |
