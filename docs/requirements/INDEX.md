@@ -239,3 +239,4 @@
 || REQ-00223 | 数据库表结构变更影响分析与自动化迁移验证系统 | 数据库/数据治理 | P1 | new | backend/shared/SchemaChangeAnalyzer.js、backend/shared/MigrationValidator.js、database/migrations、所有微服务、admin-dashboard | 2026-06-15 16:00 |
 || REQ-00224 | 国际化货币格式化与区域支付本地化系统 | 国际化/本地化 | P1 | new | payment-service、user-service、gateway、game-client、backend/shared | 2026-06-15 17:00 |
 | REQ-00225 | 监控数据降采样与长期存储系统 | 可观测性/监控 | P1 | new | infrastructure/k8s/monitoring、backend/shared、Prometheus、VictoriaMetrics、admin-dashboard | 2026-06-15 17:05 |
+| REQ-00226 | API 请求契约测试自动化与 Mock 服务生成系统 | 测试覆盖 | P1 | new | gateway、所有微服务、backend/tests/contract、docs/api-spec、frontend/game-client | 2026-06-15 18:00 |
