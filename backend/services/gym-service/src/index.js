@@ -284,6 +284,10 @@ app.post('/raids/:id/join', requireAuth, async (req, res, next) => {
 const batchRouter = require('./routes/batch');
 app.use('/batch', batchRouter);
 
+// REQ-00146: 伤害计算与属性克制系统
+const damageRoutes = require('./routes/damage');
+app.use('/api/v1/gym/damage', damageRoutes);
+
 // REQ-00109: 团队战斗系统路由
 const teamBattleRoutes = require('./routes/teamBattle');
 app.use('/api/teams', teamBattleRoutes);

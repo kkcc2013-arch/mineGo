@@ -7,7 +7,7 @@
 | 标题 | 道馆战斗伤害公式与属性克制计算系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | gym-service、pokemon-service、backend/shared |
 | 创建时间 | 2026-06-12 07:00 |
 
