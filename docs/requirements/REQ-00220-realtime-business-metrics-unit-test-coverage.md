@@ -3,7 +3,7 @@
 - **编号**：REQ-00220
 - **类别**：测试覆盖
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：backend/shared/realtimeBusinessMetrics.js、backend/tests/unit、gateway、所有微服务
 - **创建时间**：2026-06-15 14:00
 - **依赖需求**：REQ-00002（结构化日志与 Prometheus 指标集成）

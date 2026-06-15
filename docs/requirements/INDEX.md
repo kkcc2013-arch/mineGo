@@ -233,4 +233,4 @@
 ||| REQ-00217 | 数据库查询请求合并与去重中间件 | 性能优化 | P1 | new | backend/shared/QueryDeduplication.js、gateway、所有微服务、backend/shared/db.js | 2026-06-15 00:05 |
 || REQ-00218 | 游戏客户端截图内容安全审核系统 | 安全加固 | P1 | new | game-client、gateway、user-service、backend/shared/contentSafety.js | 2026-06-15 01:00 |
 | REQ-00219 | 会话异常检测与自动防护系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared/sessionAnomalyDetector.js、Redis、PostgreSQL、game-client | 2026-06-15 13:30 |
-| REQ-00220 | 实时业务指标服务单元测试覆盖 | 测试覆盖 | P1 | new | backend/shared/realtimeBusinessMetrics.js、backend/tests/unit、gateway、所有微服务 | 2026-06-15 14:00 |
+| REQ-00220 | 实时业务指标服务单元测试覆盖 | 测试覆盖 | P1 | done | backend/shared/realtimeBusinessMetrics.js、backend/tests/unit、gateway、所有微服务 | 2026-06-15 14:00 |
