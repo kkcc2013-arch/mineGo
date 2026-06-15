@@ -245,3 +245,4 @@
 || REQ-00229 | 游戏界面复数形式与性别语法本地化系统 | 国际化/本地化 | P1 | new | game-client、frontend/game-client/src/i18n、gateway、所有微服务、backend/shared/i18n.js | 2026-06-15 19:05 |
 || REQ-00230 | 精灵经验值获取历史与成长轨迹追踪系统 | 功能增强 | P1 | new | pokemon-service、gateway、game-client、database/migrations | 2026-06-15 20:00 |
 || REQ-00231 | 通用 API 幂等性中间件系统 | 性能优化 | P1 | new | backend/shared/IdempotencyMiddleware.js、gateway、catch-service、gym-service、payment-service、Redis | 2026-06-15 20:40 |
+|| REQ-00232 | 数据库连接池健康检测与自动恢复系统 | 性能优化 | P1 | new | backend/shared、所有微服务、PostgreSQL、infrastructure/k8s | 2026-06-15 21:00 |
