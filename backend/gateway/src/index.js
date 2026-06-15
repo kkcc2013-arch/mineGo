@@ -56,6 +56,9 @@ const { apiSecurityHeaders, cspHeaders, sensitiveSecurityHeaders } = require('@p
 const { setCSRFCookie, verifyCSRF } = require('@pmg/shared/csrfProtection');
 const securityRoutes = require('./routes/security');
 
+// REQ-00130: 实时业务事件流监控与分析系统
+const businessEventsRoutes = require('./routes/businessEvents');
+
 const logger = createLogger('gateway');
 const SERVICE_NAME = 'gateway';
 
@@ -121,6 +124,9 @@ app.use(apiVersionMiddleware);
 
 // ── REQ-00111: Security Routes ────────────────────────────
 app.use('/api/v1/security', securityRoutes);
+
+// ── REQ-00130: Business Events Routes ────────────────────────────
+app.use('/api/events', businessEventsRoutes);
 
 // ── Health ────────────────────────────────────────────────────
 app.get('/health', async (_req, res) => {
