@@ -417,6 +417,9 @@ async function main() {
       // REQ-00067: 精灵羁绊系统路由
       app.use('/pokemon', require('./routes/friendship'));
 
+      // REQ-00145: 批量查询精灵详情
+      app.use('/pokemon/batch', require('./routes/batch'));
+
       // REQ-00119: 精灵进化与成长系统路由
       app.use('/pokemon', require('./routes/evolution'));
 

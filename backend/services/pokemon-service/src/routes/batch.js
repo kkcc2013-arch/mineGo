@@ -1,385 +1,403 @@
-// pokemon-service/src/routes/batch.js
-// REQ-00092: API 请求合并与批量查询优化 - 批量精灵详情接口
-'use strict';
+/**
+ * 精灵详情批量查询 API
+ * REQ-00145: 精灵详情批量查询优化
+ */
 
 const express = require('express');
 const router = express.Router();
-const { query } = require('../../../shared/db');
-const { requireAuth, AppError, successResp } = require('../../../shared/auth');
-const { createLogger } = require('../../../shared/logger');
-const { getJSON, setJSON } = require('../../../shared/redis');
-const metrics = require('../../../shared/metrics');
+const Joi = require('joi');
+const { getClient } = require('../../../shared/db');
+const { getRedis } = require('../../../shared/redis');
+const logger = require('../../../shared/logger');
+const auth = require('../middleware/auth');
+const { incrementCounter, observeHistogram } = require('../../../shared/metrics');
 
-const logger = createLogger('pokemon-batch');
-
-// Prometheus metrics for batch operations
-const batchRequestTotal = new (require('prom-client').Counter)({
-  name: 'pokemon_batch_request_total',
-  help: 'Total number of pokemon batch API requests',
-  labelNames: ['status'],
+// 验证模式
+const batchQuerySchema = Joi.object({
+    ids: Joi.array().items(Joi.string().uuid()).min(1).max(100).required(),
+    options: Joi.object({
+        include_moves: Joi.boolean().default(true),
+        include_evolution: Joi.boolean().default(true),
+        include_stats: Joi.boolean().default(true),
+        include_display_config: Joi.boolean().default(false)
+    }).default({})
 });
 
-const batchRequestSize = new (require('prom-client').Histogram)({
-  name: 'pokemon_batch_request_size',
-  help: 'Distribution of pokemon batch request sizes',
-  buckets: [1, 5, 10, 20, 30, 40, 50],
+// Prometheus 指标
+const batchQueryDuration = observeHistogram('pokemon_batch_query_duration_seconds', 'Batch query duration', [0.01, 0.05, 0.1, 0.2, 0.5, 1]);
+const batchQuerySize = incrementCounter('pokemon_batch_query_size_total', 'Batch query size');
+
+/**
+ * 批量查询精灵详情
+ * POST /pokemon/batch/details
+ */
+router.post('/details', auth, async (req, res) => {
+    const startTime = Date.now();
+
+    try {
+        // 验证输入
+        const { error, value } = batchQuerySchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({ 
+                code: 400, 
+                error: error.details[0].message 
+            });
+        }
+
+        const { ids, options } = value;
+        const userId = req.user.id;
+
+        // 记录批量查询大小
+        batchQuerySize.observe(ids.length);
+
+        // 检查 Redis 缓存
+        const cacheResults = await _batchGetFromCache(ids);
+        const cachedDetails = cacheResults.filter(r => r !== null);
+        const missedIds = ids.filter((id, index) => cacheResults[index] === null);
+
+        logger.info('Batch query cache stats', {
+            userId,
+            totalIds: ids.length,
+            cached: cachedDetails.length,
+            missed: missedIds.length
+        });
+
+        // 从数据库查询未命中的
+        let dbResults = [];
+        if (missedIds.length > 0) {
+            dbResults = await _batchQueryFromDB(missedIds, userId, options);
+            
+            // 写入缓存
+            await _batchSetToCache(dbResults);
+        }
+
+        // 合并结果
+        const allResults = [...cachedDetails, ...dbResults];
+        const resultById = new Map(allResults.map(p => [p.id, p]));
+
+        // 按请求顺序返回
+        const orderedResults = ids.map(id => resultById.get(id)).filter(Boolean);
+        const notFoundIds = ids.filter(id => !resultById.has(id));
+
+        // 记录查询时间
+        const queryTime = Date.now() - startTime;
+        batchQueryDuration.observe(queryTime / 1000);
+
+        logger.info('Batch query completed', {
+            userId,
+            totalIds: ids.length,
+            found: orderedResults.length,
+            notFound: notFoundIds.length,
+            queryTime
+        });
+
+        res.json({
+            code: 0,
+            data: {
+                results: orderedResults,
+                not_found: notFoundIds,
+                total: orderedResults.length,
+                query_time_ms: queryTime,
+                cache_hit_rate: ((cachedDetails.length / ids.length) * 100).toFixed(2) + '%'
+            }
+        });
+
+    } catch (error) {
+        logger.error('Batch query error', { error: error.message, stack: error.stack });
+        res.status(500).json({ 
+            code: 500, 
+            error: 'Internal server error' 
+        });
+    }
 });
 
 /**
- * POST /batch/details
- * 批量获取精灵详情
- * 
- * Body: { ids: [123, 456, 789] }
- * Response: { code: 0, data: [pokemon1, pokemon2, pokemon3] }
- * 
- * 支持:
- * - 单次最多 50 个 ID
- * - 自动去重
- * - Redis 缓存加速
+ * 从缓存批量读取
  */
-router.post('/details', requireAuth, async (req, res, next) => {
-  const startTime = Date.now();
-  
-  try {
-    const { ids } = req.body;
-    const userId = req.user.sub;
-
-    // 参数校验
-    if (!Array.isArray(ids) || ids.length === 0) {
-      throw new AppError(1001, 'ids 必须是非空数组', 400);
-    }
-
-    if (ids.length > 50) {
-      throw new AppError(1002, '单次批量查询最多 50 条', 400);
-    }
-
-    // 记录批量大小
-    batchRequestSize.observe(ids.length);
-
-    // 去重
-    const uniqueIds = [...new Set(ids)];
-    const idToIndex = new Map(ids.map((id, index) => [id, index]));
-
-    // 尝试从 Redis 缓存批量获取
-    const cacheKeys = uniqueIds.map(id => `pokemon:instance:${userId}:${id}`);
-    let cachedResults = [];
-    
+async function _batchGetFromCache(ids) {
     try {
-      const cachedValues = await Promise.all(cacheKeys.map(key => getJSON(key)));
-      cachedResults = cachedValues.map((v, i) => ({ id: uniqueIds[i], data: v }));
-    } catch (cacheErr) {
-      logger.warn({ err: cacheErr }, 'Redis cache read failed, falling back to DB');
-    }
-
-    // 分离命中和未命中
-    const hitMap = new Map();
-    const missIds = [];
-
-    for (const result of cachedResults) {
-      if (result.data) {
-        hitMap.set(result.id, result.data);
-      } else {
-        missIds.push(result.id);
-      }
-    }
-
-    logger.info({ 
-      total: uniqueIds.length, 
-      cached: hitMap.size, 
-      miss: missIds.length 
-    }, 'Batch details cache status');
-
-    // 批量查询数据库获取未缓存的精灵
-    if (missIds.length > 0) {
-      const { rows } = await query(`
-        SELECT 
-          pi.id,
-          pi.species_id,
-          pi.nickname,
-          pi.cp,
-          pi.hp_current,
-          pi.hp_max,
-          pi.iv_attack,
-          pi.iv_defense,
-          pi.iv_hp,
-          ROUND((pi.iv_attack + pi.iv_defense + pi.iv_hp) * 100.0 / 45, 1) AS iv_pct,
-          pi.is_shiny,
-          pi.is_lucky,
-          pi.is_favorite,
-          pi.fast_move,
-          pi.charge_move,
-          pi.caught_at,
-          pi.location_caught,
-          pi.buddy_distance_walked,
-          ps.name_zh,
-          ps.name_en,
-          ps.type1,
-          ps.type2,
-          ps.sprite_url,
-          ps.sprite_shiny_url,
-          ps.rarity,
-          ps.base_attack,
-          ps.base_defense,
-          ps.base_hp
-        FROM pokemon_instances pi
-        JOIN pokemon_species ps ON ps.id = pi.species_id
-        WHERE pi.id = ANY($1) AND pi.user_id = $2
-      `, [missIds, userId]);
-
-      // 缓存并添加到结果
-      for (const row of rows) {
-        const data = formatPokemonData(row);
-        hitMap.set(row.id, data);
+        const redis = getRedis();
+        const cacheKeys = ids.map(id => `pokemon:detail:${id}`);
+        const cached = await redis.mget(...cacheKeys);
         
-        // 异步缓存，TTL 5 分钟
-        setJSON(`pokemon:instance:${userId}:${row.id}`, data, 300).catch(() => {});
-      }
+        return cached.map(item => {
+            if (item) {
+                try {
+                    return JSON.parse(item);
+                } catch (e) {
+                    return null;
+                }
+            }
+            return null;
+        });
+    } catch (error) {
+        logger.error('Batch cache get error', { error: error.message });
+        return ids.map(() => null);
     }
-
-    // 按原始 ids 顺序返回结果
-    const results = ids.map(id => hitMap.get(id) || null);
-
-    // 记录指标
-    batchRequestTotal.inc({ status: 'success' });
-    
-    const duration = Date.now() - startTime;
-    logger.info({ 
-      requested: ids.length, 
-      returned: results.filter(Boolean).length,
-      duration 
-    }, 'Batch details completed');
-
-    res.json(successResp({
-      pokemon: results,
-      requested: ids.length,
-      returned: results.filter(Boolean).length,
-      cached: cachedResults.filter(r => r.data).length
-    }));
-
-  } catch (err) {
-    batchRequestTotal.inc({ status: 'error' });
-    logger.error({ err }, 'Batch details failed');
-    next(err);
-  }
-});
+}
 
 /**
- * POST /batch/species
- * 批量获取精灵种族数据（不包含个体数据）
- * 
- * Body: { speciesIds: [1, 4, 7] }
- * Response: { code: 0, data: [species1, species2, species3] }
+ * 从数据库批量查询
  */
-router.post('/species', async (req, res, next) => {
-  const startTime = Date.now();
-  
-  try {
-    const { speciesIds } = req.body;
+async function _batchQueryFromDB(ids, userId, options) {
+    const client = await getClient();
 
-    if (!Array.isArray(speciesIds) || speciesIds.length === 0) {
-      throw new AppError(1001, 'speciesIds 必须是非空数组', 400);
-    }
-
-    if (speciesIds.length > 100) {
-      throw new AppError(1002, '单次批量查询最多 100 条', 400);
-    }
-
-    const uniqueIds = [...new Set(speciesIds)];
-
-    // 尝试从缓存获取
-    const cacheKeys = uniqueIds.map(id => `pokemon:species:${id}`);
-    let cachedResults = [];
-    
     try {
-      const cachedValues = await Promise.all(cacheKeys.map(key => getJSON(key)));
-      cachedResults = cachedValues.map((v, i) => ({ id: uniqueIds[i], data: v }));
-    } catch (cacheErr) {
-      logger.warn({ err: cacheErr }, 'Species cache read failed');
+        // 批量查询精灵实例
+        const pokemonResult = await client.query(
+            `SELECT 
+                pi.id,
+                pi.user_id,
+                pi.species_id,
+                pi.nickname,
+                pi.level,
+                pi.experience,
+                pi.cp,
+                pi.hp,
+                pi.max_hp,
+                pi.iv_attack,
+                pi.iv_defense,
+                pi.iv_stamina,
+                pi.iv_hp,
+                pi.shiny,
+                pi.gender,
+                pi.friendship,
+                pi.nature,
+                pi.ability_id,
+                pi.created_at,
+                ps.name as species_name,
+                ps.name_zh,
+                ps.name_en,
+                ps.type1,
+                ps.type2,
+                ps.sprite_url,
+                ps.base_attack,
+                ps.base_defense,
+                ps.base_stamina,
+                ps.base_hp
+            FROM pokemon_instances pi
+            JOIN pokemon_species ps ON ps.id = pi.species_id
+            WHERE pi.id = ANY($1) AND pi.user_id = $2`,
+            [ids, userId]
+        );
+
+        if (pokemonResult.rows.length === 0) {
+            return [];
+        }
+
+        const pokemons = pokemonResult.rows;
+        const pokemonIds = pokemons.map(p => p.id);
+
+        // 并行加载关联数据
+        const [moves, evolutions, displayConfigs] = await Promise.all([
+            options.include_moves ? _batchLoadMoves(client, pokemonIds) : Promise.resolve(new Map()),
+            options.include_evolution ? _batchLoadEvolutions(client, pokemons.map(p => p.species_id)) : Promise.resolve(new Map()),
+            options.include_display_config ? _batchLoadDisplayConfigs(client, pokemonIds) : Promise.resolve(new Map())
+        ]);
+
+        // 组装完整数据
+        return pokemons.map(pokemon => {
+            const result = {
+                id: pokemon.id,
+                user_id: pokemon.user_id,
+                species_id: pokemon.species_id,
+                species_name: pokemon.species_name,
+                species_name_zh: pokemon.name_zh,
+                species_name_en: pokemon.name_en,
+                types: [pokemon.type1, pokemon.type2].filter(Boolean),
+                sprite_url: pokemon.sprite_url,
+                nickname: pokemon.nickname,
+                level: pokemon.level,
+                experience: pokemon.experience,
+                cp: pokemon.cp,
+                hp: pokemon.hp,
+                max_hp: pokemon.max_hp,
+                shiny: pokemon.shiny,
+                gender: pokemon.gender,
+                friendship: pokemon.friendship,
+                nature: pokemon.nature,
+                ability_id: pokemon.ability_id,
+                created_at: pokemon.created_at
+            };
+
+            // IV 数据
+            if (options.include_stats) {
+                result.iv = {
+                    attack: pokemon.iv_attack,
+                    defense: pokemon.iv_defense,
+                    stamina: pokemon.iv_stamina,
+                    hp: pokemon.iv_hp,
+                    total: (pokemon.iv_attack || 0) + (pokemon.iv_defense || 0) + (pokemon.iv_stamina || 0) + (pokemon.iv_hp || 0)
+                };
+
+                result.base_stats = {
+                    attack: pokemon.base_attack,
+                    defense: pokemon.base_defense,
+                    stamina: pokemon.base_stamina,
+                    hp: pokemon.base_hp
+                };
+            }
+
+            // 技能数据
+            if (options.include_moves) {
+                result.moves = moves.get(pokemon.id) || { fast: [], charge: [] };
+            }
+
+            // 进化数据
+            if (options.include_evolution) {
+                result.evolution = evolutions.get(pokemon.species_id) || null;
+            }
+
+            // 展示配置
+            if (options.include_display_config) {
+                result.display_config = displayConfigs.get(pokemon.id) || null;
+            }
+
+            return result;
+        });
+
+    } finally {
+        client.release();
     }
+}
 
-    const hitMap = new Map();
-    const missIds = [];
+/**
+ * 批量加载技能
+ */
+async function _batchLoadMoves(client, pokemonIds) {
+    const result = await client.query(
+        `SELECT 
+            pm.pokemon_instance_id,
+            pm.move_id,
+            pm.move_type,
+            pm.is_selected,
+            m.name as move_name,
+            m.name_zh,
+            m.type,
+            m.power,
+            m.energy_cost,
+            m.duration_ms
+        FROM pokemon_moves pm
+        JOIN moves m ON m.id = pm.move_id
+        WHERE pm.pokemon_instance_id = ANY($1)`,
+        [pokemonIds]
+    );
 
-    for (const result of cachedResults) {
-      if (result.data) {
-        hitMap.set(result.id, result.data);
-      } else {
-        missIds.push(result.id);
-      }
-    }
+    const movesByPokemon = new Map();
 
-    // 查询数据库
-    if (missIds.length > 0) {
-      const { rows } = await query(`
-        SELECT 
-          id, name_zh, name_en, name_ja,
-          type1, type2, rarity,
-          base_attack, base_defense, base_hp,
-          candy_to_evolve, evolves_to,
-          sprite_url, sprite_shiny_url,
-          description_zh, description_en
-        FROM pokemon_species
-        WHERE id = ANY($1)
-      `, [missIds]);
+    for (const row of result.rows) {
+        if (!movesByPokemon.has(row.pokemon_instance_id)) {
+            movesByPokemon.set(row.pokemon_instance_id, { fast: [], charge: [] });
+        }
 
-      for (const row of rows) {
-        const data = {
-          id: row.id,
-          name: { zh: row.name_zh, en: row.name_en, ja: row.name_ja },
-          types: [row.type1, row.type2].filter(Boolean),
-          rarity: row.rarity,
-          stats: {
-            attack: row.base_attack,
-            defense: row.base_defense,
-            hp: row.base_hp
-          },
-          evolution: {
-            candyCost: row.candy_to_evolve,
-            evolvesTo: row.evolves_to
-          },
-          sprites: {
-            normal: row.sprite_url,
-            shiny: row.sprite_shiny_url
-          },
-          description: {
-            zh: row.description_zh,
-            en: row.description_en
-          }
+        const move = {
+            id: row.move_id,
+            name: row.move_name,
+            name_zh: row.name_zh,
+            type: row.type,
+            power: row.power,
+            energy_cost: row.energy_cost,
+            duration_ms: row.duration_ms,
+            is_selected: row.is_selected
         };
-        
-        hitMap.set(row.id, data);
-        
-        // 缓存 1 小时
-        setJSON(`pokemon:species:${row.id}`, data, 3600).catch(() => {});
-      }
+
+        if (row.move_type === 'fast') {
+            movesByPokemon.get(row.pokemon_instance_id).fast.push(move);
+        } else {
+            movesByPokemon.get(row.pokemon_instance_id).charge.push(move);
+        }
     }
 
-    // 按原始顺序返回
-    const results = speciesIds.map(id => hitMap.get(id) || null);
-
-    const duration = Date.now() - startTime;
-    logger.info({ 
-      requested: speciesIds.length, 
-      returned: results.filter(Boolean).length,
-      duration 
-    }, 'Batch species completed');
-
-    res.json(successResp({
-      species: results,
-      requested: speciesIds.length,
-      returned: results.filter(Boolean).length
-    }));
-
-  } catch (err) {
-    logger.error({ err }, 'Batch species failed');
-    next(err);
-  }
-});
+    return movesByPokemon;
+}
 
 /**
- * POST /batch/iv
- * 批量计算精灵 IV 百分比
- * 
- * Body: { pokemon: [{ id: 123, ivAttack: 15, ivDefense: 14, ivHp: 15 }, ...] }
- * Response: { code: 0, data: [{ id: 123, ivPct: 97.8, grade: 'A+' }, ...] }
+ * 批量加载进化信息
  */
-router.post('/iv', requireAuth, async (req, res, next) => {
-  try {
-    const { pokemon } = req.body;
+async function _batchLoadEvolutions(client, speciesIds) {
+    const result = await client.query(
+        `SELECT 
+            id as species_id,
+            evolves_to,
+            candy_to_evolve,
+            evolution_item_required
+        FROM pokemon_species
+        WHERE id = ANY($1)`,
+        [speciesIds]
+    );
 
-    if (!Array.isArray(pokemon) || pokemon.length === 0) {
-      throw new AppError(1001, 'pokemon 必须是非空数组', 400);
+    const evolutionMap = new Map();
+
+    for (const row of result.rows) {
+        if (row.evolves_to) {
+            evolutionMap.set(row.species_id, {
+                can_evolve: true,
+                evolves_to: row.evolves_to,
+                candy_cost: row.candy_to_evolve,
+                item_required: row.evolution_item_required
+            });
+        } else {
+            evolutionMap.set(row.species_id, {
+                can_evolve: false
+            });
+        }
     }
 
-    if (pokemon.length > 100) {
-      throw new AppError(1002, '单次批量计算最多 100 条', 400);
-    }
-
-    const results = pokemon.map(p => {
-      const ivAttack = Math.max(0, Math.min(15, p.ivAttack || 0));
-      const ivDefense = Math.max(0, Math.min(15, p.ivDefense || 0));
-      const ivHp = Math.max(0, Math.min(15, p.ivHp || 0));
-      
-      const ivSum = ivAttack + ivDefense + ivHp;
-      const ivPct = (ivSum / 45 * 100).toFixed(1);
-      
-      // 计算等级
-      let grade = 'F';
-      if (ivPct >= 97) grade = 'A+';
-      else if (ivPct >= 90) grade = 'A';
-      else if (ivPct >= 82) grade = 'B';
-      else if (ivPct >= 67) grade = 'C';
-      else if (ivPct >= 51) grade = 'D';
-      
-      return {
-        id: p.id,
-        ivAttack,
-        ivDefense,
-        ivHp,
-        ivSum,
-        ivPct: parseFloat(ivPct),
-        grade,
-        isPerfect: ivSum === 45,
-        isHighIV: ivPct >= 90
-      };
-    });
-
-    res.json(successResp({
-      results,
-      requested: pokemon.length
-    }));
-
-  } catch (err) {
-    logger.error({ err }, 'Batch IV calculation failed');
-    next(err);
-  }
-});
+    return evolutionMap;
+}
 
 /**
- * 格式化精灵数据
+ * 批量加载展示配置
  */
-function formatPokemonData(row) {
-  return {
-    id: row.id,
-    speciesId: row.species_id,
-    nickname: row.nickname,
-    cp: row.cp,
-    hp: {
-      current: row.hp_current,
-      max: row.hp_max
-    },
-    iv: {
-      attack: row.iv_attack,
-      defense: row.iv_defense,
-      hp: row.iv_hp,
-      pct: parseFloat(row.iv_pct) || 0
-    },
-    isShiny: row.is_shiny,
-    isLucky: row.is_lucky,
-    isFavorite: row.is_favorite,
-    moves: {
-      fast: row.fast_move,
-      charge: row.charge_move
-    },
-    caughtAt: row.caught_at,
-    locationCaught: row.location_caught,
-    buddyDistanceWalked: row.buddy_distance_walked || 0,
-    species: {
-      name: row.name_zh,
-      nameEn: row.name_en,
-      types: [row.type1, row.type2].filter(Boolean),
-      rarity: row.rarity,
-      sprites: {
-        normal: row.sprite_url,
-        shiny: row.sprite_shiny_url
-      },
-      baseStats: {
-        attack: row.base_attack,
-        defense: row.base_defense,
-        hp: row.base_hp
-      }
+async function _batchLoadDisplayConfigs(client, pokemonIds) {
+    const result = await client.query(
+        `SELECT 
+            pokemon_id,
+            is_favorite,
+            show_in_profile,
+            custom_pose,
+            background_color
+        FROM pokemon_display_configs
+        WHERE pokemon_id = ANY($1)`,
+        [pokemonIds]
+    );
+
+    const configMap = new Map();
+    for (const row of result.rows) {
+        configMap.set(row.pokemon_id, row);
     }
-  };
+
+    return configMap;
+}
+
+/**
+ * 批量写入缓存
+ */
+async function _batchSetToCache(pokemons) {
+    try {
+        const redis = getRedis();
+        const ttl = 300; // 5 分钟
+
+        const cacheData = [];
+        for (const pokemon of pokemons) {
+            cacheData.push(`pokemon:detail:${pokemon.id}`);
+            cacheData.push(JSON.stringify(pokemon));
+        }
+
+        // 使用 mset 批量写入
+        if (cacheData.length > 0) {
+            await redis.mset(...cacheData);
+            
+            // 设置过期时间（需要单独设置）
+            const pipeline = redis.pipeline();
+            for (let i = 0; i < cacheData.length; i += 2) {
+                pipeline.expire(cacheData[i], ttl);
+            }
+            await pipeline.exec();
+        }
+    } catch (error) {
+        logger.error('Batch cache set error', { error: error.message });
+    }
 }
 
 module.exports = router;
