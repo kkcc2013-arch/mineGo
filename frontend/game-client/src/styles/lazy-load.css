@@ -1,0 +1,307 @@
+/* frontend/game-client/src/styles/lazy-load.css */
+/* 懒加载样式 - 占位符、加载动画、错误状态 */
+
+/* ── 占位符基础样式 ─────────────────────────────────────── */
+.lazy-load-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 20px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.lazy-load-placeholder::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit;
+  z-index: 1;
+}
+
+/* ── 骨架屏动画 ─────────────────────────────────────────── */
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ── 加载旋转器 ─────────────────────────────────────────── */
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  z-index: 2;
+  position: relative;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── 加载文本 ───────────────────────────────────────────── */
+.loading-text {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #666;
+  z-index: 2;
+  position: relative;
+}
+
+/* ── 不同模块的占位符 ───────────────────────────────────── */
+.lazy-load-placeholder.loading-3d {
+  min-height: 300px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+.lazy-load-placeholder.loading-3d .loading-text {
+  color: #a0a0a0;
+}
+
+.lazy-load-placeholder.loading-battle {
+  min-height: 400px;
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+}
+
+.lazy-load-placeholder.loading-battle .loading-text {
+  color: #ecf0f1;
+}
+
+.lazy-load-placeholder.loading-modal {
+  min-height: 150px;
+  background: white;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.lazy-load-placeholder.loading-leaderboard {
+  min-height: 500px;
+  background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.lazy-load-placeholder.loading-chat {
+  min-height: 300px;
+  background: #f5f5f5;
+}
+
+/* ── 错误状态 ───────────────────────────────────────────── */
+.lazy-load-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 30px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+}
+
+.lazy-load-error-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.lazy-load-error-text {
+  font-size: 16px;
+  color: #991b1b;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.lazy-load-error .retry-btn {
+  padding: 10px 24px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.lazy-load-error .retry-btn:hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+}
+
+.lazy-load-error .retry-btn:active {
+  transform: translateY(0);
+}
+
+/* ── 骨架屏组件样式 ─────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+.skeleton-text {
+  height: 16px;
+  margin-bottom: 8px;
+}
+
+.skeleton-text.short {
+  width: 60%;
+}
+
+.skeleton-text.medium {
+  width: 80%;
+}
+
+.skeleton-text.long {
+  width: 100%;
+}
+
+.skeleton-circle {
+  border-radius: 50%;
+}
+
+.skeleton-avatar {
+  width: 48px;
+  height: 48px;
+}
+
+.skeleton-image {
+  width: 100%;
+  height: 200px;
+}
+
+.skeleton-card {
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.skeleton-card .skeleton-text {
+  margin-bottom: 12px;
+}
+
+/* ── 进度条样式 ─────────────────────────────────────────── */
+.lazy-load-progress {
+  width: 100%;
+  max-width: 200px;
+  height: 4px;
+  background: #e0e0e0;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 12px;
+  z-index: 2;
+  position: relative;
+}
+
+.lazy-load-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  border-radius: 2px;
+  animation: progress 2s ease-in-out infinite;
+}
+
+@keyframes progress {
+  0% {
+    width: 0%;
+    margin-left: 0;
+  }
+  50% {
+    width: 70%;
+    margin-left: 0;
+  }
+  100% {
+    width: 0%;
+    margin-left: 100%;
+  }
+}
+
+/* ── 淡入动画 ───────────────────────────────────────────── */
+.lazy-load-fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── 暗色模式支持 ───────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  .lazy-load-placeholder {
+    background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%);
+  }
+
+  .loading-spinner {
+    border-color: #374151;
+    border-top-color: #3b82f6;
+  }
+
+  .loading-text {
+    color: #9ca3af;
+  }
+
+  .skeleton {
+    background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%);
+  }
+
+  .lazy-load-error {
+    background: #1f2937;
+    border-color: #374151;
+  }
+
+  .lazy-load-error-text {
+    color: #fca5a5;
+  }
+}
+
+/* ── 响应式适配 ─────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .lazy-load-placeholder {
+    min-height: 150px;
+    padding: 16px;
+  }
+
+  .loading-spinner {
+    width: 32px;
+    height: 32px;
+  }
+
+  .loading-text {
+    font-size: 12px;
+  }
+
+  .lazy-load-error {
+    min-height: 150px;
+    padding: 20px;
+  }
+
+  .lazy-load-error-icon {
+    font-size: 36px;
+  }
+
+  .lazy-load-error-text {
+    font-size: 14px;
+  }
+}

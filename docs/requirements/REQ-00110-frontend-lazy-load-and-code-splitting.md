@@ -3,7 +3,7 @@
 - **编号**：REQ-00110
 - **类别**：性能优化
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：game-client、frontend/game-client/src、frontend/game-client/src/components、frontend/game-client/src/utils
 - **创建时间**：2026-06-11 11:35
 - **依赖需求**：REQ-00009（PWA 离线支持）
