@@ -3,7 +3,7 @@
 - **编号**：REQ-00147
 - **类别**：安全加固
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：gateway、backend/shared/rateLimitMonitor.js、Redis、PostgreSQL
 - **创建时间**：2026-06-12 07:15
 - **依赖需求**：REQ-00002（结构化日志与 Prometheus 指标）、REQ-00098（自适应 API 限流）
