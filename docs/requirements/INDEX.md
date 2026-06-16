@@ -198,7 +198,8 @@
 ||| REQ-00182 | 客户端精灵数据预取与智能缓存系统 | 性能优化 | P1 | new | game-client、gateway、pokemon-service、backend/shared | 2026-06-14 04:00 |
 ||| REQ-00183 | 精灵道具合成与配方系统 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-14 04:30 |
 | REQ-00184 | 数据隐私影响评估（DPIA）自动化系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、database/migrations | 2026-06-14 05:00 |
-|| REQ-00185 | SLO 预算燃尽与合规性预测系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/sloBudgetTracker.js、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-14 06:00 |
+|| REQ-00239 | SLO 错误预算燃尽告警与服务健康评分系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/sloBudgetTracker.js、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-16 01:00 |
+|| REQ-00240 | 精灵放生与资源回收系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-16 10:00 |
 || REQ-00186 | 精灵历史数据归档与冷热分离系统 | 数据库/数据治理 | P1 | new | pokemon-service、user-service、database、backend/jobs、backend/shared、infrastructure/k8s | 2026-06-14 07:00 |
 || REQ-00188 | 用户语言偏好持久化与跨设备同步系统 | 国际化/本地化 | P1 | new | user-service、gateway、game-client、database/migrations、backend/shared/i18n.js | 2026-06-14 08:05 |
 
@@ -254,4 +255,5 @@
 | REQ-00236 | 精灵变异系统与稀有形态 | 功能增强 | P1 | new | pokemon-service、catch-service、location-service、gateway、game-client、database/migrations | 2026-06-15 23:00 |
 || REQ-00237 | 微服务端到端集成测试与契约验证自动化系统 | 测试覆盖 | P1 | new | backend/tests/integration、backend/tests/contract、所有微服务、gateway、.github/workflows | 2026-06-16 00:00 |
 || REQ-00238 | 用户生物特征数据保护与存储合规系统 | 合规/隐私 | P1 | new | user-service、gateway、game-client、backend/shared、database/migrations | 2026-06-16 01:00 |
-| REQ-00239 | SLO 错误预算燃尽告警与服务健康评分系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/sloBudgetTracker.js、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-16 01:00 |
+|| REQ-00239 | SLO 错误预算燃尽告警与服务健康评分系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/sloBudgetTracker.js、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-16 01:00 |
+|| REQ-00240 | 精灵放生与资源回收系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-16 10:00 |
