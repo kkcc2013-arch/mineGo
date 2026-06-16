@@ -166,7 +166,7 @@
 | REQ-00153 | 游戏内截图分享与社交传播系统 | 前端体验 | P1 | done | game-client、frontend/game-client/src/share、gateway、user-service、backend/shared | 2026-06-13 06:40 |
 | REQ-00154 | 游戏客户端内存篡改检测与防护系统 | 反作弊 | P1 | new | game-client、gateway、catch-service、gym-service、backend/shared | 2026-06-13 07:00 |
 || REQ-00155 | OpenAPI 文档多语言描述与国际化支持 | 国际化/本地化 | P1 | done | gateway、docs/api-spec/openapi、backend/shared、backend/scripts | 2026-06-13 08:00 |
-|| REQ-00156 | 精灵恢复站系统 | 功能增强 | P1 | new | location-service、pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-13 09:00 |
+|| REQ-00156 | 精灵恢复站系统 | 功能增强 | P1 | done | location-service、pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-13 09:00 |
 || REQ-00157 | 统一错误处理与 API 响应格式标准化 | 技术债/重构 | P1 | done | 所有微服务、backend/shared、gateway、game-client | 2026-06-13 09:05 |
 || REQ-00158 | 业务事件异常检测与智能告警系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-13 10:00 |
 | REQ-00159 | 服务健康自愈与自动恢复系统 | 容灾/高可用 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-13 10:05 |
@@ -268,3 +268,5 @@
 || REQ-00249 | 基础设施成本预测与预算智能规划系统 | 成本/资源优化 | P1 | new | backend/shared、infrastructure/k8s、admin-dashboard、所有微服务、backend/jobs | 2026-06-16 07:00 |
 | REQ-00250 | 多设备登录管理与设备信任系统 | 安全加固 | P1 | new | user-service、gateway、game-client、backend/shared、database/migrations、admin-dashboard | 2026-06-16 08:00 |
 | REQ-00251 | API 响应序列化优化与 JSON 压缩系统 | 性能优化 | P1 | new | gateway、所有微服务、backend/shared/JsonOptimizer.js、game-client | 2026-06-16 08:00 |
+| REQ-00252 | 游戏内日期时间格式本地化系统 | 国际化/本地化 | P2 | new | game-client、frontend/game-client/src/i18n、backend/shared/i18n.js、gateway、所有微服务 | 2026-06-16 09:00 |
+| REQ-00253 | 精灵远征探险系统 | 功能增强 | P1 | new | pokemon-service、location-service、reward-service、gateway、game-client、database/migrations | 2026-06-16 15:00 |

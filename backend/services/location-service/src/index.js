@@ -13,6 +13,9 @@ const { getWeather, getBoostedTypes, getTypeNameZh } = require('../../../shared/
 // Import spawn config routes (REQ-00142)
 const spawnConfigRouter = require('./routes/spawnConfig');
 
+// Import recovery stations routes (REQ-00156)
+const recoveryStationsRouter = require('./routes/recoveryStations');
+
 const logger = createLogger('location-service');
 const SERVICE_NAME = 'location-service';
 
@@ -436,6 +439,9 @@ function haversineKm(lat1, lng1, lat2, lng2) {
 
 // ── Spawn Config Routes (REQ-00142: 精灵刷新配置管理) ──────────────
 app.use('/api/admin/spawn', spawnConfigRouter);
+
+// ── Recovery Stations Routes (REQ-00156: 精灵恢复站系统) ──────────────
+app.use('/recovery-stations', recoveryStationsRouter);
 
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'Location service started'));
