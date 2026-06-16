@@ -271,3 +271,4 @@
 | REQ-00252 | 游戏内日期时间格式本地化系统 | 国际化/本地化 | P2 | new | game-client、frontend/game-client/src/i18n、backend/shared/i18n.js、gateway、所有微服务 | 2026-06-16 09:00 |
 | REQ-00253 | 精灵远征探险系统 | 功能增强 | P1 | new | pokemon-service、location-service、reward-service、gateway、game-client、database/migrations | 2026-06-16 15:00 |
 | REQ-00254 | 数据库查询执行计划缓存与智能优化器系统 | 性能优化 | P1 | new | postgresql、backend/shared、所有微服务、database/migrations | 2026-06-16 15:05 |
+| REQ-00255 | API 请求参数注入攻击防护系统 | 安全加固 | P1 | new | gateway、所有微服务、backend/shared/InjectionGuard.js、backend/shared/InputSanitizer.js | 2026-06-16 17:00 |
