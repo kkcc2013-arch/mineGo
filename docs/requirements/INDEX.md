@@ -122,7 +122,7 @@
 || REQ-00130 | 实时业务事件流监控与分析系统 | 可观测性/监控 | P1 | done | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-11 22:00 |
 || REQ-00131 | pokemon-service achievements 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 23:00 |
 || REQ-00114 | 精灵季节活动系统 | 功能增强 | P1 | done | location-service、catch-service、pokemon-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 14:00 |
-|| REQ-00115 | 数据库连接池自适应调度与负载均衡系统 | 数据库/数据治理 | P1 | new | backend/shared/db.js、所有微服务、PostgreSQL、infrastructure/k8s | 2026-06-11 15:50 |
+| REQ-00115 | 数据库连接池自适应调度与负载均衡系统 | 数据库/数据治理 | P1 | done | backend/shared/db.js、所有微服务、PostgreSQL、infrastructure/k8s | 2026-06-16 05:00 |
 || REQ-00116 | 精灵团队实时语音聊天系统 | 功能增强 | P1 | new | gym-service、social-service、user-service、gateway、game-client、infrastructure/k8s | 2026-06-11 16:00 |
 | REQ-00117 | 地图手势交互优化与缩放流畅度提升 | 前端体验 | P2 | new | game-client、frontend/game-client/src/game、frontend/game-client/index.html | 2026-06-11 17:05 |
 || REQ-00149 | user-service ipAppeal 路由挂载与集成 | 集成与修复 | P0 | done | user-service、backend/services/user-service/src/index.js、backend/services/user-service/src/routes/ipAppeal.js | 2026-06-12 08:10 |
@@ -262,3 +262,4 @@
 | REQ-00243 | 精灵心情系统与情绪表现 | 功能增强 | P1 | new | pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-16 03:30 |
 || REQ-00244 | RTL 语言布局自动适配系统 | 国际化/本地化 | P1 | new | game-client、frontend/game-client/src/i18n、frontend/game-client/src/styles、gateway、backend/shared/i18n.js | 2026-06-16 04:00 |
 || REQ-00245 | 精灵觉醒系统与潜能激活 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-16 05:00 |
+| REQ-00246 | 数据泄露应急响应与通知系统 | 合规/隐私 | P1 | new | gateway、user-service、所有微服务、backend/shared/DataLeakResponder.js、backend/jobs、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-16 05:00 |
