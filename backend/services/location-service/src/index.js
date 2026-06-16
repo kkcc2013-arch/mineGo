@@ -105,10 +105,25 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
   const weatherData = await getWeather(lat, lng);
   const weatherBoosted = (WEATHER_BONUS[weatherData.weather] || []).some(t => chosen.type1 === t);
 
-  // Generate IVs
-  const iv_attack  = Math.floor(Math.random() * 16);
-  const iv_defense = Math.floor(Math.random() * 16);
-  const iv_hp      = Math.floor(Math.random() * 16);
+  // Generate IVs with special IV system (REQ-00160)
+  const specialRoll = Math.random();
+  let iv_attack, iv_defense, iv_hp;
+  let is_zero_iv = false;
+  let is_perfect_iv = false;
+
+  if (specialRoll < 0.0001) { // 0.01% 零 IV
+    iv_attack = iv_defense = iv_hp = 0;
+    is_zero_iv = true;
+    logger.info({ spawnPointId, speciesId: chosen.id, type: 'zero_iv' }, 'Special IV spawned: Zero IV');
+  } else if (specialRoll < 0.001) { // 0.09% 完美 IV (0.001 - 0.0001)
+    iv_attack = iv_defense = iv_hp = 15;
+    is_perfect_iv = true;
+    logger.info({ spawnPointId, speciesId: chosen.id, type: 'perfect_iv' }, 'Special IV spawned: Perfect IV');
+  } else { // 普通生成
+    iv_attack  = Math.floor(Math.random() * 16);
+    iv_defense = Math.floor(Math.random() * 16);
+    iv_hp      = Math.floor(Math.random() * 16);
+  }
 
   // Calculate CP (simplified formula)
   const { rows: [spec] } = await query(
@@ -136,7 +151,10 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
     weather: weatherData.weather,
     weatherDescription: weatherData.description,
     temperature: weatherData.temperature,
-    fallback: weatherData.fallback
+    fallback: weatherData.fallback,
+    // 特殊 IV 标识 (REQ-00160)
+    is_zero_iv,
+    is_perfect_iv
   };
   await setJSON(spawnKey, payload, 1800);
   

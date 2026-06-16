@@ -84,6 +84,7 @@ app.post('/catch/session', requireAuth, validateLocation, checkRateLimit('CATCH'
     const { rows: [wild] } = await query(`
       SELECT w.id, w.species_id, w.cp, w.iv_attack, w.iv_defense, w.iv_hp,
              w.is_shiny, w.weather_boosted, w.expires_at, w.lat, w.lng,
+             w.is_zero_iv, w.is_perfect_iv,
              p.name_zh, p.base_catch_rate, p.base_flee_rate, p.rarity
       FROM wild_pokemon w
       JOIN pokemon_species p ON p.id = w.species_id
@@ -110,6 +111,7 @@ app.post('/catch/session', requireAuth, validateLocation, checkRateLimit('CATCH'
       speciesId: wild.species_id,
       cp: wild.cp, iv_attack: wild.iv_attack, iv_defense: wild.iv_defense, iv_hp: wild.iv_hp,
       isShiny: wild.is_shiny, weatherBoosted: wild.weather_boosted,
+      isZeroIv: wild.is_zero_iv, isPerfectIv: wild.is_perfect_iv, // REQ-00160
       baseCatchRate: parseFloat(wild.base_catch_rate),
       baseFleeRate: parseFloat(wild.base_flee_rate),
       rarity: wild.rarity, name_zh: wild.name_zh,
@@ -247,19 +249,20 @@ async function handleCatch(userId, session, throwRating, isCurve, sessionId) {
       ? chargeMoves[Math.floor(Math.random() * chargeMoves.length)].move_id 
       : 'STRUGGLE';
     
-    // Create pokemon instance with initial moves
+    // Create pokemon instance with initial moves (REQ-00160: add special IV flags)
     const { rows: [instance] } = await client.query(`
       INSERT INTO pokemon_instances
         (user_id, species_id, cp, hp_current, hp_max, iv_attack, iv_defense, iv_hp,
-         is_shiny, is_lucky, caught_lat, caught_lng, fast_move, charge_move,
+         is_shiny, is_lucky, is_zero_iv, is_perfect_iv, caught_lat, caught_lng, fast_move, charge_move,
          learned_fast_moves, learned_charge_moves)
-      SELECT $1,$2,$3,$4,$4,$5,$6,$7,$8,false,
+      SELECT $1,$2,$3,$4,$4,$5,$6,$7,$8,false,$9,$10,
              (SELECT last_lat FROM users WHERE id=$1),
              (SELECT last_lng FROM users WHERE id=$1),
-             $9, $10, ARRAY[$9], ARRAY[$10]
+             $11, $12, ARRAY[$11], ARRAY[$12]
       RETURNING id
     `, [userId, session.speciesId, session.cp, Math.floor(session.cp * 0.8),
         session.iv_attack, session.iv_defense, session.iv_hp, session.isShiny,
+        session.isZeroIv || false, session.isPerfectIv || false,
         randomFast, randomCharge]);
 
     // Reward user

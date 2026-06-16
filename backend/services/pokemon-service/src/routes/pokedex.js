@@ -411,4 +411,63 @@ router.get('/generation-stats', authenticate, async (req, res) => {
   }
 });
 
+/**
+ * GET /api/pokedex/special-iv-stats
+ * REQ-00160: 获取特殊 IV 统计
+ */
+router.get('/special-iv-stats', authenticate, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    // 查询用户的特殊 IV 统计
+    const { rows: [stats] } = await query(`
+      SELECT 
+        COUNT(*) FILTER (WHERE is_zero_iv = TRUE) as zero_iv_count,
+        COUNT(*) FILTER (WHERE is_perfect_iv = TRUE) as perfect_iv_count,
+        COUNT(*) FILTER (WHERE is_lucky = TRUE) as lucky_count,
+        COUNT(*) as total_count
+      FROM pokemon_instances
+      WHERE user_id = $1
+    `, [userId]);
+    
+    // 获取全球统计（用于对比）
+    const { rows: [globalStats] } = await query(`
+      SELECT 
+        COUNT(*) FILTER (WHERE is_zero_iv = TRUE) as global_zero_iv_count,
+        COUNT(*) FILTER (WHERE is_perfect_iv = TRUE) as global_perfect_iv_count,
+        COUNT(*) FILTER (WHERE is_lucky = TRUE) as global_lucky_count,
+        COUNT(DISTINCT user_id) as total_players
+      FROM pokemon_instances
+    `);
+    
+    res.json({
+      success: true,
+      data: {
+        user: {
+          zeroIvCount: parseInt(stats.zero_iv_count) || 0,
+          perfectIvCount: parseInt(stats.perfect_iv_count) || 0,
+          luckyCount: parseInt(stats.lucky_count) || 0,
+          totalCount: parseInt(stats.total_count) || 0,
+        },
+        global: {
+          zeroIvCount: parseInt(globalStats.global_zero_iv_count) || 0,
+          perfectIvCount: parseInt(globalStats.global_perfect_iv_count) || 0,
+          luckyCount: parseInt(globalStats.global_lucky_count) || 0,
+          totalPlayers: parseInt(globalStats.total_players) || 0,
+        },
+        // 概率说明
+        rates: {
+          zeroIvRate: 0.0001,      // 0.01%
+          perfectIvRate: 0.001,    // 0.1%
+          luckyTradeRate: 0.05,    // 5%
+          luckyIvFloor: 12,        // 幸运精灵 IV 下限
+        },
+      },
+    });
+  } catch (error) {
+    logger.error({ err: error, userId: req.user?.id }, 'Get special IV stats error');
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 module.exports = router;

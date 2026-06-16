@@ -3,7 +3,7 @@
 - **编号**：REQ-00160
 - **类别**：功能增强
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：pokemon-service、catch-service、location-service、gateway、game-client、database/migrations
 - **创建时间**：2026-06-13 15:00
 - **依赖需求**：无

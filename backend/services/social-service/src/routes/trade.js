@@ -223,13 +223,23 @@ router.post('/:id/confirm', requireAuth, async (req, res, next) => {
       throw new AppError(3010, `星尘不足（需要 ${trade.stardust_cost}，当前 ${receiver.stardust}）`, 400);
     }
 
-    // 计算幸运交易概率
+    // 计算幸运交易概率 (REQ-00160: 5% 基础概率，好友互动天数加成)
     const { rows: [fs] } = await query(`
       SELECT interaction_days FROM friendships
       WHERE (user_a = $1 AND user_b = $2) OR (user_a = $2 AND user_b = $1)
     `, [trade.initiator_id, userId]);
 
-    const isLucky = (fs?.interaction_days || 0) >= 365 && Math.random() < 0.25;
+    // 基础概率 5%，好友互动天数加成（最多 +20%）
+    const interactionBonus = Math.min((fs?.interaction_days || 0) / 365 * 0.2, 0.2);
+    const luckyRate = 0.05 + interactionBonus;
+    const isLucky = Math.random() < luckyRate;
+    
+    logger.info({ 
+      tradeId, 
+      interactionDays: fs?.interaction_days || 0,
+      luckyRate,
+      isLucky 
+    }, 'Lucky trade calculation');
 
     // 执行交易（事务）
     await transaction(async (client) => {
