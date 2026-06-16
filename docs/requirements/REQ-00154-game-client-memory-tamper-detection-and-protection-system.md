@@ -3,7 +3,7 @@
 - **编号**：REQ-00154
 - **类别**：反作弊
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：game-client、gateway、catch-service、gym-service、backend/shared/memoryGuard.js
 - **创建时间**：2026-06-13 07:00
 - **依赖需求**：REQ-00010（GPS伪造检测）、REQ-00045（设备完整性检测）
