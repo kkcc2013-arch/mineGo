@@ -492,5 +492,13 @@ module.exports = {
   getStats,
   resetStats,
   flush,
-  close
+  close,
+  // Cache Key Helpers
+  CacheKeys: {
+    stamina: (pokemonId) => `stamina:${pokemonId}`,
+    pokemon: (pokemonId) => `pokemon:${pokemonId}`,
+    user: (userId) => `user:${userId}`,
+    battle: (battleId) => `battle:${battleId}`,
+    session: (sessionId) => `session:${sessionId}`
+  }
 };

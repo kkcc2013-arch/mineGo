@@ -185,7 +185,7 @@
 || REQ-00169 | 微服务启动器统一化与服务样板代码消除 | 技术债/重构 | P1 | new | pokemon-service、location-service、social-service、catch-service、gym-service、reward-service、payment-service、backend/shared | 2026-06-13 21:00 |
 || REQ-00170 | 游戏客户端离线模式与断线重连系统 | 前端体验 | P1 | new | game-client、frontend/game-client/src/offline、gateway、backend/shared、user-service | 2026-06-13 21:15 |
 || REQ-00171 | 游戏触觉反馈增强系统 | 前端体验 | P1 | done | game-client、frontend/game-client/src/haptics、frontend/game-client/src/game/CatchEngine.js、frontend/game-client/src/audio/AudioManager.js | 2026-06-13 22:00 ||
-| REQ-00172 | 精灵体力系统与疲劳度管理 | 功能增强 | P1 | new | pokemon-service、gym-service、catch-service、gateway、game-client、database/migrations | 2026-06-13 22:30 |
+| REQ-00172 | 精灵体力系统与疲劳度管理 | 功能增强 | P1 | done | pokemon-service、gym-service、catch-service、gateway、game-client、database/migrations | 2026-06-16 07:05 |
 || REQ-00173 | 游戏教程本地化与动态提示系统 | 国际化/本地化 | P1 | new | game-client、gateway、user-service、pokemon-service、backend/shared、database/migrations | 2026-06-13 23:05 |
 ||| REQ-00174 | 数据库物化视图与复杂查询优化系统 | 性能优化 | P1 | new | pokemon-service、social-service、gym-service、user-service、database/migrations、backend/shared | 2026-06-13 23:05 ||
 || REQ-00175 | 实时交易异常检测与风控系统 | 安全加固 | P1 | new | social-service、pokemon-service、user-service、gateway、backend/shared | 2026-06-14 01:00 |
@@ -265,3 +265,4 @@
 || REQ-00246 | 数据泄露应急响应与通知系统 | 合规/隐私 | P1 | new | gateway、user-service、所有微服务、backend/shared/DataLeakResponder.js、backend/jobs、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-16 05:00 |
 || REQ-00247 | 精灵捕捉地点伪造检测系统 | 反作弊 | P1 | new | catch-service、location-service、user-service、gateway、backend/shared | 2026-06-16 06:00 |
 | REQ-00248 | Kubernetes 存储卷生命周期管理与自动扩缩容系统 | 成本/资源优化 | P1 | new | infrastructure/k8s、backend/shared、backend/jobs、所有微服务、admin-dashboard | 2026-06-16 06:00 |
+| REQ-00249 | 基础设施成本预测与预算智能规划系统 | 成本/资源优化 | P1 | new | backend/shared、infrastructure/k8s、admin-dashboard、所有微服务、backend/jobs | 2026-06-16 07:00 |

@@ -547,6 +547,12 @@ async function main() {
         ]));
       });
 
+      // ═══════════════════════════════════════════════════════════
+      // 体力系统路由 - REQ-00172
+      // ═══════════════════════════════════════════════════════════
+      const staminaRoutes = require('./routes/stamina');
+      app.use('/pokemon', staminaRoutes);
+
       logger.info('All routes registered successfully');
     },
     onShutdown: async () => {
