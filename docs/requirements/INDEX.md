@@ -265,4 +265,5 @@
 || REQ-00246 | 数据泄露应急响应与通知系统 | 合规/隐私 | P1 | new | gateway、user-service、所有微服务、backend/shared/DataLeakResponder.js、backend/jobs、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-16 05:00 |
 || REQ-00247 | 精灵捕捉地点伪造检测系统 | 反作弊 | P1 | new | catch-service、location-service、user-service、gateway、backend/shared | 2026-06-16 06:00 |
 | REQ-00248 | Kubernetes 存储卷生命周期管理与自动扩缩容系统 | 成本/资源优化 | P1 | new | infrastructure/k8s、backend/shared、backend/jobs、所有微服务、admin-dashboard | 2026-06-16 06:00 |
-| REQ-00249 | 基础设施成本预测与预算智能规划系统 | 成本/资源优化 | P1 | new | backend/shared、infrastructure/k8s、admin-dashboard、所有微服务、backend/jobs | 2026-06-16 07:00 |
+|| REQ-00249 | 基础设施成本预测与预算智能规划系统 | 成本/资源优化 | P1 | new | backend/shared、infrastructure/k8s、admin-dashboard、所有微服务、backend/jobs | 2026-06-16 07:00 |
+| REQ-00250 | 多设备登录管理与设备信任系统 | 安全加固 | P1 | new | user-service、gateway、game-client、backend/shared、database/migrations、admin-dashboard | 2026-06-16 08:00 |
