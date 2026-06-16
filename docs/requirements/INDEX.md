@@ -171,7 +171,7 @@
 || REQ-00158 | 业务事件异常检测与智能告警系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-13 10:00 |
 | REQ-00159 | 服务健康自愈与自动恢复系统 | 容灾/高可用 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-13 10:05 |
 | REQ-00160 | 精灵特殊个体值（彩蛋）系统 | 功能增强 | P1 | new | pokemon-service、catch-service、location-service、gateway、game-client、database/migrations | 2026-06-13 15:00 |
-| REQ-00161 | 低峰期服务自动休眠与智能唤醒系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared/sleepManager.js、backend/shared/trafficAnalyzer.js、infrastructure/k8s、backend/jobs | 2026-06-13 10:30 |
+| REQ-00161 | 低峰期服务自动休眠与智能唤醒系统 | 成本/资源优化 | P1 | done | gateway、所有微服务、backend/shared/TrafficAnalyzer.js、backend/shared/SleepManager.js、backend/jobs/peakHourPreheater.js | 2026-06-16 04:00 | gateway、所有微服务、backend/shared/sleepManager.js、backend/shared/trafficAnalyzer.js、infrastructure/k8s、backend/jobs | 2026-06-13 10:30 |
 || REQ-00233 | 游戏控制器与手柄输入支持系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/input、frontend/game-client/src/accessibility | 2026-06-15 21:05 |
 || REQ-00234 | API 请求速率限制智能适配与动态配额系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared、Redis、PostgreSQL | 2026-06-15 22:05 |
 
@@ -260,3 +260,4 @@
 || REQ-00241 | 软件物料清单（SBOM）生成与供应链安全验证系统 | 运维/CICD | P1 | new | .github/workflows、backend/shared、所有微服务、infrastructure/k8s | 2026-06-16 02:10 |
 || REQ-00242 | 微服务启动配置统一化与环境变量校验系统 | 技术债/重构 | P1 | new | 所有微服务、backend/shared/configValidator.js、backend/shared/ServiceBootstrap.js | 2026-06-16 03:00 |
 | REQ-00243 | 精灵心情系统与情绪表现 | 功能增强 | P1 | new | pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-16 03:30 |
+| REQ-00244 | RTL 语言布局自动适配系统 | 国际化/本地化 | P1 | new | game-client、frontend/game-client/src/i18n、frontend/game-client/src/styles、gateway、backend/shared/i18n.js | 2026-06-16 04:00 |
