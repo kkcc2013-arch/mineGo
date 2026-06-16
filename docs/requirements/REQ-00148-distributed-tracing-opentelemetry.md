@@ -8,7 +8,7 @@
 | 标题 | 分布式追踪与请求链路可视化系统 |
 | 类别 | 可观测性/监控 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring |
 | 创建时间 | 2026-06-12 08:00 |
 

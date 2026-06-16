@@ -1,98 +1,260 @@
-// shared/tracingMiddleware.js - Express 追踪中间件
+// backend/shared/tracingMiddleware.js
+// REQ-00148: 分布式追踪与请求链路可视化系统 - Express 中间件
 'use strict';
 
-const { context, trace, propagation } = require('@opentelemetry/api');
-const { getTracer } = require('./tracing');
+let traceApi = null;
+let contextApi = null;
+let propagationApi = null;
+let semanticAttributes = null;
+let tracer = null;
+
+// 初始化 OpenTelemetry API（延迟加载）
+async function initTracingApi() {
+  if (tracer) return true;
+  
+  try {
+    traceApi = (await import('@opentelemetry/api')).trace;
+    contextApi = (await import('@opentelemetry/api')).context;
+    propagationApi = (await import('@opentelemetry/api')).propagation;
+    semanticAttributes = (await import('@opentelemetry/semantic-conventions')).SemanticAttributes;
+    tracer = traceApi.getTracer('mineGo-http', '1.0.0');
+    return true;
+  } catch (error) {
+    // OpenTelemetry 未安装，使用降级模式
+    return false;
+  }
+}
+
+// 同步获取 tracer（用于已初始化场景）
+function getTracer() {
+  return tracer;
+}
 
 /**
- * Express 中间件：自动为每个请求创建 span
+ * Express 追踪中间件
  * @param {string} serviceName - 服务名称
  * @returns {Function} Express 中间件
  */
 function tracingMiddleware(serviceName) {
-  const tracer = getTracer(serviceName);
+  // 标记是否已初始化
+  let apiReady = false;
+  
+  // 异步初始化（不阻塞请求）
+  initTracingApi().then(ready => {
+    apiReady = ready;
+  });
 
-  return (req, res, next) => {
-    // 从请求头提取上游追踪上下文
-    const incomingContext = propagation.extract(context.active(), req.headers);
+  return async (req, res, next) => {
+    // 降级模式：直接跳过
+    if (!apiReady || !tracer) {
+      // 生成简单的 trace ID 用于日志关联
+      req.traceId = generateSimpleTraceId();
+      res.setHeader('X-Trace-Id', req.traceId);
+      return next();
+    }
 
-    // 创建 span 名称
-    const routePath = req.route?.path || req.path;
-    const spanName = `${req.method} ${routePath}`;
+    try {
+      // 从请求头提取 trace context（跨服务传递）
+      const ctx = propagationApi.extract(contextApi.active(), req.headers);
+      
+      // 创建 span 名称
+      const routePath = req.route?.path || req.path;
+      const spanName = `${req.method} ${routePath}`;
+      
+      // 创建 span
+      const span = tracer.startSpan(spanName, {
+        kind: traceApi.SpanKind.SERVER,
+        attributes: {
+          [semanticAttributes.HTTP_METHOD]: req.method,
+          [semanticAttributes.HTTP_URL]: req.originalUrl,
+          [semanticAttributes.HTTP_ROUTE]: routePath,
+          [semanticAttributes.HTTP_TARGET]: req.path,
+          'http.request.headers.x-request-id': req.headers['x-request-id'],
+          'http.request.headers.x-forwarded-for': req.headers['x-forwarded-for'],
+          'user.id': req.user?.id || null,
+          'user.role': req.user?.role || null,
+          'service.name': serviceName,
+        },
+      }, ctx);
 
-    // 启动 span
-    const span = tracer.startSpan(spanName, {
-      attributes: {
-        'http.method': req.method,
-        'http.url': req.originalUrl || req.url,
-        'http.target': req.path,
-        'http.host': req.get('host') || 'unknown',
-        'http.scheme': req.protocol || 'http',
-        'http.user_agent': req.get('user-agent') || 'unknown',
-        'http.request_content_length': req.get('content-length') || 0,
-        'net.transport': 'IP.TCP',
-      },
-    }, incomingContext);
-
-    // 将 span 设置为当前 active span
-    const spanContext = context.with(trace.setSpan(context.active(), span), () => {
-      // 监听响应完成事件
-      res.on('finish', () => {
-        // 设置响应属性
-        span.setAttributes({
-          'http.status_code': res.statusCode,
-          'http.response_content_length': parseInt(res.get('content-length') || '0', 10),
-        });
-
-        // 标记错误状态
-        if (res.statusCode >= 400) {
-          span.setStatus({
-            code: res.statusCode >= 500 ? 2 : 1, // 2=Error, 1=Warning
-            message: `HTTP ${res.statusCode}`,
-          });
-          span.setAttribute('http.error', true);
-        } else {
-          span.setStatus({ code: 0 }); // 0=Ok
-        }
-
-        // 结束 span
-        span.end();
-      });
-
-      // 将追踪信息注入到请求对象（方便后续使用）
+      // 设置 trace context 到 request
       req.span = span;
       req.traceId = span.spanContext().traceId;
+      req.spanContext = span.spanContext();
 
-      // 继续处理请求
+      // 设置响应头（便于前端调试和日志关联）
+      res.setHeader('X-Trace-Id', span.spanContext().traceId);
+
+      // 记录请求体大小
+      if (req.headers['content-length']) {
+        span.setAttribute('http.request.size', parseInt(req.headers['content-length'], 10));
+      }
+
+      // 响应结束时结束 span
+      const originalEnd = res.end;
+      res.end = function(chunk, encoding) {
+        // 记录响应信息
+        span.setAttributes({
+          [semanticAttributes.HTTP_STATUS_CODE]: res.statusCode,
+          'http.response.size': res.get('content-length') ? parseInt(res.get('content-length'), 10) : 0,
+        });
+
+        // 设置状态
+        if (res.statusCode >= 500) {
+          span.setStatus({ code: traceApi.SpanStatusCode.ERROR, message: 'Server Error' });
+        } else if (res.statusCode >= 400) {
+          span.setStatus({ code: traceApi.SpanStatusCode.ERROR, message: 'Client Error' });
+        } else {
+          span.setStatus({ code: traceApi.SpanStatusCode.OK });
+        }
+
+        span.end();
+        return originalEnd.call(this, chunk, encoding);
+      };
+
+      // 在 trace context 中执行后续中间件
+      await contextApi.with(traceApi.setSpan(contextApi.active(), span), next);
+    } catch (error) {
+      console.error('[TracingMiddleware] Error:', error.message);
+      req.traceId = generateSimpleTraceId();
+      res.setHeader('X-Trace-Id', req.traceId);
       next();
-    });
+    }
   };
 }
 
 /**
- * 注入追踪上下文到请求头（用于服务间调用）
- * @param {object} headers - 请求头对象
- * @returns {object} 注入追踪上下文后的请求头
+ * 数据库查询追踪包装器
+ * @param {string} operation - 操作类型 (SELECT/INSERT/UPDATE/DELETE)
+ * @param {string} table - 表名
+ * @param {Function} queryFn - 查询函数
+ * @returns {Promise<any>} 查询结果
  */
-function injectTraceContext(headers = {}) {
-  const currentContext = context.active();
-  propagation.inject(currentContext, headers);
-  return headers;
+async function traceDbQuery(operation, table, queryFn) {
+  if (!tracer) {
+    return queryFn();
+  }
+
+  const span = tracer.startSpan(`db.${operation}`, {
+    kind: traceApi.SpanKind.CLIENT,
+    attributes: {
+      [semanticAttributes.DB_SYSTEM]: 'postgresql',
+      [semanticAttributes.DB_OPERATION]: operation,
+      [semanticAttributes.DB_SQL_TABLE]: table,
+    },
+  });
+
+  return contextApi.with(traceApi.setSpan(contextApi.active(), span), async () => {
+    const startTime = Date.now();
+    try {
+      const result = await queryFn();
+      const duration = Date.now() - startTime;
+      
+      span.setAttributes({
+        'db.rows_affected': result?.rowCount || result?.length || 0,
+        'db.duration_ms': duration,
+      });
+      span.setStatus({ code: traceApi.SpanStatusCode.OK });
+      return result;
+    } catch (error) {
+      span.recordException(error);
+      span.setStatus({ code: traceApi.SpanStatusCode.ERROR, message: error.message });
+      throw error;
+    } finally {
+      span.end();
+    }
+  });
 }
 
 /**
- * 创建子 span（用于追踪内部操作）
- * @param {string} name - Span 名称
- * @param {object} attributes - Span 属性
- * @returns {Span} Span 实例
+ * HTTP 客户端追踪包装器（服务间调用）
+ * @param {string} url - 请求 URL
+ * @param {Object} options - fetch 选项
+ * @returns {Promise<Response>} 响应
  */
-function startChildSpan(name, attributes = {}) {
-  const currentSpan = trace.getSpan(context.active());
-  if (!currentSpan) {
-    return null;
+async function tracedFetch(url, options = {}) {
+  if (!tracer) {
+    return fetch(url, options);
   }
 
-  const tracer = getTracer();
+  const method = options.method || 'GET';
+  const span = tracer.startSpan(`http.client ${method} ${url}`, {
+    kind: traceApi.SpanKind.CLIENT,
+    attributes: {
+      [semanticAttributes.HTTP_URL]: url,
+      [semanticAttributes.HTTP_METHOD]: method,
+    },
+  });
+
+  // 注入 trace context 到请求头
+  const headers = { ...options.headers };
+  propagationApi.inject(contextApi.active(), headers);
+
+  return contextApi.with(traceApi.setSpan(contextApi.active(), span), async () => {
+    try {
+      const response = await fetch(url, { ...options, headers });
+      span.setAttributes({
+        [semanticAttributes.HTTP_STATUS_CODE]: response.status,
+      });
+      span.setStatus({
+        code: response.status < 400 ? traceApi.SpanStatusCode.OK : traceApi.SpanStatusCode.ERROR,
+      });
+      return response;
+    } catch (error) {
+      span.recordException(error);
+      span.setStatus({ code: traceApi.SpanStatusCode.ERROR, message: error.message });
+      throw error;
+    } finally {
+      span.end();
+    }
+  });
+}
+
+/**
+ * Redis 操作追踪包装器
+ * @param {string} operation - 操作类型
+ * @param {string} key - Redis key
+ * @param {Function} opFn - 操作函数
+ * @returns {Promise<any>} 操作结果
+ */
+async function traceRedisOperation(operation, key, opFn) {
+  if (!tracer) {
+    return opFn();
+  }
+
+  const span = tracer.startSpan(`redis.${operation}`, {
+    kind: traceApi.SpanKind.CLIENT,
+    attributes: {
+      'db.system': 'redis',
+      'db.operation': operation,
+      'db.redis.key': key,
+    },
+  });
+
+  return contextApi.with(traceApi.setSpan(contextApi.active(), span), async () => {
+    try {
+      const result = await opFn();
+      span.setStatus({ code: traceApi.SpanStatusCode.OK });
+      return result;
+    } catch (error) {
+      span.recordException(error);
+      span.setStatus({ code: traceApi.SpanStatusCode.ERROR, message: error.message });
+      throw error;
+    } finally {
+      span.end();
+    }
+  });
+}
+
+/**
+ * 创建子 span
+ * @param {string} name - span 名称
+ * @param {Object} attributes - 属性
+ * @returns {Object} span
+ */
+function startChildSpan(name, attributes = {}) {
+  if (!tracer) return null;
+
   const span = tracer.startSpan(name, {
     attributes,
   });
@@ -101,35 +263,20 @@ function startChildSpan(name, attributes = {}) {
 }
 
 /**
- * 追踪异步操作的辅助函数
- * @param {string} name - Span 名称
- * @param {Function} fn - 要执行的函数
- * @param {object} attributes - Span 属性
- * @returns {Promise<any>} 函数执行结果
+ * 生成简单的 trace ID（降级模式）
  */
-async function traceAsync(name, fn, attributes = {}) {
-  const span = startChildSpan(name, attributes);
-  
-  try {
-    const result = await fn();
-    if (span) {
-      span.setStatus({ code: 0 });
-      span.end();
-    }
-    return result;
-  } catch (error) {
-    if (span) {
-      span.setStatus({ code: 2, message: error.message });
-      span.recordException(error);
-      span.end();
-    }
-    throw error;
-  }
+function generateSimpleTraceId() {
+  const timestamp = Date.now().toString(16);
+  const random = Math.random().toString(16).slice(2, 18);
+  return `${timestamp}-${random}`;
 }
 
 module.exports = {
   tracingMiddleware,
-  injectTraceContext,
+  traceDbQuery,
+  tracedFetch,
+  traceRedisOperation,
   startChildSpan,
-  traceAsync,
+  getTracer,
+  initTracingApi,
 };

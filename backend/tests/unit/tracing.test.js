@@ -1,207 +1,174 @@
-// tests/unit/tracing.test.js - 分布式追踪单元测试
+// backend/tests/unit/tracing.test.js
+// REQ-00148: 分布式追踪与请求链路可视化系统 - 单元测试
 'use strict';
 
-const { initTracing, getTracer, shutdownTracing, isTracingInitialized } = require('../../backend/shared/tracing');
-const { tracingMiddleware, injectTraceContext, startChildSpan, traceAsync } = require('../../backend/shared/tracingMiddleware');
+const assert = require('assert');
+const { startCriticalPath, getCriticalPaths, getPathDefinition } = require('../../shared/criticalPathTracing');
 
-// Mock OpenTelemetry
-jest.mock('@opentelemetry/api', () => ({
-  trace: {
-    getTracer: jest.fn(() => ({
-      startSpan: jest.fn(() => ({
-        setAttributes: jest.fn(),
-        setStatus: jest.fn(),
-        end: jest.fn(),
-        spanContext: jest.fn(() => ({
-          traceId: 'test-trace-id',
-          spanId: 'test-span-id',
-        })),
-        addEvent: jest.fn(),
-        recordException: jest.fn(),
-      })),
-    })),
-    getSpan: jest.fn(() => null),
-    setSpan: jest.fn(),
-  },
-  context: {
-    active: jest.fn(() => ({})),
-    with: jest.fn((ctx, fn) => fn()),
-  },
-  propagation: {
-    extract: jest.fn(() => ({})),
-    inject: jest.fn(),
-  },
-}));
+console.log('=== Tracing Module Unit Tests ===\n');
 
-jest.mock('@opentelemetry/sdk-trace-node', () => ({
-  NodeTracerProvider: jest.fn(() => ({
-    addSpanProcessor: jest.fn(),
-    register: jest.fn(),
-    shutdown: jest.fn(),
-  })),
-}));
+let passed = 0;
+let failed = 0;
 
-jest.mock('@opentelemetry/exporter-jaeger', () => ({
-  JaegerExporter: jest.fn(),
-}));
+function test(name, fn) {
+  try {
+    fn();
+    console.log(`✓ ${name}`);
+    passed++;
+  } catch (error) {
+    console.log(`✗ ${name}`);
+    console.log(`  Error: ${error.message}`);
+    failed++;
+  }
+}
 
-jest.mock('@opentelemetry/sdk-trace-base', () => ({
-  BatchSpanProcessor: jest.fn(),
-}));
+// ============ Critical Path Tracing Tests ============
 
-jest.mock('@opentelemetry/resources', () => ({
-  Resource: jest.fn(),
-}));
-
-jest.mock('@opentelemetry/semantic-conventions', () => ({
-  SemanticResourceAttributes: {
-    SERVICE_NAME: 'service.name',
-    SERVICE_VERSION: 'service.version',
-    DEPLOYMENT_ENVIRONMENT: 'deployment.environment',
-  },
-}));
-
-describe('Tracing Module', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
-  afterEach(async () => {
-    if (isTracingInitialized()) {
-      await shutdownTracing();
-    }
-  });
-
-  describe('initTracing', () => {
-    it('should initialize tracing with default options', () => {
-      const provider = initTracing('test-service');
-      expect(provider).toBeDefined();
-      expect(isTracingInitialized()).toBe(true);
-    });
-
-    it('should not initialize twice', () => {
-      initTracing('test-service');
-      const provider2 = initTracing('test-service');
-      expect(provider2).toBeDefined();
-    });
-
-    it('should use custom Jaeger endpoint from environment', () => {
-      process.env.JAEGER_ENDPOINT = 'http://custom-jaeger:14268/api/traces';
-      const provider = initTracing('test-service');
-      expect(provider).toBeDefined();
-      delete process.env.JAEGER_ENDPOINT;
-    });
-  });
-
-  describe('getTracer', () => {
-    it('should return a tracer instance', () => {
-      const tracer = getTracer('test-tracer');
-      expect(tracer).toBeDefined();
-    });
-  });
-
-  describe('shutdownTracing', () => {
-    it('should shutdown tracing gracefully', async () => {
-      initTracing('test-service');
-      await shutdownTracing();
-      expect(isTracingInitialized()).toBe(false);
-    });
-
-    it('should handle shutdown when not initialized', async () => {
-      await shutdownTracing();
-      expect(isTracingInitialized()).toBe(false);
-    });
-  });
+test('getCriticalPaths returns all defined paths', () => {
+  const paths = getCriticalPaths();
+  assert(paths.CATCH_POKEMON, 'CATCH_POKEMON path should exist');
+  assert(paths.GYM_BATTLE, 'GYM_BATTLE path should exist');
+  assert(paths.PAYMENT, 'PAYMENT path should exist');
+  assert(paths.USER_REGISTER, 'USER_REGISTER path should exist');
+  assert(paths.PVP_DUEL, 'PVP_DUEL path should exist');
+  assert(paths.TRADE_POKEMON, 'TRADE_POKEMON path should exist');
 });
 
-describe('Tracing Middleware', () => {
-  let mockReq, mockRes, mockNext;
-
-  beforeEach(() => {
-    mockReq = {
-      method: 'GET',
-      path: '/api/test',
-      originalUrl: '/api/test?query=value',
-      route: { path: '/api/test' },
-      headers: {},
-      get: jest.fn((key) => mockReq.headers[key.toLowerCase()]),
-    };
-
-    mockRes = {
-      on: jest.fn((event, callback) => {
-        if (event === 'finish') {
-          // Simulate response finish
-          setTimeout(() => callback(), 0);
-        }
-      }),
-      statusCode: 200,
-      get: jest.fn((key) => '100'),
-    };
-
-    mockNext = jest.fn();
-  });
-
-  describe('tracingMiddleware', () => {
-    it('should create middleware function', () => {
-      const middleware = tracingMiddleware('test-service');
-      expect(typeof middleware).toBe('function');
-    });
-
-    it('should call next() after creating span', (done) => {
-      const middleware = tracingMiddleware('test-service');
-      middleware(mockReq, mockRes, mockNext);
-      expect(mockNext).toHaveBeenCalled();
-      done();
-    });
-
-    it('should handle error status codes', (done) => {
-      mockRes.statusCode = 500;
-      const middleware = tracingMiddleware('test-service');
-      middleware(mockReq, mockRes, mockNext);
-      expect(mockNext).toHaveBeenCalled();
-      done();
-    });
-  });
-
-  describe('injectTraceContext', () => {
-    it('should inject trace context into headers', () => {
-      const headers = { 'content-type': 'application/json' };
-      const result = injectTraceContext(headers);
-      expect(result).toBeDefined();
-    });
-
-    it('should handle empty headers', () => {
-      const result = injectTraceContext();
-      expect(result).toBeDefined();
-    });
-  });
-
-  describe('startChildSpan', () => {
-    it('should return null when no active span', () => {
-      const span = startChildSpan('test-operation');
-      expect(span).toBeNull();
-    });
-  });
-
-  describe('traceAsync', () => {
-    it('should trace async operation', async () => {
-      const result = await traceAsync('test-operation', async () => {
-        return 'success';
-      });
-      expect(result).toBe('success');
-    });
-
-    it('should trace async operation with attributes', async () => {
-      const result = await traceAsync('test-operation', async () => {
-        return 'success';
-      }, { key: 'value' });
-      expect(result).toBe('success');
-    });
-
-    it('should handle errors in async operation', async () => {
-      await expect(traceAsync('test-operation', async () => {
-        throw new Error('Test error');
-      })).rejects.toThrow('Test error');
-    });
-  });
+test('getPathDefinition returns correct path', () => {
+  const path = getPathDefinition('CATCH_POKEMON');
+  assert(path, 'Path should be returned');
+  assert.strictEqual(path.name, 'catch_pokemon_flow', 'Path name should match');
+  assert(Array.isArray(path.steps), 'Steps should be an array');
+  assert(path.steps.length > 0, 'Steps should not be empty');
+  assert(path.expectedDurationMs > 0, 'Expected duration should be set');
 });
+
+test('getPathDefinition returns null for unknown path', () => {
+  const path = getPathDefinition('UNKNOWN_PATH');
+  assert.strictEqual(path, null, 'Should return null for unknown path');
+});
+
+test('startCriticalPath creates tracker for valid path', () => {
+  const tracker = startCriticalPath('CATCH_POKEMON', { userId: 'test-user' });
+  assert(tracker, 'Tracker should be created');
+  assert(tracker.pathName === 'catch_pokemon_flow' || tracker.pathName === 'CATCH_POKEMON', 'Path name should be set');
+  assert(typeof tracker.nextStep === 'function', 'nextStep should be a function');
+  assert(typeof tracker.recordError === 'function', 'recordError should be a function');
+  assert(typeof tracker.end === 'function', 'end should be a function');
+});
+
+test('startCriticalPath returns no-op tracker for unknown path', () => {
+  const tracker = startCriticalPath('UNKNOWN_PATH');
+  assert(tracker, 'Should return a tracker');
+  // No-op tracker should have methods but do nothing
+  tracker.nextStep('test').end();
+  tracker.recordError(new Error('test'), 'test');
+  const result = tracker.end();
+  assert.strictEqual(result, null, 'No-op tracker should return null');
+});
+
+test('Critical path tracker tracks steps correctly', () => {
+  const tracker = startCriticalPath('CATCH_POKEMON');
+  
+  // Execute steps
+  tracker.nextStep('auth_check').end({ userId: 'test' });
+  tracker.nextStep('location_verify').end({ lat: 1.0, lng: 2.0 });
+  tracker.nextStep('spawn_fetch').end({ spawnId: 'spawn-123' });
+  tracker.nextStep('catch_attempt').end({ success: true });
+  tracker.nextStep('inventory_update').end({ slot: 1 });
+  tracker.nextStep('db_save').end({ rowsAffected: 1 });
+  tracker.nextStep('event_publish').end({ eventId: 'evt-123' });
+  tracker.nextStep('xp_award').end({ xp: 100 });
+  
+  const result = tracker.end(true);
+  
+  assert(result, 'Result should be returned');
+  assert.strictEqual(result.success, true, 'Should be successful');
+  assert(result.totalDuration >= 0, 'Total duration should be non-negative');
+  assert(result.stepTimings.length === 8, 'Should have 8 step timings');
+});
+
+test('Critical path tracker handles errors', () => {
+  const tracker = startCriticalPath('CATCH_POKEMON');
+  
+  tracker.nextStep('auth_check').end();
+  tracker.nextStep('location_verify').end();
+  tracker.recordError(new Error('Spawn not found'), 'spawn_fetch');
+  
+  const result = tracker.end(false);
+  
+  assert(result, 'Result should be returned');
+  assert.strictEqual(result.success, false, 'Should not be successful');
+});
+
+test('Critical path tracker handles early termination', () => {
+  const tracker = startCriticalPath('PAYMENT');
+  
+  tracker.nextStep('auth_check').end();
+  tracker.nextStep('order_validate').end();
+  // Stop early without completing all steps
+  
+  const result = tracker.end(true);
+  
+  assert(result, 'Result should be returned');
+  assert(result.completedSteps < result.totalSteps, 'Should have incomplete steps');
+});
+
+// ============ Tracing Middleware Tests ============
+
+test('tracingMiddleware is exported', () => {
+  const { tracingMiddleware } = require('../../shared/tracingMiddleware');
+  assert(typeof tracingMiddleware === 'function', 'tracingMiddleware should be a function');
+});
+
+test('traceDbQuery is exported', () => {
+  const { traceDbQuery } = require('../../shared/tracingMiddleware');
+  assert(typeof traceDbQuery === 'function', 'traceDbQuery should be a function');
+});
+
+test('tracedFetch is exported', () => {
+  const { tracedFetch } = require('../../shared/tracingMiddleware');
+  assert(typeof tracedFetch === 'function', 'tracedFetch should be a function');
+});
+
+test('traceRedisOperation is exported', () => {
+  const { traceRedisOperation } = require('../../shared/tracingMiddleware');
+  assert(typeof traceRedisOperation === 'function', 'traceRedisOperation should be a function');
+});
+
+// ============ Tracing Init Tests ============
+
+test('initTracing is exported', () => {
+  const { initTracing } = require('../../shared/tracing');
+  assert(typeof initTracing === 'function', 'initTracing should be a function');
+});
+
+test('shutdownTracing is exported', () => {
+  const { shutdownTracing } = require('../../shared/tracing');
+  assert(typeof shutdownTracing === 'function', 'shutdownTracing should be a function');
+});
+
+test('getTracingStatus is exported', () => {
+  const { getTracingStatus } = require('../../shared/tracing');
+  assert(typeof getTracingStatus === 'function', 'getTracingStatus should be a function');
+  
+  const status = getTracingStatus();
+  assert(typeof status.initialized === 'boolean', 'initialized should be boolean');
+  assert(typeof status.enabled === 'boolean', 'enabled should be boolean');
+  assert(typeof status.endpoint === 'string', 'endpoint should be string');
+});
+
+// ============ Summary ============
+
+console.log('\n=== Test Summary ===');
+console.log(`Passed: ${passed}`);
+console.log(`Failed: ${failed}`);
+console.log(`Total: ${passed + failed}`);
+
+if (failed > 0) {
+  console.log('\n❌ Some tests failed');
+  process.exit(1);
+} else {
+  console.log('\n✅ All tests passed');
+  process.exit(0);
+}

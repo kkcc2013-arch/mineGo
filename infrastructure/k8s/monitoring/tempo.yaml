@@ -1,0 +1,153 @@
+# infrastructure/k8s/monitoring/tempo.yaml
+# REQ-00148: 分布式追踪与请求链路可视化系统 - Grafana Tempo 部署
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tempo-config
+  namespace: monitoring
+data:
+  tempo.yaml: |
+    server:
+      http_listen_port: 3200
+      log_level: info
+    
+    distributor:
+      receivers:
+        otlp:
+          protocols:
+            grpc:
+              endpoint: 0.0.0.0:4317
+            http:
+              endpoint: 0.0.0.0:4318
+    
+    ingester:
+      max_block_duration: 5m
+      trace_idle_period: 10s
+      complete_block_timeout: 1h
+    
+    storage:
+      trace:
+        backend: local
+        local:
+          path: /tmp/tempo/blocks
+        block:
+          bloom_filter_false_positive: 0.05
+          index_downsample_bytes: 1000
+          encoding: zstd
+    
+    compactor:
+      compaction:
+        block_retention: 168h  # 保留 7 天
+        compacted_block_retention: 1h
+    
+    metrics_generator:
+      storage:
+        path: /tmp/tempo/metrics
+    
+    overrides:
+      defaults:
+        metrics_generator:
+          processors:
+            - service-graphs
+            - span-metrics
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tempo
+  namespace: monitoring
+  labels:
+    app: tempo
+    component: tracing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tempo
+  template:
+    metadata:
+      labels:
+        app: tempo
+    spec:
+      containers:
+      - name: tempo
+        image: grafana/tempo:2.4.0
+        args:
+          - "-config.file=/etc/tempo.yaml"
+        ports:
+          - name: otlp-grpc
+            containerPort: 4317
+            protocol: TCP
+          - name: otlp-http
+            containerPort: 4318
+            protocol: TCP
+          - name: http
+            containerPort: 3200
+            protocol: TCP
+        volumeMounts:
+          - name: tempo-config
+            mountPath: /etc/tempo.yaml
+            subPath: tempo.yaml
+          - name: tempo-data
+            mountPath: /tmp/tempo
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        livenessProbe:
+          httpGet:
+            path: /ready
+            port: 3200
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3200
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+        - name: tempo-config
+          configMap:
+            name: tempo-config
+        - name: tempo-data
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tempo
+  namespace: monitoring
+  labels:
+    app: tempo
+spec:
+  type: ClusterIP
+  ports:
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+      protocol: TCP
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318
+      protocol: TCP
+    - name: http
+      port: 3200
+      targetPort: 3200
+      protocol: TCP
+  selector:
+    app: tempo
+
+---
+# ServiceAccount for Tempo
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tempo
+  namespace: monitoring

@@ -157,7 +157,7 @@
 || REQ-00145 | 精灵详情批量查询优化 | 性能优化 | P1 | done | pokemon-service、gateway、game-client、backend/shared | 2026-06-12 06:10 |
 | REQ-00146 | 道馆战斗伤害公式与属性克制计算系统 | 功能增强 | P1 | done | gym-service、pokemon-service、backend/shared | 2026-06-12 07:00 |
 || REQ-00147 | API 请求速率限制绕过检测与防护系统 | 安全加固 | P1 | done | gateway、backend/shared/rateLimitMonitor.js、Redis、PostgreSQL | 2026-06-12 07:15 |
-|| REQ-00148 | 分布式追踪与请求链路可视化系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-12 08:00 |
+|| REQ-00148 | 分布式追踪与请求链路可视化系统 | 可观测性/监控 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-12 08:00 |
 || REQ-00149 | user-service ipAppeal 路由挂载与集成 | 集成与修复 | P0 | done | user-service、backend/services/user-service/src/index.js、backend/services/user-service/src/routes/ipAppeal.js | 2026-06-12 08:10 |
 || REQ-00150 | 背包容量扩展与购买系统 | 功能增强 | P1 | done | pokemon-service、user-service、payment-service、gateway、game-client | 2026-06-12 09:00 |
 
@@ -267,3 +267,4 @@
 | REQ-00248 | Kubernetes 存储卷生命周期管理与自动扩缩容系统 | 成本/资源优化 | P1 | new | infrastructure/k8s、backend/shared、backend/jobs、所有微服务、admin-dashboard | 2026-06-16 06:00 |
 || REQ-00249 | 基础设施成本预测与预算智能规划系统 | 成本/资源优化 | P1 | new | backend/shared、infrastructure/k8s、admin-dashboard、所有微服务、backend/jobs | 2026-06-16 07:00 |
 | REQ-00250 | 多设备登录管理与设备信任系统 | 安全加固 | P1 | new | user-service、gateway、game-client、backend/shared、database/migrations、admin-dashboard | 2026-06-16 08:00 |
+| REQ-00251 | API 响应序列化优化与 JSON 压缩系统 | 性能优化 | P1 | new | gateway、所有微服务、backend/shared/JsonOptimizer.js、game-client | 2026-06-16 08:00 |

@@ -1,0 +1,180 @@
+# infrastructure/k8s/monitoring/grafana-datasources-tracing.yaml
+# REQ-00148: 分布式追踪与请求链路可视化系统 - Grafana 数据源配置
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources-tracing
+  namespace: monitoring
+  labels:
+    grafana_datasource: "1"
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      # Tempo 数据源（分布式追踪）
+      - name: Tempo
+        type: tempo
+        access: proxy
+        url: http://tempo:3200
+        isDefault: false
+        editable: false
+        jsonData:
+          httpMethod: GET
+          tracesToLogs:
+            datasourceUid: 'loki'
+            mappedTags:
+              - key: 'service.name'
+                value: 'service'
+              - key: 'user.id'
+                value: 'user_id'
+            mapTagNamesEnabled: true
+            spanStartTimeShift: '-1h'
+            spanEndTimeShift: '1h'
+            filterByTraceID: true
+            filterBySpanID: true
+          tracesToMetrics:
+            datasourceUid: 'prometheus'
+            tags:
+              - name: 'service.name'
+                value: 'service'
+              - name: 'service.namespace'
+            queries:
+              - name: 'Service request rate'
+                query: 'sum(rate(http_server_requests_seconds_count{service=~"$service"}[$__rate_interval]))'
+              - name: 'Service error rate'
+                query: 'sum(rate(http_server_requests_seconds_count{service=~"$service",status_code=~"5.."}[$__rate_interval]))'
+          serviceMap:
+            datasourceUid: 'prometheus'
+          nodeGraph:
+            enabled: true
+          search:
+            hide: false
+            defaultDuration: '1h'
+            defaultLimit: 20
+
+---
+# 追踪仪表板配置
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards-tracing
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  tracing-overview.json: |
+    {
+      "annotations": {
+        "list": []
+      },
+      "editable": true,
+      "fiscalYearStartMonth": 0,
+      "graphTooltip": 0,
+      "id": null,
+      "links": [],
+      "liveNow": false,
+      "panels": [
+        {
+          "datasource": {
+            "type": "tempo",
+            "uid": "${datasource}"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 0
+          },
+          "id": 1,
+          "options": {
+            "limit": 20,
+            "query": "service.name = \"$service\"",
+            "queryType": "traceSearch"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "tempo",
+                "uid": "${datasource}"
+              },
+              "query": "service.name = \"$service\"",
+              "queryType": "traceSearch",
+              "refId": "A"
+            }
+          ],
+          "title": "Recent Traces",
+          "type": "traces"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 0
+          },
+          "id": 2,
+          "options": {
+            "legend": {
+              "calcs": ["mean", "max"],
+              "displayMode": "table",
+              "placement": "bottom"
+            }
+          },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.95, sum(rate(http_server_requests_seconds_bucket{service=~\"$service\"}[$__rate_interval])) by (le))",
+              "legendFormat": "p95 {{service}}",
+              "refId": "A"
+            }
+          ],
+          "title": "Request Latency (p95)",
+          "type": "timeseries"
+        }
+      ],
+      "schemaVersion": 38,
+      "templating": {
+        "list": [
+          {
+            "current": {
+              "selected": false,
+              "text": "Tempo",
+              "value": "Tempo"
+            },
+            "name": "datasource",
+            "options": [],
+            "query": "tempo",
+            "refresh": 1,
+            "regex": "",
+            "type": "datasource"
+          },
+          {
+            "current": {
+              "selected": false,
+              "text": "All",
+              "value": "$__all"
+            },
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "definition": "label_values(http_server_requests_seconds_count, service)",
+            "name": "service",
+            "options": [],
+            "query": {
+              "query": "label_values(http_server_requests_seconds_count, service)",
+              "refId": "StandardVariableQuery"
+            },
+            "refresh": 1,
+            "type": "query"
+          }
+        ]
+      },
+      "title": "Tracing Overview",
+      "uid": "tracing-overview",
+      "version": 1
+    }
