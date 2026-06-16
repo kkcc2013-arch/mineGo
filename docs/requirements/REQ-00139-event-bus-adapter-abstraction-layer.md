@@ -3,7 +3,7 @@
 - **编号**：REQ-00139
 - **类别**：可扩展性/解耦
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：backend/shared/EventBusAdapter.js、backend/shared/adapters/、所有微服务、EventBus.js
 - **创建时间**：2026-06-12 02:00
 - **依赖需求**：REQ-00013（事件驱动架构与服务解耦）

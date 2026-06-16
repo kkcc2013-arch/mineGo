@@ -148,7 +148,7 @@
 || REQ-00136 | FCM/APNs 移动推送通知系统 | 功能增强 | P1 | done | user-service、reward-service、gateway、game-client、Firebase、Apple Developer | 2026-06-12 00:00 |
 | REQ-00137 | 游戏内容本地化内容管理与翻译工作流系统 | 国际化/本地化 | P1 | new | gateway、user-service、reward-service、backend/shared、admin-dashboard、database/migrations | 2026-06-12 00:35 |
 | REQ-00138 | pokemon-service inventory 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-12 01:25 |
-| REQ-00139 | 事件总线适配器抽象层 | 可扩展性/解耦 | P1 | new | backend/shared/EventBusAdapter.js、backend/shared/adapters/、所有微服务 | 2026-06-12 02:00 |
+| REQ-00139 | 事件总线适配器抽象层 | 可扩展性/解耦 | P1 | done | backend/shared/EventBusAdapter.js、backend/shared/adapters/、所有微服务 | 2026-06-12 02:00 |
 || REQ-00140 | 低峰期服务自动休眠与智能唤醒系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared/sleepManager.js、backend/shared/trafficAnalyzer.js、infrastructure/k8s、backend/jobs | 2026-06-12 03:00 |
 || REQ-00141 | reward-service events 路由挂载与集成 | 集成与修复 | P0 | done | reward-service、gateway | 2026-06-12 03:30 |
 || REQ-00142 | location-service spawnConfig 路由挂载与集成 | 集成与修复 | P0 | done | location-service | 2026-06-12 04:10 |
@@ -257,3 +257,4 @@
 || REQ-00238 | 用户生物特征数据保护与存储合规系统 | 合规/隐私 | P1 | new | user-service、gateway、game-client、backend/shared、database/migrations | 2026-06-16 01:00 |
 || REQ-00239 | SLO 错误预算燃尽告警与服务健康评分系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/sloBudgetTracker.js、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-16 01:00 |
 || REQ-00240 | 精灵放生与资源回收系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-16 10:00 |
+|| REQ-00241 | 软件物料清单（SBOM）生成与供应链安全验证系统 | 运维/CICD | P1 | new | .github/workflows、backend/shared、所有微服务、infrastructure/k8s | 2026-06-16 02:10 |
