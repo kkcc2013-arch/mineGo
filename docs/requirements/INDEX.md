@@ -258,4 +258,5 @@
 || REQ-00239 | SLO 错误预算燃尽告警与服务健康评分系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/sloBudgetTracker.js、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-16 01:00 |
 || REQ-00240 | 精灵放生与资源回收系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-16 10:00 |
 || REQ-00241 | 软件物料清单（SBOM）生成与供应链安全验证系统 | 运维/CICD | P1 | new | .github/workflows、backend/shared、所有微服务、infrastructure/k8s | 2026-06-16 02:10 |
-| REQ-00242 | 微服务启动配置统一化与环境变量校验系统 | 技术债/重构 | P1 | new | 所有微服务、backend/shared/configValidator.js、backend/shared/ServiceBootstrap.js | 2026-06-16 03:00 |
+|| REQ-00242 | 微服务启动配置统一化与环境变量校验系统 | 技术债/重构 | P1 | new | 所有微服务、backend/shared/configValidator.js、backend/shared/ServiceBootstrap.js | 2026-06-16 03:00 |
+| REQ-00243 | 精灵心情系统与情绪表现 | 功能增强 | P1 | new | pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-16 03:30 |
