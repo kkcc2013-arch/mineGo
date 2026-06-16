@@ -146,7 +146,7 @@
 || REQ-00134 | social-service friends 路由挂载与集成 | 集成与修复 | P0 | done | social-service | 2026-06-11 23:30 |
 || REQ-00135 | reward-service events 路由挂载与集成 | 集成与修复 | P0 | done | reward-service | 2026-06-11 23:40 |
 || REQ-00136 | FCM/APNs 移动推送通知系统 | 功能增强 | P1 | done | user-service、reward-service、gateway、game-client、Firebase、Apple Developer | 2026-06-12 00:00 |
-| REQ-00137 | 游戏内容本地化内容管理与翻译工作流系统 | 国际化/本地化 | P1 | new | gateway、user-service、reward-service、backend/shared、admin-dashboard、database/migrations | 2026-06-12 00:35 |
+| REQ-00137 | 游戏内容本地化内容管理与翻译工作流系统 | 国际化/本地化 | P1 | done | gateway、user-service、reward-service、backend/shared、admin-dashboard、database/migrations | 2026-06-12 00:35 |
 | REQ-00138 | pokemon-service inventory 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-12 01:25 |
 | REQ-00139 | 事件总线适配器抽象层 | 可扩展性/解耦 | P1 | done | backend/shared/EventBusAdapter.js、backend/shared/adapters/、所有微服务 | 2026-06-12 02:00 |
 || REQ-00140 | 低峰期服务自动休眠与智能唤醒系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared/sleepManager.js、backend/shared/trafficAnalyzer.js、infrastructure/k8s、backend/jobs | 2026-06-12 03:00 |
@@ -264,3 +264,4 @@
 || REQ-00245 | 精灵觉醒系统与潜能激活 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-16 05:00 |
 || REQ-00246 | 数据泄露应急响应与通知系统 | 合规/隐私 | P1 | new | gateway、user-service、所有微服务、backend/shared/DataLeakResponder.js、backend/jobs、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-16 05:00 |
 || REQ-00247 | 精灵捕捉地点伪造检测系统 | 反作弊 | P1 | new | catch-service、location-service、user-service、gateway、backend/shared | 2026-06-16 06:00 |
+| REQ-00248 | Kubernetes 存储卷生命周期管理与自动扩缩容系统 | 成本/资源优化 | P1 | new | infrastructure/k8s、backend/shared、backend/jobs、所有微服务、admin-dashboard | 2026-06-16 06:00 |
