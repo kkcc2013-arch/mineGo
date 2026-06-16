@@ -7,7 +7,7 @@
 | 标题 | 游戏活动系统与限时活动管理 |
 | 类别 | 功能增强 |
 | 优先级 | P0 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | reward-service、location-service、pokemon-service、user-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-09 18:00 |
 

@@ -254,3 +254,4 @@
 | REQ-00236 | 精灵变异系统与稀有形态 | 功能增强 | P1 | new | pokemon-service、catch-service、location-service、gateway、game-client、database/migrations | 2026-06-15 23:00 |
 || REQ-00237 | 微服务端到端集成测试与契约验证自动化系统 | 测试覆盖 | P1 | new | backend/tests/integration、backend/tests/contract、所有微服务、gateway、.github/workflows | 2026-06-16 00:00 |
 || REQ-00238 | 用户生物特征数据保护与存储合规系统 | 合规/隐私 | P1 | new | user-service、gateway、game-client、backend/shared、database/migrations | 2026-06-16 01:00 |
+| REQ-00239 | SLO 错误预算燃尽告警与服务健康评分系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/sloBudgetTracker.js、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-16 01:00 |
