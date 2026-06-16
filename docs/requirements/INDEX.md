@@ -121,7 +121,7 @@
 || REQ-00129 | 精灵数据备份与恢复系统 | 数据库/数据治理 | P1 | done | pokemon-service、user-service、database、backend/jobs、gateway | 2026-06-11 21:30 |
 || REQ-00130 | 实时业务事件流监控与分析系统 | 可观测性/监控 | P1 | done | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-11 22:00 |
 || REQ-00131 | pokemon-service achievements 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 23:00 |
-|| REQ-00114 | 精灵季节活动系统 | 功能增强 | P1 | new | location-service、catch-service、pokemon-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 14:00 |
+|| REQ-00114 | 精灵季节活动系统 | 功能增强 | P1 | done | location-service、catch-service、pokemon-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 14:00 |
 || REQ-00115 | 数据库连接池自适应调度与负载均衡系统 | 数据库/数据治理 | P1 | new | backend/shared/db.js、所有微服务、PostgreSQL、infrastructure/k8s | 2026-06-11 15:50 |
 || REQ-00116 | 精灵团队实时语音聊天系统 | 功能增强 | P1 | new | gym-service、social-service、user-service、gateway、game-client、infrastructure/k8s | 2026-06-11 16:00 |
 | REQ-00117 | 地图手势交互优化与缩放流畅度提升 | 前端体验 | P2 | new | game-client、frontend/game-client/src/game、frontend/game-client/index.html | 2026-06-11 17:05 |
@@ -258,3 +258,4 @@
 || REQ-00239 | SLO 错误预算燃尽告警与服务健康评分系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/sloBudgetTracker.js、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-16 01:00 |
 || REQ-00240 | 精灵放生与资源回收系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-16 10:00 |
 || REQ-00241 | 软件物料清单（SBOM）生成与供应链安全验证系统 | 运维/CICD | P1 | new | .github/workflows、backend/shared、所有微服务、infrastructure/k8s | 2026-06-16 02:10 |
+| REQ-00242 | 微服务启动配置统一化与环境变量校验系统 | 技术债/重构 | P1 | new | 所有微服务、backend/shared/configValidator.js、backend/shared/ServiceBootstrap.js | 2026-06-16 03:00 |
