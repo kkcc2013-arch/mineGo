@@ -284,6 +284,7 @@
 || REQ-00264 | CI/CD 流水线运行历史与性能分析系统 | 运维/CICD | P1 | new | .github/workflows、backend/shared/PipelineAnalyzer.js、admin-dashboard、backend/jobs、PostgreSQL | 2026-06-18 19:00 |
 | REQ-00265 | 精灵附魔系统与属性强化 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-18 20:00 |
 || REQ-00266 | 部署窗口智能调度系统 | 运维/CICD | P1 | new | .github/workflows、backend/shared/DeploymentScheduler.js、admin-dashboard、PostgreSQL、Redis | 2026-06-18 20:00 |
-|| REQ-00267 | 数据血缘可视化与影响分析系统 | 数据库/数据治理 | P1 | new | gateway、所有微服务、backend/shared、admin-dashboard、infrastructure/k8s/monitoring | 2026-06-18 21:00 |
-| REQ-00268 | 游戏内容数据库多语言支持与本地化表结构设计 | 国际化/本地化 | P1 | new | pokemon-service、location-service、reward-service、gateway、backend/shared、database/migrations、game-client | 2026-06-18 21:00 |
+| REQ-00267 | 数据血缘可视化与影响分析系统 | 数据库/数据治理 | P1 | new | gateway、所有微服务、backend/shared、admin-dashboard、infrastructure/k8s/monitoring | 2026-06-18 21:00 |
+|| REQ-00268 | 游戏内容数据库多语言支持与本地化表结构设计 | 国际化/本地化 | P1 | new | pokemon-service、location-service、reward-service、gateway、backend/shared、database/migrations、game-client | 2026-06-18 21:00 |
 | REQ-00269 | 精灵锦标赛与竞技场赛季系统 | 功能增强 | P1 | new | gym-service、pokemon-service、user-service、reward-service、social-service、gateway、game-client | 2026-06-18 21:05 |
+| REQ-00270 | 攻击模式检测与实时威胁识别系统 | 安全加固 | P1 | new | gateway、user-service、catch-service、gym-service、social-service、backend/shared、Redis、PostgreSQL、admin-dashboard | 2026-06-18 22:30 |
