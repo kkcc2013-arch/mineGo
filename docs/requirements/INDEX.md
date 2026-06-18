@@ -283,4 +283,5 @@
 || REQ-00263 | 游戏节奏控制与慢速模式系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/accessibility、catch-service、gym-service、gateway | 2026-06-18 19:00 |
 || REQ-00264 | CI/CD 流水线运行历史与性能分析系统 | 运维/CICD | P1 | new | .github/workflows、backend/shared/PipelineAnalyzer.js、admin-dashboard、backend/jobs、PostgreSQL | 2026-06-18 19:00 |
 | REQ-00265 | 精灵附魔系统与属性强化 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-18 20:00 |
-| REQ-00266 | 部署窗口智能调度系统 | 运维/CICD | P1 | new | .github/workflows、backend/shared/DeploymentScheduler.js、admin-dashboard、PostgreSQL、Redis | 2026-06-18 20:00 |
+|| REQ-00266 | 部署窗口智能调度系统 | 运维/CICD | P1 | new | .github/workflows、backend/shared/DeploymentScheduler.js、admin-dashboard、PostgreSQL、Redis | 2026-06-18 20:00 |
+|| REQ-00267 | 数据血缘可视化与影响分析系统 | 数据库/数据治理 | P1 | new | gateway、所有微服务、backend/shared、admin-dashboard、infrastructure/k8s/monitoring | 2026-06-18 21:00 |
