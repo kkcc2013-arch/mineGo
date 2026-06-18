@@ -199,7 +199,7 @@
 ||| REQ-00183 | 精灵道具合成与配方系统 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-14 04:30 |
 | REQ-00184 | 数据隐私影响评估（DPIA）自动化系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、database/migrations | 2026-06-14 05:00 |
 || REQ-00239 | SLO 错误预算燃尽告警与服务健康评分系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/sloBudgetTracker.js、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-16 01:00 |
-|| REQ-00240 | 精灵放生与资源回收系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-16 10:00 |
+|| REQ-00240 | 精灵放生与资源回收系统 | 功能增强 | P1 | done | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-16 10:00 |
 || REQ-00186 | 精灵历史数据归档与冷热分离系统 | 数据库/数据治理 | P1 | new | pokemon-service、user-service、database、backend/jobs、backend/shared、infrastructure/k8s | 2026-06-14 07:00 |
 || REQ-00188 | 用户语言偏好持久化与跨设备同步系统 | 国际化/本地化 | P1 | new | user-service、gateway、game-client、database/migrations、backend/shared/i18n.js | 2026-06-14 08:05 |
 
@@ -256,7 +256,7 @@
 || REQ-00237 | 微服务端到端集成测试与契约验证自动化系统 | 测试覆盖 | P1 | new | backend/tests/integration、backend/tests/contract、所有微服务、gateway、.github/workflows | 2026-06-16 00:00 |
 || REQ-00238 | 用户生物特征数据保护与存储合规系统 | 合规/隐私 | P1 | new | user-service、gateway、game-client、backend/shared、database/migrations | 2026-06-16 01:00 |
 || REQ-00239 | SLO 错误预算燃尽告警与服务健康评分系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/sloBudgetTracker.js、infrastructure/k8s/monitoring、admin-dashboard | 2026-06-16 01:00 |
-|| REQ-00240 | 精灵放生与资源回收系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-16 10:00 |
+|| REQ-00240 | 精灵放生与资源回收系统 | 功能增强 | P1 | done | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-16 10:00 |
 || REQ-00241 | 软件物料清单（SBOM）生成与供应链安全验证系统 | 运维/CICD | P1 | new | .github/workflows、backend/shared、所有微服务、infrastructure/k8s | 2026-06-16 02:10 |
 || REQ-00242 | 微服务启动配置统一化与环境变量校验系统 | 技术债/重构 | P1 | new | 所有微服务、backend/shared/configValidator.js、backend/shared/ServiceBootstrap.js | 2026-06-16 03:00 |
 | REQ-00243 | 精灵心情系统与情绪表现 | 功能增强 | P1 | new | pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-16 03:30 |
@@ -278,3 +278,4 @@
 | REQ-00258 | 精灵捕捉动画特效系统增强与粒子效果优化 | 前端体验 | P1 | new | game-client、frontend/game-client/src/effects、frontend/game-client/src/game/CatchEngine.js、gateway | 2026-06-18 14:00 |
 || REQ-00259 | 数据库读写分离与主从同步监控系统 | 数据库/数据治理 | P1 | new | backend/shared/db.js、backend/shared/ReadWriteRouter.js、所有微服务、PostgreSQL、infrastructure/k8s、admin-dashboard | 2026-06-18 15:00 |
 || REQ-00260 | 精灵图鉴探索系统与区域收集奖励 | 功能增强 | P1 | new | pokemon-service、location-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-18 16:00 |
+| REQ-00261 | 游戏内实时通知中心与消息推送系统 | 前端体验 | P1 | new | gateway、user-service、social-service、reward-service、game-client、backend/shared | 2026-06-18 17:00 |
