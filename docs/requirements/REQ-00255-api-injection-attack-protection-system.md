@@ -3,7 +3,7 @@
 - **编号**：REQ-00255
 - **类别**：安全加固
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：gateway、所有微服务、backend/shared/InjectionGuard.js、backend/shared/InputSanitizer.js
 - **创建时间**：2026-06-16 17:00
 - **依赖需求**：REQ-00003、REQ-00111
