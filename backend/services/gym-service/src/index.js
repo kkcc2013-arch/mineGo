@@ -288,6 +288,9 @@ app.use('/batch', batchRouter);
 const damageRoutes = require('./routes/damage');
 app.use('/api/v1/gym/damage', damageRoutes);
 
+// REQ-00043: 延迟任务队列处理器初始化
+const { initRaidRewardHandler } = require('./handlers/raidRewardHandler');
+
 // REQ-00109: 团队战斗系统路由
 const teamBattleRoutes = require('./routes/teamBattle');
 app.use('/api/teams', teamBattleRoutes);
@@ -303,5 +306,21 @@ const notificationWss = initNotificationWS(server, '/ws/notifications');
 module.exports.sendNotification = sendNotificationToUser;
 module.exports.notificationWss = notificationWss;
 
-server.listen(PORT, () => console.log(`[gym-service] listening on :${PORT}`));
+// ============================================================
+// DELAY QUEUE INITIALIZATION - REQ-00043
+// ============================================================
+async function initializeDelayQueue() {
+  try {
+    await initRaidRewardHandler();
+    logger.info('Raid reward delay queue handler initialized');
+  } catch (err) {
+    logger.error({ err }, 'Failed to initialize delay queue handlers');
+  }
+}
+
+server.listen(PORT, async () => {
+  console.log(`[gym-service] listening on :${PORT}`);
+  // Initialize delay queue handlers
+  await initializeDelayQueue();
+});
 module.exports = app;

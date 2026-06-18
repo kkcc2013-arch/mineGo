@@ -376,6 +376,166 @@ eventBus.subscribe('pokemon.caught', async (event) => {
 });
 ```
 
+## 延迟队列架构
+
+### 概述
+
+延迟队列系统基于 Kafka 实现，支持延迟任务调度、指数退避重试、任务优先级和死信队列处理。
+
+### 核心组件
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                      DelayQueue System                        │
+├──────────────────────────────────────────────────────────────┤
+│                                                                │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │
+│  │   Producer  │  │   Delay     │  │  Consumer   │          │
+│  │   Service   │──▶   Buckets   │──▶  Handlers   │          │
+│  └─────────────┘  └─────────────┘  └─────────────┘          │
+│         │                │                   │                │
+│         │                ▼                   │                │
+│         │         ┌─────────────┐           │                │
+│         │         │   Bucket    │           │                │
+│         │         │  Scheduler  │           │                │
+│         │         └─────────────┘           │                │
+│         │                                     │                │
+│         │         ┌─────────────┐           │                │
+│         └─────────▶  Dead Letter│◀──────────┘                │
+│                   │    Queue    │                            │
+│                   └─────────────┘                            │
+│                          │                                     │
+│                          ▼                                     │
+│                   ┌─────────────┐                            │
+│                   │   Monitor   │                            │
+│                   │  & Alerter  │                            │
+│                   └─────────────┘                            │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### 延迟桶设计
+
+为提高延迟任务的调度效率，采用多级延迟桶策略：
+
+| 桶名称 | 延迟范围 | 用途 |
+|--------|----------|------|
+| immediate | ≤ 0s | 立即执行任务 |
+| 1m | < 1分钟 | 短延迟任务（如通知发送） |
+| 5m | < 5分钟 | 中短延迟任务（如 Raid 奖励） |
+| 15m | < 15分钟 | 中等延迟任务 |
+| 1h | < 1小时 | 长延迟任务 |
+| 6h | < 6小时 | 超长延迟任务 |
+| 24h | ≥ 6小时 | 定时任务 |
+
+### 重试机制
+
+#### 指数退避算法
+
+```javascript
+// 重试延迟计算
+const baseDelay = 1000; // 1秒
+const maxDelay = 300000; // 5分钟
+const delay = Math.min(baseDelay * Math.pow(2, retryCount - 1), maxDelay);
+
+// 添加抖动（±10%）防止惊群效应
+const jitter = delay * 0.1 * (Math.random() * 2 - 1);
+const finalDelay = Math.floor(delay + jitter);
+```
+
+#### 重试策略
+
+| 任务类型 | 最大重试次数 | 退避策略 |
+|----------|--------------|----------|
+| 支付超时 | 3 | 指数退避 |
+| Raid 奖励 | 10 | 指数退避 |
+| 通知发送 | 5 | 指数退避 |
+| 数据清理 | 3 | 固定间隔 |
+
+### 优先级队列
+
+```javascript
+const PRIORITY_LEVELS = {
+  critical: 0,   // 支付回调、账户恢复
+  high: 1,       // Raid 奖励、重要通知
+  normal: 2,     // 数据同步、统计
+  low: 3         // 分析、清理任务
+};
+```
+
+### 应用场景
+
+#### 1. Raid 奖励延迟发放
+
+```javascript
+// Raid 结束后 5 分钟发放奖励
+await scheduleRaidReward(raidId, participants, 5 * 60 * 1000);
+```
+
+#### 2. 支付订单超时取消
+
+```javascript
+// 订单创建 30 分钟后未支付自动取消
+await scheduleOrderTimeout(orderId, 30 * 60 * 1000);
+```
+
+#### 3. 定时数据清理
+
+```javascript
+// 每日凌晨 3 点执行过期数据清理
+await delayQueue.scheduleRecurring('data.cleanup', {
+  batchSize: 1000
+}, '0 3 * * *');
+```
+
+### 监控指标
+
+| 指标名称 | 类型 | 说明 |
+|----------|------|------|
+| delay_queue_tasks_scheduled_total | Counter | 已调度任务总数 |
+| delay_queue_tasks_started_total | Counter | 已开始任务总数 |
+| delay_queue_tasks_completed_total | Counter | 已完成任务总数 |
+| delay_queue_tasks_retried_total | Counter | 重试任务总数 |
+| delay_queue_tasks_dead_letter_total | Counter | 死信队列任务总数 |
+| delay_queue_task_duration_seconds | Histogram | 任务执行时长 |
+| delay_queue_bucket_size | Gauge | 延迟桶大小 |
+
+### 管理 API
+
+```bash
+# 获取队列统计
+GET /api/admin/delay-queue/stats
+
+# 获取队列健康状态
+GET /api/admin/delay-queue/health
+
+# 手动调度任务
+POST /api/admin/delay-queue/tasks
+
+# 重试死信队列任务
+POST /api/admin/delay-queue/dlq/:taskId/retry
+```
+
+### 数据库表设计
+
+#### delay_queue_tasks
+
+```sql
+CREATE TABLE delay_queue_tasks (
+  id VARCHAR(100) PRIMARY KEY,
+  type VARCHAR(100) NOT NULL,
+  payload JSONB NOT NULL,
+  priority INTEGER DEFAULT 2,
+  status VARCHAR(20) DEFAULT 'pending',
+  execute_at TIMESTAMP NOT NULL,
+  retries INTEGER DEFAULT 0,
+  max_retries INTEGER DEFAULT 5,
+  error_message TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  completed_at TIMESTAMP,
+  metadata JSONB
+);
+```
+
 ## 安全机制
 
 ### 认证授权

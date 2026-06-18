@@ -413,10 +413,27 @@ function verifyPaymentSign(sign, order) {
   return !!sign || process.env.NODE_ENV !== 'production';
 }
 
+// REQ-00043: 延迟任务队列处理器初始化
+const { initOrderTimeoutHandler } = require('./handlers/orderTimeoutHandler');
+
 // REQ-00131: 多货币支持路由
 const currencyRouter = require('./routes/currency');
 app.use('/currency', currencyRouter);
 
 app.use(errorHandler);
-app.listen(PORT, () => logger.info({ port: PORT }, 'payment-service started'));
+
+// Initialize delay queue handlers
+async function initializeDelayQueue() {
+  try {
+    await initOrderTimeoutHandler();
+    logger.info('Order timeout delay queue handler initialized');
+  } catch (err) {
+    logger.error({ err }, 'Failed to initialize delay queue handlers');
+  }
+}
+
+app.listen(PORT, async () => {
+  logger.info({ port: PORT }, 'payment-service started');
+  await initializeDelayQueue();
+});
 module.exports = app;

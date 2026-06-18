@@ -59,6 +59,9 @@ const securityRoutes = require('./routes/security');
 // REQ-00130: 实时业务事件流监控与分析系统
 const businessEventsRoutes = require('./routes/businessEvents');
 
+// REQ-00043: 延迟队列管理接口
+const delayQueueAdminRoutes = require('./routes/delayQueueAdmin');
+
 const logger = createLogger('gateway');
 const SERVICE_NAME = 'gateway';
 
@@ -429,6 +432,10 @@ app.use('/config/health', configRoutes);
 // ── Dependencies Analysis API (REQ-00103) ────────────────────────────
 // 微服务依赖分析接口（管理员专用）
 app.use('/api/admin/dependencies', dependenciesRoutes);
+
+// ── Delay Queue Admin API (REQ-00043) ────────────────────────────
+// 延迟队列管理接口（管理员专用）
+app.use('/api/admin/delay-queue', delayQueueAdminRoutes);
 
 // ── Time Period API (REQ-00102) ────────────────────────────
 // 昼夜循环系统接口（公开）
