@@ -281,4 +281,5 @@
 || REQ-00261 | 游戏内实时通知中心与消息推送系统 | 前端体验 | P1 | new | gateway、user-service、social-service、reward-service、game-client、backend/shared | 2026-06-18 17:00 |
 || REQ-00262 | 实时对战 WebSocket 连接系统 | 功能增强 | P1 | done | gym-service、social-service、gateway、game-client、infrastructure/k8s | 2026-06-18 18:00 |
 || REQ-00263 | 游戏节奏控制与慢速模式系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/accessibility、catch-service、gym-service、gateway | 2026-06-18 19:00 |
-| REQ-00264 | CI/CD 流水线运行历史与性能分析系统 | 运维/CICD | P1 | new | .github/workflows、backend/shared/PipelineAnalyzer.js、admin-dashboard、backend/jobs、PostgreSQL | 2026-06-18 19:00 |
+|| REQ-00264 | CI/CD 流水线运行历史与性能分析系统 | 运维/CICD | P1 | new | .github/workflows、backend/shared/PipelineAnalyzer.js、admin-dashboard、backend/jobs、PostgreSQL | 2026-06-18 19:00 |
+| REQ-00265 | 精灵附魔系统与属性强化 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-18 20:00 |
