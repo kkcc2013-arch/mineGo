@@ -3,7 +3,7 @@
 - **编号**：REQ-00231
 - **类别**：性能优化
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：backend/shared/IdempotencyMiddleware.js、gateway、catch-service、gym-service、payment-service、Redis
 - **创建时间**：2026-06-15 20:40
 - **依赖需求**：REQ-00032（多渠道通知插件 - 已完成）、REQ-00039（缓存预热系统 - 已完成）

@@ -247,7 +247,7 @@
 || REQ-00228 | 游戏社交隐私设置与好友权限管理系统 | 功能增强 | P1 | new | social-service、user-service、gateway、game-client、database/migrations | 2026-06-15 19:00 |
 || REQ-00229 | 游戏界面复数形式与性别语法本地化系统 | 国际化/本地化 | P1 | new | game-client、frontend/game-client/src/i18n、gateway、所有微服务、backend/shared/i18n.js | 2026-06-15 19:05 |
 || REQ-00230 | 精灵经验值获取历史与成长轨迹追踪系统 | 功能增强 | P1 | new | pokemon-service、gateway、game-client、database/migrations | 2026-06-15 20:00 |
-|| REQ-00231 | 通用 API 幂等性中间件系统 | 性能优化 | P1 | new | backend/shared/IdempotencyMiddleware.js、gateway、catch-service、gym-service、payment-service、Redis | 2026-06-15 20:40 |
+|| REQ-00231 | 通用 API 幂等性中间件系统 | 性能优化 | P1 | done | backend/shared/IdempotencyMiddleware.js、gateway、catch-service、gym-service、payment-service、Redis | 2026-06-18 20:10 |
 || REQ-00232 | 数据库连接池健康检测与自动恢复系统 | 性能优化 | P1 | new | backend/shared、所有微服务、PostgreSQL、infrastructure/k8s | 2026-06-15 21:00 |
 || REQ-00233 | 游戏控制器与手柄输入支持系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/input、frontend/game-client/src/accessibility | 2026-06-15 21:05 |
 || REQ-00234 | API 请求速率限制智能适配与动态配额系统 | 安全加固 | P1 | done | gateway、user-service、backend/shared、Redis、PostgreSQL | 2026-06-15 22:05 |
@@ -283,3 +283,4 @@
 || REQ-00263 | 游戏节奏控制与慢速模式系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/accessibility、catch-service、gym-service、gateway | 2026-06-18 19:00 |
 || REQ-00264 | CI/CD 流水线运行历史与性能分析系统 | 运维/CICD | P1 | new | .github/workflows、backend/shared/PipelineAnalyzer.js、admin-dashboard、backend/jobs、PostgreSQL | 2026-06-18 19:00 |
 | REQ-00265 | 精灵附魔系统与属性强化 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-18 20:00 |
+| REQ-00266 | 部署窗口智能调度系统 | 运维/CICD | P1 | new | .github/workflows、backend/shared/DeploymentScheduler.js、admin-dashboard、PostgreSQL、Redis | 2026-06-18 20:00 |
