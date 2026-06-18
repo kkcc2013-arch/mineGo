@@ -7,7 +7,7 @@
 | 标题 | 多设备登录管理与设备信任系统 |
 | 类别 | 安全加固 |
 | 优先级 | P1 |
-| 状态 | new |
+- **状态**：done
 | 涉及服务 | user-service、gateway、game-client、backend/shared、database/migrations、admin-dashboard |
 | 创建时间 | 2026-06-16 08:00 |
 

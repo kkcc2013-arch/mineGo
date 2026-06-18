@@ -266,7 +266,7 @@
 || REQ-00247 | 精灵捕捉地点伪造检测系统 | 反作弊 | P1 | new | catch-service、location-service、user-service、gateway、backend/shared | 2026-06-16 06:00 |
 | REQ-00248 | Kubernetes 存储卷生命周期管理与自动扩缩容系统 | 成本/资源优化 | P1 | new | infrastructure/k8s、backend/shared、backend/jobs、所有微服务、admin-dashboard | 2026-06-16 06:00 |
 || REQ-00249 | 基础设施成本预测与预算智能规划系统 | 成本/资源优化 | P1 | new | backend/shared、infrastructure/k8s、admin-dashboard、所有微服务、backend/jobs | 2026-06-16 07:00 |
-| REQ-00250 | 多设备登录管理与设备信任系统 | 安全加固 | P1 | new | user-service、gateway、game-client、backend/shared、database/migrations、admin-dashboard | 2026-06-16 08:00 |
+| REQ-00250 | 多设备登录管理与设备信任系统 | 安全加固 | P1 | done | user-service、gateway、game-client、backend/shared、database/migrations、admin-dashboard | 2026-06-16 08:00 |
 | REQ-00251 | API 响应序列化优化与 JSON 压缩系统 | 性能优化 | P1 | new | gateway、所有微服务、backend/shared/JsonOptimizer.js、game-client | 2026-06-16 08:00 |
 | REQ-00252 | 游戏内日期时间格式本地化系统 | 国际化/本地化 | P2 | new | game-client、frontend/game-client/src/i18n、backend/shared/i18n.js、gateway、所有微服务 | 2026-06-16 09:00 |
 | REQ-00253 | 精灵远征探险系统 | 功能增强 | P1 | new | pokemon-service、location-service、reward-service、gateway、game-client、database/migrations | 2026-06-16 15:00 |
@@ -288,3 +288,4 @@
 || REQ-00268 | 游戏内容数据库多语言支持与本地化表结构设计 | 国际化/本地化 | P1 | new | pokemon-service、location-service、reward-service、gateway、backend/shared、database/migrations、game-client | 2026-06-18 21:00 |
 | REQ-00269 | 精灵锦标赛与竞技场赛季系统 | 功能增强 | P1 | new | gym-service、pokemon-service、user-service、reward-service、social-service、gateway、game-client | 2026-06-18 21:05 |
 | REQ-00270 | 攻击模式检测与实时威胁识别系统 | 安全加固 | P1 | new | gateway、user-service、catch-service、gym-service、social-service、backend/shared、Redis、PostgreSQL、admin-dashboard | 2026-06-18 22:30 |
+| REQ-00271 | 精灵昵称与自定义名牌系统 | 功能增强 | P2 | new | pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-18 23:00 |
