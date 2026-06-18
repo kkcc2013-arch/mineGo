@@ -286,3 +286,4 @@
 || REQ-00266 | 部署窗口智能调度系统 | 运维/CICD | P1 | new | .github/workflows、backend/shared/DeploymentScheduler.js、admin-dashboard、PostgreSQL、Redis | 2026-06-18 20:00 |
 || REQ-00267 | 数据血缘可视化与影响分析系统 | 数据库/数据治理 | P1 | new | gateway、所有微服务、backend/shared、admin-dashboard、infrastructure/k8s/monitoring | 2026-06-18 21:00 |
 | REQ-00268 | 游戏内容数据库多语言支持与本地化表结构设计 | 国际化/本地化 | P1 | new | pokemon-service、location-service、reward-service、gateway、backend/shared、database/migrations、game-client | 2026-06-18 21:00 |
+| REQ-00269 | 精灵锦标赛与竞技场赛季系统 | 功能增强 | P1 | new | gym-service、pokemon-service、user-service、reward-service、social-service、gateway、game-client | 2026-06-18 21:05 |
