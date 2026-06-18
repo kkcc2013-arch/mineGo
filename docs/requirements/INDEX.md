@@ -274,3 +274,4 @@
 || REQ-00255 | API 请求参数注入攻击防护系统 | 安全加固 | P1 | done | gateway、所有微服务、backend/shared/InjectionGuard.js、backend/shared/InputSanitizer.js | 2026-06-18 13:10 |
 || REQ-00256 | 精灵传说系统与图鉴收集故事 | 功能增强 | P1 | new | pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-16 17:30 |
 | REQ-00257 | API 回归测试自动化与 Breaking Change 检测系统 | 测试覆盖 | P1 | new | gateway、所有微服务、backend/tests/regression、backend/shared/OpenAPIComparator.js、.github/workflows、docs/api-spec | 2026-06-18 13:05 |
+| REQ-00258 | 精灵捕捉动画特效系统增强与粒子效果优化 | 前端体验 | P1 | new | game-client、frontend/game-client/src/effects、frontend/game-client/src/game/CatchEngine.js、gateway | 2026-06-18 14:00 |
