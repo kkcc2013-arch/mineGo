@@ -176,7 +176,7 @@
 || REQ-00234 | API 请求速率限制智能适配与动态配额系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared、Redis、PostgreSQL | 2026-06-15 22:05 |
 
 || REQ-00163 | 游戏客户端内存篡改检测与防护系统 | 反作弊 | P1 | new | game-client、gateway、catch-service、gym-service、backend/shared | 2026-06-13 16:00 |
-|| REQ-00164 | 精灵详情页图片懒加载与渐进式加载系统 | 性能优化 | P1 | new | game-client、frontend/game-client/src/components、backend/shared/CDNManager.js、gateway | 2026-06-13 18:05 |
+|| REQ-00164 | 精灵详情页图片懒加载与渐进式加载系统 | 性能优化 | P1 | done | game-client、frontend/game-client/src/components、backend/shared/CDNManager.js、gateway | 2026-06-13 18:05 |
 || REQ-00165 | 实时竞技排行榜优化与热度预测系统 | 性能优化 | P1 | new | social-service、user-service、gym-service、gateway、Redis、backend/shared | 2026-06-13 18:15 |
 || REQ-00166 | 实时业务事件流监控与分析系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-13 19:00 |
 | REQ-00166 | API 集成测试覆盖率提升与自动化回归测试系统 | 测试覆盖 | P1 | new | backend/tests/integration、所有微服务、GitHub Actions、docs/api-spec | 2026-06-13 19:35 |
@@ -274,4 +274,5 @@
 || REQ-00255 | API 请求参数注入攻击防护系统 | 安全加固 | P1 | done | gateway、所有微服务、backend/shared/InjectionGuard.js、backend/shared/InputSanitizer.js | 2026-06-18 13:10 |
 || REQ-00256 | 精灵传说系统与图鉴收集故事 | 功能增强 | P1 | new | pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-16 17:30 |
 | REQ-00257 | API 回归测试自动化与 Breaking Change 检测系统 | 测试覆盖 | P1 | new | gateway、所有微服务、backend/tests/regression、backend/shared/OpenAPIComparator.js、.github/workflows、docs/api-spec | 2026-06-18 13:05 |
+| REQ-00258 | 部署变更日志自动生成与发布说明系统 | 运维/CICD | P1 | new | .github/workflows、backend/shared/ChangelogGenerator.js、scripts、docs、admin-dashboard | 2026-06-18 14:00 |
 | REQ-00258 | 精灵捕捉动画特效系统增强与粒子效果优化 | 前端体验 | P1 | new | game-client、frontend/game-client/src/effects、frontend/game-client/src/game/CatchEngine.js、gateway | 2026-06-18 14:00 |

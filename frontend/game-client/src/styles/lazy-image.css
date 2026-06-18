@@ -1,0 +1,382 @@
+/* frontend/game-client/src/styles/lazy-image.css */
+/* 图片懒加载与渐进式加载样式 */
+
+/* ── 懒加载图片容器 ────────────────────────────────────────── */
+.lazy-image-container {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-skeleton-bg, #f0f0f0);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  min-width: 50px;
+}
+
+/* 状态标记 */
+.lazy-image-container[data-state="pending"] {
+  /* 等待加载 */
+}
+
+.lazy-image-container[data-state="in-view"] {
+  /* 进入可视区域 */
+}
+
+.lazy-image-container[data-state="loading"] {
+  /* 加载中 */
+}
+
+.lazy-image-container[data-state="thumbnail"] {
+  /* 缩略图已加载 */
+}
+
+.lazy-image-container[data-state="loaded"] {
+  /* 完全加载 */
+}
+
+.lazy-image-container[data-state="error"] {
+  /* 加载失败 */
+}
+
+/* ── 骨架屏占位 ────────────────────────────────────────────── */
+.lazy-image-skeleton {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60px;
+}
+
+.skeleton-animation {
+  width: 60%;
+  height: 60%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  border-radius: 50%;
+}
+
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* 骨架屏变体 - 方形 */
+.lazy-image-skeleton.square .skeleton-animation {
+  border-radius: 8px;
+}
+
+/* 骨架屏变体 - 矩形 */
+.lazy-image-skeleton.rect .skeleton-animation {
+  border-radius: 4px;
+  width: 80%;
+  height: 50%;
+}
+
+/* ── 图片样式 ──────────────────────────────────────────────── */
+.lazy-image-thumbnail,
+.lazy-image-full {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: opacity 0.3s ease, filter 0.3s ease, transform 0.3s ease;
+}
+
+/* 缩略图 - 模糊效果 */
+.lazy-image-thumbnail {
+  filter: blur(10px);
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+/* 完整图片容器 */
+.lazy-image-full-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 完整图片 */
+.lazy-image-full {
+  filter: none;
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* 加载完成状态 */
+.lazy-image-container.loaded .lazy-image-thumbnail {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.lazy-image-container.loaded .lazy-image-full-container {
+  opacity: 1;
+}
+
+/* ── 错误状态 ──────────────────────────────────────────────── */
+.lazy-image-error {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-error, #ff4444);
+  gap: 8px;
+  padding: 16px;
+  min-height: 80px;
+}
+
+.lazy-image-error .error-icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.lazy-image-error .error-text {
+  font-size: 12px;
+  color: var(--color-text-secondary, #666);
+  text-align: center;
+}
+
+.lazy-image-error .retry-btn {
+  padding: 6px 16px;
+  background: var(--color-primary, #0066cc);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.lazy-image-error .retry-btn:hover {
+  background: var(--color-primary-dark, #0052a3);
+  transform: scale(1.02);
+}
+
+.lazy-image-error .retry-btn:active {
+  transform: scale(0.98);
+}
+
+/* ── 优先级样式 ────────────────────────────────────────────── */
+.lazy-image-container[data-priority="high"] {
+  background-color: var(--color-skeleton-bg-highlight, #e8f4ff);
+}
+
+.lazy-image-container[data-priority="high"] .skeleton-animation {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 102, 204, 0.1) 0%,
+    rgba(0, 102, 204, 0.2) 50%,
+    rgba(0, 102, 204, 0.1) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1s ease-in-out infinite;
+}
+
+.lazy-image-container[data-priority="low"] {
+  /* 低优先级 - 默认样式 */
+}
+
+/* ── 精灵列表项样式 ─────────────────────────────────────────── */
+.pokemon-list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--color-card-bg, #fff);
+  transition: background-color 0.2s ease;
+}
+
+.pokemon-list-item:hover {
+  background: var(--color-card-bg-hover, #f5f5f5);
+}
+
+.pokemon-list-item .pokemon-image-container {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+}
+
+.pokemon-list-item .pokemon-image-container.lazy-image-container {
+  border-radius: 50%;
+}
+
+/* 收藏精灵高亮 */
+.pokemon-list-item.favorite .pokemon-image-container {
+  box-shadow: 0 0 0 2px var(--color-favorite, #ffd700);
+}
+
+/* ── 精灵详情页大图样式 ────────────────────────────────────── */
+.pokemon-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.pokemon-detail .pokemon-image-container {
+  width: 200px;
+  height: 200px;
+  margin-bottom: 16px;
+}
+
+.pokemon-detail .pokemon-image-container.lazy-image-container {
+  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* ── 图鉴网格样式 ──────────────────────────────────────────── */
+.pokedex-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+  padding: 16px;
+}
+
+.pokedex-grid .pokemon-image-container {
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+/* ── 战斗场景精灵样式 ──────────────────────────────────────── */
+.battle-pokemon .pokemon-image-container {
+  width: 120px;
+  height: 120px;
+}
+
+.battle-pokemon.enemy .pokemon-image-container {
+  transform: scaleX(-1);
+}
+
+/* ── 道馆精灵样式 ──────────────────────────────────────────── */
+.gym-pokemon .pokemon-image-container {
+  width: 100px;
+  height: 100px;
+}
+
+/* ── 响应式调整 ────────────────────────────────────────────── */
+
+/* 小屏幕 */
+@media (max-width: 480px) {
+  .pokemon-list-item .pokemon-image-container {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .pokemon-detail .pokemon-image-container {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .pokedex-grid {
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+    padding: 12px;
+  }
+}
+
+/* 中等屏幕 */
+@media (min-width: 481px) and (max-width: 768px) {
+  .pokemon-list-item .pokemon-image-container {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .pokemon-detail .pokemon-image-container {
+    width: 180px;
+    height: 180px;
+  }
+}
+
+/* 大屏幕 */
+@media (min-width: 1024px) {
+  .pokemon-detail .pokemon-image-container {
+    width: 240px;
+    height: 240px;
+  }
+  
+  .pokedex-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 16px;
+  }
+}
+
+/* ── 暗色模式 ──────────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  .lazy-image-container {
+    background-color: var(--color-skeleton-bg-dark, #2a2a2a);
+  }
+  
+  .skeleton-animation {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.05) 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+    background-size: 200% 100%;
+  }
+  
+  .lazy-image-error {
+    color: var(--color-error-dark, #ff6b6b);
+  }
+  
+  .lazy-image-error .error-text {
+    color: var(--color-text-secondary-dark, #aaa);
+  }
+  
+  .pokemon-list-item {
+    background: var(--color-card-bg-dark, #1a1a1a);
+  }
+  
+  .pokemon-list-item:hover {
+    background: var(--color-card-bg-hover-dark, #2a2a2a);
+  }
+}
+
+/* ── 减少动画偏好 ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-animation {
+    animation: none;
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .lazy-image-thumbnail,
+  .lazy-image-full,
+  .lazy-image-full-container {
+    transition: none;
+  }
+}
+
+/* ── 打印样式 ──────────────────────────────────────────────── */
+@media print {
+  .lazy-image-skeleton,
+  .skeleton-animation {
+    display: none;
+  }
+  
+  .lazy-image-thumbnail {
+    filter: none;
+    transform: none;
+  }
+  
+  .lazy-image-error .retry-btn {
+    display: none;
+  }
+}
