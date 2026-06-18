@@ -289,3 +289,4 @@
 | REQ-00269 | 精灵锦标赛与竞技场赛季系统 | 功能增强 | P1 | new | gym-service、pokemon-service、user-service、reward-service、social-service、gateway、game-client | 2026-06-18 21:05 |
 | REQ-00270 | 攻击模式检测与实时威胁识别系统 | 安全加固 | P1 | new | gateway、user-service、catch-service、gym-service、social-service、backend/shared、Redis、PostgreSQL、admin-dashboard | 2026-06-18 22:30 |
 | REQ-00271 | 精灵昵称与自定义名牌系统 | 功能增强 | P2 | new | pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-18 23:00 |
+| REQ-00272 | API 契约测试系统与自动化 Mock 服务生成 | 测试覆盖 | P1 | new | gateway、所有微服务、backend/tests/contract、docs/api-spec | 2026-06-18 23:00 |
