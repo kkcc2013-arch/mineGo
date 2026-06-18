@@ -14,6 +14,7 @@ const metrics = require('../../../shared/metrics');
 const { validateLocation, checkRateLimit, requireTrustScore, TRUST_SCORE } = require('../../../shared/anti-cheat');
 const { initNotificationWS, sendNotificationToUser } = require('../../../shared/NotificationWebSocket');
 const battleRoutes = require('./routes/battle');
+const { WebSocketServer: BattleWebSocketServer } = require('./websocket/WebSocketServer');
 
 const logger = createLogger('gym-service');
 const SERVICE_NAME = 'gym-service';
@@ -307,6 +308,25 @@ module.exports.sendNotification = sendNotificationToUser;
 module.exports.notificationWss = notificationWss;
 
 // ============================================================
+// BATTLE WEBSOCKET - REQ-00262
+// ============================================================
+let battleWsServer = null;
+
+function initBattleWebSocket() {
+  battleWsServer = new BattleWebSocketServer({
+    port: process.env.WS_BATTLE_PORT || 8086,
+    jwtSecret: process.env.JWT_SECRET
+  });
+  battleWsServer.start();
+  logger.info({ port: process.env.WS_BATTLE_PORT || 8086 }, 'Battle WebSocket server started');
+  return battleWsServer;
+}
+
+// Export for testing
+module.exports.battleWsServer = battleWsServer;
+module.exports.initBattleWebSocket = initBattleWebSocket;
+
+// ============================================================
 // DELAY QUEUE INITIALIZATION - REQ-00043
 // ============================================================
 async function initializeDelayQueue() {
@@ -322,5 +342,7 @@ server.listen(PORT, async () => {
   console.log(`[gym-service] listening on :${PORT}`);
   // Initialize delay queue handlers
   await initializeDelayQueue();
+  // Initialize battle WebSocket server
+  initBattleWebSocket();
 });
 module.exports = app;
