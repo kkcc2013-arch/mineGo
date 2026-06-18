@@ -62,6 +62,10 @@ const businessEventsRoutes = require('./routes/businessEvents');
 // REQ-00043: 延迟队列管理接口
 const delayQueueAdminRoutes = require('./routes/delayQueueAdmin');
 
+// REQ-00045: 设备完整性与模拟器检测系统
+const { deviceIntegrityCheck, checkDeviceRestriction } = require('@pmg/shared/deviceIntegrityMiddleware');
+const deviceIntegrityRoutes = require('./routes/deviceIntegrity');
+
 const logger = createLogger('gateway');
 const SERVICE_NAME = 'gateway';
 
@@ -124,6 +128,17 @@ app.use(createCompressionMiddleware());
 
 // ── REQ-00044: API Version Middleware ────────────────────────────
 app.use(apiVersionMiddleware);
+
+// ── REQ-00045: Device Integrity Check ────────────────────────────
+// 设备完整性检测中间件（应用于所有需要认证的路由）
+app.use(deviceIntegrityCheck({
+  blockOnFailure: false, // 检测失败时不阻止，避免影响正常用户
+  strictMode: false, // 非严格模式，允许旧版客户端
+  skipPaths: ['/health', '/metrics', '/api/auth', '/api/v1/auth', '/api/v2/auth'],
+}));
+
+// 设备管理 API
+app.use('/api/device', authMiddleware, deviceIntegrityRoutes);
 
 // ── REQ-00111: Security Routes ────────────────────────────
 app.use('/api/v1/security', securityRoutes);
