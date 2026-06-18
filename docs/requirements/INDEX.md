@@ -173,7 +173,7 @@
 | REQ-00160 | 精灵特殊个体值（彩蛋）系统 | 功能增强 | P1 | done | pokemon-service、catch-service、location-service、gateway、game-client、database/migrations | 2026-06-13 15:00 |
 | REQ-00161 | 低峰期服务自动休眠与智能唤醒系统 | 成本/资源优化 | P1 | done | gateway、所有微服务、backend/shared/TrafficAnalyzer.js、backend/shared/SleepManager.js、backend/jobs/peakHourPreheater.js | 2026-06-16 04:00 | gateway、所有微服务、backend/shared/sleepManager.js、backend/shared/trafficAnalyzer.js、infrastructure/k8s、backend/jobs | 2026-06-13 10:30 |
 || REQ-00233 | 游戏控制器与手柄输入支持系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/input、frontend/game-client/src/accessibility | 2026-06-15 21:05 |
-|| REQ-00234 | API 请求速率限制智能适配与动态配额系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared、Redis、PostgreSQL | 2026-06-15 22:05 |
+|| REQ-00234 | API 请求速率限制智能适配与动态配额系统 | 安全加固 | P1 | done | gateway、user-service、backend/shared、Redis、PostgreSQL | 2026-06-15 22:05 |
 
 || REQ-00163 | 游戏客户端内存篡改检测与防护系统 | 反作弊 | P1 | new | game-client、gateway、catch-service、gym-service、backend/shared | 2026-06-13 16:00 |
 || REQ-00164 | 精灵详情页图片懒加载与渐进式加载系统 | 性能优化 | P1 | done | game-client、frontend/game-client/src/components、backend/shared/CDNManager.js、gateway | 2026-06-13 18:05 |
@@ -214,7 +214,7 @@
 || REQ-00196 | 微服务路由层集成测试覆盖率提升计划 | 测试覆盖 | P1 | new | 所有微服务、backend/tests/integration、backend/tests/unit | 2026-06-14 13:00 |
 || REQ-00197 | 精灵天赋系统与隐藏属性机制 | 功能增强 | P1 | new | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-06-14 14:00 |
 || REQ-00233 | 游戏控制器与手柄输入支持系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/input、frontend/game-client/src/accessibility | 2026-06-15 21:05 |
-|| REQ-00234 | API 请求速率限制智能适配与动态配额系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared、Redis、PostgreSQL | 2026-06-15 22:05 |
+|| REQ-00234 | API 请求速率限制智能适配与动态配额系统 | 安全加固 | P1 | done | gateway、user-service、backend/shared、Redis、PostgreSQL | 2026-06-15 22:05 |
 ||| REQ-00199 | 数据血缘追踪与影响分析系统 | 数据库/数据治理 | P1 | new | gateway、所有微服务、backend/shared、database、infrastructure/k8s/monitoring | 2026-06-14 15:00 |
 || REQ-00200 | 敏感操作二次验证与风险分级验证系统 | 安全加固 | P1 | new | gateway、user-service、payment-service、social-service、backend/shared/riskVerifier.js、game-client | 2026-06-14 15:05 |
 || REQ-00201 | API 契约版本协商与灰度兼容系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared、docs/api-spec | 2026-06-14 16:00 |
@@ -250,7 +250,7 @@
 || REQ-00231 | 通用 API 幂等性中间件系统 | 性能优化 | P1 | new | backend/shared/IdempotencyMiddleware.js、gateway、catch-service、gym-service、payment-service、Redis | 2026-06-15 20:40 |
 || REQ-00232 | 数据库连接池健康检测与自动恢复系统 | 性能优化 | P1 | new | backend/shared、所有微服务、PostgreSQL、infrastructure/k8s | 2026-06-15 21:00 |
 || REQ-00233 | 游戏控制器与手柄输入支持系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/input、frontend/game-client/src/accessibility | 2026-06-15 21:05 |
-|| REQ-00234 | API 请求速率限制智能适配与动态配额系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared、Redis、PostgreSQL | 2026-06-15 22:05 |
+|| REQ-00234 | API 请求速率限制智能适配与动态配额系统 | 安全加固 | P1 | done | gateway、user-service、backend/shared、Redis、PostgreSQL | 2026-06-15 22:05 |
 | REQ-00235 | 用户反馈与 Bug 报告收集系统 | 功能增强 | P1 | new | user-service、gateway、game-client、admin-dashboard、backend/shared | 2026-06-15 22:30 |
 | REQ-00236 | 精灵变异系统与稀有形态 | 功能增强 | P1 | new | pokemon-service、catch-service、location-service、gateway、game-client、database/migrations | 2026-06-15 23:00 |
 || REQ-00237 | 微服务端到端集成测试与契约验证自动化系统 | 测试覆盖 | P1 | new | backend/tests/integration、backend/tests/contract、所有微服务、gateway、.github/workflows | 2026-06-16 00:00 |
