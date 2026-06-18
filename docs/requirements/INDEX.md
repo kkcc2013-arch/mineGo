@@ -278,4 +278,5 @@
 | REQ-00258 | 精灵捕捉动画特效系统增强与粒子效果优化 | 前端体验 | P1 | new | game-client、frontend/game-client/src/effects、frontend/game-client/src/game/CatchEngine.js、gateway | 2026-06-18 14:00 |
 || REQ-00259 | 数据库读写分离与主从同步监控系统 | 数据库/数据治理 | P1 | new | backend/shared/db.js、backend/shared/ReadWriteRouter.js、所有微服务、PostgreSQL、infrastructure/k8s、admin-dashboard | 2026-06-18 15:00 |
 || REQ-00260 | 精灵图鉴探索系统与区域收集奖励 | 功能增强 | P1 | new | pokemon-service、location-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-18 16:00 |
-| REQ-00261 | 游戏内实时通知中心与消息推送系统 | 前端体验 | P1 | new | gateway、user-service、social-service、reward-service、game-client、backend/shared | 2026-06-18 17:00 |
+|| REQ-00261 | 游戏内实时通知中心与消息推送系统 | 前端体验 | P1 | new | gateway、user-service、social-service、reward-service、game-client、backend/shared | 2026-06-18 17:00 |
+| REQ-00262 | 实时对战 WebSocket 连接系统 | 功能增强 | P1 | new | gym-service、social-service、gateway、game-client、infrastructure/k8s | 2026-06-18 18:00 |
