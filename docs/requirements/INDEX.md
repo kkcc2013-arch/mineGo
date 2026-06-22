@@ -16,3 +16,4 @@
 | REQ-00259 | 数据库读写分离与主从同步监控系统 | 数据库/数据治理 | P1 | done | backend/shared, database | 2026-06-22 |
 | REQ-00273 | Kubernetes 资源限制优化与成本监控 | 成本/资源优化 | P2 | new | k8s, monitoring | 2026-06-19 |
 | REQ-00274 | 游戏活动服务单元测试覆盖 | 测试覆盖 | P2 | new | reward-service, backend/tests | 2026-06-22 |
+| REQ-00275 | 告警智能关联与根因分析系统 | 可观测性/监控 | P1 | new | backend/shared, monitoring, gateway | 2026-06-22 |
