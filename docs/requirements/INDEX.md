@@ -21,5 +21,6 @@
 | REQ-00276 | 精灵培育系统与基因遗传机制 | 功能增强 | P1 | new | pokemon-service, reward-service, user-service | 2026-06-22 02:00 |
 | REQ-00277 | 服务发现与动态路由系统 | 可扩展性/解耦 | P1 | new | gateway, backend/shared, 所有微服务 | 2026-06-22 02:00 |
 | REQ-00278 | 精灵性格系统与战斗风格塑造 | 功能增强 | P1 | new | pokemon-service, battle-service, user-service | 2026-06-22 03:00 |
-| REQ-00279 | 反作弊行为模式机器学习检测系统 | 反作弊 | P1 | new | backend/shared, catch-service, gym-service, ml-service | 2026-06-22 03:15 |
-| REQ-00280 | 游戏数值本地化显示系统 | 国际化/本地化 | P2 | new | game-client, backend/shared | 2026-06-22 04:00 |
+|| REQ-00279 | 反作弊行为模式机器学习检测系统 | 反作弊 | P1 | new | backend/shared, catch-service, gym-service, ml-service | 2026-06-22 03:15 |
+|| REQ-00280 | 游戏数值本地化显示系统 | 国际化/本地化 | P2 | new | game-client, backend/shared | 2026-06-22 04:00 |
+| REQ-00281 | 游戏色盲模式与视觉辅助系统 | 无障碍(a11y) | P1 | new | game-client, pokemon-service, backend/shared | 2026-06-22 05:00 |
