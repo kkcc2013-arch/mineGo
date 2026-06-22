@@ -7,7 +7,7 @@
 | 标题 | 精灵培育系统与遗传机制 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | pokemon-service, user-service, social-service, gateway, game-client, database/migrations |
 | 创建时间 | 2026-06-09 08:00 |
 
