@@ -19,3 +19,5 @@
 | REQ-00274 | 游戏活动服务单元测试覆盖 | 测试覆盖 | P2 | new | reward-service, backend/tests | 2026-06-22 |
 | REQ-00275 | 告警智能关联与根因分析系统 | 可观测性/监控 | P1 | new | backend/shared, monitoring, gateway | 2026-06-22 |
 | REQ-00276 | 精灵培育系统与基因遗传机制 | 功能增强 | P1 | new | pokemon-service, reward-service, user-service | 2026-06-22 02:00 |
+| REQ-00277 | 服务发现与动态路由系统 | 可扩展性/解耦 | P1 | new | gateway, backend/shared, 所有微服务 | 2026-06-22 02:00 |
+| REQ-00278 | 精灵性格系统与战斗风格塑造 | 功能增强 | P1 | new | pokemon-service, battle-service, user-service | 2026-06-22 03:00 |
