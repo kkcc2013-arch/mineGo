@@ -1,96 +1,37 @@
 /**
- * REQ-00055: 精灵收藏展示系统
- * 核心服务模块
+ * REQ-00055: 精灵收藏展示系统 - 服务层实现
  * 
- * 创建时间: 2026-06-09 20:20
+ * 创建时间: 2026-06-22 05:00
  */
 
 'use strict';
 
-const { query, transaction } = require('../../shared/db');
-const { getRedis, getJSON, setJSON, del } = require('../../shared/redis');
-const logger = require('../../shared/logger');
-const promClient = require('prom-client');
+const { query, transaction } = require('../../../shared/db');
+const { getRedis, setJSON, getJSON, del } = require('../../../shared/redis');
+const logger = require('../../../shared/logger');
+const { incrementCounter, getCounter } = require('../../../shared/metrics');
 
 // ============================================================
 // 配置常量
 // ============================================================
 
-const CONFIG = {
-  MAX_FAVORITES: 6,              // 最大收藏数量
-  MAX_LIKES_PER_DAY: 20,         // 每日最大点赞数
-  MAX_COMMENTS_PER_DAY: 5,       // 每日最大评语数
-  COMMENT_MIN_LENGTH: 1,         // 评语最小长度
-  COMMENT_MAX_LENGTH: 200,       // 评语最大长度
-  
-  // 奖励配置
-  REWARDS: {
-    LIKED_OWNER: { coins: 10, experience: 20 },      // 被点赞者奖励
-    LIKER: { coins: 5, experience: 10 },             // 点赞者奖励
-    COMMENTED_OWNER: { coins: 20, experience: 40 }, // 被评语者奖励
-    COMMENTER: { coins: 2, experience: 5 }          // 评语者奖励
-  },
-  
-  // Redis 缓存键前缀
-  CACHE_PREFIX: {
-    FAVORITES: 'showcase:favorites:',
-    STATS: 'showcase:stats:',
-    LEADERBOARD: 'showcase:leaderboard',
-    QUOTA: 'showcase:quota:'
-  },
-  
-  // 缓存过期时间（秒）
-  CACHE_TTL: {
-    FAVORITES: 300,      // 5分钟
-    STATS: 60,           // 1分钟
-    LEADERBOARD: 3600    // 1小时
-  }
+const MAX_FAVORITES = 6;
+const MAX_LIKES_PER_DAY = 20;
+const MAX_COMMENTS_PER_DAY = 5;
+const MAX_COMMENT_LENGTH = 200;
+
+// 奖励配置
+const REWARDS = {
+  likedByOther: { coins: 10, experience: 20 },
+  likeOther: { coins: 5, experience: 10 },
+  commentedByOther: { coins: 20, experience: 40 },
+  commentOther: { coins: 2, experience: 5 }
 };
 
-// ============================================================
-// Prometheus 指标
-// ============================================================
-
-const register = new promClient.Registry();
-
-const metrics = {
-  favoritesTotal: new promClient.Counter({
-    name: 'minego_showcase_favorites_total',
-    help: 'Total number of favorites',
-    registers: [register]
-  }),
-  
-  likesTotal: new promClient.Counter({
-    name: 'minego_showcase_likes_total',
-    help: 'Total likes given',
-    registers: [register]
-  }),
-  
-  commentsTotal: new promClient.Counter({
-    name: 'minego_showcase_comments_total',
-    help: 'Total comments posted',
-    registers: [register]
-  }),
-  
-  viewsTotal: new promClient.Counter({
-    name: 'minego_showcase_views_total',
-    help: 'Total showcase views',
-    registers: [register]
-  }),
-  
-  limitReachedTotal: new promClient.Counter({
-    name: 'minego_showcase_limit_reached_total',
-    help: 'Times daily limit was reached',
-    labelNames: ['type'],
-    registers: [register]
-  }),
-  
-  rewardsGivenTotal: new promClient.Counter({
-    name: 'minego_showcase_rewards_given_total',
-    help: 'Total rewards given',
-    labelNames: ['type'], // coins, experience
-    registers: [register]
-  })
+// Redis 键前缀
+const REDIS_KEYS = {
+  leaderboard: 'pokemon:showcase:leaderboard',
+  userQuota: (userId) => `pokemon:quota:${userId}`
 };
 
 // ============================================================
@@ -101,78 +42,84 @@ const metrics = {
  * 获取用户收藏列表
  */
 async function getFavorites(userId) {
-  const cacheKey = CONFIG.CACHE_PREFIX.FAVORITES + userId;
-  
-  // 尝试从缓存获取
-  const cached = await getJSON(cacheKey);
-  if (cached) {
-    logger.debug({ userId }, 'Returning cached favorites');
-    return cached;
-  }
-  
   const result = await query(`
     SELECT 
-      pf.id,
       pf.pokemon_id,
       pf.display_order,
       pf.is_showcased,
-      p.species,
-      p.level,
-      p.is_shiny,
-      p.iv_total,
-      p.cp,
-      p.moves,
-      s.like_count,
-      s.comment_count,
-      s.view_count
+      pi.species_id,
+      ps.name_en as species,
+      pi.level,
+      pi.cp,
+      pi.is_shiny,
+      pi.iv_attack,
+      pi.iv_defense,
+      pi.iv_stamina,
+      ROUND((pi.iv_attack + pi.iv_defense + pi.iv_stamina) / 45.0 * 100) as iv_percentage,
+      COALESCE(pss.like_count, 0) as like_count,
+      COALESCE(pss.comment_count, 0) as comment_count
     FROM pokemon_favorites pf
-    JOIN pokemon p ON pf.pokemon_id = p.id
-    LEFT JOIN pokemon_showcase_stats s ON p.id = s.pokemon_id
+    JOIN pokemon_instances pi ON pf.pokemon_id = pi.id
+    JOIN pokemon_species ps ON pi.species_id = ps.id
+    LEFT JOIN pokemon_showcase_stats pss ON pf.pokemon_id = pss.pokemon_id
     WHERE pf.user_id = $1
     ORDER BY pf.display_order ASC
   `, [userId]);
   
-  const favorites = result.rows;
-  
-  // 缓存结果
-  await setJSON(cacheKey, favorites, CONFIG.CACHE_TTL.FAVORITES);
-  
-  return favorites;
+  return result.rows.map(row => ({
+    pokemonId: row.pokemon_id,
+    speciesId: row.species_id,
+    species: row.species,
+    level: row.level,
+    cp: row.cp,
+    isShiny: row.is_shiny,
+    iv: Math.round(row.iv_percentage),
+    likeCount: row.like_count,
+    commentCount: row.comment_count,
+    displayOrder: row.display_order,
+    isShowcased: row.is_showcased
+  }));
 }
 
 /**
  * 添加收藏
  */
 async function addFavorite(userId, pokemonId, displayOrder = 0) {
-  // 检查精灵是否属于该用户
-  const pokemonCheck = await query(
-    'SELECT id, user_id FROM pokemon WHERE id = $1',
-    [pokemonId]
-  );
+  // 检查精灵是否属于用户
+  const pokemonCheck = await query(`
+    SELECT id FROM pokemon_instances 
+    WHERE id = $1 AND user_id = $2
+  `, [pokemonId, userId]);
   
   if (pokemonCheck.rows.length === 0) {
-    throw new Error('Pokemon not found');
+    throw new Error('Pokemon not found or does not belong to user');
   }
   
-  if (pokemonCheck.rows[0].user_id !== userId) {
-    throw new Error('You can only favorite your own Pokemon');
+  // 检查收藏数量限制
+  const countCheck = await query(`
+    SELECT COUNT(*) as count FROM pokemon_favorites WHERE user_id = $1
+  `, [userId]);
+  
+  if (parseInt(countCheck.rows[0].count) >= MAX_FAVORITES) {
+    throw new Error(`Maximum ${MAX_FAVORITES} favorites allowed`);
   }
   
-  // 检查当前收藏数量
-  const countResult = await query(
-    'SELECT COUNT(*) FROM pokemon_favorites WHERE user_id = $1',
-    [userId]
-  );
+  // 检查是否已收藏
+  const existingCheck = await query(`
+    SELECT id FROM pokemon_favorites WHERE user_id = $1 AND pokemon_id = $2
+  `, [userId, pokemonId]);
   
-  const currentCount = parseInt(countResult.rows[0].count);
-  
-  if (currentCount >= CONFIG.MAX_FAVORITES) {
-    throw new Error(`Maximum ${CONFIG.MAX_FAVORITES} favorites allowed`);
+  if (existingCheck.rows.length > 0) {
+    throw new Error('Pokemon already favorited');
   }
   
-  // 如果未指定顺序，放到最后
-  if (displayOrder === 0 && currentCount > 0) {
-    displayOrder = currentCount;
+  // 如果指定位置已被占用，调整其他精灵的顺序
+  if (displayOrder > 0) {
+    await query(`
+      UPDATE pokemon_favorites 
+      SET display_order = display_order + 1
+      WHERE user_id = $1 AND display_order >= $2
+    `, [userId, displayOrder]);
   }
   
   // 添加收藏
@@ -182,18 +129,15 @@ async function addFavorite(userId, pokemonId, displayOrder = 0) {
     RETURNING *
   `, [pokemonId, userId, displayOrder]);
   
-  // 更新精灵展示状态
-  await query(
-    'UPDATE pokemon SET is_showcased = true WHERE id = $1',
-    [pokemonId]
-  );
-  
-  // 清除缓存
-  await del(CONFIG.CACHE_PREFIX.FAVORITES + userId);
-  
-  metrics.favoritesTotal.inc();
+  // 创建展示统计记录
+  await query(`
+    INSERT INTO pokemon_showcase_stats (pokemon_id)
+    VALUES ($1)
+    ON CONFLICT DO NOTHING
+  `, [pokemonId]);
   
   logger.info({ userId, pokemonId, displayOrder }, 'Pokemon added to favorites');
+  incrementCounter('pokemon_favorite_total', { user_id: userId });
   
   return result.rows[0];
 }
@@ -204,59 +148,40 @@ async function addFavorite(userId, pokemonId, displayOrder = 0) {
 async function removeFavorite(userId, pokemonId) {
   const result = await query(`
     DELETE FROM pokemon_favorites 
-    WHERE pokemon_id = $1 AND user_id = $2
-    RETURNING *
-  `, [pokemonId, userId]);
+    WHERE user_id = $1 AND pokemon_id = $2
+    RETURNING display_order
+  `, [userId, pokemonId]);
   
   if (result.rows.length === 0) {
     throw new Error('Favorite not found');
   }
   
-  // 更新精灵展示状态
-  await query(
-    'UPDATE pokemon SET is_showcased = false WHERE id = $1',
-    [pokemonId]
-  );
-  
-  // 重新排序剩余收藏
+  // 重新排序
+  const displayOrder = result.rows[0].display_order;
   await query(`
-    WITH ordered AS (
-      SELECT id, ROW_NUMBER() OVER (ORDER BY display_order) - 1 as new_order
-      FROM pokemon_favorites
-      WHERE user_id = $1
-    )
-    UPDATE pokemon_favorites pf
-    SET display_order = o.new_order
-    FROM ordered o
-    WHERE pf.id = o.id
-  `, [userId]);
-  
-  // 清除缓存
-  await del(CONFIG.CACHE_PREFIX.FAVORITES + userId);
+    UPDATE pokemon_favorites 
+    SET display_order = display_order - 1
+    WHERE user_id = $1 AND display_order > $2
+  `, [userId, displayOrder]);
   
   logger.info({ userId, pokemonId }, 'Pokemon removed from favorites');
   
-  return { success: true, message: 'Favorite removed' };
+  return { success: true, message: 'Removed from favorites' };
 }
 
 /**
  * 重新排序收藏
  */
 async function reorderFavorites(userId, orders) {
-  // orders = [{ pokemonId, displayOrder }, ...]
-  
   await transaction(async (client) => {
     for (const item of orders) {
       await client.query(`
-        UPDATE pokemon_favorites
+        UPDATE pokemon_favorites 
         SET display_order = $1
-        WHERE pokemon_id = $2 AND user_id = $3
-      `, [item.displayOrder, item.pokemonId, userId]);
+        WHERE user_id = $2 AND pokemon_id = $3
+      `, [item.displayOrder, userId, item.pokemonId]);
     }
   });
-  
-  // 清除缓存
-  await del(CONFIG.CACHE_PREFIX.FAVORITES + userId);
   
   logger.info({ userId, count: orders.length }, 'Favorites reordered');
   
@@ -268,23 +193,44 @@ async function reorderFavorites(userId, orders) {
 // ============================================================
 
 /**
- * 检查并重置每日限额
+ * 检查并更新用户限额
  */
-async function checkAndResetQuota(userId) {
+async function checkAndUpdateQuota(userId, type) {
   const today = new Date().toISOString().split('T')[0];
+  const cacheKey = REDIS_KEYS.userQuota(userId);
   
-  const result = await query(`
-    INSERT INTO user_showcase_quotas (user_id, likes_today, comments_today, last_reset_date)
-    VALUES ($1, 0, 0, $2)
-    ON CONFLICT (user_id) 
-    DO UPDATE SET 
-      likes_today = CASE WHEN user_showcase_quotas.last_reset_date < $2 THEN 0 ELSE user_showcase_quotas.likes_today END,
-      comments_today = CASE WHEN user_showcase_quotas.last_reset_date < $2 THEN 0 ELSE user_showcase_quotas.comments_today END,
-      last_reset_date = CASE WHEN user_showcase_quotas.last_reset_date < $2 THEN $2 ELSE user_showcase_quotas.last_reset_date END
-    RETURNING likes_today, comments_today, last_reset_date
-  `, [userId, today]);
+  // 尝试从缓存获取
+  let quota = await getJSON(cacheKey);
   
-  return result.rows[0];
+  if (!quota || quota.lastResetDate !== today) {
+    // 初始化或重置限额
+    quota = {
+      likesToday: 0,
+      commentsToday: 0,
+      lastResetDate: today
+    };
+  }
+  
+  // 检查限额
+  if (type === 'like' && quota.likesToday >= MAX_LIKES_PER_DAY) {
+    incrementCounter('pokemon_like_daily_limit_reached_total');
+    throw new Error(`Daily like limit (${MAX_LIKES_PER_DAY}) reached`);
+  }
+  
+  if (type === 'comment' && quota.commentsToday >= MAX_COMMENTS_PER_DAY) {
+    incrementCounter('pokemon_comment_daily_limit_reached_total');
+    throw new Error(`Daily comment limit (${MAX_COMMENTS_PER_DAY}) reached`);
+  }
+  
+  return quota;
+}
+
+/**
+ * 更新限额
+ */
+async function updateQuota(userId, quota) {
+  const cacheKey = REDIS_KEYS.userQuota(userId);
+  await setJSON(cacheKey, quota, 86400); // 缓存 24 小时
 }
 
 /**
@@ -292,39 +238,35 @@ async function checkAndResetQuota(userId) {
  */
 async function likePokemon(userId, pokemonId) {
   // 检查精灵是否存在
-  const pokemonResult = await query(
-    'SELECT id, user_id FROM pokemon WHERE id = $1',
-    [pokemonId]
-  );
+  const pokemonCheck = await query(`
+    SELECT pi.id, pi.user_id, ps.name_en as species
+    FROM pokemon_instances pi
+    JOIN pokemon_species ps ON pi.species_id = ps.id
+    WHERE pi.id = $1
+  `, [pokemonId]);
   
-  if (pokemonResult.rows.length === 0) {
+  if (pokemonCheck.rows.length === 0) {
     throw new Error('Pokemon not found');
   }
   
-  const pokemon = pokemonResult.rows[0];
+  const pokemon = pokemonCheck.rows[0];
   
-  // 不能点赞自己的精灵
+  // 不能给自己的精灵点赞
   if (pokemon.user_id === userId) {
-    throw new Error('You cannot like your own Pokemon');
+    throw new Error('Cannot like your own pokemon');
   }
   
   // 检查是否已点赞
-  const existingLike = await query(
-    'SELECT id FROM pokemon_likes WHERE pokemon_id = $1 AND user_id = $2',
-    [pokemonId, userId]
-  );
+  const existingCheck = await query(`
+    SELECT id FROM pokemon_likes WHERE pokemon_id = $1 AND user_id = $2
+  `, [pokemonId, userId]);
   
-  if (existingLike.rows.length > 0) {
-    throw new Error('You have already liked this Pokemon');
+  if (existingCheck.rows.length > 0) {
+    throw new Error('Already liked this pokemon');
   }
   
-  // 检查每日限额
-  const quota = await checkAndResetQuota(userId);
-  
-  if (quota.likes_today >= CONFIG.MAX_LIKES_PER_DAY) {
-    metrics.limitReachedTotal.inc({ type: 'like' });
-    throw new Error(`Daily like limit (${CONFIG.MAX_LIKES_PER_DAY}) reached`);
-  }
+  // 检查并更新限额
+  const quota = await checkAndUpdateQuota(userId, 'like');
   
   // 执行点赞
   await transaction(async (client) => {
@@ -334,47 +276,56 @@ async function likePokemon(userId, pokemonId) {
       VALUES ($1, $2)
     `, [pokemonId, userId]);
     
-    // 更新用户限额
+    // 更新统计
     await client.query(`
-      UPDATE user_showcase_quotas
-      SET likes_today = likes_today + 1
-      WHERE user_id = $1
-    `, [userId]);
+      INSERT INTO pokemon_showcase_stats (pokemon_id, like_count, last_liked_at)
+      VALUES ($1, 1, NOW())
+      ON CONFLICT (pokemon_id) 
+      DO UPDATE SET 
+        like_count = pokemon_showcase_stats.like_count + 1,
+        last_liked_at = NOW(),
+        updated_at = NOW()
+    `, [pokemonId]);
     
-    // 给点赞者发奖励
+    // 给精灵主人发放奖励
     await client.query(`
-      UPDATE users
+      UPDATE users 
       SET coins = coins + $1, experience = experience + $2
       WHERE id = $3
-    `, [CONFIG.REWARDS.LIKER.coins, CONFIG.REWARDS.LIKER.experience, userId]);
+    `, [REWARDS.likedByOther.coins, REWARDS.likedByOther.experience, pokemon.user_id]);
     
-    // 给精灵主人发奖励
+    // 给点赞者发放奖励
     await client.query(`
-      UPDATE users
+      UPDATE users 
       SET coins = coins + $1, experience = experience + $2
       WHERE id = $3
-    `, [CONFIG.REWARDS.LIKED_OWNER.coins, CONFIG.REWARDS.LIKED_OWNER.experience, pokemon.user_id]);
+    `, [REWARDS.likeOther.coins, REWARDS.likeOther.experience, userId]);
   });
   
-  // 获取最新点赞数
-  const statsResult = await query(
-    'SELECT like_count FROM pokemon_showcase_stats WHERE pokemon_id = $1',
-    [pokemonId]
-  );
+  // 更新限额
+  quota.likesToday++;
+  await updateQuota(userId, quota);
   
-  const likeCount = statsResult.rows[0]?.like_count || 0;
+  // 清除排行榜缓存
+  await del(REDIS_KEYS.leaderboard);
   
-  // 更新指标
-  metrics.likesTotal.inc();
-  metrics.rewardsGivenTotal.inc({ type: 'coins' }, CONFIG.REWARDS.LIKER.coins + CONFIG.REWARDS.LIKED_OWNER.coins);
-  metrics.rewardsGivenTotal.inc({ type: 'experience' }, CONFIG.REWARDS.LIKER.experience + CONFIG.REWARDS.LIKED_OWNER.experience);
+  // 记录指标
+  incrementCounter('pokemon_like_total', { pokemon_id: pokemonId });
+  incrementCounter('pokemon_showcase_reward_given_total');
+  incrementCounter('pokemon_showcase_reward_coins_total', REWARDS.likedByOther.coins + REWARDS.likeOther.coins);
+  incrementCounter('pokemon_showcase_reward_experience_total', REWARDS.likedByOther.experience + REWARDS.likeOther.experience);
   
   logger.info({ userId, pokemonId, ownerId: pokemon.user_id }, 'Pokemon liked');
   
+  // 获取当前点赞数
+  const statsResult = await query(`
+    SELECT like_count FROM pokemon_showcase_stats WHERE pokemon_id = $1
+  `, [pokemonId]);
+  
   return {
     success: true,
-    likeCount,
-    reward: CONFIG.REWARDS.LIKER
+    likeCount: statsResult.rows[0]?.like_count || 1,
+    reward: REWARDS.likeOther
   };
 }
 
@@ -383,28 +334,36 @@ async function likePokemon(userId, pokemonId) {
  */
 async function unlikePokemon(userId, pokemonId) {
   const result = await query(`
-    DELETE FROM pokemon_likes
+    DELETE FROM pokemon_likes 
     WHERE pokemon_id = $1 AND user_id = $2
-    RETURNING *
+    RETURNING id
   `, [pokemonId, userId]);
   
   if (result.rows.length === 0) {
     throw new Error('Like not found');
   }
   
-  // 获取最新点赞数
-  const statsResult = await query(
-    'SELECT like_count FROM pokemon_showcase_stats WHERE pokemon_id = $1',
-    [pokemonId]
-  );
+  // 更新统计
+  await query(`
+    UPDATE pokemon_showcase_stats 
+    SET like_count = GREATEST(0, like_count - 1),
+        updated_at = NOW()
+    WHERE pokemon_id = $1
+  `, [pokemonId]);
   
-  const likeCount = statsResult.rows[0]?.like_count || 0;
+  // 清除排行榜缓存
+  await del(REDIS_KEYS.leaderboard);
   
   logger.info({ userId, pokemonId }, 'Pokemon unliked');
   
+  // 获取当前点赞数
+  const statsResult = await query(`
+    SELECT like_count FROM pokemon_showcase_stats WHERE pokemon_id = $1
+  `, [pokemonId]);
+  
   return {
     success: true,
-    likeCount
+    likeCount: statsResult.rows[0]?.like_count || 0
   };
 }
 
@@ -412,10 +371,9 @@ async function unlikePokemon(userId, pokemonId) {
  * 检查是否已点赞
  */
 async function hasLiked(userId, pokemonId) {
-  const result = await query(
-    'SELECT id FROM pokemon_likes WHERE pokemon_id = $1 AND user_id = $2',
-    [pokemonId, userId]
-  );
+  const result = await query(`
+    SELECT id FROM pokemon_likes WHERE pokemon_id = $1 AND user_id = $2
+  `, [pokemonId, userId]);
   
   return result.rows.length > 0;
 }
@@ -425,99 +383,117 @@ async function hasLiked(userId, pokemonId) {
 // ============================================================
 
 /**
+ * 敏感词过滤
+ */
+function filterSensitiveWords(comment) {
+  // 简单的敏感词列表（实际项目应使用专门的敏感词库）
+  const sensitiveWords = ['spam', 'bad', 'ugly', 'hate'];
+  
+  const lowerComment = comment.toLowerCase();
+  for (const word of sensitiveWords) {
+    if (lowerComment.includes(word)) {
+      throw new Error('Comment contains inappropriate content');
+    }
+  }
+  
+  return comment;
+}
+
+/**
  * 添加评语
  */
-async function addComment(userId, pokemonId, commentText) {
+async function addComment(userId, pokemonId, comment) {
   // 验证评语长度
-  if (commentText.length < CONFIG.COMMENT_MIN_LENGTH || 
-      commentText.length > CONFIG.COMMENT_MAX_LENGTH) {
-    throw new Error(`Comment must be between ${CONFIG.COMMENT_MIN_LENGTH} and ${CONFIG.COMMENT_MAX_LENGTH} characters`);
+  if (!comment || comment.length < 1) {
+    throw new Error('Comment cannot be empty');
   }
   
-  // 检查敏感词
-  const hasSensitive = await query(
-    'SELECT contains_sensitive_words($1) as has_sensitive',
-    [commentText]
-  );
-  
-  if (hasSensitive.rows[0].has_sensitive) {
-    throw new Error('Comment contains inappropriate content');
+  if (comment.length > MAX_COMMENT_LENGTH) {
+    throw new Error(`Comment exceeds maximum length (${MAX_COMMENT_LENGTH} characters)`);
   }
+  
+  // 敏感词过滤
+  filterSensitiveWords(comment);
   
   // 检查精灵是否存在
-  const pokemonResult = await query(
-    'SELECT id, user_id FROM pokemon WHERE id = $1',
-    [pokemonId]
-  );
+  const pokemonCheck = await query(`
+    SELECT pi.id, pi.user_id
+    FROM pokemon_instances pi
+    WHERE pi.id = $1
+  `, [pokemonId]);
   
-  if (pokemonResult.rows.length === 0) {
+  if (pokemonCheck.rows.length === 0) {
     throw new Error('Pokemon not found');
   }
   
-  const pokemon = pokemonResult.rows[0];
+  const pokemon = pokemonCheck.rows[0];
   
-  // 检查是否已评论
-  const existingComment = await query(
-    'SELECT id FROM pokemon_comments WHERE pokemon_id = $1 AND user_id = $2 AND is_deleted = false',
-    [pokemonId, userId]
-  );
+  // 检查是否已发表过评语
+  const existingCheck = await query(`
+    SELECT id FROM pokemon_comments WHERE pokemon_id = $1 AND user_id = $2
+  `, [pokemonId, userId]);
   
-  if (existingComment.rows.length > 0) {
-    throw new Error('You have already commented on this Pokemon');
+  if (existingCheck.rows.length > 0) {
+    throw new Error('Already commented on this pokemon');
   }
   
-  // 检查每日限额
-  const quota = await checkAndResetQuota(userId);
+  // 检查并更新限额
+  const quota = await checkAndUpdateQuota(userId, 'comment');
   
-  if (quota.comments_today >= CONFIG.MAX_COMMENTS_PER_DAY) {
-    metrics.limitReachedTotal.inc({ type: 'comment' });
-    throw new Error(`Daily comment limit (${CONFIG.MAX_COMMENTS_PER_DAY}) reached`);
-  }
-  
-  // 执行评论
-  const result = await transaction(async (client) => {
+  // 执行添加评语
+  let commentId;
+  await transaction(async (client) => {
     // 添加评语
-    const commentResult = await client.query(`
+    const result = await client.query(`
       INSERT INTO pokemon_comments (pokemon_id, user_id, comment)
       VALUES ($1, $2, $3)
-      RETURNING *
-    `, [pokemonId, userId, commentText]);
+      RETURNING id
+    `, [pokemonId, userId, comment]);
     
-    // 更新用户限额
-    await client.query(`
-      UPDATE user_showcase_quotas
-      SET comments_today = comments_today + 1
-      WHERE user_id = $1
-    `, [userId]);
+    commentId = result.rows[0].id;
     
-    // 给评论者发奖励
+    // 更新统计
     await client.query(`
-      UPDATE users
+      INSERT INTO pokemon_showcase_stats (pokemon_id, comment_count)
+      VALUES ($1, 1)
+      ON CONFLICT (pokemon_id) 
+      DO UPDATE SET 
+        comment_count = pokemon_showcase_stats.comment_count + 1,
+        updated_at = NOW()
+    `, [pokemonId]);
+    
+    // 给精灵主人发放奖励（如果不是自己的精灵）
+    if (pokemon.user_id !== userId) {
+      await client.query(`
+        UPDATE users 
+        SET coins = coins + $1, experience = experience + $2
+        WHERE id = $3
+      `, [REWARDS.commentedByOther.coins, REWARDS.commentedByOther.experience, pokemon.user_id]);
+    }
+    
+    // 给评论者发放奖励
+    await client.query(`
+      UPDATE users 
       SET coins = coins + $1, experience = experience + $2
       WHERE id = $3
-    `, [CONFIG.REWARDS.COMMENTER.coins, CONFIG.REWARDS.COMMENTER.experience, userId]);
-    
-    // 给精灵主人发奖励
-    await client.query(`
-      UPDATE users
-      SET coins = coins + $1, experience = experience + $2
-      WHERE id = $3
-    `, [CONFIG.REWARDS.COMMENTED_OWNER.coins, CONFIG.REWARDS.COMMENTED_OWNER.experience, pokemon.user_id]);
-    
-    return commentResult.rows[0];
+    `, [REWARDS.commentOther.coins, REWARDS.commentOther.experience, userId]);
   });
   
-  // 更新指标
-  metrics.commentsTotal.inc();
-  metrics.rewardsGivenTotal.inc({ type: 'coins' }, CONFIG.REWARDS.COMMENTER.coins + CONFIG.REWARDS.COMMENTED_OWNER.coins);
-  metrics.rewardsGivenTotal.inc({ type: 'experience' }, CONFIG.REWARDS.COMMENTER.experience + CONFIG.REWARDS.COMMENTED_OWNER.experience);
+  // 更新限额
+  quota.commentsToday++;
+  await updateQuota(userId, quota);
   
-  logger.info({ userId, pokemonId, commentId: result.id }, 'Comment added');
+  // 记录指标
+  incrementCounter('pokemon_comment_total', { pokemon_id: pokemonId });
+  incrementCounter('pokemon_showcase_reward_given_total');
+  incrementCounter('pokemon_showcase_reward_coins_total', REWARDS.commentOther.coins);
+  
+  logger.info({ userId, pokemonId, commentLength: comment.length }, 'Comment added');
   
   return {
     success: true,
-    commentId: result.id,
-    reward: CONFIG.REWARDS.COMMENTER
+    commentId,
+    reward: REWARDS.commentOther
   };
 }
 
@@ -535,38 +511,53 @@ async function getComments(pokemonId, limit = 20, offset = 0) {
       u.avatar_url
     FROM pokemon_comments pc
     JOIN users u ON pc.user_id = u.id
-    WHERE pc.pokemon_id = $1 AND pc.is_deleted = false
+    WHERE pc.pokemon_id = $1
     ORDER BY pc.created_at DESC
     LIMIT $2 OFFSET $3
   `, [pokemonId, limit, offset]);
   
-  const countResult = await query(
-    'SELECT comment_count FROM pokemon_showcase_stats WHERE pokemon_id = $1',
-    [pokemonId]
-  );
+  const countResult = await query(`
+    SELECT COUNT(*) as total FROM pokemon_comments WHERE pokemon_id = $1
+  `, [pokemonId]);
   
   return {
-    comments: result.rows,
-    total: countResult.rows[0]?.comment_count || 0
+    comments: result.rows.map(row => ({
+      id: row.id,
+      userId: row.user_id,
+      nickname: row.nickname,
+      avatarUrl: row.avatar_url,
+      comment: row.comment,
+      createdAt: row.created_at
+    })),
+    total: parseInt(countResult.rows[0].total)
   };
 }
 
 /**
- * 删除评语（软删除）
+ * 删除评语
  */
 async function deleteComment(userId, commentId) {
   const result = await query(`
-    UPDATE pokemon_comments
-    SET is_deleted = true, updated_at = NOW()
-    WHERE id = $1 AND user_id = $2 AND is_deleted = false
-    RETURNING *
+    DELETE FROM pokemon_comments 
+    WHERE id = $1 AND user_id = $2
+    RETURNING pokemon_id
   `, [commentId, userId]);
   
   if (result.rows.length === 0) {
-    throw new Error('Comment not found or already deleted');
+    throw new Error('Comment not found or not authorized');
   }
   
-  logger.info({ userId, commentId }, 'Comment deleted');
+  const pokemonId = result.rows[0].pokemon_id;
+  
+  // 更新统计
+  await query(`
+    UPDATE pokemon_showcase_stats 
+    SET comment_count = GREATEST(0, comment_count - 1),
+        updated_at = NOW()
+    WHERE pokemon_id = $1
+  `, [pokemonId]);
+  
+  logger.info({ userId, commentId, pokemonId }, 'Comment deleted');
   
   return { success: true, message: 'Comment deleted' };
 }
@@ -578,7 +569,7 @@ async function deleteComment(userId, commentId) {
 /**
  * 获取用户展示页
  */
-async function getUserShowcase(userId, viewerId = null) {
+async function getUserShowcase(userId, viewerId) {
   // 获取用户信息
   const userResult = await query(`
     SELECT id, nickname, level, team, avatar_url
@@ -597,62 +588,79 @@ async function getUserShowcase(userId, viewerId = null) {
     SELECT 
       pf.pokemon_id,
       pf.display_order,
-      p.species,
-      p.level,
-      p.is_shiny,
-      p.iv_total,
-      p.cp,
-      p.moves,
-      s.like_count,
-      s.comment_count,
-      s.view_count
+      pi.species_id,
+      ps.name_en as species,
+      pi.level,
+      pi.cp,
+      pi.is_shiny,
+      pi.iv_attack,
+      pi.iv_defense,
+      pi.iv_stamina,
+      ROUND((pi.iv_attack + pi.iv_defense + pi.iv_stamina) / 45.0 * 100) as iv_percentage,
+      COALESCE(pss.like_count, 0) as like_count,
+      COALESCE(pss.comment_count, 0) as comment_count
     FROM pokemon_favorites pf
-    JOIN pokemon p ON pf.pokemon_id = p.id
-    LEFT JOIN pokemon_showcase_stats s ON p.id = s.pokemon_id
+    JOIN pokemon_instances pi ON pf.pokemon_id = pi.id
+    JOIN pokemon_species ps ON pi.species_id = ps.id
+    LEFT JOIN pokemon_showcase_stats pss ON pf.pokemon_id = pss.pokemon_id
     WHERE pf.user_id = $1 AND pf.is_showcased = true
     ORDER BY pf.display_order ASC
   `, [userId]);
   
-  const favorites = favoritesResult.rows;
-  
-  // 如果有观看者，检查每只精灵是否已被点赞
-  if (viewerId && viewerId !== userId) {
-    for (const fav of favorites) {
-      fav.isLikedByMe = await hasLiked(viewerId, fav.pokemon_id);
+  // 检查观众是否已点赞
+  let likedPokemonIds = [];
+  if (viewerId) {
+    const pokemonIds = favoritesResult.rows.map(r => r.pokemon_id);
+    if (pokemonIds.length > 0) {
+      const likesResult = await query(`
+        SELECT pokemon_id FROM pokemon_likes
+        WHERE user_id = $1 AND pokemon_id = ANY($2)
+      `, [viewerId, pokemonIds]);
+      
+      likedPokemonIds = likesResult.rows.map(r => r.pokemon_id);
     }
   }
   
-  // 获取总统计
+  // 更新浏览次数
+  await query(`
+    UPDATE pokemon_showcase_stats 
+    SET view_count = view_count + 1
+    WHERE pokemon_id = ANY($1)
+  `, [favoritesResult.rows.map(r => r.pokemon_id)]);
+  
+  // 获取统计
   const statsResult = await query(`
     SELECT 
-      COALESCE(SUM(s.like_count), 0) as total_likes,
-      COALESCE(SUM(s.view_count), 0) as total_views
+      COALESCE(SUM(pss.like_count), 0) as total_likes,
+      COALESCE(SUM(pss.view_count), 0) as total_views
     FROM pokemon_favorites pf
-    LEFT JOIN pokemon_showcase_stats s ON pf.pokemon_id = s.pokemon_id
+    LEFT JOIN pokemon_showcase_stats pss ON pf.pokemon_id = pss.pokemon_id
     WHERE pf.user_id = $1
   `, [userId]);
   
-  const stats = statsResult.rows[0];
-  
-  // 增加浏览数
-  if (viewerId && viewerId !== userId) {
-    for (const fav of favorites) {
-      await query(`
-        INSERT INTO pokemon_showcase_stats (pokemon_id, view_count)
-        VALUES ($1, 1)
-        ON CONFLICT (pokemon_id)
-        DO UPDATE SET view_count = pokemon_showcase_stats.view_count + 1
-      `, [fav.pokemon_id]);
-    }
-    metrics.viewsTotal.inc(favorites.length);
-  }
+  incrementCounter('pokemon_showcase_view_total');
   
   return {
-    user,
-    showcase: favorites,
+    userId: user.id,
+    nickname: user.nickname,
+    level: user.level,
+    team: user.team,
+    avatarUrl: user.avatar_url,
+    showcase: favoritesResult.rows.map(row => ({
+      pokemonId: row.pokemon_id,
+      speciesId: row.species_id,
+      species: row.species,
+      level: row.level,
+      cp: row.cp,
+      isShiny: row.is_shiny,
+      iv: Math.round(row.iv_percentage),
+      likeCount: row.like_count,
+      commentCount: row.comment_count,
+      isLikedByMe: likedPokemonIds.includes(row.pokemon_id)
+    })),
     stats: {
-      totalLikes: parseInt(stats.total_likes),
-      totalViews: parseInt(stats.total_views)
+      totalLikes: parseInt(statsResult.rows[0].total_likes),
+      totalViews: parseInt(statsResult.rows[0].total_views)
     }
   };
 }
@@ -665,40 +673,56 @@ async function getUserShowcase(userId, viewerId = null) {
  * 获取排行榜
  */
 async function getLeaderboard(type = 'likes', limit = 50) {
-  const cacheKey = CONFIG.CACHE_PREFIX.LEADERBOARD + ':' + type;
+  const cacheKey = `${REDIS_KEYS.leaderboard}:${type}`;
   
   // 尝试从缓存获取
   const cached = await getJSON(cacheKey);
   if (cached) {
-    logger.debug('Returning cached leaderboard');
-    return cached.slice(0, limit);
+    return cached;
   }
   
-  // 刷新物化视图
-  await query('REFRESH MATERIALIZED VIEW CONCURRENTLY pokemon_showcase_leaderboard');
+  // 从数据库查询
+  let orderBy = 'pss.like_count DESC, pss.comment_count DESC';
   
   const result = await query(`
     SELECT 
-      rank,
-      pokemon_id,
-      species,
-      level,
-      is_shiny,
-      iv_total,
-      owner_id,
-      owner_nickname,
-      like_count,
-      comment_count,
-      view_count
-    FROM pokemon_showcase_leaderboard
-    ORDER BY rank ASC
+      pi.id as pokemon_id,
+      ps.name_en as species,
+      pi.level,
+      pi.cp,
+      pi.is_shiny,
+      ROUND((pi.iv_attack + pi.iv_defense + pi.iv_stamina) / 45.0 * 100) as iv_percentage,
+      pi.user_id as owner_id,
+      u.nickname as owner_nickname,
+      COALESCE(pss.like_count, 0) as like_count,
+      COALESCE(pss.comment_count, 0) as comment_count
+    FROM pokemon_instances pi
+    JOIN pokemon_species ps ON pi.species_id = ps.id
+    JOIN users u ON pi.user_id = u.id
+    LEFT JOIN pokemon_showcase_stats pss ON pi.id = pss.pokemon_id
+    WHERE pss.like_count > 0
+    ORDER BY ${orderBy}
     LIMIT $1
   `, [limit]);
   
-  // 缓存结果
-  await setJSON(cacheKey, result.rows, CONFIG.CACHE_TTL.LEADERBOARD);
+  const leaderboard = result.rows.map((row, index) => ({
+    rank: index + 1,
+    pokemonId: row.pokemon_id,
+    species: row.species,
+    level: row.level,
+    cp: row.cp,
+    isShiny: row.is_shiny,
+    iv: Math.round(row.iv_percentage),
+    ownerId: row.owner_id,
+    ownerNickname: row.owner_nickname,
+    likeCount: row.like_count,
+    commentCount: row.comment_count
+  }));
   
-  return result.rows;
+  // 缓存 1 小时
+  await setJSON(cacheKey, leaderboard, 3600);
+  
+  return leaderboard;
 }
 
 // ============================================================
@@ -706,8 +730,6 @@ async function getLeaderboard(type = 'likes', limit = 50) {
 // ============================================================
 
 module.exports = {
-  CONFIG,
-  
   // 收藏管理
   getFavorites,
   addFavorite,
@@ -730,6 +752,10 @@ module.exports = {
   // 排行榜
   getLeaderboard,
   
-  // 指标
-  metrics
+  // 常量导出（用于测试）
+  MAX_FAVORITES,
+  MAX_LIKES_PER_DAY,
+  MAX_COMMENTS_PER_DAY,
+  MAX_COMMENT_LENGTH,
+  REWARDS
 };
