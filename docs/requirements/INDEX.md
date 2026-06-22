@@ -18,3 +18,4 @@
 | REQ-00273 | Kubernetes 资源限制优化与成本监控 | 成本/资源优化 | P2 | new | k8s, monitoring | 2026-06-19 |
 | REQ-00274 | 游戏活动服务单元测试覆盖 | 测试覆盖 | P2 | new | reward-service, backend/tests | 2026-06-22 |
 | REQ-00275 | 告警智能关联与根因分析系统 | 可观测性/监控 | P1 | new | backend/shared, monitoring, gateway | 2026-06-22 |
+| REQ-00276 | 精灵培育系统与基因遗传机制 | 功能增强 | P1 | new | pokemon-service, reward-service, user-service | 2026-06-22 02:00 |
