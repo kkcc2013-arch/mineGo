@@ -7,7 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const { query, transaction } = require('../../../../shared/db');
 const { getRedis, getJSON, setJSON } = require('../../../../shared/redis');
 const {
-  signAccess, signRefresh, verifyRefresh,
+  signAccess, signRefresh, verifyAccess, verifyRefresh,
   AppError, successResp, errorResp
 } = require('../../../../shared/auth');
 
@@ -52,7 +52,7 @@ router.post('/sms-code', async (req, res, next) => {
     if (locked) throw new AppError(1007, '请60秒后再试', 429);
 
     // Daily limit: 10 per phone
-    const dailyKey  = `sms:daily:${phone}`;
+    const dailyKey   = `sms:daily:${phone}`;
     const dailyCount = parseInt(await redis.get(dailyKey) || '0');
     if (dailyCount >= 10) throw new AppError(1007, '今日验证码发送次数已达上限', 429);
 
@@ -81,17 +81,17 @@ router.post('/register', async (req, res, next) => {
     }
 
     // REQ-00034: 验证年龄和COPPA合规
-    const { 
-      calculateAge, 
-      getAgeBracket, 
+    const {
+      calculateAge,
+      getAgeBracket,
       AGE_BRACKETS,
       createOrUpdateAgeProfile,
       sendParentConsentEmail
     } = require('../../../../shared/ageVerification');
-    
+
     const age = birthDate ? calculateAge(birthDate) : null;
     const ageBracket = birthDate ? getAgeBracket(age) : AGE_BRACKETS.UNKNOWN;
-    
+
     // 13岁以下必须提供家长邮箱
     if (ageBracket === AGE_BRACKETS.UNDER_13 && !parentEmail) {
       throw new AppError(1011, '13岁以下用户必须提供家长邮箱', 400);
@@ -132,7 +132,7 @@ router.post('/register', async (req, res, next) => {
 
       // REQ-00016: Record user consent
       await client.query(`
-        INSERT INTO user_consents 
+        INSERT INTO user_consents
           (user_id, privacy_policy_version, terms_version, consented_at, ip_address, user_agent)
         VALUES ($1, '1.0', '1.0', NOW(), $2, $3)
       `, [
@@ -140,12 +140,12 @@ router.post('/register', async (req, res, next) => {
         req.ip || req.connection.remoteAddress,
         req.headers['user-agent']
       ]);
-      
+
       // REQ-00034: Create age profile if birthDate provided
       if (birthDate) {
         await client.query(`
-          INSERT INTO user_age_profiles 
-            (user_id, birth_date, age_bracket, parent_email, parent_consent_status, 
+          INSERT INTO user_age_profiles
+            (user_id, birth_date, age_bracket, parent_email, parent_consent_status,
              daily_play_limit_minutes, monthly_spend_limit_cents, features_disabled)
           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
         `, [
@@ -171,10 +171,10 @@ router.post('/register', async (req, res, next) => {
         console.error('[COPPA] Failed to send parent consent email:', emailError);
         // 不中断注册流程，但记录错误
       }
-      
+
       // 13岁以下用户需要等待家长同意才能登录
-      res.status(201).json(successResp({ 
-        userId: result.id, 
+      res.status(201).json(successResp({
+        userId: result.id,
         nickname: result.nickname,
         requiresParentConsent: true,
         message: '注册成功！已向家长邮箱发送验证邮件，请等待家长同意后登录。'
@@ -244,6 +244,8 @@ router.post('/refresh', async (req, res, next) => {
 });
 
 // ── POST /auth/logout ─────────────────────────────────────────
+// FIX: verifyAccess was called here but not imported in the original file.
+// It is now explicitly imported from shared/auth above.
 router.post('/logout', async (req, res, next) => {
   try {
     const header = req.headers['authorization'];
@@ -251,15 +253,14 @@ router.post('/logout', async (req, res, next) => {
       const token = header.slice(7);
       try {
         const payload = verifyAccess(token);
-        const jti = payload.jti;
+        const jti    = payload.jti;
         const userId = payload.sub;
-        
+
         if (jti) {
-          // Use JwtBlacklist for proper revocation
           const { getJwtBlacklist } = require('../../../../shared/JwtBlacklist');
           const blacklist = getJwtBlacklist();
           const expiresAt = payload.exp || Math.floor(Date.now() / 1000) + 86400;
-          
+
           await blacklist.revokeToken(jti, userId, expiresAt, {
             reason: 'logout',
             deviceInfo: {
@@ -269,7 +270,7 @@ router.post('/logout', async (req, res, next) => {
           });
         }
       } catch (e) {
-        // Token invalid, just proceed
+        // Token invalid, just proceed with logout
       }
     }
     res.json(successResp(null, '已退出登录'));
@@ -290,11 +291,11 @@ function issueTokens(user, deviceInfo = {}) {
   const now = Math.floor(Date.now() / 1000);
   const accessToken  = signAccess({ sub: user.id, nickname: user.nickname, level: user.level, jti, iat: now, exp: now + 86400 });
   const refreshToken = signRefresh({ sub: user.id, jti });
-  
+
   // Register session in blacklist (async, don't wait)
   const { getJwtBlacklist } = require('../../../../shared/JwtBlacklist');
   getJwtBlacklist().registerSession(jti, user.id, now + 86400, deviceInfo).catch(() => {});
-  
+
   return {
     accessToken,
     refreshToken,
