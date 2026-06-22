@@ -27,4 +27,5 @@
 | REQ-00282 | 开发者环境一键初始化与智能诊断系统 | 文档/开发者体验 | P1 | done | backend, scripts, docs | 2026-06-22 05:00 |
 | REQ-00283 | 精灵天赋系统与隐藏属性机制 | 功能增强 | P1 | new | pokemon-service, battle-service, user-service | 2026-06-22 06:00 |
 | REQ-00284 | 分布式事务编排与 Saga 补偿机制系统 | 可扩展性/解耦 | P1 | new | backend/shared, gateway, catch-service, gym-service, payment-service | 2026-06-22 06:00 |
-| REQ-00285 | 服务实例优雅停机与连接排空系统 | 容灾/高可用 | P1 | new | backend/shared, gateway, 所有微服务, k8s | 2026-06-22 07:00 |
+|| REQ-00285 | 服务实例优雅停机与连接排空系统 | 容灾/高可用 | P1 | new | backend/shared, gateway, 所有微服务, k8s | 2026-06-22 07:00 |
+| REQ-00286 | 游戏认知障碍支持与简化模式系统 | 无障碍(a11y) | P1 | new | game-client, user-service, pokemon-service, backend/shared | 2026-06-22 08:00 |
