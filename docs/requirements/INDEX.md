@@ -50,7 +50,7 @@
 | REQ-00044 |  |  |  |  |  |  |
 | REQ-00045 |  |  |  |  |  |  |
 | REQ-00046 |  |  |  |  |  |  |
-| REQ-00047 |  |  |  |  |  |  |
+| REQ-00047 | 精灵道具与背包管理系统 | 功能增强 | P1 | done | pokemon-service, reward-service, catch-service | 2026-06-09 09:00 |
 | REQ-00048 |  |  |  |  |  |  |
 | REQ-00049 |  |  |  |  |  |  |
 | REQ-00050 |  |  |  |  |  |  |
@@ -298,4 +298,5 @@
 | REQ-00284 |  |  |  |  |  |  |
 | REQ-00285 |  |  |  |  |  |  |
 | REQ-00286 |  |  |  |  |  |  |
-| REQ-00287 |  |  |  |  |  |  |
+| REQ-00287 | CI/CD 管道执行依赖分析与并行优化系统 | 运维/CICD | P1 | new | cicd, github-actions | 2026-06-22 03:00 |
+| REQ-00288 | 精灵技能连击系统与组合技效果 | 功能增强 | P1 | new | gym-service, catch-service, pokemon-service, game-client | 2026-06-22 09:00 |
