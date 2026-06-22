@@ -4,8 +4,8 @@
 
 const express = require('express');
 const router = express.Router();
-const friendshipService = require('../../../shared/friendshipService');
-const { logger, metrics } = require('../../../shared');
+const friendshipService = require('../../../../shared/friendshipService');
+const { logger, metrics } = require('../../../../shared');
 
 /**
  * 认证中间件（简化版）
