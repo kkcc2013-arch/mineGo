@@ -1,0 +1,96 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug: Gateway",
+      "program": "${workspaceFolder}/backend/gateway/src/index.js",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug: User Service",
+      "program": "${workspaceFolder}/backend/services/user-service/src/index.js",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug: Catch Service",
+      "program": "${workspaceFolder}/backend/services/catch-service/src/index.js",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug: Pokemon Service",
+      "program": "${workspaceFolder}/backend/services/pokemon-service/src/index.js",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug: Gym Service",
+      "program": "${workspaceFolder}/backend/services/gym-service/src/index.js",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug: Social Service",
+      "program": "${workspaceFolder}/backend/services/social-service/src/index.js",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug: Reward Service",
+      "program": "${workspaceFolder}/backend/services/reward-service/src/index.js",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug: Payment Service",
+      "program": "${workspaceFolder}/backend/services/payment-service/src/index.js",
+      "envFile": "${workspaceFolder}/.env",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug: All Tests",
+      "program": "${workspaceFolder}/backend/node_modules/.bin/jest",
+      "args": ["--runInBand", "--no-cache", "--coverage=false"],
+      "cwd": "${workspaceFolder}/backend",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug: Current Test File",
+      "program": "${workspaceFolder}/backend/node_modules/.bin/jest",
+      "args": ["${fileBasenameNoExtension}", "--runInBand", "--no-cache"],
+      "cwd": "${workspaceFolder}/backend",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "request": "attach",
+      "name": "Attach: Remote Debug",
+      "port": 9229,
+      "remoteRoot": "/app",
+      "localRoot": "${workspaceFolder}"
+    }
+  ]
+}

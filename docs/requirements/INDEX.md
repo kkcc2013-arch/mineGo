@@ -24,5 +24,6 @@
 || REQ-00279 | 反作弊行为模式机器学习检测系统 | 反作弊 | P1 | new | backend/shared, catch-service, gym-service, ml-service | 2026-06-22 03:15 |
 || REQ-00280 | 游戏数值本地化显示系统 | 国际化/本地化 | P2 | new | game-client, backend/shared | 2026-06-22 04:00 |
 | REQ-00281 | 游戏色盲模式与视觉辅助系统 | 无障碍(a11y) | P1 | new | game-client, pokemon-service, backend/shared | 2026-06-22 05:00 |
-| REQ-00282 | 开发者环境一键初始化与智能诊断系统 | 文档/开发者体验 | P1 | new | backend, scripts, docs | 2026-06-22 05:00 |
+| REQ-00282 | 开发者环境一键初始化与智能诊断系统 | 文档/开发者体验 | P1 | done | backend, scripts, docs | 2026-06-22 05:00 |
 | REQ-00283 | 精灵天赋系统与隐藏属性机制 | 功能增强 | P1 | new | pokemon-service, battle-service, user-service | 2026-06-22 06:00 |
+| REQ-00284 | 分布式事务编排与 Saga 补偿机制系统 | 可扩展性/解耦 | P1 | new | backend/shared, gateway, catch-service, gym-service, payment-service | 2026-06-22 06:00 |

@@ -1,0 +1,92 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Dev: Setup Environment",
+      "type": "shell",
+      "command": "node scripts/dev-setup.js",
+      "problemMatcher": [],
+      "detail": "一键初始化开发环境"
+    },
+    {
+      "label": "Dev: Doctor",
+      "type": "shell",
+      "command": "node scripts/dev-doctor.js",
+      "problemMatcher": [],
+      "detail": "检查开发环境健康状态"
+    },
+    {
+      "label": "Dev: Reset Environment",
+      "type": "shell",
+      "command": "node scripts/dev-reset.js",
+      "problemMatcher": [],
+      "detail": "重置开发环境"
+    },
+    {
+      "label": "Dev: Start All Services",
+      "type": "shell",
+      "command": "docker compose up -d",
+      "problemMatcher": [],
+      "detail": "启动所有 Docker 服务"
+    },
+    {
+      "label": "Dev: Stop All Services",
+      "type": "shell",
+      "command": "docker compose down",
+      "problemMatcher": [],
+      "detail": "停止所有 Docker 服务"
+    },
+    {
+      "label": "Dev: Start Gateway",
+      "type": "npm",
+      "script": "dev:gateway",
+      "path": "backend/",
+      "problemMatcher": [],
+      "detail": "启动网关服务（开发模式）"
+    },
+    {
+      "label": "Dev: Run Tests",
+      "type": "npm",
+      "script": "test",
+      "path": "backend/",
+      "problemMatcher": [],
+      "detail": "运行所有测试"
+    },
+    {
+      "label": "Dev: Run Linter",
+      "type": "npm",
+      "script": "lint",
+      "path": "backend/",
+      "problemMatcher": [],
+      "detail": "运行 ESLint"
+    },
+    {
+      "label": "Dev: Database Migrate Up",
+      "type": "shell",
+      "command": "node database/migrate.js up",
+      "problemMatcher": [],
+      "detail": "运行数据库迁移"
+    },
+    {
+      "label": "Dev: Database Migrate Down",
+      "type": "shell",
+      "command": "node database/migrate.js down",
+      "problemMatcher": [],
+      "detail": "回滚数据库迁移"
+    },
+    {
+      "label": "Dev: Seed Data",
+      "type": "shell",
+      "command": "node database/seeds/index.js",
+      "problemMatcher": [],
+      "detail": "填充种子数据"
+    },
+    {
+      "label": "Dev: View Logs",
+      "type": "shell",
+      "command": "tail -f logs/*.log",
+      "problemMatcher": [],
+      "detail": "查看实时日志"
+    }
+  ]
+}

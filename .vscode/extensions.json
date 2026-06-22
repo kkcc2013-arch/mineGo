@@ -1,0 +1,16 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-azuretools.vscode-docker",
+    "ckolkman.vscode-postgres",
+    "cweijan.vscode-redis-client",
+    "humao.rest-client",
+    "orta.vscode-jest",
+    "ms-vscode-remote.remote-containers",
+    "yzhang.markdown-all-in-one",
+    "bierner.markdown-mermaid",
+    "eamodio.gitlens",
+    "ms-vscode.makefile-tools"
+  ]
+}
