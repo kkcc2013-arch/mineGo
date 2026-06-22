@@ -13,4 +13,6 @@
 | REQ-00270 | 攻击模式检测系统 | 反作弊 | P1 | done | backend/shared, catch-service | 2026-06-18 |
 | REQ-00271 | 精灵昵称与自定义名牌系统 | 功能增强 | P3 | done | pokemon-service, user-service | 2026-06-18 |
 | REQ-00272 | API 契约测试系统与自动化 Mock 服务生成 | 测试覆盖 | P1 | done | backend/tests, gateway | 2026-06-18 |
+| REQ-00259 | 数据库读写分离与主从同步监控系统 | 数据库/数据治理 | P1 | done | backend/shared, database | 2026-06-22 |
 | REQ-00273 | Kubernetes 资源限制优化与成本监控 | 成本/资源优化 | P2 | new | k8s, monitoring | 2026-06-19 |
+| REQ-00274 | 游戏活动服务单元测试覆盖 | 测试覆盖 | P2 | new | reward-service, backend/tests | 2026-06-22 |
