@@ -76,7 +76,7 @@
 | REQ-00069 |  |  |  |  |  |  |
 | REQ-00070 |  |  |  |  |  |  |
 | REQ-00071 |  |  |  |  |  |  |
-| REQ-00072 |  |  |  |  |  |  |
+| REQ-00072 | API 响应 Gzip/Brotli 压缩优化 | 性能优化 | P1 | done | gateway, 所有微服务, backend/shared | 2026-06-10 00:20 |
 | REQ-00073 |  |  |  |  |  |  |
 | REQ-00074 |  |  |  |  |  |  |
 | REQ-00075 |  |  |  |  |  |  |
@@ -301,3 +301,4 @@
 | REQ-00287 | CI/CD 管道执行依赖分析与并行优化系统 | 运维/CICD | P1 | new | cicd, github-actions | 2026-06-22 03:00 |
 | REQ-00288 | 精灵技能连击系统与组合技效果 | 功能增强 | P1 | new | gym-service, catch-service, pokemon-service, game-client | 2026-06-22 09:00 |
 | REQ-00289 | 精灵交换欺诈检测与交易安全系统 | 反作弊 | P1 | new | exchange-service, trade-service, user-service, notification-service | 2026-06-22 10:00 |
+| REQ-00290 | WebSocket 连接池与消息批处理性能优化 | 性能优化 | P1 | new | gym-service, social-service, backend/shared/websocket | 2026-06-22 10:00 |
