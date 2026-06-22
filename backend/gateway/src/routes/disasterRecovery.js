@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { logger } = require('../../shared/logging');
-const HealthChecker = require('../../shared/disasterRecovery/HealthChecker');
-const FailoverController = require('../../shared/disasterRecovery/FailoverController');
-const DrillManager = require('../../shared/disasterRecovery/DrillManager');
-const DatabaseSync = require('../../shared/disasterRecovery/DatabaseSync');
+const { logger } = require('@pmg/shared/logging');
+const HealthChecker = require('@pmg/shared/disasterRecovery/HealthChecker');
+const FailoverController = require('@pmg/shared/disasterRecovery/FailoverController');
+const DrillManager = require('@pmg/shared/disasterRecovery/DrillManager');
+const DatabaseSync = require('@pmg/shared/disasterRecovery/DatabaseSync');
 
 // 初始化组件（延迟初始化，避免模块加载时立即创建实例）
 let healthChecker = null;

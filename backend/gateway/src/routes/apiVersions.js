@@ -7,10 +7,10 @@
 
 const express = require('express');
 const router = express.Router();
-const { getVersionManager } = require('../../shared/apiVersionManager');
-const { requireAuth, requireAdmin } = require('../../shared/authMiddleware');
+const { getVersionManager } = require('@pmg/shared/apiVersionManager');
+const { requireAuth, requireAdmin } = require('@pmg/shared/authMiddleware');
 
-const logger = require('../../shared/logger').createLogger('api-version-routes');
+const logger = require('@pmg/shared/logger').createLogger('api-version-routes');
 
 // ============================================================
 // 公开接口

@@ -5,9 +5,9 @@
 
 const express = require('express');
 const router = express.Router();
-const SleepManager = require('../../shared/SleepManager');
-const TrafficAnalyzer = require('../../shared/TrafficAnalyzer');
-const logger = require('../../shared/logger');
+const SleepManager = require('@pmg/shared/SleepManager');
+const TrafficAnalyzer = require('@pmg/shared/TrafficAnalyzer');
+const logger = require('@pmg/shared/logger');
 
 // 单例实例
 let sleepManager = null;

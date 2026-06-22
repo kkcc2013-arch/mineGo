@@ -3,8 +3,8 @@
 
 'use strict';
 
-const { getAgeProfile, checkPlayTimeLimit, isMinor, isFeatureDisabled } = require('../../shared/ageVerification');
-const { AppError } = require('../../shared/auth');
+const { getAgeProfile, checkPlayTimeLimit, isMinor, isFeatureDisabled } = require('@pmg/shared/ageVerification');
+const { AppError } = require('@pmg/shared/auth');
 
 /**
  * 检查游戏时间限制中间件
@@ -111,7 +111,7 @@ async function checkLoginPermissionMiddleware(req, res, next) {
       return next();
     }
     
-    const { canUserLogin, getAgeProfile, AGE_BRACKETS } = require('../../shared/ageVerification');
+    const { canUserLogin, getAgeProfile, AGE_BRACKETS } = require('@pmg/shared/ageVerification');
     
     const profile = await getAgeProfile(req.user.id);
     
@@ -156,7 +156,7 @@ function trackPlayTimeMiddleware() {
       try {
         // 只记录成功的游戏相关请求
         if (res.statusCode >= 200 && res.statusCode < 300 && req.user && req.user.id) {
-          const { getAgeProfile, isMinor, recordPlayTime } = require('../../shared/ageVerification');
+          const { getAgeProfile, isMinor, recordPlayTime } = require('@pmg/shared/ageVerification');
           
           const profile = await getAgeProfile(req.user.id);
           

@@ -9,8 +9,8 @@
 
 const express = require('express');
 const router = express.Router();
-const { query } = require('../../shared/db');
-const { createLogger } = require('../../shared/logger');
+const { query } = require('@pmg/shared/db');
+const { createLogger } = require('@pmg/shared/logger');
 
 const logger = createLogger('replication-routes');
 

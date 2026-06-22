@@ -9,11 +9,11 @@
 const express = require('express');
 const router = express.Router();
 const { Client } = require('pg');
-const { getCollector } = require('../../shared/slowQueryCollector');
-const QueryAnalyzer = require('../../shared/queryAnalyzer');
-const OptimizationAdvisor = require('../../shared/optimizationAdvisor');
-const logger = require('../../shared/logger');
-const { incrementCounter, observeHistogram } = require('../../shared/metrics');
+const { getCollector } = require('@pmg/shared/slowQueryCollector');
+const QueryAnalyzer = require('@pmg/shared/queryAnalyzer');
+const OptimizationAdvisor = require('@pmg/shared/optimizationAdvisor');
+const logger = require('@pmg/shared/logger');
+const { incrementCounter, observeHistogram } = require('@pmg/shared/metrics');
 const authMiddleware = require('../middleware/auth');
 
 // 初始化组件

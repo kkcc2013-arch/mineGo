@@ -4,8 +4,8 @@
  */
 
 const { Kafka } = require('kafkajs');
-const logger = require('../../shared/logger');
-const redis = require('../../shared/redis');
+const logger = require('@pmg/shared/logger');
+const redis = require('@pmg/shared/redis');
 
 class SleepWakeTrigger {
   constructor(options = {}) {

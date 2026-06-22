@@ -8,8 +8,8 @@
 
 const express = require('express');
 const router = express.Router();
-const { cdnManager, imageProcessor, IMAGE_PRESETS, CACHE_CONFIG } = require('../../shared/CDNManager');
-const { promClient } = require('../../shared/metrics');
+const { cdnManager, imageProcessor, IMAGE_PRESETS, CACHE_CONFIG } = require('@pmg/shared/CDNManager');
+const { promClient } = require('@pmg/shared/metrics');
 
 // ── Prometheus 指标 ─────────────────────────────────────────────────
 

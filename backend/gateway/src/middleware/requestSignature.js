@@ -10,9 +10,9 @@
  */
 
 const crypto = require('crypto');
-const { getRedisClient } = require('../../shared/cache');
-const { executeQuery } = require('../../shared/db');
-const logger = require('../../shared/logger');
+const { getRedisClient } = require('@pmg/shared/cache');
+const { executeQuery } = require('@pmg/shared/db');
+const logger = require('@pmg/shared/logger');
 
 // 配置
 const CONFIG = {

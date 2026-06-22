@@ -6,9 +6,9 @@
 
 const express = require('express');
 const router = express.Router();
-const { PredictiveScalingEngine } = require('../../shared/predictiveScaling');
-const { scalingMetrics, ScalingMetricsCollector, generateEfficiencyReport } = require('../../shared/scalingMetrics');
-const logger = require('../../shared/logger');
+const { PredictiveScalingEngine } = require('@pmg/shared/predictiveScaling');
+const { scalingMetrics, ScalingMetricsCollector, generateEfficiencyReport } = require('@pmg/shared/scalingMetrics');
+const logger = require('@pmg/shared/logger');
 
 // 创建实例
 const scalingEngine = new PredictiveScalingEngine();

@@ -6,7 +6,7 @@
  */
 'use strict';
 
-const { cdnManager } = require('../../shared/CDNManager');
+const { cdnManager } = require('@pmg/shared/CDNManager');
 
 /**
  * 图片优化中间件

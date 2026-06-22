@@ -3,7 +3,7 @@
  * REQ-00031: API 响应缓存层与缓存失效策略
  */
 
-const { cacheMiddleware, presets } = require('../../shared/cacheMiddleware');
+const { cacheMiddleware, presets } = require('@pmg/shared/cacheMiddleware');
 
 /**
  * 缓存路由配置

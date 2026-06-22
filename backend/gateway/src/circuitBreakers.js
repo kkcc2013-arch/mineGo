@@ -1,9 +1,9 @@
 // backend/gateway/src/circuitBreakers.js
 'use strict';
-const { CircuitBreaker, CircuitBreakerManager } = require('../../shared/CircuitBreaker');
-const { ServiceFallbackStrategies } = require('../../shared/FallbackStrategy');
-const { createLogger } = require('../../shared/logger');
-const metrics = require('../../shared/metrics');
+const { CircuitBreaker, CircuitBreakerManager } = require('@pmg/shared/CircuitBreaker');
+const { ServiceFallbackStrategies } = require('@pmg/shared/FallbackStrategy');
+const { createLogger } = require('@pmg/shared/logger');
+const metrics = require('@pmg/shared/metrics');
 
 const logger = createLogger('gateway:circuit-breakers');
 
@@ -150,13 +150,13 @@ function getFallbackStrategy(serviceName, operation) {
   
   if (!serviceStrategies) {
     return ServiceFallbackStrategies.default || 
-           require('../../shared/FallbackStrategy').FallbackStrategies.defaultValue;
+           require('@pmg/shared/FallbackStrategy').FallbackStrategies.defaultValue;
   }
   
   // If service has operation-specific strategies
   if (typeof serviceStrategies === 'object' && !serviceStrategies.handler) {
     return serviceStrategies[operation] || serviceStrategies.default ||
-           require('../../shared/FallbackStrategy').FallbackStrategies.defaultValue;
+           require('@pmg/shared/FallbackStrategy').FallbackStrategies.defaultValue;
   }
   
   return serviceStrategies;

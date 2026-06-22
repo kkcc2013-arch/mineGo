@@ -6,8 +6,8 @@
 
 const express = require('express');
 const router = express.Router();
-const partitionManager = require('../../shared/partitionManager');
-const { logger, metrics } = require('../../shared/index');
+const partitionManager = require('@pmg/shared/partitionManager');
+const { logger, metrics } = require('@pmg/shared/index');
 
 /**
  * GET /api/partitions/overview
