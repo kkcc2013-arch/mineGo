@@ -14,6 +14,10 @@ const { createLogger, requestLogger } = require('@pmg/shared/logger');
 const metrics = require('@pmg/shared/metrics');
 const { authWithBlacklistMiddleware } = require('./middleware/jwtBlacklist');
 
+// ── Auth middleware for protected routes ──────────────────────
+// Uses authWithBlacklistMiddleware which includes JWT blacklist check
+const authMiddleware = authWithBlacklistMiddleware;
+
 // REQ-00031: API 响应缓存层
 const cache = require('@pmg/shared/cache');
 const { cacheMiddleware } = require('@pmg/shared/cacheMiddleware');
@@ -194,10 +198,6 @@ try {
 } catch (err) {
   logger.warn({ err }, 'Swagger UI not available (OpenAPI spec not found)');
 }
-
-// ── Auth middleware for protected routes ──────────────────────
-// Uses authWithBlacklistMiddleware which includes JWT blacklist check
-const authMiddleware = authWithBlacklistMiddleware;
 
 // ── Initialize Cache System (REQ-00031) ───────────────────────
 // ── Initialize Cache Warmup (REQ-00039) ───────────────────────
