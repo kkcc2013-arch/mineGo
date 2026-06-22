@@ -12,6 +12,17 @@ const { calculateStardustCost, calculatePokemonValue } = require('../trade/stard
 const { checkTradeLimits, checkPokemonFrequentTrade } = require('../trade/limits');
 const { detectSuspiciousTrade } = require('../trade/antiCheat');
 const { validateTradeDistance } = require('../trade/distance');
+const { FraudDetectionService, RiskLevel } = require('../../../../shared/tradeFraudDetection');
+const { 
+  TradeConfirmationService,
+  TradeRollbackService,
+  TradeAuditService
+} = require('../../../../shared/tradeConfirmation');
+
+const fraudDetectionService = new FraudDetectionService();
+const tradeConfirmationService = new TradeConfirmationService();
+const tradeRollbackService = new TradeRollbackService();
+const tradeAuditService = new TradeAuditService();
 
 const logger = createLogger('trade-routes');
 
@@ -135,7 +146,54 @@ router.post('/request', requireAuth, async (req, res, next) => {
       distance
     }, '交易请求已创建');
 
-    // 异步检测可疑交易（不阻塞响应）
+    // 构建交易上下文
+    const context = await fraudDetectionService.buildTradeContext(userId, friendId);
+
+    // 欺诈检测分析
+    const fraudAnalysis = await fraudDetectionService.analyze({
+      tradeId: trade.id,
+      initiatorId: userId,
+      receiverId: friendId,
+      initiatorOffer: [myPokemon],
+      receiverOffer: [theirPokemon],
+      context
+    });
+
+    logger.info({
+      tradeId: trade.id,
+      riskLevel: fraudAnalysis.riskLevel,
+      overallScore: fraudAnalysis.overallScore
+    }, '欺诈检测分析完成');
+
+    // 根据风险等级处理
+    if (fraudAnalysis.riskLevel === RiskLevel.CRITICAL) {
+      // 阻止交易
+      await query(`UPDATE pokemon_trades SET status = 'BLOCKED' WHERE id = $1`, [trade.id]);
+      throw new AppError(3015, '交易风险过高，已被系统阻止', 403);
+    }
+
+    // 高风险交易需要额外确认
+    let confirmationRequired = false;
+    if (fraudAnalysis.riskLevel === RiskLevel.HIGH) {
+      confirmationRequired = true;
+    }
+
+    // 评估交易公平性
+    const fairness = await fraudDetectionService.quickEvaluateFairness(myPokemon, theirPokemon);
+
+    // 记录审计日志
+    await tradeAuditService.logTradeEvent({
+      tradeId: trade.id,
+      type: 'trade_requested',
+      initiatorId: userId,
+      receiverId: friendId,
+      initiatorOffer: [myPokemon],
+      receiverOffer: [theirPokemon],
+      riskAnalysis: fraudAnalysis,
+      traceId: req.headers['x-trace-id']
+    });
+
+    // 异步检测可疑交易（保留原有检测）
     detectSuspiciousTrade(trade, myPokemon, theirPokemon).catch(err => {
       logger.error({ err, tradeId: trade.id }, '可疑交易检测失败');
     });
@@ -157,6 +215,17 @@ router.post('/request', requireAuth, async (req, res, next) => {
         cp: theirPokemon.cp,
         rarity: theirPokemon.rarity
       },
+      fraudAnalysis: {
+        riskLevel: fraudAnalysis.riskLevel,
+        fairness: {
+          yourValue: fairness.offerValue,
+          theirValue: fairness.receiveValue,
+          ratio: fairness.ratio,
+          risk: fairness.risk
+        },
+        warnings: fraudAnalysis.scores.flatMap(s => s.indicators)
+      },
+      confirmationRequired,
       expiresIn: 300 // 5分钟有效期
     }, '交易请求已发送'));
   } catch (err) {
@@ -464,6 +533,113 @@ router.get('/:id', requireAuth, async (req, res, next) => {
     }
 
     res.json(successResp(trade));
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * POST /trades/:id/rollback
+ * 回滚交易（24小时内）
+ */
+router.post('/:id/rollback', requireAuth, async (req, res, next) => {
+  try {
+    const tradeId = req.params.id;
+    const userId = req.user.sub;
+    const { reason } = req.body;
+
+    // 验证权限（管理员或交易参与者）
+    const { rows: [trade] } = await query(`
+      SELECT * FROM pokemon_trades WHERE id = $1
+    `, [tradeId]);
+
+    if (!trade) {
+      throw new AppError(2017, '交易不存在', 404);
+    }
+
+    // 检查是否为交易参与者或管理员
+    const isParticipant = trade.initiator_id === userId || trade.receiver_id === userId;
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isParticipant && !isAdmin) {
+      throw new AppError(1003, '无权回滚此交易', 403);
+    }
+
+    // 检查是否可以回滚
+    const rollbackCheck = await tradeRollbackService.canRollback(tradeId);
+    if (!rollbackCheck.canRollback) {
+      throw new AppError(3016, rollbackCheck.reason, 400);
+    }
+
+    // 执行回滚
+    const result = await tradeRollbackService.rollback(tradeId, reason || '用户请求回滚');
+
+    // 通知双方
+    await tradeRollbackService.notifyRollback(
+      trade.initiator_id,
+      trade.receiver_id,
+      reason || '用户请求回滚'
+    );
+
+    logger.info({
+      tradeId,
+      userId,
+      reason
+    }, '交易已回滚');
+
+    res.json(successResp(result, '交易已回滚'));
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /trades/analytics/report
+ * 生成异常交易报表（管理员）
+ */
+router.get('/analytics/report', requireAuth, async (req, res, next) => {
+  try {
+    const userId = req.user.sub;
+
+    // 验证管理员权限
+    if (req.user.role !== 'admin') {
+      throw new AppError(1003, '需要管理员权限', 403);
+    }
+
+    const { start, end } = req.query;
+
+    if (!start || !end) {
+      throw new AppError(1001, '缺少时间范围参数', 400);
+    }
+
+    const report = await tradeAuditService.generateAnomalyReport({
+      start: new Date(start),
+      end: new Date(end)
+    });
+
+    res.json(successResp(report));
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /trades/fraud/rings
+ * 检测欺诈团伙（管理员）
+ */
+router.get('/fraud/rings', requireAuth, async (req, res, next) => {
+  try {
+    // 验证管理员权限
+    if (req.user.role !== 'admin') {
+      throw new AppError(1003, '需要管理员权限', 403);
+    }
+
+    const { FraudRingDetector } = require('../../../../shared/tradeConfirmation');
+    const detector = new FraudRingDetector();
+
+    const report = await detector.analyzeTradeNetwork();
+
+    res.json(successResp(report));
   } catch (err) {
     next(err);
   }
