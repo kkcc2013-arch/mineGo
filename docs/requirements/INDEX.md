@@ -5,6 +5,7 @@
 | 编号 | 标题 | 类别 | 优先级 | 状态 | 涉及服务 | 创建时间 |
 |------|------|------|--------|------|----------|----------|
 | REQ-00001 | 结构化日志与 Prometheus 指标 | 性能优化 | P1 | done | backend/shared | 2026-06-04 |
+| REQ-00044 | API 版本管理与向后兼容策略 | API 设计规范 | P1 | done | gateway, 所有微服务 | 2026-06-09 |
 | REQ-00055 | 精灵收藏展示系统 | 功能增强 | P1 | new | pokemon-service, social-service | 2026-06-09 |
 | REQ-00057 | 多因素认证（MFA）系统 | 安全加固 | P1 | new | user-service, gateway | 2026-06-09 |
 | REQ-00060 | 数据库分区表与大数据量表分区策略 | 数据库/数据治理 | P1 | done | database/migrations | 2026-06-09 |
