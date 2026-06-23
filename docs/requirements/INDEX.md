@@ -309,3 +309,4 @@
 | REQ-00294 | 游戏内文本动态本地化与玩家语言自适应系统 | 国际化/本地化 | P1 | new | gateway, user-service, pokemon-service, location-service, reward-service, game-client, backend/shared/i18n | 2026-06-23 02:00 |
 || REQ-00295 | 游戏资源预热与智能预加载系统 | 前端体验 | P1 | new | game-client, cdn, location-service, pokemon-service, backend/shared/cache | 2026-06-23 10:00 |
 || REQ-00296 | SLO 错误预算管理与自动降级系统 | 稳定性/高可用 | P1 | new | gateway, 所有微服务, backend/shared/slo, backend/shared/middleware, monitoring, Prometheus, Grafana | 2026-06-23 12:00 |
+| REQ-00297 | 云成本异常检测与预算超支预警系统 | 成本/资源优化 | P1 | new | gateway, monitoring, backend/shared/cost, Prometheus, Grafana, Slack, Email | 2026-06-23 14:00 |
