@@ -698,7 +698,7 @@ class FriendService {
     const thresholds = this.config.FRIENDSHIP_LEVEL_THRESHOLDS;
     for (let i = thresholds.length - 1; i >= 0; i--) {
       if (points >= thresholds[i]) {
-        return i + 1;
+        return Math.min(5, i + 1);
       }
     }
     return 1;
@@ -713,7 +713,8 @@ class FriendService {
    */
   async getFriendLeaderboard(userId, type = 'friendship', limit = 10) {
     const cacheKey = `friend_leaderboard:${userId}:${type}`;
-    const cached = await redis.get(cacheKey);
+    const redisClient = redis.getRedis();
+    const cached = await redisClient.get(cacheKey);
     if (cached) {
       return JSON.parse(cached);
     }
@@ -739,7 +740,7 @@ class FriendService {
     `, [userId, limit]);
 
     // 缓存5分钟
-    await redis.setex(cacheKey, 300, JSON.stringify(result.rows));
+    await redisClient.setex(cacheKey, 300, JSON.stringify(result.rows));
 
     return result.rows;
   }

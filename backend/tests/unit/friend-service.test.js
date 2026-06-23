@@ -6,39 +6,112 @@
 
 const { expect } = require('chai');
 const sinon = require('sinon');
-const proxyquire = require('proxyquire');
 
 // Mock dependencies
-const mockDb = {
-  query: sinon.stub(),
-  transaction: sinon.stub()
-};
-
-const mockRedis = {
-  get: sinon.stub(),
-  setex: sinon.stub(),
-  del: sinon.stub(),
-  zadd: sinon.stub(),
-  zrange: sinon.stub()
-};
-
-const mockEventBus = {
-  publish: sinon.stub().resolves()
-};
-
-// Load friend service with mocks
-const FriendService = proxyquire('../../services/social-service/src/friendService', {
-  '../../../shared/db': mockDb,
-  '../../../shared/redis': mockRedis,
-  '../../../shared/EventBus': mockEventBus
+jest.mock('../../shared/db', () => {
+  const sinon = require('sinon');
+  return {
+    query: sinon.stub(),
+    transaction: sinon.stub()
+  };
 });
+
+jest.mock('../../shared/redis', () => {
+  const sinon = require('sinon');
+  const mock = {
+    getRedis: () => mock,
+    get: sinon.stub(),
+    setex: sinon.stub(),
+    del: sinon.stub(),
+    zadd: sinon.stub(),
+    zrange: sinon.stub()
+  };
+  return mock;
+});
+
+jest.mock('../../shared/EventBus', () => {
+  const sinon = require('sinon');
+  return {
+    publish: sinon.stub().resolves()
+  };
+});
+
+jest.mock('../../shared/metrics', () => {
+  const sinon = require('sinon');
+  return {
+    incrementCounter: sinon.stub(),
+    observeHistogram: sinon.stub()
+  };
+});
+
+jest.mock('../../shared/logger', () => {
+  const sinon = require('sinon');
+  const mockLogger = {
+    info: sinon.stub(),
+    error: sinon.stub(),
+    warn: sinon.stub(),
+    debug: sinon.stub()
+  };
+  return {
+    createLogger: () => mockLogger,
+    logger: mockLogger
+  };
+});
+
+const mockDb = require('../../shared/db');
+const mockRedis = require('../../shared/redis');
+const mockEventBus = require('../../shared/EventBus');
+const mockMetrics = require('../../shared/metrics');
+const { logger: mockLogger } = require('../../shared/logger');
+
+// Load friend service
+const { FriendService } = require('../../services/social-service/src/friendService');
 
 describe('FriendService', () => {
   let friendService;
   
   beforeEach(() => {
     friendService = new FriendService();
-    sinon.resetAll();
+    sinon.reset();
+
+    // Reset histories manually
+    mockDb.query.resetHistory();
+    mockDb.transaction.resetHistory();
+    mockRedis.get.resetHistory();
+    mockRedis.setex.resetHistory();
+    mockRedis.del.resetHistory();
+    mockRedis.zadd.resetHistory();
+    mockRedis.zrange.resetHistory();
+    mockEventBus.publish.resetHistory();
+    mockMetrics.incrementCounter.resetHistory();
+    mockMetrics.observeHistogram.resetHistory();
+
+    // Default stub implementations
+    mockDb.query.callsFake(async (sql) => {
+      return { rows: [], rowCount: 0 };
+    });
+
+    mockDb.transaction.callsFake(async (callback) => {
+      const mockTrx = {
+        query: sinon.stub().resolves({ rows: [], rowCount: 0 }),
+        commit: sinon.stub().resolves(),
+        rollback: sinon.stub().resolves()
+      };
+      try {
+        const res = await callback(mockTrx);
+        await mockTrx.commit();
+        return res;
+      } catch (err) {
+        await mockTrx.rollback();
+        throw err;
+      }
+    });
+
+    mockRedis.get.resolves(null);
+    mockRedis.setex.resolves();
+    mockRedis.del.resolves();
+    mockRedis.zadd.resolves();
+    mockRedis.zrange.resolves();
   });
 
   afterEach(() => {
@@ -51,35 +124,39 @@ describe('FriendService', () => {
       const toUserId = 'user-2';
       const message = 'Let\'s be friends!';
 
-      // Mock user existence check
-      mockDb.query.onFirstCall().resolves({
-        rows: [
-          { id: fromUserId, username: 'user1' },
-          { id: toUserId, username: 'user2' }
-        ]
-      });
-
-      // Mock existing friendship check
-      mockDb.query.onSecondCall().resolves({ rows: [] });
-
-      // Mock friend count check
-      mockDb.query.onThirdCall().resolves({ rows: [{ count: '10' }] });
-
-      // Mock insert
-      mockDb.query.onCall(3).resolves({
-        rows: [{
-          id: 1,
-          from_user_id: fromUserId,
-          to_user_id: toUserId,
-          message,
-          status: 'pending'
-        }]
+      mockDb.query.callsFake(async (sql) => {
+        if (sql.includes('SELECT id, username FROM users')) {
+          return {
+            rows: [
+              { id: fromUserId, username: 'user1' },
+              { id: toUserId, username: 'user2' }
+            ]
+          };
+        }
+        if (sql.includes('SELECT COUNT(*)::int as count FROM friends')) {
+          return { rows: [{ count: 10 }] };
+        }
+        if (sql.includes('SELECT COUNT(*)::int as count FROM friend_requests')) {
+          return { rows: [{ count: 0 }] };
+        }
+        if (sql.includes('INSERT INTO friend_requests')) {
+          return {
+            rows: [{
+              id: 1,
+              from_user_id: fromUserId,
+              to_user_id: toUserId,
+              message,
+              status: 'pending'
+            }]
+          };
+        }
+        return { rows: [], rowCount: 0 };
       });
 
       const result = await friendService.sendFriendRequest(fromUserId, toUserId, message);
 
-      expect(result).to.have.property('id', 1);
-      expect(result).to.have.property('status', 'pending');
+      expect(result).to.have.property('success', true);
+      expect(result).to.have.property('requestId', 1);
       expect(mockEventBus.publish.calledOnce).to.be.true;
     });
 
@@ -98,15 +175,21 @@ describe('FriendService', () => {
       const fromUserId = 'user-1';
       const toUserId = 'user-2';
 
-      mockDb.query.onFirstCall().resolves({
-        rows: [
-          { id: fromUserId },
-          { id: toUserId }
-        ]
-      });
-
-      mockDb.query.onSecondCall().resolves({
-        rows: [{ id: 'friend-1', status: 'accepted' }]
+      mockDb.query.callsFake(async (sql) => {
+        if (sql.includes('SELECT id, username FROM users')) {
+          return {
+            rows: [
+              { id: fromUserId },
+              { id: toUserId }
+            ]
+          };
+        }
+        if (sql.includes('SELECT * FROM friends')) {
+          return {
+            rows: [{ id: 'friend-1', status: 'accepted' }]
+          };
+        }
+        return { rows: [], rowCount: 0 };
       });
 
       try {
@@ -121,15 +204,20 @@ describe('FriendService', () => {
       const fromUserId = 'user-1';
       const toUserId = 'user-2';
 
-      mockDb.query.onFirstCall().resolves({
-        rows: [
-          { id: fromUserId },
-          { id: toUserId }
-        ]
+      mockDb.query.callsFake(async (sql) => {
+        if (sql.includes('SELECT id, username FROM users')) {
+          return {
+            rows: [
+              { id: fromUserId },
+              { id: toUserId }
+            ]
+          };
+        }
+        if (sql.includes('SELECT COUNT(*)::int as count FROM friends')) {
+          return { rows: [{ count: 400 }] };
+        }
+        return { rows: [], rowCount: 0 };
       });
-
-      mockDb.query.onSecondCall().resolves({ rows: [] });
-      mockDb.query.onThirdCall().resolves({ rows: [{ count: '400' }] });
 
       try {
         await friendService.sendFriendRequest(fromUserId, toUserId, '');
@@ -153,24 +241,29 @@ describe('FriendService', () => {
       };
 
       mockDb.transaction.callsFake(async (callback) => {
-        return callback(mockTrx);
+        try {
+          const res = await callback(mockTrx);
+          await mockTrx.commit();
+          return res;
+        } catch (err) {
+          await mockTrx.rollback();
+          throw err;
+        }
       });
 
-      // Mock get request
-      mockTrx.query.onFirstCall().resolves({
-        rows: [{
-          id: requestId,
-          from_user_id: fromUserId,
-          to_user_id: userId,
-          status: 'pending'
-        }]
+      mockTrx.query.callsFake(async (sql) => {
+        if (sql.includes('SELECT * FROM friend_requests')) {
+          return {
+            rows: [{
+              id: requestId,
+              from_user_id: fromUserId,
+              to_user_id: userId,
+              status: 'pending'
+            }]
+          };
+        }
+        return { rows: [], rowCount: 1 };
       });
-
-      // Mock update request
-      mockTrx.query.onSecondCall().resolves({ rowCount: 1 });
-
-      // Mock insert friendships
-      mockTrx.query.onThirdCall().resolves({ rowCount: 2 });
 
       const result = await friendService.acceptFriendRequest(userId, requestId);
 
@@ -185,11 +278,19 @@ describe('FriendService', () => {
 
       const mockTrx = {
         query: sinon.stub().resolves({ rows: [] }),
+        commit: sinon.stub().resolves(),
         rollback: sinon.stub().resolves()
       };
 
       mockDb.transaction.callsFake(async (callback) => {
-        return callback(mockTrx);
+        try {
+          const res = await callback(mockTrx);
+          await mockTrx.commit();
+          return res;
+        } catch (err) {
+          await mockTrx.rollback();
+          throw err;
+        }
       });
 
       try {
@@ -230,8 +331,15 @@ describe('FriendService', () => {
         }
       ];
 
-      mockDb.query.onFirstCall().resolves({ rows: mockFriends });
-      mockDb.query.onSecondCall().resolves({ rows: [{ count: '2' }] });
+      mockDb.query.callsFake(async (sql) => {
+        if (sql.includes('FROM friends f') && sql.includes('JOIN users u')) {
+          return { rows: mockFriends };
+        }
+        if (sql.includes('SELECT COUNT(*)::int as count FROM friends')) {
+          return { rows: [{ count: 2 }] };
+        }
+        return { rows: [], rowCount: 0 };
+      });
 
       const result = await friendService.getFriendList(userId, options);
 
@@ -251,37 +359,55 @@ describe('FriendService', () => {
         quantity: 5
       };
 
-      // Mock friendship check
-      mockDb.query.onFirstCall().resolves({
-        rows: [{ id: 'friendship-1', status: 'accepted' }]
+      const mockTrx = {
+        query: sinon.stub(),
+        commit: sinon.stub().resolves(),
+        rollback: sinon.stub().resolves()
+      };
+
+      mockDb.transaction.callsFake(async (callback) => {
+        try {
+          const res = await callback(mockTrx);
+          await mockTrx.commit();
+          return res;
+        } catch (err) {
+          await mockTrx.rollback();
+          throw err;
+        }
       });
 
-      // Mock today gift count
-      mockDb.query.onSecondCall().resolves({ rows: [{ count: '10' }] });
-
-      // Mock inventory check
-      mockDb.query.onThirdCall().resolves({
-        rows: [{ item_id: 'item-123', quantity: 10 }]
+      mockDb.query.callsFake(async (sql) => {
+        if (sql.includes('SELECT * FROM friends')) {
+          return { rows: [{ id: 'friendship-1', status: 'accepted' }] };
+        }
+        if (sql.includes('SELECT COUNT(*)::int as count FROM friend_gifts')) {
+          return { rows: [{ count: 10 }] };
+        }
+        return { rows: [], rowCount: 0 };
       });
 
-      // Mock inventory decrement
-      mockDb.query.onCall(3).resolves({ rowCount: 1 });
-
-      // Mock gift insert
-      mockDb.query.onCall(4).resolves({
-        rows: [{
-          id: 'gift-1',
-          from_user_id: fromUserId,
-          to_user_id: toUserId,
-          gift_type: 'item',
-          status: 'pending'
-        }]
+      mockTrx.query.callsFake(async (sql) => {
+        if (sql.includes('SELECT * FROM user_inventory')) {
+          return { rows: [{ item_id: 'item-123', quantity: 10 }] };
+        }
+        if (sql.includes('INSERT INTO friend_gifts')) {
+          return {
+            rows: [{
+              id: 'gift-1',
+              from_user_id: fromUserId,
+              to_user_id: toUserId,
+              gift_type: 'item',
+              status: 'pending'
+            }]
+          };
+        }
+        return { rows: [], rowCount: 1 };
       });
 
       const result = await friendService.sendGift(fromUserId, toUserId, giftData);
 
-      expect(result).to.have.property('id', 'gift-1');
-      expect(result).to.have.property('status', 'pending');
+      expect(result).to.have.property('success', true);
+      expect(result).to.have.property('giftId', 'gift-1');
     });
 
     it('should reject gift to non-friend', async () => {
@@ -289,7 +415,12 @@ describe('FriendService', () => {
       const toUserId = 'user-3';
       const giftData = { giftType: 'item', giftId: 'item-123' };
 
-      mockDb.query.onFirstCall().resolves({ rows: [] });
+      mockDb.query.callsFake(async (sql) => {
+        if (sql.includes('SELECT * FROM friends')) {
+          return { rows: [] };
+        }
+        return { rows: [], rowCount: 0 };
+      });
 
       try {
         await friendService.sendGift(fromUserId, toUserId, giftData);
@@ -304,10 +435,15 @@ describe('FriendService', () => {
       const toUserId = 'user-2';
       const giftData = { giftType: 'item', giftId: 'item-123' };
 
-      mockDb.query.onFirstCall().resolves({
-        rows: [{ id: 'friendship-1' }]
+      mockDb.query.callsFake(async (sql) => {
+        if (sql.includes('SELECT * FROM friends')) {
+          return { rows: [{ id: 'friendship-1' }] };
+        }
+        if (sql.includes('SELECT COUNT(*)::int as count FROM friend_gifts')) {
+          return { rows: [{ count: 50 }] };
+        }
+        return { rows: [], rowCount: 0 };
       });
-      mockDb.query.onSecondCall().resolves({ rows: [{ count: '50' }] });
 
       try {
         await friendService.sendGift(fromUserId, toUserId, giftData);
@@ -322,9 +458,39 @@ describe('FriendService', () => {
       const toUserId = 'user-2';
       const giftData = { giftType: 'item', giftId: 'item-123', quantity: 10 };
 
-      mockDb.query.onFirstCall().resolves({ rows: [{ id: 'friendship-1' }] });
-      mockDb.query.onSecondCall().resolves({ rows: [{ count: '10' }] });
-      mockDb.query.onThirdCall().resolves({ rows: [{ item_id: 'item-123', quantity: 5 }] });
+      const mockTrx = {
+        query: sinon.stub(),
+        commit: sinon.stub().resolves(),
+        rollback: sinon.stub().resolves()
+      };
+
+      mockDb.transaction.callsFake(async (callback) => {
+        try {
+          const res = await callback(mockTrx);
+          await mockTrx.commit();
+          return res;
+        } catch (err) {
+          await mockTrx.rollback();
+          throw err;
+        }
+      });
+
+      mockDb.query.callsFake(async (sql) => {
+        if (sql.includes('SELECT * FROM friends')) {
+          return { rows: [{ id: 'friendship-1' }] };
+        }
+        if (sql.includes('SELECT COUNT(*)::int as count FROM friend_gifts')) {
+          return { rows: [{ count: 10 }] };
+        }
+        return { rows: [], rowCount: 0 };
+      });
+
+      mockTrx.query.callsFake(async (sql) => {
+        if (sql.includes('SELECT * FROM user_inventory')) {
+          return { rows: [{ item_id: 'item-123', quantity: 5 }] };
+        }
+        return { rows: [], rowCount: 0 };
+      });
 
       try {
         await friendService.sendGift(fromUserId, toUserId, giftData);
@@ -347,30 +513,39 @@ describe('FriendService', () => {
       };
 
       mockDb.transaction.callsFake(async (callback) => {
-        return callback(mockTrx);
+        try {
+          const res = await callback(mockTrx);
+          await mockTrx.commit();
+          return res;
+        } catch (err) {
+          await mockTrx.rollback();
+          throw err;
+        }
       });
 
-      // Mock get gift
-      mockTrx.query.onFirstCall().resolves({
-        rows: [{
-          id: giftId,
-          to_user_id: userId,
-          gift_type: 'item',
-          gift_id: 'item-123',
-          quantity: 5,
-          from_user_id: 'user-1',
-          status: 'pending'
-        }]
+      mockTrx.query.callsFake(async (sql) => {
+        if (sql.includes('SELECT * FROM friend_gifts')) {
+          return {
+            rows: [{
+              id: giftId,
+              to_user_id: userId,
+              gift_type: 'item',
+              gift_id: 'item-123',
+              quantity: 5,
+              from_user_id: 'user-1',
+              status: 'pending'
+            }]
+          };
+        }
+        if (sql.includes('SELECT id, friendship_points, friendship_level FROM friends')) {
+          return {
+            rows: [
+              { id: 101, friendship_points: 10, friendship_level: 1, user_id: 'user-1', friend_user_id: userId }
+            ]
+          };
+        }
+        return { rows: [], rowCount: 1 };
       });
-
-      // Mock add to inventory
-      mockTrx.query.onSecondCall().resolves({ rowCount: 1 });
-
-      // Mock update gift status
-      mockTrx.query.onThirdCall().resolves({ rowCount: 1 });
-
-      // Mock add friendship points
-      mockTrx.query.onCall(3).resolves({ rowCount: 1 });
 
       const result = await friendService.claimGift(userId, giftId);
 
@@ -385,11 +560,19 @@ describe('FriendService', () => {
 
       const mockTrx = {
         query: sinon.stub().resolves({ rows: [] }),
+        commit: sinon.stub().resolves(),
         rollback: sinon.stub().resolves()
       };
 
       mockDb.transaction.callsFake(async (callback) => {
-        return callback(mockTrx);
+        try {
+          const res = await callback(mockTrx);
+          await mockTrx.commit();
+          return res;
+        } catch (err) {
+          await mockTrx.rollback();
+          throw err;
+        }
       });
 
       try {
@@ -419,39 +602,48 @@ describe('FriendService', () => {
       const friendCode = 'ABC123DEF456';
       const targetUserId = 'user-2';
 
-      mockDb.query.onFirstCall().resolves({
-        rows: [{ id: targetUserId, username: 'target' }]
-      });
-
-      // Mock user existence check
-      mockDb.query.onSecondCall().resolves({
-        rows: [
-          { id: userId },
-          { id: targetUserId }
-        ]
-      });
-
-      // Mock existing friendship check
-      mockDb.query.onThirdCall().resolves({ rows: [] });
-
-      // Mock friend count check
-      mockDb.query.onCall(3).resolves({ rows: [{ count: '10' }] });
-
-      // Mock insert
-      mockDb.query.onCall(4).resolves({
-        rows: [{ id: 1, status: 'pending' }]
+      mockDb.query.callsFake(async (sql) => {
+        if (sql.includes('SELECT id FROM users WHERE friend_code')) {
+          return { rows: [{ id: targetUserId }] };
+        }
+        if (sql.includes('SELECT id, username FROM users')) {
+          return {
+            rows: [
+              { id: userId, username: 'user1' },
+              { id: targetUserId, username: 'user2' }
+            ]
+          };
+        }
+        if (sql.includes('SELECT COUNT(*)::int as count FROM friends')) {
+          return { rows: [{ count: 10 }] };
+        }
+        if (sql.includes('SELECT COUNT(*)::int as count FROM friend_requests')) {
+          return { rows: [{ count: 0 }] };
+        }
+        if (sql.includes('INSERT INTO friend_requests')) {
+          return {
+            rows: [{ id: 1, status: 'pending' }]
+          };
+        }
+        return { rows: [], rowCount: 0 };
       });
 
       const result = await friendService.addFriendByCode(userId, friendCode);
 
-      expect(result).to.have.property('status', 'pending');
+      expect(result).to.have.property('success', true);
+      expect(result).to.have.property('requestId', 1);
     });
 
     it('should reject invalid friend code', async () => {
       const userId = 'user-1';
       const friendCode = 'INVALID';
 
-      mockDb.query.onFirstCall().resolves({ rows: [] });
+      mockDb.query.callsFake(async (sql) => {
+        if (sql.includes('SELECT id FROM users WHERE friend_code')) {
+          return { rows: [] };
+        }
+        return { rows: [], rowCount: 0 };
+      });
 
       try {
         await friendService.addFriendByCode(userId, friendCode);
@@ -468,13 +660,27 @@ describe('FriendService', () => {
       const friendId = 'user-2';
 
       const mockTrx = {
-        query: sinon.stub().resolves({ rowCount: 2 }),
+        query: sinon.stub(),
         commit: sinon.stub().resolves(),
         rollback: sinon.stub().resolves()
       };
 
       mockDb.transaction.callsFake(async (callback) => {
-        return callback(mockTrx);
+        try {
+          const res = await callback(mockTrx);
+          await mockTrx.commit();
+          return res;
+        } catch (err) {
+          await mockTrx.rollback();
+          throw err;
+        }
+      });
+
+      mockTrx.query.callsFake(async (sql) => {
+        if (sql.includes('DELETE FROM friends')) {
+          return { rows: [{ id: 1 }, { id: 2 }], rowCount: 2 };
+        }
+        return { rows: [], rowCount: 0 };
       });
 
       const result = await friendService.removeFriend(userId, friendId);
@@ -507,7 +713,12 @@ describe('FriendService', () => {
       ];
 
       mockRedis.get.resolves(null);
-      mockDb.query.resolves({ rows: mockLeaderboard });
+      mockDb.query.callsFake(async (sql) => {
+        if (sql.includes('FROM friends f') && sql.includes('JOIN users u')) {
+          return { rows: mockLeaderboard };
+        }
+        return { rows: [], rowCount: 0 };
+      });
       mockRedis.setex.resolves();
 
       const result = await friendService.getFriendLeaderboard(userId, 'friendship', 10);
