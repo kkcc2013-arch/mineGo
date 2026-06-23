@@ -7,7 +7,7 @@
 | 标题 | 精灵羁绊与互动养成系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | pokemon-service、user-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-09 22:30 |
 
