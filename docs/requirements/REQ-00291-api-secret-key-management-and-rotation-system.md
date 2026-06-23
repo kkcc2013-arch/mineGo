@@ -3,7 +3,7 @@
 - **编号**：REQ-00291
 - **类别**：安全加固
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：gateway, user-service, shared/config, backend/shared/auth.js, backend/shared/weatherService.js, admin-dashboard, Redis, PostgreSQL
 - **创建时间**：2026-06-22 11:00
 - **依赖需求**：无

@@ -1,38 +1,149 @@
-// shared/auth.js - 认证模块（已集成统一错误处理）
+// shared/auth.js - 认证模块（已集成统一错误处理和 KMS）
 'use strict';
 
 const jwt = require('jsonwebtoken');
 const AuthenticationError = require('./errors/AuthenticationError');
 const { asyncHandler } = require('./middleware/errorHandler');
+const logger = require('./logger');
 
+// KMS 支持（可选）
+let kms = null;
+let kmsEnabled = process.env.KMS_ENABLED === 'true';
+
+/**
+ * 初始化 KMS
+ */
+async function initKMS() {
+  if (!kmsEnabled) return false;
+  
+  try {
+    kms = require('./kms');
+    logger.info('[Auth] KMS initialized successfully');
+    return true;
+  } catch (error) {
+    logger.warn('[Auth] KMS not available, using environment variables:', error.message);
+    kmsEnabled = false;
+    return false;
+  }
+}
+
+// 密钥缓存
+let accessSecretCache = null;
+let refreshSecretCache = null;
+let secretCacheTime = 0;
+const SECRET_CACHE_TTL = 5 * 60 * 1000; // 5 分钟缓存
+
+/**
+ * 获取访问密钥（优先 KMS）
+ */
+async function getAccessSecret() {
+  // 优先使用 KMS
+  if (kmsEnabled && kms) {
+    const now = Date.now();
+    if (accessSecretCache && (now - secretCacheTime) < SECRET_CACHE_TTL) {
+      return accessSecretCache;
+    }
+    
+    try {
+      accessSecretCache = await kms.getKey('jwt-access-secret');
+      secretCacheTime = now;
+      return accessSecretCache;
+    } catch (error) {
+      logger.warn('[Auth] Failed to get access secret from KMS:', error.message);
+      // 降级到环境变量
+    }
+  }
+  
+  // 降级到环境变量
+  return process.env.JWT_ACCESS_SECRET || 'pmg-access-secret-change-in-prod';
+}
+
+/**
+ * 获取刷新密钥（优先 KMS）
+ */
+async function getRefreshSecret() {
+  // 优先使用 KMS
+  if (kmsEnabled && kms) {
+    const now = Date.now();
+    if (refreshSecretCache && (now - secretCacheTime) < SECRET_CACHE_TTL) {
+      return refreshSecretCache;
+    }
+    
+    try {
+      refreshSecretCache = await kms.getKey('jwt-refresh-secret');
+      secretCacheTime = now;
+      return refreshSecretCache;
+    } catch (error) {
+      logger.warn('[Auth] Failed to get refresh secret from KMS:', error.message);
+      // 降级到环境变量
+    }
+  }
+  
+  // 降级到环境变量
+  return process.env.JWT_REFRESH_SECRET || 'pmg-refresh-secret-change-in-prod';
+}
+
+// 同步获取密钥（用于向后兼容，不推荐）
 const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'pmg-access-secret-change-in-prod';
 const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'pmg-refresh-secret-change-in-prod';
 const ACCESS_TTL = process.env.JWT_ACCESS_TTL || '24h';
 const REFRESH_TTL = process.env.JWT_REFRESH_TTL || '30d';
 
 /**
- * 签发访问令牌
+ * 签发访问令牌（支持 KMS）
+ */
+async function signAccessAsync(payload) {
+  const secret = await getAccessSecret();
+  return jwt.sign(payload, secret, { expiresIn: ACCESS_TTL, algorithm: 'HS256' });
+}
+
+/**
+ * 签发访问令牌（同步版本，向后兼容）
  */
 function signAccess(payload) {
   return jwt.sign(payload, ACCESS_SECRET, { expiresIn: ACCESS_TTL, algorithm: 'HS256' });
 }
 
 /**
- * 签发刷新令牌
+ * 签发刷新令牌（支持 KMS）
+ */
+async function signRefreshAsync(payload) {
+  const secret = await getRefreshSecret();
+  return jwt.sign(payload, secret, { expiresIn: REFRESH_TTL, algorithm: 'HS256' });
+}
+
+/**
+ * 签发刷新令牌（同步版本，向后兼容）
  */
 function signRefresh(payload) {
   return jwt.sign(payload, REFRESH_SECRET, { expiresIn: REFRESH_TTL, algorithm: 'HS256' });
 }
 
 /**
- * 验证访问令牌
+ * 验证访问令牌（支持 KMS）
+ */
+async function verifyAccessAsync(token) {
+  const secret = await getAccessSecret();
+  return jwt.verify(token, secret);
+}
+
+/**
+ * 验证访问令牌（同步版本，向后兼容）
  */
 function verifyAccess(token) {
   return jwt.verify(token, ACCESS_SECRET);
 }
 
 /**
- * 验证刷新令牌
+ * 验证刷新令牌（支持 KMS）
+ */
+async function verifyRefreshAsync(token) {
+  const secret = await getRefreshSecret();
+  return jwt.verify(token, secret);
+}
+
+/**
+ * 验证刷新令牌（同步版本，向后兼容）
  */
 function verifyRefresh(token) {
   return jwt.verify(token, REFRESH_SECRET);
@@ -202,11 +313,22 @@ function errorHandler(err, req, res, next) {
 }
 
 module.exports = {
-  // 核心功能
+  // 核心功能（同步版本，向后兼容）
   signAccess,
   signRefresh,
   verifyAccess,
   verifyRefresh,
+  
+  // 异步版本（推荐，支持 KMS）
+  signAccessAsync,
+  signRefreshAsync,
+  verifyAccessAsync,
+  verifyRefreshAsync,
+  
+  // KMS 初始化
+  initKMS,
+  
+  // 中间件
   requireAuth,
   optionalAuth,
   requirePermissions,
