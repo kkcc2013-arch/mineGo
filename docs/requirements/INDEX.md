@@ -322,3 +322,4 @@
 || REQ-00301 | 全链路压测系统与生产环境性能基准 | 性能优化 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s、backend/tests/load | 2026-06-23 16:00 |
 || REQ-00302 | API 分页与列表响应标准化系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/middleware、docs/api-spec | 2026-06-23 07:05 |
 | REQ-00303 | 敏感操作审计日志与操作追溯系统 | 合规/隐私 | P1 | new | gateway、user-service、payment-service、social-service、pokemon-service、admin-dashboard、backend/shared、database/migrations | 2026-06-23 08:00 |
+| REQ-00304 | 游戏客户端网络自适应与弱网优化系统 | 前端体验 | P1 | new | game-client、gateway、catch-service、gym-service、backend/shared、WebSocket | 2026-06-23 09:00 |
