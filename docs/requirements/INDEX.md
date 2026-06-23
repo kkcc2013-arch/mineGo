@@ -213,7 +213,8 @@
 | REQ-00198 | REQ-00198：游戏节奏控制与慢速模式系统 |  |  |  |  |  |
 | REQ-00199 | 数据血缘追踪与影响分析系统 | 数据库/数据治理 | P1 | new | gateway、所有微服务、backend/shared、database、infrastructure/k8s/monitoring | 2026-06-14 15:00 |
 | REQ-00200 | REQ-00200：敏感操作二次验证与风险分级验证系统 |  |  |  |  |  |
-| REQ-00201 | API 契约版本协商与灰度兼容系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared、docs/api-spec | 2026-06-14 16:00 |
+|| REQ-00302 | API 分页与列表响应标准化系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/middleware、docs/api-spec | 2026-06-23 07:05 |
+| REQ-00303 | 敏感操作审计日志与操作追溯系统 | 合规/隐私 | P1 | new | gateway、user-service、payment-service、social-service、pokemon-service、admin-dashboard、backend/shared、database/migrations | 2026-06-23 08:00 |
 | REQ-00202 | REQ-00202：安全模块单元测试覆盖率提升系统 |  |  |  |  |  |
 | REQ-00203 | REQ-00203：分布式追踪与 OpenTelemetry 集成系统 |  |  |  |  |  |
 | REQ-00204 | 精灵动作队列与动画预加载系统 | 前端体验 | P1 | new | game-client、frontend/game-client/src/animation、frontend/game-client/src/game、gateway、pokemon-service | 2026-06-14 17:00 |
@@ -319,4 +320,5 @@
 || REQ-00299 | 精灵技能冷却时间智能优化系统 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-23 15:00 |
 || REQ-00300 | 动态服务注册发现与健康感知路由系统 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared/serviceRegistry.js、infrastructure/k8s | 2026-06-23 06:00 |
 || REQ-00301 | 全链路压测系统与生产环境性能基准 | 性能优化 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s、backend/tests/load | 2026-06-23 16:00 |
-| REQ-00302 | API 分页与列表响应标准化系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/middleware、docs/api-spec | 2026-06-23 07:05 |
+|| REQ-00302 | API 分页与列表响应标准化系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/middleware、docs/api-spec | 2026-06-23 07:05 |
+| REQ-00303 | 敏感操作审计日志与操作追溯系统 | 合规/隐私 | P1 | new | gateway、user-service、payment-service、social-service、pokemon-service、admin-dashboard、backend/shared、database/migrations | 2026-06-23 08:00 |
