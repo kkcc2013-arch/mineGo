@@ -304,3 +304,5 @@
 | REQ-00290 | WebSocket 连接池与消息批处理性能优化 | 性能优化 | P1 | new | gym-service, social-service, backend/shared/websocket | 2026-06-22 10:00 |
 | REQ-00291 | 精灵生态链与食物网系统 | 功能增强 | P1 | new | pokemon-service, location-service, catch-service, reward-service, game-client | 2026-06-22 11:00 |
 | REQ-00291 | API 密钥与敏感配置安全管理及自动轮换系统 | 安全加固 | P1 | new | gateway, user-service, shared/config, backend/shared, admin-dashboard, Redis, PostgreSQL | 2026-06-22 11:00 |
+|| REQ-00292 | 微服务混沌测试框架与故障注入系统 | 测试覆盖 | P1 | new | backend/tests/chaos, backend/services/*, backend/shared, infrastructure | 2026-06-23 01:00 |
+|| REQ-00293 | 分布式追踪与 OpenTelemetry 集成系统 | 可观测性 | P1 | new | gateway, 所有微服务, backend/shared/tracing, jaeger, backend/shared/middleware | 2026-06-23 09:00 |
