@@ -1,7 +1,8 @@
 // pokemon-service/src/friendshipCalculator.js
 'use strict';
 
-const { query } = require('../../../shared/db');
+const { query, transaction } = require('../../../shared/db');
+const timePeriodManager = require('../../../shared/TimePeriodManager');
 const { createLogger } = require('../../../shared/logger');
 
 const logger = createLogger('friendship-calculator');
@@ -103,8 +104,8 @@ class FriendshipCalculator {
     let timeReady = true;
     let currentTimePeriod = null;
     if (rule.time_restriction) {
-      const hour = new Date().getHours();
-      currentTimePeriod = (hour >= 6 && hour < 18) ? 'day' : 'night';
+      const period = await timePeriodManager.getCurrentPeriod();
+      currentTimePeriod = (period.id === 'day' || period.id === 'dawn' || period.id === 'dusk') ? 'day' : 'night';
       timeReady = rule.time_restriction === currentTimePeriod;
     }
 
@@ -132,36 +133,37 @@ class FriendshipCalculator {
 
     const changeAmount = amount !== null ? amount : sourceConfig.amount;
 
-    const client = await query.pool.connect();
     try {
-      await client.query('BEGIN');
+      const result = await transaction(async (client) => {
+        // 获取当前值
+        const { rows: [current] } = await client.query(`
+          SELECT friendship FROM pokemon_instances WHERE id = $1 FOR UPDATE
+        `, [pokemonId]);
 
-      // 获取当前值
-      const { rows: [current] } = await client.query(`
-        SELECT friendship FROM pokemon_instances WHERE id = $1 FOR UPDATE
-      `, [pokemonId]);
+        if (!current) throw new Error('Pokemon not found');
 
-      if (!current) throw new Error('Pokemon not found');
+        const previousValue = current.friendship;
+        const newValue = Math.max(FRIENDSHIP_LEVELS.MIN, 
+                          Math.min(FRIENDSHIP_LEVELS.MAX, previousValue + changeAmount));
 
-      const previousValue = current.friendship;
-      const newValue = Math.max(FRIENDSHIP_LEVELS.MIN, 
-                        Math.min(FRIENDSHIP_LEVELS.MAX, previousValue + changeAmount));
+        // 更新亲密度
+        await client.query(`
+          UPDATE pokemon_instances 
+          SET friendship = $1, friendship_updated_at = NOW()
+          WHERE id = $2
+        `, [newValue, pokemonId]);
 
-      // 更新亲密度
-      await client.query(`
-        UPDATE pokemon_instances 
-        SET friendship = $1, friendship_updated_at = NOW()
-        WHERE id = $2
-      `, [newValue, pokemonId]);
+        // 记录日志
+        await client.query(`
+          INSERT INTO pokemon_friendship_logs 
+          (pokemon_instance_id, change_amount, source, context, previous_value, new_value)
+          VALUES ($1, $2, $3, $4, $5, $6)
+        `, [pokemonId, changeAmount, source.toLowerCase(), JSON.stringify(context), previousValue, newValue]);
 
-      // 记录日志
-      await client.query(`
-        INSERT INTO pokemon_friendship_logs 
-        (pokemon_instance_id, change_amount, source, context, previous_value, new_value)
-        VALUES ($1, $2, $3, $4, $5, $6)
-      `, [pokemonId, changeAmount, source.toLowerCase(), context, previousValue, newValue]);
+        return { previousValue, newValue };
+      });
 
-      await client.query('COMMIT');
+      const { previousValue, newValue } = result;
 
       // 检查是否触发进化条件
       const evolutionCheck = await this.checkEvolutionTrigger(pokemonId, newValue);
@@ -183,10 +185,7 @@ class FriendshipCalculator {
         evolutionTarget: evolutionCheck.target
       };
     } catch (err) {
-      await client.query('ROLLBACK');
       throw err;
-    } finally {
-      client.release();
     }
   }
 
@@ -206,8 +205,8 @@ class FriendshipCalculator {
       if (currentFriendship >= rule.required_friendship) {
         // 检查时间限制
         if (rule.time_restriction) {
-          const hour = new Date().getHours();
-          const currentPeriod = (hour >= 6 && hour < 18) ? 'day' : 'night';
+          const period = await timePeriodManager.getCurrentPeriod();
+          const currentPeriod = (period.id === 'day' || period.id === 'dawn' || period.id === 'dusk') ? 'day' : 'night';
           if (rule.time_restriction !== currentPeriod) continue;
         }
 
