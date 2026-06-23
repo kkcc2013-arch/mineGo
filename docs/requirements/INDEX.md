@@ -315,3 +315,5 @@
 | REQ-00295 | 游戏资源预热与智能预加载系统 | 前端体验 | P1 | new | game-client, cdn, location-service, pokemon-service, backend/shared/cache | 2026-06-23 10:00 |
 | REQ-00296 | SLO 错误预算管理与自动降级系统 | 稳定性/高可用 | P1 | new | gateway, 所有微服务, backend/shared/slo, backend/shared/middleware, monitoring, Prometheus, Grafana | 2026-06-23 12:00 |
 | REQ-00297 | 云成本异常检测与预算超支预警系统 | 成本/资源优化 | P1 | new | gateway, monitoring, backend/shared/cost, Prometheus, Grafana, Slack, Email | 2026-06-23 14:00 |
+|| REQ-00298 | WebSocket 通信异常检测与实时阻断系统 | 反作弊 | P1 | new | gym-service、catch-service、gateway、backend/shared、infrastructure/k8s | 2026-06-23 05:00 |
+|| REQ-00299 | 精灵技能冷却时间智能优化系统 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-23 15:00 |
