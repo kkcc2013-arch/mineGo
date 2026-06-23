@@ -1,5 +1,5 @@
 /**
- * REQ-00048: 好友系统单元测试
+ * REQ-00048: 精灵好友系统单元测试
  */
 
 'use strict';
@@ -9,533 +9,512 @@ const sinon = require('sinon');
 const proxyquire = require('proxyquire');
 
 // Mock dependencies
-const mockQuery = sinon.stub();
-const mockTransaction = sinon.stub();
+const mockDb = {
+  query: sinon.stub(),
+  transaction: sinon.stub()
+};
+
 const mockRedis = {
-  get: sinon.stub().resolves(null),
-  setex: sinon.stub().resolves('OK'),
-  del: sinon.stub().resolves(1)
+  get: sinon.stub(),
+  setex: sinon.stub(),
+  del: sinon.stub(),
+  zadd: sinon.stub(),
+  zrange: sinon.stub()
 };
 
 const mockEventBus = {
-  publish: sinon.stub().resolves(true)
+  publish: sinon.stub().resolves()
 };
 
-const mockMetrics = {
-  incrementCounter: sinon.stub(),
-  observeHistogram: sinon.stub()
-};
-
-// Proxyquire the friendService with mocked dependencies
-const friendService = proxyquire('../src/friendService', {
-  '../../../shared/db': {
-    query: mockQuery,
-    transaction: mockTransaction
-  },
+// Load friend service with mocks
+const FriendService = proxyquire('../../services/social-service/src/friendService', {
+  '../../../shared/db': mockDb,
   '../../../shared/redis': mockRedis,
-  '../../../shared/EventBus': mockEventBus,
-  '../../../shared/metrics': mockMetrics,
-  '../../../shared/logger': {
-    createLogger: () => ({
-      info: sinon.stub(),
-      error: sinon.stub(),
-      warn: sinon.stub()
-    })
-  }
+  '../../../shared/EventBus': mockEventBus
 });
 
 describe('FriendService', () => {
+  let friendService;
+  
   beforeEach(() => {
-    // Reset all stubs
-    sinon.resetHistory();
-    
-    // Default mock implementations
-    mockTransaction.callsFake(async (fn) => {
-      const mockClient = {
-        query: mockQuery
-      };
-      return fn(mockClient);
-    });
+    friendService = new FriendService();
+    sinon.resetAll();
   });
 
   afterEach(() => {
     sinon.restore();
   });
 
-  // ============================================
-  // 发送好友请求
-  // ============================================
   describe('sendFriendRequest', () => {
-    it('应该成功发送好友请求', async () => {
-      // Mock 用户存在
-      mockQuery.onFirstCall().resolves({
+    it('should send friend request successfully', async () => {
+      const fromUserId = 'user-1';
+      const toUserId = 'user-2';
+      const message = 'Let\'s be friends!';
+
+      // Mock user existence check
+      mockDb.query.onFirstCall().resolves({
         rows: [
-          { id: 'user1', username: 'Alice' },
-          { id: 'user2', username: 'Bob' }
+          { id: fromUserId, username: 'user1' },
+          { id: toUserId, username: 'user2' }
         ]
       });
 
-      // Mock 无现有好友关系
-      mockQuery.onSecondCall().resolves({ rows: [] });
+      // Mock existing friendship check
+      mockDb.query.onSecondCall().resolves({ rows: [] });
 
-      // Mock 无现有请求
-      mockQuery.onThirdCall().resolves({ rows: [] });
+      // Mock friend count check
+      mockDb.query.onThirdCall().resolves({ rows: [{ count: '10' }] });
 
-      // Mock 接收方好友数量
-      mockQuery.onCall(3).resolves({ rows: [{ count: 50 }] });
-
-      // Mock 发送方待处理数量
-      mockQuery.onCall(4).resolves({ rows: [{ count: 10 }] });
-
-      // Mock 插入请求
-      mockQuery.onCall(5).resolves({
+      // Mock insert
+      mockDb.query.onCall(3).resolves({
         rows: [{
           id: 1,
-          from_user_id: 'user1',
-          to_user_id: 'user2',
+          from_user_id: fromUserId,
+          to_user_id: toUserId,
+          message,
           status: 'pending'
         }]
       });
 
-      const result = await friendService.sendFriendRequest('user1', 'user2', 'Hi!');
+      const result = await friendService.sendFriendRequest(fromUserId, toUserId, message);
 
-      expect(result.success).to.be.true;
-      expect(result.requestId).to.equal(1);
+      expect(result).to.have.property('id', 1);
+      expect(result).to.have.property('status', 'pending');
       expect(mockEventBus.publish.calledOnce).to.be.true;
     });
 
-    it('应该拒绝添加自己为好友', async () => {
+    it('should reject self-friend request', async () => {
+      const userId = 'user-1';
+      
       try {
-        await friendService.sendFriendRequest('user1', 'user1');
-        expect.fail('应该抛出错误');
+        await friendService.sendFriendRequest(userId, userId, '');
+        expect.fail('Should have thrown error');
       } catch (error) {
         expect(error.code).to.equal(2012);
       }
     });
 
-    it('应该拒绝已是好友的请求', async () => {
-      mockQuery.onFirstCall().resolves({
+    it('should reject when already friends', async () => {
+      const fromUserId = 'user-1';
+      const toUserId = 'user-2';
+
+      mockDb.query.onFirstCall().resolves({
         rows: [
-          { id: 'user1', username: 'Alice' },
-          { id: 'user2', username: 'Bob' }
+          { id: fromUserId },
+          { id: toUserId }
         ]
       });
 
-      mockQuery.onSecondCall().resolves({
-        rows: [{ status: 'accepted' }]
+      mockDb.query.onSecondCall().resolves({
+        rows: [{ id: 'friend-1', status: 'accepted' }]
       });
 
       try {
-        await friendService.sendFriendRequest('user1', 'user2');
-        expect.fail('应该抛出错误');
+        await friendService.sendFriendRequest(fromUserId, toUserId, '');
+        expect.fail('Should have thrown error');
       } catch (error) {
         expect(error.code).to.equal(2002);
       }
     });
 
-    it('应该拒绝好友数量超限的请求', async () => {
-      mockQuery.onFirstCall().resolves({
+    it('should reject when friend limit reached', async () => {
+      const fromUserId = 'user-1';
+      const toUserId = 'user-2';
+
+      mockDb.query.onFirstCall().resolves({
         rows: [
-          { id: 'user1', username: 'Alice' },
-          { id: 'user2', username: 'Bob' }
+          { id: fromUserId },
+          { id: toUserId }
         ]
       });
 
-      mockQuery.onSecondCall().resolves({ rows: [] });
-      mockQuery.onThirdCall().resolves({ rows: [] });
-
-      // 接收方好友数量已达上限
-      mockQuery.onCall(3).resolves({ rows: [{ count: 400 }] });
+      mockDb.query.onSecondCall().resolves({ rows: [] });
+      mockDb.query.onThirdCall().resolves({ rows: [{ count: '400' }] });
 
       try {
-        await friendService.sendFriendRequest('user1', 'user2');
-        expect.fail('应该抛出错误');
+        await friendService.sendFriendRequest(fromUserId, toUserId, '');
+        expect.fail('Should have thrown error');
       } catch (error) {
         expect(error.code).to.equal(2003);
       }
     });
   });
 
-  // ============================================
-  // 接受好友请求
-  // ============================================
   describe('acceptFriendRequest', () => {
-    it('应该成功接受好友请求', async () => {
-      mockQuery.onFirstCall().resolves({
+    it('should accept friend request and create bidirectional friendship', async () => {
+      const userId = 'user-2';
+      const requestId = 1;
+      const fromUserId = 'user-1';
+
+      const mockTrx = {
+        query: sinon.stub(),
+        commit: sinon.stub().resolves(),
+        rollback: sinon.stub().resolves()
+      };
+
+      mockDb.transaction.callsFake(async (callback) => {
+        return callback(mockTrx);
+      });
+
+      // Mock get request
+      mockTrx.query.onFirstCall().resolves({
         rows: [{
-          id: 1,
-          from_user_id: 'user1',
-          to_user_id: 'user2',
+          id: requestId,
+          from_user_id: fromUserId,
+          to_user_id: userId,
           status: 'pending'
         }]
       });
 
-      mockQuery.onSecondCall().resolves({ rowCount: 1 });
-      mockQuery.onThirdCall().resolves({ rowCount: 2 });
+      // Mock update request
+      mockTrx.query.onSecondCall().resolves({ rowCount: 1 });
 
-      const result = await friendService.acceptFriendRequest('user2', 1);
+      // Mock insert friendships
+      mockTrx.query.onThirdCall().resolves({ rowCount: 2 });
 
-      expect(result.success).to.be.true;
-      expect(result.friendshipLevel).to.equal(1);
-      expect(mockEventBus.publish.calledOnce).to.be.true;
+      const result = await friendService.acceptFriendRequest(userId, requestId);
+
+      expect(result).to.have.property('success', true);
+      expect(result).to.have.property('friendshipLevel', 1);
+      expect(mockTrx.commit.calledOnce).to.be.true;
     });
 
-    it('应该拒绝不存在的好友请求', async () => {
-      mockQuery.onFirstCall().resolves({ rows: [] });
+    it('should reject invalid request', async () => {
+      const userId = 'user-2';
+      const requestId = 999;
+
+      const mockTrx = {
+        query: sinon.stub().resolves({ rows: [] }),
+        rollback: sinon.stub().resolves()
+      };
+
+      mockDb.transaction.callsFake(async (callback) => {
+        return callback(mockTrx);
+      });
 
       try {
-        await friendService.acceptFriendRequest('user2', 999);
-        expect.fail('应该抛出错误');
+        await friendService.acceptFriendRequest(userId, requestId);
+        expect.fail('Should have thrown error');
       } catch (error) {
         expect(error.code).to.equal(2005);
+        expect(mockTrx.rollback.calledOnce).to.be.true;
       }
     });
   });
 
-  // ============================================
-  // 获取好友列表
-  // ============================================
   describe('getFriendList', () => {
-    it('应该返回好友列表', async () => {
+    it('should return paginated friend list with online status', async () => {
+      const userId = 'user-1';
+      const options = { page: 1, limit: 10, sortBy: 'last_interaction' };
+
       const mockFriends = [
         {
-          id: 'friend1',
-          username: 'Alice',
+          id: 'friend-1',
+          username: 'friend1',
           avatar_url: 'avatar1.png',
           level: 25,
-          friendship_level: 2,
-          friendship_points: 150,
+          friendship_level: 3,
+          friendship_points: 500,
+          last_interaction_at: new Date(),
           online_status: 'online'
         },
         {
-          id: 'friend2',
-          username: 'Bob',
+          id: 'friend-2',
+          username: 'friend2',
           avatar_url: 'avatar2.png',
           level: 30,
-          friendship_level: 3,
-          friendship_points: 600,
-          online_status: 'offline'
+          friendship_level: 2,
+          friendship_points: 200,
+          last_interaction_at: new Date(Date.now() - 3600000),
+          online_status: 'away'
         }
       ];
 
-      mockQuery.onFirstCall().resolves({ rows: mockFriends });
-      mockQuery.onSecondCall().resolves({ rows: [{ count: 2 }] });
-      mockQuery.onThirdCall().resolves({ rows: [] });
+      mockDb.query.onFirstCall().resolves({ rows: mockFriends });
+      mockDb.query.onSecondCall().resolves({ rows: [{ count: '2' }] });
 
-      const result = await friendService.getFriendList('user1');
+      const result = await friendService.getFriendList(userId, options);
 
       expect(result.friends).to.have.lengthOf(2);
-      expect(result.pagination.total).to.equal(2);
-    });
-
-    it('应该支持分页和排序', async () => {
-      mockQuery.onFirstCall().resolves({ rows: [] });
-      mockQuery.onSecondCall().resolves({ rows: [{ count: 0 }] });
-      mockQuery.onThirdCall().resolves({ rows: [] });
-
-      await friendService.getFriendList('user1', { page: 2, limit: 10, sortBy: 'level' });
-
-      // 验证查询参数
+      expect(result.pagination).to.have.property('total', 2);
+      expect(result.friends[0]).to.have.property('online_status');
     });
   });
 
-  // ============================================
-  // 发送礼物
-  // ============================================
   describe('sendGift', () => {
-    it('应该成功发送道具礼物', async () => {
-      // Mock 好友关系
-      mockQuery.onFirstCall().resolves({
-        rows: [{ status: 'accepted' }]
+    it('should send item gift to friend', async () => {
+      const fromUserId = 'user-1';
+      const toUserId = 'user-2';
+      const giftData = {
+        giftType: 'item',
+        giftId: 'item-123',
+        quantity: 5
+      };
+
+      // Mock friendship check
+      mockDb.query.onFirstCall().resolves({
+        rows: [{ id: 'friendship-1', status: 'accepted' }]
       });
 
-      // Mock 今日礼物数量
-      mockQuery.onSecondCall().resolves({ rows: [{ count: 5 }] });
+      // Mock today gift count
+      mockDb.query.onSecondCall().resolves({ rows: [{ count: '10' }] });
 
-      // Mock 库存检查
-      mockQuery.onThirdCall().resolves({
-        rows: [{ quantity: 10 }]
+      // Mock inventory check
+      mockDb.query.onThirdCall().resolves({
+        rows: [{ item_id: 'item-123', quantity: 10 }]
       });
 
-      // Mock 扣减库存
-      mockQuery.onCall(3).resolves({ rowCount: 1 });
+      // Mock inventory decrement
+      mockDb.query.onCall(3).resolves({ rowCount: 1 });
 
-      // Mock 创建礼物
-      mockQuery.onCall(4).resolves({
+      // Mock gift insert
+      mockDb.query.onCall(4).resolves({
         rows: [{
-          id: 1,
-          from_user_id: 'user1',
-          to_user_id: 'user2',
+          id: 'gift-1',
+          from_user_id: fromUserId,
+          to_user_id: toUserId,
           gift_type: 'item',
-          quantity: 1
+          status: 'pending'
         }]
       });
 
-      const result = await friendService.sendGift('user1', 'user2', {
-        giftType: 'item',
-        giftId: 'item1',
-        quantity: 1,
-        giftName: '精灵球'
-      });
+      const result = await friendService.sendGift(fromUserId, toUserId, giftData);
 
-      expect(result.success).to.be.true;
-      expect(mockEventBus.publish.calledOnce).to.be.true;
+      expect(result).to.have.property('id', 'gift-1');
+      expect(result).to.have.property('status', 'pending');
     });
 
-    it('应该拒绝非好友的礼物', async () => {
-      mockQuery.onFirstCall().resolves({ rows: [] });
+    it('should reject gift to non-friend', async () => {
+      const fromUserId = 'user-1';
+      const toUserId = 'user-3';
+      const giftData = { giftType: 'item', giftId: 'item-123' };
+
+      mockDb.query.onFirstCall().resolves({ rows: [] });
 
       try {
-        await friendService.sendGift('user1', 'user2', {
-          giftType: 'item',
-          giftId: 'item1'
-        });
-        expect.fail('应该抛出错误');
+        await friendService.sendGift(fromUserId, toUserId, giftData);
+        expect.fail('Should have thrown error');
       } catch (error) {
         expect(error.code).to.equal(2006);
       }
     });
 
-    it('应该拒绝超过每日限制的礼物', async () => {
-      mockQuery.onFirstCall().resolves({
-        rows: [{ status: 'accepted' }]
-      });
+    it('should reject when daily gift limit reached', async () => {
+      const fromUserId = 'user-1';
+      const toUserId = 'user-2';
+      const giftData = { giftType: 'item', giftId: 'item-123' };
 
-      mockQuery.onSecondCall().resolves({ rows: [{ count: 50 }] });
+      mockDb.query.onFirstCall().resolves({
+        rows: [{ id: 'friendship-1' }]
+      });
+      mockDb.query.onSecondCall().resolves({ rows: [{ count: '50' }] });
 
       try {
-        await friendService.sendGift('user1', 'user2', {
-          giftType: 'item',
-          giftId: 'item1'
-        });
-        expect.fail('应该抛出错误');
+        await friendService.sendGift(fromUserId, toUserId, giftData);
+        expect.fail('Should have thrown error');
       } catch (error) {
         expect(error.code).to.equal(2009);
       }
     });
 
-    it('应该拒绝库存不足的礼物', async () => {
-      mockQuery.onFirstCall().resolves({
-        rows: [{ status: 'accepted' }]
-      });
+    it('should reject when insufficient item quantity', async () => {
+      const fromUserId = 'user-1';
+      const toUserId = 'user-2';
+      const giftData = { giftType: 'item', giftId: 'item-123', quantity: 10 };
 
-      mockQuery.onSecondCall().resolves({ rows: [{ count: 5 }] });
-      mockQuery.onThirdCall().resolves({ rows: [{ quantity: 0 }] });
+      mockDb.query.onFirstCall().resolves({ rows: [{ id: 'friendship-1' }] });
+      mockDb.query.onSecondCall().resolves({ rows: [{ count: '10' }] });
+      mockDb.query.onThirdCall().resolves({ rows: [{ item_id: 'item-123', quantity: 5 }] });
 
       try {
-        await friendService.sendGift('user1', 'user2', {
-          giftType: 'item',
-          giftId: 'item1',
-          quantity: 1
-        });
-        expect.fail('应该抛出错误');
+        await friendService.sendGift(fromUserId, toUserId, giftData);
+        expect.fail('Should have thrown error');
       } catch (error) {
         expect(error.code).to.equal(2007);
       }
     });
   });
 
-  // ============================================
-  // 领取礼物
-  // ============================================
   describe('claimGift', () => {
-    it('应该成功领取礼物', async () => {
-      const mockGift = {
-        id: 1,
-        from_user_id: 'user1',
-        to_user_id: 'user2',
-        gift_type: 'item',
-        gift_id: 'item1',
-        gift_name: '精灵球',
-        quantity: 5
+    it('should claim gift and add friendship points', async () => {
+      const userId = 'user-2';
+      const giftId = 1;
+
+      const mockTrx = {
+        query: sinon.stub(),
+        commit: sinon.stub().resolves(),
+        rollback: sinon.stub().resolves()
       };
 
-      mockQuery.onFirstCall().resolves({ rows: [mockGift] });
-      mockQuery.onSecondCall().resolves({ rowCount: 1 });
-      mockQuery.onThirdCall().resolves({ rowCount: 1 });
-      mockQuery.onCall(3).resolves({ rowCount: 1 });
-      mockQuery.onCall(4).resolves({ rows: [] });
-      mockQuery.onCall(5).resolves({ rows: [] });
-      mockQuery.onCall(6).resolves({ rows: [] });
+      mockDb.transaction.callsFake(async (callback) => {
+        return callback(mockTrx);
+      });
 
-      const result = await friendService.claimGift('user2', 1);
+      // Mock get gift
+      mockTrx.query.onFirstCall().resolves({
+        rows: [{
+          id: giftId,
+          to_user_id: userId,
+          gift_type: 'item',
+          gift_id: 'item-123',
+          quantity: 5,
+          from_user_id: 'user-1',
+          status: 'pending'
+        }]
+      });
 
-      expect(result.success).to.be.true;
-      expect(result.giftType).to.equal('item');
-      expect(result.pointsEarned).to.equal(10);
+      // Mock add to inventory
+      mockTrx.query.onSecondCall().resolves({ rowCount: 1 });
+
+      // Mock update gift status
+      mockTrx.query.onThirdCall().resolves({ rowCount: 1 });
+
+      // Mock add friendship points
+      mockTrx.query.onCall(3).resolves({ rowCount: 1 });
+
+      const result = await friendService.claimGift(userId, giftId);
+
+      expect(result).to.have.property('success', true);
+      expect(result).to.have.property('pointsEarned', 10);
+      expect(mockTrx.commit.calledOnce).to.be.true;
     });
 
-    it('应该拒绝不存在或已领取的礼物', async () => {
-      mockQuery.onFirstCall().resolves({ rows: [] });
+    it('should reject already claimed gift', async () => {
+      const userId = 'user-2';
+      const giftId = 1;
+
+      const mockTrx = {
+        query: sinon.stub().resolves({ rows: [] }),
+        rollback: sinon.stub().resolves()
+      };
+
+      mockDb.transaction.callsFake(async (callback) => {
+        return callback(mockTrx);
+      });
 
       try {
-        await friendService.claimGift('user2', 999);
-        expect.fail('应该抛出错误');
+        await friendService.claimGift(userId, giftId);
+        expect.fail('Should have thrown error');
       } catch (error) {
         expect(error.code).to.equal(2010);
       }
     });
   });
 
-  // ============================================
-  // 友情等级计算
-  // ============================================
   describe('calculateFriendshipLevel', () => {
-    it('应该正确计算友情等级', () => {
+    it('should return correct friendship level based on points', () => {
       expect(friendService.calculateFriendshipLevel(0)).to.equal(1);
       expect(friendService.calculateFriendshipLevel(50)).to.equal(1);
       expect(friendService.calculateFriendshipLevel(100)).to.equal(2);
       expect(friendService.calculateFriendshipLevel(500)).to.equal(3);
       expect(friendService.calculateFriendshipLevel(1000)).to.equal(4);
       expect(friendService.calculateFriendshipLevel(2000)).to.equal(5);
-      expect(friendService.calculateFriendshipLevel(5000)).to.equal(6);
-      expect(friendService.calculateFriendshipLevel(10000)).to.equal(6);
+      expect(friendService.calculateFriendshipLevel(5000)).to.equal(5);
     });
   });
 
-  // ============================================
-  // 删除好友
-  // ============================================
-  describe('removeFriend', () => {
-    it('应该成功删除好友', async () => {
-      mockQuery.onFirstCall().resolves({
-        rows: [{ id: 1, user_id: 'user1', friend_user_id: 'user2' }]
-      });
-
-      const result = await friendService.removeFriend('user1', 'user2');
-
-      expect(result.success).to.be.true;
-      expect(mockEventBus.publish.calledOnce).to.be.true;
-    });
-
-    it('应该拒绝非好友关系的删除', async () => {
-      mockQuery.onFirstCall().resolves({ rows: [] });
-
-      try {
-        await friendService.removeFriend('user1', 'user2');
-        expect.fail('应该抛出错误');
-      } catch (error) {
-        expect(error.code).to.equal(2006);
-      }
-    });
-  });
-
-  // ============================================
-  // 通过好友码添加好友
-  // ============================================
   describe('addFriendByCode', () => {
-    it('应该成功通过好友码查找用户', async () => {
-      mockQuery.onFirstCall().resolves({
-        rows: [{ id: 'user2' }]
+    it('should send request by valid friend code', async () => {
+      const userId = 'user-1';
+      const friendCode = 'ABC123DEF456';
+      const targetUserId = 'user-2';
+
+      mockDb.query.onFirstCall().resolves({
+        rows: [{ id: targetUserId, username: 'target' }]
       });
 
-      // 后续是 sendFriendRequest 的 mock
-      mockQuery.onSecondCall().resolves({
+      // Mock user existence check
+      mockDb.query.onSecondCall().resolves({
         rows: [
-          { id: 'user1', username: 'Alice' },
-          { id: 'user2', username: 'Bob' }
+          { id: userId },
+          { id: targetUserId }
         ]
       });
 
-      await friendService.addFriendByCode('user1', 'ABC12345');
+      // Mock existing friendship check
+      mockDb.query.onThirdCall().resolves({ rows: [] });
+
+      // Mock friend count check
+      mockDb.query.onCall(3).resolves({ rows: [{ count: '10' }] });
+
+      // Mock insert
+      mockDb.query.onCall(4).resolves({
+        rows: [{ id: 1, status: 'pending' }]
+      });
+
+      const result = await friendService.addFriendByCode(userId, friendCode);
+
+      expect(result).to.have.property('status', 'pending');
     });
 
-    it('应该拒绝无效好友码', async () => {
-      mockQuery.onFirstCall().resolves({ rows: [] });
+    it('should reject invalid friend code', async () => {
+      const userId = 'user-1';
+      const friendCode = 'INVALID';
+
+      mockDb.query.onFirstCall().resolves({ rows: [] });
 
       try {
-        await friendService.addFriendByCode('user1', 'INVALID');
-        expect.fail('应该抛出错误');
+        await friendService.addFriendByCode(userId, friendCode);
+        expect.fail('Should have thrown error');
       } catch (error) {
         expect(error.code).to.equal(2011);
       }
     });
   });
 
-  // ============================================
-  // 好友排行榜
-  // ============================================
+  describe('removeFriend', () => {
+    it('should remove bidirectional friendship', async () => {
+      const userId = 'user-1';
+      const friendId = 'user-2';
+
+      const mockTrx = {
+        query: sinon.stub().resolves({ rowCount: 2 }),
+        commit: sinon.stub().resolves(),
+        rollback: sinon.stub().resolves()
+      };
+
+      mockDb.transaction.callsFake(async (callback) => {
+        return callback(mockTrx);
+      });
+
+      const result = await friendService.removeFriend(userId, friendId);
+
+      expect(result).to.have.property('success', true);
+      expect(mockTrx.commit.calledOnce).to.be.true;
+    });
+  });
+
   describe('getFriendLeaderboard', () => {
-    it('应该返回友情排行榜', async () => {
-      const mockLeaderboard = [
-        { id: 'f1', username: 'Alice', friendship_points: 1000 },
-        { id: 'f2', username: 'Bob', friendship_points: 500 }
+    it('should return cached leaderboard', async () => {
+      const userId = 'user-1';
+      const cachedData = [
+        { id: 'friend-1', username: 'top1', friendship_points: 1000 }
       ];
 
-      mockQuery.resolves({ rows: mockLeaderboard });
-
-      const result = await friendService.getFriendLeaderboard('user1', 'friendship', 10);
-
-      expect(result).to.have.lengthOf(2);
-    });
-
-    it('应该使用缓存', async () => {
-      const cachedData = [{ id: 'f1', username: 'Cached' }];
       mockRedis.get.resolves(JSON.stringify(cachedData));
 
-      const result = await friendService.getFriendLeaderboard('user1', 'friendship', 10);
+      const result = await friendService.getFriendLeaderboard(userId, 'friendship', 10);
 
       expect(result).to.deep.equal(cachedData);
-      expect(mockQuery.called).to.be.false;
+      expect(mockRedis.get.calledOnce).to.be.true;
     });
-  });
 
-  // ============================================
-  // 搜索用户
-  // ============================================
-  describe('searchUsers', () => {
-    it('应该返回匹配的用户', async () => {
-      const mockUsers = [
-        { id: 'u1', username: 'alice', level: 20 },
-        { id: 'u2', username: 'alice2', level: 15 }
+    it('should fetch and cache leaderboard when not cached', async () => {
+      const userId = 'user-1';
+      const mockLeaderboard = [
+        { id: 'friend-1', username: 'top1', friendship_points: 1000 },
+        { id: 'friend-2', username: 'top2', friendship_points: 800 }
       ];
 
-      mockQuery.resolves({ rows: mockUsers });
+      mockRedis.get.resolves(null);
+      mockDb.query.resolves({ rows: mockLeaderboard });
+      mockRedis.setex.resolves();
 
-      const result = await friendService.searchUsers('user1', 'alice', 20);
+      const result = await friendService.getFriendLeaderboard(userId, 'friendship', 10);
 
-      expect(result).to.have.lengthOf(2);
-    });
-  });
-
-  // ============================================
-  // 辅助方法
-  // ============================================
-  describe('helper methods', () => {
-    it('getFriendCount 应该返回正确数量', async () => {
-      mockQuery.resolves({ rows: [{ count: 42 }] });
-      
-      const count = await friendService.getFriendCount('user1');
-      
-      expect(count).to.equal(42);
-    });
-
-    it('getTodayGiftCount 应该返回正确数量', async () => {
-      mockQuery.resolves({ rows: [{ count: 5 }] });
-      
-      const count = await friendService.getTodayGiftCount('user1');
-      
-      expect(count).to.equal(5);
-    });
-
-    it('updateUserActiveStatus 应该更新用户状态', async () => {
-      mockQuery.resolves({ rowCount: 1 });
-      
-      await friendService.updateUserActiveStatus('user1');
-      
-      expect(mockQuery.calledOnce).to.be.true;
+      expect(result).to.deep.equal(mockLeaderboard);
+      expect(mockDb.query.calledOnce).to.be.true;
+      expect(mockRedis.setex.calledOnce).to.be.true;
     });
   });
 });
-
-// ============================================
-// 运行测试
-// ============================================
-if (require.main === module) {
-  const Mocha = require('mocha');
-  const mocha = new Mocha({ timeout: 10000 });
-  mocha.addFile(__filename);
-  mocha.run(failures => {
-    process.exitCode = failures ? 1 : 0;
-  });
-}

@@ -52,7 +52,7 @@
 | REQ-00045 | REQ-00045：设备完整性与模拟器检测系统 |  |  |  |  |  |
 | REQ-00046 | 精灵培育系统与遗传机制 | 功能增强 | P1 | done | pokemon-service, user-service, social-service, gateway, game-client, database/migrations | 2026-06-09 08:00 |
 | REQ-00047 | 精灵道具与背包管理系统 | 功能增强 | P1 | done | pokemon-service, reward-service, catch-service, social-service, gateway, game-client | 2026-06-09 09:00 |
-| REQ-00048 | 精灵好友系统与社交互动增强 | 功能增强 | P1 | new | social-service、user-service、gateway、game-client、pokemon-service、reward-service | 2026-06-09 10:00 |
+| REQ-00048 | 精灵好友系统与社交互动增强 | 功能增强 | P1 | done | social-service、user-service、gateway、game-client、pokemon-service、reward-service | 2026-06-09 10:00 |
 | REQ-00049 | API 客户端 SDK 统一抽象层 | 技术债/重构 | P1 | done | backend/shared, gateway, 所有微服务 | 2026-06-09 12:45 |
 | REQ-00050 | REQ-00050 实现文档：插件化中间件系统与生命周期管理 |  |  |  |  |  |
 | REQ-00050 | 插件化中间件系统与生命周期管理 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-09 13:00 |
@@ -317,3 +317,4 @@
 | REQ-00297 | 云成本异常检测与预算超支预警系统 | 成本/资源优化 | P1 | new | gateway, monitoring, backend/shared/cost, Prometheus, Grafana, Slack, Email | 2026-06-23 14:00 |
 || REQ-00298 | WebSocket 通信异常检测与实时阻断系统 | 反作弊 | P1 | new | gym-service、catch-service、gateway、backend/shared、infrastructure/k8s | 2026-06-23 05:00 |
 || REQ-00299 | 精灵技能冷却时间智能优化系统 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-23 15:00 |
+| REQ-00300 | 动态服务注册发现与健康感知路由系统 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared/serviceRegistry.js、infrastructure/k8s | 2026-06-23 06:00 |
