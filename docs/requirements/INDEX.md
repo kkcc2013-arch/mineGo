@@ -113,7 +113,7 @@
 | REQ-00101 | REQ-00101：后端 API 错误消息国际化系统 |  |  |  |  |  |
 | REQ-00102 | 精灵昼夜循环系统 | 功能增强 | P1 | new | location-service、catch-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-11 04:00 |
 | REQ-00103 | REQ-00103：微服务依赖图与循环依赖检测系统 |  |  |  |  |  |
-| REQ-00104 | 精灵交换市场与竞价拍卖系统 | 功能增强 | P1 | new | social-service、pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 04:30 |
+| REQ-00104 | 精灵交换市场与竞价拍卖系统 | 功能增强 | P1 | done | social-service、pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 04:30 |
 | REQ-00105 | REQ-00105：分布式锁服务与 Redis Redlock 实现 |  |  |  |  |  |
 | REQ-00106 | 玩家称号系统与个性化展示 | 功能增强 | P1 | new | user-service、pokemon-service、social-service、gateway、game-client、database/migrations | 2026-06-11 05:30 |
 | REQ-00107 | REQ-00107：数据生命周期管理与自动清理策略 |  |  |  |  |  |
