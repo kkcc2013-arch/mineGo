@@ -298,12 +298,12 @@
 | REQ-00284 |  |  |  |  |  |  |
 | REQ-00285 |  |  |  |  |  |  |
 | REQ-00286 |  |  |  |  |  |  |
-| REQ-00287 | CI/CD 管道执行依赖分析与并行优化系统 | 运维/CICD | P1 | new | cicd, github-actions | 2026-06-22 03:00 |
+| REQ-00287 | CI/CD 管道执行依赖分析与并行优化系统 | 运维/CICD | P1 | done | cicd, github-actions | 2026-06-22 03:00 |
 | REQ-00288 | 精灵技能连击系统与组合技效果 | 功能增强 | P1 | done | gym-service, catch-service, pokemon-service, game-client | 2026-06-22 09:00 |
 | REQ-00289 | 精灵交换欺诈检测与交易安全系统 | 反作弊 | P1 | done | exchange-service, trade-service, user-service, notification-service | 2026-06-22 10:00 |
 | REQ-00290 | WebSocket 连接池与消息批处理性能优化 | 性能优化 | P1 | new | gym-service, social-service, backend/shared/websocket | 2026-06-22 10:00 |
 | REQ-00291 | 精灵生态链与食物网系统 | 功能增强 | P1 | new | pokemon-service, location-service, catch-service, reward-service, game-client | 2026-06-22 11:00 |
-| REQ-00291 | API 密钥与敏感配置安全管理及自动轮换系统 | 安全加固 | P1 | new | gateway, user-service, shared/config, backend/shared, admin-dashboard, Redis, PostgreSQL | 2026-06-22 11:00 |
+| REQ-00291 | API 密钥与敏感配置安全管理及自动轮换系统 | 安全加固 | P1 | done | gateway, user-service, shared/config, backend/shared, admin-dashboard, Redis, PostgreSQL | 2026-06-22 11:00 |
 || REQ-00292 | 微服务混沌测试框架与故障注入系统 | 测试覆盖 | P1 | new | backend/tests/chaos, backend/services/*, backend/shared, infrastructure | 2026-06-23 01:00 |
 || REQ-00293 | 分布式追踪与 OpenTelemetry 集成系统 | 可观测性 | P1 | new | gateway, 所有微服务, backend/shared/tracing, jaeger, backend/shared/middleware | 2026-06-23 09:00 |
 | REQ-00294 | 游戏内文本动态本地化与玩家语言自适应系统 | 国际化/本地化 | P1 | new | gateway, user-service, pokemon-service, location-service, reward-service, game-client, backend/shared/i18n | 2026-06-23 02:00 |
