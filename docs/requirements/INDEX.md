@@ -307,3 +307,4 @@
 || REQ-00292 | 微服务混沌测试框架与故障注入系统 | 测试覆盖 | P1 | new | backend/tests/chaos, backend/services/*, backend/shared, infrastructure | 2026-06-23 01:00 |
 || REQ-00293 | 分布式追踪与 OpenTelemetry 集成系统 | 可观测性 | P1 | new | gateway, 所有微服务, backend/shared/tracing, jaeger, backend/shared/middleware | 2026-06-23 09:00 |
 | REQ-00294 | 游戏内文本动态本地化与玩家语言自适应系统 | 国际化/本地化 | P1 | new | gateway, user-service, pokemon-service, location-service, reward-service, game-client, backend/shared/i18n | 2026-06-23 02:00 |
+| REQ-00295 | 游戏资源预热与智能预加载系统 | 前端体验 | P1 | new | game-client, cdn, location-service, pokemon-service, backend/shared/cache | 2026-06-23 10:00 |
