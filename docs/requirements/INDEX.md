@@ -98,7 +98,7 @@
 | REQ-00087 | REQ-00087：混沌工程与故障注入测试系统 |  |  |  |  |  |
 | REQ-00088 | REQ-00088：Redis 连接池管理与健康监控系统 |  |  |  |  |  |
 | REQ-00089 | REQ-00089：数据跨境传输合规与本地化存储策略 |  |  |  |  |  |
-| REQ-00090 | 精灵状态效果系统与战斗Buff/Debuff管理 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
+| REQ-00090 | 精灵状态效果系统与战斗Buff/Debuff管理 | 功能增强 | P1 | done | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
 | REQ-00091 | REQ-00091：精灵装备系统与属性加成机制 |  |  |  |  |  |
 | REQ-00092 | REQ-00092：API 请求合并与批量查询优化 |  |  |  |  |  |
 | REQ-00093 | API 契约测试系统 | 测试覆盖 | P1 | done | gateway、所有微服务、backend/tests/contract | 2026-06-10 16:00 |

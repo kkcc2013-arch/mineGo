@@ -13,6 +13,17 @@
 const { v4: uuidv4 } = require('uuid');
 const logger = require('../../../shared/logger');
 
+const POKEMON_TYPES_ALPHABETICAL = [
+  'normal', 'fighting', 'flying', 'poison', 'ground', 'rock', 'bug', 'ghost', 'steel',
+  'fire', 'water', 'grass', 'electric', 'psychic', 'ice', 'dragon', 'dark', 'fairy'
+];
+
+function getTypeId(typeStr) {
+  if (!typeStr) return null;
+  const index = POKEMON_TYPES_ALPHABETICAL.indexOf(typeStr.toLowerCase());
+  return index !== -1 ? index + 1 : null;
+}
+
 // 属性克制表（基于 Pokemon 标准）
 const TYPE_CHART = {
   normal: { rock: 0.5, ghost: 0, steel: 0.5 },
@@ -109,6 +120,15 @@ class BattleEngine {
     this.status = 'pending';
     this.startTime = Date.now();
     this.toxicTurns = { attacker: 0, defender: 0 };
+    
+    // 初始化状态效果引擎
+    try {
+      const { getRedis } = require('../../../shared/redis');
+      const StatusEffectEngine = require('../../pokemon-service/src/statusEffectEngine');
+      this.statusEngine = new StatusEffectEngine(getRedis());
+    } catch (e) {
+      this.statusEngine = null;
+    }
   }
 
   /**
@@ -139,8 +159,19 @@ class BattleEngine {
    */
   calculateDamage(attacker, defender, move) {
     const level = attacker.level || 50;
-    const attack = move.category === 'physical' ? (attack_stat || 100) : (attacker.special_attack || 100);
-    const defense = move.category === 'physical' ? (defender.defense || 100) : (defender.special_defense || 100);
+    const attackerStats = attacker.modifiedStats || attacker;
+    const defenderStats = defender.modifiedStats || defender;
+    
+    let attack = move.category === 'physical' ? (attackerStats.attack || 100) : (attackerStats.special_attack || 100);
+    const defense = move.category === 'physical' ? (defenderStats.defense || 100) : (defenderStats.special_defense || 100);
+    
+    // 灼伤状态下物理伤害减半
+    if (move.category === 'physical') {
+      const hasBurn = (attacker.statuses && attacker.statuses.some(s => s.code === 'burn')) || attacker.status === 'burn';
+      if (hasBurn) {
+        attack = Math.floor(attack * 0.5);
+      }
+    }
     const power = move.power || 40;
     
     // 基础伤害公式
@@ -182,16 +213,21 @@ class BattleEngine {
    * 计算行动顺序
    */
   determineTurnOrder(attackerPokemon, defenderPokemon, attackerMove, defenderMove) {
-    // 获取实际速度（考虑状态效果）
-    let attackerSpeed = attackerPokemon.speed || 100;
-    let defenderSpeed = defenderPokemon.speed || 100;
+    // 获取实际速度（考虑状态效果和能力变化）
+    const attackerStats = attackerPokemon.modifiedStats || attackerPokemon;
+    const defenderStats = defenderPokemon.modifiedStats || defenderPokemon;
     
-    // 状态效果影响速度
-    if (attackerPokemon.status && STATUS_EFFECTS[attackerPokemon.status]?.statModifier?.speed) {
-      attackerSpeed *= STATUS_EFFECTS[attackerPokemon.status].statModifier.speed;
+    let attackerSpeed = attackerStats.speed || 100;
+    let defenderSpeed = defenderStats.speed || 100;
+    
+    // 状态效果影响速度 (麻痹速度减半)
+    const hasAttackerParalysis = (attackerPokemon.statuses && attackerPokemon.statuses.some(s => s.code === 'paralysis')) || attackerPokemon.status === 'paralyze';
+    if (hasAttackerParalysis) {
+      attackerSpeed *= 0.5;
     }
-    if (defenderPokemon.status && STATUS_EFFECTS[defenderPokemon.status]?.statModifier?.speed) {
-      defenderSpeed *= STATUS_EFFECTS[defenderPokemon.status].statModifier.speed;
+    const hasDefenderParalysis = (defenderPokemon.statuses && defenderPokemon.statuses.some(s => s.code === 'paralysis')) || defenderPokemon.status === 'paralyze';
+    if (hasDefenderParalysis) {
+      defenderSpeed *= 0.5;
     }
     
     // 优先级比较
@@ -218,33 +254,57 @@ class BattleEngine {
     const actions = [];
     
     // 检查状态效果是否允许行动
-    const statusHandler = attacker.status ? STATUS_EFFECTS[attacker.status] : null;
-    
-    if (statusHandler?.canAct && !statusHandler.canAct()) {
-      actions.push({
-        type: 'status_prevent',
-        pokemon: isPlayer ? 'attacker' : 'defender',
-        status: attacker.status,
-        message: `${attacker.nickname || attacker.species} 因为${statusHandler.name}无法行动！`
-      });
-      return { actions, damage: 0 };
+    let blockedResult = { blocked: false };
+    if (this.statusEngine && attacker.id) {
+      blockedResult = await this.statusEngine.checkActionBlocked(this.battleId, attacker.id, 'move');
     }
     
-    // 混乱检查
-    if (statusHandler?.onAct) {
-      const confusionResult = statusHandler.onAct(attacker);
-      if (confusionResult) {
-        attacker.current_hp -= confusionResult.selfDamage;
-        actions.push({
-          type: 'confusion_damage',
-          pokemon: isPlayer ? 'attacker' : 'defender',
-          ...confusionResult
-        });
+    // 如果没有被新引擎阻止，且存在旧状态字段，则进行旧状态检查（兼容旧测试）
+    if (!blockedResult.blocked && attacker.status) {
+      const statusHandler = STATUS_EFFECTS[attacker.status];
+      if (statusHandler?.canAct && !statusHandler.canAct()) {
+        blockedResult = {
+          blocked: true,
+          statusCode: attacker.status,
+          reason: statusHandler.name
+        };
+      } else if (statusHandler?.onAct) {
+        const confusionResult = statusHandler.onAct(attacker);
+        if (confusionResult) {
+          blockedResult = {
+            blocked: true,
+            statusCode: attacker.status,
+            reason: '混乱',
+            selfDamage: true,
+            selfDamageValue: confusionResult.selfDamage
+          };
+        }
       }
     }
     
+    if (blockedResult.blocked) {
+      actions.push({
+        type: 'status_prevent',
+        pokemon: isPlayer ? 'attacker' : 'defender',
+        status: blockedResult.statusCode,
+        message: `${attacker.nickname || attacker.species} 因为${blockedResult.reason}无法行动！`
+      });
+      
+      if (blockedResult.selfDamage) {
+        const damageVal = blockedResult.selfDamageValue || Math.floor((attacker.attack || 100) * 0.4);
+        attacker.current_hp -= damageVal;
+        actions.push({
+          type: 'confusion_damage',
+          pokemon: isPlayer ? 'attacker' : 'defender',
+          damage: damageVal,
+          message: `${attacker.nickname || attacker.species} 在混乱中攻击了自己！`
+        });
+      }
+      return { actions, damage: 0 };
+    }
+    
     // 命中率检查
-    const accuracy = move.accuracy || 100;
+    const accuracy = (move.accuracy !== undefined && move.accuracy !== null) ? move.accuracy : 100;
     if (Math.random() * 100 > accuracy) {
       actions.push({
         type: 'miss',
@@ -271,17 +331,45 @@ class BattleEngine {
     
     // 技能附加效果（状态效果）
     if (move.status_effect && Math.random() < (move.status_chance || 0.1)) {
-      defender.status = move.status_effect;
-      actions.push({
-        type: 'status_apply',
-        pokemon: isPlayer ? 'defender' : 'attacker',
-        effect: move.status_effect,
-        message: `${defender.nickname || defender.species} 陷入了${STATUS_EFFECTS[move.status_effect]?.name || move.status_effect}状态！`
-      });
+      const targetSide = isPlayer ? 'defender' : 'attacker';
+      const targetPoke = isPlayer ? defender : attacker;
+      
+      let applied = false;
+      let statusName = STATUS_EFFECTS[move.status_effect]?.name || move.status_effect;
+      
+      if (this.statusEngine && targetPoke.id) {
+        const applyResult = await this.statusEngine.applyStatus(this.battleId, targetPoke.id, move.status_effect, {
+          targetTypeId: targetPoke.type_id || (targetPoke.types ? getTypeId(targetPoke.types[0]) : null),
+          targetAbilityId: targetPoke.ability_id,
+          currentTurn: this.turn,
+          sourcePokemonId: attacker.id,
+          sourceMoveId: move.id
+        });
+        if (applyResult.success) {
+          applied = true;
+          statusName = applyResult.statusName;
+        }
+      } else {
+        targetPoke.status = move.status_effect;
+        applied = true;
+      }
+      
+      if (applied) {
+        actions.push({
+          type: 'status_apply',
+          pokemon: targetSide,
+          effect: move.status_effect,
+          message: `${targetPoke.nickname || targetPoke.species} 陷入了${statusName}状态！`
+        });
+      }
     }
     
     // 冰冻状态下被火属性攻击解冻
-    if (defender.status === 'freeze' && move.type === 'fire') {
+    const hasDefenderFreeze = (defender.statuses && defender.statuses.some(s => s.code === 'freeze')) || defender.status === 'freeze';
+    if (hasDefenderFreeze && move.type === 'fire') {
+      if (this.statusEngine && defender.id) {
+        await this.statusEngine.removeStatus(this.battleId, defender.id, 'freeze');
+      }
       defender.status = null;
       actions.push({
         type: 'status_clear',
@@ -313,6 +401,39 @@ class BattleEngine {
     if (!attackerPokemon || !defenderPokemon) {
       throw new Error('战斗数据异常：当前精灵不存在');
     }
+
+    // 1. 获取两只精灵的所有状态和能力变化
+    if (this.statusEngine && attackerPokemon.id && defenderPokemon.id) {
+      attackerPokemon.statuses = await this.statusEngine.getPokemonStatuses(this.battleId, attackerPokemon.id);
+      defenderPokemon.statuses = await this.statusEngine.getPokemonStatuses(this.battleId, defenderPokemon.id);
+      
+      attackerPokemon.statChanges = await this.statusEngine.getStatChanges(this.battleId, attackerPokemon.id);
+      defenderPokemon.statChanges = await this.statusEngine.getStatChanges(this.battleId, defenderPokemon.id);
+      
+      attackerPokemon.modifiedStats = this.statusEngine.calculateModifiedStats(attackerPokemon, attackerPokemon.statChanges);
+      defenderPokemon.modifiedStats = this.statusEngine.calculateModifiedStats(defenderPokemon, defenderPokemon.statChanges);
+    }
+    
+    // 回合开始前：处理 turn_start 状态效果
+    if (this.statusEngine && attackerPokemon.id && defenderPokemon.id) {
+      const attackerStartResults = await this.statusEngine.onTurnStart(this.battleId, attackerPokemon.id, this.turn, attackerPokemon);
+      for (const res of attackerStartResults) {
+        this.applyEffectResult(attackerPokemon, defenderPokemon, res, turnData, true);
+      }
+      
+      if (defenderPokemon.current_hp > 0) {
+        const defenderStartResults = await this.statusEngine.onTurnStart(this.battleId, defenderPokemon.id, this.turn, defenderPokemon);
+        for (const res of defenderStartResults) {
+          this.applyEffectResult(defenderPokemon, attackerPokemon, res, turnData, false);
+        }
+      }
+    }
+    
+    // 如果任何一方在回合开始被状态打败，则提前结束
+    if (attackerPokemon.current_hp <= 0 || defenderPokemon.current_hp <= 0) {
+      this.replay.push(turnData);
+      return this.checkBattleEnd(turnData);
+    }
     
     // 获取防守方技能（AI 选择最优技能）
     const defenderMove = this.selectDefenderMove(defenderPokemon, attackerPokemon);
@@ -328,7 +449,7 @@ class BattleEngine {
         turnData.actions.push(...playerResult.actions);
         turnData.damage.attacker += playerResult.damage;
         
-        if (defenderPokemon.current_hp > 0) {
+        if (defenderPokemon.current_hp > 0 && attackerPokemon.current_hp > 0) {
           const defenderResult = await this.executeAttack(defenderPokemon, attackerPokemon, defenderMove, false);
           turnData.actions.push(...defenderResult.actions);
           turnData.damage.defender += defenderResult.damage;
@@ -339,7 +460,7 @@ class BattleEngine {
         turnData.actions.push(...defenderResult.actions);
         turnData.damage.defender += defenderResult.damage;
         
-        if (attackerPokemon.current_hp > 0) {
+        if (attackerPokemon.current_hp > 0 && defenderPokemon.current_hp > 0) {
           const playerResult = await this.executeAttack(attackerPokemon, defenderPokemon, attackerMove, true);
           turnData.actions.push(...playerResult.actions);
           turnData.damage.attacker += playerResult.damage;
@@ -349,8 +470,25 @@ class BattleEngine {
     
     await executeInOrder();
     
-    // 回合结束处理状态效果伤害
-    await this.processTurnEndStatusEffects(attackerPokemon, defenderPokemon, turnData);
+    // 回合结束后：处理 turn_end 状态效果
+    if (this.statusEngine && attackerPokemon.id && defenderPokemon.id) {
+      if (attackerPokemon.current_hp > 0) {
+        const attackerEndResults = await this.statusEngine.onTurnEnd(this.battleId, attackerPokemon.id, this.turn, attackerPokemon);
+        for (const res of attackerEndResults) {
+          this.applyEffectResult(attackerPokemon, defenderPokemon, res, turnData, true);
+        }
+      }
+      
+      if (defenderPokemon.current_hp > 0) {
+        const defenderEndResults = await this.statusEngine.onTurnEnd(this.battleId, defenderPokemon.id, this.turn, defenderPokemon);
+        for (const res of defenderEndResults) {
+          this.applyEffectResult(defenderPokemon, attackerPokemon, res, turnData, false);
+        }
+      }
+    } else {
+      // 兼容旧逻辑
+      await this.processTurnEndStatusEffects(attackerPokemon, defenderPokemon, turnData);
+    }
     
     // 记录回放
     this.replay.push(turnData);
@@ -385,6 +523,49 @@ class BattleEngine {
         effect: pokemon.status,
         damage,
         message: statusHandler.onTurnEnd(pokemon).message
+      });
+    }
+  }
+
+  /**
+   * 应用状态效果执行结果
+   */
+  applyEffectResult(pokemon, opponent, res, turnData, isPlayer) {
+    if (res.type === 'damage') {
+      pokemon.current_hp = Math.max(0, pokemon.current_hp - res.value);
+      turnData.statusEffects.push({
+        pokemon: isPlayer ? 'attacker' : 'defender',
+        effect: res.statusCode,
+        damage: res.value,
+        message: `${pokemon.nickname || pokemon.species} ${res.statusCode === 'toxic' ? '受到剧毒伤害' : '受到' + res.statusName + '伤害'}！`
+      });
+      
+      // 寄生种子吸血
+      if (res.statusCode === 'leech_seed' && opponent && opponent.current_hp > 0) {
+        const healVal = Math.min(res.value, opponent.max_hp - opponent.current_hp);
+        opponent.current_hp = Math.min(opponent.max_hp, opponent.current_hp + healVal);
+        turnData.statusEffects.push({
+          pokemon: isPlayer ? 'defender' : 'attacker',
+          effect: 'leech_seed_heal',
+          heal: healVal,
+          message: `${opponent.nickname || opponent.species} 吸取了 HP！`
+        });
+      }
+    } else if (res.type === 'heal') {
+      const actualHeal = Math.min(res.value, pokemon.max_hp - pokemon.current_hp);
+      pokemon.current_hp = Math.min(pokemon.max_hp, pokemon.current_hp + actualHeal);
+      turnData.statusEffects.push({
+        pokemon: isPlayer ? 'attacker' : 'defender',
+        effect: res.statusCode,
+        heal: actualHeal,
+        message: `${pokemon.nickname || pokemon.species} 恢复了 HP！`
+      });
+    } else if (res.type === 'status_expired') {
+      turnData.statusEffects.push({
+        pokemon: isPlayer ? 'attacker' : 'defender',
+        effect: res.statusCode,
+        expired: true,
+        message: `${pokemon.nickname || pokemon.species} 的 ${res.statusName} 效果消失了！`
       });
     }
   }

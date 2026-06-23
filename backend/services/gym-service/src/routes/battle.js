@@ -15,7 +15,7 @@
 const express = require('express');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
-const { query, transaction } = require('../../../../shared/db');
+const db = require('../../../../shared/db');
 const { BattleEngine } = require('../battleEngine');
 const cache = require('../../../../shared/cache');
 const metrics = require('../../../../shared/metrics');
