@@ -317,4 +317,5 @@
 | REQ-00297 | 云成本异常检测与预算超支预警系统 | 成本/资源优化 | P1 | new | gateway, monitoring, backend/shared/cost, Prometheus, Grafana, Slack, Email | 2026-06-23 14:00 |
 || REQ-00298 | WebSocket 通信异常检测与实时阻断系统 | 反作弊 | P1 | new | gym-service、catch-service、gateway、backend/shared、infrastructure/k8s | 2026-06-23 05:00 |
 || REQ-00299 | 精灵技能冷却时间智能优化系统 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-23 15:00 |
-| REQ-00300 | 动态服务注册发现与健康感知路由系统 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared/serviceRegistry.js、infrastructure/k8s | 2026-06-23 06:00 |
+|| REQ-00300 | 动态服务注册发现与健康感知路由系统 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared/serviceRegistry.js、infrastructure/k8s | 2026-06-23 06:00 |
+|| REQ-00301 | 全链路压测系统与生产环境性能基准 | 性能优化 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s、backend/tests/load | 2026-06-23 16:00 |
