@@ -3,20 +3,16 @@
  * 进化服务核心模块（第1部分：核心功能）
  */
 
-const { Pool } = require('pg');
-const Redis = require('ioredis');
+const { query, transaction, getPoolManagerInstance } = require('../../../shared/db');
+const { getRedis } = require('../../../shared/redis');
+const timePeriodManager = require('../../../shared/TimePeriodManager');
 const promClient = require('prom-client');
 const { logger } = require('../../shared/logger');
 
 class EvolutionService {
     constructor() {
-        this.db = new Pool({ 
-            connectionString: process.env.DATABASE_URL,
-            max: 20,
-            idleTimeoutMillis: 30000,
-            connectionTimeoutMillis: 2000
-        });
-        this.redis = new Redis(process.env.REDIS_URL);
+        this.db = getPoolManagerInstance().getPool(process.env.SERVICE_NAME || 'default');
+        this.redis = getRedis();
         
         // 经验值表（各级所需总经验）
         this.experienceTable = this.buildExperienceTable();
@@ -346,8 +342,8 @@ class EvolutionService {
         
         // 检查时间（白天/黑夜）
         if (conditions.time) {
-            const currentHour = new Date().getHours();
-            const isDay = currentHour >= 6 && currentHour < 18;
+            const period = await timePeriodManager.getCurrentPeriod();
+            const isDay = period.id === 'day' || period.id === 'dawn' || period.id === 'dusk';
             const met = (conditions.time === 'day' && isDay) || (conditions.time === 'night' && !isDay);
             checkResults.push({
                 type: 'time',
