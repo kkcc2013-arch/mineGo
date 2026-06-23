@@ -319,3 +319,4 @@
 || REQ-00299 | 精灵技能冷却时间智能优化系统 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-23 15:00 |
 || REQ-00300 | 动态服务注册发现与健康感知路由系统 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared/serviceRegistry.js、infrastructure/k8s | 2026-06-23 06:00 |
 || REQ-00301 | 全链路压测系统与生产环境性能基准 | 性能优化 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s、backend/tests/load | 2026-06-23 16:00 |
+| REQ-00302 | API 分页与列表响应标准化系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/middleware、docs/api-spec | 2026-06-23 07:05 |

@@ -7,7 +7,7 @@
 | 标题 | 游戏内文本动态本地化与玩家语言自适应系统 |
 | 类别 | 国际化/本地化 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | gateway, user-service, pokemon-service, location-service, reward-service, game-client, backend/shared/i18n |
 | 创建时间 | 2026-06-23 02:00 UTC |
 | 依赖需求 | REQ-00008（多语言国际化支持） |
