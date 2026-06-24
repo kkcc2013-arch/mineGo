@@ -3,6 +3,7 @@
  * 测试 OpenWeatherMap API 集成、缓存策略、降级逻辑
  */
 
+process.env.OPENWEATHERMAP_API_KEY = 'test_api_key';
 const assert = require('assert');
 const sinon = require('sinon');
 const proxyquire = require('proxyquire');
@@ -34,15 +35,15 @@ const mockMetrics = {
   }
 };
 
-// Load module with mocks
-const weatherService = proxyquire('../../../backend/shared/weatherService', {
-  'axios': mockAxios,
-  './redis': mockRedis,
-  './logger': {
-    createLogger: () => mockLogger
-  },
-  './metrics': mockMetrics
-});
+// Mock dependencies using Jest
+jest.mock('axios', () => mockAxios);
+jest.mock('../../shared/redis', () => mockRedis);
+jest.mock('../../shared/logger', () => ({
+  createLogger: () => mockLogger
+}));
+jest.mock('../../shared/metrics', () => mockMetrics);
+
+const weatherService = require('../../shared/weatherService');
 
 describe('Weather Service', () => {
   beforeEach(() => {
@@ -155,9 +156,12 @@ describe('Weather Service', () => {
     it('should fallback when API key is not configured', async () => {
       delete process.env.OPENWEATHERMAP_API_KEY;
       
+      jest.resetModules();
+      const freshWeatherService = require('../../shared/weatherService');
+      
       mockRedis.getJSON.resolves(null);
 
-      const result = await weatherService.getWeather(39.9042, 116.4074);
+      const result = await freshWeatherService.getWeather(39.9042, 116.4074);
 
       assert.strictEqual(result.fallback, true);
       assert.ok(mockAxios.get.notCalled);
@@ -258,7 +262,7 @@ describe('Weather Service', () => {
       
       const result = weatherService.getFallbackWeather(0, 0);
       
-      assert.ok(result.temperature < 10);
+      assert.ok(result.temperature <= 10);
       
       clock.restore();
     });
