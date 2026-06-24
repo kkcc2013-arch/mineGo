@@ -9,7 +9,7 @@ const Redis = require('ioredis');
 // Mock dependencies
 jest.mock('pg');
 jest.mock('ioredis');
-jest.mock('../../../shared/logger', () => ({
+jest.mock('../../shared/logger', () => ({
   createLogger: () => ({
     info: jest.fn(),
     error: jest.fn(),
@@ -120,37 +120,37 @@ describe('FriendshipService', () => {
     
     test('should return crit rate bonus for level 3', () => {
       const bonuses = friendshipService.calculateBattleBonuses(3, 'neutral');
-      expect(bonuses.critRateBonus).toBe(0.02);
+      expect(bonuses.critRateBonus).toBeCloseTo(0.02);
       expect(bonuses.evasionRateBonus).toBe(0);
     });
     
     test('should return evasion bonus for level 5', () => {
       const bonuses = friendshipService.calculateBattleBonuses(5, 'neutral');
-      expect(bonuses.critRateBonus).toBe(0.06);
-      expect(bonuses.evasionRateBonus).toBe(0.01);
+      expect(bonuses.critRateBonus).toBeCloseTo(0.06);
+      expect(bonuses.evasionRateBonus).toBeCloseTo(0.01);
     });
     
     test('should return all bonuses for level 10', () => {
       const bonuses = friendshipService.calculateBattleBonuses(10, 'neutral');
-      expect(bonuses.critRateBonus).toBe(0.16);
-      expect(bonuses.evasionRateBonus).toBe(0.06);
-      expect(bonuses.statusResistBonus).toBe(0.20);
-      expect(bonuses.expBonus).toBe(0.30);
+      expect(bonuses.critRateBonus).toBeCloseTo(0.16);
+      expect(bonuses.evasionRateBonus).toBeCloseTo(0.06);
+      expect(bonuses.statusResistBonus).toBeCloseTo(0.20);
+      expect(bonuses.expBonus).toBeCloseTo(0.30);
     });
     
     test('should add happy mood bonus to crit rate', () => {
       const bonuses = friendshipService.calculateBattleBonuses(3, 'happy');
-      expect(bonuses.critRateBonus).toBe(0.07); // 0.02 (level) + 0.05 (mood)
+      expect(bonuses.critRateBonus).toBeCloseTo(0.07); // 0.02 (level) + 0.05 (mood)
     });
     
     test('should add excited mood bonus to evasion rate', () => {
       const bonuses = friendshipService.calculateBattleBonuses(5, 'excited');
-      expect(bonuses.evasionRateBonus).toBe(0.06); // 0.01 (level) + 0.05 (mood)
+      expect(bonuses.evasionRateBonus).toBeCloseTo(0.06); // 0.01 (level) + 0.05 (mood)
     });
     
     test('should reduce crit rate for tired mood', () => {
       const bonuses = friendshipService.calculateBattleBonuses(3, 'tired');
-      expect(bonuses.critRateBonus).toBe(-0.03); // 0.02 (level) - 0.05 (mood)
+      expect(bonuses.critRateBonus).toBeCloseTo(-0.03); // 0.02 (level) - 0.05 (mood)
     });
   });
   
