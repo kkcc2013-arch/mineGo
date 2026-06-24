@@ -326,4 +326,5 @@
 | REQ-00305 | GDPR 数据主体权利请求自动化管理系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、database/migrations、backend/shared/gdpr | 2026-06-24 01:00 |
 | REQ-00306 | 数据库迁移回滚自动化与版本控制系统 | 运维/CICD | P1 | new | database/migrations、所有微服务、backend/shared、infrastructure/k8s、.github/workflows | 2026-06-24 01:30 |
 | REQ-00307 | API 请求参数验证与响应格式一致性中间件系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/middleware、backend/shared/validators | 2026-06-24 02:00 UTC |
-| REQ-00308 | 微服务 API 请求合并与批量处理优化系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared/middleware、Redis、Kafka | 2026-06-24 03:00 UTC |
+|| REQ-00308 | 微服务 API 请求合并与批量处理优化系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared/middleware、Redis、Kafka | 2026-06-24 03:00 UTC |
+|| REQ-00309 | 数据隐私影响评估（DPIA）自动化系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、backend/shared | 2026-06-24 04:00 |
