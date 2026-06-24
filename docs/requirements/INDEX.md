@@ -61,7 +61,7 @@
 | REQ-00053 | REQ-00053：用户隐私偏好管理中心与数据透明度报告 |  |  |  |  |  |
 | REQ-00054 | 道馆战斗系统 | 功能增强 | P0 | done | gym-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-09 16:00 |
 | REQ-00055 | 精灵收藏展示系统 |  |  |  |  |  |
-| REQ-00056 | 精灵图鉴完成度奖励系统 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-09 17:00 |
+| REQ-00056 | 精灵图鉴完成度奖励系统 | 功能增强 | P1 | done | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-09 17:00 |
 | REQ-00057 | 游戏活动系统与限时活动管理 | 功能增强 | P0 | done | reward-service、location-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-09 18:00 |
 | REQ-00057 | REQ-00057：多因素认证（MFA）系统 |  |  |  |  |  |
 | REQ-00058 | 公会系统与团队社交功能 | 功能增强 | P1 | new | social-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 19:00 |
@@ -323,3 +323,4 @@
 || REQ-00302 | API 分页与列表响应标准化系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/middleware、docs/api-spec | 2026-06-23 07:05 |
 | REQ-00303 | 敏感操作审计日志与操作追溯系统 | 合规/隐私 | P1 | new | gateway、user-service、payment-service、social-service、pokemon-service、admin-dashboard、backend/shared、database/migrations | 2026-06-23 08:00 |
 | REQ-00304 | 游戏客户端网络自适应与弱网优化系统 | 前端体验 | P1 | new | game-client、gateway、catch-service、gym-service、backend/shared、WebSocket | 2026-06-23 09:00 |
+| REQ-00305 | GDPR 数据主体权利请求自动化管理系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、database/migrations、backend/shared/gdpr | 2026-06-24 01:00 |
