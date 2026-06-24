@@ -330,3 +330,4 @@
 || REQ-00309 | 数据隐私影响评估（DPIA）自动化系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、backend/shared | 2026-06-24 04:00 |
 || REQ-00310 | 微服务集成测试框架与端到端场景验证系统 | 测试覆盖 | P1 | new | backend/tests/integration, 所有微服务, backend/shared, database/migrations, backend/mocks | 2026-06-24 04:00 UTC |
 || REQ-00311 | 精灵技能冷却智能加速与连击链系统 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-24 05:00 UTC |
+| REQ-00312 | 数据库容量规划与智能预警系统 | 数据库/数据治理 | P1 | new | backend/shared、所有微服务、PostgreSQL、infrastructure/k8s、admin-dashboard、backend/jobs | 2026-06-24 06:00 UTC |
