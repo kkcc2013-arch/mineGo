@@ -7,7 +7,7 @@
 | 标题 | 精灵交换欺诈检测与交易安全系统 |
 | 类别 | 反作弊 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | exchange-service, trade-service, user-service, notification-service |
 | 创建时间 | 2026-06-22 10:00 |
 
