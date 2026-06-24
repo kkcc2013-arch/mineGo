@@ -210,9 +210,9 @@ function getServicePoolConfig(serviceName) {
   const { SERVICE_POOL_CONFIG } = require('./DatabasePool');
   return SERVICE_POOL_CONFIG[serviceName] || SERVICE_POOL_CONFIG['default'];
 }
-
 module.exports = {
   getPool,
+  getClient,
   query,
   transaction,
   initializeMigrations,
@@ -225,3 +225,7 @@ module.exports = {
   // Transaction manager with isolation level control
   transactionManager: require('./transactionManager'),
 };
+
+async function getClient() {
+  return await getPool().connect();
+}

@@ -150,10 +150,9 @@ function getPoolStats(poolName = 'default') {
   }
   return null;
 }
-
 module.exports = {
-  // 旧接口（向后兼容）
   getRedis,
+  getRedisClient,
   getJSON,
   setJSON,
   geoAdd,
@@ -167,3 +166,7 @@ module.exports = {
   healthCheck,
   getPoolStats,
 };
+
+function getRedisClient() {
+  return getRedis();
+}

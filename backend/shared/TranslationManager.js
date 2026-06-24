@@ -5,7 +5,9 @@
 
 const { getClient } = require('./db');
 const { getRedisClient } = require('./redis');
-const logger = require('./logger');
+const { createLogger } = require('./logger');
+
+const logger = createLogger('translation-manager');
 
 class TranslationManager {
   constructor() {

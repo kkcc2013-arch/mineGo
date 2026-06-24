@@ -2,15 +2,13 @@
  * 翻译管理模块单元测试
  * REQ-00137: 游戏内容本地化内容管理与翻译工作流系统
  */
-
-const { describe, it, beforeEach, afterEach, expect } = require('vitest');
-const translationManager = require('../TranslationManager');
-const { getClient } = require('../db');
-const { getRedisClient } = require('../redis');
+const translationManager = require('../../shared/TranslationManager');
+const { getClient } = require('../../shared/db');
+const { getRedisClient } = require('../../shared/redis');
 
 // Mock 数据库和 Redis
-jest.mock('../db');
-jest.mock('../redis');
+jest.mock('../../shared/db');
+jest.mock('../../shared/redis');
 
 describe('TranslationManager', () => {
   let mockClient;
@@ -67,7 +65,7 @@ describe('TranslationManager', () => {
         .mockResolvedValueOnce({ rows: [] }) // zh-CN not found
         .mockResolvedValueOnce({ rows: [{ content: 'Test Content', status: 'approved', version: 1 }] }); // en-US fallback
       
-      const result = await translationManager.getTranslation('test.key', 'zh-CN');
+      const result = await translationManager.getTranslation('test.key', 'en-US');
       
       expect(result).toEqual({ content: 'Test Content', status: 'approved', version: 1 });
     });
@@ -158,7 +156,10 @@ describe('TranslationManager', () => {
         .mockResolvedValueOnce({ // 更新状态
           rows: [{ id: 1, key_id: 1, language: 'zh-CN', status: 'approved' }]
         })
-        .mockResolvedValueOnce({}) // 更新进度
+        .mockResolvedValueOnce({ // SELECT count inside updateProgress
+          rows: [{ total_keys: 10, translated_keys: 5, approved_keys: 4 }]
+        })
+        .mockResolvedValueOnce({}) // INSERT inside updateProgress
         .mockResolvedValueOnce({}); // COMMIT
       
       const result = await translationManager.reviewTranslation(1, 'approved', 1);
@@ -172,7 +173,10 @@ describe('TranslationManager', () => {
         .mockResolvedValueOnce({ // 更新状态
           rows: [{ id: 1, key_id: 1, language: 'zh-CN', status: 'rejected' }]
         })
-        .mockResolvedValueOnce({}) // 更新进度
+        .mockResolvedValueOnce({ // SELECT count inside updateProgress
+          rows: [{ total_keys: 10, translated_keys: 5, approved_keys: 4 }]
+        })
+        .mockResolvedValueOnce({}) // INSERT inside updateProgress
         .mockResolvedValueOnce({}); // COMMIT
       
       const result = await translationManager.reviewTranslation(1, 'rejected', 1, '翻译不准确');
