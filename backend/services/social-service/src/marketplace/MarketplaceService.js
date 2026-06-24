@@ -15,7 +15,8 @@
  */
 
 const db = require('@pmg/shared/db');
-const logger = require('@pmg/shared/logger');
+const { createLogger } = require('@pmg/shared/logger');
+const logger = createLogger('marketplace-service');
 const { v4: uuidv4 } = require('uuid');
 
 // 市场配置
