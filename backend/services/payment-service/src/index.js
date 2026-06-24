@@ -10,6 +10,8 @@ const { requireAuth, AppError, successResp, errorHandler } = require('../../../s
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
 const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
+const currencyRoutes = require('./routes/currency');
+const exchangeRateService = require('../../../shared/exchangeRateService');
 
 const logger = createLogger('payment-service');
 const SERVICE_NAME = 'payment-service';
@@ -447,7 +449,18 @@ async function initializeDelayQueue() {
 }
 
 app.listen(PORT, async () => {
+  // Mount currency routes (REQ-00051)
+  app.use('/api/v1/currencies', currencyRoutes);
+
   logger.info({ port: PORT }, 'payment-service started');
   await initializeDelayQueue();
+
+  // Initialize exchange rates
+  try {
+    await exchangeRateService.refreshAllRates();
+    logger.info('Exchange rates initialized');
+  } catch (err) {
+    logger.warn('Failed to initialize exchange rates, will use cached data', { error: err.message });
+  }
 });
 module.exports = app;

@@ -1,7 +1,10 @@
-// backend/shared/exchangeRateService.js
-// REQ-00051: 多货币支持与汇率转换系统
-
 'use strict';
+
+/**
+ * Exchange Rate Service
+ * Provides exchange rate fetching, caching, and conversion
+ * REQ-00051: Multi-currency Support
+ */
 
 const axios = require('axios');
 const crypto = require('crypto');
@@ -11,119 +14,117 @@ const metrics = require('./metrics');
 
 const logger = createLogger('exchange-rate-service');
 
+// Exchange rate API sources
+const SOURCES = {
+  openexchangerates: {
+    name: 'OpenExchangeRates',
+    url: 'https://openexchangerates.org/api/latest.json',
+    priority: 1,
+    apiKeyEnv: 'OER_API_KEY'
+  },
+  fixer: {
+    name: 'Fixer',
+    url: 'https://data.fixer.io/api/latest',
+    priority: 2,
+    apiKeyEnv: 'FIXER_API_KEY'
+  },
+  exchangerate: {
+    name: 'ExchangeRate-API',
+    url: 'https://v6.exchangerate-api.com/v6',
+    priority: 3,
+    apiKeyEnv: 'EXCHANGE_RATE_API_KEY'
+  }
+};
+
+// Cache settings
+const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const RATE_VALIDITY_MS = 60 * 60 * 1000; // 1 hour
+const RATE_LOCK_DEFAULT_MINUTES = 15;
+
 class ExchangeRateService {
   constructor() {
-    this.sources = {
-      openexchangerates: {
-        url: 'https://openexchangerates.org/api/latest.json',
-        apiKey: process.env.OER_API_KEY,
-        priority: 1
-      },
-      fixer: {
-        url: 'https://data.fixer.io/api/latest',
-        apiKey: process.env.FIXER_API_KEY,
-        priority: 2
-      }
-    };
-    
     this.cache = new Map();
-    this.cacheTimeout = 300000; // 5 分钟缓存
+    this.baseCurrency = 'USD';
   }
 
   /**
-   * 获取最新汇率（带缓存）
+   * Get current exchange rate with caching
    */
   async getRate(fromCurrency, toCurrency) {
-    if (fromCurrency === toCurrency) {
-      return 1;
-    }
-
     const cacheKey = `${fromCurrency}_${toCurrency}`;
     const cached = this.cache.get(cacheKey);
-    
-    if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+
+    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
       metrics.increment('exchange_rate.cache_hit');
       return cached.rate;
     }
-    
-    // 从数据库获取当前汇率
-    const result = await query(`
-      SELECT rate, valid_until, source
-      FROM exchange_rates
-      WHERE from_currency = $1 
-        AND to_currency = $2 
-        AND is_current = true
-        AND valid_until > NOW()
-      ORDER BY fetched_at DESC
-      LIMIT 1
-    `, [fromCurrency, toCurrency]);
-    
-    if (result.rows.length > 0) {
-      const rate = parseFloat(result.rows[0].rate);
-      this.cache.set(cacheKey, { rate, timestamp: Date.now() });
-      metrics.increment('exchange_rate.db_hit');
-      return rate;
+
+    metrics.increment('exchange_rate.cache_miss');
+
+    // Try database first
+    const dbRate = await this.getRateFromDB(fromCurrency, toCurrency);
+    if (dbRate) {
+      this.cache.set(cacheKey, { rate: dbRate, timestamp: Date.now() });
+      return dbRate;
     }
-    
-    // 汇率过期或不存在，尝试反向汇率
-    const reverseResult = await query(`
-      SELECT rate, valid_until
-      FROM exchange_rates
-      WHERE from_currency = $1 
-        AND to_currency = $2 
-        AND is_current = true
-        AND valid_until > NOW()
-      ORDER BY fetched_at DESC
-      LIMIT 1
-    `, [toCurrency, fromCurrency]);
-    
-    if (reverseResult.rows.length > 0) {
-      const rate = 1 / parseFloat(reverseResult.rows[0].rate);
-      this.cache.set(cacheKey, { rate, timestamp: Date.now() });
-      return rate;
-    }
-    
-    // 尝试通过 USD 计算交叉汇率
-    if (fromCurrency !== 'USD' && toCurrency !== 'USD') {
-      const fromToUsd = await this.getRate(fromCurrency, 'USD');
-      const usdToTarget = await this.getRate('USD', toCurrency);
-      
-      if (fromToUsd && usdToTarget) {
-        const crossRate = fromToUsd * usdToTarget;
-        this.cache.set(cacheKey, { rate: crossRate, timestamp: Date.now() });
-        return crossRate;
-      }
-    }
-    
-    metrics.increment('exchange_rate.fetch_required');
-    throw new Error(`Exchange rate not found for ${fromCurrency}/${toCurrency}`);
+
+    // Fetch from external API
+    const fetchedRate = await this.fetchRate(fromCurrency, toCurrency);
+    this.cache.set(cacheKey, { rate: fetchedRate, timestamp: Date.now() });
+    return fetchedRate;
   }
 
   /**
-   * 批量获取汇率
+   * Get rate from database
+   */
+  async getRateFromDB(fromCurrency, toCurrency) {
+    try {
+      const result = await query(`
+        SELECT rate, valid_until
+        FROM exchange_rates
+        WHERE from_currency = $1
+          AND to_currency = $2
+          AND is_current = true
+          AND valid_until > NOW()
+        ORDER BY fetched_at DESC
+        LIMIT 1
+      `, [fromCurrency, toCurrency]);
+
+      if (result.rows.length > 0) {
+        return parseFloat(result.rows[0].rate);
+      }
+      return null;
+    } catch (error) {
+      logger.error('Failed to get rate from DB', { error: error.message, fromCurrency, toCurrency });
+      return null;
+    }
+  }
+
+  /**
+   * Get multiple rates at once
    */
   async getRates(baseCurrency, targetCurrencies) {
     const rates = {};
     const uncached = [];
-    
-    // 先检查缓存
+
+    // Check cache first
     for (const currency of targetCurrencies) {
       if (currency === baseCurrency) {
         rates[currency] = 1;
         continue;
       }
-      
+
       const cacheKey = `${baseCurrency}_${currency}`;
       const cached = this.cache.get(cacheKey);
-      
-      if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
+
+      if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
         rates[currency] = cached.rate;
       } else {
         uncached.push(currency);
       }
     }
-    
-    // 批量查询数据库
+
+    // Batch query DB for uncached
     if (uncached.length > 0) {
       const result = await query(`
         SELECT to_currency, rate
@@ -133,7 +134,7 @@ class ExchangeRateService {
           AND is_current = true
           AND valid_until > NOW()
       `, [baseCurrency, uncached]);
-      
+
       for (const row of result.rows) {
         rates[row.to_currency] = parseFloat(row.rate);
         this.cache.set(`${baseCurrency}_${row.to_currency}`, {
@@ -142,53 +143,187 @@ class ExchangeRateService {
         });
       }
     }
-    
+
     return rates;
   }
 
   /**
-   * 保存汇率到数据库
+   * Fetch rate from external API
    */
-  async saveRate(fromCurrency, toCurrency, rate, source) {
-    const validUntil = new Date(Date.now() + 3600000); // 1 小时有效期
-    
-    await query(`
-      UPDATE exchange_rates 
-      SET is_current = false 
-      WHERE from_currency = $1 AND to_currency = $2
-    `, [fromCurrency, toCurrency]);
-    
-    await query(`
-      INSERT INTO exchange_rates 
-      (from_currency, to_currency, rate, source, fetched_at, valid_until, is_current)
-      VALUES ($1, $2, $3, $4, NOW(), $5, true)
-    `, [fromCurrency, toCurrency, rate, source, validUntil]);
-    
-    logger.info('Exchange rate updated', {
-      from: fromCurrency,
-      to: toCurrency,
-      rate,
-      source,
-      validUntil
-    });
+  async fetchRate(fromCurrency, toCurrency) {
+    const sources = Object.entries(SOURCES).sort((a, b) => a[1].priority - b[1].priority);
+
+    for (const [key, source] of sources) {
+      const apiKey = process.env[source.apiKeyEnv];
+      if (!apiKey && process.env.NODE_ENV === 'production') {
+        continue; // Skip sources without API key in production
+      }
+
+      try {
+        const rate = await this.fetchFromSource(key, fromCurrency, toCurrency, apiKey);
+        if (rate) {
+          await this.saveRate(fromCurrency, toCurrency, rate, key);
+          metrics.increment('exchange_rate.fetch_success', { source: key });
+          return rate;
+        }
+      } catch (error) {
+        logger.warn('Failed to fetch from source', {
+          source: key,
+          error: error.message,
+          fromCurrency,
+          toCurrency
+        });
+        metrics.increment('exchange_rate.fetch_failure', { source: key });
+      }
+    }
+
+    // Fallback: return 1 if same currency or throw error
+    if (fromCurrency === toCurrency) {
+      return 1;
+    }
+
+    // Use mock rate for development
+    if (process.env.NODE_ENV !== 'production') {
+      logger.warn('Using mock exchange rate for development');
+      return this.getMockRate(fromCurrency, toCurrency);
+    }
+
+    throw new Error(`Failed to fetch exchange rate for ${fromCurrency}/${toCurrency}`);
   }
 
   /**
-   * 锁定汇率（用于支付）
+   * Fetch from specific API source
    */
-  async lockRate(fromCurrency, toCurrency, durationMinutes = 15) {
+  async fetchFromSource(sourceKey, fromCurrency, toCurrency, apiKey) {
+    switch (sourceKey) {
+      case 'openexchangerates':
+        return await this.fetchFromOER(fromCurrency, toCurrency, apiKey);
+      case 'fixer':
+        return await this.fetchFromFixer(fromCurrency, toCurrency, apiKey);
+      case 'exchangerate':
+        return await this.fetchFromExchangeRateAPI(fromCurrency, toCurrency, apiKey);
+      default:
+        throw new Error(`Unknown source: ${sourceKey}`);
+    }
+  }
+
+  async fetchFromOER(from, to, apiKey) {
+    const response = await axios.get('https://openexchangerates.org/api/latest.json', {
+      params: { app_id: apiKey, base: from },
+      timeout: 10000
+    });
+
+    if (response.data?.rates?.[to]) {
+      return response.data.rates[to];
+    }
+    return null;
+  }
+
+  async fetchFromFixer(from, to, apiKey) {
+    const response = await axios.get('https://data.fixer.io/api/latest', {
+      params: { access_key: apiKey, base: from, symbols: to },
+      timeout: 10000
+    });
+
+    if (response.data?.success && response.data?.rates?.[to]) {
+      return response.data.rates[to];
+    }
+    return null;
+  }
+
+  async fetchFromExchangeRateAPI(from, to, apiKey) {
+    const response = await axios.get(`https://v6.exchangerate-api.com/v6/${apiKey}/latest/${from}`, {
+      timeout: 10000
+    });
+
+    if (response.data?.result === 'success' && response.data?.conversion_rates?.[to]) {
+      return response.data.conversion_rates[to];
+    }
+    return null;
+  }
+
+  /**
+   * Mock rates for development
+   */
+  getMockRate(from, to) {
+    const mockRates = {
+      'USD_EUR': 0.92,
+      'USD_GBP': 0.79,
+      'USD_JPY': 155.0,
+      'USD_CNY': 7.24,
+      'USD_KRW': 1380.0,
+      'USD_TWD': 32.5,
+      'USD_HKD': 7.82,
+      'USD_SGD': 1.35,
+      'USD_AUD': 1.53,
+      'USD_CAD': 1.37,
+      'EUR_USD': 1.09,
+      'GBP_USD': 1.27,
+      'JPY_USD': 0.0065,
+      'CNY_USD': 0.14
+    };
+
+    if (from === to) return 1;
+    return mockRates[`${from}_${to}`] || 1;
+  }
+
+  /**
+   * Save rate to database
+   */
+  async saveRate(fromCurrency, toCurrency, rate, source) {
+    const validUntil = new Date(Date.now() + RATE_VALIDITY_MS);
+
+    try {
+      // Mark old rates as not current
+      await query(`
+        UPDATE exchange_rates
+        SET is_current = false
+        WHERE from_currency = $1 AND to_currency = $2
+      `, [fromCurrency, toCurrency]);
+
+      // Insert new rate
+      await query(`
+        INSERT INTO exchange_rates
+        (from_currency, to_currency, rate, source, fetched_at, valid_until, is_current)
+        VALUES ($1, $2, $3, $4, NOW(), $5, true)
+      `, [fromCurrency, toCurrency, rate, source, validUntil]);
+
+      logger.info('Exchange rate saved', { fromCurrency, toCurrency, rate, source, validUntil });
+    } catch (error) {
+      logger.error('Failed to save exchange rate', { error: error.message });
+    }
+  }
+
+  /**
+   * Convert amount between currencies
+   */
+  async convert(amount, fromCurrency, toCurrency) {
+    if (fromCurrency === toCurrency) {
+      return { convertedAmount: amount, rate: 1 };
+    }
+
+    const rate = await this.getRate(fromCurrency, toCurrency);
+    const convertedAmount = amount * rate;
+
+    return { convertedAmount, rate };
+  }
+
+  /**
+   * Lock exchange rate for payment
+   */
+  async lockRate(fromCurrency, toCurrency, durationMinutes = RATE_LOCK_DEFAULT_MINUTES) {
     const rate = await this.getRate(fromCurrency, toCurrency);
     const lockId = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + durationMinutes * 60000);
-    
+    const expiresAt = new Date(Date.now() + durationMinutes * 60 * 1000);
+
     await query(`
-      INSERT INTO rate_locks 
+      INSERT INTO rate_locks
       (lock_id, from_currency, to_currency, locked_rate, expires_at)
       VALUES ($1, $2, $3, $4, $5)
     `, [lockId, fromCurrency, toCurrency, rate, expiresAt]);
-    
-    metrics.increment('exchange_rate.lock_created');
-    
+
+    metrics.increment('exchange_rate.lock_created', { from: fromCurrency, to: toCurrency });
+
     return {
       lockId,
       lockedRate: rate,
@@ -197,26 +332,26 @@ class ExchangeRateService {
   }
 
   /**
-   * 验证并使用锁定的汇率
+   * Use locked rate for payment
    */
   async useLockedRate(lockId, referenceType, referenceId) {
     const result = await query(`
       UPDATE rate_locks
-      SET used = true, 
-          reference_type = $2, 
+      SET used = true,
+          reference_type = $2,
           reference_id = $3
-      WHERE lock_id = $1 
-        AND used = false 
+      WHERE lock_id = $1
+        AND used = false
         AND expires_at > NOW()
       RETURNING from_currency, to_currency, locked_rate
     `, [lockId, referenceType, referenceId]);
-    
+
     if (result.rows.length === 0) {
       throw new Error('Rate lock not found, expired, or already used');
     }
-    
+
     metrics.increment('exchange_rate.lock_used');
-    
+
     return {
       fromCurrency: result.rows[0].from_currency,
       toCurrency: result.rows[0].to_currency,
@@ -225,143 +360,71 @@ class ExchangeRateService {
   }
 
   /**
-   * 定时刷新所有汇率
+   * Get supported currencies
+   */
+  async getSupportedCurrencies() {
+    const result = await query(`
+      SELECT currency_code, currency_name, currency_symbol, decimal_places
+      FROM supported_currencies
+      WHERE is_active = true
+      ORDER BY currency_code
+    `);
+
+    return result.rows.map(row => ({
+      code: row.currency_code,
+      name: row.currency_name,
+      symbol: row.currency_symbol,
+      decimalPlaces: row.decimal_places
+    }));
+  }
+
+  /**
+   * Refresh all rates from external APIs
    */
   async refreshAllRates() {
-    const currencies = await query(`
-      SELECT currency_code FROM supported_currencies WHERE is_active = true
-    `);
-    
-    const currencyCodes = currencies.rows.map(r => r.currency_code);
-    const baseCurrency = 'USD'; // 基准货币
-    
-    logger.info('Starting exchange rate refresh', {
-      baseCurrency,
-      targetCount: currencyCodes.length
-    });
-    
+    const currencies = await this.getSupportedCurrencies();
+    const currencyCodes = currencies.map(c => c.code);
+
     let successCount = 0;
     let failureCount = 0;
-    
+
     for (const targetCurrency of currencyCodes) {
-      if (targetCurrency === baseCurrency) continue;
-      
+      if (targetCurrency === this.baseCurrency) continue;
+
       try {
-        // 尝试从外部 API 获取
-        const rate = await this.fetchFromExternal(baseCurrency, targetCurrency);
-        
-        if (rate) {
-          await this.saveRate(baseCurrency, targetCurrency, rate, 'external');
-          successCount++;
-        } else {
-          failureCount++;
-        }
+        await this.fetchRate(this.baseCurrency, targetCurrency);
+        successCount++;
       } catch (error) {
         failureCount++;
         logger.error('Failed to refresh rate', {
-          from: baseCurrency,
+          from: this.baseCurrency,
           to: targetCurrency,
           error: error.message
         });
       }
     }
-    
-    logger.info('Exchange rate refresh completed', {
-      successCount,
-      failureCount
-    });
-    
+
+    logger.info('Exchange rate refresh completed', { successCount, failureCount });
     return { successCount, failureCount };
   }
 
   /**
-   * 从外部 API 获取汇率
-   */
-  async fetchFromExternal(fromCurrency, toCurrency) {
-    // 如果没有配置 API Key，使用数据库中的现有汇率
-    if (!process.env.OER_API_KEY && !process.env.FIXER_API_KEY) {
-      logger.debug('No external API key configured, using existing rates');
-      return null;
-    }
-
-    try {
-      if (process.env.OER_API_KEY) {
-        const response = await axios.get('https://openexchangerates.org/api/latest.json', {
-          params: {
-            app_id: process.env.OER_API_KEY,
-            base: fromCurrency
-          },
-          timeout: 10000
-        });
-        
-        if (response.data && response.data.rates && response.data.rates[toCurrency]) {
-          return response.data.rates[toCurrency];
-        }
-      }
-    } catch (error) {
-      logger.warn('Failed to fetch from OpenExchangeRates', { error: error.message });
-    }
-    
-    return null;
-  }
-
-  /**
-   * 清理过期汇率锁定
+   * Clean up expired rate locks
    */
   async cleanupExpiredLocks() {
     const result = await query(`
       DELETE FROM rate_locks
-      WHERE expires_at < NOW() AND used = false
-      RETURNING lock_id
+      WHERE expires_at < NOW()
+      RETURNING id
     `);
-    
+
     if (result.rows.length > 0) {
       logger.info('Cleaned up expired rate locks', { count: result.rows.length });
     }
-    
+
     return result.rows.length;
   }
 }
 
-// 单例
-const exchangeRateService = new ExchangeRateService();
-
-// 定时任务：每 30 分钟刷新汇率
-let refreshInterval = null;
-
-function startExchangeRateRefreshJob() {
-  if (refreshInterval) return;
-  
-  // 启动时延迟 5 秒刷新一次
-  setTimeout(async () => {
-    try {
-      await exchangeRateService.refreshAllRates();
-    } catch (error) {
-      logger.error('Initial exchange rate refresh failed', { error: error.message });
-    }
-  }, 5000);
-  
-  // 定时刷新
-  refreshInterval = setInterval(async () => {
-    try {
-      await exchangeRateService.refreshAllRates();
-      await exchangeRateService.cleanupExpiredLocks();
-    } catch (error) {
-      logger.error('Scheduled exchange rate refresh failed', { error: error.message });
-    }
-  }, 1800000); // 30 分钟
-}
-
-function stopExchangeRateRefreshJob() {
-  if (refreshInterval) {
-    clearInterval(refreshInterval);
-    refreshInterval = null;
-  }
-}
-
-module.exports = {
-  ExchangeRateService,
-  exchangeRateService,
-  startExchangeRateRefreshJob,
-  stopExchangeRateRefreshJob
-};
+// Export singleton
+module.exports = new ExchangeRateService();

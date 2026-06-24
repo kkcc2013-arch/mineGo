@@ -7,7 +7,7 @@
 | 标题 | 多货币支持与汇率转换系统 |
 | 类别 | 国际化/本地化 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | payment-service、user-service、gateway、backend/shared |
 | 创建时间 | 2026-06-09 15:00 |
 

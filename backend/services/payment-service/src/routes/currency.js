@@ -1,116 +1,97 @@
-// backend/services/payment-service/src/routes/currency.js
-// REQ-00051: 多货币支持 API
-
 'use strict';
+
+/**
+ * Currency Routes for Payment Service
+ * REQ-00051: Multi-currency Support
+ */
 
 const express = require('express');
 const router = express.Router();
-const { exchangeRateService } = require('../../../shared/exchangeRateService');
-const { currencyFormatter } = require('../../../shared/currencyFormatter');
+const exchangeRateService = require('../../../shared/exchangeRateService');
+const currencyFormatter = require('../../../shared/currencyFormatter');
 const { query } = require('../../../shared/db');
 const { createLogger } = require('../../../shared/logger');
+const { requireAuth, requireAdmin, successResp, AppError } = require('../../../shared/auth');
 const metrics = require('../../../shared/metrics');
-const { requireAuth, AppError, successResp } = require('../../../shared/auth');
 
-const logger = createLogger('currency-api');
+const logger = createLogger('currency-routes');
 
 /**
- * 获取支持的货币列表
  * GET /api/v1/currencies
+ * Get list of supported currencies
  */
 router.get('/', async (req, res, next) => {
   try {
-    const result = await query(`
-      SELECT 
-        currency_code,
-        currency_name,
-        currency_symbol,
-        decimal_places,
-        supported_since
-      FROM supported_currencies
-      WHERE is_active = true
-      ORDER BY currency_code
-    `);
-    
+    const currencies = await exchangeRateService.getSupportedCurrencies();
+
     res.json(successResp({
-      currencies: result.rows.map(row => ({
-        code: row.currency_code,
-        name: row.currency_name,
-        symbol: row.currency_symbol,
-        decimalPlaces: row.decimal_places,
-        supportedSince: row.supported_since
-      }))
+      currencies,
+      count: currencies.length
     }));
   } catch (error) {
-    logger.error('Failed to get currencies', { error: error.message });
     next(error);
   }
 });
 
 /**
- * 获取汇率
- * GET /api/v1/currencies/rates?from=USD&to=JPY,EUR,GBP
+ * GET /api/v1/currencies/rates
+ * Get exchange rates
+ * Query: from=USD&to=EUR,GBP,JPY
  */
 router.get('/rates', async (req, res, next) => {
   try {
     const { from = 'USD', to } = req.query;
-    
+
     if (!to) {
-      throw new AppError(6001, 'Target currencies required', 400);
+      throw new AppError(400, 'Target currencies required (use comma-separated list)');
     }
-    
+
     const targetCurrencies = to.split(',').map(c => c.trim().toUpperCase());
     const rates = await exchangeRateService.getRates(from, targetCurrencies);
-    
+
     res.json(successResp({
       base: from,
       rates,
       timestamp: new Date().toISOString()
     }));
   } catch (error) {
-    logger.error('Failed to get exchange rates', { error: error.message });
     next(error);
   }
 });
 
 /**
- * 转换金额
  * POST /api/v1/currencies/convert
- * Body: { amount: 100, from: "USD", to: "JPY" }
+ * Convert amount between currencies
+ * Body: { amount, from, to, lockRate?: boolean }
  */
 router.post('/convert', async (req, res, next) => {
   try {
     const { amount, from, to, lockRate = false } = req.body;
-    
-    if (amount === undefined || !from || !to) {
-      throw new AppError(6002, 'amount, from, and to are required', 400);
+
+    if (!amount || !from || !to) {
+      throw new AppError(400, 'amount, from, and to are required');
     }
-    
-    const numAmount = parseFloat(amount);
-    if (isNaN(numAmount)) {
-      throw new AppError(6003, 'Invalid amount', 400);
-    }
-    
-    const rate = await exchangeRateService.getRate(from, to);
-    const converted = numAmount * rate;
-    
+
+    const { convertedAmount, rate } = await exchangeRateService.convert(amount, from, to);
+
     let rateLock = null;
     if (lockRate) {
       rateLock = await exchangeRateService.lockRate(from, to);
     }
-    
+
+    // Log conversion
     metrics.increment('currency.conversion', { from, to });
-    
+
     res.json(successResp({
       original: {
-        amount: numAmount,
+        amount,
         currency: from,
-        formatted: currencyFormatter.format(numAmount, from)
+        formatted: currencyFormatter.format(amount, from)
       },
       converted: {
-        amount: converted,
+        amount: convertedAmount,
         currency: to,
-        formatted: currencyFormatter.format(converted, to)
+        formatted: currencyFormatter.format(convertedAmount, to)
       },
       rate,
       rateLock: rateLock ? {
@@ -120,139 +101,123 @@ router.post('/convert', async (req, res, next) => {
       timestamp: new Date().toISOString()
     }));
   } catch (error) {
-    logger.error('Failed to convert currency', { error: error.message });
     next(error);
   }
 });
 
 /**
- * 获取商品多货币价格
- * GET /api/v1/currencies/prices/:productId?currency=JPY
+ * GET /api/v1/currencies/prices/:productId
+ * Get product price in specified currency
+ * Query: currency=JPY
  */
 router.get('/prices/:productId', async (req, res, next) => {
   try {
     const { productId } = req.params;
     const { currency = 'USD' } = req.query;
-    
-    // 查询本地化价格
+
+    // Check for localized price
     const localPrice = await query(`
       SELECT price, original_price, updated_at
       FROM product_prices
       WHERE product_id = $1 AND currency_code = $2
     `, [productId, currency]);
-    
+
     if (localPrice.rows.length > 0) {
+      const price = parseFloat(localPrice.rows[0].price);
       return res.json(successResp({
         productId,
         currency,
-        price: parseFloat(localPrice.rows[0].price),
-        originalPrice: localPrice.rows[0].original_price ? 
+        price,
+        originalPrice: localPrice.rows[0].original_price ?
           parseFloat(localPrice.rows[0].original_price) : null,
-        formatted: currencyFormatter.format(
-          parseFloat(localPrice.rows[0].price), 
-          currency
-        ),
+        formatted: currencyFormatter.format(price, currency),
         source: 'localized'
       }));
     }
-    
-    // 本地化价格不存在，从 USD 转换
+
+    // Fallback: convert from USD
     const usdPrice = await query(`
       SELECT price
       FROM product_prices
       WHERE product_id = $1 AND currency_code = 'USD'
     `, [productId]);
-    
+
     if (usdPrice.rows.length === 0) {
-      throw new AppError(6004, 'Product not found', 404);
+      throw new AppError(404, 'Product not found');
     }
-    
-    const rate = await exchangeRateService.getRate('USD', currency);
-    const convertedPrice = parseFloat(usdPrice.rows[0].price) * rate;
-    
+
+    const basePrice = parseFloat(usdPrice.rows[0].price);
+    const { convertedAmount: price, rate } = await exchangeRateService.convert(basePrice, 'USD', currency);
+
     res.json(successResp({
       productId,
       currency,
-      price: convertedPrice,
+      price,
       rate,
-      formatted: currencyFormatter.format(convertedPrice, currency),
+      formatted: currencyFormatter.format(price, currency),
       source: 'converted',
       basePrice: {
-        amount: parseFloat(usdPrice.rows[0].price),
+        amount: basePrice,
         currency: 'USD'
       }
     }));
   } catch (error) {
-    logger.error('Failed to get product price', {
-      productId: req.params.productId,
-      error: error.message
-    });
     next(error);
   }
 });
 
 /**
- * 锁定汇率（支付前调用）
  * POST /api/v1/currencies/lock-rate
- * Body: { from: "USD", to: "JPY", durationMinutes: 15 }
+ * Lock exchange rate for payment
+ * Body: { from, to, durationMinutes }
  */
 router.post('/lock-rate', requireAuth, async (req, res, next) => {
   try {
     const { from, to, durationMinutes = 15 } = req.body;
-    
+
     if (!from || !to) {
-      throw new AppError(6005, 'from and to currencies required', 400);
+      throw new AppError(400, 'from and to currencies required');
     }
-    
+
     const lock = await exchangeRateService.lockRate(from, to, durationMinutes);
-    
-    logger.info('Rate locked for payment', {
-      userId: req.user?.sub,
+
+    logger.info('Rate locked', {
+      userId: req.user.sub,
       from,
       to,
       lockId: lock.lockId,
       rate: lock.lockedRate
     });
-    
+
     res.json(successResp({
       lockId: lock.lockId,
       rate: lock.lockedRate,
       expiresAt: lock.expiresAt
     }));
   } catch (error) {
-    logger.error('Failed to lock rate', { error: error.message });
     next(error);
   }
 });
 
 /**
- * 设置用户货币偏好
  * POST /api/v1/currencies/preference
- * Body: { currency: "JPY", autoDetect: false }
+ * Set user currency preference
+ * Body: { currency, autoDetect }
  */
 router.post('/preference', requireAuth, async (req, res, next) => {
   try {
-    const userId = req.user?.sub;
+    const userId = req.user.sub;
     const { currency, autoDetect = true } = req.body;
-    
-    if (!userId) {
-      throw new AppError(1002, 'Unauthorized', 401);
-    }
-    
+
     if (!currency) {
-      throw new AppError(6006, 'Currency required', 400);
+      throw new AppError(400, 'currency is required');
     }
-    
-    // 验证货币代码
-    const currencyExists = await query(`
-      SELECT 1 FROM supported_currencies 
-      WHERE currency_code = $1 AND is_active = true
-    `, [currency]);
-    
-    if (currencyExists.rows.length === 0) {
-      throw new AppError(6007, 'Unsupported currency', 400);
+
+    // Validate currency
+    if (!currencyFormatter.isSupported(currency)) {
+      throw new AppError(400, 'Unsupported currency');
     }
-    
+
     await query(`
       UPDATE users
       SET preferred_currency = $1,
@@ -260,92 +225,142 @@ router.post('/preference', requireAuth, async (req, res, next) => {
           updated_at = NOW()
       WHERE id = $3
     `, [currency, autoDetect, userId]);
-    
+
     res.json(successResp({
       currency,
       autoDetect
     }));
   } catch (error) {
-    logger.error('Failed to set currency preference', { error: error.message });
     next(error);
   }
 });
 
 /**
- * 获取用户货币偏好
  * GET /api/v1/currencies/preference
+ * Get user currency preference
  */
 router.get('/preference', requireAuth, async (req, res, next) => {
   try {
-    const userId = req.user?.sub;
-    
-    if (!userId) {
-      throw new AppError(1002, 'Unauthorized', 401);
-    }
-    
+    const userId = req.user.sub;
+
     const result = await query(`
       SELECT preferred_currency, currency_auto_detect
       FROM users
       WHERE id = $1
     `, [userId]);
-    
+
     if (result.rows.length === 0) {
-      throw new AppError(1003, 'User not found', 404);
+      throw new AppError(404, 'User not found');
     }
-    
+
     res.json(successResp({
       currency: result.rows[0].preferred_currency || 'USD',
       autoDetect: result.rows[0].currency_auto_detect ?? true
     }));
   } catch (error) {
-    logger.error('Failed to get currency preference', { error: error.message });
     next(error);
   }
 });
 
 /**
- * 根据国家检测货币
- * GET /api/v1/currencies/detect?country=JP
+ * POST /api/v1/currencies/detect
+ * Detect currency by country
+ * Body: { country }
  */
-router.get('/detect', async (req, res, next) => {
+router.post('/detect', async (req, res, next) => {
   try {
-    const { country } = req.query;
-    
+    const { country } = req.body;
+
     if (!country) {
-      throw new AppError(6008, 'Country code required', 400);
+      throw new AppError(400, 'country is required');
     }
-    
-    const currency = currencyFormatter.detectCurrency(country);
-    
+
+    const detectedCurrency = currencyFormatter.detectCurrency(country);
+
     res.json(successResp({
-      country: country.toUpperCase(),
-      currency,
-      formatted: currencyFormatter.format(0, currency).replace(/0/, '')
+      country,
+      currency: detectedCurrency
     }));
   } catch (error) {
-    logger.error('Failed to detect currency', { error: error.message });
     next(error);
   }
 });
 
 /**
- * 管理员：刷新汇率
  * POST /api/v1/currencies/admin/refresh-rates
+ * Admin: Refresh all exchange rates
  */
-router.post('/admin/refresh-rates', requireAuth, async (req, res, next) => {
+router.post('/admin/refresh-rates', requireAdmin, async (req, res, next) => {
   try {
-    if (!req.user?.isAdmin) {
-      throw new AppError(1004, 'Admin access required', 403);
-    }
-    
     const result = await exchangeRateService.refreshAllRates();
-    
+
+    logger.info('Exchange rates refreshed by admin', {
+      userId: req.user.sub,
+      result
+    });
+
     res.json(successResp({
       refreshed: result.successCount,
       failed: result.failureCount
     }));
   } catch (error) {
-    logger.error('Failed to refresh rates', { error: error.message });
+    next(error);
+  }
+});
+
+/**
+ * POST /api/v1/currencies/admin/cleanup-locks
+ * Admin: Clean up expired rate locks
+ */
+router.post('/admin/cleanup-locks', requireAdmin, async (req, res, next) => {
+  try {
+    const count = await exchangeRateService.cleanupExpiredLocks();
+
+    res.json(successResp({
+      cleaned: count
+    }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * POST /api/v1/currencies/admin/set-price
+ * Admin: Set product price in currency
+ * Body: { productId, currency, price, originalPrice }
+ */
+router.post('/admin/set-price', requireAdmin, async (req, res, next) => {
+  try {
+    const { productId, currency, price, originalPrice } = req.body;
+
+    if (!productId || !currency || price === undefined) {
+      throw new AppError(400, 'productId, currency, and price are required');
+    }
+
+    await query(`
+      INSERT INTO product_prices (product_id, currency_code, price, original_price, updated_at)
+      VALUES ($1, $2, $3, $4, NOW())
+      ON CONFLICT (product_id, currency_code)
+      DO UPDATE SET
+        price = $3,
+        original_price = $4,
+        updated_at = NOW()
+    `, [productId, currency, price, originalPrice || null]);
+
+    logger.info('Product price updated', {
+      userId: req.user.sub,
+      productId,
+      currency,
+      price
+    });
+
+    res.json(successResp({
+      productId,
+      currency,
+      price,
+      originalPrice
+    }));
+  } catch (error) {
     next(error);
   }
 });

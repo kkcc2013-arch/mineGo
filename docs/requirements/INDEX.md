@@ -56,7 +56,7 @@
 | REQ-00049 | API 客户端 SDK 统一抽象层 | 技术债/重构 | P1 | done | backend/shared, gateway, 所有微服务 | 2026-06-09 12:45 |
 | REQ-00050 | REQ-00050 实现文档：插件化中间件系统与生命周期管理 |  |  |  |  |  |
 | REQ-00050 | 插件化中间件系统与生命周期管理 | 可扩展性/解耦 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-09 13:00 |
-| REQ-00051 | 多货币支持与汇率转换系统 | 国际化/本地化 | P1 | new | payment-service、user-service、gateway、backend/shared | 2026-06-09 15:00 |
+| REQ-00051 | 多货币支持与汇率转换系统 | 国际化/本地化 | P1 | done | payment-service、user-service、gateway、backend/shared | 2026-06-24 13:50 UTC |
 | REQ-00052 | REQ-00052：静态资源 CDN 集成与图片优化系统 |  |  |  |  |  |
 | REQ-00053 | REQ-00053：用户隐私偏好管理中心与数据透明度报告 |  |  |  |  |  |
 | REQ-00054 | 道馆战斗系统 | 功能增强 | P0 | done | gym-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-09 16:00 |
@@ -339,4 +339,5 @@
 || REQ-00318 | 数据库备份自动验证与灾难恢复演练系统 | 数据库/数据治理 | P1 | new | database/migrations、backend/jobs、backend/shared、admin-dashboard、infrastructure/k8s | 2026-06-24 11:00 UTC |
 || REQ-00319 | 微服务依赖注入容器与自动服务发现绑定系统 | 可扩展性/解耦 | P1 | new | backend/shared/DependencyContainer.js、backend/shared/ServiceBinder.js、gateway、所有微服务、backend/shared/ServiceRegistry.js | 2026-06-24 09:00 UTC |
 || REQ-00320 | 游戏客户端渲染性能优化与帧率稳定系统 | 性能优化 | P1 | new | game-client、frontend/game-client/src/rendering、frontend/game-client/src/game、gateway、location-service | 2026-06-24 12:00 |
+| REQ-00321 | API 熔断器仪表板可视化与实时状态监控 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、admin-dashboard、infrastructure/k8s/monitoring | 2026-06-24 13:30 UTC |
 |
