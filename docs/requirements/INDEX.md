@@ -336,3 +336,4 @@
 || REQ-00315 | API 响应 Schema 验证与数据契约系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared、docs/api-spec | 2026-06-24 09:00 UTC |
 || REQ-00316 | 游戏触觉反馈增强与震动优化系统 | 无障碍(a11y) | P1 | new | game-client、catch-service、gym-service、backend/shared | 2026-06-24 10:00 |
 | REQ-00317 | 游戏客户端离线资源包与增量更新系统 | 前端体验 | P1 | new | game-client、gateway、location-service、pokemon-service、cdn、backend/shared/cache | 2026-06-24 08:00 UTC |
+|| REQ-00318 | 数据库备份自动验证与灾难恢复演练系统 | 数据库/数据治理 | P1 | new | database/migrations、backend/jobs、backend/shared、admin-dashboard、infrastructure/k8s | 2026-06-24 11:00 UTC |
