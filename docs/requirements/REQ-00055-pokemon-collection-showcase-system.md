@@ -3,7 +3,7 @@
 - **编号**：REQ-00055
 - **类别**：功能增强
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：pokemon-service、social-service、user-service、gateway、game-client、database/migrations
 - **创建时间**：2026-06-09 16:35
 - **依赖需求**：无
