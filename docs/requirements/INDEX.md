@@ -113,7 +113,7 @@
 | REQ-00101 | REQ-00101：后端 API 错误消息国际化系统 |  |  |  |  |  |
 | REQ-00102 | 精灵昼夜循环系统 | 功能增强 | P1 | new | location-service、catch-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-11 04:00 |
 | REQ-00103 | REQ-00103：微服务依赖图与循环依赖检测系统 |  |  |  |  |  |
-| REQ-00104 | 精灵交换市场与竞价拍卖系统 | 功能增强 | P1 | new | social-service、pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 04:30 |
+| REQ-00104 | 精灵交换市场与竞价拍卖系统 | 功能增强 | P1 | done | social-service、pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 04:30 |
 | REQ-00105 | REQ-00105：分布式锁服务与 Redis Redlock 实现 |  |  |  |  |  |
 | REQ-00106 | 玩家称号系统与个性化展示 | 功能增强 | P1 | new | user-service、pokemon-service、social-service、gateway、game-client、database/migrations | 2026-06-11 05:30 |
 | REQ-00107 | REQ-00107：数据生命周期管理与自动清理策略 |  |  |  |  |  |
@@ -286,7 +286,7 @@
 | REQ-00266 | REQ-00266：部署窗口智能调度系统 |  |  |  |  |  |
 | REQ-00267 | 数据血缘可视化与影响分析系统 | 数据库/数据治理 | P1 | new | gateway、所有微服务、backend/shared、admin-dashboard、infrastructure/k8s/monitoring | 2026-06-18 21:00 |
 | REQ-00268 | REQ-00268：游戏内容数据库多语言支持与本地化表结构设计 |  |  |  |  |  |
-| REQ-00269 | 精灵锦标赛与竞技场赛季系统 | 功能增强 | P1 | new | gym-service、pokemon-service、user-service、reward-service、social-service、gateway、game-client | 2026-06-18 21:05 |
+| REQ-00269 | 精灵锦标赛与竞技场赛季系统 | 功能增强 | P1 | done | gym-service、pokemon-service、user-service、reward-service、social-service、gateway、game-client | 2026-06-18 21:05 |
 | REQ-00270 | 攻击模式检测与实时威胁识别系统 | 安全加固 | P1 | new | gateway、user-service、catch-service、gym-service、social-service、backend/shared、Redis、PostgreSQL、admin-dashboard | 2026-06-18 22:30 |
 | REQ-00271 | REQ-00271：精灵昵称与自定义名牌系统 |  |  |  |  |  |
 | REQ-00272 | API 契约测试系统与自动化 Mock 服务生成 | 测试覆盖 | P1 | new | gateway、所有微服务、backend/tests/contract、docs/api-spec | 2026-06-18 23:00 |

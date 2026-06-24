@@ -7,7 +7,7 @@ const { query, transaction, getPoolManagerInstance } = require('../../../shared/
 const { getRedis } = require('../../../shared/redis');
 const timePeriodManager = require('../../../shared/TimePeriodManager');
 const promClient = require('prom-client');
-const { logger } = require('../../shared/logger');
+const { logger } = require('../../../shared/logger');
 
 class EvolutionService {
     constructor() {
@@ -419,7 +419,7 @@ class EvolutionService {
         };
         
         stats.cp = Math.max(10, Math.floor(
-            (stats.attack * Math.sqrt(stats.defense) * Math.sqrt(stats.totalHp) * Math.pow(cpMultiplier, 2)) / 10
+            (stats.attack * Math.sqrt(stats.defense) * Math.sqrt(stats.totalHp)) / 10
         ));
         
         return stats;

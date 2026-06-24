@@ -3,7 +3,7 @@
  * 单元测试
  */
 
-const { EvolutionService } = require('../evolutionService');
+const { EvolutionService } = require('../../services/pokemon-service/src/evolutionService');
 
 // Mock 依赖
 jest.mock('pg', () => ({
@@ -12,7 +12,10 @@ jest.mock('pg', () => ({
         connect: jest.fn(() => ({
             query: jest.fn(),
             release: jest.fn()
-        }))
+        })),
+        on: jest.fn(),
+        end: jest.fn(() => Promise.resolve()),
+        options: { max: 10 }
     }))
 }));
 
@@ -20,26 +23,47 @@ jest.mock('ioredis', () => {
     return jest.fn(() => ({
         del: jest.fn(),
         get: jest.fn(),
-        set: jest.fn()
+        set: jest.fn(),
+        setex: jest.fn(),
+        on: jest.fn()
     }));
 });
 
-jest.mock('prom-client', () => ({
-    Counter: jest.fn(() => ({
+jest.mock('prom-client', () => {
+    const mockGauge = jest.fn(() => ({
+        set: jest.fn(),
+        inc: jest.fn(),
+        dec: jest.fn()
+    }));
+    const mockCounter = jest.fn(() => ({
         inc: jest.fn()
-    })),
-    Histogram: jest.fn(() => ({
+    }));
+    const mockHistogram = jest.fn(() => ({
         observe: jest.fn()
-    }))
-}));
+    }));
+    const mockRegistry = jest.fn(() => ({
+        registerMetric: jest.fn()
+    }));
+    return {
+        Counter: mockCounter,
+        Histogram: mockHistogram,
+        Gauge: mockGauge,
+        Registry: mockRegistry,
+        collectDefaultMetrics: jest.fn()
+    };
+});
 
-jest.mock('../../../shared/logger', () => ({
-    logger: {
+jest.mock('../../shared/logger', () => {
+    const mockLogger = {
         info: jest.fn(),
         error: jest.fn(),
         warn: jest.fn()
-    }
-}));
+    };
+    return {
+        logger: mockLogger,
+        createLogger: () => mockLogger
+    };
+});
 
 describe('EvolutionService', () => {
     let evolutionService;
@@ -47,6 +71,14 @@ describe('EvolutionService', () => {
     beforeEach(() => {
         evolutionService = new EvolutionService();
         jest.clearAllMocks();
+    });
+    
+    afterAll(async () => {
+        try {
+            await require('../../shared/db').getPoolManagerInstance().closeAll();
+        } catch (err) {
+            console.error('Failed to close DB pool:', err);
+        }
     });
     
     describe('buildExperienceTable', () => {

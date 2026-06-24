@@ -7,7 +7,7 @@
 | 标题 | 精灵锦标赛与竞技场赛季系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | gym-service、pokemon-service、user-service、reward-service、social-service、gateway、game-client |
 | 创建时间 | 2026-06-18 21:05 |
 

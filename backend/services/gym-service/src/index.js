@@ -14,6 +14,7 @@ const metrics = require('../../../shared/metrics');
 const { validateLocation, checkRateLimit, requireTrustScore, TRUST_SCORE } = require('../../../shared/anti-cheat');
 const { initNotificationWS, sendNotificationToUser } = require('../../../shared/NotificationWebSocket');
 const battleRoutes = require('./routes/battle');
+const seasonRoutes = require('./routes/season');
 const { WebSocketServer: BattleWebSocketServer } = require('./websocket/WebSocketServer');
 
 const logger = createLogger('gym-service');
@@ -295,6 +296,9 @@ const { initRaidRewardHandler } = require('./handlers/raidRewardHandler');
 // REQ-00109: 团队战斗系统路由
 const teamBattleRoutes = require('./routes/teamBattle');
 app.use('/api/teams', teamBattleRoutes);
+
+// REQ-00269: 精灵锦标赛与竞技场赛季系统路由
+app.use('/api/v1/gym/season', seasonRoutes);
 
 app.use(errorHandler);
 
