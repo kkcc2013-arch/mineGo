@@ -333,3 +333,4 @@
 || REQ-00312 | 数据库容量规划与智能预警系统 | 数据库/数据治理 | P1 | new | backend/shared、所有微服务、PostgreSQL、infrastructure/k8s、admin-dashboard、backend/jobs | 2026-06-24 06:00 UTC |
 || REQ-00313 | 精灵装备强化与进化系统 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-24 07:00 UTC |
 || REQ-00314 | 服务实例优雅停机与连接排空系统 | 运维/CICD | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-24 08:00 UTC |
+|| REQ-00315 | API 响应 Schema 验证与数据契约系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared、docs/api-spec | 2026-06-24 09:00 UTC |
