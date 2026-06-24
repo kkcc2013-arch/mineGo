@@ -4,7 +4,7 @@
 
 const { ServiceFactory } = require('../../../shared/ServiceFactory');
 const { query, transactionManager } = require('../../../shared/db');
-const { transactionSerializable, IsolationLevel } = transactionManager;
+const { transactionSerializable } = transactionManager;
 const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
 const { requireAuth, AppError, successResp } = require('../../../shared/auth');
 const { validateLocation, checkRateLimit, requireTrustScore, TRUST_SCORE } = require('../../../shared/anti-cheat');
@@ -63,13 +63,14 @@ function haversineM(lat1, lng1, lat2, lng2) {
  */
 async function invalidateWildCache(wildId) {
   const LOCATION_SERVICE_URL = process.env.LOCATION_SERVICE_URL || 'http://localhost:8082';
+  const INTERNAL_TOKEN = process.env.INTERNAL_SERVICE_TOKEN;
+  if (!INTERNAL_TOKEN) {
+    throw new Error('INTERNAL_SERVICE_TOKEN is not set');
+  }
   const response = await fetch(`${LOCATION_SERVICE_URL}/cache/wild/${wildId}`, {
     method: 'DELETE',
-    headers: {
-      'Authorization': `Bearer ${process.env.INTERNAL_SERVICE_TOKEN || 'internal-service-token'}`
-    }
+    headers: { 'Authorization': `Bearer ${INTERNAL_TOKEN}` }
   });
-  
   if (!response.ok) {
     throw new Error(`Cache invalidation failed: ${response.status}`);
   }
@@ -88,26 +89,24 @@ async function handleCatch(userId, session, throwRating, isCurve, sessionId, log
   const result = await transactionSerializable(async (client) => {
     // REQ-00019: Get random moves from learnset
     const { rows: learnset } = await client.query(`
-      SELECT move_id, m.category 
+      SELECT move_id, m.category
       FROM pokemon_moves pm
       JOIN moves m ON pm.move_id = m.id
       WHERE pm.species_id = $1 AND pm.learn_method IN ('TM', 'LEVEL_UP')
     `, [session.speciesId]);
-    
-    const fastMoves = learnset.filter(m => m.category === 'FAST');
+
+    const fastMoves   = learnset.filter(m => m.category === 'FAST');
     const chargeMoves = learnset.filter(m => m.category === 'CHARGE');
-    
-    // Random fast move (default to TACKLE if none available)
-    const randomFast = fastMoves.length > 0 
-      ? fastMoves[Math.floor(Math.random() * fastMoves.length)].move_id 
+
+    const randomFast = fastMoves.length > 0
+      ? fastMoves[Math.floor(Math.random() * fastMoves.length)].move_id
       : 'TACKLE';
-    
-    // Random charge move (default to STRUGGLE if none available)
-    const randomCharge = chargeMoves.length > 0 
-      ? chargeMoves[Math.floor(Math.random() * chargeMoves.length)].move_id 
+
+    const randomCharge = chargeMoves.length > 0
+      ? chargeMoves[Math.floor(Math.random() * chargeMoves.length)].move_id
       : 'STRUGGLE';
-    
-    // Create pokemon instance with initial moves (REQ-00160: add special IV flags)
+
+    // Create pokemon instance
     const { rows: [instance] } = await client.query(`
       INSERT INTO pokemon_instances
         (user_id, species_id, cp, hp_current, hp_max, iv_attack, iv_defense, iv_hp,
@@ -125,9 +124,7 @@ async function handleCatch(userId, session, throwRating, isCurve, sessionId, log
 
     // Reward user
     await client.query(`
-      UPDATE users SET
-        xp = xp + $2, stardust = stardust + $3
-      WHERE id = $1
+      UPDATE users SET xp = xp + $2, stardust = stardust + $3 WHERE id = $1
     `, [userId, xp, stardust]);
 
     // Add candy
@@ -170,25 +167,25 @@ async function handleCatch(userId, session, throwRating, isCurve, sessionId, log
       pokemonInstanceId: instance.id,
       pokemon: {
         speciesId: session.speciesId,
-        name: session.name_zh,
-        cp: session.cp,
-        isShiny: session.isShiny,
+        name:      session.name_zh,
+        cp:        session.cp,
+        isShiny:   session.isShiny,
         iv: {
-          attack: session.iv_attack,
+          attack:  session.iv_attack,
           defense: session.iv_defense,
-          hp: session.iv_hp,
+          hp:      session.iv_hp,
         },
       },
       rewards: { xp, stardust, candy },
     };
   });
 
-  // Invalidate cache in location-service
-  invalidateWildCache(session.wildId).catch(err => 
+  // Invalidate cache in location-service (non-blocking)
+  invalidateWildCache(session.wildId).catch(err =>
     logger.error({ err, wildId: session.wildId }, 'Failed to invalidate wild pokemon cache')
   );
 
-  // Publish catch success event (async, non-blocking)
+  // Publish catch success event (non-blocking)
   publishCatchSuccess(userId, result.pokemon, result.rewards, sessionId).catch(err =>
     logger.error({ err }, 'Failed to publish catch success event')
   );
@@ -224,11 +221,15 @@ async function createCatchSession(req, res, next) {
 
     if (!wild) throw new AppError(3001, '精灵已消失或被捕获', 404);
 
-    // Distance check (must be within 100m)
-    if (playerLat && playerLng) {
-      const dist = haversineM(wild.lat, wild.lng, playerLat, playerLng);
-      if (dist > 150) throw new AppError(3002, '距离太远，请靠近精灵', 400);
+    // FIX: Distance check is now MANDATORY — missing coords are rejected outright.
+    // Previously `if (playerLat && playerLng)` allowed callers to bypass the check
+    // entirely by omitting coordinates.
+    // Distance threshold aligned with spec: 100m (was 150m in code, comment said 100m).
+    if (playerLat == null || playerLng == null) {
+      throw new AppError(1001, '缺少定位坐标，请开启位置权限', 400);
     }
+    const dist = haversineM(wild.lat, wild.lng, playerLat, playerLng);
+    if (dist > 100) throw new AppError(3002, '距离太远，请靠近精灵（需在100米内）', 400);
 
     // Create session
     const { rows: [session] } = await query(`
@@ -236,25 +237,34 @@ async function createCatchSession(req, res, next) {
       VALUES ($1, $2) RETURNING id
     `, [userId, spawnId]);
 
-    // Cache session state
+    // Cache session state (2 min TTL)
     await setJSON(`catch:session:${session.id}`, {
       userId, wildId: spawnId,
-      speciesId: wild.species_id,
-      cp: wild.cp, iv_attack: wild.iv_attack, iv_defense: wild.iv_defense, iv_hp: wild.iv_hp,
-      isShiny: wild.is_shiny, weatherBoosted: wild.weather_boosted,
-      isZeroIv: wild.is_zero_iv, isPerfectIv: wild.is_perfect_iv,
+      speciesId:    wild.species_id,
+      cp:           wild.cp,
+      iv_attack:    wild.iv_attack,
+      iv_defense:   wild.iv_defense,
+      iv_hp:        wild.iv_hp,
+      isShiny:      wild.is_shiny,
+      weatherBoosted: wild.weather_boosted,
+      isZeroIv:     wild.is_zero_iv,
+      isPerfectIv:  wild.is_perfect_iv,
       baseCatchRate: parseFloat(wild.base_catch_rate),
-      baseFleeRate: parseFloat(wild.base_flee_rate),
-      rarity: wild.rarity, name_zh: wild.name_zh,
+      baseFleeRate:  parseFloat(wild.base_flee_rate),
+      rarity:   wild.rarity,
+      name_zh:  wild.name_zh,
       ballsThrown: 0,
-    }, 120); // 2 min session TTL
+    }, 120);
 
     res.json(successResp({
       sessionId: session.id,
       pokemon: {
-        pokemonId: wild.species_id, name_zh: wild.name_zh,
-        cp: wild.cp, isShiny: wild.is_shiny, weatherBoosted: wild.weather_boosted,
-        rarity: wild.rarity,
+        pokemonId:      wild.species_id,
+        name_zh:        wild.name_zh,
+        cp:             wild.cp,
+        isShiny:        wild.is_shiny,
+        weatherBoosted: wild.weather_boosted,
+        rarity:         wild.rarity,
       },
       catchRate: calcCatchProb({
         baseCatchRate: parseFloat(wild.base_catch_rate),
@@ -269,61 +279,75 @@ async function createCatchSession(req, res, next) {
  * POST /catch/throw - Execute catch throw
  */
 async function executeCatchThrow(req, res, next) {
-  const logger = req.app.locals.logger;
+  const logger  = req.app.locals.logger;
   const metrics = req.app.locals.metrics;
-  
+
   try {
     const { sessionId, ballType, throwRating, isCurve, berryUsed } = req.body;
     if (!sessionId || !ballType || !throwRating) {
       throw new AppError(1001, 'sessionId, ballType, throwRating 必填', 400);
     }
 
-    const userId = req.user.sub;
+    const userId  = req.user.sub;
     const session = await getJSON(`catch:session:${sessionId}`);
     if (!session) throw new AppError(3003, '捕捉会话已过期', 400);
     if (session.userId !== userId) throw new AppError(1004, '无权操作', 403);
 
-    // Verify ball availability
+    // Validate ball type
     const ballCol = {
-      POKE_BALL: 'pokeball_count', GREAT_BALL: 'greatball_count',
-      ULTRA_BALL: 'ultraball_count', MASTER_BALL: 'masterball_count',
+      POKE_BALL:   'pokeball_count',
+      GREAT_BALL:  'greatball_count',
+      ULTRA_BALL:  'ultraball_count',
+      MASTER_BALL: 'masterball_count',
     }[ballType];
     if (!ballCol) throw new AppError(3004, '无效球种', 400);
 
-    const { rows: [inv] } = await query(`SELECT ${ballCol} FROM users WHERE id=$1`, [userId]);
-    if (inv[ballCol] <= 0) throw new AppError(3005, '精灵球不足', 400);
+    // FIX: Atomic ball deduction — replaces the previous two-step SELECT+UPDATE
+    // which was vulnerable to a race condition: two concurrent requests could both
+    // read balance > 0 and both decrement, resulting in a negative balance.
+    // The atomic UPDATE returns rowCount=0 if balance was already 0, which is
+    // used as the "insufficient balls" signal.
+    const { rowCount } = await query(
+      `UPDATE users SET ${ballCol} = ${ballCol} - 1 WHERE id = $1 AND ${ballCol} > 0`,
+      [userId]
+    );
+    if (rowCount === 0) throw new AppError(3005, '精灵球不足', 400);
 
     // Calculate probabilities
     const catchProb = calcCatchProb({
       baseCatchRate: session.baseCatchRate,
-      cp: session.cp, ballType, throwRating,
-      isCurve: isCurve || false,
+      cp:       session.cp,
+      ballType,
+      throwRating,
+      isCurve:  isCurve  || false,
       berryUsed: berryUsed || 'NONE',
     });
 
     if (throwRating === 'MISS') {
-      // Deduct ball, no catch attempt
-      await query(`UPDATE users SET ${ballCol}=${ballCol}-1 WHERE id=$1`, [userId]);
+      // Ball already deducted atomically above
       session.ballsThrown++;
       await setJSON(`catch:session:${sessionId}`, session, 120);
 
-      await query(`INSERT INTO catch_throws (session_id,ball_type,throw_rating,is_curve,berry_used,catch_prob,success)
-                   VALUES ($1,$2,$3,$4,$5,$6,false)`,
-        [sessionId, ballType, throwRating, isCurve||false, berryUsed||'NONE', catchProb]);
+      await query(
+        `INSERT INTO catch_throws (session_id,ball_type,throw_rating,is_curve,berry_used,catch_prob,success)
+         VALUES ($1,$2,$3,$4,$5,$6,false)`,
+        [sessionId, ballType, throwRating, isCurve||false, berryUsed||'NONE', catchProb]
+      );
 
       return res.json(successResp({ result: 'MISS', catchProb }));
     }
 
     const caught = Math.random() < catchProb;
 
-    // Deduct ball
-    await query(`UPDATE users SET ${ballCol}=${ballCol}-1 WHERE id=$1`, [userId]);
+    // Ball already deducted atomically above
     session.ballsThrown++;
 
     // Record throw
-    await query(`INSERT INTO catch_throws (session_id,ball_type,throw_rating,is_curve,berry_used,catch_prob,success)
-                 VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-      [sessionId, ballType, throwRating, isCurve||false, berryUsed||'NONE', catchProb, caught]);
+    await query(
+      `INSERT INTO catch_throws (session_id,ball_type,throw_rating,is_curve,berry_used,catch_prob,success)
+       VALUES ($1,$2,$3,$4,$5,$6,$7)`,
+      [sessionId, ballType, throwRating, isCurve||false, berryUsed||'NONE', catchProb, caught]
+    );
 
     if (caught) {
       const rewards = await handleCatch(userId, session, throwRating, isCurve, sessionId, logger);
@@ -331,10 +355,10 @@ async function executeCatchThrow(req, res, next) {
       metrics.catchAttemptsTotal.inc({ result: 'success' });
       logger.info({
         userId,
-        speciesId: session.speciesId,
+        speciesId:   session.speciesId,
         speciesName: session.name_zh,
-        cp: session.cp,
-        isShiny: session.isShiny,
+        cp:          session.cp,
+        isShiny:     session.isShiny,
         ...rewards.rewards,
       }, 'Pokemon caught');
       return res.json(successResp({ result: 'CAUGHT', catchProb, ...rewards }));
@@ -345,17 +369,19 @@ async function executeCatchThrow(req, res, next) {
     const fled    = session.ballsThrown >= 5 && Math.random() < fleePct;
 
     if (fled) {
-      await query(`UPDATE catch_sessions SET ended_at=NOW(), result='FLED', balls_used=$2 WHERE id=$1`,
-        [sessionId, session.ballsThrown]);
+      await query(
+        `UPDATE catch_sessions SET ended_at=NOW(), result='FLED', balls_used=$2 WHERE id=$1`,
+        [sessionId, session.ballsThrown]
+      );
       await query('UPDATE wild_pokemon SET is_caught=true WHERE id=$1', [session.wildId]);
       await getRedis().del(`catch:session:${sessionId}`);
       metrics.catchAttemptsTotal.inc({ result: 'escaped' });
       logger.info({ userId, speciesId: session.speciesId, ballsThrown: session.ballsThrown }, 'Pokemon fled');
-      
+
       publishCatchFailed(userId, session.speciesId, 'FLED', sessionId).catch(err =>
         logger.error({ err }, 'Failed to publish catch failed event')
       );
-      
+
       return res.json(successResp({ result: 'FLED', catchProb, rewards: { xp: 25 } }));
     }
 
@@ -369,24 +395,20 @@ async function executeCatchThrow(req, res, next) {
 // ============================================================
 
 async function main() {
-  const { app, logger, express } = await ServiceFactory.createService({
+  const { app, logger } = await ServiceFactory.createService({
     name: 'catch-service',
     port: process.env.PORT || 8084,
     options: {
-      checkDb: true,
+      checkDb:    true,
       checkRedis: true,
       trustProxy: true
     },
     postInit: async (app, logger) => {
-      // Store logger and metrics in app.locals for route handlers
-      app.locals.logger = logger;
+      app.locals.logger  = logger;
       app.locals.metrics = require('../../../shared/metrics');
 
-      // ── POST /catch/session ──────────────────────────────────────
       app.post('/catch/session', requireAuth, validateLocation, checkRateLimit('CATCH'), createCatchSession);
-
-      // ── POST /catch/throw ─────────────────────────────────────────
-      app.post('/catch/throw', requireAuth, checkRateLimit('CATCH'), executeCatchThrow);
+      app.post('/catch/throw',   requireAuth, checkRateLimit('CATCH'), executeCatchThrow);
 
       logger.info('Catch service routes initialized');
     }

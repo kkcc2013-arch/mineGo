@@ -83,11 +83,20 @@ async function getRefreshSecret() {
   return process.env.JWT_REFRESH_SECRET || 'pmg-refresh-secret-change-in-prod';
 }
 
-// 同步获取密钥（用于向后兼容，不推荐）
-const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || 'pmg-access-secret-change-in-prod';
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'pmg-refresh-secret-change-in-prod';
-const ACCESS_TTL = process.env.JWT_ACCESS_TTL || '24h';
+const ACCESS_SECRET_ENV  = process.env.JWT_ACCESS_SECRET;
+const REFRESH_SECRET_ENV = process.env.JWT_REFRESH_SECRET;
+const ACCESS_TTL  = process.env.JWT_ACCESS_TTL  || '24h';
 const REFRESH_TTL = process.env.JWT_REFRESH_TTL || '30d';
+
+// Fail-fast: refuse to start in production with missing JWT secrets (if KMS is not enabled)
+if (process.env.NODE_ENV === 'production' && !kmsEnabled) {
+  if (!ACCESS_SECRET_ENV)  throw new Error('FATAL: JWT_ACCESS_SECRET must be set in production');
+  if (!REFRESH_SECRET_ENV) throw new Error('FATAL: JWT_REFRESH_SECRET must be set in production');
+}
+
+// Development fallback (never reached in production due to fail-fast above)
+const ACCESS_SECRET  = ACCESS_SECRET_ENV  || 'pmg-access-secret-change-in-prod';
+const REFRESH_SECRET = REFRESH_SECRET_ENV || 'pmg-refresh-secret-change-in-prod';
 
 /**
  * 签发访问令牌（支持 KMS）
@@ -151,18 +160,18 @@ function verifyRefresh(token) {
 
 /**
  * 认证中间件
- * 
+ *
  * 验证 JWT 访问令牌，将用户信息注入 req.user
  */
 function requireAuth(req, res, next) {
   const header = req.headers['authorization'];
-  
+
   if (!header || !header.startsWith('Bearer ')) {
     return next(AuthenticationError.missingAuthHeader());
   }
-  
+
   const token = header.slice(7);
-  
+
   try {
     const payload = verifyAccess(token);
     req.user = payload;
@@ -180,72 +189,72 @@ function requireAuth(req, res, next) {
 
 /**
  * 可选认证中间件
- * 
+ *
  * 如果令牌有效则注入用户信息，无效则继续（不报错）
  */
 function optionalAuth(req, res, next) {
   const header = req.headers['authorization'];
-  
+
   if (!header || !header.startsWith('Bearer ')) {
     return next();
   }
-  
+
   const token = header.slice(7);
-  
+
   try {
     const payload = verifyAccess(token);
     req.user = payload;
   } catch (err) {
     // 忽略错误，继续执行
   }
-  
+
   next();
 }
 
 /**
  * 权限检查中间件
- * 
+ *
  * @param {string|string[]} permissions 所需权限
  */
 function requirePermissions(permissions) {
   const required = Array.isArray(permissions) ? permissions : [permissions];
-  
+
   return (req, res, next) => {
     if (!req.user) {
       return next(AuthenticationError.missingAuthHeader());
     }
-    
+
     const userPermissions = req.user.permissions || [];
     const hasPermission = required.some(p => userPermissions.includes(p));
-    
+
     if (!hasPermission) {
       return next(AuthenticationError.insufficientPermissions(required.join(',')));
     }
-    
+
     next();
   };
 }
 
 /**
  * 角色检查中间件
- * 
+ *
  * @param {string|string[]} roles 所需角色
  */
 function requireRoles(roles) {
   const required = Array.isArray(roles) ? roles : [roles];
-  
+
   return (req, res, next) => {
     if (!req.user) {
       return next(AuthenticationError.missingAuthHeader());
     }
-    
+
     const userRoles = req.user.roles || [];
     const hasRole = required.some(r => userRoles.includes(r));
-    
+
     if (!hasRole) {
       return next(AuthenticationError.insufficientPermissions(`role:${required.join(',')}`));
     }
-    
+
     next();
   };
 }
@@ -334,7 +343,7 @@ module.exports = {
   requirePermissions,
   requireRoles,
   requireAdmin,
-  
+
   // 兼容旧版本（将逐步废弃）
   AppError,
   successResp,
