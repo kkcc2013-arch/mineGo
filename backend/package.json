@@ -48,6 +48,7 @@
     "@opentelemetry/semantic-conventions": "^1.41.1",
     "axios": "^1.17.0",
     "kafkajs": "^2.2.4",
+    "node-cron": "^4.5.0",
     "pg": "^8.21.0",
     "qrcode": "^1.5.4",
     "redis": "^6.0.0",
