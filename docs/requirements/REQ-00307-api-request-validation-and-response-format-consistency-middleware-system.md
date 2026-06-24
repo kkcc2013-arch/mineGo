@@ -7,7 +7,7 @@
 | 标题 | API 请求参数验证与响应格式一致性中间件系统 |
 | 类别 | API 设计规范 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | gateway、所有微服务、backend/shared/middleware、backend/shared/validators |
 | 创建时间 | 2026-06-24 02:00 UTC |
 | 依赖需求 | REQ-00157（统一错误处理与 API 响应格式标准化） |

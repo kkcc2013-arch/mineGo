@@ -325,7 +325,7 @@
 | REQ-00304 | 游戏客户端网络自适应与弱网优化系统 | 前端体验 | P1 | new | game-client、gateway、catch-service、gym-service、backend/shared、WebSocket | 2026-06-23 09:00 |
 | REQ-00305 | GDPR 数据主体权利请求自动化管理系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、database/migrations、backend/shared/gdpr | 2026-06-24 01:00 |
 | REQ-00306 | 数据库迁移回滚自动化与版本控制系统 | 运维/CICD | P1 | new | database/migrations、所有微服务、backend/shared、infrastructure/k8s、.github/workflows | 2026-06-24 01:30 |
-| REQ-00307 | API 请求参数验证与响应格式一致性中间件系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/middleware、backend/shared/validators | 2026-06-24 02:00 UTC |
+| REQ-00307 | API 请求参数验证与响应格式一致性中间件系统 | API 设计规范 | P1 | done | gateway、所有微服务、backend/shared/middleware、backend/shared/validators | 2026-06-24 02:00 UTC |
 || REQ-00308 | 微服务 API 请求合并与批量处理优化系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared/middleware、Redis、Kafka | 2026-06-24 03:00 UTC |
 || REQ-00309 | 数据隐私影响评估（DPIA）自动化系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、backend/shared | 2026-06-24 04:00 |
 || REQ-00310 | 微服务集成测试框架与端到端场景验证系统 | 测试覆盖 | P1 | new | backend/tests/integration, 所有微服务, backend/shared, database/migrations, backend/mocks | 2026-06-24 04:00 UTC |
@@ -337,3 +337,4 @@
 || REQ-00316 | 游戏触觉反馈增强与震动优化系统 | 无障碍(a11y) | P1 | new | game-client、catch-service、gym-service、backend/shared | 2026-06-24 10:00 |
 | REQ-00317 | 游戏客户端离线资源包与增量更新系统 | 前端体验 | P1 | new | game-client、gateway、location-service、pokemon-service、cdn、backend/shared/cache | 2026-06-24 08:00 UTC |
 || REQ-00318 | 数据库备份自动验证与灾难恢复演练系统 | 数据库/数据治理 | P1 | new | database/migrations、backend/jobs、backend/shared、admin-dashboard、infrastructure/k8s | 2026-06-24 11:00 UTC |
+| REQ-00319 | 微服务依赖注入容器与自动服务发现绑定系统 | 可扩展性/解耦 | P1 | new | backend/shared/DependencyContainer.js、backend/shared/ServiceBinder.js、gateway、所有微服务、backend/shared/ServiceRegistry.js | 2026-06-24 09:00 UTC |

@@ -1,196 +1,343 @@
+'use strict';
 /**
- * Request Validator Middleware 单元测试
+ * 请求参数验证中间件单元测试
+ * REQ-00307: API 请求参数验证与响应格式一致性中间件系统
  */
 
-'use strict';
+const assert = require('assert');
+const { z } = require('zod');
+const {
+  validateBody,
+  validateQuery,
+  validateParams,
+  validate,
+  formatZodErrors
+} = require('../../shared/middleware/requestValidator');
+const { responseFormatter } = require('../../shared/middleware/responseFormatter');
 
-const { requestValidatorMiddleware, formatValidationErrors } = require('../../shared/middleware/requestValidator');
+// Mock Express request/response
+function mockReq(overrides = {}) {
+  return {
+    headers: {},
+    id: 'req_test_123',
+    path: '/api/test',
+    method: 'POST',
+    body: {},
+    query: {},
+    params: {},
+    ...overrides
+  };
+}
 
-// Mock dependencies
-jest.mock('../../shared/schemaValidator', () => ({
-  getSchemaValidator: () => ({
-    validateRequest: jest.fn((version, operationId, data) => {
-      if (operationId === 'validOperation') {
-        return { valid: true, errors: [] };
+function mockRes() {
+  const res = {
+    statusCode: 200,
+    body: null,
+    locals: {},
+    status: function(code) {
+      this.statusCode = code;
+      return this;
+    },
+    json: function(data) {
+      this.body = data;
+      return this;
+    }
+  };
+  return res;
+}
+
+// 测试套件
+describe('requestValidator Middleware', function() {
+  
+  describe('validateBody', function() {
+    
+    it('should pass valid body', function(done) {
+      const schema = z.object({
+        name: z.string(),
+        age: z.number()
+      });
+      
+      const req = mockReq({ body: { name: 'test', age: 25 } });
+      const res = mockRes();
+      
+      validateBody(schema)(req, res, (err) => {
+        assert.ifError(err);
+        assert.strictEqual(req.body.name, 'test');
+        assert.strictEqual(req.body.age, 25);
+        done();
+      });
+    });
+    
+    it('should reject invalid body', function(done) {
+      const schema = z.object({
+        name: z.string(),
+        age: z.number()
+      });
+      
+      const req = mockReq({ body: { name: 123, age: 'invalid' } });
+      const res = mockRes();
+      
+      // 先应用 responseFormatter
+      responseFormatter(req, res, () => {
+        validateBody(schema)(req, res, (err) => {
+          // 不应该调用 next，而是返回错误响应
+          assert.strictEqual(res.statusCode, 400);
+          assert.strictEqual(res.body.success, false);
+          assert.strictEqual(res.body.error.code, 'VALIDATION_ERROR');
+          assert.ok(res.body.error.details.length > 0);
+          done();
+        });
+      });
+    });
+    
+    it('should strip unknown fields by default', function(done) {
+      const schema = z.object({
+        name: z.string()
+      });
+      
+      const req = mockReq({ body: { name: 'test', extra: 'should be removed' } });
+      const res = mockRes();
+      
+      validateBody(schema)(req, res, (err) => {
+        assert.ifError(err);
+        assert.strictEqual(req.body.name, 'test');
+        assert.strictEqual(req.body.extra, undefined);
+        done();
+      });
+    });
+    
+    it('should return field-level error details', function(done) {
+      const schema = z.object({
+        email: z.string().email(),
+        age: z.number().min(18)
+      });
+      
+      const req = mockReq({ body: { email: 'invalid', age: 10 } });
+      const res = mockRes();
+      
+      responseFormatter(req, res, () => {
+        validateBody(schema)(req, res, () => {
+          assert.strictEqual(res.body.error.details.length, 2);
+          
+          const emailError = res.body.error.details.find(d => d.field === 'email');
+          assert.ok(emailError);
+          
+          const ageError = res.body.error.details.find(d => d.field === 'age');
+          assert.ok(ageError);
+          
+          done();
+        });
+      });
+    });
+    
+    it('should support custom locale', function(done) {
+      const schema = z.object({
+        age: z.number().min(18)
+      });
+      
+      const req = mockReq({ body: { age: 10 } });
+      const res = mockRes();
+      
+      responseFormatter(req, res, () => {
+        validateBody(schema, { locale: 'en-US' })(req, res, () => {
+          assert.ok(res.body.error.details[0].message.includes('must be'));
+          done();
+        });
+      });
+    });
+  });
+  
+  describe('validateQuery', function() {
+    
+    it('should pass valid query params', function(done) {
+      const schema = z.object({
+        page: z.coerce.number(),
+        pageSize: z.coerce.number()
+      });
+      
+      const req = mockReq({ query: { page: '1', pageSize: '20' } });
+      const res = mockRes();
+      
+      validateQuery(schema)(req, res, (err) => {
+        assert.ifError(err);
+        assert.strictEqual(req.query.page, 1);
+        assert.strictEqual(req.query.pageSize, 20);
+        done();
+      });
+    });
+    
+    it('should reject invalid query params', function(done) {
+      const schema = z.object({
+        page: z.coerce.number().positive()
+      });
+      
+      const req = mockReq({ query: { page: '-1' } });
+      const res = mockRes();
+      
+      responseFormatter(req, res, () => {
+        validateQuery(schema)(req, res, () => {
+          assert.strictEqual(res.statusCode, 400);
+          assert.strictEqual(res.body.error.code, 'VALIDATION_ERROR');
+          done();
+        });
+      });
+    });
+  });
+  
+  describe('validateParams', function() {
+    
+    it('should pass valid path params', function(done) {
+      const schema = z.object({
+        id: z.string().regex(/^[0-9a-f]{24}$/)
+      });
+      
+      const req = mockReq({ params: { id: '507f1f77bcf86cd799439011' } });
+      const res = mockRes();
+      
+      validateParams(schema)(req, res, (err) => {
+        assert.ifError(err);
+        assert.strictEqual(req.params.id, '507f1f77bcf86cd799439011');
+        done();
+      });
+    });
+    
+    it('should reject invalid path params', function(done) {
+      const schema = z.object({
+        id: z.string().regex(/^[0-9a-f]{24}$/, { message: 'Invalid ObjectId' })
+      });
+      
+      const req = mockReq({ params: { id: 'invalid' } });
+      const res = mockRes();
+      
+      responseFormatter(req, res, () => {
+        validateParams(schema)(req, res, () => {
+          assert.strictEqual(res.statusCode, 400);
+          done();
+        });
+      });
+    });
+  });
+  
+  describe('validate (combined)', function() {
+    
+    it('should validate body, query, and params together', function(done) {
+      const schemas = {
+        body: z.object({ name: z.string() }),
+        query: z.object({ page: z.coerce.number().default(1) }),
+        params: z.object({ id: z.string() })
+      };
+      
+      const req = mockReq({
+        body: { name: 'test' },
+        query: { page: '2' },
+        params: { id: '123' }
+      });
+      const res = mockRes();
+      
+      const middlewares = validate(schemas);
+      
+      // 依次执行中间件
+      let index = 0;
+      function runNext(err) {
+        if (err) return done(err);
+        if (index < middlewares.length) {
+          middlewares[index++](req, res, runNext);
+        } else {
+          assert.strictEqual(req.body.name, 'test');
+          assert.strictEqual(req.query.page, 2);
+          assert.strictEqual(req.params.id, '123');
+          done();
+        }
       }
-      if (operationId === 'invalidOperation') {
-        return {
-          valid: false,
-          errors: [
-            {
-              path: '/body/name',
-              message: 'should NOT be shorter than 2 characters',
-              keyword: 'minLength',
-              params: { limit: 2 },
-            },
-            {
-              path: '/body/email',
-              message: 'should have required property',
-              keyword: 'required',
-              params: { missingProperty: 'email' },
-            },
-          ],
-        };
+      runNext();
+    });
+    
+    it('should reject on first validation failure', function(done) {
+      const schemas = {
+        body: z.object({ name: z.string().min(5) }),
+        query: z.object({ page: z.coerce.number() })
+      };
+      
+      const req = mockReq({
+        body: { name: 'ab' },
+        query: { page: '1' }
+      });
+      const res = mockRes();
+      
+      responseFormatter(req, res, () => {
+        const middlewares = validate(schemas);
+        middlewares[0](req, res, () => {
+          assert.strictEqual(res.statusCode, 400);
+          done();
+        });
+      });
+    });
+  });
+  
+  describe('formatZodErrors', function() {
+    
+    it('should format Zod error to details array', function() {
+      const schema = z.object({
+        name: z.string().min(3),
+        email: z.string().email()
+      });
+      
+      const result = schema.safeParse({ name: 'ab', email: 'invalid' });
+      
+      if (!result.success) {
+        const details = formatZodErrors(result.error);
+        
+        assert.ok(Array.isArray(details));
+        assert.strictEqual(details.length, 2);
+        
+        // 检查结构
+        for (const detail of details) {
+          assert.ok(detail.field);
+          assert.ok(detail.message);
+          assert.ok(detail.constraint);
+        }
       }
-      return { valid: true, errors: [] };
-    }),
-  }),
-}));
-
-jest.mock('../../shared/logger', () => ({
-  createLogger: () => ({
-    warn: jest.fn(),
-    error: jest.fn(),
-  }),
-}));
-
-jest.mock('../../shared/metrics', () => ({
-  apiValidationErrors: { inc: jest.fn() },
-  apiValidationDuration: { observe: jest.fn() },
-}));
-
-describe('requestValidatorMiddleware', () => {
-  let middleware;
-  let req, res, next;
-
-  beforeEach(() => {
-    middleware = requestValidatorMiddleware({ version: 'v1' });
+    });
     
-    req = {
-      method: 'POST',
-      path: '/test',
-      params: {},
-      query: {},
-      headers: { 'x-trace-id': 'test-trace' },
-      body: {},
-    };
+    it('should handle nested objects', function() {
+      const schema = z.object({
+        user: z.object({
+          profile: z.object({
+            age: z.number().min(18)
+          })
+        })
+      });
+      
+      const result = schema.safeParse({
+        user: { profile: { age: 10 } }
+      });
+      
+      if (!result.success) {
+        const details = formatZodErrors(result.error);
+        
+        assert.strictEqual(details[0].field, 'user.profile.age');
+      }
+    });
     
-    res = {
-      status: jest.fn().mockReturnThis(),
-      json: jest.fn().mockReturnThis(),
-    };
-    
-    next = jest.fn();
-  });
-
-  test('应该跳过没有 operationId 的请求', async () => {
-    await middleware(req, res, next);
-    expect(next).toHaveBeenCalled();
-  });
-
-  test('应该通过有效的请求', async () => {
-    req.operationId = 'validOperation';
-    req.body = { name: 'Test', email: 'test@example.com' };
-    
-    await middleware(req, res, next);
-    
-    expect(next).toHaveBeenCalled();
-    expect(res.status).not.toHaveBeenCalled();
-  });
-
-  test('应该拒绝无效的请求', async () => {
-    req.operationId = 'invalidOperation';
-    req.body = { name: 'A' }; // name 过短，缺少 email
-    
-    await middleware(req, res, next);
-    
-    expect(next).not.toHaveBeenCalled();
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({
-        code: 1001,
-        message: '请求参数不符合规范',
-      })
-    );
-  });
-
-  test('应该记录验证错误指标', async () => {
-    const metrics = require('../../shared/metrics');
-    req.operationId = 'invalidOperation';
-    
-    await middleware(req, res, next);
-    
-    expect(metrics.apiValidationErrors.inc).toHaveBeenCalledWith({
-      operationId: 'invalidOperation',
-      type: 'request',
+    it('should handle arrays', function() {
+      const schema = z.object({
+        items: z.array(z.number().positive())
+      });
+      
+      const result = schema.safeParse({
+        items: [1, -5, 3]
+      });
+      
+      if (!result.success) {
+        const details = formatZodErrors(result.error);
+        
+        assert.ok(details.some(d => d.field === 'items.1'));
+      }
     });
   });
 });
 
-describe('formatValidationErrors', () => {
-  test('应该格式化 required 错误', () => {
-    const errors = [
-      {
-        keyword: 'required',
-        params: { missingProperty: 'email' },
-        message: 'should have required property',
-      },
-    ];
-    
-    const formatted = formatValidationErrors(errors);
-    
-    expect(formatted[0].message).toBe('缺少必填字段: email');
-    expect(formatted[0].suggestion).toBe('请确保该字段已填写');
-  });
+// 运行测试
+console.log('requestValidator tests loaded');
 
-  test('应该格式化 minLength 错误', () => {
-    const errors = [
-      {
-        path: '/name',
-        keyword: 'minLength',
-        params: { limit: 2 },
-        message: 'should NOT be shorter than 2 characters',
-      },
-    ];
-    
-    const formatted = formatValidationErrors(errors);
-    
-    expect(formatted[0].message).toBe('字符串过短: 最小长度 2');
-    expect(formatted[0].suggestion).toBe('请增加字段内容长度');
-  });
-
-  test('应该格式化 type 错误', () => {
-    const errors = [
-      {
-        path: '/age',
-        keyword: 'type',
-        params: { type: 'integer' },
-        message: 'should be integer',
-      },
-    ];
-    
-    const formatted = formatValidationErrors(errors);
-    
-    expect(formatted[0].message).toBe('字段类型错误: 期望 integer, 实际值不符合');
-    expect(formatted[0].suggestion).toBe('请检查字段类型是否正确');
-  });
-
-  test('应该格式化 enum 错误', () => {
-    const errors = [
-      {
-        keyword: 'enum',
-        params: { allowedValues: ['red', 'green', 'blue'] },
-        message: 'should be equal to one of the allowed values',
-      },
-    ];
-    
-    const formatted = formatValidationErrors(errors);
-    
-    expect(formatted[0].message).toBe('值不在允许范围内: 允许值 [red, green, blue]');
-  });
-
-  test('应该格式化 additionalProperties 错误', () => {
-    const errors = [
-      {
-        keyword: 'additionalProperties',
-        params: { additionalProperty: 'extraField' },
-        message: 'should NOT have additional properties',
-      },
-    ];
-    
-    const formatted = formatValidationErrors(errors);
-    
-    expect(formatted[0].message).toBe('不允许的字段: extraField');
-    expect(formatted[0].suggestion).toBe('请删除该字段');
-  });
-});
+module.exports = { mockReq, mockRes };
