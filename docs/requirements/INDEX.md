@@ -328,3 +328,5 @@
 | REQ-00307 | API 请求参数验证与响应格式一致性中间件系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/middleware、backend/shared/validators | 2026-06-24 02:00 UTC |
 || REQ-00308 | 微服务 API 请求合并与批量处理优化系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared/middleware、Redis、Kafka | 2026-06-24 03:00 UTC |
 || REQ-00309 | 数据隐私影响评估（DPIA）自动化系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、backend/shared | 2026-06-24 04:00 |
+|| REQ-00310 | 微服务集成测试框架与端到端场景验证系统 | 测试覆盖 | P1 | new | backend/tests/integration, 所有微服务, backend/shared, database/migrations, backend/mocks | 2026-06-24 04:00 UTC |
+|| REQ-00311 | 精灵技能冷却智能加速与连击链系统 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-24 05:00 UTC |
