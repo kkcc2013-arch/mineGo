@@ -14,6 +14,20 @@ describe('BattleEngine', () => {
 
   beforeEach(() => {
     battleEngine = new BattleEngine(mockBattleId, mockGymId, mockAttackerId, mockDefenderId);
+    battleEngine.statusEngine = {
+      initialize: jest.fn().mockResolvedValue(),
+      clearBattleStatuses: jest.fn().mockResolvedValue(),
+      getPokemonStatuses: jest.fn().mockResolvedValue([]),
+      getStatChanges: jest.fn().mockResolvedValue({}),
+      calculateModifiedStats: jest.fn().mockImplementation((stats, changes) => stats),
+      onTurnStart: jest.fn().mockResolvedValue([]),
+      onTurnEnd: jest.fn().mockResolvedValue([]),
+      checkActionBlocked: jest.fn().mockResolvedValue({ blocked: false }),
+      applyStatus: jest.fn().mockImplementation((battleId, targetId, status, options) => {
+        return { success: true, statusName: status };
+      }),
+      removeStatus: jest.fn().mockResolvedValue(true)
+    };
   });
 
   describe('构造函数', () => {
@@ -214,7 +228,7 @@ describe('BattleEngine', () => {
       types: ['fire', 'flying'],
       moves: [
         { id: 'm1', name: 'Ember', type: 'fire', power: 40, accuracy: 100, category: 'special' },
-        { id: 'm2', name: 'Air Slash', type: 'flying', power: 75, accuracy: 95, category: 'special' },
+        { id: 'm2', name: 'Air Slash', type: 'flying', power: 40, accuracy: 95, category: 'special' },
         { id: 'm3', name: 'Tackle', type: 'normal', power: 40, accuracy: 100, category: 'physical' }
       ]
     };
@@ -453,7 +467,7 @@ describe('TYPE_CHART', () => {
     expect(TYPE_CHART.electric.water).toBe(2);
     
     // 地面对电免疫
-    expect(TYPE_CHART.ground.electric).toBe(0);
+    expect(TYPE_CHART.electric.ground).toBe(0);
     
     // 幽灵对普通免疫
     expect(TYPE_CHART.ghost.normal).toBe(0);
