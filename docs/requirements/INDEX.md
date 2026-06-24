@@ -337,4 +337,6 @@
 || REQ-00316 | 游戏触觉反馈增强与震动优化系统 | 无障碍(a11y) | P1 | new | game-client、catch-service、gym-service、backend/shared | 2026-06-24 10:00 |
 | REQ-00317 | 游戏客户端离线资源包与增量更新系统 | 前端体验 | P1 | new | game-client、gateway、location-service、pokemon-service、cdn、backend/shared/cache | 2026-06-24 08:00 UTC |
 || REQ-00318 | 数据库备份自动验证与灾难恢复演练系统 | 数据库/数据治理 | P1 | new | database/migrations、backend/jobs、backend/shared、admin-dashboard、infrastructure/k8s | 2026-06-24 11:00 UTC |
-| REQ-00319 | 微服务依赖注入容器与自动服务发现绑定系统 | 可扩展性/解耦 | P1 | new | backend/shared/DependencyContainer.js、backend/shared/ServiceBinder.js、gateway、所有微服务、backend/shared/ServiceRegistry.js | 2026-06-24 09:00 UTC |
+|| REQ-00319 | 微服务依赖注入容器与自动服务发现绑定系统 | 可扩展性/解耦 | P1 | new | backend/shared/DependencyContainer.js、backend/shared/ServiceBinder.js、gateway、所有微服务、backend/shared/ServiceRegistry.js | 2026-06-24 09:00 UTC |
+|| REQ-00320 | 游戏客户端渲染性能优化与帧率稳定系统 | 性能优化 | P1 | new | game-client、frontend/game-client/src/rendering、frontend/game-client/src/game、gateway、location-service | 2026-06-24 12:00 |
+|
