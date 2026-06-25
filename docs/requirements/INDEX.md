@@ -340,6 +340,6 @@
 || REQ-00319 | 微服务依赖注入容器与自动服务发现绑定系统 | 可扩展性/解耦 | P1 | new | backend/shared/DependencyContainer.js、backend/shared/ServiceBinder.js、gateway、所有微服务、backend/shared/ServiceRegistry.js | 2026-06-24 09:00 UTC |
 || REQ-00320 | 游戏客户端渲染性能优化与帧率稳定系统 | 性能优化 | P1 | new | game-client、frontend/game-client/src/rendering、frontend/game-client/src/game、gateway、location-service | 2026-06-24 12:00 |
 | REQ-00321 | API 熔断器仪表板可视化与实时状态监控 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、admin-dashboard、infrastructure/k8s/monitoring | 2026-06-24 13:30 UTC |
-|| REQ-00322 | Cookie 同意管理与隐私偏好中心 | 合规/隐私 | P1 | new | gateway、user-service、game-client、admin-dashboard、backend/shared、database/migrations | 2026-06-25 00:01 UTC |
+|| REQ-00322 | Cookie 同意管理与隐私偏好中心 | 合规/隐私 | P1 | done | gateway、user-service、game-client、admin-dashboard、backend/shared、database/migrations | 2026-06-25 00:01 UTC |
 || REQ-00323 | 数据库分区表与大数据量表分区策略 | 数据库/数据治理 | P1 | new | database/migrations、pokemon-service、user-service、social-service、catch-service、backend/shared | 2026-06-25 01:00 UTC |
-|
+|| REQ-00324 | 精灵技能组合推荐系统 | 功能增强 | P1 | new | pokemon-service、user-service、gateway、game-client、backend/shared、database/migrations | 2026-06-25 01:10 UTC |
