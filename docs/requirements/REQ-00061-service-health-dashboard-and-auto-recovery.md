@@ -8,7 +8,7 @@
 | 标题 | 服务健康仪表板与自动恢复系统 |
 | 类别 | 运维/CICD |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | gateway、所有微服务、infrastructure/k8s、backend/shared |
 | 创建时间 | 2026-06-09 21:00 |
 

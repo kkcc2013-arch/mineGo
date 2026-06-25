@@ -67,7 +67,7 @@
 | REQ-00058 | 公会系统与团队社交功能 | 功能增强 | P1 | done | social-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 19:00 |
 | REQ-00059 | 新手引导与教程系统 | 功能增强 | P1 | done | user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 20:00 |
 | REQ-00060 | REQ-00060：数据库分区表与大数据量表分区策略 |  |  |  |  |  |
-| REQ-00061 | 服务健康仪表板与自动恢复系统 | 运维/CICD | P1 | new | gateway、所有微服务、infrastructure/k8s、backend/shared | 2026-06-09 21:00 |
+| REQ-00061 | 服务健康仪表板与自动恢复系统 | 运维/CICD | P1 | done | gateway、所有微服务、infrastructure/k8s、backend/shared | 2026-06-09 21:00 |
 | REQ-00062 | REQ-00062：游戏音效与背景音乐系统 |  |  |  |  |  |
 | REQ-00063 | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | new | database/migrations、所有微服务、backend/shared、infrastructure/k8s | 2026-06-09 22:00 |
 | REQ-00064 | REQ-00064：风险触发式人机验证（CAPTCHA）系统 |  |  |  |  |  |
@@ -346,3 +346,4 @@
 || REQ-00325 | 精灵好友互动系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、gateway、game-client、database/migrations | 2026-06-25 02:00 UTC |
 || REQ-00325 | 战斗动画帧率优化与流畅度提升系统 | 性能优化 | P1 | new | game-client、gym-service、catch-service、backend/shared、frontend/game-client/src/rendering | 2026-06-25 02:00 UTC |
 || REQ-00326 | 精灵好友互动系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、gateway、game-client、database/migrations | 2026-06-25 02:05 UTC |
+| REQ-00327 | 会话劫持防护与安全会话管理系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared、Redis、database/migrations | 2026-06-25 04:00 |
