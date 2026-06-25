@@ -343,3 +343,6 @@
 || REQ-00322 | Cookie 同意管理与隐私偏好中心 | 合规/隐私 | P1 | done | gateway、user-service、game-client、admin-dashboard、backend/shared、database/migrations | 2026-06-25 00:01 UTC |
 || REQ-00323 | 数据库分区表与大数据量表分区策略 | 数据库/数据治理 | P1 | new | database/migrations、pokemon-service、user-service、social-service、catch-service、backend/shared | 2026-06-25 01:00 UTC |
 || REQ-00324 | 精灵技能组合推荐系统 | 功能增强 | P1 | new | pokemon-service、user-service、gateway、game-client、backend/shared、database/migrations | 2026-06-25 01:10 UTC |
+|| REQ-00325 | 精灵好友互动系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、gateway、game-client、database/migrations | 2026-06-25 02:00 UTC |
+|| REQ-00325 | 战斗动画帧率优化与流畅度提升系统 | 性能优化 | P1 | new | game-client、gym-service、catch-service、backend/shared、frontend/game-client/src/rendering | 2026-06-25 02:00 UTC |
+|| REQ-00326 | 精灵好友互动系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、gateway、game-client、database/migrations | 2026-06-25 02:05 UTC |
