@@ -351,3 +351,4 @@
 | REQ-00330 | 代码质量度量系统与自动化重构建议引擎 | 技术债/重构 | P1 | new | backend/shared、所有微服务、.github/workflows、admin-dashboard、scripts | 2026-06-26 01:00 UTC |
 || REQ-00330 | 代码质量度量系统与自动化重构建议引擎 | 技术债/重构 | P1 | new | backend/shared、所有微服务、.github/workflows、admin-dashboard、scripts | 2026-06-26 01:00 UTC |
 || REQ-00331 | 精灵生态链与食物网系统 | 功能增强 | P1 | new | pokemon-service、location-service、reward-service、gateway、game-client、database/migrations | 2026-06-26 06:00 UTC |
+|| REQ-00332 | API 响应时间异常检测与智能告警系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-26 07:00 UTC |
