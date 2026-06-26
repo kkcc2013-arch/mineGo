@@ -3,7 +3,7 @@
 - **编号**：REQ-00062
 - **类别**：前端体验
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：game-client、frontend/audio、game-client/src/components
 - **创建时间**：2026-06-09 19:15
 - **依赖需求**：无
