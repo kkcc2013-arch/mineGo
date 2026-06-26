@@ -29,6 +29,7 @@ const { router: dataTransferRouter, initDataTransferRoutes } = require('./routes
 const { router: dataDeletionRouter, initDataDeletionRoutes } = require('./routes/dataDeletion'); // REQ-00127: 用户数据删除请求管理
 const titlesRouter = require('./routes/titles'); // REQ-00106: 称号系统路由
 const deviceManagementRouter = require('./routes/deviceManagement'); // REQ-00250: 设备管理路由
+const sessionManagementRouter = require('./routes/sessionManagement'); // REQ-00219: 会话异常检测与自动防护
 const { initNotificationHandlers } = require('./handlers/notificationHandler');
 
 // Create service launcher
@@ -114,6 +115,10 @@ const service = new ServiceLauncher({
     {
       path: '/devices', // REQ-00250: 设备管理路由
       router: deviceManagementRouter
+    },
+    {
+      path: '/sessions', // REQ-00219: 会话异常检测与自动防护路由
+      router: sessionManagementRouter
     }
   ],
   

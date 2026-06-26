@@ -348,4 +348,5 @@
 || REQ-00326 | 精灵好友互动系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、gateway、game-client、database/migrations | 2026-06-25 02:05 UTC |
 || REQ-00327 | 会话劫持防护与安全会话管理系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared、Redis、database/migrations | 2026-06-25 04:00 |
 || REQ-00328 | WebSocket 通信安全加固与消息完整性验证系统 | 安全加固 | P1 | new | gym-service、catch-service、gateway、backend/shared、game-client、infrastructure/k8s | 2026-06-25 05:00 |
+| REQ-00329 | API 端点命名规范自动校验与文档同步系统 | API 设计规范 | P2 | new | gateway、所有微服务、backend/shared/apiLinter.js、docs/api-spec、.github/workflows、scripts | 2026-06-26 00:27 UTC |
 |
