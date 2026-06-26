@@ -354,3 +354,4 @@
 | REQ-00333 | 游戏内智能 Toast 通知系统与用户反馈优化 | 前端体验 | P1 | new | game-client、frontend/game-client/src/components/ToastManager.js、frontend/game-client/src/game/GameStore.js、frontend/game-client/src/utils/ErrorHandler.js、gateway | 2026-06-26 04:00 UTC |
 | REQ-00333 | 游戏内智能 Toast 通知系统与用户反馈优化 | 前端体验 | P1 | new | game-client、frontend/game-client/src/components/ToastManager.js、frontend/game-client/src/game/GameStore.js、frontend/game-client/src/utils/ErrorHandler.js、gateway | 2026-06-26 04:00 UTC |
 | REQ-00334 | 数据库读写分离与主从同步监控系统 | 数据库/数据治理 | P1 | new | 所有微服务、backend/shared、PostgreSQL、infrastructure/k8s、admin-dashboard | 2026-06-26 07:00 UTC |
+| REQ-00335 | 游戏距离单位本地化与智能转换系统 | 国际化/本地化 | P1 | done | game-client、frontend/game-client/src/utils、frontend/game-client/src/components、gateway、user-service、backend/shared | 2026-06-26 05:00 UTC |

@@ -6,6 +6,7 @@
  */
 
 const { i18n } = require('../i18n');
+const { formatSpeed, formatTemperature } = require('../utils/unitSystem');
 
 class WeatherWidget {
   /**
@@ -83,6 +84,10 @@ class WeatherWidget {
 
     const emoji = this.getWeatherEmoji(weather);
     const weatherLabel = i18n.t(`weather.${weather.toLowerCase()}`) || weather;
+    
+    // REQ-00335: 使用本地化格式化
+    const tempStr = formatTemperature(temperature, { precision: 0 });
+    const windStr = windSpeed ? formatSpeed(windSpeed, { precision: 0 }) : null;
 
     this.container.innerHTML = `
       <div class="weather-widget ${fallback ? 'weather-fallback' : ''}" 
@@ -92,12 +97,12 @@ class WeatherWidget {
         <div class="weather-info">
           <div class="weather-status">
             <span class="weather-label">${weatherLabel}</span>
-            <span class="weather-temp">${Math.round(temperature)}°C</span>
+            <span class="weather-temp">${tempStr}</span>
           </div>
           <div class="weather-details">
             <span class="weather-location">${location}</span>
             ${humidity ? `<span class="weather-humidity">💧 ${humidity}%</span>` : ''}
-            ${windSpeed ? `<span class="weather-wind">💨 ${windSpeed} km/h</span>` : ''}
+            ${windStr ? `<span class="weather-wind">💨 ${windStr}</span>` : ''}
           </div>
           ${boostedTypesZh && boostedTypesZh.length > 0 ? `
             <div class="weather-bonus">
