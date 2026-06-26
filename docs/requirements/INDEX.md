@@ -350,3 +350,4 @@
 || REQ-00328 | WebSocket 通信安全加固与消息完整性验证系统 | 安全加固 | P1 | new | gym-service、catch-service、gateway、backend/shared、game-client、infrastructure/k8s | 2026-06-25 05:00 |
 | REQ-00330 | 代码质量度量系统与自动化重构建议引擎 | 技术债/重构 | P1 | new | backend/shared、所有微服务、.github/workflows、admin-dashboard、scripts | 2026-06-26 01:00 UTC |
 || REQ-00330 | 代码质量度量系统与自动化重构建议引擎 | 技术债/重构 | P1 | new | backend/shared、所有微服务、.github/workflows、admin-dashboard、scripts | 2026-06-26 01:00 UTC |
+|| REQ-00331 | 精灵生态链与食物网系统 | 功能增强 | P1 | new | pokemon-service、location-service、reward-service、gateway、game-client、database/migrations | 2026-06-26 06:00 UTC |
