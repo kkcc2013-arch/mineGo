@@ -7,7 +7,7 @@
 | 标题 | 玩家反馈收集与智能分析系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | user-service、pokemon-service、gateway、game-client、admin-dashboard、backend/shared、backend/jobs |
 | 创建时间 | 2026-06-26 10:00 UTC |
 
