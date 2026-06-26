@@ -7,7 +7,7 @@
 | 标题 | 数据库慢查询分析与自动优化建议系统 |
 | 类别 | 数据库/数据治理 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | database/migrations、所有微服务、backend/shared、infrastructure/k8s |
 | 创建时间 | 2026-06-09 22:00 |
 
