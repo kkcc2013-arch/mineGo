@@ -356,5 +356,6 @@
 | REQ-00334 | 数据库读写分离与主从同步监控系统 | 数据库/数据治理 | P1 | new | 所有微服务、backend/shared、PostgreSQL、infrastructure/k8s、admin-dashboard | 2026-06-26 07:00 UTC |
 || REQ-00335 | 游戏距离单位本地化与智能转换系统 | 国际化/本地化 | P1 | done | game-client、frontend/game-client/src/utils、frontend/game-client/src/components、gateway、user-service、backend/shared | 2026-06-26 05:00 UTC |
 || REQ-00336 | 精灵资源动态更新与热修复系统 | 前端体验/运维 | P1 | new | game-client、gateway、pokemon-service、location-service、backend/jobs、cdn | 2026-06-26 08:00 UTC |
-| REQ-00337 | 精灵详情语音描述与盲人友好信息系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility、pokemon-service、gateway、backend/shared | 2026-06-26 06:00 UTC |
+|| REQ-00337 | 精灵详情语音描述与盲人友好信息系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility、pokemon-service、gateway、backend/shared | 2026-06-26 06:00 UTC |
+|| REQ-00338 | GDPR 数据主体权利请求自动化管理系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、backend/shared/gdpr、database/migrations | 2026-06-26 09:00 UTC |
 |
