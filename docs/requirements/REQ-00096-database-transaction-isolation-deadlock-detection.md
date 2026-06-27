@@ -3,7 +3,7 @@
 - **编号**：REQ-00096
 - **类别**：数据库/数据治理
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：backend/shared/db.js、catch-service、gym-service、payment-service、social-service
 - **创建时间**：2026-06-11 00:20
 - **依赖需求**：REQ-00007（数据库迁移管理）

@@ -102,14 +102,30 @@ async function query(text, params) {
 
 /**
  * Execute a database transaction
+ * REQ-00096: 增强版事务管理，支持隔离级别和死锁检测
+ * 
  * @param {Function} fn - Transaction callback
+ * @param {Object} options - Transaction options
+ * @param {string} options.isolationLevel - Isolation level (READ COMMITTED, REPEATABLE READ, SERIALIZABLE)
+ * @param {number} options.timeout - Timeout in milliseconds
+ * @param {boolean} options.retryOnDeadlock - Whether to retry on deadlock
+ * @param {number} options.maxRetries - Maximum retry attempts
+ * @param {string} options.transactionName - Transaction name for monitoring
  * @returns {Promise<any>} Transaction result
  */
-async function transaction(fn) {
+async function transaction(fn, options = {}) {
   const serviceName = process.env.SERVICE_NAME || 'default';
   const poolManager = getPoolManagerInstance();
   const pool = poolManager.getPool(serviceName);
   
+  // 如果提供了高级选项，使用 TransactionManager
+  if (options && Object.keys(options).length > 0) {
+    const { TransactionManager } = require('./TransactionManager');
+    const txManager = new TransactionManager(pool);
+    return txManager.execute(fn, options);
+  }
+  
+  // 向后兼容：简单的无参数事务
   const client = await pool.connect();
   
   try {
@@ -210,6 +226,10 @@ function getServicePoolConfig(serviceName) {
   const { SERVICE_POOL_CONFIG } = require('./DatabasePool');
   return SERVICE_POOL_CONFIG[serviceName] || SERVICE_POOL_CONFIG['default'];
 }
+async function getClient() {
+  return await getPool().connect();
+}
+
 module.exports = {
   getPool,
   getClient,
@@ -223,9 +243,6 @@ module.exports = {
   getServicePoolConfig,
   getPoolManagerInstance,
   // Transaction manager with isolation level control
-  transactionManager: require('./transactionManager'),
+  TransactionManager: require('./TransactionManager').TransactionManager,
+  ISOLATION_LEVELS: require('./TransactionManager').ISOLATION_LEVELS,
 };
-
-async function getClient() {
-  return await getPool().connect();
-}

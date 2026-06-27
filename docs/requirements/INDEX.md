@@ -67,9 +67,9 @@
 | REQ-00058 | 公会系统与团队社交功能 | 功能增强 | P1 | done | social-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 19:00 |
 | REQ-00059 | 新手引导与教程系统 | 功能增强 | P1 | done | user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 20:00 |
 | REQ-00060 | REQ-00060：数据库分区表与大数据量表分区策略 |  |  |  |  |  |
-| REQ-00061 | 服务健康仪表板与自动恢复系统 | 运维/CICD | P1 | new | gateway、所有微服务、infrastructure/k8s、backend/shared | 2026-06-09 21:00 |
+| REQ-00061 | 服务健康仪表板与自动恢复系统 | 运维/CICD | P1 | done | gateway、所有微服务、infrastructure/k8s、backend/shared | 2026-06-09 21:00 |
 | REQ-00062 | REQ-00062：游戏音效与背景音乐系统 |  |  |  |  |  |
-| REQ-00063 | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | new | database/migrations、所有微服务、backend/shared、infrastructure/k8s | 2026-06-09 22:00 |
+| REQ-00063 | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | done | database/migrations、所有微服务、backend/shared、infrastructure/k8s | 2026-06-09 22:00 |
 | REQ-00064 | REQ-00064：风险触发式人机验证（CAPTCHA）系统 |  |  |  |  |  |
 | REQ-00065 | 精灵进化与成长系统 | 功能增强 | P0 | done | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 23:00 |
 | REQ-00066 | REQ-00066：API 错误码标准化与故障排查手册 | HTTP 状态码 |  |  |  |  |
@@ -145,7 +145,7 @@
 | REQ-00132 | pokemon-service inventory 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 23:10 |
 | REQ-00133 | pokemon-service pokedex 路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 23:20 |
 | REQ-00134 | social-service friends 路由挂载与集成 | 集成与修复 | P0 | done | social-service | 2026-06-11 23:30 |
-| REQ-00135 | reward-service events 路由挂载与集成 | 集成与修复 | P0 | done | reward-service | 2026-06-11 23:40 |
+| REQ-00135 | reward-service events 路由挂载与集成 | 集成与修复 | P0 | done | reward-service、gateway | 2026-06-11 23:40 |
 | REQ-00136 | FCM/APNs 移动推送通知系统 | 功能增强 | P1 | done | user-service、reward-service、gateway、game-client、Firebase、Apple Developer | 2026-06-12 00:00 |
 | REQ-00137 | REQ-00137：游戏内容本地化内容管理与翻译工作流系统 |  |  |  |  |  |
 | REQ-00138 | pokemon-service inventory 路由挂载与集成 |  |  |  |  |  |
@@ -213,7 +213,7 @@
 | REQ-00198 | REQ-00198：游戏节奏控制与慢速模式系统 |  |  |  |  |  |
 | REQ-00199 | 数据血缘追踪与影响分析系统 | 数据库/数据治理 | P1 | new | gateway、所有微服务、backend/shared、database、infrastructure/k8s/monitoring | 2026-06-14 15:00 |
 | REQ-00200 | REQ-00200：敏感操作二次验证与风险分级验证系统 |  |  |  |  |  |
-|| REQ-00302 | API 分页与列表响应标准化系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/middleware、docs/api-spec | 2026-06-23 07:05 |
+| REQ-00302 | API 分页与列表响应标准化系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/middleware、docs/api-spec | 2026-06-23 07:05 |
 | REQ-00303 | 敏感操作审计日志与操作追溯系统 | 合规/隐私 | P1 | new | gateway、user-service、payment-service、social-service、pokemon-service、admin-dashboard、backend/shared、database/migrations | 2026-06-23 08:00 |
 | REQ-00202 | REQ-00202：安全模块单元测试覆盖率提升系统 |  |  |  |  |  |
 | REQ-00203 | REQ-00203：分布式追踪与 OpenTelemetry 集成系统 |  |  |  |  |  |
@@ -316,35 +316,45 @@
 | REQ-00295 | 游戏资源预热与智能预加载系统 | 前端体验 | P1 | new | game-client, cdn, location-service, pokemon-service, backend/shared/cache | 2026-06-23 10:00 |
 | REQ-00296 | SLO 错误预算管理与自动降级系统 | 稳定性/高可用 | P1 | new | gateway, 所有微服务, backend/shared/slo, backend/shared/middleware, monitoring, Prometheus, Grafana | 2026-06-23 12:00 |
 | REQ-00297 | 云成本异常检测与预算超支预警系统 | 成本/资源优化 | P1 | new | gateway, monitoring, backend/shared/cost, Prometheus, Grafana, Slack, Email | 2026-06-23 14:00 |
-|| REQ-00298 | WebSocket 通信异常检测与实时阻断系统 | 反作弊 | P1 | new | gym-service、catch-service、gateway、backend/shared、infrastructure/k8s | 2026-06-23 05:00 |
-|| REQ-00299 | 精灵技能冷却时间智能优化系统 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-23 15:00 |
-|| REQ-00300 | 动态服务注册发现与健康感知路由系统 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared/serviceRegistry.js、infrastructure/k8s | 2026-06-23 06:00 |
-|| REQ-00301 | 全链路压测系统与生产环境性能基准 | 性能优化 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s、backend/tests/load | 2026-06-23 16:00 |
-|| REQ-00302 | API 分页与列表响应标准化系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/middleware、docs/api-spec | 2026-06-23 07:05 |
+| REQ-00298 | WebSocket 通信异常检测与实时阻断系统 | 反作弊 | P1 | new | gym-service、catch-service、gateway、backend/shared、infrastructure/k8s | 2026-06-23 05:00 |
+| REQ-00299 | 精灵技能冷却时间智能优化系统 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-23 15:00 |
+| REQ-00300 | 动态服务注册发现与健康感知路由系统 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared/serviceRegistry.js、infrastructure/k8s | 2026-06-23 06:00 |
+| REQ-00301 | 全链路压测系统与生产环境性能基准 | 性能优化 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s、backend/tests/load | 2026-06-23 16:00 |
+| REQ-00302 | API 分页与列表响应标准化系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/middleware、docs/api-spec | 2026-06-23 07:05 |
 | REQ-00303 | 敏感操作审计日志与操作追溯系统 | 合规/隐私 | P1 | new | gateway、user-service、payment-service、social-service、pokemon-service、admin-dashboard、backend/shared、database/migrations | 2026-06-23 08:00 |
 | REQ-00304 | 游戏客户端网络自适应与弱网优化系统 | 前端体验 | P1 | new | game-client、gateway、catch-service、gym-service、backend/shared、WebSocket | 2026-06-23 09:00 |
 | REQ-00305 | GDPR 数据主体权利请求自动化管理系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、database/migrations、backend/shared/gdpr | 2026-06-24 01:00 |
 | REQ-00306 | 数据库迁移回滚自动化与版本控制系统 | 运维/CICD | P1 | new | database/migrations、所有微服务、backend/shared、infrastructure/k8s、.github/workflows | 2026-06-24 01:30 |
 | REQ-00307 | API 请求参数验证与响应格式一致性中间件系统 | API 设计规范 | P1 | done | gateway、所有微服务、backend/shared/middleware、backend/shared/validators | 2026-06-24 02:00 UTC |
-|| REQ-00308 | 微服务 API 请求合并与批量处理优化系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared/middleware、Redis、Kafka | 2026-06-24 03:00 UTC |
-|| REQ-00309 | 数据隐私影响评估（DPIA）自动化系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、backend/shared | 2026-06-24 04:00 |
-|| REQ-00310 | 微服务集成测试框架与端到端场景验证系统 | 测试覆盖 | P1 | new | backend/tests/integration, 所有微服务, backend/shared, database/migrations, backend/mocks | 2026-06-24 04:00 UTC |
-|| REQ-00311 | 精灵技能冷却智能加速与连击链系统 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-24 05:00 UTC |
-|| REQ-00312 | 数据库容量规划与智能预警系统 | 数据库/数据治理 | P1 | new | backend/shared、所有微服务、PostgreSQL、infrastructure/k8s、admin-dashboard、backend/jobs | 2026-06-24 06:00 UTC |
-|| REQ-00313 | 精灵装备强化与进化系统 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-24 07:00 UTC |
-|| REQ-00314 | 服务实例优雅停机与连接排空系统 | 运维/CICD | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-24 08:00 UTC |
-|| REQ-00315 | API 响应 Schema 验证与数据契约系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared、docs/api-spec | 2026-06-24 09:00 UTC |
-|| REQ-00316 | 游戏触觉反馈增强与震动优化系统 | 无障碍(a11y) | P1 | new | game-client、catch-service、gym-service、backend/shared | 2026-06-24 10:00 |
+| REQ-00308 | 微服务 API 请求合并与批量处理优化系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared/middleware、Redis、Kafka | 2026-06-24 03:00 UTC |
+| REQ-00309 | 数据隐私影响评估（DPIA）自动化系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、backend/shared | 2026-06-24 04:00 |
+| REQ-00310 | 微服务集成测试框架与端到端场景验证系统 | 测试覆盖 | P1 | new | backend/tests/integration, 所有微服务, backend/shared, database/migrations, backend/mocks | 2026-06-24 04:00 UTC |
+| REQ-00311 | 精灵技能冷却智能加速与连击链系统 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-24 05:00 UTC |
+| REQ-00312 | 数据库容量规划与智能预警系统 | 数据库/数据治理 | P1 | new | backend/shared、所有微服务、PostgreSQL、infrastructure/k8s、admin-dashboard、backend/jobs | 2026-06-24 06:00 UTC |
+| REQ-00313 | 精灵装备强化与进化系统 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-24 07:00 UTC |
+| REQ-00314 | 服务实例优雅停机与连接排空系统 | 运维/CICD | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-24 08:00 UTC |
+| REQ-00315 | API 响应 Schema 验证与数据契约系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared、docs/api-spec | 2026-06-24 09:00 UTC |
+| REQ-00316 | 游戏触觉反馈增强与震动优化系统 | 无障碍(a11y) | P1 | new | game-client、catch-service、gym-service、backend/shared | 2026-06-24 10:00 |
 | REQ-00317 | 游戏客户端离线资源包与增量更新系统 | 前端体验 | P1 | new | game-client、gateway、location-service、pokemon-service、cdn、backend/shared/cache | 2026-06-24 08:00 UTC |
-|| REQ-00318 | 数据库备份自动验证与灾难恢复演练系统 | 数据库/数据治理 | P1 | new | database/migrations、backend/jobs、backend/shared、admin-dashboard、infrastructure/k8s | 2026-06-24 11:00 UTC |
-|| REQ-00319 | 微服务依赖注入容器与自动服务发现绑定系统 | 可扩展性/解耦 | P1 | new | backend/shared/DependencyContainer.js、backend/shared/ServiceBinder.js、gateway、所有微服务、backend/shared/ServiceRegistry.js | 2026-06-24 09:00 UTC |
-|| REQ-00320 | 游戏客户端渲染性能优化与帧率稳定系统 | 性能优化 | P1 | new | game-client、frontend/game-client/src/rendering、frontend/game-client/src/game、gateway、location-service | 2026-06-24 12:00 |
+| REQ-00318 | 数据库备份自动验证与灾难恢复演练系统 | 数据库/数据治理 | P1 | new | database/migrations、backend/jobs、backend/shared、admin-dashboard、infrastructure/k8s | 2026-06-24 11:00 UTC |
+| REQ-00319 | 微服务依赖注入容器与自动服务发现绑定系统 | 可扩展性/解耦 | P1 | new | backend/shared/DependencyContainer.js、backend/shared/ServiceBinder.js、gateway、所有微服务、backend/shared/ServiceRegistry.js | 2026-06-24 09:00 UTC |
+| REQ-00320 | 游戏客户端渲染性能优化与帧率稳定系统 | 性能优化 | P1 | new | game-client、frontend/game-client/src/rendering、frontend/game-client/src/game、gateway、location-service | 2026-06-24 12:00 |
 | REQ-00321 | API 熔断器仪表板可视化与实时状态监控 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、admin-dashboard、infrastructure/k8s/monitoring | 2026-06-24 13:30 UTC |
-|| REQ-00322 | Cookie 同意管理与隐私偏好中心 | 合规/隐私 | P1 | done | gateway、user-service、game-client、admin-dashboard、backend/shared、database/migrations | 2026-06-25 00:01 UTC |
-|| REQ-00323 | 数据库分区表与大数据量表分区策略 | 数据库/数据治理 | P1 | new | database/migrations、pokemon-service、user-service、social-service、catch-service、backend/shared | 2026-06-25 01:00 UTC |
-|| REQ-00324 | 精灵技能组合推荐系统 | 功能增强 | P1 | new | pokemon-service、user-service、gateway、game-client、backend/shared、database/migrations | 2026-06-25 01:10 UTC |
-|| REQ-00325 | 精灵好友互动系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、gateway、game-client、database/migrations | 2026-06-25 02:00 UTC |
-|| REQ-00325 | 战斗动画帧率优化与流畅度提升系统 | 性能优化 | P1 | new | game-client、gym-service、catch-service、backend/shared、frontend/game-client/src/rendering | 2026-06-25 02:00 UTC |
-|| REQ-00326 | 精灵好友互动系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、gateway、game-client、database/migrations | 2026-06-25 02:05 UTC |
-|| REQ-00327 | 玩家个人资料与数据统计展示系统 | 功能增强 | P1 | new | user-service、pokemon-service、social-service、gateway、game-client、frontend/game-client/src/components、database/migrations | 2026-06-27 00:42 UTC |
-|| REQ-00328 | API 密钥泄露检测与实时告警系统 | 安全加固 | P1 | new | gateway、user-service、admin-dashboard、backend/shared、infrastructure/k8s | 2026-06-27 01:00 UTC |
+| REQ-00322 | Cookie 同意管理与隐私偏好中心 | 合规/隐私 | P1 | done | gateway、user-service、game-client、admin-dashboard、backend/shared、database/migrations | 2026-06-25 00:01 UTC |
+| REQ-00323 | 数据库分区表与大数据量表分区策略 | 数据库/数据治理 | P1 | new | database/migrations、pokemon-service、user-service、social-service、catch-service、backend/shared | 2026-06-25 01:00 UTC |
+| REQ-00324 | 精灵技能组合推荐系统 | 功能增强 | P1 | new | pokemon-service、user-service、gateway、game-client、backend/shared、database/migrations | 2026-06-25 01:10 UTC |
+| REQ-00325 | 精灵好友互动系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、gateway、game-client、database/migrations | 2026-06-25 02:00 UTC |
+| REQ-00326 | 精灵好友互动系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、gateway、game-client、database/migrations | 2026-06-25 02:05 UTC |
+| REQ-00327 | 会话劫持防护与安全会话管理系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared、Redis、database/migrations | 2026-06-25 04:00 |
+| REQ-00328 | WebSocket 通信安全加固与消息完整性验证系统 | 安全加固 | P1 | new | gym-service、catch-service、gateway、backend/shared、game-client、infrastructure/k8s | 2026-06-25 05:00 |
+| REQ-00330 | 代码质量度量系统与自动化重构建议引擎 | 技术债/重构 | P1 | new | backend/shared、所有微服务、.github/workflows、admin-dashboard、scripts | 2026-06-26 01:00 UTC |
+| REQ-00331 | 精灵生态链与食物网系统 | 功能增强 | P1 | new | pokemon-service、location-service、reward-service、gateway、game-client、database/migrations | 2026-06-26 06:00 UTC |
+| REQ-00333 | 游戏内智能 Toast 通知系统与用户反馈优化 | 前端体验 | P1 | done | game-client、frontend/game-client/src/components/ToastManager.js、frontend/game-client/src/game/GameStore.js、frontend/game-client/src/utils/ErrorHandler.js、gateway | 2026-06-26 04:00 UTC |
+| REQ-00334 | 数据库读写分离与主从同步监控系统 | 数据库/数据治理 | P1 | new | 所有微服务、backend/shared、PostgreSQL、infrastructure/k8s、admin-dashboard | 2026-06-26 07:00 UTC |
+| REQ-00335 | 游戏距离单位本地化与智能转换系统 | 国际化/本地化 | P1 | done | game-client、frontend/game-client/src/utils、frontend/game-client/src/components、gateway、user-service、backend/shared | 2026-06-26 05:00 UTC |
+| REQ-00336 | 精灵资源动态更新与热修复系统 | 前端体验/运维 | P1 | new | game-client、gateway、pokemon-service、location-service、backend/jobs、cdn | 2026-06-26 08:00 UTC |
+| REQ-00337 | 精灵详情语音描述与盲人友好信息系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility、pokemon-service、gateway、backend/shared | 2026-06-26 06:00 UTC |
+| REQ-00340 | 精灵数据预编译缓存与增量同步系统 | 性能优化 | P1 | new | pokemon-service、gateway、backend/shared、game-client、Redis、PostgreSQL、backend/jobs | 2026-06-26 11:00 UTC |
+| REQ-00341 | 隐私政策版本管理与变更通知系统 | 合规/隐私 | P1 | new | user-service、gateway、game-client、admin-dashboard、backend/shared、database/migrations | 2026-06-26 10:00 UTC |
+| REQ-00342 | 精灵租赁市场与短期使用系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、payment-service、gateway、game-client、database/migrations | 2026-06-26 11:00 UTC |
+| REQ-00343 | API 密钥泄露检测与实时告警系统 | 安全加固 | P1 | new | gateway、user-service、admin-dashboard、backend/shared、infrastructure/k8s | 2026-06-27 01:00 UTC |

@@ -1,7 +1,11 @@
 /**
  * A11y Announcer - 屏幕阅读器实时通知系统
  * 提供动态内容变化的语音通知
+ * Updated: REQ-00335 - Distance unit localization
  */
+
+import { i18n } from '../i18n/index.js';
+import { formatDistance } from '../utils/unitSystem.js';
 
 export class A11yAnnouncer {
   constructor() {
@@ -67,7 +71,14 @@ export class A11yAnnouncer {
    * 游戏事件通知模板
    */
   announcePokemonSpawn(speciesName, distance) {
-    this.announce(`附近出现了一只${speciesName}，距离${distance}米`);
+    // REQ-00335: 使用本地化距离格式化
+    const distanceStr = formatDistance(distance, { shortForm: false });
+    const message = i18n.t('accessibility.pokemonSpawn', {
+      speciesName,
+      distance: distanceStr
+    }) || `附近出现了一只${speciesName}，距离${distanceStr}`;
+    this.announce(message);
+  }
   }
 
   announceCatchSuccess(speciesName, cp) {

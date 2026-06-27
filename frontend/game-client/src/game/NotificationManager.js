@@ -1,6 +1,10 @@
 // frontend/game-client/src/game/NotificationManager.js
 // Real-time push notification system - REQ-00026
+// Updated: REQ-00335 - Distance unit localization
 'use strict';
+
+import { i18n } from '../i18n/index.js';
+import { formatDistance } from '../utils/unitSystem.js';
 
 const WS_BASE = window.PMG_CONFIG?.wsBase || 'wss://api.pocketmonstergo.com';
 const HEARTBEAT_INTERVAL = 30000;
@@ -13,10 +17,13 @@ export const NOTIFICATION_TYPES = {
     name: 'RARE_SPAWN',
     icon: '🐉',
     title: (data) => i18n.t('notifications.rareSpawn.title'),
-    body: (data) => i18n.t('notifications.rareSpawn.body', { 
-      speciesName: data.speciesName, 
-      distance: data.distance 
-    }),
+    body: (data) => {
+      const distanceStr = formatDistance(data.distance, { shortForm: false });
+      return i18n.t('notifications.rareSpawn.body', { 
+        speciesName: data.speciesName, 
+        distance: distanceStr 
+      });
+    },
     action: (data) => ({ type: 'NAVIGATE', lat: data.lat, lng: data.lng }),
   },
   RAID_STARTED: {

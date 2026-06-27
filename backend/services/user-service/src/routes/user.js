@@ -186,4 +186,92 @@ router.get('/me/language', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ── PUT /users/me/unit-system ─────────────────────────────────
+// Update user's unit system preference (metric/imperial)
+// REQ-00335: 游戏距离单位本地化与智能转换系统
+router.put('/me/unit-system', async (req, res, next) => {
+  try {
+    const schema = z.object({
+      unitSystem: z.enum(['metric', 'imperial'])
+    });
+    const { unitSystem } = schema.parse(req.body);
+
+    await query(
+      'UPDATE users SET unit_system = $1 WHERE id = $2',
+      [unitSystem, req.user.sub]
+    );
+
+    res.json(successResp({ unitSystem }, '单位制偏好已更新'));
+  } catch (err) {
+    if (err.name === 'ZodError') {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'VALIDATION_ERROR',
+          message: '无效的单位制，支持: metric, imperial'
+        }
+      });
+    }
+    next(err);
+  }
+});
+
+// ── GET /users/me/unit-system ─────────────────────────────────
+// Get user's current unit system preference
+router.get('/me/unit-system', async (req, res, next) => {
+  try {
+    const { rows: [user] } = await query(
+      'SELECT unit_system, country FROM users WHERE id = $1',
+      [req.user.sub]
+    );
+
+    if (!user) {
+      throw new AppError(2003, '用户不存在', 404);
+    }
+
+    // 如果用户未设置单位制，根据国家推断
+    let unitSystem = user.unit_system;
+    if (!unitSystem && user.country) {
+      const imperialCountries = ['US', 'LR', 'MM'];
+      unitSystem = imperialCountries.includes(user.country) ? 'imperial' : 'metric';
+    }
+
+    res.json(successResp({
+      unitSystem: unitSystem || 'metric',
+      supportedSystems: ['metric', 'imperial']
+    }));
+  } catch (err) { next(err); }
+});
+
+// ── GET /users/me/preferences ─────────────────────────────────
+// Get all user preferences in one request
+router.get('/me/preferences', async (req, res, next) => {
+  try {
+    const { rows: [user] } = await query(
+      'SELECT language_preference, unit_system, timezone, country FROM users WHERE id = $1',
+      [req.user.sub]
+    );
+
+    if (!user) {
+      throw new AppError(2003, '用户不存在', 404);
+    }
+
+    // 推断单位制
+    let unitSystem = user.unit_system;
+    if (!unitSystem && user.country) {
+      const imperialCountries = ['US', 'LR', 'MM'];
+      unitSystem = imperialCountries.includes(user.country) ? 'imperial' : 'metric';
+    }
+
+    res.json(successResp({
+      language: user.language_preference || DEFAULT_LANGUAGE,
+      unitSystem: unitSystem || 'metric',
+      timezone: user.timezone || 'UTC',
+      country: user.country || null,
+      supportedLanguages: SUPPORTED_LANGUAGES,
+      supportedUnitSystems: ['metric', 'imperial']
+    }));
+  } catch (err) { next(err); }
+});
+
 module.exports = router;

@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mineGo 服务健康仪表板</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            color: #1e3c72;
+            margin-bottom: 8px;
+        }
+        
+        .header-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .overall-score {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .overall-score.healthy {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .overall-score.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .overall-score.degraded {
+            background: #ffeaa7;
+            color: #6c5ce7;
+        }
+        
+        .overall-score.critical {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .score-value {
+            font-size: 32px;
+            font-weight: bold;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card h3 {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        
+        .stat-card .value {
+            font-size: 36px;
+            font-weight: bold;
+        }
+        
+        .stat-card.healthy .value { color: #28a745; }
+        .stat-card.warning .value { color: #ffc107; }
+        .stat-card.degraded .value { color: #fd7e14; }
+        .stat-card.critical .value { color: #dc3545; }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .service-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-left: 4px solid #ccc;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .service-card.healthy { border-left-color: #28a745; }
+        .service-card.warning { border-left-color: #ffc107; }
+        .service-card.degraded { border-left-color: #fd7e14; }
+        .service-card.critical { border-left-color: #dc3545; }
+        
+        .service-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .service-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .service-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .service-status.healthy { background: #d4edda; color: #155724; }
+        .service-status.warning { background: #fff3cd; color: #856404; }
+        .service-status.degraded { background: #ffeaa7; color: #6c5ce7; }
+        .service-status.critical { background: #f8d7da; color: #721c24; }
+        
+        .score-bar {
+            width: 100%;
+            height: 24px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        
+        .score-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .score-fill.healthy { background: linear-gradient(90deg, #28a745, #20c997); }
+        .score-fill.warning { background: linear-gradient(90deg, #ffc107, #fd7e14); }
+        .score-fill.degraded { background: linear-gradient(90deg, #fd7e14, #dc3545); }
+        .score-fill.critical { background: linear-gradient(90deg, #dc3545, #c82333); }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        
+        .metric-item {
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .metric-label {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        
+        .metric-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .dependency-graph {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dependency-graph h2 {
+            margin-bottom: 16px;
+            color: #333;
+        }
+        
+        #graph-container {
+            width: 100%;
+            height: 400px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .refresh-btn {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.4);
+            font-size: 24px;
+            transition: transform 0.2s, background 0.2s;
+        }
+        
+        .refresh-btn:hover {
+            background: #0056b3;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏥 mineGo 服务健康仪表板</h1>
+            <div class="header-meta">
+                <div>
+                    <span>最后更新: </span>
+                    <span id="last-update">-</span>
+                </div>
+                <div class="overall-score" id="overall-score">
+                    <span>整体健康分数:</span>
+                    <span class="score-value" id="overall-score-value">-</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="stats-grid" id="stats-grid">
+            <div class="stat-card healthy">
+                <h3>健康服务</h3>
+                <div class="value" id="stat-healthy">-</div>
+            </div>
+            <div class="stat-card warning">
+                <h3>警告服务</h3>
+                <div class="value" id="stat-warning">-</div>
+            </div>
+            <div class="stat-card degraded">
+                <h3>降级服务</h3>
+                <div class="value" id="stat-degraded">-</div>
+            </div>
+            <div class="stat-card critical">
+                <h3>故障服务</h3>
+                <div class="value" id="stat-critical">-</div>
+            </div>
+        </div>
+        
+        <!-- Services Grid -->
+        <div class="services-grid" id="services-grid">
+            <div class="loading">
+                <div class="loading-spinner"></div>
+                <div>加载服务状态...</div>
+            </div>
+        </div>
+        
+        <!-- Dependency Graph -->
+        <div class="dependency-graph">
+            <h2>📊 服务依赖关系图</h2>
+            <div id="graph-container">
+                <canvas id="dependency-canvas"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Refresh Button -->
+    <button class="refresh-btn" onclick="refreshDashboard()" title="刷新">🔄</button>
+    
+    <script>
+        const API_BASE = '/api/v1/health';
+        let autoRefreshInterval = null;
+        
+        // 初始化仪表板
+        async function initDashboard() {
+            await refreshDashboard();
+            
+            // 自动刷新（每30秒）
+            autoRefreshInterval = setInterval(refreshDashboard, 30000);
+        }
+        
+        // 刷新仪表板
+        async function refreshDashboard() {
+            try {
+                const response = await fetch(`${API_BASE}/dashboard`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    updateDashboard(result.data);
+                } else {
+                    console.error('Failed to load dashboard:', result.error);
+                }
+            } catch (error) {
+                console.error('Error refreshing dashboard:', error);
+            }
+        }
+        
+        // 更新仪表板
+        function updateDashboard(data) {
+            // 更新整体状态
+            document.getElementById('last-update').textContent = 
+                new Date(data.lastUpdate).toLocaleString('zh-CN');
+            document.getElementById('overall-score-value').textContent = data.overallScore;
+            
+            const overallScoreEl = document.getElementById('overall-score');
+            overallScoreEl.className = `overall-score ${data.overallStatus}`;
+            
+            // 更新统计
+            document.getElementById('stat-healthy').textContent = data.statusCounts.healthy;
+            document.getElementById('stat-warning').textContent = data.statusCounts.warning;
+            document.getElementById('stat-degraded').textContent = data.statusCounts.degraded;
+            document.getElementById('stat-critical').textContent = data.statusCounts.critical;
+            
+            // 更新服务卡片
+            const servicesGrid = document.getElementById('services-grid');
+            servicesGrid.innerHTML = data.services.map(service => createServiceCard(service)).join('');
+            
+            // 更新依赖关系图
+            renderDependencyGraph(data.dependencyGraph);
+        }
+        
+        // 创建服务卡片
+        function createServiceCard(service) {
+            return `
+                <div class="service-card ${service.status}">
+                    <div class="service-header">
+                        <div class="service-name">${service.serviceName}</div>
+                        <span class="service-status ${service.status}">${service.status}</span>
+                    </div>
+                    <div class="score-bar">
+                        <div class="score-fill ${service.status}" style="width: ${service.totalScore}%">
+                            ${service.totalScore}
+                        </div>
+                    </div>
+                    <div class="metrics-grid">
+                        ${Object.entries(service.scores).map(([key, value]) => `
+                            <div class="metric-item">
+                                <div class="metric-label">${getMetricLabel(key)}</div>
+                                <div class="metric-value">${value.score}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${service.status === 'critical' ? `
+                        <div class="actions">
+                            <button class="btn btn-danger" onclick="triggerRecovery('${service.serviceName}')">
+                                🚨 触发恢复
+                            </button>
+                            <button class="btn btn-primary" onclick="viewDetails('${service.serviceName}')">
+                                📋 查看详情
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+        
+        // 获取指标标签
+        function getMetricLabel(key) {
+            const labels = {
+                cpu: 'CPU',
+                memory: '内存',
+                errorRate: '错误率',
+                responseTime: '响应时间',
+                connectionPool: '连接池',
+                eventLag: '事件延迟'
+            };
+            return labels[key] || key;
+        }
+        
+        // 触发恢复
+        async function triggerRecovery(serviceName) {
+            if (!confirm(`确定要触发 ${serviceName} 的自动恢复吗？`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/services/${serviceName}/recover`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ strategy: 'restart' })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`✅ ${serviceName} 恢复操作已触发`);
+                    await refreshDashboard();
+                } else {
+                    alert(`❌ 恢复失败: ${result.error}`);
+                }
+            } catch (error) {
+                alert(`❌ 恢复失败: ${error.message}`);
+            }
+        }
+        
+        // 查看详情
+        async function viewDetails(serviceName) {
+            try {
+                const response = await fetch(`${API_BASE}/services/${serviceName}`);
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(JSON.stringify(result.data, null, 2));
+                }
+            } catch (error) {
+                console.error('Error fetching service details:', error);
+            }
+        }
+        
+        // 渲染依赖关系图
+        function renderDependencyGraph(graph) {
+            const canvas = document.getElementById('dependency-canvas');
+            const ctx = canvas.getContext('2d');
+            const container = document.getElementById('graph-container');
+            
+            // 设置画布尺寸
+            canvas.width = container.offsetWidth;
+            canvas.height = container.offsetHeight;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 简单的力导向布局
+            const nodes = graph.nodes.map((node, i) => ({
+                ...node,
+                x: canvas.width / 2 + Math.cos(2 * Math.PI * i / graph.nodes.length) * 150,
+                y: canvas.height / 2 + Math.sin(2 * Math.PI * i / graph.nodes.length) * 150
+            }));
+            
+            // 绘制边
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 2;
+            graph.edges.forEach(edge => {
+                const source = nodes.find(n => n.id === edge.source);
+                const target = nodes.find(n => n.id === edge.target);
+                if (source && target) {
+                    ctx.beginPath();
+                    ctx.moveTo(source.x, source.y);
+                    ctx.lineTo(target.x, target.y);
+                    ctx.stroke();
+                }
+            });
+            
+            // 绘制节点
+            nodes.forEach(node => {
+                const color = {
+                    healthy: '#28a745',
+                    warning: '#ffc107',
+                    degraded: '#fd7e14',
+                    critical: '#dc3545'
+                }[node.status] || '#6c757d';
+                
+                // 节点圆圈
+                ctx.beginPath();
+                ctx.arc(node.x, node.y, 30, 0, 2 * Math.PI);
+                ctx.fillStyle = color;
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                
+                // 节点标签
+                ctx.fillStyle = '#333';
+                ctx.font = 'bold 11px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(node.id.split('-')[0], node.x, node.y + 45);
+            });
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('load', initDashboard);
+        
+        // 窗口大小改变时重新渲染图
+        window.addEventListener('resize', () => {
+            const data = window.lastDashboardData;
+            if (data) {
+                renderDependencyGraph(data.dependencyGraph);
+            }
+        });
+    </script>
+</body>
+</html>

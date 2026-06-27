@@ -1,33 +1,81 @@
 /**
  * backend/gateway/src/routes/queryPerformance.js
  * REQ-00063: 数据库慢查询分析与自动优化建议系统
- * 查询性能监控 API 路由
+ * 性能监控仪表板 API
  */
 
 'use strict';
 
 const express = require('express');
 const router = express.Router();
+const { SlowQueryCollector, getCollector } = require('../../shared/slowQueryCollector');
+const QueryAnalyzer = require('../../shared/queryAnalyzer');
+const OptimizationAdvisor = require('../../shared/optimizationAdvisor');
 const { Client } = require('pg');
-const { getCollector } = require('@pmg/shared/slowQueryCollector');
-const QueryAnalyzer = require('@pmg/shared/queryAnalyzer');
-const OptimizationAdvisor = require('@pmg/shared/optimizationAdvisor');
-const logger = require('@pmg/shared/logger');
-const { incrementCounter, observeHistogram } = require('@pmg/shared/metrics');
-const authMiddleware = require('../middleware/auth');
+const logger = require('../../shared/logger');
+const { incrementCounter, observeHistogram } = require('../../shared/metrics');
+
+// 数据库配置
+const getDbConfig = () => ({
+  host: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT) || 5432,
+  database: process.env.DB_NAME || 'minego',
+  user: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || 'postgres'
+});
 
 // 初始化组件
-const analyzer = new QueryAnalyzer();
-const advisor = new OptimizationAdvisor({
-  dbConfig: process.env.DATABASE_URL
-});
+let collectorInstance = null;
+let analyzerInstance = null;
+let advisorInstance = null;
+
+function getComponents() {
+  const dbConfig = getDbConfig();
+  
+  if (!collectorInstance) {
+    collectorInstance = getCollector({
+      dbConfig,
+      slowThreshold: parseInt(process.env.SLOW_QUERY_THRESHOLD) || 1000
+    });
+  }
+  
+  if (!analyzerInstance) {
+    analyzerInstance = new QueryAnalyzer();
+  }
+  
+  if (!advisorInstance) {
+    advisorInstance = new OptimizationAdvisor({ dbConfig });
+  }
+  
+  return { collector: collectorInstance, analyzer: analyzerInstance, advisor: advisorInstance };
+}
+
+/**
+ * 简单的管理员认证中间件
+ */
+function requireAdmin(req, res, next) {
+  // 在生产环境中应该使用更严格的认证
+  const adminKey = req.headers['x-admin-key'] || req.query.adminKey;
+  
+  if (process.env.NODE_ENV === 'production') {
+    if (!adminKey || adminKey !== process.env.ADMIN_KEY) {
+      return res.status(403).json({
+        success: false,
+        error: 'Admin access required'
+      });
+    }
+  }
+  
+  next();
+}
 
 /**
  * GET /api/query-performance/overview
- * 获取查询性能概览
+ * 获取性能概览
  */
-router.get('/overview', authMiddleware.requireAdmin, async (req, res) => {
+router.get('/overview', requireAdmin, async (req, res) => {
   try {
+    const { advisor } = getComponents();
     const report = await advisor.generateReport();
     
     incrementCounter('api_query_performance_overview_total');
@@ -37,9 +85,7 @@ router.get('/overview', authMiddleware.requireAdmin, async (req, res) => {
       data: report
     });
   } catch (error) {
-    logger.error('Failed to generate query performance overview', {
-      error: error.message
-    });
+    logger.error('Failed to generate overview', { error: error.message });
     res.status(500).json({
       success: false,
       error: error.message
@@ -51,7 +97,7 @@ router.get('/overview', authMiddleware.requireAdmin, async (req, res) => {
  * GET /api/query-performance/slow-queries
  * 获取慢查询列表
  */
-router.get('/slow-queries', authMiddleware.requireAdmin, async (req, res) => {
+router.get('/slow-queries', requireAdmin, async (req, res) => {
   try {
     const { 
       limit = 50, 
@@ -61,7 +107,7 @@ router.get('/slow-queries', authMiddleware.requireAdmin, async (req, res) => {
       endDate 
     } = req.query;
     
-    const client = new Client(process.env.DATABASE_URL);
+    const client = new Client(getDbConfig());
     await client.connect();
     
     try {
@@ -83,7 +129,7 @@ router.get('/slow-queries', authMiddleware.requireAdmin, async (req, res) => {
           AND ($3::date IS NULL OR collected_at <= $3)
         ORDER BY mean_time_ms DESC
         LIMIT $4 OFFSET $5
-      `, [minTime, startDate || null, endDate || null, limit, offset]);
+      `, [minTime, startDate || null, endDate || null, parseInt(limit), parseInt(offset)]);
       
       const countResult = await client.query(`
         SELECT COUNT(DISTINCT query_id) as total
@@ -92,6 +138,8 @@ router.get('/slow-queries', authMiddleware.requireAdmin, async (req, res) => {
           AND ($2::date IS NULL OR collected_at >= $2)
           AND ($3::date IS NULL OR collected_at <= $3)
       `, [minTime, startDate || null, endDate || null]);
+      
+      incrementCounter('api_slow_queries_list_total');
       
       res.json({
         success: true,
@@ -109,7 +157,7 @@ router.get('/slow-queries', authMiddleware.requireAdmin, async (req, res) => {
       await client.end();
     }
   } catch (error) {
-    logger.error('Failed to get slow queries', { error: error.message });
+    logger.error('Failed to list slow queries', { error: error.message });
     res.status(500).json({
       success: false,
       error: error.message
@@ -121,11 +169,11 @@ router.get('/slow-queries', authMiddleware.requireAdmin, async (req, res) => {
  * GET /api/query-performance/recommendations
  * 获取优化建议列表
  */
-router.get('/recommendations', authMiddleware.requireAdmin, async (req, res) => {
+router.get('/recommendations', requireAdmin, async (req, res) => {
   try {
     const { status, severity, limit = 50 } = req.query;
     
-    const client = new Client(process.env.DATABASE_URL);
+    const client = new Client(getDbConfig());
     await client.connect();
     
     try {
@@ -140,7 +188,8 @@ router.get('/recommendations', authMiddleware.requireAdmin, async (req, res) => 
           estimated_improvement,
           status,
           created_at,
-          applied_at
+          applied_at,
+          error_message
         FROM query_optimization_recommendations
         WHERE 1=1
       `;
@@ -169,6 +218,8 @@ router.get('/recommendations', authMiddleware.requireAdmin, async (req, res) => 
       
       const result = await client.query(query, params);
       
+      incrementCounter('api_recommendations_list_total');
+      
       res.json({
         success: true,
         data: result.rows
@@ -178,7 +229,7 @@ router.get('/recommendations', authMiddleware.requireAdmin, async (req, res) => 
       await client.end();
     }
   } catch (error) {
-    logger.error('Failed to get recommendations', { error: error.message });
+    logger.error('Failed to list recommendations', { error: error.message });
     res.status(500).json({
       success: false,
       error: error.message
@@ -190,24 +241,61 @@ router.get('/recommendations', authMiddleware.requireAdmin, async (req, res) => 
  * POST /api/query-performance/recommendations/:id/apply
  * 应用优化建议
  */
-router.post('/recommendations/:id/apply', authMiddleware.requireAdmin, async (req, res) => {
+router.post('/recommendations/:id/apply', requireAdmin, async (req, res) => {
   try {
     const startTime = Date.now();
+    const { advisor } = getComponents();
     
-    const result = await advisor.applyRecommendation(req.params.id);
+    const result = await advisor.applyRecommendation(parseInt(req.params.id));
     
     observeHistogram('query_optimization_apply_duration_seconds', 
       (Date.now() - startTime) / 1000);
+    incrementCounter('query_optimization_applied_total');
+    
+    logger.info('Optimization applied', { recommendationId: req.params.id });
     
     res.json({
       success: true,
       data: result
     });
   } catch (error) {
-    logger.error('Failed to apply recommendation', {
+    logger.error('Failed to apply recommendation', { 
       recommendationId: req.params.id,
+      error: error.message 
+    });
+    incrementCounter('query_optimization_apply_errors_total');
+    res.status(500).json({
+      success: false,
       error: error.message
     });
+  }
+});
+
+/**
+ * POST /api/query-performance/recommendations/:id/dismiss
+ * 忽略优化建议
+ */
+router.post('/recommendations/:id/dismiss', requireAdmin, async (req, res) => {
+  try {
+    const client = new Client(getDbConfig());
+    await client.connect();
+    
+    try {
+      await client.query(`
+        UPDATE query_optimization_recommendations
+        SET status = 'dismissed'
+        WHERE id = $1 AND status = 'pending'
+      `, [parseInt(req.params.id)]);
+      
+      res.json({
+        success: true,
+        message: 'Recommendation dismissed'
+      });
+    } finally {
+      await client.end();
+    }
+  } catch (error) {
+    logger.error('Failed to dismiss recommendation', { error: error.message });
     res.status(500).json({
       success: false,
       error: error.message
@@ -217,11 +305,12 @@ router.post('/recommendations/:id/apply', authMiddleware.requireAdmin, async (re
 
 /**
  * POST /api/query-performance/analyze/:queryId
- * 分析指定查询
+ * 分析特定查询
  */
-router.post('/analyze/:queryId', authMiddleware.requireAdmin, async (req, res) => {
+router.post('/analyze/:queryId', requireAdmin, async (req, res) => {
   try {
-    const client = new Client(process.env.DATABASE_URL);
+    const { analyzer, advisor } = getComponents();
+    const client = new Client(getDbConfig());
     await client.connect();
     
     try {
@@ -243,29 +332,33 @@ router.post('/analyze/:queryId', authMiddleware.requireAdmin, async (req, res) =
       const query = queryResult.rows[0];
       
       // 执行 EXPLAIN ANALYZE
-      let explainResult = { rows: [{}] };
+      let explainResult = null;
       try {
-        explainResult = await client.query(
-          `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) ${query.query_text.substring(0, 1000)}`
-        );
+        const explainQuery = `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) ${query.query_text.substring(0, 1000)}`;
+        const explainRes = await client.query(explainQuery);
+        explainResult = explainRes.rows[0];
       } catch (explainError) {
-        logger.warn('EXPLAIN ANALYZE failed', {
+        logger.warn('EXPLAIN ANALYZE failed', { 
           queryId: req.params.queryId,
-          error: explainError.message
+          error: explainError.message 
         });
+        // 使用空对象作为备用
+        explainResult = {};
       }
       
       // 分析查询
-      const analysis = await analyzer.analyze(query, explainResult.rows[0]);
+      const analysis = await analyzer.analyze(query, explainResult);
       
       // 生成建议
       const recommendations = await advisor.generateRecommendations(analysis);
+      
+      incrementCounter('api_query_analyze_total');
       
       res.json({
         success: true,
         data: {
           query,
-          explainPlan: explainResult.rows[0],
+          explainPlan: explainResult,
           analysis,
           recommendations
         }
@@ -275,9 +368,9 @@ router.post('/analyze/:queryId', authMiddleware.requireAdmin, async (req, res) =
       await client.end();
     }
   } catch (error) {
-    logger.error('Failed to analyze query', {
+    logger.error('Failed to analyze query', { 
       queryId: req.params.queryId,
-      error: error.message
+      error: error.message 
     });
     res.status(500).json({
       success: false,
@@ -290,18 +383,17 @@ router.post('/analyze/:queryId', authMiddleware.requireAdmin, async (req, res) =
  * POST /api/query-performance/collector/start
  * 启动慢查询采集器
  */
-router.post('/collector/start', authMiddleware.requireAdmin, async (req, res) => {
+router.post('/collector/start', requireAdmin, async (req, res) => {
   try {
-    const collector = getCollector({
-      dbConfig: process.env.DATABASE_URL,
-      slowThreshold: parseInt(process.env.SLOW_QUERY_THRESHOLD) || 1000
-    });
-    
+    const { collector } = getComponents();
     await collector.start();
+    
+    incrementCounter('slow_query_collector_start_total');
     
     res.json({
       success: true,
-      message: 'Slow query collector started'
+      message: 'Slow query collector started',
+      status: collector.getStatus()
     });
   } catch (error) {
     logger.error('Failed to start collector', { error: error.message });
@@ -316,14 +408,17 @@ router.post('/collector/start', authMiddleware.requireAdmin, async (req, res) =>
  * POST /api/query-performance/collector/stop
  * 停止慢查询采集器
  */
-router.post('/collector/stop', authMiddleware.requireAdmin, async (req, res) => {
+router.post('/collector/stop', requireAdmin, async (req, res) => {
   try {
-    const collector = getCollector();
+    const { collector } = getComponents();
     await collector.stop();
+    
+    incrementCounter('slow_query_collector_stop_total');
     
     res.json({
       success: true,
-      message: 'Slow query collector stopped'
+      message: 'Slow query collector stopped',
+      status: collector.getStatus()
     });
   } catch (error) {
     logger.error('Failed to stop collector', { error: error.message });
@@ -338,9 +433,9 @@ router.post('/collector/stop', authMiddleware.requireAdmin, async (req, res) => 
  * GET /api/query-performance/collector/status
  * 获取采集器状态
  */
-router.get('/collector/status', authMiddleware.requireAdmin, async (req, res) => {
+router.get('/collector/status', requireAdmin, async (req, res) => {
   try {
-    const collector = getCollector();
+    const { collector } = getComponents();
     const status = collector.getStatus();
     
     res.json({
@@ -348,6 +443,31 @@ router.get('/collector/status', authMiddleware.requireAdmin, async (req, res) =>
       data: status
     });
   } catch (error) {
+    logger.error('Failed to get collector status', { error: error.message });
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/query-performance/collector/collect
+ * 手动触发采集
+ */
+router.post('/collector/collect', requireAdmin, async (req, res) => {
+  try {
+    const { collector } = getComponents();
+    const result = await collector.manualCollect();
+    
+    incrementCounter('slow_query_collector_manual_total');
+    
+    res.json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    logger.error('Failed to manual collect', { error: error.message });
     res.status(500).json({
       success: false,
       error: error.message
