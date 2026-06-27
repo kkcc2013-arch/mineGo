@@ -1,77 +1,75 @@
-// backend/services/location-service/src/routes/spawnConfig.js — Spawn Configuration Admin API
-'use strict';
+/**
+ * 精灵刷新配置路由
+ * 运营后台管理接口
+ *
+ * @module spawnConfig
+ */
 
 const express = require('express');
 const router = express.Router();
-const { createLogger } = require('../../../shared/logger');
-const { query } = require('../../../shared/db');
-const { getRedis } = require('../../../shared/redis');
-
-const logger = createLogger('spawn-config');
 
 /**
- * Admin middleware
+ * 中间件：管理员权限验证
  */
 function adminOnly(req, res, next) {
-  if (!req.user || req.user.role !== 'admin') {
+  if (!req.user || !req.user.isAdmin) {
     return res.status(403).json({
       success: false,
-      code: 2003,
-      message: '需要管理员权限'
+      error: 'Admin access required'
     });
   }
   next();
 }
 
 /**
- * GET /api/admin/spawn/config/cell/:geohash
- * Get spawn configuration for a cell
+ * 获取区域配置
+ * GET /api/v1/spawn/config/cell/:geohash
  */
 router.get('/config/cell/:geohash', async (req, res) => {
   const { geohash } = req.params;
-  
+
   try {
-    const result = await query(`
-      SELECT * FROM spawn_cell_configs 
-      WHERE geohash = $1
-    `, [geohash]);
-    
-    const config = result.rows[0] || {
-      geohash,
-      base_spawn_count: 3,
-      min_spawn: 1,
-      max_spawn: 10,
-      enabled: true
-    };
-    
-    res.json({ success: true, data: config });
+    const result = await req.db.query(
+      'SELECT * FROM spawn_cell_configs WHERE geohash = $1',
+      [geohash]
+    );
+
+    res.json({
+      success: true,
+      data: result.rows[0] || {
+        geohash,
+        baseSpawnCount: 3,
+        minSpawn: 1,
+        maxSpawn: 10,
+        enabled: true
+      }
+    });
   } catch (error) {
-    logger.error('Failed to get cell config', { geohash, error: error.message });
+    console.error('Error fetching cell config:', error);
     res.status(500).json({
       success: false,
-      code: 3001,
-      message: '获取区域配置失败'
+      error: 'Failed to fetch cell config'
     });
   }
 });
 
 /**
- * PUT /api/admin/spawn/config/cell/:geohash
- * Update spawn configuration for a cell
+ * 更新区域配置
+ * PUT /api/v1/spawn/config/cell/:geohash
  */
 router.put('/config/cell/:geohash', adminOnly, async (req, res) => {
   const { geohash } = req.params;
   const {
-    base_spawn_count,
-    min_spawn,
-    max_spawn,
-    spawn_pool_override,
+    baseSpawnCount,
+    minSpawn,
+    maxSpawn,
+    spawnPoolOverride,
     enabled
   } = req.body;
-  
+
   try {
-    await query(`
-      INSERT INTO spawn_cell_configs 
+    await req.db.query(
+      `INSERT INTO spawn_cell_configs
         (geohash, base_spawn_count, min_spawn, max_spawn, spawn_pool_override, enabled, updated_at)
       VALUES ($1, $2, $3, $4, $5, $6, NOW())
       ON CONFLICT (geohash) DO UPDATE SET
@@ -80,72 +78,83 @@ router.put('/config/cell/:geohash', adminOnly, async (req, res) => {
         max_spawn = $4,
         spawn_pool_override = $5,
         enabled = $6,
-        updated_at = NOW()
-    `, [geohash, base_spawn_count, min_spawn, max_spawn, spawn_pool_override, enabled]);
-    
-    // Clear cache
-    const redis = getRedis();
-    await redis.del(`spawn:config:${geohash}`);
-    
-    // Log admin action
-    await query(`
-      INSERT INTO spawn_admin_logs (admin_id, action, target_type, target_id, changes)
-      VALUES ($1, $2, $3, $4, $5)
-    `, [
-      req.user.sub,
-      'update_config',
-      'cell',
-      geohash,
-      JSON.stringify({ base_spawn_count, min_spawn, max_spawn, enabled })
-    ]);
-    
-    logger.info('Cell config updated', { geohash, adminId: req.user.sub });
-    
+        updated_at = NOW()`,
+      [geohash, baseSpawnCount, minSpawn, maxSpawn, spawnPoolOverride, enabled]
+    );
+
+    // 清除缓存
+    await req.redis.del(`spawn:config:${geohash}`);
+
+    // 记录操作日志
+    await req.db.query(
+      `INSERT INTO spawn_admin_logs (admin_id, action, target_type, target_id, changes)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        req.user.id,
+        'update_config',
+        'cell',
+        geohash,
+        { baseSpawnCount, minSpawn, maxSpawn, enabled }
+      ]
+    );
+
     res.json({ success: true });
   } catch (error) {
-    logger.error('Failed to update cell config', { geohash, error: error.message });
+    console.error('Error updating cell config:', error);
     res.status(500).json({
       success: false,
-      code: 3002,
-      message: '更新区域配置失败'
+      error: 'Failed to update cell config'
     });
   }
 });
 
 /**
- * GET /api/admin/spawn/events
- * Get spawn events
+ * 批量更新区域配置
+ * POST /api/v1/spawn/config/cells/batch
  */
-router.get('/events', async (req, res) => {
-  const { active, limit = 20, offset = 0 } = req.query;
-  
+router.post('/config/cells/batch', adminOnly, async (req, res) => {
+  const { cells } = req.body; // [{ geohash, baseSpawnCount, minSpawn, maxSpawn, enabled }]
+
   try {
-    let sql = 'SELECT * FROM spawn_events';
-    const params = [];
-    
-    if (active === 'true') {
-      sql += ' WHERE start_time <= NOW() AND end_time >= NOW() AND enabled = true';
+    await req.db.query('BEGIN');
+
+    for (const cell of cells) {
+      await req.db.query(
+        `INSERT INTO spawn_cell_configs
+          (geohash, base_spawn_count, min_spawn, max_spawn, enabled, updated_at)
+        VALUES ($1, $2, $3, $4, $5, NOW())
+        ON CONFLICT (geohash) DO UPDATE SET
+          base_spawn_count = $2,
+          min_spawn = $3,
+          max_spawn = $4,
+          enabled = $5,
+          updated_at = NOW()`,
+        [cell.geohash, cell.baseSpawnCount, cell.minSpawn, cell.maxSpawn, cell.enabled]
+      );
+
+      // 清除缓存
+      await req.redis.del(`spawn:config:${cell.geohash}`);
     }
-    
-    sql += ' ORDER BY start_time DESC LIMIT $1 OFFSET $2';
-    params.push(parseInt(limit), parseInt(offset));
-    
-    const result = await query(sql, params);
-    
-    res.json({ success: true, data: result.rows });
+
+    await req.db.query('COMMIT');
+
+    res.json({
+      success: true,
+      updated: cells.length
+    });
   } catch (error) {
-    logger.error('Failed to get events', { error: error.message });
+    await req.db.query('ROLLBACK');
+    console.error('Error batch updating cell configs:', error);
     res.status(500).json({
       success: false,
-      code: 3003,
-      message: '获取活动列表失败'
+      error: 'Failed to batch update cell configs'
     });
   }
 });
 
 /**
- * POST /api/admin/spawn/events
- * Create spawn event
+ * 创建活动事件
+ * POST /api/v1/spawn/events
  */
 router.post('/events', adminOnly, async (req, res) => {
   const {
@@ -157,277 +166,393 @@ router.post('/events', adminOnly, async (req, res) => {
     spawnMultiplier,
     featuredPokemon
   } = req.body;
-  
+
   try {
-    const result = await query(`
-      INSERT INTO spawn_events 
+    const result = await req.db.query(
+      `INSERT INTO spawn_events
         (name, type, start_time, end_time, affected_areas, spawn_multiplier, featured_pokemon)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING id
-    `, [
-      name,
-      type,
-      startTime,
-      endTime,
-      JSON.stringify(affectedAreas),
-      spawnMultiplier || 1.0,
-      featuredPokemon || []
-    ]);
-    
+      RETURNING id`,
+      [name, type, startTime, endTime, JSON.stringify(affectedAreas), spawnMultiplier, featuredPokemon]
+    );
+
     const eventId = result.rows[0].id;
-    
-    // Log admin action
-    await query(`
-      INSERT INTO spawn_admin_logs (admin_id, action, target_type, target_id, changes)
-      VALUES ($1, $2, $3, $4, $5)
-    `, [
-      req.user.sub,
-      'create_event',
-      'event',
-      eventId.toString(),
-      JSON.stringify({ name, type, startTime, endTime, spawnMultiplier })
-    ]);
-    
-    logger.info('Event created', { eventId, name, adminId: req.user.sub });
-    
-    res.json({ success: true, eventId });
+
+    // 记录操作日志
+    await req.db.query(
+      `INSERT INTO spawn_admin_logs (admin_id, action, target_type, target_id, changes)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        req.user.id,
+        'create_event',
+        'event',
+        eventId.toString(),
+        { name, type, startTime, endTime, spawnMultiplier }
+      ]
+    );
+
+    res.json({
+      success: true,
+      eventId
+    });
   } catch (error) {
-    logger.error('Failed to create event', { error: error.message });
+    console.error('Error creating event:', error);
     res.status(500).json({
       success: false,
-      code: 3004,
-      message: '创建活动失败'
+      error: 'Failed to create event'
     });
   }
 });
 
 /**
- * PUT /api/admin/spawn/events/:eventId
- * Update spawn event
+ * 获取活动列表
+ * GET /api/v1/spawn/events
  */
-router.put('/events/:eventId', adminOnly, async (req, res) => {
-  const { eventId } = req.params;
-  const updates = req.body;
-  
+router.get('/events', async (req, res) => {
+  const { active, type } = req.query;
+
   try {
-    const fields = [];
-    const values = [eventId];
-    let paramCount = 2;
-    
-    for (const [key, value] of Object.entries(updates)) {
-      const dbKey = key.replace(/([A-Z])/g, '_$1').toLowerCase();
-      fields.push(`${dbKey} = $${paramCount}`);
-      values.push(value);
-      paramCount++;
+    let query = 'SELECT * FROM spawn_events WHERE 1=1';
+    const params = [];
+    let paramIndex = 1;
+
+    if (active === 'true') {
+      query += ` AND start_time <= NOW() AND end_time >= NOW() AND enabled = true`;
     }
-    
-    if (fields.length === 0) {
+
+    if (type) {
+      query += ` AND type = $${paramIndex}`;
+      params.push(type);
+      paramIndex++;
+    }
+
+    query += ' ORDER BY start_time DESC';
+
+    const result = await req.db.query(query, params);
+
+    res.json({
+      success: true,
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch events'
+    });
+  }
+});
+
+/**
+ * 更新活动事件
+ * PUT /api/v1/spawn/events/:id
+ */
+router.put('/events/:id', adminOnly, async (req, res) => {
+  const { id } = req.params;
+  const updates = req.body;
+
+  try {
+    const setClauses = [];
+    const params = [id];
+    let paramIndex = 2;
+
+    const allowedFields = ['name', 'type', 'start_time', 'end_time', 'affected_areas', 'spawn_multiplier', 'featured_pokemon', 'enabled'];
+    for (const field of allowedFields) {
+      if (updates[field] !== undefined) {
+        setClauses.push(`${field} = $${paramIndex}`);
+        params.push(updates[field]);
+        paramIndex++;
+      }
+    }
+
+    if (setClauses.length === 0) {
       return res.status(400).json({
         success: false,
-        code: 3005,
-        message: '没有提供更新字段'
+        error: 'No valid fields to update'
       });
     }
-    
-    fields.push('updated_at = NOW()');
-    
-    await query(`
-      UPDATE spawn_events 
-      SET ${fields.join(', ')}
-      WHERE id = $1
-    `, values);
-    
-    // Log admin action
-    await query(`
-      INSERT INTO spawn_admin_logs (admin_id, action, target_type, target_id, changes)
-      VALUES ($1, $2, $3, $4, $5)
-    `, [
-      req.user.sub,
-      'update_event',
-      'event',
-      eventId,
-      JSON.stringify(updates)
-    ]);
-    
-    logger.info('Event updated', { eventId, adminId: req.user.sub });
-    
+
+    setClauses.push('updated_at = NOW()');
+
+    await req.db.query(
+      `UPDATE spawn_events SET ${setClauses.join(', ')} WHERE id = $1`,
+      params
+    );
+
+    // 记录操作日志
+    await req.db.query(
+      `INSERT INTO spawn_admin_logs (admin_id, action, target_type, target_id, changes)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [req.user.id, 'update_event', 'event', id.toString(), updates]
+    );
+
     res.json({ success: true });
   } catch (error) {
-    logger.error('Failed to update event', { eventId, error: error.message });
+    console.error('Error updating event:', error);
     res.status(500).json({
       success: false,
-      code: 3006,
-      message: '更新活动失败'
+      error: 'Failed to update event'
     });
   }
 });
 
 /**
- * DELETE /api/admin/spawn/events/:eventId
- * Delete spawn event
+ * 删除活动事件
+ * DELETE /api/v1/spawn/events/:id
  */
-router.delete('/events/:eventId', adminOnly, async (req, res) => {
-  const { eventId } = req.params;
-  
+router.delete('/events/:id', adminOnly, async (req, res) => {
+  const { id } = req.params;
+
   try {
-    await query('DELETE FROM spawn_events WHERE id = $1', [eventId]);
-    
-    // Log admin action
-    await query(`
-      INSERT INTO spawn_admin_logs (admin_id, action, target_type, target_id)
-      VALUES ($1, $2, $3, $4)
-    `, [req.user.sub, 'delete_event', 'event', eventId]);
-    
-    logger.info('Event deleted', { eventId, adminId: req.user.sub });
-    
+    await req.db.query(
+      'UPDATE spawn_events SET enabled = false WHERE id = $1',
+      [id]
+    );
+
+    // 记录操作日志
+    await req.db.query(
+      `INSERT INTO spawn_admin_logs (admin_id, action, target_type, target_id)
+       VALUES ($1, $2, $3, $4)`,
+      [req.user.id, 'delete_event', 'event', id.toString()]
+    );
+
     res.json({ success: true });
   } catch (error) {
-    logger.error('Failed to delete event', { eventId, error: error.message });
+    console.error('Error deleting event:', error);
     res.status(500).json({
       success: false,
-      code: 3007,
-      message: '删除活动失败'
+      error: 'Failed to delete event'
     });
   }
 });
 
 /**
- * GET /api/admin/spawn/pool/:biome
- * Get spawn pool for a biome
+ * 获取精灵池配置
+ * GET /api/v1/spawn/pool/:biome
  */
 router.get('/pool/:biome', async (req, res) => {
   const { biome } = req.params;
-  
+
   try {
-    const result = await query(`
-      SELECT 
-        p.id, p.name, p.rarity,
-        sp.weight, sp.min_level, sp.max_level,
-        sp.enabled
-      FROM spawn_pools sp
-      JOIN pokemon_species p ON sp.pokemon_id = p.id
-      WHERE sp.biome = $1
-      ORDER BY sp.weight DESC
-    `, [biome]);
-    
-    res.json({ success: true, data: result.rows });
+    const result = await req.db.query(
+      `SELECT p.id, p.name, p.rarity, sp.weight, sp.min_level, sp.max_level, sp.enabled
+       FROM spawn_pools sp
+       JOIN pokemon p ON sp.pokemon_id = p.id
+       WHERE sp.biome = $1
+       ORDER BY sp.weight DESC`,
+      [biome]
+    );
+
+    res.json({
+      success: true,
+      data: result.rows
+    });
   } catch (error) {
-    logger.error('Failed to get spawn pool', { biome, error: error.message });
+    console.error('Error fetching spawn pool:', error);
     res.status(500).json({
       success: false,
-      code: 3008,
-      message: '获取精灵池失败'
+      error: 'Failed to fetch spawn pool'
     });
   }
 });
 
 /**
- * GET /api/admin/spawn/stats
- * Get spawn statistics
+ * 更新精灵池
+ * PUT /api/v1/spawn/pool/:biome
  */
-router.get('/stats', async (req, res) => {
-  const { geohash, date, hour } = req.query;
-  
-  try {
-    let sql = 'SELECT * FROM spawn_statistics WHERE 1=1';
-    const params = [];
-    let paramCount = 1;
-    
-    if (geohash) {
-      sql += ` AND geohash = $${paramCount}`;
-      params.push(geohash);
-      paramCount++;
-    }
-    
-    if (date) {
-      sql += ` AND date = $${paramCount}`;
-      params.push(date);
-      paramCount++;
-    }
-    
-    if (hour !== undefined) {
-      sql += ` AND hour = $${paramCount}`;
-      params.push(parseInt(hour));
-      paramCount++;
-    }
-    
-    sql += ' ORDER BY date DESC, hour DESC LIMIT 100';
-    
-    const result = await query(sql, params);
-    
-    res.json({ success: true, data: result.rows });
-  } catch (error) {
-    logger.error('Failed to get spawn stats', { error: error.message });
-    res.status(500).json({
-      success: false,
-      code: 3010,
-      message: '获取统计数据失败'
-    });
-  }
-});
+router.put('/pool/:biome', adminOnly, async (req, res) => {
+  const { biome } = req.params;
+  const { pokemon } = req.body; // [{ id, weight, minLevel, maxLevel }]
 
-/**
- * GET /api/admin/spawn/logs
- * Get admin operation logs
- */
-router.get('/logs', adminOnly, async (req, res) => {
-  const { limit = 50, offset = 0 } = req.query;
-  
   try {
-    const result = await query(`
-      SELECT 
-        sal.*,
-        u.username as admin_name
-      FROM spawn_admin_logs sal
-      JOIN users u ON sal.admin_id = u.id
-      ORDER BY sal.created_at DESC
-      LIMIT $1 OFFSET $2
-    `, [parseInt(limit), parseInt(offset)]);
-    
-    res.json({ success: true, data: result.rows });
-  } catch (error) {
-    logger.error('Failed to get admin logs', { error: error.message });
-    res.status(500).json({
-      success: false,
-      code: 3011,
-      message: '获取操作日志失败'
-    });
-  }
-});
+    await req.db.query('BEGIN');
 
-/**
- * POST /api/admin/spawn/manual-spawn
- * Manually spawn pokemon at a location
- */
-router.post('/manual-spawn', adminOnly, async (req, res) => {
-  const { pokemonId, lat, lng, duration } = req.body;
-  
-  try {
-    // Log admin action
-    await query(`
-      INSERT INTO spawn_admin_logs (admin_id, action, target_type, changes)
-      VALUES ($1, $2, $3, $4)
-    `, [
-      req.user.sub,
-      'manual_spawn',
-      'pokemon',
-      JSON.stringify({ pokemonId, lat, lng, duration })
-    ]);
-    
-    logger.info('Manual spawn triggered', { 
-      pokemonId, 
-      lat, 
-      lng, 
-      adminId: req.user.sub 
-    });
-    
+    for (const p of pokemon) {
+      await req.db.query(
+        `INSERT INTO spawn_pools (biome, pokemon_id, weight, min_level, max_level)
+         VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (biome, pokemon_id) DO UPDATE SET
+           weight = $3,
+           min_level = $4,
+           max_level = $5`,
+        [biome, p.id, p.weight, p.minLevel, p.maxLevel]
+      );
+    }
+
+    await req.db.query('COMMIT');
+
+    // 清除缓存
+    await req.redis.del(`spawn:pool:${biome}`);
+
+    // 记录操作日志
+    await req.db.query(
+      `INSERT INTO spawn_admin_logs (admin_id, action, target_type, target_id, changes)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [req.user.id, 'update_pool', 'pool', biome, { pokemonCount: pokemon.length }]
+    );
+
     res.json({ success: true });
   } catch (error) {
-    logger.error('Failed to manual spawn', { error: error.message });
+    await req.db.query('ROLLBACK');
+    console.error('Error updating spawn pool:', error);
     res.status(500).json({
       success: false,
-      code: 3012,
-      message: '手动刷新失败'
+      error: 'Failed to update spawn pool'
+    });
+  }
+});
+
+/**
+ * 获取所有生物群系
+ * GET /api/v1/spawn/biomes
+ */
+router.get('/biomes', async (req, res) => {
+  try {
+    const result = await req.db.query(
+      `SELECT DISTINCT biome, COUNT(*) as pokemon_count
+       FROM spawn_pools
+       WHERE enabled = true
+       GROUP BY biome
+       ORDER BY biome`
+    );
+
+    res.json({
+      success: true,
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Error fetching biomes:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch biomes'
+    });
+  }
+});
+
+/**
+ * 获取刷新统计
+ * GET /api/v1/spawn/statistics
+ */
+router.get('/statistics', async (req, res) => {
+  const { geohash, startDate, endDate } = req.query;
+
+  try {
+    let query = 'SELECT * FROM spawn_statistics WHERE 1=1';
+    const params = [];
+    let paramIndex = 1;
+
+    if (geohash) {
+      query += ` AND geohash = $${paramIndex}`;
+      params.push(geohash);
+      paramIndex++;
+    }
+
+    if (startDate) {
+      query += ` AND date >= $${paramIndex}`;
+      params.push(startDate);
+      paramIndex++;
+    }
+
+    if (endDate) {
+      query += ` AND date <= $${paramIndex}`;
+      params.push(endDate);
+      paramIndex++;
+    }
+
+    query += ' ORDER BY date DESC, hour DESC LIMIT 1000';
+
+    const result = await req.db.query(query, params);
+
+    res.json({
+      success: true,
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Error fetching statistics:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch statistics'
+    });
+  }
+});
+
+/**
+ * 获取操作日志
+ * GET /api/v1/spawn/logs
+ */
+router.get('/logs', adminOnly, async (req, res) => {
+  const { adminId, action, limit = 100 } = req.query;
+
+  try {
+    let query = 'SELECT * FROM spawn_admin_logs WHERE 1=1';
+    const params = [];
+    let paramIndex = 1;
+
+    if (adminId) {
+      query += ` AND admin_id = $${paramIndex}`;
+      params.push(adminId);
+      paramIndex++;
+    }
+
+    if (action) {
+      query += ` AND action = $${paramIndex}`;
+      params.push(action);
+      paramIndex++;
+    }
+
+    query += ` ORDER BY created_at DESC LIMIT $${paramIndex}`;
+    params.push(parseInt(limit));
+
+    const result = await req.db.query(query, params);
+
+    res.json({
+      success: true,
+      data: result.rows
+    });
+  } catch (error) {
+    console.error('Error fetching logs:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch logs'
+    });
+  }
+});
+
+/**
+ * 手动刷新精灵
+ * POST /api/v1/spawn/manual
+ */
+router.post('/manual', adminOnly, async (req, res) => {
+  const { geohash, pokemonId, count = 1 } = req.body;
+
+  try {
+    const spawnEngine = req.app.locals.spawnEngine;
+    if (!spawnEngine) {
+      return res.status(503).json({
+        success: false,
+        error: 'Spawn engine not available'
+      });
+    }
+
+    const spawned = await spawnEngine.manualSpawn(geohash, pokemonId, count);
+
+    // 记录操作日志
+    await req.db.query(
+      `INSERT INTO spawn_admin_logs (admin_id, action, target_type, target_id, changes)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [req.user.id, 'manual_spawn', 'cell', geohash, { pokemonId, count, spawned: spawned.length }]
+    );
+
+    res.json({
+      success: true,
+      spawned: spawned.length,
+      data: spawned
+    });
+  } catch (error) {
+    console.error('Error manual spawning:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to spawn pokemon'
     });
   }
 });

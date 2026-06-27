@@ -75,7 +75,7 @@
 | REQ-00066 | REQ-00066：API 错误码标准化与故障排查手册 | HTTP 状态码 |  |  |  |  |
 | REQ-00067 | 精灵羁绊与互动养成系统 | 功能增强 | P1 | done | pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-09 22:30 |
 | REQ-00068 | REQ-00068：服务降级策略与优雅降级管理器 |  |  |  |  |  |
-| REQ-00069 | 精灵资源管理系统与动态刷新控制 | 功能增强 | P1 | new | location-service、catch-service、backend/shared、game-client、database/migrations | 2026-06-09 23:30 |
+| REQ-00069 | 精灵资源管理系统与动态刷新控制 | 功能增强 | P1 | done | location-service、catch-service、backend/shared、game-client、database/migrations | 2026-06-09 23:30 |
 | REQ-00070 | REQ-00070：Redis 内存优化与自动 TTL 策略 |  |  |  |  |  |
 | REQ-00071 | K8s Pod 资源自动扩缩容优化系统 | 成本/资源优化 | P1 | new | infrastructure/k8s、gateway、所有微服务、backend/shared | 2026-06-09 23:30 |
 | REQ-00072 | REQ-00072：API 响应 Gzip/Brotli 压缩优化 |  |  |  |  |  |
@@ -358,3 +358,4 @@
 | REQ-00341 | 隐私政策版本管理与变更通知系统 | 合规/隐私 | P1 | new | user-service、gateway、game-client、admin-dashboard、backend/shared、database/migrations | 2026-06-26 10:00 UTC |
 | REQ-00342 | 精灵租赁市场与短期使用系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、payment-service、gateway、game-client、database/migrations | 2026-06-26 11:00 UTC |
 | REQ-00343 | API 密钥泄露检测与实时告警系统 | 安全加固 | P1 | new | gateway、user-service、admin-dashboard、backend/shared、infrastructure/k8s | 2026-06-27 01:00 UTC |
+| REQ-00344 | 玩家账号异常登录检测与地理围栏防护系统 | 安全加固 | P1 | new | user-service、gateway、backend/shared、Redis、PostgreSQL、admin-dashboard | 2026-06-27 02:00 UTC |

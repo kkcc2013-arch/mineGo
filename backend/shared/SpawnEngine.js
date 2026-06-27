@@ -1,600 +1,528 @@
-// backend/shared/SpawnEngine.js — Pokemon Spawn Management Engine
-'use strict';
-
-const EventEmitter = require('events');
-const { v4: uuidv4 } = require('uuid');
-const { createLogger } = require('./logger');
-const spawnMetrics = require('./spawnMetrics');
-
-const logger = createLogger('spawn-engine');
-
 /**
- * SpawnEngine - Manages dynamic pokemon spawning based on heatmap and events
+ * 精灵刷新引擎
+ * 基于热力图的动态刷新密度控制
+ *
+ * @module SpawnEngine
  */
+
+const { EventEmitter } = require('events');
+const { v4: uuidv4 } = require('uuid');
+
 class SpawnEngine extends EventEmitter {
-  constructor(config = {}) {
+  constructor(config) {
     super();
-    
     this.redis = config.redis;
     this.db = config.db;
-    this.config = {
-      gridSize: 6, // Geohash precision (~1.2km x 0.6km)
-      heatmapUpdateInterval: 60000, // 1 minute
-      spawnCheckInterval: 30000, // 30 seconds
-      defaultDespawnMinutes: { min: 15, max: 60 },
-      ...config
+    this.config = config;
+    this.metrics = config.metrics || null;
+
+    // 刷新区域网格 (Geohash 精度 6，约 1.2km x 0.6km)
+    this.gridSize = config.gridSize || 6;
+
+    // 热力图更新间隔
+    this.heatmapUpdateInterval = config.heatmapUpdateInterval || 60000; // 1分钟
+
+    // 刷新检查间隔
+    this.spawnCheckInterval = config.spawnCheckInterval || 30000; // 30秒
+
+    // 时间因子配置
+    this.timeMultipliers = {
+      // 凌晨低谷
+      0: 0.5, 1: 0.4, 2: 0.3, 3: 0.3, 4: 0.4, 5: 0.5,
+      // 早晨
+      6: 0.7, 7: 0.8, 8: 0.9,
+      // 工作时间
+      9: 1.0, 10: 1.0, 11: 1.1, 12: 1.2, 13: 1.1, 14: 1.0,
+      // 下午
+      15: 1.0, 16: 1.1, 17: 1.2,
+      // 傍晚高峰
+      18: 1.5, 19: 1.6, 20: 1.5, 21: 1.4,
+      // 夜间
+      22: 1.2, 23: 0.8
     };
-    
-    this.spawnTimers = new Map();
-    this.isRunning = false;
-    
-    // Metrics
-    this.metrics = spawnMetrics;
-    
-    logger.info('SpawnEngine initialized', { config: this.config });
+
+    this.spawnLoopInterval = null;
+    this.heatmapLoopInterval = null;
+
+    this.logger = config.logger || console;
   }
-  
+
   /**
-   * Start spawn loop
+   * 启动刷新循环
    */
-  start() {
-    if (this.isRunning) return;
-    
-    this.isRunning = true;
-    this.spawnLoop();
-    this.heatmapLoop();
-    
-    logger.info('SpawnEngine started');
+  startSpawnLoop() {
+    if (this.spawnLoopInterval) {
+      clearInterval(this.spawnLoopInterval);
+    }
+
+    this.spawnLoopInterval = setInterval(async () => {
+      try {
+        await this.processSpawnCycle();
+      } catch (error) {
+        this.logger.error('Spawn cycle error:', error);
+      }
+    }, this.spawnCheckInterval);
+
+    this.logger.info('Spawn engine started');
   }
-  
+
   /**
-   * Stop spawn loop
+   * 启动热力图更新循环
+   */
+  startHeatmapUpdate() {
+    if (this.heatmapLoopInterval) {
+      clearInterval(this.heatmapLoopInterval);
+    }
+
+    this.heatmapLoopInterval = setInterval(async () => {
+      try {
+        await this.cleanupExpiredSpawns();
+      } catch (error) {
+        this.logger.error('Heatmap cleanup error:', error);
+      }
+    }, this.heatmapUpdateInterval);
+
+    this.logger.info('Heatmap cleanup started');
+  }
+
+  /**
+   * 停止所有循环
    */
   stop() {
-    this.isRunning = false;
-    
-    for (const timer of this.spawnTimers.values()) {
-      clearTimeout(timer);
+    if (this.spawnLoopInterval) {
+      clearInterval(this.spawnLoopInterval);
+      this.spawnLoopInterval = null;
     }
-    this.spawnTimers.clear();
-    
-    logger.info('SpawnEngine stopped');
-  }
-  
-  /**
-   * Main spawn loop
-   */
-  async spawnLoop() {
-    while (this.isRunning) {
-      try {
-        await this.processAllCells();
-      } catch (error) {
-        logger.error('Spawn loop error', { error: error.message });
-      }
-      
-      await this.sleep(this.config.spawnCheckInterval);
+    if (this.heatmapLoopInterval) {
+      clearInterval(this.heatmapLoopInterval);
+      this.heatmapLoopInterval = null;
     }
+    this.logger.info('Spawn engine stopped');
   }
-  
+
   /**
-   * Heatmap update loop
+   * 处理刷新周期
    */
-  async heatmapLoop() {
-    while (this.isRunning) {
-      try {
-        await this.updateHeatmapStats();
-      } catch (error) {
-        logger.error('Heatmap update error', { error: error.message });
-      }
-      
-      await this.sleep(this.config.heatmapUpdateInterval);
-    }
-  }
-  
-  /**
-   * Process all active cells
-   */
-  async processAllCells() {
-    const start = Date.now();
-    
-    // Get all active cells from heatmap
+  async processSpawnCycle() {
+    // 获取所有活跃区域
     const activeCells = await this.getActiveCells();
-    
+
     for (const geohash of activeCells) {
       try {
-        await this.processCell(geohash);
+        const spawnCount = await this.calculateSpawnForCell(geohash);
+        await this.spawnPokemon(geohash, spawnCount);
       } catch (error) {
-        logger.error('Failed to process cell', { geohash, error: error.message });
+        this.logger.error(`Spawn error for cell ${geohash}:`, error);
       }
     }
-    
-    const duration = (Date.now() - start) / 1000;
-    this.metrics.spawnCalculationDuration.observe({ operation: 'process_all_cells' }, duration);
   }
-  
+
   /**
-   * Process a single cell
+   * 获取活跃区域列表
    */
-  async processCell(geohash) {
-    // Calculate spawn count for this cell
-    const spawnCount = await this.calculateSpawnForCell(geohash);
-    
-    // Get existing spawns
-    const existing = await this.getExistingSpawns(geohash);
-    
-    // Calculate how many to spawn
-    const toSpawn = Math.max(0, spawnCount - existing.length);
-    
-    if (toSpawn <= 0) return [];
-    
-    logger.debug('Spawning pokemon', { geohash, toSpawn, existing: existing.length });
-    
-    // Spawn new pokemon
-    const spawned = await this.spawnPokemon(geohash, toSpawn);
-    
-    return spawned;
+  async getActiveCells() {
+    const pattern = 'heatmap:stats:*';
+    const keys = await this.redis.keys(pattern);
+
+    return keys.map(key => {
+      const parts = key.split(':');
+      return parts[parts.length - 1];
+    });
   }
-  
+
   /**
-   * Calculate spawn count for a cell
+   * 动态刷新算法
+   * 根据区域热度、时间、精灵池计算刷新数量
    */
   async calculateSpawnForCell(geohash) {
-    const start = Date.now();
-    
-    try {
-      // Get heatmap data
-      const heatmap = await this.getHeatmap(geohash);
-      const activePlayers = heatmap.activePlayers || 0;
-      
-      // Get cell config
-      const cellConfig = await this.getCellConfig(geohash);
-      
-      // Base spawn count
-      const baseSpawn = cellConfig.baseSpawnCount || 3;
-      
-      // Calculate factors
-      const timeFactor = this.getTimeFactor();
-      const playerFactor = this.getPlayerFactor(activePlayers);
-      const eventFactor = await this.getEventFactor(geohash);
-      
-      // Final spawn count
-      const spawnCount = Math.floor(
-        baseSpawn * timeFactor * playerFactor * eventFactor
-      );
-      
-      // Apply limits
-      const minSpawn = cellConfig.minSpawn || 1;
-      const maxSpawn = cellConfig.maxSpawn || 10;
-      const result = Math.max(minSpawn, Math.min(maxSpawn, spawnCount));
-      
-      const duration = (Date.now() - start) / 1000;
-      this.metrics.spawnCalculationDuration.observe({ operation: 'calculate' }, duration);
-      
-      return result;
-    } catch (error) {
-      logger.error('Failed to calculate spawn count', { geohash, error: error.message });
-      return 1; // Default fallback
-    }
+    // 获取区域热度（活跃玩家数）
+    const heatmap = await this.getHeatmap(geohash);
+    const activePlayers = heatmap.activePlayers || 0;
+
+    // 获取区域配置
+    const cellConfig = await this.getCellConfig(geohash);
+
+    // 基础刷新数量
+    const baseSpawn = cellConfig.baseSpawnCount || 3;
+
+    // 动态调整系数
+    const timeFactor = this.getTimeFactor();
+    const playerFactor = this.getPlayerFactor(activePlayers);
+    const eventFactor = await this.getEventFactor(geohash);
+
+    // 最终刷新数量
+    const spawnCount = Math.floor(
+      baseSpawn * timeFactor * playerFactor * eventFactor
+    );
+
+    // 限制范围
+    return Math.max(
+      cellConfig.minSpawn || 1,
+      Math.min(cellConfig.maxSpawn || 10, spawnCount)
+    );
   }
-  
+
   /**
-   * Time factor - higher during peak hours
+   * 时间因子
+   * 高峰时段增加刷新，低谷时段减少
    */
   getTimeFactor() {
     const hour = new Date().getHours();
-    
-    const timeMultipliers = {
-      // Late night (low activity)
-      0: 0.5, 1: 0.4, 2: 0.3, 3: 0.3, 4: 0.4, 5: 0.5,
-      // Morning
-      6: 0.7, 7: 0.8, 8: 0.9,
-      // Working hours
-      9: 1.0, 10: 1.0, 11: 1.1, 12: 1.2, 13: 1.1, 14: 1.0,
-      // Afternoon
-      15: 1.0, 16: 1.1, 17: 1.2,
-      // Evening peak
-      18: 1.5, 19: 1.6, 20: 1.5, 21: 1.4,
-      // Night
-      22: 1.2, 23: 0.8
-    };
-    
-    return timeMultipliers[hour] || 1.0;
+    return this.timeMultipliers[hour] || 1.0;
   }
-  
+
   /**
-   * Player activity factor
+   * 玩家活跃度因子
+   * 玩家越多刷新越多，但有上限避免资源浪费
    */
   getPlayerFactor(activePlayers) {
-    if (activePlayers === 0) return 0.3; // Minimum spawns even with no players
+    if (activePlayers === 0) return 0.3; // 无玩家时保持最低刷新
     if (activePlayers <= 5) return 1.0;
     if (activePlayers <= 15) return 1.2;
     if (activePlayers <= 30) return 1.4;
     if (activePlayers <= 50) return 1.5;
-    return 1.6; // Cap at 1.6x
+    return 1.6; // 上限
   }
-  
+
   /**
-   * Event factor - check for active events
+   * 事件/活动因子
    */
   async getEventFactor(geohash) {
+    const activeEvents = await this.redis.get(`events:cell:${geohash}`);
+    if (!activeEvents) return 1.0;
+
     try {
-      const eventKey = `events:cell:${geohash}`;
-      const activeEvents = await this.redis.get(eventKey);
-      
-      if (!activeEvents) return 1.0;
-      
       const events = JSON.parse(activeEvents);
       let factor = 1.0;
-      
+
       for (const event of events) {
         if (event.type === 'community_day') factor *= 2.0;
         else if (event.type === 'spotlight_hour') factor *= 1.5;
         else if (event.type === 'raid_hour') factor *= 1.3;
-        else if (event.multiplier) factor *= event.multiplier;
+        else if (event.spawnMultiplier) factor *= event.spawnMultiplier;
       }
-      
-      return Math.min(factor, 3.0); // Cap at 3x
+
+      return Math.min(factor, 3.0); // 上限 3 倍
     } catch (error) {
-      logger.error('Failed to get event factor', { geohash, error: error.message });
+      this.logger.error('Error parsing events:', error);
       return 1.0;
     }
   }
-  
+
   /**
-   * Spawn pokemon in a cell
-   */
-  async spawnPokemon(geohash, count) {
-    if (count <= 0) return [];
-    
-    const spawnPool = await this.getSpawnPool(geohash);
-    
-    if (!spawnPool || spawnPool.length === 0) {
-      logger.warn('No spawn pool available', { geohash });
-      return [];
-    }
-    
-    const spawned = [];
-    
-    for (let i = 0; i < count; i++) {
-      try {
-        const pokemon = this.weightedRandomSelect(spawnPool);
-        const spawn = await this.createSpawn(pokemon, geohash);
-        spawned.push(spawn);
-      } catch (error) {
-        logger.error('Failed to create spawn', { geohash, error: error.message });
-      }
-    }
-    
-    // Emit spawn event
-    if (spawned.length > 0) {
-      this.emit('spawn', { geohash, spawned });
-    }
-    
-    return spawned;
-  }
-  
-  /**
-   * Create a spawn instance
-   */
-  async createSpawn(pokemonTemplate, geohash) {
-    const spawnId = uuidv4();
-    const centerCoord = this.geohashToCoord(geohash);
-    
-    // Random offset (100-300m)
-    const offset = this.randomOffset(100, 300);
-    const location = {
-      lat: centerCoord.lat + offset.lat,
-      lng: centerCoord.lng + offset.lng
-    };
-    
-    // Calculate despawn time (15-60 minutes)
-    const despawnMinutes = this.config.defaultDespawnMinutes.min + 
-      Math.random() * (this.config.defaultDespawnMinutes.max - this.config.defaultDespawnMinutes.min);
-    const despawnAt = new Date(Date.now() + despawnMinutes * 60000);
-    
-    const spawn = {
-      id: spawnId,
-      pokemonId: pokemonTemplate.id,
-      pokemonName: pokemonTemplate.name,
-      rarity: pokemonTemplate.rarity || 'common',
-      location,
-      geohash,
-      spawnedAt: new Date().toISOString(),
-      despawnAt: despawnAt.toISOString(),
-      cp: this.calculateCP(pokemonTemplate),
-      iv: this.generateIV(),
-      level: pokemonTemplate.minLevel || 1 + Math.floor(Math.random() * 30)
-    };
-    
-    // Store in Redis with TTL
-    const ttl = Math.floor((despawnAt.getTime() - Date.now()) / 1000);
-    await this.redis.hset(`spawns:active:${spawnId}`, 'data', JSON.stringify(spawn));
-    await this.redis.expire(`spawns:active:${spawnId}`, ttl);
-    
-    // Add to geo index
-    await this.redis.geoadd('spawns:geo', location.lng, location.lat, spawnId);
-    
-    // Add to cell index
-    await this.redis.sadd(`spawns:cell:${geohash}`, spawnId);
-    
-    // Update metrics
-    this.metrics.spawnCounter.inc({ 
-      rarity: spawn.rarity,
-      biome: pokemonTemplate.biome || 'unknown',
-      geohash_prefix: geohash.substring(0, 4)
-    });
-    
-    logger.info('Pokemon spawned', { 
-      spawnId, 
-      pokemonId: spawn.pokemonId, 
-      rarity: spawn.rarity,
-      geohash 
-    });
-    
-    return spawn;
-  }
-  
-  /**
-   * Get existing spawns in a cell
-   */
-  async getExistingSpawns(geohash) {
-    try {
-      const spawnIds = await this.redis.smembers(`spawns:cell:${geohash}`);
-      const spawns = [];
-      
-      for (const spawnId of spawnIds) {
-        const data = await this.redis.hget(`spawns:active:${spawnId}`, 'data');
-        if (data) {
-          spawns.push(JSON.parse(data));
-        } else {
-          // Clean up stale reference
-          await this.redis.srem(`spawns:cell:${geohash}`, spawnId);
-        }
-      }
-      
-      return spawns;
-    } catch (error) {
-      logger.error('Failed to get existing spawns', { geohash, error: error.message });
-      return [];
-    }
-  }
-  
-  /**
-   * Get heatmap data for a cell
+   * 获取区域热度
    */
   async getHeatmap(geohash) {
-    try {
-      const stats = await this.redis.hgetall(`heatmap:stats:${geohash}`);
-      return {
-        activePlayers: parseInt(stats.activePlayers || 0),
-        lastUpdate: parseInt(stats.lastUpdate || 0)
-      };
-    } catch (error) {
-      logger.error('Failed to get heatmap', { geohash, error: error.message });
-      return { activePlayers: 0, lastUpdate: 0 };
-    }
+    const stats = await this.redis.hgetall(`heatmap:stats:${geohash}`);
+    return {
+      activePlayers: parseInt(stats.activePlayers || 0),
+      lastUpdate: parseInt(stats.lastUpdate || 0)
+    };
   }
-  
+
   /**
-   * Get cell configuration
+   * 获取区域配置
    */
   async getCellConfig(geohash) {
-    try {
-      // Try cache first
-      const cached = await this.redis.get(`spawn:config:${geohash}`);
-      if (cached) return JSON.parse(cached);
-      
-      // Load from database
-      if (this.db) {
-        const result = await this.db.query(
-          'SELECT * FROM spawn_cell_configs WHERE geohash = $1',
-          [geohash]
-        );
-        
-        if (result.rows[0]) {
-          const config = result.rows[0];
-          // Cache for 5 minutes
-          await this.redis.setex(
-            `spawn:config:${geohash}`,
-            300,
-            JSON.stringify(config)
-          );
-          return config;
+    // 先查缓存
+    const cached = await this.redis.get(`spawn:config:${geohash}`);
+    if (cached) {
+      try {
+        return JSON.parse(cached);
+      } catch (error) {
+        this.logger.error('Error parsing cell config:', error);
+      }
+    }
+
+    // 查数据库
+    const result = await this.db.query(
+      'SELECT * FROM spawn_cell_configs WHERE geohash = $1 AND enabled = true',
+      [geohash]
+    );
+
+    if (result.rows.length > 0) {
+      const config = result.rows[0];
+      // 缓存 10 分钟
+      await this.redis.setex(
+        `spawn:config:${geohash}`,
+        600,
+        JSON.stringify(config)
+      );
+      return config;
+    }
+
+    // 返回默认配置
+    return {
+      baseSpawnCount: 3,
+      minSpawn: 1,
+      maxSpawn: 10
+    };
+  }
+
+  /**
+   * 执行精灵刷新
+   */
+  async spawnPokemon(geohash, count) {
+    // 获取当前已存在的精灵
+    const existing = await this.getExistingSpawns(geohash);
+
+    // 计算需要刷新的数量
+    const toSpawn = Math.max(0, count - existing.length);
+
+    if (toSpawn <= 0) return [];
+
+    // 选择精灵池
+    const spawnPool = await this.getSpawnPool(geohash);
+
+    if (!spawnPool || spawnPool.length === 0) {
+      this.logger.warn(`No spawn pool for cell ${geohash}`);
+      return [];
+    }
+
+    // 加权随机选择
+    const spawned = [];
+    for (let i = 0; i < toSpawn; i++) {
+      const pokemon = this.weightedRandomSelect(spawnPool);
+      const spawn = await this.createSpawn(pokemon, geohash);
+      if (spawn) {
+        spawned.push(spawn);
+      }
+    }
+
+    // 广播刷新事件
+    if (spawned.length > 0) {
+      this.emit('spawn', { geohash, spawned });
+
+      // 更新指标
+      if (this.metrics) {
+        for (const spawn of spawned) {
+          this.metrics.spawnCounter.inc({
+            rarity: spawn.rarity,
+            biome: spawn.biome || 'unknown',
+            geohash_prefix: geohash.substring(0, 4)
+          });
         }
       }
-      
-      // Return default config
-      return {
-        baseSpawnCount: 3,
-        minSpawn: 1,
-        maxSpawn: 10
-      };
-    } catch (error) {
-      logger.error('Failed to get cell config', { geohash, error: error.message });
-      return { baseSpawnCount: 3, minSpawn: 1, maxSpawn: 10 };
     }
+
+    return spawned;
   }
-  
+
   /**
-   * Get spawn pool for a cell
+   * 获取精灵池
    */
   async getSpawnPool(geohash) {
-    try {
-      // Determine biome from geohash (simplified - in real app would use geo data)
-      const biome = await this.determineBiome(geohash);
-      
-      // Try cache
-      const cached = await this.redis.get(`spawn:pool:${biome}`);
-      if (cached) return JSON.parse(cached);
-      
-      // Load from database
-      if (this.db) {
-        const result = await this.db.query(`
-          SELECT 
-            p.id, p.name, p.rarity, p.base_attack, p.base_defense, p.base_stamina,
-            sp.weight, sp.min_level, sp.max_level
-          FROM spawn_pools sp
-          JOIN pokemon_species p ON sp.pokemon_id = p.id
-          WHERE sp.biome = $1 AND sp.enabled = true
-          ORDER BY sp.weight DESC
-        `, [biome]);
-        
-        const pool = result.rows.map(row => ({
-          id: row.id,
-          name: row.name,
-          rarity: row.rarity,
-          weight: parseFloat(row.weight),
-          minLevel: row.min_level,
-          maxLevel: row.max_level,
-          baseAttack: row.base_attack,
-          baseDefense: row.base_defense,
-          baseStamina: row.base_stamina,
-          biome
-        }));
-        
-        // Cache for 10 minutes
-        await this.redis.setex(`spawn:pool:${biome}`, 600, JSON.stringify(pool));
-        
-        return pool;
+    // 确定生物群系（基于地理位置特征）
+    const biome = await this.determineBiome(geohash);
+
+    // 检查缓存
+    const cached = await this.redis.get(`spawn:pool:${biome}`);
+    if (cached) {
+      try {
+        return JSON.parse(cached);
+      } catch (error) {
+        this.logger.error('Error parsing spawn pool:', error);
       }
-      
-      // Fallback to basic pool
-      return [
-        { id: 1, name: 'Bulbasaur', rarity: 'common', weight: 10.0 },
-        { id: 4, name: 'Charmander', rarity: 'common', weight: 10.0 },
-        { id: 7, name: 'Squirtle', rarity: 'common', weight: 10.0 }
-      ];
-    } catch (error) {
-      logger.error('Failed to get spawn pool', { geohash, error: error.message });
-      return [];
     }
+
+    // 从数据库加载
+    const result = await this.db.query(
+      `SELECT
+        sp.pokemon_id,
+        sp.weight,
+        sp.min_level,
+        sp.max_level,
+        p.name as pokemon_name,
+        p.rarity
+       FROM spawn_pools sp
+       JOIN pokemon p ON sp.pokemon_id = p.id
+       WHERE sp.biome = $1 AND sp.enabled = true
+       ORDER BY sp.weight DESC`,
+      [biome]
+    );
+
+    if (result.rows.length === 0) {
+      // 使用默认精灵池
+      return this.getDefaultSpawnPool();
+    }
+
+    const pool = result.rows.map(row => ({
+      id: row.pokemon_id,
+      name: row.pokemon_name,
+      rarity: row.rarity,
+      weight: parseFloat(row.weight),
+      minLevel: row.min_level,
+      maxLevel: row.max_level,
+      biome: biome
+    }));
+
+    // 缓存 30 分钟
+    await this.redis.setex(
+      `spawn:pool:${biome}`,
+      1800,
+      JSON.stringify(pool)
+    );
+
+    return pool;
   }
-  
+
   /**
-   * Determine biome from geohash (simplified)
+   * 确定生物群系
+   * 简化版本：基于 geohash 前缀随机选择
    */
   async determineBiome(geohash) {
-    // In a real implementation, this would check geographic data
-    // For now, use a simple hash-based selection
     const biomes = ['grass', 'water', 'urban', 'forest', 'mountain', 'cave'];
-    const hash = geohash.charCodeAt(0) % biomes.length;
-    return biomes[hash];
+    // 使用 geohash 前缀作为种子
+    const seed = geohash.charCodeAt(0) % biomes.length;
+    return biomes[seed];
   }
-  
+
   /**
-   * Get active cells from heatmap
+   * 获取默认精灵池
    */
-  async getActiveCells() {
-    try {
-      const keys = await this.redis.keys('heatmap:stats:*');
-      return keys.map(key => key.split(':').pop());
-    } catch (error) {
-      logger.error('Failed to get active cells', { error: error.message });
-      return [];
-    }
+  getDefaultSpawnPool() {
+    return [
+      { id: 1, name: 'Bulbasaur', rarity: 'common', weight: 10.0, biome: 'grass' },
+      { id: 16, name: 'Pidgey', rarity: 'common', weight: 15.0, biome: 'grass' },
+      { id: 19, name: 'Rattata', rarity: 'common', weight: 12.0, biome: 'grass' },
+      { id: 25, name: 'Pikachu', rarity: 'rare', weight: 3.0, biome: 'grass' },
+      { id: 133, name: 'Eevee', rarity: 'rare', weight: 2.0, biome: 'urban' }
+    ];
   }
-  
+
   /**
-   * Update heatmap statistics
-   */
-  async updateHeatmapStats() {
-    const start = Date.now();
-    
-    try {
-      const keys = await this.redis.keys('heatmap:cell:*');
-      
-      for (const key of keys) {
-        const geohash = key.split(':').pop();
-        
-        // Count active players
-        const activePlayers = await this.redis.zcard(key);
-        
-        // Store stats
-        await this.redis.hset(
-          `heatmap:stats:${geohash}`,
-          'activePlayers', activePlayers,
-          'lastUpdate', Date.now()
-        );
-        
-        // Update metrics
-        this.metrics.cellHeat.set({ geohash_prefix: geohash.substring(0, 4) }, activePlayers);
-      }
-      
-      const duration = (Date.now() - start) / 1000;
-      this.metrics.heatmapUpdateDuration.observe(duration);
-    } catch (error) {
-      logger.error('Failed to update heatmap stats', { error: error.message });
-    }
-  }
-  
-  /**
-   * Remove a spawn
-   */
-  async removeSpawn(spawnId, geohash) {
-    try {
-      // Get spawn data before removing
-      const data = await this.redis.hget(`spawns:active:${spawnId}`, 'data');
-      const spawn = data ? JSON.parse(data) : null;
-      
-      // Remove from geo index
-      await this.redis.zrem('spawns:geo', spawnId);
-      
-      // Remove from cell index
-      if (geohash) {
-        await this.redis.srem(`spawns:cell:${geohash}`, spawnId);
-      }
-      
-      // Delete data
-      await this.redis.del(`spawns:active:${spawnId}`);
-      
-      // Update metrics
-      this.metrics.despawnCounter.inc({ reason: 'timeout' });
-      
-      this.emit('despawn', { spawnId, geohash, spawn });
-      
-      logger.info('Spawn removed', { spawnId, geohash });
-    } catch (error) {
-      logger.error('Failed to remove spawn', { spawnId, error: error.message });
-    }
-  }
-  
-  /**
-   * Weighted random selection
+   * 加权随机选择
    */
   weightedRandomSelect(pool) {
-    if (!pool || pool.length === 0) {
-      throw new Error('Empty spawn pool');
-    }
-    
-    const totalWeight = pool.reduce((sum, p) => sum + (p.weight || 1), 0);
+    const totalWeight = pool.reduce((sum, p) => sum + p.weight, 0);
     let random = Math.random() * totalWeight;
-    
+
     for (const pokemon of pool) {
-      random -= (pokemon.weight || 1);
+      random -= pokemon.weight;
       if (random <= 0) return pokemon;
     }
-    
+
     return pool[pool.length - 1];
   }
-  
+
   /**
-   * Calculate CP (Combat Power)
+   * 创建精灵刷新实例
    */
-  calculateCP(pokemon) {
-    const baseAtk = pokemon.baseAttack || 100;
-    const baseDef = pokemon.baseDefense || 100;
-    const baseSta = pokemon.baseStamina || 100;
-    
-    // Simplified CP formula
-    const cp = Math.floor(
-      (baseAtk * Math.sqrt(baseDef * baseSta)) / 10
-    );
-    
-    return Math.max(10, Math.min(5000, cp));
+  async createSpawn(pokemonTemplate, geohash) {
+    try {
+      const spawnId = uuidv4();
+      const centerCoord = this.geohashToCoord(geohash);
+
+      // 随机偏移位置（100-300米范围内）
+      const offset = this.randomOffset(100, 300);
+      const location = {
+        lat: centerCoord.lat + offset.lat,
+        lng: centerCoord.lng + offset.lng
+      };
+
+      // 计算消失时间（15-60分钟）
+      const despawnMinutes = 15 + Math.random() * 45;
+      const despawnAt = new Date(Date.now() + despawnMinutes * 60000);
+
+      // 计算等级
+      const level = Math.floor(
+        (pokemonTemplate.minLevel || 1) +
+        Math.random() * ((pokemonTemplate.maxLevel || 30) - (pokemonTemplate.minLevel || 1))
+      );
+
+      const spawn = {
+        id: spawnId,
+        pokemonId: pokemonTemplate.id,
+        pokemonName: pokemonTemplate.name,
+        rarity: pokemonTemplate.rarity,
+        location,
+        geohash,
+        spawnedAt: new Date(),
+        despawnAt,
+        level,
+        biome: pokemonTemplate.biome,
+        cp: this.calculateCP(pokemonTemplate, level),
+        iv: this.generateIV(),
+        moves: this.assignMoves(pokemonTemplate)
+      };
+
+      // 存储到 Redis（带 TTL）
+      await this.redis.hset(
+        `spawns:active:${spawnId}`,
+        'data', JSON.stringify(spawn)
+      );
+      await this.redis.expireat(
+        `spawns:active:${spawnId}`,
+        Math.floor(despawnAt.getTime() / 1000)
+      );
+
+      // 添加到地理位置索引
+      await this.redis.geoadd(
+        'spawns:geo',
+        location.lng,
+        location.lat,
+        spawnId
+      );
+
+      // 添加到区域索引
+      await this.redis.sadd(`spawns:cell:${geohash}`, spawnId);
+
+      return spawn;
+    } catch (error) {
+      this.logger.error('Error creating spawn:', error);
+      return null;
+    }
   }
-  
+
   /**
-   * Generate IV (Individual Values)
+   * Geohash 转坐标（简化版本）
+   */
+  geohashToCoord(geohash) {
+    // 简化实现：返回大致坐标
+    // 实际应使用专业库如 latlon-geohash
+    const baseLat = 35.0;
+    const baseLng = 139.0;
+
+    // 根据 geohash 长度和字符计算偏移
+    const offset = geohash.split('').reduce((acc, char, idx) => {
+      const code = char.charCodeAt(0);
+      return acc + code * Math.pow(0.1, idx + 1);
+    }, 0);
+
+    return {
+      lat: baseLat + offset,
+      lng: baseLng + offset * 1.2
+    };
+  }
+
+  /**
+   * 随机偏移
+   */
+  randomOffset(minMeters, maxMeters) {
+    const distance = minMeters + Math.random() * (maxMeters - minMeters);
+    const angle = Math.random() * 2 * Math.PI;
+
+    // 大约每度 111km
+    const degreesPerMeter = 1 / 111000;
+
+    return {
+      lat: Math.cos(angle) * distance * degreesPerMeter,
+      lng: Math.sin(angle) * distance * degreesPerMeter
+    };
+  }
+
+  /**
+   * 计算 CP
+   */
+  calculateCP(pokemon, level) {
+    // 简化 CP 计算
+    const baseCP = pokemon.rarity === 'legendary' ? 2000 :
+                   pokemon.rarity === 'rare' ? 1000 : 500;
+    return Math.floor(baseCP * (level / 30) * (0.8 + Math.random() * 0.4));
+  }
+
+  /**
+   * 生成 IV
    */
   generateIV() {
     return {
@@ -603,132 +531,137 @@ class SpawnEngine extends EventEmitter {
       stamina: Math.floor(Math.random() * 16)
     };
   }
-  
+
   /**
-   * Convert geohash to coordinates
+   * 分配技能
    */
-  geohashToCoord(geohash) {
-    // Simplified implementation - use a proper geohash library in production
-    // This returns approximate center coordinates
-    const baseLat = 0;
-    const baseLng = 0;
-    const latRange = 180;
-    const lngRange = 360;
-    
-    let latMin = -90, latMax = 90;
-    let lngMin = -180, lngMax = 180;
-    
-    for (let i = 0; i < geohash.length; i++) {
-      const c = geohash[i];
-      const cd = this.decodeBase32(c);
-      
-      if (i % 2 === 0) {
-        // Longitude
-        const mid = (lngMin + lngMax) / 2;
-        if ((cd & 16) !== 0) lngMin = mid;
-        else lngMax = mid;
-        if ((cd & 8) !== 0) lngMin = (lngMin + mid) / 2;
-        else lngMax = (lngMax + mid) / 2;
-        if ((cd & 4) !== 0) lngMin = (lngMin + mid) / 2;
-        else lngMax = (lngMax + mid) / 2;
-        if ((cd & 2) !== 0) lngMin = (lngMin + mid) / 2;
-        else lngMax = (lngMax + mid) / 2;
-        if ((cd & 1) !== 0) lngMin = (lngMin + mid) / 2;
-        else lngMax = (lngMax + mid) / 2;
-      } else {
-        // Latitude
-        const mid = (latMin + latMax) / 2;
-        if ((cd & 16) !== 0) latMin = mid;
-        else latMax = mid;
-        if ((cd & 8) !== 0) latMin = (latMin + mid) / 2;
-        else latMax = (latMax + mid) / 2;
-        if ((cd & 4) !== 0) latMin = (latMin + mid) / 2;
-        else latMax = (latMax + mid) / 2;
-        if ((cd & 2) !== 0) latMin = (latMin + mid) / 2;
-        else latMax = (latMax + mid) / 2;
-        if ((cd & 1) !== 0) latMin = (latMin + mid) / 2;
-        else latMax = (latMax + mid) / 2;
-      }
-    }
-    
+  assignMoves(pokemon) {
+    // 简化实现
     return {
-      lat: (latMin + latMax) / 2,
-      lng: (lngMin + lngMax) / 2
+      fast: 'tackle',
+      charged: 'hyper_beam'
     };
   }
-  
+
   /**
-   * Decode base32 character
+   * 获取已存在的精灵
    */
-  decodeBase32(c) {
-    const CHARSET = '0123456789bcdefghjkmnpqrstuvwxyz';
-    return CHARSET.indexOf(c.toLowerCase());
-  }
-  
-  /**
-   * Generate random offset in meters
-   */
-  randomOffset(minMeters, maxMeters) {
-    const distance = minMeters + Math.random() * (maxMeters - minMeters);
-    const angle = Math.random() * 2 * Math.PI;
-    
-    // Convert meters to degrees (approximate)
-    const latOffset = (distance * Math.cos(angle)) / 111000;
-    const lngOffset = (distance * Math.sin(angle)) / (111000 * Math.cos(0));
-    
-    return {
-      lat: latOffset,
-      lng: lngOffset
-    };
-  }
-  
-  /**
-   * Sleep utility
-   */
-  sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-  
-  /**
-   * Get spawn by ID
-   */
-  async getSpawn(spawnId) {
-    try {
+  async getExistingSpawns(geohash) {
+    const spawnIds = await this.redis.smembers(`spawns:cell:${geohash}`);
+    const spawns = [];
+
+    for (const spawnId of spawnIds) {
       const data = await this.redis.hget(`spawns:active:${spawnId}`, 'data');
-      return data ? JSON.parse(data) : null;
-    } catch (error) {
-      logger.error('Failed to get spawn', { spawnId, error: error.message });
-      return null;
-    }
-  }
-  
-  /**
-   * Get nearby spawns
-   */
-  async getNearbySpawns(lat, lng, radius = 500) {
-    try {
-      const results = await this.redis.georadius(
-        'spawns:geo',
-        lng, lat,
-        radius, 'm',
-        'WITHDIST',
-        'COUNT', 50
-      );
-      
-      const spawns = [];
-      for (const [spawnId, distance] of results) {
-        const data = await this.redis.hget(`spawns:active:${spawnId}`, 'data');
-        if (data) {
-          const spawn = JSON.parse(data);
-          spawn.distance = distance;
-          spawns.push(spawn);
+      if (data) {
+        try {
+          spawns.push(JSON.parse(data));
+        } catch (error) {
+          this.logger.error('Error parsing spawn data:', error);
         }
       }
-      
-      return spawns;
+    }
+
+    return spawns;
+  }
+
+  /**
+   * 清理过期刷新
+   */
+  async cleanupExpiredSpawns() {
+    const now = Date.now();
+    const pattern = 'spawns:active:*';
+
+    const keys = await this.redis.keys(pattern);
+    let cleaned = 0;
+
+    for (const key of keys) {
+      const ttl = await this.redis.ttl(key);
+      if (ttl <= 0) {
+        const data = await this.redis.hget(key, 'data');
+        if (data) {
+          try {
+            const spawn = JSON.parse(data);
+            await this.removeSpawn(spawn.id, spawn.geohash);
+            cleaned++;
+
+            // 更新指标
+            if (this.metrics) {
+              this.metrics.despawnCounter.inc({ reason: 'timeout' });
+            }
+          } catch (error) {
+            this.logger.error('Error parsing spawn for cleanup:', error);
+          }
+        }
+      }
+    }
+
+    if (cleaned > 0) {
+      this.logger.info(`Cleaned up ${cleaned} expired spawns`);
+    }
+
+    return cleaned;
+  }
+
+  /**
+   * 移除精灵刷新
+   */
+  async removeSpawn(spawnId, geohash) {
+    // 从地理位置索引移除
+    await this.redis.zrem('spawns:geo', spawnId);
+
+    // 从区域索引移除
+    if (geohash) {
+      await this.redis.srem(`spawns:cell:${geohash}`, spawnId);
+    }
+
+    // 删除数据
+    await this.redis.del(`spawns:active:${spawnId}`);
+
+    this.emit('despawn', { spawnId, geohash });
+  }
+
+  /**
+   * 手动刷新精灵（运营工具）
+   */
+  async manualSpawn(geohash, pokemonId, count = 1) {
+    const pool = await this.getSpawnPool(geohash);
+    const pokemon = pool.find(p => p.id === pokemonId);
+
+    if (!pokemon) {
+      throw new Error(`Pokemon ${pokemonId} not in spawn pool`);
+    }
+
+    const spawned = [];
+    for (let i = 0; i < count; i++) {
+      const spawn = await this.createSpawn(pokemon, geohash);
+      if (spawn) {
+        spawned.push(spawn);
+      }
+    }
+
+    // 记录操作日志
+    await this.logAdminAction({
+      action: 'manual_spawn',
+      targetType: 'cell',
+      targetId: geohash,
+      changes: { pokemonId, count }
+    });
+
+    return spawned;
+  }
+
+  /**
+   * 记录管理员操作
+   */
+  async logAdminAction(log) {
+    try {
+      await this.db.query(
+        `INSERT INTO spawn_admin_logs (admin_id, action, target_type, target_id, changes)
+         VALUES ($1, $2, $3, $4, $5)`,
+        [log.adminId || 0, log.action, log.targetType, log.targetId, log.changes]
+      );
     } catch (error) {
-      logger.error('Failed to get nearby spawns', { lat, lng, error: error.message });
-      return [];
+      this.logger.error('Error logging admin action:', error);
     }
   }
 }

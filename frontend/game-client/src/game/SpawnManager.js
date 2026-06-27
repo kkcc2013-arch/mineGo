@@ -1,344 +1,405 @@
-// frontend/game-client/src/game/SpawnManager.js — Spawn Manager for Game Client
-'use strict';
-
 /**
- * SpawnManager - Manages pokemon spawns on the game map
+ * 精灵刷新管理器
+ * 负责地图上精灵的显示、更新和消失
+ *
+ * @module SpawnManager
  */
+
 class SpawnManager {
-  constructor(map, options = {}) {
-    this.map = map;
-    this.options = {
-      updateInterval: 10000, // 10 seconds
-      defaultRadius: 500, // meters
-      iconBaseUrl: '/assets/pokemon',
-      ...options
-    };
-    
+  constructor(config) {
+    this.map = config.map;
+    this.apiClient = config.apiClient;
+
+    // 活跃精灵映射
     this.activeSpawns = new Map();
     this.spawnMarkers = new Map();
+
+    // 更新配置
+    this.updateInterval = config.updateInterval || 10000; // 10秒
     this.updateTimer = null;
-    this.isUpdating = false;
-    
-    // Bind methods
-    this.update = this.update.bind(this);
+
+    // 回调函数
+    this.onSpawnClick = config.onSpawnClick || null;
+    this.onSpawnAppear = config.onSpawnAppear || null;
+    this.onSpawnDisappear = config.onSpawnDisappear || null;
+
+    // 地图引用（L = Leaflet）
+    this.L = config.Leaflet || window.L;
+
+    this.logger = config.logger || console;
   }
-  
+
   /**
-   * Start periodic updates
+   * 启动刷新更新循环
    */
   start() {
-    if (this.updateTimer) return;
-    
-    this.update();
-    this.updateTimer = setInterval(this.update, this.options.updateInterval);
-    
-    console.log('[SpawnManager] Started');
+    this.stop();
+    this.updateTimer = setInterval(() => {
+      this.updateNearbySpawns();
+    }, this.updateInterval);
+
+    // 立即更新一次
+    this.updateNearbySpawns();
+
+    this.logger.info('SpawnManager started');
   }
-  
+
   /**
-   * Stop updates
+   * 停止更新循环
    */
   stop() {
     if (this.updateTimer) {
       clearInterval(this.updateTimer);
       this.updateTimer = null;
     }
-    
-    console.log('[SpawnManager] Stopped');
+    this.logger.info('SpawnManager stopped');
   }
-  
+
   /**
-   * Update spawns near current location
+   * 更新附近精灵
    */
-  async update() {
-    if (this.isUpdating) return;
-    this.isUpdating = true;
-    
+  async updateNearbySpawns() {
+    if (!this.map) {
+      this.logger.warn('Map not initialized');
+      return;
+    }
+
+    const center = this.map.getCenter();
+    const radius = 500; // 500米范围
+
     try {
-      const center = this.map.getCenter();
-      const spawns = await this.fetchNearbySpawns(
-        center.lat, 
-        center.lng, 
-        this.options.defaultRadius
-      );
-      
-      this.updateSpawnMarkers(spawns);
+      const response = await this.apiClient.get('/api/location/nearby-spawns', {
+        params: {
+          lat: center.lat,
+          lng: center.lng,
+          radius
+        }
+      });
+
+      if (response.data && response.data.success) {
+        this.updateSpawnMarkers(response.data.spawns);
+      }
     } catch (error) {
-      console.error('[SpawnManager] Update failed:', error);
-    } finally {
-      this.isUpdating = false;
+      this.logger.error('Failed to fetch nearby spawns:', error);
     }
   }
-  
+
   /**
-   * Fetch nearby spawns from API
-   */
-  async fetchNearbySpawns(lat, lng, radius = 500) {
-    const response = await fetch(
-      `/api/location/nearby-spawns?lat=${lat}&lng=${lng}&radius=${radius}`
-    );
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return data.spawns || [];
-  }
-  
-  /**
-   * Update spawn markers on map
+   * 更新精灵标记
    */
   updateSpawnMarkers(spawns) {
-    // Remove despawned markers
+    if (!spawns) spawns = [];
+
+    const currentIds = new Set(spawns.map(s => s.id));
+
+    // 移除已消失的精灵
     for (const [id, marker] of this.spawnMarkers) {
-      if (!spawns.find(s => s.id === id)) {
-        marker.remove();
-        this.spawnMarkers.delete(id);
-        this.activeSpawns.delete(id);
+      if (!currentIds.has(id)) {
+        this.removeSpawnMarker(id);
       }
     }
-    
-    // Add new spawns
+
+    // 添加新精灵
     for (const spawn of spawns) {
       if (!this.spawnMarkers.has(spawn.id)) {
         this.createSpawnMarker(spawn);
+      } else {
+        // 更新现有标记
+        this.updateSpawnMarker(spawn);
       }
     }
-    
-    console.log(`[SpawnManager] Updated: ${spawns.length} spawns visible`);
+
+    // 更新活跃精灵列表
+    this.activeSpawns.clear();
+    spawns.forEach(spawn => {
+      this.activeSpawns.set(spawn.id, spawn);
+    });
   }
-  
+
   /**
-   * Create a marker for a spawn
+   * 创建精灵标记
    */
   createSpawnMarker(spawn) {
-    // Create icon based on rarity
-    const size = this.getIconSize(spawn.rarity);
-    const icon = L.icon({
-      iconUrl: `${this.options.iconBaseUrl}/${spawn.pokemonId}.png`,
-      iconSize: [size, size],
-      iconAnchor: [size / 2, size / 2],
-      className: `spawn-marker rarity-${spawn.rarity}`
+    if (!this.L) {
+      this.logger.warn('Leaflet not available');
+      return;
+    }
+
+    const icon = this.getPokemonIcon(spawn.pokemonId, spawn.rarity);
+
+    const marker = this.L.marker([spawn.location.lat, spawn.location.lng], {
+      icon: icon
     });
-    
-    // Create marker
-    const marker = L.marker([spawn.location.lat, spawn.location.lng], { icon });
-    
-    // Add popup with spawn info
-    marker.bindPopup(this.createSpawnPopup(spawn));
-    
-    // Add despawn timer tooltip
-    this.addDespawnTimer(marker, spawn);
-    
-    // Add click handler
-    marker.on('click', () => this.onSpawnClick(spawn));
-    
+
+    // 添加弹出信息
+    const popup = this.createSpawnPopup(spawn);
+    marker.bindPopup(popup);
+
+    // 添加消失倒计时工具提示
+    marker.bindTooltip('', {
+      permanent: false,
+      direction: 'top'
+    });
+
+    // 点击事件
+    marker.on('click', () => {
+      if (this.onSpawnClick) {
+        this.onSpawnClick(spawn);
+      }
+    });
+
+    // 添加到地图
     marker.addTo(this.map);
-    
+
+    // 存储引用
     this.spawnMarkers.set(spawn.id, marker);
-    this.activeSpawns.set(spawn.id, spawn);
+
+    // 启动消失倒计时
+    this.startDespawnTimer(marker, spawn);
+
+    // 触发回调
+    if (this.onSpawnAppear) {
+      this.onSpawnAppear(spawn);
+    }
   }
-  
+
   /**
-   * Get icon size based on rarity
+   * 更新精灵标记
    */
-  getIconSize(rarity) {
-    const sizes = {
-      'legendary': 48,
-      'very-rare': 44,
-      'rare': 40,
-      'uncommon': 36,
-      'common': 32
-    };
-    return sizes[rarity] || 32;
+  updateSpawnMarker(spawn) {
+    const marker = this.spawnMarkers.get(spawn.id);
+    if (!marker) return;
+
+    // 更新弹出信息
+    const popup = this.createSpawnPopup(spawn);
+    marker.setPopupContent(popup);
   }
-  
+
   /**
-   * Create popup content for a spawn
+   * 移除精灵标记
+   */
+  removeSpawnMarker(spawnId) {
+    const marker = this.spawnMarkers.get(spawnId);
+    const spawn = this.activeSpawns.get(spawnId);
+
+    if (marker) {
+      marker.remove();
+      this.spawnMarkers.delete(spawnId);
+    }
+
+    if (spawn && this.onSpawnDisappear) {
+      this.onSpawnDisappear(spawn);
+    }
+  }
+
+  /**
+   * 创建精灵弹出信息
    */
   createSpawnPopup(spawn) {
-    const remainingTime = this.formatRemainingTime(spawn.despawnAt);
-    const rarityLabel = this.getRarityLabel(spawn.rarity);
-    
+    const despawnTime = this.formatDespawnTime(spawn.despawnAt);
+
     return `
       <div class="spawn-popup">
-        <h3>${spawn.pokemonName || `Pokemon #${spawn.pokemonId}`}</h3>
+        <h3>${spawn.pokemonName}</h3>
         <div class="spawn-info">
-          <span class="rarity ${spawn.rarity}">${rarityLabel}</span>
-          <span class="cp">CP: ${spawn.cp || '???'}</span>
+          <p><strong>等级:</strong> ${spawn.level || '?'}</p>
+          <p><strong>CP:</strong> ${spawn.cp || '?'}</p>
+          <p><strong>稀有度:</strong> ${this.formatRarity(spawn.rarity)}</p>
+          <p><strong>消失时间:</strong> ${despawnTime}</p>
         </div>
-        <div class="spawn-timer">
-          ⏱️ ${remainingTime}
-        </div>
-        <button class="catch-button" onclick="window.catchSpawn('${spawn.id}')">
+        <button onclick="window.catchPokemon('${spawn.id}')" class="catch-btn">
           捕捉
         </button>
       </div>
     `;
   }
-  
+
   /**
-   * Add despawn timer to marker
+   * 获取精灵图标
    */
-  addDespawnTimer(marker, spawn) {
+  getPokemonIcon(pokemonId, rarity) {
+    const sizes = {
+      legendary: 56,
+      rare: 44,
+      common: 32
+    };
+
+    const size = sizes[rarity] || 32;
+
+    return this.L.icon({
+      iconUrl: `/assets/pokemon/${pokemonId}.png`,
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2],
+      popupAnchor: [0, -size / 2],
+      className: `spawn-marker rarity-${rarity}`
+    });
+  }
+
+  /**
+   * 启动消失倒计时
+   */
+  startDespawnTimer(marker, spawn) {
     const updateTimer = () => {
+      if (!this.spawnMarkers.has(spawn.id)) {
+        return; // 标记已被移除
+      }
+
       const remaining = new Date(spawn.despawnAt) - new Date();
-      
+
       if (remaining <= 0) {
-        marker.remove();
-        this.spawnMarkers.delete(spawn.id);
-        this.activeSpawns.delete(spawn.id);
+        this.removeSpawnMarker(spawn.id);
         return;
       }
-      
+
       const minutes = Math.floor(remaining / 60000);
       const seconds = Math.floor((remaining % 60000) / 1000);
-      marker.setTooltipContent(`${minutes}:${seconds.toString().padStart(2, '0')}`);
-      
+
+      marker.setTooltipContent(
+        `${minutes}:${seconds.toString().padStart(2, '0')}`
+      );
+
+      // 根据剩余时间改变颜色
+      if (remaining < 60000) {
+        // 1分钟内，显示警告颜色
+        marker.getElement()?.classList.add('despawn-warning');
+      }
+
       setTimeout(updateTimer, 1000);
     };
-    
-    marker.bindTooltip('', { permanent: false });
+
     updateTimer();
   }
-  
+
   /**
-   * Format remaining time
+   * 格式化消失时间
    */
-  formatRemainingTime(despawnAt) {
+  formatDespawnTime(despawnAt) {
     const remaining = new Date(despawnAt) - new Date();
-    
-    if (remaining <= 0) return '即将消失';
-    
+
+    if (remaining <= 0) {
+      return '即将消失';
+    }
+
     const minutes = Math.floor(remaining / 60000);
     const seconds = Math.floor((remaining % 60000) / 1000);
-    
+
     return `${minutes}分${seconds}秒`;
   }
-  
+
   /**
-   * Get rarity label
+   * 格式化稀有度
    */
-  getRarityLabel(rarity) {
-    const labels = {
-      'legendary': '传说',
-      'very-rare': '极稀有',
-      'rare': '稀有',
-      'uncommon': '少见',
-      'common': '普通'
+  formatRarity(rarity) {
+    const rarityMap = {
+      legendary: '传说',
+      rare: '稀有',
+      common: '普通'
     };
-    return labels[rarity] || '普通';
+    return rarityMap[rarity] || rarity;
   }
-  
+
   /**
-   * Handle spawn click
-   */
-  onSpawnClick(spawn) {
-    // Emit event or call callback
-    if (this.options.onSpawnClick) {
-      this.options.onSpawnClick(spawn);
-    }
-    
-    console.log('[SpawnManager] Spawn clicked:', spawn.id, spawn.pokemonName);
-  }
-  
-  /**
-   * Get spawn by ID
+   * 获取指定精灵
    */
   getSpawn(spawnId) {
     return this.activeSpawns.get(spawnId);
   }
-  
+
   /**
-   * Get all active spawns
+   * 获取所有活跃精灵
    */
   getAllSpawns() {
     return Array.from(this.activeSpawns.values());
   }
-  
+
   /**
-   * Clear all spawns
+   * 获取指定稀有度的精灵
+   */
+  getSpawnsByRarity(rarity) {
+    return Array.from(this.activeSpawns.values())
+      .filter(spawn => spawn.rarity === rarity);
+  }
+
+  /**
+   * 获取最近距离的精灵
+   */
+  getNearestSpawn(maxDistance = 100) {
+    if (!this.map) return null;
+
+    const center = this.map.getCenter();
+    let nearest = null;
+    let minDistance = Infinity;
+
+    for (const spawn of this.activeSpawns.values()) {
+      const distance = this.calculateDistance(
+        center.lat, center.lng,
+        spawn.location.lat, spawn.location.lng
+      );
+
+      if (distance < minDistance && distance <= maxDistance) {
+        minDistance = distance;
+        nearest = spawn;
+      }
+    }
+
+    return nearest;
+  }
+
+  /**
+   * 计算两点距离（米）
+   */
+  calculateDistance(lat1, lng1, lat2, lng2) {
+    const R = 6371000; // 地球半径（米）
+    const dLat = this.toRad(lat2 - lat1);
+    const dLng = this.toRad(lng2 - lng1);
+
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(this.toRad(lat1)) * Math.cos(this.toRad(lat2)) *
+              Math.sin(dLng / 2) * Math.sin(dLng / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+  }
+
+  /**
+   * 角度转弧度
+   */
+  toRad(deg) {
+    return deg * (Math.PI / 180);
+  }
+
+  /**
+   * 手动刷新精灵列表
+   */
+  async refresh() {
+    await this.updateNearbySpawns();
+  }
+
+  /**
+   * 清除所有标记
    */
   clear() {
-    for (const marker of this.spawnMarkers.values()) {
+    for (const [id, marker] of this.spawnMarkers) {
       marker.remove();
     }
-    
     this.spawnMarkers.clear();
     this.activeSpawns.clear();
-    
-    console.log('[SpawnManager] Cleared all spawns');
   }
-  
+
   /**
-   * Highlight spawns of a specific type
+   * 销毁
    */
-  highlightByRarity(rarity) {
-    for (const [id, marker] of this.spawnMarkers) {
-      const spawn = this.activeSpawns.get(id);
-      if (spawn && spawn.rarity === rarity) {
-        marker.getElement().classList.add('highlighted');
-      } else {
-        marker.getElement().classList.remove('highlighted');
-      }
-    }
-  }
-  
-  /**
-   * Filter spawns by criteria
-   */
-  filter(predicate) {
-    for (const [id, marker] of this.spawnMarkers) {
-      const spawn = this.activeSpawns.get(id);
-      if (spawn && predicate(spawn)) {
-        marker.addTo(this.map);
-      } else {
-        marker.remove();
-      }
-    }
-  }
-  
-  /**
-   * Show all spawns
-   */
-  showAll() {
-    for (const marker of this.spawnMarkers.values()) {
-      marker.addTo(this.map);
-    }
-  }
-  
-  /**
-   * Get statistics
-   */
-  getStats() {
-    const spawns = Array.from(this.activeSpawns.values());
-    
-    return {
-      total: spawns.length,
-      byRarity: spawns.reduce((acc, s) => {
-        acc[s.rarity] = (acc[s.rarity] || 0) + 1;
-        return acc;
-      }, {}),
-      avgCP: spawns.length > 0 
-        ? Math.floor(spawns.reduce((sum, s) => sum + (s.cp || 0), 0) / spawns.length)
-        : 0
-    };
+  destroy() {
+    this.stop();
+    this.clear();
+    this.map = null;
   }
 }
 
-// Export for use in browser
-if (typeof window !== 'undefined') {
-  window.SpawnManager = SpawnManager;
-  
-  // Global catch spawn handler
-  window.catchSpawn = function(spawnId) {
-    const event = new CustomEvent('catchSpawn', { detail: { spawnId } });
-    window.dispatchEvent(event);
-  };
-}
-
-// Export for module systems
+// 导出模块
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = SpawnManager;
+} else if (typeof window !== 'undefined') {
+  window.SpawnManager = SpawnManager;
 }
