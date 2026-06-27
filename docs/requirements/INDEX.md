@@ -358,4 +358,5 @@
 | REQ-00341 | 隐私政策版本管理与变更通知系统 | 合规/隐私 | P1 | new | user-service、gateway、game-client、admin-dashboard、backend/shared、database/migrations | 2026-06-26 10:00 UTC |
 | REQ-00342 | 精灵租赁市场与短期使用系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、payment-service、gateway、game-client、database/migrations | 2026-06-26 11:00 UTC |
 | REQ-00343 | API 密钥泄露检测与实时告警系统 | 安全加固 | P1 | new | gateway、user-service、admin-dashboard、backend/shared、infrastructure/k8s | 2026-06-27 01:00 UTC |
-| REQ-00344 | 玩家账号异常登录检测与地理围栏防护系统 | 安全加固 | P1 | new | user-service、gateway、backend/shared、Redis、PostgreSQL、admin-dashboard | 2026-06-27 02:00 UTC |
+|| REQ-00344 | 玩家账号异常登录检测与地理围栏防护系统 | 安全加固 | P1 | new | user-service、gateway、backend/shared、Redis、PostgreSQL、admin-dashboard | 2026-06-27 02:00 UTC |
+|| REQ-00329 | WebSocket 连接池与消息批处理性能优化 | 性能优化 | P1 | new | gym-service、catch-service、gateway、backend/shared、game-client、infrastructure/k8s | 2026-06-27 03:00 UTC |
