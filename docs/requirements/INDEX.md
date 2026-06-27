@@ -83,7 +83,7 @@
 | REQ-00074 | 玩家排行榜系统 | 功能增强 | P1 | new | social-service、user-service、pokemon-service、gym-service、gateway、game-client、Redis、database/migrations | 2026-06-10 10:00 |
 | REQ-00075 | REQ-00075：IP 黑名单与恶意 IP 自动封禁系统 |  |  |  |  |  |
 | REQ-00076 | 精灵成就系统与里程碑奖励 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-10 02:15 |
-| REQ-00077 | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | new | database/migrations、所有微服务、backend/shared、infrastructure/k8s | 2026-06-10 10:30 |
+| REQ-00077 | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | done | database/migrations、所有微服务、backend/shared、infrastructure/k8s | 2026-06-27 04:00 UTC |
 | REQ-00078 | REQ-00078：金丝雀发布与流量分割系统 |  |  |  |  |  |
 | REQ-00079 | 精灵好感度系统与亲密度进化机制 | 功能增强 | P1 | new | pokemon-service、user-service、catch-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 11:00 |
 | REQ-00080 | REQ-00080 实现文档 |  |  |  |  |  |
@@ -362,3 +362,5 @@
 || REQ-00329 | WebSocket 连接池与消息批处理性能优化 | 性能优化 | P1 | done | gym-service、catch-service、gateway、backend/shared、game-client、infrastructure/k8s | 2026-06-27 03:00 UTC |
 || REQ-00345 | 游戏内容动态本地化与多语言智能推荐系统 | 国际化/本地化 | P1 | new | gateway、user-service、pokemon-service、location-service、reward-service、game-client、backend/shared/i18n | 2026-06-27 04:00 UTC |
 || REQ-00346 | 数据血缘追踪与影响分析系统 | 数据库/数据治理 | P1 | new | gateway、所有微服务、backend/shared、admin-dashboard、infrastructure/k8s/monitoring | 2026-06-27 05:00 UTC |
+|| REQ-00347 | 服务调用异常预测与依赖健康传播追踪系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/ServiceCallPredictor.js、backend/shared/DependencyHealthTracker.js、infrastructure/k8s/monitoring | 2026-06-27 04:00 UTC |
+|| REQ-00348 | 精灵背包智能整理与自动分类系统 | 功能增强 | P1 | new | pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-27 06:00 UTC |
