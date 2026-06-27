@@ -1,0 +1,89 @@
+# REQ-00077: 数据库慢查询分析告警规则
+groups:
+  - name: slow-query-alerts
+    interval: 1m
+    rules:
+      - alert: HighSlowQueryRate
+        expr: rate(minego_database_slow_query_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "高慢查询率检测"
+          description: "服务 {{ $labels.service }} 慢查询率 {{ $value | printf \"%.2f\" }} 次/秒，超过阈值 10 次/秒"
+
+      - alert: VerySlowQuery
+        expr: minego_database_slow_query_duration_ms > 10000
+        for: 1m
+        labels:
+          severity: critical
+          category: database
+        annotations:
+          summary: "极慢查询检测（>10秒）"
+          description: "查询 {{ $labels.query_id }} 执行时间 {{ $value }}ms，严重影响性能"
+
+      - alert: SlowQuerySpike
+        expr: increase(minego_database_slow_query_total[5m]) > 50
+        for: 2m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "慢查询数量激增"
+          description: "过去 5 分钟新增 {{ $value }} 条慢查询，可能存在性能问题"
+
+      - alert: LowIndexUsageRatio
+        expr: minego_database_index_usage_ratio < 0.5
+        for: 10m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "索引使用率过低"
+          description: "表 {{ $labels.schema }}.{{ $labels.table }} 索引使用率仅 {{ $value | printf \"%.2f\" }}，建议检查无用索引"
+
+      - alert: HighQueryExecutionTime
+        expr: histogram_quantile(0.95, rate(minego_database_query_execution_time_ms_bucket[5m])) > 2000
+        for: 5m
+        labels:
+          severity: critical
+          category: database
+        annotations:
+          summary: "查询执行时间 P95 过高"
+          description: "服务 {{ $labels.service }} 操作 {{ $labels.operation }} P95 执行时间 {{ $value }}ms，超过阈值 2000ms"
+
+      - alert: LowBufferCacheHitRatio
+        expr: minego_database_buffer_cache_hit_ratio < 0.8
+        for: 5m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "数据库缓存命中率低"
+          description: "服务 {{ $labels.service }} 缓存命中率 {{ $value | printf \"%.2f\" }}%，低于阈值 80%，建议调整 shared_buffers"
+
+      - alert: SlowQueryTrendIncreasing
+        expr: |
+          (
+            rate(minego_database_slow_query_total[1h])
+            >
+            rate(minego_database_slow_query_total[1h] offset 1h) * 1.5
+          )
+        for: 10m
+        labels:
+          severity: warning
+          category: database
+        annotations:
+          summary: "慢查询趋势上升"
+          description: "慢查询数量相比 1 小时前增长超过 50%，需要关注数据库性能"
+
+      - alert: IndexBloatDetected
+        expr: minego_database_index_usage_ratio < 0.3
+        for: 30m
+        labels:
+          severity: info
+          category: database
+        annotations:
+          summary: "可能存在索引膨胀"
+          description: "表 {{ $labels.schema }}.{{ $labels.table }} 索引使用率极低，建议检查并清理无用索引"
