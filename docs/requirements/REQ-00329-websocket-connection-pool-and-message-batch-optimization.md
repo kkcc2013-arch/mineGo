@@ -7,7 +7,7 @@
 | 标题 | WebSocket 连接池与消息批处理性能优化 |
 | 类别 | 性能优化 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | gym-service、catch-service、gateway、backend/shared、game-client、infrastructure/k8s |
 | 创建时间 | 2026-06-27 03:00 UTC |
 

@@ -359,6 +359,6 @@
 | REQ-00342 | 精灵租赁市场与短期使用系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、payment-service、gateway、game-client、database/migrations | 2026-06-26 11:00 UTC |
 | REQ-00343 | API 密钥泄露检测与实时告警系统 | 安全加固 | P1 | new | gateway、user-service、admin-dashboard、backend/shared、infrastructure/k8s | 2026-06-27 01:00 UTC |
 || REQ-00344 | 玩家账号异常登录检测与地理围栏防护系统 | 安全加固 | P1 | new | user-service、gateway、backend/shared、Redis、PostgreSQL、admin-dashboard | 2026-06-27 02:00 UTC |
-|| REQ-00329 | WebSocket 连接池与消息批处理性能优化 | 性能优化 | P1 | new | gym-service、catch-service、gateway、backend/shared、game-client、infrastructure/k8s | 2026-06-27 03:00 UTC |
+|| REQ-00329 | WebSocket 连接池与消息批处理性能优化 | 性能优化 | P1 | done | gym-service、catch-service、gateway、backend/shared、game-client、infrastructure/k8s | 2026-06-27 03:00 UTC |
 || REQ-00345 | 游戏内容动态本地化与多语言智能推荐系统 | 国际化/本地化 | P1 | new | gateway、user-service、pokemon-service、location-service、reward-service、game-client、backend/shared/i18n | 2026-06-27 04:00 UTC |
 || REQ-00346 | 数据血缘追踪与影响分析系统 | 数据库/数据治理 | P1 | new | gateway、所有微服务、backend/shared、admin-dashboard、infrastructure/k8s/monitoring | 2026-06-27 05:00 UTC |

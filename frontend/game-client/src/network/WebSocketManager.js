@@ -1,371 +1,184 @@
 /**
- * WebSocket 管理器 - 客户端
- * REQ-00262: 实时对战 WebSocket 连接系统
+ * WebSocket 管理器 - 游戏客户端
+ * REQ-00329: WebSocket 连接池与消息批处理性能优化
  * 
  * 功能：
  * - WebSocket 连接管理
+ * - 消息批处理缓冲
  * - 自动重连
  * - 心跳检测
- * - 消息路由
- * - 战斗房间管理
+ * - 消息分发
  */
 
 class WebSocketManager {
-  constructor() {
-    this.ws = null;
-    this.url = null;
-    this.connectionId = null;
-    this.roomId = null;
-    this.sessionId = null;
+  constructor(options = {}) {
+    // 配置
+    this.wsUrl = options.wsUrl || `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/ws`;
+    this.token = options.token || null;
+    
+    // 批处理配置
+    this.batchSize = options.batchSize || 20;
+    this.batchDelay = options.batchDelay || 50; // ms
     
     // 重连配置
+    this.maxReconnectAttempts = options.maxReconnectAttempts || 5;
+    this.reconnectDelay = options.reconnectDelay || 3000;
     this.reconnectAttempts = 0;
-    this.maxReconnectAttempts = 5;
-    this.reconnectDelay = 1000;
-    this.reconnectTimer = null;
     
     // 心跳配置
-    this.heartbeatInterval = 25000;
+    this.heartbeatInterval = options.heartbeatInterval || 30000; // 30秒
     this.heartbeatTimer = null;
-    this.latency = 0;
     
-    // 状态
-    this.connectionState = 'DISCONNECTED'; // DISCONNECTED, CONNECTING, CONNECTED, RECONNECTING
-    this.isAuthenticated = false;
+    // 连接状态
+    this.ws = null;
+    this.isConnected = false;
+    this.connectionId = null;
+    this.userId = null;
     
-    // 消息处理器
+    // 消息缓冲
+    this.messageBuffer = [];
+    this.flushTimer = null;
+    
+    // 消息处理器映射
     this.messageHandlers = new Map();
-    this.eventListeners = new Map();
     
-    // 设置默认消息处理器
-    this.setupDefaultHandlers();
+    // 事件监听器
+    this.eventListeners = {
+      'connected': [],
+      'disconnected': [],
+      'error': [],
+      'reconnecting': []
+    };
+    
+    // 统计
+    this.stats = {
+      messagesSent: 0,
+      messagesReceived: 0,
+      batchesSent: 0,
+      reconnects: 0
+    };
+    
+    console.log('[WebSocketManager] Initialized', {
+      wsUrl: this.wsUrl,
+      batchSize: this.batchSize,
+      batchDelay: this.batchDelay
+    });
   }
 
   /**
-   * 连接到 WebSocket 服务器
+   * 连接 WebSocket
    */
-  connect(url, token) {
+  connect(token) {
     return new Promise((resolve, reject) => {
-      if (this.connectionState === 'CONNECTED') {
+      if (this.isConnected) {
         resolve();
         return;
       }
-      
-      this.connectionState = 'CONNECTING';
-      this.url = url || this.url;
-      
-      try {
-        const wsUrl = `${this.url}?token=${token}`;
-        this.ws = new WebSocket(wsUrl);
-        
-        // 连接超时
-        const connectTimeout = setTimeout(() => {
-          if (this.connectionState === 'CONNECTING') {
-            this.ws.close();
-            reject(new Error('Connection timeout'));
-          }
-        }, 10000);
-        
-        this.ws.onopen = () => {
-          clearTimeout(connectTimeout);
-          this.connectionState = 'CONNECTED';
-          this.reconnectAttempts = 0;
-          this.startHeartbeat();
-          
-          this.emit('connected');
-          console.log('[WS] Connected');
-          resolve();
-        };
-        
-        this.ws.onmessage = (event) => {
-          this.handleMessage(event.data);
-        };
-        
-        this.ws.onerror = (error) => {
-          clearTimeout(connectTimeout);
-          console.error('[WS] Error:', error);
-          this.emit('error', error);
-        };
-        
-        this.ws.onclose = (event) => {
-          clearTimeout(connectTimeout);
-          this.handleDisconnect(event);
-        };
-        
-      } catch (error) {
-        this.connectionState = 'DISCONNECTED';
+
+      this.token = token || this.token;
+      const url = `${this.wsUrl}?token=${this.token}`;
+
+      console.log('[WebSocketManager] Connecting...', { url: this.wsUrl });
+
+      this.ws = new WebSocket(url);
+
+      this.ws.onopen = () => {
+        this.onConnected();
+        resolve();
+      };
+
+      this.ws.onmessage = (event) => {
+        this.onMessage(event.data);
+      };
+
+      this.ws.onclose = (event) => {
+        this.onDisconnected(event);
+      };
+
+      this.ws.onerror = (error) => {
+        console.error('[WebSocketManager] Connection error', error);
+        this.emit('error', error);
         reject(error);
-      }
+      };
     });
   }
 
   /**
-   * 断开连接
+   * 连接成功处理
    */
-  disconnect() {
+  onConnected() {
+    this.isConnected = true;
+    this.reconnectAttempts = 0;
+    
+    // 启动心跳
+    this.startHeartbeat();
+    
+    // 启动批量刷新
+    this.startBatchFlush();
+    
+    // 发送缓冲消息
+    this.flushBuffer();
+    
+    console.log('[WebSocketManager] Connected');
+    this.emit('connected');
+  }
+
+  /**
+   * 断开连接处理
+   */
+  onDisconnected(event) {
+    this.isConnected = false;
     this.stopHeartbeat();
-    this.stopReconnect();
+    this.stopBatchFlush();
     
-    if (this.ws) {
-      this.ws.close(1000, 'Client disconnect');
-      this.ws = null;
-    }
-    
-    this.connectionState = 'DISCONNECTED';
-    this.connectionId = null;
-    this.roomId = null;
-    this.sessionId = null;
-    this.isAuthenticated = false;
-    
-    this.emit('disconnected');
-    console.log('[WS] Disconnected');
-  }
-
-  /**
-   * 设置默认消息处理器
-   */
-  setupDefaultHandlers() {
-    // 连接建立
-    this.on('CONNECTION_ESTABLISHED', (data) => {
-      this.connectionId = data.connectionId;
-      this.isAuthenticated = true;
-      console.log('[WS] Connection established:', this.connectionId);
+    console.log('[WebSocketManager] Disconnected', {
+      code: event.code,
+      reason: event.reason
     });
     
-    // 心跳响应
-    this.on('HEARTBEAT_ACK', (data) => {
-      this.latency = data.latency || (Date.now() - data.clientTime);
-      this.emit('latency', this.latency);
+    this.emit('disconnected', {
+      code: event.code,
+      reason: event.reason
     });
     
-    // 加入房间
-    this.on('JOINED_ROOM', (data) => {
-      this.roomId = data.roomId;
-      this.sessionId = data.sessionId;
-      console.log('[WS] Joined room:', this.roomId);
-      this.emit('room_joined', data);
-    });
-    
-    // 离开房间
-    this.on('PLAYER_LEFT', (data) => {
-      if (data.userId === this.getCurrentUserId()) {
-        this.roomId = null;
-        this.sessionId = null;
-      }
-      this.emit('player_left', data);
-    });
-    
-    // 玩家加入
-    this.on('PLAYER_JOINED', (data) => {
-      this.emit('player_joined', data);
-    });
-    
-    // 玩家断线
-    this.on('PLAYER_DISCONNECTED', (data) => {
-      this.emit('player_disconnected', data);
-    });
-    
-    // 玩家重连
-    this.on('PLAYER_RECONNECTED', (data) => {
-      this.emit('player_reconnected', data);
-    });
-    
-    // 战斗开始
-    this.on('BATTLE_STARTED', (data) => {
-      console.log('[WS] Battle started');
-      this.emit('battle_started', data);
-    });
-    
-    // 战斗动作结果
-    this.on('BATTLE_ACTION_RESULT', (data) => {
-      this.emit('battle_action', data);
-    });
-    
-    // 战斗结束
-    this.on('BATTLE_ENDED', (data) => {
-      console.log('[WS] Battle ended:', data.result);
-      this.emit('battle_ended', data);
-      this.roomId = null;
-      this.sessionId = null;
-    });
-    
-    // 重连成功
-    this.on('RECONNECT_SUCCESS', (data) => {
-      this.roomId = data.roomId;
-      this.sessionId = data.sessionId;
-      console.log('[WS] Reconnected successfully');
-      this.emit('reconnected', data);
-    });
-    
-    // 重连失败
-    this.on('RECONNECT_FAILED', (data) => {
-      console.log('[WS] Reconnect failed:', data.message);
-      this.roomId = null;
-      this.sessionId = null;
-      this.emit('reconnect_failed', data);
-    });
-    
-    // 房间关闭
-    this.on('ROOM_CLOSED', (data) => {
-      console.log('[WS] Room closed:', data.reason);
-      this.roomId = null;
-      this.sessionId = null;
-      this.emit('room_closed', data);
-    });
-    
-    // 服务器关闭
-    this.on('SERVER_SHUTDOWN', (data) => {
-      console.log('[WS] Server shutting down');
-      this.disconnect();
-      this.emit('server_shutdown', data);
-    });
-    
-    // 错误
-    this.on('ERROR', (data) => {
-      console.error('[WS] Error:', data.message);
-      this.emit('error', new Error(data.message));
-    });
-  }
-
-  /**
-   * 处理收到的消息
-   */
-  handleMessage(data) {
-    try {
-      const message = JSON.parse(data);
-      const { type, payload } = message;
-      
-      // 调用注册的处理器
-      const handler = this.messageHandlers.get(type);
-      if (handler) {
-        handler(payload);
-      }
-      
-      // 触发事件
-      this.emit('message', { type, payload });
-      
-    } catch (error) {
-      console.error('[WS] Message parse error:', error);
+    // 自动重连
+    if (event.code !== 1000 && this.reconnectAttempts < this.maxReconnectAttempts) {
+      this.reconnect();
     }
   }
 
   /**
-   * 注册消息处理器
+   * 自动重连
    */
-  on(type, handler) {
-    this.messageHandlers.set(type, handler);
-  }
-
-  /**
-   * 移除消息处理器
-   */
-  off(type) {
-    this.messageHandlers.delete(type);
-  }
-
-  /**
-   * 发送消息
-   */
-  send(type, payload = {}) {
-    if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-      console.warn('[WS] Cannot send: not connected');
-      return false;
-    }
+  reconnect() {
+    this.reconnectAttempts++;
+    this.stats.reconnects++;
     
-    try {
-      const message = JSON.stringify({ type, payload });
-      this.ws.send(message);
-      return true;
-    } catch (error) {
-      console.error('[WS] Send error:', error);
-      return false;
-    }
-  }
-
-  /**
-   * 加入战斗房间
-   */
-  joinBattle(roomId, battleType, pokemonTeam = []) {
-    return this.send('JOIN_BATTLE', { 
-      roomId, 
-      battleType,
-      pokemonTeam 
+    console.log('[WebSocketManager] Reconnecting...', {
+      attempt: this.reconnectAttempts,
+      maxAttempts: this.maxReconnectAttempts
     });
-  }
-
-  /**
-   * 离开战斗房间
-   */
-  leaveBattle(reason = 'voluntary') {
-    const result = this.send('LEAVE_BATTLE', { 
-      roomId: this.roomId,
-      reason 
+    
+    this.emit('reconnecting', {
+      attempt: this.reconnectAttempts,
+      maxAttempts: this.maxReconnectAttempts
     });
-    this.roomId = null;
-    this.sessionId = null;
-    return result;
-  }
-
-  /**
-   * 发送战斗动作
-   */
-  sendBattleAction(action, data = {}) {
-    return this.send('BATTLE_ACTION', {
-      action,
-      data
-    });
-  }
-
-  /**
-   * 选择技能
-   */
-  selectMove(moveId) {
-    return this.sendBattleAction('SELECT_MOVE', { moveId });
-  }
-
-  /**
-   * 切换精灵
-   */
-  switchPokemon(pokemonId) {
-    return this.sendBattleAction('SELECT_POKEMON', { pokemonId });
-  }
-
-  /**
-   * 使用道具
-   */
-  useItem(itemId, targetId) {
-    return this.sendBattleAction('USE_ITEM', { itemId, targetId });
-  }
-
-  /**
-   * 逃跑
-   */
-  flee() {
-    return this.sendBattleAction('FLEE', {});
-  }
-
-  /**
-   * 准备就绪
-   */
-  ready() {
-    return this.sendBattleAction('READY', {});
-  }
-
-  /**
-   * 尝试重连
-   */
-  attemptReconnect(roomId, sessionId) {
-    return this.send('RECONNECT', { roomId, sessionId });
+    
+    setTimeout(() => {
+      this.connect(this.token).catch(error => {
+        console.error('[WebSocketManager] Reconnect failed', error);
+      });
+    }, this.reconnectDelay * this.reconnectAttempts);
   }
 
   /**
    * 启动心跳
    */
   startHeartbeat() {
-    this.stopHeartbeat();
-    
     this.heartbeatTimer = setInterval(() => {
-      this.send('HEARTBEAT', { clientTime: Date.now() });
+      if (this.isConnected && this.ws.readyState === WebSocket.OPEN) {
+        this.send({ type: 'ping' }, { immediate: true });
+      }
     }, this.heartbeatInterval);
   }
 
@@ -380,140 +193,257 @@ class WebSocketManager {
   }
 
   /**
-   * 处理断开连接
+   * 发送消息
+   * @param {Object} message - 消息内容
+   * @param {Object} options - 选项（immediate, priority）
    */
-  handleDisconnect(event) {
-    const wasConnected = this.connectionState === 'CONNECTED';
-    this.connectionState = 'DISCONNECTED';
-    this.stopHeartbeat();
-    
-    console.log('[WS] Disconnected:', event.code, event.reason);
-    
-    this.emit('disconnected', { code: event.code, reason: event.reason });
-    
-    // 自动重连（非正常断开）
-    if (wasConnected && 
-        event.code !== 1000 && 
-        this.reconnectAttempts < this.maxReconnectAttempts) {
-      this.scheduleReconnect();
+  send(message, options = {}) {
+    if (!this.isConnected || this.ws.readyState !== WebSocket.OPEN) {
+      console.warn('[WebSocketManager] Not connected, message queued');
+      this.messageBuffer.push(message);
+      return;
+    }
+
+    // 立即发送
+    if (options.immediate) {
+      this.ws.send(JSON.stringify(message));
+      this.stats.messagesSent++;
+      return;
+    }
+
+    // 高优先级消息立即发送
+    if (options.priority === 'high') {
+      this.ws.send(JSON.stringify(message));
+      this.stats.messagesSent++;
+      return;
+    }
+
+    // 添加到缓冲区
+    this.messageBuffer.push(message);
+
+    // 达到批量大小时立即刷新
+    if (this.messageBuffer.length >= this.batchSize) {
+      this.flushBuffer();
     }
   }
 
   /**
-   * 安排重连
+   * 启动批量刷新
    */
-  scheduleReconnect() {
-    this.connectionState = 'RECONNECTING';
-    this.reconnectAttempts++;
-    
-    const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
-    
-    console.log(`[WS] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`);
-    
-    this.emit('reconnecting', { attempt: this.reconnectAttempts, delay });
-    
-    this.reconnectTimer = setTimeout(() => {
-      // 获取存储的 token
-      const token = localStorage?.getItem('token');
-      if (token) {
-        this.connect(this.url, token)
-          .then(() => {
-            // 重连成功后，尝试恢复战斗会话
-            if (this.roomId && this.sessionId) {
-              this.attemptReconnect(this.roomId, this.sessionId);
-            }
-          })
-          .catch(console.error);
+  startBatchFlush() {
+    this.flushTimer = setInterval(() => {
+      if (this.messageBuffer.length > 0) {
+        this.flushBuffer();
       }
-    }, delay);
+    }, this.batchDelay);
   }
 
   /**
-   * 停止重连
+   * 停止批量刷新
    */
-  stopReconnect() {
-    if (this.reconnectTimer) {
-      clearTimeout(this.reconnectTimer);
-      this.reconnectTimer = null;
+  stopBatchFlush() {
+    if (this.flushTimer) {
+      clearInterval(this.flushTimer);
+      this.flushTimer = null;
     }
   }
 
   /**
-   * 事件系统
+   * 刷新消息缓冲区
    */
-  addEventListener(event, callback) {
-    if (!this.eventListeners.has(event)) {
-      this.eventListeners.set(event, []);
+  flushBuffer() {
+    if (this.messageBuffer.length === 0 || !this.isConnected) {
+      return;
     }
-    this.eventListeners.get(event).push(callback);
+
+    const batch = {
+      id: this.generateBatchId(),
+      messages: this.messageBuffer.splice(0),
+      timestamp: Date.now()
+    };
+
+    try {
+      this.ws.send(JSON.stringify(batch));
+      this.stats.batchesSent++;
+      this.stats.messagesSent += batch.messages.length;
+    } catch (error) {
+      console.error('[WebSocketManager] Failed to flush buffer', error);
+      // 将消息放回缓冲区
+      this.messageBuffer.unshift(...batch.messages);
+    }
   }
 
-  removeEventListener(event, callback) {
-    if (this.eventListeners.has(event)) {
-      const callbacks = this.eventListeners.get(event);
-      const index = callbacks.indexOf(callback);
-      if (index !== -1) {
-        callbacks.splice(index, 1);
+  /**
+   * 处理接收消息
+   */
+  onMessage(data) {
+    try {
+      const batch = JSON.parse(data);
+
+      // 批量处理消息
+      if (batch.messages && Array.isArray(batch.messages)) {
+        batch.messages.forEach(msg => {
+          this.dispatchMessage(msg);
+        });
+        this.stats.messagesReceived += batch.messages.length;
+      } else {
+        // 单条消息
+        this.dispatchMessage(batch);
+        this.stats.messagesReceived++;
       }
+    } catch (error) {
+      console.error('[WebSocketManager] Failed to parse message', error);
     }
   }
 
-  emit(event, data) {
-    const callbacks = this.eventListeners.get(event);
-    if (callbacks) {
-      callbacks.forEach(cb => {
-        try {
-          cb(data);
-        } catch (error) {
-          console.error('[WS] Event callback error:', error);
-        }
+  /**
+   * 分发消息到处理器
+   */
+  dispatchMessage(message) {
+    const handler = this.messageHandlers.get(message.type);
+    
+    if (handler) {
+      handler(message);
+    } else {
+      console.warn('[WebSocketManager] No handler for message type', {
+        type: message.type
       });
     }
   }
 
   /**
-   * 获取当前状态
+   * 注册消息处理器
    */
-  getState() {
+  on(messageType, handler) {
+    this.messageHandlers.set(messageType, handler);
+  }
+
+  /**
+   * 注销消息处理器
+   */
+  off(messageType) {
+    this.messageHandlers.delete(messageType);
+  }
+
+  /**
+   * 添加事件监听器
+   */
+  addEventListener(event, callback) {
+    if (this.eventListeners[event]) {
+      this.eventListeners[event].push(callback);
+    }
+  }
+
+  /**
+   * 移除事件监听器
+   */
+  removeEventListener(event, callback) {
+    if (this.eventListeners[event]) {
+      const index = this.eventListeners[event].indexOf(callback);
+      if (index !== -1) {
+        this.eventListeners[event].splice(index, 1);
+      }
+    }
+  }
+
+  /**
+   * 触发事件
+   */
+  emit(event, data) {
+    const listeners = this.eventListeners[event];
+    if (listeners) {
+      listeners.forEach(callback => callback(data));
+    }
+  }
+
+  /**
+   * 订阅频道
+   */
+  subscribe(channel) {
+    this.send({
+      type: 'subscribe',
+      channel
+    }, { immediate: true });
+  }
+
+  /**
+   * 取消订阅
+   */
+  unsubscribe(channel) {
+    this.send({
+      type: 'unsubscribe',
+      channel
+    }, { immediate: true });
+  }
+
+  /**
+   * 发送位置更新
+   */
+  sendLocationUpdate(location) {
+    this.send({
+      type: 'location_update',
+      data: location
+    });
+  }
+
+  /**
+   * 发送战斗动作
+   */
+  sendBattleAction(action) {
+    this.send({
+      type: 'battle_action',
+      data: action
+    }, { priority: 'high', immediate: true });
+  }
+
+  /**
+   * 发送聊天消息
+   */
+  sendChatMessage(channel, content) {
+    this.send({
+      type: 'chat_message',
+      channel,
+      content
+    });
+  }
+
+  /**
+   * 断开连接
+   */
+  disconnect() {
+    if (this.ws) {
+      this.flushBuffer();
+      this.stopHeartbeat();
+      this.stopBatchFlush();
+      this.ws.close(1000, 'Client disconnect');
+      this.ws = null;
+      this.isConnected = false;
+    }
+  }
+
+  /**
+   * 生成批次ID
+   */
+  generateBatchId() {
+    return `batch_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  }
+
+  /**
+   * 获取统计信息
+   */
+  getStats() {
     return {
-      connectionState: this.connectionState,
-      isConnected: this.isConnected(),
-      isAuthenticated: this.isAuthenticated,
-      connectionId: this.connectionId,
-      roomId: this.roomId,
-      sessionId: this.sessionId,
-      latency: this.latency,
+      ...this.stats,
+      isConnected: this.isConnected,
+      bufferSize: this.messageBuffer.length,
       reconnectAttempts: this.reconnectAttempts
     };
   }
-
-  /**
-   * 是否已连接
-   */
-  isConnected() {
-    return this.connectionState === 'CONNECTED' && 
-           this.ws && 
-           this.ws.readyState === WebSocket.OPEN;
-  }
-
-  /**
-   * 获取延迟
-   */
-  getLatency() {
-    return this.latency;
-  }
-
-  /**
-   * 获取当前用户 ID（需要从 token 解析）
-   */
-  getCurrentUserId() {
-    // 这里需要从存储的 token 或用户状态获取
-    return localStorage?.getItem('userId');
-  }
 }
 
-// 导出单例
-export const wsManager = new WebSocketManager();
-
-// 也导出类，允许创建多个实例
-export { WebSocketManager };
+// 导出（支持浏览器和 Node.js）
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = { WebSocketManager };
+} else {
+  window.WebSocketManager = WebSocketManager;
+}
