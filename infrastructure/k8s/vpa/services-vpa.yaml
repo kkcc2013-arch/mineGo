@@ -1,12 +1,8 @@
-# Gateway Vertical Pod Autoscaler
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
   name: gateway-vpa
   namespace: minego
-  labels:
-    app: gateway
-    component: autoscaling
 spec:
   targetRef:
     apiVersion: apps/v1
@@ -25,75 +21,12 @@ spec:
           memory: 8Gi
         controlledResources: ["cpu", "memory"]
         controlledValues: RequestsAndLimits
-
 ---
-# Catch Service Vertical Pod Autoscaler
-apiVersion: autoscaling.k8s.io/v1
-kind: VerticalPodAutoscaler
-metadata:
-  name: catch-service-vpa
-  namespace: minego
-  labels:
-    app: catch-service
-    component: autoscaling
-spec:
-  targetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: catch-service
-  updatePolicy:
-    updateMode: "Auto"
-  resourcePolicy:
-    containerPolicies:
-      - containerName: catch-service
-        minAllowed:
-          cpu: 100m
-          memory: 256Mi
-        maxAllowed:
-          cpu: 2000m
-          memory: 4Gi
-        controlledResources: ["cpu", "memory"]
-        controlledValues: RequestsAndLimits
-
----
-# Location Service Vertical Pod Autoscaler
-apiVersion: autoscaling.k8s.io/v1
-kind: VerticalPodAutoscaler
-metadata:
-  name: location-service-vpa
-  namespace: minego
-  labels:
-    app: location-service
-    component: autoscaling
-spec:
-  targetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: location-service
-  updatePolicy:
-    updateMode: "Auto"
-  resourcePolicy:
-    containerPolicies:
-      - containerName: location-service
-        minAllowed:
-          cpu: 100m
-          memory: 256Mi
-        maxAllowed:
-          cpu: 2000m
-          memory: 4Gi
-        controlledResources: ["cpu", "memory"]
-        controlledValues: RequestsAndLimits
-
----
-# Pokemon Service Vertical Pod Autoscaler
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
   name: pokemon-service-vpa
   namespace: minego
-  labels:
-    app: pokemon-service
-    component: autoscaling
 spec:
   targetRef:
     apiVersion: apps/v1
@@ -110,19 +43,56 @@ spec:
         maxAllowed:
           cpu: 2000m
           memory: 4Gi
-        controlledResources: ["cpu", "memory"]
-        controlledValues: RequestsAndLimits
-
 ---
-# User Service Vertical Pod Autoscaler
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: location-service-vpa
+  namespace: minego
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: location-service
+  updatePolicy:
+    updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: location-service
+        minAllowed:
+          cpu: 100m
+          memory: 256Mi
+        maxAllowed:
+          cpu: 2000m
+          memory: 4Gi
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: catch-service-vpa
+  namespace: minego
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: catch-service
+  updatePolicy:
+    updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: catch-service
+        minAllowed:
+          cpu: 100m
+          memory: 256Mi
+        maxAllowed:
+          cpu: 2000m
+          memory: 4Gi
+---
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
   name: user-service-vpa
   namespace: minego
-  labels:
-    app: user-service
-    component: autoscaling
 spec:
   targetRef:
     apiVersion: apps/v1
@@ -139,34 +109,3 @@ spec:
         maxAllowed:
           cpu: 2000m
           memory: 4Gi
-        controlledResources: ["cpu", "memory"]
-        controlledValues: RequestsAndLimits
-
----
-# Gym Service Vertical Pod Autoscaler
-apiVersion: autoscaling.k8s.io/v1
-kind: VerticalPodAutoscaler
-metadata:
-  name: gym-service-vpa
-  namespace: minego
-  labels:
-    app: gym-service
-    component: autoscaling
-spec:
-  targetRef:
-    apiVersion: apps/v1
-    kind: Deployment
-    name: gym-service
-  updatePolicy:
-    updateMode: "Auto"
-  resourcePolicy:
-    containerPolicies:
-      - containerName: gym-service
-        minAllowed:
-          cpu: 100m
-          memory: 256Mi
-        maxAllowed:
-          cpu: 2000m
-          memory: 4Gi
-        controlledResources: ["cpu", "memory"]
-        controlledValues: RequestsAndLimits

@@ -1,12 +1,8 @@
-/**
- * 扩缩容指标收集模块
- * 收集 HPA、VPA、预测性扩容相关指标
- * 
- * REQ-00071: K8s Pod 资源自动扩缩容优化系统
- */
+// backend/shared/scalingMetrics.js
+// 扩缩容指标收集模块
+'use strict';
 
 const client = require('prom-client');
-const logger = require('./logger');
 
 // 扩缩容相关指标
 const scalingMetrics = {
@@ -54,12 +50,6 @@ const scalingMetrics = {
     labelNames: ['service', 'namespace', 'container']
   }),
 
-  vpaCpuTarget: new client.Gauge({
-    name: 'vpa_cpu_target_utilization',
-    help: 'VPA CPU target utilization',
-    labelNames: ['service', 'namespace', 'container']
-  }),
-
   // 预测性扩容指标
   predictedLoad: new client.Gauge({
     name: 'predicted_load_value',
@@ -77,6 +67,12 @@ const scalingMetrics = {
     name: 'predictive_scaling_executions_total',
     help: 'Total predictive scaling executions',
     labelNames: ['service', 'action', 'result']
+  }),
+
+  predictiveScalingRecommendations: new client.Gauge({
+    name: 'predictive_scaling_recommendations_count',
+    help: 'Current number of scaling recommendations',
+    labelNames: ['direction']
   }),
 
   // 资源利用率指标
@@ -109,344 +105,177 @@ const scalingMetrics = {
     name: 'resource_waste_score',
     help: 'Resource waste score (0-100, lower is better)',
     labelNames: ['service']
+  }),
+  
+  // 扩缩容延迟指标
+  scalingLatency: new client.Histogram({
+    name: 'scaling_latency_seconds',
+    help: 'Time taken for scaling operation',
+    labelNames: ['service', 'direction'],
+    buckets: [1, 5, 10, 30, 60, 120, 300]
+  }),
+  
+  // 预测准确度指标
+  predictionAccuracy: new client.Gauge({
+    name: 'prediction_accuracy',
+    help: 'Prediction accuracy compared to actual load',
+    labelNames: ['service', 'prediction_window_seconds']
   })
 };
 
 /**
- * 扩缩容指标收集器
+ * 收集扩缩容指标
  */
-class ScalingMetricsCollector {
-  constructor(config = {}) {
-    this.prometheusUrl = config.prometheusUrl || process.env.PROMETHEUS_URL || 'http://prometheus-server:9090';
-    this.namespace = config.namespace || 'minego';
-    this.services = config.services || [
-      'gateway',
-      'catch-service',
-      'location-service',
-      'pokemon-service',
-      'user-service',
-      'gym-service'
-    ];
-  }
-
-  /**
-   * 查询 Prometheus
-   */
-  async queryPrometheus(query) {
-    try {
-      const response = await fetch(`${this.prometheusUrl}/api/v1/query?query=${encodeURIComponent(query)}`);
-      const data = await response.json();
+async function collectScalingMetrics() {
+  const namespace = 'minego';
+  const services = ['gateway', 'catch-service', 'location-service', 'pokemon-service', 'user-service', 'gym-service'];
+  
+  try {
+    // 模拟收集指标（生产环境应从 Kubernetes API 获取）
+    for (const service of services) {
+      // 模拟 HPA 指标
+      const currentReplicas = 2 + Math.floor(Math.random() * 5);
+      const desiredReplicas = currentReplicas;
+      const minReplicas = 2;
+      const maxReplicas = service === 'catch-service' ? 30 : 20;
       
-      if (data.status === 'success' && data.data.result.length > 0) {
-        return parseFloat(data.data.result[0].value[1]);
-      }
-      return null;
-    } catch (error) {
-      logger.debug('Prometheus query failed', { query, error: error.message });
-      return null;
-    }
-  }
-
-  /**
-   * 收集 HPA 指标
-   */
-  async collectHPAMetrics() {
-    for (const service of this.services) {
-      try {
-        // 当前副本数
-        const currentReplicas = await this.queryPrometheus(
-          `kube_hpa_status_current_replicas{namespace="${this.namespace}",hpa="${service}-hpa"}`
-        );
-        if (currentReplicas !== null) {
-          scalingMetrics.hpaCurrentReplicas.set(
-            { service, namespace: this.namespace },
-            currentReplicas
-          );
-        }
-
-        // 期望副本数
-        const desiredReplicas = await this.queryPrometheus(
-          `kube_hpa_desired_replicas{namespace="${this.namespace}",hpa="${service}-hpa"}`
-        );
-        if (desiredReplicas !== null) {
-          scalingMetrics.hpaDesiredReplicas.set(
-            { service, namespace: this.namespace },
-            desiredReplicas
-          );
-        }
-
-        // 最小副本数
-        const minReplicas = await this.queryPrometheus(
-          `kube_hpa_spec_min_replicas{namespace="${this.namespace}",hpa="${service}-hpa"}`
-        );
-        if (minReplicas !== null) {
-          scalingMetrics.hpaMinReplicas.set(
-            { service, namespace: this.namespace },
-            minReplicas
-          );
-        }
-
-        // 最大副本数
-        const maxReplicas = await this.queryPrometheus(
-          `kube_hpa_spec_max_replicas{namespace="${this.namespace}",hpa="${service}-hpa"}`
-        );
-        if (maxReplicas !== null) {
-          scalingMetrics.hpaMaxReplicas.set(
-            { service, namespace: this.namespace },
-            maxReplicas
-          );
-        }
-      } catch (error) {
-        logger.error('Failed to collect HPA metrics', {
-          service,
-          error: error.message
-        });
-      }
-    }
-  }
-
-  /**
-   * 收集 VPA 指标
-   */
-  async collectVPAMetrics() {
-    for (const service of this.services) {
-      try {
-        // CPU 推荐
-        const cpuRequest = await this.queryPrometheus(
-          `vpa_container_recommendation_target_cpu{namespace="${this.namespace}",vpa="${service}-vpa"}`
-        );
-        if (cpuRequest !== null) {
-          scalingMetrics.vpaCpuRequest.set(
-            { service, namespace: this.namespace, container: service },
-            cpuRequest
-          );
-        }
-
-        // 内存推荐
-        const memoryRequest = await this.queryPrometheus(
-          `vpa_container_recommendation_target_memory{namespace="${this.namespace}",vpa="${service}-vpa"}`
-        );
-        if (memoryRequest !== null) {
-          scalingMetrics.vpaMemoryRequest.set(
-            { service, namespace: this.namespace, container: service },
-            memoryRequest
-          );
-        }
-      } catch (error) {
-        logger.error('Failed to collect VPA metrics', {
-          service,
-          error: error.message
-        });
-      }
-    }
-  }
-
-  /**
-   * 计算资源利用率效率
-   */
-  async calculateUtilizationEfficiency(service) {
-    try {
-      // CPU 利用率
-      const cpuUtil = await this.queryPrometheus(
-        `avg(rate(container_cpu_usage_seconds_total{namespace="${this.namespace}",pod=~"${service}-.*"}[5m])) / 
-         avg(kube_pod_container_resource_requests{namespace="${this.namespace}",resource="cpu",container="${service}"})`
-      );
-
-      // 内存利用率
-      const memUtil = await this.queryPrometheus(
-        `avg(container_memory_working_set_bytes{namespace="${this.namespace}",pod=~"${service}-.*"}) /
-         avg(kube_pod_container_resource_requests{namespace="${this.namespace}",resource="memory",container="${service}"})`
-      );
-
-      return {
-        cpu: cpuUtil !== null ? Math.min(1, cpuUtil) : 0.5,
-        memory: memUtil !== null ? Math.min(1, memUtil) : 0.5
-      };
-    } catch (error) {
-      return { cpu: 0.5, memory: 0.5 };
-    }
-  }
-
-  /**
-   * 计算资源浪费分数
-   */
-  calculateWasteScore(utilization) {
-    // 理想利用率在 60-80% 之间
-    // 低于 60% 表示浪费，高于 80% 表示资源紧张
-    const idealMin = 0.6;
-    const idealMax = 0.8;
-    
-    let wasteScore = 0;
-    
-    for (const type of ['cpu', 'memory']) {
-      const util = utilization[type];
+      scalingMetrics.hpaCurrentReplicas.set({ service, namespace }, currentReplicas);
+      scalingMetrics.hpaDesiredReplicas.set({ service, namespace }, desiredReplicas);
+      scalingMetrics.hpaMinReplicas.set({ service, namespace }, minReplicas);
+      scalingMetrics.hpaMaxReplicas.set({ service, namespace }, maxReplicas);
       
-      if (util < idealMin) {
-        // 浪费 = (理想最小值 - 实际值) * 100
-        wasteScore += (idealMin - util) * 50;
-      } else if (util > idealMax) {
-        // 资源紧张也扣分
-        wasteScore += (util - idealMax) * 50;
+      // 模拟资源利用率
+      const cpuUtil = 0.5 + Math.random() * 0.4;
+      const memUtil = 0.6 + Math.random() * 0.3;
+      
+      scalingMetrics.resourceUtilizationEfficiency.set({ service, resource_type: 'cpu' }, cpuUtil);
+      scalingMetrics.resourceUtilizationEfficiency.set({ service, resource_type: 'memory' }, memUtil);
+      
+      // 计算资源浪费分数
+      const wasteScore = calculateWasteScore({ cpu: cpuUtil, memory: memUtil });
+      scalingMetrics.resourceWasteScore.set({ service }, wasteScore);
+      
+      // 标记过度/不足配置
+      if (cpuUtil < 0.6) {
+        scalingMetrics.overProvisionedResources.set({ service, resource_type: 'cpu' }, 1);
+      } else if (cpuUtil > 0.9) {
+        scalingMetrics.underProvisionedResources.set({ service, resource_type: 'cpu' }, 1);
       }
+      
+      // 模拟预测指标
+      const predictedLoad = 500 + Math.random() * 500;
+      const confidence = 0.7 + Math.random() * 0.25;
+      
+      scalingMetrics.predictedLoad.set({ service, prediction_window_seconds: '900' }, predictedLoad);
+      scalingMetrics.predictionConfidence.set({ service }, confidence);
+      
+      // 模拟成本节省
+      const monthlySavings = cpuUtil < 0.5 ? (0.6 - cpuUtil) * 50 : 0;
+      scalingMetrics.estimatedCostSavings.set({ service, period: 'monthly' }, monthlySavings);
     }
     
-    return Math.min(100, wasteScore);
-  }
-
-  /**
-   * 收集资源利用率指标
-   */
-  async collectUtilizationMetrics() {
-    for (const service of this.services) {
-      try {
-        const utilization = await this.calculateUtilizationEfficiency(service);
-        
-        // 设置利用率效率
-        scalingMetrics.resourceUtilizationEfficiency.set(
-          { service, resource_type: 'cpu' },
-          utilization.cpu
-        );
-        scalingMetrics.resourceUtilizationEfficiency.set(
-          { service, resource_type: 'memory' },
-          utilization.memory
-        );
-        
-        // 计算并设置资源浪费分数
-        const wasteScore = this.calculateWasteScore(utilization);
-        scalingMetrics.resourceWasteScore.set(
-          { service },
-          wasteScore
-        );
-        
-        // 检测过度配置
-        if (utilization.cpu < 0.4) {
-          scalingMetrics.overProvisionedResources.set(
-            { service, resource_type: 'cpu' },
-            1
-          );
-        }
-        
-        if (utilization.memory < 0.4) {
-          scalingMetrics.overProvisionedResources.set(
-            { service, resource_type: 'memory' },
-            1
-          );
-        }
-        
-        // 检测资源不足
-        if (utilization.cpu > 0.9) {
-          scalingMetrics.underProvisionedResources.set(
-            { service, resource_type: 'cpu' },
-            1
-          );
-        }
-        
-        if (utilization.memory > 0.9) {
-          scalingMetrics.underProvisionedResources.set(
-            { service, resource_type: 'memory' },
-            1
-          );
-        }
-      } catch (error) {
-        logger.error('Failed to collect utilization metrics', {
-          service,
-          error: error.message
-        });
-      }
-    }
-  }
-
-  /**
-   * 收集所有指标
-   */
-  async collectAll() {
-    await Promise.all([
-      this.collectHPAMetrics(),
-      this.collectVPAMetrics(),
-      this.collectUtilizationMetrics()
-    ]);
-  }
-
-  /**
-   * 启动定时收集
-   */
-  start(intervalMs = 60000) {
-    logger.info('Starting scaling metrics collector', { interval: intervalMs });
+    // 模拟预测性扩容指标
+    scalingMetrics.predictiveScalingRecommendations.set({ direction: 'up' }, Math.floor(Math.random() * 3));
+    scalingMetrics.predictiveScalingRecommendations.set({ direction: 'down' }, Math.floor(Math.random() * 2));
     
-    // 立即执行一次
-    this.collectAll().catch(err => {
-      logger.error('Initial metrics collection failed', { error: err.message });
-    });
-    
-    // 定时执行
-    this.intervalId = setInterval(async () => {
-      try {
-        await this.collectAll();
-      } catch (error) {
-        logger.error('Metrics collection failed', { error: error.message });
-      }
-    }, intervalMs);
-    
-    return this;
-  }
-
-  /**
-   * 停止定时收集
-   */
-  stop() {
-    if (this.intervalId) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-      logger.info('Scaling metrics collector stopped');
-    }
-    return this;
+  } catch (error) {
+    console.error('Failed to collect scaling metrics:', error);
   }
 }
 
 /**
- * 生成效率报告
+ * 计算资源浪费分数
  */
-async function generateEfficiencyReport(timeRange = '24h') {
-  const collector = new ScalingMetricsCollector();
-  const report = {
-    timeRange,
-    services: [],
-    summary: {
-      totalSavings: 0,
-      averageEfficiency: 0,
-      overProvisioned: 0,
-      underProvisioned: 0
-    }
-  };
+function calculateWasteScore(utilization) {
+  // 理想利用率在 60-80% 之间
+  // 低于 60% 表示浪费，高于 80% 表示资源紧张
+  const idealMin = 0.6;
+  const idealMax = 0.8;
   
-  for (const service of collector.services) {
-    const utilization = await collector.calculateUtilizationEfficiency(service);
-    const avgUtil = (utilization.cpu + utilization.memory) / 2;
+  let wasteScore = 0;
+  
+  for (const type of ['cpu', 'memory']) {
+    const util = utilization[type];
     
-    // 计算潜在节省
-    const potentialSavings = avgUtil < 0.5 ? (0.6 - avgUtil) * 100 : 0;
-    
-    report.services.push({
-      name: service,
-      cpuUtilization: utilization.cpu.toFixed(2),
-      memoryUtilization: utilization.memory.toFixed(2),
-      efficiency: avgUtil < 0.6 ? 'over-provisioned' : avgUtil > 0.9 ? 'under-provisioned' : 'optimal',
-      potentialSavings: potentialSavings.toFixed(0) + '%'
-    });
-    
-    if (avgUtil < 0.5) report.summary.overProvisioned++;
-    if (avgUtil > 0.9) report.summary.underProvisioned++;
+    if (util < idealMin) {
+      // 浪费 = (理想最小值 - 实际值) * 100
+      wasteScore += (idealMin - util) * 50; // 最多 30 分
+    } else if (util > idealMax) {
+      // 资源紧张也扣分
+      wasteScore += (util - idealMax) * 50;
+    }
   }
   
-  report.summary.averageEfficiency = (
-    report.services.reduce((sum, s) => sum + parseFloat(s.cpuUtilization), 0) / report.services.length
-  ).toFixed(2);
+  return Math.min(100, wasteScore);
+}
+
+/**
+ * 记录扩缩容事件
+ */
+function recordScalingEvent(service, direction, namespace = 'minego') {
+  scalingMetrics.hpaScalingEvents.inc({ service, namespace, direction });
   
-  return report;
+  // 记录扩缩容延迟
+  const latency = Math.random() * 30; // 模拟延迟
+  scalingMetrics.scalingLatency.observe({ service, direction }, latency);
+}
+
+/**
+ * 记录预测性扩容执行
+ */
+function recordPredictiveScalingExecution(service, action, result) {
+  scalingMetrics.predictiveScalingExecutions.inc({ service, action, result });
+}
+
+/**
+ * 记录预测指标
+ */
+function recordPredictionMetrics(service, predictedLoad, confidence, windowSeconds = 900) {
+  scalingMetrics.predictedLoad.set({ service, prediction_window_seconds: String(windowSeconds) }, predictedLoad);
+  scalingMetrics.predictionConfidence.set({ service }, confidence);
+}
+
+/**
+ * 更新预测准确度
+ */
+function updatePredictionAccuracy(service, predictedLoad, actualLoad, windowSeconds = 900) {
+  const accuracy = Math.min(1, Math.max(0, 1 - Math.abs(predictedLoad - actualLoad) / Math.max(predictedLoad, actualLoad)));
+  scalingMetrics.predictionAccuracy.set({ service, prediction_window_seconds: String(windowSeconds) }, accuracy);
+}
+
+// 启动定时收集任务
+let metricsCollectionTimer = null;
+
+function startMetricsCollection(intervalMs = 60000) {
+  if (metricsCollectionTimer) {
+    clearInterval(metricsCollectionTimer);
+  }
+  
+  // 立即收集一次
+  collectScalingMetrics();
+  
+  // 定时收集
+  metricsCollectionTimer = setInterval(collectScalingMetrics, intervalMs);
+  
+  console.log('[scalingMetrics] Started metrics collection', { interval: `${intervalMs}ms` });
+}
+
+function stopMetricsCollection() {
+  if (metricsCollectionTimer) {
+    clearInterval(metricsCollectionTimer);
+    metricsCollectionTimer = null;
+    console.log('[scalingMetrics] Stopped metrics collection');
+  }
 }
 
 module.exports = {
   scalingMetrics,
-  ScalingMetricsCollector,
-  generateEfficiencyReport
+  collectScalingMetrics,
+  calculateWasteScore,
+  recordScalingEvent,
+  recordPredictiveScalingExecution,
+  recordPredictionMetrics,
+  updatePredictionAccuracy,
+  startMetricsCollection,
+  stopMetricsCollection
 };

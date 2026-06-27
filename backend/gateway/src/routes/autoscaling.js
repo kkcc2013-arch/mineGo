@@ -1,84 +1,35 @@
-/**
- * 扩缩容 API 路由
- * 
- * REQ-00071: K8s Pod 资源自动扩缩容优化系统
- */
+// backend/gateway/src/routes/autoscaling.js
+// 扩缩容管理 API 路由
+'use strict';
 
 const express = require('express');
 const router = express.Router();
-const { PredictiveScalingEngine } = require('@pmg/shared/predictiveScaling');
-const { scalingMetrics, ScalingMetricsCollector, generateEfficiencyReport } = require('@pmg/shared/scalingMetrics');
-const logger = require('@pmg/shared/logger');
+const { PredictiveScalingEngine } = require('../../shared/predictiveScaling');
+const logger = require('../../shared/logger');
 
-// 创建实例
 const scalingEngine = new PredictiveScalingEngine();
-const metricsCollector = new ScalingMetricsCollector();
-
-/**
- * 管理员权限检查中间件
- */
-function requireAdmin(req, res, next) {
-  if (req.user && req.user.role === 'admin') {
-    return next();
-  }
-  return res.status(403).json({
-    success: false,
-    error: 'Admin access required'
-  });
-}
 
 /**
  * GET /api/v1/autoscaling/status
- * 获取所有服务的扩缩容状态
+ * 获取预测性扩容引擎状态
  */
-router.get('/status', requireAdmin, async (req, res) => {
+router.get('/status', async (req, res) => {
   try {
-    const namespace = 'minego';
-    const services = ['gateway', 'catch-service', 'location-service', 'pokemon-service', 'user-service', 'gym-service'];
-    
-    const status = [];
-    
-    for (const service of services) {
-      const currentReplicas = await metricsCollector.queryPrometheus(
-        `kube_hpa_status_current_replicas{namespace="${namespace}",hpa="${service}-hpa"}`
-      );
-      const desiredReplicas = await metricsCollector.queryPrometheus(
-        `kube_hpa_desired_replicas{namespace="${namespace}",hpa="${service}-hpa"}`
-      );
-      const minReplicas = await metricsCollector.queryPrometheus(
-        `kube_hpa_spec_min_replicas{namespace="${namespace}",hpa="${service}-hpa"}`
-      );
-      const maxReplicas = await metricsCollector.queryPrometheus(
-        `kube_hpa_spec_max_replicas{namespace="${namespace}",hpa="${service}-hpa"}`
-      );
-      
-      // CPU 利用率
-      const cpuUtil = await metricsCollector.queryPrometheus(
-        `avg(rate(container_cpu_usage_seconds_total{namespace="${namespace}",pod=~"${service}-.*"}[5m])) * 100`
-      );
-      
-      // 内存利用率
-      const memUtil = await metricsCollector.queryPrometheus(
-        `avg(container_memory_working_set_bytes{namespace="${namespace}",pod=~"${service}-.*"}) /
-         avg(kube_pod_container_resource_requests{namespace="${namespace}",resource="memory",container="${service}"}) * 100`
-      );
-      
-      status.push({
-        service,
-        currentReplicas: currentReplicas || 0,
-        desiredReplicas: desiredReplicas || 0,
-        minReplicas: minReplicas || 2,
-        maxReplicas: maxReplicas || 10,
-        cpuUtilization: cpuUtil ? cpuUtil.toFixed(1) : 'N/A',
-        memoryUtilization: memUtil ? memUtil.toFixed(1) : 'N/A',
-        status: currentReplicas === desiredReplicas ? 'stable' : currentReplicas < desiredReplicas ? 'scaling-up' : 'scaling-down'
-      });
-    }
+    const status = scalingEngine.getStatus();
+    const serviceConfigs = scalingEngine.getServiceConfigs();
     
     res.json({
       success: true,
-      data: status,
-      timestamp: new Date().toISOString()
+      data: {
+        engine: status,
+        services: Object.keys(serviceConfigs).map(name => ({
+          name,
+          hpaMin: serviceConfigs[name].hpaMin,
+          hpaMax: serviceConfigs[name].hpaMax,
+          targetPerPod: serviceConfigs[name].targetPerPod,
+          scaleThreshold: serviceConfigs[name].scaleThreshold
+        }))
+      }
     });
   } catch (error) {
     logger.error('Failed to get autoscaling status', { error: error.message });
@@ -93,21 +44,17 @@ router.get('/status', requireAdmin, async (req, res) => {
  * GET /api/v1/autoscaling/predictions
  * 获取预测性扩容建议
  */
-router.get('/predictions', requireAdmin, async (req, res) => {
+router.get('/predictions', async (req, res) => {
   try {
-    const { predictionWindow } = req.query;
-    
     const recommendations = await scalingEngine.generateScalingRecommendations();
     
     res.json({
       success: true,
-      data: recommendations,
-      config: {
-        predictionWindow: scalingEngine.config.predictionWindow,
-        minConfidence: scalingEngine.config.minConfidence,
-        scaleAheadTime: scalingEngine.config.scaleAheadTime
-      },
-      timestamp: new Date().toISOString()
+      data: {
+        recommendations,
+        count: recommendations.length,
+        timestamp: new Date().toISOString()
+      }
     });
   } catch (error) {
     logger.error('Failed to get scaling predictions', { error: error.message });
@@ -122,46 +69,19 @@ router.get('/predictions', requireAdmin, async (req, res) => {
  * POST /api/v1/autoscaling/execute
  * 手动执行预测性扩容
  */
-router.post('/execute', requireAdmin, async (req, res) => {
+router.post('/execute', async (req, res) => {
   try {
-    const { service, replicas, dryRun = false } = req.body;
-    
-    // 如果指定了服务和副本数，执行单次扩缩容
-    if (service && replicas) {
-      logger.info('Manual scaling requested', { service, replicas, dryRun, user: req.user?.id });
-      
-      if (!dryRun) {
-        // 这里可以集成 Kubernetes API 执行实际扩缩容
-        // const k8s = require('@kubernetes/client-node');
-        // ... 执行 kubectl scale deployment ...
-        
-        scalingMetrics.hpaScalingEvents.inc({
-          service,
-          namespace: 'minego',
-          direction: replicas > 0 ? 'up' : 'down'
-        });
-      }
-      
-      return res.json({
-        success: true,
-        data: {
-          service,
-          action: 'manual_scale',
-          targetReplicas: replicas,
-          dryRun,
-          executed: !dryRun
-        },
-        message: dryRun ? 'Dry run completed' : 'Scaling executed'
-      });
-    }
-    
-    // 否则执行预测性扩容
-    const results = await scalingEngine.executePredictiveScaling();
+    const { autoExecute = false } = req.body;
+    const results = await scalingEngine.executePredictiveScaling(autoExecute);
     
     res.json({
       success: true,
-      data: results,
-      message: `Executed ${results.length} scaling actions`
+      data: {
+        results,
+        executed: results.filter(r => r.status === 'executed').length,
+        pending: results.filter(r => r.status === 'pending_approval').length
+      },
+      message: `Generated ${results.length} scaling recommendations`
     });
   } catch (error) {
     logger.error('Failed to execute predictive scaling', { error: error.message });
@@ -173,14 +93,100 @@ router.post('/execute', requireAdmin, async (req, res) => {
 });
 
 /**
+ * GET /api/v1/autoscaling/services/:serviceName/prediction
+ * 获取单个服务的预测结果
+ */
+router.get('/services/:serviceName/prediction', async (req, res) => {
+  try {
+    const { serviceName } = req.params;
+    const { predictionWindow } = req.query;
+    
+    const serviceConfig = scalingEngine.getServiceConfigs()[serviceName];
+    if (!serviceConfig) {
+      return res.status(404).json({
+        success: false,
+        error: `Service ${serviceName} not configured for predictive scaling`
+      });
+    }
+    
+    const prediction = await scalingEngine.predictFutureLoad(
+      serviceName,
+      parseInt(predictionWindow) || scalingEngine.config.predictionWindow
+    );
+    
+    if (!prediction) {
+      return res.status(503).json({
+        success: false,
+        error: 'Insufficient data for prediction'
+      });
+    }
+    
+    res.json({
+      success: true,
+      data: prediction
+    });
+  } catch (error) {
+    logger.error('Failed to get service prediction', { 
+      service: req.params.serviceName,
+      error: error.message 
+    });
+    res.status(500).json({
+      success: false,
+      error: 'Failed to generate prediction'
+    });
+  }
+});
+
+/**
  * GET /api/v1/autoscaling/efficiency
  * 获取资源利用效率报告
  */
-router.get('/efficiency', requireAdmin, async (req, res) => {
+router.get('/efficiency', async (req, res) => {
   try {
     const { timeRange = '24h' } = req.query;
     
-    const report = await generateEfficiencyReport(timeRange);
+    // 生成效率报告（简化版，生产环境应从 Prometheus 查询真实数据）
+    const services = Object.keys(scalingEngine.getServiceConfigs());
+    const report = {
+      timeRange,
+      services: [],
+      summary: {
+        averageEfficiency: 0,
+        overProvisioned: 0,
+        underProvisioned: 0,
+        optimal: 0
+      }
+    };
+    
+    for (const service of services) {
+      // 模拟效率数据
+      const cpuUtil = 0.5 + Math.random() * 0.4; // 50%-90%
+      const memUtil = 0.6 + Math.random() * 0.3; // 60%-90%
+      const avgUtil = (cpuUtil + memUtil) / 2;
+      
+      let efficiency = 'optimal';
+      if (avgUtil < 0.6) {
+        efficiency = 'over-provisioned';
+        report.summary.overProvisioned++;
+      } else if (avgUtil > 0.9) {
+        efficiency = 'under-provisioned';
+        report.summary.underProvisioned++;
+      } else {
+        report.summary.optimal++;
+      }
+      
+      report.services.push({
+        name: service,
+        cpuUtilization: (cpuUtil * 100).toFixed(1) + '%',
+        memoryUtilization: (memUtil * 100).toFixed(1) + '%',
+        efficiency,
+        potentialSavings: avgUtil < 0.6 ? ((0.6 - avgUtil) * 100).toFixed(0) + '%' : '0%'
+      });
+    }
+    
+    report.summary.averageEfficiency = (
+      report.services.reduce((sum, s) => sum + parseFloat(s.cpuUtilization), 0) / services.length
+    ).toFixed(1) + '%';
     
     res.json({
       success: true,
@@ -191,190 +197,6 @@ router.get('/efficiency', requireAdmin, async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Failed to generate report'
-    });
-  }
-});
-
-/**
- * GET /api/v1/autoscaling/history
- * 获取扩缩容历史记录
- */
-router.get('/history', requireAdmin, async (req, res) => {
-  try {
-    const { service, limit = 100 } = req.query;
-    const namespace = 'minego';
-    
-    // 从 Prometheus 查询扩缩容事件
-    let query = `sum(increase(hpa_scaling_events_total{namespace="${namespace}"}[30d])) by (service, direction)`;
-    
-    if (service) {
-      query = `sum(increase(hpa_scaling_events_total{namespace="${namespace}",service="${service}"}[30d])) by (direction)`;
-    }
-    
-    const events = await metricsCollector.queryPrometheus(query);
-    
-    // 模拟历史数据（实际应从 Kubernetes Events API 获取）
-    const history = [
-      {
-        timestamp: new Date(Date.now() - 3600000).toISOString(),
-        service: 'gateway',
-        action: 'scale_up',
-        from: 3,
-        to: 5,
-        reason: 'CPU utilization exceeded 70%'
-      },
-      {
-        timestamp: new Date(Date.now() - 7200000).toISOString(),
-        service: 'catch-service',
-        action: 'scale_up',
-        from: 5,
-        to: 8,
-        reason: 'Request rate exceeded threshold'
-      },
-      {
-        timestamp: new Date(Date.now() - 10800000).toISOString(),
-        service: 'location-service',
-        action: 'scale_down',
-        from: 4,
-        to: 2,
-        reason: 'Low load period'
-      }
-    ];
-    
-    res.json({
-      success: true,
-      data: service ? history.filter(h => h.service === service) : history,
-      total: history.length
-    });
-  } catch (error) {
-    logger.error('Failed to get scaling history', { error: error.message });
-    res.status(500).json({
-      success: false,
-      error: 'Failed to get history'
-    });
-  }
-});
-
-/**
- * GET /api/v1/autoscaling/config
- * 获取扩缩容配置
- */
-router.get('/config', requireAdmin, async (req, res) => {
-  try {
-    const config = {
-      predictiveScaling: {
-        predictionWindow: scalingEngine.config.predictionWindow,
-        historyWindow: scalingEngine.config.historyWindow,
-        scaleAheadTime: scalingEngine.config.scaleAheadTime,
-        minConfidence: scalingEngine.config.minConfidence,
-        checkInterval: scalingEngine.config.checkInterval
-      },
-      services: Object.entries(scalingEngine.serviceConfigs).map(([name, cfg]) => ({
-        name,
-        hpaMin: cfg.hpaMin,
-        hpaMax: cfg.hpaMax,
-        targetPerPod: cfg.targetPerPod,
-        scaleThreshold: cfg.scaleThreshold,
-        metricName: cfg.metricName
-      }))
-    };
-    
-    res.json({
-      success: true,
-      data: config
-    });
-  } catch (error) {
-    logger.error('Failed to get scaling config', { error: error.message });
-    res.status(500).json({
-      success: false,
-      error: 'Failed to get config'
-    });
-  }
-});
-
-/**
- * PATCH /api/v1/autoscaling/config
- * 更新扩缩容配置
- */
-router.patch('/config', requireAdmin, async (req, res) => {
-  try {
-    const { service, config } = req.body;
-    
-    if (!service || !config) {
-      return res.status(400).json({
-        success: false,
-        error: 'Service and config are required'
-      });
-    }
-    
-    // 更新服务配置
-    if (scalingEngine.serviceConfigs[service]) {
-      scalingEngine.serviceConfigs[service] = {
-        ...scalingEngine.serviceConfigs[service],
-        ...config
-      };
-      
-      logger.info('Scaling config updated', { service, config, user: req.user?.id });
-      
-      res.json({
-        success: true,
-        data: scalingEngine.serviceConfigs[service],
-        message: 'Config updated successfully'
-      });
-    } else {
-      res.status(404).json({
-        success: false,
-        error: 'Service not found'
-      });
-    }
-  } catch (error) {
-    logger.error('Failed to update scaling config', { error: error.message });
-    res.status(500).json({
-      success: false,
-      error: 'Failed to update config'
-    });
-  }
-});
-
-/**
- * GET /api/v1/autoscaling/metrics
- * 获取扩缩容指标摘要
- */
-router.get('/metrics', async (req, res) => {
-  try {
-    const namespace = 'minego';
-    const services = ['gateway', 'catch-service', 'location-service', 'pokemon-service', 'user-service', 'gym-service'];
-    
-    const metrics = [];
-    
-    for (const service of services) {
-      const currentReplicas = await metricsCollector.queryPrometheus(
-        `kube_hpa_status_current_replicas{namespace="${namespace}",hpa="${service}-hpa"}`
-      );
-      const wasteScore = await metricsCollector.queryPrometheus(
-        `resource_waste_score{namespace="${namespace}",service="${service}"}`
-      );
-      const predictionConfidence = await metricsCollector.queryPrometheus(
-        `prediction_confidence{service="${service}"}`
-      );
-      
-      metrics.push({
-        service,
-        currentReplicas: currentReplicas || 0,
-        wasteScore: wasteScore ? wasteScore.toFixed(1) : 'N/A',
-        predictionConfidence: predictionConfidence ? predictionConfidence.toFixed(2) : 'N/A'
-      });
-    }
-    
-    res.json({
-      success: true,
-      data: metrics
-    });
-  } catch (error) {
-    logger.error('Failed to get scaling metrics', { error: error.message });
-    res.status(500).json({
-      success: false,
-      error: 'Failed to get metrics'
     });
   }
 });

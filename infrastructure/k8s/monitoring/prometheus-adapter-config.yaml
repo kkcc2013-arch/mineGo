@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-adapter-config
+  namespace: monitoring
+data:
+  config.yaml: |
+    rules:
+      # HTTP 请求速率
+      - name: http_requests_per_second
+        seriesQuery: 'http_requests_total{namespace!="",pod!=""}'
+        resources:
+          overrides:
+            namespace: {resource: "namespace"}
+            pod: {resource: "pod"}
+        metricsQuery: 'sum(rate(http_requests_total{namespace="<<.Namespace>>",pod=~"<<.Pod>>"}[2m])) by (pod)'
+
+      # 活跃 WebSocket 连接数
+      - name: active_websocket_connections
+        seriesQuery: 'websocket_active_connections{namespace!="",pod!=""}'
+        resources:
+          overrides:
+            namespace: {resource: "namespace"}
+            pod: {resource: "pod"}
+        metricsQuery: 'avg(websocket_active_connections{namespace="<<.Namespace>>",pod=~"<<.Pod>>"}) by (pod)'
+
+      # 捕捉请求速率
+      - name: catch_requests_per_second
+        seriesQuery: 'catch_requests_total{namespace!="",pod!=""}'
+        resources:
+          overrides:
+            namespace: {resource: "namespace"}
+            pod: {resource: "pod"}
+        metricsQuery: 'sum(rate(catch_requests_total{namespace="<<.Namespace>>",pod=~"<<.Pod>>"}[2m])) by (pod)'
+
+      # GEO 查询延迟
+      - name: geo_query_latency_p99
+        seriesQuery: 'geo_query_duration_seconds{namespace!="",pod!=""}'
+        resources:
+          overrides:
+            namespace: {resource: "namespace"}
+            pod: {resource: "pod"}
+        metricsQuery: 'histogram_quantile(0.99, sum(rate(geo_query_duration_seconds_bucket{namespace="<<.Namespace>>",pod=~"<<.Pod>>"}[5m])) by (pod, le))'
+
+      # 道馆战斗请求速率
+      - name: gym_battle_requests_per_second
+        seriesQuery: 'gym_battle_requests_total{namespace!="",pod!=""}'
+        resources:
+          overrides:
+            namespace: {resource: "namespace"}
+            pod: {resource: "pod"}
+        metricsQuery: 'sum(rate(gym_battle_requests_total{namespace="<<.Namespace>>",pod=~"<<.Pod>>"}[2m])) by (pod)'
+
+      # 数据库连接池使用率
+      - name: db_connection_pool_utilization
+        seriesQuery: 'db_connection_pool_used{namespace!="",pod!=""}'
+        resources:
+          overrides:
+            namespace: {resource: "namespace"}
+            pod: {resource: "pod"}
+        metricsQuery: 'avg(db_connection_pool_used{namespace="<<.Namespace>>",pod=~"<<.Pod>>"} / db_connection_pool_size{namespace="<<.Namespace>>",pod=~"<<.Pod>>"}) by (pod) * 100'

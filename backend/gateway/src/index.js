@@ -63,6 +63,9 @@ const securityRoutes = require('./routes/security');
 // REQ-00130: 实时业务事件流监控与分析系统
 const businessEventsRoutes = require('./routes/businessEvents');
 
+// REQ-00071: K8s Pod 资源自动扩缩容优化系统
+const autoscalingRoutes = require('./routes/autoscaling');
+
 // REQ-00043: 延迟队列管理接口
 const delayQueueAdminRoutes = require('./routes/delayQueueAdmin');
 
@@ -149,6 +152,9 @@ app.use('/api/v1/security', securityRoutes);
 
 // ── REQ-00130: Business Events Routes ────────────────────────────
 app.use('/api/events', businessEventsRoutes);
+
+// ── REQ-00071: Autoscaling Routes ────────────────────────────
+app.use('/api/v1/autoscaling', autoscalingRoutes);
 
 // ── Health ────────────────────────────────────────────────────
 app.get('/health', async (_req, res) => {
