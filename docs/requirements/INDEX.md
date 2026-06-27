@@ -82,7 +82,7 @@
 | REQ-00073 | REQ-00073：玩家对战系统（PVP Duel） |  |  |  |  |  |
 | REQ-00074 | 玩家排行榜系统 | 功能增强 | P1 | new | social-service、user-service、pokemon-service、gym-service、gateway、game-client、Redis、database/migrations | 2026-06-10 10:00 |
 | REQ-00075 | REQ-00075：IP 黑名单与恶意 IP 自动封禁系统 |  |  |  |  |  |
-| REQ-00076 | 精灵成就系统与里程碑奖励 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-10 02:15 |
+| REQ-00076 | 粁灵成就系统与里程碑奖励 | 功能增强 | P1 | done | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-27 05:00 UTC |
 | REQ-00077 | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | done | database/migrations、所有微服务、backend/shared、infrastructure/k8s | 2026-06-27 04:00 UTC |
 | REQ-00078 | REQ-00078：金丝雀发布与流量分割系统 |  |  |  |  |  |
 | REQ-00079 | 精灵好感度系统与亲密度进化机制 | 功能增强 | P1 | new | pokemon-service、user-service、catch-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 11:00 |
@@ -364,3 +364,4 @@
 || REQ-00346 | 数据血缘追踪与影响分析系统 | 数据库/数据治理 | P1 | new | gateway、所有微服务、backend/shared、admin-dashboard、infrastructure/k8s/monitoring | 2026-06-27 05:00 UTC |
 || REQ-00347 | 服务调用异常预测与依赖健康传播追踪系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/ServiceCallPredictor.js、backend/shared/DependencyHealthTracker.js、infrastructure/k8s/monitoring | 2026-06-27 04:00 UTC |
 || REQ-00348 | 精灵背包智能整理与自动分类系统 | 功能增强 | P1 | new | pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-27 06:00 UTC |
+| REQ-00349 | 错误处理模块重构与统一化 | 技术债/重构 | P2 | new | backend/shared/auth.js、backend/shared/errorHandler.js、所有微服务、gateway | 2026-06-27 05:00 UTC |

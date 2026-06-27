@@ -1,23 +1,18 @@
 /**
- * REQ-00076: 精灵成就系统与里程碑奖励
- * 成就触发器集成模块
- * 
- * 该模块负责将成就系统集成到现有的游戏事件流中
+ * REQ-00076: Achievement Triggers Integration
+ * Created: 2026-06-27 05:00 UTC
  */
 
 'use strict';
 
-const achievementService = require('../services/pokemon-service/src/achievementService');
+const { achievementService } = require('../services/pokemon-service/src/achievementService');
 const { createLogger } = require('./logger');
 
 const logger = createLogger('achievement-triggers');
 
-/**
- * 成就触发器映射配置
- * 定义游戏事件与成就触发事件的对应关系
- */
+// 成就触发器映射
 const ACHIEVEMENT_TRIGGERS = {
-  // 捕捉类成就触发器
+  // 捕捉类事件
   'pokemon.caught': {
     eventType: 'catch_count',
     extractData: (event) => ({
@@ -26,190 +21,157 @@ const ACHIEVEMENT_TRIGGERS = {
       species_id: event.speciesId,
       is_new_species: event.isNewSpecies || false,
       is_shiny: event.isShiny || false,
-      rarity: event.rarity
+      rarity: event.rarity,
+      is_lucky: event.isLucky || false,
+      is_night: event.isNight || false,
+      catch_time: event.catchTime
     })
   },
   
-  'pokemon.shiny_caught': {
-    eventType: 'shiny_catch',
-    extractData: (event) => ({
-      count: 1,
-      pokemon_id: event.pokemonId,
-      species_id: event.speciesId,
-      is_shiny: true
-    })
-  },
-  
-  // 战斗类成就触发器
+  // 战斗类事件
   'battle.won': {
     eventType: 'battle_win',
     extractData: (event) => ({
       win: true,
       battle_type: event.battleType, // 'gym', 'pvp', 'raid'
-      opponent_level: event.opponentLevel
+      opponent_level: event.opponentLevel,
+      pokemon_used: event.pokemonUsed
     })
   },
   
   'gym.conquered': {
     eventType: 'gym_conquer',
     extractData: (event) => ({
+      count: 1,
       gym_id: event.gymId,
-      gym_level: event.gymLevel
+      gym_level: event.gymLevel,
+      team_id: event.teamId
     })
   },
   
-  // 社交类成就触发器
+  // 社交类事件
   'trade.completed': {
     eventType: 'trade_count',
     extractData: (event) => ({
+      count: 1,
       trade_id: event.tradeId,
-      partner_id: event.partnerId
+      partner_id: event.partnerId,
+      pokemon_traded: event.pokemonTraded
     })
   },
   
   'friend.added': {
     eventType: 'friend_count',
-    extractData: (event) => ({ count: 1 })
+    extractData: (event) => ({
+      count: 1,
+      friend_id: event.friendId
+    })
   },
   
-  // 培育类成就触发器
+  // 培育类事件
   'pokemon.bred': {
     eventType: 'pokemon_breed',
     extractData: (event) => ({
+      count: 1,
       species_id: event.speciesId,
       is_shiny: event.isShiny || false,
-      is_perfect_iv: event.isPerfectIV || false
+      parent_ids: event.parentIds
     })
   },
   
   'egg.hatched': {
     eventType: 'egg_hatch',
     extractData: (event) => ({
+      count: 1,
       species_id: event.speciesId,
-      distance: event.eggDistance
+      egg_distance: event.eggDistance,
+      is_shiny: event.isShiny || false
     })
   },
   
-  // 探索类成就触发器
-  'location.distance_update': {
+  // 探索类事件
+  'distance.traveled': {
     eventType: 'distance_traveled',
     extractData: (event) => ({
-      distance: event.distanceKm
+      distance: event.distanceKm || event.distance,
+      start_location: event.startLocation,
+      end_location: event.endLocation
     })
   },
   
   'pokestop.visited': {
     eventType: 'pokestop_visit',
-    extractData: (event) => ({ count: 1 })
-  },
-  
-  // 特殊成就触发器
-  'pokemon.lucky_encounter': {
-    eventType: 'lucky_catch',
     extractData: (event) => ({
       count: 1,
-      pokemon_id: event.pokemonId
+      pokestop_id: event.pokestopId,
+      items_received: event.itemsReceived
     })
   }
 };
 
 /**
- * 初始化成就触发器
- * 订阅 EventBus 中的相关事件
+ * 处理成就触发事件
  */
-function initAchievementTriggers() {
+async function handleAchievementTrigger(eventName, event) {
+  const trigger = ACHIEVEMENT_TRIGGERS[eventName];
+  
+  if (!trigger) {
+    logger.warn({ eventName }, 'Unknown achievement trigger event');
+    return;
+  }
+  
   try {
-    const { EventBus } = require('./EventBus');
+    const eventData = trigger.extractData(event);
+    const userId = event.userId || event.user_id;
     
-    if (!EventBus) {
-      logger.warn('EventBus not available, achievement triggers will not be initialized');
+    if (!userId) {
+      logger.warn({ eventName, event }, 'Missing userId in achievement trigger event');
       return;
     }
     
-    // 订阅所有相关事件
-    Object.keys(ACHIEVEMENT_TRIGGERS).forEach(eventName => {
-      EventBus.subscribe(eventName, async (event) => {
-        try {
-          const trigger = ACHIEVEMENT_TRIGGERS[eventName];
-          const eventData = trigger.extractData(event);
-          
-          await achievementService.processEvent(
-            event.userId || event.user_id,
-            trigger.eventType,
-            eventData
-          );
-        } catch (error) {
-          logger.error({ error, eventName, event }, 'Failed to process achievement trigger');
-        }
-      });
+    const results = await achievementService.processEvent(userId, trigger.eventType, eventData);
+    
+    if (results.length > 0) {
+      logger.info({ userId, eventName, unlockedCount: results.length }, 'Achievements unlocked');
+    }
+    
+    return results;
+  } catch (error) {
+    logger.error({ err: error, eventName, event }, 'Failed to handle achievement trigger');
+  }
+}
+
+/**
+ * 初始化成就触发器订阅
+ */
+function initAchievementTriggers(eventBus) {
+  if (!eventBus) {
+    logger.warn('EventBus not available, achievement triggers not initialized');
+    return;
+  }
+  
+  Object.keys(ACHIEVEMENT_TRIGGERS).forEach(eventName => {
+    eventBus.subscribe(eventName, async (event) => {
+      await handleAchievementTrigger(eventName, event);
     });
-    
-    logger.info(`Initialized ${Object.keys(ACHIEVEMENT_TRIGGERS).length} achievement triggers`);
-  } catch (error) {
-    logger.error({ error }, 'Failed to initialize achievement triggers');
-  }
-}
-
-/**
- * 手动触发成就事件
- * 供无法通过 EventBus 触发的场景使用
- */
-async function triggerAchievementEvent(userId, eventName, eventData) {
-  try {
-    const trigger = ACHIEVEMENT_TRIGGERS[eventName];
-    
-    if (!trigger) {
-      logger.warn({ eventName }, 'Unknown achievement trigger event');
-      return { success: false, error: 'Unknown trigger event' };
-    }
-    
-    const extractedData = trigger.extractData(eventData);
-    const results = await achievementService.processEvent(userId, trigger.eventType, extractedData);
-    
-    return {
-      success: true,
-      achievementsCompleted: results.length,
-      achievements: results
-    };
-  } catch (error) {
-    logger.error({ error, userId, eventName }, 'Failed to manually trigger achievement event');
-    return { success: false, error: error.message };
-  }
-}
-
-/**
- * 获取所有可用的触发事件类型
- */
-function getAvailableTriggers() {
-  return Object.keys(ACHIEVEMENT_TRIGGERS).map(eventName => ({
-    eventName,
-    eventType: ACHIEVEMENT_TRIGGERS[eventName].eventType
-  }));
-}
-
-/**
- * 批量触发成就事件
- * 用于数据迁移或补偿场景
- */
-async function batchTriggerAchievementEvents(events) {
-  const results = [];
+  });
   
-  for (const event of events) {
-    try {
-      const result = await triggerAchievementEvent(event.userId, event.eventName, event.eventData);
-      results.push({ ...event, result });
-    } catch (error) {
-      results.push({ ...event, result: { success: false, error: error.message } });
-    }
-  }
-  
-  return results;
+  logger.info({ triggers: Object.keys(ACHIEVEMENT_TRIGGERS) }, 'Achievement triggers initialized');
+}
+
+/**
+ * 手动触发成就事件（用于测试或特殊情况）
+ */
+async function triggerAchievement(userId, eventName, eventData) {
+  return await handleAchievementTrigger(eventName, {
+    userId,
+    ...eventData
+  });
 }
 
 module.exports = {
+  ACHIEVEMENT_TRIGGERS,
+  handleAchievementTrigger,
   initAchievementTriggers,
-  triggerAchievementEvent,
-  getAvailableTriggers,
-  batchTriggerAchievementEvents,
-  ACHIEVEMENT_TRIGGERS
+  triggerAchievement
 };
