@@ -346,3 +346,5 @@
 || REQ-00325 | 精灵好友互动系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、gateway、game-client、database/migrations | 2026-06-25 02:00 UTC |
 || REQ-00325 | 战斗动画帧率优化与流畅度提升系统 | 性能优化 | P1 | new | game-client、gym-service、catch-service、backend/shared、frontend/game-client/src/rendering | 2026-06-25 02:00 UTC |
 || REQ-00326 | 精灵好友互动系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、gateway、game-client、database/migrations | 2026-06-25 02:05 UTC |
+|| REQ-00327 | 玩家个人资料与数据统计展示系统 | 功能增强 | P1 | new | user-service、pokemon-service、social-service、gateway、game-client、frontend/game-client/src/components、database/migrations | 2026-06-27 00:42 UTC |
+|| REQ-00328 | API 密钥泄露检测与实时告警系统 | 安全加固 | P1 | new | gateway、user-service、admin-dashboard、backend/shared、infrastructure/k8s | 2026-06-27 01:00 UTC |
