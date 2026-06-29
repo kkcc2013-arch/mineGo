@@ -2,7 +2,7 @@
  * REQ-00086: 精灵特性系统单元测试
  */
 
-const { describe, it, beforeEach, afterEach, expect, jest } = require('@jest/globals');
+const { describe, it, beforeEach, afterEach, expect } = require('@jest/globals');
 const AbilityService = require('../../services/pokemon-service/src/abilityService');
 
 // Mock dependencies
@@ -22,6 +22,21 @@ jest.mock('ioredis', () => {
     quit: jest.fn()
   }));
 });
+
+jest.mock('../../shared/logger', () => ({
+  info: jest.fn(),
+  error: jest.fn(),
+  warn: jest.fn(),
+  debug: jest.fn()
+}));
+
+jest.mock('../../shared/metrics', () => ({
+  metrics: {
+    gauge: jest.fn(),
+    increment: jest.fn(),
+    histogram: jest.fn()
+  }
+}));
 
 describe('AbilityService', () => {
   let abilityService;
