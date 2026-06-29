@@ -3,7 +3,7 @@
 - **编号**：REQ-00373
 - **类别**：容灾/高可用
 - **优先级**：P0
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：gateway、所有微服务、backend/shared/SloManager.js、backend/shared/SloBudgetTracker.js、backend/shared/middleware/sloMiddleware.js、infrastructure/k8s/monitoring、Prometheus、Grafana
 - **创建时间**：2026-06-29 21:00 UTC
 - **依赖需求**：REQ-00002（结构化日志）、REQ-00023（分布式追踪）、REQ-00275（告警关联）
