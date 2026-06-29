@@ -1,0 +1,270 @@
+# mineGo SLO 错误预算监控告警规则
+# 基于服务级别目标（SLO）的错误预算管理
+
+groups:
+  - name: slo_budget_alerts
+    interval: 30s
+    rules:
+      # ===== 预算耗尽告警 =====
+      
+      # P0: 预算完全耗尽（剩余 < 2%）
+      - alert: SloBudgetExhausted
+        expr: minego_slo_budget_remaining_ratio < 0.02
+        for: 1m
+        labels:
+          severity: critical
+          priority: P0
+          category: slo
+        annotations:
+          summary: "🚨 {{ $labels.service }} SLO 预算耗尽"
+          description: |
+            服务 {{ $labels.service }} 的错误预算已耗尽！
+            剩余预算率: {{ $value | humanizePercentage }}
+            
+            立即行动：
+            1. 检查服务健康状态
+            2. 触发自动降级
+            3. 冻结非紧急发布
+          runbook_url: "https://runbooks.minego.io/slo-budget-exhausted"
+
+      # P1: 预算严重不足（剩余 < 5%）
+      - alert: SloBudgetCritical
+        expr: |
+          minego_slo_budget_remaining_ratio >= 0.02 and
+          minego_slo_budget_remaining_ratio < 0.05
+        for: 2m
+        labels:
+          severity: critical
+          priority: P1
+          category: slo
+        annotations:
+          summary: "⚠️ {{ $labels.service }} SLO 预算严重不足"
+          description: |
+            服务 {{ $labels.service }} 的错误预算剩余低于 5%
+            剩余预算率: {{ $value | humanizePercentage }}
+            
+            建议：
+            1. 暂停非紧急功能发布
+            2. 启用只读模式
+            3. 加速错误根因分析
+
+      # P2: 预算预警（剩余 < 20%）
+      - alert: SloBudgetWarning
+        expr: |
+          minego_slo_budget_remaining_ratio >= 0.05 and
+          minego_slo_budget_remaining_ratio < 0.20
+        for: 5m
+        labels:
+          severity: warning
+          priority: P2
+          category: slo
+        annotations:
+          summary: "ℹ️ {{ $labels.service }} SLO 预算预警"
+          description: |
+            服务 {{ $labels.service }} 的错误预算剩余低于 20%
+            剩余预算率: {{ $value | humanizePercentage }}
+            
+            建议：关注错误趋势，准备降级预案
+
+  - name: slo_burn_rate_alerts
+    interval: 1m
+    rules:
+      # ===== 燃尽率告警 =====
+      
+      # P0: 快速燃尽（1h 燃尽率 > 2.0）
+      - alert: SloFastBurnRate
+        expr: minego_slo_burn_rate{period="1h"} > 2.0
+        for: 2m
+        labels:
+          severity: critical
+          priority: P0
+          category: slo
+        annotations:
+          summary: "🔥 {{ $labels.service }} 预算快速燃尽"
+          description: |
+            服务 {{ $labels.service }} 的错误预算正在快速消耗！
+            1小时燃尽率: {{ $value | printf "%.2f" }}x
+            
+            预计预算将在短时间内耗尽。
+            紧急排查错误来源！
+
+      # P1: 中等燃尽（1h 燃尽率 > 1.0）
+      - alert: SloMediumBurnRate
+        expr: |
+          minego_slo_burn_rate{period="1h"} > 1.0 and
+          minego_slo_burn_rate{period="1h"} <= 2.0
+        for: 10m
+        labels:
+          severity: warning
+          priority: P1
+          category: slo
+        annotations:
+          summary: "📈 {{ $labels.service }} 预算正常消耗"
+          description: |
+            服务 {{ $labels.service }} 的错误预算按计划消耗
+            1小时燃尽率: {{ $value | printf "%.2f" }}x
+            
+            持续监控，无需紧急干预
+
+      # P2: 慢燃尽（24h 燃尽率 < 0.5）
+      - alert: SloSlowBurnRate
+        expr: minego_slo_burn_rate{period="24h"} < 0.5
+        for: 1h
+        labels:
+          severity: info
+          priority: P2
+          category: slo
+        annotations:
+          summary: "📉 {{ $labels.service }} 预算消耗低于预期"
+          description: |
+            服务 {{ $labels.service }} 的错误预算消耗速度低于预期
+            24小时燃尽率: {{ $value | printf "%.2f" }}x
+            
+            这可能是：
+            1. 系统稳定性提升
+            2. 流量下降
+            3. 错误监控遗漏
+
+  - name: slo_prediction_alerts
+    interval: 5m
+    rules:
+      # ===== 预算耗尽预测 =====
+      
+      # P1: 预算将在 24 小时内耗尽
+      - alert: SloBudgetExhaustionPredicted24h
+        expr: |
+          minego_slo_budget_exhaustion_prediction_seconds > 0 and
+          minego_slo_budget_exhaustion_prediction_seconds < 86400
+        for: 5m
+        labels:
+          severity: warning
+          priority: P1
+          category: slo
+        annotations:
+          summary: "⏰ {{ $labels.service }} 预算将在 24 小时内耗尽"
+          description: |
+            服务 {{ $labels.service }} 的错误预算预测将在 24 小时内耗尽
+            剩余时间: {{ $value | humanizeDuration }}
+            
+            建议：立即开始排查错误来源，准备降级方案
+
+      # P2: 预算将在 7 天内耗尽
+      - alert: SloBudgetExhaustionPredicted7d
+        expr: |
+          minego_slo_budget_exhaustion_prediction_seconds >= 86400 and
+          minego_slo_budget_exhaustion_prediction_seconds < 604800
+        for: 30m
+        labels:
+          severity: info
+          priority: P2
+          category: slo
+        annotations:
+          summary: "📅 {{ $labels.service }} 预算将在 7 天内耗尽"
+          description: |
+            服务 {{ $labels.service }} 的错误预算预测将在 7 天内耗尽
+            剩余时间: {{ $value | humanizeDuration }}
+            
+            建议：规划改进措施，优化错误率
+
+  - name: slo_circuit_breaker_alerts
+    interval: 30s
+    rules:
+      # ===== 熔断器状态告警 =====
+      
+      # P0: 熔断器打开
+      - alert: SloCircuitBreakerOpen
+        expr: minego_slo_circuit_state == 2
+        for: 30s
+        labels:
+          severity: critical
+          priority: P0
+          category: slo
+        annotations:
+          summary: "⚡ {{ $labels.service }} 熔断器已打开"
+          description: |
+            服务 {{ $labels.service }} 的熔断器已打开，请求被拦截
+            
+            熔断原因：
+            - SLO 预算耗尽
+            - 燃尽率过高
+            - 错误率超限
+            
+            所有请求返回 503，服务降级中
+
+      # P1: 熔断器半开
+      - alert: SloCircuitBreakerHalfOpen
+        expr: minego_slo_circuit_state == 1
+        for: 1m
+        labels:
+          severity: warning
+          priority: P1
+          category: slo
+        annotations:
+          summary: "🔧 {{ $labels.service }} 熔断器半开"
+          description: |
+            服务 {{ $labels.service }} 的熔断器处于半开状态
+            正在测试恢复，部分请求允许通过
+
+      # P1: 服务降级
+      - alert: SloServiceDegraded
+        expr: minego_slo_degradation_level > 0
+        for: 2m
+        labels:
+          severity: warning
+          priority: P1
+          category: slo
+        annotations:
+          summary: "🔻 {{ $labels.service }} 服务降级中"
+          description: |
+            服务 {{ $labels.service }} 正在降级模式下运行
+            降级级别: {{ $value }}
+            
+            降级策略：
+            1 - 限流
+            2 - 功能禁用
+            3 - 只读模式
+            4 - 维护模式
+
+  - name: slo_service_specific
+    interval: 1m
+    rules:
+      # ===== 支付服务特殊规则（最严格） =====
+      
+      - alert: PaymentServiceSloBudgetCritical
+        expr: |
+          minego_slo_budget_remaining_ratio{service="payment-service"} < 0.01
+        for: 30s
+        labels:
+          severity: critical
+          priority: P0
+          category: slo
+          service: payment-service
+        annotations:
+          summary: "💳 支付服务 SLO 预算紧急"
+          description: |
+            支付服务错误预算剩余低于 1%
+            剩余预算率: {{ $value | humanizePercentage }}
+            
+            紧急行动：
+            1. 立即通知财务团队
+            2. 准备支付渠道切换
+            3. 启用人工处理模式
+
+      # ===== 网关服务特殊规则 =====
+      
+      - alert: GatewaySloBudgetWarning
+        expr: |
+          minego_slo_budget_remaining_ratio{service="gateway"} < 0.10
+        for: 2m
+        labels:
+          severity: warning
+          priority: P1
+          category: slo
+          service: gateway
+        annotations:
+          summary: "🌐 网关 SLO 预算预警"
+          description: |
+            API 网关错误预算剩余低于 10%
+            剩余预算率: {{ $value | humanizePercentage }}
+            
+            网关影响所有服务，请紧急关注！

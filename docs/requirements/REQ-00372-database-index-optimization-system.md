@@ -7,7 +7,7 @@
 | 标题 | 数据库索引智能分析与自动优化系统 |
 | 类别 | 数据库/数据治理 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | postgresql、backend/shared、所有微服务、database/migrations、admin-dashboard、backend/jobs |
 | 创建时间 | 2026-06-29 20:00 UTC |
 
