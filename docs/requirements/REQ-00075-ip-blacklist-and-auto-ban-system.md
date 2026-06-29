@@ -3,7 +3,7 @@
 - **编号**：REQ-00075
 - **类别**：安全加固
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：gateway、user-service、backend/shared、Redis、database/migrations
 - **创建时间**：2026-06-10 02:00
 - **依赖需求**：REQ-00010（GPS 反作弊）、REQ-00045（设备完整性检测）

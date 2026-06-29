@@ -654,6 +654,104 @@ class IpBanManager {
       client.release();
     }
   }
+
+  /**
+   * 批准申诉
+   */
+  async approveAppeal(appealId, reviewedBy, reviewNote = '') {
+    return this.processAppeal(appealId, true, reviewedBy, reviewNote);
+  }
+
+  /**
+   * 拒绝申诉
+   */
+  async rejectAppeal(appealId, reviewedBy, reviewNote = '') {
+    return this.processAppeal(appealId, false, reviewedBy, reviewNote);
+  }
+
+  /**
+   * 添加地理位置封禁
+   */
+  async addGeoBan(countryCode, reason, bannedBy = null) {
+    const client = await this.db.connect();
+    try {
+      await client.query(`
+        INSERT INTO geo_ban (country_code, reason, banned_by)
+        VALUES ($1, $2, $3)
+        ON CONFLICT (country_code) DO UPDATE SET
+          reason = $2, is_active = true, banned_by = $3, updated_at = NOW()
+      `, [countryCode, reason, bannedBy]);
+      
+      logger.info('Geo ban added', { countryCode, reason });
+      
+      return { success: true, countryCode };
+    } finally {
+      client.release();
+    }
+  }
+
+  /**
+   * 解除地理位置封禁
+   */
+  async removeGeoBan(countryCode, removedBy = null) {
+    const client = await this.db.connect();
+    try {
+      await client.query(`
+        UPDATE geo_ban SET is_active = false, updated_at = NOW()
+        WHERE country_code = $1
+      `, [countryCode]);
+      
+      logger.info('Geo ban removed', { countryCode });
+      
+      return { success: true, countryCode };
+    } finally {
+      client.release();
+    }
+  }
+
+  /**
+   * 重置 IP 风险评分
+   */
+  async resetRiskScore(ipAddress) {
+    const client = await this.db.connect();
+    try {
+      await client.query(`
+        UPDATE ip_risk_scores
+        SET risk_score = 0, violation_count = 0, last_violation_at = NULL, updated_at = NOW()
+        WHERE ip_address = $1
+      `, [ipAddress]);
+      
+      // 清除 Redis 缓存
+      await this.redis.del(`${RISK_SCORE_PREFIX}${ipAddress}`);
+      
+      logger.info('IP risk score reset', { ipAddress });
+      
+      return { success: true, ipAddress };
+    } finally {
+      client.release();
+    }
+  }
+
+  /**
+   * 更新 removeFromWhitelist 支持操作人参数
+   */
+  async removeFromWhitelistWithLog(ipAddress, removedBy = null) {
+    const client = await this.db.connect();
+    try {
+      await client.query('DELETE FROM ip_whitelist WHERE ip_address = $1', [ipAddress]);
+      
+      this.localWhitelist.delete(ipAddress);
+      await this.redis.srem(WHITELIST_CACHE_KEY, ipAddress);
+      
+      await this.publishEvent('whitelist_remove', { ipAddress });
+      
+      logger.info('IP removed from whitelist', { ipAddress, removedBy });
+      
+      return { success: true, ipAddress };
+    } finally {
+      client.release();
+    }
+  }
 }
 
 module.exports = IpBanManager;

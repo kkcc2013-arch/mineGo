@@ -52,6 +52,10 @@ const dependenciesRoutes = require('./routes/dependencies');
 // REQ-00102: 精灵昼夜循环系统
 const timePeriodRoutes = require('./routes/timePeriod');
 
+// REQ-00075: IP 黑名单与恶意 IP 自动封禁系统
+const { initIpBanManager, ipBanMiddleware, ipAccessLogMiddleware } = require('./middleware/ipBan');
+const ipBanAdminRoutes = require('./routes/admin/ipBan');
+
 // REQ-00072: API 响应压缩
 const { createCompressionMiddleware } = require('@pmg/shared/compression');
 
@@ -461,6 +465,32 @@ app.use('/api/admin/delay-queue', delayQueueAdminRoutes);
 // ── Time Period API (REQ-00102) ────────────────────────────
 // 昼夜循环系统接口（公开）
 app.use('/api/time', timePeriodRoutes);
+
+// ── IP Ban System (REQ-00075) ────────────────────────────
+// 初始化 IP 封禁管理器
+(async () => {
+  try {
+    const redisClient = getRedis();
+    initIpBanManager({
+      db: require('@pmg/shared/db'),
+      redis: redisClient,
+      publisher: redisClient,
+      subscriber: redisClient.duplicate()
+    });
+    logger.info('IP Ban Manager initialized');
+  } catch (err) {
+    logger.error({ err }, 'Failed to initialize IP Ban Manager');
+  }
+})();
+
+// IP 封禁中间件（全局应用，在认证之前）
+app.use(ipBanMiddleware);
+
+// IP 访问日志中间件
+app.use(ipAccessLogMiddleware);
+
+// IP 封禁管理 API（管理员）
+app.use('/api/admin', ipBanAdminRoutes);
 
 // 404 fallback
 app.use((req, res) => res.status(404).json({ code: 1005, message: `路由不存在: ${req.method} ${req.path}`, data: null }));
