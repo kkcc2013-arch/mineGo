@@ -366,4 +366,6 @@
 || REQ-00348 | 精灵背包智能整理与自动分类系统 | 功能增强 | P1 | new | pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-27 06:00 UTC |
 || REQ-00349 | 错误处理模块重构与统一化 | 技术债/重构 | P2 | new | backend/shared/auth.js、backend/shared/errorHandler.js、所有微服务、gateway | 2026-06-27 05:00 UTC |
 || REQ-00350 | 精灵详情批量查询与数据聚合优化系统 | 性能优化 | P1 | new | pokemon-service、gateway、backend/shared、Redis、PostgreSQL | 2026-06-27 06:00 UTC |
-| REQ-00351 | 游戏数字格式本地化系统 | 国际化/本地化 | P1 | new | game-client、gateway、user-service、pokemon-service、payment-service、backend/shared | 2026-06-27 06:00 UTC |
+|| REQ-00351 | 游戏数字格式本地化系统 | 国际化/本地化 | P1 | new | game-client、gateway、user-service、pokemon-service、payment-service、backend/shared | 2026-06-27 06:00 |
+|| REQ-00352 | 微服务集成测试框架与端到端场景验证系统 | 测试覆盖 | P1 | new | backend/tests/integration、所有微服务、backend/shared、database/migrations、backend/mocks | 2026-06-29 01:00 UTC |
+|
