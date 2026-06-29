@@ -375,3 +375,4 @@
 || REQ-00357 | 精灵团队战斗AI策略助手系统 | 功能增强 | P1 | new | gym-service、pokemon-service、user-service、social-service、gateway、game-client、database/migrations | 2026-06-29 07:00 UTC |
 || REQ-00358 | 实时服务健康聚合仪表板与异常预测系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/ServiceHealthAggregator.js、backend/shared/AnomalyPredictor.js、admin-dashboard、infrastructure/k8s/monitoring | 2026-06-29 07:12 UTC |
 || REQ-00359 | 精灵收藏室与个性化装饰系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-29 08:00 UTC |
+| REQ-00360 | 精灵捕捉动作障碍玩家辅助模式系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility、frontend/game-client/src/game/CatchEngine.js、gateway、user-service、backend/shared、database/migrations | 2026-06-29 08:00 UTC |
