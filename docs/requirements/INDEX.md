@@ -126,7 +126,7 @@
 | REQ-00113 | REQ-00113：实时业务事件流监控与分析系统 |  |  |  |  |  |
 | REQ-00114 | 精灵季节活动系统 | 功能增强 | P1 | done | location-service、catch-service、pokemon-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 14:00 |
 | REQ-00115 | 数据库连接池自适应调度与负载均衡系统 |  |  |  |  |  |
-| REQ-00116 | 精灵团队实时语音聊天系统 | 功能增强 | P1 | new | gym-service、social-service、user-service、gateway、game-client、infrastructure/k8s | 2026-06-11 16:00 |
+| REQ-00116 | 精灵团队实时语音聊天系统 | 功能增强 | P1 | done | gym-service、social-service、user-service、gateway、game-client、infrastructure/k8s | 2026-06-29 21:00 UTC |
 | REQ-00117 | 地图手势交互优化与缩放流畅度提升 |  |  |  |  |  |
 | REQ-00118 | gym-service 战斗路由挂载与集成 |  |  |  |  |  |
 | REQ-00119 | pokemon-service 进化路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 17:30 |
@@ -367,6 +367,7 @@
 || REQ-00349 | 错误处理模块重构与统一化 | 技术债/重构 | P2 | new | backend/shared/auth.js、backend/shared/errorHandler.js、所有微服务、gateway | 2026-06-27 05:00 UTC |
 || REQ-00350 | 精灵详情批量查询与数据聚合优化系统 | 性能优化 | P1 | new | pokemon-service、gateway、backend/shared、Redis、PostgreSQL | 2026-06-27 06:00 UTC |
 || REQ-00351 | 游戏数字格式本地化系统 | 国际化/本地化 | P1 | new | game-client、gateway、user-service、pokemon-service、payment-service、backend/shared | 2026-06-27 06:00 |
+| REQ-00373 | 数据库Schema版本冲突检测与多环境一致性验证系统 | 数据库/数据治理 | P1 | new | database/migrations、backend/shared、所有微服务、infrastructure/k8s、admin-dashboard、.github/workflows | 2026-06-29 21:00 UTC |
 || REQ-00362 | 数据库连接池智能预测与预分配系统 | 性能优化 | P1 | done | backend/shared、所有微服务、PostgreSQL、infrastructure/k8s | 2026-06-29 12:15 UTC |
 || REQ-00352 | 游戏音效可视化与听障玩家视觉提示系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility、gateway、catch-service、gym-service | 2026-06-29 01:05 UTC |
 || REQ-00353 | 游戏内容翻译管理与翻译工作流自动化系统 | 国际化/本地化 | P1 | new | gateway、pokemon-service、backend/shared/i18n、admin-dashboard、backend/jobs、database/migrations | 2026-06-29 02:00 UTC |
@@ -389,4 +390,4 @@
 || REQ-00369 | 精灵捕捉连击奖励系统 | 功能增强 | P1 | new | catch-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-29 16:00 UTC |
 || REQ-00370 | 精灵训练营系统 | 功能增强 | P1 | done | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-29 19:30 UTC |
 | REQ-00371 | 实时日志异常检测与预警系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-29 19:00 UTC |
-| REQ-00372 | 数据库索引智能分析与自动优化系统 | 数据库/数据治理 | P1 | new | postgresql、backend/shared、所有微服务、database/migrations、admin-dashboard、backend/jobs | 2026-06-29 20:00 UTC |
+| REQ-00372 | 数据库索引智能分析与自动优化系统 | 数据库/数据治理 | P1 | new | postgresql、backend/shared、所有微服务、database/migrations、admin-dashboard、backend/jobs | 2026-06-29 20:00 UTC || REQ-00373 | SLO 错误预算燃尽率预警与自动熔断系统 | 容灾/高可用 | P0 | new | gateway、所有微服务、backend/shared/SloManager.js、backend/shared/SloBudgetTracker.js、backend/shared/middleware/sloMiddleware.js、infrastructure/k8s/monitoring、Prometheus、Grafana | 2026-06-29 21:00 UTC |

@@ -7,7 +7,7 @@
 | 标题 | 精灵团队实时语音聊天系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | gym-service、social-service、user-service、gateway、game-client、infrastructure/k8s |
 | 创建时间 | 2026-06-11 16:00 |
 
