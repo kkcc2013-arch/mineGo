@@ -122,7 +122,7 @@
 | REQ-00110 | REQ-00110：前端资源懒加载与代码分割系统 |  |  |  |  |  |
 | REQ-00110 | 精灵背包容量管理与扩展系统 | 功能增强 | P1 | done | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 11:00 |
 | REQ-00111 | REQ-00111：API 安全响应头与 CSP 强化系统 |  |  |  |  |  |
-| REQ-00112 | 精灵技能冷却与能量系统 | 功能增强 | P1 | new | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-11 12:34 |
+| REQ-00112 | 精灵技能冷却与能量系统 | 功能增强 | P1 | done | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-11 12:34 |
 | REQ-00113 | REQ-00113：实时业务事件流监控与分析系统 |  |  |  |  |  |
 | REQ-00114 | 精灵季节活动系统 | 功能增强 | P1 | done | location-service、catch-service、pokemon-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 14:00 |
 | REQ-00115 | 数据库连接池自适应调度与负载均衡系统 |  |  |  |  |  |
