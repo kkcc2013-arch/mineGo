@@ -1,432 +1,452 @@
-// backend/services/pokemon-service/src/routes/inventory.js
-// REQ-00047: 精灵道具与背包管理系统 - API 路由
+/**
+ * REQ-00348: 精灵背包智能整理与自动分类系统
+ * API 路由
+ */
 
 'use strict';
 
 const express = require('express');
 const router = express.Router();
-const { InventoryService } = require('../inventoryService');
-const { requireAuth, AppError, successResp, errorHandler } = require('../../../../shared/auth');
-const { rateLimiter } = require('../../../../shared/middleware/rateLimit');
-const { logger } = require('../../../../shared');
-const metrics = require('../../../../shared/metrics');
+const { query, getClient } = require('../../../shared/db');
+const redis = require('../../../shared/redis');
+const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
+const { createLogger, requestLogger } = require('../../../shared/logger');
+const InventorySorter = require('../inventory/InventorySorter');
+const OrganizationAdvisor = require('../inventory/OrganizationAdvisor');
 
-const inventoryService = new InventoryService();
+const logger = createLogger('inventory-routes');
+const sorter = new InventorySorter();
+const advisor = new OrganizationAdvisor();
+
+// 应用请求日志和认证中间件
+router.use(requestLogger(logger));
+router.use(requireAuth);
 
 /**
- * GET /api/v1/inventory
- * 获取玩家背包
+ * GET /api/pokemon/inventory
+ * 获取用户精灵列表（支持排序、分组、过滤）
  */
-router.get('/', requireAuth, async (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
-    const inventory = await inventoryService.getInventory(req.user.id);
-    successResp(res, inventory);
-  } catch (error) {
-    logger.error('Failed to get inventory', { 
-      userId: req.user.id, 
-      error: error.message 
+    const userId = req.user.sub;
+    const {
+      sort = 'combatPower',
+      order = 'desc',
+      groupBy,
+      type,
+      minCP,
+      maxCP,
+      rarity,
+      isFavorite,
+      isLocked,
+      search,
+      page = 1,
+      limit = 30
+    } = req.query;
+
+    // 构建过滤条件
+    const filters = {};
+    if (type) filters.type = type;
+    if (minCP) filters.minCP = parseInt(minCP);
+    if (maxCP) filters.maxCP = parseInt(maxCP);
+    if (rarity) filters.rarity = rarity;
+    if (isFavorite !== undefined) filters.isFavorite = isFavorite === 'true';
+    if (isLocked !== undefined) filters.isLocked = isLocked === 'true';
+    if (search) filters.search = search;
+
+    // 获取精灵列表
+    let pokemonList = await advisor.getUserPokemon(userId);
+
+    // 应用排序
+    pokemonList = sorter.sortPokemon(pokemonList, {
+      primarySort: sort,
+      secondarySort: 'rarity',
+      order,
+      filters
     });
-    next(error);
-  }
-});
 
-/**
- * GET /api/v1/inventory/:itemId
- * 获取道具详情
- */
-router.get('/:itemId', requireAuth, async (req, res, next) => {
-  try {
-    const { itemId } = req.params;
-    const inventory = await inventoryService.getInventory(req.user.id);
-    
-    // 查找道具
-    for (const category of Object.values(inventory.items)) {
-      const item = category.find(i => i.itemId === itemId);
-      if (item) {
-        return successResp(res, item);
-      }
+    // 构建响应
+    let response;
+    if (groupBy) {
+      // 分组展示
+      const groups = sorter.groupPokemon(pokemonList, groupBy);
+      response = {
+        grouped: true,
+        groups,
+        total: pokemonList.length,
+        groupCount: Object.keys(groups).length
+      };
+    } else {
+      // 分页展示
+      const offset = (parseInt(page) - 1) * parseInt(limit);
+      const paginatedList = pokemonList.slice(offset, offset + parseInt(limit));
+
+      response = {
+        grouped: false,
+        pokemon: paginatedList,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total: pokemonList.length,
+          totalPages: Math.ceil(pokemonList.length / parseInt(limit))
+        }
+      };
     }
-    
-    throw new AppError(404, 'Item not found in inventory');
-  } catch (error) {
-    logger.error('Failed to get item', { 
-      userId: req.user.id, 
-      itemId: req.params.itemId, 
-      error: error.message 
+
+    // 缓存用户偏好
+    await advisor.updateUserSortPreference(userId, {
+      primarySort: sort,
+      secondarySort: 'rarity',
+      order
     });
+
+    res.json(successResp(response));
+  } catch (error) {
+    logger.error({ error: error.message }, 'Failed to get inventory');
     next(error);
   }
 });
 
 /**
- * POST /api/v1/inventory/use
- * 使用道具
+ * GET /api/pokemon/inventory/advice
+ * 获取智能整理建议
  */
-router.post('/use', requireAuth, rateLimiter({ windowMs: 1000, max: 10 }), async (req, res, next) => {
+router.get('/advice', async (req, res, next) => {
   try {
-    const { itemId, pokemonId, context } = req.body;
-    
-    if (!itemId) {
-      throw new AppError(400, 'itemId is required');
-    }
-    
-    const result = await inventoryService.useItem(req.user.id, itemId, {
-      pokemonId,
-      userLevel: req.user.level,
-      ...context
-    });
-    
-    successResp(res, result);
+    const userId = req.user.sub;
+    const advice = await advisor.generateOrganizationAdvice(userId);
+    res.json(successResp(advice));
   } catch (error) {
-    logger.error('Failed to use item', { 
-      userId: req.user.id, 
-      body: req.body, 
-      error: error.message 
-    });
+    logger.error({ error: error.message }, 'Failed to generate advice');
     next(error);
   }
 });
 
 /**
- * POST /api/v1/inventory/drop
- * 丢弃道具
+ * GET /api/pokemon/inventory/sort-options
+ * 获取可用的排序选项
  */
-router.post('/drop', requireAuth, async (req, res, next) => {
+router.get('/sort-options', (req, res) => {
+  const sortOptions = InventorySorter.getSortOptions();
+  const groupOptions = InventorySorter.getGroupOptions();
+  res.json(successResp({ sortOptions, groupOptions }));
+});
+
+/**
+ * GET /api/pokemon/inventory/storage
+ * 获取背包存储状态
+ */
+router.get('/storage', async (req, res, next) => {
   try {
-    const { itemId, quantity } = req.body;
-    
-    if (!itemId) {
-      throw new AppError(400, 'itemId is required');
-    }
-    
-    const result = await inventoryService.dropItem(
-      req.user.id, 
-      itemId, 
-      quantity || 1
-    );
-    
-    successResp(res, result);
+    const userId = req.user.sub;
+    const pokemonList = await advisor.getUserPokemon(userId);
+    const storageUsage = advisor.calculateStorageUsage(userId, pokemonList);
+    res.json(successResp(storageUsage));
   } catch (error) {
-    logger.error('Failed to drop item', { 
-      userId: req.user.id, 
-      body: req.body, 
-      error: error.message 
-    });
+    logger.error({ error: error.message }, 'Failed to get storage status');
     next(error);
   }
 });
 
 /**
- * PUT /api/v1/inventory/quick-slot
- * 设置快速访问栏
+ * GET /api/pokemon/inventory/:pokemonId
+ * 获取单个精灵详情
  */
-router.put('/quick-slot', requireAuth, async (req, res, next) => {
+router.get('/:pokemonId', async (req, res, next) => {
   try {
-    const { slotIndex, itemId } = req.body;
-    
-    if (slotIndex === undefined || slotIndex === null) {
-      throw new AppError(400, 'slotIndex is required');
-    }
-    
-    const result = await inventoryService.setQuickSlot(
-      req.user.id, 
-      slotIndex, 
-      itemId
-    );
-    
-    successResp(res, result);
-  } catch (error) {
-    logger.error('Failed to set quick slot', { 
-      userId: req.user.id, 
-      body: req.body, 
-      error: error.message 
-    });
-    next(error);
-  }
-});
+    const userId = req.user.sub;
+    const { pokemonId } = req.params;
 
-/**
- * GET /api/v1/inventory/capacity
- * 获取背包容量信息
- */
-router.get('/capacity/info', requireAuth, async (req, res, next) => {
-  try {
-    const inventory = await inventoryService.getInventory(req.user.id);
-    successResp(res, {
-      capacity: inventory.capacity,
-      stats: inventory.stats
-    });
-  } catch (error) {
-    logger.error('Failed to get capacity', { 
-      userId: req.user.id, 
-      error: error.message 
-    });
-    next(error);
-  }
-});
+    const result = await query(`
+      SELECT 
+        pi.*,
+        ps.name as species_name,
+        ps.types as species_types
+      FROM pokemon_instances pi
+      JOIN pokemon_species ps ON ps.id = pi.species_id
+      WHERE pi.id = $1 AND pi.user_id = $2 AND pi.is_deleted = false
+    `, [pokemonId, userId]);
 
-/**
- * GET /api/v1/inventory/active-effects
- * 获取激活的道具效果
- */
-router.get('/active-effects/list', requireAuth, async (req, res, next) => {
-  try {
-    const effects = await inventoryService.getActiveEffects(req.user.id);
-    successResp(res, { effects });
-  } catch (error) {
-    logger.error('Failed to get active effects', { 
-      userId: req.user.id, 
-      error: error.message 
-    });
-    next(error);
-  }
-});
-
-/**
- * POST /api/v1/inventory/add
- * 添加道具（内部接口，供其他服务调用）
- */
-router.post('/add', requireAuth, async (req, res, next) => {
-  try {
-    const { itemId, quantity, source, expiresAt, metadata } = req.body;
-    
-    if (!itemId) {
-      throw new AppError(400, 'itemId is required');
-    }
-    
-    const result = await inventoryService.addItem(
-      req.user.id, 
-      itemId, 
-      quantity || 1,
-      { source, expiresAt, metadata }
-    );
-    
-    successResp(res, result);
-  } catch (error) {
-    logger.error('Failed to add item', { 
-      userId: req.user.id, 
-      body: req.body, 
-      error: error.message 
-    });
-    next(error);
-  }
-});
-
-/**
- * POST /api/v1/inventory/bulk-add
- * 批量添加道具（内部接口）
- */
-router.post('/bulk-add', requireAuth, async (req, res, next) => {
-  try {
-    const { items, source } = req.body;
-    
-    if (!Array.isArray(items) || items.length === 0) {
-      throw new AppError(400, 'items array is required');
-    }
-    
-    const results = [];
-    for (const item of items) {
-      const result = await inventoryService.addItem(
-        req.user.id, 
-        item.itemId, 
-        item.quantity || 1,
-        { source, expiresAt: item.expiresAt, metadata: item.metadata }
-      );
-      results.push(result);
-    }
-    
-    successResp(res, { 
-      success: true, 
-      added: results.length,
-      results 
-    });
-  } catch (error) {
-    logger.error('Failed to bulk add items', { 
-      userId: req.user.id, 
-      body: req.body, 
-      error: error.message 
-    });
-    next(error);
-  }
-});
-
-/**
- * GET /api/v1/inventory/items/list
- * 获取所有道具定义（公共数据）
- */
-router.get('/items/list', async (req, res, next) => {
-  try {
-    const { category, rarity } = req.query;
-    
-    let query = 'SELECT * FROM items WHERE 1=1';
-    const params = [];
-    
-    if (category) {
-      params.push(category);
-      query += ` AND category = $${params.length}`;
-    }
-    
-    if (rarity) {
-      params.push(rarity);
-      query += ` AND rarity = $${params.length}`;
-    }
-    
-    query += ' ORDER BY category, rarity DESC, name';
-    
-    const result = await inventoryService.db.query(query, params);
-    successResp(res, { items: result.rows });
-  } catch (error) {
-    logger.error('Failed to list items', { error: error.message });
-    next(error);
-  }
-});
-
-/**
- * GET /api/v1/inventory/items/:itemId
- * 获取道具定义详情
- */
-router.get('/items/detail/:itemId', async (req, res, next) => {
-  try {
-    const { itemId } = req.params;
-    
-    const result = await inventoryService.db.query(
-      'SELECT * FROM items WHERE item_id = $1',
-      [itemId]
-    );
-    
     if (result.rows.length === 0) {
-      throw new AppError(404, 'Item not found');
+      throw new AppError(4001, '精灵不存在', 404);
     }
-    
-    successResp(res, result.rows[0]);
+
+    res.json(successResp(result.rows[0]));
   } catch (error) {
-    logger.error('Failed to get item detail', { 
-      itemId: req.params.itemId, 
-      error: error.message 
-    });
     next(error);
   }
 });
 
 /**
- * POST /api/v1/inventory/cleanup
- * 清理过期道具（管理员接口）
+ * POST /api/pokemon/inventory/favorite
+ * 设置/取消收藏
  */
-router.post('/cleanup', requireAuth, async (req, res, next) => {
+router.post('/favorite', async (req, res, next) => {
+  const client = await getClient();
   try {
-    // 检查管理员权限
-    if (req.user.role !== 'admin') {
-      throw new AppError(403, 'Admin access required');
+    const userId = req.user.sub;
+    const { pokemonId, isFavorite } = req.body;
+
+    if (!pokemonId || isFavorite === undefined) {
+      throw new AppError(1001, 'pokemonId 和 isFavorite 必填', 400);
     }
-    
-    const cleanedCount = await inventoryService.cleanupExpiredItems();
-    
-    successResp(res, { 
-      success: true, 
-      cleanedCount,
-      message: `Cleaned up ${cleanedCount} expired items`
-    });
-  } catch (error) {
-    logger.error('Failed to cleanup expired items', { 
-      userId: req.user.id, 
-      error: error.message 
-    });
-    next(error);
-  }
-});
 
-// ========== REQ-00150: 背包容量扩展与购买系统 ==========
+    await client.query('BEGIN');
 
-/**
- * GET /api/v1/inventory/upgrades
- * 获取扩容配置列表
- */
-router.get('/upgrades', requireAuth, async (req, res, next) => {
-  try {
-    const configs = await inventoryService.getUpgradeConfigs(req.user.id);
-    successResp(res, configs);
-  } catch (error) {
-    logger.error('Failed to get upgrade configs', { 
-      userId: req.user.id, 
-      error: error.message 
-    });
-    next(error);
-  }
-});
+    const result = await client.query(`
+      UPDATE pokemon_instances 
+      SET is_favorite = $1, updated_at = NOW()
+      WHERE id = $2 AND user_id = $3 AND is_deleted = false
+      RETURNING id, species_id, is_favorite
+    `, [isFavorite, pokemonId, userId]);
 
-/**
- * POST /api/v1/inventory/upgrades/:upgradeId/purchase
- * 购买背包扩容
- */
-router.post('/upgrades/:upgradeId/purchase', requireAuth, rateLimiter({ windowMs: 60000, max: 5 }), async (req, res, next) => {
-  try {
-    const { upgradeId } = req.params;
-    const { method } = req.body; // 'gold' | 'gem'
-    
-    if (!['gold', 'gem'].includes(method)) {
-      throw new AppError(400, 'Invalid purchase method. Must be "gold" or "gem"');
+    if (result.rows.length === 0) {
+      throw new AppError(4001, '精灵不存在或无权操作', 404);
     }
-    
-    const result = await inventoryService.purchaseBagUpgrade(
-      req.user.id, 
-      upgradeId, 
-      method
-    );
-    
-    successResp(res, result);
+
+    await client.query('COMMIT');
+
+    // 清除缓存
+    await redis.del(`user:${userId}:pokemon:list`);
+
+    logger.info({ userId, pokemonId, isFavorite }, 'Pokemon favorite toggled');
+
+    res.json(successResp({
+      pokemonId,
+      isFavorite: result.rows[0].is_favorite
+    }));
   } catch (error) {
-    logger.error('Failed to purchase bag upgrade', { 
-      userId: req.user.id, 
-      upgradeId: req.params.upgradeId,
-      method: req.body.method,
-      error: error.message 
-    });
+    await client.query('ROLLBACK');
     next(error);
+  } finally {
+    client.release();
   }
 });
 
 /**
- * POST /api/v1/inventory/upgrades/:upgradeId/grant
- * 赠送免费扩容（管理员）
+ * POST /api/pokemon/inventory/lock
+ * 锁定/解锁精灵
  */
-router.post('/upgrades/:upgradeId/grant', requireAuth, async (req, res, next) => {
+router.post('/lock', async (req, res, next) => {
+  const client = await getClient();
   try {
-    // 检查管理员权限
-    if (req.user.role !== 'admin') {
-      throw new AppError(403, 'Admin access required');
+    const userId = req.user.sub;
+    const { pokemonId, isLocked } = req.body;
+
+    if (!pokemonId || isLocked === undefined) {
+      throw new AppError(1001, 'pokemonId 和 isLocked 必填', 400);
     }
-    
-    const { upgradeId } = req.params;
-    const { userId, reason } = req.body;
-    
-    if (!userId || !reason) {
-      throw new AppError(400, 'userId and reason are required');
+
+    await client.query('BEGIN');
+
+    const result = await client.query(`
+      UPDATE pokemon_instances 
+      SET is_locked = $1, updated_at = NOW()
+      WHERE id = $2 AND user_id = $3 AND is_deleted = false
+      RETURNING id, species_id, is_locked
+    `, [isLocked, pokemonId, userId]);
+
+    if (result.rows.length === 0) {
+      throw new AppError(4001, '精灵不存在或无权操作', 404);
     }
-    
-    const validReasons = ['achievement', 'event', 'free'];
-    if (!validReasons.includes(reason)) {
-      throw new AppError(400, `Invalid reason. Must be one of: ${validReasons.join(', ')}`);
-    }
-    
-    const result = await inventoryService.grantFreeUpgrade(
-      userId, 
-      upgradeId, 
-      reason
-    );
-    
-    successResp(res, result);
+
+    await client.query('COMMIT');
+
+    // 清除缓存
+    await redis.del(`user:${userId}:pokemon:list`);
+
+    logger.info({ userId, pokemonId, isLocked }, 'Pokemon lock toggled');
+
+    res.json(successResp({
+      pokemonId,
+      isLocked: result.rows[0].is_locked
+    }));
   } catch (error) {
-    logger.error('Failed to grant free upgrade', { 
-      adminId: req.user.id, 
-      upgradeId: req.params.upgradeId,
-      targetUserId: req.body.userId,
-      error: error.message 
-    });
+    await client.query('ROLLBACK');
+    next(error);
+  } finally {
+    client.release();
+  }
+});
+
+/**
+ * POST /api/pokemon/inventory/tags
+ * 更新精灵自定义标签
+ */
+router.post('/tags', async (req, res, next) => {
+  try {
+    const userId = req.user.sub;
+    const { pokemonId, tags } = req.body;
+
+    if (!pokemonId || !Array.isArray(tags)) {
+      throw new AppError(1001, 'pokemonId 和 tags 必填', 400);
+    }
+
+    const result = await query(`
+      UPDATE pokemon_instances 
+      SET custom_tags = $1, updated_at = NOW()
+      WHERE id = $2 AND user_id = $3 AND is_deleted = false
+      RETURNING id, custom_tags
+    `, [tags, pokemonId, userId]);
+
+    if (result.rows.length === 0) {
+      throw new AppError(4001, '精灵不存在或无权操作', 404);
+    }
+
+    await redis.del(`user:${userId}:pokemon:list`);
+
+    res.json(successResp({
+      pokemonId,
+      tags: result.rows[0].custom_tags
+    }));
+  } catch (error) {
     next(error);
   }
 });
 
-// 错误处理中间件
+/**
+ * POST /api/pokemon/inventory/batch-transfer
+ * 批量转移精灵
+ */
+router.post('/batch-transfer', async (req, res, next) => {
+  const client = await getClient();
+  try {
+    const userId = req.user.sub;
+    const { pokemonIds } = req.body;
+
+    if (!pokemonIds || !Array.isArray(pokemonIds) || pokemonIds.length === 0) {
+      throw new AppError(1001, 'pokemonIds 必填且非空数组', 400);
+    }
+
+    // 批量限制
+    if (pokemonIds.length > 100) {
+      throw new AppError(1002, '单次最多转移100只精灵', 400);
+    }
+
+    await client.query('BEGIN');
+
+    // 检查锁定和收藏精灵
+    const lockedResult = await client.query(`
+      SELECT id FROM pokemon_instances 
+      WHERE id = ANY($1) AND user_id = $2 AND (is_locked = true OR is_favorite = true)
+    `, [pokemonIds, userId]);
+
+    if (lockedResult.rows.length > 0) {
+      throw new AppError(1003, '包含锁定或收藏精灵，无法转移', 400, {
+        lockedIds: lockedResult.rows.map(r => r.id)
+      });
+    }
+
+    // 执行批量转移
+    const transferResult = await client.query(`
+      UPDATE pokemon_instances 
+      SET is_deleted = true, deleted_at = NOW(), updated_at = NOW()
+      WHERE id = ANY($1) AND user_id = $2 AND is_deleted = false 
+        AND is_locked = false AND is_favorite = false
+      RETURNING id, species_id
+    `, [pokemonIds, userId]);
+
+    const transferredCount = transferResult.rows.length;
+
+    // 计算糖果奖励
+    const candyReward = transferredCount * 1;
+
+    // 发放糖果
+    if (candyReward > 0) {
+      await client.query(`
+        INSERT INTO user_candies (user_id, amount)
+        VALUES ($1, $2)
+        ON CONFLICT (user_id) DO UPDATE SET 
+          amount = user_candies.amount + $2,
+          updated_at = NOW()
+      `, [userId, candyReward]);
+    }
+
+    await client.query('COMMIT');
+
+    // 清除缓存
+    await redis.del(`user:${userId}:pokemon:list`);
+
+    logger.info({ userId, transferredCount, candyReward }, 'Batch transfer completed');
+
+    res.json(successResp({
+      transferred: transferredCount,
+      candyEarned: candyReward,
+      transferredIds: transferResult.rows.map(r => r.id)
+    }));
+  } catch (error) {
+    await client.query('ROLLBACK');
+    next(error);
+  } finally {
+    client.release();
+  }
+});
+
+/**
+ * POST /api/pokemon/inventory/batch-favorite
+ * 批量设置收藏
+ */
+router.post('/batch-favorite', async (req, res, next) => {
+  try {
+    const userId = req.user.sub;
+    const { pokemonIds, isFavorite } = req.body;
+
+    if (!pokemonIds || !Array.isArray(pokemonIds) || pokemonIds.length === 0) {
+      throw new AppError(1001, 'pokemonIds 必填且非空数组', 400);
+    }
+
+    if (isFavorite === undefined) {
+      throw new AppError(1001, 'isFavorite 必填', 400);
+    }
+
+    const result = await query(`
+      UPDATE pokemon_instances 
+      SET is_favorite = $1, updated_at = NOW()
+      WHERE id = ANY($2) AND user_id = $3 AND is_deleted = false
+      RETURNING id
+    `, [isFavorite, pokemonIds, userId]);
+
+    await redis.del(`user:${userId}:pokemon:list`);
+
+    res.json(successResp({
+      updated: result.rows.length,
+      isFavorite
+    }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * POST /api/pokemon/inventory/sort-preference
+ * 保存用户排序偏好
+ */
+router.post('/sort-preference', async (req, res, next) => {
+  try {
+    const userId = req.user.sub;
+    const { primarySort, secondarySort, order } = req.body;
+
+    if (!primarySort) {
+      throw new AppError(1001, 'primarySort 必填', 400);
+    }
+
+    await advisor.updateUserSortPreference(userId, {
+      primarySort,
+      secondarySort: secondarySort || 'rarity',
+      order: order || 'desc'
+    });
+
+    res.json(successResp({
+      primarySort,
+      secondarySort,
+      order
+    }));
+  } catch (error) {
+    next(error);
+  }
+});
+
+// 错误处理
 router.use(errorHandler);
 
 module.exports = router;

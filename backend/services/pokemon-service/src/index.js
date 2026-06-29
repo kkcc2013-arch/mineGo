@@ -433,6 +433,9 @@ async function main() {
       // REQ-00138: 精灵道具与背包管理系统路由
       app.use('/inventory', require('./routes/inventory'));
 
+      // REQ-00348: 精灵背包智能整理与自动分类系统
+      app.use('/pokemon/inventory', require('./routes/inventory'));
+
       // REQ-00133: 精灵图鉴系统路由
       app.use('/pokedex', require('./routes/pokedex'));
 
