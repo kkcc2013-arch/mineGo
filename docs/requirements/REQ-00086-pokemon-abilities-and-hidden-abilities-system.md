@@ -7,7 +7,7 @@
 | 标题 | 精灵特性系统与隐藏能力激活机制 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-10 12:00 |
 

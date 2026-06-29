@@ -163,6 +163,21 @@ async function handleCatch(userId, session, throwRating, isCurve, sessionId, log
         current_value = user_achievements.current_value + 1, updated_at = NOW()
     `, [userId]);
 
+    // REQ-00086: 分配特性（在事务外异步执行，不阻塞捕捉流程）
+    const pokemonInstanceId = instance.id;
+    setImmediate(async () => {
+      try {
+        const { getAbilityIntegration } = require('./abilityIntegration');
+        const abilityIntegration = getAbilityIntegration();
+        await abilityIntegration.assignAbilitiesOnCatch(pokemonInstanceId, session.speciesId, {
+          isEventSpawn: session.weatherBoosted === 'EVENT'
+        });
+      } catch (err) {
+        // 特性分配失败不影响捕捉成功
+        logger.error({ err, pokemonInstanceId, speciesId: session.speciesId }, 'Failed to assign abilities');
+      }
+    });
+
     return {
       pokemonInstanceId: instance.id,
       pokemon: {
