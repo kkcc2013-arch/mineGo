@@ -383,4 +383,5 @@
 || REQ-00363 | API 请求签名验证与防重放攻击系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared、game-client | 2026-06-29 12:10 UTC |
 || REQ-00364 | 精灵技能连击系统与组合技效果 | 功能增强 | P1 | new | pokemon-service、gym-service、social-service、gateway、game-client、database/migrations | 2026-06-29 13:00 UTC |
 || REQ-00365 | 精灵团队战斗AI策略助手系统 | 功能增强 | P1 | new | gym-service、pokemon-service、user-service、social-service、gateway、game-client、database/migrations | 2026-06-29 14:00 UTC |
-| REQ-00366 | 微服务核心业务逻辑单元测试覆盖率提升与自动化测试守卫系统 | 测试覆盖 | P1 | new | catch-service、gym-service、pokemon-service、user-service、backend/tests/unit、backend/shared/testUtils、.github/workflows | 2026-06-29 14:00 UTC |
+|| REQ-00366 | 微服务核心业务逻辑单元测试覆盖率提升与自动化测试守卫系统 | 测试覆盖 | P1 | new | catch-service、gym-service、pokemon-service、user-service、backend/tests/unit、backend/shared/testUtils、.github/workflows | 2026-06-29 14:00 |
+|| REQ-00367 | API 请求限流智能优化与动态配额分配系统 | 成本/资源优化 | P1 | new | gateway、user-service、所有微服务、backend/shared、Redis、PostgreSQL | 2026-06-29 15:00 UTC |
