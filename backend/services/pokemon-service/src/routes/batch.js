@@ -6,11 +6,11 @@
 const express = require('express');
 const router = express.Router();
 const Joi = require('joi');
-const { getClient } = require('../../../shared/db');
-const { getRedis } = require('../../../shared/redis');
-const logger = require('../../../shared/logger');
+const { getClient } = require('../../../../shared/db');
+const { getRedis } = require('../../../../shared/redis');
+const logger = require('../../../../shared/logger');
 const auth = require('../middleware/auth');
-const { incrementCounter, observeHistogram } = require('../../../shared/metrics');
+const { incrementCounter, observeHistogram } = require('../../../../shared/metrics');
 
 // 验证模式
 const batchQuerySchema = Joi.object({

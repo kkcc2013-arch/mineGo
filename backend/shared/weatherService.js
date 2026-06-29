@@ -84,28 +84,28 @@ let weatherCacheMisses = null;
 function initMetrics() {
   try {
     weatherApiRequestsTotal = metrics.register.getSingleMetric('weather_api_requests_total') ||
-      new metrics.client.Counter({
+      new metrics.promClient.Counter({
         name: 'weather_api_requests_total',
         help: 'Total number of weather API requests',
         registers: [metrics.register]
       });
 
     weatherApiErrorsTotal = metrics.register.getSingleMetric('weather_api_errors_total') ||
-      new metrics.client.Counter({
+      new metrics.promClient.Counter({
         name: 'weather_api_errors_total',
         help: 'Total number of weather API errors',
         registers: [metrics.register]
       });
 
     weatherCacheHits = metrics.register.getSingleMetric('weather_cache_hits') ||
-      new metrics.client.Counter({
+      new metrics.promClient.Counter({
         name: 'weather_cache_hits',
         help: 'Total number of weather cache hits',
         registers: [metrics.register]
       });
 
     weatherCacheMisses = metrics.register.getSingleMetric('weather_cache_misses') ||
-      new metrics.client.Counter({
+      new metrics.promClient.Counter({
         name: 'weather_cache_misses',
         help: 'Total number of weather cache misses',
         registers: [metrics.register]
