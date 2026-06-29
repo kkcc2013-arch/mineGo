@@ -370,5 +370,5 @@
 || REQ-00352 | 游戏音效可视化与听障玩家视觉提示系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility、gateway、catch-service、gym-service | 2026-06-29 01:05 UTC |
 || REQ-00353 | 游戏内容翻译管理与翻译工作流自动化系统 | 国际化/本地化 | P1 | new | gateway、pokemon-service、backend/shared/i18n、admin-dashboard、backend/jobs、database/migrations | 2026-06-29 02:00 UTC |
 ||| REQ-00354 | 玩家行为漏斗分析与流失预警系统 | 运营/数据分析 | P1 | new | user-service、gateway、backend/shared、backend/jobs、admin-dashboard、database/migrations、Kafka、Redis | 2026-06-29 03:00 UTC |
-||| REQ-00355 | 精灵进化路径可视化系统 | 功能增强 | P1 | new | pokemon-service、gateway、game-client、database/migrations | 2026-06-29 04:00 UTC |
+||| REQ-00355 | 精灵进化路径可视化系统 | 功能增强 | P1 | done | pokemon-service、gateway、game-client、database/migrations | 2026-06-29 04:00 UTC | pokemon-service、gateway、game-client、database/migrations | 2026-06-29 04:00 UTC |
 || REQ-00356 | 游戏光敏性癫痫防护与运动敏感性设置系统 | 无障碍(a11y) | P0 | new | game-client、frontend/game-client/src/accessibility、gateway、user-service、backend/shared、database/migrations | 2026-06-29 06:05 UTC |

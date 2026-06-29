@@ -422,6 +422,7 @@ async function main() {
 
       // REQ-00119: 精灵进化与成长系统路由
       app.use('/pokemon', require('./routes/evolution'));
+  app.use('/pokemon', require('./routes/evolutionVisualization'));
 
       // REQ-00123: 精灵收藏展示系统路由
       app.use('/pokemon', require('./routes/showcase'));
