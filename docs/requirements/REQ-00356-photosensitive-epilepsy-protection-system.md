@@ -3,7 +3,7 @@
 - **编号**：REQ-00356
 - **类别**：无障碍(a11y)
 - **优先级**：P0
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：game-client、frontend/game-client/src/accessibility、gateway、user-service、backend/shared、database/migrations
 - **创建时间**：2026-06-29 06:05 UTC
 - **依赖需求**：REQ-00017（基础无障碍支持）、REQ-00352（音效可视化）

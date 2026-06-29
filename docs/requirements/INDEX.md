@@ -371,4 +371,5 @@
 || REQ-00353 | 游戏内容翻译管理与翻译工作流自动化系统 | 国际化/本地化 | P1 | new | gateway、pokemon-service、backend/shared/i18n、admin-dashboard、backend/jobs、database/migrations | 2026-06-29 02:00 UTC |
 ||| REQ-00354 | 玩家行为漏斗分析与流失预警系统 | 运营/数据分析 | P1 | new | user-service、gateway、backend/shared、backend/jobs、admin-dashboard、database/migrations、Kafka、Redis | 2026-06-29 03:00 UTC |
 ||| REQ-00355 | 精灵进化路径可视化系统 | 功能增强 | P1 | done | pokemon-service、gateway、game-client、database/migrations | 2026-06-29 04:00 UTC | pokemon-service、gateway、game-client、database/migrations | 2026-06-29 04:00 UTC |
-|| REQ-00356 | 游戏光敏性癫痫防护与运动敏感性设置系统 | 无障碍(a11y) | P0 | new | game-client、frontend/game-client/src/accessibility、gateway、user-service、backend/shared、database/migrations | 2026-06-29 06:05 UTC |
+||| REQ-00356 | 游戏光敏性癫痫防护与运动敏感性设置系统 | 无障碍(a11y) | P0 | done | game-client、frontend/game-client/src/accessibility、gateway、user-service、backend/shared、database/migrations | 2026-06-29 06:05 UTC |
+|| REQ-00357 | 精灵团队战斗AI策略助手系统 | 功能增强 | P1 | new | gym-service、pokemon-service、user-service、social-service、gateway、game-client、database/migrations | 2026-06-29 07:00 UTC || REQ-00358 | 实时服务健康聚合仪表板与异常预测系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/ServiceHealthAggregator.js、backend/shared/AnomalyPredictor.js、admin-dashboard、infrastructure/k8s/monitoring | 2026-06-29 07:12 UTC |
