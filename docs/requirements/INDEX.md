@@ -93,7 +93,7 @@
 | REQ-00083 | REQ-00083：区域化内容分发与地区专属活动管理系统 |  |  |  |  |  |
 | REQ-00084 | 数据库连接池监控与自适应扩缩容系统 | 成本/资源优化 | P1 | done | gateway、所有微服务、backend/shared、PostgreSQL、infrastructure/k8s | 2026-06-10 09:00 |
 | REQ-00085 | REQ-00085：配置中心与动态配置热更新系统 |  |  |  |  |  |
-| REQ-00086 | 精灵特性系统与隐藏能力激活机制 | 功能增强 | P1 | new | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 12:00 |
+| REQ-00086 | 精灵特性系统与隐藏能力激活机制 | 功能增强 | P1 | done | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 12:00 |
 | REQ-00087 | REQ-00087：混沌工程与故障注入测试系统 |  |  |  |  |  |
 | REQ-00087 | REQ-00087：混沌工程与故障注入测试系统 |  |  |  |  |  |
 | REQ-00088 | REQ-00088：Redis 连接池管理与健康监控系统 |  |  |  |  |  |
@@ -376,3 +376,6 @@
 || REQ-00358 | 实时服务健康聚合仪表板与异常预测系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/ServiceHealthAggregator.js、backend/shared/AnomalyPredictor.js、admin-dashboard、infrastructure/k8s/monitoring | 2026-06-29 07:12 UTC |
 || REQ-00359 | 精灵收藏室与个性化装饰系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-29 08:00 UTC |
 | REQ-00360 | 精灵捕捉动作障碍玩家辅助模式系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility、frontend/game-client/src/game/CatchEngine.js、gateway、user-service、backend/shared、database/migrations | 2026-06-29 08:00 UTC |
+| REQ-00361 | 精灵传承系统与属性遗产机制 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-29 09:15 UTC |
+| REQ-00361 | 精灵栖息地偏好与环境加成系统 | 功能增强 | P1 | new | location-service、pokemon-service、gym-service、catch-service、gateway、game-client、database/migrations | 2026-06-29 09:00 UTC |
+| REQ-00361 | 精灵栖息地偏好与环境加成系统 | 功能增强 | P1 | new | location-service、pokemon-service、gym-service、catch-service、gateway、game-client、database/migrations | 2026-06-29 09:00 UTC |
