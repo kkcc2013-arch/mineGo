@@ -462,6 +462,7 @@ async function main() {
 
       // REQ-00240: 精灵放生与资源回收系统
       app.use('/pokemon/release', require('./routes/release'));
+      app.use('/training', require('./routes/trainingCamp'));
 
       // ═══════════════════════════════════════════════════════════
       // REQ-00076: 成就系统
