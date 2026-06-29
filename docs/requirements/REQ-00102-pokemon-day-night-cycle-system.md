@@ -7,7 +7,7 @@
 | 标题 | 精灵昼夜循环系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | location-service、catch-service、pokemon-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-11 04:00 |
 
