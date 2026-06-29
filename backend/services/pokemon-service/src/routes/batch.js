@@ -10,7 +10,7 @@ const { getClient } = require('../../../../shared/db');
 const { getRedis } = require('../../../../shared/redis');
 const logger = require('../../../../shared/logger');
 const { requireAuth } = require('../../../../shared/auth');
-const { incrementCounter, observeHistogram } = require('../../../../shared/metrics');
+const { counter, histogram } = require('../../../../shared/metrics');
 
 // 验证模式
 const batchQuerySchema = Joi.object({
@@ -24,8 +24,8 @@ const batchQuerySchema = Joi.object({
 });
 
 // Prometheus 指标
-const batchQueryDuration = observeHistogram('pokemon_batch_query_duration_seconds', 'Batch query duration', [0.01, 0.05, 0.1, 0.2, 0.5, 1]);
-const batchQuerySize = incrementCounter('pokemon_batch_query_size_total', 'Batch query size');
+const batchQueryDuration = histogram('pokemon_batch_query_duration_seconds', 'Batch query duration', [], [0.01, 0.05, 0.1, 0.2, 0.5, 1]);
+const batchQuerySize = counter('pokemon_batch_query_size_total', 'Batch query size');
 
 /**
  * 批量查询精灵详情
@@ -48,7 +48,7 @@ router.post('/details', requireAuth, async (req, res) => {
         const userId = req.user.id;
 
         // 记录批量查询大小
-        batchQuerySize.observe(ids.length);
+        batchQuerySize.inc(ids.length);
 
         // 检查 Redis 缓存
         const cacheResults = await _batchGetFromCache(ids);
