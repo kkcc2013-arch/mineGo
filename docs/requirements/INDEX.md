@@ -85,7 +85,7 @@
 | REQ-00076 | 粁灵成就系统与里程碑奖励 | 功能增强 | P1 | done | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-27 05:00 UTC |
 | REQ-00077 | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | done | database/migrations、所有微服务、backend/shared、infrastructure/k8s | 2026-06-27 04:00 UTC |
 | REQ-00078 | REQ-00078：金丝雀发布与流量分割系统 |  |  |  |  |  |
-| REQ-00079 | 精灵好感度系统与亲密度进化机制 | 功能增强 | P1 | new | pokemon-service、user-service、catch-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 11:00 |
+| REQ-00079 | 精灵好感度系统与亲密度进化机制 | 功能增强 | P1 | done | pokemon-service、user-service、catch-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 11:00 |
 | REQ-00080 | REQ-00080 实现文档 |  |  |  |  |  |
 | REQ-00080 | REQ-00080：API 请求响应 Schema 验证系统 |  |  |  |  |  |
 | REQ-00081 | 捕捉动画特效系统 |  |  |  |  |  |
@@ -367,4 +367,5 @@
 || REQ-00349 | 错误处理模块重构与统一化 | 技术债/重构 | P2 | new | backend/shared/auth.js、backend/shared/errorHandler.js、所有微服务、gateway | 2026-06-27 05:00 UTC |
 || REQ-00350 | 精灵详情批量查询与数据聚合优化系统 | 性能优化 | P1 | new | pokemon-service、gateway、backend/shared、Redis、PostgreSQL | 2026-06-27 06:00 UTC |
 || REQ-00351 | 游戏数字格式本地化系统 | 国际化/本地化 | P1 | new | game-client、gateway、user-service、pokemon-service、payment-service、backend/shared | 2026-06-27 06:00 |
-| REQ-00352 | 游戏音效可视化与听障玩家视觉提示系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility、gateway、catch-service、gym-service | 2026-06-29 01:05 UTC ||
+| REQ-00352 | 游戏音效可视化与听障玩家视觉提示系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility、gateway、catch-service、gym-service | 2026-06-29 01:05 UTC |
+| REQ-00353 | 游戏内容翻译管理与翻译工作流自动化系统 | 国际化/本地化 | P1 | new | gateway、pokemon-service、backend/shared/i18n、admin-dashboard、backend/jobs、database/migrations | 2026-06-29 02:00 UTC |
