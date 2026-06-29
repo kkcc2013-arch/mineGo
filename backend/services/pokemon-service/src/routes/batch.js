@@ -9,7 +9,7 @@ const Joi = require('joi');
 const { getClient } = require('../../../../shared/db');
 const { getRedis } = require('../../../../shared/redis');
 const logger = require('../../../../shared/logger');
-const auth = require('../middleware/auth');
+const { requireAuth } = require('../../../../shared/auth');
 const { incrementCounter, observeHistogram } = require('../../../../shared/metrics');
 
 // 验证模式
@@ -31,7 +31,7 @@ const batchQuerySize = incrementCounter('pokemon_batch_query_size_total', 'Batch
  * 批量查询精灵详情
  * POST /pokemon/batch/details
  */
-router.post('/details', auth, async (req, res) => {
+router.post('/details', requireAuth, async (req, res) => {
     const startTime = Date.now();
 
     try {
