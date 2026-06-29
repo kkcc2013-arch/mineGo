@@ -1,0 +1,223 @@
+/* frontend/game-client/src/components/FormattedNumber.css */
+/* Styles for formatted number components */
+
+/* Base formatted number styling */
+[data-formatted-number] {
+  font-family: 'GameFont', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Currency specific styling */
+[data-formatted-number="currency"] {
+  color: #ffd700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+[data-formatted-number="currency"].gold {
+  color: #ffd700;
+  background: linear-gradient(135deg, #ffd700, #ffec80);
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+[data-formatted-number="currency"].gems {
+  color: #e066ff;
+  text-shadow: 0 0 10px rgba(224, 102, 255, 0.5);
+}
+
+[data-formatted-number="currency"].diamonds {
+  color: #00bfff;
+  text-shadow: 0 0 15px rgba(0, 191, 255, 0.5);
+}
+
+/* Power/Combat Power styling */
+[data-formatted-number="power"],
+[data-formatted-number="gameValue"].power {
+  color: #ff6b6b;
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(255, 107, 107, 0.3);
+}
+
+/* Level styling */
+[data-formatted-number="level"] {
+  color: #4ecdc4;
+  font-weight: 700;
+  font-size: 0.95em;
+}
+
+/* HP styling */
+[data-formatted-number="hp"] {
+  color: #2ecc71;
+  font-weight: 600;
+}
+
+/* Damage styling */
+[data-formatted-number="damage"] {
+  color: #e74c3c;
+  font-weight: 700;
+  text-shadow: 0 2px 4px rgba(231, 76, 60, 0.4);
+}
+
+/* Experience styling */
+[data-formatted-number="exp"],
+[data-formatted-number="gameValue"].exp {
+  color: #9b59b6;
+}
+
+/* Catch rate styling */
+[data-formatted-number="catchRate"] {
+  font-weight: 500;
+}
+
+[data-formatted-number="catchRate"].high {
+  color: #2ecc71;
+}
+
+[data-formatted-number="catchRate"].medium {
+  color: #f39c12;
+}
+
+[data-formatted-number="catchRate"].low {
+  color: #e74c3c;
+}
+
+/* Percentage styling */
+[data-formatted-number="percent"] {
+  font-weight: 500;
+}
+
+/* Compact number styling */
+[data-formatted-number="compact"] {
+  font-size: 0.95em;
+}
+
+[data-formatted-number="compact"].large {
+  color: #ff9f43;
+  font-weight: 600;
+}
+
+/* Distance styling */
+[data-formatted-number="distance"] {
+  color: #5dade2;
+  font-size: 0.9em;
+}
+
+[data-formatted-number="distance"].far {
+  color: #e74c3c;
+}
+
+[data-formatted-number="distance"].near {
+  color: #2ecc71;
+}
+
+/* Duration styling */
+[data-formatted-number="duration"] {
+  color: #7f8c8d;
+  font-size: 0.85em;
+}
+
+/* Countdown styling */
+[data-formatted-number="countdown"] {
+  font-family: 'DigitalFont', monospace;
+  font-size: 1.2em;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+[data-formatted-number="countdown"].urgent {
+  color: #e74c3c;
+  animation: countdown-pulse 1s ease-in-out infinite;
+}
+
+@keyframes countdown-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Large number emphasis */
+.formatted-number-large {
+  font-size: 1.1em;
+  font-weight: 700;
+}
+
+.formatted-number-small {
+  font-size: 0.85em;
+  opacity: 0.9;
+}
+
+/* Number animation transitions */
+[data-formatted-number].animating {
+  transition: all 0.3s ease;
+}
+
+/* Increment/Decrement animation */
+.formatted-number-increment {
+  animation: number-pop-in 0.4s ease;
+}
+
+.formatted-number-decrement {
+  animation: number-pop-out 0.4s ease;
+}
+
+@keyframes number-pop-in {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes number-pop-out {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* RTL support for Arabic/Hebrew locales */
+[data-formatted-number].rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+/* Mobile optimization */
+@media (max-width: 480px) {
+  [data-formatted-number] {
+    font-size: 0.9em;
+  }
+  
+  [data-formatted-number="countdown"] {
+    font-size: 1em;
+  }
+}
+
+/* High contrast mode for accessibility */
+@media (prefers-contrast: high) {
+  [data-formatted-number="currency"] {
+    color: #ffcc00;
+    text-shadow: none;
+  }
+  
+  [data-formatted-number="power"] {
+    color: #ff3333;
+    text-shadow: none;
+  }
+  
+  [data-formatted-number="hp"] {
+    color: #00cc00;
+    text-shadow: none;
+  }
+}
+
+/* Reduced motion mode */
+@media (prefers-reduced-motion: reduce) {
+  [data-formatted-number="countdown"].urgent {
+    animation: none;
+    color: #e74c3c;
+  }
+  
+  .formatted-number-increment,
+  .formatted-number-decrement {
+    animation: none;
+  }
+}
