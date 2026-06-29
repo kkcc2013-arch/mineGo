@@ -111,7 +111,7 @@
 | REQ-00099 | REQ-00099：游戏消息中心与通知管理系统 |  |  |  |  |  |
 | REQ-00100 | REQ-00100：自动化脚本与宏检测系统 |  |  |  |  |  |
 | REQ-00101 | REQ-00101：后端 API 错误消息国际化系统 |  |  |  |  |  |
-| REQ-00102 | 精灵昼夜循环系统 | 功能增强 | P1 | new | location-service、catch-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-11 04:00 |
+| REQ-00102 | 精灵昼夜循环系统 | 功能增强 | P1 | done | location-service、catch-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-29 15:05 UTC |
 | REQ-00103 | REQ-00103：微服务依赖图与循环依赖检测系统 |  |  |  |  |  |
 | REQ-00104 | 精灵交换市场与竞价拍卖系统 | 功能增强 | P1 | done | social-service、pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 04:30 |
 | REQ-00105 | REQ-00105：分布式锁服务与 Redis Redlock 实现 |  |  |  |  |  |
@@ -385,3 +385,4 @@
 || REQ-00365 | 精灵团队战斗AI策略助手系统 | 功能增强 | P1 | new | gym-service、pokemon-service、user-service、social-service、gateway、game-client、database/migrations | 2026-06-29 14:00 UTC |
 || REQ-00366 | 微服务核心业务逻辑单元测试覆盖率提升与自动化测试守卫系统 | 测试覆盖 | P1 | new | catch-service、gym-service、pokemon-service、user-service、backend/tests/unit、backend/shared/testUtils、.github/workflows | 2026-06-29 14:00 |
 || REQ-00367 | API 请求限流智能优化与动态配额分配系统 | 成本/资源优化 | P1 | new | gateway、user-service、所有微服务、backend/shared、Redis、PostgreSQL | 2026-06-29 15:00 UTC |
+| REQ-00368 | API 内容协商与媒体类型管理系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/middleware/contentNegotiation.js、docs/api-spec | 2026-06-29 15:00 UTC |

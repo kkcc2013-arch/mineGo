@@ -10,11 +10,17 @@ const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
 const { getWeather, getBoostedTypes, getTypeNameZh } = require('../../../shared/weatherService');
 
+// Import day/night service (REQ-00102)
+const { dayNightService, getCurrentTimePeriod, applyDayNightWeights, TIME_PERIODS } = require('./dayNightService');
+
 // Import spawn config routes (REQ-00142)
 const spawnConfigRouter = require('./routes/spawnConfig');
 
 // Import recovery stations routes (REQ-00156)
 const recoveryStationsRouter = require('./routes/recoveryStations');
+
+// Import day/night cycle routes (REQ-00102)
+const dayNightRouter = require('./routes/dayNight');
 
 const logger = createLogger('location-service');
 const SERVICE_NAME = 'location-service';
@@ -77,9 +83,14 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
   const existing = await getJSON(spawnKey);
   if (existing) return existing; // already active
 
-  // Pick species based on biome + rarity weights
+  // REQ-00102: Get current time period for day/night spawn bonuses
+  const timePeriodInfo = await getCurrentTimePeriod(0);
+  const currentPeriod = timePeriodInfo.period;
+  const periodBonus = timePeriodInfo.spawnBonusMultiplier;
+
+  // Pick species based on biome + rarity weights + day/night weights
   const { rows: species } = await query(`
-    SELECT id, rarity, type1 FROM pokemon_species
+    SELECT id, rarity, type1, time_preference, is_nocturnal, is_diurnal FROM pokemon_species
     WHERE ($1 = 'ANY' OR $1 = ANY(biomes) OR biomes IS NULL)
     ORDER BY random()
     LIMIT 50
@@ -87,12 +98,15 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
 
   if (!species.length) return null;
 
+  // REQ-00102: Apply day/night weights
+  const weightedSpecies = await applyDayNightWeights(species, currentPeriod, periodBonus);
+
   // Weighted random selection
   let totalWeight = 0;
-  const weighted = species.map(s => {
-    const w = RARITY_WEIGHTS[s.rarity] || 10;
+  const weighted = weightedSpecies.map(s => {
+    const w = s.finalWeight || RARITY_WEIGHTS[s.rarity] || 10;
     totalWeight += w;
-    return { ...s, weight: w };
+    return { ...s, weight: w, ivBonus: s.ivBonus || 0 };
   });
 
   let rand = Math.random() * totalWeight;
@@ -105,24 +119,30 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
   const weatherData = await getWeather(lat, lng);
   const weatherBoosted = (WEATHER_BONUS[weatherData.weather] || []).some(t => chosen.type1 === t);
 
-  // Generate IVs with special IV system (REQ-00160)
+  // Generate IVs with special IV system (REQ-00160) + REQ-00102 day/night bonus
   const specialRoll = Math.random();
   let iv_attack, iv_defense, iv_hp;
   let is_zero_iv = false;
   let is_perfect_iv = false;
+  const ivBonus = chosen.ivBonus || 0;
 
   if (specialRoll < 0.0001) { // 0.01% 零 IV
     iv_attack = iv_defense = iv_hp = 0;
     is_zero_iv = true;
-    logger.info({ spawnPointId, speciesId: chosen.id, type: 'zero_iv' }, 'Special IV spawned: Zero IV');
+    logger.info({ spawnPointId, speciesId: chosen.id, type: 'zero_iv', period: currentPeriod }, 'Special IV spawned: Zero IV');
   } else if (specialRoll < 0.001) { // 0.09% 完美 IV (0.001 - 0.0001)
     iv_attack = iv_defense = iv_hp = 15;
     is_perfect_iv = true;
-    logger.info({ spawnPointId, speciesId: chosen.id, type: 'perfect_iv' }, 'Special IV spawned: Perfect IV');
-  } else { // 普通生成
-    iv_attack  = Math.floor(Math.random() * 16);
-    iv_defense = Math.floor(Math.random() * 16);
-    iv_hp      = Math.floor(Math.random() * 16);
+    logger.info({ spawnPointId, speciesId: chosen.id, type: 'perfect_iv', period: currentPeriod }, 'Special IV spawned: Perfect IV');
+  } else { // 普通生成，应用昼夜IV加成
+    const ivBoost = Math.floor(ivBonus * 15); // 将百分比转换为IV点数
+    iv_attack  = Math.min(15, Math.floor(Math.random() * 16) + ivBoost);
+    iv_defense = Math.min(15, Math.floor(Math.random() * 16) + ivBoost);
+    iv_hp      = Math.min(15, Math.floor(Math.random() * 16) + ivBoost);
+    
+    if (ivBonus > 0) {
+      logger.debug({ spawnPointId, speciesId: chosen.id, ivBonus, period: currentPeriod }, 'Applied day/night IV bonus');
+    }
   }
 
   // Calculate CP (simplified formula)
@@ -460,6 +480,9 @@ app.use('/api/admin/spawn', spawnConfigRouter);
 
 // ── Recovery Stations Routes (REQ-00156: 精灵恢复站系统) ──────────────
 app.use('/recovery-stations', recoveryStationsRouter);
+
+// ── Day/Night Cycle Routes (REQ-00102: 精灵昼夜循环系统) ──────────────
+app.use('/daynight', dayNightRouter);
 
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'Location service started'));
