@@ -382,3 +382,4 @@
 | REQ-00361 | 精灵栖息地偏好与环境加成系统 | 功能增强 | P1 | new | location-service、pokemon-service、gym-service、catch-service、gateway、game-client、database/migrations | 2026-06-29 09:00 UTC |
 || REQ-00363 | API 请求签名验证与防重放攻击系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared、game-client | 2026-06-29 12:10 UTC |
 || REQ-00364 | 精灵技能连击系统与组合技效果 | 功能增强 | P1 | new | pokemon-service、gym-service、social-service、gateway、game-client、database/migrations | 2026-06-29 13:00 UTC |
+|| REQ-00365 | 精灵团队战斗AI策略助手系统 | 功能增强 | P1 | new | gym-service、pokemon-service、user-service、social-service、gateway、game-client、database/migrations | 2026-06-29 14:00 UTC |
