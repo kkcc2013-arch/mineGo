@@ -367,7 +367,7 @@
 || REQ-00349 | 错误处理模块重构与统一化 | 技术债/重构 | P2 | new | backend/shared/auth.js、backend/shared/errorHandler.js、所有微服务、gateway | 2026-06-27 05:00 UTC |
 || REQ-00350 | 精灵详情批量查询与数据聚合优化系统 | 性能优化 | P1 | new | pokemon-service、gateway、backend/shared、Redis、PostgreSQL | 2026-06-27 06:00 UTC |
 || REQ-00351 | 游戏数字格式本地化系统 | 国际化/本地化 | P1 | new | game-client、gateway、user-service、pokemon-service、payment-service、backend/shared | 2026-06-27 06:00 |
-|| REQ-00362 | 数据库连接池智能预测与预分配系统 | 性能优化 | P1 | new | backend/shared、所有微服务、PostgreSQL、infrastructure/k8s | 2026-06-29 12:15 UTC |
+|| REQ-00362 | 数据库连接池智能预测与预分配系统 | 性能优化 | P1 | done | backend/shared、所有微服务、PostgreSQL、infrastructure/k8s | 2026-06-29 12:15 UTC |
 || REQ-00352 | 游戏音效可视化与听障玩家视觉提示系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility、gateway、catch-service、gym-service | 2026-06-29 01:05 UTC |
 || REQ-00353 | 游戏内容翻译管理与翻译工作流自动化系统 | 国际化/本地化 | P1 | new | gateway、pokemon-service、backend/shared/i18n、admin-dashboard、backend/jobs、database/migrations | 2026-06-29 02:00 UTC |
 ||| REQ-00354 | 玩家行为漏斗分析与流失预警系统 | 运营/数据分析 | P1 | new | user-service、gateway、backend/shared、backend/jobs、admin-dashboard、database/migrations、Kafka、Redis | 2026-06-29 03:00 UTC |
@@ -384,5 +384,6 @@
 || REQ-00364 | 精灵技能连击系统与组合技效果 | 功能增强 | P1 | new | pokemon-service、gym-service、social-service、gateway、game-client、database/migrations | 2026-06-29 13:00 UTC |
 || REQ-00365 | 精灵团队战斗AI策略助手系统 | 功能增强 | P1 | new | gym-service、pokemon-service、user-service、social-service、gateway、game-client、database/migrations | 2026-06-29 14:00 UTC |
 || REQ-00366 | 微服务核心业务逻辑单元测试覆盖率提升与自动化测试守卫系统 | 测试覆盖 | P1 | new | catch-service、gym-service、pokemon-service、user-service、backend/tests/unit、backend/shared/testUtils、.github/workflows | 2026-06-29 14:00 |
-|| REQ-00367 | API 请求限流智能优化与动态配额分配系统 | 成本/资源优化 | P1 | new | gateway、user-service、所有微服务、backend/shared、Redis、PostgreSQL | 2026-06-29 15:00 UTC |
-| REQ-00368 | API 内容协商与媒体类型管理系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/middleware/contentNegotiation.js、docs/api-spec | 2026-06-29 15:00 UTC |
+|| REQ-00367 | API 请求限流智能优化与动态配额分配系统 | 成本/资源优化 | P1 | done | gateway、user-service、所有微服务、backend/shared、Redis、PostgreSQL | 2026-06-29 15:00 UTC |
+| REQ-00369 | 精灵捕捉连击奖励系统 | 功能增强 | P1 | new | catch-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-29 16:00 UTC |
+| REQ-00370 | 翻译缺失检测与智能回退机制系统 | 国际化/本地化 | P1 | new | gateway、backend/shared/i18n、admin-dashboard、backend/jobs、database/migrations | 2026-06-29 17:00 UTC |
