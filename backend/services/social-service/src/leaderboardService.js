@@ -1,51 +1,30 @@
 /**
- * 排行榜服务
- * 
- * REQ-00074: 玩家排行榜系统
- * 
- * 功能：
- * - 多维度排行榜管理
- * - 赛季机制
- * - 实时排名更新
- * - 奖励发放
+ * LeaderboardService - 玩家排行榜服务
+ * 支持多维度排名、实时更新、赛季机制
  */
 
 const { Pool } = require('pg');
-const LeaderboardCache = require('../../shared/leaderboardCache');
-const { getRedisClient } = require('../../shared/redis');
-const { publishEvent } = require('../../shared/EventBus');
-const { logger } = require('../../shared/logger');
-const { 
-  leaderboardUpdateTotal,
-  leaderboardQueryLatency,
-  leaderboardPlayersCount,
-  seasonEndTotal,
-  rankChangeNotifications
-} = require('./metrics');
+const LeaderboardCache = require('../../../shared/leaderboardCache');
+const { getRedisClient } = require('../../../shared/redis');
+const { publishEvent } = require('../../../shared/EventBus');
+const logger = require('../../../shared/logger');
 
-// 有效的排行榜类型
-const VALID_LEADERBOARD_TYPES = [
-  'catch_total',
-  'catch_rare',
-  'battle_pvp',
-  'battle_gym',
-  'pokedex_completion',
-  'shiny_collection',
-  'guild_contribution'
+const VALID_TYPES = [
+  'catch_total', 'catch_rare', 'battle_pvp', 'battle_gym',
+  'pokedex_completion', 'shiny_collection', 'guild_contribution'
 ];
 
 class LeaderboardService {
-  constructor(db = null, redisClient = null) {
-    this.db = db || new Pool({ connectionString: process.env.DATABASE_URL });
-    this.redis = redisClient || getRedisClient();
-    this.cache = new LeaderboardCache(this.redis);
+  constructor() {
+    this.db = new Pool({ connectionString: process.env.DATABASE_URL });
+    this.cache = new LeaderboardCache(getRedisClient());
   }
 
   /**
    * 验证排行榜类型
    */
   isValidType(type) {
-    return VALID_LEADERBOARD_TYPES.includes(type);
+    return VALID_TYPES.includes(type);
   }
 
   /**
@@ -66,7 +45,7 @@ class LeaderboardService {
   }
 
   /**
-   * 根据 ID 获取赛季
+   * 获取赛季信息
    */
   async getSeasonById(seasonId) {
     const result = await this.db.query(`
@@ -77,90 +56,97 @@ class LeaderboardService {
   }
 
   /**
-   * 更新玩家分数（捕捉触发）
+   * 处理捕捉事件
    */
-  async onCatchEvent(userId, rarity, pokemonId = null) {
+  async onCatchEvent(userId, rarity) {
     try {
       // 更新捕捉总数榜
       const totalSeason = await this.getCurrentSeason('catch_total');
       if (totalSeason) {
-        const totalResult = await this.cache.incrementScore(
-          'catch_total',
-          totalSeason.id,
-          userId,
+        const result = await this.cache.incrementScore(
+          'catch_total', 
+          totalSeason.id, 
+          userId, 
           1
         );
-
-        await this.syncToDatabase('catch_total', totalSeason.id, userId, totalResult.score);
-        await this.checkRankChange(userId, 'catch_total', totalResult.rank, totalSeason.id);
-        
-        leaderboardUpdateTotal.inc({ type: 'catch_total' });
+        await this.syncToDatabase('catch_total', totalSeason.id, userId, result.score);
+        await this.checkRankChange(userId, 'catch_total', result.rank);
       }
 
       // 更新稀有捕捉榜
-      if (rarity === 'rare' || rarity === 'legendary' || rarity === 'mythical') {
+      if (rarity === 'rare' || rarity === 'legendary' || rarity === 'mythic') {
         const rareSeason = await this.getCurrentSeason('catch_rare');
         if (rareSeason) {
-          const points = rarity === 'mythical' ? 50 : (rarity === 'legendary' ? 10 : 1);
-          const rareResult = await this.cache.incrementScore(
+          const points = this.getRarePoints(rarity);
+          const result = await this.cache.incrementScore(
             'catch_rare',
             rareSeason.id,
             userId,
             points
           );
-
-          await this.syncToDatabase('catch_rare', rareSeason.id, userId, rareResult.score);
-          await this.checkRankChange(userId, 'catch_rare', rareResult.rank, rareSeason.id);
-          
-          leaderboardUpdateTotal.inc({ type: 'catch_rare' });
+          await this.syncToDatabase('catch_rare', rareSeason.id, userId, result.score);
         }
       }
-
-      logger.info('LeaderboardService.onCatchEvent', { userId, rarity, pokemonId });
     } catch (error) {
-      logger.error('LeaderboardService.onCatchEvent error', { error: error.message, userId, rarity });
+      logger.error('[Leaderboard] Catch event error:', error);
     }
   }
 
   /**
-   * 更新战斗积分
+   * 处理战斗结果
    */
-  async onBattleResult(userId, isWin, points, battleType = 'pvp') {
+  async onBattleResult(userId, isWin, points) {
     try {
-      const leaderboardType = battleType === 'pvp' ? 'battle_pvp' : 'battle_gym';
-      const season = await this.getCurrentSeason(leaderboardType);
-      
+      const season = await this.getCurrentSeason('battle_pvp');
       if (!season) return;
 
-      const scoreChange = isWin ? points : -Math.floor(points * 0.3);
+      const delta = isWin ? points : -Math.floor(points * 0.3);
       const result = await this.cache.incrementScore(
-        leaderboardType,
+        'battle_pvp',
         season.id,
         userId,
-        scoreChange
+        delta
       );
 
-      await this.syncToDatabase(leaderboardType, season.id, userId, result.score);
-      await this.checkRankChange(userId, leaderboardType, result.rank, season.id);
-      
-      leaderboardUpdateTotal.inc({ type: leaderboardType });
-      
-      logger.info('LeaderboardService.onBattleResult', { userId, isWin, points, battleType });
+      await this.syncToDatabase('battle_pvp', season.id, userId, result.score);
+      await this.checkRankChange(userId, 'battle_pvp', result.rank);
     } catch (error) {
-      logger.error('LeaderboardService.onBattleResult error', { error: error.message, userId, battleType });
+      logger.error('[Leaderboard] Battle result error:', error);
     }
   }
 
   /**
-   * 更新图鉴完成度
+   * 处理道馆战斗
    */
-  async onPokedexUpdate(userId, completionRate, totalCaught) {
+  async onGymBattle(userId, isWin) {
+    try {
+      const season = await this.getCurrentSeason('battle_gym');
+      if (!season) return;
+
+      const points = isWin ? 10 : 1;
+      const result = await this.cache.incrementScore(
+        'battle_gym',
+        season.id,
+        userId,
+        points
+      );
+
+      await this.syncToDatabase('battle_gym', season.id, userId, result.score);
+    } catch (error) {
+      logger.error('[Leaderboard] Gym battle error:', error);
+    }
+  }
+
+  /**
+   * 处理图鉴更新
+   */
+  async onPokedexUpdate(userId, completionRate) {
     try {
       const season = await this.getCurrentSeason('pokedex_completion');
       if (!season) return;
 
-      const score = Math.floor(completionRate * 1000) + totalCaught;
-      const rank = await this.cache.updateScore(
+      const score = Math.floor(completionRate * 100);
+      await this.cache.updateScore(
         'pokedex_completion',
         season.id,
         userId,
@@ -168,16 +154,13 @@ class LeaderboardService {
       );
 
       await this.syncToDatabase('pokedex_completion', season.id, userId, score);
-      await this.checkRankChange(userId, 'pokedex_completion', rank, season.id);
-      
-      leaderboardUpdateTotal.inc({ type: 'pokedex_completion' });
     } catch (error) {
-      logger.error('LeaderboardService.onPokedexUpdate error', { error: error.message, userId });
+      logger.error('[Leaderboard] Pokedex update error:', error);
     }
   }
 
   /**
-   * 更新闪光收集
+   * 处理闪光捕捉
    */
   async onShinyCatch(userId) {
     try {
@@ -192,44 +175,21 @@ class LeaderboardService {
       );
 
       await this.syncToDatabase('shiny_collection', season.id, userId, result.score);
-      await this.checkRankChange(userId, 'shiny_collection', result.rank, season.id);
-      
-      leaderboardUpdateTotal.inc({ type: 'shiny_collection' });
     } catch (error) {
-      logger.error('LeaderboardService.onShinyCatch error', { error: error.message, userId });
+      logger.error('[Leaderboard] Shiny catch error:', error);
     }
   }
 
   /**
-   * 检查排名变化并通知
+   * 获取稀有度对应积分
    */
-  async checkRankChange(userId, leaderboardType, newRank, seasonId) {
-    if (!newRank) return;
-
-    const key = `rank_change:${leaderboardType}:${seasonId}:${userId}`;
-    const oldRank = await this.redis.get(key);
-    
-    if (oldRank && parseInt(oldRank) !== newRank) {
-      const change = parseInt(oldRank) - newRank;
-      
-      if (change > 0 && newRank <= 100) {
-        // 排名上升且进入前 100，发送通知
-        await publishEvent('leaderboard.rank_up', {
-          userId,
-          leaderboardType,
-          oldRank: parseInt(oldRank),
-          newRank,
-          change,
-          seasonId
-        });
-        
-        rankChangeNotifications.inc({ type: leaderboardType, direction: 'up' });
-      } else if (change < 0) {
-        rankChangeNotifications.inc({ type: leaderboardType, direction: 'down' });
-      }
-    }
-    
-    await this.redis.setex(key, 3600, newRank.toString());
+  getRarePoints(rarity) {
+    const points = {
+      rare: 1,
+      legendary: 10,
+      mythic: 50
+    };
+    return points[rarity] || 0;
   }
 
   /**
@@ -245,81 +205,75 @@ class LeaderboardService {
   }
 
   /**
-   * 获取排行榜
+   * 检查排名变化并通知
    */
-  async getLeaderboard(leaderboardType, options = {}) {
-    const end = leaderboardQueryLatency.startTimer({ type: leaderboardType });
+  async checkRankChange(userId, leaderboardType, newRank) {
+    if (!newRank || newRank > 100) return;
+
+    const key = `rank_change:${leaderboardType}:${userId}`;
+    const oldRankStr = await this.cache.redis.get(key);
     
-    try {
-      const {
-        limit = 100,
-        aroundPlayer = null,
-        seasonId = null
-      } = options;
-
-      const season = seasonId
-        ? await this.getSeasonById(seasonId)
-        : await this.getCurrentSeason(leaderboardType);
-
-      if (!season) {
-        throw new Error('No active season found');
-      }
-
-      let players;
-      if (aroundPlayer) {
-        players = await this.cache.getPlayersAround(
+    if (oldRankStr) {
+      const oldRank = parseInt(oldRankStr);
+      const change = oldRank - newRank;
+      
+      if (change > 0) {
+        // 排名上升
+        await publishEvent('leaderboard.rank_up', {
+          userId,
           leaderboardType,
-          season.id,
-          aroundPlayer,
-          5
-        );
-      } else {
-        players = await this.cache.getTopPlayers(
-          leaderboardType,
-          season.id,
-          limit
-        );
+          oldRank,
+          newRank,
+          change
+        });
+        
+        logger.info(`[Leaderboard] Player ${userId} rank up: ${oldRank} -> ${newRank}`);
       }
-
-      // 批量获取玩家信息
-      const playerIds = players.map(p => p.playerId);
-      const userInfo = await this.getUserInfoBatch(playerIds);
-
-      // 更新 Prometheus 指标
-      const totalPlayers = await this.cache.getTotalPlayers(leaderboardType, season.id);
-      leaderboardPlayersCount.set({ type: leaderboardType, season_id: season.id }, totalPlayers);
-
-      return {
-        season,
-        players: players.map(p => ({
-          ...p,
-          ...userInfo[p.playerId]
-        })),
-        totalPlayers
-      };
-    } finally {
-      end();
     }
+    
+    await this.cache.redis.setex(key, 3600, newRank.toString());
   }
 
   /**
-   * 获取玩家排名
+   * 获取排行榜
    */
-  async getPlayerRankInfo(leaderboardType, userId) {
-    const season = await this.getCurrentSeason(leaderboardType);
+  async getLeaderboard(leaderboardType, options = {}) {
+    const { limit = 100, aroundPlayer = null, seasonId = null } = options;
+
+    const season = seasonId 
+      ? await this.getSeasonById(seasonId)
+      : await this.getCurrentSeason(leaderboardType);
+
     if (!season) {
-      return { season: null, rank: null, score: 0 };
+      throw new Error('No active season found');
     }
 
-    const rankInfo = await this.cache.getPlayerRank(
-      leaderboardType,
-      season.id,
-      userId
-    );
+    let players;
+    if (aroundPlayer) {
+      players = await this.cache.getPlayersAround(
+        leaderboardType,
+        season.id,
+        aroundPlayer,
+        5
+      );
+    } else {
+      players = await this.cache.getTopPlayers(
+        leaderboardType,
+        season.id,
+        limit
+      );
+    }
+
+    // 批量获取玩家信息
+    const playerIds = players.map(p => p.playerId);
+    const userInfo = await this.getUserInfoBatch(playerIds);
 
     return {
       season,
-      ...rankInfo
+      players: players.map(p => ({
+        ...p,
+        ...userInfo[p.playerId]
+      }))
     };
   }
 
@@ -348,17 +302,24 @@ class LeaderboardService {
   }
 
   /**
-   * 获取赛季历史
+   * 获取玩家排名
    */
-  async getSeasonHistory(leaderboardType, limit = 10) {
-    const result = await this.db.query(`
-      SELECT * FROM seasons
-      WHERE leaderboard_type = $1
-      ORDER BY start_time DESC
-      LIMIT $2
-    `, [leaderboardType, limit]);
+  async getPlayerRankInfo(leaderboardType, userId) {
+    const season = await this.getCurrentSeason(leaderboardType);
+    if (!season) {
+      return { season: null, rank: null, score: 0 };
+    }
 
-    return result.rows;
+    const rankInfo = await this.cache.getPlayerRank(
+      leaderboardType,
+      season.id,
+      userId
+    );
+
+    return {
+      season,
+      ...rankInfo
+    };
   }
 
   /**
@@ -368,7 +329,7 @@ class LeaderboardService {
     const season = await this.getSeasonById(seasonId);
     if (!season) throw new Error('Season not found');
 
-    logger.info('LeaderboardService.settleSeason start', { seasonId, type: season.leaderboard_type });
+    logger.info(`[Leaderboard] Settling season ${seasonId} (${season.leaderboard_type})`);
 
     // 获取最终排名
     const topPlayers = await this.cache.getTopPlayers(
@@ -399,34 +360,33 @@ class LeaderboardService {
       topPlayers: topPlayers.slice(0, 100)
     });
 
-    seasonEndTotal.inc({ type: season.leaderboard_type });
+    logger.info(`[Leaderboard] Season ${seasonId} settled, ${topPlayers.length} players recorded`);
     
-    logger.info('LeaderboardService.settleSeason completed', { seasonId, playerCount: topPlayers.length });
+    return { success: true, topPlayers: topPlayers.length };
   }
 
   /**
    * 领取赛季奖励
    */
   async claimSeasonRewards(seasonId, userId) {
-    // 检查是否已领取
-    const historyResult = await this.db.query(`
-      SELECT * FROM leaderboard_history
-      WHERE season_id = $1 AND player_id = $2
+    const history = await this.db.query(`
+      SELECT lh.*, s.rewards 
+      FROM leaderboard_history lh
+      JOIN seasons s ON s.id = lh.season_id
+      WHERE lh.season_id = $1 AND lh.player_id = $2
     `, [seasonId, userId]);
 
-    if (historyResult.rows.length === 0) {
+    if (history.rows.length === 0) {
       throw new Error('No record found for this season');
     }
 
-    const record = historyResult.rows[0];
+    const record = history.rows[0];
     if (record.rewards_claimed) {
       throw new Error('Rewards already claimed');
     }
 
-    // 获取赛季奖励配置
-    const season = await this.getSeasonById(seasonId);
-    const rewards = season.rewards[record.final_rank - 1];
-
+    // 获取对应排名的奖励
+    const rewards = record.rewards[record.final_rank - 1];
     if (!rewards) {
       throw new Error('No rewards for this rank');
     }
@@ -450,59 +410,30 @@ class LeaderboardService {
   }
 
   /**
-   * 创建每日排名快照
+   * 初始化赛季数据（从数据库同步到 Redis）
    */
-  async createDailySnapshot() {
-    const types = VALID_LEADERBOARD_TYPES;
-    const today = new Date().toISOString().split('T')[0];
+  async initializeSeasonData(leaderboardType) {
+    const season = await this.getCurrentSeason(leaderboardType);
+    if (!season) return;
 
-    for (const type of types) {
-      try {
-        const season = await this.getCurrentSeason(type);
-        if (!season) continue;
+    const result = await this.db.query(`
+      SELECT player_id, score 
+      FROM leaderboards 
+      WHERE leaderboard_type = $1 AND season_id = $2
+      ORDER BY score DESC
+      LIMIT 1000
+    `, [leaderboardType, season.id]);
 
-        const topPlayers = await this.cache.getTopPlayers(type, season.id, 1000);
+    if (result.rows.length > 0) {
+      const players = result.rows.map(r => ({
+        playerId: r.player_id,
+        score: r.score
+      }));
 
-        for (const player of topPlayers) {
-          await this.db.query(`
-            INSERT INTO leaderboard_snapshots 
-              (leaderboard_type, season_id, player_id, rank, score, snapshot_date)
-            VALUES ($1, $2, $3, $4, $5, $6)
-            ON CONFLICT (leaderboard_type, season_id, player_id, snapshot_date) DO NOTHING
-          `, [type, season.id, player.playerId, player.rank, player.score, today]);
-        }
-
-        logger.info('LeaderboardService.createDailySnapshot', { type, date: today, count: topPlayers.length });
-      } catch (error) {
-        logger.error('LeaderboardService.createDailySnapshot error', { error: error.message, type });
-      }
-    }
-  }
-
-  /**
-   * 同步所有排行榜到数据库
-   */
-  async syncAllToDatabase() {
-    const types = VALID_LEADERBOARD_TYPES;
-
-    for (const type of types) {
-      try {
-        const season = await this.getCurrentSeason(type);
-        if (!season) continue;
-
-        const topPlayers = await this.cache.getTopPlayers(type, season.id, 1000);
-
-        for (const player of topPlayers) {
-          await this.syncToDatabase(type, season.id, player.playerId, player.score);
-        }
-
-        logger.info('LeaderboardService.syncAllToDatabase', { type, count: topPlayers.length });
-      } catch (error) {
-        logger.error('LeaderboardService.syncAllToDatabase error', { error: error.message, type });
-      }
+      await this.cache.syncFromDatabase(leaderboardType, season.id, players);
+      logger.info(`[Leaderboard] Initialized ${players.length} players for ${leaderboardType}`);
     }
   }
 }
 
 module.exports = LeaderboardService;
-module.exports.VALID_LEADERBOARD_TYPES = VALID_LEADERBOARD_TYPES;

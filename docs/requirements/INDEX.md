@@ -80,7 +80,7 @@
 | REQ-00071 | K8s Pod 资源自动扩缩容优化系统 | 成本/资源优化 | P1 | done | infrastructure/k8s、gateway、所有微服务、backend/shared | 2026-06-09 23:30 |
 | REQ-00072 | REQ-00072：API 响应 Gzip/Brotli 压缩优化 |  |  |  |  |  |
 | REQ-00073 | REQ-00073：玩家对战系统（PVP Duel） |  |  |  |  |  |
-| REQ-00074 | 玩家排行榜系统 | 功能增强 | P1 | new | social-service、user-service、pokemon-service、gym-service、gateway、game-client、Redis、database/migrations | 2026-06-10 10:00 |
+| REQ-00074 | 玩家排行榜系统 | 功能增强 | P1 | done | social-service、user-service、pokemon-service、gym-service、gateway、game-client、Redis、database/migrations | 2026-06-10 10:00 |
 | REQ-00075 | REQ-00075：IP 黑名单与恶意 IP 自动封禁系统 |  |  |  |  |  |
 | REQ-00076 | 粁灵成就系统与里程碑奖励 | 功能增强 | P1 | done | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-27 05:00 UTC |
 | REQ-00077 | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | done | database/migrations、所有微服务、backend/shared、infrastructure/k8s | 2026-06-27 04:00 UTC |
@@ -367,5 +367,4 @@
 || REQ-00349 | 错误处理模块重构与统一化 | 技术债/重构 | P2 | new | backend/shared/auth.js、backend/shared/errorHandler.js、所有微服务、gateway | 2026-06-27 05:00 UTC |
 || REQ-00350 | 精灵详情批量查询与数据聚合优化系统 | 性能优化 | P1 | new | pokemon-service、gateway、backend/shared、Redis、PostgreSQL | 2026-06-27 06:00 UTC |
 || REQ-00351 | 游戏数字格式本地化系统 | 国际化/本地化 | P1 | new | game-client、gateway、user-service、pokemon-service、payment-service、backend/shared | 2026-06-27 06:00 |
-|| REQ-00352 | 微服务集成测试框架与端到端场景验证系统 | 测试覆盖 | P1 | new | backend/tests/integration、所有微服务、backend/shared、database/migrations、backend/mocks | 2026-06-29 01:00 UTC |
-|
+| REQ-00352 | 游戏音效可视化与听障玩家视觉提示系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility、gateway、catch-service、gym-service | 2026-06-29 01:05 UTC ||

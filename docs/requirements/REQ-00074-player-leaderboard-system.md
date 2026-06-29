@@ -7,7 +7,7 @@
 | 标题 | 玩家排行榜系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | social-service、user-service、pokemon-service、gym-service、gateway、game-client、Redis、database/migrations |
 | 创建时间 | 2026-06-10 10:00 |
 

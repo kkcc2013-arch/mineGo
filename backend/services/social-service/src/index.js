@@ -8,12 +8,15 @@ const { query, transaction } = require('../../../shared/db');
 const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
+const EventBus = require('../../../shared/EventBus');
 const tradeRoutes = require('./routes/trade');
 const guildRoutes = require('./routes/guild');
-const leaderboardRouter = require('./routes/leaderboard'); // REQ-00121
+const leaderboardRouter = require('./routes/leaderboard'); // REQ-00121, REQ-00074
 const pvpRoutes = require('./routes/pvp'); // REQ-00128
 const friendsRouter = require('./routes/friends'); // REQ-00134
 const marketplaceRouter = require('./routes/marketplace'); // REQ-00104
+const { startLeaderboardJobs, initializeLeaderboards } = require('./jobs/leaderboardJobs'); // REQ-00074
+const { registerLeaderboardHandlers } = require('./handlers/leaderboardHandler'); // REQ-00074
 
 const logger = createLogger('social-service');
 const SERVICE_NAME = 'social-service';
@@ -235,5 +238,13 @@ const batchRouter = require('./routes/batch');
 app.use('/batch', batchRouter);
 
 app.use(errorHandler);
+
+// REQ-00074: 启动排行榜定时任务
+startLeaderboardJobs();
+initializeLeaderboards().catch(err => logger.error({ err }, 'Leaderboard init failed'));
+
+// REQ-00074: 注册排行榜事件监听器
+registerLeaderboardHandlers(EventBus);
+
 app.listen(PORT, () => logger.info({ port: PORT }, 'social-service started'));
 module.exports = app;

@@ -1,174 +1,164 @@
 /**
- * 排行榜样式
- * 
- * REQ-00074: 玩家排行榜系统
+ * 排行榜组件样式
  */
 
 .leaderboard-container {
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  min-height: 100vh;
+  color: white;
 }
 
 .leaderboard-header {
-  text-align: center;
   margin-bottom: 24px;
 }
 
 .leaderboard-header h2 {
-  color: white;
   font-size: 28px;
-  margin: 0 0 16px 0;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  font-weight: bold;
+  margin-bottom: 16px;
+  text-align: center;
 }
 
 .leaderboard-tabs {
   display: flex;
   gap: 8px;
-  justify-content: center;
-  flex-wrap: wrap;
+  overflow-x: auto;
+  padding-bottom: 8px;
 }
 
 .tab-btn {
-  padding: 10px 20px;
-  border: none;
-  background: rgba(255, 255, 255, 0.2);
+  flex: 1;
+  min-width: 80px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
   color: white;
-  border-radius: 20px;
-  cursor: pointer;
   font-size: 14px;
-  font-weight: 500;
+  cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .tab-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .tab-btn.active {
-  background: white;
-  color: #667eea;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.season-info {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.season-badge {
-  display: inline-flex;
-  gap: 16px;
-  padding: 12px 24px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 24px;
-  color: white;
-  font-size: 14px;
-}
-
-.season-name {
-  font-weight: 600;
-}
-
-.season-remaining {
-  opacity: 0.9;
-}
-
-.total-players {
-  opacity: 0.8;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+  font-weight: bold;
 }
 
 .my-rank-card {
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
   padding: 16px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+}
+
+.my-rank-card .no-rank {
+  text-align: center;
+  font-size: 16px;
+  opacity: 0.9;
 }
 
 .my-rank-info {
   display: flex;
   align-items: center;
-  justify-content: space-around;
-  gap: 16px;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.my-rank-info.highlight {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
 }
 
 .my-rank-info .label {
-  color: #666;
   font-size: 14px;
+  opacity: 0.8;
 }
 
 .my-rank-info .rank {
   font-size: 32px;
-  font-weight: 700;
-  color: #667eea;
+  font-weight: bold;
 }
 
 .my-rank-info .score {
   font-size: 18px;
-  color: #333;
-  font-weight: 600;
 }
 
-.no-rank {
-  text-align: center;
-  color: #999;
-  font-style: italic;
+.my-rank-info .badge {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
 }
 
 .leaderboard-content {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 16px;
   padding: 20px;
-  min-height: 400px;
 }
 
 .top-three {
   display: flex;
   justify-content: center;
-  gap: 20px;
+  align-items: flex-end;
+  gap: 16px;
   margin-bottom: 24px;
-  padding-bottom: 24px;
-  border-bottom: 2px solid #eee;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .top-player {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+  min-width: 100px;
+  transition: transform 0.3s ease;
 }
 
 .top-player:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-5px);
 }
 
 .top-player.first {
-  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
   order: 2;
-  transform: scale(1.1);
+  min-width: 120px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.1));
 }
 
 .top-player.second {
-  background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
   order: 1;
+  background: linear-gradient(135deg, rgba(192, 192, 192, 0.2), rgba(192, 192, 192, 0.1));
 }
 
 .top-player.third {
-  background: linear-gradient(135deg, #cd7f32 0%, #e8a862 100%);
   order: 3;
+  background: linear-gradient(135deg, rgba(205, 127, 50, 0.2), rgba(205, 127, 50, 0.1));
 }
 
 .top-player .medal {
-  font-size: 36px;
+  font-size: 40px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
   margin-bottom: 8px;
 }
 
@@ -176,172 +166,181 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  border: 3px solid white;
+  border: 3px solid rgba(255, 255, 255, 0.3);
   margin-bottom: 8px;
 }
 
 .top-player .username {
-  font-weight: 600;
-  color: #333;
-  font-size: 14px;
+  font-weight: bold;
   margin-bottom: 4px;
+  text-align: center;
 }
 
 .top-player .level {
-  color: #666;
   font-size: 12px;
-  margin-bottom: 8px;
+  opacity: 0.7;
+  margin-bottom: 4px;
 }
 
 .top-player .score {
-  font-weight: 700;
-  color: #333;
   font-size: 18px;
+  font-weight: bold;
+  color: #ffd700;
 }
 
 .rank-list {
-  overflow-x: auto;
-}
-
-.rank-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.rank-table th {
-  text-align: left;
-  padding: 12px;
-  color: #666;
-  font-weight: 600;
-  border-bottom: 2px solid #eee;
-}
-
-.rank-table td {
-  padding: 12px;
-  border-bottom: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .rank-row {
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
   transition: background 0.2s ease;
 }
 
 .rank-row:hover {
-  background: #f8f8f8;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .rank-row .rank {
-  font-weight: 700;
-  color: #667eea;
-  width: 60px;
+  width: 50px;
+  font-weight: bold;
+  font-size: 16px;
+  color: #ffd700;
 }
 
-.player-info {
+.rank-row .player-info {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
-.avatar-small {
+.rank-row .avatar-small {
   width: 32px;
   height: 32px;
   border-radius: 50%;
 }
 
-.rank-row .score {
-  font-weight: 600;
-  color: #333;
+.rank-row .username {
+  font-weight: 500;
 }
 
-.no-data {
+.rank-row .level {
+  width: 60px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.rank-row .score {
+  width: 80px;
+  text-align: right;
+  font-weight: bold;
+}
+
+.season-info {
+  margin-top: 20px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
   text-align: center;
-  color: #999;
-  padding: 40px;
-  font-style: italic;
+}
+
+.season-info .season-name {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.season-info .season-remaining {
+  font-size: 14px;
+  opacity: 0.8;
 }
 
 .loading-overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 16px;
+  z-index: 1000;
 }
 
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #667eea;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to { transform: rotate(360deg); }
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+  opacity: 0.6;
+  font-size: 16px;
 }
 
 .error {
   text-align: center;
-  color: #e74c3c;
-  padding: 40px;
-}
-
-.no-season {
-  text-align: center;
-  color: #999;
   padding: 20px;
-  font-style: italic;
+  color: #ff6b6b;
 }
 
 /* 响应式设计 */
 @media (max-width: 600px) {
   .leaderboard-container {
     padding: 12px;
-    border-radius: 8px;
   }
 
-  .leaderboard-tabs {
-    gap: 6px;
+  .leaderboard-header h2 {
+    font-size: 24px;
   }
 
   .tab-btn {
-    padding: 8px 14px;
+    padding: 8px 12px;
     font-size: 12px;
   }
 
   .top-three {
     flex-direction: column;
     align-items: center;
-    gap: 12px;
   }
 
-  .top-player.first {
-    transform: scale(1);
-    order: 1;
+  .top-player {
+    width: 100%;
+    max-width: 300px;
   }
 
-  .top-player.second {
-    order: 2;
-  }
-
+  .top-player.first,
+  .top-player.second,
   .top-player.third {
-    order: 3;
+    order: unset;
   }
 
-  .my-rank-info {
-    flex-direction: column;
-    gap: 8px;
+  .rank-row {
+    padding: 10px 12px;
   }
 
-  .season-badge {
-    flex-direction: column;
-    gap: 8px;
+  .rank-row .rank {
+    width: 40px;
+  }
+
+  .rank-row .level {
+    display: none;
   }
 }
