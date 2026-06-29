@@ -133,7 +133,64 @@ const ERROR_CODES = {
   GATEWAY_TIMEOUT: { code: 12001, httpStatus: 504, category: 'gateway' },
   SERVICE_CONNECTION_FAILED: { code: 12002, httpStatus: 503, category: 'gateway' },
   CIRCUIT_BREAKER_OPEN: { code: 12003, httpStatus: 503, category: 'gateway' },
-  RATE_LIMIT_EXCEEDED: { code: 12004, httpStatus: 429, category: 'gateway' }
+  RATE_LIMIT_EXCEEDED: { code: 12004, httpStatus: 429, category: 'gateway' },
+
+  // ── 奖励/成就扩展 (8xxx+) ──────────────────────────────────────
+  DAILY_QUEST_NOT_FOUND: { code: 8009, httpStatus: 404, category: 'reward' },
+  DAILY_QUEST_ALREADY_COMPLETED: { code: 8010, httpStatus: 409, category: 'reward' },
+  WEEKLY_QUEST_NOT_FOUND: { code: 8011, httpStatus: 404, category: 'reward' },
+  SPECIAL_QUEST_NOT_ELIGIBLE: { code: 8012, httpStatus: 403, category: 'reward' },
+  LEADERBOARD_NOT_FOUND: { code: 8013, httpStatus: 404, category: 'reward' },
+  LEADERBOARD_RANK_INVALID: { code: 8014, httpStatus: 400, category: 'reward' },
+  SEASON_NOT_ACTIVE: { code: 8015, httpStatus: 400, category: 'reward' },
+  SEASON_REWARD_EXPIRED: { code: 8016, httpStatus: 410, category: 'reward' },
+
+  // ── 社交服务扩展 (6xxx+) ─────────────────────────────────────────
+  GUILD_NOT_FOUND: { code: 6010, httpStatus: 404, category: 'social' },
+  GUILD_ALREADY_MEMBER: { code: 6011, httpStatus: 409, category: 'social' },
+  GUILD_NOT_MEMBER: { code: 6012, httpStatus: 403, category: 'social' },
+  GUILD_INVITE_EXPIRED: { code: 6013, httpStatus: 410, category: 'social' },
+  GUILD_LIMIT_REACHED: { code: 6014, httpStatus: 403, category: 'social' },
+  GUILD_NAME_INVALID: { code: 6015, httpStatus: 400, category: 'social' },
+  GUILD_DESCRIPTION_TOO_LONG: { code: 6016, httpStatus: 400, category: 'social' },
+  TRADE_DISTANCE_TOO_FAR: { code: 6017, httpStatus: 400, category: 'social' },
+  TRADE_POKEMON_NOT_ELIGIBLE: { code: 6018, httpStatus: 403, category: 'social' },
+  TRADE_PARTNER_OFFLINE: { code: 6019, httpStatus: 503, category: 'social' },
+
+  // ── 用户服务扩展 (2xxx+) ─────────────────────────────────────────
+  EMAIL_ALREADY_EXISTS: { code: 2013, httpStatus: 409, category: 'user' },
+  PHONE_ALREADY_EXISTS: { code: 2014, httpStatus: 409, category: 'user' },
+  NICKNAME_ALREADY_EXISTS: { code: 2015, httpStatus: 409, category: 'user' },
+  NICKNAME_TOO_SHORT: { code: 2016, httpStatus: 400, category: 'user' },
+  NICKNAME_TOO_LONG: { code: 2017, httpStatus: 400, category: 'user' },
+  NICKNAME_INVALID_CHARS: { code: 2018, httpStatus: 400, category: 'user' },
+  DEVICE_NOT_TRUSTED: { code: 2019, httpStatus: 403, category: 'user' },
+  DEVICE_LIMIT_EXCEEDED: { code: 2020, httpStatus: 403, category: 'user' },
+  LOGIN_LOCATION_SUSPICIOUS: { code: 2021, httpStatus: 403, category: 'user' },
+
+  // ── 精灵服务扩展 (3xxx+) ─────────────────────────────────────────
+  POKEMON_STORAGES_FULL: { code: 3011, httpStatus: 400, category: 'pokemon' },
+  POKEMON_CANNOT_EVOLVE: { code: 3012, httpStatus: 400, category: 'pokemon' },
+  POKEMON_EVOLUTION_ITEM_MISSING: { code: 3013, httpStatus: 400, category: 'pokemon' },
+  POKEMON_EVOLUTION_LEVEL_INSUFFICIENT: { code: 3014, httpStatus: 400, category: 'pokemon' },
+  POKEMON_EVOLUTION_FRIENDSHIP_INSUFFICIENT: { code: 3015, httpStatus: 400, category: 'pokemon' },
+  POKEMON_POWER_UP_LEVEL_MAX: { code: 3016, httpStatus: 400, category: 'pokemon' },
+  POKEMON_POWER_UP_CANDY_INSUFFICIENT: { code: 3017, httpStatus: 400, category: 'pokemon' },
+  POKEMON_MOVE_NOT_LEARNABLE: { code: 3018, httpStatus: 400, category: 'pokemon' },
+  POKEMON_MOVE_SLOT_FULL: { code: 3019, httpStatus: 400, category: 'pokemon' },
+
+  // ── 捕捉服务扩展 (4xxx+) ─────────────────────────────────────────
+  CATCH_PROBABILITY_TOO_LOW: { code: 4007, httpStatus: 200, category: 'catch' },
+  CATCH_ITEMS_EXHAUSTED: { code: 4008, httpStatus: 400, category: 'catch' },
+  CATCH_ENVIRONMENT_INVALID: { code: 4009, httpStatus: 400, category: 'catch' },
+
+  // ── 道馆服务扩展 (5xxx+) ─────────────────────────────────────────
+  RAID_LEVEL_INVALID: { code: 5010, httpStatus: 400, category: 'gym' },
+  RAID_TIME_EXPIRED: { code: 5011, httpStatus: 400, category: 'gym' },
+  RAID_PARTY_SIZE_INVALID: { code: 5012, httpStatus: 400, category: 'gym' },
+  RAID_REWARD_ALREADY_CLAIMED: { code: 5013, httpStatus: 409, category: 'gym' },
+  GYM_DEFENDER_CP_INVALID: { code: 5014, httpStatus: 400, category: 'gym' },
+  GYM_DEFENDER_LIMIT_EXCEEDED: { code: 5015, httpStatus: 403, category: 'gym' }
 };
 
 /**

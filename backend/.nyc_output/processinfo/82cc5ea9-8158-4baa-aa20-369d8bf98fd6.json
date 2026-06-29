@@ -1,0 +1,1 @@
+{"parent":null,"pid":3581038,"argv":["/usr/bin/node","/usr/bin/npm","run","test:unit"],"execArgv":[],"cwd":"/data/mineGo/backend","time":1782741901506,"ppid":3580991,"coverageFilename":"/data/mineGo/backend/.nyc_output/82cc5ea9-8158-4baa-aa20-369d8bf98fd6.json","externalId":"","uuid":"82cc5ea9-8158-4baa-aa20-369d8bf98fd6","files":[]}

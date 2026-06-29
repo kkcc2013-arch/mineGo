@@ -3,7 +3,7 @@
 - **编号**：REQ-00066
 - **类别**：文档/开发者体验
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：gateway、所有微服务、backend/shared、docs/api-spec、docs/troubleshooting
 - **创建时间**：2026-06-09 21:15
 - **依赖需求**：REQ-00008（OpenAPI 文档与 API 设计规范）

@@ -97,29 +97,51 @@ const Errors = {
   forbidden: (params, details) => new AppError('FORBIDDEN', params, details),
   notFound: (params, details) => new AppError('NOT_FOUND', params, details),
   rateLimited: (params, details) => new AppError('RATE_LIMITED', params, details),
+  internalError: (params, details) => new AppError('INTERNAL_ERROR', params, details),
+  serviceUnavailable: (params, details) => new AppError('SERVICE_UNAVAILABLE', params, details),
+  validationError: (params, details) => new AppError('VALIDATION_ERROR', params, details),
   
   // 用户错误
   userNotFound: (params, details) => new AppError('USER_NOT_FOUND', params, details),
   userAlreadyExists: (params, details) => new AppError('USER_ALREADY_EXISTS', params, details),
   invalidCredentials: (params, details) => new AppError('INVALID_CREDENTIALS', params, details),
   accountSuspended: (params, details) => new AppError('ACCOUNT_SUSPENDED', params, details),
+  emailAlreadyExists: (params, details) => new AppError('EMAIL_ALREADY_EXISTS', params, details),
+  nicknameAlreadyExists: (params, details) => new AppError('NICKNAME_ALREADY_EXISTS', params, details),
+  deviceNotTrusted: (params, details) => new AppError('DEVICE_NOT_TRUSTED', params, details),
   
   // 精灵错误
   pokemonNotFound: (params, details) => new AppError('POKEMON_NOT_FOUND', params, details),
   insufficientResources: (params, details) => new AppError('INSUFFICIENT_RESOURCES', params, details),
   bagFull: (params, details) => new AppError('BAG_FULL', params, details),
+  pokemonStorageFull: (params, details) => new AppError('POKEMON_STORAGES_FULL', params, details),
+  pokemonCannotEvolve: (params, details) => new AppError('POKEMON_CANNOT_EVOLVE', params, details),
+  pokemonPowerUpCandyInsufficient: (params, details) => new AppError('POKEMON_POWER_UP_CANDY_INSUFFICIENT', params, details),
   
   // 捕捉错误
   catchFailed: (params, details) => new AppError('CATCH_FAILED', params, details),
   catchCooldown: (params, details) => new AppError('CATCH_COOLDOWN', params, details),
+  noPokeballs: (params, details) => new AppError('NO_POKEBALLS', params, details),
+  pokemonTooFar: (params, details) => new AppError('POKEMON_TOO_FAR', params, details),
   
   // 道馆错误
   gymNotFound: (params, details) => new AppError('GYM_NOT_FOUND', params, details),
   gymBattleFailed: (params, details) => new AppError('GYM_BATTLE_FAILED', params, details),
+  raidNotFound: (params, details) => new AppError('RAID_NOT_FOUND', params, details),
+  raidNotActive: (params, details) => new AppError('RAID_NOT_ACTIVE', params, details),
+  
+  // 社交错误
+  friendAlreadyExists: (params, details) => new AppError('FRIEND_ALREADY_EXISTS', params, details),
+  guildNotFound: (params, details) => new AppError('GUILD_NOT_FOUND', params, details),
+  tradeNotAllowed: (params, details) => new AppError('TRADE_NOT_ALLOWED', params, details),
   
   // 支付错误
   paymentFailed: (params, details) => new AppError('PAYMENT_FAILED', params, details),
   insufficientBalance: (params, details) => new AppError('INSUFFICIENT_BALANCE', params, details),
+  
+  // 奖励错误
+  rewardNotFound: (params, details) => new AppError('REWARD_NOT_FOUND', params, details),
+  rewardAlreadyClaimed: (params, details) => new AppError('REWARD_ALREADY_CLAIMED', params, details),
   
   // 反作弊错误
   gpsSpoofingDetected: (params, details) => new AppError('GPS_SPOOFING_DETECTED', params, details),

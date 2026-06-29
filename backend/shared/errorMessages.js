@@ -489,6 +489,243 @@ const ERROR_MESSAGES = {
     'zh-CN': '请求频率超限',
     'en-US': 'Rate limit exceeded',
     'ja-JP': 'レート制限を超過しました'
+  },
+
+  // ── 奖励/成就扩展 (8xxx+) ──────────────────────────────────────
+  DAILY_QUEST_NOT_FOUND: {
+    'zh-CN': '每日任务不存在',
+    'en-US': 'Daily quest not found',
+    'ja-JP': 'デイリークエストが見つかりません'
+  },
+  DAILY_QUEST_ALREADY_COMPLETED: {
+    'zh-CN': '今日任务已完成',
+    'en-US': 'Daily quest already completed today',
+    'ja-JP': '今日のデイリークエストは完了しています'
+  },
+  WEEKLY_QUEST_NOT_FOUND: {
+    'zh-CN': '周任务不存在',
+    'en-US': 'Weekly quest not found',
+    'ja-JP': 'ウィークリークエストが見つかりません'
+  },
+  SPECIAL_QUEST_NOT_ELIGIBLE: {
+    'zh-CN': '不符合特殊任务条件',
+    'en-US': 'Not eligible for special quest',
+    'ja-JP': 'スペシャルクエストの条件を満たしていません'
+  },
+  LEADERBOARD_NOT_FOUND: {
+    'zh-CN': '排行榜不存在',
+    'en-US': 'Leaderboard not found',
+    'ja-JP': 'リーダーボードが見つかりません'
+  },
+  LEADERBOARD_RANK_INVALID: {
+    'zh-CN': '排行榜名次无效',
+    'en-US': 'Invalid leaderboard rank',
+    'ja-JP': 'リーダーボードのランクが無効です'
+  },
+  SEASON_NOT_ACTIVE: {
+    'zh-CN': '赛季未开启',
+    'en-US': 'Season not active',
+    'ja-JP': 'シーズンがアクティブではありません'
+  },
+  SEASON_REWARD_EXPIRED: {
+    'zh-CN': '赛季奖励已过期',
+    'en-US': 'Season reward expired',
+    'ja-JP': 'シーズン報酬が期限切れです'
+  },
+
+  // ── 社交服务扩展 (6xxx+) ─────────────────────────────────────────
+  GUILD_NOT_FOUND: {
+    'zh-CN': '公会不存在',
+    'en-US': 'Guild not found',
+    'ja-JP': 'ギルドが見つかりません'
+  },
+  GUILD_ALREADY_MEMBER: {
+    'zh-CN': '已是公会成员',
+    'en-US': 'Already a guild member',
+    'ja-JP': '既にギルドメンバーです'
+  },
+  GUILD_NOT_MEMBER: {
+    'zh-CN': '非公会成员',
+    'en-US': 'Not a guild member',
+    'ja-JP': 'ギルドメンバーではありません'
+  },
+  GUILD_INVITE_EXPIRED: {
+    'zh-CN': '公会邀请已过期',
+    'en-US': 'Guild invite expired',
+    'ja-JP': 'ギルド招待が期限切れです'
+  },
+  GUILD_LIMIT_REACHED: {
+    'zh-CN': '公会成员已达上限',
+    'en-US': 'Guild member limit reached',
+    'ja-JP': 'ギルドメンバーが上限に達しています'
+  },
+  GUILD_NAME_INVALID: {
+    'zh-CN': '公会名称无效',
+    'en-US': 'Invalid guild name',
+    'ja-JP': 'ギルド名が無効です'
+  },
+  GUILD_DESCRIPTION_TOO_LONG: {
+    'zh-CN': '公会描述过长',
+    'en-US': 'Guild description too long',
+    'ja-JP': 'ギルドの説明が長すぎます'
+  },
+  TRADE_DISTANCE_TOO_FAR: {
+    'zh-CN': '交易距离过远，请靠近好友',
+    'en-US': 'Trade distance too far, please get closer to friend',
+    'ja-JP': '交換距離が遠すぎます。友人に近づいてください'
+  },
+  TRADE_POKEMON_NOT_ELIGIBLE: {
+    'zh-CN': '精灵不符合交易条件',
+    'en-US': 'Pokemon not eligible for trade',
+    'ja-JP': 'ポケモンは交換できません'
+  },
+  TRADE_PARTNER_OFFLINE: {
+    'zh-CN': '交易对方已离线',
+    'en-US': 'Trade partner is offline',
+    'ja-JP': '交換相手がオフラインです'
+  },
+
+  // ── 用户服务扩展 (2xxx+) ─────────────────────────────────────────
+  EMAIL_ALREADY_EXISTS: {
+    'zh-CN': '邮箱已被使用',
+    'en-US': 'Email already exists',
+    'ja-JP': 'メールアドレスは既に使用されています'
+  },
+  PHONE_ALREADY_EXISTS: {
+    'zh-CN': '手机号已被使用',
+    'en-US': 'Phone number already exists',
+    'ja-JP': '電話番号は既に使用されています'
+  },
+  NICKNAME_ALREADY_EXISTS: {
+    'zh-CN': '昵称已被使用',
+    'en-US': 'Nickname already exists',
+    'ja-JP': 'ニックネームは既に使用されています'
+  },
+  NICKNAME_TOO_SHORT: {
+    'zh-CN': '昵称太短，至少需要 {min} 个字符',
+    'en-US': 'Nickname too short, minimum {min} characters required',
+    'ja-JP': 'ニックネームが短すぎます。最低{min}文字必要です'
+  },
+  NICKNAME_TOO_LONG: {
+    'zh-CN': '昵称太长，最多 {max} 个字符',
+    'en-US': 'Nickname too long, maximum {max} characters allowed',
+    'ja-JP': 'ニックネームが長すぎます。最大{max}文字までです'
+  },
+  NICKNAME_INVALID_CHARS: {
+    'zh-CN': '昵称包含非法字符',
+    'en-US': 'Nickname contains invalid characters',
+    'ja-JP': 'ニックネームに無効な文字が含まれています'
+  },
+  DEVICE_NOT_TRUSTED: {
+    'zh-CN': '设备未受信任',
+    'en-US': 'Device not trusted',
+    'ja-JP': 'デバイスが信頼されていません'
+  },
+  DEVICE_LIMIT_EXCEEDED: {
+    'zh-CN': '设备数量已达上限',
+    'en-US': 'Device limit exceeded',
+    'ja-JP': 'デバイス数が上限に達しています'
+  },
+  LOGIN_LOCATION_SUSPICIOUS: {
+    'zh-CN': '登录位置可疑，请验证身份',
+    'en-US': 'Suspicious login location, please verify identity',
+    'ja-JP': '不審なログイン場所です。本人確認を行ってください'
+  },
+
+  // ── 精灵服务扩展 (3xxx+) ─────────────────────────────────────────
+  POKEMON_STORAGES_FULL: {
+    'zh-CN': '精灵仓库已满',
+    'en-US': 'Pokemon storage full',
+    'ja-JP': 'ポケモンボックスがいっぱいです'
+  },
+  POKEMON_CANNOT_EVOLVE: {
+    'zh-CN': '精灵无法进化',
+    'en-US': 'Pokemon cannot evolve',
+    'ja-JP': 'このポケモンは進化できません'
+  },
+  POKEMON_EVOLUTION_ITEM_MISSING: {
+    'zh-CN': '缺少进化道具：{item}',
+    'en-US': 'Missing evolution item: {item}',
+    'ja-JP': '進化アイテムが不足しています：{item}'
+  },
+  POKEMON_EVOLUTION_LEVEL_INSUFFICIENT: {
+    'zh-CN': '精灵等级不足，需要 {level} 级',
+    'en-US': 'Pokemon level insufficient, requires level {level}',
+    'ja-JP': 'ポケモンのレベルが不足しています。レベル{level}が必要です'
+  },
+  POKEMON_EVOLUTION_FRIENDSHIP_INSUFFICIENT: {
+    'zh-CN': '精灵友好度不足',
+    'en-US': 'Pokemon friendship insufficient',
+    'ja-JP': 'ポケモンのなつき度が不足しています'
+  },
+  POKEMON_POWER_UP_LEVEL_MAX: {
+    'zh-CN': '精灵已达到最高等级',
+    'en-US': 'Pokemon reached maximum level',
+    'ja-JP': 'ポケモンは最高レベルに達しています'
+  },
+  POKEMON_POWER_UP_CANDY_INSUFFICIENT: {
+    'zh-CN': '糖果不足，需要 {required} 颗',
+    'en-US': 'Insufficient candy, requires {required}',
+    'ja-JP': 'アメが不足しています。{required}個必要です'
+  },
+  POKEMON_MOVE_NOT_LEARNABLE: {
+    'zh-CN': '精灵无法学习该技能',
+    'en-US': 'Pokemon cannot learn this move',
+    'ja-JP': 'このポケモンはその技を覚えられません'
+  },
+  POKEMON_MOVE_SLOT_FULL: {
+    'zh-CN': '技能槽已满',
+    'en-US': 'Move slot full',
+    'ja-JP': '技スロットがいっぱいです'
+  },
+
+  // ── 捕捉服务扩展 (4xxx+) ─────────────────────────────────────────
+  CATCH_PROBABILITY_TOO_LOW: {
+    'zh-CN': '捕捉概率过低',
+    'en-US': 'Catch probability too low',
+    'ja-JP': '捕獲確率が低すぎます'
+  },
+  CATCH_ITEMS_EXHAUSTED: {
+    'zh-CN': '捕捉道具已耗尽',
+    'en-US': 'Catch items exhausted',
+    'ja-JP': '捕獲アイテムが尽きました'
+  },
+  CATCH_ENVIRONMENT_INVALID: {
+    'zh-CN': '捕捉环境无效',
+    'en-US': 'Invalid catch environment',
+    'ja-JP': '無効な捕獲環境です'
+  },
+
+  // ── 道馆服务扩展 (5xxx+) ─────────────────────────────────────────
+  RAID_LEVEL_INVALID: {
+    'zh-CN': '团战等级无效',
+    'en-US': 'Invalid raid level',
+    'ja-JP': '無効なレイドレベルです'
+  },
+  RAID_TIME_EXPIRED: {
+    'zh-CN': '团战时间已结束',
+    'en-US': 'Raid time expired',
+    'ja-JP': 'レイド時間が終了しました'
+  },
+  RAID_PARTY_SIZE_INVALID: {
+    'zh-CN': '队伍人数无效',
+    'en-US': 'Invalid party size',
+    'ja-JP': '無効なパーティ人数です'
+  },
+  RAID_REWARD_ALREADY_CLAIMED: {
+    'zh-CN': '团战奖励已领取',
+    'en-US': 'Raid reward already claimed',
+    'ja-JP': 'レイド報酬は既に受け取っています'
+  },
+  GYM_DEFENDER_CP_INVALID: {
+    'zh-CN': '防守精灵CP无效',
+    'en-US': 'Invalid defender CP',
+    'ja-JP': '無効な防衛ポケモンCPです'
+  },
+  GYM_DEFENDER_LIMIT_EXCEEDED: {
+    'zh-CN': '防守精灵数量超限',
+    'en-US': 'Gym defender limit exceeded',
+    'ja-JP': 'ジム防衛ポケモン数が上限を超えています'
   }
 };
 
