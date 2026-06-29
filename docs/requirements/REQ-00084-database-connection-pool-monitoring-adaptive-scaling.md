@@ -7,7 +7,7 @@
 | 标题 | 数据库连接池监控与自适应扩缩容系统 |
 | 类别 | 成本/资源优化 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | gateway、所有微服务、backend/shared、PostgreSQL、infrastructure/k8s |
 | 创建时间 | 2026-06-10 09:00 |
 

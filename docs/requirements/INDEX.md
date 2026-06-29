@@ -91,7 +91,7 @@
 | REQ-00081 | 捕捉动画特效系统 |  |  |  |  |  |
 | REQ-00082 | REQ-00082：精灵捕捉成功率异常检测系统 |  |  |  |  |  |
 | REQ-00083 | REQ-00083：区域化内容分发与地区专属活动管理系统 |  |  |  |  |  |
-| REQ-00084 | 数据库连接池监控与自适应扩缩容系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared、PostgreSQL、infrastructure/k8s | 2026-06-10 09:00 |
+| REQ-00084 | 数据库连接池监控与自适应扩缩容系统 | 成本/资源优化 | P1 | done | gateway、所有微服务、backend/shared、PostgreSQL、infrastructure/k8s | 2026-06-10 09:00 |
 | REQ-00085 | REQ-00085：配置中心与动态配置热更新系统 |  |  |  |  |  |
 | REQ-00086 | 精灵特性系统与隐藏能力激活机制 | 功能增强 | P1 | new | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 12:00 |
 | REQ-00087 | REQ-00087：混沌工程与故障注入测试系统 |  |  |  |  |  |
