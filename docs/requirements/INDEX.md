@@ -390,4 +390,6 @@
 || REQ-00369 | 精灵捕捉连击奖励系统 | 功能增强 | P1 | new | catch-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-29 16:00 UTC |
 || REQ-00370 | 精灵训练营系统 | 功能增强 | P1 | done | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-29 19:30 UTC |
 | REQ-00371 | 实时日志异常检测与预警系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-29 19:00 UTC |
-| REQ-00372 | 数据库索引智能分析与自动优化系统 | 数据库/数据治理 | P1 | new | postgresql、backend/shared、所有微服务、database/migrations、admin-dashboard、backend/jobs | 2026-06-29 20:00 UTC || REQ-00373 | SLO 错误预算燃尽率预警与自动熔断系统 | 容灾/高可用 | P0 | new | gateway、所有微服务、backend/shared/SloManager.js、backend/shared/SloBudgetTracker.js、backend/shared/middleware/sloMiddleware.js、infrastructure/k8s/monitoring、Prometheus、Grafana | 2026-06-29 21:00 UTC |
+|| REQ-00372 | 数据库索引智能分析与自动优化系统 | 数据库/数据治理 | P1 | new | postgresql、backend/shared、所有微服务、database/migrations、admin-dashboard、backend/jobs | 2026-06-29 20:00 UTC |
+|| REQ-00373 | SLO 错误预算燃尽率预警与自动熔断系统 | 容灾/高可用 | P0 | new | gateway、所有微服务、backend/shared/SloManager.js、backend/shared/SloBudgetTracker.js、backend/shared/middleware/sloMiddleware.js、infrastructure/k8s/monitoring、Prometheus、Grafana | 2026-06-29 21:00 UTC |
+|| REQ-00374 | 云成本异常检测与预算预警系统 | 成本/资源优化 | P1 | new | gateway、monitoring、backend/shared/cost、Prometheus、Grafana、Slack、Email、infrastructure/k8s、admin-dashboard | 2026-06-29 22:00 UTC |
