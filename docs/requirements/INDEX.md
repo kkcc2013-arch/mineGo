@@ -409,3 +409,6 @@
 || REQ-00388 | 玩家好友互动增强系统 | 功能增强 | P1 | new | social-service、user-service、pokemon-service、reward-service、gateway、game-client、database/migrations | 2026-06-30 13:00 UTC |
 || REQ-00389 | API 请求速率限制绕过检测与防护系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared/RateLimitBypassDetector.js、backend/shared/RateLimitEnforcer.js、Redis、PostgreSQL、admin-dashboard | 2026-06-30 16:00 UTC |
 || REQ-00390 | 精灵合并进化系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-30 17:00 UTC |
+|| REQ-00391 | 控制台日志替换与结构化日志强制执行 | 技术债/重构 | P1 | new | 所有微服务、backend/shared、.eslintrc、scripts | 2026-06-30 18:00 UTC |
+|| REQ-00392 | 微服务通信协议适配层与多协议统一网关系统 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared/ProtocolAdapter.js、backend/shared/ProtocolRouter.js、backend/shared/adapters/ | 2026-06-30 18:00 UTC |
+|| REQ-00393 | 动态语言切换无需重新登录系统 | 国际化/本地化 | P1 | new | gateway、user-service、game-client、shared/i18n | 2026-06-30 19:00 UTC |

@@ -3,7 +3,7 @@
 - **编号**：REQ-00392
 - **类别**：可扩展性/解耦
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：gateway、所有微服务、backend/shared/ProtocolAdapter.js、backend/shared/ProtocolRouter.js、backend/shared/adapters/
 - **创建时间**：2026-06-30 18:00 UTC
 - **依赖需求**：REQ-00300（动态服务注册发现）、REQ-00319（依赖注入容器）
