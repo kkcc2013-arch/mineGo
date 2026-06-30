@@ -430,6 +430,9 @@ async function main() {
       // REQ-00076: 精灵成就系统与里程碑奖励路由
       app.use('/achievements', require('./routes/achievements'));
 
+      // REQ-00150: 背包容量扩展与购买系统路由
+      app.use('/inventory', require('./routes/bagUpgrade'));
+
       // REQ-00138: 精灵道具与背包管理系统路由
       app.use('/inventory', require('./routes/inventory'));
 

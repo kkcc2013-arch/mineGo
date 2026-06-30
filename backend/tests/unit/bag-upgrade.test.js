@@ -1,324 +1,428 @@
 // backend/tests/unit/bag-upgrade.test.js
 // REQ-00150: 背包容量扩展与购买系统 - 单元测试
-
 'use strict';
 
-const { expect } = require('chai');
-const sinon = require('sinon');
-const { InventoryService } = require('../../services/pokemon-service/src/inventoryService');
+const { describe, it, beforeEach, afterEach, expect, mock } = require('../../../shared/test-utils');
+const { BagUpgradeService } = require('../../services/pokemon-service/src/bagUpgradeService');
 
-describe('REQ-00150: 背包容量扩展与购买系统', () => {
-  let inventoryService;
-  let mockDb;
-  let mockRedis;
-  let mockEventBus;
+// Mock dependencies
+const mockDb = {
+  query: mock.fn(),
+  transaction: mock.fn()
+};
 
+const mockRedis = {
+  get: mock.fn(),
+  set: mock.fn(),
+  del: mock.fn()
+};
+
+const mockLogger = {
+  info: mock.fn(),
+  error: mock.fn(),
+  warn: mock.fn()
+};
+
+describe('BagUpgradeService', () => {
+  let service;
+  
   beforeEach(() => {
-    // Mock 数据库
-    mockDb = {
-      connect: sinon.stub(),
-      query: sinon.stub()
-    };
-
-    // Mock Redis
-    mockRedis = {
-      get: sinon.stub().resolves(null),
-      setex: sinon.stub().resolves('OK'),
-      del: sinon.stub().resolves(1)
-    };
-
-    // Mock EventBus
-    mockEventBus = {
-      publish: sinon.stub().resolves()
-    };
-
-    inventoryService = new InventoryService({
-      db: mockDb,
-      redis: mockRedis,
-      eventBus: mockEventBus
-    });
-
-    // Mock logger
-    inventoryService.logger = {
-      info: sinon.stub(),
-      error: sinon.stub(),
-      warn: sinon.stub()
-    };
+    service = new BagUpgradeService(mockLogger);
+    // Reset mocks
+    mockDb.query.mockReset();
+    mockDb.transaction.mockReset();
+    mockRedis.get.mockReset();
+    mockRedis.set.mockReset();
+    mockRedis.del.mockReset();
+    mockLogger.info.mockReset();
   });
-
-  afterEach(() => {
-    sinon.restore();
-  });
-
+  
   describe('getUpgradeConfigs', () => {
-    it('应该返回扩容配置列表', async () => {
-      const mockConfigs = [
-        {
-          upgrade_id: 'base_50',
-          category: 'base',
-          increment: 50,
-          gold_cost: 10000,
-          gem_cost: 100,
-          required_level: 5,
-          max_upgrades: 20,
-          is_active: true
-        }
-      ];
-
-      mockDb.query.onFirstCall().resolves({ rows: mockConfigs });
-      mockDb.query.onSecondCall().resolves({ rows: [] });
-
-      const result = await inventoryService.getUpgradeConfigs(1);
-
-      expect(result).to.be.an('array');
-      expect(result[0]).to.include({
-        upgrade_id: 'base_50',
-        category: 'base',
-        increment: 50,
-        purchased: 0,
-        available: true
+    it('should return configs with purchase counts', async () => {
+      // Mock database responses
+      mockDb.query.mockResolvedValueOnce({
+        rows: [
+          { upgrade_id: 'base_50', category: 'base', increment: 50, gold_cost: 10000, gem_cost: 100, required_level: 5, max_upgrades: 20 },
+          { upgrade_id: 'pokeball_20', category: 'pokeball', increment: 20, gold_cost: 5000, gem_cost: 50, required_level: 1, max_upgrades: 15 }
+        ]
       });
-    });
-
-    it('应该正确计算已购买次数', async () => {
-      const mockConfigs = [
-        {
-          upgrade_id: 'base_50',
-          category: 'base',
-          increment: 50,
-          gold_cost: 10000,
-          gem_cost: 100,
-          required_level: 5,
-          max_upgrades: 2,
-          is_active: true
-        }
-      ];
-
-      mockDb.query.onFirstCall().resolves({ rows: mockConfigs });
-      mockDb.query.onSecondCall().resolves({ 
-        rows: [{ upgrade_id: 'base_50', purchase_count: '2' }] 
-      });
-
-      const result = await inventoryService.getUpgradeConfigs(1);
-
-      expect(result[0].purchased).to.equal(2);
-      expect(result[0].available).to.be.false;
-    });
-
-    it('应该从缓存返回配置', async () => {
-      const cachedConfigs = [{ upgrade_id: 'base_50', purchased: 1 }];
-      mockRedis.get.resolves(JSON.stringify(cachedConfigs));
-
-      const result = await inventoryService.getUpgradeConfigs(1);
-
-      expect(result).to.deep.equal(cachedConfigs);
-      expect(mockDb.query.called).to.be.false;
-    });
-  });
-
-  describe('purchaseBagUpgrade', () => {
-    it('应该成功购买背包扩容（金币）', async () => {
-      const mockClient = {
-        query: sinon.stub(),
-        release: sinon.stub()
-      };
-
-      mockDb.connect.resolves(mockClient);
-
-      // Mock 配置查询
-      mockClient.query.onFirstCall().resolves({
-        rows: [{
-          upgrade_id: 'base_50',
-          category: 'base',
-          increment: 50,
-          gold_cost: 10000,
-          gem_cost: 100,
-          max_upgrades: 20
-        }]
-      });
-
-      // Mock 购买次数查询
-      mockClient.query.onSecondCall().resolves({ rows: [{ count: '0' }] });
-
-      // Mock 扣款
-      mockClient.query.onThirdCall().resolves({
-        rows: [{ gold: 40000 }]
-      });
-
-      // Mock 插入购买记录
-      mockClient.query.onCall(3).resolves({ rowCount: 1 });
-
-      // Mock 更新容量
-      mockClient.query.onCall(4).resolves({ rowCount: 1 });
-
-      // Mock commit
-      mockClient.query.onCall(5).resolves();
-
-      const result = await inventoryService.purchaseBagUpgrade(1, 'base_50', 'gold');
-
-      expect(result.success).to.be.true;
-      expect(result.category).to.equal('base');
-      expect(result.increment).to.equal(50);
-      expect(result.cost).to.equal(10000);
-      expect(result.method).to.equal('gold');
-      expect(result.newBalance).to.equal(40000);
-    });
-
-    it('应该在配置不存在时抛出错误', async () => {
-      const mockClient = {
-        query: sinon.stub().resolves({ rows: [] }),
-        release: sinon.stub()
-      };
-
-      mockDb.connect.resolves(mockClient);
-
-      try {
-        await inventoryService.purchaseBagUpgrade(1, 'invalid_id', 'gold');
-        expect.fail('应该抛出错误');
-      } catch (error) {
-        expect(error.message).to.equal('Upgrade config not found');
-      }
-    });
-
-    it('应该在达到最大购买次数时抛出错误', async () => {
-      const mockClient = {
-        query: sinon.stub(),
-        release: sinon.stub()
-      };
-
-      mockDb.connect.resolves(mockClient);
-
-      mockClient.query.onFirstCall().resolves({
-        rows: [{
-          upgrade_id: 'base_50',
-          category: 'base',
-          increment: 50,
-          gold_cost: 10000,
-          max_upgrades: 2
-        }]
-      });
-
-      mockClient.query.onSecondCall().resolves({ rows: [{ count: '2' }] });
-
-      try {
-        await inventoryService.purchaseBagUpgrade(1, 'base_50', 'gold');
-        expect.fail('应该抛出错误');
-      } catch (error) {
-        expect(error.message).to.equal('Maximum upgrades reached');
-      }
-    });
-
-    it('应该在余额不足时抛出错误', async () => {
-      const mockClient = {
-        query: sinon.stub(),
-        release: sinon.stub()
-      };
-
-      mockDb.connect.resolves(mockClient);
-
-      mockClient.query.onFirstCall().resolves({
-        rows: [{
-          upgrade_id: 'base_50',
-          category: 'base',
-          increment: 50,
-          gold_cost: 10000,
-          max_upgrades: 20
-        }]
-      });
-
-      mockClient.query.onSecondCall().resolves({ rows: [{ count: '0' }] });
-
-      // 模拟扣款失败（余额不足）
-      mockClient.query.onThirdCall().resolves({ rows: [] });
-
-      try {
-        await inventoryService.purchaseBagUpgrade(1, 'base_50', 'gold');
-        expect.fail('应该抛出错误');
-      } catch (error) {
-        expect(error.message).to.equal('Insufficient balance');
-      }
-    });
-
-    it('应该正确发布事件和清除缓存', async () => {
-      const mockClient = {
-        query: sinon.stub(),
-        release: sinon.stub()
-      };
-
-      mockDb.connect.resolves(mockClient);
-
-      mockClient.query.onFirstCall().resolves({
-        rows: [{
-          upgrade_id: 'base_50',
-          category: 'base',
-          increment: 50,
-          gold_cost: 10000,
-          max_upgrades: 20
-        }]
-      });
-
-      mockClient.query.onSecondCall().resolves({ rows: [{ count: '0' }] });
-      mockClient.query.onThirdCall().resolves({ rows: [{ gold: 40000 }] });
-      mockClient.query.onCall(3).resolves({ rowCount: 1 });
-      mockClient.query.onCall(4).resolves({ rowCount: 1 });
-      mockClient.query.onCall(5).resolves();
-
-      await inventoryService.purchaseBagUpgrade(1, 'base_50', 'gold');
-
-      // 验证事件发布
-      expect(mockEventBus.publish.calledOnce).to.be.true;
-      expect(mockEventBus.publish.firstCall.args[0]).to.equal('bag.upgrade.purchased');
       
-      // 验证缓存清除
-      expect(mockRedis.del.calledTwice).to.be.true;
+      mockDb.query.mockResolvedValueOnce({
+        rows: [
+          { upgrade_id: 'base_50', purchase_count: '3' }
+        ]
+      });
+      
+      mockDb.query.mockResolvedValueOnce({
+        rows: [{ max_items: 350, pokeball_slots: 50 }]
+      });
+      
+      mockRedis.get.mockResolvedValue(null);
+      
+      const configs = await service.getUpgradeConfigs(1);
+      
+      expect(configs).toBeDefined();
+      expect(configs.length).toBe(2);
+      
+      // Verify first config has correct purchase info
+      const baseConfig = configs.find(c => c.upgrade_id === 'base_50');
+      expect(baseConfig.purchased).toBe(3);
+      expect(baseConfig.remaining).toBe(17);
+      expect(baseConfig.available).toBe(true);
+    });
+    
+    it('should mark config as unavailable when max purchases reached', async () => {
+      mockDb.query.mockResolvedValueOnce({
+        rows: [
+          { upgrade_id: 'base_50', category: 'base', increment: 50, gold_cost: 10000, gem_cost: 100, required_level: 5, max_upgrades: 20 }
+        ]
+      });
+      
+      mockDb.query.mockResolvedValueOnce({
+        rows: [{ upgrade_id: 'base_50', purchase_count: '20' }]
+      });
+      
+      mockDb.query.mockResolvedValueOnce({
+        rows: [{ max_items: 350 }]
+      });
+      
+      mockRedis.get.mockResolvedValue(null);
+      
+      const configs = await service.getUpgradeConfigs(1);
+      
+      expect(configs[0].purchased).toBe(20);
+      expect(configs[0].remaining).toBe(0);
+      expect(configs[0].available).toBe(false);
     });
   });
-
-  describe('grantFreeUpgrade', () => {
-    it('应该成功赠送免费扩容', async () => {
+  
+  describe('purchaseBagUpgrade', () => {
+    it('should successfully purchase upgrade with gold', async () => {
       const mockClient = {
-        query: sinon.stub(),
-        release: sinon.stub()
+        query: mock.fn(),
+        release: mock.fn()
       };
-
-      mockDb.query.onFirstCall().resolves({
+      
+      // Mock transaction
+      mockDb.transaction.mockImplementation(async (callback) => {
+        return callback(mockClient);
+      });
+      
+      // Mock config query
+      mockClient.query.mockResolvedValueOnce({
         rows: [{
           upgrade_id: 'base_50',
           category: 'base',
-          increment: 50
+          increment: 50,
+          gold_cost: 10000,
+          gem_cost: 100,
+          required_level: 5,
+          max_upgrades: 20
         }]
       });
-
-      mockDb.connect.resolves(mockClient);
-
-      mockClient.query.onFirstCall().resolves({ rowCount: 1 });
-      mockClient.query.onSecondCall().resolves({ rowCount: 1 });
-      mockClient.query.onThirdCall().resolves();
-
-      const result = await inventoryService.grantFreeUpgrade(1, 'base_50', 'achievement');
-
-      expect(result.success).to.be.true;
-      expect(result.category).to.equal('base');
-      expect(result.increment).to.equal(50);
-      expect(result.reason).to.equal('achievement');
+      
+      // Mock purchase count
+      mockClient.query.mockResolvedValueOnce({
+        rows: [{ count: '3' }]
+      });
+      
+      // Mock user balance
+      mockClient.query.mockResolvedValueOnce({
+        rows: [{ gold: 50000, gems: 500 }]
+      });
+      
+      // Mock user level
+      mockClient.query.mockResolvedValueOnce({
+        rows: [{ level: 10 }]
+      });
+      
+      // Mock current capacity
+      mockClient.query.mockResolvedValueOnce({
+        rows: [{ current_slots: 350 }]
+      });
+      
+      // Mock dedup
+      mockClient.query.mockResolvedValueOnce({ rowCount: 1 });
+      
+      // Mock purchase record
+      mockClient.query.mockResolvedValueOnce({ rowCount: 1 });
+      
+      // Mock capacity update
+      mockClient.query.mockResolvedValueOnce({ rowCount: 1 });
+      
+      // Mock audit log
+      mockClient.query.mockResolvedValueOnce({ rowCount: 1 });
+      
+      const result = await service.purchaseBagUpgrade(1, 'base_50', 'gold');
+      
+      expect(result.success).toBe(true);
+      expect(result.category).toBe('base');
+      expect(result.increment).toBe(50);
+      expect(result.method).toBe('gold');
+      expect(result.cost).toBe(10000);
+      expect(result.oldCapacity).toBe(350);
+      expect(result.newCapacity).toBe(400);
     });
-
-    it('应该在配置不存在时抛出错误', async () => {
-      mockDb.query.resolves({ rows: [] });
-
-      try {
-        await inventoryService.grantFreeUpgrade(1, 'invalid_id', 'achievement');
-        expect.fail('应该抛出错误');
-      } catch (error) {
-        expect(error.message).to.equal('Upgrade config not found');
-      }
+    
+    it('should reject purchase when max upgrades reached', async () => {
+      const mockClient = {
+        query: mock.fn(),
+        release: mock.fn()
+      };
+      
+      mockDb.transaction.mockImplementation(async (callback) => {
+        return callback(mockClient);
+      });
+      
+      mockClient.query.mockResolvedValueOnce({
+        rows: [{
+          upgrade_id: 'base_50',
+          category: 'base',
+          increment: 50,
+          gold_cost: 10000,
+          gem_cost: 100,
+          required_level: 5,
+          max_upgrades: 20
+        }]
+      });
+      
+      mockClient.query.mockResolvedValueOnce({
+        rows: [{ count: '20' }]
+      });
+      
+      await expect(
+        service.purchaseBagUpgrade(1, 'base_50', 'gold')
+      ).rejects.toThrow('Maximum upgrades reached');
+    });
+    
+    it('should reject purchase when insufficient balance', async () => {
+      const mockClient = {
+        query: mock.fn(),
+        release: mock.fn()
+      };
+      
+      mockDb.transaction.mockImplementation(async (callback) => {
+        return callback(mockClient);
+      });
+      
+      mockClient.query.mockResolvedValueOnce({
+        rows: [{
+          upgrade_id: 'base_50',
+          category: 'base',
+          increment: 50,
+          gold_cost: 10000,
+          gem_cost: 100,
+          required_level: 5,
+          max_upgrades: 20
+        }]
+      });
+      
+      mockClient.query.mockResolvedValueOnce({
+        rows: [{ count: '3' }]
+      });
+      
+      mockClient.query.mockResolvedValueOnce({
+        rows: [{ gold: 5000, gems: 50 }] // Insufficient gold
+      });
+      
+      await expect(
+        service.purchaseBagUpgrade(1, 'base_50', 'gold')
+      ).rejects.toThrow('Insufficient gold balance');
+    });
+    
+    it('should reject purchase when level requirement not met', async () => {
+      const mockClient = {
+        query: mock.fn(),
+        release: mock.fn()
+      };
+      
+      mockDb.transaction.mockImplementation(async (callback) => {
+        return callback(mockClient);
+      });
+      
+      mockClient.query.mockResolvedValueOnce({
+        rows: [{
+          upgrade_id: 'base_100',
+          category: 'base',
+          increment: 100,
+          gold_cost: 50000,
+          gem_cost: 500,
+          required_level: 10, // Requires level 10
+          max_upgrades: 10
+        }]
+      });
+      
+      mockClient.query.mockResolvedValueOnce({
+        rows: [{ count: '3' }]
+      });
+      
+      mockClient.query.mockResolvedValueOnce({
+        rows: [{ gold: 100000, gems: 1000 }]
+      });
+      
+      mockClient.query.mockResolvedValueOnce({
+        rows: [{ level: 5 }] // User is level 5
+      });
+      
+      await expect(
+        service.purchaseBagUpgrade(1, 'base_100', 'gold')
+      ).rejects.toThrow('Requires level 10');
+    });
+    
+    it('should reject invalid purchase method', async () => {
+      await expect(
+        service.purchaseBagUpgrade(1, 'base_50', 'invalid')
+      ).rejects.toThrow('Invalid purchase method');
+    });
+    
+    it('should reject purchase when cost is null for method', async () => {
+      const mockClient = {
+        query: mock.fn(),
+        release: mock.fn()
+      };
+      
+      mockDb.transaction.mockImplementation(async (callback) => {
+        return callback(mockClient);
+      });
+      
+      mockClient.query.mockResolvedValueOnce({
+        rows: [{
+          upgrade_id: 'base_200',
+          category: 'base',
+          increment: 200,
+          gold_cost: null, // Cannot purchase with gold
+          gem_cost: 1000,
+          required_level: 15,
+          max_upgrades: 5
+        }]
+      });
+      
+      mockClient.query.mockResolvedValueOnce({
+        rows: [{ count: '0' }]
+      });
+      
+      await expect(
+        service.purchaseBagUpgrade(1, 'base_200', 'gold')
+      ).rejects.toThrow('Cannot purchase this upgrade with gold');
     });
   });
-
-  describe('Prometheus 指标', () => {
-    it('应该注册扩容相关指标', () => {
-      expect(inventoryService.metrics).to.have.property('bagUpgradesPurchased');
-      expect(inventoryService.metrics).to.have.property('bagUpgradeRevenue');
+  
+  describe('grantFreeUpgrade', () => {
+    it('should successfully grant free upgrade', async () => {
+      const mockClient = {
+        query: mock.fn(),
+        release: mock.fn()
+      };
+      
+      mockDb.transaction.mockImplementation(async (callback) => {
+        return callback(mockClient);
+      });
+      
+      mockClient.query.mockResolvedValueOnce({
+        rows: [{
+          upgrade_id: 'base_50',
+          category: 'base',
+          increment: 50,
+          gold_cost: 10000,
+          gem_cost: 100,
+          required_level: 5,
+          max_upgrades: 20
+        }]
+      });
+      
+      mockClient.query.mockResolvedValueOnce({
+        rows: [{ count: '0' }]
+      });
+      
+      mockClient.query.mockResolvedValueOnce({
+        rows: [{ current_slots: 350 }]
+      });
+      
+      // Mock grant record
+      mockClient.query.mockResolvedValueOnce({ rowCount: 1 });
+      
+      // Mock capacity update
+      mockClient.query.mockResolvedValueOnce({ rowCount: 1 });
+      
+      // Mock audit log
+      mockClient.query.mockResolvedValueOnce({ rowCount: 1 });
+      
+      const result = await service.grantFreeUpgrade(1, 'base_50', 'achievement');
+      
+      expect(result.success).toBe(true);
+      expect(result.category).toBe('base');
+      expect(result.increment).toBe(50);
+      expect(result.reason).toBe('achievement');
+    });
+    
+    it('should reject invalid grant reason', async () => {
+      await expect(
+        service.grantFreeUpgrade(1, 'base_50', 'invalid_reason')
+      ).rejects.toThrow('Invalid grant reason');
+    });
+  });
+  
+  describe('getUserUpgradeStats', () => {
+    it('should return user upgrade statistics', async () => {
+      mockDb.query.mockResolvedValueOnce({
+        rows: [{
+          total_upgrades: '10',
+          total_gold_spent: '50000',
+          total_gem_spent: '500',
+          free_upgrades: '2',
+          last_upgrade_time: '2026-06-30 10:00:00'
+        }]
+      });
+      
+      const stats = await service.getUserUpgradeStats(1);
+      
+      expect(stats.total_upgrades).toBe('10');
+      expect(stats.total_gold_spent).toBe('50000');
+      expect(stats.total_gem_spent).toBe('500');
+      expect(stats.free_upgrades).toBe('2');
+    });
+    
+    it('should return default stats when no upgrades', async () => {
+      mockDb.query.mockResolvedValueOnce({
+        rows: []
+      });
+      
+      const stats = await service.getUserUpgradeStats(1);
+      
+      expect(stats.total_upgrades).toBe(0);
+      expect(stats.total_gold_spent).toBe(0);
+      expect(stats.total_gem_spent).toBe(0);
+      expect(stats.free_upgrades).toBe(0);
+      expect(stats.last_upgrade_time).toBeNull();
+    });
+  });
+  
+  describe('getCategoryColumn', () => {
+    it('should return correct column for each category', () => {
+      expect(service.getCategoryColumn('base')).toBe('max_items');
+      expect(service.getCategoryColumn('pokeball')).toBe('pokeball_slots');
+      expect(service.getCategoryColumn('potion')).toBe('potion_slots');
+      expect(service.getCategoryColumn('tm')).toBe('tm_slots');
+      expect(service.getCategoryColumn('evolution')).toBe('evolution_slots');
+      expect(service.getCategoryColumn('berry')).toBe('berry_slots');
+      expect(service.getCategoryColumn('special')).toBe('special_slots');
+      expect(service.getCategoryColumn('misc')).toBe('misc_slots');
+    });
+  });
+  
+  describe('getDefaultCapacity', () => {
+    it('should return correct default for each category', () => {
+      expect(service.getDefaultCapacity('base')).toBe(350);
+      expect(service.getDefaultCapacity('pokeball')).toBe(50);
+      expect(service.getDefaultCapacity('potion')).toBe(50);
+      expect(service.getDefaultCapacity('tm')).toBe(20);
+      expect(service.getDefaultCapacity('evolution')).toBe(30);
+      expect(service.getDefaultCapacity('berry')).toBe(50);
+      expect(service.getDefaultCapacity('special')).toBe(20);
+      expect(service.getDefaultCapacity('misc')).toBe(100);
     });
   });
 });
+
+// 运行测试
+describe.run();

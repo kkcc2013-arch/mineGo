@@ -160,7 +160,7 @@
 | REQ-00147 | REQ-00147：API 请求速率限制绕过检测与防护系统 |  |  |  |  |  |
 | REQ-00148 | 分布式追踪与请求链路可视化系统 | 可观测性/监控 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-12 08:00 |
 | REQ-00149 | user-service ipAppeal 路由挂载与集成 |  |  |  |  |  |
-| REQ-00150 | 背包容量扩展与购买系统 | 功能增强 | P1 | new | pokemon-service、user-service、payment-service、gateway、game-client | 2026-06-12 09:00 |
+| REQ-00150 | 背包容量扩展与购买系统 | 功能增强 | P1 | done | pokemon-service、user-service、payment-service、gateway、game-client | 2026-06-30 17:15 UTC |
 | REQ-00151 | 精灵羁绊技能解锁机制 |  |  |  |  |  |
 | REQ-00152 | gym-service battle 路由挂载与集成 |  |  |  |  |  |
 | REQ-00153 | REQ-00153：游戏内截图分享与社交传播系统 |  |  |  |  |  |
@@ -367,6 +367,7 @@
 || REQ-00349 | 错误处理模块重构与统一化 | 技术债/重构 | P2 | new | backend/shared/auth.js、backend/shared/errorHandler.js、所有微服务、gateway | 2026-06-27 05:00 UTC |
 || REQ-00350 | 精灵详情批量查询与数据聚合优化系统 | 性能优化 | P1 | new | pokemon-service、gateway、backend/shared、Redis、PostgreSQL | 2026-06-27 06:00 UTC |
 || REQ-00351 | 游戏数字格式本地化系统 | 国际化/本地化 | P1 | new | game-client、gateway、user-service、pokemon-service、payment-service、backend/shared | 2026-06-27 06:00 |
+| REQ-00391 | console.log 替换与结构化日志强制使用系统 | 技术债/重构 | P1 | new | backend/shared、所有微服务、gateway、CI/CD | 2026-06-30 17:00 UTC |
 | REQ-00373 | 数据库Schema版本冲突检测与多环境一致性验证系统 | 数据库/数据治理 | P1 | new | database/migrations、backend/shared、所有微服务、infrastructure/k8s、admin-dashboard、.github/workflows | 2026-06-29 21:00 UTC |
 || REQ-00362 | 数据库连接池智能预测与预分配系统 | 性能优化 | P1 | done | backend/shared、所有微服务、PostgreSQL、infrastructure/k8s | 2026-06-29 12:15 UTC |
 || REQ-00352 | 游戏音效可视化与听障玩家视觉提示系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility、gateway、catch-service、gym-service | 2026-06-29 01:05 UTC |
