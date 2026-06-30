@@ -394,4 +394,6 @@
 || REQ-00373 | SLO 错误预算燃尽率预警与自动熔断系统 | 容灾/高可用 | P0 | done | gateway、所有微服务、backend/shared/SloManager.js、backend/shared/SloBudgetTracker.js、backend/shared/middleware/sloMiddleware.js、infrastructure/k8s/monitoring、Prometheus、Grafana | 2026-06-29 21:00 UTC |
 || REQ-00374 | 云成本异常检测与预算预警系统 | 成本/资源优化 | P1 | new | gateway、monitoring、backend/shared/cost、Prometheus、Grafana、Slack、Email、infrastructure/k8s、admin-dashboard | 2026-06-29 22:00 UTC |
 | REQ-00375 | 多云成本分摊与资源归因优化系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared/CostAllocator.js、backend/shared/ResourceAttributionEngine.js、infrastructure/k8s、admin-dashboard、Prometheus、Grafana | 2026-06-29 23:10 UTC |
-| REQ-00376 | 跨区域灾备自动化切换系统 | 容灾/高可用 | P0 | new | gateway、所有微服务、backend/shared/disasterRecovery、infrastructure/k8s、PostgreSQL、Redis、Kafka、DNS/负载均衡、admin-dashboard | 2026-06-29 23:00 UTC |
+|| REQ-00376 | 跨区域灾备自动化切换系统 | 容灾/高可用 | P0 | new | gateway、所有微服务、backend/shared/disasterRecovery、infrastructure/k8s、PostgreSQL、Redis、Kafka、DNS/负载均衡、admin-dashboard | 2026-06-29 23:00 UTC |
+|| REQ-00377 | 精灵数据可见性控制与隐私分级系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、gateway、game-client、database/migrations | 2026-06-30 00:00 UTC |
+|
