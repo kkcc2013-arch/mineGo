@@ -404,4 +404,4 @@
 || REQ-00384 | GDPR 数据主体权利请求管理系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、backend/shared、database/migrations | 2026-06-30 10:00 UTC |
 | REQ-00385 | 共享模块导入路径规范化与别名系统 | 技术债/重构 | P1 | new | backend/shared、所有微服务、babel/config、package.json、.eslintrc | 2026-06-30 11:00 UTC |
 || REQ-00386 | API 响应格式标准化与错误码统一系统 | API 设计规范 | P1 | new | 所有微服务、backend/shared/middleware、gateway、frontend/game-client、frontend/admin-dashboard、docs/api-spec | 2026-06-30 12:00 |
-|| REQ-00387 | 玩家资料卡与档案展示系统 | 功能增强 | P1 | new | user-service、social-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-30 12:00 |
+|| REQ-00388 | 玩家好友互动增强系统 | 功能增强 | P1 | new | social-service、user-service、pokemon-service、reward-service、gateway、game-client、database/migrations | 2026-06-30 13:00 UTC |
