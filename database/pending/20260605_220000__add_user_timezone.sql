@@ -9,9 +9,7 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS timezone TEXT DEFAULT 'UTC';
 
 -- 添加约束，确保时区值有效（PostgreSQL 内置时区检查）
 -- 注意：PostgreSQL 会自动验证时区是否有效
-ALTER TABLE users ADD CONSTRAINT valid_timezone CHECK (timezone IN (
-    SELECT name FROM pg_timezone_names
-) OR timezone = 'UTC');
+-- ALTER TABLE users ADD CONSTRAINT valid_timezone CHECK ... (removed subquery constraint)
 
 -- 创建索引，便于按时区查询用户
 CREATE INDEX IF NOT EXISTS idx_users_timezone ON users(timezone);

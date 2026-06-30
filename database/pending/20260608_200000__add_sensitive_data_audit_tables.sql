@@ -54,6 +54,10 @@ BEGIN
   END IF;
 END $$;
 
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS timestamp TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS action_data JSONB;
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS ip_address VARCHAR(45);
+
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_audit_logs_user_id ON audit_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_timestamp ON audit_logs(timestamp);
@@ -113,6 +117,10 @@ CREATE TABLE IF NOT EXISTS encryption_keys (
   created_by UUID,
   description TEXT
 );
+
+ALTER TABLE encryption_keys ADD COLUMN IF NOT EXISTS key_version INTEGER DEFAULT 1;
+ALTER TABLE encryption_keys ADD COLUMN IF NOT EXISTS created_by UUID;
+ALTER TABLE encryption_keys ADD COLUMN IF NOT EXISTS description TEXT;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_encryption_keys_active ON encryption_keys(is_active, expires_at);
@@ -176,7 +184,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 创建定时任务（需要 pg_cron 扩展，可选）
 -- 如果 pg_cron 不可用，可以改用外部定时任务
--- SELECT cron.schedule('cleanup_sensitive_logs', '0 2 * * *', 'SELECT cleanup_expired_sensitive_logs()');
+-- -- -- -- -- SELECT cron.schedule('cleanup_sensitive_logs', '0 2 * * *', 'SELECT cleanup_expired_sensitive_logs()');
 
 -- ============================================================
 -- 6. 视图：敏感访问统计
@@ -209,10 +217,4 @@ COMMENT ON VIEW sensitive_access_statistics IS '敏感数据访问统计视图';
 -- ============================================================
 
 -- 记录迁移
-INSERT INTO schema_migrations (version, applied_at, description)
-VALUES (
-  '20260608_200000',
-  NOW(),
-  'REQ-00038: 添加敏感数据访问审计表和加密密钥管理'
-)
-ON CONFLICT (version) DO NOTHING;
+

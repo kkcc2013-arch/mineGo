@@ -7,7 +7,7 @@
 -- ============================================================
 CREATE TABLE IF NOT EXISTS device_fingerprints (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   device_hash VARCHAR(64) NOT NULL,
   device_info JSONB NOT NULL,
   ip_hash VARCHAR(64),
@@ -21,16 +21,16 @@ COMMENT ON TABLE device_fingerprints IS '设备指纹表，用于检测多账号
 COMMENT ON COLUMN device_fingerprints.device_hash IS '设备唯一标识哈希';
 COMMENT ON COLUMN device_fingerprints.device_info IS '设备详细信息（UA、分辨率、平台等）';
 
-CREATE INDEX idx_device_hash ON device_fingerprints(device_hash);
-CREATE INDEX idx_device_user ON device_fingerprints(user_id);
-CREATE INDEX idx_device_last_seen ON device_fingerprints(last_seen DESC);
+CREATE INDEX IF NOT EXISTS idx_device_hash ON device_fingerprints(device_hash);
+CREATE INDEX IF NOT EXISTS idx_device_user ON device_fingerprints(user_id);
+CREATE INDEX IF NOT EXISTS idx_device_last_seen ON device_fingerprints(last_seen DESC);
 
 -- ============================================================
 -- 2. 捕捉尝试记录表
 -- ============================================================
 CREATE TABLE IF NOT EXISTS catch_attempts (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   pokemon_id INTEGER NOT NULL,
   pokemon_rarity VARCHAR(20) NOT NULL,
   success BOOLEAN NOT NULL,
@@ -45,16 +45,16 @@ CREATE TABLE IF NOT EXISTS catch_attempts (
 COMMENT ON TABLE catch_attempts IS '捕捉尝试记录，用于成功率异常分析';
 COMMENT ON COLUMN catch_attempts.expected_rate IS '期望捕获率（基于稀有度、道具、技术）';
 
-CREATE INDEX idx_catch_attempts_user_time ON catch_attempts(user_id, created_at DESC);
-CREATE INDEX idx_catch_attempts_rarity ON catch_attempts(pokemon_rarity, created_at);
-CREATE INDEX idx_catch_attempts_success ON catch_attempts(success, created_at);
+CREATE INDEX IF NOT EXISTS idx_catch_attempts_user_time ON catch_attempts(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_catch_attempts_rarity ON catch_attempts(pokemon_rarity, created_at);
+CREATE INDEX IF NOT EXISTS idx_catch_attempts_success ON catch_attempts(success, created_at);
 
 -- ============================================================
 -- 3. 用户行为统计快照表
 -- ============================================================
 CREATE TABLE IF NOT EXISTS user_behavior_stats (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   stat_type VARCHAR(50) NOT NULL,
   stat_value DOUBLE PRECISION,
   percentile_rank DOUBLE PRECISION,
@@ -69,16 +69,16 @@ COMMENT ON TABLE user_behavior_stats IS '用户行为统计快照，每小时更
 COMMENT ON COLUMN user_behavior_stats.stat_type IS '统计类型：catch_rate, win_rate, resource_growth, active_hours';
 COMMENT ON COLUMN user_behavior_stats.percentile_rank IS '在全服玩家中的百分位排名';
 
-CREATE INDEX idx_behavior_stats_user ON user_behavior_stats(user_id, snapshot_at DESC);
-CREATE INDEX idx_behavior_stats_type ON user_behavior_stats(stat_type, snapshot_at);
-CREATE INDEX idx_behavior_stats_anomaly ON user_behavior_stats(is_anomaly, snapshot_at);
+CREATE INDEX IF NOT EXISTS idx_behavior_stats_user ON user_behavior_stats(user_id, snapshot_at DESC);
+CREATE INDEX IF NOT EXISTS idx_behavior_stats_type ON user_behavior_stats(stat_type, snapshot_at);
+CREATE INDEX IF NOT EXISTS idx_behavior_stats_anomaly ON user_behavior_stats(is_anomaly, snapshot_at);
 
 -- ============================================================
 -- 4. 行为异常记录表
 -- ============================================================
 CREATE TABLE IF NOT EXISTS behavior_anomaly_records (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   anomaly_type VARCHAR(50) NOT NULL,
   severity VARCHAR(20) NOT NULL CHECK (severity IN ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL')),
   details JSONB,
@@ -93,16 +93,16 @@ COMMENT ON TABLE behavior_anomaly_records IS '行为异常记录';
 COMMENT ON COLUMN behavior_anomaly_records.anomaly_type IS '异常类型：CATCH_RATE_ANOMALY, SUSPICIOUS_WIN_RATE, etc.';
 COMMENT ON COLUMN behavior_anomaly_records.action_taken IS '采取的行动：FLAGGED, WARNED, SUSPENDED, BANNED';
 
-CREATE INDEX idx_anomaly_records_user ON behavior_anomaly_records(user_id, created_at DESC);
-CREATE INDEX idx_anomaly_records_type ON behavior_anomaly_records(anomaly_type, severity);
-CREATE INDEX idx_anomaly_records_severity ON behavior_anomaly_records(severity, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_anomaly_records_user ON behavior_anomaly_records(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_anomaly_records_type ON behavior_anomaly_records(anomaly_type, severity);
+CREATE INDEX IF NOT EXISTS idx_anomaly_records_severity ON behavior_anomaly_records(severity, created_at DESC);
 
 -- ============================================================
 -- 5. 用户行为评分表
 -- ============================================================
 CREATE TABLE IF NOT EXISTS user_behavior_scores (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   behavior_score INTEGER NOT NULL DEFAULT 100 CHECK (behavior_score >= 0 AND behavior_score <= 100),
   gps_trust_score INTEGER DEFAULT 100 CHECK (gps_trust_score >= 0 AND gps_trust_score <= 100),
   final_trust_score INTEGER NOT NULL DEFAULT 100 CHECK (final_trust_score >= 0 AND final_trust_score <= 100),
@@ -116,9 +116,9 @@ COMMENT ON TABLE user_behavior_scores IS '用户行为可信度评分';
 COMMENT ON COLUMN user_behavior_scores.behavior_score IS '行为评分（0-100，100为完全可信）';
 COMMENT ON COLUMN user_behavior_scores.final_trust_score IS '最终信任评分（结合GPS可信度）';
 
-CREATE INDEX idx_behavior_scores_user ON user_behavior_scores(user_id);
-CREATE INDEX idx_behavior_scores_score ON user_behavior_scores(final_trust_score);
-CREATE INDEX idx_behavior_scores_updated ON user_behavior_scores(updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_behavior_scores_user ON user_behavior_scores(user_id);
+CREATE INDEX IF NOT EXISTS idx_behavior_scores_score ON user_behavior_scores(final_trust_score);
+CREATE INDEX IF NOT EXISTS idx_behavior_scores_updated ON user_behavior_scores(updated_at DESC);
 
 -- ============================================================
 -- 6. 全局资源统计表
@@ -142,14 +142,14 @@ CREATE TABLE IF NOT EXISTS global_resource_stats (
 
 COMMENT ON TABLE global_resource_stats IS '全局资源增长统计，用于异常对比';
 
-CREATE INDEX idx_global_resource_type_date ON global_resource_stats(resource_type, stat_date DESC);
+CREATE INDEX IF NOT EXISTS idx_global_resource_type_date ON global_resource_stats(resource_type, stat_date DESC);
 
 -- ============================================================
 -- 7. 用户移动轨迹表
 -- ============================================================
 CREATE TABLE IF NOT EXISTS user_movement_trajectories (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   session_id VARCHAR(50) NOT NULL,
   latitude DOUBLE PRECISION NOT NULL,
   longitude DOUBLE PRECISION NOT NULL,
@@ -161,15 +161,15 @@ CREATE TABLE IF NOT EXISTS user_movement_trajectories (
 
 COMMENT ON TABLE user_movement_trajectories IS '用户移动轨迹记录，用于轨迹异常分析';
 
-CREATE INDEX idx_trajectory_user_session ON user_movement_trajectories(user_id, session_id);
-CREATE INDEX idx_trajectory_user_time ON user_movement_trajectories(user_id, timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_trajectory_user_session ON user_movement_trajectories(user_id, session_id);
+CREATE INDEX IF NOT EXISTS idx_trajectory_user_time ON user_movement_trajectories(user_id, timestamp DESC);
 
 -- ============================================================
 -- 8. 用户行为事件日志表
 -- ============================================================
 CREATE TABLE IF NOT EXISTS user_action_events (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   action_type VARCHAR(50) NOT NULL,
   action_data JSONB,
   latitude DOUBLE PRECISION,
@@ -182,8 +182,8 @@ CREATE TABLE IF NOT EXISTS user_action_events (
 COMMENT ON TABLE user_action_events IS '用户行为事件日志，用于时段模式分析';
 COMMENT ON COLUMN user_action_events.action_type IS '动作类型：CATCH, BATTLE, TRADE, COLLECT_REWARD';
 
-CREATE INDEX idx_action_events_user_time ON user_action_events(user_id, created_at DESC);
-CREATE INDEX idx_action_events_type ON user_action_events(action_type, created_at);
+CREATE INDEX IF NOT EXISTS idx_action_events_user_time ON user_action_events(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_action_events_type ON user_action_events(action_type, created_at);
 
 -- ============================================================
 -- 9. 插入默认行为评分记录
@@ -261,28 +261,28 @@ $$ LANGUAGE plpgsql;
 -- ============================================================
 
 -- 每小时更新行为统计
-SELECT cron.schedule(
-  'update_behavior_stats_hourly',
-  '0 * * * *',
-  $$
-  INSERT INTO user_behavior_stats (user_id, stat_type, stat_value, snapshot_at)
-  SELECT 
-    user_id,
-    'catch_rate',
-    SUM(CASE WHEN success THEN 1 ELSE 0 END)::DOUBLE PRECISION / COUNT(*)::DOUBLE PRECISION,
-    NOW()
-  FROM catch_attempts
-  WHERE created_at > NOW() - INTERVAL '1 hour'
-  GROUP BY user_id
-  ON CONFLICT (user_id, stat_type, snapshot_at) DO NOTHING;
-  $$
-);
+-- -- -- -- SELECT cron.schedule(
+-- -- -- --   'update_behavior_stats_hourly',
+-- -- -- --   '0 * * * *',
+-- -- -- --   $$
+-- -- -- --   INSERT INTO user_behavior_stats (user_id, stat_type, stat_value, snapshot_at)
+-- -- -- --   SELECT 
+-- -- -- --     user_id,
+-- -- -- --     'catch_rate',
+-- -- -- --     SUM(CASE WHEN success THEN 1 ELSE 0 END)::DOUBLE PRECISION / COUNT(*)::DOUBLE PRECISION,
+-- -- -- --     NOW()
+-- -- -- --   FROM catch_attempts
+-- -- -- --   WHERE created_at > NOW() - INTERVAL '1 hour'
+-- -- -- --   GROUP BY user_id
+-- -- -- --   ON CONFLICT (user_id, stat_type, snapshot_at) DO NOTHING;
+-- -- -- --   $$
+-- -- -- -- );
 
 -- 每天凌晨3点清理旧数据
-SELECT cron.schedule(
-  'cleanup_old_behavior_data_daily',
-  '0 3 * * *',
-  'SELECT cleanup_old_behavior_data();'
-);
+-- -- -- -- SELECT cron.schedule(
+-- -- -- --   'cleanup_old_behavior_data_daily',
+-- -- -- --   '0 3 * * *',
+-- -- -- --   'SELECT cleanup_old_behavior_data();'
+-- );
 
 COMMIT;

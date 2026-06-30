@@ -65,11 +65,11 @@ CREATE TABLE IF NOT EXISTS combo_records (
 );
 
 -- 索引
-CREATE INDEX idx_user_combo_stats_user ON user_combo_stats(user_id);
-CREATE INDEX idx_user_combo_stats_chain ON user_combo_stats(chain_id);
-CREATE INDEX idx_combo_records_user ON combo_records(user_id);
-CREATE INDEX idx_combo_records_time ON combo_records(executed_at DESC);
-CREATE INDEX idx_combo_records_damage ON combo_records(damage_dealt DESC);
+CREATE INDEX IF NOT EXISTS idx_user_combo_stats_user ON user_combo_stats(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_combo_stats_chain ON user_combo_stats(chain_id);
+CREATE INDEX IF NOT EXISTS idx_combo_records_user ON combo_records(user_id);
+CREATE INDEX IF NOT EXISTS idx_combo_records_time ON combo_records(executed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_combo_records_damage ON combo_records(damage_dealt DESC);
 
 -- 注释
 COMMENT ON TABLE combo_chains IS '连击链配置表';

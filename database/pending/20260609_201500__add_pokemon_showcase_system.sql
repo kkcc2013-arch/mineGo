@@ -68,16 +68,16 @@ CREATE TABLE IF NOT EXISTS user_showcase_quotas (
 -- ============================================================
 -- 创建索引
 -- ============================================================
-CREATE INDEX idx_pokemon_favorites_user ON pokemon_favorites(user_id, display_order);
-CREATE INDEX idx_pokemon_favorites_pokemon ON pokemon_favorites(pokemon_id);
-CREATE INDEX idx_pokemon_likes_pokemon ON pokemon_likes(pokemon_id);
-CREATE INDEX idx_pokemon_likes_user ON pokemon_likes(user_id, created_at DESC);
-CREATE INDEX idx_pokemon_likes_created ON pokemon_likes(created_at DESC);
-CREATE INDEX idx_pokemon_comments_pokemon ON pokemon_comments(pokemon_id, created_at DESC);
-CREATE INDEX idx_pokemon_comments_user ON pokemon_comments(user_id, created_at DESC);
-CREATE INDEX idx_pokemon_showcase_stats_likes ON pokemon_showcase_stats(like_count DESC);
-CREATE INDEX idx_pokemon_showcase_stats_views ON pokemon_showcase_stats(view_count DESC);
-CREATE INDEX idx_user_showcase_quotas_reset ON user_showcase_quotas(last_reset_date);
+CREATE INDEX IF NOT EXISTS idx_pokemon_favorites_user ON pokemon_favorites(user_id, display_order);
+CREATE INDEX IF NOT EXISTS idx_pokemon_favorites_pokemon ON pokemon_favorites(pokemon_id);
+CREATE INDEX IF NOT EXISTS idx_pokemon_likes_pokemon ON pokemon_likes(pokemon_id);
+CREATE INDEX IF NOT EXISTS idx_pokemon_likes_user ON pokemon_likes(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_pokemon_likes_created ON pokemon_likes(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_pokemon_comments_pokemon ON pokemon_comments(pokemon_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_pokemon_comments_user ON pokemon_comments(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_pokemon_showcase_stats_likes ON pokemon_showcase_stats(like_count DESC);
+CREATE INDEX IF NOT EXISTS idx_pokemon_showcase_stats_views ON pokemon_showcase_stats(view_count DESC);
+CREATE INDEX IF NOT EXISTS idx_user_showcase_quotas_reset ON user_showcase_quotas(last_reset_date);
 
 -- ============================================================
 -- 触发器：自动更新 updated_at
@@ -243,10 +243,10 @@ WHERE p.is_showcased = true
 ORDER BY like_count DESC, comment_count DESC
 LIMIT 100;
 
-CREATE UNIQUE INDEX idx_leaderboard_rank ON pokemon_showcase_leaderboard(rank);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_leaderboard_rank ON pokemon_showcase_leaderboard(rank);
 
 -- 创建刷新索引
-CREATE INDEX idx_leaderboard_pokemon ON pokemon_showcase_leaderboard(pokemon_id);
+CREATE INDEX IF NOT EXISTS idx_leaderboard_pokemon ON pokemon_showcase_leaderboard(pokemon_id);
 
 -- ============================================================
 -- 插入测试数据

@@ -10,23 +10,23 @@ CREATE TABLE IF NOT EXISTS ip_blacklist (
   is_auto BOOLEAN DEFAULT false,
   blocked_at TIMESTAMP DEFAULT NOW(),
   expires_at TIMESTAMP,
-  blocked_by INTEGER REFERENCES users(id),
+  blocked_by UUID REFERENCES users(id),
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_ip_blacklist_ip ON ip_blacklist USING gist(ip_address);
-CREATE INDEX idx_ip_blacklist_expires ON ip_blacklist(expires_at) WHERE expires_at IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_ip_blacklist_ip ON ip_blacklist USING gist(ip_address);
+CREATE INDEX IF NOT EXISTS idx_ip_blacklist_expires ON ip_blacklist(expires_at) WHERE expires_at IS NOT NULL;
 
 -- IP 白名单表
 CREATE TABLE IF NOT EXISTS ip_whitelist (
   id SERIAL PRIMARY KEY,
   ip_address INET NOT NULL UNIQUE,
   description VARCHAR(500),
-  added_by INTEGER REFERENCES users(id),
+  added_by UUID REFERENCES users(id),
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_ip_whitelist_ip ON ip_whitelist USING gist(ip_address);
+CREATE INDEX IF NOT EXISTS idx_ip_whitelist_ip ON ip_whitelist USING gist(ip_address);
 
 -- IP 风险评分表
 CREATE TABLE IF NOT EXISTS ip_risk_scores (
@@ -45,31 +45,31 @@ CREATE TABLE IF NOT EXISTS ip_risk_scores (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_ip_risk_scores_ip ON ip_risk_scores(ip_address);
-CREATE INDEX idx_ip_risk_scores_score ON ip_risk_scores(risk_score DESC);
-CREATE INDEX idx_ip_risk_scores_country ON ip_risk_scores(country_code);
+CREATE INDEX IF NOT EXISTS idx_ip_risk_scores_ip ON ip_risk_scores(ip_address);
+CREATE INDEX IF NOT EXISTS idx_ip_risk_scores_score ON ip_risk_scores(risk_score DESC);
+CREATE INDEX IF NOT EXISTS idx_ip_risk_scores_country ON ip_risk_scores(country_code);
 
 -- IP 封禁申诉表
 CREATE TABLE IF NOT EXISTS ip_ban_appeals (
   id SERIAL PRIMARY KEY,
   ip_address INET NOT NULL,
-  user_id INTEGER REFERENCES users(id),
+  user_id UUID REFERENCES users(id),
   appeal_reason TEXT NOT NULL,
   status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
-  reviewed_by INTEGER REFERENCES users(id),
+  reviewed_by UUID REFERENCES users(id),
   reviewed_at TIMESTAMP,
   review_note TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_ip_ban_appeals_status ON ip_ban_appeals(status);
-CREATE INDEX idx_ip_ban_appeals_user ON ip_ban_appeals(user_id);
+CREATE INDEX IF NOT EXISTS idx_ip_ban_appeals_status ON ip_ban_appeals(status);
+CREATE INDEX IF NOT EXISTS idx_ip_ban_appeals_user ON ip_ban_appeals(user_id);
 
 -- IP 访问日志表（用于风险评分计算）
 CREATE TABLE IF NOT EXISTS ip_access_logs (
   id SERIAL PRIMARY KEY,
   ip_address INET NOT NULL,
-  user_id INTEGER REFERENCES users(id),
+  user_id UUID REFERENCES users(id),
   endpoint VARCHAR(200),
   method VARCHAR(10),
   status_code INTEGER,
@@ -80,21 +80,21 @@ CREATE TABLE IF NOT EXISTS ip_access_logs (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_ip_access_logs_ip ON ip_access_logs(ip_address, created_at DESC);
-CREATE INDEX idx_ip_access_logs_created ON ip_access_logs(created_at DESC);
-CREATE INDEX idx_ip_access_logs_blocked ON ip_access_logs(is_blocked) WHERE is_blocked = true;
+CREATE INDEX IF NOT EXISTS idx_ip_access_logs_ip ON ip_access_logs(ip_address, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ip_access_logs_created ON ip_access_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_ip_access_logs_blocked ON ip_access_logs(is_blocked) WHERE is_blocked = true;
 
 -- 地理位置封禁表
 CREATE TABLE IF NOT EXISTS geo_bans (
   id SERIAL PRIMARY KEY,
   country_code VARCHAR(2) NOT NULL UNIQUE,
   reason VARCHAR(500),
-  banned_by INTEGER REFERENCES users(id),
+  banned_by UUID REFERENCES users(id),
   banned_at TIMESTAMP DEFAULT NOW(),
   is_active BOOLEAN DEFAULT true
 );
 
-CREATE INDEX idx_geo_bans_country ON geo_bans(country_code);
+CREATE INDEX IF NOT EXISTS idx_geo_bans_country ON geo_bans(country_code);
 
 -- 自动封禁触发记录表
 CREATE TABLE IF NOT EXISTS auto_ban_triggers (
@@ -107,8 +107,8 @@ CREATE TABLE IF NOT EXISTS auto_ban_triggers (
   UNIQUE(ip_address, trigger_type)
 );
 
-CREATE INDEX idx_auto_ban_triggers_ip ON auto_ban_triggers(ip_address);
-CREATE INDEX idx_auto_ban_triggers_type ON auto_ban_triggers(trigger_type);
+CREATE INDEX IF NOT EXISTS idx_auto_ban_triggers_ip ON auto_ban_triggers(ip_address);
+CREATE INDEX IF NOT EXISTS idx_auto_ban_triggers_type ON auto_ban_triggers(trigger_type);
 
 -- 注释
 COMMENT ON TABLE ip_blacklist IS 'IP 黑名单表';

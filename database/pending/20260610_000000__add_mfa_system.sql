@@ -55,11 +55,11 @@ CREATE TABLE IF NOT EXISTS mfa_trusted_devices (
 );
 
 -- 索引
-CREATE INDEX idx_user_mfa_user_id ON user_mfa(user_id);
-CREATE INDEX idx_user_mfa_enabled ON user_mfa(is_enabled);
-CREATE INDEX idx_mfa_recovery_codes_user_unused ON mfa_recovery_codes(user_id, is_used);
-CREATE INDEX idx_mfa_verification_logs_user_created ON mfa_verification_logs(user_id, created_at DESC);
-CREATE INDEX idx_mfa_trusted_devices_user_expires ON mfa_trusted_devices(user_id, expires_at);
+CREATE INDEX IF NOT EXISTS idx_user_mfa_user_id ON user_mfa(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_mfa_enabled ON user_mfa(is_enabled);
+CREATE INDEX IF NOT EXISTS idx_mfa_recovery_codes_user_unused ON mfa_recovery_codes(user_id, is_used);
+CREATE INDEX IF NOT EXISTS idx_mfa_verification_logs_user_created ON mfa_verification_logs(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_mfa_trusted_devices_user_expires ON mfa_trusted_devices(user_id, expires_at);
 
 -- 注释
 COMMENT ON TABLE user_mfa IS '用户 MFA 配置表，存储 TOTP 密钥等';

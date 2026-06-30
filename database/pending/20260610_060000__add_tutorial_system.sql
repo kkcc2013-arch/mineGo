@@ -4,7 +4,7 @@
 -- 教程进度表
 CREATE TABLE IF NOT EXISTS tutorial_progress (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     
     -- 教程步骤完成状态
     completed_steps JSONB DEFAULT '[]'::jsonb,
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS beginner_tasks (
 -- 用户新手任务完成记录
 CREATE TABLE IF NOT EXISTS user_beginner_tasks (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     task_id INTEGER NOT NULL REFERENCES beginner_tasks(id) ON DELETE CASCADE,
     
     progress INTEGER DEFAULT 0,
@@ -141,7 +141,7 @@ CREATE TABLE IF NOT EXISTS smart_tips (
 -- 用户提示显示记录
 CREATE TABLE IF NOT EXISTS user_tip_displays (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     tip_id INTEGER NOT NULL REFERENCES smart_tips(id) ON DELETE CASCADE,
     
     display_count INTEGER DEFAULT 1,
@@ -179,7 +179,7 @@ CREATE TABLE IF NOT EXISTS feature_unlocks (
 -- 用户功能解锁记录
 CREATE TABLE IF NOT EXISTS user_feature_unlocks (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     feature_id INTEGER NOT NULL REFERENCES feature_unlocks(id) ON DELETE CASCADE,
     
     unlocked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -214,7 +214,7 @@ CREATE TABLE IF NOT EXISTS help_faq (
 -- 用户帮助反馈表
 CREATE TABLE IF NOT EXISTS help_feedback (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     faq_id INTEGER REFERENCES help_faq(id) ON DELETE CASCADE,
     
     was_helpful BOOLEAN,
@@ -226,7 +226,7 @@ CREATE TABLE IF NOT EXISTS help_feedback (
 -- 新手分析事件表
 CREATE TABLE IF NOT EXISTS beginner_analytics (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     
     event_type VARCHAR(50) NOT NULL,
     event_data JSONB DEFAULT '{}'::jsonb,

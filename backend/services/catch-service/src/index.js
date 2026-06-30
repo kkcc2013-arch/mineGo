@@ -3,8 +3,8 @@
 'use strict';
 
 const { ServiceFactory } = require('../../../shared/ServiceFactory');
-const { query, transactionManager } = require('../../../shared/db');
-const { transactionSerializable } = transactionManager;
+const { query } = require('../../../shared/db');
+const { transactionSerializable } = require('../../../shared/transactionManager');
 const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
 const { requireAuth, AppError, successResp } = require('../../../shared/auth');
 const { validateLocation, checkRateLimit, requireTrustScore, TRUST_SCORE } = require('../../../shared/anti-cheat');

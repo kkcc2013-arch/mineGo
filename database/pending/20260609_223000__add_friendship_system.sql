@@ -27,10 +27,10 @@ COMMENT ON COLUMN pokemon_friendship.mood_expiry IS '心情过期时间';
 COMMENT ON COLUMN pokemon_friendship.total_interactions IS '总互动次数';
 
 -- 索引优化
-CREATE INDEX idx_pokemon_friendship_user ON pokemon_friendship(user_id);
-CREATE INDEX idx_pokemon_friendship_pokemon ON pokemon_friendship(pokemon_id);
-CREATE INDEX idx_pokemon_friendship_level ON pokemon_friendship(friendship_level);
-CREATE INDEX idx_pokemon_friendship_mood_expiry ON pokemon_friendship(mood_expiry) WHERE mood_expiry IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_pokemon_friendship_user ON pokemon_friendship(user_id);
+CREATE INDEX IF NOT EXISTS idx_pokemon_friendship_pokemon ON pokemon_friendship(pokemon_id);
+CREATE INDEX IF NOT EXISTS idx_pokemon_friendship_level ON pokemon_friendship(friendship_level);
+CREATE INDEX IF NOT EXISTS idx_pokemon_friendship_mood_expiry ON pokemon_friendship(mood_expiry) WHERE mood_expiry IS NOT NULL;
 
 -- 2. 互动记录表
 CREATE TABLE IF NOT EXISTS friendship_interactions (
@@ -50,9 +50,9 @@ COMMENT ON COLUMN friendship_interactions.friendship_gain IS '羁绊值增益';
 COMMENT ON COLUMN friendship_interactions.resource_consumed IS '消耗的资源信息';
 
 -- 索引优化
-CREATE INDEX idx_friendship_interactions_pokemon ON friendship_interactions(pokemon_id);
-CREATE INDEX idx_friendship_interactions_user_time ON friendship_interactions(user_id, created_at DESC);
-CREATE INDEX idx_friendship_interactions_type ON friendship_interactions(interaction_type);
+CREATE INDEX IF NOT EXISTS idx_friendship_interactions_pokemon ON friendship_interactions(pokemon_id);
+CREATE INDEX IF NOT EXISTS idx_friendship_interactions_user_time ON friendship_interactions(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_friendship_interactions_type ON friendship_interactions(interaction_type);
 
 -- 3. 羁绊里程碑表
 CREATE TABLE IF NOT EXISTS friendship_milestones (
@@ -70,8 +70,8 @@ COMMENT ON COLUMN friendship_milestones.milestone_type IS '里程碑类型：lev
 COMMENT ON COLUMN friendship_milestones.milestone_data IS '里程碑详细数据';
 
 -- 索引优化
-CREATE INDEX idx_friendship_milestones_user ON friendship_milestones(user_id);
-CREATE INDEX idx_friendship_milestones_type ON friendship_milestones(milestone_type);
+CREATE INDEX IF NOT EXISTS idx_friendship_milestones_user ON friendship_milestones(user_id);
+CREATE INDEX IF NOT EXISTS idx_friendship_milestones_type ON friendship_milestones(milestone_type);
 
 -- 4. 互动道具配置表
 CREATE TABLE IF NOT EXISTS interaction_items (

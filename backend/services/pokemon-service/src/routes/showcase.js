@@ -10,7 +10,7 @@
 const express = require('express');
 const router = express.Router();
 const showcaseService = require('../showcaseService');
-const logger = require('../../shared/logger');
+const logger = require('../../../shared/logger');
 
 // ============================================================
 // 中间件：验证用户身份

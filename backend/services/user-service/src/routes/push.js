@@ -9,7 +9,7 @@ const Joi = require('joi');
 const { getPushNotificationService } = require('../../../shared/pushNotificationService');
 const { getClient } = require('../../../shared/db');
 const logger = require('../../../shared/logger');
-const auth = require('../middleware/auth');
+const { authenticate: auth } = require('../../../shared/authMiddleware');
 
 // 验证模式
 const registerDeviceSchema = Joi.object({

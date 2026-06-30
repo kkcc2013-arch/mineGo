@@ -4,11 +4,11 @@
 -- PVP 对战记录表
 CREATE TABLE IF NOT EXISTS pvp_battles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  attacker_id INTEGER NOT NULL REFERENCES users(id),
-  defender_id INTEGER NOT NULL REFERENCES users(id),
+  attacker_id UUID NOT NULL REFERENCES users(id),
+  defender_id UUID NOT NULL REFERENCES users(id),
   battle_type VARCHAR(20) NOT NULL CHECK (battle_type IN ('friendly', 'ranked', 'casual')),
   status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed', 'cancelled')),
-  winner_id INTEGER REFERENCES users(id),
+  winner_id UUID REFERENCES users(id),
   battle_data JSONB,
   turns INTEGER DEFAULT 0,
   elo_change JSONB,
@@ -17,11 +17,11 @@ CREATE TABLE IF NOT EXISTS pvp_battles (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_pvp_battles_attacker ON pvp_battles(attacker_id);
-CREATE INDEX idx_pvp_battles_defender ON pvp_battles(defender_id);
-CREATE INDEX idx_pvp_battles_status ON pvp_battles(status);
-CREATE INDEX idx_pvp_battles_type ON pvp_battles(battle_type);
-CREATE INDEX idx_pvp_battles_created ON pvp_battles(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_pvp_battles_attacker ON pvp_battles(attacker_id);
+CREATE INDEX IF NOT EXISTS idx_pvp_battles_defender ON pvp_battles(defender_id);
+CREATE INDEX IF NOT EXISTS idx_pvp_battles_status ON pvp_battles(status);
+CREATE INDEX IF NOT EXISTS idx_pvp_battles_type ON pvp_battles(battle_type);
+CREATE INDEX IF NOT EXISTS idx_pvp_battles_created ON pvp_battles(created_at DESC);
 
 -- PVP 排位积分表
 CREATE TABLE IF NOT EXISTS pvp_rankings (
@@ -38,9 +38,9 @@ CREATE TABLE IF NOT EXISTS pvp_rankings (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_pvp_rankings_elo ON pvp_rankings(elo_rating DESC);
-CREATE INDEX idx_pvp_rankings_tier ON pvp_rankings(tier);
-CREATE INDEX idx_pvp_rankings_streak ON pvp_rankings(current_streak DESC);
+CREATE INDEX IF NOT EXISTS idx_pvp_rankings_elo ON pvp_rankings(elo_rating DESC);
+CREATE INDEX IF NOT EXISTS idx_pvp_rankings_tier ON pvp_rankings(tier);
+CREATE INDEX IF NOT EXISTS idx_pvp_rankings_streak ON pvp_rankings(current_streak DESC);
 
 -- PVP 赛季表
 CREATE TABLE IF NOT EXISTS pvp_seasons (
@@ -54,13 +54,13 @@ CREATE TABLE IF NOT EXISTS pvp_seasons (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_pvp_seasons_active ON pvp_seasons(is_active);
-CREATE INDEX idx_pvp_seasons_dates ON pvp_seasons(start_date, end_date);
+CREATE INDEX IF NOT EXISTS idx_pvp_seasons_active ON pvp_seasons(is_active);
+CREATE INDEX IF NOT EXISTS idx_pvp_seasons_dates ON pvp_seasons(start_date, end_date);
 
 -- PVP 队伍配置表
 CREATE TABLE IF NOT EXISTS pvp_teams (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id INTEGER NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES users(id),
   name VARCHAR(50),
   pokemon_ids INTEGER[] NOT NULL CHECK (array_length(pokemon_ids, 1) = 3),
   is_active BOOLEAN DEFAULT true,
@@ -69,8 +69,8 @@ CREATE TABLE IF NOT EXISTS pvp_teams (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_pvp_teams_user ON pvp_teams(user_id);
-CREATE INDEX idx_pvp_teams_active ON pvp_teams(is_active);
+CREATE INDEX IF NOT EXISTS idx_pvp_teams_user ON pvp_teams(user_id);
+CREATE INDEX IF NOT EXISTS idx_pvp_teams_active ON pvp_teams(is_active);
 
 -- PVP 战斗回放表
 CREATE TABLE IF NOT EXISTS pvp_replays (
@@ -81,21 +81,21 @@ CREATE TABLE IF NOT EXISTS pvp_replays (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_pvp_replays_battle ON pvp_replays(battle_id);
-CREATE INDEX idx_pvp_replays_created ON pvp_replays(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_pvp_replays_battle ON pvp_replays(battle_id);
+CREATE INDEX IF NOT EXISTS idx_pvp_replays_created ON pvp_replays(created_at DESC);
 
 -- 匹配队列表
 CREATE TABLE IF NOT EXISTS pvp_match_queue (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id INTEGER NOT NULL REFERENCES users(id) UNIQUE,
+  user_id UUID NOT NULL REFERENCES users(id) UNIQUE,
   elo_rating INTEGER NOT NULL,
   preferences JSONB DEFAULT '{}',
   matched BOOLEAN DEFAULT false,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_pvp_match_queue_elo ON pvp_match_queue(elo_rating);
-CREATE INDEX idx_pvp_match_queue_created ON pvp_match_queue(created_at);
+CREATE INDEX IF NOT EXISTS idx_pvp_match_queue_elo ON pvp_match_queue(elo_rating);
+CREATE INDEX IF NOT EXISTS idx_pvp_match_queue_created ON pvp_match_queue(created_at);
 
 -- 插入初始赛季数据
 INSERT INTO pvp_seasons (name, season_number, start_date, end_date, rewards, is_active)

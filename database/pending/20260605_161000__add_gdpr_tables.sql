@@ -4,7 +4,7 @@
 -- 1. 用户同意记录表
 CREATE TABLE IF NOT EXISTS user_consents (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   privacy_policy_version VARCHAR(10) NOT NULL,
   terms_version VARCHAR(10) NOT NULL,
   consented_at TIMESTAMP NOT NULL,
@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS user_consents (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_user_consents_user ON user_consents(user_id);
-CREATE INDEX idx_user_consents_version ON user_consents(privacy_policy_version);
+CREATE INDEX IF NOT EXISTS idx_user_consents_user ON user_consents(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_consents_version ON user_consents(privacy_policy_version);
 
 -- 2. 隐私政策版本表
 CREATE TABLE IF NOT EXISTS privacy_policy_versions (
@@ -40,10 +40,13 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_audit_logs_user ON audit_logs(user_id);
-CREATE INDEX idx_audit_logs_action ON audit_logs(action);
-CREATE INDEX idx_audit_logs_created ON audit_logs(created_at);
-CREATE INDEX idx_audit_logs_service ON audit_logs(service);
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS service VARCHAR(50);
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS ip_address INET;
+
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON audit_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON audit_logs(action);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created ON audit_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_service ON audit_logs(service);
 
 -- 4. 数据删除请求表
 CREATE TABLE IF NOT EXISTS data_deletion_requests (
@@ -56,8 +59,8 @@ CREATE TABLE IF NOT EXISTS data_deletion_requests (
   confirmation_token VARCHAR(64)
 );
 
-CREATE INDEX idx_deletion_requests_user ON data_deletion_requests(user_id);
-CREATE INDEX idx_deletion_requests_status ON data_deletion_requests(status);
+CREATE INDEX IF NOT EXISTS idx_deletion_requests_user ON data_deletion_requests(user_id);
+CREATE INDEX IF NOT EXISTS idx_deletion_requests_status ON data_deletion_requests(status);
 
 -- 5. 数据保留策略配置表
 CREATE TABLE IF NOT EXISTS data_retention_policies (
@@ -82,15 +85,15 @@ ON CONFLICT (table_name) DO NOTHING;
 -- 6. 加密位置数据表（替代明文存储）
 CREATE TABLE IF NOT EXISTS encrypted_user_locations (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   encrypted_location TEXT NOT NULL,
   iv VARCHAR(64) NOT NULL,
   auth_tag VARCHAR(64) NOT NULL,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE INDEX idx_encrypted_locations_user ON encrypted_user_locations(user_id);
-CREATE INDEX idx_encrypted_locations_created ON encrypted_user_locations(created_at);
+CREATE INDEX IF NOT EXISTS idx_encrypted_locations_user ON encrypted_user_locations(user_id);
+CREATE INDEX IF NOT EXISTS idx_encrypted_locations_created ON encrypted_user_locations(created_at);
 
 -- 7. 添加用户删除时间字段
 ALTER TABLE users ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;

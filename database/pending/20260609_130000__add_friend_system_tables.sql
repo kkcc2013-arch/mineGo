@@ -7,8 +7,8 @@
 -- ============================================
 CREATE TABLE IF NOT EXISTS friends (
     id SERIAL PRIMARY KEY,
-    user_id VARCHAR(36) NOT NULL,
-    friend_user_id VARCHAR(36) NOT NULL,
+    user_id UUID NOT NULL,
+    friend_user_id UUID NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'pending', -- pending, accepted, blocked
     friendship_level INTEGER DEFAULT 1, -- 友情等级 1-5
     friendship_points INTEGER DEFAULT 0, -- 友情点数
@@ -35,8 +35,8 @@ COMMENT ON COLUMN friends.friendship_level IS '友情等级 1-5，影响交易�
 -- ============================================
 CREATE TABLE IF NOT EXISTS friend_requests (
     id SERIAL PRIMARY KEY,
-    from_user_id VARCHAR(36) NOT NULL,
-    to_user_id VARCHAR(36) NOT NULL,
+    from_user_id UUID NOT NULL,
+    to_user_id UUID NOT NULL,
     message TEXT,
     status VARCHAR(20) DEFAULT 'pending', -- pending, accepted, rejected, expired
     expires_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '7 days'),
@@ -60,8 +60,8 @@ COMMENT ON TABLE friend_requests IS '好友请求表';
 -- ============================================
 CREATE TABLE IF NOT EXISTS friend_interactions (
     id SERIAL PRIMARY KEY,
-    user_id VARCHAR(36) NOT NULL,
-    friend_user_id VARCHAR(36) NOT NULL,
+    user_id UUID NOT NULL,
+    friend_user_id UUID NOT NULL,
     interaction_type VARCHAR(50) NOT NULL, -- gift_item, gift_candy, raid_together, battle_together, trade
     metadata JSONB, -- 互动详情
     friendship_points_earned INTEGER DEFAULT 0,
@@ -83,8 +83,8 @@ COMMENT ON TABLE friend_interactions IS '好友互动记录表';
 -- ============================================
 CREATE TABLE IF NOT EXISTS friend_gifts (
     id SERIAL PRIMARY KEY,
-    from_user_id VARCHAR(36) NOT NULL,
-    to_user_id VARCHAR(36) NOT NULL,
+    from_user_id UUID NOT NULL,
+    to_user_id UUID NOT NULL,
     gift_type VARCHAR(50) NOT NULL, -- item, candy, stardust
     gift_id VARCHAR(36), -- 道具ID或精灵种类ID
     gift_name VARCHAR(100), -- 礼物名称（冗余，方便展示）
@@ -136,7 +136,7 @@ COMMENT ON VIEW v_friend_stats IS '好友统计视图';
 CREATE MATERIALIZED VIEW IF NOT EXISTS mv_friend_leaderboard AS
 SELECT 
     u.id AS user_id,
-    u.username,
+    u.nickname,
     u.avatar_url,
     u.level,
     COALESCE(stats.friend_count, 0) AS friend_count,

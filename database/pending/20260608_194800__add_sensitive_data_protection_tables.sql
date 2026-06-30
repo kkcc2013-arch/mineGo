@@ -40,10 +40,10 @@ CREATE TABLE IF NOT EXISTS sensitive_data_access_logs (
 );
 
 -- 索引
-CREATE INDEX idx_sensitive_access_user ON sensitive_data_access_logs(user_id, timestamp);
-CREATE INDEX idx_sensitive_access_resource ON sensitive_data_access_logs(resource_type, resource_id, timestamp);
-CREATE INDEX idx_sensitive_access_accessor ON sensitive_data_access_logs(accessed_by, timestamp);
-CREATE INDEX idx_sensitive_access_timestamp ON sensitive_data_access_logs(timestamp);
+CREATE INDEX IF NOT EXISTS idx_sensitive_access_user ON sensitive_data_access_logs(user_id, timestamp);
+CREATE INDEX IF NOT EXISTS idx_sensitive_access_resource ON sensitive_data_access_logs(resource_type, resource_id, timestamp);
+CREATE INDEX IF NOT EXISTS idx_sensitive_access_accessor ON sensitive_data_access_logs(accessed_by, timestamp);
+CREATE INDEX IF NOT EXISTS idx_sensitive_access_timestamp ON sensitive_data_access_logs(timestamp);
 
 COMMENT ON TABLE sensitive_data_access_logs IS '敏感数据访问审计日志';
 COMMENT ON COLUMN sensitive_data_access_logs.accessed_by IS '访问者用户 ID';
@@ -68,8 +68,8 @@ CREATE TABLE IF NOT EXISTS encryption_keys (
 );
 
 -- 索引
-CREATE INDEX idx_encryption_keys_active ON encryption_keys(is_active, created_at);
-CREATE INDEX idx_encryption_keys_expires ON encryption_keys(expires_at) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_encryption_keys_active ON encryption_keys(is_active, created_at);
+CREATE INDEX IF NOT EXISTS idx_encryption_keys_expires ON encryption_keys(expires_at) WHERE is_active = true;
 
 COMMENT ON TABLE encryption_keys IS '加密密钥管理表（密钥使用主密钥加密存储）';
 COMMENT ON COLUMN encryption_keys.encrypted_key IS '使用主密钥加密的工作密钥';
@@ -91,7 +91,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 创建定时任务扩展（需要 pg_cron 扩展）
 -- 如果没有 pg_cron，可以在应用层定期执行
--- SELECT cron.schedule('cleanup_sensitive_access_logs', '0 2 * * *', 'SELECT cleanup_expired_sensitive_access_logs()');
+-- -- -- -- -- SELECT cron.schedule('cleanup_sensitive_access_logs', '0 2 * * *', 'SELECT cleanup_expired_sensitive_access_logs()');
 
 -- ============================================================
 -- 5. 敏感字段定义表（可选，用于动态配置）
@@ -151,8 +151,8 @@ CREATE TABLE IF NOT EXISTS sensitive_access_approvals (
 );
 
 -- 索引
-CREATE INDEX idx_access_approval_requester ON sensitive_access_approvals(requester_id, status);
-CREATE INDEX idx_access_approval_status ON sensitive_access_approvals(status, created_at);
+CREATE INDEX IF NOT EXISTS idx_access_approval_requester ON sensitive_access_approvals(requester_id, status);
+CREATE INDEX IF NOT EXISTS idx_access_approval_status ON sensitive_access_approvals(status, created_at);
 
 COMMENT ON TABLE sensitive_access_approvals IS '敏感数据访问审批记录';
 
@@ -178,10 +178,4 @@ EXECUTE FUNCTION update_updated_at_column();
 -- ============================================================
 
 -- 插入迁移记录
-INSERT INTO schema_migrations (version, description, applied_at)
-VALUES (
-  '20260608_194800',
-  'REQ-00038: Add sensitive data protection and encrypted audit logs',
-  NOW()
-)
-ON CONFLICT (version) DO NOTHING;
+

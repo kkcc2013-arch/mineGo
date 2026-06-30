@@ -11,7 +11,14 @@ const { query } = require('./db');
 const { getRedis, setJSON, getJSON, del } = require('./redis');
 const { createLogger } = require('./logger');
 const { incrementCounter, recordHistogram } = require('./metrics');
-const geoip = require('geoip-lite');
+let geoip;
+try {
+  geoip = require('geoip-lite');
+} catch (error) {
+  geoip = {
+    lookup: () => null
+  };
+}
 
 const logger = createLogger('session-anomaly-detector');
 

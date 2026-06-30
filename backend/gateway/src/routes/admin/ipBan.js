@@ -6,7 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const { getIpBanManager, getClientIp } = require('../../middleware/ipBan');
-const { logger, metrics } = require('../../../shared/index');
+const { logger, metrics } = require('../../../../shared/index');
 
 // 管理员权限检查中间件
 function adminOnly(req, res, next) {

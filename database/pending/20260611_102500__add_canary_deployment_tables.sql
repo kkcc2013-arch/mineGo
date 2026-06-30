@@ -54,10 +54,10 @@ CREATE TABLE canary_metrics_snapshots (
 );
 
 -- 创建索引
-CREATE INDEX idx_canary_deployments_service ON canary_deployments(service_name, status);
-CREATE INDEX idx_canary_deployments_status ON canary_deployments(status);
-CREATE INDEX idx_canary_history_deployment ON canary_deployment_history(deployment_id);
-CREATE INDEX idx_canary_metrics_deployment ON canary_metrics_snapshots(deployment_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_canary_deployments_service ON canary_deployments(service_name, status);
+CREATE INDEX IF NOT EXISTS idx_canary_deployments_status ON canary_deployments(status);
+CREATE INDEX IF NOT EXISTS idx_canary_history_deployment ON canary_deployment_history(deployment_id);
+CREATE INDEX IF NOT EXISTS idx_canary_metrics_deployment ON canary_metrics_snapshots(deployment_id, created_at DESC);
 
 -- 注释
 COMMENT ON TABLE canary_deployments IS '金丝雀发布主表';

@@ -19,25 +19,25 @@
 -- 1. 用户精灵列表 CP 排序索引
 -- 优化场景: SELECT ... FROM pokemon_instances WHERE user_id = ? ORDER BY cp DESC
 -- 预期效果: 消除 filesort，直接使用索引扫描
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_instances_user_cp
+CREATE INDEX IF NOT EXISTS idx_instances_user_cp
   ON pokemon_instances(user_id, cp DESC);
 
 -- 2. 用户精灵列表捕捉时间排序索引
 -- 优化场景: SELECT ... FROM pokemon_instances WHERE user_id = ? ORDER BY caught_at DESC
 -- 预期效果: 按捕捉时间排序的查询可以直接使用索引
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_instances_user_caught
+CREATE INDEX IF NOT EXISTS idx_instances_user_caught
   ON pokemon_instances(user_id, caught_at DESC);
 
 -- 3. 按物种查询精灵 CP 排序索引
 -- 优化场景: SELECT ... FROM pokemon_instances WHERE species_id = ? ORDER BY cp DESC
 -- 预期效果: 图鉴页面查看某物种的精灵时可以使用索引
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_instances_species_cp
+CREATE INDEX IF NOT EXISTS idx_instances_species_cp
   ON pokemon_instances(species_id, cp DESC);
 
 -- 4. 用户精灵 IV 排序索引
 -- 优化场景: SELECT ... WHERE user_id = ? ORDER BY (iv_attack+iv_defense+iv_hp) DESC
 -- 使用函数索引（表达式索引）
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_instances_user_iv
+CREATE INDEX IF NOT EXISTS idx_instances_user_iv
   ON pokemon_instances(user_id, (iv_attack + iv_defense + iv_hp) DESC);
 
 -- ============================================================================

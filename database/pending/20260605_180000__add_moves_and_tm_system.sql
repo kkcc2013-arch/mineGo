@@ -23,9 +23,9 @@ CREATE TABLE IF NOT EXISTS moves (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_moves_type ON moves(type);
-CREATE INDEX idx_moves_category ON moves(category);
-CREATE INDEX idx_moves_type_category ON moves(type, category);
+CREATE INDEX IF NOT EXISTS idx_moves_type ON moves(type);
+CREATE INDEX IF NOT EXISTS idx_moves_category ON moves(category);
+CREATE INDEX IF NOT EXISTS idx_moves_type_category ON moves(type, category);
 
 -- 2. 精灵种族可学习技能池
 CREATE TABLE IF NOT EXISTS pokemon_moves (
@@ -36,9 +36,9 @@ CREATE TABLE IF NOT EXISTS pokemon_moves (
   PRIMARY KEY (species_id, move_id)
 );
 
-CREATE INDEX idx_pokemon_moves_species ON pokemon_moves(species_id);
-CREATE INDEX idx_pokemon_moves_move ON pokemon_moves(move_id);
-CREATE INDEX idx_pokemon_moves_learn_method ON pokemon_moves(learn_method);
+CREATE INDEX IF NOT EXISTS idx_pokemon_moves_species ON pokemon_moves(species_id);
+CREATE INDEX IF NOT EXISTS idx_pokemon_moves_move ON pokemon_moves(move_id);
+CREATE INDEX IF NOT EXISTS idx_pokemon_moves_learn_method ON pokemon_moves(learn_method);
 
 -- 3. TM 技能机器表
 CREATE TABLE IF NOT EXISTS technical_machines (
@@ -50,19 +50,19 @@ CREATE TABLE IF NOT EXISTS technical_machines (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX idx_technical_machines_move ON technical_machines(move_id);
-CREATE INDEX idx_technical_machines_rarity ON technical_machines(rarity);
+CREATE INDEX IF NOT EXISTS idx_technical_machines_move ON technical_machines(move_id);
+CREATE INDEX IF NOT EXISTS idx_technical_machines_rarity ON technical_machines(rarity);
 
 -- 4. 玩家 TM 背包
 CREATE TABLE IF NOT EXISTS tm_inventory (
-  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   tm_id VARCHAR(32) NOT NULL REFERENCES technical_machines(id) ON DELETE CASCADE,
   quantity INT NOT NULL DEFAULT 1,
   obtained_at TIMESTAMPTZ DEFAULT NOW(),
   PRIMARY KEY (user_id, tm_id)
 );
 
-CREATE INDEX idx_tm_inventory_user ON tm_inventory(user_id);
+CREATE INDEX IF NOT EXISTS idx_tm_inventory_user ON tm_inventory(user_id);
 
 -- 5. 修改 pokemon_instances 表，添加技能栏字段
 ALTER TABLE pokemon_instances ADD COLUMN IF NOT EXISTS learned_fast_moves TEXT[] DEFAULT '{}';
@@ -100,6 +100,7 @@ INSERT INTO moves (id, name_zh, name_en, type, category, power, energy_delta, du
 
 -- 蓄力技能（Charge Moves）
 ('THUNDERBOLT', '十万伏特', 'Thunderbolt', 'ELECTRIC', 'CHARGE', 80, -50, 2500, 1500, 800, 100, 0, 'STUN', 10, '释放强力电流攻击对手，可能造成麻痹'),
+('THUNDER_PUNCH', '雷电拳', 'Thunder Punch', 'ELECTRIC', 'CHARGE', 45, -33, 2000, 1000, 600, 100, 0, 'STUN', 10, '用充满电流的拳头攻击对手，可能造成麻痹'),
 ('THUNDER', '打雷', 'Thunder', 'ELECTRIC', 'CHARGE', 100, -60, 3000, 2000, 1000, 70, 0, 'STUN', 30, '召唤雷电轰击对手，可能造成麻痹'),
 ('DISCHARGE', '放电', 'Discharge', 'ELECTRIC', 'CHARGE', 65, -33, 2200, 1200, 700, 100, 0, 'STUN', 20, '释放电流攻击范围内所有对手'),
 ('FLAMETHROWER', '喷射火焰', 'Flamethrower', 'FIRE', 'CHARGE', 90, -55, 2700, 1500, 800, 100, 0, 'BURN', 10, '喷出猛烈的火焰，可能造成灼伤'),
@@ -246,10 +247,4 @@ WHERE m.category = 'FAST'
 ON CONFLICT (species_id, move_id) DO NOTHING;
 
 -- 提交迁移记录
-INSERT INTO schema_migrations (version, description, applied_at)
-VALUES (
-  '20260605_180000',
-  'Add moves, pokemon_moves, technical_machines, tm_inventory tables',
-  NOW()
-)
-ON CONFLICT (version) DO NOTHING;
+

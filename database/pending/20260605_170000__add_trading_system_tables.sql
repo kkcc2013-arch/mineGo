@@ -4,8 +4,8 @@
 -- 交易表（如果不存在则创建）
 CREATE TABLE IF NOT EXISTS pokemon_trades (
   id SERIAL PRIMARY KEY,
-  initiator_id VARCHAR(36) NOT NULL REFERENCES users(id),
-  receiver_id VARCHAR(36) NOT NULL REFERENCES users(id),
+  initiator_id UUID NOT NULL REFERENCES users(id),
+  receiver_id UUID NOT NULL REFERENCES users(id),
   offered_pokemon INTEGER NOT NULL,
   received_pokemon INTEGER,
   stardust_cost INTEGER NOT NULL DEFAULT 100,
@@ -29,7 +29,7 @@ CREATE INDEX IF NOT EXISTS idx_trades_created_at ON pokemon_trades(created_at DE
 -- 可疑交易记录表
 CREATE TABLE IF NOT EXISTS suspicious_trades (
   id SERIAL PRIMARY KEY,
-  trade_id INTEGER NOT NULL REFERENCES pokemon_trades(id),
+  trade_id UUID NOT NULL REFERENCES pokemon_trades(id),
   flags JSONB NOT NULL DEFAULT '[]',
   severity VARCHAR(20) NOT NULL DEFAULT 'LOW' CHECK (severity IN ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL')),
   reviewed BOOLEAN NOT NULL DEFAULT FALSE,
@@ -48,7 +48,7 @@ CREATE INDEX IF NOT EXISTS idx_suspicious_trades_created_at ON suspicious_trades
 -- 用户会话表（用于IP地址检测）
 CREATE TABLE IF NOT EXISTS user_sessions (
   id SERIAL PRIMARY KEY,
-  user_id VARCHAR(36) NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES users(id),
   ip_address VARCHAR(45) NOT NULL,
   user_agent TEXT,
   device_id VARCHAR(100),
@@ -66,7 +66,7 @@ CREATE INDEX IF NOT EXISTS idx_user_sessions_expires_at ON user_sessions(expires
 CREATE OR REPLACE VIEW trade_statistics AS
 SELECT 
   u.id AS user_id,
-  u.username,
+  u.nickname,
   COUNT(DISTINCT CASE WHEN pt.initiator_id = u.id THEN pt.id END) AS trades_initiated,
   COUNT(DISTINCT CASE WHEN pt.receiver_id = u.id THEN pt.id END) AS trades_received,
   COUNT(DISTINCT CASE WHEN pt.status = 'COMPLETED' AND (pt.initiator_id = u.id OR pt.receiver_id = u.id) THEN pt.id END) AS trades_completed,
@@ -75,7 +75,7 @@ SELECT
   MAX(pt.created_at) AS last_trade_at
 FROM users u
 LEFT JOIN pokemon_trades pt ON pt.initiator_id = u.id OR pt.receiver_id = u.id
-GROUP BY u.id, u.username;
+GROUP BY u.id, u.nickname;
 
 -- 注释
 COMMENT ON TABLE pokemon_trades IS '精灵交易记录表';

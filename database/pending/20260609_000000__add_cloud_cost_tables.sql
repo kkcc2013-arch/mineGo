@@ -191,8 +191,8 @@ SELECT
 FROM budget_configs bc
 LEFT JOIN cost_records cr ON 
   (bc.scope = 'all' 
-   OR (bc.scope = 'service' AND cr.service_name = ANY(bc.scope_values->>'services'))
-   OR (bc.scope = 'namespace' AND cr.namespace = ANY(bc.scope_values->>'namespaces'))
+   OR (bc.scope = 'service' AND bc.scope_values->'services' @> jsonb_build_array(cr.service_name))
+   OR (bc.scope = 'namespace' AND bc.scope_values->'namespaces' @> jsonb_build_array(cr.namespace))
   )
   AND cr.period_start >= bc.start_date
   AND (bc.end_date IS NULL OR cr.period_end <= bc.end_date)

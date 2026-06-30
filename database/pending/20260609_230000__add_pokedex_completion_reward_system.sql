@@ -6,7 +6,7 @@
 -- ============================================================
 CREATE TABLE IF NOT EXISTS pokedex_progress (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     pokemon_species_id INTEGER NOT NULL REFERENCES pokemon_species(id),
     
     -- 见过/捕获状态
@@ -30,10 +30,10 @@ CREATE TABLE IF NOT EXISTS pokedex_progress (
 );
 
 -- 索引
-CREATE INDEX idx_pokedex_progress_user ON pokedex_progress(user_id);
-CREATE INDEX idx_pokedex_progress_species ON pokedex_progress(pokemon_species_id);
-CREATE INDEX idx_pokedex_progress_caught ON pokedex_progress(user_id, caught) WHERE caught = TRUE;
-CREATE INDEX idx_pokedex_progress_shiny ON pokedex_progress(user_id, shiny_caught) WHERE shiny_caught = TRUE;
+CREATE INDEX IF NOT EXISTS idx_pokedex_progress_user ON pokedex_progress(user_id);
+CREATE INDEX IF NOT EXISTS idx_pokedex_progress_species ON pokedex_progress(pokemon_species_id);
+CREATE INDEX IF NOT EXISTS idx_pokedex_progress_caught ON pokedex_progress(user_id, caught) WHERE caught = TRUE;
+CREATE INDEX IF NOT EXISTS idx_pokedex_progress_shiny ON pokedex_progress(user_id, shiny_caught) WHERE shiny_caught = TRUE;
 
 COMMENT ON TABLE pokedex_progress IS '用户图鉴进度记录';
 
@@ -80,7 +80,7 @@ COMMENT ON TABLE pokedex_milestones IS '图鉴里程碑奖励配置';
 -- ============================================================
 CREATE TABLE IF NOT EXISTS user_milestone_claims (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     milestone_id INTEGER NOT NULL REFERENCES pokedex_milestones(id),
     claimed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     reward_data JSONB,
@@ -88,7 +88,7 @@ CREATE TABLE IF NOT EXISTS user_milestone_claims (
     UNIQUE(user_id, milestone_id)
 );
 
-CREATE INDEX idx_user_milestone_claims_user ON user_milestone_claims(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_milestone_claims_user ON user_milestone_claims(user_id);
 
 COMMENT ON TABLE user_milestone_claims IS '用户里程碑奖励领取记录';
 
@@ -144,14 +144,14 @@ COMMENT ON TABLE pokedex_achievements IS '图鉴成就配置';
 -- ============================================================
 CREATE TABLE IF NOT EXISTS user_pokedex_achievements (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     achievement_id INTEGER NOT NULL REFERENCES pokedex_achievements(id),
     unlocked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
     UNIQUE(user_id, achievement_id)
 );
 
-CREATE INDEX idx_user_pokedex_achievements_user ON user_pokedex_achievements(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_pokedex_achievements_user ON user_pokedex_achievements(user_id);
 
 COMMENT ON TABLE user_pokedex_achievements IS '用户图鉴成就解锁记录';
 
@@ -318,7 +318,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE VIEW v_pokedex_overview AS
 SELECT 
     psc.user_id,
-    u.username,
+    u.nickname,
     psc.total_species,
     psc.seen_count,
     psc.caught_count,
@@ -331,7 +331,7 @@ SELECT
 FROM pokedex_stats_cache psc
 JOIN users u ON psc.user_id = u.id
 LEFT JOIN user_pokedex_achievements upa ON u.id = upa.user_id
-GROUP BY psc.user_id, u.username, psc.total_species, psc.seen_count, 
+GROUP BY psc.user_id, u.nickname, psc.total_species, psc.seen_count, 
          psc.caught_count, psc.shiny_count, psc.legendary_count, 
          psc.mythical_count, psc.completion_percentage, psc.last_updated;
 

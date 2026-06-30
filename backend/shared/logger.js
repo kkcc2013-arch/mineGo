@@ -117,8 +117,16 @@ function requestLogger(logger) {
   };
 }
 
+const defaultLogger = createLogger('app');
+
 module.exports = {
   createLogger,
   childLogger,
   requestLogger,
+  info: defaultLogger.info.bind(defaultLogger),
+  error: defaultLogger.error.bind(defaultLogger),
+  warn: defaultLogger.warn.bind(defaultLogger),
+  debug: defaultLogger.debug.bind(defaultLogger),
+  trace: defaultLogger.trace.bind(defaultLogger),
+  fatal: defaultLogger.fatal.bind(defaultLogger),
 };

@@ -47,13 +47,33 @@ function calculateChecksum(content) {
  * Parse migration file to extract up and down sections
  */
 function parseMigrationFile(content) {
-  const upMatch = content.match(/--\s*migrate:up\s*\n([\s\S]*?)(?=--\s*migrate:down|$)/);
-  const downMatch = content.match(/--\s*migrate:down\s*\n([\s\S]*?)$/);
+  const hasUpTag = /--\s*migrate:up/.test(content);
+  const hasDownTag = /--\s*migrate:down/.test(content);
   
-  return {
-    up: upMatch ? upMatch[1].trim() : '',
-    down: downMatch ? downMatch[1].trim() : '',
-  };
+  if (!hasUpTag && !hasDownTag) {
+    return {
+      up: content.trim(),
+      down: '',
+    };
+  }
+  
+  let up = '';
+  let down = '';
+  
+  if (hasUpTag) {
+    const upMatch = content.match(/--\s*migrate:up\s*\n([\s\S]*?)(?=--\s*migrate:down|$)/);
+    up = upMatch ? upMatch[1].trim() : '';
+  } else {
+    const beforeDownMatch = content.match(/^([\s\S]*?)(?=--\s*migrate:down)/);
+    up = beforeDownMatch ? beforeDownMatch[1].trim() : '';
+  }
+  
+  if (hasDownTag) {
+    const downMatch = content.match(/--\s*migrate:down\s*\n([\s\S]*?)$/);
+    down = downMatch ? downMatch[1].trim() : '';
+  }
+  
+  return { up, down };
 }
 
 /**
@@ -203,6 +223,86 @@ async function verifyChecksums() {
   }
 }
 
+function splitStatements(sql) {
+  const statements = [];
+  let current = '';
+  let inString = false;
+  let inDoubleQuote = false;
+  let dollarTag = null;
+  
+  for (let i = 0; i < sql.length; i++) {
+    const char = sql[i];
+    const nextChar = i < sql.length - 1 ? sql[i + 1] : '';
+    const prev = i > 0 ? sql[i - 1] : '';
+    
+    // Check for single line comment: --
+    if (char === '-' && nextChar === '-' && !inString && !inDoubleQuote && !dollarTag) {
+      while (i < sql.length && sql[i] !== '\n') {
+        current += sql[i];
+        i++;
+      }
+      if (i < sql.length) {
+        current += sql[i];
+      }
+      continue;
+    }
+    
+    // Check for multi line comment: /*
+    if (char === '/' && nextChar === '*' && !inString && !inDoubleQuote && !dollarTag) {
+      current += '/*';
+      i += 2;
+      while (i < sql.length && !(sql[i] === '*' && sql[i+1] === '/')) {
+        current += sql[i];
+        i++;
+      }
+      if (i < sql.length) {
+        current += '*/';
+        i++;
+      }
+      continue;
+    }
+    
+    if (char === "'" && prev !== '\\' && !inDoubleQuote && !dollarTag) {
+      inString = !inString;
+    } else if (char === '"' && prev !== '\\' && !inString && !dollarTag) {
+      inDoubleQuote = !inDoubleQuote;
+    } else if (char === '$' && !inString && !inDoubleQuote) {
+      if (dollarTag) {
+        const potentialEnd = sql.substring(i, i + dollarTag.length);
+        if (potentialEnd === dollarTag) {
+          i += dollarTag.length - 1;
+          dollarTag = null;
+          current += potentialEnd;
+          continue;
+        }
+      } else {
+        const match = sql.substring(i).match(/^\$[a-zA-Z0-9_]*\$/);
+        if (match) {
+          dollarTag = match[0];
+          i += dollarTag.length - 1;
+          current += dollarTag;
+          continue;
+        }
+      }
+    }
+    
+    if (char === ';' && !inString && !inDoubleQuote && !dollarTag) {
+      if (current.trim()) {
+        statements.push(current.trim());
+      }
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+  
+  if (current.trim()) {
+    statements.push(current.trim());
+  }
+  
+  return statements;
+}
+
 /**
  * Run a single migration
  */
@@ -215,8 +315,13 @@ async function runMigration(client, migration, direction = 'up') {
   
   const start = Date.now();
   
-  // Execute migration SQL
-  await client.query(sql);
+  // Execute migration SQL statements sequentially
+  const statements = splitStatements(sql);
+  for (const statement of statements) {
+    if (statement.trim()) {
+      await client.query(statement);
+    }
+  }
   
   const executionMs = Date.now() - start;
   
@@ -256,6 +361,7 @@ async function runPendingMigrations() {
     const lockId = await acquireLock(client);
     console.log(`Migration lock acquired by: ${lockId}`);
     
+    let committed = false;
     try {
       // Get executed and pending migrations
       const executed = await getExecutedMigrations(client);
@@ -266,6 +372,8 @@ async function runPendingMigrations() {
       
       if (toRun.length === 0) {
         console.log('No pending migrations to run.');
+        await client.query('COMMIT');
+        committed = true;
         return { ran: 0, migrations: [] };
       }
       
@@ -281,17 +389,27 @@ async function runPendingMigrations() {
       }
       
       await client.query('COMMIT');
+      committed = true;
       console.log(`Successfully ran ${toRun.length} migration(s).`);
       
       return { ran: toRun.length, migrations: results };
       
+    } catch (err) {
+      if (!committed) {
+        await client.query('ROLLBACK');
+        committed = true; // prevent double rollback
+      }
+      throw err;
     } finally {
-      await releaseLock(client);
-      console.log('Migration lock released.');
+      try {
+        await releaseLock(client);
+        console.log('Migration lock released.');
+      } catch (lockErr) {
+        console.error('Failed to release migration lock:', lockErr.message);
+      }
     }
     
   } catch (err) {
-    await client.query('ROLLBACK');
     throw err;
   } finally {
     client.release();
@@ -498,8 +616,7 @@ async function main() {
         console.error('Usage: node migrate.js [up|down|status|create|verify]');
         process.exit(1);
     }
-  } catch (err) {
-    console.error('Migration failed:', err.message);
+    console.error('Migration failed:', err);
     process.exit(1);
   } finally {
     if (pool) {

@@ -7,7 +7,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../../../shared/db');
 const { getRedisClient } = require('../../../shared/cache');
-const logger = require('../../../shared/logger')('share-routes');
+const logger = require('../../../shared/logger').createLogger('share-routes');
 const metrics = require('../../../shared/metrics');
 
 // 分享场景枚举

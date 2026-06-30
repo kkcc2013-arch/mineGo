@@ -26,9 +26,9 @@ COMMENT ON TABLE dr_failover_events IS '容灾故障切换事件记录';
 COMMENT ON COLUMN dr_failover_events.rto_seconds IS '实际 RTO（恢复时间目标）秒数';
 COMMENT ON COLUMN dr_failover_events.rpo_seconds IS '实际 RPO（恢复点目标）秒数';
 
-CREATE INDEX idx_dr_failover_events_status ON dr_failover_events(status);
-CREATE INDEX idx_dr_failover_events_started_at ON dr_failover_events(started_at DESC);
-CREATE INDEX idx_dr_failover_events_trigger_type ON dr_failover_events(trigger_type);
+CREATE INDEX IF NOT EXISTS idx_dr_failover_events_status ON dr_failover_events(status);
+CREATE INDEX IF NOT EXISTS idx_dr_failover_events_started_at ON dr_failover_events(started_at DESC);
+CREATE INDEX IF NOT EXISTS idx_dr_failover_events_trigger_type ON dr_failover_events(trigger_type);
 
 -- 容灾演练记录表
 CREATE TABLE IF NOT EXISTS dr_drills (
@@ -54,8 +54,8 @@ CREATE TABLE IF NOT EXISTS dr_drills (
 
 COMMENT ON TABLE dr_drills IS '容灾演练记录';
 
-CREATE INDEX idx_dr_drills_status ON dr_drills(status);
-CREATE INDEX idx_dr_drills_scheduled_time ON dr_drills(scheduled_time DESC);
+CREATE INDEX IF NOT EXISTS idx_dr_drills_status ON dr_drills(status);
+CREATE INDEX IF NOT EXISTS idx_dr_drills_scheduled_time ON dr_drills(scheduled_time DESC);
 
 -- 服务健康检查历史表
 CREATE TABLE IF NOT EXISTS dr_health_check_history (
@@ -72,9 +72,9 @@ CREATE TABLE IF NOT EXISTS dr_health_check_history (
 
 COMMENT ON TABLE dr_health_check_history IS '服务健康检查历史';
 
-CREATE INDEX idx_dr_health_check_history_checked_at ON dr_health_check_history(checked_at DESC);
-CREATE INDEX idx_dr_health_check_history_service ON dr_health_check_history(service_name, region);
-CREATE INDEX idx_dr_health_check_history_healthy ON dr_health_check_history(healthy);
+CREATE INDEX IF NOT EXISTS idx_dr_health_check_history_checked_at ON dr_health_check_history(checked_at DESC);
+CREATE INDEX IF NOT EXISTS idx_dr_health_check_history_service ON dr_health_check_history(service_name, region);
+CREATE INDEX IF NOT EXISTS idx_dr_health_check_history_healthy ON dr_health_check_history(healthy);
 
 -- 数据库同步状态表
 CREATE TABLE IF NOT EXISTS dr_db_sync_status (
@@ -91,8 +91,8 @@ CREATE TABLE IF NOT EXISTS dr_db_sync_status (
 
 COMMENT ON TABLE dr_db_sync_status IS '数据库跨区域同步状态';
 
-CREATE INDEX idx_dr_db_sync_status_checked_at ON dr_db_sync_status(checked_at DESC);
-CREATE INDEX idx_dr_db_sync_status_healthy ON dr_db_sync_status(healthy);
+CREATE INDEX IF NOT EXISTS idx_dr_db_sync_status_checked_at ON dr_db_sync_status(checked_at DESC);
+CREATE INDEX IF NOT EXISTS idx_dr_db_sync_status_healthy ON dr_db_sync_status(healthy);
 
 -- 容灾系统配置表
 CREATE TABLE IF NOT EXISTS dr_config (
@@ -167,9 +167,9 @@ CREATE TABLE IF NOT EXISTS dr_audit_log (
 
 COMMENT ON TABLE dr_audit_log IS '容灾操作审计日志';
 
-CREATE INDEX idx_dr_audit_log_action ON dr_audit_log(action);
-CREATE INDEX idx_dr_audit_log_resource ON dr_audit_log(resource_type, resource_id);
-CREATE INDEX idx_dr_audit_log_created_at ON dr_audit_log(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_dr_audit_log_action ON dr_audit_log(action);
+CREATE INDEX IF NOT EXISTS idx_dr_audit_log_resource ON dr_audit_log(resource_type, resource_id);
+CREATE INDEX IF NOT EXISTS idx_dr_audit_log_created_at ON dr_audit_log(created_at DESC);
 
 -- 创建视图：容灾状态概览
 CREATE OR REPLACE VIEW dr_status_overview AS

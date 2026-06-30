@@ -22,8 +22,8 @@ CREATE TABLE IF NOT EXISTS breeding_pairs (
     slot_index INTEGER NOT NULL CHECK (slot_index >= 0 AND slot_index < 10),
     
     -- 父母精灵
-    parent1_pokemon_id UUID NOT NULL REFERENCES user_pokemon(id) ON DELETE CASCADE,
-    parent2_pokemon_id UUID NOT NULL REFERENCES user_pokemon(id) ON DELETE CASCADE,
+    parent1_pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
+    parent2_pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     
     -- 培育状态
     status VARCHAR(20) NOT NULL DEFAULT 'breeding' CHECK (status IN ('breeding', 'ready', 'collected', 'cancelled')),
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS breeding_pairs (
     
     -- 预生成后代数据（JSON）
     offspring_data JSONB NOT NULL DEFAULT '{}',
-    offspring_id UUID REFERENCES user_pokemon(id) ON DELETE SET NULL,
+    offspring_id UUID REFERENCES pokemon_instances(id) ON DELETE SET NULL,
     
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS species_egg_groups (
 CREATE TABLE IF NOT EXISTS egg_hatching (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    pokemon_id UUID NOT NULL REFERENCES user_pokemon(id) ON DELETE CASCADE,
+    pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     
     -- 孵化进度
     current_steps INTEGER NOT NULL DEFAULT 0,
@@ -99,14 +99,14 @@ CREATE TABLE IF NOT EXISTS egg_hatching (
 -- 精灵家族谱系表
 CREATE TABLE IF NOT EXISTS pokemon_lineage (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    pokemon_id UUID NOT NULL REFERENCES user_pokemon(id) ON DELETE CASCADE,
+    pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     
     -- 父母信息
-    parent1_id UUID REFERENCES user_pokemon(id) ON DELETE SET NULL,
+    parent1_id UUID REFERENCES pokemon_instances(id) ON DELETE SET NULL,
     parent1_species_id INTEGER REFERENCES pokemon_species(id),
     parent1_nickname VARCHAR(50),
     
-    parent2_id UUID REFERENCES user_pokemon(id) ON DELETE SET NULL,
+    parent2_id UUID REFERENCES pokemon_instances(id) ON DELETE SET NULL,
     parent2_species_id INTEGER REFERENCES pokemon_species(id),
     parent2_nickname VARCHAR(50),
     

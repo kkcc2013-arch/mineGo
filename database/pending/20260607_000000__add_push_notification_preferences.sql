@@ -4,7 +4,7 @@
 -- 用户推送偏好表
 CREATE TABLE IF NOT EXISTS user_push_preferences (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   fcm_token TEXT,
   apns_token TEXT,
   preferred_channels TEXT[] NOT NULL DEFAULT ARRAY['websocket', 'fcm', 'apns'],
@@ -31,7 +31,7 @@ COMMENT ON COLUMN user_push_preferences.quiet_hours IS '静默时段配置';
 -- 推送日志表
 CREATE TABLE IF NOT EXISTS push_logs (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES users(id),
   channel VARCHAR(20) NOT NULL,
   notification_type VARCHAR(50) NOT NULL,
   title TEXT,

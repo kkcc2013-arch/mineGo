@@ -45,7 +45,7 @@ CREATE TABLE guilds (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_active_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
-    created_by INTEGER REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
     
     CONSTRAINT valid_guild_level CHECK (level >= 1 AND level <= 50)
 );
@@ -54,7 +54,7 @@ CREATE TABLE guilds (
 CREATE TABLE guild_members (
     id SERIAL PRIMARY KEY,
     guild_id INTEGER NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     
     -- 职位
     role VARCHAR(20) DEFAULT 'member' CHECK (role IN ('leader', 'co_leader', 'elder', 'member', 'novice')),
@@ -82,19 +82,19 @@ CREATE TABLE guild_members (
 );
 
 -- 为 one_guild_per_user 约束创建唯一索引
-CREATE UNIQUE INDEX idx_guild_members_user_unique ON guild_members(user_id) 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_guild_members_user_unique ON guild_members(user_id) 
     WHERE role != 'novice';
 
 -- 公会申请表
 CREATE TABLE guild_applications (
     id SERIAL PRIMARY KEY,
     guild_id INTEGER NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     
     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'withdrawn')),
     
     application_text TEXT,
-    reviewed_by INTEGER REFERENCES users(id),
+    reviewed_by UUID REFERENCES users(id),
     reviewed_at TIMESTAMP,
     review_note TEXT,
     
@@ -107,8 +107,8 @@ CREATE TABLE guild_applications (
 CREATE TABLE guild_invitations (
     id SERIAL PRIMARY KEY,
     guild_id INTEGER NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    inviter_id INTEGER NOT NULL REFERENCES users(id),
-    invitee_id INTEGER NOT NULL REFERENCES users(id),
+    inviter_id UUID NOT NULL REFERENCES users(id),
+    invitee_id UUID NOT NULL REFERENCES users(id),
     
     invite_code VARCHAR(20) UNIQUE,
     
@@ -130,7 +130,7 @@ CREATE TABLE guild_warehouse (
     item_data JSONB NOT NULL,
     quantity INTEGER DEFAULT 1,
     
-    donated_by INTEGER REFERENCES users(id),
+    donated_by UUID REFERENCES users(id),
     donated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -141,7 +141,7 @@ CREATE TABLE guild_warehouse_claims (
     id SERIAL PRIMARY KEY,
     warehouse_item_id INTEGER NOT NULL REFERENCES guild_warehouse(id) ON DELETE CASCADE,
     guild_id INTEGER NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES users(id),
     quantity INTEGER DEFAULT 1,
     
     claimed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -151,7 +151,7 @@ CREATE TABLE guild_warehouse_claims (
 CREATE TABLE guild_donations (
     id SERIAL PRIMARY KEY,
     guild_id INTEGER NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES users(id),
     donation_type VARCHAR(20) NOT NULL CHECK (donation_type IN ('coins', 'items', 'pokemon')),
     amount INTEGER NOT NULL,
     contribution_gained INTEGER DEFAULT 0,
@@ -199,7 +199,7 @@ CREATE TABLE user_guild_tasks (
     id SERIAL PRIMARY KEY,
     guild_id INTEGER NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
     task_id INTEGER NOT NULL REFERENCES guild_tasks(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES users(id),
     
     progress INTEGER DEFAULT 0,
     completed_count INTEGER DEFAULT 0,
@@ -242,7 +242,7 @@ CREATE TABLE guild_war_participations (
     id SERIAL PRIMARY KEY,
     war_id INTEGER NOT NULL REFERENCES guild_wars(id) ON DELETE CASCADE,
     guild_id INTEGER NOT NULL REFERENCES guilds(id),
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES users(id),
     
     battles_won INTEGER DEFAULT 0,
     battles_lost INTEGER DEFAULT 0,
@@ -289,7 +289,7 @@ CREATE TABLE guild_buffs (
 CREATE TABLE guild_chat_messages (
     id SERIAL PRIMARY KEY,
     guild_id INTEGER NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES users(id),
     
     message_type VARCHAR(20) DEFAULT 'text' CHECK (message_type IN ('text', 'system', 'announcement')),
     
@@ -302,7 +302,7 @@ CREATE TABLE guild_chat_messages (
 CREATE TABLE guild_announcements (
     id SERIAL PRIMARY KEY,
     guild_id INTEGER NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    author_id INTEGER NOT NULL REFERENCES users(id),
+    author_id UUID NOT NULL REFERENCES users(id),
     
     title VARCHAR(200) NOT NULL,
     content TEXT NOT NULL,
@@ -314,25 +314,25 @@ CREATE TABLE guild_announcements (
 );
 
 -- 创建索引
-CREATE INDEX idx_guilds_level ON guilds(level DESC);
-CREATE INDEX idx_guilds_status ON guilds(status);
-CREATE INDEX idx_guilds_join_type ON guilds(join_type) WHERE status = 'active';
-CREATE INDEX idx_guild_members_guild ON guild_members(guild_id);
-CREATE INDEX idx_guild_members_user ON guild_members(user_id);
-CREATE INDEX idx_guild_members_contribution ON guild_members(guild_id, contribution DESC);
-CREATE INDEX idx_guild_members_role ON guild_members(role);
-CREATE INDEX idx_guild_applications_status ON guild_applications(guild_id, status);
-CREATE INDEX idx_guild_applications_user ON guild_applications(user_id, status);
-CREATE INDEX idx_guild_tasks_guild ON guild_tasks(guild_id, task_period);
-CREATE INDEX idx_guild_tasks_active ON guild_tasks(guild_id, starts_at, ends_at) WHERE is_completed = FALSE;
-CREATE INDEX idx_guild_wars_status ON guild_wars(status);
-CREATE INDEX idx_guild_wars_guild ON guild_wars(attacking_guild_id, defending_guild_id);
-CREATE INDEX idx_guild_chat_guild_time ON guild_chat_messages(guild_id, created_at DESC);
-CREATE INDEX idx_guild_leaderboard_rank ON guild_leaderboard(leaderboard_type, rank);
-CREATE INDEX idx_guild_leaderboard_type ON guild_leaderboard(leaderboard_type, period);
-CREATE INDEX idx_guild_buffs_expires ON guild_buffs(guild_id, expires_at);
-CREATE INDEX idx_guild_donations_guild ON guild_donations(guild_id, created_at DESC);
-CREATE INDEX idx_guild_donations_user ON guild_donations(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_guilds_level ON guilds(level DESC);
+CREATE INDEX IF NOT EXISTS idx_guilds_status ON guilds(status);
+CREATE INDEX IF NOT EXISTS idx_guilds_join_type ON guilds(join_type) WHERE status = 'active';
+CREATE INDEX IF NOT EXISTS idx_guild_members_guild ON guild_members(guild_id);
+CREATE INDEX IF NOT EXISTS idx_guild_members_user ON guild_members(user_id);
+CREATE INDEX IF NOT EXISTS idx_guild_members_contribution ON guild_members(guild_id, contribution DESC);
+CREATE INDEX IF NOT EXISTS idx_guild_members_role ON guild_members(role);
+CREATE INDEX IF NOT EXISTS idx_guild_applications_status ON guild_applications(guild_id, status);
+CREATE INDEX IF NOT EXISTS idx_guild_applications_user ON guild_applications(user_id, status);
+CREATE INDEX IF NOT EXISTS idx_guild_tasks_guild ON guild_tasks(guild_id, task_period);
+CREATE INDEX IF NOT EXISTS idx_guild_tasks_active ON guild_tasks(guild_id, starts_at, ends_at) WHERE is_completed = FALSE;
+CREATE INDEX IF NOT EXISTS idx_guild_wars_status ON guild_wars(status);
+CREATE INDEX IF NOT EXISTS idx_guild_wars_guild ON guild_wars(attacking_guild_id, defending_guild_id);
+CREATE INDEX IF NOT EXISTS idx_guild_chat_guild_time ON guild_chat_messages(guild_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_guild_leaderboard_rank ON guild_leaderboard(leaderboard_type, rank);
+CREATE INDEX IF NOT EXISTS idx_guild_leaderboard_type ON guild_leaderboard(leaderboard_type, period);
+CREATE INDEX IF NOT EXISTS idx_guild_buffs_expires ON guild_buffs(guild_id, expires_at);
+CREATE INDEX IF NOT EXISTS idx_guild_donations_guild ON guild_donations(guild_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_guild_donations_user ON guild_donations(user_id, created_at DESC);
 
 -- 添加注释
 COMMENT ON TABLE guilds IS '公会主表';

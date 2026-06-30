@@ -62,14 +62,14 @@ CREATE TABLE IF NOT EXISTS device_registrations (
 );
 
 -- 索引
-CREATE INDEX idx_device_registrations_device_id ON device_registrations(device_id);
-CREATE INDEX idx_device_registrations_fingerprint ON device_registrations(fingerprint);
-CREATE INDEX idx_device_registrations_risk_score ON device_registrations(risk_score DESC);
-CREATE INDEX idx_device_registrations_status ON device_registrations(status);
-CREATE INDEX idx_device_registrations_os_type ON device_registrations(os_type);
-CREATE INDEX idx_device_registrations_last_seen ON device_registrations(last_seen_at DESC);
-CREATE INDEX idx_device_registrations_emulator ON device_registrations(is_emulator) WHERE is_emulator = TRUE;
-CREATE INDEX idx_device_registrations_rooted ON device_registrations(is_rooted) WHERE is_rooted = TRUE;
+CREATE INDEX IF NOT EXISTS idx_device_registrations_device_id ON device_registrations(device_id);
+CREATE INDEX IF NOT EXISTS idx_device_registrations_fingerprint ON device_registrations(fingerprint);
+CREATE INDEX IF NOT EXISTS idx_device_registrations_risk_score ON device_registrations(risk_score DESC);
+CREATE INDEX IF NOT EXISTS idx_device_registrations_status ON device_registrations(status);
+CREATE INDEX IF NOT EXISTS idx_device_registrations_os_type ON device_registrations(os_type);
+CREATE INDEX IF NOT EXISTS idx_device_registrations_last_seen ON device_registrations(last_seen_at DESC);
+CREATE INDEX IF NOT EXISTS idx_device_registrations_emulator ON device_registrations(is_emulator) WHERE is_emulator = TRUE;
+CREATE INDEX IF NOT EXISTS idx_device_registrations_rooted ON device_registrations(is_rooted) WHERE is_rooted = TRUE;
 
 -- ============================================================
 -- 2. 设备-账号关联表
@@ -98,9 +98,9 @@ CREATE TABLE IF NOT EXISTS device_account_associations (
 );
 
 -- 索引
-CREATE INDEX idx_device_account_device ON device_account_associations(device_id);
-CREATE INDEX idx_device_account_user ON device_account_associations(user_id);
-CREATE INDEX idx_device_account_primary ON device_account_associations(user_id, is_primary_device) WHERE is_primary_device = TRUE;
+CREATE INDEX IF NOT EXISTS idx_device_account_device ON device_account_associations(device_id);
+CREATE INDEX IF NOT EXISTS idx_device_account_user ON device_account_associations(user_id);
+CREATE INDEX IF NOT EXISTS idx_device_account_primary ON device_account_associations(user_id, is_primary_device) WHERE is_primary_device = TRUE;
 
 -- ============================================================
 -- 3. 设备完整性检测日志表
@@ -130,10 +130,10 @@ CREATE TABLE IF NOT EXISTS device_integrity_logs (
 );
 
 -- 索引
-CREATE INDEX idx_integrity_logs_device ON device_integrity_logs(device_id);
-CREATE INDEX idx_integrity_logs_user ON device_integrity_logs(user_id);
-CREATE INDEX idx_integrity_logs_created ON device_integrity_logs(created_at DESC);
-CREATE INDEX idx_integrity_logs_action ON device_integrity_logs(action_taken);
+CREATE INDEX IF NOT EXISTS idx_integrity_logs_device ON device_integrity_logs(device_id);
+CREATE INDEX IF NOT EXISTS idx_integrity_logs_user ON device_integrity_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_integrity_logs_created ON device_integrity_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_integrity_logs_action ON device_integrity_logs(action_taken);
 
 -- ============================================================
 -- 4. 设备群控检测表（多账号设备）
@@ -169,9 +169,9 @@ CREATE TABLE IF NOT EXISTS device_cluster_detection (
 );
 
 -- 索引
-CREATE INDEX idx_cluster_device ON device_cluster_detection(device_id);
-CREATE INDEX idx_cluster_account_count ON device_cluster_detection(account_count DESC);
-CREATE INDEX idx_cluster_risk ON device_cluster_detection(is_cluster_device, risk_score DESC);
+CREATE INDEX IF NOT EXISTS idx_cluster_device ON device_cluster_detection(device_id);
+CREATE INDEX IF NOT EXISTS idx_cluster_account_count ON device_cluster_detection(account_count DESC);
+CREATE INDEX IF NOT EXISTS idx_cluster_risk ON device_cluster_detection(is_cluster_device, risk_score DESC);
 
 -- ============================================================
 -- 5. 设备风险规则配置表

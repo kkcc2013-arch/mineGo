@@ -644,7 +644,7 @@ function db(tableName) {
   return new QueryBuilder(tableName);
 }
 
-// 导出 db 函数作为主要接口，同时保持原有接口兼容
+db.db = db;
 module.exports = db;
 
 // 导出所有原有函数作为属性

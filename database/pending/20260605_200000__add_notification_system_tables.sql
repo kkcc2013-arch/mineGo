@@ -47,11 +47,11 @@ CREATE TABLE IF NOT EXISTS notification_history (
 );
 
 -- 索引：按用户和时间查询
-CREATE INDEX idx_notification_history_user_created 
+CREATE INDEX IF NOT EXISTS idx_notification_history_user_created 
   ON notification_history(user_id, created_at DESC);
 
 -- 索引：按用户和已读状态查询
-CREATE INDEX idx_notification_history_user_read 
+CREATE INDEX IF NOT EXISTS idx_notification_history_user_read 
   ON notification_history(user_id, read) 
   WHERE read = FALSE;
 

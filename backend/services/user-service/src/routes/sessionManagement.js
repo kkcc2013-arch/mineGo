@@ -10,7 +10,8 @@
 const express = require('express');
 const router = express.Router();
 const { query } = require('../../../../shared/db');
-const { authMiddleware, requireAuth } = require('../../../../shared/auth');
+const { requireAuth } = require('../../../../shared/auth');
+const authMiddleware = requireAuth;
 const { SessionAnomalyDetector } = require('../../../../shared/sessionAnomalyDetector');
 const { createLogger } = require('../../../../shared/logger');
 const { incrementCounter } = require('../../../../shared/metrics');

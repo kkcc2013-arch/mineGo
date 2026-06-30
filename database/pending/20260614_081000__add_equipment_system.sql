@@ -111,7 +111,7 @@ COMMENT ON COLUMN equipment_sets.bonus_2_pieces IS '2件套装效果：{"attack"
 
 CREATE TABLE IF NOT EXISTS player_equipment (
   id BIGSERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   template_id INTEGER NOT NULL REFERENCES equipment_templates(id),
   
   -- 当前强化等级
@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS player_equipment (
   is_equipped BOOLEAN NOT NULL DEFAULT FALSE,
   
   -- 装备到的精灵ID
-  equipped_to_pokemon_id BIGINT REFERENCES user_pokemon(id) ON DELETE SET NULL,
+  equipped_to_pokemon_id BIGINT REFERENCES pokemon_instances(id) ON DELETE SET NULL,
   
   -- 获取时间
   acquired_at TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -157,7 +157,7 @@ COMMENT ON TABLE player_equipment IS '玩家装备实例表：记录玩家拥有
 CREATE TABLE IF NOT EXISTS equipment_upgrades (
   id BIGSERIAL PRIMARY KEY,
   equipment_id BIGINT NOT NULL REFERENCES player_equipment(id) ON DELETE CASCADE,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   
   from_level SMALLINT NOT NULL,
   to_level SMALLINT NOT NULL,

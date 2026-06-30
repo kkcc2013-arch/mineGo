@@ -6,7 +6,7 @@
 -- 备份元数据表
 CREATE TABLE IF NOT EXISTS pokemon_backup_metadata (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     backup_type VARCHAR(20) NOT NULL CHECK (backup_type IN ('manual', 'auto_daily', 'auto_weekly', 'migration')),
     backup_status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (backup_status IN ('pending', 'completed', 'failed', 'expired')),
     backup_size_bytes BIGINT,
@@ -49,7 +49,7 @@ COMMENT ON COLUMN pokemon_backup_contents.pokemon_data IS '精灵完整数据JSO
 -- 恢复记录表
 CREATE TABLE IF NOT EXISTS pokemon_restore_records (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     backup_id INTEGER REFERENCES pokemon_backup_metadata(id) ON DELETE SET NULL,
     restore_type VARCHAR(20) NOT NULL CHECK (restore_type IN ('full', 'partial', 'point_in_time')),
     restore_status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (restore_status IN ('pending', 'processing', 'completed', 'failed')),

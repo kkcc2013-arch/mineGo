@@ -90,12 +90,12 @@ ON CONFLICT (key) DO NOTHING;
 -- ============================================================
 -- 创建索引
 -- ============================================================
-CREATE INDEX idx_replication_status_type ON replication_status(node_type, is_active);
-CREATE INDEX idx_replication_status_health ON replication_status(is_healthy, sync_delay_ms);
-CREATE INDEX idx_routing_logs_created ON read_write_routing_logs(created_at DESC);
-CREATE INDEX idx_routing_logs_type_node ON read_write_routing_logs(query_type, target_node);
-CREATE INDEX idx_failover_events_created ON failover_events(created_at DESC);
-CREATE INDEX idx_connection_pool_stats_node ON connection_pool_stats(node_name, recorded_at DESC);
+CREATE INDEX IF NOT EXISTS idx_replication_status_type ON replication_status(node_type, is_active);
+CREATE INDEX IF NOT EXISTS idx_replication_status_health ON replication_status(is_healthy, sync_delay_ms);
+CREATE INDEX IF NOT EXISTS idx_routing_logs_created ON read_write_routing_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_routing_logs_type_node ON read_write_routing_logs(query_type, target_node);
+CREATE INDEX IF NOT EXISTS idx_failover_events_created ON failover_events(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_connection_pool_stats_node ON connection_pool_stats(node_name, recorded_at DESC);
 
 -- ============================================================
 -- 视图：当前主从状态概览

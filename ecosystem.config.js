@@ -29,6 +29,8 @@ const commonEnv = {
   GATEWAY_PORT: "8080",
   ADMIN_PORT: "3000",
   SMS_DEV_MODE: "true",
+  EVENT_BUS_ADAPTER: "redis",
+  REDIS_URL: "redis://:3f7544dc9725e512eceb@127.0.0.1:6379/0",
 };
 
 module.exports = {

@@ -9,7 +9,7 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS language_preference VARCHAR(10) DEFAU
 ALTER TABLE users ADD CONSTRAINT chk_language_preference 
   CHECK (language_preference IN ('zh-CN', 'en-US', 'ja-JP'));
 
--- Create index for language-based queries (optional, for analytics)
+-- CREATE INDEX IF NOT EXISTS for language-based queries (optional, for analytics)
 CREATE INDEX IF NOT EXISTS idx_users_language ON users(language_preference);
 
 -- Comment

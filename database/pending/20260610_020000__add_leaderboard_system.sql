@@ -29,7 +29,7 @@ CREATE TABLE leaderboards (
   id SERIAL PRIMARY KEY,
   leaderboard_type leaderboard_type NOT NULL,
   season_id INTEGER REFERENCES seasons(id),
-  player_id INTEGER REFERENCES users(id),
+  player_id UUID REFERENCES users(id),
   score BIGINT NOT NULL DEFAULT 0,
   rank INTEGER,
   previous_rank INTEGER,
@@ -42,7 +42,7 @@ CREATE TABLE leaderboards (
 CREATE TABLE leaderboard_history (
   id SERIAL PRIMARY KEY,
   season_id INTEGER REFERENCES seasons(id),
-  player_id INTEGER REFERENCES users(id),
+  player_id UUID REFERENCES users(id),
   leaderboard_type leaderboard_type NOT NULL,
   final_rank INTEGER NOT NULL,
   final_score BIGINT NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE leaderboard_snapshots (
   id SERIAL PRIMARY KEY,
   leaderboard_type leaderboard_type NOT NULL,
   season_id INTEGER REFERENCES seasons(id),
-  player_id INTEGER REFERENCES users(id),
+  player_id UUID REFERENCES users(id),
   rank INTEGER NOT NULL,
   score BIGINT NOT NULL,
   snapshot_date DATE NOT NULL,
@@ -65,13 +65,13 @@ CREATE TABLE leaderboard_snapshots (
 );
 
 -- 创建索引
-CREATE INDEX idx_leaderboards_type_season ON leaderboards(leaderboard_type, season_id);
-CREATE INDEX idx_leaderboards_score ON leaderboards(leaderboard_type, season_id, score DESC);
-CREATE INDEX idx_leaderboards_player ON leaderboards(player_id);
-CREATE INDEX idx_seasons_active ON seasons(status, end_time);
-CREATE INDEX idx_seasons_type ON seasons(leaderboard_type, status);
-CREATE INDEX idx_leaderboard_history_season ON leaderboard_history(season_id, player_id);
-CREATE INDEX idx_leaderboard_snapshots_date ON leaderboard_snapshots(snapshot_date);
+CREATE INDEX IF NOT EXISTS idx_leaderboards_type_season ON leaderboards(leaderboard_type, season_id);
+CREATE INDEX IF NOT EXISTS idx_leaderboards_score ON leaderboards(leaderboard_type, season_id, score DESC);
+CREATE INDEX IF NOT EXISTS idx_leaderboards_player ON leaderboards(player_id);
+CREATE INDEX IF NOT EXISTS idx_seasons_active ON seasons(status, end_time);
+CREATE INDEX IF NOT EXISTS idx_seasons_type ON seasons(leaderboard_type, status);
+CREATE INDEX IF NOT EXISTS idx_leaderboard_history_season ON leaderboard_history(season_id, player_id);
+CREATE INDEX IF NOT EXISTS idx_leaderboard_snapshots_date ON leaderboard_snapshots(snapshot_date);
 
 -- 插入初始赛季数据
 INSERT INTO seasons (name, leaderboard_type, start_time, end_time, rewards) VALUES

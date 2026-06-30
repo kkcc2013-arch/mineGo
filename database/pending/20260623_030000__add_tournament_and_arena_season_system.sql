@@ -21,7 +21,7 @@ CREATE INDEX IF NOT EXISTS idx_seasons_time ON seasons(start_time, end_time);
 -- 2. 玩家段位表 (player_ranks)
 CREATE TABLE IF NOT EXISTS player_ranks (
   id SERIAL PRIMARY KEY,
-  user_id INT NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES users(id),
   season_id INT NOT NULL REFERENCES seasons(id),
   tier VARCHAR(20) NOT NULL, -- bronze, silver, gold, platinum, diamond, master, grandmaster
   tier_level INT DEFAULT 1, -- 1-5, e.g., Gold III
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS tournaments (
   rewards JSONB DEFAULT '{}', -- 奖励配置
   entry_fee JSONB DEFAULT '{}', -- 报名费用
   rules JSONB DEFAULT '{}', -- 比赛规则
-  created_by INT REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
@@ -78,7 +78,7 @@ CREATE INDEX IF NOT EXISTS idx_tournaments_time ON tournaments(start_time);
 CREATE TABLE IF NOT EXISTS tournament_participants (
   id SERIAL PRIMARY KEY,
   tournament_id INT NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
-  user_id INT NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES users(id),
   seed INT, -- 种子排名
   current_round INT DEFAULT 0,
   match_wins INT DEFAULT 0,
@@ -98,8 +98,8 @@ CREATE TABLE IF NOT EXISTS battle_records (
   id SERIAL PRIMARY KEY,
   season_id INT NOT NULL REFERENCES seasons(id),
   tournament_id INT REFERENCES tournaments(id),
-  attacker_id INT NOT NULL REFERENCES users(id),
-  defender_id INT NOT NULL REFERENCES users(id),
+  attacker_id UUID NOT NULL REFERENCES users(id),
+  defender_id UUID NOT NULL REFERENCES users(id),
   attacker_pokemon JSONB NOT NULL, -- 参战精灵
   defender_pokemon JSONB NOT NULL,
   result VARCHAR(20) NOT NULL, -- win, lose, draw
@@ -119,7 +119,7 @@ CREATE INDEX IF NOT EXISTS idx_battle_records_tournament ON battle_records(tourn
 -- 6. 赛季奖励发放记录表 (season_rewards)
 CREATE TABLE IF NOT EXISTS season_rewards (
   id SERIAL PRIMARY KEY,
-  user_id INT NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES users(id),
   season_id INT NOT NULL REFERENCES seasons(id),
   tier VARCHAR(20) NOT NULL,
   final_rank INT,

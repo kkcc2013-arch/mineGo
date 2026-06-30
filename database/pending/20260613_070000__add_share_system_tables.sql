@@ -4,7 +4,7 @@
 -- 分享记录表
 CREATE TABLE IF NOT EXISTS share_records (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
   scene VARCHAR(32) NOT NULL, -- catch/achievement/battle/pokedex/friend/custom
   platform VARCHAR(32) NOT NULL, -- wechat/weibo/twitter/facebook/system
   success BOOLEAN NOT NULL DEFAULT false,
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS share_links (
   id SERIAL PRIMARY KEY,
   share_code VARCHAR(32) UNIQUE NOT NULL,
   share_record_id INTEGER REFERENCES share_records(id) ON DELETE SET NULL,
-  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
   scene VARCHAR(32) NOT NULL,
   target_url TEXT,
   click_count INTEGER DEFAULT 0,

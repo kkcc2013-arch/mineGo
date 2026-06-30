@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { authenticate } = require('../middleware/auth');
+const { authenticate } = require('../../../shared/authMiddleware');
 const DeviceFingerprint = require('../../../shared/DeviceFingerprint');
 const DeviceTrustManager = require('../../../shared/DeviceTrustManager');
 const db = require('../../../shared/db');

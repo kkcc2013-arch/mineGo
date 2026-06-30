@@ -22,7 +22,8 @@ class BreedingService {
 
     this.redis = config.redis || new Redis({
       host: process.env.REDIS_HOST || 'localhost',
-      port: process.env.REDIS_PORT || 6379
+      port: process.env.REDIS_PORT || 6379,
+      password: process.env.REDIS_PASSWORD
     });
 
     // 培育时间配置（单位：小时）
