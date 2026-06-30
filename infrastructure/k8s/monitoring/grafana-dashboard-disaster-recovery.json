@@ -1,0 +1,341 @@
+{
+  "dashboard": {
+    "title": "mineGo Disaster Recovery Dashboard",
+    "uid": "minego-dr-dashboard",
+    "tags": ["minego", "disaster-recovery", "operations"],
+    "timezone": "browser",
+    "refresh": "10s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "灾备状态概览",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+        "targets": [
+          {
+            "expr": "dr_failover_active",
+            "legendFormat": "灾备状态"
+          }
+        ],
+        "options": {
+          "colorMode": "background",
+          "textMode": "auto",
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": 0 },
+                { "color": "red", "value": 1 }
+              ]
+            },
+            "mappings": [
+              {
+                "type": "value",
+                "options": {
+                  "0": { "text": "正常运行", "color": "green" },
+                  "1": { "text": "灾备状态", "color": "red" }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "当前活跃区域",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+        "targets": [],
+        "options": {
+          "textMode": "auto",
+          "mode": "markdown"
+        },
+        "pluginVersion": "9.0.0"
+      },
+      {
+        "id": 3,
+        "title": "切换进行中",
+        "type": "stat",
+        "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+        "targets": [
+          {
+            "expr": "dr_failover_in_progress",
+            "legendFormat": "切换状态"
+          }
+        ],
+        "options": {
+          "colorMode": "background"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              {
+                "type": "value",
+                "options": {
+                  "0": { "text": "空闲", "color": "green" },
+                  "1": { "text": "切换中", "color": "orange" }
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "各区域健康分数",
+        "type": "gauge",
+        "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+        "targets": [
+          {
+            "expr": "dr_region_health_score",
+            "legendFormat": "{{region}}"
+          }
+        ],
+        "options": {
+          "showThresholdLabels": true,
+          "showThresholdMarkers": true
+        },
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 100,
+            "unit": "percent",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "red", "value": 0 },
+                { "color": "orange", "value": 50 },
+                { "color": "yellow", "value": 70 },
+                { "color": "green", "value": 80 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "区域健康分数趋势",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+        "targets": [
+          {
+            "expr": "dr_region_health_score{region=\"beijing\"}",
+            "legendFormat": "北京（主）"
+          },
+          {
+            "expr": "dr_region_health_score{region=\"shanghai\"}",
+            "legendFormat": "上海（备）"
+          },
+          {
+            "expr": "dr_region_health_score{region=\"guangzhou\"}",
+            "legendFormat": "广州"
+          }
+        ],
+        "options": {
+          "legend": { "displayMode": "table", "placement": "bottom" }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 100
+          }
+        }
+      },
+      {
+        "id": 6,
+        "title": "切换历史（最近30天）",
+        "type": "timeseries",
+        "gridPos": { "h": 6, "w": 12, "x": 0, "y": 12 },
+        "targets": [
+          {
+            "expr": "increase(dr_failover_total[30d])",
+            "legendFormat": "切换次数"
+          },
+          {
+            "expr": "increase(dr_failback_total[30d])",
+            "legendFormat": "回切次数"
+          },
+          {
+            "expr": "increase(dr_drill_total[30d])",
+            "legendFormat": "演练次数"
+          }
+        ],
+        "options": {
+          "legend": { "displayMode": "table" }
+        }
+      },
+      {
+        "id": 7,
+        "title": "RTO 性能",
+        "type": "stat",
+        "gridPos": { "h": 3, "w": 6, "x": 12, "y": 12 },
+        "targets": [
+          {
+            "expr": "dr_rto_ms",
+            "legendFormat": "上次切换 RTO"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": 0 },
+                { "color": "yellow", "value": 120000 },
+                { "color": "red", "value": 300000 }
+              ]
+            }
+          }
+        },
+        "options": {
+          "colorMode": "background"
+        }
+      },
+      {
+        "id": 8,
+        "title": "RPO 性能",
+        "type": "stat",
+        "gridPos": { "h": 3, "w": 6, "x": 18, "y": 12 },
+        "targets": [
+          {
+            "expr": "dr_rpo_ms",
+            "legendFormat": "当前 RPO"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": 0 },
+                { "color": "yellow", "value": 30000 },
+                { "color": "red", "value": 60000 }
+              ]
+            }
+          }
+        },
+        "options": {
+          "colorMode": "background"
+        }
+      },
+      {
+        "id": 9,
+        "title": "切换成功率",
+        "type": "piechart",
+        "gridPos": { "h": 6, "w": 6, "x": 12, "y": 15 },
+        "targets": [
+          {
+            "expr": "sum(dr_failover_total{result=\"success\"})",
+            "legendFormat": "成功"
+          },
+          {
+            "expr": "sum(dr_failover_total{result=\"failure\"})",
+            "legendFormat": "失败"
+          }
+        ],
+        "options": {
+          "legend": { "displayMode": "table" }
+        }
+      },
+      {
+        "id": 10,
+        "title": "服务健康状态",
+        "type": "table",
+        "gridPos": { "h": 6, "w": 12, "x": 18, "y": 15 },
+        "targets": [
+          {
+            "expr": "dr_health_*",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": { "Time": true, "__name__": true },
+              "indexByName": {},
+              "renameByName": {
+                "Value": "健康状态"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "区域服务延迟",
+        "type": "timeseries",
+        "gridPos": { "h": 6, "w": 12, "x": 0, "y": 18 },
+        "targets": [
+          {
+            "expr": "avg(region_network_latency_ms{region=\"beijing\"})",
+            "legendFormat": "北京"
+          },
+          {
+            "expr": "avg(region_network_latency_ms{region=\"shanghai\"})",
+            "legendFormat": "上海"
+          },
+          {
+            "expr": "avg(region_network_latency_ms{region=\"guangzhou\"})",
+            "legendFormat": "广州"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms"
+          }
+        }
+      },
+      {
+        "id": 12,
+        "title": "数据库复制状态",
+        "type": "timeseries",
+        "gridPos": { "h": 6, "w": 12, "x": 12, "y": 18 },
+        "targets": [
+          {
+            "expr": "dr_postgres_replication_lag_ms",
+            "legendFormat": "PostgreSQL 延迟"
+          },
+          {
+            "expr": "dr_redis_sync_lag_ms",
+            "legendFormat": "Redis 延迟"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms"
+          }
+        }
+      }
+    ],
+    "schemaVersion": 38,
+    "version": 1,
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "templating": {
+      "list": [
+        {
+          "name": "region",
+          "type": "query",
+          "query": "label_values(dr_region_health_score, region)",
+          "refresh": 1,
+          "includeAll": true,
+          "allValue": ".+"
+        }
+      ]
+    }
+  },
+  "overwrite": true
+}

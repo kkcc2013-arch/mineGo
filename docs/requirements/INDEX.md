@@ -394,7 +394,7 @@
 || REQ-00373 | SLO 错误预算燃尽率预警与自动熔断系统 | 容灾/高可用 | P0 | done | gateway、所有微服务、backend/shared/SloManager.js、backend/shared/SloBudgetTracker.js、backend/shared/middleware/sloMiddleware.js、infrastructure/k8s/monitoring、Prometheus、Grafana | 2026-06-29 21:00 UTC |
 || REQ-00374 | 云成本异常检测与预算预警系统 | 成本/资源优化 | P1 | new | gateway、monitoring、backend/shared/cost、Prometheus、Grafana、Slack、Email、infrastructure/k8s、admin-dashboard | 2026-06-29 22:00 UTC |
 | REQ-00375 | 多云成本分摊与资源归因优化系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared/CostAllocator.js、backend/shared/ResourceAttributionEngine.js、infrastructure/k8s、admin-dashboard、Prometheus、Grafana | 2026-06-29 23:10 UTC |
-|| REQ-00376 | 跨区域灾备自动化切换系统 | 容灾/高可用 | P0 | new | gateway、所有微服务、backend/shared/disasterRecovery、infrastructure/k8s、PostgreSQL、Redis、Kafka、DNS/负载均衡、admin-dashboard | 2026-06-29 23:00 UTC |
+|| REQ-00376 | 跨区域灾备自动化切换系统 | 容灾/高可用 | P0 | done | gateway、所有微服务、backend/shared/disasterRecovery、infrastructure/k8s、PostgreSQL、Redis、Kafka、DNS/负载均衡、admin-dashboard | 2026-06-29 23:00 UTC |
 || REQ-00377 | 精灵数据可见性控制与隐私分级系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、gateway、game-client、database/migrations | 2026-06-30 00:00 UTC |
 || REQ-00378 | 微服务架构决策记录（ADR）系统与知识库管理 | 文档/开发者体验 | P2 | new | docs/architecture、backend/shared、所有微服务、admin-dashboard、.github/workflows | 2026-06-30 03:00 UTC |
 | REQ-00380 | API 安全配置基线自动化检查系统 | 安全加固 | P1 | new | gateway、所有微服务、backend/shared、.github/workflows、infrastructure/k8s | 2026-06-30 05:00 UTC |
@@ -405,3 +405,4 @@
 | REQ-00385 | 共享模块导入路径规范化与别名系统 | 技术债/重构 | P1 | new | backend/shared、所有微服务、babel/config、package.json、.eslintrc | 2026-06-30 11:00 UTC |
 || REQ-00386 | API 响应格式标准化与错误码统一系统 | API 设计规范 | P1 | new | 所有微服务、backend/shared/middleware、gateway、frontend/game-client、frontend/admin-dashboard、docs/api-spec | 2026-06-30 12:00 |
 || REQ-00388 | 玩家好友互动增强系统 | 功能增强 | P1 | new | social-service、user-service、pokemon-service、reward-service、gateway、game-client、database/migrations | 2026-06-30 13:00 UTC |
+| REQ-00389 | API 请求速率限制绕过检测与防护系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared/RateLimitBypassDetector.js、backend/shared/RateLimitEnforcer.js、Redis、PostgreSQL、admin-dashboard | 2026-06-30 16:00 UTC |
