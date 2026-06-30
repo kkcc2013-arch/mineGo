@@ -3,7 +3,7 @@
 - **编号**: REQ-00397
 - **类别**: 性能优化
 - **优先级**: P1
-- **状态**: new
+- **状态**: done
 - **涉及服务/模块**: gateway、所有微服务、backend/shared/middleware/compression.js、game-client、infrastructure/k8s
 - **创建时间**: 2026-06-30 21:00 UTC
 - **依赖需求**: REQ-00086（CDN 分发与静态资源优化）、REQ-00329（WebSocket 连接池与消息批处理性能优化）
