@@ -3,6 +3,8 @@
 
 const Redis = require('ioredis');
 const { v4: uuidv4 } = require('uuid');
+const { createLogger } = require('./logger');
+const logger = createLogger('redis-pool');
 const {
   redisPoolTotalConnections,
   redisPoolIdleConnections,
@@ -282,16 +284,16 @@ class RedisPoolManager {
 
     // 事件监听
     client.on('error', (err) => {
-      console.error(`[RedisPool:${this.serviceName}] Error:`, err.message);
+      logger.error({ pool: this.serviceName, error: err.message }, 'Redis pool error');
       redisPoolConnectionErrors.inc({ pool: this.serviceName });
     });
 
     client.on('close', () => {
-      console.warn(`[RedisPool:${this.serviceName}] Connection closed`);
+      logger.warn({ pool: this.serviceName }, 'Connection closed');
     });
 
     client.on('reconnecting', () => {
-      console.log(`[RedisPool:${this.serviceName}] Reconnecting...`);
+      logger.info({ pool: this.serviceName }, 'Reconnecting');
     });
 
     return client;
@@ -400,7 +402,7 @@ class RedisPoolManager {
   async release(connection, poolName = 'default') {
     const pool = this.pools.get(poolName);
     if (!pool) {
-      console.warn(`Pool "${poolName}" not found, connection leaked`);
+      logger.warn({ pool: poolName }, 'Pool not found, connection leaked');
       return;
     }
 
@@ -524,7 +526,7 @@ class RedisPoolManager {
     // 重新预热
     await this._warmupConnections(pool);
 
-    console.log(`[RedisPool:${poolName}] Pool reset completed`);
+    logger.info({ pool: poolName }, 'Pool reset completed');
   }
 
   /**
@@ -559,7 +561,7 @@ class RedisPoolManager {
       const leaks = pool.leakDetector.detectLeaks();
 
       if (leaks.length > 0) {
-        console.warn(`[RedisPool:${pool.name}] Detected ${leaks.length} potential leaks:`, {
+        logger.warn({ pool: pool.name, leakCount: leaks.length, leaks }, 'Detected potential leaks');
           pool: pool.name,
           leaks: leaks.map((l) => ({ id: l.id, duration: l.duration })),
         });
@@ -603,7 +605,7 @@ class RedisPoolManager {
         await pool.client.quit();
       }
 
-      console.log(`[RedisPool:${name}] Pool closed`);
+      logger.info({ pool: name }, 'Pool closed');
     }
 
     this.pools.clear();

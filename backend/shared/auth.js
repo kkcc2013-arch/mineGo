@@ -317,7 +317,7 @@ function errorHandler(err, req, res, next) {
   if (err instanceof AuthenticationError) {
     return res.status(err.statusCode).json(err.toJSON(req.requestId));
   }
-  console.error('[ERROR]', err);
+  logger.error({ error: err.message, stack: err.stack }, 'Error');
   res.status(500).json(errorResp('GEN-004', 'Internal server error'));
 }
 

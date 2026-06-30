@@ -8,6 +8,10 @@
 
 const crypto = require('crypto');
 const { promisify } = require('util');
+const { createLogger } = require('./logger');
+
+// 模块级 logger
+const logger = createLogger('cdn-manager');
 
 /**
  * CDN 提供商配置
@@ -210,7 +214,7 @@ class CDNManager {
           return { success: false, message: 'Unsupported provider' };
       }
     } catch (error) {
-      console.error('[CDNManager] Purge cache failed:', error);
+      logger.error({ module: 'CDNManager', error: error.message }, 'Purge cache failed');
       return { success: false, error: error.message };
     }
   }
@@ -416,7 +420,7 @@ class CDNManager {
     const result = await response.json();
     
     if (result.success) {
-      console.log(`[CDNManager] Purged ${paths.length} files from Cloudflare`);
+      logger.info({ module: 'CDNManager', count: paths.length }, 'Purged files from Cloudflare');
     }
     
     return {
@@ -433,7 +437,7 @@ class CDNManager {
   async _purgeAliyun(paths) {
     // 阿里云 CDN 需要使用 SDK
     // 这里简化实现，实际需要集成 @alicloud/cdn20180510
-    console.log(`[CDNManager] Purging ${paths.length} files from Aliyun CDN`);
+    logger.info({ module: 'CDNManager', count: paths.length }, 'Purging files from Aliyun CDN');
     
     return {
       success: true,
@@ -453,7 +457,7 @@ class ImageProcessor {
     try {
       this.sharp = require('sharp');
     } catch (e) {
-      console.warn('[ImageProcessor] Sharp not available, image processing disabled');
+      logger.warn({ module: 'ImageProcessor' }, 'Sharp not available, image processing disabled');
     }
   }
 
@@ -513,7 +517,7 @@ class ImageProcessor {
           fit: 'inside'
         });
       } catch (error) {
-        console.error(`[ImageProcessor] Failed to generate ${preset}:`, error);
+        logger.error({ module: 'ImageProcessor', preset, error: error.message }, 'Failed to generate preset');
       }
     }
 

@@ -1,4 +1,6 @@
 // shared/db.js — PostgreSQL connection pool with shared pool manager
+const { createLogger } = require('./logger');
+const logger = createLogger('db');
 const path = require('path');
 const { context, trace } = require('@opentelemetry/api');
 const { getTracer } = require('./tracing');
@@ -83,7 +85,7 @@ async function query(text, params) {
     }
     
     if (dur > 500) {
-      console.warn('[DB] Slow query (%dms): %s', dur, text.substring(0, 120));
+      logger.warn({ module: 'DB] Slow query (%dms): %s', data: dur, text.substring(0, 120 }, 'DB] Slow query (%dms): %s warning'););
     }
     
     return res;
@@ -158,25 +160,25 @@ async function initializeMigrations() {
     // Verify checksums of already executed migrations
     const verifyResult = await verifyChecksums();
     if (!verifyResult.valid) {
-      console.error('[DB] Migration checksum verification failed!');
+      logger.error({ module: 'db' }, '[DB] Migration checksum verification failed!');;
       for (const err of verifyResult.errors) {
-        console.error(`  ${err.version}: ${err.message}`);
+        logger.error({ module: 'db' }, `  ${err.version}: ${err.message}`);;
       }
       throw new Error('Migration checksum verification failed');
     }
     
-    console.log('[DB] Migration checksums verified');
+    logger.info({ module: 'DB] Migration checksums verified' }, 'DB] Migration checksums verified message');;
     
     // Run pending migrations if AUTO_MIGRATE is enabled
     if (process.env.AUTO_MIGRATE === 'true') {
-      console.log('[DB] Running pending migrations...');
+      logger.info({ module: 'DB] Running pending migrations...' }, 'DB] Running pending migrations... message');;
       const result = await runPendingMigrations();
-      console.log(`[DB] Migrations complete: ${result.ran} executed`);
+      logger.info({ module: 'DB] Migrations complete: ${result.ran} executed' }, 'DB] Migrations complete: ${result.ran} executed message');;
     }
     
     migrationsInitialized = true;
   } catch (err) {
-    console.error('[DB] Migration initialization failed:', err.message);
+    logger.error({ module: 'DB] Migration initialization failed', error: err.message.message }, 'DB] Migration initialization failed error');;
     throw err;
   }
 }

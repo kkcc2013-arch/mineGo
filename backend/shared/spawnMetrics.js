@@ -1,4 +1,6 @@
 /**
+const { createLogger } = require('./logger');
+const logger = createLogger('spawnMetrics');
  * 精灵刷新 Prometheus 指标
  *
  * @module spawnMetrics
@@ -182,7 +184,7 @@ spawnMetrics.updateActiveSpawns = async function(redis) {
       }
     }
   } catch (error) {
-    console.error('Error updating active spawns metric:', error);
+    logger.error({ module: 'Error updating active spawns metric', error: error.message }, 'Error updating active spawns metric error');;
   }
 };
 

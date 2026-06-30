@@ -1,6 +1,8 @@
 // backend/shared/criticalPathTracing.js
 // REQ-00148: 分布式追踪与请求链路可视化系统 - 关键路径追踪
 'use strict';
+const { createLogger } = require('./logger');
+const logger = createLogger('criticalPathTracing');
 
 let traceApi = null;
 let tracer = null;
@@ -124,7 +126,7 @@ function startCriticalPath(pathName, context = {}) {
 
   const path = CRITICAL_PATHS[pathName];
   if (!path) {
-    console.warn(`[CriticalPath] Unknown path: ${pathName}`);
+    logger.warn({ module: 'CriticalPath] Unknown path: ${pathName}' }, 'CriticalPath] Unknown path: ${pathName} warning');;
     return createNoOpTracker(pathName);
   }
 
@@ -173,7 +175,7 @@ function startCriticalPath(pathName, context = {}) {
           actual: stepName,
           'step.index': this.currentStep,
         });
-        console.warn(`[CriticalPath] Step mismatch at ${this.pathName}: expected ${expectedStep}, got ${stepName}`);
+        logger.warn({ module: 'CriticalPath] Step mismatch at ${this.pathName}: expected ${expectedStep}, got ${stepName}' }, 'CriticalPath] Step mismatch at ${this.pathName}: expected ${expectedStep}, got ${stepName} warning');;
       }
 
       // 记录步骤开始
@@ -306,7 +308,7 @@ function createFallbackTracker(path, context) {
     },
 
     recordError(error, stepName) {
-      console.error(`[CriticalPath:${path.name}] Error at ${stepName}:`, error.message);
+      logger.error({ module: 'CriticalPath:${path.name}] Error at ${stepName}', error: error.message.message }, 'CriticalPath:${path.name}] Error at ${stepName} error');;
     },
 
     end(success = true) {
@@ -314,7 +316,7 @@ function createFallbackTracker(path, context) {
       this.completed = true;
       
       const totalDuration = Date.now() - startTime;
-      console.log(`[CriticalPath:${path.name}] Completed in ${totalDuration}ms, success=${success}`);
+      logger.info({ module: 'CriticalPath:${path.name}] Completed in ${totalDuration}ms, success=${success}' }, 'CriticalPath:${path.name}] Completed in ${totalDuration}ms, success=${success} message');;
       
       return {
         pathName: path.name,

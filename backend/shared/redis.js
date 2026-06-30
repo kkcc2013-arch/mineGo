@@ -1,5 +1,7 @@
 // shared/redis.js - Redis 客户端封装（兼容旧接口，内部使用连接池）
 'use strict';
+const { createLogger } = require('./logger');
+const logger = createLogger('redis');
 
 const Redis = require('ioredis');
 const { getPoolManager, initPool } = require('./RedisPoolManager');
@@ -54,8 +56,8 @@ function getRedis() {
       });
     }
 
-    client.on('error', (err) => console.error('[Redis] Error:', err));
-    client.on('connect', () => console.log('[Redis] Connected'));
+    client.on('error', (err) => logger.error({ module: 'Redis] Error', error: err.message }, 'Redis] Error error'););
+    client.on('connect', () => logger.info({ module: 'Redis] Connected' }, 'Redis] Connected message'););
   }
   return client;
 }

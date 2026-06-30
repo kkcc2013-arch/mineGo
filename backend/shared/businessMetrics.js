@@ -1,4 +1,6 @@
 /**
+const { createLogger } = require('./logger');
+const logger = createLogger('businessMetrics');
  * 业务指标定义与采集模块
  * REQ-00094: 实时业务指标仪表板与运营监控系统
  */
@@ -490,7 +492,7 @@ class BusinessMetricsCollector {
         orders: parseInt(queries[4].rows[0].count, 10)
       };
     } catch (error) {
-      console.error('Failed to get stats from DB:', error);
+      logger.error({ module: 'businessMetrics', error: error.message }, 'Failed to get stats from DB');
       return {};
     }
   }
@@ -515,7 +517,7 @@ class BusinessMetricsCollector {
       
       return result.rows;
     } catch (error) {
-      console.error('Failed to get hourly metrics:', error);
+      logger.error({ module: 'businessMetrics', error: error.message }, 'Failed to get hourly metrics');
       return [];
     }
   }
@@ -540,7 +542,7 @@ class BusinessMetricsCollector {
       
       return result.rows;
     } catch (error) {
-      console.error('Failed to get daily metrics:', error);
+      logger.error({ module: 'Failed to get daily metrics', error: error.message }, 'Failed to get daily metrics error');;
       return [];
     }
   }
@@ -564,7 +566,7 @@ class BusinessMetricsCollector {
       
       return result.rows;
     } catch (error) {
-      console.error('Failed to get geo distribution:', error);
+      logger.error({ module: 'Failed to get geo distribution', error: error.message }, 'Failed to get geo distribution error');;
       return [];
     }
   }

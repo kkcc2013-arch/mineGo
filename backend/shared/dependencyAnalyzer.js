@@ -1,4 +1,6 @@
 /**
+const { createLogger } = require('./logger');
+const logger = createLogger('dependencyAnalyzer');
  * Dependency Analyzer - 微服务依赖关系分析器
  * 
  * 功能：
@@ -36,7 +38,7 @@ class DependencyAnalyzer {
    * 分析所有服务的依赖关系
    */
   async analyzeAll() {
-    console.log('[DependencyAnalyzer] Starting dependency analysis...');
+    logger.info({ module: 'DependencyAnalyzer] Starting dependency analysis...' }, 'DependencyAnalyzer] Starting dependency analysis... message');;
     
     // 1. 发现服务目录
     await this.discoverServices();
@@ -52,7 +54,7 @@ class DependencyAnalyzer {
     // 4. 计算健康度评分
     const healthScores = this.calculateHealthScores();
     
-    console.log(`[DependencyAnalyzer] Analysis complete. Found ${this.dependencies.length} dependencies`);
+    logger.info({ module: 'DependencyAnalyzer] Analysis complete. Found ${this.dependencies.length} dependencies' }, 'DependencyAnalyzer] Analysis complete. Found ${this.dependencies.length} dependencies message');;
     
     return {
       services: this.services,
@@ -76,11 +78,11 @@ class DependencyAnalyzer {
         await fs.access(servicePath);
         this.serviceDirs.set(service, servicePath);
       } catch (err) {
-        console.warn(`[DependencyAnalyzer] Service directory not found: ${service}`);
+        logger.warn({ module: 'DependencyAnalyzer] Service directory not found: ${service}' }, 'DependencyAnalyzer] Service directory not found: ${service} warning');;
       }
     }
     
-    console.log(`[DependencyAnalyzer] Found ${this.serviceDirs.size} service directories`);
+    logger.info({ module: 'DependencyAnalyzer] Found ${this.serviceDirs.size} service directories' }, 'DependencyAnalyzer] Found ${this.serviceDirs.size} service directories message');;
   }
 
   /**
@@ -90,7 +92,7 @@ class DependencyAnalyzer {
     const servicePath = this.serviceDirs.get(serviceName);
     if (!servicePath) return;
     
-    console.log(`[DependencyAnalyzer] Analyzing ${serviceName}...`);
+    logger.info({ module: 'DependencyAnalyzer] Analyzing ${serviceName}...' }, 'DependencyAnalyzer] Analyzing ${serviceName}... message');;
     
     // 分析源码文件
     const srcPath = path.join(servicePath, 'src');
@@ -140,7 +142,7 @@ class DependencyAnalyzer {
       // 4. 检测服务代理配置
       this.extractProxyConfig(content, serviceName, filePath);
     } catch (err) {
-      console.warn(`[DependencyAnalyzer] Failed to read file: ${filePath}`);
+      logger.warn({ module: 'DependencyAnalyzer] Failed to read file: ${filePath}' }, 'DependencyAnalyzer] Failed to read file: ${filePath} warning');;
     }
   }
 
@@ -519,7 +521,7 @@ class DependencyAnalyzer {
     
     // 如果排序结果不等于所有服务，说明有环
     if (sorted.length < this.services.length) {
-      console.warn('[DependencyAnalyzer] Cycles detected, startup order may be incomplete');
+      logger.warn({ module: 'DependencyAnalyzer] Cycles detected, startup order may be incomplete' }, 'DependencyAnalyzer] Cycles detected, startup order may be incomplete warning');;
       // 将未排序的服务追加到末尾
       const remaining = this.services.filter(s => !sorted.includes(s));
       sorted.push(...remaining);

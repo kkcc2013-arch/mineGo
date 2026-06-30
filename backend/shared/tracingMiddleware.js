@@ -1,6 +1,8 @@
 // backend/shared/tracingMiddleware.js
 // REQ-00148: 分布式追踪与请求链路可视化系统 - Express 中间件
 'use strict';
+const { createLogger } = require('./logger');
+const logger = createLogger('tracingMiddleware');
 
 let traceApi = null;
 let contextApi = null;
@@ -115,7 +117,7 @@ function tracingMiddleware(serviceName) {
       // 在 trace context 中执行后续中间件
       await contextApi.with(traceApi.setSpan(contextApi.active(), span), next);
     } catch (error) {
-      console.error('[TracingMiddleware] Error:', error.message);
+      logger.error({ module: 'TracingMiddleware] Error', error: error.message.message }, 'TracingMiddleware] Error error');;
       req.traceId = generateSimpleTraceId();
       res.setHeader('X-Trace-Id', req.traceId);
       next();

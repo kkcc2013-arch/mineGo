@@ -2,6 +2,8 @@
 // Content Localization Service for REQ-00167
 // Provides unified localization for game content (pokemon, moves, items, events)
 'use strict';
+const { createLogger } = require('./logger');
+const logger = createLogger('contentLocalizer');
 
 const { Pool } = require('pg');
 const { getCached, setCached } = require('./cache');
@@ -76,7 +78,7 @@ class ContentLocalizer {
       
       return null;
     } catch (error) {
-      console.error('[ContentLocalizer] Error fetching localization:', error);
+      logger.error({ module: 'ContentLocalizer] Error fetching localization', error: error.message }, 'ContentLocalizer] Error fetching localization error');;
       return null;
     }
   }
@@ -124,7 +126,7 @@ class ContentLocalizer {
       
       return null;
     } catch (error) {
-      console.error('[ContentLocalizer] Error fetching localized Pokemon:', error);
+      logger.error({ module: 'ContentLocalizer] Error fetching localized Pokemon', error: error.message }, 'ContentLocalizer] Error fetching localized Pokemon error');;
       return null;
     }
   }
@@ -190,7 +192,7 @@ class ContentLocalizer {
       
       return map;
     } catch (error) {
-      console.error('[ContentLocalizer] Error batch localizing Pokemon:', error);
+      logger.error({ module: 'ContentLocalizer] Error batch localizing Pokemon', error: error.message }, 'ContentLocalizer] Error batch localizing Pokemon error');;
       return new Map();
     }
   }
@@ -228,7 +230,7 @@ class ContentLocalizer {
       
       return null;
     } catch (error) {
-      console.error('[ContentLocalizer] Error fetching localized item:', error);
+      logger.error({ module: 'ContentLocalizer] Error fetching localized item', error: error.message }, 'ContentLocalizer] Error fetching localized item error');;
       return null;
     }
   }
@@ -267,7 +269,7 @@ class ContentLocalizer {
       
       return null;
     } catch (error) {
-      console.error('[ContentLocalizer] Error fetching localized move:', error);
+      logger.error({ module: 'ContentLocalizer] Error fetching localized move', error: error.message }, 'ContentLocalizer] Error fetching localized move error');;
       return null;
     }
   }
@@ -303,7 +305,7 @@ class ContentLocalizer {
       
       return true;
     } catch (error) {
-      console.error('[ContentLocalizer] Error setting localization:', error);
+      logger.error({ module: 'ContentLocalizer] Error setting localization', error: error.message }, 'ContentLocalizer] Error setting localization error');;
       return false;
     }
   }
@@ -349,7 +351,7 @@ class ContentLocalizer {
         await this.cache.del(keys);
       }
     } catch (error) {
-      console.error('[ContentLocalizer] Error invalidating cache:', error);
+      logger.error({ module: 'ContentLocalizer] Error invalidating cache', error: error.message }, 'ContentLocalizer] Error invalidating cache error');;
     }
   }
 

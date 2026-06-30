@@ -1,0 +1,26 @@
+{
+  "env": {
+    "node": true,
+    "es2021": true
+  },
+  "extends": ["eslint:recommended"],
+  "parserOptions": {
+    "ecmaVersion": 2021,
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-console": ["error", {
+      "allow": ["info", "debug", "trace"]
+    }],
+    "no-unused-vars": "warn",
+    "prefer-const": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["**/migrations/*.js", "**/scripts/*.js", "**/frontend/**/*.js"],
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ]
+}

@@ -3,6 +3,8 @@
 // 时区中间件：从请求头或用户偏好获取时区
 
 'use strict';
+const { createLogger } = require('./logger');
+const logger = createLogger('timezoneMiddleware');
 
 const { query } = require('./db');
 
@@ -28,7 +30,7 @@ async function timezoneMiddleware(req, res, next) {
           timezone = user.timezone;
         }
       } catch (err) {
-        console.error('Failed to fetch user timezone:', err);
+        logger.error({ module: 'Failed to fetch user timezone', error: err.message }, 'Failed to fetch user timezone error');;
       }
     }
 

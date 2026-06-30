@@ -1,6 +1,8 @@
 // backend/shared/scalingMetrics.js
 // 扩缩容指标收集模块
 'use strict';
+const { createLogger } = require('./logger');
+const logger = createLogger('scalingMetrics');
 
 const client = require('prom-client');
 
@@ -179,7 +181,7 @@ async function collectScalingMetrics() {
     scalingMetrics.predictiveScalingRecommendations.set({ direction: 'down' }, Math.floor(Math.random() * 2));
     
   } catch (error) {
-    console.error('Failed to collect scaling metrics:', error);
+    logger.error({ module: 'Failed to collect scaling metrics', error: error.message }, 'Failed to collect scaling metrics error');;
   }
 }
 
@@ -257,14 +259,14 @@ function startMetricsCollection(intervalMs = 60000) {
   // 定时收集
   metricsCollectionTimer = setInterval(collectScalingMetrics, intervalMs);
   
-  console.log('[scalingMetrics] Started metrics collection', { interval: `${intervalMs}ms` });
+  logger.info({ module: 'scalingMetrics] Started metrics collection', data: { interval: `${intervalMs}ms` } }, 'scalingMetrics] Started metrics collection message');;
 }
 
 function stopMetricsCollection() {
   if (metricsCollectionTimer) {
     clearInterval(metricsCollectionTimer);
     metricsCollectionTimer = null;
-    console.log('[scalingMetrics] Stopped metrics collection');
+    logger.info({ module: 'scalingMetrics] Stopped metrics collection' }, 'scalingMetrics] Stopped metrics collection message');;
   }
 }
 

@@ -92,7 +92,7 @@ class ImageProcessor extends EventEmitter {
       byFormat: {}
     };
     
-    console.log(`[ImageProcessor] Initialized, WebP: ${this.webpEnabled}, AVIF: ${this.avifEnabled}`);
+    logger.info({ webpEnabled: this.webpEnabled, avifEnabled: this.avifEnabled }, 'ImageProcessor initialized');
   }
 
   /**

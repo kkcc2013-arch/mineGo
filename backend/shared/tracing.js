@@ -1,6 +1,8 @@
 // backend/shared/tracing.js
 // REQ-00148: 分布式追踪与请求链路可视化系统 - OpenTelemetry SDK 初始化
 'use strict';
+const { createLogger } = require('./logger');
+const logger = createLogger('tracing');
 
 let sdk = null;
 let isInitialized = false;
@@ -13,14 +15,14 @@ let isInitialized = false;
  */
 async function initTracing(serviceName, serviceVersion = '1.0.0') {
   if (isInitialized) {
-    console.log(`[Tracing] Already initialized, skipping for ${serviceName}`);
+    logger.info({ module: 'Tracing] Already initialized, skipping for ${serviceName}' }, 'Tracing] Already initialized, skipping for ${serviceName} message');;
     return sdk;
   }
 
   // 检查是否启用追踪
   const tracingEnabled = process.env.OTEL_ENABLED !== 'false';
   if (!tracingEnabled) {
-    console.log(`[Tracing] Tracing disabled for ${serviceName}`);
+    logger.info({ module: 'Tracing] Tracing disabled for ${serviceName}' }, 'Tracing] Tracing disabled for ${serviceName} message');;
     return null;
   }
 
@@ -68,13 +70,13 @@ async function initTracing(serviceName, serviceVersion = '1.0.0') {
     await sdk.start();
     isInitialized = true;
     
-    console.log(`[Tracing] OpenTelemetry initialized for ${serviceName}@${serviceVersion}`);
-    console.log(`[Tracing] OTLP Endpoint: ${otlpEndpoint}`);
+    logger.info({ module: 'Tracing] OpenTelemetry initialized for ${serviceName}@${serviceVersion}' }, 'Tracing] OpenTelemetry initialized for ${serviceName}@${serviceVersion} message');;
+    logger.info({ module: 'Tracing] OTLP Endpoint: ${otlpEndpoint}' }, 'Tracing] OTLP Endpoint: ${otlpEndpoint} message');;
     
     return sdk;
   } catch (error) {
     // OpenTelemetry 模块未安装时降级处理
-    console.warn(`[Tracing] OpenTelemetry not available, tracing disabled: ${error.message}`);
+    logger.warn({ module: 'Tracing] OpenTelemetry not available, tracing disabled: ${error.message}' }, 'Tracing] OpenTelemetry not available, tracing disabled: ${error.message} warning');;
     return null;
   }
 }
@@ -86,9 +88,9 @@ async function shutdownTracing() {
   if (sdk) {
     try {
       await sdk.shutdown();
-      console.log('[Tracing] OpenTelemetry SDK shutdown complete');
+      logger.info({ module: 'Tracing] OpenTelemetry SDK shutdown complete' }, 'Tracing] OpenTelemetry SDK shutdown complete message');;
     } catch (error) {
-      console.error('[Tracing] Error during shutdown:', error.message);
+      logger.error({ module: 'Tracing] Error during shutdown', error: error.message.message }, 'Tracing] Error during shutdown error');;
     }
     sdk = null;
     isInitialized = false;
