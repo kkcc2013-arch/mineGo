@@ -413,6 +413,7 @@
 || REQ-00391 | 控制台日志替换与结构化日志强制执行 | 技术债/重构 | P1 | new | 所有微服务、backend/shared、.eslintrc、scripts | 2026-06-30 18:00 UTC |
 || REQ-00392 | 微服务通信协议适配层与多协议统一网关系统 | 可扩展性/解耦 | P1 | done | gateway、所有微服务、backend/shared/ProtocolAdapter.js、backend/shared/ProtocolRouter.js、backend/shared/adapters/ | 2026-06-30 18:00 UTC |
 || REQ-00393 | 动态语言切换无需重新登录系统 | 国际化/本地化 | P1 | done | gateway、user-service、game-client、shared/i18n | 2026-06-30 19:00 UTC |
-|| REQ-00394 | API 敏感参数自动脱敏与日志安全防护系统 | 安全加固 | P1 | new | gateway、所有微服务、backend/shared/logger.js、backend/shared/middleware、admin-dashboard、database/migrations | 2026-06-30 19:05 UTC |
+|| REQ-00394 | API 敏感参数自动脱敏与日志安全防护系统 | 安全加固 | P1 | done | gateway、所有微服务、backend/shared/logger.js、backend/shared/middleware、admin-dashboard、database/migrations | 2026-06-30 19:05 UTC |
 ||| REQ-00395 | API 敏感操作访问控制与风险评估系统 | 安全加固 | P1 | new | gateway、user-service、payment-service、social-service、backend/shared/riskEvaluator.js、backend/shared/sensitiveOperationGuard.js、database/migrations、admin-dashboard | 2026-06-30 20:00 UTC |
 ||| REQ-00396 | 精灵生态链与食物网系统 | 功能增强 | P1 | new | pokemon-service、location-service、catch-service、reward-service、gateway、game-client、database/migrations | 2026-06-30 19:20 UTC |
+|| REQ-00397 | API 响应压缩与带宽优化系统 | 性能优化 | P1 | new | gateway、所有微服务、backend/shared/middleware/compression.js、game-client、infrastructure/k8s | 2026-06-30 21:00 UTC |
