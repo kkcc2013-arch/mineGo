@@ -1,0 +1,104 @@
+# infrastructure/k8s/dr/02-prometheus-rules.yaml
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: disaster-recovery-alerts
+  namespace: minego
+spec:
+  groups:
+  - name: disaster-recovery.rules
+    rules:
+    # PostgreSQL 复制延迟告警
+    - alert: PostgreSQLReplicationLagHigh
+      expr: postgres_replication_lag_ms > 5000
+      for: 2m
+      labels:
+        severity: critical
+        category: disaster-recovery
+      annotations:
+        summary: "PostgreSQL 复制延迟超过阈值"
+        description: "PostgreSQL 主从复制延迟 {{ $value }}ms，超过 5000ms 阈值。RPO 风险增加。"
+        action: "检查主从复制状态，必要时执行手动同步"
+    
+    # Redis 同步延迟告警
+    - alert: RedisReplicationLagHigh
+      expr: redis_replication_offset_lag > 1000
+      for: 2m
+      labels:
+        severity: critical
+        category: disaster-recovery
+      annotations:
+        summary: "Redis 复制偏移量差异过大"
+        description: "Redis 主从复制偏移量差异 {{ $value }}，可能导致数据丢失。"
+        action: "检查 Redis 同步状态，必要时重启复制"
+    
+    # 区域健康状态告警
+    - alert: PrimaryRegionUnhealthy
+      expr: dr_health_overall == 0
+      for: 30s
+      labels:
+        severity: critical
+        category: disaster-recovery
+      annotations:
+        summary: "主区域服务整体不健康"
+        description: "主区域健康检查失败，可能触发自动故障切换。"
+        action: "立即检查主区域服务状态，准备执行灾备切换"
+    
+    # PostgreSQL 健康告警
+    - alert: PostgreSQLReplicationDown
+      expr: dr_health_postgres == 0
+      for: 1m
+      labels:
+        severity: critical
+        category: disaster-recovery
+      annotations:
+        summary: "PostgreSQL 复制连接断开"
+        description: "PostgreSQL 主从复制连接已断开，数据同步中断。"
+        action: "检查复制连接，确认备库状态"
+    
+    # Redis 健康告警
+    - alert: RedisSyncDown
+      expr: dr_health_redis == 0
+      for: 1m
+      labels:
+        severity: critical
+        category: disaster-recovery
+      annotations:
+        summary: "Redis 同步状态异常"
+        description: "Redis 主从同步异常，可能影响缓存数据一致性。"
+        action: "检查 Redis 同步状态"
+    
+    # RPO 超标告警
+    - alert: RPOExceeded
+      expr: dr_rpo_ms > 60000
+      for: 1m
+      labels:
+        severity: warning
+        category: disaster-recovery
+      annotations:
+        summary: "RPO 超出目标阈值"
+        description: "当前 RPO {{ $value }}ms 超过 60 秒目标，数据丢失风险增加。"
+        action: "检查数据同步状态，评估灾备能力"
+    
+    # 故障切换执行告警
+    - alert: FailoverInProgress
+      expr: increase(dr_failover_total[5m]) > 0
+      labels:
+        severity: critical
+        category: disaster-recovery
+      annotations:
+        summary: "故障切换正在进行"
+        description: "系统正在执行故障切换操作，RTO 目标 5 分钟。"
+        action: "监控切换进度，确认服务恢复"
+    
+    # 灾备演练提醒
+    - alert: DisasterRecoveryDrillReminder
+      expr: time() - timestamp(dr_drill_total) > 2592000 # 30 天
+      for: 1h
+      labels:
+        severity: warning
+        category: disaster-recovery
+      annotations:
+        summary: "灾备演练提醒"
+        description: "距离上次灾备演练已超过 30 天，建议定期演练验证灾备能力。"
+        action: "安排灾备演练，执行 runDrill 命令"

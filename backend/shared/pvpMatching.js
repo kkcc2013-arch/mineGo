@@ -8,8 +8,8 @@
  * - 匹配队列管理
  */
 
-const { logger } = require('../../shared/logger');
-const { query } = require('../../shared/db');
+const { logger } = require('./logger');
+const { query } = require('./db');
 
 /**
  * ELO 排位匹配系统

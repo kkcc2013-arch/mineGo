@@ -22,6 +22,9 @@ const recoveryStationsRouter = require('./routes/recoveryStations');
 // Import day/night cycle routes (REQ-00102)
 const dayNightRouter = require('./routes/dayNight');
 
+// Import habitat routes (REQ-00361)
+const habitatRouter = require('./routes/habitat');
+
 const logger = createLogger('location-service');
 const SERVICE_NAME = 'location-service';
 
@@ -483,6 +486,9 @@ app.use('/recovery-stations', recoveryStationsRouter);
 
 // ── Day/Night Cycle Routes (REQ-00102: 精灵昼夜循环系统) ──────────────
 app.use('/daynight', dayNightRouter);
+
+// ── Habitat Routes (REQ-00361: 精灵栖息地偏好与环境加成系统) ──────────────
+app.use('/habitat', habitatRouter);
 
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'Location service started'));

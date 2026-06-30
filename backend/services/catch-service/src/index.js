@@ -9,6 +9,7 @@ const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
 const { requireAuth, AppError, successResp } = require('../../../shared/auth');
 const { validateLocation, checkRateLimit, requireTrustScore, TRUST_SCORE } = require('../../../shared/anti-cheat');
 const { publishCatchSuccess, publishCatchFailed } = require('./eventProducers');
+const { habitatService } = require('../../../shared/habitatService');
 
 // ============================================================
 // CATCH MECHANICS CONSTANTS
@@ -26,15 +27,16 @@ const CURVE_BONUS = 1.1;
 /**
  * Calculate catch probability.
  * Formula from SAD: P = 1 - (1 - baseCatchRate/(2*cpModifier))^(ballMult*berryMult*throwBonus)
+ * REQ-00361: Added habitat bonus multiplier
  */
-function calcCatchProb({ baseCatchRate, cp, ballType, throwRating, isCurve, berryUsed }) {
+function calcCatchProb({ baseCatchRate, cp, ballType, throwRating, isCurve, berryUsed, habitatBonus = 1.0 }) {
   if (ballType === 'MASTER_BALL') return 1.0;
 
   const cpModifier = Math.max(1.0, 1 + (cp / 2500));
   const base       = baseCatchRate / (2 * cpModifier);
   const throwB     = THROW_BONUS[throwRating] || 1.0;
   const curveB     = isCurve ? CURVE_BONUS : 1.0;
-  const exponent   = BALL_MULT[ballType] * BERRY_MULT[berryUsed || 'NONE'] * throwB * curveB;
+  const exponent   = BALL_MULT[ballType] * BERRY_MULT[berryUsed || 'NONE'] * throwB * curveB * habitatBonus;
 
   return Math.min(0.99, 1 - Math.pow(Math.max(0, 1 - base), exponent));
 }
@@ -328,6 +330,24 @@ async function executeCatchThrow(req, res, next) {
     );
     if (rowCount === 0) throw new AppError(3005, '精灵球不足', 400);
 
+    // REQ-00361: Calculate habitat bonus
+    let habitatBonus = 1.0;
+    try {
+      const habitat = await habitatService.identifyHabitat(session.lat, session.lng);
+      const bonusResult = await habitatService.calculateCatchBonus(session.speciesId, habitat);
+      if (bonusResult.habitatMatch) {
+        habitatBonus = bonusResult.multiplier;
+        logger.info({
+          userId,
+          speciesId: session.speciesId,
+          habitat: habitat.primary,
+          habitatBonus
+        }, 'Habitat bonus applied');
+      }
+    } catch (err) {
+      logger.warn({ err }, 'Failed to calculate habitat bonus, using default');
+    }
+
     // Calculate probabilities
     const catchProb = calcCatchProb({
       baseCatchRate: session.baseCatchRate,
@@ -336,6 +356,7 @@ async function executeCatchThrow(req, res, next) {
       throwRating,
       isCurve:  isCurve  || false,
       berryUsed: berryUsed || 'NONE',
+      habitatBonus
     });
 
     if (throwRating === 'MISS') {

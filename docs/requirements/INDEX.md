@@ -399,4 +399,4 @@
 || REQ-00378 | 微服务架构决策记录（ADR）系统与知识库管理 | 文档/开发者体验 | P2 | new | docs/architecture、backend/shared、所有微服务、admin-dashboard、.github/workflows | 2026-06-30 03:00 UTC |
 | REQ-00380 | API 安全配置基线自动化检查系统 | 安全加固 | P1 | new | gateway、所有微服务、backend/shared、.github/workflows、infrastructure/k8s | 2026-06-30 05:00 UTC |
 || REQ-00381 | WebSocket 实时通信压力测试与并发安全验证系统 | 测试覆盖 | P1 | new | gym-service、catch-service、gateway、backend/tests/load、backend/shared/websocket、infrastructure/k8s、.github/workflows | 2026-06-30 06:15 UTC |
-|| REQ-00382 | 游戏音效可视化与听障玩家视觉提示系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility、gateway、catch-service、gym-service、user-service、backend/shared | 2026-06-30 07:00 UTC |
+|| REQ-00382 | 游戏音效可视化与听障玩家视觉提示系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility、gateway、catch-service、gym-service、user-service、backend/shared | 2026-06-30 07:00 UTC || REQ-00383 | 精灵捕捉结果批处理与异步持久化优化系统 | 性能优化 | P1 | new | catch-service、backend/shared、Redis、Kafka、PostgreSQL、database/migrations | 2026-06-30 09:00 UTC |

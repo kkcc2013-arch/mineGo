@@ -9,9 +9,9 @@
  */
 
 const { v4: uuidv4 } = require('uuid');
-const { logger } = require('../../shared/logger');
-const { query } = require('../../shared/db');
-const pvpMatching = require('../../shared/pvpMatching');
+const { logger } = require('./logger');
+const { query } = require('./db');
+const pvpMatching = require('./pvpMatching');
 
 /**
  * 属性克制表

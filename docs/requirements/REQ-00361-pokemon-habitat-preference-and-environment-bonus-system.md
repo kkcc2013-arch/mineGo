@@ -3,7 +3,7 @@
 - **编号**：REQ-00361
 - **类别**：功能增强
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：location-service、pokemon-service、gym-service、catch-service、gateway、game-client、database/migrations
 - **创建时间**：2026-06-29 09:00 UTC
 - **依赖需求**：REQ-00037（真实天气 API 集成与天气加成系统）

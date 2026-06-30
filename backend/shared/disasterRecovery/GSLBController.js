@@ -1,49 +1,46 @@
-/**
- * REQ-00375: GSLB 控制器
- * 全局负载均衡控制器，管理跨区域 DNS 自动切换
- */
+// backend/shared/disasterRecovery/GSLBController.js
+// GSLB 全局负载均衡控制器
 
 const logger = require('../logger');
 const { metrics } = require('../metrics');
 
+/**
+ * GSLB 控制器 - 管理跨区域流量切换
+ * 支持多种 DNS 服务商：Cloudflare、Route53、阿里云 DNS
+ */
 class GSLBController {
   constructor(options = {}) {
     this.provider = options.provider || process.env.GSLB_PROVIDER || 'cloudflare';
-    this.primaryDomain = options.primaryDomain || process.env.GSLB_DOMAIN || 'api.minego.game';
+    this.primaryDomain = options.primaryDomain || process.env.GSLB_PRIMARY_DOMAIN || 'api.minego.game';
+    this.standbyDomain = options.standbyDomain || process.env.GSLB_STANDBY_DOMAIN || 'api-dr.minego.game';
+    this.ttl = options.ttl || 60; // DNS TTL 秒
     
-    this.primaryRegion = options.primaryRegion || 'beijing';
-    this.standbyRegion = options.standbyRegion || 'shanghai';
-    
-    this.ttl = options.ttl || 60; // DNS TTL
-    
-    // 区域端点
+    // 区域端点配置
     this.endpoints = {
-      beijing: options.beijingEndpoint || process.env.BEIJING_ENDPOINT || 'beijing.lb.minego.game',
-      shanghai: options.shanghaiEndpoint || process.env.SHANGHAI_ENDPOINT || 'shanghai.lb.minego.game'
+      beijing: options.beijingEndpoint || process.env.GSLB_BEIJING_ENDPOINT || 'beijing.lb.minego.game',
+      shanghai: options.shanghaiEndpoint || process.env.GSLB_SHANGHAI_ENDPOINT || 'shanghai.lb.minego.game'
     };
     
-    this.currentActive = this.primaryRegion;
-    this.currentPolicy = 'primary-active';
+    // 当前活跃区域
+    this.currentActive = 'beijing';
+    this.isTransitioning = false;
     
-    // 健康检查配置
-    this.healthCheckConfig = {
-      interval: options.healthCheckInterval || 10000,
-      timeout: options.healthCheckTimeout || 5000,
-      threshold: options.healthCheckThreshold || 3
-    };
-    
-    // API 配置（根据 provider）
+    // API 配置（根据服务商）
     this.apiConfig = {
       cloudflare: {
-        apiUrl: 'https://api.cloudflare.com/client/v4',
         zoneId: process.env.CLOUDFLARE_ZONE_ID,
-        apiToken: process.env.CLOUDFLARE_API_TOKEN
+        apiToken: process.env.CLOUDFLARE_API_TOKEN,
+        recordId: process.env.CLOUDFLARE_RECORD_ID
       },
       route53: {
-        hostedZoneId: process.env.ROUTE53_HOSTED_ZONE_ID
+        hostedZoneId: process.env.ROUTE53_HOSTED_ZONE_ID,
+        accessKeyId: process.env.ROUTE53_ACCESS_KEY_ID,
+        secretAccessKey: process.env.ROUTE53_SECRET_ACCESS_KEY
       },
       aliyun: {
-        domainName: process.env.ALIYUN_DOMAIN
+        domainId: process.env.ALIYUN_DOMAIN_ID,
+        accessKeyId: process.env.ALIYUN_ACCESS_KEY_ID,
+        secretAccessKey: process.env.ALIYUN_SECRET_ACCESS_KEY
       }
     };
   }
@@ -53,23 +50,26 @@ class GSLBController {
    * @param {string} policy - 'primary-active' | 'standby-active' | 'standby-only' | 'both'
    */
   async setTrafficPolicy(policy) {
-    logger.info({ policy, current: this.currentActive }, '设置流量策略');
+    if (this.isTransitioning) {
+      logger.warn('流量切换正在进行，请等待完成');
+      return { success: false, reason: 'transition_in_progress' };
+    }
     
+    this.isTransitioning = true;
     const startTime = Date.now();
+    
+    logger.info({ policy, current: this.currentActive }, '开始设置流量策略');
     
     try {
       switch (policy) {
         case 'primary-active':
           await this._setPrimaryActive();
-          this.currentActive = this.primaryRegion;
           break;
         case 'standby-active':
           await this._setStandbyActive();
-          this.currentActive = this.standbyRegion;
           break;
         case 'standby-only':
           await this._setStandbyOnly();
-          this.currentActive = this.standbyRegion;
           break;
         case 'both':
           await this._setBothActive();
@@ -78,9 +78,12 @@ class GSLBController {
           throw new Error(`未知的流量策略: ${policy}`);
       }
       
-      this.currentPolicy = policy;
-      
       const duration = Date.now() - startTime;
+      
+      metrics.increment('gslb_policy_change_total', 1, { policy, result: 'success' });
+      metrics.histogram('gslb_policy_change_duration_ms', duration);
+      
+      this.isTransitioning = false;
       
       logger.info({
         policy,
@@ -88,251 +91,214 @@ class GSLBController {
         duration
       }, '流量策略设置成功');
       
-      if (metrics && metrics.increment) {
-        metrics.increment('gslb_policy_change_total', 1, { policy, result: 'success' });
-        metrics.histogram('gslb_policy_change_duration_ms', duration);
-      }
-      
-      return { 
-        success: true, 
-        policy, 
+      return {
+        success: true,
+        policy,
         activeRegion: this.currentActive,
-        activeEndpoint: this.endpoints[this.currentActive],
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        duration
       };
     } catch (error) {
+      this.isTransitioning = false;
+      
       logger.error({ error: error.message, policy }, '流量策略设置失败');
-      if (metrics && metrics.increment) {
-        metrics.increment('gslb_policy_change_total', 1, { policy, result: 'failure' });
-      }
+      metrics.increment('gslb_policy_change_total', 1, { policy, result: 'failure' });
+      
       throw error;
     }
   }
 
   /**
-   * 主区域活跃
+   * 主区域活跃 - 所有流量指向主区域
    */
   async _setPrimaryActive() {
-    await this._updateDNS(this.endpoints[this.primaryRegion], 100);
-    logger.info('流量已切换到主区域', { region: this.primaryRegion });
+    await this._updateDNSRecord(this.endpoints.beijing);
+    this.currentActive = 'beijing';
+    
+    logger.info({
+      domain: this.primaryDomain,
+      endpoint: this.endpoints.beijing
+    }, '流量已切换到主区域');
   }
 
   /**
-   * 备区域活跃
+   * 备区域活跃 - 所有流量指向备区域
    */
   async _setStandbyActive() {
-    await this._updateDNS(this.endpoints[this.standbyRegion], 100);
-    logger.info('流量已切换到备区域', { region: this.standbyRegion });
+    await this._updateDNSRecord(this.endpoints.shanghai);
+    this.currentActive = 'shanghai';
+    
+    logger.info({
+      domain: this.primaryDomain,
+      endpoint: this.endpoints.shanghai
+    }, '流量已切换到备区域');
   }
 
   /**
-   * 仅备区域接收流量
+   * 仅备区域接收流量 - 紧急模式
    */
   async _setStandbyOnly() {
-    // 立即切换到备区域
-    await this._updateDNS(this.endpoints[this.standbyRegion], 100);
-    // 禁用主区域端点健康检查
-    await this._disableEndpointHealthCheck(this.primaryRegion);
-    logger.info('流量已完全切换到备区域，主区域已禁用', { region: this.standbyRegion });
+    // 立即将流量切换到备区域
+    await this._updateDNSRecord(this.endpoints.shanghai);
+    
+    // 可选：设置主区域健康检查失败以加速切换
+    if (this.provider === 'cloudflare') {
+      await this._setHealthCheckFailed('beijing');
+    }
+    
+    this.currentActive = 'shanghai';
+    
+    logger.warn('紧急切换模式：仅备区域接收流量');
   }
 
   /**
-   * 双区域活跃
+   * 双区域活跃 - 加权负载均衡
    */
   async _setBothActive() {
-    await this._updateDNSMulti([
-      { endpoint: this.endpoints[this.primaryRegion], weight: 70 },
-      { endpoint: this.endpoints[this.standbyRegion], weight: 30 }
+    // 设置 DNS 负载均衡（加权轮询）
+    await this._updateDNSRecordMulti([
+      { endpoint: this.endpoints.beijing, weight: 70 },
+      { endpoint: this.endpoints.shanghai, weight: 30 }
     ]);
-    logger.info('双区域负载均衡已启用');
+    
+    logger.info('双区域负载均衡已启用（主区域 70%，备区域 30%）');
   }
 
   /**
-   * 更新 DNS 记录
+   * 更新 DNS 记录（根据服务商调用不同 API）
    */
-  async _updateDNS(targetEndpoint, weight = 100) {
+  async _updateDNSRecord(targetEndpoint) {
     switch (this.provider) {
       case 'cloudflare':
-        return await this._updateCloudflareDNS(targetEndpoint, weight);
+        await this._updateCloudflareDNS(targetEndpoint);
+        break;
       case 'route53':
-        return await this._updateRoute53DNS(targetEndpoint, weight);
+        await this._updateRoute53DNS(targetEndpoint);
+        break;
       case 'aliyun':
-        return await this._updateAliyunDNS(targetEndpoint, weight);
+        await this._updateAliyunDNS(targetEndpoint);
+        break;
       default:
-        // 模拟更新
-        logger.info({
-          domain: this.primaryDomain,
-          target: targetEndpoint,
-          weight,
-          ttl: this.ttl,
-          provider: this.provider
-        }, 'DNS 记录已更新（模拟）');
-        return { updated: true };
+        // 模拟更新（用于测试）
+        logger.info({ targetEndpoint }, 'DNS 记录模拟更新');
     }
   }
 
   /**
    * 更新 Cloudflare DNS
    */
-  async _updateCloudflareDNS(targetEndpoint, weight) {
+  async _updateCloudflareDNS(targetEndpoint) {
     const config = this.apiConfig.cloudflare;
     
-    if (!config.zoneId || !config.apiToken) {
-      logger.warn('Cloudflare API 配置不完整，使用模拟模式');
-      return { updated: true, simulated: true };
+    if (!config.zoneId || !config.apiToken || !config.recordId) {
+      logger.warn('Cloudflare 配置不完整，使用模拟更新');
+      return;
     }
     
     try {
-      // 获取现有记录
       const response = await fetch(
-        `${config.apiUrl}/zones/${config.zoneId}/dns_records?name=${this.primaryDomain}`,
+        `https://api.cloudflare.com/client/v4/zones/${config.zoneId}/dns_records/${config.recordId}`,
         {
+          method: 'PUT',
           headers: {
             'Authorization': `Bearer ${config.apiToken}`,
             'Content-Type': 'application/json'
-          }
+          },
+          body: JSON.stringify({
+            type: 'CNAME',
+            name: this.primaryDomain,
+            content: targetEndpoint,
+            ttl: this.ttl,
+            proxied: true // 启用 Cloudflare 代理加速切换
+          })
         }
       );
       
-      const data = await response.json();
-      
-      if (!data.success || !data.result || data.result.length === 0) {
-        logger.warn('未找到现有 DNS 记录，创建新记录');
-        // 创建新记录
-        await fetch(
-          `${config.apiUrl}/zones/${config.zoneId}/dns_records`,
-          {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${config.apiToken}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              type: 'CNAME',
-              name: this.primaryDomain,
-              content: targetEndpoint,
-              ttl: this.ttl,
-              proxied: false
-            })
-          }
-        );
-      } else {
-        // 更新现有记录
-        const recordId = data.result[0].id;
-        await fetch(
-          `${config.apiUrl}/zones/${config.zoneId}/dns_records/${recordId}`,
-          {
-            method: 'PUT',
-            headers: {
-              'Authorization': `Bearer ${config.apiToken}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              type: 'CNAME',
-              name: this.primaryDomain,
-              content: targetEndpoint,
-              ttl: this.ttl,
-              proxied: false
-            })
-          }
-        );
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Cloudflare DNS 更新失败: ${error}`);
       }
       
-      logger.info({
-        domain: this.primaryDomain,
-        target: targetEndpoint,
-        provider: 'cloudflare'
-      }, 'Cloudflare DNS 已更新');
+      const result = await response.json();
+      logger.info({ result }, 'Cloudflare DNS 更新成功');
       
-      return { updated: true };
     } catch (error) {
-      logger.error({ error: error.message }, 'Cloudflare DNS 更新失败');
+      logger.error({ error: error.message }, 'Cloudflare DNS 更新异常');
       throw error;
     }
   }
 
   /**
-   * 更新 Route53 DNS
+   * 更新 AWS Route53 DNS
    */
-  async _updateRoute53DNS(targetEndpoint, weight) {
-    // 模拟实现
+  async _updateRoute53DNS(targetEndpoint) {
+    // 需要 AWS SDK
     logger.info({
+      hostedZoneId: this.apiConfig.route53.hostedZoneId,
       domain: this.primaryDomain,
-      target: targetEndpoint,
-      provider: 'route53'
-    }, 'Route53 DNS 已更新（模拟）');
-    return { updated: true, simulated: true };
+      target: targetEndpoint
+    }, 'Route53 DNS 更新');
+    
+    // 实际实现需要 AWS SDK
+    // const AWS = require('aws-sdk');
+    // const route53 = new AWS.Route53();
+    // await route53.changeResourceRecordSets(...)
   }
 
   /**
    * 更新阿里云 DNS
    */
-  async _updateAliyunDNS(targetEndpoint, weight) {
-    // 模拟实现
+  async _updateAliyunDNS(targetEndpoint) {
     logger.info({
+      domainId: this.apiConfig.aliyun.domainId,
       domain: this.primaryDomain,
-      target: targetEndpoint,
-      provider: 'aliyun'
-    }, '阿里云 DNS 已更新（模拟）');
-    return { updated: true, simulated: true };
-  }
-
-  /**
-   * 更新多端点 DNS（加权负载均衡）
-   */
-  async _updateDNSMulti(endpoints) {
-    logger.info({
-      domain: this.primaryDomain,
-      endpoints
-    }, '多端点 DNS 已更新');
+      target: targetEndpoint
+    }, '阿里云 DNS 更新');
     
-    return { updated: true };
+    // 实际实现需要阿里云 SDK
   }
 
   /**
-   * 禁用端点健康检查
+   * 多端点 DNS 更新（负载均衡）
    */
-  async _disableEndpointHealthCheck(region) {
-    logger.info({ region }, '端点健康检查已禁用');
+  async _updateDNSRecordMulti(endpoints) {
+    switch (this.provider) {
+      case 'cloudflare':
+        // Cloudflare Load Balancer
+        await this._updateCloudflareLoadBalancer(endpoints);
+        break;
+      case 'route53':
+        // Route53 Weighted Routing Policy
+        await this._updateRoute53Weighted(endpoints);
+        break;
+      default:
+        logger.info({ endpoints }, '多端点 DNS 模拟更新');
+    }
   }
 
   /**
-   * 执行健康检查
+   * 更新 Cloudflare Load Balancer
    */
-  async performHealthCheck() {
-    const results = {
-      primary: await this._checkEndpointHealth(this.primaryRegion),
-      standby: await this._checkEndpointHealth(this.standbyRegion)
-    };
-    
-    return results;
+  async _updateCloudflareLoadBalancer(endpoints) {
+    logger.info({ endpoints }, 'Cloudflare Load Balancer 配置更新');
+    // 实际实现需要调用 Cloudflare Load Balancer API
   }
 
   /**
-   * 检查端点健康状态
+   * 更新 Route53 加权路由
    */
-  async _checkEndpointHealth(region) {
-    const endpoint = this.endpoints[region];
-    const healthUrl = `http://${endpoint}/health`;
-    
-    try {
-      const response = await fetch(healthUrl, {
-        timeout: this.healthCheckConfig.timeout
-      });
-      
-      return {
-        region,
-        endpoint,
-        healthy: response.ok,
-        statusCode: response.status
-      };
-    } catch (error) {
-      return {
-        region,
-        endpoint,
-        healthy: false,
-        error: error.message
-      };
+  async _updateRoute53Weighted(endpoints) {
+    logger.info({ endpoints }, 'Route53 加权路由更新');
+    // 实际实现需要 AWS SDK
+  }
+
+  /**
+   * 设置健康检查失败（紧急切换）
+   */
+  async _setHealthCheckFailed(region) {
+    if (this.provider === 'cloudflare') {
+      // Cloudflare Health Check API
+      logger.warn({ region }, '标记区域健康检查失败');
     }
   }
 
@@ -342,27 +308,70 @@ class GSLBController {
   getTrafficStatus() {
     return {
       domain: this.primaryDomain,
-      currentPolicy: this.currentPolicy,
       activeRegion: this.currentActive,
       activeEndpoint: this.endpoints[this.currentActive],
       allEndpoints: this.endpoints,
-      provider: this.provider
+      provider: this.provider,
+      ttl: this.ttl,
+      isTransitioning: this.isTransitioning,
+      timestamp: new Date().toISOString()
     };
   }
 
   /**
-   * 获取配置摘要
+   * 健康检查端点探测
    */
-  getConfigSummary() {
-    return {
-      provider: this.provider,
-      primaryDomain: this.primaryDomain,
-      ttl: this.ttl,
-      primaryRegion: this.primaryRegion,
-      standbyRegion: this.standbyRegion,
-      endpoints: this.endpoints,
-      healthCheckConfig: this.healthCheckConfig
-    };
+  async checkEndpointsHealth() {
+    const results = {};
+    
+    for (const [region, endpoint] of Object.entries(this.endpoints)) {
+      try {
+        const response = await fetch(`https://${endpoint}/health`, {
+          timeout: 5000,
+          signal: AbortSignal.timeout(5000)
+        });
+        results[region] = {
+          healthy: response.ok,
+          status: response.status,
+          latency: Date.now() // 可以测量实际延迟
+        };
+      } catch (error) {
+        results[region] = {
+          healthy: false,
+          error: error.message
+        };
+      }
+    }
+    
+    metrics.gauge('gslb_endpoint_healthy', results[this.currentActive]?.healthy ? 1 : 0, {
+      region: this.currentActive
+    });
+    
+    return results;
+  }
+
+  /**
+   * 自动切换到健康区域
+   */
+  async autoSwitchToHealthy() {
+    const health = await this.checkEndpointsHealth();
+    
+    // 当前活跃区域不健康，备区域健康
+    if (!health[this.currentActive]?.healthy && health[this.currentActive === 'beijing' ? 'shanghai' : 'beijing']?.healthy) {
+      const targetRegion = this.currentActive === 'beijing' ? 'shanghai' : 'beijing';
+      
+      logger.warn({
+        current: this.currentActive,
+        target: targetRegion,
+        reason: 'current_unhealthy'
+      }, '自动切换到健康区域');
+      
+      await this.setTrafficPolicy(`${targetRegion}-active`);
+      
+      return { switched: true, newActive: targetRegion };
+    }
+    
+    return { switched: false };
   }
 }
 

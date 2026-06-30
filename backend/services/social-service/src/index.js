@@ -8,7 +8,7 @@ const { query, transaction } = require('../../../shared/db');
 const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
-const EventBus = require('../../../shared/EventBus');
+const { getEventBus } = require('../../../shared/EventBus');
 const tradeRoutes = require('./routes/trade');
 const guildRoutes = require('./routes/guild');
 const leaderboardRouter = require('./routes/leaderboard'); // REQ-00121, REQ-00074
@@ -244,7 +244,8 @@ startLeaderboardJobs();
 initializeLeaderboards().catch(err => logger.error({ err }, 'Leaderboard init failed'));
 
 // REQ-00074: 注册排行榜事件监听器
-registerLeaderboardHandlers(EventBus);
+const eventBus = getEventBus();
+registerLeaderboardHandlers(eventBus);
 
 app.listen(PORT, () => logger.info({ port: PORT }, 'social-service started'));
 module.exports = app;

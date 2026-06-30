@@ -31,7 +31,7 @@ class WebSocketServer {
     this.maxConnections = parseInt(process.env.WS_MAX_CONNECTIONS) || 10000;
     this.connectionTimeout = parseInt(process.env.WS_CONNECTION_TIMEOUT_MS) || 10000;
     
-    // Prometheus 指标
+    // Prometheus 指标 - 使用 metrics 模块提供的封装函数
     this.setupMetrics();
     
     // 连接统计
@@ -44,39 +44,15 @@ class WebSocketServer {
   }
 
   setupMetrics() {
+    // 使用 metrics 模块的 gauge/counter/histogram 函数，自动处理 registry
     this.metrics = {
-      connectionsTotal: new metrics.Gauge({
-        name: 'ws_connections_total',
-        help: 'Total active WebSocket connections'
-      }),
-      roomsTotal: new metrics.Gauge({
-        name: 'ws_rooms_total',
-        help: 'Total active battle rooms'
-      }),
-      messagesReceived: new metrics.Counter({
-        name: 'ws_messages_received_total',
-        help: 'Total messages received',
-        labelNames: ['type']
-      }),
-      messagesSent: new metrics.Counter({
-        name: 'ws_messages_sent_total',
-        help: 'Total messages sent',
-        labelNames: ['type']
-      }),
-      latency: new metrics.Histogram({
-        name: 'ws_message_latency_ms',
-        help: 'WebSocket message latency',
-        buckets: [1, 5, 10, 25, 50, 100, 200, 500, 1000]
-      }),
-      errors: new metrics.Counter({
-        name: 'ws_errors_total',
-        help: 'Total WebSocket errors',
-        labelNames: ['type']
-      }),
-      reconnections: new metrics.Counter({
-        name: 'ws_reconnections_total',
-        help: 'Total successful reconnections'
-      })
+      connectionsTotal: metrics.gauge('ws_connections_total', 'Total active WebSocket connections'),
+      roomsTotal: metrics.gauge('ws_rooms_total', 'Total active battle rooms'),
+      messagesReceived: metrics.counter('ws_messages_received_total', 'Total messages received', ['type']),
+      messagesSent: metrics.counter('ws_messages_sent_total', 'Total messages sent', ['type']),
+      latency: metrics.histogram('ws_message_latency_ms', 'WebSocket message latency', [], [1, 5, 10, 25, 50, 100, 200, 500, 1000]),
+      errors: metrics.counter('ws_errors_total', 'Total WebSocket errors', ['type']),
+      reconnections: metrics.counter('ws_reconnections_total', 'Total successful reconnections')
     };
   }
 

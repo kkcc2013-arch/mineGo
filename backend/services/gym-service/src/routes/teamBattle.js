@@ -6,7 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const { teamBattleService, BATTLE_TYPES, TEAM_STATUS, COMBO_SKILLS } = require('../teamBattleService');
-const auth = require('../../../shared/auth');
+const { requireAuth, AppError, successResp } = require('../../../shared/auth');
 const logger = require('../../../shared/logger');
 
 // ==================== 团队管理 API ====================
@@ -15,7 +15,7 @@ const logger = require('../../../shared/logger');
  * 创建团队
  * POST /api/teams
  */
-router.post('/', auth.authenticate, async (req, res) => {
+router.post('/', requireAuth, async (req, res) => {
   try {
     const { name, battleType, maxSize } = req.body;
     const userId = req.user.id;
@@ -40,7 +40,7 @@ router.post('/', auth.authenticate, async (req, res) => {
  * 获取开放团队列表
  * GET /api/teams/open
  */
-router.get('/open', auth.authenticate, async (req, res) => {
+router.get('/open', requireAuth, async (req, res) => {
   try {
     const { battleType, limit } = req.query;
     const teams = await teamBattleService.getOpenTeams(battleType, parseInt(limit) || 20);
@@ -55,7 +55,7 @@ router.get('/open', auth.authenticate, async (req, res) => {
  * 获取团队详情
  * GET /api/teams/:id
  */
-router.get('/:id', auth.authenticate, async (req, res) => {
+router.get('/:id', requireAuth, async (req, res) => {
   try {
     const team = await teamBattleService.getTeam(parseInt(req.params.id));
     if (!team) {
@@ -72,7 +72,7 @@ router.get('/:id', auth.authenticate, async (req, res) => {
  * 加入团队
  * POST /api/teams/:id/join
  */
-router.post('/:id/join', auth.authenticate, async (req, res) => {
+router.post('/:id/join', requireAuth, async (req, res) => {
   try {
     const teamId = parseInt(req.params.id);
     const userId = req.user.id;
@@ -90,7 +90,7 @@ router.post('/:id/join', auth.authenticate, async (req, res) => {
  * 离开团队
  * POST /api/teams/:id/leave
  */
-router.post('/:id/leave', auth.authenticate, async (req, res) => {
+router.post('/:id/leave', requireAuth, async (req, res) => {
   try {
     const teamId = parseInt(req.params.id);
     const userId = req.user.id;
@@ -107,7 +107,7 @@ router.post('/:id/leave', auth.authenticate, async (req, res) => {
  * 邀请玩家
  * POST /api/teams/:id/invite
  */
-router.post('/:id/invite', auth.authenticate, async (req, res) => {
+router.post('/:id/invite', requireAuth, async (req, res) => {
   try {
     const teamId = parseInt(req.params.id);
     const inviterId = req.user.id;
@@ -129,7 +129,7 @@ router.post('/:id/invite', auth.authenticate, async (req, res) => {
  * 踢出成员
  * POST /api/teams/:id/kick
  */
-router.post('/:id/kick', auth.authenticate, async (req, res) => {
+router.post('/:id/kick', requireAuth, async (req, res) => {
   try {
     const teamId = parseInt(req.params.id);
     const leaderId = req.user.id;
@@ -147,7 +147,7 @@ router.post('/:id/kick', auth.authenticate, async (req, res) => {
  * 标记准备状态
  * POST /api/teams/:id/ready
  */
-router.post('/:id/ready', auth.authenticate, async (req, res) => {
+router.post('/:id/ready', requireAuth, async (req, res) => {
   try {
     const teamId = parseInt(req.params.id);
     const userId = req.user.id;
@@ -169,7 +169,7 @@ router.post('/:id/ready', auth.authenticate, async (req, res) => {
  * 启动战斗
  * POST /api/teams/:id/start-battle
  */
-router.post('/:id/start-battle', auth.authenticate, async (req, res) => {
+router.post('/:id/start-battle', requireAuth, async (req, res) => {
   try {
     const teamId = parseInt(req.params.id);
     const leaderId = req.user.id;
@@ -188,7 +188,7 @@ router.post('/:id/start-battle', auth.authenticate, async (req, res) => {
  * 提交行动
  * POST /api/teams/battle/:battleId/action
  */
-router.post('/battle/:battleId/action', auth.authenticate, async (req, res) => {
+router.post('/battle/:battleId/action', requireAuth, async (req, res) => {
   try {
     const { battleId } = req.params;
     const userId = req.user.id;
@@ -206,7 +206,7 @@ router.post('/battle/:battleId/action', auth.authenticate, async (req, res) => {
  * 执行回合
  * POST /api/teams/battle/:battleId/execute-turn
  */
-router.post('/battle/:battleId/execute-turn', auth.authenticate, async (req, res) => {
+router.post('/battle/:battleId/execute-turn', requireAuth, async (req, res) => {
   try {
     const { battleId } = req.params;
 
@@ -222,7 +222,7 @@ router.post('/battle/:battleId/execute-turn', auth.authenticate, async (req, res
  * 获取战斗奖励
  * GET /api/teams/battle/:battleId/rewards
  */
-router.get('/battle/:battleId/rewards', auth.authenticate, async (req, res) => {
+router.get('/battle/:battleId/rewards', requireAuth, async (req, res) => {
   try {
     const { battleId } = req.params;
 
@@ -238,7 +238,7 @@ router.get('/battle/:battleId/rewards', auth.authenticate, async (req, res) => {
  * 获取战斗统计
  * GET /api/teams/battle/stats
  */
-router.get('/battle/stats', auth.authenticate, async (req, res) => {
+router.get('/battle/stats', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -256,7 +256,7 @@ router.get('/battle/stats', auth.authenticate, async (req, res) => {
  * 获取活跃 Raid Boss
  * GET /api/teams/raids
  */
-router.get('/raids', auth.authenticate, async (req, res) => {
+router.get('/raids', requireAuth, async (req, res) => {
   try {
     const raids = await teamBattleService.getActiveRaidBosses();
     res.json({ success: true, raids });
@@ -270,7 +270,7 @@ router.get('/raids', auth.authenticate, async (req, res) => {
  * 挑战 Raid Boss
  * POST /api/teams/raids/:raidId/challenge
  */
-router.post('/raids/:raidId/challenge', auth.authenticate, async (req, res) => {
+router.post('/raids/:raidId/challenge', requireAuth, async (req, res) => {
   try {
     const { raidId } = req.params;
     const { teamId } = req.body;
@@ -287,7 +287,7 @@ router.post('/raids/:raidId/challenge', auth.authenticate, async (req, res) => {
  * 获取连携技能列表
  * GET /api/teams/combo-skills
  */
-router.get('/combo-skills', auth.authenticate, (req, res) => {
+router.get('/combo-skills', requireAuth, (req, res) => {
   res.json({ success: true, comboSkills: COMBO_SKILLS });
 });
 

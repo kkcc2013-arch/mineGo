@@ -1,0 +1,149 @@
+# infrastructure/k8s/dr/01-disaster-recovery-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: disaster-recovery-config
+  namespace: minego
+data:
+  PRIMARY_REGION: "beijing"
+  STANDBY_REGION: "shanghai"
+  RTO_TARGET_MS: "300000"
+  RPO_TARGET_MS: "60000"
+  FAILURE_THRESHOLD: "3"
+  RECOVERY_THRESHOLD: "5"
+  HEALTH_CHECK_INTERVAL_MS: "10000"
+  GSLB_PROVIDER: "cloudflare"
+  GSLB_PRIMARY_DOMAIN: "api.minego.game"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: dr-secrets
+  namespace: minego
+type: Opaque
+stringData:
+  PG_PRIMARY_HOST: "postgres-primary.beijing.svc.cluster.local"
+  PG_STANDBY_HOST: "postgres-standby.shanghai.svc.cluster.local"
+  PG_REPLICATION_USER: "replicator"
+  PG_REPLICATION_PASSWORD: "${PG_REPLICATION_PASSWORD}"
+  PG_ADMIN_USER: "postgres"
+  PG_ADMIN_PASSWORD: "${PG_ADMIN_PASSWORD}"
+  REDIS_PRIMARY_HOST: "redis-primary.beijing.svc.cluster.local"
+  REDIS_STANDBY_HOST: "redis-standby.shanghai.svc.cluster.local"
+  REDIS_PASSWORD: "${REDIS_PASSWORD}"
+  CLOUDFLARE_ZONE_ID: "${CLOUDFLARE_ZONE_ID}"
+  CLOUDFLARE_API_TOKEN: "${CLOUDFLARE_API_TOKEN}"
+  CLOUDFLARE_RECORD_ID: "${CLOUDFLARE_RECORD_ID}"
+  DR_ALERT_WEBHOOK: "${DR_ALERT_WEBHOOK}"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: disaster-recovery-engine
+  namespace: minego
+  labels:
+    app: disaster-recovery-engine
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: disaster-recovery-engine
+  template:
+    metadata:
+      labels:
+        app: disaster-recovery-engine
+    spec:
+      containers:
+      - name: dr-engine
+        image: minego/dr-engine:latest
+        command: ["node", "backend/jobs/drMonitor.js"]
+        envFrom:
+        - configMapRef:
+            name: disaster-recovery-config
+        - secretRef:
+            name: dr-secrets
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        ports:
+        - containerPort: 3001
+          name: metrics
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: metrics
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: metrics
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: disaster-recovery-engine
+  namespace: minego
+spec:
+  selector:
+    app: disaster-recovery-engine
+  ports:
+  - port: 3001
+    targetPort: metrics
+    name: metrics
+  type: ClusterIP
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: disaster-recovery-monitor
+  namespace: minego
+spec:
+  selector:
+    matchLabels:
+      app: disaster-recovery-engine
+  endpoints:
+  - port: metrics
+    path: /metrics
+    interval: 30s
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: disaster-recovery-role
+rules:
+- apiGroups: [""]
+  resources: ["configmaps", "secrets", "pods", "services", "endpoints"]
+  verbs: ["get", "list", "watch", "update", "patch"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "list", "watch", "update", "patch"]
+- apiGroups: ["batch"]
+  resources: ["jobs"]
+  verbs: ["get", "list", "watch", "create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: disaster-recovery-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: disaster-recovery-role
+subjects:
+- kind: ServiceAccount
+  name: disaster-recovery-sa
+  namespace: minego
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: disaster-recovery-sa
+  namespace: minego
