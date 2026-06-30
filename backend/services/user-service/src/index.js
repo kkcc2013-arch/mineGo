@@ -30,6 +30,7 @@ const { router: dataDeletionRouter, initDataDeletionRoutes } = require('./routes
 const titlesRouter = require('./routes/titles'); // REQ-00106: 称号系统路由
 const deviceManagementRouter = require('./routes/deviceManagement'); // REQ-00250: 设备管理路由
 const sessionManagementRouter = require('./routes/sessionManagement'); // REQ-00219: 会话异常检测与自动防护
+const languageRouter = require('./routes/language'); // REQ-00393: 动态语言切换无需重新登录
 const { initNotificationHandlers } = require('./handlers/notificationHandler');
 
 // Create service launcher
@@ -119,6 +120,10 @@ const service = new ServiceLauncher({
     {
       path: '/sessions', // REQ-00219: 会话异常检测与自动防护路由
       router: sessionManagementRouter
+    },
+    {
+      path: '/users', // REQ-00393: 语言切换路由
+      router: languageRouter
     }
   ],
   
