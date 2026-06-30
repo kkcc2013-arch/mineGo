@@ -405,4 +405,5 @@
 | REQ-00385 | 共享模块导入路径规范化与别名系统 | 技术债/重构 | P1 | new | backend/shared、所有微服务、babel/config、package.json、.eslintrc | 2026-06-30 11:00 UTC |
 || REQ-00386 | API 响应格式标准化与错误码统一系统 | API 设计规范 | P1 | new | 所有微服务、backend/shared/middleware、gateway、frontend/game-client、frontend/admin-dashboard、docs/api-spec | 2026-06-30 12:00 |
 || REQ-00388 | 玩家好友互动增强系统 | 功能增强 | P1 | new | social-service、user-service、pokemon-service、reward-service、gateway、game-client、database/migrations | 2026-06-30 13:00 UTC |
-| REQ-00389 | API 请求速率限制绕过检测与防护系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared/RateLimitBypassDetector.js、backend/shared/RateLimitEnforcer.js、Redis、PostgreSQL、admin-dashboard | 2026-06-30 16:00 UTC |
+|| REQ-00389 | API 请求速率限制绕过检测与防护系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared/RateLimitBypassDetector.js、backend/shared/RateLimitEnforcer.js、Redis、PostgreSQL、admin-dashboard | 2026-06-30 16:00 UTC |
+|| REQ-00390 | 精灵合并进化系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-30 17:00 UTC |
