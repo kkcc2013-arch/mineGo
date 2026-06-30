@@ -184,7 +184,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 创建定时任务（需要 pg_cron 扩展，可选）
 -- 如果 pg_cron 不可用，可以改用外部定时任务
--- -- -- -- -- SELECT cron.schedule('cleanup_sensitive_logs', '0 2 * * *', 'SELECT cleanup_expired_sensitive_logs()');
+-- -- -- -- -- -- -- -- -- -- -- -- SELECT cron.schedule('cleanup_sensitive_logs', '0 2 * * *', 'SELECT cleanup_expired_sensitive_logs()');
 
 -- ============================================================
 -- 6. 视图：敏感访问统计

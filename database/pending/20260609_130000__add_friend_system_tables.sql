@@ -3,6 +3,23 @@
 -- 创建时间: 2026-06-09 13:00
 
 -- ============================================
+-- 0. 兼容补丁: 修复已存在表的列名差异
+-- ============================================
+-- friend_gifts table exists with sender_id/receiver_id instead of from_user_id/to_user_id
+ALTER TABLE friend_gifts ADD COLUMN IF NOT EXISTS from_user_id UUID REFERENCES users(id) ON DELETE CASCADE;
+ALTER TABLE friend_gifts ADD COLUMN IF NOT EXISTS to_user_id UUID REFERENCES users(id) ON DELETE CASCADE;
+ALTER TABLE friend_gifts ADD COLUMN IF NOT EXISTS gift_type VARCHAR(50);
+ALTER TABLE friend_gifts ADD COLUMN IF NOT EXISTS gift_id VARCHAR(36);
+ALTER TABLE friend_gifts ADD COLUMN IF NOT EXISTS gift_name VARCHAR(100);
+ALTER TABLE friend_gifts ADD COLUMN IF NOT EXISTS quantity INTEGER DEFAULT 1;
+ALTER TABLE friend_gifts ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending';
+ALTER TABLE friend_gifts ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '30 days');
+ALTER TABLE friend_gifts ADD COLUMN IF NOT EXISTS claimed_at TIMESTAMP;
+-- Populate from_user_id/to_user_id from existing sender_id/receiver_id
+UPDATE friend_gifts SET from_user_id = sender_id WHERE from_user_id IS NULL;
+UPDATE friend_gifts SET to_user_id = receiver_id WHERE to_user_id IS NULL;
+
+-- ============================================
 -- 1. 好友关系表
 -- ============================================
 CREATE TABLE IF NOT EXISTS friends (
@@ -198,7 +215,7 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION refresh_friend_leaderboard()
 RETURNS void AS $$
 BEGIN
-    REFRESH MATERIALIZED VIEW CONCURRENTLY mv_friend_leaderboard;
+    REFRESH MATERIALIZED VIEW mv_friend_leaderboard;
 END;
 $$ LANGUAGE plpgsql;
 

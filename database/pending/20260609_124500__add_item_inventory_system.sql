@@ -5,26 +5,34 @@
 -- =====================================================
 
 -- 1. 道具定义表
-CREATE TABLE IF NOT EXISTS items (
-    id SERIAL PRIMARY KEY,
-    item_id VARCHAR(50) UNIQUE NOT NULL,           -- 道具唯一标识 (POKE_BALL, SUPER_POTION)
-    name VARCHAR(100) NOT NULL,                    -- 道具名称
-    name_localized JSONB NOT NULL,                 -- 多语言名称 {"en": "Poké Ball", "zh": "精灵球"}
-    description TEXT,                              -- 道具描述
-    category VARCHAR(50) NOT NULL,                 -- 分类: pokeball, potion, tm, evolution, boost, special, cosmetic
-    subcategory VARCHAR(50),                       -- 子分类
-    rarity VARCHAR(20) DEFAULT 'common',           -- 稀有度: common, uncommon, rare, epic, legendary
-    max_stack INTEGER DEFAULT 999,                 -- 单格最大堆叠数
-    is_consumable BOOLEAN DEFAULT TRUE,            -- 是否消耗型
-    is_tradable BOOLEAN DEFAULT TRUE,              -- 是否可交易
-    is_droppable BOOLEAN DEFAULT TRUE,             -- 是否可丢弃
-    expires_after_days INTEGER,                    -- 过期天数 (NULL 表示永不过期)
-    effect_data JSONB,                             -- 效果数据 (成功率、恢复量等)
-    use_requirements JSONB,                        -- 使用条件 (等级、精灵类型等)
-    icon_url VARCHAR(500),                         -- 图标 URL
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- The items table already exists with a different schema (id VARCHAR(50) PK).
+-- We adapt by adding all missing columns and adding item_id as an alias to id.
+ALTER TABLE items ADD COLUMN IF NOT EXISTS item_id VARCHAR(50);
+UPDATE items SET item_id = id WHERE item_id IS NULL;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+UPDATE items SET name = COALESCE(name_en, name_zh, id) WHERE name IS NULL;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS name_localized JSONB;
+UPDATE items SET name_localized = jsonb_build_object('en', name_en, 'zh', name_zh, 'ja', name_ja) WHERE name_localized IS NULL;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS subcategory VARCHAR(50);
+ALTER TABLE items ADD COLUMN IF NOT EXISTS rarity VARCHAR(20) DEFAULT 'common';
+ALTER TABLE items ADD COLUMN IF NOT EXISTS max_stack INTEGER DEFAULT 999;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS is_consumable BOOLEAN DEFAULT TRUE;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS is_tradable BOOLEAN DEFAULT TRUE;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS is_droppable BOOLEAN DEFAULT TRUE;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS expires_after_days INTEGER;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS use_requirements JSONB;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS icon_url VARCHAR(500);
+ALTER TABLE items ADD COLUMN IF NOT EXISTS effect_data JSONB;
+-- Ensure item_id has a unique constraint for FK references from other tables
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'items_item_id_key' AND conrelid = 'items'::regclass
+    ) THEN
+        ALTER TABLE items ADD CONSTRAINT items_item_id_key UNIQUE (item_id);
+    END IF;
+END$$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_items_category ON items(category);
@@ -138,43 +146,73 @@ COMMENT ON TABLE shop_items IS '道具商店配置表';
 -- =====================================================
 
 -- 精灵球类
-INSERT INTO items (item_id, name, name_localized, description, category, rarity, max_stack, is_consumable, is_tradable, effect_data) VALUES
-('POKE_BALL', 'Poké Ball', '{"en": "Poké Ball", "zh": "精灵球", "ja": "モンスターボール"}', 'A basic Poké Ball for catching Pokémon.', 'pokeball', 'common', 999, true, true, '{"catch_rate": 1.0}'),
-('GREAT_BALL', 'Great Ball', '{"en": "Great Ball", "zh": "超级球", "ja": "スーパーボール"}', 'A better Poké Ball with a higher catch rate.', 'pokeball', 'uncommon', 999, true, true, '{"catch_rate": 1.5}'),
-('ULTRA_BALL', 'Ultra Ball', '{"en": "Ultra Ball", "zh": "高级球", "ja": "ハイパーボール"}', 'An ultra-high-performance Poké Ball.', 'pokeball', 'rare', 999, true, true, '{"catch_rate": 2.0}'),
-('MASTER_BALL', 'Master Ball', '{"en": "Master Ball", "zh": "大师球", "ja": "マスターボール"}', 'A rare Ball that never fails to catch a Pokémon.', 'pokeball', 'legendary', 99, true, false, '{"catch_rate": 255.0}'),
-('PREMIER_BALL', 'Premier Ball', '{"en": "Premier Ball", "zh": "纪念球", "ja": "プレミアボール"}', 'A special Ball only given out during raids.', 'pokeball', 'rare', 999, true, false, '{"catch_rate": 1.0, "raid_only": true}');
+INSERT INTO items (id, item_id, name, name_zh, name_en, name_localized, description, category, rarity, max_stack, is_consumable, is_tradable, effect_data) VALUES
+('POKE_BALL', 'POKE_BALL', 'Poké Ball', '精灵球', 'Poké Ball', '{"en": "Poké Ball", "zh": "精灵球", "ja": "モンスターボール"}', 'A basic Poké Ball for catching Pokémon.', 'pokeball', 'common', 999, true, true, '{"catch_rate": 1.0}'),
+('GREAT_BALL', 'GREAT_BALL', 'Great Ball', '超级球', 'Great Ball', '{"en": "Great Ball", "zh": "超级球", "ja": "スーパーボール"}', 'A better Poké Ball with higher catch rate.', 'pokeball', 'uncommon', 999, true, true, '{"catch_rate": 1.5}'),
+('ULTRA_BALL', 'ULTRA_BALL', 'Ultra Ball', '高级球', 'Ultra Ball', '{"en": "Ultra Ball", "zh": "高级球", "ja": "ハイパーボール"}', 'An ultra-high-performance Poké Ball.', 'pokeball', 'rare', 999, true, true, '{"catch_rate": 2.0}'),
+('MASTER_BALL', 'MASTER_BALL', 'Master Ball', '大师球', 'Master Ball', '{"en": "Master Ball", "zh": "大师球", "ja": "マスターボール"}', 'A rare Ball that never fails to catch.', 'pokeball', 'legendary', 99, true, false, '{"catch_rate": 255.0}'),
+('PREMIER_BALL', 'PREMIER_BALL', 'Premier Ball', '纪念球', 'Premier Ball', '{"en": "Premier Ball", "zh": "纪念球", "ja": "プレミアボール"}', 'A special Ball only given out during raids.', 'pokeball', 'rare', 999, true, false, '{"catch_rate": 1.0, "raid_only": true}')
+ON CONFLICT (id) DO UPDATE SET
+    item_id = EXCLUDED.item_id,
+    name_zh = COALESCE(items.name_zh, EXCLUDED.name_zh),
+    name_en = COALESCE(items.name_en, EXCLUDED.name_en),
+    rarity = COALESCE(items.rarity, EXCLUDED.rarity),
+    effect_data = COALESCE(items.effect_data, EXCLUDED.effect_data);
 
 -- 药水类
-INSERT INTO items (item_id, name, name_localized, description, category, rarity, max_stack, is_consumable, is_tradable, effect_data) VALUES
-('POTION', 'Potion', '{"en": "Potion", "zh": "伤药", "ja": "キズぐすり"}', 'Restores 20 HP to a Pokémon.', 'potion', 'common', 999, true, true, '{"heal_hp": 20}'),
-('SUPER_POTION', 'Super Potion', '{"en": "Super Potion", "zh": "好伤药", "ja": "いいキズぐすり"}', 'Restores 50 HP to a Pokémon.', 'potion', 'uncommon', 999, true, true, '{"heal_hp": 50}'),
-('HYPER_POTION', 'Hyper Potion', '{"en": "Hyper Potion", "zh": "厉害伤药", "ja": "すごいキズぐすり"}', 'Restores 200 HP to a Pokémon.', 'potion', 'rare', 999, true, true, '{"heal_hp": 200}'),
-('MAX_POTION', 'Max Potion', '{"en": "Max Potion", "zh": "全满药", "ja": "まんたんのくすり"}', 'Fully restores HP to a Pokémon.', 'potion', 'epic', 99, true, true, '{"heal_percent": 100}'),
-('REVIVE', 'Revive', '{"en": "Revive", "zh": "复活药", "ja": "げんきのかたまり"}', 'Revives a fainted Pokémon with 50% HP.', 'potion', 'rare', 999, true, true, '{"revive_percent": 50}'),
-('MAX_REVIVE', 'Max Revive', '{"en": "Max Revive", "zh": "全满复活药", "ja": "げんきのかたまり"}', 'Revives a fainted Pokémon with full HP.', 'potion', 'epic', 99, true, true, '{"revive_percent": 100}');
+INSERT INTO items (id, item_id, name, name_zh, name_en, name_localized, description, category, rarity, max_stack, is_consumable, is_tradable, effect_data) VALUES
+('POTION', 'POTION', 'Potion', '伤药', 'Potion', '{"en": "Potion", "zh": "伤药", "ja": "キズぐすり"}', 'Restores 20 HP.', 'potion', 'common', 999, true, true, '{"heal_hp": 20}'),
+('SUPER_POTION', 'SUPER_POTION', 'Super Potion', '好伤药', 'Super Potion', '{"en": "Super Potion", "zh": "好伤药", "ja": "いいキズぐすり"}', 'Restores 50 HP.', 'potion', 'uncommon', 999, true, true, '{"heal_hp": 50}'),
+('HYPER_POTION', 'HYPER_POTION', 'Hyper Potion', '厉害伤药', 'Hyper Potion', '{"en": "Hyper Potion", "zh": "厉害伤药", "ja": "すごいキズぐすり"}', 'Restores 200 HP.', 'potion', 'rare', 999, true, true, '{"heal_hp": 200}'),
+('MAX_POTION', 'MAX_POTION', 'Max Potion', '全满药', 'Max Potion', '{"en": "Max Potion", "zh": "全满药", "ja": "まんたんのくすり"}', 'Fully restores HP.', 'potion', 'epic', 99, true, true, '{"heal_percent": 100}'),
+('REVIVE', 'REVIVE', 'Revive', '复活药', 'Revive', '{"en": "Revive", "zh": "复活药", "ja": "げんきのかたまり"}', 'Revives with 50% HP.', 'potion', 'rare', 999, true, true, '{"revive_percent": 50}'),
+('MAX_REVIVE', 'MAX_REVIVE', 'Max Revive', '全满复活药', 'Max Revive', '{"en": "Max Revive", "zh": "全满复活药", "ja": "げんきのかたまり"}', 'Revives with full HP.', 'potion', 'epic', 99, true, true, '{"revive_percent": 100}')
+ON CONFLICT (id) DO UPDATE SET
+    item_id = EXCLUDED.item_id,
+    name_zh = COALESCE(items.name_zh, EXCLUDED.name_zh),
+    name_en = COALESCE(items.name_en, EXCLUDED.name_en),
+    rarity = COALESCE(items.rarity, EXCLUDED.rarity),
+    effect_data = COALESCE(items.effect_data, EXCLUDED.effect_data);
 
 -- 进化石
-INSERT INTO items (item_id, name, name_localized, description, category, rarity, max_stack, is_consumable, is_tradable, effect_data) VALUES
-('SUN_STONE', 'Sun Stone', '{"en": "Sun Stone", "zh": "日之石", "ja": "たいようのいし"}', 'Evolves certain Pokémon.', 'evolution', 'rare', 50, true, true, '{"evolution_items": ["SUNKERN", "GLOOM", "COTTONEE", "HELIOPTILE"]}'),
-('MOON_STONE', 'Moon Stone', '{"en": "Moon Stone", "zh": "月之石", "ja": "つきのいし"}', 'Evolves certain Pokémon.', 'evolution', 'rare', 50, true, true, '{"evolution_items": ["NIDORINA", "NIDORINO", "CLEFAIRY", "JIGGLYPUFF", "SKITTY", "MUNNA"]}'),
-('FIRE_STONE', 'Fire Stone', '{"en": "Fire Stone", "zh": "火之石", "ja": "ほのおのいし"}', 'Evolves certain Pokémon.', 'evolution', 'rare', 50, true, true, '{"evolution_items": ["VULPIX", "GROWLITHE", "EEVEE", "PANSEAR"]}'),
-('WATER_STONE', 'Water Stone', '{"en": "Water Stone", "zh": "水之石", "ja": "みずのいし"}', 'Evolves certain Pokémon.', 'evolution', 'rare', 50, true, true, '{"evolution_items": ["SHELLDER", "STARYU", "EEVEE", "LOMBRE", "PANPOUR"]}'),
-('THUNDER_STONE', 'Thunder Stone', '{"en": "Thunder Stone", "zh": "雷之石", "ja": "かみなりのいし"}', 'Evolves certain Pokémon.', 'evolution', 'rare', 50, true, true, '{"evolution_items": ["PIKACHU", "EEVEE", "EELEKTRIK"]}'),
-('KINGS_ROCK', 'King''s Rock', '{"en": "King''s Rock", "zh": "王者之证", "ja": "おうじゃのしるし"}', 'Evolves certain Pokémon when used with candy.', 'evolution', 'epic', 20, true, true, '{"evolution_items": ["SLOWPOKE", "POLIWHIRL"]}');
+INSERT INTO items (id, item_id, name, name_zh, name_en, name_localized, description, category, rarity, max_stack, is_consumable, is_tradable, effect_data) VALUES
+('SUN_STONE', 'SUN_STONE', 'Sun Stone', '日之石', 'Sun Stone', '{"en": "Sun Stone", "zh": "日之石", "ja": "たいようのいし"}', 'Evolves certain Pokémon.', 'evolution', 'rare', 50, true, true, '{"evolution_items": ["SUNKERN", "GLOOM"]}'),
+('MOON_STONE', 'MOON_STONE', 'Moon Stone', '月之石', 'Moon Stone', '{"en": "Moon Stone", "zh": "月之石", "ja": "つきのいし"}', 'Evolves certain Pokémon.', 'evolution', 'rare', 50, true, true, '{"evolution_items": ["NIDORINA", "CLEFAIRY"]}'),
+('FIRE_STONE', 'FIRE_STONE', 'Fire Stone', '火之石', 'Fire Stone', '{"en": "Fire Stone", "zh": "火之石", "ja": "ほのおのいし"}', 'Evolves certain Pokémon.', 'evolution', 'rare', 50, true, true, '{"evolution_items": ["VULPIX", "GROWLITHE", "EEVEE"]}'),
+('WATER_STONE', 'WATER_STONE', 'Water Stone', '水之石', 'Water Stone', '{"en": "Water Stone", "zh": "水之石", "ja": "みずのいし"}', 'Evolves certain Pokémon.', 'evolution', 'rare', 50, true, true, '{"evolution_items": ["SHELLDER", "STARYU", "EEVEE"]}'),
+('THUNDER_STONE', 'THUNDER_STONE', 'Thunder Stone', '雷之石', 'Thunder Stone', '{"en": "Thunder Stone", "zh": "雷之石", "ja": "かみなりのいし"}', 'Evolves certain Pokémon.', 'evolution', 'rare', 50, true, true, '{"evolution_items": ["PIKACHU", "EEVEE"]}'),
+('KINGS_ROCK', 'KINGS_ROCK', 'Kings Rock', '王者之证', 'Kings Rock', '{"en": "Kings Rock", "zh": "王者之证", "ja": "おうじゃのしるし"}', 'Evolves certain Pokémon with candy.', 'evolution', 'epic', 20, true, true, '{"evolution_items": ["SLOWPOKE", "POLIWHIRL"]}')
+ON CONFLICT (id) DO UPDATE SET
+    item_id = EXCLUDED.item_id,
+    name_zh = COALESCE(items.name_zh, EXCLUDED.name_zh),
+    name_en = COALESCE(items.name_en, EXCLUDED.name_en),
+    rarity = COALESCE(items.rarity, EXCLUDED.rarity),
+    effect_data = COALESCE(items.effect_data, EXCLUDED.effect_data);
 
 -- 强化道具
-INSERT INTO items (item_id, name, name_localized, description, category, rarity, max_stack, is_consumable, is_tradable, effect_data) VALUES
-('RARE_CANDY', 'Rare Candy', '{"en": "Rare Candy", "zh": "稀有糖果", "ja": "ふしぎなアメ"}', 'Increases a Pokémon''s CP by one level.', 'boost', 'epic', 99, true, true, '{"cp_boost": 1}'),
-('SILVER_PINAP_BERRY', 'Silver Pinap Berry', '{"en": "Silver Pinap Berry", "zh": "银凤梨果", "ja": "ぎんのパイルのみ"}', 'Doubles candy and increases catch rate.', 'boost', 'rare', 99, true, true, '{"candy_multiplier": 2.0, "catch_rate_multiplier": 1.8}'),
-('GOLDEN_RAZZ_BERRY', 'Golden Razz Berry', '{"en": "Golden Razz Berry", "zh": "金蔓莓果", "ja": "きんのズリのみ"}', 'Greatly increases catch rate.', 'boost', 'epic', 99, true, true, '{"catch_rate_multiplier": 2.5}');
+INSERT INTO items (id, item_id, name, name_zh, name_en, name_localized, description, category, rarity, max_stack, is_consumable, is_tradable, effect_data) VALUES
+('RARE_CANDY', 'RARE_CANDY', 'Rare Candy', '稀有糖果', 'Rare Candy', '{"en": "Rare Candy", "zh": "稀有糖果", "ja": "ふしぎなアメ"}', 'Increases CP by one level.', 'boost', 'epic', 99, true, true, '{"cp_boost": 1}'),
+('SILVER_PINAP_BERRY', 'SILVER_PINAP_BERRY', 'Silver Pinap Berry', '银凤梨果', 'Silver Pinap Berry', '{"en": "Silver Pinap Berry", "zh": "银凤梨果", "ja": "ぎんのパイルのみ"}', 'Doubles candy and increases catch rate.', 'boost', 'rare', 99, true, true, '{"candy_multiplier": 2.0, "catch_rate_multiplier": 1.8}'),
+('GOLDEN_RAZZ_BERRY', 'GOLDEN_RAZZ_BERRY', 'Golden Razz Berry', '金蔓莓果', 'Golden Razz Berry', '{"en": "Golden Razz Berry", "zh": "金蔓莓果", "ja": "きんのズリのみ"}', 'Greatly increases catch rate.', 'boost', 'epic', 99, true, true, '{"catch_rate_multiplier": 2.5}')
+ON CONFLICT (id) DO UPDATE SET
+    item_id = EXCLUDED.item_id,
+    name_zh = COALESCE(items.name_zh, EXCLUDED.name_zh),
+    name_en = COALESCE(items.name_en, EXCLUDED.name_en),
+    rarity = COALESCE(items.rarity, EXCLUDED.rarity),
+    effect_data = COALESCE(items.effect_data, EXCLUDED.effect_data);
 
 -- 特殊道具
-INSERT INTO items (item_id, name, name_localized, description, category, rarity, max_stack, is_consumable, is_tradable, effect_data) VALUES
-('INCENSE', 'Incense', '{"en": "Incense", "zh": "熏香", "ja": "おこう"}', 'Attracts wild Pokémon to your location for 60 minutes.', 'special', 'rare', 99, true, false, '{"duration_minutes": 60, "spawn_rate_multiplier": 1.5}'),
-('LUCKY_EGG', 'Lucky Egg', '{"en": "Lucky Egg", "zh": "幸运蛋", "ja": "しあわせタマゴ"}', 'Doubles XP for 30 minutes.', 'special', 'rare', 99, true, false, '{"duration_minutes": 30, "xp_multiplier": 2.0}'),
-('LURE_MODULE', 'Lure Module', '{"en": "Lure Module", "zh": "诱饵模块", "ja": "ルアーモジュール"}', 'Attracts Pokémon to a PokéStop for 30 minutes.', 'special', 'uncommon', 99, true, false, '{"duration_minutes": 30, "radius_meters": 100}'),
-('STAR_PIECE', 'Star Piece', '{"en": "Star Piece", "zh": "星之碎片", "ja": "ほしのかけら"}', 'Increases Stardust gain by 50% for 30 minutes.', 'special', 'rare', 99, true, false, '{"duration_minutes": 30, "stardust_multiplier": 1.5}');
+INSERT INTO items (id, item_id, name, name_zh, name_en, name_localized, description, category, rarity, max_stack, is_consumable, is_tradable, effect_data) VALUES
+('INCENSE', 'INCENSE', 'Incense', '熏香', 'Incense', '{"en": "Incense", "zh": "熏香", "ja": "おこう"}', 'Attracts wild Pokémon for 60 minutes.', 'special', 'rare', 99, true, false, '{"duration_minutes": 60, "spawn_rate_multiplier": 1.5}'),
+('LUCKY_EGG', 'LUCKY_EGG', 'Lucky Egg', '幸运蛋', 'Lucky Egg', '{"en": "Lucky Egg", "zh": "幸运蛋", "ja": "しあわせタマゴ"}', 'Doubles XP for 30 minutes.', 'special', 'rare', 99, true, false, '{"duration_minutes": 30, "xp_multiplier": 2.0}'),
+('LURE_MODULE', 'LURE_MODULE', 'Lure Module', '诱饵模块', 'Lure Module', '{"en": "Lure Module", "zh": "诱饵模块", "ja": "ルアーモジュール"}', 'Attracts Pokémon to a PokéStop for 30 minutes.', 'special', 'uncommon', 99, true, false, '{"duration_minutes": 30, "radius_meters": 100}'),
+('STAR_PIECE', 'STAR_PIECE', 'Star Piece', '星之碎片', 'Star Piece', '{"en": "Star Piece", "zh": "星之碎片", "ja": "ほしのかけら"}', 'Increases Stardust gain by 50% for 30 minutes.', 'special', 'rare', 99, true, false, '{"duration_minutes": 30, "stardust_multiplier": 1.5}')
+ON CONFLICT (id) DO UPDATE SET
+    item_id = EXCLUDED.item_id,
+    name_zh = COALESCE(items.name_zh, EXCLUDED.name_zh),
+    name_en = COALESCE(items.name_en, EXCLUDED.name_en),
+    rarity = COALESCE(items.rarity, EXCLUDED.rarity),
+    effect_data = COALESCE(items.effect_data, EXCLUDED.effect_data);
 
 -- =====================================================
 -- 创建更新触发器
@@ -247,7 +285,7 @@ CREATE OR REPLACE FUNCTION check_inventory_capacity(
 RETURNS TABLE (
     can_add BOOLEAN,
     current_count BIGINT,
-    limit INTEGER,
+    slot_limit INTEGER,
     remaining INTEGER
 ) AS $$
 DECLARE
@@ -281,7 +319,7 @@ BEGIN
     SELECT 
         (current_count + p_quantity <= v_limit) AS can_add,
         current_count,
-        v_limit AS limit,
+        v_limit AS slot_limit,
         (v_limit - current_count) AS remaining
     FROM (
         SELECT COALESCE(SUM(pi.quantity), 0) AS current_count
@@ -326,9 +364,9 @@ COMMENT ON VIEW inventory_statistics IS '背包统计视图';
 -- 授权
 -- =====================================================
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO minego_user;
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO minego_user;
-GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO minego_user;
+-- GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO minego_user;
+-- GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO minego_user;
+-- GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO minego_user;
 
 -- =====================================================
 -- 迁移完成

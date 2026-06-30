@@ -397,4 +397,5 @@
 || REQ-00376 | 跨区域灾备自动化切换系统 | 容灾/高可用 | P0 | new | gateway、所有微服务、backend/shared/disasterRecovery、infrastructure/k8s、PostgreSQL、Redis、Kafka、DNS/负载均衡、admin-dashboard | 2026-06-29 23:00 UTC |
 || REQ-00377 | 精灵数据可见性控制与隐私分级系统 | 功能增强 | P1 | new | pokemon-service、social-service、user-service、gateway、game-client、database/migrations | 2026-06-30 00:00 UTC |
 || REQ-00378 | 微服务架构决策记录（ADR）系统与知识库管理 | 文档/开发者体验 | P2 | new | docs/architecture、backend/shared、所有微服务、admin-dashboard、.github/workflows | 2026-06-30 03:00 UTC |
+| REQ-00379 | 精灵战斗回放与精彩时刻分享系统 | 功能增强 | P1 | new | gym-service、social-service、user-service、gateway、game-client、database/migrations、backend/jobs、cdn | 2026-06-30 04:00 UTC |
 |

@@ -72,6 +72,32 @@ for (const file of files) {
   // 11. Fix user_pokemon references to pokemon_instances
   content = content.replace(/REFERENCES\s+user_pokemon\s*\(\s*id\s*\)/gi, "REFERENCES pokemon_instances(id)");
 
+  // 13. Comment out GRANT statements to non-existent roles (minego_user, app_user, etc.)
+  content = content.replace(/^(GRANT\s+[\s\S]*?TO\s+(?:minego_user|app_user|readonly_user)\s*;)/gim, (m) => {
+    return m.split('\n').map(l => `-- ${l}`).join('\n');
+  });
+  // 12. (items inserts manually fixed - no automated patch needed)
+
+  // 14. Fix REFRESH MATERIALIZED VIEW CONCURRENTLY -> REFRESH MATERIALIZED VIEW
+  content = content.replace(/REFRESH\s+MATERIALIZED\s+VIEW\s+CONCURRENTLY/gi, 'REFRESH MATERIALIZED VIEW');
+
+  // 15. Fix move_id UUID references to moves(id) which is VARCHAR(32)
+  content = content.replace(/move_id\s+UUID\s+REFERENCES\s+moves\s*\(\s*id\s*\)/gi, 'move_id VARCHAR(32) REFERENCES moves(id)');
+
+  // 16. Fix table references to 'pokemon'/'pokemons' -> 'pokemon_instances' (species table is pokemon_species)
+  content = content.replace(/REFERENCES\s+pokemon\s*\(\s*id\s*\)/gi, 'REFERENCES pokemon_instances(id)');
+  content = content.replace(/\bFROM\s+pokemon\s+(\w)/g, 'FROM pokemon_instances $1');
+  content = content.replace(/\bJOIN\s+pokemon\s+(\w)/g, 'JOIN pokemon_instances $1');
+  content = content.replace(/REFERENCES\s+pokemons\s*\(\s*id\s*\)/gi, 'REFERENCES pokemon_instances(id)');
+  content = content.replace(/\bFROM\s+pokemons\s+(\w)/g, 'FROM pokemon_instances $1');
+  content = content.replace(/\bJOIN\s+pokemons\s+(\w)/g, 'JOIN pokemon_instances $1');
+  content = content.replace(/\bTABLE\s+pokemons\b/gi, 'TABLE pokemon_instances');
+
+
+
+
+
+
   if (content !== original) {
     fs.writeFileSync(filePath, content, 'utf8');
     console.log(`Patched: ${file}`);

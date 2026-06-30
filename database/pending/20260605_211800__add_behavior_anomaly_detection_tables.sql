@@ -261,28 +261,28 @@ $$ LANGUAGE plpgsql;
 -- ============================================================
 
 -- 每小时更新行为统计
--- -- -- -- SELECT cron.schedule(
--- -- -- --   'update_behavior_stats_hourly',
--- -- -- --   '0 * * * *',
--- -- -- --   $$
--- -- -- --   INSERT INTO user_behavior_stats (user_id, stat_type, stat_value, snapshot_at)
--- -- -- --   SELECT 
--- -- -- --     user_id,
--- -- -- --     'catch_rate',
--- -- -- --     SUM(CASE WHEN success THEN 1 ELSE 0 END)::DOUBLE PRECISION / COUNT(*)::DOUBLE PRECISION,
--- -- -- --     NOW()
--- -- -- --   FROM catch_attempts
--- -- -- --   WHERE created_at > NOW() - INTERVAL '1 hour'
--- -- -- --   GROUP BY user_id
--- -- -- --   ON CONFLICT (user_id, stat_type, snapshot_at) DO NOTHING;
--- -- -- --   $$
--- -- -- -- );
+-- -- -- -- -- -- -- -- -- -- -- SELECT cron.schedule(
+-- -- -- -- -- -- -- -- -- -- --   'update_behavior_stats_hourly',
+-- -- -- -- -- -- -- -- -- -- --   '0 * * * *',
+-- -- -- -- -- -- -- -- -- -- --   $$
+-- -- -- -- -- -- -- -- -- -- --   INSERT INTO user_behavior_stats (user_id, stat_type, stat_value, snapshot_at)
+-- -- -- -- -- -- -- -- -- -- --   SELECT 
+-- -- -- -- -- -- -- -- -- -- --     user_id,
+-- -- -- -- -- -- -- -- -- -- --     'catch_rate',
+-- -- -- -- -- -- -- -- -- -- --     SUM(CASE WHEN success THEN 1 ELSE 0 END)::DOUBLE PRECISION / COUNT(*)::DOUBLE PRECISION,
+-- -- -- -- -- -- -- -- -- -- --     NOW()
+-- -- -- -- -- -- -- -- -- -- --   FROM catch_attempts
+-- -- -- -- -- -- -- -- -- -- --   WHERE created_at > NOW() - INTERVAL '1 hour'
+-- -- -- -- -- -- -- -- -- -- --   GROUP BY user_id
+-- -- -- -- -- -- -- -- -- -- --   ON CONFLICT (user_id, stat_type, snapshot_at) DO NOTHING;
+-- -- -- -- -- -- -- -- -- -- --   $$
+-- -- -- -- -- -- -- -- -- -- -- );
 
 -- 每天凌晨3点清理旧数据
--- -- -- -- SELECT cron.schedule(
--- -- -- --   'cleanup_old_behavior_data_daily',
--- -- -- --   '0 3 * * *',
--- -- -- --   'SELECT cleanup_old_behavior_data();'
+-- -- -- -- -- -- -- -- -- -- -- SELECT cron.schedule(
+-- -- -- -- -- -- -- -- -- -- --   'cleanup_old_behavior_data_daily',
+-- -- -- -- -- -- -- -- -- -- --   '0 3 * * *',
+-- -- -- -- -- -- -- -- -- -- --   'SELECT cleanup_old_behavior_data();'
 -- );
 
 COMMIT;

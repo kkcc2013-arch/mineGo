@@ -6,7 +6,7 @@
 -- 1. 精灵羁绊表
 CREATE TABLE IF NOT EXISTS pokemon_friendship (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    pokemon_id UUID NOT NULL REFERENCES pokemons(id) ON DELETE CASCADE,
+    pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     friendship_value SMALLINT NOT NULL DEFAULT 0 CHECK (friendship_value >= 0 AND friendship_value <= 255),
     friendship_level SMALLINT NOT NULL DEFAULT 0 CHECK (friendship_level >= 0 AND friendship_level <= 10),
@@ -35,7 +35,7 @@ CREATE INDEX IF NOT EXISTS idx_pokemon_friendship_mood_expiry ON pokemon_friends
 -- 2. 互动记录表
 CREATE TABLE IF NOT EXISTS friendship_interactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    pokemon_id UUID NOT NULL REFERENCES pokemons(id) ON DELETE CASCADE,
+    pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     interaction_type VARCHAR(30) NOT NULL CHECK (interaction_type IN ('feed', 'play', 'pet', 'train', 'walk')),
     friendship_gain SMALLINT NOT NULL CHECK (friendship_gain > 0),
@@ -57,7 +57,7 @@ CREATE INDEX IF NOT EXISTS idx_friendship_interactions_type ON friendship_intera
 -- 3. 羁绊里程碑表
 CREATE TABLE IF NOT EXISTS friendship_milestones (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    pokemon_id UUID NOT NULL REFERENCES pokemons(id) ON DELETE CASCADE,
+    pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     milestone_type VARCHAR(50) NOT NULL CHECK (milestone_type IN ('level_up', 'total_interactions', 'battle_heroic')),
     milestone_data JSONB,

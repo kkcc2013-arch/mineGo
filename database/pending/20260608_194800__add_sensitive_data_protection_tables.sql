@@ -91,7 +91,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- 创建定时任务扩展（需要 pg_cron 扩展）
 -- 如果没有 pg_cron，可以在应用层定期执行
--- -- -- -- -- SELECT cron.schedule('cleanup_sensitive_access_logs', '0 2 * * *', 'SELECT cleanup_expired_sensitive_access_logs()');
+-- -- -- -- -- -- -- -- -- -- -- -- SELECT cron.schedule('cleanup_sensitive_access_logs', '0 2 * * *', 'SELECT cleanup_expired_sensitive_access_logs()');
 
 -- ============================================================
 -- 5. 敏感字段定义表（可选，用于动态配置）

@@ -123,11 +123,21 @@ INSERT INTO exchange_rates (from_currency, to_currency, rate, source, valid_unti
 ('USD', 'INR', 83.0000000000, 'manual', NOW() + INTERVAL '1 hour', true)
 ON CONFLICT (from_currency, to_currency, fetched_at) DO NOTHING;
 
--- 10. 添加支付订单多货币字段
-ALTER TABLE payment_orders ADD COLUMN IF NOT EXISTS amount_local DECIMAL(20, 2);
-ALTER TABLE payment_orders ADD COLUMN IF NOT EXISTS local_currency CHAR(3) DEFAULT 'USD';
-ALTER TABLE payment_orders ADD COLUMN IF NOT EXISTS exchange_rate DECIMAL(20, 10);
-ALTER TABLE payment_orders ADD COLUMN IF NOT EXISTS rate_lock_id VARCHAR(64);
+-- 10. 添加支付订单多货币字段 (only if payment_orders table exists)
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'payment_orders') THEN
+        ALTER TABLE payment_orders ADD COLUMN IF NOT EXISTS amount_local DECIMAL(20, 2);
+        ALTER TABLE payment_orders ADD COLUMN IF NOT EXISTS local_currency CHAR(3) DEFAULT 'USD';
+        ALTER TABLE payment_orders ADD COLUMN IF NOT EXISTS exchange_rate DECIMAL(20, 10);
+        ALTER TABLE payment_orders ADD COLUMN IF NOT EXISTS rate_lock_id VARCHAR(64);
+    ELSIF EXISTS (SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'orders') THEN
+        ALTER TABLE orders ADD COLUMN IF NOT EXISTS amount_local DECIMAL(20, 2);
+        ALTER TABLE orders ADD COLUMN IF NOT EXISTS local_currency CHAR(3) DEFAULT 'USD';
+        ALTER TABLE orders ADD COLUMN IF NOT EXISTS exchange_rate DECIMAL(20, 10);
+        ALTER TABLE orders ADD COLUMN IF NOT EXISTS rate_lock_id VARCHAR(64);
+    END IF;
+END$$;
 
 COMMENT ON TABLE supported_currencies IS 'REQ-00051: 支持的货币列表';
 COMMENT ON TABLE exchange_rates IS 'REQ-00051: 汇率快照表';

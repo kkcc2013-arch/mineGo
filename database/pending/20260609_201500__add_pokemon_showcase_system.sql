@@ -6,7 +6,7 @@
 -- ============================================================
 CREATE TABLE IF NOT EXISTS pokemon_favorites (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    pokemon_id UUID NOT NULL REFERENCES pokemon(id) ON DELETE CASCADE,
+    pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     display_order INTEGER DEFAULT 0 CHECK (display_order >= 0 AND display_order < 6),
     is_showcased BOOLEAN DEFAULT true,
@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS pokemon_favorites (
 -- ============================================================
 CREATE TABLE IF NOT EXISTS pokemon_likes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    pokemon_id UUID NOT NULL REFERENCES pokemon(id) ON DELETE CASCADE,
+    pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(pokemon_id, user_id)
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS pokemon_likes (
 -- ============================================================
 CREATE TABLE IF NOT EXISTS pokemon_comments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    pokemon_id UUID NOT NULL REFERENCES pokemon(id) ON DELETE CASCADE,
+    pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     comment TEXT NOT NULL CHECK (char_length(comment) >= 1 AND char_length(comment) <= 200),
     created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS pokemon_comments (
 -- 精灵展示统计表
 -- ============================================================
 CREATE TABLE IF NOT EXISTS pokemon_showcase_stats (
-    pokemon_id UUID PRIMARY KEY REFERENCES pokemon(id) ON DELETE CASCADE,
+    pokemon_id UUID PRIMARY KEY REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     like_count INTEGER DEFAULT 0,
     comment_count INTEGER DEFAULT 0,
     view_count INTEGER DEFAULT 0,
@@ -226,20 +226,19 @@ $$ language 'plpgsql';
 CREATE MATERIALIZED VIEW IF NOT EXISTS pokemon_showcase_leaderboard AS
 SELECT 
     p.id as pokemon_id,
-    p.species,
-    p.level,
+    p.species_id as species,
+    p.power_up_count as level,
     p.is_shiny,
-    p.iv_total,
+    (p.iv_attack + p.iv_defense + p.iv_hp) as iv_total,
     p.user_id as owner_id,
     u.nickname as owner_nickname,
     COALESCE(s.like_count, 0) as like_count,
     COALESCE(s.comment_count, 0) as comment_count,
     COALESCE(s.view_count, 0) as view_count,
     RANK() OVER (ORDER BY COALESCE(s.like_count, 0) DESC, COALESCE(s.comment_count, 0) DESC) as rank
-FROM pokemon p
+FROM pokemon_instances p
 JOIN users u ON p.user_id = u.id
 LEFT JOIN pokemon_showcase_stats s ON p.id = s.pokemon_id
-WHERE p.is_showcased = true
 ORDER BY like_count DESC, comment_count DESC
 LIMIT 100;
 
@@ -253,7 +252,7 @@ CREATE INDEX IF NOT EXISTS idx_leaderboard_pokemon ON pokemon_showcase_leaderboa
 -- ============================================================
 -- 创建测试用户的收藏精灵
 -- INSERT INTO pokemon_favorites (pokemon_id, user_id, display_order)
--- SELECT id, user_id, 0 FROM pokemon LIMIT 1;
+-- SELECT id, user_id, 0 FROM pokemon_instances LIMIT 1;
 
 COMMENT ON TABLE pokemon_favorites IS '精灵收藏表 - 玩家标记的收藏精灵';
 COMMENT ON TABLE pokemon_likes IS '精灵点赞表 - 玩家对精灵的点赞记录';
