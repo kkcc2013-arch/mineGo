@@ -416,4 +416,5 @@
 || REQ-00394 | API 敏感参数自动脱敏与日志安全防护系统 | 安全加固 | P1 | done | gateway、所有微服务、backend/shared/logger.js、backend/shared/middleware、admin-dashboard、database/migrations | 2026-06-30 19:05 UTC |
 ||| REQ-00395 | API 敏感操作访问控制与风险评估系统 | 安全加固 | P1 | new | gateway、user-service、payment-service、social-service、backend/shared/riskEvaluator.js、backend/shared/sensitiveOperationGuard.js、database/migrations、admin-dashboard | 2026-06-30 20:00 UTC |
 ||| REQ-00396 | 精灵生态链与食物网系统 | 功能增强 | P1 | new | pokemon-service、location-service、catch-service、reward-service、gateway、game-client、database/migrations | 2026-06-30 19:20 UTC |
-|| REQ-00397 | API 响应压缩与带宽优化系统 | 性能优化 | P1 | new | gateway、所有微服务、backend/shared/middleware/compression.js、game-client、infrastructure/k8s | 2026-06-30 21:00 UTC |
+|| REQ-00397 | API 响应压缩与带宽优化系统 | 性能优化 | P1 | new | gateway、所有微服务、backend/shared/middleware/compression.js、game-client、infrastructure/k8s | 2026-06-30 21:00 |
+|| REQ-00398 | API 错误消息动态翻译管理系统 | 国际化/本地化 | P1 | new | gateway、所有微服务、backend/shared/i18n、backend/shared/errorHandler.js、admin-dashboard、database/migrations | 2026-06-30 21:15 |
