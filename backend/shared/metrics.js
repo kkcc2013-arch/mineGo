@@ -783,4 +783,7 @@ module.exports = {
   counter,
   gauge,
   histogram,
+  Gauge: promClient.Gauge,
+  Counter: promClient.Counter,
+  Histogram: promClient.Histogram,
 };
