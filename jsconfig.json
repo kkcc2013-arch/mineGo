@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["backend/shared/*"],
+      "@shared": ["backend/shared/index.js"],
+      "@services/*": ["backend/services/*"]
+    },
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
+  },
+  "include": [
+    "backend/**/*",
+    "tests/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "frontend/**/*",
+    "infrastructure/**/*"
+  ]
+}

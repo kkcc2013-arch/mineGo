@@ -402,3 +402,5 @@
 || REQ-00382 | 游戏音效可视化与听障玩家视觉提示系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility、gateway、catch-service、gym-service、user-service、backend/shared | 2026-06-30 07:00 UTC |
 || REQ-00383 | 精灵捕捉结果批处理与异步持久化优化系统 | 性能优化 | P1 | new | catch-service、backend/shared、Redis、Kafka、PostgreSQL、database/migrations | 2026-06-30 09:00 UTC |
 || REQ-00384 | GDPR 数据主体权利请求管理系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、backend/shared、database/migrations | 2026-06-30 10:00 UTC |
+| REQ-00385 | 共享模块导入路径规范化与别名系统 | 技术债/重构 | P1 | new | backend/shared、所有微服务、babel/config、package.json、.eslintrc | 2026-06-30 11:00 UTC |
+| REQ-00386 | API 响应格式标准化与错误码统一系统 | API 设计规范 | P1 | new | 所有微服务、backend/shared/middleware、gateway、frontend/game-client、frontend/admin-dashboard、docs/api-spec | 2026-06-30 12:00 UTC |
