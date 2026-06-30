@@ -368,7 +368,8 @@
 || REQ-00350 | 精灵详情批量查询与数据聚合优化系统 | 性能优化 | P1 | new | pokemon-service、gateway、backend/shared、Redis、PostgreSQL | 2026-06-27 06:00 UTC |
 || REQ-00351 | 游戏数字格式本地化系统 | 国际化/本地化 | P1 | new | game-client、gateway、user-service、pokemon-service、payment-service、backend/shared | 2026-06-27 06:00 |
 | REQ-00391 | console.log 替换与结构化日志强制使用系统 | 技术债/重构 | P1 | done | backend/shared（190 个模块）、所有微服务、gateway、CI/CD 检查规则 | 2026-06-30 17:00 UTC |
-| REQ-00392 | 微服务通信协议适配层与多协议统一网关系统 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared/ProtocolAdapter.js、backend/shared/adapters/ | 2026-06-30 18:00 UTC |
+|| REQ-00392 | 微服务通信协议适配层与多协议统一网关系统 | 可扩展性/解耦 | P1 | done | gateway、所有微服务、backend/shared/ProtocolAdapter.js、backend/shared/ProtocolRouter.js、backend/shared/adapters/ | 2026-06-30 18:00 UTC |
+|| REQ-00393 | API 敏感参数自动脱敏与日志安全防护系统 | 安全加固 | P1 | new | gateway、所有微服务、backend/shared/logger.js、backend/shared/middleware、admin-dashboard、database/migrations | 2026-06-30 19:00 UTC |
 | REQ-00373 | 数据库Schema版本冲突检测与多环境一致性验证系统 | 数据库/数据治理 | P1 | new | database/migrations、backend/shared、所有微服务、infrastructure/k8s、admin-dashboard、.github/workflows | 2026-06-29 21:00 UTC |
 || REQ-00362 | 数据库连接池智能预测与预分配系统 | 性能优化 | P1 | done | backend/shared、所有微服务、PostgreSQL、infrastructure/k8s | 2026-06-29 12:15 UTC |
 || REQ-00352 | 游戏音效可视化与听障玩家视觉提示系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility、gateway、catch-service、gym-service | 2026-06-29 01:05 UTC |
@@ -410,5 +411,6 @@
 || REQ-00389 | API 请求速率限制绕过检测与防护系统 | 安全加固 | P1 | new | gateway、user-service、backend/shared/RateLimitBypassDetector.js、backend/shared/RateLimitEnforcer.js、Redis、PostgreSQL、admin-dashboard | 2026-06-30 16:00 UTC |
 || REQ-00390 | 精灵合并进化系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-30 17:00 UTC |
 || REQ-00391 | 控制台日志替换与结构化日志强制执行 | 技术债/重构 | P1 | new | 所有微服务、backend/shared、.eslintrc、scripts | 2026-06-30 18:00 UTC |
-|| REQ-00392 | 微服务通信协议适配层与多协议统一网关系统 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared/ProtocolAdapter.js、backend/shared/ProtocolRouter.js、backend/shared/adapters/ | 2026-06-30 18:00 UTC |
+|| REQ-00392 | 微服务通信协议适配层与多协议统一网关系统 | 可扩展性/解耦 | P1 | done | gateway、所有微服务、backend/shared/ProtocolAdapter.js、backend/shared/ProtocolRouter.js、backend/shared/adapters/ | 2026-06-30 18:00 UTC |
 || REQ-00393 | 动态语言切换无需重新登录系统 | 国际化/本地化 | P1 | new | gateway、user-service、game-client、shared/i18n | 2026-06-30 19:00 UTC |
+|| REQ-00394 | API 敏感参数自动脱敏与日志安全防护系统 | 安全加固 | P1 | new | gateway、所有微服务、backend/shared/logger.js、backend/shared/middleware、admin-dashboard、database/migrations | 2026-06-30 19:05 UTC |
