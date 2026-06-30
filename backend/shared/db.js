@@ -85,7 +85,7 @@ async function query(text, params) {
     }
     
     if (dur > 500) {
-      logger.warn({ module: 'DB] Slow query (%dms): %s', data: dur, text.substring(0, 120 }, 'DB] Slow query (%dms): %s warning'););
+      logger.warn({ module: 'DB', msg: `Slow query (${dur}ms): ${text.substring(0, 120)}` });
     }
     
     return res;

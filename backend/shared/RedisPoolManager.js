@@ -561,10 +561,11 @@ class RedisPoolManager {
       const leaks = pool.leakDetector.detectLeaks();
 
       if (leaks.length > 0) {
-        logger.warn({ pool: pool.name, leakCount: leaks.length, leaks }, 'Detected potential leaks');
+        logger.warn({
           pool: pool.name,
-          leaks: leaks.map((l) => ({ id: l.id, duration: l.duration })),
-        });
+          leakCount: leaks.length,
+          leaks: leaks.map((l) => ({ id: l.id, duration: l.duration }))
+        }, 'Detected potential leaks');
       }
 
       redisLeakDetectionRuns.inc({ pool: pool.name });

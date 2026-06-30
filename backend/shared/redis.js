@@ -56,8 +56,8 @@ function getRedis() {
       });
     }
 
-    client.on('error', (err) => logger.error({ module: 'Redis] Error', error: err.message }, 'Redis] Error error'););
-    client.on('connect', () => logger.info({ module: 'Redis] Connected' }, 'Redis] Connected message'););
+    client.on('error', (err) => logger.error({ module: 'Redis', error: err.message }));
+    client.on('connect', () => logger.info({ module: 'Redis', msg: 'Connected' }));
   }
   return client;
 }
