@@ -3,7 +3,7 @@
 - **编号**：REQ-00400
 - **类别**：测试覆盖
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：gateway、所有微服务、backend/tests/snapshot、backend/shared/snapshotValidator.js、docs/api-spec、.github/workflows
 - **创建时间**：2026-06-30 23:05 UTC
 - **依赖需求**：REQ-00008（OpenAPI 文档）、REQ-00093（API 契约测试）

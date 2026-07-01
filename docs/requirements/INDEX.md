@@ -419,11 +419,12 @@
 || REQ-00397 | API 响应压缩与带宽优化系统 | 性能优化 | P1 | done | gateway、所有微服务、backend/shared/middleware/bandwidthOptimizer.js、game-client、infrastructure/k8s | 2026-06-30 22:15 UTC |
 || REQ-00398 | API 错误消息动态翻译管理系统 | 国际化/本地化 | P1 | new | gateway、所有微服务、backend/shared/i18n、backend/shared/errorHandler.js、admin-dashboard、database/migrations | 2026-06-30 21:15 |
 || REQ-00399 | 安全事件关联分析与自动化响应系统 | 安全加固 | P1 | new | gateway、user-service、所有微服务、backend/shared/SecurityEventCorrelator.js、backend/shared/AutoResponseEngine.js、Redis、PostgreSQL、Kafka、admin-dashboard | 2026-06-30 22:10 UTC |
-|| REQ-00400 | API 快照测试与响应结构验证系统 | 测试覆盖 | P1 | new | gateway、所有微服务、backend/tests/snapshot、backend/shared/snapshotValidator.js、docs/api-spec、.github/workflows | 2026-06-30 23:05 UTC |
+|| REQ-00400 | API 快照测试与响应结构验证系统 | 测试覆盖 | P1 | done | gateway、所有微服务、backend/tests/snapshot、backend/shared/snapshotValidator.js、docs/api-spec、.github/workflows | 2026-06-30 23:05 UTC |
 || REQ-00401 | 精灵 AR 捕捉模式增强系统 | 前端体验 | P1 | new | game-client、gateway、catch-service、location-service、backend/shared | 2026-07-01 00:00 UTC |
 || REQ-00402 | API 错误重试与智能退避系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/RetryManager.js、backend/shared/middleware/retryMiddleware.js、game-client | 2026-07-01 01:00 UTC |
 || REQ-00403 | 精灵收藏室与个性化展示系统 | 功能增强 | P1 | new | pokemon-service、user-service、social-service、gateway、game-client、database/migrations | 2026-07-01 02:00 UTC |
 || REQ-00404 | 退役设备数据安全擦除与合规报告系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、backend/shared | 2026-07-01 03:00 UTC |
 || REQ-00405 | 玩家流失预测与智能挽留系统 | 运营/数据分析 | P1 | new | user-service、reward-service、social-service、gateway、backend/jobs、admin-dashboard、Kafka、Redis、PostgreSQL、machine-learning-pipeline | 2026-07-01 04:00 UTC |
 || REQ-00406 | 玩家账号异常登录检测与地理围栏防护系统 | 安全加固 | P1 | new | user-service、gateway、backend/shared、Redis、PostgreSQL、admin-dashboard | 2026-07-01 05:00 UTC |
+| REQ-00407 | API 弃用通知与迁移引导系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/deprecationManager.js、docs/api-spec、admin-dashboard | 2026-07-01 10:00 UTC |
 |
