@@ -427,4 +427,4 @@
 || REQ-00405 | 玩家流失预测与智能挽留系统 | 运营/数据分析 | P1 | new | user-service、reward-service、social-service、gateway、backend/jobs、admin-dashboard、Kafka、Redis、PostgreSQL、machine-learning-pipeline | 2026-07-01 04:00 UTC |
 || REQ-00406 | 玩家账号异常登录检测与地理围栏防护系统 | 安全加固 | P1 | new | user-service、gateway、backend/shared、Redis、PostgreSQL、admin-dashboard | 2026-07-01 05:00 UTC |
 | REQ-00407 | API 弃用通知与迁移引导系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/deprecationManager.js、docs/api-spec、admin-dashboard | 2026-07-01 10:00 UTC |
-|
+|| REQ-00408 | 精灵天赋系统与隐藏属性解锁机制 | 功能增强 | P1 | new | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-07-01 11:00 UTC |

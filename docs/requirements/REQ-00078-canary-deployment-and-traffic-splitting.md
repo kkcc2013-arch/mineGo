@@ -3,7 +3,7 @@
 - **编号**：REQ-00078
 - **类别**：运维/CICD
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：gateway、所有微服务、infrastructure/k8s、.github/workflows、backend/shared
 - **创建时间**：2026-06-10 04:00
 - **依赖需求**：REQ-00006（K8s 滚动更新与回滚自动化）

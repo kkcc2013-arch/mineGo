@@ -1,5 +1,7 @@
 /**
  * 金丝雀发布 Prometheus 指标
+ * 
+ * @module canaryMetrics
  */
 
 const client = require('prom-client');
@@ -8,7 +10,7 @@ const client = require('prom-client');
 const canaryTrafficGauge = new client.Gauge({
   name: 'canary_traffic_percentage',
   help: 'Current traffic percentage for canary deployment',
-  labelNames: ['service', 'canary_version', 'deployment_id']
+  labelNames: ['service', 'canary_version']
 });
 
 // 金丝雀请求计数
@@ -30,14 +32,14 @@ const canaryLatencyHistogram = new client.Histogram({
   name: 'canary_request_duration_seconds',
   help: 'Request latency for canary version',
   labelNames: ['service', 'canary_version'],
-  buckets: [0.01, 0.05, 0.1, 0.5, 1, 2, 5, 10]
+  buckets: [0.01, 0.05, 0.1, 0.25, 0.5, 1, 2, 5, 10]
 });
 
 // 金丝雀部署状态
 const canaryDeploymentStatus = new client.Gauge({
   name: 'canary_deployment_status',
   help: 'Current status of canary deployment (0=inactive, 1=active, 2=promoting, 3=completed, 4=rolled_back)',
-  labelNames: ['service', 'deployment_id']
+  labelNames: ['service']
 });
 
 // 金丝雀指标验证结果
@@ -50,89 +52,59 @@ const canaryMetricsValid = new client.Gauge({
 // 金丝雀部署总数
 const canaryDeploymentsTotal = new client.Counter({
   name: 'canary_deployments_total',
-  help: 'Total canary deployments',
-  labelNames: ['service', 'strategy']
+  help: 'Total number of canary deployments',
+  labelNames: ['service', 'status']
 });
 
-// 金丝雀回滚总数
-const canaryRollbacksTotal = new client.Counter({
-  name: 'canary_rollbacks_total',
-  help: 'Total canary rollbacks',
-  labelNames: ['service', 'reason']
+// 金丝雀部署持续时间
+const canaryDeploymentDuration = new client.Gauge({
+  name: 'canary_deployment_duration_seconds',
+  help: 'Duration of current canary deployment in seconds',
+  labelNames: ['service', 'deployment_id']
 });
-
-/**
- * 更新金丝雀流量指标
- */
-function updateTrafficMetric(service, canaryVersion, deploymentId, trafficPercentage) {
-  canaryTrafficGauge.set(
-    { service, canary_version: canaryVersion, deployment_id: deploymentId.toString() },
-    trafficPercentage
-  );
-}
 
 /**
  * 记录金丝雀请求
  */
-function recordRequest(service, canaryVersion, status, durationSeconds) {
-  canaryRequestsTotal.inc({ service, canary_version: canaryVersion, status });
+function recordCanaryRequest(service, version, statusCode, latencyMs) {
+  const status = statusCode < 400 ? 'success' : (statusCode < 500 ? 'client_error' : 'server_error');
   
-  if (durationSeconds) {
-    canaryLatencyHistogram.observe(
-      { service, canary_version: canaryVersion },
-      durationSeconds
-    );
+  canaryRequestsTotal.increment({ service, canary_version: version, status });
+  
+  if (statusCode >= 500) {
+    canaryErrorsTotal.increment({ 
+      service, 
+      canary_version: version, 
+      error_type: 'http_' + statusCode 
+    });
   }
-}
-
-/**
- * 记录金丝雀错误
- */
-function recordError(service, canaryVersion, errorType) {
-  canaryErrorsTotal.inc({ service, canary_version: canaryVersion, error_type: errorType });
+  
+  canaryLatencyHistogram.observe(
+    { service, canary_version: version },
+    latencyMs / 1000
+  );
 }
 
 /**
  * 更新金丝雀部署状态
  */
-function updateDeploymentStatus(service, deploymentId, status) {
+function updateDeploymentStatus(service, status) {
   const statusMap = {
-    'inactive': 0,
-    'active': 1,
-    'promoting': 2,
-    'completed': 3,
-    'rolled_back': 4,
-    'cancelled': 5
+    inactive: 0,
+    active: 1,
+    promoting: 2,
+    completed: 3,
+    rolled_back: 4
   };
   
-  canaryDeploymentStatus.set(
-    { service, deployment_id: deploymentId.toString() },
-    statusMap[status] || 0
-  );
+  canaryDeploymentStatus.set({ service }, statusMap[status] || 0);
 }
 
 /**
- * 更新指标验证结果
+ * 记录金丝雀部署事件
  */
-function updateMetricsValidation(service, deploymentId, isValid) {
-  canaryMetricsValid.set(
-    { service, deployment_id: deploymentId.toString() },
-    isValid ? 1 : 0
-  );
-}
-
-/**
- * 记录金丝雀部署
- */
-function recordDeployment(service, strategy) {
-  canaryDeploymentsTotal.inc({ service, strategy });
-}
-
-/**
- * 记录金丝雀回滚
- */
-function recordRollback(service, reason) {
-  canaryRollbacksTotal.inc({ service, reason });
+function recordDeploymentEvent(service, status) {
+  canaryDeploymentsTotal.increment({ service, status });
 }
 
 module.exports = {
@@ -143,12 +115,8 @@ module.exports = {
   canaryDeploymentStatus,
   canaryMetricsValid,
   canaryDeploymentsTotal,
-  canaryRollbacksTotal,
-  updateTrafficMetric,
-  recordRequest,
-  recordError,
+  canaryDeploymentDuration,
+  recordCanaryRequest,
   updateDeploymentStatus,
-  updateMetricsValidation,
-  recordDeployment,
-  recordRollback
+  recordDeploymentEvent
 };

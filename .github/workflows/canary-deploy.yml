@@ -1,0 +1,200 @@
+name: Canary Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Service to deploy (e.g., catch-service)'
+        required: true
+      canary_version:
+        description: 'Canary version tag'
+        required: true
+      initial_traffic:
+        description: 'Initial traffic percentage (default: 5)'
+        required: false
+        default: '5'
+      strategy:
+        description: 'Deployment strategy'
+        type: choice
+        options:
+          - progressive
+          - manual
+          - auto
+        default: progressive
+      auto_promote:
+        description: 'Auto promote if metrics are healthy'
+        type: boolean
+        default: true
+
+env:
+  DEPLOY_DIR: /data/mineGo
+
+jobs:
+  canary-deploy:
+    name: 🐤 Canary Deploy
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Initialize Canary Deployment
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -euo pipefail
+            
+            SERVICE="${{ github.event.inputs.service }}"
+            CANARY_VERSION="${{ github.event.inputs.canary_version }}"
+            INITIAL_TRAFFIC="${{ github.event.inputs.initial_traffic }}"
+            STRATEGY="${{ github.event.inputs.strategy }}"
+            AUTO_PROMOTE="${{ github.event.inputs.auto_promote }}"
+            
+            echo "╔══════════════════════════════════════════╗"
+            echo "║  🐤 Canary Deployment                    ║"
+            echo "║  Service: $SERVICE"
+            echo "║  Version: $CANARY_VERSION"
+            echo "║  Traffic: ${INITIAL_TRAFFIC}%"
+            echo "║  Strategy: $STRATEGY"
+            echo "╚══════════════════════════════════════════╝"
+            
+            cd "$DEPLOY_DIR"
+            
+            # 获取当前稳定版本
+            STABLE_VERSION=$(curl -s http://localhost:8080/api/version | jq -r '.version' || echo "unknown")
+            echo "Stable version: $STABLE_VERSION"
+            
+            # 创建金丝雀发布
+            RESPONSE=$(curl -s -X POST http://localhost:8080/api/canary/deployments \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${{ secrets.ADMIN_TOKEN }}" \
+              -d "{
+                \"serviceName\": \"$SERVICE\",
+                \"canaryVersion\": \"$CANARY_VERSION\",
+                \"stableVersion\": \"$STABLE_VERSION\",
+                \"initialTraffic\": $INITIAL_TRAFFIC,
+                \"strategy\": \"$STRATEGY\",
+                \"autoPromote\": $AUTO_PROMOTE
+              }")
+            
+            DEPLOYMENT_ID=$(echo "$RESPONSE" | jq -r '.deployment.id')
+            echo "Deployment ID: $DEPLOYMENT_ID"
+            
+            if [ "$DEPLOYMENT_ID" = "null" ] || [ -z "$DEPLOYMENT_ID" ]; then
+              echo "❌ Failed to create deployment"
+              echo "$RESPONSE"
+              exit 1
+            fi
+            
+            echo "✅ Canary deployment created: #$DEPLOYMENT_ID"
+            
+            # 保存 deployment ID 供后续步骤使用
+            echo "DEPLOYMENT_ID=$DEPLOYMENT_ID" >> $GITHUB_ENV
+            
+      - name: Monitor Canary Metrics
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -euo pipefail
+            
+            SERVICE="${{ github.event.inputs.service }}"
+            DEPLOYMENT_ID="${{ env.DEPLOYMENT_ID }}"
+            MONITOR_DURATION=300  # 5 minutes
+            
+            echo "📊 Monitoring canary metrics for ${MONITOR_DURATION}s..."
+            
+            START=$(date +%s)
+            
+            while true; do
+              CURRENT=$(date +%s)
+              ELAPSED=$((CURRENT - START))
+              
+              if [ $ELAPSED -ge $MONITOR_DURATION ]; then
+                echo "✅ Monitoring complete"
+                break
+              fi
+              
+              # 检查金丝雀状态
+              STATUS=$(curl -s "http://localhost:8080/api/canary/deployments/$DEPLOYMENT_ID" | \
+                       jq -r '.deployment.status')
+              
+              TRAFFIC=$(curl -s "http://localhost:8080/api/canary/deployments/$DEPLOYMENT_ID" | \
+                       jq -r '.deployment.traffic_split')
+              
+              # 验证指标
+              VALID=$(curl -s -X POST "http://localhost:8080/api/canary/deployments/$DEPLOYMENT_ID/validate" | \
+                      jq -r '.valid')
+              
+              echo "[$ELAPSED s] Status: $STATUS | Traffic: ${TRAFFIC}% | Metrics: $VALID"
+              
+              if [ "$STATUS" = "rolled_back" ]; then
+                echo "❌ Canary deployment was rolled back"
+                exit 1
+              fi
+              
+              sleep 30
+            done
+            
+            # 最终验证
+            FINAL_VALID=$(curl -s -X POST "http://localhost:8080/api/canary/deployments/$DEPLOYMENT_ID/validate" | \
+                         jq -r '.valid')
+            
+            if [ "$FINAL_VALID" = "false" ]; then
+              echo "❌ Metrics validation failed"
+              curl -s -X POST "http://localhost:8080/api/canary/deployments/$DEPLOYMENT_ID/rollback" \
+                -H "Content-Type: application/json" \
+                -H "Authorization: Bearer ${{ secrets.ADMIN_TOKEN }}" \
+                -d '{"reason": "Metrics validation failed after monitoring"}'
+              exit 1
+            fi
+            
+            echo "✅ Metrics validation passed"
+
+      - name: Notify on Success
+        if: success()
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK }}" ]; then
+            curl -X POST "${{ secrets.SLACK_WEBHOOK }}" \
+              -H 'Content-Type: application/json' \
+              -d "{\"text\":\"🐤 Canary deployment started for ${{ github.event.inputs.service }}\nVersion: ${{ github.event.inputs.canary_version }}\nTraffic: ${{ github.event.inputs.initial_traffic }}%\nDeployment ID: ${DEPLOYMENT_ID}\"}"
+          fi
+
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK }}" ]; then
+            curl -X POST "${{ secrets.SLACK_WEBHOOK }}" \
+              -H 'Content-Type: application/json' \
+              -d "{\"text\":\"❌ Canary deployment failed for ${{ github.event.inputs.service }}\nVersion: ${{ github.event.inputs.canary_version }}\"}"
+          fi
+
+  canary-monitor:
+    name: 📊 Canary Monitor (Auto Promote)
+    runs-on: ubuntu-latest
+    needs: canary-deploy
+    if: ${{ github.event.inputs.auto_promote == 'true' }}
+    
+    steps:
+      - name: Auto Promote Check
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -euo pipefail
+            
+            cd "$DEPLOY_DIR"
+            
+            # 触发自动推进检查
+            curl -s -X POST "http://localhost:8080/api/canary/auto-promote" \
+              -H "Authorization: Bearer ${{ secrets.ADMIN_TOKEN }}"
+            
+            echo "✅ Auto promote triggered"
