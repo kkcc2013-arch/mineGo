@@ -414,11 +414,12 @@
 || REQ-00392 | 微服务通信协议适配层与多协议统一网关系统 | 可扩展性/解耦 | P1 | done | gateway、所有微服务、backend/shared/ProtocolAdapter.js、backend/shared/ProtocolRouter.js、backend/shared/adapters/ | 2026-06-30 18:00 UTC |
 || REQ-00393 | 动态语言切换无需重新登录系统 | 国际化/本地化 | P1 | done | gateway、user-service、game-client、shared/i18n | 2026-06-30 19:00 UTC |
 || REQ-00394 | API 敏感参数自动脱敏与日志安全防护系统 | 安全加固 | P1 | done | gateway、所有微服务、backend/shared/logger.js、backend/shared/middleware、admin-dashboard、database/migrations | 2026-06-30 19:05 UTC |
-||| REQ-00395 | API 敏感操作访问控制与风险评估系统 | 安全加固 | P1 | new | gateway、user-service、payment-service、social-service、backend/shared/riskEvaluator.js、backend/shared/sensitiveOperationGuard.js、database/migrations、admin-dashboard | 2026-06-30 20:00 UTC |
+||| REQ-00395 | API 敏感操作访问控制与风险评估系统 | 安全加固 | P1 | done | gateway、user-service、payment-service、social-service、backend/shared/riskEvaluator.js、backend/shared/sensitiveOperationGuard.js、database/migrations、admin-dashboard | 2026-06-30 20:00 UTC |
 ||| REQ-00396 | 精灵生态链与食物网系统 | 功能增强 | P1 | new | pokemon-service、location-service、catch-service、reward-service、gateway、game-client、database/migrations | 2026-06-30 19:20 UTC |
 || REQ-00397 | API 响应压缩与带宽优化系统 | 性能优化 | P1 | done | gateway、所有微服务、backend/shared/middleware/bandwidthOptimizer.js、game-client、infrastructure/k8s | 2026-06-30 22:15 UTC |
 || REQ-00398 | API 错误消息动态翻译管理系统 | 国际化/本地化 | P1 | new | gateway、所有微服务、backend/shared/i18n、backend/shared/errorHandler.js、admin-dashboard、database/migrations | 2026-06-30 21:15 |
 || REQ-00399 | 安全事件关联分析与自动化响应系统 | 安全加固 | P1 | new | gateway、user-service、所有微服务、backend/shared/SecurityEventCorrelator.js、backend/shared/AutoResponseEngine.js、Redis、PostgreSQL、Kafka、admin-dashboard | 2026-06-30 22:10 UTC |
 || REQ-00400 | API 快照测试与响应结构验证系统 | 测试覆盖 | P1 | new | gateway、所有微服务、backend/tests/snapshot、backend/shared/snapshotValidator.js、docs/api-spec、.github/workflows | 2026-06-30 23:05 UTC |
 || REQ-00401 | 精灵 AR 捕捉模式增强系统 | 前端体验 | P1 | new | game-client、gateway、catch-service、location-service、backend/shared | 2026-07-01 00:00 UTC |
+| REQ-00402 | API 错误重试与智能退避系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/RetryManager.js、backend/shared/middleware/retryMiddleware.js、game-client | 2026-07-01 01:00 UTC |
 |

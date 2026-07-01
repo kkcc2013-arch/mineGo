@@ -3,7 +3,7 @@
 - **编号**：REQ-00395
 - **类别**：安全加固
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：gateway、user-service、payment-service、social-service、backend/shared/riskEvaluator.js、backend/shared/sensitiveOperationGuard.js、database/migrations、admin-dashboard
 - **创建时间**：2026-06-30 20:00 UTC
 - **依赖需求**：REQ-00214（敏感操作二次验证）、REQ-00327（会话劫持防护）
