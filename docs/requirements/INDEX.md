@@ -428,3 +428,4 @@
 || REQ-00406 | 玩家账号异常登录检测与地理围栏防护系统 | 安全加固 | P1 | new | user-service、gateway、backend/shared、Redis、PostgreSQL、admin-dashboard | 2026-07-01 05:00 UTC |
 | REQ-00407 | API 弃用通知与迁移引导系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/deprecationManager.js、docs/api-spec、admin-dashboard | 2026-07-01 10:00 UTC |
 || REQ-00408 | 精灵天赋系统与隐藏属性解锁机制 | 功能增强 | P1 | new | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-07-01 11:00 UTC |
+| REQ-00409 | 微服务配置中心与动态配置热更新系统 | 运维/CICD | P1 | new | gateway、所有微服务、backend/shared/configCenter、infrastructure/k8s、admin-dashboard | 2026-07-01 11:00 UTC |
