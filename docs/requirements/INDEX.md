@@ -423,4 +423,5 @@
 || REQ-00401 | 精灵 AR 捕捉模式增强系统 | 前端体验 | P1 | new | game-client、gateway、catch-service、location-service、backend/shared | 2026-07-01 00:00 UTC |
 || REQ-00402 | API 错误重试与智能退避系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/RetryManager.js、backend/shared/middleware/retryMiddleware.js、game-client | 2026-07-01 01:00 UTC |
 || REQ-00403 | 精灵收藏室与个性化展示系统 | 功能增强 | P1 | new | pokemon-service、user-service、social-service、gateway、game-client、database/migrations | 2026-07-01 02:00 UTC |
+|| REQ-00404 | 退役设备数据安全擦除与合规报告系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、backend/shared | 2026-07-01 03:00 UTC |
 |
