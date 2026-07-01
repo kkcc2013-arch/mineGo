@@ -7,7 +7,7 @@
 | 标题 | 游戏经济系统异常检测与防刷风控系统 |
 | 类别 | 反作弊 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | payment-service、reward-service、trade-service、gateway、admin-dashboard、shared/risk-engine |
 | 创建时间 | 2026-07-01 18:00 |
 
