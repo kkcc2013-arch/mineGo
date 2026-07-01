@@ -425,4 +425,5 @@
 || REQ-00403 | 精灵收藏室与个性化展示系统 | 功能增强 | P1 | new | pokemon-service、user-service、social-service、gateway、game-client、database/migrations | 2026-07-01 02:00 UTC |
 || REQ-00404 | 退役设备数据安全擦除与合规报告系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、backend/shared | 2026-07-01 03:00 UTC |
 || REQ-00405 | 玩家流失预测与智能挽留系统 | 运营/数据分析 | P1 | new | user-service、reward-service、social-service、gateway、backend/jobs、admin-dashboard、Kafka、Redis、PostgreSQL、machine-learning-pipeline | 2026-07-01 04:00 UTC |
+|| REQ-00406 | 玩家账号异常登录检测与地理围栏防护系统 | 安全加固 | P1 | new | user-service、gateway、backend/shared、Redis、PostgreSQL、admin-dashboard | 2026-07-01 05:00 UTC |
 |
