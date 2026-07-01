@@ -419,4 +419,6 @@
 || REQ-00397 | API 响应压缩与带宽优化系统 | 性能优化 | P1 | done | gateway、所有微服务、backend/shared/middleware/bandwidthOptimizer.js、game-client、infrastructure/k8s | 2026-06-30 22:15 UTC |
 || REQ-00398 | API 错误消息动态翻译管理系统 | 国际化/本地化 | P1 | new | gateway、所有微服务、backend/shared/i18n、backend/shared/errorHandler.js、admin-dashboard、database/migrations | 2026-06-30 21:15 |
 || REQ-00399 | 安全事件关联分析与自动化响应系统 | 安全加固 | P1 | new | gateway、user-service、所有微服务、backend/shared/SecurityEventCorrelator.js、backend/shared/AutoResponseEngine.js、Redis、PostgreSQL、Kafka、admin-dashboard | 2026-06-30 22:10 UTC |
-| REQ-00400 | API 快照测试与响应结构验证系统 | 测试覆盖 | P1 | new | gateway、所有微服务、backend/tests/snapshot、backend/shared/snapshotValidator.js、docs/api-spec、.github/workflows | 2026-06-30 23:05 UTC |
+|| REQ-00400 | API 快照测试与响应结构验证系统 | 测试覆盖 | P1 | new | gateway、所有微服务、backend/tests/snapshot、backend/shared/snapshotValidator.js、docs/api-spec、.github/workflows | 2026-06-30 23:05 UTC |
+|| REQ-00401 | 精灵 AR 捕捉模式增强系统 | 前端体验 | P1 | new | game-client、gateway、catch-service、location-service、backend/shared | 2026-07-01 00:00 UTC |
+|
