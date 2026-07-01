@@ -9,4 +9,5 @@
 | REQ-00415 | 代码质量度量与重构建议系统 | 技术债/重构 | P2 | new | shared/analyzer、admin-dashboard、github-actions | 2026-07-01 17:00 |
 | REQ-00416 | 游戏经济系统异常检测与防刷风控系统 | 反作弊 | P1 | done | payment-service、reward-service、trade-service、gateway、admin-dashboard、shared/risk-engine | 2026-07-01 18:00 |
 | REQ-00417 | 玩家会话超时智能管理与渐进式断开系统 | 性能优化 | P1 | new | gateway、auth-service、game-client、admin-dashboard | 2026-07-01 19:00 |
-| REQ-00418 | AR模式作弊检测与照片验证系统 | 反作弊 | P1 | new | catch-service、location-service、gateway、shared/anti-cheat、admin-dashboard | 2026-07-01 20:00 |
+|| REQ-00418 | AR模式作弊检测与照片验证系统 | 反作弊 | P1 | new | catch-service、location-service、gateway、shared/anti-cheat、admin-dashboard | 2026-07-01 20:00 |
+|| REQ-00419 | 精灵栖息地系统与生态环境影响机制 | 功能增强 | P1 | new | game-core、catch-service、location-service、map-service、shared/ecosystem、admin-dashboard | 2026-07-01 21:00 |
