@@ -421,7 +421,7 @@
 || REQ-00399 | 安全事件关联分析与自动化响应系统 | 安全加固 | P1 | new | gateway、user-service、所有微服务、backend/shared/SecurityEventCorrelator.js、backend/shared/AutoResponseEngine.js、Redis、PostgreSQL、Kafka、admin-dashboard | 2026-06-30 22:10 UTC |
 || REQ-00400 | API 快照测试与响应结构验证系统 | 测试覆盖 | P1 | done | gateway、所有微服务、backend/tests/snapshot、backend/shared/snapshotValidator.js、docs/api-spec、.github/workflows | 2026-06-30 23:05 UTC |
 || REQ-00401 | 精灵 AR 捕捉模式增强系统 | 前端体验 | P1 | new | game-client、gateway、catch-service、location-service、backend/shared | 2026-07-01 00:00 UTC |
-|| REQ-00402 | API 错误重试与智能退避系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared/RetryManager.js、backend/shared/middleware/retryMiddleware.js、game-client | 2026-07-01 01:00 UTC |
+|| REQ-00402 | API 错误重试与智能退避系统 | API 设计规范 | P1 | done | gateway、所有微服务、backend/shared/RetryManager.js、backend/shared/middleware/retryMiddleware.js、frontend/game-client/src/api/RetryableClient.js、database/migrations | 2026-07-01 13:30 UTC |
 || REQ-00403 | 精灵收藏室与个性化展示系统 | 功能增强 | P1 | new | pokemon-service、user-service、social-service、gateway、game-client、database/migrations | 2026-07-01 02:00 UTC |
 || REQ-00404 | 退役设备数据安全擦除与合规报告系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、backend/shared | 2026-07-01 03:00 UTC |
 || REQ-00405 | 玩家流失预测与智能挽留系统 | 运营/数据分析 | P1 | new | user-service、reward-service、social-service、gateway、backend/jobs、admin-dashboard、Kafka、Redis、PostgreSQL、machine-learning-pipeline | 2026-07-01 04:00 UTC |
@@ -430,3 +430,4 @@
 || REQ-00408 | 精灵天赋系统与隐藏属性解锁机制 | 功能增强 | P1 | new | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-07-01 11:00 UTC |
 || REQ-00409 | 微服务配置中心与动态配置热更新系统 | 运维/CICD | P1 | new | gateway、所有微服务、backend/shared/configCenter、infrastructure/k8s、admin-dashboard | 2026-07-01 11:00 UTC |
 || REQ-00410 | 数据隐私影响评估（DPIA）自动化系统 | 合规/隐私 | P1 | new | user-service、gateway、admin-dashboard、backend/jobs、backend/shared | 2026-07-01 12:00 UTC |
+|| REQ-00411 | 游戏语音内容本地化与音频翻译管理系统 | 国际化/本地化 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、backend/shared/audioLocalization、backend/jobs、database/migrations、cdn | 2026-07-01 13:05 UTC |
