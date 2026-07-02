@@ -14,4 +14,4 @@
 || REQ-00420 | 数据库备份自动验证与演练系统 | 数据库/数据治理 | P1 | new | database、backup-service、monitoring、admin-dashboard | 2026-07-02 01:00 |
 || REQ-00421 | 玩家登录性能优化与快速恢复系统 | 性能优化 | P1 | new | gateway、auth-service、player-service、game-client、shared/cache | 2026-07-02 02:00 |
 || REQ-00422 | 精灵数据预编译缓存系统 | 性能优化 | P1 | new | game-core、catch-service、battle-service、shared/cache、admin-dashboard | 2026-07-02 03:00 |
-|| REQ-00423 | 部署变更日志自动生成系统 | 运维/CICD | P2 | new | github-actions、admin-dashboard、notification-service、api-gateway | 2026-07-02 04:00 |
+|| REQ-00424 | Kubernetes 资源成本优化与智能扩缩容系统 | 成本/资源优化 | P1 | new | k8s/hpa、k8s/vpa、monitoring、admin-dashboard、shared/cost-optimizer | 2026-07-02 21:53 |
