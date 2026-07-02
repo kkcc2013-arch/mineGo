@@ -15,3 +15,4 @@
 || REQ-00421 | 玩家登录性能优化与快速恢复系统 | 性能优化 | P1 | new | gateway、auth-service、player-service、game-client、shared/cache | 2026-07-02 02:00 |
 || REQ-00422 | 精灵数据预编译缓存系统 | 性能优化 | P1 | new | game-core、catch-service、battle-service、shared/cache、admin-dashboard | 2026-07-02 03:00 |
 || REQ-00424 | Kubernetes 资源成本优化与智能扩缩容系统 | 成本/资源优化 | P1 | new | k8s/hpa、k8s/vpa、monitoring、admin-dashboard、shared/cost-optimizer | 2026-07-02 21:53 |
+| REQ-00425 | 游戏内通知与智能消息推送系统 | 功能增强 | P1 | new | gateway、notification-service（新建）、user-service、social-service、reward-service、game-client、admin-dashboard | 2026-07-02 23:00 |
