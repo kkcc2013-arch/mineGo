@@ -21,3 +21,4 @@
     20||| REQ-00428 | 数据库读写分离监控与延迟告警系统 | 数据库/数据治理 | P1 | new | database-service、monitoring-service | 2026-07-03 07:00 |
     21||| REQ-00429 | 游戏客户端断点续传资源更新系统 | 运维/CICD | P1 | new | game-client、cdn-service、storage-service、admin-dashboard | 2026-07-03 08:00 |
 ||| REQ-00430 | 游戏数据库查询慢查询分析与自动调优系统 | 数据库/数据治理 | P1 | new | database-service、monitoring-service、shared/db-optimizer | 2026-07-03 09:00 |
+||| REQ-00431 | 微服务分布式配置热更新与版本控制系统 | 运维/CICD | P1 | new | config-service、gateway、auth-service、payment-service、shared/config、admin-dashboard | 2026-07-03 10:00 |
