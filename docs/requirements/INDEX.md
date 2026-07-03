@@ -18,4 +18,5 @@
 || REQ-00425 | 游戏内通知与智能消息推送系统 | 功能增强 | P1 | new | gateway、notification-service（新建）、user-service、social-service、reward-service、game-client、admin-dashboard | 2026-07-02 23:00 |
 || REQ-00426 | 游戏界面屏幕阅读器智能增强与语义化标注系统 | 无障碍(a11y) | P1 | new | game-client、shared/a11y、admin-dashboard | 2026-07-03 01:00 |
 ||| REQ-00427 | 游戏经济系统反欺诈机器学习模型自动训练与部署系统 | 反作弊 | P1 | new | shared/risk-engine、payment-service、reward-service、admin-dashboard | 2026-07-03 04:00 |
-| REQ-00428 | 数据库读写分离监控与延迟告警系统 | 数据库/数据治理 | P1 | new | database-service、monitoring-service | 2026-07-03 07:00 |
+    20||| REQ-00428 | 数据库读写分离监控与延迟告警系统 | 数据库/数据治理 | P1 | new | database-service、monitoring-service | 2026-07-03 07:00 |
+    21||| REQ-00429 | 游戏客户端断点续传资源更新系统 | 运维/CICD | P1 | new | game-client、cdn-service、storage-service、admin-dashboard | 2026-07-03 08:00 |
