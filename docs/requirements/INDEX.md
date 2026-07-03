@@ -17,4 +17,4 @@
 || REQ-00424 | Kubernetes 资源成本优化与智能扩缩容系统 | 成本/资源优化 | P1 | new | k8s/hpa、k8s/vpa、monitoring、admin-dashboard、shared/cost-optimizer | 2026-07-02 21:53 |
 || REQ-00425 | 游戏内通知与智能消息推送系统 | 功能增强 | P1 | new | gateway、notification-service（新建）、user-service、social-service、reward-service、game-client、admin-dashboard | 2026-07-02 23:00 |
 || REQ-00426 | 游戏界面屏幕阅读器智能增强与语义化标注系统 | 无障碍(a11y) | P1 | new | game-client、shared/a11y、admin-dashboard | 2026-07-03 01:00 |
-|| REQ-00027 | 游戏数据分区策略与自动化分区管理系统 | 性能优化 | P1 | new | database、player-service、catch-service、battle-service、trade-service、monitoring、admin-dashboard | 2026-07-03 02:00 |
+||| REQ-00427 | 游戏经济系统反欺诈机器学习模型自动训练与部署系统 | 反作弊 | P1 | new | shared/risk-engine、payment-service、reward-service、admin-dashboard | 2026-07-03 04:00 |
