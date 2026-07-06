@@ -3,7 +3,7 @@
 - **编号**: REQ-00257
 - **类别**: 测试覆盖
 - **优先级**: P1
-- **状态**: new
+- **状态**: done
 - **涉及服务/模块**: gateway、所有微服务、backend/tests/regression、backend/shared/OpenAPIComparator.js、.github/workflows、docs/api-spec
 - **创建时间**: 2026-06-18 13:05
 - **依赖需求**: REQ-00008（OpenAPI 文档）、REQ-00044（API 版本管理）
