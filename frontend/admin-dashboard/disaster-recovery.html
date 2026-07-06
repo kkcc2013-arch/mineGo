@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mineGo 灾备管理中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+        }
+        
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        
+        .header-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .status-badge.active {
+            background: rgba(40, 167, 69, 0.3);
+            border: 1px solid #28a745;
+            color: #7fff7f;
+        }
+        
+        .status-badge.standby {
+            background: rgba(255, 193, 7, 0.3);
+            border: 1px solid #ffc107;
+            color: #ffe066;
+        }
+        
+        .status-badge.failed-over {
+            background: rgba(220, 53, 69, 0.3);
+            border: 1px solid #dc3545;
+            color: #ff6b6b;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .metric-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .metric-card h3 {
+            font-size: 14px;
+            opacity: 0.7;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+        
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .metric-status {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+        
+        .metric-status.good {
+            background: rgba(40, 167, 69, 0.3);
+            color: #7fff7f;
+        }
+        
+        .metric-status.warning {
+            background: rgba(255, 193, 7, 0.3);
+            color: #ffe066;
+        }
+        
+        .metric-status.critical {
+            background: rgba(220, 53, 69, 0.3);
+            color: #ff6b6b;
+        }
+        
+        .regions-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .region-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .region-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .region-name {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .services-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .service-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+        
+        .service-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .service-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .service-indicator.healthy {
+            background: #28a745;
+            box-shadow: 0 0 8px #28a745;
+        }
+        
+        .service-indicator.unhealthy {
+            background: #dc3545;
+            box-shadow: 0 0 8px #dc3545;
+        }
+        
+        .service-indicator.unknown {
+            background: #6c757d;
+        }
+        
+        .actions-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .actions-panel h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+        
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        
+        .action-btn {
+            padding: 16px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .action-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .action-btn.danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+        
+        .action-btn.warning {
+            background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+            color: #333;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .history-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .history-panel h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+        
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .history-table th,
+        .history-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .history-table th {
+            font-size: 12px;
+            text-transform: uppercase;
+            opacity: 0.7;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .modal-header h3 {
+            font-size: 20px;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        
+        .modal-close:hover {
+            opacity: 1;
+        }
+        
+        .modal-body {
+            margin-bottom: 24px;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @media (max-width: 768px) {
+            .regions-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>🛡️ 灾备管理中心</h1>
+            <div class="header-meta">
+                <span id="lastUpdate">最后更新: --</span>
+                <div>
+                    <span class="status-badge active" id="overallStatus">
+                        <span class="pulse">●</span>
+                        主区域运行中
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h3>RTO 目标</h3>
+                <div class="metric-value" id="rtoValue">--</div>
+                <span class="metric-status good" id="rtoStatus">目标: 5分钟</span>
+            </div>
+            
+            <div class="metric-card">
+                <h3>RPO 目标</h3>
+                <div class="metric-value" id="rpoValue">--</div>
+                <span class="metric-status good" id="rpoStatus">目标: 1分钟</span>
+            </div>
+            
+            <div class="metric-card">
+                <h3>数据同步状态</h3>
+                <div class="metric-value" id="syncStatus">正常</div>
+                <span class="metric-status good" id="syncDetail">延迟: 0ms</span>
+            </div>
+            
+            <div class="metric-card">
+                <h3>最近演练</h3>
+                <div class="metric-value" id="lastDrill">--</div>
+                <span class="metric-status good" id="drillStatus">状态: 正常</span>
+            </div>
+        </div>
+        
+        <div class="regions-container">
+            <div class="region-card" id="primaryRegion">
+                <div class="region-header">
+                    <span class="region-name">📍 主区域 (北京)</span>
+                    <span class="status-badge active">Active</span>
+                </div>
+                <div class="services-list" id="primaryServices">
+                    <div class="service-item">
+                        <span class="service-name">
+                            <span class="service-indicator healthy"></span>
+                            PostgreSQL
+                        </span>
+                        <span>正常</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-name">
+                            <span class="service-indicator healthy"></span>
+                            Redis
+                        </span>
+                        <span>正常</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-name">
+                            <span class="service-indicator healthy"></span>
+                            Kafka
+                        </span>
+                        <span>正常</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-name">
+                            <span class="service-indicator healthy"></span>
+                            K8s Cluster
+                        </span>
+                        <span>正常</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-name">
+                            <span class="service-indicator healthy"></span>
+                            Gateway
+                        </span>
+                        <span>正常</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="region-card" id="standbyRegion">
+                <div class="region-header">
+                    <span class="region-name">📍 备区域 (上海)</span>
+                    <span class="status-badge standby">Standby</span>
+                </div>
+                <div class="services-list" id="standbyServices">
+                    <div class="service-item">
+                        <span class="service-name">
+                            <span class="service-indicator healthy"></span>
+                            PostgreSQL Standby
+                        </span>
+                        <span>同步中</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-name">
+                            <span class="service-indicator healthy"></span>
+                            Redis Replica
+                        </span>
+                        <span>同步中</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-name">
+                            <span class="service-indicator healthy"></span>
+                            Kafka MirrorMaker
+                        </span>
+                        <span>运行中</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-name">
+                            <span class="service-indicator healthy"></span>
+                            K8s Cluster
+                        </span>
+                        <span>待命</span>
+                    </div>
+                    <div class="service-item">
+                        <span class="service-name">
+                            <span class="service-indicator healthy"></span>
+                            Gateway
+                        </span>
+                        <span>待命</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="actions-panel">
+            <h2>⚡ 操作控制</h2>
+            <div class="actions-grid">
+                <button class="action-btn primary" onclick="startDrill()">
+                    🧪 启动演练
+                </button>
+                <button class="action-btn warning" onclick="showFailoverModal()">
+                    🔄 手动切换
+                </button>
+                <button class="action-btn primary" onclick="checkHealth()">
+                    🏥 健康检查
+                </button>
+                <button class="action-btn danger" onclick="showEmergencyFailoverModal()">
+                    🚨 紧急切换
+                </button>
+                <button class="action-btn primary" onclick="viewDrillHistory()">
+                    📋 演练历史
+                </button>
+                <button class="action-btn primary" onclick="exportReport()">
+                    📊 导出报告
+                </button>
+            </div>
+        </div>
+        
+        <div class="history-panel">
+            <h2>📋 最近切换历史</h2>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>时间</th>
+                        <th>类型</th>
+                        <th>触发原因</th>
+                        <th>RTO</th>
+                        <th>RPO</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTable">
+                    <tr>
+                        <td>--</td>
+                        <td>--</td>
+                        <td>--</td>
+                        <td>--</td>
+                        <td>--</td>
+                        <td>--</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- 手动切换模态框 -->
+    <div class="modal" id="failoverModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔄 手动故障切换</h3>
+                <button class="modal-close" onclick="closeModal('failoverModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>切换原因</label>
+                    <select id="failoverReason">
+                        <option value="maintenance">计划维护</option>
+                        <option value="drill">灾备演练</option>
+                        <option value="degradation">性能下降</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>目标区域</label>
+                    <select id="targetRegion">
+                        <option value="shanghai">上海 (备区域)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>是否自动回切</label>
+                    <select id="autoRollback">
+                        <option value="true">是 (30分钟后自动回切)</option>
+                        <option value="false">否 (需手动回切)</option>
+                    </select>
+                </div>
+                <p style="opacity: 0.7; font-size: 14px;">
+                    ⚠️ 警告：切换将导致服务短暂中断，请确认后操作。
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn" onclick="closeModal('failoverModal')">取消</button>
+                <button class="action-btn danger" onclick="executeFailover()">确认切换</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 紧急切换模态框 -->
+    <div class="modal" id="emergencyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="color: #ff6b6b;">🚨 紧急故障切换</h3>
+                <button class="modal-close" onclick="closeModal('emergencyModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p style="color: #ff6b6b; margin-bottom: 16px;">
+                    ⚠️ 警告：紧急切换将立即执行，可能导致数据丢失！
+                </p>
+                <div class="form-group">
+                    <label>确认密码</label>
+                    <input type="password" id="emergencyPassword" placeholder="请输入管理员密码">
+                </div>
+                <div class="form-group">
+                    <label>确认原因</label>
+                    <input type="text" id="emergencyReason" placeholder="请输入紧急切换原因">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn" onclick="closeModal('emergencyModal')">取消</button>
+                <button class="action-btn danger" onclick="executeEmergencyFailover()">紧急执行</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 演练模态框 -->
+    <div class="modal" id="drillModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🧪 灾备演练</h3>
+                <button class="modal-close" onclick="closeModal('drillModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>演练类型</label>
+                    <select id="drillType">
+                        <option value="full">全流程演练</option>
+                        <option value="partial">部分演练</option>
+                        <option value="dry-run">桌面演练(不实际切换)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>演练时长 (分钟)</label>
+                    <input type="number" id="drillDuration" value="30" min="10" max="120">
+                </div>
+                <div class="form-group">
+                    <label>自动回切</label>
+                    <select id="drillAutoRollback">
+                        <option value="true">是</option>
+                        <option value="false">否</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="action-btn" onclick="closeModal('drillModal')">取消</button>
+                <button class="action-btn primary" onclick="executeDrill()">开始演练</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // API 基础路径
+        const API_BASE = '/api/admin/dr';
+        
+        // 状态数据
+        let state = {
+            primaryRegion: 'beijing',
+            standbyRegion: 'shanghai',
+            isFailedOver: false,
+            rto: 0,
+            rpo: 0,
+            lastDrill: null,
+            history: []
+        };
+        
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchStatus();
+            setInterval(fetchStatus, 10000); // 每10秒更新
+        });
+        
+        // 获取状态
+        async function fetchStatus() {
+            try {
+                const response = await fetch(`${API_BASE}/status`);
+                if (response.ok) {
+                    const data = await response.json();
+                    updateUI(data);
+                }
+            } catch (error) {
+                console.error('获取状态失败:', error);
+            }
+            
+            document.getElementById('lastUpdate').textContent = 
+                `最后更新: ${new Date().toLocaleString('zh-CN')}`;
+        }
+        
+        // 更新UI
+        function updateUI(data) {
+            state = { ...state, ...data };
+            
+            // 更新整体状态
+            const statusBadge = document.getElementById('overallStatus');
+            if (data.isFailedOver) {
+                statusBadge.className = 'status-badge failed-over';
+                statusBadge.innerHTML = '<span class="pulse">●</span> 备区域运行中';
+            } else {
+                statusBadge.className = 'status-badge active';
+                statusBadge.innerHTML = '<span class="pulse">●</span> 主区域运行中';
+            }
+            
+            // 更新RTO/RPO
+            document.getElementById('rtoValue').textContent = 
+                data.rto ? `${data.rto}ms` : '--';
+            document.getElementById('rtoStatus').textContent = 
+                `目标: 5分钟 | ${data.rto <= 300000 ? '达标' : '超标'}`;
+            
+            document.getElementById('rpoValue').textContent = 
+                data.rpo ? `${data.rpo}ms` : '--';
+            document.getElementById('rpoStatus').textContent = 
+                `目标: 1分钟 | ${data.rpo <= 60000 ? '达标' : '超标'}`;
+            
+            // 更新同步状态
+            document.getElementById('syncDetail').textContent = 
+                `延迟: ${data.syncLag || 0}ms`;
+        }
+        
+        // 健康检查
+        async function checkHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/health-check`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    alert('健康检查完成\n' + JSON.stringify(data, null, 2));
+                }
+            } catch (error) {
+                alert('健康检查失败: ' + error.message);
+            }
+        }
+        
+        // 启动演练
+        function startDrill() {
+            document.getElementById('drillModal').classList.add('active');
+        }
+        
+        // 执行演练
+        async function executeDrill() {
+            const type = document.getElementById('drillType').value;
+            const duration = document.getElementById('drillDuration').value;
+            const autoRollback = document.getElementById('drillAutoRollback').value === 'true';
+            
+            try {
+                const response = await fetch(`${API_BASE}/drill`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ type, duration, autoRollback })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`演练已启动: ${data.drillId}`);
+                    closeModal('drillModal');
+                    fetchStatus();
+                } else {
+                    const error = await response.json();
+                    alert('启动演练失败: ' + error.message);
+                }
+            } catch (error) {
+                alert('启动演练失败: ' + error.message);
+            }
+        }
+        
+        // 显示切换模态框
+        function showFailoverModal() {
+            document.getElementById('failoverModal').classList.add('active');
+        }
+        
+        // 显示紧急切换模态框
+        function showEmergencyFailoverModal() {
+            document.getElementById('emergencyModal').classList.add('active');
+        }
+        
+        // 执行切换
+        async function executeFailover() {
+            const reason = document.getElementById('failoverReason').value;
+            const targetRegion = document.getElementById('targetRegion').value;
+            const autoRollback = document.getElementById('autoRollback').value === 'true';
+            
+            if (!confirm('确认执行故障切换？这将导致服务短暂中断。')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/failover`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason, targetRegion, autoRollback })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`切换成功！RTO: ${data.rto}ms`);
+                    closeModal('failoverModal');
+                    fetchStatus();
+                } else {
+                    const error = await response.json();
+                    alert('切换失败: ' + error.message);
+                }
+            } catch (error) {
+                alert('切换失败: ' + error.message);
+            }
+        }
+        
+        // 执行紧急切换
+        async function executeEmergencyFailover() {
+            const password = document.getElementById('emergencyPassword').value;
+            const reason = document.getElementById('emergencyReason').value;
+            
+            if (!password || !reason) {
+                alert('请填写所有字段');
+                return;
+            }
+            
+            if (!confirm('⚠️ 确认执行紧急故障切换？可能导致数据丢失！')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/emergency-failover`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password, reason })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    alert(`紧急切换执行！RTO: ${data.rto}ms`);
+                    closeModal('emergencyModal');
+                    fetchStatus();
+                } else {
+                    const error = await response.json();
+                    alert('紧急切换失败: ' + error.message);
+                }
+            } catch (error) {
+                alert('紧急切换失败: ' + error.message);
+            }
+        }
+        
+        // 查看演练历史
+        function viewDrillHistory() {
+            fetch(`${API_BASE}/drill-history`)
+                .then(res => res.json())
+                .then(data => {
+                    alert('演练历史:\n' + JSON.stringify(data, null, 2));
+                });
+        }
+        
+        // 导出报告
+        function exportReport() {
+            window.open(`${API_BASE}/report`, '_blank');
+        }
+        
+        // 关闭模态框
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        
+        // 点击模态框外部关闭
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -3,7 +3,9 @@
 - **编号**：REQ-00375
 - **类别**：容灾/高可用
 - **优先级**：P0
-- **状态**：new
+- **状态**：done
+- **完成时间**：2026-07-06 07:00 UTC
+- **实现文件**：backend/shared/disasterRecovery/, frontend/admin-dashboard/disaster-recovery.html, backend/shared/routes/drRoutes.js, backend/jobs/drillScheduler.js, backend/services/drApiServer.js
 - **涉及服务/模块**：gateway、所有微服务、backend/shared/disasterRecovery、infrastructure/k8s、PostgreSQL、Redis、Kafka、DNS/负载均衡、admin-dashboard
 - **创建时间**：2026-06-29 23:00 UTC
 - **依赖需求**：REQ-00061（自动恢复执行器）、REQ-00023（分布式追踪）

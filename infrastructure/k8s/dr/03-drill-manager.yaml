@@ -1,0 +1,120 @@
+# infrastructure/k8s/dr/03-drill-manager.yaml
+# 灾备演练管理器配置
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: drill-manager-config
+  namespace: minego
+data:
+  DRILL_SCHEDULE_INTERVAL_DAYS: "7"
+  MAX_DRILL_DURATION_MINUTES: "30"
+  AUTO_ROLLBACK_ENABLED: "true"
+  NOTIFY_CHANNELS: "slack,email"
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: drill-scheduler
+  namespace: minego
+spec:
+  schedule: "0 3 * * 0"  # 每周日凌晨3点
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: drill-checker
+            image: minego/dr-engine:latest
+            command: ["node", "backend/jobs/drillScheduler.js"]
+            envFrom:
+            - configMapRef:
+                name: drill-manager-config
+            - secretRef:
+                name: dr-secrets
+            resources:
+              requests:
+                cpu: "100m"
+                memory: "128Mi"
+          restartPolicy: OnFailure
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drill-api-server
+  namespace: minego
+  labels:
+    app: drill-api-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: drill-api-server
+  template:
+    metadata:
+      labels:
+        app: drill-api-server
+    spec:
+      containers:
+      - name: api-server
+        image: minego/dr-engine:latest
+        command: ["node", "backend/services/drApiServer.js"]
+        envFrom:
+        - configMapRef:
+            name: disaster-recovery-config
+        - configMapRef:
+            name: drill-manager-config
+        - secretRef:
+            name: dr-secrets
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        ports:
+        - containerPort: 3002
+          name: api
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: api
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: api
+          initialDelaySeconds: 10
+          periodSeconds: 5
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: drill-api-server
+  namespace: minego
+spec:
+  selector:
+    app: drill-api-server
+  ports:
+  - port: 3002
+    targetPort: api
+    name: api
+---
+# 灾备 API 服务（用于 admin-dashboard）
+apiVersion: v1
+kind: Service
+metadata:
+  name: dr-admin-api
+  namespace: minego
+spec:
+  type: ClusterIP
+  selector:
+    app: disaster-recovery-engine
+  ports:
+  - port: 3001
+    targetPort: 3001
+    name: admin-api
