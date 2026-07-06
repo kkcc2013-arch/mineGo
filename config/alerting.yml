@@ -1,0 +1,61 @@
+# Alerting Configuration
+# REQ-00439: 熔断器事件告警系统集成
+
+# Alert Channels
+channels:
+  # Log channel - always enabled
+  - type: log
+    enabled: true
+    
+  # Webhook channel - for OpsGenie, PagerDuty, etc.
+  - type: webhook
+    url: ${ALERT_WEBHOOK_URL:-}
+    api_key: ${ALERT_API_KEY:-}
+    enabled: ${ALERT_WEBHOOK_ENABLED:-false}
+    timeout: 5000
+    
+  # Slack channel
+  - type: slack
+    webhook_url: ${SLACK_WEBHOOK_URL:-}
+    channel: ${SLACK_CHANNEL:-#ops-alerts}
+    username: mineGo Alert
+    enabled: ${SLACK_ENABLED:-false}
+    timeout: 5000
+
+# Alert Rules
+rules:
+  # Circuit Breaker Open - Critical
+  circuit-breaker-open:
+    level: critical
+    channels: [webhook, slack, log]
+    template: "熔断器打开: {service} 服务不可用"
+    
+  # Circuit Breaker Half-Open - Warning
+  circuit-breaker-half-open:
+    level: warning
+    channels: [webhook, log]
+    template: "熔断器半开: {service} 恢复测试中"
+    
+  # Circuit Breaker Close - Info
+  circuit-breaker-close:
+    level: info
+    channels: [log]
+    template: "熔断器关闭: {service} 已恢复"
+
+# Silence Rules
+silences:
+  # Non-critical services - silence for 5 minutes
+  - pattern: "^social-service$"
+    duration_minutes: 5
+    
+  - pattern: "^reward-service$"
+    duration_minutes: 5
+
+# Aggregation Settings
+aggregation:
+  window_ms: 30000  # 30 seconds
+  max_alerts_per_flush: 100
+
+# History Settings
+history:
+  max_size: 1000  # Keep last 1000 alerts in memory

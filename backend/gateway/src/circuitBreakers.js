@@ -4,6 +4,7 @@ const { CircuitBreaker, CircuitBreakerManager } = require('@pmg/shared/CircuitBr
 const { ServiceFallbackStrategies } = require('@pmg/shared/FallbackStrategy');
 const { createLogger } = require('@pmg/shared/logger');
 const metrics = require('@pmg/shared/metrics');
+const { getAlertManager } = require('@pmg/shared/alerting');
 
 const logger = createLogger('gateway:circuit-breakers');
 
@@ -97,8 +98,22 @@ function initializeCircuitBreakers() {
         metrics.circuitBreakerEvents.inc({ service: name, event: 'open' });
       }
       
-      // TODO: Send alert to monitoring system
-      // alertManager.send({ service: name, event: 'circuit-open', data });
+      // REQ-00439: Send alert to monitoring system
+      const alertManager = getAlertManager();
+      if (alertManager) {
+        alertManager.send({
+          level: 'critical',
+          service: name,
+          event: 'circuit-breaker-open',
+          message: `熔断器打开: ${name} 服务不可用`,
+          data: {
+            failures: data.failures,
+            threshold: serviceConfigs[name]?.failureThreshold,
+            config: serviceConfigs[name],
+            timestamp: new Date().toISOString()
+          }
+        });
+      }
     });
     
     cb.on('half-open', (name) => {
@@ -110,6 +125,20 @@ function initializeCircuitBreakers() {
       if (metrics.circuitBreakerEvents) {
         metrics.circuitBreakerEvents.inc({ service: name, event: 'half-open' });
       }
+      
+      // REQ-00439: Send alert for half-open state
+      const alertManager = getAlertManager();
+      if (alertManager) {
+        alertManager.send({
+          level: 'warning',
+          service: name,
+          event: 'circuit-breaker-half-open',
+          message: `熔断器半开: ${name} 恢复测试中`,
+          data: {
+            timestamp: new Date().toISOString()
+          }
+        });
+      }
     });
     
     cb.on('close', (name) => {
@@ -120,6 +149,20 @@ function initializeCircuitBreakers() {
       }
       if (metrics.circuitBreakerEvents) {
         metrics.circuitBreakerEvents.inc({ service: name, event: 'close' });
+      }
+      
+      // REQ-00439: Send alert for service recovery
+      const alertManager = getAlertManager();
+      if (alertManager) {
+        alertManager.send({
+          level: 'info',
+          service: name,
+          event: 'circuit-breaker-close',
+          message: `熔断器关闭: ${name} 已恢复`,
+          data: {
+            timestamp: new Date().toISOString()
+          }
+        });
       }
     });
   }
