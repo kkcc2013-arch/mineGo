@@ -7,7 +7,7 @@
 | 标题 | 客户端完整性验证与运行环境检测系统 |
 | 类别 | 安全加固/反作弊 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | gateway-service/game-client/anti-cheat-service |
 | 创建时间 | 2026-07-07 12:00 |
 | 依赖需求 | REQ-00475 |
