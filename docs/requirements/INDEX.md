@@ -14,7 +14,7 @@
 | REQ-00473 | 全球化环境下多时区动态调度补偿系统 | 国际化/本地化 | P1 | new | scheduler-service/shared/timezone-lib | 2026-07-07 11:00 |
 | REQ-00472 | 分布式链路追踪性能异常检测系统 | 可观测性/监控 | P1 | new | gateway/shared/tracing/monitoring | 2026-07-07 05:00 |
 || REQ-00471 | 数据库热数据自动分层存储系统 | 数据库/数据治理 | P1 | new | database-service | 2026-07-07 10:00 |
-|| REQ-00470 | 游戏内动态音效与背景音乐智能调节系统 | 前端体验 | P2 | new | game-client/audio-service | 2026-07-07 09:00 |
+|| REQ-00470 | 游戏内动态音效与背景音乐智能调节系统 | 前端体验 | P2 | done | game-client/audio-service | 2026-07-07 09:00 |
 | REQ-00469 | 游戏实时对战回放录制与分享系统 | 功能增强 | P1 | new | battle-service/media-service/social-service | 2026-07-07 03:00 |
 | REQ-00468 | 精灵天气增益与动态刷新系统 | 功能增强 | P1 | new | location-service/pokemon-service | 2026-07-07 02:00 |
 | REQ-00467 | 第三方数据处理协议管理系统 | 合规/隐私 | P1 | done | backend/shared/compliance | 2026-07-07 01:00 |
