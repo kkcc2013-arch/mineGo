@@ -6,7 +6,8 @@
 
 || 编号 | 标题 | 类别 | 优先级 | 状态 | 涉及服务 | 创建时间 |
 ||------|------|------|--------|------|----------|----------|
-| REQ-00479 | 数据库查询结果缓存自动失效策略系统 | 性能优化 | P1 | done | database-service/cache-layer | 2026-07-07 10:00 |
+| REQ-00482 | 动态容器资源负载预测与主动扩缩容系统 | 成本/资源优化 | P1 | new | k8s-operator/monitoring | 2026-07-07 15:00 |
+|| REQ-00479 | 数据库查询结果缓存自动失效策略系统 | 性能优化 | P1 | done | database-service/cache-layer | 2026-07-07 10:00 |
 | REQ-00478 | 游戏数据归档与生命周期管理系统 | 数据库/数据治理 | P1 | new | database-service/user-service/catch-service/backend/jobs | 2026-07-07 09:00 |
 || REQ-00477 | 统一用户同意管理平台 | 合规/隐私 | P1 | new | gateway/user-service/game-client/database/migrations | 2026-07-07 08:00 |
 | REQ-00476 | API性能预算与基准测试自动化系统 | API 设计规范 | P1 | new | gateway/shared/performance-budget | 2026-07-07 07:00 |
