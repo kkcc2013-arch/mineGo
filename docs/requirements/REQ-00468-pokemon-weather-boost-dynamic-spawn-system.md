@@ -3,7 +3,7 @@
 - **编号**：REQ-00468
 - **类别**：功能增强
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：location-service、pokemon-service、backend/shared/weather
 - **创建时间**：2026-07-07 02:00 UTC
 - **依赖需求**：REQ-00037（实时天气API集成）

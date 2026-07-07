@@ -1,11 +1,12 @@
 # mineGo 需求总索引
 
 > 自动维护，每小时新增 1 条。目标 10000 条或达成"可用"标准即止。
-> 最后更新：2026-07-07 08:00 UTC
-> 总计需求：477 条
+> 最后更新：2026-07-07 09:00 UTC
+> 总计需求：478 条
 
 || 编号 | 标题 | 类别 | 优先级 | 状态 | 涉及服务 | 创建时间 |
 ||------|------|------|--------|------|----------|----------|
+| REQ-00478 | 游戏数据归档与生命周期管理系统 | 数据库/数据治理 | P1 | new | database-service/user-service/catch-service/backend/jobs | 2026-07-07 09:00 |
 || REQ-00477 | 统一用户同意管理平台 | 合规/隐私 | P1 | new | gateway/user-service/game-client/database/migrations | 2026-07-07 08:00 |
 | REQ-00476 | API性能预算与基准测试自动化系统 | API 设计规范 | P1 | new | gateway/shared/performance-budget | 2026-07-07 07:00 |
 || REQ-00475 | 游戏内实时行为风控与异常操作拦截系统 | 安全加固/反作弊 | P1 | new | gateway/risk-control-engine | 2026-07-07 12:00 |
@@ -16,7 +17,7 @@
 || REQ-00471 | 数据库热数据自动分层存储系统 | 数据库/数据治理 | P1 | new | database-service | 2026-07-07 10:00 |
 || REQ-00470 | 游戏内动态音效与背景音乐智能调节系统 | 前端体验 | P2 | done | game-client/audio-service | 2026-07-07 09:00 |
 | REQ-00469 | 游戏实时对战回放录制与分享系统 | 功能增强 | P1 | new | battle-service/media-service/social-service | 2026-07-07 03:00 |
-| REQ-00468 | 精灵天气增益与动态刷新系统 | 功能增强 | P1 | new | location-service/pokemon-service | 2026-07-07 02:00 |
+| REQ-00468 | 精灵天气增益与动态刷新系统 | 功能增强 | P1 | done | location-service/pokemon-service | 2026-07-07 02:00 |
 | REQ-00467 | 第三方数据处理协议管理系统 | 合规/隐私 | P1 | done | backend/shared/compliance | 2026-07-07 01:00 |
 | REQ-00466 | 成本异常检测与自动告警响应系统 | 成本/资源优化 | P1 | done | backend/shared/cost-alerting | 2026-07-07 00:20 |
 | REQ-00465 | API响应分页标准化与性能优化系统 | API 设计规范 | P1 | done | backend/shared/pagination | 2026-07-06 17:00 |
