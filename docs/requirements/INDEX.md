@@ -29,4 +29,6 @@
 | REQ-00435 | 游戏触觉反馈增强与自定义系统 | 无障碍(a11y) | P2 | new | game-client | 2026-07-06 07:00 |
 | REQ-00434 | WebSocket消息完整性与防重放攻击保护系统 | 安全加固 | P1 | done | gateway/shared | 2026-07-06 |
 | REQ-00257 | API回归测试自动化与BreakingChange检测系统 | 测试覆盖 | P1 | done | backend/tests | 2026-06-18 |
-| REQ-00077 | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | done | database/shared | 2026-06-10 |
+|| REQ-00077 | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | done | database/shared | 2026-06-10 |
+|| REQ-00481 | 精灵数据预编译缓存系统 | 性能优化 | P1 | new | pokemon-service/cache-layer | 2026-07-07 11:00 |
+|
