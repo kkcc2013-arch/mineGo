@@ -3,7 +3,7 @@
 - **编号**：REQ-00436
 - **类别**：测试覆盖
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：backend/shared/disasterRecovery、backend/tests/disasterRecovery
 - **创建时间**：2026-07-06 07:00 UTC
 - **依赖需求**：REQ-00375（跨区域灾备自动化切换系统）
