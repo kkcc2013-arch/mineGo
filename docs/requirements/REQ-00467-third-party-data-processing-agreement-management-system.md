@@ -3,7 +3,7 @@
 - **编号**：REQ-00467
 - **类别**：合规/隐私
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：backend/services/user-service、backend/shared/compliance、admin-dashboard
 - **创建时间**：2026-07-07 01:00 UTC
 - **依赖需求**：REQ-00053（隐私偏好中心）、REQ-00016（GDPR合规）
