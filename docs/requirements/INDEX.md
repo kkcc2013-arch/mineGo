@@ -6,6 +6,7 @@
 
 | 编号 | 标题 | 类别 | 优先级 | 状态 | 涉及服务 | 创建时间 |
 |------|------|------|--------|------|----------|----------|
+| REQ-00469 | 游戏实时对战回放录制与分享系统 | 功能增强 | P1 | new | battle-service/media-service/social-service | 2026-07-07 03:00 |
 | REQ-00468 | 精灵天气增益与动态刷新系统 | 功能增强 | P1 | new | location-service/pokemon-service | 2026-07-07 02:00 |
 | REQ-00467 | 第三方数据处理协议管理系统 | 合规/隐私 | P1 | done | backend/shared/compliance | 2026-07-07 01:00 |
 | REQ-00466 | 成本异常检测与自动告警响应系统 | 成本/资源优化 | P1 | done | backend/shared/cost-alerting | 2026-07-07 00:20 |
