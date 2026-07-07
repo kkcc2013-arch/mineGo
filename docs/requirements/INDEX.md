@@ -1,11 +1,13 @@
 # mineGo 需求总索引
 
 > 自动维护，每小时新增 1 条。目标 10000 条或达成"可用"标准即止。
-> 最后更新：2026-07-07 12:15 UTC
-> 总计需求：483 条
+> 最后更新：2026-07-07 14:00 UTC
+> 总计需求：486 条
 
 ||| 编号 | 标题 | 类别 | 优先级 | 状态 | 涉及服务 | 创建时间 |
 |||------|------|------|--------|------|----------|----------|
+|| REQ-00486 | CI/CD流水线实时可视化与智能诊断系统 | 运维/CICD | P1 | new | admin-dashboard/ci-cd-monitor/github-actions-webhook | 2026-07-07 14:00 |
+|| REQ-00485 | 用户数据批量导出安全管控与审计系统 | 反作弊/安全加固 | P1 | new | user-service/gdpr-service/admin-dashboard | 2026-07-07 13:00 |
 || REQ-00484 | 数据库连接池自动弹性伸缩与健康巡检系统 | 性能优化 | P1 | new | database-service/connection-pool-manager | 2026-07-08 03:00 |
 || REQ-00483 | 客户端完整性验证与运行环境检测系统 | 安全加固/反作弊 | P1 | new | gateway-service/game-client/anti-cheat-service | 2026-07-07 12:00 |
 | REQ-00483 | 客户端完整性验证与运行环境检测系统 | 安全加固/反作弊 | P1 | new | gateway-service/game-client/anti-cheat-service | 2026-07-07 12:00 |
