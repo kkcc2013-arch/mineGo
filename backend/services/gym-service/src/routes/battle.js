@@ -21,6 +21,8 @@ const cache = require('../../../../shared/cache');
 const metrics = require('../../../../shared/metrics');
 const logger = require('../../../../shared/logger');
 const auth = require('../../../../shared/auth');
+// REQ-00469: 回放录制系统
+const ReplayService = require('../../../../shared/ReplayService');
 
 // 活跃战斗缓存（10分钟 TTL）
 const activeBattles = new Map();
@@ -302,6 +304,45 @@ router.post('/battle/:battleId/turn', auth.requireAuth, async (req, res) => {
       } else {
         metrics.gymBattleLoseTotal.inc();
         logger.info('Battle lost', { battleId, gymId: battle.gymId, userId, turns: result.turns });
+      }
+      
+      // REQ-00469: 录制回放
+      try {
+        const replayResult = await ReplayService.recordReplay(battleId, {
+          gymId: battle.gymId,
+          battleType: 'gym',
+          attackerUserId: userId,
+          attackerTeam: battle.attacker.team.map(p => ({
+            id: p.id,
+            species: p.species,
+            level: p.level,
+            moves: p.moves,
+            hp_stats: { current: p.current_hp, max: p.max_hp }
+          })),
+          defenderInfo: {
+            type: 'gym',
+            team: battle.defender.team.map(p => ({
+              id: p.id,
+              species: p.species,
+              level: p.level
+            }))
+          },
+          result: result.result,
+          turns: result.turns,
+          duration: result.duration,
+          replay: result.replay
+        });
+        
+        result.replayId = replayResult.replayId;
+        result.highlights = replayResult.highlights;
+        
+        logger.info('Battle replay recorded', { battleId, replayId: replayResult.replayId });
+      } catch (replayError) {
+        logger.error('Failed to record battle replay', { 
+          error: replayError.message, 
+          battleId 
+        });
+        // 不影响战斗结果返回
       }
       
       return res.json({ ...turnResult, battleResult: result });
