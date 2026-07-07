@@ -1,11 +1,13 @@
 # mineGo 需求总索引
 
 > 自动维护，每小时新增 1 条。目标 10000 条或达成"可用"标准即止。
-> 最后更新：2026-07-07 09:00 UTC
-> 总计需求：478 条
+> 最后更新：2026-07-07 12:15 UTC
+> 总计需求：483 条
 
 || 编号 | 标题 | 类别 | 优先级 | 状态 | 涉及服务 | 创建时间 |
 ||------|------|------|--------|------|----------|----------|
+| REQ-00483 | 客户端完整性验证与运行环境检测系统 | 安全加固/反作弊 | P1 | new | gateway-service/game-client/anti-cheat-service | 2026-07-07 12:00 |
+| REQ-00483 | 客户端完整性验证与运行环境检测系统 | 安全加固/反作弊 | P1 | new | gateway-service/game-client/anti-cheat-service | 2026-07-07 12:00 |
 | REQ-00482 | 动态容器资源负载预测与主动扩缩容系统 | 成本/资源优化 | P1 | new | k8s-operator/monitoring | 2026-07-07 15:00 |
 || REQ-00479 | 数据库查询结果缓存自动失效策略系统 | 性能优化 | P1 | done | database-service/cache-layer | 2026-07-07 10:00 |
 | REQ-00478 | 游戏数据归档与生命周期管理系统 | 数据库/数据治理 | P1 | new | database-service/user-service/catch-service/backend/jobs | 2026-07-07 09:00 |
@@ -23,7 +25,7 @@
 | REQ-00467 | 第三方数据处理协议管理系统 | 合规/隐私 | P1 | done | backend/shared/compliance | 2026-07-07 01:00 |
 | REQ-00466 | 成本异常检测与自动告警响应系统 | 成本/资源优化 | P1 | done | backend/shared/cost-alerting | 2026-07-07 00:20 |
 | REQ-00465 | API响应分页标准化与性能优化系统 | API 设计规范 | P1 | done | backend/shared/pagination | 2026-07-06 17:00 |
-| REQ-00464 | 实现动态数据库索引维护系统 | 数据库/数据治理 | P1 | new | database | 2026-07-06 10:00 |
+| REQ-00464 | 实现动态数据库索引维护系统 | 数据库/数据治理 | P1 | done | backend/shared/indexUsageMonitor/jobs/indexMaintenanceJob | 2026-07-07 12:15 |
 | REQ-00438 | API调用示例库与最佳实践文档系统 | 文档/开发者体验 | P1 | done | backend/docs/examples | 2026-07-06 08:17 |
 | REQ-00437 | 部署窗口智能调度系统 | 运维/CICD | P1 | new | ci-cd/orchestration | 2026-07-06 08:00 |
 | REQ-00436 | 灾备模块单元测试覆盖系统 | 测试覆盖 | P1 | done | backend/tests/disasterRecovery | 2026-07-06 07:00 |
