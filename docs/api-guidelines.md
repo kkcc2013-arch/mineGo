@@ -24,7 +24,7 @@
 }
 ```
 
-#### 列表资源（带分页）
+#### 列表资源（带分页）- 新标准化格式
 
 ```json
 {
@@ -33,16 +33,44 @@
     { "id": "1", "name": "Pikachu" },
     { "id": "2", "name": "Charizard" }
   ],
-  "pagination": {
-    "page": 1,
-    "limit": 20,
-    "total": 150,
-    "totalPages": 8,
-    "hasMore": true
-  },
   "meta": {
     "requestId": "req-12345",
-    "timestamp": "2026-06-30T12:00:00Z"
+    "timestamp": "2026-07-06T12:00:00Z",
+    "pagination": {
+      "type": "offset",
+      "page": 1,
+      "pageSize": 20,
+      "total": 150,
+      "totalPages": 8,
+      "hasNext": true,
+      "hasPrev": false,
+      "nextCursor": null,
+      "prevCursor": null
+    }
+  }
+}
+```
+
+#### 游标分页格式（大数据量）
+
+```json
+{
+  "success": true,
+  "data": [
+    { "id": "1", "name": "Pikachu" },
+    { "id": "2", "name": "Charizard" }
+  ],
+  "meta": {
+    "requestId": "req-12345",
+    "timestamp": "2026-07-06T12:00:00Z",
+    "pagination": {
+      "type": "cursor",
+      "pageSize": 20,
+      "hasNext": true,
+      "hasPrev": false,
+      "nextCursor": "eyJpZCI6MjAsImNyZWF0ZWRBdCI6IjIwMjYtMDctMDYifQ==",
+      "prevCursor": null
+    }
   }
 }
 ```
@@ -188,8 +216,150 @@ throw new AppError('VALIDATION_ERROR', details);
 - [errorHandler.js](../../backend/shared/middleware/errorHandler.js) - 错误处理中间件
 - [OpenAPI 规范](../api-spec/openapi.yaml) - API 文档
 
+## 分页规范（REQ-00465）
+
+### 分页参数
+
+所有分页接口必须使用以下标准化参数：
+
+| 参数名 | 类型 | 默认值 | 最大值 | 说明 |
+|--------|------|--------|--------|------|
+| `page` | integer | 1 | - | 页码（offset-based）|
+| `pageSize` | integer | 20 | 100 | 每页数量 |
+| `cursor` | string | - | - | 游标（cursor-based）|
+| `direction` | string | 'next' | - | 游标方向（next/prev）|
+
+**弃用参数**（向后兼容但建议迁移）：
+- `offset` → 使用 `page`
+- `limit` → 使用 `pageSize`
+- `size` → 使用 `pageSize`
+
+### 分页响应元数据
+
+所有分页响应必须在 `meta.pagination` 中包含以下字段：
+
+| 字段 | 类型 | 必须 | 说明 |
+|------|------|------|------|
+| `type` | string | ✓ | 分页类型：offset 或 cursor |
+| `page` | integer | ✓ (offset) | 当前页码 |
+| `pageSize` | integer | ✓ | 每页数量 |
+| `total` | integer | ○ | 总记录数（可选，大数据量时可不计算）|
+| `totalPages` | integer | ○ | 总页数（可选）|
+| `hasNext` | boolean | ✓ | 是否有下一页 |
+| `hasPrev` | boolean | ✓ | 是否有上一页 |
+| `nextCursor` | string | ✓ (cursor) | 下一页游标 |
+| `prevCursor` | string | ✓ (cursor) | 上一页游标 |
+
+### 分页策略选择
+
+| 场景 | 推荐策略 | 说明 |
+|------|----------|------|
+| 小数据量（<1000条）| Offset 分页 | 支持跳页，用户体验好 |
+| 大数据量（>1000条）| Cursor 分页 | 避免 offset 性能问题 |
+| 深分页（offset>1000）| Cursor 分页 | 必须，否则性能下降 |
+| 实时数据流 | Cursor 分页 | 避免数据遗漏/重复 |
+
+### 使用示例
+
+#### Offset 分页
+
+```bash
+# 请求
+GET /api/v1/pokemon?page=2&pageSize=20
+
+# 响应
+{
+  "success": true,
+  "data": [...],
+  "meta": {
+    "pagination": {
+      "type": "offset",
+      "page": 2,
+      "pageSize": 20,
+      "total": 150,
+      "totalPages": 8,
+      "hasNext": true,
+      "hasPrev": true
+    }
+  }
+}
+```
+
+#### Cursor 分页
+
+```bash
+# 首次请求
+GET /api/v1/pokemon?pageSize=20
+
+# 后续请求
+GET /api/v1/pokemon?cursor=eyJpZCI6MjB9&pageSize=20&direction=next
+
+# 响应
+{
+  "success": true,
+  "data": [...],
+  "meta": {
+    "pagination": {
+      "type": "cursor",
+      "pageSize": 20,
+      "hasNext": true,
+      "hasPrev": true,
+      "nextCursor": "eyJpZCI6NDAsImNyZWF0ZWRBdCI6IjIwMjYtMDctMDYifQ==",
+      "prevCursor": "eyJpZCI6MjAsImNyZWF0ZWRBdCI6IjIwMjYtMDctMDYifQ=="
+    }
+  }
+}
+```
+
+### 性能对比
+
+| 分页类型 | offset=100 | offset=10000 | 说明 |
+|----------|------------|--------------|------|
+| Offset | ~10ms | ~500ms | 性能随 offset 增大下降 |
+| Cursor | ~10ms | ~10ms | 性能稳定，不受游标位置影响 |
+
+### 实现参考
+
+```javascript
+const { createPaginationMiddleware, createCursorPaginator } = require('../shared/pagination');
+
+// 使用分页中间件
+const pagination = createPaginationMiddleware({
+  defaultPageSize: 20,
+  maxPageSize: 100
+});
+
+router.get('/pokemon',
+  pagination.parseParams,
+  pagination.wrapResponse,
+  async (req, res) => {
+    const { page, pageSize, cursor } = req.pagination;
+    
+    if (cursor) {
+      const paginator = createCursorPaginator(db, 'pokemon_instances');
+      const result = await paginator.query(cursor, pageSize);
+      pagination.instance.setPaginationResult(req, result);
+      res.json({ success: true, data: result.items });
+    } else {
+      const items = await db('pokemon_instances')
+        .offset((page - 1) * pageSize)
+        .limit(pageSize);
+      const total = await db('pokemon_instances').count().first();
+      
+      pagination.instance.setPaginationResult(req, {
+        items,
+        total: total.count,
+        type: 'offset'
+      });
+      
+      res.json({ success: true, data: items });
+    }
+  }
+);
+```
+
 ---
 
 **创建时间**：2026-06-30
-**最后更新**：2026-06-30
+**最后更新**：2026-07-06
 **维护者**：mineGo 开发团队
