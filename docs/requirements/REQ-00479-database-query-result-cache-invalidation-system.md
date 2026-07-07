@@ -7,7 +7,7 @@
 | 标题 | 数据库查询结果缓存自动失效策略系统 |
 | 类别 | 性能优化 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | database-service/cache-layer/persistence-adapter |
 | 创建时间 | 2026-07-07 10:00 |
 
