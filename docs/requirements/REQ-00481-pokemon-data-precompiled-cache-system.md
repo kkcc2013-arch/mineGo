@@ -7,7 +7,7 @@
 | 标题 | 精灵数据预编译缓存系统 |
 | 类别 | 性能优化 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | pokemon-service/cache-layer/shared/data-utils |
 | 创建时间 | 2026-07-07 11:00 |
 
