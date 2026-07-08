@@ -1,0 +1,333 @@
+# 灾难恢复演练系统 Kubernetes 资源配置
+# 包含 RBAC、ServiceAccount、CronJob 等
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dr-drill-monitor
+  namespace: minego
+  labels:
+    app: minego
+    component: dr-drill
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: dr-drill-monitor-role
+  labels:
+    app: minego
+    component: dr-drill
+rules:
+  # Pod 操作权限
+  - apiGroups: [""]
+    resources: ["pods", "pods/log", "pods/status"]
+    verbs: ["get", "list", "watch", "delete"]
+  
+  # Node 操作权限
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch", "patch", "update"]
+  
+  # NetworkPolicy 操作权限
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["networkpolicies"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  
+  # Deployment 操作权限
+  - apiGroups: ["apps"]
+    resources: ["deployments", "deployments/scale", "deployments/status"]
+    verbs: ["get", "list", "watch", "update", "patch"]
+  
+  # StatefulSet 操作权限
+  - apiGroups: ["apps"]
+    resources: ["statefulsets", "statefulsets/scale", "statefulsets/status"]
+    verbs: ["get", "list", "watch", "update", "patch"]
+  
+  # ConfigMap 和 Secret 读取权限
+  - apiGroups: [""]
+    resources: ["configmaps", "secrets"]
+    verbs: ["get", "list"]
+  
+  # Events 记录权限
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: dr-drill-monitor-binding
+  labels:
+    app: minego
+    component: dr-drill
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: dr-drill-monitor-role
+subjects:
+  - kind: ServiceAccount
+    name: dr-drill-monitor
+    namespace: minego
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dr-drill-config
+  namespace: minego
+  labels:
+    app: minego
+    component: dr-drill
+data:
+  # 演练配置
+  DRILL_ENABLED: "true"
+  DRILL_SCHEDULE: "0 2 * * 0"  # 每周日凌晨 2 点
+  DRILL_SCENARIOS: '["pod-crash", "database-failover", "redis-failover"]'
+  
+  # 恢复目标
+  POD_RECOVERY_TARGET: "60"    # 秒
+  DB_FAILOVER_TARGET: "60"     # 秒
+  REDIS_FAILOVER_TARGET: "30"  # 秒
+  MAX_DATA_LOSS_TOLERANCE: "0" # 百分比
+  
+  # 通知配置
+  ALERT_CHANNEL: "#ops-alerts"
+  ALERT_WEBHOOK: ""
+  
+  # 安全配置
+  ALLOW_REDIS_FLUSH: "false"
+  ALLOW_NODE_DRAIN: "false"
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: dr-drill-scheduler
+  namespace: minego
+  labels:
+    app: minego
+    component: dr-drill
+spec:
+  schedule: "0 2 * * 0"  # 每周日凌晨 2 点
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 10
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: minego
+            component: dr-drill
+        spec:
+          serviceAccountName: dr-drill-monitor
+          restartPolicy: OnFailure
+          containers:
+            - name: dr-monitor
+              image: minego/node:20-alpine
+              command:
+                - node
+                - backend/jobs/drMonitor.js
+                - --scenario=pod-crash
+              env:
+                - name: NODE_ENV
+                  value: production
+                - name: POSTGRES_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                      name: minego-config
+                      key: postgres-host
+                - name: POSTGRES_PORT
+                  valueFrom:
+                    configMapKeyRef:
+                      name: minego-config
+                      key: postgres-port
+                - name: POSTGRES_DB
+                  valueFrom:
+                    configMapKeyRef:
+                      name: minego-config
+                      key: postgres-database
+                - name: POSTGRES_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: minego-secrets
+                      key: postgres-user
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: minego-secrets
+                      key: postgres-password
+                - name: REDIS_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                      name: minego-config
+                      key: redis-host
+                - name: REDIS_PORT
+                  valueFrom:
+                    configMapKeyRef:
+                      name: minego-config
+                      key: redis-port
+                - name: REDIS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: minego-secrets
+                      key: redis-password
+                - name: KAFKA_BROKERS
+                  valueFrom:
+                    configMapKeyRef:
+                      name: minego-config
+                      key: kafka-brokers
+              volumeMounts:
+                - name: logs
+                  mountPath: /app/logs
+          volumes:
+            - name: logs
+              emptyDir: {}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: dr-drill-scheduler-db
+  namespace: minego
+  labels:
+    app: minego
+    component: dr-drill
+spec:
+  schedule: "0 3 * * 0"  # 每周日凌晨 3 点（数据库演练）
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 10
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: minego
+            component: dr-drill
+        spec:
+          serviceAccountName: dr-drill-monitor
+          restartPolicy: OnFailure
+          containers:
+            - name: dr-monitor
+              image: minego/node:20-alpine
+              command:
+                - node
+                - backend/jobs/drMonitor.js
+                - --scenario=database-failover
+              envFrom:
+                - configMapRef:
+                    name: minego-config
+                - secretRef:
+                    name: minego-secrets
+              volumeMounts:
+                - name: logs
+                  mountPath: /app/logs
+          volumes:
+            - name: logs
+              emptyDir: {}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: dr-drill-reports
+  namespace: minego
+  labels:
+    app: minego
+    component: dr-drill
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dr-drill-api
+  namespace: minego
+  labels:
+    app: minego
+    component: dr-drill
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minego
+      component: dr-drill
+  template:
+    metadata:
+      labels:
+        app: minego
+        component: dr-drill
+    spec:
+      serviceAccountName: dr-drill-monitor
+      containers:
+        - name: api
+          image: minego/node:20-alpine
+          command:
+            - node
+            - backend/jobs/drMonitorApi.js
+          ports:
+            - containerPort: 8090
+              name: http
+          envFrom:
+            - configMapRef:
+                name: minego-config
+            - secretRef:
+                name: minego-secrets
+          volumeMounts:
+            - name: reports
+              mountPath: /app/docs/dr-drill-reports
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8090
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8090
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: reports
+          persistentVolumeClaim:
+            claimName: dr-drill-reports
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dr-drill-api
+  namespace: minego
+  labels:
+    app: minego
+    component: dr-drill
+spec:
+  selector:
+    app: minego
+    component: dr-drill
+  ports:
+    - port: 8090
+      targetPort: 8090
+      name: http
+---
+# Prometheus ServiceMonitor
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: dr-drill-monitor
+  namespace: minego
+  labels:
+    app: minego
+    component: dr-drill
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: minego
+      component: dr-drill
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
