@@ -23,4 +23,5 @@
 | REQ-00508 | 服务发现与动态负载均衡健康检查系统 | 性能优化 | P1 | new | infrastructure/service-registry, gateway, backend/shared/health-check | 2026-07-09 04:30 |
 | REQ-00509 | CI/CD 缓存智能管理与优化系统 | 运维/CICD | P2 | new | .github/workflows、backend/shared/cacheManager、infrastructure/cache | 2026-07-08 17:00 |
 | REQ-00514 | 多区域服务状态同步与智能仲裁系统 | 容灾/高可用 | P1 | done | gateway、infrastructure/k8s/multi-region、backend/shared/multiRegionArbitration | 2026-07-08 22:00 |
-| REQ-00515 | 服务端复数形式国际化与智能复数规则系统 | 国际化/本地化 | P1 | new | backend/shared/i18n/plural.js、gateway、user-service、social-service | 2026-07-08 22:00 |
+| REQ-00515 | 服务端复数形式国际化与智能复数规则系统 | 国际化/本地化 | P1 | done | backend/shared/i18n/plural.js、gateway、user-service、social-service | 2026-07-08 22:00 |
+| REQ-00516 | 代码复杂度度量与重构优先级智能推荐系统 | 技术债/重构 | P1 | new | backend/shared/codeQuality、所有后端服务、admin-dashboard、GitHub Actions | 2026-07-09 00:00 |

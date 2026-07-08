@@ -18,6 +18,7 @@ const redis = require('./redis');
 const logger = require('./logger');
 const metrics = require('./metrics');
 const { getTracer, initTracing } = require('./tracing');
+const HealthChecker = require('./HealthChecker');
 
 // ============================================================
 // 数据库相关
