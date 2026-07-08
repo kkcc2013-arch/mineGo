@@ -7,7 +7,7 @@
 | 标题 | 全链路监控可视化大屏实现 |
 | 类别 | 可观测性 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | infrastructure, observability-platform |
 | 创建时间 | 2026-07-09 04:00 |
 

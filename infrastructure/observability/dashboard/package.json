@@ -1,0 +1,27 @@
+{
+  "name": "minego-monitoring-dashboard",
+  "version": "1.0.0",
+  "description": "mineGo 全链路监控可视化大屏",
+  "main": "websocketServer.js",
+  "scripts": {
+    "start": "node websocketServer.js",
+    "dev": "nodemon websocketServer.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "socket.io": "^4.5.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": [
+    "monitoring",
+    "observability",
+    "dashboard",
+    "websocket",
+    "prometheus",
+    "jaeger"
+  ],
+  "author": "mineGo Team",
+  "license": "MIT"
+}

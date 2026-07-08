@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mineGo 全链路监控大屏</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- 头部 -->
+        <header class="dashboard-header">
+            <h1>mineGo 全链路监控大屏</h1>
+            <div class="header-status">
+                <span id="connection-status" class="status-badge disconnected">未连接</span>
+                <span id="current-time"></span>
+            </div>
+        </header>
+
+        <!-- 主要内容区域 -->
+        <div class="dashboard-content">
+            <!-- 左侧：SLA/SLO 指标 -->
+            <section class="panel slo-panel">
+                <h2>核心链路 SLA/SLO 指标</h2>
+                <div class="slo-metrics">
+                    <div class="slo-card" data-link="register">
+                        <h3>注册</h3>
+                        <div class="metric-row">
+                            <span class="metric-label">延迟 (P95)</span>
+                            <span class="metric-value" id="register-latency">0ms</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">错误率</span>
+                            <span class="metric-value" id="register-error">0%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">吞吐量</span>
+                            <span class="metric-value" id="register-throughput">0 req/s</span>
+                        </div>
+                    </div>
+
+                    <div class="slo-card" data-link="login">
+                        <h3>登录</h3>
+                        <div class="metric-row">
+                            <span class="metric-label">延迟 (P95)</span>
+                            <span class="metric-value" id="login-latency">0ms</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">错误率</span>
+                            <span class="metric-value" id="login-error">0%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">吞吐量</span>
+                            <span class="metric-value" id="login-throughput">0 req/s</span>
+                        </div>
+                    </div>
+
+                    <div class="slo-card" data-link="catch">
+                        <h3>捕捉</h3>
+                        <div class="metric-row">
+                            <span class="metric-label">延迟 (P95)</span>
+                            <span class="metric-value" id="catch-latency">0ms</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">错误率</span>
+                            <span class="metric-value" id="catch-error">0%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">吞吐量</span>
+                            <span class="metric-value" id="catch-throughput">0 req/s</span>
+                        </div>
+                    </div>
+
+                    <div class="slo-card" data-link="battle">
+                        <h3>对战</h3>
+                        <div class="metric-row">
+                            <span class="metric-label">延迟 (P95)</span>
+                            <span class="metric-value" id="battle-latency">0ms</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">错误率</span>
+                            <span class="metric-value" id="battle-error">0%</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">吞吐量</span>
+                            <span class="metric-value" id="battle-throughput">0 req/s</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 中间：服务拓扑图 -->
+            <section class="panel topology-panel">
+                <h2>微服务拓扑依赖图</h2>
+                <div id="topology-container">
+                    <canvas id="topology-canvas"></canvas>
+                </div>
+            </section>
+
+            <!-- 右侧：异常告警 -->
+            <section class="panel alert-panel">
+                <h2>实时告警 <span id="alert-count" class="alert-badge">0</span></h2>
+                <div id="alert-list" class="alert-list"></div>
+            </section>
+        </div>
+
+        <!-- 底部：异常趋势图 -->
+        <div class="dashboard-bottom">
+            <section class="panel chart-panel">
+                <h2>异常指标分布</h2>
+                <div class="chart-container">
+                    <canvas id="error-chart"></canvas>
+                </div>
+            </section>
+
+            <section class="panel chart-panel">
+                <h2>延迟趋势 (P99)</h2>
+                <div class="chart-container">
+                    <canvas id="latency-chart"></canvas>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="monitor.js"></script>
+</body>
+</html>
