@@ -7,7 +7,7 @@
 | 标题 | 游戏数据分区策略与自动化分区管理系统 |
 | 类别 | 性能优化 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | database、player-service、catch-service、battle-service、trade-service、monitoring、admin-dashboard |
 | 创建时间 | 2026-07-03 02:00 |
 

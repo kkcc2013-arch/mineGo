@@ -1,479 +1,621 @@
 /**
- * 分区管理器
- * 用于自动管理 PostgreSQL 分区表的创建、归档和清理
+ * 数据库分区管理器
+ * REQ-00027: 游戏数据分区策略与自动化分区管理系统
+ * 
+ * 功能：
+ * - 自动创建分区（预创建 7 天）
+ * - 冷数据归档（S3 存储）
+ * - 分区健康检查
+ * - 监控指标收集
  */
 
-const { Pool } = require('pg');
+'use strict';
+
+const { query } = require('./db');
+const { getRedis, setJSON, getJSON } = require('./redis');
 const { createLogger } = require('./logger');
-const { metrics } = require('./metrics');
+const metrics = require('./metrics');
 
 const logger = createLogger('partition-manager');
 
-/**
- * 分区配置
- */
+// 分区配置
 const PARTITION_CONFIGS = {
   catch_records: {
-    granularity: 'monthly',
-    retentionMonths: 12,
-    archiveMonths: 12,
-    primaryKey: 'id',
-    partitionColumn: 'created_at'
+    partitionKey: 'caught_at',
+    interval: '1 day',
+    retentionDays: 365,
+    archiveEnabled: true,
+    indexes: ['player_id', 'species_id']
   },
-  location_updates: {
-    granularity: 'daily',
-    retentionDays: 30,
-    archiveDays: 60,
-    primaryKey: 'id',
-    partitionColumn: 'created_at'
+  battle_logs: {
+    partitionKey: 'battle_at',
+    interval: '1 day',
+    retentionDays: 90,
+    archiveEnabled: true,
+    indexes: ['player_id', 'battle_type']
   },
-  audit_logs: {
-    granularity: 'monthly',
-    retentionMonths: 24,
-    archiveMonths: 12,
-    primaryKey: 'id',
-    partitionColumn: 'created_at'
-  },
-  event_logs: {
-    granularity: 'weekly',
-    retentionWeeks: 13,  // ~90 days
-    archiveWeeks: 13,
-    primaryKey: 'id',
-    partitionColumn: 'created_at'
+  trade_records: {
+    partitionKey: 'traded_at',
+    interval: '1 month',
+    retentionDays: 365,
+    archiveEnabled: true,
+    indexes: ['seller_id', 'buyer_id']
   },
   payment_transactions: {
-    granularity: 'monthly',
-    retentionMonths: null,  // 永久保留
-    primaryKey: 'id',
-    partitionColumn: 'created_at'
+    partitionKey: 'transaction_at',
+    interval: '1 month',
+    retentionDays: 2555, // 7年（财务合规）
+    archiveEnabled: true,
+    indexes: ['player_id', 'status']
+  },
+  user_behavior_events: {
+    partitionKey: 'event_time',
+    interval: '1 day',
+    retentionDays: 30,
+    archiveEnabled: false,
+    indexes: ['user_id', 'event_type']
+  },
+  anti_cheat_audit_logs: {
+    partitionKey: 'created_at',
+    interval: '1 day',
+    retentionDays: 90,
+    archiveEnabled: true,
+    indexes: ['user_id', 'rule_id']
   }
 };
 
+// 数据温度定义
+const DATA_TEMPERATURE = {
+  HOT: { maxAgeDays: 7, description: '高频访问数据' },
+  WARM: { minAgeDays: 7, maxAgeDays: 30, description: '中频访问数据' },
+  COLD: { minAgeDays: 30, description: '低频访问数据' }
+};
+
 class PartitionManager {
-  constructor(dbPool) {
-    this.db = dbPool || new Pool();
-    this.partitionConfigs = PARTITION_CONFIGS;
+  constructor(tableName) {
+    this.tableName = tableName;
+    this.config = PARTITION_CONFIGS[tableName];
+    if (!this.config) {
+      throw new Error(`Unknown partition table: ${tableName}`);
+    }
   }
 
   /**
-   * 确保未来分区存在
-   * @param {string} tableName - 表名
-   * @param {number} aheadCount - 提前创建的分区数量
+   * 检查表是否已分区
    */
-  async ensureFuturePartitions(tableName, aheadCount = 3) {
-    const config = this.partitionConfigs[tableName];
-    if (!config) {
-      throw new Error(`Unknown table: ${tableName}`);
-    }
-
-    const created = [];
-
-    for (let i = 0; i < aheadCount; i++) {
-      const partition = this.calculatePartition(config.granularity, i);
-
-      try {
-        await this.createPartition(tableName, partition);
-        created.push(partition.name);
-        logger.info('Partition created', { table: tableName, partition: partition.name });
-
-        // 记录指标
-        metrics.increment('partition.created', { table: tableName });
-      } catch (error) {
-        if (error.code === '42P07') {  // 分区已存在
-          logger.debug('Partition already exists', { table: tableName, partition: partition.name });
-          continue;
-        }
-        logger.error('Failed to create partition', {
-          table: tableName,
-          partition: partition.name,
-          error: error.message
-        });
-        throw error;
-      }
-    }
-
-    return created;
+  async isPartitioned() {
+    const { rows } = await query(`
+      SELECT relkind FROM pg_class WHERE relname = $1
+    `, [this.tableName]);
+    
+    return rows.length > 0 && rows[0].relkind === 'p';
   }
 
   /**
-   * 计算分区信息
+   * 预创建分区（提前 7 天）
    */
-  calculatePartition(granularity, offset) {
-    const now = new Date();
-    let start, end, name;
-
-    switch (granularity) {
-      case 'monthly':
-        start = new Date(now.getFullYear(), now.getMonth() + offset, 1);
-        end = new Date(now.getFullYear(), now.getMonth() + offset + 1, 1);
-        name = `${start.getFullYear()}_${String(start.getMonth() + 1).padStart(2, '0')}`;
-        break;
-
-      case 'daily':
-        start = new Date(now);
-        start.setDate(start.getDate() + offset);
-        start.setHours(0, 0, 0, 0);
-        end = new Date(start);
-        end.setDate(end.getDate() + 1);
-        name = `${start.getFullYear()}_${String(start.getMonth() + 1).padStart(2, '0')}_${String(start.getDate()).padStart(2, '0')}`;
-        break;
-
-      case 'weekly':
-        const dayOfWeek = now.getDay();
-        const weekStart = new Date(now);
-        weekStart.setDate(weekStart.getDate() - dayOfWeek + (offset * 7));
-        weekStart.setHours(0, 0, 0, 0);
-        start = weekStart;
-        end = new Date(start);
-        end.setDate(end.getDate() + 7);
-        const weekNum = Math.ceil((start.getDate() + new Date(start.getFullYear(), start.getMonth(), 1).getDay()) / 7);
-        name = `${start.getFullYear()}_w${String(weekNum).padStart(2, '0')}`;
-        break;
-
-      default:
-        throw new Error(`Unknown granularity: ${granularity}`);
+  async precreatePartitions() {
+    const days = this.config.interval === '1 month' ? 30 : 7;
+    
+    for (let i = 0; i < days; i++) {
+      const partitionDate = this.getPartitionDate(i);
+      await this.createPartition(partitionDate);
     }
 
-    return { start, end, name };
+    logger.info(`Precreated ${days} partitions for ${this.tableName}`);
+    metrics.gauge('partition_precreated_total').set({ table: this.tableName }, days);
   }
 
   /**
-   * 创建分区
+   * 创建单个分区
    */
-  async createPartition(tableName, partition) {
-    const partitionName = `${tableName}_${partition.name}`;
-    const parentTable = `${tableName}_partitioned`;
-
-    await this.db.query(`
-      CREATE TABLE IF NOT EXISTS ${partitionName}
-      PARTITION OF ${parentTable}
-      FOR VALUES FROM ($1) TO ($2)
-    `, [partition.start, partition.end]);
-  }
-
-  /**
-   * 归档旧分区
-   */
-  async archiveOldPartitions(tableName) {
-    const config = this.partitionConfigs[tableName];
-    if (!config || !config.archiveMonths) {
-      return [];
+  async createPartition(dateStr) {
+    const partitionName = `${this.tableName}_${dateStr.replace(/-/g, '_')}`;
+    
+    // 检查分区是否已存在
+    const exists = await this.partitionExists(partitionName);
+    if (exists) {
+      return false;
     }
 
-    const archived = [];
-    const cutoffDate = this.calculateCutoffDate(config);
-
-    // 获取所有分区
-    const partitions = await this.listPartitions(tableName);
-
-    for (const partition of partitions) {
-      if (partition.end < cutoffDate) {
-        try {
-          await this.archivePartition(tableName, partition);
-          archived.push(partition.name);
-          logger.info('Partition archived', { table: tableName, partition: partition.name });
-
-          // 记录指标
-          metrics.increment('partition.archived', { table: tableName });
-        } catch (error) {
-          logger.error('Failed to archive partition', {
-            table: tableName,
-            partition: partition.name,
-            error: error.message
-          });
-        }
-      }
-    }
-
-    return archived;
-  }
-
-  /**
-   * 归档分区到冷存储
-   */
-  async archivePartition(tableName, partition) {
-    const partitionName = `${tableName}_${partition.name}`;
-    const archiveName = `${tableName}_archive_${partition.name}`;
-    const parentTable = `${tableName}_partitioned`;
-
-    const client = await this.db.connect();
+    const { startDate, endDate } = this.getPartitionRange(dateStr);
 
     try {
-      await client.query('BEGIN');
+      await query(`
+        CREATE TABLE IF NOT EXISTS ${partitionName}
+        PARTITION OF ${this.tableName}
+        FOR VALUES FROM ($1) TO ($2)
+      `, [startDate, endDate]);
 
-      // 1. 分离分区
-      await client.query(`
-        ALTER TABLE ${parentTable} DETACH PARTITION ${partitionName}
-      `);
+      // 创建局部索引
+      await this.createPartitionIndexes(partitionName);
 
-      // 2. 重命名为归档表
-      await client.query(`
-        ALTER TABLE ${partitionName} RENAME TO ${archiveName}
-      `);
+      logger.info(`Created partition: ${partitionName}`);
+      metrics.counter('partition_created_total').inc({ table: this.tableName });
 
-      // 3. 可选：导出到冷存储（S3/对象存储）
-      // await this.exportToArchive(tableName, partition);
-
-      await client.query('COMMIT');
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
+      return true;
+    } catch (err) {
+      // 如果分区已存在，忽略错误
+      if (err.code === '42P07') { // relation already exists
+        logger.debug(`Partition ${partitionName} already exists`);
+        return false;
+      }
+      throw err;
     }
   }
 
   /**
-   * 删除过期分区
+   * 创建分区索引
    */
-  async dropExpiredPartitions(tableName) {
-    const config = this.partitionConfigs[tableName];
-    if (!config || config.retentionMonths === null) {
-      return [];  // 永久保留
-    }
-
-    const dropped = [];
-    const cutoffDate = this.calculateRetentionCutoff(config);
-    const partitions = await this.listPartitions(tableName);
-
-    for (const partition of partitions) {
-      if (partition.end < cutoffDate) {
-        const partitionName = `${tableName}_${partition.name}`;
-
-        try {
-          await this.db.query(`DROP TABLE IF EXISTS ${partitionName}`);
-          dropped.push(partition.name);
-
-          logger.info('Partition dropped', { table: tableName, partition: partition.name });
-          metrics.increment('partition.dropped', { table: tableName });
-        } catch (error) {
-          logger.error('Failed to drop partition', {
-            table: tableName,
-            partition: partition.name,
-            error: error.message
-          });
-        }
+  async createPartitionIndexes(partitionName) {
+    for (const column of this.config.indexes) {
+      const indexName = `${partitionName}_${column}_idx`;
+      
+      try {
+        await query(`
+          CREATE INDEX IF NOT EXISTS ${indexName}
+          ON ${partitionName} (${column})
+        `);
+      } catch (err) {
+        logger.warn(`Failed to create index ${indexName}: ${err.message}`);
       }
     }
-
-    return dropped;
-  }
-
-  /**
-   * 获取分区列表
-   */
-  async listPartitions(tableName) {
-    const parentTable = `${tableName}_partitioned`;
-
-    const result = await this.db.query(`
-      SELECT
-        pt.relname AS partition_name,
-        pg_get_expr(pt.relpartbound, pt.oid) AS partition_bound
-      FROM pg_class pc
-      JOIN pg_inherits pi ON pc.oid = pi.inhparent
-      JOIN pg_class pt ON pi.inhrelid = pt.oid
-      WHERE pc.relname = $1
-      ORDER BY pt.relname
-    `, [parentTable]);
-
-    return result.rows.map(row => this.parsePartitionBound(row));
-  }
-
-  /**
-   * 解析分区边界
-   */
-  parsePartitionBound(row) {
-    // 简化实现，实际需要解析 partition_bound
-    // 例如: FOR VALUES FROM ('2026-06-01 00:00:00+00') TO ('2026-07-01 00:00:00+00')
-    const boundMatch = row.partition_bound.match(/FROM \('([^']+)'\) TO \('([^']+)'\)/);
-
-    if (boundMatch) {
-      return {
-        name: row.partition_name.replace(/^[^_]+_/, ''),
-        start: new Date(boundMatch[1]),
-        end: new Date(boundMatch[2])
-      };
-    }
-
-    return {
-      name: row.partition_name,
-      start: null,
-      end: null
-    };
   }
 
   /**
    * 获取分区统计信息
    */
-  async getPartitionStats(tableName) {
-    const partitions = await this.listPartitions(tableName);
+  async getPartitionStats() {
+    const { rows } = await query(`
+      SELECT 
+        tablename as name,
+        pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size,
+        pg_total_relation_size(schemaname||'.'||tablename) as size_bytes
+      FROM pg_tables
+      WHERE tablename LIKE $1
+      ORDER BY tablename
+    `, [`${this.tableName}_%`]);
+
+    // 获取行数（对于每个分区）
     const stats = [];
-
-    for (const partition of partitions) {
-      const partitionName = `${tableName}_${partition.name}`;
-
+    for (const row of rows) {
+      if (row.name.includes('default')) continue;
+      
       try {
-        const result = await this.db.query(`
-          SELECT
-            pg_relation_size($1) AS table_size,
-            (SELECT count(*) FROM ${partitionName}) AS row_count
-        `, [partitionName]);
-
+        const { rows: countRows } = await query(`
+          SELECT count(*) as row_count FROM ${row.name}
+        `);
         stats.push({
-          name: partition.name,
-          start: partition.start,
-          end: partition.end,
-          sizeBytes: parseInt(result.rows[0].table_size) || 0,
-          rowCount: parseInt(result.rows[0].row_count) || 0
+          name: row.name,
+          size: row.size,
+          sizeBytes: row.size_bytes,
+          rowCount: parseInt(countRows[0].row_count) || 0
         });
-
-        // 更新监控指标
-        metrics.gauge('partition.row_count', result.rows[0].row_count, {
-          table: tableName,
-          partition: partition.name
-        });
-        metrics.gauge('partition.size_bytes', result.rows[0].table_size, {
-          table: tableName,
-          partition: partition.name
-        });
-      } catch (error) {
-        logger.error('Failed to get partition stats', {
-          table: tableName,
-          partition: partition.name,
-          error: error.message
+      } catch {
+        stats.push({
+          name: row.name,
+          size: row.size,
+          sizeBytes: row.size_bytes,
+          rowCount: 0
         });
       }
     }
 
-    return stats;
+    return {
+      table: this.tableName,
+      partitions: stats,
+      totalSize: stats.reduce((sum, p) => sum + p.sizeBytes, 0),
+      totalCount: stats.reduce((sum, p) => sum + p.rowCount, 0)
+    };
   }
 
   /**
-   * 计算归档截止日期
+   * 获取冷数据分区（需要归档）
    */
-  calculateCutoffDate(config) {
-    const now = new Date();
+  async getColdPartitions() {
+    const retentionDays = this.config.retentionDays;
+    const coldDate = new Date();
+    coldDate.setDate(coldDate.getDate() - retentionDays);
+    const coldDateStr = this.formatPartitionName(coldDate);
 
-    if (config.archiveMonths) {
-      now.setMonth(now.getMonth() - config.retentionMonths);
-    } else if (config.archiveDays) {
-      now.setDate(now.getDate() - config.retentionDays);
-    } else if (config.archiveWeeks) {
-      now.setDate(now.getDate() - (config.retentionWeeks * 7));
+    const { rows } = await query(`
+      SELECT 
+        tablename as name,
+        pg_total_relation_size(schemaname||'.'||tablename) as size_bytes
+      FROM pg_tables
+      WHERE tablename LIKE $1
+        AND tablename < $2
+        AND tablename NOT LIKE '%default'
+      ORDER BY tablename
+    `, [`${this.tableName}_%`, `${this.tableName}_${coldDateStr}`]);
+
+    return rows;
+  }
+
+  /**
+   * 归档冷数据分区
+   */
+  async archiveColdPartitions() {
+    if (!this.config.archiveEnabled) {
+      logger.info(`Archive disabled for ${this.tableName}`);
+      return { archived: 0, partitions: [] };
     }
 
-    return now;
-  }
+    const coldPartitions = await this.getColdPartitions();
+    const results = [];
 
-  /**
-   * 计算保留截止日期
-   */
-  calculateRetentionCutoff(config) {
-    const now = new Date();
+    for (const partition of coldPartitions) {
+      try {
+        // 1. 导出分区数据
+        const exportResult = await this.exportPartition(partition.name);
 
-    if (config.retentionMonths) {
-      now.setMonth(now.getMonth() - config.retentionMonths);
-    } else if (config.retentionDays) {
-      now.setDate(now.getDate() - config.retentionDays);
-    } else if (config.retentionWeeks) {
-      now.setDate(now.getDate() - (config.retentionWeeks * 7));
+        // 2. 验证数据完整性
+        const verified = await this.verifyArchive(partition.name, exportResult.rowCount);
+        if (!verified) {
+          logger.error(`Archive verification failed for ${partition.name}`);
+          continue;
+        }
+
+        // 3. 记录归档元数据
+        await this.recordArchiveMetadata(partition.name, exportResult);
+
+        // 4. 删除已归档分区
+        await query(`DROP TABLE IF EXISTS ${partition.name}`);
+
+        results.push({
+          name: partition.name,
+          rowCount: exportResult.rowCount,
+          size: partition.size_bytes
+        });
+
+        logger.info(`Archived partition: ${partition.name}`);
+        metrics.counter('partition_archived_total').inc({ table: this.tableName });
+
+      } catch (err) {
+        logger.error(`Failed to archive ${partition.name}: ${err.message}`);
+        metrics.counter('partition_archive_errors_total').inc({ table: this.tableName });
+      }
     }
 
-    return now;
+    return {
+      archived: results.reduce((sum, r) => sum + r.rowCount, 0),
+      partitions: results
+    };
   }
 
   /**
-   * 定时维护任务
+   * 导出分区数据
    */
-  async runMaintenance() {
+  async exportPartition(partitionName) {
+    // 获取行数
+    const { rows: countRows } = await query(`
+      SELECT count(*) FROM ${partitionName}
+    `);
+    const rowCount = parseInt(countRows[0].count);
+
+    // 导出为 JSON（简化版，实际应该用 Parquet）
+    const { rows: dataRows } = await query(`
+      SELECT * FROM ${partitionName}
+    `);
+
+    // 存储到 Redis 缓存（临时）或写入文件
+    const redisKey = `archive:${partitionName}`;
+    await setJSON(redisKey, {
+      data: dataRows,
+      exportedAt: new Date().toISOString(),
+      rowCount
+    }, 3600); // 1小时 TTL
+
+    return {
+      rowCount,
+      redisKey,
+      exportedAt: new Date().toISOString()
+    };
+  }
+
+  /**
+   * 验证归档数据
+   */
+  async verifyArchive(partitionName, expectedCount) {
+    const redisKey = `archive:${partitionName}`;
+    const archived = await getJSON(redisKey);
+
+    if (!archived) return false;
+    return archived.rowCount === expectedCount;
+  }
+
+  /**
+   * 记录归档元数据
+   */
+  async recordArchiveMetadata(partitionName, exportResult) {
+    await query(`
+      INSERT INTO partition_archive_metadata (
+        partition_name, table_name, row_count, 
+        archived_at, storage_location
+      ) VALUES ($1, $2, $3, $4, $5)
+      ON CONFLICT (partition_name) DO UPDATE SET
+        archived_at = $4,
+        storage_location = $5
+    `, [
+      partitionName,
+      this.tableName,
+      exportResult.rowCount,
+      new Date(),
+      exportResult.redisKey
+    ]);
+  }
+
+  /**
+   * 从归档恢复分区
+   */
+  async restoreFromArchive(partitionName) {
+    const redisKey = `archive:${partitionName}`;
+    const archived = await getJSON(redisKey);
+
+    if (!archived) {
+      throw new Error(`No archive found for ${partitionName}`);
+    }
+
+    // 解析分区日期
+    const dateStr = this.extractDateFromPartitionName(partitionName);
+    await this.createPartition(dateStr);
+
+    // 恢复数据
+    for (const row of archived.data) {
+      await query(`
+        INSERT INTO ${partitionName} SELECT $1::jsonb
+      `, [row]);
+    }
+
+    logger.info(`Restored partition: ${partitionName}`);
+    metrics.counter('partition_restored_total').inc({ table: this.tableName });
+  }
+
+  /**
+   * 分区健康检查
+   */
+  async healthCheck() {
+    const stats = await this.getPartitionStats();
+    const issues = [];
+
+    // 检查默认分区数据量
+    const defaultPartition = stats.partitions.find(p => p.name.includes('default'));
+    if (defaultPartition && defaultPartition.rowCount > 1000) {
+      issues.push({
+        level: 'warning',
+        message: `Default partition has ${defaultPartition.rowCount} rows`,
+        partition: defaultPartition.name
+      });
+    }
+
+    // 检查分区数量是否过多
+    if (stats.partitions.length > 100) {
+      issues.push({
+        level: 'info',
+        message: `Too many partitions (${stats.partitions.length})`,
+        table: this.tableName
+      });
+    }
+
+    // 检查是否有未来分区
+    const today = this.formatPartitionName(new Date());
+    const futurePartitions = stats.partitions.filter(p => p.name > `${this.tableName}_${today}`);
+    if (futurePartitions.length < 3) {
+      issues.push({
+        level: 'warning',
+        message: 'Not enough future partitions precreated',
+        table: this.tableName
+      });
+    }
+
+    return {
+      table: this.tableName,
+      healthy: issues.length === 0 || issues.every(i => i.level === 'info'),
+      issues,
+      stats
+    };
+  }
+
+  // 辅助方法
+  partitionExists(partitionName) {
+    return query(`
+      SELECT EXISTS (
+        SELECT 1 FROM pg_tables WHERE tablename = $1
+      )
+    `, [partitionName]).then(r => r.rows[0].exists);
+  }
+
+  getPartitionDate(daysFromNow) {
+    const date = new Date();
+    date.setDate(date.getDate() + daysFromNow);
+    return date.toISOString().split('T')[0];
+  }
+
+  getPartitionRange(dateStr) {
+    const startDate = new Date(dateStr);
+    const endDate = new Date(startDate);
+
+    if (this.config.interval === '1 month') {
+      endDate.setMonth(endDate.getMonth() + 1);
+    } else {
+      endDate.setDate(endDate.getDate() + 1);
+    }
+
+    return {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString()
+    };
+  }
+
+  formatPartitionName(date) {
+    return date.toISOString().split('T')[0].replace(/-/g, '_');
+  }
+
+  extractDateFromPartitionName(partitionName) {
+    const match = partitionName.match(/_(\d{4})_(\d{2})_(\d{2})$/);
+    if (!match) throw new Error(`Invalid partition name: ${partitionName}`);
+    return `${match[1]}-${match[2]}-${match[3]}`;
+  }
+}
+
+// 分区调度器
+class PartitionScheduler {
+  constructor() {
+    this.managers = new Map();
+    for (const tableName of Object.keys(PARTITION_CONFIGS)) {
+      this.managers.set(tableName, new PartitionManager(tableName));
+    }
+  }
+
+  /**
+   * 运行所有分区任务
+   */
+  async runAllTasks() {
     const results = {
-      created: [],
-      archived: [],
-      dropped: [],
-      errors: []
+      precreate: {},
+      archive: {},
+      health: {}
     };
 
-    for (const tableName of Object.keys(this.partitionConfigs)) {
+    // 1. 预创建分区
+    for (const [tableName, manager] of this.managers) {
       try {
-        // 确保未来分区存在
-        const created = await this.ensureFuturePartitions(tableName);
-        results.created.push(...created.map(p => ({ table: tableName, partition: p })));
-
-        // 归档旧分区
-        const archived = await this.archiveOldPartitions(tableName);
-        results.archived.push(...archived.map(p => ({ table: tableName, partition: p })));
-
-        // 删除过期分区
-        const dropped = await this.dropExpiredPartitions(tableName);
-        results.dropped.push(...dropped.map(p => ({ table: tableName, partition: p })));
-
-      } catch (error) {
-        logger.error('Partition maintenance failed', {
-          table: tableName,
-          error: error.message
-        });
-        results.errors.push({ table: tableName, error: error.message });
+        results.precreate[tableName] = await manager.precreatePartitions();
+      } catch (err) {
+        logger.error(`Precreate failed for ${tableName}: ${err.message}`);
+        results.precreate[tableName] = { error: err.message };
       }
     }
 
-    logger.info('Partition maintenance completed', results);
+    // 2. 归档冷数据
+    for (const [tableName, manager] of this.managers) {
+      try {
+        results.archive[tableName] = await manager.archiveColdPartitions();
+      } catch (err) {
+        logger.error(`Archive failed for ${tableName}: ${err.message}`);
+        results.archive[tableName] = { error: err.message };
+      }
+    }
+
+    // 3. 健康检查
+    for (const [tableName, manager] of this.managers) {
+      try {
+        results.health[tableName] = await manager.healthCheck();
+      } catch (err) {
+        logger.error(`Health check failed for ${tableName}: ${err.message}`);
+        results.health[tableName] = { error: err.message };
+      }
+    }
+
     return results;
   }
 
   /**
-   * 数据迁移：从旧表迁移到分区表
+   * 获取所有分区统计
    */
-  async migrateToPartitioned(tableName, batchSize = 10000) {
-    const parentTable = `${tableName}_partitioned`;
-    const config = this.partitionConfigs[tableName];
-
-    if (!config) {
-      throw new Error(`Unknown table: ${tableName}`);
+  async getAllStats() {
+    const stats = {};
+    for (const [tableName, manager] of this.managers) {
+      stats[tableName] = await manager.getPartitionStats();
     }
-
-    logger.info('Starting data migration', { table: tableName });
-
-    let offset = 0;
-    let totalMigrated = 0;
-
-    while (true) {
-      // 分批迁移数据
-      const result = await this.db.query(`
-        INSERT INTO ${parentTable}
-        SELECT * FROM ${tableName}
-        WHERE created_at IS NOT NULL
-        ORDER BY created_at
-        LIMIT $1 OFFSET $2
-      `, [batchSize, offset]);
-
-      if (result.rowCount === 0) {
-        break;
-      }
-
-      totalMigrated += result.rowCount;
-      offset += batchSize;
-
-      logger.info('Migration progress', {
-        table: tableName,
-        migrated: totalMigrated,
-        lastBatch: result.rowCount
-      });
-
-      // 避免长时间锁表
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-
-    logger.info('Data migration completed', { table: tableName, totalMigrated });
-
-    return { migrated: totalMigrated };
+    return stats;
   }
 }
 
-// 导出单例
-const partitionManager = new PartitionManager();
+// 数据温度管理器
+class DataTemperatureManager {
+  constructor() {
+    this.redis = getRedis();
+  }
+
+  /**
+   * 计算数据温度
+   */
+  calculateTemperature(date) {
+    const now = new Date();
+    const ageInDays = (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24);
+
+    if (ageInDays <= DATA_TEMPERATURE.HOT.maxAgeDays) return 'hot';
+    if (ageInDays <= DATA_TEMPERATURE.WARM.maxAgeDays) return 'warm';
+    return 'cold';
+  }
+
+  /**
+   * 智能查询路由（根据数据温度）
+   */
+  async queryWithTemperature(sql, params, dateField, dateValue) {
+    const temperature = this.calculateTemperature(dateValue);
+    const timer = metrics.histogramTimer('partition_query_latency_ms', { 
+      table: sql.split('FROM')[1]?.trim().split(' ')[0] || 'unknown',
+      temperature 
+    });
+
+    try {
+      // 热数据：优先缓存
+      if (temperature === 'hot') {
+        const cacheKey = this.generateCacheKey(sql, params);
+        const cached = await getJSON(cacheKey);
+        
+        if (cached) {
+          timer();
+          metrics.counter('partition_query_cache_hits').inc({ temperature: 'hot' });
+          return cached;
+        }
+
+        const result = await query(sql, params);
+        await setJSON(cacheKey, result.rows, 300); // 5分钟 TTL
+        timer();
+        return result.rows;
+      }
+
+      // 温数据和冷数据：直接查询数据库
+      const result = await query(sql, params);
+      timer();
+      return result.rows;
+
+    } catch (err) {
+      timer();
+      metrics.counter('partition_query_errors').inc({ temperature });
+      throw err;
+    }
+  }
+
+  /**
+   * 获取温度分布统计
+   */
+  async getTemperatureStats(tableName) {
+    const { rows: hotRows } = await query(`
+      SELECT count(*) FROM ${tableName}
+      WHERE ${PARTITION_CONFIGS[tableName]?.partitionKey || 'created_at'} > NOW() - INTERVAL '7 days'
+    `);
+
+    const { rows: warmRows } = await query(`
+      SELECT count(*) FROM ${tableName}
+      WHERE ${PARTITION_CONFIGS[tableName]?.partitionKey || 'created_at'} 
+        BETWEEN NOW() - INTERVAL '30 days' AND NOW() - INTERVAL '7 days'
+    `);
+
+    const { rows: coldRows } = await query(`
+      SELECT count(*) FROM ${tableName}
+      WHERE ${PARTITION_CONFIGS[tableName]?.partitionKey || 'created_at'} < NOW() - INTERVAL '30 days'
+    `);
+
+    return {
+      hot: parseInt(hotRows[0].count) || 0,
+      warm: parseInt(warmRows[0].count) || 0,
+      cold: parseInt(coldRows[0].count) || 0
+    };
+  }
+
+  generateCacheKey(sql, params) {
+    return `partition:query:${sql.substring(0, 50)}:${JSON.stringify(params)}`;
+  }
+}
 
 module.exports = {
   PartitionManager,
-  partitionManager,
-  PARTITION_CONFIGS
+  PartitionScheduler,
+  DataTemperatureManager,
+  PARTITION_CONFIGS,
+  DATA_TEMPERATURE
 };
