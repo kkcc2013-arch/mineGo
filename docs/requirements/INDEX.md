@@ -10,3 +10,4 @@
 | REQ-00493 | 自动化灾难恢复演练系统 | 运维/CICD | P1 | new | infrastructure/k8s/dr, backend/jobs | 2026-07-08 03:00 |
 | REQ-00494 | 游戏内行为数据实时风控与反作弊自动化分析系统 | 安全加固 | P0 | done | backend/security, backend/analysis | 2026-07-08 04:00 |
 | REQ-00495 | 文化敏感内容本地化过滤与合规适配系统 | 国际化/本地化 | P1 | new | gateway、pokemon-service、social-service、admin-dashboard、backend/jobs | 2026-07-08 04:00 |
+| REQ-00496 | 推送通知内容多语言本地化与智能语言适配系统 | 国际化/本地化 | P1 | done | gateway、user-service、backend/shared/pushNotificationService.js、backend/shared/i18n.js、Redis、PostgreSQL | 2026-07-08 06:00 |
