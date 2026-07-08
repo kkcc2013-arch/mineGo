@@ -7,7 +7,7 @@
 | 标题 | 用户协议变更版本管理与强制确认通知系统 |
 | 类别 | 合规/隐私 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | gateway, user-service, backend/jobs/privacyUpdateNotify.js |
 | 创建时间 | 2026-07-08 07:00 |
 
