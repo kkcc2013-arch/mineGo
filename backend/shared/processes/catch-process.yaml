@@ -1,0 +1,194 @@
+# 捕捉流程定义
+processType: catch-flow
+version: 1.0.0
+description: 精灵捕捉完整流程（包含道具扣减、精灵添加、奖励计算、通知发送）
+
+# 全局超时设置
+timeout: 60s
+retryPolicy:
+  maxRetries: 3
+  backoff: exponential
+
+# 状态定义
+states:
+  - name: initiated
+    description: 流程启动，准备捕捉
+    transitions:
+      - to: validating
+        event: catch.initiated
+        condition: input.userId != null && input.pokemonId != null
+
+  - name: validating
+    description: 验证捕捉请求（位置、精灵是否存在、用户状态）
+    timeout: 10s
+    step:
+      service: catch-service
+      action: validateCatch
+      input: [userId, pokemonId, location, ballType]
+    compensation:
+      service: catch-service
+      action: cleanupValidation
+    transitions:
+      - to: deducting-items
+        event: catch.validated
+        condition: output.valid == true
+      - to: failed
+        event: catch.validation_failed
+        condition: output.valid == false
+
+  - name: deducting-items
+    description: 扣减捕捉道具（精灵球、诱饵等）
+    timeout: 5s
+    step:
+      service: reward-service
+      action: deductItems
+      input: [userId, itemsUsed]
+    compensation:
+      service: reward-service
+      action: refundItems
+      input: [userId, itemsUsed]
+    transitions:
+      - to: executing-catch
+        event: items.deducted
+        condition: output.success == true
+      - to: failed
+        event: items.deduction_failed
+        condition: output.success == false
+
+  - name: executing-catch
+    description: 执行捕捉逻辑（概率计算、动画触发）
+    timeout: 15s
+    step:
+      service: catch-service
+      action: executeCatch
+      input: [userId, pokemonId, ballType, berriesUsed]
+    compensation:
+      service: pokemon-service
+      action: removePokemon
+      input: [userId, output.pokemonInstanceId]
+    transitions:
+      - to: adding-pokemon
+        event: catch.success
+        condition: output.caught == true
+      - to: calculating-rewards
+        event: catch.failed
+        condition: output.caught == false
+
+  - name: adding-pokemon
+    description: 将精灵添加到用户库存
+    timeout: 10s
+    step:
+      service: pokemon-service
+      action: addPokemon
+      input: [userId, pokemonData]
+    compensation:
+      service: pokemon-service
+      action: removePokemon
+      input: [userId, output.pokemonInstanceId]
+    transitions:
+      - to: calculating-rewards
+        event: pokemon.added
+
+  - name: calculating-rewards
+    description: 计算捕捉奖励（经验、糖果、成就进度）
+    timeout: 10s
+    step:
+      service: reward-service
+      action: calculateCatchRewards
+      input: [userId, pokemonId, caught, firstCatch]
+    compensation:
+      service: reward-service
+      action: rollbackRewards
+      input: [userId, output.rewardId]
+    transitions:
+      - to: updating-quest-progress
+        event: rewards.calculated
+
+  - name: updating-quest-progress
+    description: 更新任务进度（捕捉特定类型精灵等）
+    timeout: 5s
+    step:
+      service: reward-service
+      action: updateQuestProgress
+      input: [userId, questId, pokemonType]
+    compensation:
+      service: reward-service
+      action: rollbackQuestProgress
+      input: [userId, questId]
+    transitions:
+      - to: sending-notification
+        event: quest.updated
+
+  - name: sending-notification
+    description: 发送捕捉结果通知
+    timeout: 5s
+    step:
+      service: social-service
+      action: sendCatchNotification
+      input: [userId, pokemonId, caught, rewards]
+    transitions:
+      - to: completed
+        event: notification.sent
+
+  - name: completed
+    description: 流程完成
+    final: true
+
+  - name: failed
+    description: 流程失败，触发补偿
+    final: true
+    action: triggerCompensation
+
+  - name: compensating
+    description: 执行补偿事务
+    transitions:
+      - to: compensated
+        event: compensation.completed
+      - to: compensation-failed
+        event: compensation.failed
+
+  - name: compensated
+    description: 补偿完成
+    final: true
+
+  - name: compensation-failed
+    description: 补偿失败，需要人工介入
+    final: true
+
+# 输入定义
+inputSchema:
+  userId:
+    type: string
+    required: true
+  pokemonId:
+    type: string
+    required: true
+  location:
+    type: object
+    required: true
+    properties:
+      latitude:
+        type: number
+      longitude:
+        type: number
+  ballType:
+    type: string
+    default: pokeball
+    enum: [pokeball, greatball, ultraball, masterball]
+  berriesUsed:
+    type: array
+    default: []
+  itemsUsed:
+    type: array
+    default: []
+
+# 输出定义
+outputSchema:
+  caught:
+    type: boolean
+  pokemonInstanceId:
+    type: string
+  rewards:
+    type: object
+  questProgress:
+    type: object

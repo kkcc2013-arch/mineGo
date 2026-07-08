@@ -6,3 +6,4 @@
 |------|------|------|--------|------|----------|----------|
 | REQ-00495 | 文化敏感内容本地化过滤与合规适配系统 | 国际化/本地化 | P1 | new | gateway/pokemon-service/social-service/admin-dashboard/backend/jobs | 2026-07-08 04:00 |
 | REQ-00498 | 精灵搜索与排序查询性能优化系统 | 性能优化 | P1 | new | pokemon-service/backend/shared/game-client/database/migrations | 2026-07-08 07:00 |
+| REQ-00499 | 事件驱动服务编排与分布式状态机引擎 | 可扩展性/解耦 | P1 | done | backend/shared/catch-service/gym-service/social-service/reward-service/payment-service | 2026-07-08 08:30 |
