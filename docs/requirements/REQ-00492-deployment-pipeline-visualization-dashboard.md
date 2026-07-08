@@ -3,7 +3,7 @@
 - **编号**：REQ-00492
 - **类别**：运维/CICD
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：.github/workflows、backend/admin-dashboard、k8s/monitoring
 - **创建时间**：2026-07-08 02:00 UTC
 - **依赖需求**：REQ-00078（金丝雀发布系统）、REQ-00176（部署流水线状态追踪与回滚管理）

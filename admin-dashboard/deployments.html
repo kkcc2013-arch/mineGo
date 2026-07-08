@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>部署看板 - mineGo Admin</title>
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <style>
+    /* 基础样式 */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a2e; 
+      color: #eee; 
+      min-height: 100vh;
+    }
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+    
+    /* 头部 */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      border-bottom: 1px solid #3a3a5e;
+    }
+    header h1 { color: #4ecca3; font-size: 28px; }
+    .env-selector { display: flex; gap: 10px; }
+    .env-btn {
+      padding: 8px 16px;
+      border: 1px solid #4ecca3;
+      background: transparent;
+      color: #4ecca3;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .env-btn.active { background: #4ecca3; color: #1a1a2e; }
+    
+    /* 服务概览网格 */
+    .services-overview { margin-top: 30px; }
+    .services-overview h2 { margin-bottom: 15px; color: #fff; }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .service-card {
+      background: #2a2a4e;
+      border-radius: 8px;
+      padding: 15px;
+      border: 1px solid #3a3a5e;
+    }
+    .service-name { font-weight: bold; color: #fff; margin-bottom: 10px; }
+    .service-version { color: #888; font-size: 12px; }
+    .service-status {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-top: 10px;
+    }
+    .status-success { background: #2d5a27; color: #4ecca3; }
+    .status-failed { background: #5a2727; color: #ff6b6b; }
+    .status-running { background: #3a3a5e; color: #ffd93d; }
+    
+    /* 活跃部署 */
+    .active-deployments { margin-top: 30px; }
+    .active-deployments h2 { margin-bottom: 15px; }
+    .active-card {
+      background: #2a2a4e;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-left: 4px solid #ffd93d;
+    }
+    .active-header { display: flex; justify-content: space-between; }
+    .active-service { font-weight: bold; }
+    .active-time { color: #888; font-size: 12px; }
+    .active-steps { margin-top: 15px; }
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #3a3a5e;
+    }
+    .step-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .step-running { background: #ffd93d; }
+    .step-success { background: #4ecca3; }
+    .step-failed { background: #ff6b6b; }
+    
+    /* 历史表格 */
+    .deployment-history { margin-top: 30px; }
+    .deployment-history h2 { margin-bottom: 15px; }
+    .filters { display: flex; gap: 10px; margin-bottom: 15px; }
+    .filters select {
+      padding: 8px;
+      background: #2a2a4e;
+      border: 1px solid #3a3a5e;
+      color: #eee;
+      border-radius: 4px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #2a2a4e;
+      border-radius: 8px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #3a3a5e;
+    }
+    th { color: #888; font-size: 12px; }
+    tr:hover { background: #3a3a5e; }
+    
+    /* 模态框 */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .modal.hidden { display: none; }
+    .modal-content {
+      background: #2a2a4e;
+      border-radius: 8px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px;
+      border-bottom: 1px solid #3a3a5e;
+    }
+    .close-btn {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    #modal-body { padding: 20px; }
+    
+    /* 时间线 */
+    .timeline-step {
+      display: flex;
+      gap: 15px;
+      padding: 15px 0;
+      border-left: 2px solid #3a3a5e;
+      padding-left: 20px;
+      position: relative;
+    }
+    .timeline-step::before {
+      content: '';
+      position: absolute;
+      left: -6px;
+      top: 20px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #3a3a5e;
+    }
+    .timeline-step.completed::before { background: #4ecca3; }
+    .timeline-step.failed::before { background: #ff6b6b; }
+    
+    /* 告警 */
+    .alert-item {
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+    .alert-error { background: #5a2727; border-left: 3px solid #ff6b6b; }
+    .alert-warning { background: #5a5a27; border-left: 3px solid #ffd93d; }
+    .alert-info { background: #275a5a; border-left: 3px solid #4ecca3; }
+    
+    /* 空状态 */
+    .empty { color: #888; text-align: center; padding: 20px; }
+    
+    /* 按钮 */
+    .btn {
+      padding: 6px 12px;
+      border: 1px solid #4ecca3;
+      background: transparent;
+      color: #4ecca3;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .btn:hover { background: #4ecca3; color: #1a1a2e; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>部署看板</h1>
+      <div class="env-selector">
+        <button class="env-btn active" data-env="production">生产环境</button>
+        <button class="env-btn" data-env="staging">预发环境</button>
+      </div>
+    </header>
+
+    <!-- 服务状态概览 -->
+    <section class="services-overview">
+      <h2>服务状态</h2>
+      <div id="services-grid" class="services-grid">
+        <div class="empty">加载中...</div>
+      </div>
+    </section>
+
+    <!-- 活跃部署 -->
+    <section class="active-deployments">
+      <h2>进行中的部署</h2>
+      <div id="active-list">
+        <div class="empty">暂无进行中的部署</div>
+      </div>
+    </section>
+
+    <!-- 部署历史 -->
+    <section class="deployment-history">
+      <h2>部署历史</h2>
+      <div class="filters">
+        <select id="service-filter">
+          <option value="">所有服务</option>
+          <option value="gateway">gateway</option>
+          <option value="user-service">user-service</option>
+          <option value="pokemon-service">pokemon-service</option>
+          <option value="catch-service">catch-service</option>
+          <option value="gym-service">gym-service</option>
+          <option value="location-service">location-service</option>
+          <option value="social-service">social-service</option>
+          <option value="reward-service">reward-service</option>
+          <option value="payment-service">payment-service</option>
+        </select>
+        <select id="status-filter">
+          <option value="">所有状态</option>
+          <option value="success">成功</option>
+          <option value="failed">失败</option>
+          <option value="rolled_back">已回滚</option>
+        </select>
+      </div>
+      <table id="history-table">
+        <thead>
+          <tr>
+            <th>服务</th>
+            <th>版本</th>
+            <th>状态</th>
+            <th>开始时间</th>
+            <th>耗时</th>
+            <th>触发者</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody id="history-body">
+          <tr><td colspan="7" class="empty">加载中...</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <!-- 部署详情模态框 -->
+  <div id="detail-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">部署详情</h3>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+      </div>
+      <div id="modal-body">
+        <div id="deployment-info"></div>
+        <h4>步骤时间线</h4>
+        <div id="steps-timeline"></div>
+        <h4>告警</h4>
+        <div id="alerts-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/deployment-board.js"></script>
+</body>
+</html>
