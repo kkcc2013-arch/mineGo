@@ -3,7 +3,7 @@
 - **编号**：REQ-00514
 - **类别**：容灾/高可用
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：gateway、infrastructure/k8s/multi-region、backend/shared/FailoverController.js、backend/shared/ReplicationMonitor.js、Redis、Kafka
 - **创建时间**：2026-07-08 21:00
 - **依赖需求**：REQ-00375（多区域灾备自动化切换系统）、REQ-00510（部署健康检查系统）

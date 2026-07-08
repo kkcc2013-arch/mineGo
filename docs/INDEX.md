@@ -22,3 +22,4 @@
 | REQ-00507 | 测试覆盖率自动化度量与 CI 集成系统 | 测试覆盖 | P1 | new | backend/shared/testCoverage、所有后端服务、GitHub Actions、infrastructure/ci、admin-dashboard | 2026-07-08 15:00 |
 | REQ-00508 | 服务发现与动态负载均衡健康检查系统 | 性能优化 | P1 | new | infrastructure/service-registry, gateway, backend/shared/health-check | 2026-07-09 04:30 |
 | REQ-00509 | CI/CD 缓存智能管理与优化系统 | 运维/CICD | P2 | new | .github/workflows、backend/shared/cacheManager、infrastructure/cache | 2026-07-08 17:00 |
+| REQ-00514 | 多区域服务状态同步与智能仲裁系统 | 容灾/高可用 | P1 | done | gateway、infrastructure/k8s/multi-region、backend/shared/multiRegionArbitration | 2026-07-08 22:00 |
