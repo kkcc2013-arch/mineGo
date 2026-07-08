@@ -8,3 +8,4 @@
 | REQ-00491 | 监控指标生命周期管理与废弃治理系统 | 可观测性/监控 | P2 | new | backend/shared/metrics | 2026-07-08 01:17 |
 | REQ-00492 | 部署流水线可视化看板与状态追踪系统 | 运维/CICD | P1 | done | backend/admin, admin-dashboard | 2026-07-08 03:00 |
 | REQ-00493 | 自动化灾难恢复演练系统 | 运维/CICD | P1 | new | infrastructure/k8s/dr, backend/jobs | 2026-07-08 03:00 |
+| REQ-00494 | 游戏内行为数据实时风控与反作弊自动化分析系统 | 安全加固 | P0 | new | backend/security, backend/analysis | 2026-07-08 04:00 |
