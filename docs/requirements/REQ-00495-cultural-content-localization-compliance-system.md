@@ -3,7 +3,7 @@
 - **编号**：REQ-00495
 - **类别**：国际化/本地化
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：gateway、pokemon-service、social-service、admin-dashboard、backend/jobs
 - **创建时间**：2026-07-08 04:00
 - **依赖需求**：REQ-00011(多语言支持已完成)、REQ-00384(GDPR合规已完成)
