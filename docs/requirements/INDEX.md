@@ -19,9 +19,11 @@
 | REQ-00504 | 全链路监控可视化大屏实现 | 可观测性 | P1 | done | infrastructure, observability-platform | 2026-07-08 18:25 |
 | REQ-00505 | 插件生命周期管理与热插拔系统 | 可扩展性/解耦 | P1 | done | backend/shared/pluginSystem、gateway、所有后端服务 | 2026-07-08 14:00 |
 | REQ-00506 | 游戏服务端容器资源智能利用率分析与自动裁剪系统 | 成本/资源优化 | P1 | new | infrastructure/k8s/resources, backend/shared/metrics, infrastructure/monitoring | 2026-07-08 14:37 |
-| REQ-00507 | 测试覆盖率自动化度量与 CI 集成系统 | 测试覆盖 | P1 | new | backend/shared/testCoverage、所有后端服务、GitHub Actions、infrastructure/ci、admin-dashboard | 2026-07-08 15:05 |
+| REQ-00507 | 测试覆盖率自动化度量与 CI 集成系统 | 测试覆盖 | P1 | done | backend/shared/testCoverage、所有后端服务、GitHub Actions、infrastructure/ci、admin-dashboard | 2026-07-08 15:05 |
 | REQ-00508 | 服务发现与动态负载均衡健康检查系统 | 性能优化 | P1 | new | infrastructure/service-registry, gateway, backend/shared/health-check | 2026-07-08 16:39 |
 | REQ-00509 | CI/CD 缓存智能管理与优化系统 | 运维/CICD | P2 | new | .github/workflows、backend/shared/cacheManager、infrastructure/cache | 2026-07-08 17:00 |
 | REQ-00510 | 生产环境部署后健康检查自动化验证与回滚触发系统 | 运维/CICD | P1 | done | infrastructure/health、.github/workflows、backend/shared/HealthChecker、gateway | 2026-07-08 19:00 |
 | REQ-00511 | WebSocket 长连接连接池管理与高性能消息批处理系统 | 性能优化 | P1 | new | gateway, backend/shared/websocket, Redis | 2026-07-08 20:00 |
-| REQ-00512 | 测试 Mock 数据集中管理与智能生成系统 | 测试覆盖 | P1 | new | backend/shared/testUtils、所有后端服务、database/fixtures、GitHub Actions | 2026-07-08 20:01 |
+|| REQ-00512 | 测试 Mock 数据集中管理与智能生成系统 | 测试覆盖 | P1 | new | backend/shared/testUtils、所有后端服务、database/fixtures、GitHub Actions | 2026-07-08 20:01 |
+|| REQ-00513 | 自动化安全合规扫描与配置加固系统 | 安全加固 | P1 | new | infrastructure/k8s, backend/security, CI/CD | 2026-07-08 21:00 |
+| REQ-00514 | 多区域服务状态同步与智能仲裁系统 | 容灾/高可用 | P1 | new | gateway、infrastructure/k8s/multi-region、backend/shared、Redis、Kafka | 2026-07-08 21:00 |

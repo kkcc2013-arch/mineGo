@@ -186,11 +186,9 @@ const { errorHandler, notFoundHandler, asyncHandler } = require('./middleware/er
 const { ServiceFactory } = require('./ServiceFactory');
 
 // ============================================================
-// 监控与告警
+// 测试覆盖率系统
 // ============================================================
-const { HealthChecker } = require('./HealthChecker');
-const { SloManager } = require('./SloManager');
-const { AlertManager } = require('./AlertManager');
+const testCoverage = require('./testCoverage');
 
 // ============================================================
 // 统一导出
@@ -326,7 +324,10 @@ module.exports = {
     HealthChecker,
     SloManager,
     AlertManager
-  }
+  },
+  
+  // 测试覆盖率
+  testCoverage
 };
 
 // ============================================================
