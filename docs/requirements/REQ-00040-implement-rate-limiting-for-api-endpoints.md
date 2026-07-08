@@ -7,7 +7,7 @@
 | 标题 | Implement Rate Limiting for API Endpoints |
 | 类别 | 安全加固 |
 | 优先级 | P0 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | gateway-service |
 | 创建时间 | 2026-07-08 14:00 |
 

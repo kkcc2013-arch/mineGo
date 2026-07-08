@@ -77,6 +77,21 @@ const delayQueueAdminRoutes = require('./routes/delayQueueAdmin');
 const { deviceIntegrityCheck, checkDeviceRestriction } = require('@pmg/shared/deviceIntegrityMiddleware');
 const deviceIntegrityRoutes = require('./routes/deviceIntegrity');
 
+// REQ-00040: 智能限流系统
+const {
+  initRedisClient,
+  createRateLimiter,
+  userLevelRateLimiter,
+  highRiskRateLimiter,
+  authRateLimiter,
+  searchRateLimiter,
+  socialRateLimiter,
+  adminRateLimiter,
+  dynamicRateLimiter,
+  distributedRateLimiter,
+  combinedRateLimiter
+} = require('./middleware/intelligentRateLimit');
+
 const logger = createLogger('gateway');
 const SERVICE_NAME = 'gateway';
 
@@ -260,13 +275,13 @@ function proxy(target, pathRewrite) {
 app.use('/api/version', apiVersionRoutes);
 
 // ── v1 API Routes (Legacy) ──────────────────────────────────────────
-// Public (no auth)
-app.use('/api/v1/auth',     proxy(SERVICES.user, { '^/api/v1/': '/' }));
+// Public (no auth) - REQ-00040: 认证接口限流
+app.use('/api/v1/auth', authRateLimiter(), proxy(SERVICES.user, { '^/api/v1/': '/' }));
 
-// Protected v1 routes
+// Protected v1 routes - REQ-00040: 高风险接口限流
 app.use('/api/v1/catch',
   authMiddleware,
-  rateLimit({ windowMs: 60_000, max: 120 }),
+  highRiskRateLimiter(30), // 捕捉接口更严格限流
   catchV1Routes
 );
 
@@ -276,13 +291,13 @@ app.use('/api/v1/users',
 );
 
 // ── v2 API Routes (Current) ──────────────────────────────────────────
-// Public (no auth)
-app.use('/api/v2/auth',     proxy(SERVICES.user, { '^/api/v2/': '/' }));
+// Public (no auth) - REQ-00040: 认证接口限流
+app.use('/api/v2/auth', authRateLimiter(), proxy(SERVICES.user, { '^/api/v2/': '/' }));
 
-// Protected v2 routes
+// Protected v2 routes - REQ-00040: 高风险接口限流
 app.use('/api/v2/catch',
   authMiddleware,
-  rateLimit({ windowMs: 60_000, max: 120 }),
+  highRiskRateLimiter(30), // 捕捉接口更严格限流
   catchV2Routes
 );
 
@@ -335,8 +350,10 @@ app.use('/v1/friends',
   proxy(SERVICES.social, { '^/': '/friends/' })
 );
 
+// REQ-00040: 交易接口高风险限流
 app.use('/v1/trades',
   authMiddleware,
+  highRiskRateLimiter(40),
   proxy(SERVICES.social, { '^/': '/trades/' })
 );
 
@@ -364,8 +381,10 @@ app.get('/v1/pokemon',
 );
 
 // 其他精灵路由（不缓存）
+// 其他精灵路由（不缓存）- REQ-00040: 用户级限流
 app.use('/v1/pokemon',
   authMiddleware,
+  userLevelRateLimiter(),
   proxy(SERVICES.pokemon, { '^/': '/pokemon/' })
 );
 
@@ -376,7 +395,7 @@ app.use('/v1/pokestops',
 
 app.use('/v1/catch',
   authMiddleware,
-  rateLimit({ windowMs: 60_000, max: 120 }),
+  highRiskRateLimiter(30), // REQ-00040: 捕捉接口严格限流
   proxy(SERVICES.catch, { '^/': '/catch/' })
 );
 
@@ -406,8 +425,10 @@ app.use('/v1/raids',
   proxy(SERVICES.gym, { '^/': '/raids/' })
 );
 
+// REQ-00040: 支付接口高风险限流
 app.use('/v1/payment',
   authMiddleware,
+  highRiskRateLimiter(20), // 支付接口最严格限流
   proxy(SERVICES.payment, { '^/': '/payment/' })
 );
 
