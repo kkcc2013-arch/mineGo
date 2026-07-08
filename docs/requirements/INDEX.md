@@ -26,4 +26,5 @@
 | REQ-00511 | WebSocket 长连接连接池管理与高性能消息批处理系统 | 性能优化 | P1 | new | gateway, backend/shared/websocket, Redis | 2026-07-08 20:00 |
 || REQ-00512 | 测试 Mock 数据集中管理与智能生成系统 | 测试覆盖 | P1 | new | backend/shared/testUtils、所有后端服务、database/fixtures、GitHub Actions | 2026-07-08 20:01 |
 || REQ-00513 | 自动化安全合规扫描与配置加固系统 | 安全加固 | P1 | new | infrastructure/k8s, backend/security, CI/CD | 2026-07-08 21:00 |
-| REQ-00514 | 多区域服务状态同步与智能仲裁系统 | 容灾/高可用 | P1 | new | gateway、infrastructure/k8s/multi-region、backend/shared、Redis、Kafka | 2026-07-08 21:00 |
+|| REQ-00514 | 多区域服务状态同步与智能仲裁系统 | 容灾/高可用 | P1 | new | gateway、infrastructure/k8s/multi-region、backend/shared、Redis、Kafka | 2026-07-08 21:00 |
+|| REQ-00515 | 游戏服务端多语言智能复数与语法规则引擎 | 国际化/本地化 | P1 | new | backend/shared/i18n, gateway/middleware | 2026-07-09 01:00 |
