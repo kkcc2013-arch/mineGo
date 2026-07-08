@@ -18,4 +18,6 @@
 | REQ-00503 | 游戏客户端屏幕阅读器与 ARIA 无障碍支持 | 无障碍(a11y) | P1 | done | game-client、frontend/game-client/src/accessibility、所有 UI 组件 | 2026-07-08 12:00 |
 | REQ-00504 | 全链路监控可视化大屏实现 | 可观测性 | P1 | new | infrastructure, observability-platform | 2026-07-09 04:00 |
 | REQ-00505 | 插件生命周期管理与热插拔系统 | 可扩展性/解耦 | P1 | new | backend/shared/pluginSystem、gateway、所有后端服务 | 2026-07-08 14:00 |
-| REQ-00507 | 密码强度策略与泄露检测系统 | 安全加固 | P1 | new | user-service/src/routes/sessions.js, user-service/src/routes/auth.js, backend/shared/passwordPolicy.js, backend/shared/breachDetection.js | 2026-07-08 16:00 |
+    21|| REQ-00507 | 密码强度策略与泄露检测系统 | 安全加固 | P1 | new | user-service/src/routes/sessions.js, user-service/src/routes/auth.js, backend/shared/passwordPolicy.js, backend/shared/breachDetection.js | 2026-07-08 16:00 |
+    22|| REQ-00508 | 服务发现与动态负载均衡健康检查系统 | 性能优化 | P1 | new | infrastructure/service-registry, gateway, backend/shared/health-check | 2026-07-09 04:30 |
+    23|
