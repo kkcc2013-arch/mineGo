@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mineGo - 无障碍游戏客户端演示</title>
+  <style>
+    /* 基础样式 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #f5f5f5;
+    }
+    
+    /* 屏幕阅读器专用样式 */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+    
+    .sr-only-focusable:focus,
+    .sr-only-focusable:active {
+      position: static;
+      width: auto;
+      height: auto;
+      overflow: visible;
+      clip: auto;
+      white-space: normal;
+    }
+    
+    /* 主布局 */
+    #game-app {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      grid-template-rows: auto 1fr auto;
+      height: 100vh;
+    }
+    
+    /* 头部导航 */
+    .game-header {
+      grid-column: 1 / -1;
+      background: #3b4cca;
+      color: white;
+      padding: 1rem;
+    }
+    
+    .nav-menu {
+      display: flex;
+      gap: 1rem;
+      list-style: none;
+    }
+    
+    .nav-menu button {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .nav-menu button:hover,
+    .nav-menu button:focus {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    
+    .nav-menu button:focus {
+      outline: 3px solid white;
+      outline-offset: 2px;
+    }
+    
+    /* 主内容区 */
+    .game-main {
+      padding: 1rem;
+      overflow-y: auto;
+    }
+    
+    /* 地图区域 */
+    #game-map {
+      background: #e8f5e9;
+      border-radius: 8px;
+      padding: 2rem;
+      min-height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* 状态栏 */
+    .game-status {
+      grid-column: 1 / -1;
+      background: #fff3e0;
+      padding: 1rem;
+      border-top: 2px solid #ffb74d;
+    }
+    
+    /* 精灵列表 */
+    .pokemon-list {
+      display: grid;
+      gap: 1rem;
+    }
+    
+    .pokemon-card {
+      background: white;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      cursor: pointer;
+    }
+    
+    .pokemon-card:hover,
+    .pokemon-card:focus {
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .pokemon-card:focus {
+      outline: 3px solid #3b4cca;
+      outline-offset: 2px;
+    }
+    
+    .pokemon-card img {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+    }
+    
+    /* 血条 */
+    .hp-bar {
+      background: #e0e0e0;
+      border-radius: 4px;
+      height: 20px;
+      overflow: hidden;
+      margin: 0.5rem 0;
+    }
+    
+    .hp-fill {
+      background: linear-gradient(to right, #4caf50, #8bc34a);
+      height: 100%;
+      transition: width 0.3s;
+    }
+    
+    .hp-fill.low {
+      background: linear-gradient(to right, #f44336, #ff5722);
+    }
+    
+    .hp-text {
+      font-size: 0.875rem;
+      color: #666;
+    }
+    
+    /* 模态框 */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+    }
+    
+    .modal-content button {
+      margin-top: 1rem;
+    }
+    
+    /* 焦点指示器 */
+    *:focus {
+      outline: 3px solid #3b4cca;
+      outline-offset: 2px;
+    }
+    
+    button:focus {
+      outline: 3px solid #ffeb3b;
+    }
+  </style>
+</head>
+<body>
+  <!-- 主应用容器 -->
+  <div id="game-app" role="application" aria-label="mineGo 游戏">
+    
+    <!-- 头部导航 -->
+    <header class="game-header" role="banner">
+      <h1>mineGo</h1>
+      <nav role="navigation" aria-label="主菜单">
+        <ul class="nav-menu" role="menubar">
+          <li role="none">
+            <button role="menuitem" aria-label="地图，当前位置：中央公园" data-active="true">
+              🗺️ 地图
+            </button>
+          </li>
+          <li role="none">
+            <button role="menuitem" aria-label="背包，10 个物品">
+              🎒 背包
+            </button>
+          </li>
+          <li role="none">
+            <button role="menuitem" aria-label="精灵列表，已收集 25/151">
+              📱 精灵
+            </button>
+          </li>
+          <li role="none">
+            <button role="menuitem" aria-label="好友列表，3 个好友">
+              👥 好友
+            </button>
+          </li>
+          <li role="none">
+            <button role="menuitem" aria-label="设置">
+              ⚙️ 设置
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </header>
+    
+    <!-- 主内容区：地图 -->
+    <main class="game-main" role="main" aria-label="游戏主区域">
+      <section id="game-map" role="region" aria-label="游戏地图">
+        <div role="img" aria-label="当前位置：中央公园，附近有 3 只精灵">
+          <p>📍 中央公园</p>
+          <p>附近精灵：Pikachu、Bulbasaur、Charmander</p>
+        </div>
+      </section>
+    </main>
+    
+    <!-- 侧边栏：精灵快捷信息 -->
+    <aside role="complementary" aria-label="快捷信息栏">
+      <section role="region" aria-label="最近捕捉">
+        <h2>最近捕捉</h2>
+        <article role="article" aria-label="Pikachu">
+          <h3>Pikachu</h3>
+          <p role="status">CP 450</p>
+        </article>
+      </section>
+    </aside>
+    
+    <!-- 状态栏 -->
+    <footer class="game-status" role="contentinfo" aria-label="游戏状态">
+      <p><strong>经验值：</strong> 12,450 / 15,000</p>
+      <div class="hp-bar" role="meter" aria-label="经验值进度" aria-valuenow="12450" aria-valuemin="0" aria-valuemax="15000">
+        <div class="hp-fill" style="width: 83%"></div>
+      </div>
+      <p><strong>精币：</strong> 1,250</p>
+    </footer>
+    
+  </div>
+  
+  <!-- 实时播报区域（屏幕阅读器专用） -->
+  <div id="a11y-live-region" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+  <div id="a11y-alert-region" class="sr-only" role="alert" aria-live="assertive" aria-atomic="true"></div>
+  
+  <!-- 引入 ARIA 工具 -->
+  <script type="module">
+    import ARIAUtils, { ARIARoles } from './src/accessibility/ariaUtils.js';
+    import { a11yAnnouncer } from './src/accessibility/announcer.js';
+    import { focusManager } from './src/accessibility/focusManager.js';
+    
+    // 模拟游戏数据
+    const gameState = {
+      location: '中央公园',
+      nearbyPokemon: [
+        { name: 'Pikachu', distance: 50, rarity: 'common' },
+        { name: 'Bulbasaur', distance: 120, rarity: 'uncommon' },
+        { name: 'Charmander', distance: 200, rarity: 'rare' }
+      ],
+      player: {
+        xp: 12450,
+        maxXp: 15000,
+        coins: 1250
+      }
+    };
+    
+    // 初始化导航
+    function initNavigation() {
+      const navButtons = document.querySelectorAll('.nav-menu button');
+      
+      navButtons.forEach((button, index) => {
+        // 键盘导航
+        button.addEventListener('keydown', (e) => {
+          let newIndex = index;
+          
+          switch (e.key) {
+            case 'ArrowRight':
+              newIndex = (index + 1) % navButtons.length;
+              break;
+            case 'ArrowLeft':
+              newIndex = (index - 1 + navButtons.length) % navButtons.length;
+              break;
+            case 'Home':
+              newIndex = 0;
+              break;
+            case 'End':
+              newIndex = navButtons.length - 1;
+              break;
+          }
+          
+          if (newIndex !== index) {
+            e.preventDefault();
+            navButtons[newIndex].focus();
+          }
+        });
+        
+        // 激活状态播报
+        button.addEventListener('click', () => {
+          navButtons.forEach(btn => {
+            ARIAUtils.setSelected(btn, false);
+            btn.dataset.active = 'false';
+          });
+          
+          ARIAUtils.setSelected(button, true);
+          button.dataset.active = 'true';
+          
+          a11yAnnouncer.announceNavigationItem(button.textContent.trim(), true);
+        });
+      });
+    }
+    
+    // 模拟精灵出现事件
+    function simulatePokemonSpawn() {
+      const pokemon = gameState.nearbyPokemon[0];
+      a11yAnnouncer.announcePokemonSpawn(pokemon.name, pokemon.distance, pokemon.rarity);
+      
+      // 显示在地图上（视觉）
+      const map = document.querySelector('#game-map div[role="img"]');
+      map.innerHTML = `
+        <p>📍 ${gameState.location}</p>
+        <p>⚠️ ${pokemon.name} 出现了！距离 ${pokemon.distance} 米</p>
+        <button onclick="catchPokemon('${pokemon.name}')">捕捉 ${pokemon.name}</button>
+      `;
+    }
+    
+    // 模拟捕捉成功
+    window.catchPokemon = function(pokemonName) {
+      a11yAnnouncer.announceCatchSuccess(pokemonName, Math.floor(Math.random() * 500) + 100, 100);
+      
+      // 显示结果
+      alert(`成功捕捉 ${pokemonName}！`);
+    };
+    
+    // 初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('🎮 mineGo 无障碍演示已加载');
+      console.log('💡 提示：按 Tab 键导航，使用屏幕阅读器听语音播报');
+      
+      initNavigation();
+      
+      // 5 秒后模拟精灵出现
+      setTimeout(() => {
+        simulatePokemonSpawn();
+      }, 5000);
+    });
+  </script>
+</body>
+</html>
