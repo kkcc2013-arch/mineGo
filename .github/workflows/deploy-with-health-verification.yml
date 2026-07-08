@@ -1,0 +1,203 @@
+# 部署后健康检查自动化验证与回滚触发系统
+
+name: Deploy with Health Verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'infrastructure/k8s/**'
+      - '.github/workflows/deploy-with-health-verification.yml'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+      dry_run:
+        description: 'Dry run mode (no rollback)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build Docker images
+        if: github.event_name == 'push'
+        run: |
+          docker build -t $REGISTRY/$IMAGE_NAME:${{ github.sha }} ./backend/gateway
+          docker push $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+
+      - name: Generate image tag
+        id: meta
+        run: echo "tags=${{ github.sha }}" >> $GITHUB_OUTPUT
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Set kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+
+      - name: Deploy to ${{ github.event.inputs.environment || 'production' }}
+        id: deploy
+        run: |
+          kubectl apply -f infrastructure/k8s/base/ -n ${{ github.event.inputs.environment || 'production' }}
+          echo "deployment_id=${{ github.run_id }}" >> $GITHUB_ENV
+
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/gateway -n ${{ github.event.inputs.environment || 'production' }} --timeout=300s
+          kubectl rollout status deployment/user-service -n ${{ github.event.inputs.environment || 'production' }} --timeout=300s
+          kubectl rollout status deployment/catch-service -n ${{ github.event.inputs.environment || 'production' }} --timeout=300s
+
+      - name: Setup Node.js for verification
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Health Verification
+        id: health-check
+        env:
+          SERVICE_BASE_URL: ${{ secrets.SERVICE_BASE_URL || 'http://localhost' }}
+          KUBECTL_ENABLED: 'false'  # Use mock mode
+        run: |
+          cd infrastructure/health
+          npm install --prefer-offline --no-audit 2>/dev/null || true
+          
+          node verify-deployment.js \
+            --deployment-id=${{ github.run_id }} \
+            --environment=${{ github.event.inputs.environment || 'production' }} \
+            --timeout=30 \
+            ${{ github.event.inputs.dry_run == 'true' && '--dry-run' || '' }}
+          
+          # 解析验证结果
+          if [ -f "verification-result.json" ]; then
+            SUCCESS=$(jq -r '.overallSuccess' verification-result.json)
+            ROLLBACK=$(jq -r '.rollbackRequired' verification-result.json)
+            ISSUES=$(jq -r '.issues | length' verification-result.json)
+            
+            echo "health_success=$SUCCESS" >> $GITHUB_OUTPUT
+            echo "rollback_required=$ROLLBACK" >> $GITHUB_OUTPUT
+            echo "issues_count=$ISSUES" >> $GITHUB_OUTPUT
+            
+            if [ "$SUCCESS" != "true" ]; then
+              echo "::warning::Health verification failed"
+              jq -r '.issues[] | "::warning::[\(.severity)] \(.type): \(.message)"' verification-result.json || true
+            fi
+          fi
+
+      - name: Auto Rollback if needed
+        if: steps.health-check.outputs.rollback_required == 'true' && github.event.inputs.dry_run != 'true'
+        env:
+          KUBECTL_ENABLED: 'true'
+        run: |
+          echo "::error::Health verification failed, triggering automatic rollback..."
+          
+          kubectl rollout undo deployment/gateway -n ${{ github.event.inputs.environment || 'production' }}
+          kubectl rollout undo deployment/user-service -n ${{ github.event.inputs.environment || 'production' }}
+          kubectl rollout undo deployment/catch-service -n ${{ github.event.inputs.environment || 'production' }}
+          
+          # 等待回滚完成
+          kubectl rollout status deployment/gateway -n ${{ github.event.inputs.environment || 'production' }} --timeout=120s
+          kubectl rollout status deployment/user-service -n ${{ github.event.inputs.environment || 'production' }} --timeout=60s
+          kubectl rollout status deployment/catch-service -n ${{ github.event.inputs.environment || 'production' }} --timeout=60s
+
+      - name: Send Slack notification - Success
+        if: steps.health-check.outputs.health_success == 'true'
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "✅ Deployment successful with health verification passed",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Deployment Status: SUCCESS*\n\n• Environment: `${{ github.event.inputs.environment || 'production' }}`\n• Deployment ID: `${{ github.run_id }}`\n• Commit: `${{ github.sha }}`\n• Duration: `${{ steps.health-check.outputs.duration || 'N/A' }}ms`"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
+      - name: Send Slack notification - Failure
+        if: failure() || steps.health-check.outputs.rollback_required == 'true'
+        uses: slackapi/slack-github-action@v1.25.0
+        with:
+          payload: |
+            {
+              "text": "⚠️ Deployment failed, automatic rollback triggered",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Deployment Status: FAILED - ROLLBACK TRIGGERED*\n\n• Environment: `${{ github.event.inputs.environment || 'production' }}`\n• Deployment ID: `${{ github.run_id }}`\n• Commit: `${{ github.sha }}`\n• Issues: `${{ steps.health-check.outputs.issues_count || 'N/A' }}`\n\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+
+      - name: Upload verification report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-report-${{ github.run_id }}
+          path: |
+            infrastructure/health/verification-result.json
+          retention-days: 30
+
+      - name: Fail if health check failed
+        if: steps.health-check.outputs.health_success == 'false'
+        run: |
+          echo "::error::Health verification failed"
+          exit 1

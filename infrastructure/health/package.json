@@ -1,0 +1,18 @@
+{
+  "name": "minego-health-verification",
+  "version": "1.0.0",
+  "description": "Deployment health verification system for mineGo",
+  "main": "verify-deployment.js",
+  "scripts": {
+    "verify": "node verify-deployment.js",
+    "test": "node --test ./tests/*.test.js"
+  },
+  "keywords": [
+    "health-check",
+    "deployment",
+    "kubernetes",
+    "verification"
+  ],
+  "author": "mineGo Team",
+  "license": "MIT"
+}
