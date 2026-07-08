@@ -10,6 +10,7 @@ const { MemoryGuard, memoryGuard } = require('./MemoryGuard');
 const { SecureStorage, secureStorage, SECURE_DATA_KEYS } = require('./SecureStorage');
 const { MemoryScanner, memoryScanner } = require('./MemoryScanner');
 const { RequestSigner, requestSigner, PROTECTED_PATHS } = require('./RequestSigner');
+const { InjectionDetector, injectionDetector } = require('./InjectionDetector');
 
 /**
  * 安全系统初始化配置
@@ -178,12 +179,14 @@ module.exports = {
   SecureStorage,
   MemoryScanner,
   RequestSigner,
+  InjectionDetector,
   
   // 单例
   memoryGuard,
   secureStorage,
   memoryScanner,
   requestSigner,
+  injectionDetector,
   
   // 常量
   SECURE_DATA_KEYS,
