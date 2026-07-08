@@ -23,3 +23,4 @@
 | REQ-00508 | 服务发现与动态负载均衡健康检查系统 | 性能优化 | P1 | new | infrastructure/service-registry, gateway, backend/shared/health-check | 2026-07-08 16:39 |
 | REQ-00509 | CI/CD 缓存智能管理与优化系统 | 运维/CICD | P2 | new | .github/workflows、backend/shared/cacheManager、infrastructure/cache | 2026-07-08 17:00 |
 | REQ-00510 | 生产环境部署后健康检查自动化验证与回滚触发系统 | 运维/CICD | P1 | new | infrastructure/health、.github/workflows、backend/shared/HealthChecker、gateway | 2026-07-08 19:00 |
+| REQ-00511 | WebSocket 长连接连接池管理与高性能消息批处理系统 | 性能优化 | P1 | new | gateway, backend/shared/websocket, Redis | 2026-07-08 20:00 |
