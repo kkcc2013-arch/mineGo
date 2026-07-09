@@ -7,7 +7,7 @@
 | 标题 | WebSocket 长连接连接池管理与高性能消息批处理系统 |
 | 类别 | 性能优化 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | gateway, backend/shared/websocket, Redis |
 | 创建时间 | 2026-07-08 20:00 |
 
