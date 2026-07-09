@@ -1,0 +1,30 @@
+{
+  "userId": "550e8400-e29b-41d4-a716-446655440001",
+  "email": "trainer_ash@example.com",
+  "username": "AshKetchum",
+  "nickname": "Ash",
+  "level": 25,
+  "exp": 15625,
+  "coins": 5000,
+  "gems": 100,
+  "pokeballs": 50,
+  "berries": 20,
+  "team": "valor",
+  "country": "US",
+  "language": "en-US",
+  "gender": "male",
+  "avatar": "avatar_1.png",
+  "createdAt": "2026-01-01T00:00:00.000Z",
+  "lastLoginAt": "2026-07-09T00:00:00.000Z",
+  "deviceInfo": {
+    "deviceId": "device-001",
+    "platform": "android",
+    "osVersion": "13",
+    "appVersion": "1.0.0"
+  },
+  "settings": {
+    "pushNotifications": true,
+    "soundEnabled": true,
+    "language": "en-US"
+  }
+}

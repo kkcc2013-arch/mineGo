@@ -1,0 +1,30 @@
+{
+  "pokemonId": "550e8400-e29b-41d4-a716-446655440002",
+  "ownerId": "550e8400-e29b-41d4-a716-446655440001",
+  "speciesId": 1,
+  "speciesName": "Bulbasaur",
+  "type": "grass",
+  "level": 15,
+  "cp": 320,
+  "hp": 45,
+  "maxHp": 50,
+  "iv": {
+    "attack": 12,
+    "defense": 14,
+    "stamina": 13
+  },
+  "ivPercentage": 86.67,
+  "moves": ["Vine Whip", "Razor Leaf"],
+  "isShiny": false,
+  "gender": "male",
+  "weight": 6.9,
+  "height": 0.7,
+  "capturedAt": "2026-01-15T08:30:00.000Z",
+  "capturedLocation": {
+    "latitude": 37.4224764,
+    "longitude": -122.0842499,
+    "name": "Central Park"
+  },
+  "favorite": false,
+  "buddy": false
+}
