@@ -32,3 +32,4 @@
     32|| REQ-00517 | 错误智能分析与根因定位系统 | 技术债/重构 | P1 | new | backend/shared/errorAnalysis, gateway/middleware, observability-platform | 2026-07-09 00:05 |
     33|| REQ-00518 | API 超媒体链接（HATEOAS）与资源发现系统 | API 设计规范 | P1 | new | backend/shared/utils/ApiResponse.js, gateway/src/middleware, 所有后端服务, game-client | 2026-07-09 01:00 |
     34|| REQ-00519 | 后端任务队列可靠性增强与死信处理系统 | 运维/CICD | P1 | new | backend/jobs, Redis, Kafka | 2026-07-09 03:00 |
+| REQ-00520 | 后端服务 API 兼容性版本管理与自动化测试系统 | 运维/CICD | P1 | new | gateway、所有后端服务、backend/shared/apiVersionManager.js、backend/tests | 2026-07-09 02:00 |
