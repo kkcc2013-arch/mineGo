@@ -1,7 +1,7 @@
 # mineGo 项目成熟度评估
 
-|> 最后更新：2026-07-09 00:00 UTC
-|> 累计需求数：517 条
+|> 最后更新：2026-07-09 01:00 UTC
+|> 累计需求数：518 条
 
 ## 成熟度评分（满分 100）
 
@@ -28,22 +28,25 @@
   - IntelligentAlerting 智能告警系统（告警聚合、降噪、分级、抑制）
   - Dashboard API（聚合视图、趋势图、根因推荐、快照查询）
   - 数据库设计（error_groups、error_events、error_snapshots、root_cause_analyses、error_alerts）
+- REQ-00518 API 超媒体链接（HATEOAS）与资源发现系统（P1，new，API 设计规范）
+  - LinksBuilder 链接构建器（资源链接、分页链接、操作链接）
+  - LinkRegistry 链接注册中心（模板定义、条件判断）
+  - ApiResponse 扩展（withLinks、paginatedWithLinks、hal 方法）
+  - 前端 LinkNavigator 链接导航工具
+  - 核心资源链接定义（Pokemon、Gym、User、Trade、Battle）
 
 **本次实现：**
-- REQ-00512 测试 Mock 数据集中管理与智能生成系统（P1，done，测试覆盖）
-  - MockRepository Mock 数据仓库（6,598 字节，fixtures 加载、缓存、深拷贝、覆盖）
-  - MockDataFactory Mock 数据工厂（15,600 字节，12 种实体类型，智能生成）
-  - ExternalMockServices 外部依赖 Mock 服务（10,094 字节，FCM/APNs/支付宝/微信/Apple/Google Maps）
-  - DatabaseSnapshotManager 数据库快照管理器（7,271 字节，快照/恢复/清空/填充）
-  - Jest 集成工具（8,217 字节，setup/teardown/hooks/mock 工具）
-  - 示例 fixtures（users/sample.json、pokemon/bulbasaur.json）
-  - 单元测试（3 测试文件，17 测试套件，全部通过）
+- REQ-00511 WebSocket 长连接连接池管理与高性能消息批处理系统（P1，done，性能优化）
+  - WebSocketConnectionPool 连接池管理器（11,822 字节）连接生命周期、分布式状态存储、健康检查
+  - WebSocketBatchSender 消息批处理器（12,951 字节）缓冲队列、动态窗口、消息合并、优先级队列
+  - ConnectionRateLimiter 连接限流器（10,991 字节）IP/用户级别限流、熔断保护、自动封禁
+  - 单元测试（13,467 字节）覆盖核心场景
 
 ## 进度统计
 
 - 总需求：517
-|- 本次新增：REQ-00517 错误智能分析与根因定位系统（P1，new，技术债/重构）
-|- 本次实现：REQ-00512 测试 Mock 数据集中管理与智能生成系统（P1，done，测试覆盖）
+|- 本次新增：REQ-00518 API 超媒体链接（HATEOAS）与资源发现系统（P1，new，API 设计规范）
+|- 本次实现：REQ-00511 WebSocket 连接池与消息批处理系统（P1，done，性能优化）
 |- 待实现：REQ-00491、REQ-00497、REQ-00506、REQ-00508、REQ-00509、REQ-00511、REQ-00513、REQ-00516
 
 ## 剩余高价值缺口
