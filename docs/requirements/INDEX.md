@@ -18,7 +18,7 @@
 | REQ-00503 | 游戏客户端屏幕阅读器与 ARIA 无障碍支持 | 无障碍(a11y) | P1 | done | game-client、frontend/game-client/src/accessibility、所有 UI 组件 | 2026-07-08 12:00 |
 | REQ-00504 | 全链路监控可视化大屏实现 | 可观测性 | P1 | done | infrastructure, observability-platform | 2026-07-08 18:25 |
 | REQ-00505 | 插件生命周期管理与热插拔系统 | 可扩展性/解耦 | P1 | done | backend/shared/pluginSystem、gateway、所有后端服务 | 2026-07-08 14:00 |
-| REQ-00506 | 游戏服务端容器资源智能利用率分析与自动裁剪系统 | 成本/资源优化 | P1 | new | infrastructure/k8s/resources, backend/shared/metrics, infrastructure/monitoring | 2026-07-08 14:37 |
+| REQ-00506 | 游戏服务端容器资源智能利用率分析与自动裁剪系统 | 成本/资源优化 | P1 | done | infrastructure/k8s/resources, backend/shared/metrics, infrastructure/monitoring | 2026-07-08 14:37 |
 | REQ-00507 | 测试覆盖率自动化度量与 CI 集成系统 | 测试覆盖 | P1 | done | backend/shared/testCoverage、所有后端服务、GitHub Actions、infrastructure/ci、admin-dashboard | 2026-07-08 15:05 |
 | REQ-00508 | 服务发现与动态负载均衡健康检查系统 | 性能优化 | P1 | new | infrastructure/service-registry, gateway, backend/shared/health-check | 2026-07-08 16:39 |
 | REQ-00509 | CI/CD 缓存智能管理与优化系统 | 运维/CICD | P2 | new | .github/workflows、backend/shared/cacheManager、infrastructure/cache | 2026-07-08 17:00 |
