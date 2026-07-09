@@ -7,7 +7,7 @@
 | 标题 | 服务发现与动态负载均衡健康检查系统 |
 | 类别 | 性能优化 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | infrastructure/service-registry, gateway, backend/shared/health-check |
 | 创建时间 | 2026-07-09 04:30 |
 
