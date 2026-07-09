@@ -34,6 +34,8 @@
 | REQ-00519 | 后端任务队列可靠性增强与死信处理系统 | 运维/CICD | P1 | new | backend/jobs, Redis, Kafka | 2026-07-09 03:00 |
 | REQ-00520 | 后端服务 API 兼容性版本管理与自动化测试系统 | 运维/CICD | P1 | new | gateway、所有后端服务、backend/shared/apiVersionManager.js、backend/tests | 2026-07-09 02:00 |
 | REQ-00521 | 游戏 AR 增强现实捕获模式防作弊与安全防护系统 | 反作弊 | P0 | done | game-client, backend/security, backend/analysis, gateway | 2026-07-09 09:00 |
-|| REQ-00522 | 数据保留政策透明化与用户通知系统 | 合规/隐私 | P1 | new | gateway、user-service、backend/shared/dataRetentionPolicyService.js、backend/jobs/retentionNotificationJob.js、game-client、admin-dashboard | 2026-07-09 03:00 |
-|| REQ-00523 | 数据库查询结果缓存失效智能同步系统 | 性能优化 | P1 | new | backend/shared/cache, database/cdc | 2026-07-09 14:00 |
+| REQ-00522 | 数据保留政策透明化与用户通知系统 | 合规/隐私 | P1 | new | gateway、user-service、backend/shared/dataRetentionPolicyService.js、backend/jobs/retentionNotificationJob.js、game-client、admin-dashboard | 2026-07-09 03:00 |
+| REQ-00523 | 数据库查询结果缓存失效智能同步系统 | 性能优化 | P1 | new | backend/shared/cache, database/cdc | 2026-07-09 14:00 |
 | REQ-00524 | 游戏日期时间格式本地化与智能显示系统 | 国际化/本地化 | P1 | done | backend/shared/dateTimeFormat.js、gateway/middleware、user-service、game-client | 2026-07-09 04:05 |
+| REQ-00525 | 基于属性的测试框架与模糊测试系统 | 测试覆盖 | P1 | new | backend/shared/test/propertyTesting, gateway, all services | 2026-07-09 14:30 |
+| REQ-00526 | 实现 API 响应数据流式压缩与流处理系统 | 性能优化 | P1 | new | gateway, backend/shared, game-client | 2026-07-09 15:00 |
