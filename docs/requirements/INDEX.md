@@ -28,8 +28,8 @@
 | REQ-00513 | 自动化安全合规扫描与配置加固系统 | 安全加固 | P1 | done | infrastructure/k8s, backend/security, CI/CD | 2026-07-08 21:00 |
 | REQ-00514 | 多区域服务状态同步与智能仲裁系统 | 容灾/高可用 | P1 | new | gateway、infrastructure/k8s/multi-region、backend/shared、Redis、Kafka | 2026-07-08 21:00 |
 | REQ-00515 | 游戏服务端多语言智能复数与语法规则引擎 | 国际化/本地化 | P1 | new | backend/shared/i18n, gateway/middleware | 2026-07-09 01:00 |
-| REQ-00516 | 微服务混沌测试框架自动化执行与报告系统 | 测试覆盖 | P1 | new | infrastructure/k8s/chaos-mesh, backend/shared/chaos-engine, gateway | 2026-07-09 02:00 |
-| REQ-00517 | 错误智能分析与根因定位系统 | 技术债/重构 | P1 | new | backend/shared/errorAnalysis, gateway/middleware, observability-platform | 2026-07-09 00:05 |
+| REQ-00516 | 代码复杂度度量与重构优先级智能推荐系统 | 技术债/重构 | P1 | done | backend/shared/codeQuality、所有后端服务、GitHub Actions | 2026-07-10 08:00 |
+| REQ-00517 | 错误智能分析与根因定位系统 | 技术债/重构 | P1 | new | backend/shared/errorAnalysis, gateway/middleware, backend/jobs, infrastructure/monitoring | 2026-07-09 00:00 |
 | REQ-00518 | API 超媒体链接（HATEOAS）与资源发现系统 | API 设计规范 | P1 | new | backend/shared/utils/ApiResponse.js, gateway/src/middleware, 所有后端服务, game-client | 2026-07-09 01:00 |
 | REQ-00519 | 后端任务队列可靠性增强与死信处理系统 | 运维/CICD | P1 | new | backend/jobs, Redis, Kafka | 2026-07-09 03:00 |
 | REQ-00520 | 后端服务 API 兼容性版本管理与自动化测试系统 | 运维/CICD | P1 | new | gateway、所有后端服务、backend/shared/apiVersionManager.js、backend/tests | 2026-07-09 02:00 |

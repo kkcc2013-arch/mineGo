@@ -3,7 +3,7 @@
 - **编号**：REQ-00516
 - **类别**：技术债/重构
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：backend/shared/codeQuality、所有后端服务、admin-dashboard、GitHub Actions
 - **创建时间**：2026-07-09 00:00
 - **依赖需求**：无
