@@ -3,7 +3,7 @@
 - **编号**：REQ-00527
 - **类别**：合规/隐私
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：user-service、gateway、backend/shared/dataExporter、backend/jobs
 - **创建时间**：2026-07-10 06:35
 - **依赖需求**：REQ-00127（用户数据删除请求管理）
