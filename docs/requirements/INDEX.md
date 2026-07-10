@@ -40,3 +40,4 @@
 | REQ-00525 | 基于属性的测试框架与模糊测试系统 | 测试覆盖 | P1 | new | backend/shared/test/propertyTesting, gateway, all services | 2026-07-09 14:30 |
 | REQ-00526 | 实现 API 响应数据流式压缩与流处理系统 | 性能优化 | P1 | new | gateway, backend/shared, game-client | 2026-07-09 15:00 |
 | REQ-00527 | 用户数据导出格式转换与可携带性系统 | 合规/隐私 | P1 | new | user-service、gateway、backend/shared/dataExporter、backend/jobs | 2026-07-10 06:35 |
+| REQ-00528 | 分布式追踪智能采样与性能瓶颈自动诊断系统 | 可观测性/监控 | P1 | new | gateway、backend/shared/tracing、backend/shared/perfAnalyzer、所有后端服务、infrastructure/monitoring | 2026-07-10 07:00 |
