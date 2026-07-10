@@ -25,5 +25,12 @@
 | REQ-00514 | 多区域服务状态同步与智能仲裁系统 | 容灾/高可用 | P1 | done | gateway、infrastructure/k8s/multi-region、backend/shared/multiRegionArbitration | 2026-07-08 22:00 |
 | REQ-00515 | 服务端复数形式国际化与智能复数规则系统 | 国际化/本地化 | P1 | done | backend/shared/i18n/plural.js、gateway、user-service、social-service | 2026-07-08 22:00 |
 | REQ-00516 | 代码复杂度度量与重构优先级智能推荐系统 | 技术债/重构 | P1 | new | backend/shared/codeQuality、所有后端服务、admin-dashboard、GitHub Actions | 2026-07-09 00:00 |
-| REQ-00517 | 错误智能分析与根因定位系统 | 技术债/重构 | P1 | new | backend/shared/errorAnalysis、gateway/middleware、backend/jobs、infrastructure/monitoring | 2026-07-09 00:00 |
+| REQ-00517 | 错误智能分析与根因定位系统 | 技术债/重构 | P1 | done | backend/shared/errorAnalysis、gateway/middleware、backend/jobs、infrastructure/monitoring | 2026-07-09 00:00 |
 | REQ-00518 | 监控数据智能摘要与自动化报告系统 | 可观测性/监控 | P1 | new | backend/shared/monitorReport、gateway/src/routes/monitorReport、backend/jobs、admin-dashboard | 2026-07-09 08:46 |
+| REQ-00519 | 后端任务队列可靠性增强与死信处理系统 | 运维/CICD | P1 | new | backend/jobs, Redis, Kafka, infrastructure/monitoring | 2026-07-09 03:00 |
+| REQ-00520 | 后端服务 API 兼容性版本管理与自动化测试系统 | 运维/CICD | P1 | new | gateway、所有后端服务、backend/shared/apiVersionManager.js、backend/tests | 2026-07-09 02:00 |
+| REQ-00521 | 游戏 AR 增强现实捕获模式防作弊与安全防护系统 | 反作弊 | P0 | done | game-client、backend/security、backend/analysis、gateway | 2026-07-09 09:00 |
+| REQ-00522 | 数据保留政策透明化与用户通知系统 | 合规/隐私 | P1 | new | gateway、user-service、backend/shared/dataRetentionPolicyService.js、backend/jobs、game-client、admin-dashboard | 2026-07-09 03:00 |
+| REQ-00523 | 数据库查询结果缓存失效智能同步系统 | 性能优化 | P1 | new | backend/shared/cache, database/cdc, gateway | 2026-07-09 14:00 |
+| REQ-00524 | 游戏日期时间格式本地化与智能显示系统 | 国际化/本地化 | P1 | new | backend/shared/dateTimeFormat.js、gateway/middleware、user-service、game-client、admin-dashboard | 2026-07-09 04:05 |
+| REQ-00525 | Property-Based Testing 框架与 API Fuzz Testing 系统 | 测试覆盖 | P1 | new | backend/tests, backend/shared/testing, all services, GitHub Actions | 2026-07-09 09:00 |
