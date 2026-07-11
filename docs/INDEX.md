@@ -35,3 +35,4 @@
 | REQ-00524 | 游戏日期时间格式本地化与智能显示系统 | 国际化/本地化 | P1 | new | backend/shared/dateTimeFormat.js、gateway/middleware、user-service、game-client、admin-dashboard | 2026-07-09 04:05 |
 | REQ-00525 | Property-Based Testing 框架与 API Fuzz Testing 系统 | 测试覆盖 | P1 | done | backend/tests, backend/shared/testing, all services, GitHub Actions | 2026-07-09 09:00 |
 | REQ-00537 | 变异测试框架与测试质量度量系统 | 测试覆盖 | P1 | new | backend/tests, backend/shared/testing, .github/workflows, all services | 2026-07-11 09:00 |
+| REQ-00538 | 任务执行状态实时监控与智能告警系统 | 运维/CICD | P1 | done | backend/jobs、backend/shared/jobMonitor、gateway、admin-dashboard | 2026-07-11 12:00 |

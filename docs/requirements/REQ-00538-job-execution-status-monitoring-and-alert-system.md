@@ -3,7 +3,7 @@
 - **编号**：REQ-00538
 - **类别**：运维/CICD
 - **优先级**：P1
-- **状态**：new
+- **状态**: done
 - **涉及服务/模块**：backend/jobs、backend/shared/jobMonitor、infrastructure/monitoring、admin-dashboard
 - **创建时间**：2026-07-11 11:00
 - **依赖需求**：REQ-00491（监控指标生命周期管理）

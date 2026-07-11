@@ -3,7 +3,7 @@
 - **编号**: REQ-00525
 - **类别**: 测试覆盖
 - **优先级**: P1
-- **状态**: new
+- **状态**: done
 - **涉及服务/模块**: backend/tests, backend/shared/testing, all services, GitHub Actions
 - **创建时间**: 2026-07-09 09:00 UTC
 - **依赖需求**: REQ-00507 (测试覆盖率自动化度量与 CI 集成系统)
