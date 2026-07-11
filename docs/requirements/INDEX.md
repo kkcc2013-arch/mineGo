@@ -52,3 +52,5 @@
 | REQ-00537 | 数据库性能查询调优自动化建议系统 | 性能优化 | P1 | new | backend/shared/database, infrastructure/monitoring, admin-dashboard | 2026-07-11 16:00 |
 | REQ-00538 | 预览与测试环境智能资源回收与成本优化系统 | 成本/资源优化 | P1 | new | .github/workflows、infrastructure/k8s/environments、backend/jobs/environmentReclaimer.js、admin-dashboard | 2026-07-11 10:15 |
 | REQ-00539 | 数据库慢查询自动调优建议与索引推荐系统 | 性能优化 | P1 | new | backend/shared/database, infrastructure/monitoring, admin-dashboard | 2026-07-11 17:00 |
+| REQ-00540 | 游戏服务全链路分布式追踪链路上下文传递增强 | 可观测性 | P1 | new | gateway, backend/shared, pokemon-service, user-service, social-service | 2026-07-11 18:00 |
+| REQ-00541 | API 请求响应链路的可观测性与性能溯源系统 | 可观测性 | P1 | new | API Gateway/Backend | 2026-07-11 18:30 |
