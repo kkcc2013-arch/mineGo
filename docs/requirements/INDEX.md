@@ -35,7 +35,7 @@
 | REQ-00520 | 后端服务 API 兼容性版本管理与自动化测试系统 | 运维/CICD | P1 | new | gateway、所有后端服务、backend/shared/apiVersionManager.js、backend/tests | 2026-07-09 02:00 |
 | REQ-00521 | 游戏 AR 增强现实捕获模式防作弊与安全防护系统 | 反作弊 | P0 | done | game-client, backend/security, backend/analysis, gateway | 2026-07-09 09:00 |
 | REQ-00522 | 数据保留政策透明化与用户通知系统 | 合规/隐私 | P1 | new | gateway、user-service、backend/shared/dataRetentionPolicyService.js、backend/jobs/retentionNotificationJob.js、game-client、admin-dashboard | 2026-07-09 03:00 |
-| REQ-00523 | 数据库查询结果缓存失效智能同步系统 | 性能优化 | P1 | new | backend/shared/cache, database/cdc | 2026-07-09 14:00 |
+| REQ-00523 | 数据库查询结果缓存失效智能同步系统 | 性能优化 | P1 | done | backend/shared/cache, database/cdc | 2026-07-09 14:00 |
 | REQ-00524 | 游戏日期时间格式本地化与智能显示系统 | 国际化/本地化 | P1 | done | backend/shared/dateTimeFormat.js、gateway/middleware、user-service、game-client | 2026-07-09 04:05 |
 | REQ-00525 | 基于属性的测试框架与模糊测试系统 | 测试覆盖 | P1 | new | backend/shared/test/propertyTesting, gateway, all services | 2026-07-09 14:30 |
 | REQ-00526 | 实现 API 响应数据流式压缩与流处理系统 | 性能优化 | P1 | new | gateway, backend/shared, game-client | 2026-07-09 15:00 |
@@ -45,4 +45,6 @@
 45|| REQ-00530 | 数据恢复完整性校验与一致性自动修复系统 | 容灾/高可用 | P1 | new | backend/shared/disasterRecovery、pokemonBackupService.js、dataRecoveryValidator.js、backend/jobs | 2026-07-11 05:00 |
 | REQ-00531 | 游戏内动态配置与 A/B 测试实验管理平台 | 功能增强 | P1 | new | gateway, admin-dashboard, game-client | 2026-07-11 10:00 |
 | REQ-00532 | API 响应字段投影与动态字段集系统 | API 设计规范 | P1 | new | gateway、所有后端服务、backend/shared/utils/FieldProjection.js、game-client | 2026-07-11 06:00 |
+| REQ-00533 | 游戏服务端异常日志追踪与告警聚合系统 | 可观测性/监控 | P1 | new | backend/shared/logger, infrastructure/monitoring, backend/jobs | 2026-07-11 12:00 |
+| REQ-00534 | 代码重复检测与智能合并建议系统 | 技术债/重构 | P1 | new | backend/shared/codeQuality/DuplicationDetector.js、backend/shared/codeQuality/MergeRecommender.js、所有后端服务、admin-dashboard、GitHub Actions | 2026-07-11 07:00 |
 
