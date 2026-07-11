@@ -47,4 +47,5 @@
 | REQ-00532 | API 响应字段投影与动态字段集系统 | API 设计规范 | P1 | new | gateway、所有后端服务、backend/shared/utils/FieldProjection.js、game-client | 2026-07-11 06:00 |
 | REQ-00533 | 游戏服务端异常日志追踪与告警聚合系统 | 可观测性/监控 | P1 | new | backend/shared/logger, infrastructure/monitoring, backend/jobs | 2026-07-11 12:00 |
 | REQ-00534 | 代码重复检测与智能合并建议系统 | 技术债/重构 | P1 | new | backend/shared/codeQuality/DuplicationDetector.js、backend/shared/codeQuality/MergeRecommender.js、所有后端服务、admin-dashboard、GitHub Actions | 2026-07-11 07:00 |
+| REQ-00535 | 游戏服务端实时性能看板与自动诊断系统 | 可观测性 | P1 | new | infrastructure/monitoring, backend/shared/metrics, admin-dashboard | 2026-07-11 15:00 |
 
