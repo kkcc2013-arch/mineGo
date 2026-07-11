@@ -42,4 +42,7 @@
 | REQ-00527 | 用户数据导出格式转换与可携带性系统 | 合规/隐私 | P1 | done | user-service、gateway、backend/shared/dataExporter、backend/jobs | 2026-07-10 06:35 |
 | REQ-00528 | 分布式追踪智能采样与性能瓶颈自动诊断系统 | 可观测性/监控 | P1 | new | gateway、backend/shared/tracing、backend/shared/perfAnalyzer、所有后端服务、infrastructure/monitoring | 2026-07-10 07:00 |
 | REQ-00529 | 跨境数据传输合规性自动检测与审计系统 | 合规/隐私 | P1 | new | gateway、user-service、backend/shared/crossBorderCompliance、backend/jobs、admin-dashboard | 2026-07-11 04:40 |
-| REQ-00530 | 数据恢复完整性校验与一致性自动修复系统 | 容灾/高可用 | P1 | new | backend/shared/disasterRecovery、pokemonBackupService.js、dataRecoveryValidator.js、backend/jobs | 2026-07-11 05:00 |
+45|| REQ-00530 | 数据恢复完整性校验与一致性自动修复系统 | 容灾/高可用 | P1 | new | backend/shared/disasterRecovery、pokemonBackupService.js、dataRecoveryValidator.js、backend/jobs | 2026-07-11 05:00 |
+| REQ-00531 | 游戏内动态配置与 A/B 测试实验管理平台 | 功能增强 | P1 | new | gateway, admin-dashboard, game-client | 2026-07-11 10:00 |
+| REQ-00532 | API 响应字段投影与动态字段集系统 | API 设计规范 | P1 | new | gateway、所有后端服务、backend/shared/utils/FieldProjection.js、game-client | 2026-07-11 06:00 |
+
