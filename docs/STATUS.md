@@ -1,7 +1,7 @@
 # mineGo 项目成熟度评估
 
-|> 最后更新：2026-07-11 06:00 UTC
-|> 累计需求数：532 条
+|> 最后更新：2026-07-11 09:00 UTC
+|> 累计需求数：537 条
 
 ## 成熟度评分（满分 100）
 
@@ -20,14 +20,13 @@
 **总分：132 / 100** 🎉
 
 **本次新增：**
-- REQ-00536 游戏客户端语音控制与语音导航系统（P1，new，无障碍）
-  - VoiceController 语音识别控制器（Web Speech API）
-  - VoiceCommandProcessor 游戏命令处理器
-  - VoiceFeedback 语音反馈系统（TTS）
-  - VoiceCommandRegistry 多语言命令注册表
-  - NoiseSuppressor 噪音抑制模块
-  - 自定义命令训练器
-  - WCAG 2.1 Level AAA 合规
+- REQ-00537 变异测试框架与测试质量度量系统（P1，new，测试覆盖）
+  - Stryker.js Mutation Testing 框架
+  - 自定义变异操作器（BusinessLogicMutator、BoundaryMutator）
+  - TestQualityScorer 测试质量评分引擎
+  - WeakTestDetector 弱测试检测器
+  - CI/CD 集成门禁（<70% 阻止合并）
+  - 测试质量仪表板
 
 **本次实现：**
 - REQ-00515 服务端复数形式国际化与智能复数规则系统（P1，done，国际化/本地化）
