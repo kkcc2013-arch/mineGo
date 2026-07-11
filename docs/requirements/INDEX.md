@@ -31,13 +31,13 @@
 | REQ-00516 | 代码复杂度度量与重构优先级智能推荐系统 | 技术债/重构 | P1 | done | backend/shared/codeQuality、所有后端服务、GitHub Actions | 2026-07-10 08:00 |
 | REQ-00517 | 错误智能分析与根因定位系统 | 技术债/重构 | P1 | done | backend/shared/errorAnalysis, gateway/middleware, backend/jobs, infrastructure/monitoring | 2026-07-09 00:00 |
 | REQ-00518 | API 超媒体链接（HATEOAS）与资源发现系统 | API 设计规范 | P1 | done | backend/shared/utils/ApiResponse.js, backend/shared/utils/LinkBuilder.js, backend/shared/utils/HalFormatter.js, backend/shared/utils/ResourceDiscoverer.js, gateway/src/middleware/hateoas.js, gateway/src/routes/discover.js | 2026-07-09 01:00 |
-| REQ-00519 | 后端任务队列可靠性增强与死信处理系统 | 运维/CICD | P1 | new | backend/jobs, Redis, Kafka | 2026-07-09 03:00 |
+| REQ-00519 | 后端任务队列可靠性增强与死信处理系统 | 运维/CICD | P1 | done | backend/shared/TaskQueueManager.js, backend/shared/retry/ExponentialBackoffRetry.js, backend/shared/dlqAdminController.js, backend/shared/dlqMetrics.js, database/migrations/045_create_dead_letter_queue.sql | 2026-07-09 03:00 |
 | REQ-00520 | 后端服务 API 兼容性版本管理与自动化测试系统 | 运维/CICD | P1 | new | gateway、所有后端服务、backend/shared/apiVersionManager.js、backend/tests | 2026-07-09 02:00 |
 | REQ-00521 | 游戏 AR 增强现实捕获模式防作弊与安全防护系统 | 反作弊 | P0 | done | game-client, backend/security, backend/analysis, gateway | 2026-07-09 09:00 |
 | REQ-00522 | 数据保留政策透明化与用户通知系统 | 合规/隐私 | P1 | new | gateway、user-service、backend/shared/dataRetentionPolicyService.js、backend/jobs/retentionNotificationJob.js、game-client、admin-dashboard | 2026-07-09 03:00 |
 | REQ-00523 | 数据库查询结果缓存失效智能同步系统 | 性能优化 | P1 | done | backend/shared/cache, database/cdc | 2026-07-09 14:00 |
 | REQ-00524 | 游戏日期时间格式本地化与智能显示系统 | 国际化/本地化 | P1 | done | backend/shared/dateTimeFormat.js、gateway/middleware、user-service、game-client | 2026-07-09 04:05 |
-| REQ-00525 | 基于属性的测试框架与模糊测试系统 | 测试覆盖 | P1 | new | backend/shared/test/propertyTesting, gateway, all services | 2026-07-09 14:30 |
+| REQ-00525 | 基于属性的测试框架与模糊测试系统 | 测试覆盖 | P1 | done | backend/shared/testing, gateway, all services | 2026-07-09 14:30 |
 | REQ-00526 | 实现 API 响应数据流式压缩与流处理系统 | 性能优化 | P1 | new | gateway, backend/shared, game-client | 2026-07-09 15:00 |
 | REQ-00527 | 用户数据导出格式转换与可携带性系统 | 合规/隐私 | P1 | done | user-service、gateway、backend/shared/dataExporter、backend/jobs | 2026-07-10 06:35 |
 | REQ-00528 | 分布式追踪智能采样与性能瓶颈自动诊断系统 | 可观测性/监控 | P1 | new | gateway、backend/shared/tracing、backend/shared/perfAnalyzer、所有后端服务、infrastructure/monitoring | 2026-07-10 07:00 |
@@ -51,3 +51,4 @@
 | REQ-00536 | 游戏客户端语音控制与语音导航系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility/VoiceController.js、frontend/game-client/src/accessibility/VoiceCommandProcessor.js、frontend/game-client/src/accessibility/VoiceFeedback.js | 2026-07-11 08:00 |
 
 | REQ-00537 | 数据库性能查询调优自动化建议系统 | 性能优化 | P1 | new | backend/shared/database, infrastructure/monitoring, admin-dashboard | 2026-07-11 16:00 |
+| REQ-00538 | 预览与测试环境智能资源回收与成本优化系统 | 成本/资源优化 | P1 | new | .github/workflows、infrastructure/k8s/environments、backend/jobs/environmentReclaimer.js、admin-dashboard | 2026-07-11 10:15 |
