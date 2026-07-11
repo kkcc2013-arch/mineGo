@@ -1,445 +1,461 @@
 /**
- * CaptureValidator - 捕捉请求验证服务
- * REQ-00521: 游戏 AR 增强现实捕获模式防作弊与安全防护系统
+ * 捕获请求验证服务
+ * 验证 AR 捕获请求的合法性
  * 
- * 功能：
- * - 位置合理性验证
- * - 设备指纹验证
- * - 传感器数据验证
- * - 捕捉窗口验证
- * - 客户端安全检测验证
+ * REQ-00521: 游戏 AR 增强现实捕获模式防作弊与安全防护系统
  */
 
-const db = require('../../shared/db');
-const logger = require('../../shared/logger');
-const metrics = require('../../shared/metrics');
-const SensorValidator = require('../src/sensorValidator');
+'use strict';
+
+const { logger, metrics } = require('../../shared/logging');
+const SensorValidator = require('./sensorValidator');
 const CaptureBehaviorAnalyzer = require('../../analysis/src/captureBehaviorAnalyzer');
 
+/**
+ * 捕获验证器
+ */
 class CaptureValidator {
-  constructor() {
-    this.sensorValidator = new SensorValidator();
-    this.behaviorAnalyzer = new CaptureBehaviorAnalyzer();
-    this.metrics = this._initMetrics();
-  }
-
-  /**
-   * 初始化 Prometheus 指标
-   */
-  _initMetrics() {
-    return {
-      validationsTotal: metrics.registerCounter(
-        'capture_validation_total',
-        'Total capture validations',
-        ['result', 'action']
-      ),
-      validationsBlocked: metrics.registerCounter(
-        'capture_validation_blocked_total',
-        'Total blocked capture attempts',
-        ['reason']
-      ),
-      validationDuration: metrics.registerHistogram(
-        'capture_validation_duration_seconds',
-        'Capture validation duration',
-        { buckets: [0.01, 0.05, 0.1, 0.2, 0.5, 1] }
-      )
+  constructor(db, redis, config = {}) {
+    this.db = db;
+    this.redis = redis;
+    
+    this.sensorValidator = new SensorValidator(config.sensor);
+    this.behaviorAnalyzer = new CaptureBehaviorAnalyzer(db, redis, config.behavior);
+    
+    this.config = {
+      // 捕获会话有效期（秒）
+      sessionTimeout: config.sessionTimeout || 300,
+      // 最大并发捕获数
+      maxConcurrentCaptures: config.maxConcurrentCaptures || 3,
+      // 位置验证半径（米）
+      locationRadius: config.locationRadius || 100,
+      // 是否启用传感器验证
+      enableSensorValidation: config.enableSensorValidation !== false,
+      // 是否启用行为分析
+      enableBehaviorAnalysis: config.enableBehaviorAnalysis !== false,
+      ...config
     };
+    
+    this.registerMetrics();
   }
-
+  
   /**
-   * 验证捕捉请求
+   * 注册 Prometheus 指标
+   */
+  registerMetrics() {
+    if (metrics && metrics.counter) {
+      metrics.counter('capture_request_validation_total', 'Total capture request validations', ['result']);
+      metrics.counter('capture_request_blocked_total', 'Blocked capture requests', ['reason']);
+      metrics.histogram('capture_validation_duration_seconds', 'Capture validation duration');
+    }
+  }
+  
+  /**
+   * 验证捕获请求
+   * @param {number} userId - 用户 ID
+   * @param {Object} requestData - 请求数据
+   * @returns {Object} 验证结果
    */
   async validateCaptureRequest(userId, requestData) {
     const startTime = Date.now();
-    const validations = {
-      location: null,
-      device: null,
-      sensors: null,
-      window: null,
-      clientChecks: null
-    };
-
+    const validations = [];
+    
     try {
       // 1. 位置合理性验证
-      validations.location = await this._validateLocation(
-        userId,
-        requestData.location,
-        requestData.timestamp
-      );
-
+      const locationValid = await this.validateLocation(userId, requestData.location, requestData.timestamp);
+      validations.push(locationValid);
+      
       // 2. 设备指纹验证
-      validations.device = await this._validateDevice(
-        userId,
-        requestData.deviceFingerprint
-      );
-
-      // 3. 传感器数据验证
-      if (requestData.sensorData) {
-        validations.sensors = await this.sensorValidator.validate(requestData.sensorData);
+      const deviceValid = await this.validateDevice(userId, requestData.deviceFingerprint);
+      validations.push(deviceValid);
+      
+      // 3. 传感器数据验证（如果启用）
+      if (this.config.enableSensorValidation && requestData.sensorData) {
+        const sensorValid = await this.validateSensors(requestData.sensorData);
+        validations.push(sensorValid);
       }
-
-      // 4. 捕捉窗口验证
-      validations.window = await this._validateCaptureWindow(
-        userId,
-        requestData.pokemonId,
+      
+      // 4. 捕获窗口验证
+      const windowValid = await this.validateCaptureWindow(
+        userId, 
+        requestData.pokemonId, 
         requestData.captureSessionId
       );
-
-      // 5. 客户端检测结果验证
-      validations.clientChecks = await this._validateClientChecks(
-        requestData.clientSecurityChecks
-      );
-
-      // 计算整体结果
-      const overallValid = Object.values(validations)
-        .filter(v => v !== null)
-        .every(v => v.valid !== false);
-
-      const riskLevel = this._calculateOverallRisk(validations);
-      const action = this._determineAction(riskLevel);
-
-      // 记录指标
-      this.metrics.validationsTotal.inc({
-        result: overallValid ? 'valid' : 'invalid',
-        action: action.type
-      });
-
-      if (!overallValid || action.type === 'reject') {
-        this.metrics.validationsBlocked.inc({ reason: action.reason });
+      validations.push(windowValid);
+      
+      // 5. 客户端安全检测结果验证
+      const clientChecksValid = await this.validateClientChecks(requestData.clientSecurityChecks);
+      validations.push(clientChecksValid);
+      
+      // 6. 行为分析（如果启用）
+      if (this.config.enableBehaviorAnalysis) {
+        const behaviorValid = await this.analyzeBehavior(userId, requestData);
+        validations.push(behaviorValid);
       }
-
+      
+      // 计算总体有效性
+      const overallValid = validations.every(v => v.valid !== false);
+      const riskLevel = this.calculateOverallRisk(validations);
+      const action = this.determineAction(riskLevel);
+      
       // 记录验证结果
-      await this._recordValidation(userId, requestData, {
-        overallValid,
-        riskLevel,
-        action,
-        validations
-      });
-
-      logger.info('Capture request validated', {
-        userId,
-        pokemonId: requestData.pokemonId,
-        overallValid,
-        riskLevel,
-        action: action.type
-      });
-
-      return {
+      await this.recordValidation(userId, requestData, {
         valid: overallValid,
         riskLevel,
         validations,
         action
-      };
-    } catch (error) {
-      logger.error('Failed to validate capture request', {
-        userId,
-        error: error.message
       });
-
+      
+      const duration = (Date.now() - startTime) / 1000;
+      this.recordMetrics(overallValid, action, duration);
+      
+      return {
+        valid: overallValid,
+        riskLevel,
+        validations,
+        action,
+        duration
+      };
+      
+    } catch (error) {
+      logger.error('Capture validation failed', {
+        userId,
+        error: error.message,
+        stack: error.stack
+      });
+      
       return {
         valid: false,
-        riskLevel: 'high',
+        riskLevel: 'unknown',
+        validations,
         action: { type: 'reject', reason: 'validation_error' },
         error: error.message
       };
-    } finally {
-      const duration = (Date.now() - startTime) / 1000;
-      this.metrics.validationDuration.observe(duration);
     }
   }
-
+  
   /**
    * 验证位置合理性
    */
-  async _validateLocation(userId, location, timestamp) {
-    const anomalies = [];
-
-    try {
-      // 1. 检查精灵当前位置
-      const pokemonLocation = await this._getPokemonLocation(location.pokemonId);
-      if (pokemonLocation) {
-        const distance = this._calculateDistance(
-          location.latitude, location.longitude,
-          pokemonLocation.latitude, pokemonLocation.longitude
-        );
-
-        // 捕捉范围应在精灵周围 100 米内
-        if (distance > 0.1) {
-          anomalies.push({
-            type: 'outside_capture_range',
-            distance: distance.toFixed(3),
-            threshold: 0.1
-          });
-        }
-      }
-
-      // 2. 检查用户最近位置（防止瞬移）
-      const recentLocation = await this._getUserRecentLocation(userId);
-      if (recentLocation) {
-        const distance = this._calculateDistance(
-          location.latitude, location.longitude,
-          recentLocation.latitude, recentLocation.longitude
-        );
-        const timeDiff = (new Date(timestamp) - new Date(recentLocation.timestamp)) / 1000;
-
-        if (timeDiff > 0) {
-          const speed = (distance / timeDiff) * 3600; // km/h
-
-          // 速度超过 200 km/h 视为异常
-          if (speed > 200) {
-            anomalies.push({
-              type: 'impossible_travel',
-              speed: speed.toFixed(2),
-              distance: distance.toFixed(3),
-              timeDiff: timeDiff.toFixed(1)
-            });
-          }
-        }
-      }
-
-      // 3. 检查位置精度（GPS 精度应小于 50 米）
-      if (location.accuracy && location.accuracy > 50) {
-        anomalies.push({
-          type: 'low_accuracy',
-          accuracy: location.accuracy,
-          threshold: 50
-        });
-      }
-
-      // 4. 检查 Mock Location 标记
-      if (location.isMockLocation) {
-        anomalies.push({
-          type: 'mock_location',
-          severity: 'critical'
-        });
-      }
-
-      const valid = anomalies.length === 0;
-
+  async validateLocation(userId, location, timestamp) {
+    if (!location || !location.latitude || !location.longitude) {
       return {
-        valid,
-        anomalies,
-        confidence: valid ? 1.0 : Math.max(0, 1 - anomalies.length * 0.2)
+        type: 'location',
+        valid: false,
+        reason: 'invalid_location_data'
       };
-    } catch (error) {
-      logger.error('Failed to validate location', { userId, error });
-      return { valid: true, anomalies: [], confidence: 0.5 }; // 默认通过
     }
+    
+    // 检查位置是否在合理范围内
+    const boundsCheck = this.checkLocationBounds(location);
+    if (!boundsCheck.valid) {
+      return {
+        type: 'location',
+        valid: false,
+        reason: boundsCheck.reason
+      };
+    }
+    
+    // 检查位置是否与上一次位置合理
+    const previousLocation = await this.getLastLocation(userId);
+    if (previousLocation) {
+      const travelCheck = this.checkTravelFeasibility(
+        previousLocation,
+        location,
+        previousLocation.timestamp,
+        timestamp
+      );
+      
+      if (!travelCheck.valid) {
+        return {
+          type: 'location',
+          valid: false,
+          reason: travelCheck.reason,
+          details: travelCheck.details
+        };
+      }
+    }
+    
+    return {
+      type: 'location',
+      valid: true,
+      location: {
+        latitude: location.latitude,
+        longitude: location.longitude,
+        accuracy: location.accuracy
+      }
+    };
   }
-
+  
   /**
    * 验证设备指纹
    */
-  async _validateDevice(userId, fingerprint) {
-    const anomalies = [];
-
-    try {
-      if (!fingerprint) {
-        anomalies.push({ type: 'missing_fingerprint' });
-        return { valid: false, anomalies };
-      }
-
-      // 1. 检查设备是否已注册
-      const registered = await this._isDeviceRegistered(userId, fingerprint.deviceId);
-      if (!registered) {
-        anomalies.push({ type: 'unregistered_device' });
-      }
-
-      // 2. 检查模拟器标记
-      if (fingerprint.emulatorDetected) {
-        anomalies.push({ type: 'emulator_detected', severity: 'high' });
-      }
-
-      // 3. 检查 Root 标记
-      if (fingerprint.rootDetected) {
-        anomalies.push({ type: 'root_detected', severity: 'medium' });
-      }
-
-      // 4. 检查注入框架标记
-      if (fingerprint.fridaDetected || fingerprint.xposedDetected) {
-        anomalies.push({ type: 'injection_framework', severity: 'critical' });
-      }
-
-      // 5. 检查设备信息完整性
-      const requiredFields = ['deviceId', 'platform', 'osVersion', 'model'];
-      const missingFields = requiredFields.filter(f => !fingerprint[f]);
-      if (missingFields.length > 0) {
-        anomalies.push({ type: 'incomplete_device_info', missing: missingFields });
-      }
-
-      // 6. 检查指纹一致性
-      const consistency = await this._checkFingerprintConsistency(userId, fingerprint);
-      if (!consistency.match) {
-        anomalies.push({ type: 'fingerprint_mismatch', changes: consistency.changes });
-      }
-
-      const valid = anomalies.filter(a => a.severity !== 'critical').length === 0;
-
+  async validateDevice(userId, fingerprint) {
+    if (!fingerprint) {
       return {
-        valid,
-        anomalies,
-        trustScore: fingerprint.trustScore || (valid ? 100 : 50)
+        type: 'device',
+        valid: false,
+        reason: 'missing_fingerprint'
+      };
+    }
+    
+    // 检查设备是否被信任
+    const trustedDevice = await this.isTrustedDevice(userId, fingerprint.deviceId);
+    
+    // 检查设备状态
+    const deviceStatus = await this.getDeviceStatus(fingerprint.deviceId);
+    
+    if (deviceStatus.banned) {
+      return {
+        type: 'device',
+        valid: false,
+        reason: 'device_banned',
+        deviceId: fingerprint.deviceId
+      };
+    }
+    
+    // 检查指纹完整性
+    const requiredFields = ['deviceId', 'osVersion', 'appVersion'];
+    const missingFields = requiredFields.filter(f => !fingerprint[f]);
+    
+    if (missingFields.length > 0) {
+      return {
+        type: 'device',
+        valid: false,
+        reason: 'incomplete_fingerprint',
+        missingFields
+      };
+    }
+    
+    return {
+      type: 'device',
+      valid: true,
+      trusted: trustedDevice,
+      deviceId: fingerprint.deviceId
+    };
+  }
+  
+  /**
+   * 验证传感器数据
+   */
+  async validateSensors(sensorData) {
+    const result = this.sensorValidator.validateAll(sensorData);
+    
+    return {
+      type: 'sensor',
+      valid: result.overallValid,
+      confidence: result.overallScore,
+      riskLevel: result.riskLevel,
+      anomalies: Object.values(result.results)
+        .filter(r => r && r.anomalies)
+        .flatMap(r => r.anomalies)
+    };
+  }
+  
+  /**
+   * 验证捕获窗口
+   */
+  async validateCaptureWindow(userId, pokemonId, sessionId) {
+    if (!sessionId) {
+      return {
+        type: 'window',
+        valid: false,
+        reason: 'missing_session_id'
+      };
+    }
+    
+    // 检查会话是否有效
+    const session = await this.redis.get(`capture_session:${sessionId}`);
+    
+    if (!session) {
+      return {
+        type: 'window',
+        valid: false,
+        reason: 'invalid_session'
+      };
+    }
+    
+    const sessionData = JSON.parse(session);
+    
+    // 检查会话是否过期
+    if (Date.now() - sessionData.createdAt > this.config.sessionTimeout * 1000) {
+      return {
+        type: 'window',
+        valid: false,
+        reason: 'session_expired'
+      };
+    }
+    
+    // 检查精灵是否匹配
+    if (sessionData.pokemonId !== pokemonId) {
+      return {
+        type: 'window',
+        valid: false,
+        reason: 'pokemon_mismatch'
+      };
+    }
+    
+    // 检查用户是否匹配
+    if (sessionData.userId !== userId) {
+      return {
+        type: 'window',
+        valid: false,
+        reason: 'user_mismatch'
+      };
+    }
+    
+    return {
+      type: 'window',
+      valid: true,
+      sessionId
+    };
+  }
+  
+  /**
+   * 验证客户端安全检测结果
+   */
+  async validateClientChecks(securityChecks) {
+    if (!securityChecks) {
+      return {
+        type: 'client_checks',
+        valid: true, // 不强制要求客户端检测结果
+        warnings: ['missing_client_checks']
+      };
+    }
+    
+    const violations = [];
+    
+    // 检测 Root/Jailbreak
+    if (securityChecks.rootDetected || securityChecks.jailbreakDetected) {
+      violations.push({
+        type: 'root_detected',
+        severity: 'high'
+      });
+    }
+    
+    // 检测模拟器
+    if (securityChecks.emulatorDetected) {
+      violations.push({
+        type: 'emulator_detected',
+        severity: 'medium'
+      });
+    }
+    
+    // 检测 Mock Location
+    if (securityChecks.mockLocationDetected) {
+      violations.push({
+        type: 'mock_location_detected',
+        severity: 'critical'
+      });
+    }
+    
+    // 检测调试器
+    if (securityChecks.debuggerDetected) {
+      violations.push({
+        type: 'debugger_detected',
+        severity: 'high'
+      });
+    }
+    
+    // 检测注入框架
+    if (securityChecks.hookFrameworkDetected) {
+      violations.push({
+        type: 'hook_framework_detected',
+        severity: 'critical'
+      });
+    }
+    
+    const valid = !violations.some(v => v.severity === 'critical');
+    
+    return {
+      type: 'client_checks',
+      valid,
+      violations,
+      rawChecks: securityChecks
+    };
+  }
+  
+  /**
+   * 分析行为
+   */
+  async analyzeBehavior(userId, captureData) {
+    try {
+      const result = await this.behaviorAnalyzer.analyzeCapture(userId, captureData);
+      
+      return {
+        type: 'behavior',
+        valid: result.riskLevel !== 'critical',
+        riskScore: result.riskScore,
+        riskLevel: result.riskLevel,
+        flags: result.flags
       };
     } catch (error) {
-      logger.error('Failed to validate device', { userId, error });
-      return { valid: true, anomalies: [], trustScore: 50 };
-    }
-  }
-
-  /**
-   * 验证捕捉窗口
-   */
-  async _validateCaptureWindow(userId, pokemonId, sessionId) {
-    const anomalies = [];
-
-    try {
-      // 1. 检查捕捉会话是否存在
-      const session = await this._getCaptureSession(sessionId);
-      if (!session) {
-        anomalies.push({ type: 'invalid_session', sessionId });
-        return { valid: false, anomalies };
-      }
-
-      // 2. 检查会话是否过期
-      const sessionAge = Date.now() - new Date(session.createdAt).getTime();
-      if (sessionAge > 60000) { // 超过 1 分钟
-        anomalies.push({ type: 'expired_session', age: sessionAge });
-      }
-
-      // 3. 检查精灵是否在捕捉窗口内
-      if (session.pokemonId !== pokemonId) {
-        anomalies.push({ type: 'pokemon_mismatch', expected: session.pokemonId, actual: pokemonId });
-      }
-
-      // 4. 检查用户是否已尝试捕捉
-      if (session.userId !== userId) {
-        anomalies.push({ type: 'user_mismatch', expected: session.userId, actual: userId });
-      }
-
-      // 5. 检查捕捉次数限制
-      const attemptCount = await this._getCaptureAttemptCount(userId, pokemonId, sessionId);
-      if (attemptCount >= 3) {
-        anomalies.push({ type: 'exceed_attempt_limit', count: attemptCount });
-      }
-
-      const valid = anomalies.length === 0;
-
+      logger.error('Behavior analysis failed', { userId, error: error.message });
+      
       return {
-        valid,
-        anomalies,
-        sessionAge,
-        attemptCount
+        type: 'behavior',
+        valid: true,
+        warning: 'behavior_analysis_failed'
       };
-    } catch (error) {
-      logger.error('Failed to validate capture window', { userId, error });
-      return { valid: true, anomalies: [] };
     }
   }
-
+  
   /**
-   * 验证客户端检测结果
+   * 计算总体风险
    */
-  async _validateClientChecks(clientChecks) {
-    const anomalies = [];
-
-    try {
-      if (!clientChecks) {
-        anomalies.push({ type: 'missing_client_checks' });
-        return { valid: false, anomalies };
-      }
-
-      // 1. 检查 Mock Location
-      if (clientChecks.mockLocationEnabled) {
-        anomalies.push({ type: 'mock_location_enabled', severity: 'critical' });
-      }
-
-      // 2. 检查模拟器
-      if (clientChecks.emulatorDetected) {
-        anomalies.push({ type: 'emulator_detected_client', severity: 'high' });
-      }
-
-      // 3. 检查 Root
-      if (clientChecks.rootDetected) {
-        anomalies.push({ type: 'root_detected_client', severity: 'medium' });
-      }
-
-      // 4. 检查注入工具
-      if (clientChecks.fridaDetected || clientChecks.xposedDetected) {
-        anomalies.push({ type: 'injection_detected_client', severity: 'critical' });
-      }
-
-      // 5. 检查安全完整性
-      if (!clientChecks.securityIntegrityValid) {
-        anomalies.push({ type: 'security_integrity_violation', severity: 'high' });
-      }
-
-      const valid = anomalies.filter(a => a.severity !== 'critical').length === 0;
-
-      return {
-        valid,
-        anomalies,
-        checkTimestamp: clientChecks.timestamp
-      };
-    } catch (error) {
-      logger.error('Failed to validate client checks', { error });
-      return { valid: false, anomalies: [{ type: 'validation_error' }] };
-    }
+  calculateOverallRisk(validations) {
+    const riskScores = validations.map(v => {
+      if (!v) return 0;
+      if (v.valid === false) return 100;
+      if (v.riskLevel === 'critical') return 100;
+      if (v.riskLevel === 'high') return 75;
+      if (v.riskLevel === 'medium') return 50;
+      if (v.riskLevel === 'low') return 25;
+      return 0;
+    });
+    
+    return Math.max(...riskScores);
   }
-
+  
   /**
-   * 计算整体风险等级
+   * 确定行动
    */
-  _calculateOverallRisk(validations) {
-    let maxRisk = 'low';
-
-    for (const [key, validation] of Object.entries(validations)) {
-      if (!validation) continue;
-
-      // 检查是否有严重异常
-      if (validation.anomalies) {
-        const hasCritical = validation.anomalies.some(a => a.severity === 'critical');
-        const hasHigh = validation.anomalies.some(a => a.severity === 'high');
-
-        if (hasCritical) return 'critical';
-        if (hasHigh) maxRisk = 'high';
-      }
-
-      // 如果验证失败，至少是中等风险
-      if (!validation.valid && maxRisk === 'low') {
-        maxRisk = 'medium';
-      }
-    }
-
-    return maxRisk;
-  }
-
-  /**
-   * 确定响应动作
-   */
-  _determineAction(riskLevel) {
+  determineAction(riskLevel) {
     switch (riskLevel) {
       case 'critical':
+      case 100:
         return {
           type: 'reject',
           reason: 'security_violation',
           log: true,
-          notifyAdmin: true
+          alert: true
         };
+        
       case 'high':
+      case 75:
         return {
           type: 'flag',
           reason: 'suspicious_activity',
           review: true,
           log: true
         };
+        
       case 'medium':
+      case 50:
         return {
           type: 'monitor',
           reason: 'anomaly_detected',
           track: true,
-          enhancedValidation: true
+          log: true
         };
+        
       case 'low':
+      case 25:
+        return {
+          type: 'log',
+          reason: 'minor_concern'
+        };
+        
       default:
         return {
           type: 'allow',
@@ -447,171 +463,173 @@ class CaptureValidator {
         };
     }
   }
-
+  
   /**
-   * 记录验证结果
+   * 检查位置边界
    */
-  async _recordValidation(userId, requestData, result) {
-    try {
-      await db.query(`
-        INSERT INTO capture_validations (
-          user_id, pokemon_id, capture_session_id,
-          validation_result, risk_level, action_taken,
-          created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
-      `, [
-        userId,
-        requestData.pokemonId,
-        requestData.captureSessionId,
-        JSON.stringify(result.validations),
-        result.riskLevel,
-        result.action.type
-      ]);
-    } catch (error) {
-      logger.error('Failed to record validation', { userId, error });
+  checkLocationBounds(location) {
+    // 纬度范围：-90 到 90
+    if (location.latitude < -90 || location.latitude > 90) {
+      return { valid: false, reason: 'invalid_latitude' };
     }
-  }
-
-  // ========== 辅助方法 ==========
-
-  /**
-   * 获取精灵当前位置
-   */
-  async _getPokemonLocation(pokemonId) {
-    try {
-      const { rows } = await db.query(`
-        SELECT latitude, longitude
-        FROM pokemon_spawn_points
-        WHERE pokemon_id = $1
-          AND is_active = true
-          AND expires_at > NOW()
-        LIMIT 1
-      `, [pokemonId]);
-
-      return rows[0] || null;
-    } catch (error) {
-      return null;
+    
+    // 经度范围：-180 到 180
+    if (location.longitude < -180 || location.longitude > 180) {
+      return { valid: false, reason: 'invalid_longitude' };
     }
+    
+    // 检查精度是否合理（米）
+    if (location.accuracy !== undefined && location.accuracy < 0) {
+      return { valid: false, reason: 'invalid_accuracy' };
+    }
+    
+    return { valid: true };
   }
-
+  
   /**
-   * 获取用户最近位置
+   * 检查移动可行性
    */
-  async _getUserRecentLocation(userId) {
+  checkTravelFeasibility(from, to, fromTime, toTime) {
+    const distance = this.calculateDistance(from.latitude, from.longitude, to.latitude, to.longitude);
+    const timeDiff = Math.abs(new Date(toTime) - new Date(fromTime)) / 1000;
+    
+    // 避免除零
+    if (timeDiff === 0) {
+      return { valid: distance < 10, reason: 'same_timestamp' };
+    }
+    
+    const speed = distance / timeDiff; // m/s
+    const speedKmh = speed * 3.6;
+    
+    // 超过 200 km/h 认为不可行
+    if (speedKmh > 200) {
+      return {
+        valid: false,
+        reason: 'impossible_speed',
+        details: {
+          distance,
+          timeDiff,
+          speed: speedKmh
+        }
+      };
+    }
+    
+    return { valid: true, speed: speedKmh };
+  }
+  
+  /**
+   * 计算两点距离
+   */
+  calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371000; // 地球半径（米）
+    const dLat = this.toRad(lat2 - lat1);
+    const dLon = this.toRad(lon2 - lon1);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.toRad(lat1)) * Math.cos(this.toRad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+  
+  toRad(deg) {
+    return deg * Math.PI / 180;
+  }
+  
+  /**
+   * 获取上次位置
+   */
+  async getLastLocation(userId) {
     try {
-      const { rows } = await db.query(`
+      const cached = await this.redis.get(`user_location:${userId}:last`);
+      if (cached) {
+        return JSON.parse(cached);
+      }
+      
+      const result = await this.db.query(`
         SELECT latitude, longitude, created_at as timestamp
-        FROM user_activities
+        FROM capture_logs
         WHERE user_id = $1
         ORDER BY created_at DESC
         LIMIT 1
       `, [userId]);
-
-      return rows[0] || null;
+      
+      if (result.rows.length > 0) {
+        return result.rows[0];
+      }
+      
+      return null;
     } catch (error) {
+      logger.error('Failed to get last location', { userId, error: error.message });
       return null;
     }
   }
-
+  
   /**
-   * 检查设备是否已注册
+   * 检查设备是否被信任
    */
-  async _isDeviceRegistered(userId, deviceId) {
+  async isTrustedDevice(userId, deviceId) {
     try {
-      const { rows } = await db.query(`
-        SELECT id FROM device_fingerprints
-        WHERE user_id = $1 AND device_id = $2
+      const result = await this.db.query(`
+        SELECT is_trusted
+        FROM device_fingerprints
+        WHERE user_id = $1 AND device_id = $2 AND is_trusted = true
         LIMIT 1
       `, [userId, deviceId]);
-
-      return rows.length > 0;
-    } catch (error) {
+      
+      return result.rows.length > 0;
+    } catch {
       return false;
     }
   }
-
+  
   /**
-   * 检查指纹一致性
+   * 获取设备状态
    */
-  async _checkFingerprintConsistency(userId, fingerprint) {
+  async getDeviceStatus(deviceId) {
     try {
-      const { rows } = await db.query(`
-        SELECT device_info
-        FROM device_fingerprints
-        WHERE user_id = $1 AND device_id = $2
-        ORDER BY last_seen DESC
-        LIMIT 1
-      `, [userId, fingerprint.deviceId]);
-
-      if (!rows[0]) {
-        return { match: true, changes: [] };
+      const banned = await this.redis.sismember('banned_devices', deviceId);
+      return { banned: banned === 1 };
+    } catch {
+      return { banned: false };
+    }
+  }
+  
+  /**
+   * 记录验证结果
+   */
+  async recordValidation(userId, requestData, result) {
+    try {
+      await this.db.query(`
+        INSERT INTO capture_validations (
+          user_id, pokemon_id, capture_session_id,
+          validation_result, risk_level, action_taken, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, NOW())
+      `, [
+        userId,
+        requestData.pokemonId,
+        requestData.captureSessionId,
+        JSON.stringify(result),
+        result.riskLevel,
+        result.action?.type
+      ]);
+    } catch (error) {
+      logger.error('Failed to record validation', { userId, error: error.message });
+    }
+  }
+  
+  /**
+   * 记录指标
+   */
+  recordMetrics(valid, action, duration) {
+    if (metrics) {
+      metrics.inc('capture_request_validation_total', { result: valid ? 'valid' : 'invalid' });
+      
+      if (!valid || action.type !== 'allow') {
+        metrics.inc('capture_request_blocked_total', { reason: action?.reason || 'unknown' });
       }
-
-      const stored = rows[0].device_info;
-      const changes = [];
-
-      // 检查关键字段变化
-      const fields = ['platform', 'model', 'osVersion'];
-      fields.forEach(field => {
-        if (stored[field] !== fingerprint[field]) {
-          changes.push({ field, old: stored[field], new: fingerprint[field] });
-        }
-      });
-
-      return { match: changes.length === 0, changes };
-    } catch (error) {
-      return { match: true, changes: [] };
+      
+      metrics.observe('capture_validation_duration_seconds', duration);
     }
-  }
-
-  /**
-   * 获取捕捉会话
-   */
-  async _getCaptureSession(sessionId) {
-    try {
-      const { rows } = await db.query(`
-        SELECT * FROM capture_sessions
-        WHERE session_id = $1
-        LIMIT 1
-      `, [sessionId]);
-
-      return rows[0] || null;
-    } catch (error) {
-      return null;
-    }
-  }
-
-  /**
-   * 获取捕捉尝试次数
-   */
-  async _getCaptureAttemptCount(userId, pokemonId, sessionId) {
-    try {
-      const { rows } = await db.query(`
-        SELECT COUNT(*) as count
-        FROM capture_attempts
-        WHERE user_id = $1
-          AND pokemon_id = $2
-          AND session_id = $3
-      `, [userId, pokemonId, sessionId]);
-
-      return parseInt(rows[0]?.count || 0);
-    } catch (error) {
-      return 0;
-    }
-  }
-
-  /**
-   * 计算两点间距离（Haversine 公式）
-   */
-  _calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // 地球半径（km）
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c;
   }
 }
 

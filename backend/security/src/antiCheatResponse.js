@@ -1,644 +1,630 @@
 /**
- * AntiCheatResponse - 反作弊响应引擎
- * REQ-00521: 游戏 AR 增强现实捕获模式防作弊与安全防护系统
+ * 反作弊响应引擎
+ * 执行反作弊措施和响应动作
  * 
- * 功能：
- * - 违规响应策略管理
- * - 用户封禁/解封
- * - 影子封禁（降权）
- * - 违规历史追踪
- * - 申诉处理
+ * REQ-00521: 游戏 AR 增强现实捕获模式防作弊与安全防护系统
  */
 
-const db = require('../../shared/db');
-const logger = require('../../shared/logger');
-const metrics = require('../../shared/metrics');
+'use strict';
 
+const { logger, metrics } = require('../../shared/logging');
+const { v4: uuidv4 } = require('uuid');
+
+/**
+ * 反作弊响应类型
+ */
+const ResponseTypes = {
+  BAN: 'ban',
+  SUSPEND: 'suspend',
+  SHADOW_BAN: 'shadow_ban',
+  WARN: 'warn',
+  FLAG: 'flag',
+  MONITOR: 'monitor'
+};
+
+/**
+ * 违规严重度
+ */
+const SeverityLevels = {
+  LOW: 30,
+  MEDIUM: 50,
+  HIGH: 70,
+  CRITICAL: 90
+};
+
+/**
+ * 反作弊响应引擎
+ */
 class AntiCheatResponse {
-  constructor() {
-    this.metrics = this._initMetrics();
-    this.responseStrategies = this._initStrategies();
-  }
-
-  /**
-   * 初始化 Prometheus 指标
-   */
-  _initMetrics() {
-    return {
-      responsesExecuted: metrics.registerCounter(
-        'anti_cheat_response_executed_total',
-        'Total anti-cheat responses executed',
-        ['response_type', 'reason']
-      ),
-      usersBanned: metrics.registerGauge(
-        'anti_cheat_users_banned_current',
-        'Current number of banned users'
-      ),
-      usersShadowBanned: metrics.registerGauge(
-        'anti_cheat_users_shadow_banned_current',
-        'Current number of shadow-banned users'
-      ),
-      appealsTotal: metrics.registerCounter(
-        'anti_cheat_appeals_total',
-        'Total appeal requests',
-        ['status']
-      )
+  constructor(db, redis, config = {}) {
+    this.db = db;
+    this.redis = redis;
+    
+    this.config = {
+      // 封禁时长配置
+      banDurations: {
+        permanent: null,
+        temporary: {
+          first: 7 * 24 * 60 * 60 * 1000,  // 7 天
+          second: 30 * 24 * 60 * 60 * 1000, // 30 天
+          third: null // 永久
+        }
+      },
+      // 影子封禁配置
+      shadowBanEffects: {
+        reduced_spawn_rate: 0.5,
+        increased_flee_rate: 0.8,
+        reduced_item_drop: 0.5
+      },
+      // 申诉配置
+      appealConfig: {
+        enabled: true,
+        cooldownDays: 7
+      },
+      ...config
     };
+    
+    this.registerMetrics();
   }
-
+  
   /**
-   * 初始化响应策略
+   * 注册 Prometheus 指标
    */
-  _initStrategies() {
-    return {
-      // 严重违规（90+）
-      critical: {
-        type: 'ban',
-        duration: 'permanent',
-        effects: ['account_locked', 'data_frozen'],
-        appealable: true,
-        notify: true,
-        notifyMessage: 'security_violation_permanent_ban'
-      },
-      // 高风险（70-89）
-      high: {
-        type: 'suspend',
-        duration: '7_days',
-        effects: ['temporary_suspension'],
-        appealable: true,
-        notify: true,
-        notifyMessage: 'security_violation_suspension'
-      },
-      // 中等风险（50-69）
-      medium: {
-        type: 'shadow_ban',
-        duration: '30_days',
-        effects: ['reduced_spawn_rate', 'increased_flee_rate', 'reduced_rewards'],
-        appealable: true,
-        notify: false, // 不通知用户
-        notifyMessage: null
-      },
-      // 低风险（30-49）
-      low: {
-        type: 'warn',
-        duration: null,
-        effects: ['strike_recorded'],
-        appealable: false,
-        notify: true,
-        notifyMessage: 'suspicious_activity_warning'
-      },
-      // 轻微异常（0-29）
-      minimal: {
-        type: 'flag',
-        duration: null,
-        effects: ['enhanced_monitoring'],
-        appealable: false,
-        notify: false,
-        notifyMessage: null
-      }
-    };
+  registerMetrics() {
+    if (metrics && metrics.counter) {
+      metrics.counter('anti_cheat_action_taken_total', 'Anti-cheat actions taken', ['action_type', 'reason']);
+      metrics.counter('anti_cheat_violation_detected_total', 'Violations detected', ['violation_type']);
+      metrics.gauge('anti_cheat_active_bans', 'Currently active bans');
+      metrics.gauge('anti_cheat_active_shadow_bans', 'Currently active shadow bans');
+    }
   }
-
+  
   /**
    * 处理违规
+   * @param {number} userId - 用户 ID
+   * @param {Object} violation - 违规信息
+   * @returns {Object} 响应结果
    */
   async handleViolation(userId, violation) {
-    try {
-      const history = await this._getViolationHistory(userId);
-      const severity = this._calculateSeverity(violation, history);
-      const strategy = this._getStrategy(severity);
-      const response = this._buildResponse(strategy, violation, history);
-
-      // 执行响应
-      await this._executeResponse(userId, response);
-
-      // 记录指标
-      this.metrics.responsesExecuted.inc({
-        response_type: response.type,
-        reason: violation.type
-      });
-
-      // 发送通知
-      if (response.notify) {
-        await this._notifyUser(userId, response);
-      }
-
-      // 记录日志
-      await this._logResponse(userId, violation, response);
-
-      logger.info('Anti-cheat response executed', {
-        userId,
-        violationType: violation.type,
-        severity,
-        responseType: response.type
-      });
-
-      return response;
-    } catch (error) {
-      logger.error('Failed to handle violation', { userId, error });
-      throw error;
-    }
-  }
-
-  /**
-   * 计算严重程度分数
-   */
-  _calculateSeverity(violation, history) {
-    let severity = 0;
-
-    // 违规类型基础分数
-    const baseScores = {
-      'gps_spoofing': 50,
-      'emulator_detected': 40,
-      'root_detected': 30,
-      'injection_framework': 70,
-      'automation_detected': 60,
-      'impossible_travel': 50,
-      'abnormal_success_rate': 35,
-      'pattern_irregularity': 30,
-      'device_fingerprint_invalid': 25,
-      'sensor_anomaly': 20,
-      'mock_location': 45,
-      'api_abuse': 40,
-      'data_manipulation': 65
-    };
-
-    severity = baseScores[violation.type] || 20;
-
-    // 累犯加重（最多 +40）
-    const repeatOffenderBonus = Math.min(40, history.totalViolations * 5);
-    severity += repeatOffenderBonus;
-
-    // 证据强度加成
-    if (violation.evidenceStrength === 'strong') {
-      severity += 15;
-    } else if (violation.evidenceStrength === 'medium') {
-      severity += 8;
-    }
-
-    // 最近违规历史加成
-    const recentViolations = history.violations.filter(v => {
-      const daysAgo = (Date.now() - new Date(v.createdAt).getTime()) / (1000 * 60 * 60 * 24);
-      return daysAgo <= 30;
-    });
-
-    if (recentViolations.length >= 3) {
-      severity += 20;
-    } else if (recentViolations.length >= 2) {
-      severity += 10;
-    }
-
-    return Math.min(100, severity);
-  }
-
-  /**
-   * 获取响应策略
-   */
-  _getStrategy(severity) {
-    if (severity >= 90) return { ...this.responseStrategies.critical, severity };
-    if (severity >= 70) return { ...this.responseStrategies.high, severity };
-    if (severity >= 50) return { ...this.responseStrategies.medium, severity };
-    if (severity >= 30) return { ...this.responseStrategies.low, severity };
-    return { ...this.responseStrategies.minimal, severity };
-  }
-
-  /**
-   * 构建响应对象
-   */
-  _buildResponse(strategy, violation, history) {
-    const response = {
-      type: strategy.type,
-      severity: strategy.severity,
-      duration: strategy.duration,
-      effects: strategy.effects,
-      reason: violation.type,
-      evidence: violation.evidence || {},
-      appealable: strategy.appealable,
-      notify: strategy.notify,
-      notifyMessage: strategy.notifyMessage,
-      strike: strategy.type === 'warn' ? true : false,
-      timestamp: new Date().toISOString()
-    };
-
-    // 计算到期时间
-    if (response.duration) {
-      response.expiresAt = this._calculateExpiry(response.duration);
-    }
-
-    return response;
-  }
-
-  /**
-   * 执行响应
-   */
-  async _executeResponse(userId, response) {
-    switch (response.type) {
-      case 'ban':
-        await this._banUser(userId, response);
-        this.metrics.usersBanned.inc();
-        break;
-      case 'suspend':
-        await this._suspendUser(userId, response);
-        break;
-      case 'shadow_ban':
-        await this._shadowBanUser(userId, response);
-        this.metrics.usersShadowBanned.inc();
-        break;
-      case 'warn':
-        await this._warnUser(userId, response);
-        break;
-      case 'flag':
-        await this._flagUser(userId, response);
-        break;
-    }
-  }
-
-  /**
-   * 永久封禁用户
-   */
-  async _banUser(userId, response) {
-    const client = await db.connect();
+    const responseId = uuidv4();
     
     try {
-      await client.query('BEGIN');
-
-      // 更新用户状态
-      await client.query(`
-        UPDATE users
-        SET status = 'banned',
-            ban_reason = $1,
-            banned_at = CURRENT_TIMESTAMP,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = $2
-      `, [response.reason, userId]);
-
-      // 记录违规
-      await client.query(`
-        INSERT INTO security_violations (
-          user_id, violation_type, severity, evidence,
-          response_type, response_details, status, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, 'active', CURRENT_TIMESTAMP)
-      `, [
+      // 获取违规历史
+      const history = await this.getViolationHistory(userId);
+      
+      // 计算严重度
+      const severity = this.calculateSeverity(violation, history);
+      
+      // 确定响应措施
+      const response = await this.determineResponse(userId, violation, history, severity);
+      
+      // 执行响应
+      const result = await this.executeResponse(userId, response);
+      
+      // 记录日志
+      await this.logResponse(userId, responseId, violation, response, result);
+      
+      // 更新指标
+      this.updateMetrics(response.type, violation.type);
+      
+      return {
+        responseId,
         userId,
-        response.reason,
-        response.severity,
-        JSON.stringify(response.evidence),
-        response.type,
-        JSON.stringify({ effects: response.effects, expiresAt: response.expiresAt })
-      ]);
-
-      // 清除会话
-      await client.query(`
-        DELETE FROM user_sessions WHERE user_id = $1
-      `, [userId]);
-
-      await client.query('COMMIT');
-
-      logger.warn('User permanently banned', { userId, reason: response.reason });
+        responseType: response.type,
+        severity,
+        result,
+        timestamp: new Date().toISOString()
+      };
+      
     } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
+      logger.error('Failed to handle violation', {
+        userId,
+        violation,
+        error: error.message
+      });
+      
+      // 失败时降级为标记审核
+      return {
+        responseId,
+        userId,
+        responseType: ResponseTypes.FLAG,
+        error: error.message,
+        timestamp: new Date().toISOString()
+      };
     }
   }
-
+  
+  /**
+   * 确定响应措施
+   */
+  async determineResponse(userId, violation, history, severity) {
+    // 根据严重度确定响应类型
+    if (severity >= SeverityLevels.CRITICAL) {
+      return {
+        type: ResponseTypes.BAN,
+        duration: 'permanent',
+        reason: violation.type,
+        evidence: violation.evidence,
+        appealable: true
+      };
+    }
+    
+    if (severity >= SeverityLevels.HIGH) {
+      // 根据历史记录决定封禁时长
+      const banCount = history.filter(h => h.responseType === ResponseTypes.BAN).length;
+      
+      return {
+        type: ResponseTypes.SUSPEND,
+        duration: this.config.banDurations.temporary[banCount] || 'permanent',
+        reason: violation.type,
+        evidence: violation.evidence,
+        appealable: true
+      };
+    }
+    
+    if (severity >= SeverityLevels.MEDIUM) {
+      return {
+        type: ResponseTypes.SHADOW_BAN,
+        duration: 30 * 24 * 60 * 60 * 1000, // 30 天
+        effects: this.config.shadowBanEffects,
+        reason: violation.type,
+        appealable: true
+      };
+    }
+    
+    if (severity >= SeverityLevels.LOW) {
+      // 检查是否已有警告
+      const warningCount = history.filter(h => 
+        h.responseType === ResponseTypes.WARN && 
+        Date.now() - new Date(h.createdAt) < 7 * 24 * 60 * 60 * 1000
+      ).length;
+      
+      if (warningCount >= 2) {
+        // 多次警告后升级
+        return {
+          type: ResponseTypes.SHADOW_BAN,
+          duration: 7 * 24 * 60 * 60 * 1000,
+          effects: { reduced_spawn_rate: 0.7 },
+          reason: 'multiple_warnings',
+          appealable: false
+        };
+      }
+      
+      return {
+        type: ResponseTypes.WARN,
+        message: 'suspicious_activity_detected',
+        strike: true,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+      };
+    }
+    
+    return {
+      type: ResponseTypes.FLAG,
+      reason: violation.type,
+      review: true
+    };
+  }
+  
+  /**
+   * 执行响应措施
+   */
+  async executeResponse(userId, response) {
+    switch (response.type) {
+      case ResponseTypes.BAN:
+        return await this.banUser(userId, response);
+        
+      case ResponseTypes.SUSPEND:
+        return await this.suspendUser(userId, response);
+        
+      case ResponseTypes.SHADOW_BAN:
+        return await this.shadowBanUser(userId, response);
+        
+      case ResponseTypes.WARN:
+        return await this.warnUser(userId, response);
+        
+      case ResponseTypes.FLAG:
+        return await this.flagForReview(userId, response);
+        
+      default:
+        return await this.monitorUser(userId, response);
+    }
+  }
+  
+  /**
+   * 封禁用户
+   */
+  async banUser(userId, response) {
+    try {
+      const expiresAt = response.duration === 'permanent' ? null : new Date(Date.now() + response.duration);
+      
+      await this.db.query(`
+        INSERT INTO user_bans (
+          user_id, ban_type, reason, evidence, expires_at, created_at
+        ) VALUES ($1, 'permanent', $2, $3, $4, NOW())
+      `, [userId, response.reason, JSON.stringify(response.evidence), expiresAt]);
+      
+      // 清除所有会话
+      await this.redis.del(`user_sessions:${userId}:*`);
+      
+      // 加入封禁列表
+      await this.redis.sadd('banned_users', userId.toString());
+      
+      // 发送通知
+      await this.notifyUser(userId, 'account_banned', {
+        reason: response.reason,
+        appealable: response.appealable,
+        expiresAt
+      });
+      
+      logger.info('User banned', { userId, reason: response.reason, expiresAt });
+      
+      return {
+        success: true,
+        action: 'ban',
+        expiresAt,
+        appealable: response.appealable
+      };
+      
+    } catch (error) {
+      logger.error('Failed to ban user', { userId, error: error.message });
+      return { success: false, error: error.message };
+    }
+  }
+  
   /**
    * 暂停用户
    */
-  async _suspendUser(userId, response) {
-    const client = await db.connect();
-    
+  async suspendUser(userId, response) {
     try {
-      await client.query('BEGIN');
-
-      // 更新用户状态
-      await client.query(`
-        UPDATE users
-        SET status = 'suspended',
-            suspension_reason = $1,
-            suspended_until = $2,
-            suspended_at = CURRENT_TIMESTAMP,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = $3
-      `, [response.reason, response.expiresAt, userId]);
-
-      // 记录违规
-      await client.query(`
-        INSERT INTO security_violations (
-          user_id, violation_type, severity, evidence,
-          response_type, response_details, status, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, 'active', CURRENT_TIMESTAMP)
-      `, [
-        userId,
-        response.reason,
-        response.severity,
-        JSON.stringify(response.evidence),
-        response.type,
-        JSON.stringify({ effects: response.effects, expiresAt: response.expiresAt })
-      ]);
-
-      await client.query('COMMIT');
-
-      logger.warn('User suspended', { userId, reason: response.reason, until: response.expiresAt });
+      const expiresAt = new Date(Date.now() + response.duration);
+      
+      await this.db.query(`
+        INSERT INTO user_bans (
+          user_id, ban_type, reason, evidence, expires_at, created_at
+        ) VALUES ($1, 'temporary', $2, $3, $4, NOW())
+      `, [userId, response.reason, JSON.stringify(response.evidence), expiresAt]);
+      
+      // 暂时禁用会话
+      await this.redis.setex(`user_suspended:${userId}`, response.duration / 1000, '1');
+      
+      // 发送通知
+      await this.notifyUser(userId, 'account_suspended', {
+        reason: response.reason,
+        expiresAt,
+        appealable: response.appealable
+      });
+      
+      logger.info('User suspended', { userId, reason: response.reason, expiresAt });
+      
+      return {
+        success: true,
+        action: 'suspend',
+        expiresAt,
+        appealable: response.appealable
+      };
+      
     } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
+      logger.error('Failed to suspend user', { userId, error: error.message });
+      return { success: false, error: error.message };
     }
   }
-
+  
   /**
-   * 影子封禁（降权）
+   * 影子封禁用户
    */
-  async _shadowBanUser(userId, response) {
-    const client = await db.connect();
-    
+  async shadowBanUser(userId, response) {
     try {
-      await client.query('BEGIN');
-
-      // 设置影子封禁状态
-      await client.query(`
+      const expiresAt = new Date(Date.now() + response.duration);
+      
+      // 设置影子封禁标记
+      await this.redis.hset(`user_shadow_ban:${userId}`, {
+        active: '1',
+        expiresAt: expiresAt.toISOString(),
+        effects: JSON.stringify(response.effects)
+      });
+      
+      await this.redis.expire(`user_shadow_ban:${userId}`, response.duration / 1000);
+      
+      // 记录到数据库
+      await this.db.query(`
         INSERT INTO user_shadow_bans (
-          user_id, effects, reason, severity,
-          expires_at, created_at
-        ) VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)
-        ON CONFLICT (user_id)
-        DO UPDATE SET
-          effects = EXCLUDED.effects,
-          reason = EXCLUDED.reason,
-          expires_at = EXCLUDED.expires_at,
-          created_at = CURRENT_TIMESTAMP
-      `, [
-        userId,
-        JSON.stringify(response.effects),
-        response.reason,
-        response.severity,
-        response.expiresAt
-      ]);
-
-      // 记录违规
-      await client.query(`
-        INSERT INTO security_violations (
-          user_id, violation_type, severity, evidence,
-          response_type, response_details, status, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, 'active', CURRENT_TIMESTAMP)
-      `, [
-        userId,
-        response.reason,
-        response.severity,
-        JSON.stringify(response.evidence),
-        response.type,
-        JSON.stringify({ effects: response.effects, expiresAt: response.expiresAt })
-      ]);
-
-      await client.query('COMMIT');
-
-      logger.info('User shadow-banned', { userId, effects: response.effects, until: response.expiresAt });
+          user_id, effects, reason, expires_at, created_at
+        ) VALUES ($1, $2, $3, $4, NOW())
+      `, [userId, JSON.stringify(response.effects), response.reason, expiresAt]);
+      
+      // 不通知用户（影子封禁的要点）
+      logger.info('User shadow banned', { userId, reason: response.reason, expiresAt });
+      
+      return {
+        success: true,
+        action: 'shadow_ban',
+        expiresAt,
+        effects: response.effects
+      };
+      
     } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
+      logger.error('Failed to shadow ban user', { userId, error: error.message });
+      return { success: false, error: error.message };
     }
   }
-
+  
   /**
    * 警告用户
    */
-  async _warnUser(userId, response) {
-    const client = await db.connect();
-    
+  async warnUser(userId, response) {
     try {
-      await client.query('BEGIN');
-
-      // 增加警告计数
-      await client.query(`
-        UPDATE users
-        SET warning_count = warning_count + 1,
-            last_warning_at = CURRENT_TIMESTAMP,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = $1
-      `, [userId]);
-
-      // 记录违规
-      await client.query(`
-        INSERT INTO security_violations (
-          user_id, violation_type, severity, evidence,
-          response_type, response_details, status, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, 'active', CURRENT_TIMESTAMP)
-      `, [
+      // 记录警告
+      await this.db.query(`
+        INSERT INTO user_warnings (
+          user_id, message, strike, expires_at, created_at
+        ) VALUES ($1, $2, $3, $4, NOW())
+      `, [userId, response.message, response.strike, response.expiresAt]);
+      
+      // 发送通知
+      await this.notifyUser(userId, 'account_warning', {
+        message: response.message,
+        strike: response.strike,
+        expiresAt: response.expiresAt
+      });
+      
+      logger.info('User warned', { userId, message: response.message });
+      
+      return {
+        success: true,
+        action: 'warn',
+        strike: response.strike,
+        expiresAt: response.expiresAt
+      };
+      
+    } catch (error) {
+      logger.error('Failed to warn user', { userId, error: error.message });
+      return { success: false, error: error.message };
+    }
+  }
+  
+  /**
+   * 标记用户待审核
+   */
+  async flagForReview(userId, response) {
+    try {
+      await this.db.query(`
+        INSERT INTO review_queue (
+          user_id, reason, status, created_at
+        ) VALUES ($1, $2, 'pending', NOW())
+      `, [userId, response.reason]);
+      
+      // 通知管理员
+      await this.notifyAdmins('user_flagged', {
         userId,
-        response.reason,
-        response.severity,
-        JSON.stringify(response.evidence),
-        response.type,
-        JSON.stringify({ strike: response.strike })
-      ]);
-
-      await client.query('COMMIT');
-
-      logger.info('User warned', { userId, reason: response.reason });
+        reason: response.reason
+      });
+      
+      logger.info('User flagged for review', { userId, reason: response.reason });
+      
+      return {
+        success: true,
+        action: 'flag',
+        status: 'pending_review'
+      };
+      
     } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
+      logger.error('Failed to flag user', { userId, error: error.message });
+      return { success: false, error: error.message };
     }
   }
-
+  
   /**
-   * 标记用户
+   * 监控用户
    */
-  async _flagUser(userId, response) {
+  async monitorUser(userId, response) {
     try {
-      // 设置增强监控标记
-      await db.query(`
-        INSERT INTO user_monitoring_flags (
-          user_id, reason, severity, evidence, created_at
-        ) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
-      `, [
-        userId,
-        response.reason,
-        response.severity,
-        JSON.stringify(response.evidence)
-      ]);
-
-      logger.info('User flagged for monitoring', { userId, reason: response.reason });
+      // 增加用户监控等级
+      await this.redis.hincrby(`user_monitor:${userId}`, 'level', 1);
+      await this.redis.expire(`user_monitor:${userId}`, 24 * 60 * 60); // 24 小时
+      
+      logger.info('User set for monitoring', { userId, reason: response.reason });
+      
+      return {
+        success: true,
+        action: 'monitor',
+        reason: response.reason
+      };
+      
     } catch (error) {
-      logger.error('Failed to flag user', { userId, error });
+      logger.error('Failed to set user for monitoring', { userId, error: error.message });
+      return { success: false, error: error.message };
     }
   }
-
-  /**
-   * 处理申诉
-   */
-  async handleAppeal(userId, appealId, decision, adminId) {
-    const client = await db.connect();
-    
-    try {
-      await client.query('BEGIN');
-
-      // 获取申诉信息
-      const { rows: appeals } = await client.query(`
-        SELECT * FROM security_appeals
-        WHERE id = $1 AND user_id = $2 AND status = 'pending'
-      `, [appealId, userId]);
-
-      const appeal = appeals[0];
-      if (!appeal) {
-        throw new Error('Appeal not found or already processed');
-      }
-
-      if (decision === 'approved') {
-        // 解除处罚
-        await this._revokeViolation(userId, appeal.violationId, adminId);
-        
-        await client.query(`
-          UPDATE security_appeals
-          SET status = 'approved', reviewed_at = CURRENT_TIMESTAMP, reviewed_by = $1
-          WHERE id = $2
-        `, [adminId, appealId]);
-
-        this.metrics.appealsTotal.inc({ status: 'approved' });
-      } else {
-        // 驳回申诉
-        await client.query(`
-          UPDATE security_appeals
-          SET status = 'rejected', reviewed_at = CURRENT_TIMESTAMP, reviewed_by = $1
-          WHERE id = $2
-        `, [adminId, appealId]);
-
-        this.metrics.appealsTotal.inc({ status: 'rejected' });
-      }
-
-      await client.query('COMMIT');
-
-      logger.info('Appeal processed', { userId, appealId, decision, adminId });
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * 撤销违规处罚
-   */
-  async _revokeViolation(userId, violationId, adminId) {
-    // 获取违规信息
-    const { rows: violations } = await db.query(`
-      SELECT * FROM security_violations
-      WHERE id = $1 AND user_id = $2
-    `, [violationId, userId]);
-
-    const violation = violations[0];
-    if (!violation) return;
-
-    switch (violation.response_type) {
-      case 'ban':
-        await db.query(`
-          UPDATE users
-          SET status = 'active', ban_reason = NULL, banned_at = NULL, updated_at = CURRENT_TIMESTAMP
-          WHERE id = $1
-        `, [userId]);
-        break;
-
-      case 'suspend':
-        await db.query(`
-          UPDATE users
-          SET status = 'active', suspension_reason = NULL, suspended_until = NULL, suspended_at = NULL, updated_at = CURRENT_TIMESTAMP
-          WHERE id = $1
-        `, [userId]);
-        break;
-
-      case 'shadow_ban':
-        await db.query(`
-          DELETE FROM user_shadow_bans WHERE user_id = $1
-        `, [userId]);
-        break;
-
-      case 'warn':
-        await db.query(`
-          UPDATE users
-          SET warning_count = GREATEST(0, warning_count - 1), updated_at = CURRENT_TIMESTAMP
-          WHERE id = $1
-        `, [userId]);
-        break;
-    }
-
-    // 标记违规为已解决
-    await db.query(`
-      UPDATE security_violations
-      SET status = 'revoked', resolved_at = CURRENT_TIMESTAMP, resolved_by = $1
-      WHERE id = $2
-    `, [adminId, violationId]);
-  }
-
-  /**
-   * 通知用户
-   */
-  async _notifyUser(userId, response) {
-    // TODO: 集成推送通知服务
-    logger.info('Sending notification to user', { userId, message: response.notifyMessage });
-  }
-
-  /**
-   * 记录响应日志
-   */
-  async _logResponse(userId, violation, response) {
-    logger.info('Security response logged', {
-      userId,
-      violationType: violation.type,
-      responseType: response.type,
-      severity: response.severity
-    });
-  }
-
+  
   /**
    * 获取违规历史
    */
-  async _getViolationHistory(userId) {
+  async getViolationHistory(userId) {
     try {
-      const { rows } = await db.query(`
+      const result = await this.db.query(`
         SELECT 
-          violation_type, severity, response_type, created_at
+          violation_type as type,
+          severity,
+          response_type,
+          created_at
         FROM security_violations
         WHERE user_id = $1
         ORDER BY created_at DESC
         LIMIT 20
       `, [userId]);
-
-      return {
-        totalViolations: rows.length,
-        violations: rows
-      };
+      
+      return result.rows;
+      
     } catch (error) {
-      return { totalViolations: 0, violations: [] };
+      logger.error('Failed to get violation history', { userId, error: error.message });
+      return [];
     }
   }
-
+  
   /**
-   * 计算到期时间
+   * 计算严重度
    */
-  _calculateExpiry(duration) {
-    const now = new Date();
+  calculateSeverity(violation, history) {
+    let severity = violation.severity || SeverityLevels.MEDIUM;
     
-    switch (duration) {
-      case '1_day':
-        return new Date(now.getTime() + 24 * 60 * 60 * 1000);
-      case '7_days':
-        return new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-      case '30_days':
-        return new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-      case 'permanent':
-        return null;
-      default:
-        return null;
+    // 根据违规类型调整
+    const typeSeverity = {
+      'mock_location_detected': SeverityLevels.CRITICAL,
+      'hook_framework_detected': SeverityLevels.CRITICAL,
+      'emulator_detected': SeverityLevels.HIGH,
+      'root_detected': SeverityLevels.HIGH,
+      'impossible_travel': SeverityLevels.CRITICAL,
+      'automated_pattern': SeverityLevels.HIGH,
+      'abnormal_success_rate': SeverityLevels.MEDIUM,
+      'rare_pokemon_anomaly': SeverityLevels.HIGH,
+      'sensor_anomaly': SeverityLevels.MEDIUM
+    };
+    
+    severity = typeSeverity[violation.type] || severity;
+    
+    // 根据历史记录加重
+    const recentViolations = history.filter(h => 
+      Date.now() - new Date(h.created_at) < 30 * 24 * 60 * 60 * 1000
+    ).length;
+    
+    if (recentViolations >= 3) {
+      severity = Math.min(100, severity + 20);
+    } else if (recentViolations >= 1) {
+      severity = Math.min(100, severity + 10);
+    }
+    
+    return severity;
+  }
+  
+  /**
+   * 记录响应日志
+   */
+  async logResponse(userId, responseId, violation, response, result) {
+    try {
+      await this.db.query(`
+        INSERT INTO security_response_logs (
+          id, user_id, violation_type, violation_details,
+          response_type, response_details, result, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())
+      `, [
+        responseId,
+        userId,
+        violation.type,
+        JSON.stringify(violation),
+        response.type,
+        JSON.stringify(response),
+        JSON.stringify(result)
+      ]);
+      
+    } catch (error) {
+      logger.error('Failed to log response', { responseId, error: error.message });
+    }
+  }
+  
+  /**
+   * 通知用户
+   */
+  async notifyUser(userId, type, data) {
+    try {
+      // 通过 WebSocket 或推送通知
+      await this.redis.publish(`user_notifications:${userId}`, JSON.stringify({
+        type,
+        data,
+        timestamp: new Date().toISOString()
+      }));
+      
+    } catch (error) {
+      logger.error('Failed to notify user', { userId, error: error.message });
+    }
+  }
+  
+  /**
+   * 通知管理员
+   */
+  async notifyAdmins(type, data) {
+    try {
+      await this.redis.publish('admin_notifications', JSON.stringify({
+        type,
+        data,
+        timestamp: new Date().toISOString()
+      }));
+      
+    } catch (error) {
+      logger.error('Failed to notify admins', { error: error.message });
+    }
+  }
+  
+  /**
+   * 更新指标
+   */
+  updateMetrics(actionType, violationType) {
+    if (metrics) {
+      metrics.inc('anti_cheat_action_taken_total', { 
+        action_type: actionType, 
+        reason: violationType 
+      });
+      metrics.inc('anti_cheat_violation_detected_total', { 
+        violation_type: violationType 
+      });
+    }
+  }
+  
+  /**
+   * 检查用户是否被封禁
+   */
+  async isUserBanned(userId) {
+    try {
+      // 检查 Redis 缓存
+      const banned = await this.redis.sismember('banned_users', userId.toString());
+      if (banned === 1) return true;
+      
+      // 检查数据库
+      const result = await this.db.query(`
+        SELECT 1 FROM user_bans
+        WHERE user_id = $1 
+        AND (expires_at IS NULL OR expires_at > NOW())
+        LIMIT 1
+      `, [userId]);
+      
+      return result.rows.length > 0;
+      
+    } catch {
+      return false;
+    }
+  }
+  
+  /**
+   * 检查用户是否被影子封禁
+   */
+  async isUserShadowBanned(userId) {
+    try {
+      const data = await this.redis.hgetall(`user_shadow_ban:${userId}`);
+      if (!data || data.active !== '1') return false;
+      
+      const expiresAt = new Date(data.expiresAt);
+      return expiresAt > new Date();
+      
+    } catch {
+      return false;
+    }
+  }
+  
+  /**
+   * 获取影子封禁效果
+   */
+  async getShadowBanEffects(userId) {
+    try {
+      const data = await this.redis.hgetall(`user_shadow_ban:${userId}`);
+      if (!data || data.active !== '1') return null;
+      
+      return JSON.parse(data.effects);
+      
+    } catch {
+      return null;
     }
   }
 }
 
 module.exports = AntiCheatResponse;
+module.exports.ResponseTypes = ResponseTypes;
+module.exports.SeverityLevels = SeverityLevels;

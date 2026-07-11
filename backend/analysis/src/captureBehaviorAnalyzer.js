@@ -1,52 +1,65 @@
 /**
- * CaptureBehaviorAnalyzer - AR 捕获行为分析引擎
- * REQ-00521: 游戏 AR 增强现实捕获模式防作弊与安全防护系统
+ * 捕获行为分析引擎
+ * 分析 AR 捕获模式下的用户行为特征，检测异常和作弊行为
  * 
- * 功能：
- * - 捕捉行为特征提取
- * - 风险评分计算
- * - 异常行为检测
- * - 模式识别
+ * REQ-00521: 游戏 AR 增强现实捕获模式防作弊与安全防护系统
  */
 
-const db = require('../../shared/db');
-const logger = require('../../shared/logger');
-const metrics = require('../../shared/metrics');
+'use strict';
 
+const { logger, metrics } = require('../../shared/logging');
+const { v4: uuidv4 } = require('uuid');
+
+/**
+ * 捕获行为分析器
+ */
 class CaptureBehaviorAnalyzer {
-  constructor() {
-    this.metrics = this._initMetrics();
-  }
-
-  /**
-   * 初始化 Prometheus 指标
-   */
-  _initMetrics() {
-    return {
-      analysesTotal: metrics.registerCounter(
-        'capture_behavior_analysis_total',
-        'Total capture behavior analyses',
-        ['result']
-      ),
-      riskScores: metrics.registerHistogram(
-        'capture_risk_score',
-        'Capture risk score distribution',
-        { buckets: [0, 20, 40, 60, 80, 100] }
-      ),
-      violationsDetected: metrics.registerCounter(
-        'capture_violation_detected_total',
-        'Total violations detected',
-        ['violation_type']
-      )
+  constructor(db, redis, config = {}) {
+    this.db = db;
+    this.redis = redis;
+    
+    this.config = {
+      // 位置熵值阈值（低于此值表示位置过于集中）
+      locationEntropyThreshold: config.locationEntropyThreshold || 0.3,
+      // 位置跳变次数阈值
+      locationJumpThreshold: config.locationJumpThreshold || 5,
+      // 成功率异常阈值
+      successRateThreshold: config.successRateThreshold || 0.95,
+      // 捕获间隔方差阈值（低于此值可能为自动化脚本）
+      captureIntervalVarianceThreshold: config.captureIntervalVarianceThreshold || 0.1,
+      // 设备变更次数阈值
+      deviceChangeThreshold: config.deviceChangeThreshold || 3,
+      // 分析时间窗口（小时）
+      analysisWindowHours: config.analysisWindowHours || 24,
+      // 历史数据查询天数
+      historyDays: config.historyDays || 7,
+      ...config
     };
+    
+    this.registerMetrics();
   }
-
+  
   /**
-   * 分析捕捉行为
+   * 注册 Prometheus 指标
+   */
+  registerMetrics() {
+    if (metrics && metrics.gauge) {
+      metrics.gauge('capture_risk_score', 'Current capture risk score', ['user_id']);
+      metrics.counter('capture_analysis_total', 'Total capture analyses', ['risk_level']);
+      metrics.counter('suspicious_capture_detected_total', 'Suspicious captures detected', ['reason']);
+    }
+  }
+  
+  /**
+   * 分析捕获行为
+   * @param {number} userId - 用户 ID
+   * @param {Object} captureData - 捕获数据
+   * @returns {Object} 分析结果
    */
   async analyzeCapture(userId, captureData) {
+    const analysisId = uuidv4();
     const startTime = Date.now();
-
+    
     try {
       // 提取特征
       const features = await this.extractFeatures(userId, captureData);
@@ -62,199 +75,524 @@ class CaptureBehaviorAnalyzer {
       
       // 生成建议
       const recommendation = this.generateRecommendation(riskScore, flags);
-
-      // 记录指标
-      this.metrics.analysesTotal.inc({ result: riskLevel });
-      this.metrics.riskScores.observe(riskScore);
-
-      logger.info('Capture behavior analyzed', {
-        userId,
+      
+      // 记录分析结果
+      await this.recordAnalysis(userId, analysisId, {
+        features,
         riskScore,
         riskLevel,
-        flags: flags.map(f => f.type)
+        flags,
+        captureData
       });
-
+      
+      // 更新指标
+      this.updateMetrics(userId, riskScore, riskLevel);
+      
+      const duration = Date.now() - startTime;
+      logger.info('Capture behavior analysis completed', {
+        userId,
+        analysisId,
+        riskScore,
+        riskLevel,
+        duration
+      });
+      
       return {
+        analysisId,
         riskScore,
         riskLevel,
         features,
         flags,
-        recommendation
+        recommendation,
+        analyzedAt: new Date().toISOString()
       };
+      
     } catch (error) {
-      logger.error('Failed to analyze capture behavior', { userId, error });
-      throw error;
+      logger.error('Capture behavior analysis failed', {
+        userId,
+        analysisId,
+        error: error.message
+      });
+      
+      return {
+        analysisId,
+        riskScore: 50, // 中等风险
+        riskLevel: 'medium',
+        flags: [{ type: 'analysis_failed', reason: error.message }],
+        recommendation: { type: 'monitor', reason: 'analysis_failure' }
+      };
     }
   }
-
+  
   /**
    * 提取特征
    */
   async extractFeatures(userId, captureData) {
-    const features = {
-      // 位置相关
-      location: {},
-      // 捕捉行为
-      capture: {},
+    const windowHours = this.config.analysisWindowHours;
+    const historyDays = this.config.historyDays;
+    
+    // 并行提取所有特征
+    const [
+      locationEntropy,
+      locationJumpCount,
+      impossibleTravel,
+      captureSuccessRate,
+      capturePattern,
+      captureIntervals,
+      deviceChanges,
+      deviceFingerprint,
+      playTimePattern
+    ] = await Promise.all([
+      this.calculateLocationEntropy(userId, { hours: historyDays * 24 }),
+      this.countLocationJumps(userId, { hours: windowHours }),
+      this.detectImpossibleTravel(userId, captureData.location),
+      this.calculateSuccessRate(userId, { hours: windowHours }),
+      this.analyzeCapturePattern(userId, { hours: windowHours }),
+      this.analyzeCaptureIntervals(userId, { hours: windowHours }),
+      this.countDeviceChanges(userId, { days: historyDays }),
+      this.validateDeviceFingerprint(captureData.deviceFingerprint),
+      this.analyzePlayTimePattern(userId, { days: historyDays })
+    ]);
+    
+    return {
+      // 位置相关特征
+      location: {
+        entropy: locationEntropy,
+        jumpCount: locationJumpCount,
+        impossibleTravel
+      },
+      
+      // 捕获行为特征
+      capture: {
+        successRate: captureSuccessRate.rate,
+        totalAttempts: captureSuccessRate.total,
+        successAttempts: captureSuccessRate.success,
+        pattern: capturePattern,
+        intervals: captureIntervals
+      },
+      
       // 设备特征
-      device: {},
+      device: {
+        changes: deviceChanges,
+        fingerprint: deviceFingerprint
+      },
+      
       // 时间特征
-      timing: {}
+      time: {
+        playPattern: playTimePattern
+      },
+      
+      // 原始数据快照
+      raw: {
+        location: captureData.location,
+        timestamp: captureData.timestamp,
+        pokemonId: captureData.pokemonId
+      }
     };
-
-    try {
-      // ===== 位置特征 =====
-      features.location = {
-        entropy: await this._calculateLocationEntropy(userId),
-        jumpCount: await this._countLocationJumps(userId, { hours: 24 }),
-        impossibleTravel: await this._detectImpossibleTravel(userId),
-        radiusKm: await this._calculateActivityRadius(userId),
-        uniqueLocations: await this._countUniqueLocations(userId)
-      };
-
-      // ===== 捕捉行为特征 =====
-      features.capture = {
-        successRate: await this._calculateSuccessRate(userId),
-        speed: this._calculateCaptureSpeed(captureData),
-        pattern: await this._analyzeCapturePattern(userId),
-        rarityScore: await this._calculateRarityScore(userId),
-        consecutiveCaptures: await this._countConsecutiveCaptures(userId)
-      };
-
-      // ===== 设备特征 =====
-      features.device = {
-        changes: await this._countDeviceChanges(userId),
-        fingerprintValid: captureData.deviceFingerprint?.valid !== false,
-        emulatorDetected: captureData.deviceFingerprint?.emulatorDetected || false,
-        rootDetected: captureData.deviceFingerprint?.rootDetected || false
-      };
-
-      // ===== 时间特征 =====
-      features.timing = {
-        playPattern: await this._analyzePlayTimePattern(userId),
-        captureIntervals: await this._analyzeCaptureIntervals(userId),
-        sessionDuration: captureData.sessionDuration || 0
-      };
-    } catch (error) {
-      logger.error('Failed to extract features', { userId, error });
-    }
-
-    return features;
   }
-
+  
+  /**
+   * 计算位置熵值
+   * 熵值低表示位置过于集中，可能是伪造位置
+   */
+  async calculateLocationEntropy(userId, options = {}) {
+    const hours = options.hours || 24;
+    const startTime = new Date(Date.now() - hours * 60 * 60 * 1000);
+    
+    try {
+      const result = await this.db.query(`
+        SELECT latitude, longitude
+        FROM capture_logs
+        WHERE user_id = $1 AND created_at > $2
+        ORDER BY created_at DESC
+        LIMIT 500
+      `, [userId, startTime]);
+      
+      if (result.rows.length < 10) {
+        return 1; // 数据不足，不判断
+      }
+      
+      // 将位置离散化为网格
+      const gridSize = 0.001; // 约 100 米
+      const gridCounts = {};
+      
+      for (const row of result.rows) {
+        const gridKey = `${Math.floor(row.latitude / gridSize)},${Math.floor(row.longitude / gridSize)}`;
+        gridCounts[gridKey] = (gridCounts[gridKey] || 0) + 1;
+      }
+      
+      // 计算熵值
+      const total = result.rows.length;
+      let entropy = 0;
+      
+      for (const count of Object.values(gridCounts)) {
+        const p = count / total;
+        if (p > 0) {
+          entropy -= p * Math.log2(p);
+        }
+      }
+      
+      // 归一化到 0-1 范围
+      const maxEntropy = Math.log2(Object.keys(gridCounts).length);
+      return maxEntropy > 0 ? entropy / maxEntropy : 0;
+      
+    } catch (error) {
+      logger.error('Failed to calculate location entropy', { userId, error: error.message });
+      return 0.5; // 默认中等值
+    }
+  }
+  
+  /**
+   * 统计位置跳变次数
+   * 位置跳变（瞬移）是典型的作弊特征
+   */
+  async countLocationJumps(userId, options = {}) {
+    const hours = options.hours || 24;
+    const startTime = new Date(Date.now() - hours * 60 * 60 * 1000);
+    const speedThreshold = 55.5; // 200 km/h，超过飞机速度
+    
+    try {
+      const result = await this.db.query(`
+        SELECT latitude, longitude, created_at
+        FROM capture_logs
+        WHERE user_id = $1 AND created_at > $2
+        ORDER BY created_at ASC
+        LIMIT 200
+      `, [userId, startTime]);
+      
+      if (result.rows.length < 2) {
+        return 0;
+      }
+      
+      let jumpCount = 0;
+      
+      for (let i = 1; i < result.rows.length; i++) {
+        const prev = result.rows[i - 1];
+        const curr = result.rows[i];
+        
+        const distance = this.calculateDistance(
+          prev.latitude, prev.longitude,
+          curr.latitude, curr.longitude
+        );
+        
+        const timeDiff = (new Date(curr.created_at) - new Date(prev.created_at)) / 1000;
+        const speed = timeDiff > 0 ? distance / timeDiff : 0;
+        
+        if (speed > speedThreshold) {
+          jumpCount++;
+        }
+      }
+      
+      return jumpCount;
+      
+    } catch (error) {
+      logger.error('Failed to count location jumps', { userId, error: error.message });
+      return 0;
+    }
+  }
+  
+  /**
+   * 检测不可能的位置移动
+   */
+  async detectImpossibleTravel(userId, currentLocation) {
+    if (!currentLocation) {
+      return false;
+    }
+    
+    try {
+      // 获取最近一次捕获位置
+      const result = await this.db.query(`
+        SELECT latitude, longitude, created_at
+        FROM capture_logs
+        WHERE user_id = $1
+        ORDER BY created_at DESC
+        LIMIT 1
+      `, [userId]);
+      
+      if (result.rows.length === 0) {
+        return false;
+      }
+      
+      const lastLocation = result.rows[0];
+      const distance = this.calculateDistance(
+        lastLocation.latitude, lastLocation.longitude,
+        currentLocation.latitude, currentLocation.longitude
+      );
+      
+      const timeDiff = (Date.now() - new Date(lastLocation.created_at)) / 1000;
+      const speed = timeDiff > 0 ? distance / timeDiff : 0;
+      
+      // 速度超过 200 km/h
+      return speed > 55.5;
+      
+    } catch (error) {
+      logger.error('Failed to detect impossible travel', { userId, error: error.message });
+      return false;
+    }
+  }
+  
+  /**
+   * 计算捕获成功率
+   */
+  async calculateSuccessRate(userId, options = {}) {
+    const hours = options.hours || 24;
+    const startTime = new Date(Date.now() - hours * 60 * 60 * 1000);
+    
+    try {
+      const result = await this.db.query(`
+        SELECT 
+          COUNT(*) as total,
+          COUNT(*) FILTER (WHERE success = true) as success
+        FROM capture_logs
+        WHERE user_id = $1 AND created_at > $2
+      `, [userId, startTime]);
+      
+      const row = result.rows[0];
+      const total = parseInt(row.total) || 0;
+      const success = parseInt(row.success) || 0;
+      
+      return {
+        rate: total > 0 ? success / total : 0,
+        total,
+        success
+      };
+      
+    } catch (error) {
+      logger.error('Failed to calculate success rate', { userId, error: error.message });
+      return { rate: 0, total: 0, success: 0 };
+    }
+  }
+  
+  /**
+   * 分析捕获模式
+   */
+  async analyzeCapturePattern(userId, options = {}) {
+    const hours = options.hours || 24;
+    const startTime = new Date(Date.now() - hours * 60 * 60 * 1000);
+    
+    try {
+      // 按精灵类型分组统计
+      const result = await this.db.query(`
+        SELECT 
+          pokemon_id,
+          COUNT(*) as count,
+          COUNT(*) FILTER (WHERE success = true) as success_count
+        FROM capture_logs
+        WHERE user_id = $1 AND created_at > $2
+        GROUP BY pokemon_id
+        ORDER BY count DESC
+      `, [userId, startTime]);
+      
+      const patterns = result.rows.map(row => ({
+        pokemonId: row.pokemon_id,
+        count: parseInt(row.count),
+        successRate: row.count > 0 ? parseInt(row.success_count) / parseInt(row.count) : 0
+      }));
+      
+      // 检测稀有精灵异常捕获
+      const rarePokemonIds = [150, 151, 144, 145, 146]; // 传说精灵
+      const rareCaptures = patterns.filter(p => 
+        rarePokemonIds.includes(p.pokemonId) && p.successRate > 0.8
+      );
+      
+      return {
+        uniquePokemonCount: patterns.length,
+        hasRareAnomaly: rareCaptures.length > 0,
+        rareCaptures,
+        topPokemon: patterns.slice(0, 5)
+      };
+      
+    } catch (error) {
+      logger.error('Failed to analyze capture pattern', { userId, error: error.message });
+      return { uniquePokemonCount: 0, hasRareAnomaly: false };
+    }
+  }
+  
+  /**
+   * 分析捕获间隔
+   */
+  async analyzeCaptureIntervals(userId, options = {}) {
+    const hours = options.hours || 24;
+    const startTime = new Date(Date.now() - hours * 60 * 60 * 1000);
+    
+    try {
+      const result = await this.db.query(`
+        SELECT created_at
+        FROM capture_logs
+        WHERE user_id = $1 AND created_at > $2
+        ORDER BY created_at ASC
+        LIMIT 100
+      `, [userId, startTime]);
+      
+      if (result.rows.length < 2) {
+        return { variance: 1, mean: 0, stdDev: 0 };
+      }
+      
+      const intervals = [];
+      for (let i = 1; i < result.rows.length; i++) {
+        const interval = (new Date(result.rows[i].created_at) - new Date(result.rows[i - 1].created_at)) / 1000;
+        intervals.push(interval);
+      }
+      
+      // 计算统计量
+      const mean = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+      const variance = intervals.reduce((sum, i) => sum + Math.pow(i - mean, 2), 0) / intervals.length;
+      const stdDev = Math.sqrt(variance);
+      
+      // 归一化方差（相对于均值）
+      const normalizedVariance = mean > 0 ? variance / (mean * mean) : 0;
+      
+      return {
+        variance: normalizedVariance,
+        mean,
+        stdDev,
+        count: intervals.length
+      };
+      
+    } catch (error) {
+      logger.error('Failed to analyze capture intervals', { userId, error: error.message });
+      return { variance: 1, mean: 0, stdDev: 0 };
+    }
+  }
+  
+  /**
+   * 统计设备变更次数
+   */
+  async countDeviceChanges(userId, options = {}) {
+    const days = options.days || 7;
+    const startTime = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    
+    try {
+      const result = await this.db.query(`
+        SELECT DISTINCT device_id
+        FROM user_sessions
+        WHERE user_id = $1 AND created_at > $2
+      `, [userId, startTime]);
+      
+      return result.rows.length;
+      
+    } catch (error) {
+      logger.error('Failed to count device changes', { userId, error: error.message });
+      return 0;
+    }
+  }
+  
+  /**
+   * 验证设备指纹
+   */
+  async validateDeviceFingerprint(fingerprint) {
+    if (!fingerprint) {
+      return { valid: false, reason: 'missing_fingerprint' };
+    }
+    
+    const checks = {
+      hasDeviceId: !!fingerprint.deviceId,
+      hasOsVersion: !!fingerprint.osVersion,
+      hasAppVersion: !!fingerprint.appVersion,
+      hasScreenInfo: !!fingerprint.screenWidth && !!fingerprint.screenHeight,
+      hasTimestamp: !!fingerprint.timestamp,
+      timestampValid: fingerprint.timestamp && 
+        (Date.now() - new Date(fingerprint.timestamp)) < 300000 // 5 分钟内
+    };
+    
+    const validChecks = Object.values(checks).filter(v => v).length;
+    const totalChecks = Object.keys(checks).length;
+    
+    return {
+      valid: validChecks >= totalChecks * 0.8,
+      checks,
+      score: validChecks / totalChecks
+    };
+  }
+  
+  /**
+   * 分析游戏时间模式
+   */
+  async analyzePlayTimePattern(userId, options = {}) {
+    const days = options.days || 7;
+    const startTime = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    
+    try {
+      const result = await this.db.query(`
+        SELECT 
+          EXTRACT(HOUR FROM created_at) as hour,
+          COUNT(*) as count
+        FROM capture_logs
+        WHERE user_id = $1 AND created_at > $2
+        GROUP BY EXTRACT(HOUR FROM created_at)
+        ORDER BY hour
+      `, [userId, startTime]);
+      
+      if (result.rows.length < 3) {
+        return { normal: true, reason: 'insufficient_data' };
+      }
+      
+      // 检测异常：24 小时持续活动（自动化脚本特征）
+      const hourlyCounts = new Array(24).fill(0);
+      for (const row of result.rows) {
+        hourlyCounts[parseInt(row.hour)] = parseInt(row.count);
+      }
+      
+      // 计算活动小时数
+      const activeHours = hourlyCounts.filter(c => c > 0).length;
+      
+      // 24 小时全时段活跃是异常
+      if (activeHours > 22) {
+        return { normal: false, reason: 'continuous_activity', activeHours };
+      }
+      
+      return { normal: true, activeHours, hourlyDistribution: hourlyCounts };
+      
+    } catch (error) {
+      logger.error('Failed to analyze play time pattern', { userId, error: error.message });
+      return { normal: true, reason: 'analysis_failed' };
+    }
+  }
+  
   /**
    * 计算风险分数
    */
   calculateRiskScore(features) {
     let score = 0;
-    const weights = {
-      location: 0.35,    // 位置风险权重 35%
-      capture: 0.25,     // 捕捉行为权重 25%
-      device: 0.25,      // 设备风险权重 25%
-      timing: 0.15       // 时间特征权重 15%
-    };
-
-    // ===== 位置风险 =====
-    if (features.location) {
-      const loc = features.location;
-      
-      // 位置熵过低（过于集中）
-      if (loc.entropy < 0.3) {
-        score += 20 * weights.location;
-        this.metrics.violationsDetected.inc({ violation_type: 'low_location_entropy' });
-      }
-      
-      // 频繁瞬移
-      if (loc.jumpCount > 5) {
-        score += Math.min(30, loc.jumpCount * 3) * weights.location;
-        this.metrics.violationsDetected.inc({ violation_type: 'frequent_teleportation' });
-      }
-      
-      // 不可能的位置移动
-      if (loc.impossibleTravel) {
-        score += 40 * weights.location;
-        this.metrics.violationsDetected.inc({ violation_type: 'impossible_travel' });
-      }
+    
+    // 位置风险（权重 30%）
+    if (features.location.entropy < this.config.locationEntropyThreshold) {
+      score += 20;
     }
-
-    // ===== 捕捉行为风险 =====
-    if (features.capture) {
-      const cap = features.capture;
-      
-      // 异常高的捕捉成功率
-      if (cap.successRate > 0.95) {
-        score += 20 * weights.capture;
-        this.metrics.violationsDetected.inc({ violation_type: 'abnormal_success_rate' });
-      }
-      
-      // 捕捉速度过快（自动化特征）
-      if (cap.speed && cap.speed < 2000) { // 小于 2 秒
-        score += 15 * weights.capture;
-        this.metrics.violationsDetected.inc({ violation_type: 'fast_capture_speed' });
-      }
-      
-      // 捕捉模式过于规律
-      if (cap.pattern && cap.pattern.variance < 0.1) {
-        score += 20 * weights.capture;
-        this.metrics.violationsDetected.inc({ violation_type: 'regular_pattern' });
-      }
-      
-      // 稀有精灵捕捉过多
-      if (cap.rarityScore > 0.8) {
-        score += 25 * weights.capture;
-        this.metrics.violationsDetected.inc({ violation_type: 'high_rarity_captures' });
-      }
+    if (features.location.jumpCount > this.config.locationJumpThreshold) {
+      score += 15;
     }
-
-    // ===== 设备风险 =====
-    if (features.device) {
-      const dev = features.device;
-      
-      // 设备频繁更换
-      if (dev.changes > 3) {
-        score += 15 * weights.device;
-        this.metrics.violationsDetected.inc({ violation_type: 'device_changes' });
-      }
-      
-      // 设备指纹无效
-      if (!dev.fingerprintValid) {
-        score += 30 * weights.device;
-        this.metrics.violationsDetected.inc({ violation_type: 'invalid_fingerprint' });
-      }
-      
-      // 检测到模拟器
-      if (dev.emulatorDetected) {
-        score += 35 * weights.device;
-        this.metrics.violationsDetected.inc({ violation_type: 'emulator_detected' });
-      }
-      
-      // 检测到 Root
-      if (dev.rootDetected) {
-        score += 20 * weights.device;
-        this.metrics.violationsDetected.inc({ violation_type: 'root_detected' });
-      }
+    if (features.location.impossibleTravel) {
+      score += 30;
     }
-
-    // ===== 时间特征风险 =====
-    if (features.timing) {
-      const tim = features.timing;
-      
-      // 捕捉间隔过于规律
-      if (tim.captureIntervals && tim.captureIntervals.variance < 0.05) {
-        score += 20 * weights.timing;
-        this.metrics.violationsDetected.inc({ violation_type: 'regular_intervals' });
-      }
-      
-      // 异常长的游戏时长（机器人特征）
-      if (tim.sessionDuration > 8 * 3600) { // 超过 8 小时
-        score += 15 * weights.timing;
-        this.metrics.violationsDetected.inc({ violation_type: 'long_session' });
-      }
+    
+    // 捕获成功率风险（权重 20%）
+    if (features.capture.successRate > this.config.successRateThreshold) {
+      score += 15;
     }
-
-    return Math.min(100, Math.round(score));
+    if (features.capture.pattern.hasRareAnomaly) {
+      score += 10;
+    }
+    
+    // 时间模式风险（权重 25%）
+    if (!features.time.playPattern.normal) {
+      score += 20;
+    }
+    if (features.capture.intervals.variance < this.config.captureIntervalVarianceThreshold) {
+      score += 15;
+    }
+    
+    // 设备风险（权重 25%）
+    if (features.device.changes > this.config.deviceChangeThreshold) {
+      score += 10;
+    }
+    if (!features.device.fingerprint.valid) {
+      score += 20;
+    }
+    
+    return Math.min(100, score);
   }
-
+  
   /**
    * 分类风险等级
    */
@@ -265,466 +603,197 @@ class CaptureBehaviorAnalyzer {
     if (score >= 20) return 'low';
     return 'normal';
   }
-
+  
   /**
    * 生成标记
    */
   generateFlags(features) {
     const flags = [];
-
-    // 位置标记
-    if (features.location?.jumpCount > 5) {
-      flags.push({ type: 'teleportation', severity: 'high', count: features.location.jumpCount });
+    
+    // 位置相关标记
+    if (features.location.entropy < this.config.locationEntropyThreshold) {
+      flags.push({
+        type: 'low_location_entropy',
+        severity: 'medium',
+        value: features.location.entropy
+      });
     }
-    if (features.location?.impossibleTravel) {
-      flags.push({ type: 'impossible_travel', severity: 'critical' });
+    
+    if (features.location.jumpCount > this.config.locationJumpThreshold) {
+      flags.push({
+        type: 'location_teleportation',
+        severity: 'high',
+        count: features.location.jumpCount
+      });
     }
-
-    // 捕捉标记
-    if (features.capture?.successRate > 0.95) {
-      flags.push({ type: 'abnormal_success', severity: 'medium', rate: features.capture.successRate });
+    
+    if (features.location.impossibleTravel) {
+      flags.push({
+        type: 'impossible_travel',
+        severity: 'critical'
+      });
     }
-    if (features.capture?.pattern?.variance < 0.1) {
-      flags.push({ type: 'automated_pattern', severity: 'high' });
+    
+    // 捕获行为标记
+    if (features.capture.successRate > this.config.successRateThreshold) {
+      flags.push({
+        type: 'abnormal_success_rate',
+        severity: 'high',
+        value: features.capture.successRate
+      });
     }
-
+    
+    if (features.capture.pattern.hasRareAnomaly) {
+      flags.push({
+        type: 'rare_pokemon_anomaly',
+        severity: 'high',
+        details: features.capture.pattern.rareCaptures
+      });
+    }
+    
+    if (features.capture.intervals.variance < this.config.captureIntervalVarianceThreshold) {
+      flags.push({
+        type: 'automated_pattern',
+        severity: 'high',
+        variance: features.capture.intervals.variance
+      });
+    }
+    
     // 设备标记
-    if (features.device?.emulatorDetected) {
-      flags.push({ type: 'emulator', severity: 'high' });
+    if (features.device.changes > this.config.deviceChangeThreshold) {
+      flags.push({
+        type: 'multiple_devices',
+        severity: 'medium',
+        count: features.device.changes
+      });
     }
-    if (features.device?.rootDetected) {
-      flags.push({ type: 'rooted_device', severity: 'medium' });
+    
+    if (!features.device.fingerprint.valid) {
+      flags.push({
+        type: 'invalid_fingerprint',
+        severity: 'high',
+        reason: features.device.fingerprint.reason
+      });
     }
-
+    
+    // 时间标记
+    if (!features.time.playPattern.normal) {
+      flags.push({
+        type: 'continuous_activity',
+        severity: 'high',
+        reason: features.time.playPattern.reason
+      });
+    }
+    
     return flags;
   }
-
+  
   /**
    * 生成建议
    */
-  generateRecommendation(score, flags) {
-    if (score >= 80) {
+  generateRecommendation(riskScore, flags) {
+    const criticalFlags = flags.filter(f => f.severity === 'critical');
+    const highFlags = flags.filter(f => f.severity === 'high');
+    
+    if (criticalFlags.length > 0) {
       return {
-        action: 'block',
-        reason: 'critical_risk_detected',
-        logActivity: true,
-        notifyAdmin: true
+        type: 'reject',
+        reason: 'critical_violation',
+        details: criticalFlags.map(f => f.type),
+        autoAction: 'ban_pending_review'
       };
     }
-    if (score >= 60) {
+    
+    if (riskScore >= 70) {
       return {
-        action: 'flag',
-        reason: 'high_risk_detected',
-        manualReview: true
+        type: 'flag',
+        reason: 'high_risk_activity',
+        details: highFlags.map(f => f.type),
+        autoAction: 'shadow_ban',
+        review: true
       };
     }
-    if (score >= 40) {
+    
+    if (riskScore >= 50) {
       return {
-        action: 'monitor',
-        reason: 'medium_risk_detected',
-        enhancedTracking: true
+        type: 'monitor',
+        reason: 'suspicious_activity',
+        details: flags.slice(0, 3).map(f => f.type),
+        autoAction: 'increase_monitoring',
+        track: true
       };
     }
+    
+    if (riskScore >= 30) {
+      return {
+        type: 'log',
+        reason: 'minor_anomaly',
+        details: flags.map(f => f.type)
+      };
+    }
+    
     return {
-      action: 'allow',
+      type: 'allow',
       reason: 'normal'
     };
   }
-
-  // ========== 特征提取辅助方法 ==========
-
+  
   /**
-   * 计算位置熵
+   * 计算两点距离（米）
    */
-  async _calculateLocationEntropy(userId) {
-    try {
-      const { rows } = await db.query(`
-        SELECT latitude, longitude
-        FROM user_activities
-        WHERE user_id = $1 
-          AND created_at > NOW() - INTERVAL '24 hours'
-        ORDER BY created_at DESC
-        LIMIT 100
-      `, [userId]);
-
-      if (rows.length < 5) return 1.0; // 数据不足，跳过
-
-      // 将位置网格化为 0.01 度（约 1km）的单元格
-      const grid = {};
-      rows.forEach(r => {
-        const cell = `${Math.floor(r.latitude * 100)}_${Math.floor(r.longitude * 100)}`;
-        grid[cell] = (grid[cell] || 0) + 1;
-      });
-
-      // 计算熵
-      const total = rows.length;
-      let entropy = 0;
-      Object.values(grid).forEach(count => {
-        const p = count / total;
-        entropy -= p * Math.log2(p);
-      });
-
-      // 归一化到 0-1 范围
-      const maxEntropy = Math.log2(Object.keys(grid).length);
-      return maxEntropy > 0 ? entropy / maxEntropy : 0;
-    } catch (error) {
-      logger.error('Failed to calculate location entropy', { userId, error });
-      return 0.5;
-    }
-  }
-
-  /**
-   * 计数位置跳变
-   */
-  async _countLocationJumps(userId, options = {}) {
-    const { hours = 24, speedThreshold = 200 } = options; // 200 km/h
-
-    try {
-      const { rows } = await db.query(`
-        SELECT latitude, longitude, created_at
-        FROM user_activities
-        WHERE user_id = $1
-          AND created_at > NOW() - INTERVAL '${hours} hours'
-        ORDER BY created_at ASC
-      `, [userId]);
-
-      let jumpCount = 0;
-      for (let i = 1; i < rows.length; i++) {
-        const distance = this._calculateDistance(
-          rows[i-1].latitude, rows[i-1].longitude,
-          rows[i].latitude, rows[i].longitude
-        );
-        const timeDiff = (new Date(rows[i].created_at) - new Date(rows[i-1].created_at)) / 1000 / 3600; // 小时
-        if (timeDiff > 0) {
-          const speed = distance / timeDiff; // km/h
-          if (speed > speedThreshold) {
-            jumpCount++;
-          }
-        }
-      }
-
-      return jumpCount;
-    } catch (error) {
-      logger.error('Failed to count location jumps', { userId, error });
-      return 0;
-    }
-  }
-
-  /**
-   * 检测不可能的位置移动
-   */
-  async _detectImpossibleTravel(userId) {
-    try {
-      const { rows } = await db.query(`
-        SELECT latitude, longitude, created_at
-        FROM user_activities
-        WHERE user_id = $1
-          AND created_at > NOW() - INTERVAL '1 hour'
-        ORDER BY created_at DESC
-        LIMIT 10
-      `, [userId]);
-
-      if (rows.length < 2) return false;
-
-      // 检查最近两次位置
-      const distance = this._calculateDistance(
-        rows[0].latitude, rows[0].longitude,
-        rows[1].latitude, rows[1].longitude
-      );
-      const timeDiff = (new Date(rows[0].created_at) - new Date(rows[1].created_at)) / 1000; // 秒
-
-      // 超过 1000 km/h 的速度（飞机速度）且时间间隔小于 1 小时
-      if (timeDiff > 0 && timeDiff < 3600) {
-        const speed = (distance / timeDiff) * 3600; // km/h
-        return speed > 1000;
-      }
-
-      return false;
-    } catch (error) {
-      logger.error('Failed to detect impossible travel', { userId, error });
-      return false;
-    }
-  }
-
-  /**
-   * 计算活动半径
-   */
-  async _calculateActivityRadius(userId) {
-    try {
-      const { rows } = await db.query(`
-        SELECT 
-          AVG(latitude) as center_lat,
-          AVG(longitude) as center_lon,
-          STDDEV(latitude) as lat_stddev,
-          STDDEV(longitude) as lon_stddev
-        FROM user_activities
-        WHERE user_id = $1
-          AND created_at > NOW() - INTERVAL '24 hours'
-      `, [userId]);
-
-      if (!rows[0]) return 0;
-
-      // 使用标准差估算半径（粗略）
-      const latStddev = rows[0].lat_stddev || 0;
-      const lonStddev = rows[0].lon_stddev || 0;
-      
-      // 1度纬度约111km，1度经度约111*cos(lat)km
-      const avgLat = rows[0].center_lat || 0;
-      const radiusKm = Math.max(
-        latStddev * 111,
-        lonStddev * 111 * Math.cos(avgLat * Math.PI / 180)
-      );
-
-      return radiusKm;
-    } catch (error) {
-      logger.error('Failed to calculate activity radius', { userId, error });
-      return 0;
-    }
-  }
-
-  /**
-   * 计数唯一位置
-   */
-  async _countUniqueLocations(userId) {
-    try {
-      const { rows } = await db.query(`
-        SELECT COUNT(DISTINCT CONCAT(
-          FLOOR(latitude * 100), '_',
-          FLOOR(longitude * 100)
-        )) as unique_count
-        FROM user_activities
-        WHERE user_id = $1
-          AND created_at > NOW() - INTERVAL '24 hours'
-      `, [userId]);
-
-      return parseInt(rows[0]?.unique_count || 0);
-    } catch (error) {
-      logger.error('Failed to count unique locations', { userId, error });
-      return 0;
-    }
-  }
-
-  /**
-   * 计算捕捉成功率
-   */
-  async _calculateSuccessRate(userId) {
-    try {
-      const { rows } = await db.query(`
-        SELECT 
-          COUNT(*) as total,
-          COUNT(*) FILTER (WHERE result = 'success') as successful
-        FROM capture_attempts
-        WHERE user_id = $1
-          AND created_at > NOW() - INTERVAL '24 hours'
-      `, [userId]);
-
-      if (!rows[0] || rows[0].total === 0) return 0;
-
-      return rows[0].successful / rows[0].total;
-    } catch (error) {
-      logger.error('Failed to calculate success rate', { userId, error });
-      return 0;
-    }
-  }
-
-  /**
-   * 计算捕捉速度
-   */
-  _calculateCaptureSpeed(captureData) {
-    if (!captureData.startTime || !captureData.endTime) return null;
-    return captureData.endTime - captureData.startTime; // 毫秒
-  }
-
-  /**
-   * 分析捕捉模式
-   */
-  async _analyzeCapturePattern(userId) {
-    try {
-      const { rows } = await db.query(`
-        SELECT 
-          EXTRACT(HOUR FROM created_at) as hour,
-          COUNT(*) as count
-        FROM capture_attempts
-        WHERE user_id = $1
-          AND created_at > NOW() - INTERVAL '7 days'
-        GROUP BY EXTRACT(HOUR FROM created_at)
-        ORDER BY hour
-      `, [userId]);
-
-      if (rows.length < 3) return { variance: 1.0 };
-
-      const counts = rows.map(r => r.count);
-      const mean = counts.reduce((a, b) => a + b, 0) / counts.length;
-      const variance = counts.reduce((sum, c) => sum + Math.pow(c - mean, 2), 0) / counts.length;
-
-      return {
-        variance: variance / (mean * mean), // 归一化方差
-        hourlyDistribution: rows
-      };
-    } catch (error) {
-      logger.error('Failed to analyze capture pattern', { userId, error });
-      return { variance: 1.0 };
-    }
-  }
-
-  /**
-   * 计算稀有度分数
-   */
-  async _calculateRarityScore(userId) {
-    try {
-      const { rows } = await db.query(`
-        SELECT 
-          COUNT(*) FILTER (WHERE p.rarity IN ('legendary', 'mythical')) as rare_count,
-          COUNT(*) as total_count
-        FROM captures c
-        JOIN pokemon p ON c.pokemon_id = p.id
-        WHERE c.user_id = $1
-          AND c.created_at > NOW() - INTERVAL '24 hours'
-      `, [userId]);
-
-      if (!rows[0] || rows[0].total_count === 0) return 0;
-
-      return rows[0].rare_count / rows[0].total_count;
-    } catch (error) {
-      logger.error('Failed to calculate rarity score', { userId, error });
-      return 0;
-    }
-  }
-
-  /**
-   * 计数连续捕捉
-   */
-  async _countConsecutiveCaptures(userId) {
-    try {
-      const { rows } = await db.query(`
-        SELECT created_at
-        FROM captures
-        WHERE user_id = $1
-          AND created_at > NOW() - INTERVAL '1 hour'
-        ORDER BY created_at DESC
-        LIMIT 20
-      `, [userId]);
-
-      if (rows.length < 2) return 0;
-
-      let maxConsecutive = 1;
-      let currentConsecutive = 1;
-
-      for (let i = 1; i < rows.length; i++) {
-        const timeDiff = (new Date(rows[i-1].created_at) - new Date(rows[i].created_at)) / 1000;
-        if (timeDiff < 60) { // 60秒内
-          currentConsecutive++;
-          maxConsecutive = Math.max(maxConsecutive, currentConsecutive);
-        } else {
-          currentConsecutive = 1;
-        }
-      }
-
-      return maxConsecutive;
-    } catch (error) {
-      logger.error('Failed to count consecutive captures', { userId, error });
-      return 0;
-    }
-  }
-
-  /**
-   * 计数设备更换
-   */
-  async _countDeviceChanges(userId) {
-    try {
-      const { rows } = await db.query(`
-        SELECT COUNT(DISTINCT device_id) as device_count
-        FROM user_sessions
-        WHERE user_id = $1
-          AND created_at > NOW() - INTERVAL '30 days'
-      `, [userId]);
-
-      return parseInt(rows[0]?.device_count || 1) - 1;
-    } catch (error) {
-      logger.error('Failed to count device changes', { userId, error });
-      return 0;
-    }
-  }
-
-  /**
-   * 分析游戏时间模式
-   */
-  async _analyzePlayTimePattern(userId) {
-    try {
-      const { rows } = await db.query(`
-        SELECT 
-          DATE(created_at) as date,
-          SUM(EXTRACT(EPOCH FROM (ended_at - created_at))/3600) as hours
-        FROM user_sessions
-        WHERE user_id = $1
-          AND created_at > NOW() - INTERVAL '30 days'
-        GROUP BY DATE(created_at)
-        ORDER BY date
-      `, [userId]);
-
-      if (rows.length < 3) return { regular: false };
-
-      const hours = rows.map(r => parseFloat(r.hours || 0));
-      const mean = hours.reduce((a, b) => a + b, 0) / hours.length;
-      const variance = hours.reduce((sum, h) => sum + Math.pow(h - mean, 2), 0) / hours.length;
-
-      return {
-        regular: variance < 1,
-        averageHours: mean,
-        variance
-      };
-    } catch (error) {
-      logger.error('Failed to analyze play time pattern', { userId, error });
-      return { regular: false };
-    }
-  }
-
-  /**
-   * 分析捕捉间隔
-   */
-  async _analyzeCaptureIntervals(userId) {
-    try {
-      const { rows } = await db.query(`
-        SELECT created_at
-        FROM captures
-        WHERE user_id = $1
-          AND created_at > NOW() - INTERVAL '1 hour'
-        ORDER BY created_at
-      `, [userId]);
-
-      if (rows.length < 3) return { variance: 1.0 };
-
-      const intervals = [];
-      for (let i = 1; i < rows.length; i++) {
-        intervals.push((new Date(rows[i].created_at) - new Date(rows[i-1].created_at)) / 1000);
-      }
-
-      const mean = intervals.reduce((a, b) => a + b, 0) / intervals.length;
-      const variance = intervals.reduce((sum, i) => sum + Math.pow(i - mean, 2), 0) / intervals.length;
-
-      return {
-        mean,
-        variance: variance / (mean * mean), // 归一化
-        count: intervals.length
-      };
-    } catch (error) {
-      logger.error('Failed to analyze capture intervals', { userId, error });
-      return { variance: 1.0 };
-    }
-  }
-
-  /**
-   * 计算两点间距离（Haversine 公式）
-   */
-  _calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // 地球半径（km）
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-              Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371000; // 地球半径（米）
+    const dLat = this.toRad(lat2 - lat1);
+    const dLon = this.toRad(lon2 - lon1);
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.toRad(lat1)) * Math.cos(this.toRad(lat2)) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
+  }
+  
+  toRad(deg) {
+    return deg * Math.PI / 180;
+  }
+  
+  /**
+   * 记录分析结果
+   */
+  async recordAnalysis(userId, analysisId, data) {
+    try {
+      await this.db.query(`
+        INSERT INTO capture_analyses (
+          id, user_id, risk_score, risk_level, features, flags, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, NOW())
+      `, [
+        analysisId,
+        userId,
+        data.riskScore,
+        data.riskLevel,
+        JSON.stringify(data.features),
+        JSON.stringify(data.flags)
+      ]);
+      
+      // 缓存最近的分析结果
+      await this.redis.setex(
+        `capture_analysis:${userId}:latest`,
+        3600,
+        JSON.stringify({ analysisId, riskScore: data.riskScore, riskLevel: data.riskLevel })
+      );
+      
+    } catch (error) {
+      logger.error('Failed to record analysis', { userId, analysisId, error: error.message });
+    }
+  }
+  
+  /**
+   * 更新指标
+   */
+  updateMetrics(userId, riskScore, riskLevel) {
+    if (metrics) {
+      metrics.set('capture_risk_score', { user_id: userId }, riskScore);
+      metrics.inc('capture_analysis_total', { risk_level: riskLevel });
+    }
   }
 }
 
