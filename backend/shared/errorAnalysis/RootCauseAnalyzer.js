@@ -1,31 +1,38 @@
 /**
- * RootCauseAnalyzer - 根因分析引擎
+ * 根因分析引擎
  * 
  * 功能：
- * - 关联错误与最近部署、配置变更
+ * - 关联错误与最近部署
  * - 检查依赖服务状态
- * - 匹配历史错误模式
- * - 生成修复建议
+ * - 分析配置变更
+ * - 匹配历史已知问题
+ * - 生成根因推荐
  * 
- * @module backend/shared/errorAnalysis/RootCauseAnalyzer
+ * @module RootCauseAnalyzer
  */
 
-'use strict';
+const logger = require('../logger');
+const redis = require('../redis');
 
 class RootCauseAnalyzer {
-  /**
-   * 构造函数
-   * @param {Object} dependencies - 依赖项
-   */
   constructor(dependencies = {}) {
-    this.deploymentClient = dependencies.deploymentClient;  // CI/CD API
-    this.configClient = dependencies.configClient;           // Config Center
-    this.serviceClient = dependencies.serviceClient;          // Service Registry
-    this.metricsClient = dependencies.metricsClient;          // Prometheus
-    this.dbClient = dependencies.dbClient;                    // PostgreSQL
+    // 外部依赖（可注入或使用默认实现）
+    this.deploymentClient = dependencies.deploymentClient || null;
+    this.configClient = dependencies.configClient || null;
+    this.serviceClient = dependencies.serviceClient || null;
+    this.metricsClient = dependencies.metricsClient || null;
     
-    // 根因模式库
-    this.patternLibrary = this._initializePatternLibrary();
+    // 配置
+    this.config = {
+      deploymentWindowMs: dependencies.deploymentWindowMs || 3600000, // 1小时
+      configChangeWindowMs: dependencies.configChangeWindowMs || 1800000, // 30分钟
+      dependencyCheckWindowMs: dependencies.dependencyCheckWindowMs || 300000, // 5分钟
+      minConfidence: dependencies.minConfidence || 0.5
+    };
+    
+    // Redis keys
+    this.historyKey = 'error:rootcause:history';
+    this.patternsKey = 'error:rootcause:patterns';
   }
 
   /**
@@ -34,433 +41,516 @@ class RootCauseAnalyzer {
    * @returns {Object} 根因分析结果
    */
   async analyze(errorGroup) {
-    const causes = [];
-
-    // 并行执行各项检查
-    const [
-      deployments,
-      dependencies,
-      configChanges,
-      trafficAnomaly,
-      historicalMatch
-    ] = await Promise.all([
-      this._checkRecentDeployments(errorGroup),
-      this._checkDependencies(errorGroup),
-      this._checkConfigChanges(errorGroup),
-      this._checkTrafficAnomaly(errorGroup),
-      this._matchHistoricalPattern(errorGroup)
-    ]);
-
-    // 汇总发现的根因
-    if (deployments.length > 0) {
-      causes.push({
-        type: 'deployment',
-        confidence: 0.8,
-        details: deployments,
-        description: this._describeDeploymentCause(deployments)
+    try {
+      const causes = [];
+      
+      // 并行执行所有分析任务
+      const [
+        deploymentCauses,
+        dependencyCauses,
+        configCauses,
+        historicalCauses,
+        trafficCauses
+      ] = await Promise.all([
+        this._checkRecentDeployments(errorGroup),
+        this._checkDependencies(errorGroup),
+        this._checkConfigChanges(errorGroup),
+        this._matchHistoricalPattern(errorGroup),
+        this._checkTrafficAnomaly(errorGroup)
+      ]);
+      
+      // 合并所有原因
+      causes.push(
+        ...deploymentCauses,
+        ...dependencyCauses,
+        ...configCauses,
+        ...historicalCauses,
+        ...trafficCauses
+      );
+      
+      // 按置信度排序
+      causes.sort((a, b) => b.confidence - a.confidence);
+      
+      // 过滤低置信度结果
+      const filteredCauses = causes.filter(c => c.confidence >= this.config.minConfidence);
+      
+      // 生成建议
+      const recommendation = this._generateRecommendation(filteredCauses, errorGroup);
+      
+      // 保存分析结果
+      await this._saveAnalysisResult(errorGroup.id, {
+        causes: filteredCauses,
+        recommendation
       });
-    }
-
-    if (dependencies.length > 0) {
-      causes.push({
-        type: 'dependency',
-        confidence: 0.9,
-        details: dependencies,
-        description: this._describeDependencyCause(dependencies)
+      
+      return {
+        errorGroup: errorGroup.id,
+        service: errorGroup.service,
+        analyzedAt: new Date().toISOString(),
+        causes: filteredCauses,
+        recommendation
+      };
+    } catch (error) {
+      logger.error('Root cause analysis failed', {
+        error: error.message,
+        groupId: errorGroup.id
       });
+      
+      return {
+        errorGroup: errorGroup.id,
+        analyzedAt: new Date().toISOString(),
+        causes: [],
+        recommendation: '分析失败，请手动排查',
+        error: error.message
+      };
     }
-
-    if (configChanges.length > 0) {
-      causes.push({
-        type: 'config_change',
-        confidence: 0.7,
-        details: configChanges,
-        description: this._describeConfigCause(configChanges)
-      });
-    }
-
-    if (trafficAnomaly) {
-      causes.push({
-        type: 'traffic_anomaly',
-        confidence: 0.6,
-        details: trafficAnomaly,
-        description: this._describeTrafficCause(trafficAnomaly)
-      });
-    }
-
-    if (historicalMatch) {
-      causes.push({
-        type: 'known_issue',
-        confidence: 0.95,
-        details: historicalMatch,
-        description: this._describeHistoricalCause(historicalMatch)
-      });
-    }
-
-    // 按置信度排序
-    causes.sort((a, b) => b.confidence - a.confidence);
-
-    return {
-      errorGroup: errorGroup.id,
-      causes,
-      recommendation: this._generateRecommendation(causes),
-      analyzedAt: new Date()
-    };
   }
 
   /**
    * 检查最近部署
-   * @private
+   * @param {Object} errorGroup - 错误聚合组
+   * @returns {Array} 部署相关原因
    */
   async _checkRecentDeployments(errorGroup) {
-    const deployments = [];
-    const timeWindow = 30 * 60 * 1000; // 30 分钟窗口
-
-    // 如果有部署客户端，查询最近部署
-    if (this.deploymentClient) {
-      try {
-        const recentDeploys = await this.deploymentClient.getRecentDeploys({
-          service: errorGroup.service,
-          since: new Date(Date.now() - timeWindow)
+    const causes = [];
+    const firstSeen = new Date(errorGroup.firstSeen);
+    const windowStart = new Date(firstSeen.getTime() - this.config.deploymentWindowMs);
+    
+    try {
+      // 查询最近的部署记录
+      const deployments = await this._getRecentDeployments(
+        errorGroup.service,
+        windowStart,
+        firstSeen
+      );
+      
+      for (const deployment of deployments) {
+        const timeDiff = firstSeen.getTime() - new Date(deployment.deployedAt).getTime();
+        const timeProximity = 1 - (timeDiff / this.config.deploymentWindowMs);
+        
+        causes.push({
+          type: 'deployment',
+          confidence: Math.min(0.9, 0.6 + timeProximity * 0.3),
+          details: {
+            deploymentId: deployment.id,
+            version: deployment.version,
+            deployedAt: deployment.deployedAt,
+            deployedBy: deployment.deployedBy,
+            commit: deployment.commit,
+            timeDiff: `${Math.round(timeDiff / 60000)} minutes before error`
+          },
+          suggestion: deployment.rollbackAvailable 
+            ? `考虑回滚到版本 ${deployment.previousVersion}`
+            : `检查版本 ${deployment.version} 的变更日志`
         });
-
-        for (const deploy of recentDeploys) {
-          // 检查部署时间是否与错误首次出现时间接近
-          const deployTime = new Date(deploy.timestamp).getTime();
-          const errorTime = errorGroup.firstSeen.getTime();
-          const timeDiff = Math.abs(errorTime - deployTime);
-
-          if (timeDiff < timeWindow) {
-            deployments.push({
-              deployId: deploy.id,
-              version: deploy.version,
-              timestamp: deploy.timestamp,
-              timeDiff: Math.round(timeDiff / 1000 / 60), // 分钟
-              changes: deploy.changes || []
-            });
-          }
-        }
-      } catch (err) {
-        console.error('Failed to check deployments:', err.message);
       }
+    } catch (error) {
+      logger.warn('Failed to check recent deployments', {
+        error: error.message,
+        service: errorGroup.service
+      });
     }
-
-    return deployments;
+    
+    return causes;
   }
 
   /**
    * 检查依赖服务状态
-   * @private
+   * @param {Object} errorGroup - 错误聚合组
+   * @returns {Array} 依赖服务原因
    */
   async _checkDependencies(errorGroup) {
-    const failures = [];
-
-    // 定义服务依赖关系
-    const serviceDependencies = {
-      'catch-service': ['pokemon-service', 'location-service', 'user-service'],
-      'gym-service': ['user-service', 'pokemon-service'],
-      'payment-service': ['user-service', 'reward-service'],
-      'social-service': ['user-service'],
-      'gateway': ['all']
-    };
-
-    const deps = serviceDependencies[errorGroup.service] || [];
-
-    if (this.serviceClient) {
-      for (const dep of deps) {
-        try {
-          const health = await this.serviceClient.getHealth(dep);
-          if (health.status !== 'healthy') {
-            failures.push({
-              service: dep,
-              status: health.status,
-              errorRate: health.errorRate,
-              latency: health.latency
-            });
-          }
-        } catch (err) {
-          failures.push({
-            service: dep,
-            status: 'unknown',
-            error: err.message
+    const causes = [];
+    const firstSeen = new Date(errorGroup.firstSeen);
+    const windowStart = new Date(firstSeen.getTime() - this.config.dependencyCheckWindowMs);
+    
+    try {
+      // 获取服务的依赖列表
+      const dependencies = await this._getServiceDependencies(errorGroup.service);
+      
+      for (const dependency of dependencies) {
+        const healthStatus = await this._getServiceHealth(
+          dependency.name,
+          windowStart,
+          firstSeen
+        );
+        
+        if (healthStatus && healthStatus.hasIssue) {
+          causes.push({
+            type: 'dependency',
+            confidence: 0.9,
+            details: {
+              dependency: dependency.name,
+              issueType: healthStatus.issueType,
+              errorRate: healthStatus.errorRate,
+              latency: healthStatus.latency,
+              affectedTimeRange: `${windowStart.toISOString()} - ${firstSeen.toISOString()}`
+            },
+            suggestion: `检查 ${dependency.name} 服务状态，当前错误率 ${healthStatus.errorRate}%`
           });
         }
       }
+    } catch (error) {
+      logger.warn('Failed to check dependencies', {
+        error: error.message,
+        service: errorGroup.service
+      });
     }
-
-    return failures;
+    
+    return causes;
   }
 
   /**
    * 检查配置变更
-   * @private
+   * @param {Object} errorGroup - 错误聚合组
+   * @returns {Array} 配置变更原因
    */
   async _checkConfigChanges(errorGroup) {
-    const changes = [];
-    const timeWindow = 60 * 60 * 1000; // 1 小时窗口
-
-    if (this.configClient) {
-      try {
-        const recentChanges = await this.configClient.getChanges({
-          service: errorGroup.service,
-          since: new Date(Date.now() - timeWindow)
+    const causes = [];
+    const firstSeen = new Date(errorGroup.firstSeen);
+    const windowStart = new Date(firstSeen.getTime() - this.config.configChangeWindowMs);
+    
+    try {
+      const configChanges = await this._getRecentConfigChanges(
+        errorGroup.service,
+        windowStart,
+        firstSeen
+      );
+      
+      for (const change of configChanges) {
+        causes.push({
+          type: 'config_change',
+          confidence: 0.7,
+          details: {
+            configKey: change.key,
+            oldValue: change.oldValue,
+            newValue: change.newValue,
+            changedAt: change.changedAt,
+            changedBy: change.changedBy
+          },
+          suggestion: `检查配置项 ${change.key} 的变更，考虑回滚或验证新值`
         });
-
-        for (const change of recentChanges) {
-          const changeTime = new Date(change.timestamp).getTime();
-          const errorTime = errorGroup.firstSeen.getTime();
-          const timeDiff = Math.abs(errorTime - changeTime);
-
-          if (timeDiff < timeWindow) {
-            changes.push({
-              configKey: change.key,
-              oldValue: change.oldValue,
-              newValue: change.newValue,
-              timestamp: change.timestamp,
-              changedBy: change.changedBy
-            });
-          }
-        }
-      } catch (err) {
-        console.error('Failed to check config changes:', err.message);
       }
+    } catch (error) {
+      logger.warn('Failed to check config changes', {
+        error: error.message,
+        service: errorGroup.service
+      });
     }
+    
+    return causes;
+  }
 
-    return changes;
+  /**
+   * 匹配历史已知问题
+   * @param {Object} errorGroup - 错误聚合组
+   * @returns {Array} 历史匹配原因
+   */
+  async _matchHistoricalPattern(errorGroup) {
+    const causes = [];
+    
+    try {
+      // 从历史记录中查找相似问题
+      const historicalMatches = await this._findHistoricalMatches(errorGroup);
+      
+      for (const match of historicalMatches) {
+        causes.push({
+          type: 'known_issue',
+          confidence: match.similarity,
+          details: {
+            historicalGroupId: match.groupId,
+            historicalTime: match.occurredAt,
+            resolution: match.resolution,
+            resolvedBy: match.resolvedBy
+          },
+          suggestion: match.resolution 
+            ? `已知问题：${match.resolution}`
+            : '此问题在历史记录中出现过，但未记录解决方案'
+        });
+      }
+    } catch (error) {
+      logger.warn('Failed to match historical patterns', {
+        error: error.message,
+        groupId: errorGroup.id
+      });
+    }
+    
+    return causes;
   }
 
   /**
    * 检查流量异常
-   * @private
+   * @param {Object} errorGroup - 错误聚合组
+   * @returns {Array} 流量相关原因
    */
   async _checkTrafficAnomaly(errorGroup) {
-    if (!this.metricsClient) return null;
-
+    const causes = [];
+    const firstSeen = new Date(errorGroup.firstSeen);
+    
     try {
-      const metrics = await this.metricsClient.query({
-        service: errorGroup.service,
-        metric: 'http_requests_total',
-        range: '1h'
-      });
-
-      // 计算流量变化率
-      const currentRate = metrics.current || 0;
-      const baselineRate = metrics.baseline || 0;
+      // 检查是否有流量突增
+      const trafficData = await this._getTrafficData(errorGroup.service, firstSeen);
       
-      if (baselineRate > 0) {
-        const changeRate = (currentRate - baselineRate) / baselineRate;
-        
-        // 流量突增超过 50%
-        if (changeRate > 0.5) {
-          return {
-            type: 'spike',
-            changeRate: Math.round(changeRate * 100),
-            currentRate,
-            baselineRate
-          };
-        }
+      if (trafficData && trafficData.hasSpike) {
+        causes.push({
+          type: 'traffic_spike',
+          confidence: 0.75,
+          details: {
+            normalRate: trafficData.normalRate,
+            currentRate: trafficData.currentRate,
+            spikeRatio: trafficData.spikeRatio,
+            spikeTime: trafficData.spikeTime
+          },
+          suggestion: `流量突增 ${trafficData.spikeRatio} 倍，考虑扩容或限流`
+        });
       }
-    } catch (err) {
-      console.error('Failed to check traffic anomaly:', err.message);
+    } catch (error) {
+      logger.warn('Failed to check traffic anomaly', {
+        error: error.message,
+        service: errorGroup.service
+      });
     }
-
-    return null;
+    
+    return causes;
   }
 
   /**
-   * 匹配历史模式
-   * @private
+   * 生成建议
+   * @param {Array} causes - 原因列表
+   * @param {Object} errorGroup - 错误聚合组
+   * @returns {string} 建议
    */
-  async _matchHistoricalPattern(errorGroup) {
-    if (!this.dbClient) return null;
-
-    try {
-      // 查询相似的已解决错误
-      const result = await this.dbClient.query(`
-        SELECT 
-          id, error_code, message_pattern, resolution, resolved_at,
-          similarity(key_frames, $1) as sim_score
-        FROM error_groups
-        WHERE status = 'resolved'
-          AND resolution IS NOT NULL
-        ORDER BY sim_score DESC
-        LIMIT 5
-      `, [JSON.stringify(errorGroup.keyFrames)]);
-
-      if (result.rows.length > 0 && result.rows[0].sim_score > 0.7) {
-        return {
-          matchedGroupId: result.rows[0].id,
-          similarity: result.rows[0].sim_score,
-          previousResolution: result.rows[0].resolution,
-          resolvedAt: result.rows[0].resolved_at
-        };
-      }
-    } catch (err) {
-      console.error('Failed to match historical pattern:', err.message);
-    }
-
-    return null;
-  }
-
-  /**
-   * 初始化模式库
-   * @private
-   */
-  _initializePatternLibrary() {
-    return [
-      {
-        pattern: /ECONNREFUSED/,
-        type: 'network',
-        cause: '服务连接被拒绝',
-        solution: '检查目标服务是否运行，防火墙配置是否正确'
-      },
-      {
-        pattern: /ETIMEDOUT/,
-        type: 'timeout',
-        cause: '请求超时',
-        solution: '检查网络延迟、目标服务负载，考虑增加超时时间'
-      },
-      {
-        pattern: /Out of memory/,
-        type: 'resource',
-        cause: '内存不足',
-        solution: '检查内存泄漏，增加容器内存限制'
-      },
-      {
-        pattern: /duplicate key value/,
-        type: 'database',
-        cause: '数据库唯一约束冲突',
-        solution: '检查数据插入逻辑，确保唯一性约束正确'
-      },
-      {
-        pattern: /connection pool exhausted/,
-        type: 'database',
-        cause: '数据库连接池耗尽',
-        solution: '检查连接泄漏，增加连接池大小'
-      }
-    ];
-  }
-
-  /**
-   * 生成修复建议
-   * @private
-   */
-  _generateRecommendation(causes) {
+  _generateRecommendation(causes, errorGroup) {
     if (causes.length === 0) {
-      return {
-        priority: 'medium',
-        actions: ['查看详细日志', '检查服务健康状态', '联系开发团队']
-      };
+      return '未找到明确的根因，建议手动排查日志和监控';
     }
-
+    
     const topCause = causes[0];
     
     switch (topCause.type) {
       case 'deployment':
-        return {
-          priority: 'high',
-          actions: [
-            '回滚到上一版本',
-            '检查新版本变更内容',
-            '查看部署日志'
-          ],
-          rollbackVersion: topCause.details[0]?.version
-        };
-
+        return `【优先处理】新部署版本可能存在问题。${topCause.suggestion}`;
+        
       case 'dependency':
-        return {
-          priority: 'critical',
-          actions: [
-            '检查依赖服务状态',
-            '启用服务降级',
-            '联系依赖服务负责人'
-          ],
-          affectedServices: topCause.details.map(d => d.service)
-        };
-
+        return `【优先处理】依赖服务 ${topCause.details.dependency} 异常。${topCause.suggestion}`;
+        
       case 'config_change':
-        return {
-          priority: 'high',
-          actions: [
-            '回滚配置变更',
-            '验证配置值正确性',
-            '检查配置影响范围'
-          ]
-        };
-
-      case 'traffic_anomaly':
-        return {
-          priority: 'medium',
-          actions: [
-            '启用限流',
-            '增加服务副本数',
-            '检查异常流量来源'
-          ]
-        };
-
+        return `【建议检查】最近有配置变更。${topCause.suggestion}`;
+        
       case 'known_issue':
-        return {
-          priority: 'low',
-          actions: [
-            '参考历史解决方案',
-            '复用之前修复方案',
-            '验证修复效果'
-          ],
-          previousSolution: topCause.details.previousResolution
-        };
-
+        return `【已知问题】${topCause.suggestion}`;
+        
+      case 'traffic_spike':
+        return `【流量问题】${topCause.suggestion}`;
+        
       default:
-        return {
-          priority: 'medium',
-          actions: ['调查根因', '查看详细日志']
-        };
+        return topCause.suggestion || '请手动排查';
     }
   }
 
   /**
-   * 描述部署根因
-   * @private
+   * 保存分析结果
+   * @param {string} groupId - 聚合组ID
+   * @param {Object} result - 分析结果
    */
-  _describeDeploymentCause(deployments) {
-    if (deployments.length === 0) return '';
-    const d = deployments[0];
-    return `服务 ${d.version} 版本部署后 ${d.timeDiff} 分钟出现错误`;
+  async _saveAnalysisResult(groupId, result) {
+    try {
+      const key = `${this.historyKey}:${groupId}`;
+      await redis.setex(key, 2592000, JSON.stringify({
+        ...result,
+        analyzedAt: new Date().toISOString()
+      }));
+    } catch (error) {
+      logger.error('Failed to save analysis result', {
+        error: error.message,
+        groupId
+      });
+    }
   }
 
   /**
-   * 描述依赖服务根因
-   * @private
+   * 获取历史分析结果
+   * @param {string} groupId - 聚合组ID
+   * @returns {Object|null} 历史分析结果
    */
-  _describeDependencyCause(dependencies) {
-    if (dependencies.length === 0) return '';
-    return `依赖服务 ${dependencies[0].service} 状态异常: ${dependencies[0].status}`;
+  async getHistoricalAnalysis(groupId) {
+    try {
+      const key = `${this.historyKey}:${groupId}`;
+      const data = await redis.get(key);
+      
+      if (data) {
+        return JSON.parse(data);
+      }
+      
+      return null;
+    } catch (error) {
+      logger.error('Failed to get historical analysis', {
+        error: error.message,
+        groupId
+      });
+      return null;
+    }
+  }
+
+  // ========== 模拟数据方法（实际项目中应替换为真实数据源） ==========
+
+  /**
+   * 获取最近部署记录
+   */
+  async _getRecentDeployments(service, startTime, endTime) {
+    // 实际实现：从 CI/CD 系统（如 GitHub Actions）获取部署记录
+    // 这里返回模拟数据
+    if (!this.deploymentClient) return [];
+    
+    try {
+      return await this.deploymentClient.getDeployments({
+        service,
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString()
+      });
+    } catch {
+      return [];
+    }
   }
 
   /**
-   * 描述配置变更根因
-   * @private
+   * 获取服务依赖列表
    */
-  _describeConfigCause(changes) {
-    if (changes.length === 0) return '';
-    return `配置 ${changes[0].configKey} 已变更`;
+  async _getServiceDependencies(service) {
+    // 实际实现：从服务注册中心获取依赖关系
+    // 这里返回常见依赖
+    const dependencyMap = {
+      'gateway': ['user-service', 'pokemon-service', 'catch-service'],
+      'catch-service': ['pokemon-service', 'location-service', 'reward-service'],
+      'gym-service': ['user-service', 'pokemon-service', 'reward-service'],
+      'social-service': ['user-service', 'notification-service'],
+      'payment-service': ['user-service', 'reward-service'],
+      'user-service': [],
+      'pokemon-service': [],
+      'location-service': [],
+      'reward-service': []
+    };
+    
+    return (dependencyMap[service] || []).map(name => ({ name }));
   }
 
   /**
-   * 描述流量异常根因
-   * @private
+   * 获取服务健康状态
    */
-  _describeTrafficCause(anomaly) {
-    if (!anomaly) return '';
-    return `流量增加 ${anomaly.changeRate}%`;
+  async _getServiceHealth(serviceName, startTime, endTime) {
+    // 实际实现：从 Prometheus 查询服务健康指标
+    if (!this.metricsClient) return null;
+    
+    try {
+      const errorRate = await this.metricsClient.query(
+        `rate(http_requests_total{service="${serviceName}",status=~"5.."}[5m])`,
+        startTime,
+        endTime
+      );
+      
+      return {
+        hasIssue: errorRate > 5,
+        issueType: errorRate > 20 ? 'critical' : 'degraded',
+        errorRate: Math.round(errorRate * 100) / 100,
+        latency: await this.metricsClient.query(
+          `histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{service="${serviceName}"}[5m]))`,
+          startTime,
+          endTime
+        )
+      };
+    } catch {
+      return null;
+    }
   }
 
   /**
-   * 描述历史匹配根因
-   * @private
+   * 获取最近配置变更
    */
-  _describeHistoricalCause(match) {
-    if (!match) return '';
-    return `与历史问题相似度 ${Math.round(match.similarity * 100)}%`;
+  async _getRecentConfigChanges(service, startTime, endTime) {
+    // 实际实现：从配置中心获取变更记录
+    if (!this.configClient) return [];
+    
+    try {
+      return await this.configClient.getChanges({
+        service,
+        startTime: startTime.toISOString(),
+        endTime: endTime.toISOString()
+      });
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * 查找历史匹配
+   */
+  async _findHistoricalMatches(errorGroup) {
+    // 从 Redis 历史记录中查找相似问题
+    try {
+      const patternKey = `error:pattern:${errorGroup.fingerprint}`;
+      const match = await redis.get(patternKey);
+      
+      if (match) {
+        return [JSON.parse(match)];
+      }
+      
+      return [];
+    } catch {
+      return [];
+    }
+  }
+
+  /**
+   * 获取流量数据
+   */
+  async _getTrafficData(service, time) {
+    // 实际实现：从 Prometheus 查询流量指标
+    if (!this.metricsClient) return null;
+    
+    try {
+      const currentRate = await this.metricsClient.query(
+        `rate(http_requests_total{service="${service}"}[5m])`,
+        time
+      );
+      
+      const baselineRate = await this.metricsClient.query(
+        `avg_over_time(rate(http_requests_total{service="${service}"}[5m])[1h])`,
+        time
+      );
+      
+      const spikeRatio = currentRate / baselineRate;
+      
+      return {
+        hasSpike: spikeRatio > 2,
+        normalRate: baselineRate,
+        currentRate,
+        spikeRatio: Math.round(spikeRatio * 10) / 10,
+        spikeTime: time.toISOString()
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * 注册已知问题模式
+   * @param {Object} pattern - 问题模式
+   */
+  async registerPattern(pattern) {
+    try {
+      const key = `error:pattern:${pattern.fingerprint}`;
+      await redis.setex(key, 7776000, JSON.stringify({
+        groupId: pattern.groupId,
+        occurredAt: pattern.occurredAt,
+        resolution: pattern.resolution,
+        resolvedBy: pattern.resolvedBy,
+        similarity: 0.95
+      }));
+      
+      logger.info('Registered error pattern', { fingerprint: pattern.fingerprint });
+    } catch (error) {
+      logger.error('Failed to register pattern', { error: error.message });
+    }
   }
 }
 
