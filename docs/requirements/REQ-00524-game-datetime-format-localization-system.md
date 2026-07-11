@@ -3,7 +3,7 @@
 - **编号**：REQ-00524
 - **类别**：国际化/本地化
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：backend/shared/dateTimeFormat.js、gateway/middleware、user-service、game-client、admin-dashboard
 - **创建时间**：2026-07-09 04:05 UTC
 - **依赖需求**：REQ-00029(时区本地化已完成)、REQ-00500(数字格式化已完成)
