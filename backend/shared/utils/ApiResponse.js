@@ -1,17 +1,36 @@
 /**
  * 统一 API 响应工具类
+ * REQ-00518: 增强 HATEOAS 支持
  * 
- * 标准响应格式：
- * - 成功：{ success: true, data: {}, meta: { requestId, timestamp } }
- * - 分页：{ success: true, data: [], pagination: {...}, meta: {...} }
- * - 错误：{ success: false, error: { code, message, ... }, meta: {...} }
+ * 标准响应格式（HAL 规范）：
+ * - 成功：{ success: true, data: {}, _links: {...}, meta: { requestId, timestamp } }
+ * - 分页：{ success: true, data: [], _links: {...}, pagination: {...}, meta: {...} }
+ * - 错误：{ success: false, error: { code, message, ... }, _links: {...}, meta: {...} }
  */
 
 'use strict';
 
 const { v4: uuidv4 } = require('uuid');
+const { defaultHalFormatter } = require('./HalFormatter');
+const { defaultLinkBuilder } = require('./LinkBuilder');
 
 class ApiResponse {
+  /**
+   * HATEOAS 配置
+   */
+  static hateoasConfig = {
+    enabled: true,
+    includeLinks: true,
+    includeEmbedded: true
+  };
+
+  /**
+   * 启用/禁用 HATEOAS
+   */
+  static setHateoasEnabled(enabled) {
+    this.hateoasConfig.enabled = enabled;
+  }
+
   /**
    * 生成请求元数据
    */
@@ -24,7 +43,7 @@ class ApiResponse {
   }
 
   /**
-   * 成功响应
+   * 成功响应（支持 HATEOAS）
    * @param {Object} res - Express response 对象
    * @param {*} data - 响应数据
    * @param {Object} options - 可选配置
@@ -36,7 +55,26 @@ class ApiResponse {
       meta: this._generateMeta(res, options)
     };
 
+    // 添加 HATEOAS 链接（如果启用）
+    if (this.hateoasConfig.enabled && options.resourceType) {
+      response._links = this._buildLinks(res, data, options);
+    }
+
     return res.status(options.status || 200).json(response);
+  }
+
+  /**
+   * 构建 HATEOAS 链接
+   */
+  static _buildLinks(res, data, options) {
+    const { resourceType, resourceId, context } = options;
+    
+    if (!resourceType) return undefined;
+    
+    const id = resourceId || data?.id || data?._id;
+    if (!id) return undefined;
+    
+    return defaultLinkBuilder.buildResourceLinks(resourceType, id, context || {});
   }
 
   /**
@@ -58,7 +96,7 @@ class ApiResponse {
   }
 
   /**
-   * 分页响应
+   * 分页响应（支持 HATEOAS）
    * @param {Object} res - Express response 对象
    * @param {Array} items - 列表数据
    * @param {Object} pagination - 分页信息 { page, limit, total }
@@ -81,21 +119,81 @@ class ApiResponse {
       meta: this._generateMeta(res, options)
     };
 
+    // 添加 HATEOAS 分页链接
+    if (this.hateoasConfig.enabled && options.resourceType) {
+      const baseUrl = defaultLinkBuilder.getResourceBaseUrl(options.resourceType);
+      response._links = {
+        self: {
+          href: `${baseUrl}?page=${page}&limit=${limit}`,
+          method: 'GET',
+          title: `${options.resourceType} collection page ${page}`
+        }
+      };
+
+      // 添加分页链接
+      if (totalPages > 1) {
+        const paginationLinks = defaultLinkBuilder.buildPaginationLinks(baseUrl, pagination, options.query || {});
+        Object.assign(response._links, paginationLinks);
+      }
+    }
+
     return res.status(200).json(response);
   }
 
   /**
-   * 列表响应（无分页，仅返回数组）
+   * HAL 格式响应（完全符合 HAL 规范）
    * @param {Object} res - Express response 对象
-   * @param {Array} items - 列表数据
+   * @param {*} data - 响应数据
+   * @param {string} resourceType - 资源类型
    * @param {Object} options - 可选配置
    */
-  static list(res, items, options = {}) {
-    if (!Array.isArray(items)) {
-      throw new Error('list() requires an array as data');
-    }
+  static hal(res, data, resourceType, options = {}) {
+    const halResponse = defaultHalFormatter.formatResource(data, resourceType, {
+      ...options,
+      context: options.context || {}
+    });
+    
+    // 添加 meta
+    halResponse._meta = this._generateMeta(res, options);
+    
+    return res.status(options.status || 200).json(halResponse);
+  }
 
-    return this.success(res, items, options);
+  /**
+   * HAL 分页响应
+   * @param {Object} res - Express response 对象
+   * @param {Array} items - 列表数据
+   * @param {string} resourceType - 资源类型
+   * @param {Object} pagination - 分页信息
+   * @param {Object} options - 可选配置
+   */
+  static halPaginated(res, items, resourceType, pagination, options = {}) {
+    const halResponse = defaultHalFormatter.formatPaginatedResponse(items, resourceType, pagination, options);
+    
+    // 添加 meta
+    halResponse._meta = this._generateMeta(res, options);
+    
+    return res.status(200).json(halResponse);
+  }
+
+  /**
+   * 资源发现响应
+   * @param {Object} res - Express response 对象
+   * @param {Object} options - 可选配置
+   */
+  static discovery(res, options = {}) {
+    const { defaultResourceDiscoverer } = require('./ResourceDiscoverer');
+    
+    const discoveryResponse = defaultResourceDiscoverer.discoverAll(options);
+    
+    // 添加 meta
+    discoveryResponse._meta = {
+      ...discoveryResponse._meta,
+      requestId: res.locals?.requestId || uuidv4(),
+      timestamp: new Date().toISOString()
+    };
+
+    return res.status(200).json(discoveryResponse);
   }
 
   /**
