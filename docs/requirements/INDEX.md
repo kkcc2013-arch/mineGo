@@ -50,3 +50,4 @@
 | REQ-00535 | 游戏服务端实时性能看板与自动诊断系统 | 可观测性 | P1 | new | infrastructure/monitoring, backend/shared/metrics, admin-dashboard | 2026-07-11 15:00 |
 | REQ-00536 | 游戏客户端语音控制与语音导航系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility/VoiceController.js、frontend/game-client/src/accessibility/VoiceCommandProcessor.js、frontend/game-client/src/accessibility/VoiceFeedback.js | 2026-07-11 08:00 |
 
+| REQ-00537 | 数据库性能查询调优自动化建议系统 | 性能优化 | P1 | new | backend/shared/database, infrastructure/monitoring, admin-dashboard | 2026-07-11 16:00 |
