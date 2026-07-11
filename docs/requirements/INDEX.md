@@ -40,7 +40,7 @@
 | REQ-00525 | 基于属性的测试框架与模糊测试系统 | 测试覆盖 | P1 | done | backend/shared/testing, gateway, all services | 2026-07-09 14:30 |
 | REQ-00526 | 实现 API 响应数据流式压缩与流处理系统 | 性能优化 | P1 | new | gateway, backend/shared, game-client | 2026-07-09 15:00 |
 | REQ-00527 | 用户数据导出格式转换与可携带性系统 | 合规/隐私 | P1 | done | user-service、gateway、backend/shared/dataExporter、backend/jobs | 2026-07-10 06:35 |
-| REQ-00528 | 分布式追踪智能采样与性能瓶颈自动诊断系统 | 可观测性/监控 | P1 | new | gateway、backend/shared/tracing、backend/shared/perfAnalyzer、所有后端服务、infrastructure/monitoring | 2026-07-10 07:00 |
+| REQ-00528 | 分布式追踪智能采样与性能瓶挺自动诊断系统 | 可观测性/监控 | P1 | new | gateway、backend/shared/tracing、backend/shared/perfAnalyzer、所有后端服务、infrastructure/monitoring | 2026-07-10 07:00 |
 | REQ-00529 | 跨境数据传输合规性自动检测与审计系统 | 合规/隐私 | P1 | new | gateway、user-service、backend/shared/crossBorderCompliance、backend/jobs、admin-dashboard | 2026-07-11 04:40 |
 | REQ-00530 | 数据恢复完整性校验与一致性自动修复系统 | 容灾/高可用 | P1 | new | backend/shared/disasterRecovery、pokemonBackupService.js、dataRecoveryValidator.js、backend/jobs | 2026-07-11 05:00 |
 | REQ-00531 | 游戏内动态配置与 A/B 测试实验管理平台 | 功能增强 | P1 | new | gateway, admin-dashboard, game-client | 2026-07-11 10:00 |
@@ -49,6 +49,6 @@
 | REQ-00534 | 代码重复检测与智能合并建议系统 | 技术债/重构 | P1 | new | backend/shared/codeQuality/DuplicationDetector.js、backend/shared/codeQuality/MergeRecommender.js、所有后端服务、admin-dashboard、GitHub Actions | 2026-07-11 07:00 |
 | REQ-00535 | 游戏服务端实时性能看板与自动诊断系统 | 可观测性 | P1 | new | infrastructure/monitoring, backend/shared/metrics, admin-dashboard | 2026-07-11 15:00 |
 | REQ-00536 | 游戏客户端语音控制与语音导航系统 | 无障碍(a11y) | P1 | new | game-client、frontend/game-client/src/accessibility/VoiceController.js、frontend/game-client/src/accessibility/VoiceCommandProcessor.js、frontend/game-client/src/accessibility/VoiceFeedback.js | 2026-07-11 08:00 |
-
 | REQ-00537 | 数据库性能查询调优自动化建议系统 | 性能优化 | P1 | new | backend/shared/database, infrastructure/monitoring, admin-dashboard | 2026-07-11 16:00 |
 | REQ-00538 | 预览与测试环境智能资源回收与成本优化系统 | 成本/资源优化 | P1 | new | .github/workflows、infrastructure/k8s/environments、backend/jobs/environmentReclaimer.js、admin-dashboard | 2026-07-11 10:15 |
+| REQ-00539 | 数据库慢查询自动调优建议与索引推荐系统 | 性能优化 | P1 | new | backend/shared/database, infrastructure/monitoring, admin-dashboard | 2026-07-11 17:00 |
