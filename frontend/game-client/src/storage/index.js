@@ -8,3 +8,7 @@ export { MapElementCache } from './MapElementCache.js';
 export { StateMigrator } from './StateMigrator.js';
 export { StateSyncManager } from './StateSyncManager.js';
 export { OplogManager } from './OplogManager.js';
+export { OfflineSyncEngine } from './OfflineSyncEngine.js';
+
+// Re-export from sub-modules
+export * from './crypto/index.js';
