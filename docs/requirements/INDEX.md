@@ -20,3 +20,4 @@
 | REQ-00558 | 游戏客户端团队实时协作与语音通信系统 | 功能增强 | P0 | new | game-client, social-service, gym-service | 2026-07-15 08:22 |
 | REQ-00559 | 数据库连接池智能预热与自适应管理系统 | 性能优化 | P1 | done | backend/shared/db, 所有微服务 | 2026-07-15 09:00 |
 | REQ-00560 | 自动化变异测试系统 | 测试覆盖 | P1 | new | backend/shared, test-suite, cicd-pipeline | 2026-07-15 15:00 |
+| REQ-00561 | 敏感API二次认证与风险行为分级控制系统 | 安全加固 | P1 | new | gateway, user-service, backend/shared/security | 2026-07-15 10:00 |
