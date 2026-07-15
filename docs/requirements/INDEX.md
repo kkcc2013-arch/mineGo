@@ -15,3 +15,4 @@
 | REQ-00552 | 数据库执行计划智能缓存与优化系统 | 性能优化 | P1 | new | database-service, backend/shared, infrastructure | 2026-07-15 05:00 |
 | REQ-00553 | 微服务共享模块拆分与职责边界重构 | 技术债/重构 | P1 | new | backend/shared、所有微服务 | 2026-07-15 03:00 |
 | REQ-00555 | 游戏服务端异常日志追踪与智能聚类告警系统 | 可观测性 | P1 | done | log-collector, observability-service, backend/shared | 2026-07-15 09:00 |
+| REQ-00556 | 基于机器学习的实时行为异常检测系统 | 反作弊 | P1 | new | anti-cheat-service, ml-service, user-service, catch-service | 2026-07-15 05:05 |
