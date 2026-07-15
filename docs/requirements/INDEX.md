@@ -18,3 +18,4 @@
 | REQ-00556 | 基于机器学习的实时行为异常检测系统 | 反作弊 | P1 | new | anti-cheat-service, ml-service, user-service, catch-service | 2026-07-15 05:05 |
 | REQ-00557 | 游戏环境资源包差异化增量更新系统 | 性能优化 | P1 | new | asset-service, game-client, cdn-gateway | 2026-07-15 11:00 |
 | REQ-00558 | 游戏客户端团队实时协作与语音通信系统 | 功能增强 | P0 | new | game-client, social-service, gym-service | 2026-07-15 08:22 |
+| REQ-00559 | 数据库连接池智能预热与自适应管理系统 | 性能优化 | P1 | done | backend/shared/db, 所有微服务 | 2026-07-15 09:00 |
