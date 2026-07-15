@@ -12,3 +12,4 @@
 | REQ-00549 | Real-time API Latency and Jitter Monitoring System | 可观测性 | P1 | new | API Gateway, Monitoring Service | 2026-07-11 10:00 |
 | REQ-00550 | 协同作弊团伙检测系统 | 反作弊 | P0 | done | gateway, user-service, social-service | 2026-07-15 01:00 |
 | REQ-00551 | 跨语言实时聊天翻译系统 | 国际化/本地化 | P1 | new | social-service, gateway, game-client | 2026-07-15 02:00 |
+| REQ-00552 | 数据库执行计划智能缓存与优化系统 | 性能优化 | P1 | new | database-service, backend/shared, infrastructure | 2026-07-15 05:00 |
