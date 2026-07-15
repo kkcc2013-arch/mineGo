@@ -13,10 +13,10 @@
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 const zlib = require('zlib');
-const db = require('../../shared/db');
-const { getRedis, setJSON, getJSON } = require('../../shared/redis');
-const logger = require('../../shared/logger');
-const metrics = require('../../shared/metrics');
+const db = require('./db');
+const { getRedis, setJSON, getJSON } = require('./redis');
+const logger = require('./logger');
+const metrics = require('./metrics');
 
 class ReplayService {
   constructor() {

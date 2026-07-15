@@ -19,6 +19,8 @@ const logger = require('./logger');
 const metrics = require('./metrics');
 const { getTracer, initTracing } = require('./tracing');
 const HealthChecker = require('./HealthChecker');
+const { SloManager } = require('./SloManager');
+const { AlertManager } = require('./AlertManager');
 
 // ============================================================
 // 数据库相关
