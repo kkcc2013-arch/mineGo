@@ -16,3 +16,4 @@
 | REQ-00553 | 微服务共享模块拆分与职责边界重构 | 技术债/重构 | P1 | new | backend/shared、所有微服务 | 2026-07-15 03:00 |
 | REQ-00555 | 游戏服务端异常日志追踪与智能聚类告警系统 | 可观测性 | P1 | done | log-collector, observability-service, backend/shared | 2026-07-15 09:00 |
 | REQ-00556 | 基于机器学习的实时行为异常检测系统 | 反作弊 | P1 | new | anti-cheat-service, ml-service, user-service, catch-service | 2026-07-15 05:05 |
+| REQ-00557 | 游戏环境资源包差异化增量更新系统 | 性能优化 | P1 | new | asset-service, game-client, cdn-gateway | 2026-07-15 11:00 |
