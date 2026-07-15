@@ -1,502 +1,694 @@
 /**
- * MemoryScanner - 运行时内存扫描器
+ * MemoryScanner - 游戏客户端内存扫描器
  * 
  * 功能：
- * - 检测内存修改器特征码
- * - 检测 Hook 框架（Frida、Xposed）
- * - 检测代码注入
- * - 定期扫描并上报异常
+ * - 定期扫描关键游戏数据结构
+ * - 检测非法内存修改
+ * - 实现防篡改校验
+ * - 收集并上报异常数据
  * 
- * @module frontend/game-client/src/security/MemoryScanner
+ * @module game-client/security/MemoryScanner
  */
 
-const { memoryGuard } = require('./MemoryGuard');
+'use strict';
 
 class MemoryScanner {
-  constructor() {
-    this.memoryGuard = memoryGuard;
-    this.scanInterval = 30000; // 30 秒扫描一次
-    this.scanTimer = null;
+  constructor(options = {}) {
+    // 扫描配置
+    this.scanInterval = options.scanInterval || 3000; // 3秒
+    this.deepScanInterval = options.deepScanInterval || 30000; // 30秒
+    this.maxViolations = options.maxViolations || 5; // 最大违规次数
+    this.enabled = options.enabled !== false;
+    
+    // 扫描目标
+    this.scanTargets = new Map();
+    
+    // 扫描历史
+    this.scanHistory = [];
+    this.maxHistorySize = 100;
+    
+    // 状态
     this.isScanning = false;
-    this.scanCount = 0;
-    this.detectionHistory = [];
-    this.maxHistorySize = 50;
-    this.apiBaseUrl = '/api/v1/security';
+    this.lastScanTime = 0;
+    this.lastDeepScanTime = 0;
+    this.violationCount = 0;
     
-    // 可疑特征码模式
-    this.suspiciousPatterns = [
-      // 内存修改器
-      { name: 'GameGuardian', pattern: /gg\.(set|get|range|add|clear|search)/i, severity: 'high' },
-      { name: 'CheatEngine', pattern: /cheat\s*engine|ce_\w+/i, severity: 'high' },
-      { name: 'LuckyPatcher', pattern: /lucky\s*patcher|lp_\w+/i, severity: 'high' },
-      { name: 'GameCIH', pattern: /gamecih|cih_\w+/i, severity: 'high' },
-      { name: 'GameKiller', pattern: /gamekiller|gk_\w+/i, severity: 'high' },
-      
-      // Hook 框架
-      { name: 'Frida', pattern: /frida|__frida|FRIDA_/i, severity: 'critical' },
-      { name: 'Xposed', pattern: /xposed|de\.robv\.android\.xposed/i, severity: 'critical' },
-      { name: 'Substrate', pattern: /substrate|MSHook|MSMessage/i, severity: 'critical' },
-      { name: 'CydiaSubstrate', pattern: /cydia.*substrate/i, severity: 'critical' },
-      
-      // 调试器
-      { name: 'Debugger', pattern: /debugger|__debugger/i, severity: 'medium' },
-      
-      // 虚拟化检测绕过
-      { name: 'VMware', pattern: /vmware|vmware/i, severity: 'low' },
-      { name: 'VirtualBox', pattern: /virtualbox|vbox/i, severity: 'low' },
-      
-      // 自动化工具
-      { name: 'Selenium', pattern: /selenium|webdriver/i, severity: 'medium' },
-      { name: 'Puppeteer', pattern: /puppeteer|headless/i, severity: 'medium' },
-      
-      // 脚本注入
-      { name: 'Tampermonkey', pattern: /tampermonkey|greasemonkey/i, severity: 'low' }
-    ];
+    // 定时器
+    this.scanTimer = null;
+    this.deepScanTimer = null;
     
-    // 关键函数原始实现（用于检测 Hook）
-    this.originalFunctions = new Map();
+    // 回调
+    this.onViolation = options.onViolation || null;
+    this.onScanComplete = options.onScanComplete || null;
     
-    // Native 函数签名
-    this.nativeFunctionSignatures = new Map();
+    // 校验规则
+    this.rules = {
+      // 位置数据校验
+      position: {
+        minLat: -90,
+        maxLat: 90,
+        minLng: -180,
+        maxLng: 180,
+        maxSpeed: 200, // km/h (正常移动速度上限)
+      },
+      // 精灵属性校验
+      pokemon: {
+        minLevel: 1,
+        maxLevel: 100,
+        minCp: 10,
+        maxCp: 5000,
+        validTypes: [], // 从配置加载
+      },
+      // 战斗数据校验
+      battle: {
+        maxDamage: 10000,
+        minHp: 0,
+        maxHp: 1000,
+      }
+    };
+    
+    // 统计
+    this.stats = {
+      totalScans: 0,
+      quickScans: 0,
+      deepScans: 0,
+      violations: 0,
+      averageScanTime: 0
+    };
   }
 
   /**
-   * 启动定期扫描
+   * 注册扫描目标
+   * @param {string} name - 目标名称
+   * @param {Object} config - 扫描配置
    */
-  startScanning() {
+  registerTarget(name, config) {
+    const target = {
+      name,
+      type: config.type || 'object',
+      getter: config.getter, // 获取数据的函数
+      validator: config.validator, // 自定义验证器
+      checksum: config.checksum, // 校验和生成器
+      lastChecksum: null,
+      lastValue: null,
+      scanCount: 0,
+      violationCount: 0,
+      critical: config.critical || false,
+      enabled: config.enabled !== false
+    };
+
+    this.scanTargets.set(name, target);
+    
+    console.log(`[MemoryScanner] Registered scan target: ${name}`, {
+      type: target.type,
+      critical: target.critical
+    });
+
+    return target;
+  }
+
+  /**
+   * 注销扫描目标
+   */
+  unregisterTarget(name) {
+    if (this.scanTargets.has(name)) {
+      this.scanTargets.delete(name);
+      console.log(`[MemoryScanner] Unregistered target: ${name}`);
+    }
+  }
+
+  /**
+   * 执行快速扫描
+   */
+  quickScan() {
+    if (this.isScanning || !this.enabled) return null;
+
+    this.isScanning = true;
+    const startTime = performance.now();
+    const results = [];
+    const violations = [];
+
+    for (const [name, target] of this.scanTargets) {
+      if (!target.enabled) continue;
+
+      try {
+        // 获取当前值
+        const currentValue = target.getter ? target.getter() : null;
+        
+        if (currentValue === null || currentValue === undefined) {
+          continue;
+        }
+
+        // 计算校验和
+        const currentChecksum = this.computeChecksum(currentValue, target.type);
+        
+        // 检查校验和变化
+        const checksumChanged = target.lastChecksum !== null && 
+                                 target.lastChecksum !== currentChecksum;
+        
+        // 验证数据有效性
+        const validationResult = this.validateValue(name, currentValue, target);
+        
+        const result = {
+          target: name,
+          type: target.type,
+          checksum: currentChecksum,
+          checksumChanged,
+          valid: validationResult.valid,
+          errors: validationResult.errors || [],
+          scanTime: performance.now() - startTime
+        };
+
+        results.push(result);
+        target.scanCount++;
+
+        // 检测违规
+        if (checksumChanged || !validationResult.valid) {
+          const violation = {
+            target: name,
+            type: target.type,
+            previousChecksum: target.lastChecksum,
+            currentChecksum,
+            validationErrors: validationResult.errors,
+            critical: target.critical,
+            timestamp: Date.now()
+          };
+
+          violations.push(violation);
+          target.violationCount++;
+          this.violationCount++;
+          this.stats.violations++;
+
+          if (target.onViolation) {
+            target.onViolation(violation);
+          }
+        }
+
+        // 更新状态
+        target.lastChecksum = currentChecksum;
+        target.lastValue = currentValue;
+      } catch (error) {
+        console.error(`[MemoryScanner] Error scanning ${name}:`, error);
+      }
+    }
+
+    this.isScanning = false;
+    this.lastScanTime = Date.now();
+    this.stats.quickScans++;
+    this.stats.totalScans++;
+
+    const scanDuration = performance.now() - startTime;
+    this.updateAverageScanTime(scanDuration);
+
+    const report = {
+      type: 'quick',
+      timestamp: Date.now(),
+      duration: scanDuration,
+      targetsScanned: results.length,
+      violations: violations.length,
+      results,
+      violationsDetails: violations
+    };
+
+    this.addToHistory(report);
+
+    if (violations.length > 0 && this.onViolation) {
+      this.onViolation(violations);
+    }
+
+    if (this.onScanComplete) {
+      this.onScanComplete(report);
+    }
+
+    return report;
+  }
+
+  /**
+   * 执行深度扫描
+   */
+  deepScan() {
+    if (this.isScanning || !this.enabled) return null;
+
+    console.log('[MemoryScanner] Starting deep scan...');
+    
+    this.isScanning = true;
+    const startTime = performance.now();
+    const results = [];
+    const violations = [];
+
+    for (const [name, target] of this.scanTargets) {
+      if (!target.enabled) continue;
+
+      try {
+        const currentValue = target.getter ? target.getter() : null;
+        
+        if (currentValue === null) continue;
+
+        // 深度验证
+        const deepValidation = this.deepValidate(name, currentValue, target);
+        
+        // 检查数据完整性
+        const integrityCheck = this.checkDataIntegrity(currentValue, target.type);
+        
+        // 检查时间一致性
+        const timeConsistency = this.checkTimeConsistency(name, currentValue);
+
+        const result = {
+          target: name,
+          type: target.type,
+          deepValidation: deepValidation.valid,
+          integrityCheck: integrityCheck.valid,
+          timeConsistency: timeConsistency.valid,
+          errors: [
+            ...deepValidation.errors,
+            ...integrityCheck.errors,
+            ...timeConsistency.errors
+          ],
+          scanTime: performance.now() - startTime
+        };
+
+        results.push(result);
+
+        if (!deepValidation.valid || !integrityCheck.valid || !timeConsistency.valid) {
+          const violation = {
+            target: name,
+            type: 'DEEP_SCAN',
+            deepValidation,
+            integrityCheck,
+            timeConsistency,
+            critical: target.critical,
+            timestamp: Date.now()
+          };
+
+          violations.push(violation);
+          target.violationCount++;
+          this.violationCount++;
+          this.stats.violations++;
+        }
+      } catch (error) {
+        console.error(`[MemoryScanner] Deep scan error for ${name}:`, error);
+      }
+    }
+
+    this.isScanning = false;
+    this.lastDeepScanTime = Date.now();
+    this.stats.deepScans++;
+    this.stats.totalScans++;
+
+    const scanDuration = performance.now() - startTime;
+    this.updateAverageScanTime(scanDuration);
+
+    const report = {
+      type: 'deep',
+      timestamp: Date.now(),
+      duration: scanDuration,
+      targetsScanned: results.length,
+      violations: violations.length,
+      results,
+      violationsDetails: violations
+    };
+
+    this.addToHistory(report);
+
+    console.log(`[MemoryScanner] Deep scan complete. Duration: ${scanDuration.toFixed(2)}ms, Violations: ${violations.length}`);
+
+    if (violations.length > 0 && this.onViolation) {
+      this.onViolation(violations);
+    }
+
+    if (this.onScanComplete) {
+      this.onScanComplete(report);
+    }
+
+    return report;
+  }
+
+  /**
+   * 计算校验和
+   */
+  computeChecksum(value, type) {
+    try {
+      let normalized;
+      
+      switch (type) {
+        case 'position':
+          // 位置数据：精度到小数点后6位
+          normalized = {
+            lat: Math.round(value.lat * 1e6),
+            lng: Math.round(value.lng * 1e6),
+            alt: Math.round(value.alt || 0)
+          };
+          break;
+        case 'pokemon':
+          // 精灵数据：只校验关键字段
+          normalized = {
+            id: value.id,
+            level: value.level,
+            cp: value.cp,
+            hp: value.hp
+          };
+          break;
+        default:
+          normalized = value;
+      }
+
+      const str = JSON.stringify(normalized);
+      
+      // 简单哈希
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        const char = str.charCodeAt(i);
+        hash = ((hash << 5) - hash) + char;
+        hash = hash & hash;
+      }
+
+      return Math.abs(hash).toString(16).padStart(8, '0');
+    } catch (error) {
+      return 'ERROR';
+    }
+  }
+
+  /**
+   * 验证值
+   */
+  validateValue(targetName, value, targetConfig) {
+    const errors = [];
+
+    // 使用自定义验证器
+    if (targetConfig.validator) {
+      const customResult = targetConfig.validator(value);
+      if (!customResult.valid) {
+        errors.push(...customResult.errors);
+      }
+    }
+
+    // 根据类型进行默认验证
+    switch (targetConfig.type) {
+      case 'position':
+        const posResult = this.validatePosition(value);
+        if (!posResult.valid) {
+          errors.push(...posResult.errors);
+        }
+        break;
+      case 'pokemon':
+        const pokemonResult = this.validatePokemon(value);
+        if (!pokemonResult.valid) {
+          errors.push(...pokemonResult.errors);
+        }
+        break;
+      case 'battle':
+        const battleResult = this.validateBattle(value);
+        if (!battleResult.valid) {
+          errors.push(...battleResult.errors);
+        }
+        break;
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    };
+  }
+
+  /**
+   * 验证位置数据
+   */
+  validatePosition(position) {
+    const errors = [];
+    const rules = this.rules.position;
+
+    if (position.lat < rules.minLat || position.lat > rules.maxLat) {
+      errors.push(`Invalid latitude: ${position.lat}`);
+    }
+
+    if (position.lng < rules.minLng || position.lng > rules.maxLng) {
+      errors.push(`Invalid longitude: ${position.lng}`);
+    }
+
+    // 检查移动速度（如果有上一个位置）
+    // TODO: 实现速度检测
+
+    return {
+      valid: errors.length === 0,
+      errors
+    };
+  }
+
+  /**
+   * 验证精灵数据
+   */
+  validatePokemon(pokemon) {
+    const errors = [];
+    const rules = this.rules.pokemon;
+
+    if (pokemon.level < rules.minLevel || pokemon.level > rules.maxLevel) {
+      errors.push(`Invalid level: ${pokemon.level}`);
+    }
+
+    if (pokemon.cp < rules.minCp || pokemon.cp > rules.maxCp) {
+      errors.push(`Invalid CP: ${pokemon.cp}`);
+    }
+
+    if (pokemon.hp < rules.minHp || pokemon.hp > pokemon.maxHp) {
+      errors.push(`Invalid HP: ${pokemon.hp}`);
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    };
+  }
+
+  /**
+   * 验证战斗数据
+   */
+  validateBattle(battle) {
+    const errors = [];
+    const rules = this.rules.battle;
+
+    if (battle.damage > rules.maxDamage) {
+      errors.push(`Abnormal damage: ${battle.damage}`);
+    }
+
+    if (battle.hp < rules.minHp) {
+      errors.push(`Invalid HP: ${battle.hp}`);
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    };
+  }
+
+  /**
+   * 深度验证
+   */
+  deepValidate(targetName, value, targetConfig) {
+    const errors = [];
+
+    // 检查对象完整性
+    if (typeof value !== 'object' || value === null) {
+      errors.push('Value is not an object');
+      return { valid: false, errors };
+    }
+
+    // 检查原型链
+    const proto = Object.getPrototypeOf(value);
+    if (proto === null || proto === Object.prototype) {
+      // 正常
+    } else {
+      // 检查是否被篡改
+      const protoStr = proto.toString();
+      if (protoStr.includes('Proxy') || protoStr.includes('Modified')) {
+        errors.push('Prototype chain appears modified');
+      }
+    }
+
+    // 检查属性描述符
+    for (const key of Object.keys(value)) {
+      const descriptor = Object.getOwnPropertyDescriptor(value, key);
+      if (descriptor && descriptor.get) {
+        // Getter 可能被劫持
+        errors.push(`Property ${key} has getter which may be hijacked`);
+      }
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    };
+  }
+
+  /**
+   * 检查数据完整性
+   */
+  checkDataIntegrity(value, type) {
+    const errors = [];
+
+    // 检查是否有意外的属性
+    const expectedProps = {
+      position: ['lat', 'lng', 'alt', 'accuracy'],
+      pokemon: ['id', 'level', 'cp', 'hp', 'maxHp'],
+      battle: ['sessionId', 'hp', 'energy', 'damage']
+    };
+
+    if (expectedProps[type]) {
+      const actualProps = Object.keys(value);
+      const unexpected = actualProps.filter(p => !expectedProps[type].includes(p));
+      
+      if (unexpected.length > 0) {
+        errors.push(`Unexpected properties: ${unexpected.join(', ')}`);
+      }
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    };
+  }
+
+  /**
+   * 检查时间一致性
+   */
+  checkTimeConsistency(targetName, value) {
+    const errors = [];
+
+    // 检查时间戳是否合理
+    if (value.timestamp) {
+      const now = Date.now();
+      const diff = Math.abs(now - value.timestamp);
+      
+      // 时间戳不能偏离当前时间太多
+      if (diff > 60000) { // 60秒
+        errors.push(`Timestamp drift detected: ${diff}ms`);
+      }
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors
+    };
+  }
+
+  /**
+   * 更新平均扫描时间
+   */
+  updateAverageScanTime(duration) {
+    const prevAvg = this.stats.averageScanTime;
+    const count = this.stats.totalScans;
+    
+    this.stats.averageScanTime = (prevAvg * (count - 1) + duration) / count;
+  }
+
+  /**
+   * 添加到历史记录
+   */
+  addToHistory(report) {
+    this.scanHistory.push(report);
+    
+    if (this.scanHistory.length > this.maxHistorySize) {
+      this.scanHistory.shift();
+    }
+  }
+
+  /**
+   * 启动扫描
+   */
+  start() {
     if (this.scanTimer) {
-      console.warn('[MemoryScanner] Already scanning');
+      console.warn('[MemoryScanner] Already running');
       return;
     }
-    
-    // 保存原始函数引用
-    this.saveOriginalFunctions();
-    
-    // 立即执行一次扫描
-    this.scan();
-    
-    // 启动定期扫描
+
+    this.enabled = true;
+
+    // 启动快速扫描
     this.scanTimer = setInterval(() => {
-      this.scan();
+      this.quickScan();
     }, this.scanInterval);
-    
-    console.log('[MemoryScanner] Started periodic scanning');
+
+    // 启动深度扫描
+    this.deepScanTimer = setInterval(() => {
+      this.deepScan();
+    }, this.deepScanInterval);
+
+    console.log(`[MemoryScanner] Started. Quick scan: ${this.scanInterval}ms, Deep scan: ${this.deepScanInterval}ms`);
   }
 
   /**
    * 停止扫描
    */
-  stopScanning() {
+  stop() {
     if (this.scanTimer) {
       clearInterval(this.scanTimer);
       this.scanTimer = null;
     }
-    console.log('[MemoryScanner] Stopped scanning');
+
+    if (this.deepScanTimer) {
+      clearInterval(this.deepScanTimer);
+      this.deepScanTimer = null;
+    }
+
+    this.enabled = false;
+    console.log('[MemoryScanner] Stopped');
   }
 
   /**
-   * 保存原始函数引用
+   * 获取状态
    */
-  saveOriginalFunctions() {
-    // 保存关键原生函数
-    const nativeFunctions = [
-      { obj: window, name: 'fetch' },
-      { obj: window, name: 'XMLHttpRequest' },
-      { obj: window, name: 'localStorage' },
-      { obj: window, name: 'sessionStorage' },
-      { obj: JSON, name: 'stringify' },
-      { obj: JSON, name: 'parse' },
-      { obj: Object, name: 'freeze' },
-      { obj: Object, name: 'defineProperty' },
-      { obj: Array.prototype, name: 'push' },
-      { obj: Array.prototype, name: 'splice' }
-    ];
-    
-    for (const { obj, name } of nativeFunctions) {
-      if (obj && obj[name]) {
-        this.originalFunctions.set(name, {
-          fn: obj[name],
-          string: obj[name].toString()
-        });
-      }
-    }
-  }
-
-  /**
-   * 执行扫描
-   * @returns {Promise<Array>}
-   */
-  async scan() {
-    if (this.isScanning) {
-      return [];
-    }
-    
-    this.isScanning = true;
-    this.scanCount++;
-    const detections = [];
-    
-    try {
-      // 1. 全局作用域扫描
-      const globalDetections = this.scanGlobalScope();
-      detections.push(...globalDetections);
-      
-      // 2. 原型污染检测
-      const prototypeDetections = this.checkPrototypePollution();
-      detections.push(...prototypeDetections);
-      
-      // 3. Native 函数 Hook 检测
-      const hookDetections = this.checkNativeHooks();
-      detections.push(...hookDetections);
-      
-      // 4. DOM 篡改检测
-      const domDetections = this.checkDOMTampering();
-      detections.push(...domDetections);
-      
-      // 5. 时间戳篡改检测
-      const timeDetections = this.checkTimeManipulation();
-      detections.push(...timeDetections);
-      
-      // 记录检测结果
-      if (detections.length > 0) {
-        this.recordDetections(detections);
-        
-        // 上报服务端
-        await this.reportDetections(detections);
-      }
-      
-    } catch (error) {
-      console.error('[MemoryScanner] Scan error:', error);
-    } finally {
-      this.isScanning = false;
-    }
-    
-    return detections;
-  }
-
-  /**
-   * 扫描全局作用域
-   * @returns {Array}
-   */
-  scanGlobalScope() {
-    const detections = [];
-    
-    try {
-      // 获取全局对象字符串表示
-      const globalKeys = Object.keys(globalThis).join(' ');
-      const globalValues = Object.values(globalThis)
-        .map(v => typeof v === 'function' ? v.toString() : String(v))
-        .join(' ');
-      
-      // 检测可疑模式
-      for (const { name, pattern, severity } of this.suspiciousPatterns) {
-        if (pattern.test(globalKeys) || pattern.test(globalValues)) {
-          detections.push({
-            name,
-            type: 'global_scope',
-            severity,
-            timestamp: Date.now(),
-            details: `Pattern found in global scope`
-          });
-        }
-      }
-      
-    } catch (error) {
-      // 忽略权限错误
-    }
-    
-    return detections;
-  }
-
-  /**
-   * 检查原型污染
-   * @returns {Array}
-   */
-  checkPrototypePollution() {
-    const detections = [];
-    
-    try {
-      // 检查 Object.prototype 是否被修改
-      const objectProtoKeys = Object.keys(Object.prototype);
-      const suspiciousProtoKeys = ['constructor', '__proto__', 'prototype'];
-      
-      for (const key of objectProtoKeys) {
-        if (!suspiciousProtoKeys.includes(key) && !Object.prototype.hasOwnProperty.call(Object.prototype, key)) {
-          // 可能被污染
-          detections.push({
-            name: 'ObjectPrototypePollution',
-            type: 'prototype_pollution',
-            severity: 'high',
-            timestamp: Date.now(),
-            details: `Unexpected key on Object.prototype: ${key}`
-          });
-        }
-      }
-      
-      // 检查 Array.prototype
-      const arrayProtoKeys = Object.keys(Array.prototype);
-      const knownArrayMethods = [
-        'length', 'constructor', 'concat', 'copyWithin', 'fill', 'find', 'findIndex',
-        'pop', 'push', 'reverse', 'shift', 'slice', 'sort', 'splice', 'unshift',
-        'includes', 'indexOf', 'keys', 'entries', 'forEach', 'filter', 'flat',
-        'flatMap', 'map', 'every', 'some', 'reduce', 'reduceRight', 'toLocaleString',
-        'toString', 'values', 'at', 'findLast', 'findLastIndex', 'toReversed',
-        'toSorted', 'toSpliced', 'with'
-      ];
-      
-      for (const key of arrayProtoKeys) {
-        if (!knownArrayMethods.includes(key)) {
-          detections.push({
-            name: 'ArrayPrototypePollution',
-            type: 'prototype_pollution',
-            severity: 'medium',
-            timestamp: Date.now(),
-            details: `Unexpected key on Array.prototype: ${key}`
-          });
-        }
-      }
-      
-    } catch (error) {
-      // 忽略
-    }
-    
-    return detections;
-  }
-
-  /**
-   * 检查 Native 函数是否被 Hook
-   * @returns {Array}
-   */
-  checkNativeHooks() {
-    const detections = [];
-    
-    try {
-      for (const [name, original] of this.originalFunctions.entries()) {
-        const current = original.fn;
-        
-        if (!current) continue;
-        
-        // 检查 toString 结果是否被修改
-        const currentString = current.toString();
-        
-        // Native 函数通常显示为 [native code]
-        if (original.string.includes('[native code]') && 
-            !currentString.includes('[native code]')) {
-          detections.push({
-            name: `NativeHook_${name}`,
-            type: 'native_hook',
-            severity: 'critical',
-            timestamp: Date.now(),
-            details: `Function ${name} appears to be hooked`,
-            original: original.string.substring(0, 100),
-            current: currentString.substring(0, 100)
-          });
-        }
-        
-        // 检查函数是否被替换
-        if (current !== original.fn) {
-          detections.push({
-            name: `FunctionReplaced_${name}`,
-            type: 'function_replacement',
-            severity: 'high',
-            timestamp: Date.now(),
-            details: `Function ${name} reference changed`
-          });
-        }
-      }
-      
-    } catch (error) {
-      // 忽略
-    }
-    
-    return detections;
-  }
-
-  /**
-   * 检查 DOM 篡改
-   * @returns {Array}
-   */
-  checkDOMTampering() {
-    const detections = [];
-    
-    try {
-      // 检查是否有隐藏的 iframe（可能用于注入）
-      const hiddenIframes = document.querySelectorAll('iframe[style*="display: none"], iframe[style*="visibility: hidden"]');
-      
-      if (hiddenIframes.length > 0) {
-        detections.push({
-          name: 'HiddenIframes',
-          type: 'dom_tampering',
-          severity: 'medium',
-          timestamp: Date.now(),
-          details: `Found ${hiddenIframes.length} hidden iframes`
-        });
-      }
-      
-      // 检查是否有可疑的 script 标签
-      const scripts = document.querySelectorAll('script');
-      for (const script of scripts) {
-        const content = script.textContent || '';
-        
-        if (content.includes('eval(') || 
-            content.includes('Function(') ||
-            content.includes('document.write(')) {
-          detections.push({
-            name: 'SuspiciousScript',
-            type: 'dom_tampering',
-            severity: 'high',
-            timestamp: Date.now(),
-            details: 'Script contains suspicious patterns'
-          });
-          break;
-        }
-      }
-      
-    } catch (error) {
-      // 忽略
-    }
-    
-    return detections;
-  }
-
-  /**
-   * 检查时间篡改
-   * @returns {Array}
-   */
-  checkTimeManipulation() {
-    const detections = [];
-    
-    try {
-      // 使用 Performance API 检测时间异常
-      const now = Date.now();
-      const perfNow = performance.now();
-      
-      // 如果两次调用相差太大，可能时间被篡改
-      const expectedPerfNow = perfNow - this.lastPerfNow || 0;
-      
-      if (this.lastPerfNow && expectedPerfNow > this.scanInterval * 2) {
-        detections.push({
-          name: 'TimeManipulation',
-          type: 'time_tampering',
-          severity: 'medium',
-          timestamp: now,
-          details: 'Possible time manipulation detected'
-        });
-      }
-      
-      this.lastPerfNow = perfNow;
-      
-    } catch (error) {
-      // 忽略
-    }
-    
-    return detections;
-  }
-
-  /**
-   * 记录检测结果
-   * @param {Array} detections 
-   */
-  recordDetections(detections) {
-    this.detectionHistory.push(...detections);
-    
-    // 限制历史大小
-    if (this.detectionHistory.length > this.maxHistorySize) {
-      this.detectionHistory = this.detectionHistory.slice(-this.maxHistorySize);
-    }
-  }
-
-  /**
-   * 上报检测结果
-   * @param {Array} detections 
-   */
-  async reportDetections(detections) {
-    try {
-      // 过滤严重级别
-      const criticalAndHigh = detections.filter(
-        d => d.severity === 'critical' || d.severity === 'high'
-      );
-      
-      if (criticalAndHigh.length === 0) {
-        return; // 只上报严重问题
-      }
-      
-      const response = await fetch(`${this.apiBaseUrl}/report-scan`, {
-        method: 'POST',
-        headers: this.memoryGuard.getSecureHeaders(),
-        body: JSON.stringify({
-          sessionId: this.memoryGuard.sessionId,
-          scanCount: this.scanCount,
-          detections: criticalAndHigh,
-          timestamp: Date.now(),
-          url: window.location.href
-        })
-      });
-      
-      const result = await response.json();
-      
-      if (result.action === 'ban') {
-        this.memoryGuard.triggerBan(result.reason);
-      }
-      
-    } catch (error) {
-      console.error('[MemoryScanner] Failed to report:', error);
-    }
-  }
-
-  /**
-   * 获取扫描统计
-   * @returns {Object}
-   */
-  getStats() {
-    const severityCounts = {
-      critical: 0,
-      high: 0,
-      medium: 0,
-      low: 0
-    };
-    
-    for (const detection of this.detectionHistory) {
-      severityCounts[detection.severity] = (severityCounts[detection.severity] || 0) + 1;
-    }
-    
+  getStatus() {
     return {
-      scanCount: this.scanCount,
+      enabled: this.enabled,
       isScanning: this.isScanning,
-      totalDetections: this.detectionHistory.length,
-      severityCounts,
-      lastScanTime: this.detectionHistory.length > 0 
-        ? this.detectionHistory[this.detectionHistory.length - 1].timestamp 
-        : null
+      lastScanTime: this.lastScanTime,
+      lastDeepScanTime: this.lastDeepScanTime,
+      targetsCount: this.scanTargets.size,
+      violationCount: this.violationCount,
+      stats: { ...this.stats },
+      targets: Array.from(this.scanTargets.entries()).map(([name, target]) => ({
+        name,
+        type: target.type,
+        scanCount: target.scanCount,
+        violationCount: target.violationCount,
+        critical: target.critical
+      }))
     };
   }
 
   /**
-   * 手动触发扫描
-   * @returns {Promise<Object>}
+   * 获取扫描历史
    */
-  async manualScan() {
-    const detections = await this.scan();
-    return {
-      scanCount: this.scanCount,
-      detections,
-      stats: this.getStats()
-    };
+  getHistory(limit = 10) {
+    return this.scanHistory.slice(-limit);
   }
 
   /**
-   * 清除历史记录
+   * 重置统计
    */
-  clearHistory() {
-    this.detectionHistory = [];
+  resetStats() {
+    this.stats = {
+      totalScans: 0,
+      quickScans: 0,
+      deepScans: 0,
+      violations: 0,
+      averageScanTime: 0
+    };
+    this.violationCount = 0;
+    this.scanHistory = [];
   }
 }
 
-// 单例导出
-const memoryScanner = new MemoryScanner();
+// 导出单例
+let instance = null;
 
-// 全局暴露
-if (typeof window !== 'undefined') {
-  window.__memoryScanner = memoryScanner;
+function getMemoryScanner(options = {}) {
+  if (!instance) {
+    instance = new MemoryScanner(options);
+  }
+  return instance;
 }
 
-module.exports = { MemoryScanner, memoryScanner };
+module.exports = {
+  MemoryScanner,
+  getMemoryScanner
+};

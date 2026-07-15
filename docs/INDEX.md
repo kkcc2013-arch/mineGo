@@ -39,3 +39,4 @@
 | REQ-00545 | API 性能采样数据智能分析与自动调优建议系统 | 性能优化 | P1 | new | backend/shared/performanceSamplingAnalysis、gateway/src/middleware/perfSamplingAnalysis、backend/jobs/performanceAnalysisJob.js、infrastructure/monitoring、admin-dashboard | 2026-07-12 17:00 |
 | REQ-00546 | API Mock 服务与测试隔离系统 | 测试覆盖 | P1 | new | backend/tests、backend/shared/mockService、所有后端服务、gateway、.github/workflows | 2026-07-12 18:45 |
 | REQ-00547 | API 响应 Schema 强制执行与合约测试自动化系统 | API 设计规范 | P1 | new | gateway、所有后端服务、backend/shared/schemaValidator.js、backend/tests/contract、.github/workflows | 2026-07-12 19:00 |
+| REQ-00548 | API 请求签名验证与防篡改保护系统 | API 设计规范 | P1 | new | gateway、所有后端服务、backend/shared/requestSignatureService.js、game-client、admin-dashboard | 2026-07-15 04:00 |
