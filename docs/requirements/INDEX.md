@@ -14,3 +14,4 @@
 | REQ-00551 | 跨语言实时聊天翻译系统 | 国际化/本地化 | P1 | new | social-service, gateway, game-client | 2026-07-15 02:00 |
 | REQ-00552 | 数据库执行计划智能缓存与优化系统 | 性能优化 | P1 | new | database-service, backend/shared, infrastructure | 2026-07-15 05:00 |
 | REQ-00553 | 微服务共享模块拆分与职责边界重构 | 技术债/重构 | P1 | new | backend/shared、所有微服务 | 2026-07-15 03:00 |
+| REQ-00554 | API响应协议内容协商与媒体类型智能转换 | 性能优化 | P1 | new | api-gateway, backend/shared, game-client | 2026-07-15 08:00 |
