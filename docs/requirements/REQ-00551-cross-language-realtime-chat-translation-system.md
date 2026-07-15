@@ -3,7 +3,7 @@
 - **编号**：REQ-00551
 - **类别**：国际化/本地化
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：social-service、gateway、game-client、backend/shared/ai、Redis、PostgreSQL
 - **创建时间**：2026-07-15 02:00
 - **依赖需求**：REQ-00011（多语言支持）、REQ-00116（语音聊天系统）、REQ-00137（翻译管理系统）
