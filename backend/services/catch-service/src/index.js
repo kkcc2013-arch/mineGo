@@ -3,7 +3,7 @@
 'use strict';
 
 const { ServiceFactory } = require('../../../shared/ServiceFactory');
-const { query } = require('../../../shared/db');
+const { query, preparedQuery } = require('../../../shared/db');
 const { transactionSerializable } = require('../../../shared/transactionManager');
 const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
 const { requireAuth, AppError, successResp } = require('../../../shared/auth');
@@ -146,9 +146,12 @@ async function handleCatch(userId, session, throwRating, isCurve, sessionId, log
         has_shiny = pokedex_entries.has_shiny OR $4
     `, [userId, session.speciesId, session.cp, session.isShiny]);
 
-    // Mark wild as caught
-    await client.query('UPDATE wild_pokemon SET is_caught=true, caught_by=$1 WHERE id=$2',
-      [userId, session.wildId]);
+    // Mark wild as caught - REQ-00575: 使用预编译查询
+    await client.query({
+      name: 'update_wild_pokemon_caught',
+      text: 'UPDATE wild_pokemon SET is_caught=true, caught_by=$1 WHERE id=$2',
+      values: [userId, session.wildId]
+    });
 
     // Close session
     await client.query(`

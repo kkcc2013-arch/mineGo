@@ -9,8 +9,37 @@ const { getPoolManager, metrics: poolMetrics } = require('./DatabasePool');
 // 使用 shared/metrics.js 中的 dbQueryDuration metric，避免重复注册
 const { dbQueryDuration } = require('./metrics');
 
+// REQ-00575: 预编译语句管理
+const { PREPARED_STATEMENTS, getStatementByName } = require('./preparedStatements');
+
+const { Client: PrometheusClient } = require('prom-client');
+
+// 预编译语句性能指标
+const preparedQueryDuration = new PrometheusClient.Histogram({
+  name: 'db_prepared_query_duration_seconds',
+  help: 'Prepared statement query duration in seconds',
+  labelNames: ['statement', 'service'],
+  buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0]
+});
+
+const preparedQueryCount = new PrometheusClient.Counter({
+  name: 'db_prepared_query_count_total',
+  help: 'Total number of prepared statement queries',
+  labelNames: ['statement', 'service']
+});
+
+const preparedWarmupCount = new PrometheusClient.Counter({
+  name: 'db_prepared_warmup_count_total',
+  help: 'Total number of prepared statement warmup attempts',
+  labelNames: ['service']
+});
+
+// 预编译语句统计
+const statementStats = new Map();
+
 let poolManager = null;
 let migrationsInitialized = false;
+let statementsWarmedUp = false;
 
 /**
  * Get the pool manager instance
@@ -666,3 +695,174 @@ module.exports.ISOLATION_LEVELS = require('./TransactionManager').ISOLATION_LEVE
 
 // QueryBuilder 类导出（供高级使用）
 module.exports.QueryBuilder = QueryBuilder;
+
+// ============================================================
+// REQ-00575: Prepared Statement Support
+// ============================================================
+
+/**
+ * 执行预编译查询
+ * @param {string} name - 预编译语句名称（如 'getNearbyWild'）
+ * @param {Array} params - 参数数组
+ * @returns {Promise<Object>} 查询结果
+ */
+async function preparedQuery(name, params) {
+  const start = Date.now();
+  const serviceName = process.env.SERVICE_NAME || 'default';
+  
+  // 获取预编译语句配置
+  const statementConfig = getStatementByName(name);
+  if (!statementConfig) {
+    logger.warn({ module: 'DB', msg: `Prepared statement '${name}' not found, falling back to query()` });
+    // 降级：如果语句未定义，返回空结果
+    throw new Error(`Prepared statement '${name}' not found`);
+  }
+  
+  const statementName = statementConfig.name;
+  const poolManager = getPoolManagerInstance();
+  const pool = poolManager.getPool(serviceName);
+  const client = await pool.connect();
+  
+  try {
+    // 执行预编译查询
+    const res = await client.query({
+      name: statementName,
+      text: statementConfig.text,
+      values: params
+    });
+    
+    const dur = Date.now() - start;
+    
+    // 更新 Prometheus 指标
+    preparedQueryDuration.observe({ statement: name, service: serviceName }, dur / 1000);
+    preparedQueryCount.inc({ statement: name, service: serviceName });
+    
+    // 更新统计
+    if (!statementStats.has(name)) {
+      statementStats.set(name, { count: 0, totalTime: 0, avgTime: 0 });
+    }
+    const stats = statementStats.get(name);
+    stats.count++;
+    stats.totalTime += dur;
+    stats.avgTime = stats.totalTime / stats.count;
+    
+    if (dur > 500) {
+      logger.warn({ module: 'DB', msg: `Slow prepared query (${name}, ${dur}ms)` });
+    }
+    
+    return res;
+  } catch (err) {
+    // 如果预编译失败，尝试降级为普通查询
+    if (err.code === '26000') { // prepared statement not found
+      logger.warn({ module: 'DB', msg: `Prepared statement '${name}' not found on server, falling back to query()` });
+      const res = await client.query(statementConfig.text, params);
+      return res;
+    }
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * 预热指定预编译语句（服务启动时调用）
+ * @param {string} name - 预编译语句名称
+ */
+async function warmupStatement(name) {
+  const serviceName = process.env.SERVICE_NAME || 'default';
+  const statementConfig = getStatementByName(name);
+  
+  if (!statementConfig) {
+    logger.warn({ module: 'DB', msg: `Cannot warmup: prepared statement '${name}' not found` });
+    return false;
+  }
+  
+  const poolManager = getPoolManagerInstance();
+  const pool = poolManager.getPool(serviceName);
+  const client = await pool.connect();
+  
+  try {
+    // 执行空查询以预热预编译语句
+    // 注意：PostgreSQL 会缓存执行计划
+    const dummyParams = statementConfig.paramTypes
+      ? statementConfig.paramTypes.map((type, i) => getDummyValueForType(type))
+      : [];
+    
+    await client.query({
+      name: statementConfig.name,
+      text: statementConfig.text,
+      values: dummyParams
+    });
+    
+    preparedWarmupCount.inc({ service: serviceName });
+    logger.info({ module: 'DB', msg: `Prepared statement '${name}' warmed up successfully` });
+    return true;
+  } catch (err) {
+    // 预热失败不影响服务启动
+    logger.warn({ module: 'DB', msg: `Failed to warmup prepared statement '${name}': ${err.message}` });
+    return false;
+  } finally {
+    client.release();
+  }
+}
+
+/**
+ * 预热服务的所有预编译语句
+ * @param {string} serviceName - 服务名称
+ */
+async function warmupServiceStatements(serviceName) {
+  const serviceStatements = Object.entries(PREPARED_STATEMENTS)
+    .filter(([_, config]) => config.service === serviceName);
+  
+  if (serviceStatements.length === 0) {
+    logger.info({ module: 'DB', msg: `No prepared statements for service '${serviceName}'` });
+    return;
+  }
+  
+  logger.info({ module: 'DB', msg: `Warming up ${serviceStatements.length} prepared statements for ${serviceName}` });
+  
+  for (const [name, config] of serviceStatements) {
+    await warmupStatement(name);
+    // 每次预热间隔 100ms，避免瞬间压力
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  
+  statementsWarmedUp = true;
+  logger.info({ module: 'DB', msg: `Prepared statements warmup complete for ${serviceName}` });
+}
+
+/**
+ * 获取预编译语句统计信息
+ */
+function getStatementStats() {
+  const stats = {};
+  for (const [name, data] of statementStats.entries()) {
+    stats[name] = { ...data };
+  }
+  return {
+    statements: stats,
+    warmedUp: statementsWarmedUp,
+    total: statementStats.size
+  };
+}
+
+/**
+ * 根据参数类型返回虚拟值用于预热
+ */
+function getDummyValueForType(type) {
+  switch (type) {
+    case 'int4': return 0;
+    case 'float8': return 0.0;
+    case 'varchar': return '';
+    case 'bool': return false;
+    case 'timestamp': return '1970-01-01';
+    default: return null;
+  }
+}
+
+// 导出预编译查询函数
+module.exports.preparedQuery = preparedQuery;
+module.exports.warmupStatement = warmupStatement;
+module.exports.warmupServiceStatements = warmupServiceStatements;
+module.exports.getStatementStats = getStatementStats;
+module.exports.PREPARED_STATEMENTS = PREPARED_STATEMENTS;

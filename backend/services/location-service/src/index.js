@@ -3,7 +3,7 @@
 const express  = require('express');
 const cors     = require('cors');
 const helmet   = require('helmet');
-const { query }  = require('../../../shared/db');
+const { query, preparedQuery }  = require('../../../shared/db');
 const { getRedis, geoAdd, geoRadius, setJSON, getJSON } = require('../../../shared/redis');
 const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
@@ -392,22 +392,8 @@ async function getNearbyWild(lat, lng, radius) {
 }
 
 async function getNearbyWildFromDB(lat, lng, radius) {
-  const { rows } = await query(`
-    SELECT w.id, w.species_id, w.lat, w.lng, w.cp,
-           w.is_shiny, w.weather_boosted, w.expires_at,
-           p.name_zh, p.name_en, p.type1, p.type2, p.rarity, p.sprite_url
-    FROM wild_pokemon w
-    JOIN pokemon_species p ON p.id = w.species_id
-    WHERE w.is_caught = false
-      AND w.expires_at > NOW()
-      AND ST_DWithin(
-        w.location::geography,
-        ST_SetSRID(ST_MakePoint($2,$1),4326)::geography,
-        $3
-      )
-    ORDER BY w.expires_at DESC
-    LIMIT 50
-  `, [lat, lng, radius]);
+  // REQ-00575: 使用预编译查询提升性能
+  const { rows } = await preparedQuery('getNearbyWild', [lat, lng, radius]);
   
   // Populate cache for future queries
   for (const w of rows) {
@@ -418,11 +404,8 @@ async function getNearbyWildFromDB(lat, lng, radius) {
 }
 
 async function getNearbyWildCount(lat, lng, radius) {
-  const { rows: [r] } = await query(`
-    SELECT COUNT(*)::int FROM wild_pokemon
-    WHERE is_caught=false AND expires_at > NOW()
-      AND ST_DWithin(location::geography, ST_SetSRID(ST_MakePoint($2,$1),4326)::geography, $3)
-  `, [lat, lng, radius]);
+  // REQ-00575: 使用预编译查询
+  const { rows: [r] } = await preparedQuery('getNearbyWildCount', [lat, lng, radius]);
   return r.count;
 }
 
