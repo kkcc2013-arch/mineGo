@@ -19,6 +19,9 @@ const spawnConfigRouter = require('./routes/spawnConfig');
 // Import recovery stations routes (REQ-00156)
 const recoveryStationsRouter = require('./routes/recoveryStations');
 
+// Import location verify routes (REQ-00586)
+const locationVerifyRouter = require('./routes/locationVerify');
+
 // Import day/night cycle routes (REQ-00102)
 const dayNightRouter = require('./routes/dayNight');
 
@@ -472,6 +475,9 @@ app.use('/daynight', dayNightRouter);
 
 // ── Habitat Routes (REQ-00361: 精灵栖息地偏好与环境加成系统) ──────────────
 app.use('/habitat', habitatRouter);
+
+// ── Location Verification Routes (REQ-00586: GPS 位置欺骗检测) ──────────────
+app.use('/api/v1/location', locationVerifyRouter);
 
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'Location service started'));

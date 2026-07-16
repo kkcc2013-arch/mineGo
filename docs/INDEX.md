@@ -48,4 +48,5 @@
 | REQ-00580 | WebSocket 消息批处理队列内存优化 | 性能优化 | P1 | done | backend/shared/websocket | 2026-07-16 19:00 |
 | REQ-00581 | 数据库连接池智能预热与动态自适应管理系统 | 性能优化 | P1 | new | backend-gateway, database-manager | 2026-07-16 12:00 |
 | REQ-00582 | 微服务链路追踪采样率智能自适应与成本优化系统 | 可观测性 | P1 | done | gateway, backend/shared/tracing | 2026-07-16 20:15 |
-| REQ-00586 | GPS 位置欺骗检测与虚拟定位防护系统 | 反作弊 | P0 | new | game-client、gateway、location-service、backend/security、backend/analysis、Redis、PostgreSQL | 2026-07-16 22:00 |
+| REQ-00586 | GPS 位置欺骗检测与虚拟定位防护系统 | 反作弊 | P0 | done | game-client、gateway、location-service、backend/security、backend/analysis、Redis、PostgreSQL | 2026-07-16 22:00 |
+| REQ-00587 | 用户界面文本智能截断与本地化适配系统 | 国际化/本地化 | P1 | new | game-client、backend/shared/i18n/textTruncator.js、所有后端服务、admin-dashboard | 2026-07-16 23:00 |
