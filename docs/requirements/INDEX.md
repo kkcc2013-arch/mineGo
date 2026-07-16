@@ -24,5 +24,5 @@
 | REQ-00562 | 国际化内容合规性审计与隐私合规自动扫描系统 | 合规/隐私 | P1 | new | localization-service, security-service, content-management | 2026-07-15 15:00 |
 | REQ-00563 | SLO 合规性监控与违规预警系统 | 运维/CICD | P1 | new | gateway, infrastructure/monitoring, backend/shared/sloManager | 2026-07-15 11:00 |
 | REQ-00564 | 微服务契约测试Mock服务自动生成系统 | 测试覆盖 | P1 | new | backend/shared, test-suite, api-gateway | 2026-07-16 09:00 |
-| REQ-00565 | 数据库敏感字段透明加密系统 | 安全加固 | P0 | new | backend/shared/crypto, user-service, payment-service, social-service | 2026-07-16 02:05 |
+| REQ-00565 | 数据库敏感字段透明加密系统 | 安全加固 | P0 | done | backend/shared/crypto, user-service, payment-service, social-service | 2026-07-16 02:05 |
 | REQ-00566 | 高对比度模式与视觉辅助增强系统 | 无障碍(a11y) | P1 | new | game-client, ui-framework, localization-service | 2026-07-16 10:00 |
