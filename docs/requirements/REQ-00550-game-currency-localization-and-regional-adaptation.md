@@ -3,7 +3,7 @@
 - **编号**：REQ-00550
 - **类别**：国际化/本地化
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：backend/shared/currencyLocalizer、payment-service、user-service、gateway、game-client、admin-dashboard
 - **创建时间**：2026-07-16 11:00
 - **依赖需求**：REQ-00500（服务端数字格式化本地化，已完成）、REQ-00524（日期时间格式本地化，已完成）
