@@ -44,3 +44,7 @@
 | REQ-00550 | 游戏内货币本地化显示与智能区域适配系统 | 国际化/本地化 | P1 | done | backend/shared/currencyLocalizer、payment-service、user-service、gateway、game-client、admin-dashboard | 2026-07-16 11:00 |
 | REQ-00551 | API 错误码交互式文档与在线调试沙盒系统 | 文档/开发者体验 | P1 | new | gateway、admin-dashboard、docs-site、backend/shared/errorCodes | 2026-07-16 14:00 |
 | REQ-00552 | WebSocket 连接池自适应伸缩与资源优化系统 | 性能优化 | P1 | new | backend/shared/websocket、gateway、infrastructure/monitoring、backend/jobs | 2026-07-16 15:00 |
+| REQ-00579 | 年龄限制中间件测试覆盖 | 测试覆盖 | P0 | done | gateway, user-service | 2026-07-16 18:00 |
+| REQ-00580 | WebSocket 消息批处理队列内存优化 | 性能优化 | P1 | done | backend/shared/websocket | 2026-07-16 19:00 |
+| REQ-00581 | 数据库连接池智能预热与动态自适应管理系统 | 性能优化 | P1 | new | backend-gateway, database-manager | 2026-07-16 12:00 |
+| REQ-00582 | 微服务链路追踪采样率智能自适应与成本优化系统 | 可观测性 | P1 | new | gateway, backend/shared/tracing | 2026-07-16 20:15 |
