@@ -29,3 +29,4 @@
 | REQ-00566 | 高对比度模式与视觉辅助增强系统 | 无障碍(a11y) | P1 | new | game-client, ui-framework, localization-service | 2026-07-16 10:00 |
 | REQ-00568 | 游戏服务器资源生命周期自动管理与资源回收系统 | 运维/CICD | P1 | new | infrastructure-manager, kubernetes-controller, resource-monitor | 2026-07-16 11:00 |
 | REQ-00569 | 跨区域容灾演练自动化与灾备切换决策引擎 | 容灾/高可用 | P1 | new | gateway, infrastructure, multiRegionArbitration | 2026-07-16 04:00 |
+| REQ-00570 | 贸易反作弊引擎模块化重构 | 技术债/重构 | P1 | new | trade-service, anti-cheat-service | 2026-07-16 12:00 |
