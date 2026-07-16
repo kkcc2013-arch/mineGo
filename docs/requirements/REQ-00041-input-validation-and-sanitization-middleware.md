@@ -7,7 +7,7 @@
 | 标题 | 统一 API 输入验证与清理中间件 |
 | 类别 | 安全加固 |
 | 优先级 | P0 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | api-gateway, user-service, pokemon-service |
 | 创建时间 | 2026-07-16 12:00 |
 

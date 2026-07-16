@@ -43,3 +43,4 @@
 | REQ-00549 | 服务生命周期状态机与优雅转换系统 | 可扩展性/解耦 | P1 | done | backend/shared/serviceLifecycle、gateway、所有后端服务、infrastructure/k8s | 2026-07-16 11:13 |
 | REQ-00550 | 游戏内货币本地化显示与智能区域适配系统 | 国际化/本地化 | P1 | done | backend/shared/currencyLocalizer、payment-service、user-service、gateway、game-client、admin-dashboard | 2026-07-16 11:00 |
 | REQ-00551 | API 错误码交互式文档与在线调试沙盒系统 | 文档/开发者体验 | P1 | new | gateway、admin-dashboard、docs-site、backend/shared/errorCodes | 2026-07-16 14:00 |
+| REQ-00552 | WebSocket 连接池自适应伸缩与资源优化系统 | 性能优化 | P1 | new | backend/shared/websocket、gateway、infrastructure/monitoring、backend/jobs | 2026-07-16 15:00 |
