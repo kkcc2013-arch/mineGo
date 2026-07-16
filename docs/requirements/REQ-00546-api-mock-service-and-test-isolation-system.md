@@ -3,7 +3,7 @@
 - **编号**：REQ-00546
 - **类别**：测试覆盖
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：backend/tests、backend/shared/mockService、所有后端服务、gateway、.github/workflows
 - **创建时间**：2026-07-12 18:45
 - **依赖需求**：REQ-00022（集成测试框架）、REQ-00049（API 客户端 SDK）
