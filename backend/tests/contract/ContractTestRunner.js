@@ -1,287 +1,423 @@
 'use strict';
 /**
- * ContractTestRunner - 契约测试运行器
- * 执行契约测试并生成结果报告
+ * Contract Test Runner - API 合约测试框架
+ * REQ-00547: API 响应 Schema 强制执行与合约测试自动化系统
  */
 
 const axios = require('axios');
-const fs = require('fs').promises;
-const path = require('path');
-const ContractRegistry = require('../shared/contract/ContractRegistry');
-const { ContractSchema } = require('../shared/contract/ContractSchema');
+const { getSchemaRegistry } = require('../../shared/schemaRegistry/SchemaRegistry');
+const logger = require('../../shared/logger');
 
+/**
+ * 合约测试配置
+ */
+const DEFAULT_CONFIG = {
+  baseUrl: process.env.API_BASE_URL || 'http://localhost:3000',
+  timeout: 10000,
+  parallel: true,
+  maxConcurrent: 5,
+  generateReport: true,
+  reportPath: 'reports/contract-test-report.json'
+};
+
+/**
+ * 合约测试运行器
+ */
 class ContractTestRunner {
-  /**
-   * 创建测试运行器
-   * @param {Object} config - 配置选项
-   */
   constructor(config = {}) {
-    this.registry = new ContractRegistry();
-    this.baseUrl = config.baseUrl || process.env.API_BASE_URL || 'http://localhost:8080';
-    this.timeout = config.timeout || 30000;
-    this.results = [];
-    this.contractDir = config.contractDir || './contracts';
-  }
-
-  /**
-   * 加载所有契约
-   * @param {string} contractDir - 契约目录
-   */
-  async loadContracts(contractDir = this.contractDir) {
-    try {
-      const files = await fs.readdir(contractDir);
-
-      for (const file of files) {
-        if (file.endsWith('.contract.js') || file.endsWith('.contract.json')) {
-          const contractPath = path.join(contractDir, file);
-          try {
-            const contract = require(contractPath);
-            if (contract.name && contract instanceof ContractSchema) {
-              this.registry.registerProvider(contract.name, contract);
-            }
-          } catch (error) {
-            console.error(`Failed to load contract ${file}:`, error.message);
-          }
-        }
-      }
-
-      console.log(`[ContractTestRunner] Loaded ${this.registry.getAllProviders().length} contracts`);
-    } catch (error) {
-      console.warn(`[ContractTestRunner] Contract directory not found: ${contractDir}`);
-    }
-  }
-
-  /**
-   * 注册契约
-   * @param {ContractSchema} contract - 契约对象
-   */
-  registerContract(contract) {
-    this.registry.registerProvider(contract.name, contract);
-  }
-
-  /**
-   * 运行所有契约测试
-   * @returns {Object} 测试结果
-   */
-  async runAll() {
-    console.log('\n' + '='.repeat(60));
-    console.log('Starting Contract Tests');
-    console.log('='.repeat(60) + '\n');
-
-    const providers = this.registry.getAllProviders();
-    const results = {
-      total: 0,
-      passed: 0,
-      failed: 0,
-      skipped: 0,
-      duration: 0,
-      timestamp: new Date().toISOString(),
-      providers: []
+    this.config = { ...DEFAULT_CONFIG, ...config };
+    this.registry = getSchemaRegistry();
+    this.results = {
+      passed: [],
+      failed: [],
+      skipped: [],
+      startTime: null,
+      endTime: null
     };
-
-    const startTime = Date.now();
-
-    for (const provider of providers) {
-      console.log(`\n📦 Testing Provider: ${provider}`);
-      const providerResults = await this.runProviderTests(provider);
-      results.providers.push(providerResults);
-      results.total += providerResults.total;
-      results.passed += providerResults.passed;
-      results.failed += providerResults.failed;
-      results.skipped += providerResults.skipped;
-    }
-
-    results.duration = Date.now() - startTime;
-    this.results = results;
-
-    this.printSummary(results);
-    return results;
   }
 
   /**
-   * 运行提供方测试
-   * @param {string} providerName - 提供方名称
-   * @returns {Object}
+   * 加载所有合约 Schema
    */
-  async runProviderTests(providerName) {
-    const contract = this.registry.getProvider(providerName);
-    if (!contract) {
-      return {
-        provider: providerName,
-        error: 'Contract not found',
-        total: 0,
-        passed: 0,
-        failed: 0,
-        skipped: 0,
-        tests: []
-      };
-    }
+  async loadContractSchemas() {
+    const services = await this.listAllServices();
 
-    const results = {
-      provider: providerName,
-      version: contract.version,
-      total: 0,
-      passed: 0,
-      failed: 0,
-      skipped: 0,
-      tests: []
-    };
+    const schemas = [];
 
-    const endpoints = contract.getAllEndpoints();
-    results.total = endpoints.length;
+    for (const serviceName of services) {
+      const serviceSchemas = await this.registry.listSchemas(serviceName);
 
-    for (const endpoint of endpoints) {
-      const test = await this.runEndpointTest(contract, endpoint);
-      results.tests.push(test);
-
-      if (test.status === 'passed') {
-        results.passed++;
-      } else if (test.status === 'failed') {
-        results.failed++;
-      } else {
-        results.skipped++;
-      }
-    }
-
-    return results;
-  }
-
-  /**
-   * 运行单个端点测试
-   * @param {ContractSchema} contract - 契约
-   * @param {Object} endpoint - 端点配置
-   * @returns {Object}
-   */
-  async runEndpointTest(contract, endpoint) {
-    const test = {
-      endpoint: endpoint.key,
-      method: endpoint.method,
-      path: endpoint.path,
-      status: 'passed',
-      errors: [],
-      duration: 0,
-      request: null,
-      response: null
-    };
-
-    const startTime = Date.now();
-
-    try {
-      // 构建请求
-      const requestConfig = {
-        method: endpoint.method.toLowerCase(),
-        url: `${this.baseUrl}${endpoint.path}`,
-        timeout: this.timeout,
-        validateStatus: () => true
-      };
-
-      // 发送请求
-      const response = await axios(requestConfig);
-      test.response = {
-        status: response.status,
-        data: response.data
-      };
-
-      // 验证状态码
-      const expectedStatus = endpoint.expectedStatus || 200;
-      if (response.status !== expectedStatus) {
-        test.status = 'failed';
-        test.errors.push({
-          type: 'status_mismatch',
-          expected: expectedStatus,
-          actual: response.status
-        });
-      }
-
-      // 验证响应 Schema
-      if (endpoint.response) {
-        const validation = contract.validateResponse(
-          endpoint.method,
-          endpoint.path,
-          response.data
+      for (const schemaInfo of serviceSchemas) {
+        const schema = await this.registry.getSchema(
+          serviceName,
+          schemaInfo.route,
+          schemaInfo.version
         );
 
-        if (validation.error) {
-          test.status = 'failed';
-          test.errors.push({
-            type: 'schema_violation',
-            message: validation.error.message,
-            details: validation.error.details?.map(d => ({
-              path: d.path?.join('.'),
-              message: d.message
-            }))
+        if (schema) {
+          schemas.push({
+            serviceName,
+            route: schemaInfo.route,
+            version: schemaInfo.version,
+            schema
           });
         }
       }
-
-    } catch (error) {
-      test.status = 'failed';
-      test.errors.push({
-        type: 'request_failed',
-        message: error.message
-      });
     }
 
-    test.duration = Date.now() - startTime;
-    return test;
+    logger.info('Loaded contract schemas', { count: schemas.length });
+    return schemas;
   }
 
   /**
-   * 运行消费者契约验证
-   * @param {string} consumerName - 消费者名称
-   * @param {string} providerName - 提供方名称
-   * @returns {Object}
+   * 列出所有服务
    */
-  async runConsumerTest(consumerName, providerName) {
-    console.log(`\n🔗 Testing Consumer: ${consumerName} -> ${providerName}`);
-    
-    const results = await this.registry.verifyConsumerExpectations(
-      consumerName,
-      providerName
+  async listAllServices() {
+    // 从环境变量或配置中获取服务列表
+    return [
+      'user-service',
+      'pokemon-service',
+      'location-service',
+      'catch-service',
+      'gym-service',
+      'social-service',
+      'reward-service',
+      'payment-service'
+    ];
+  }
+
+  /**
+   * 从 Schema 自动生成测试用例
+   */
+  async generateTestCases(schemaInfo) {
+    const { serviceName, route, version, schema } = schemaInfo;
+    const testCases = [];
+
+    // 生成正向测试用例
+    testCases.push({
+      name: `${serviceName} - ${route} - Valid Response`,
+      serviceName,
+      route,
+      version,
+      type: 'positive',
+      method: 'GET',
+      expectedStatus: 200,
+      headers: {},
+      body: null
+    });
+
+    // 根据 Schema 生成边界测试用例
+    if (schema.properties) {
+      // 测试必需字段缺失
+      for (const requiredField of schema.required || []) {
+        testCases.push({
+          name: `${serviceName} - ${route} - Missing Required Field: ${requiredField}`,
+          serviceName,
+          route,
+          version,
+          type: 'negative',
+          method: 'POST',
+          expectedStatus: 400,
+          headers: {},
+          body: this.generateMissingFieldBody(schema, requiredField)
+        });
+      }
+    }
+
+    return testCases;
+  }
+
+  /**
+   * 生成缺失字段的请求体
+   */
+  generateMissingFieldBody(schema, missingField) {
+    const body = {};
+
+    if (schema.properties) {
+      for (const [key, prop] of Object.entries(schema.properties)) {
+        if (key !== missingField) {
+          body[key] = this.generateDefaultValue(prop);
+        }
+      }
+    }
+
+    return body;
+  }
+
+  /**
+   * 生成默认值
+   */
+  generateDefaultValue(property) {
+    switch (property.type) {
+      case 'string':
+        return 'test-string';
+      case 'integer':
+        return 1;
+      case 'number':
+        return 1.0;
+      case 'boolean':
+        return true;
+      case 'array':
+        return [];
+      case 'object':
+        return {};
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * 执行单个合约测试
+   */
+  async runContractTest(testCase) {
+    const startTime = Date.now();
+
+    try {
+      const response = await axios({
+        method: testCase.method,
+        url: `${this.config.baseUrl}${testCase.route}`,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Version': testCase.version,
+          ...testCase.headers
+        },
+        data: testCase.body,
+        timeout: this.config.timeout,
+        validateStatus: () => true // 不抛出非 200 状态码
+      });
+
+      const duration = Date.now() - startTime;
+
+      // 获取 Schema
+      const schema = await this.registry.getSchema(
+        testCase.serviceName,
+        testCase.route,
+        testCase.version
+      );
+
+      // 校验响应
+      const validationResult = schema
+        ? await this.registry.validateAgainstSchema(response.data, schema)
+        : { valid: false, errors: [{ message: 'Schema not found' }] };
+
+      const passed = response.status === testCase.expectedStatus && validationResult.valid;
+
+      return {
+        testCase,
+        passed,
+        duration,
+        statusCode: response.status,
+        validationResult,
+        response: response.data,
+        timestamp: new Date().toISOString()
+      };
+    } catch (error) {
+      return {
+        testCase,
+        passed: false,
+        duration: Date.now() - startTime,
+        error: error.message,
+        timestamp: new Date().toISOString()
+      };
+    }
+  }
+
+  /**
+   * 执行所有合约测试
+   */
+  async runAllContractTests() {
+    this.results.startTime = new Date().toISOString();
+
+    const schemas = await this.loadContractSchemas();
+    const allTestCases = [];
+
+    // 生成所有测试用例
+    for (const schemaInfo of schemas) {
+      const testCases = await this.generateTestCases(schemaInfo);
+      allTestCases.push(...testCases);
+    }
+
+    logger.info('Generated test cases', { count: allTestCases.length });
+
+    // 执行测试
+    if (this.config.parallel) {
+      const batches = this.chunkArray(allTestCases, this.config.maxConcurrent);
+
+      for (const batch of batches) {
+        const batchResults = await Promise.all(
+          batch.map(tc => this.runContractTest(tc))
+        );
+
+        this.processResults(batchResults);
+      }
+    } else {
+      for (const testCase of allTestCases) {
+        const result = await this.runContractTest(testCase);
+        this.processResults([result]);
+      }
+    }
+
+    this.results.endTime = new Date().toISOString();
+
+    // 生成报告
+    if (this.config.generateReport) {
+      await this.generateReport();
+    }
+
+    return this.results;
+  }
+
+  /**
+   * 处理测试结果
+   */
+  processResults(results) {
+    for (const result of results) {
+      if (result.passed) {
+        this.results.passed.push(result);
+      } else {
+        this.results.failed.push(result);
+      }
+    }
+  }
+
+  /**
+   * 数组分块
+   */
+  chunkArray(array, size) {
+    const chunks = [];
+    for (let i = 0; i < array.length; i += size) {
+      chunks.push(array.slice(i, i + size));
+    }
+    return chunks;
+  }
+
+  /**
+   * 生成测试报告
+   */
+  async generateReport() {
+    const report = {
+      summary: {
+        total: this.results.passed.length + this.results.failed.length,
+        passed: this.results.passed.length,
+        failed: this.results.failed.length,
+        skipped: this.results.skipped.length,
+        passRate: this.calculatePassRate(),
+        duration: this.calculateDuration()
+      },
+      results: {
+        passed: this.results.passed.map(this.formatResult),
+        failed: this.results.failed.map(this.formatResult)
+      },
+      timestamp: new Date().toISOString(),
+      config: {
+        baseUrl: this.config.baseUrl,
+        timeout: this.config.timeout
+      }
+    };
+
+    // 写入文件
+    const fs = require('fs').promises;
+    await fs.mkdir('reports', { recursive: true });
+    await fs.writeFile(
+      this.config.reportPath,
+      JSON.stringify(report, null, 2)
     );
+
+    logger.info('Contract test report generated', {
+      path: this.config.reportPath,
+      summary: report.summary
+    });
+
+    return report;
+  }
+
+  /**
+   * 计算通过率
+   */
+  calculatePassRate() {
+    const total = this.results.passed.length + this.results.failed.length;
+    if (total === 0) return 0;
+    return ((this.results.passed.length / total) * 100).toFixed(2);
+  }
+
+  /**
+   * 计算持续时间
+   */
+  calculateDuration() {
+    if (!this.results.startTime || !this.results.endTime) return 0;
+    const start = new Date(this.results.startTime).getTime();
+    const end = new Date(this.results.endTime).getTime();
+    return (end - start) / 1000; // 秒
+  }
+
+  /**
+   * 格式化测试结果
+   */
+  formatResult(result) {
+    return {
+      name: result.testCase.name,
+      serviceName: result.testCase.serviceName,
+      route: result.testCase.route,
+      version: result.testCase.version,
+      passed: result.passed,
+      duration: result.duration,
+      statusCode: result.statusCode,
+      error: result.error || null,
+      validationErrors: result.validationResult?.errors || []
+    };
+  }
+
+  /**
+   * 运行单个服务的合约测试
+   */
+  async runServiceContractTests(serviceName) {
+    const schemas = await this.registry.listSchemas(serviceName);
+    const results = [];
+
+    for (const schemaInfo of schemas) {
+      const schema = await this.registry.getSchema(
+        serviceName,
+        schemaInfo.route,
+        schemaInfo.version
+      );
+
+      if (schema) {
+        const testCases = await this.generateTestCases({
+          serviceName,
+          route: schemaInfo.route,
+          version: schemaInfo.version,
+          schema
+        });
+
+        for (const testCase of testCases) {
+          const result = await this.runContractTest(testCase);
+          results.push(result);
+        }
+      }
+    }
 
     return results;
   }
 
   /**
-   * 打印测试摘要
-   * @param {Object} results - 测试结果
+   * 验证合约是否被破坏
    */
-  printSummary(results) {
-    console.log('\n' + '='.repeat(60));
-    console.log('Contract Test Summary');
-    console.log('='.repeat(60));
-    console.log(`Timestamp:  ${results.timestamp}`);
-    console.log(`Duration:   ${results.duration}ms`);
-    console.log(`Total:      ${results.total}`);
-    console.log(`Passed:     ${results.passed} ✅`);
-    console.log(`Failed:     ${results.failed} ❌`);
-    console.log(`Skipped:    ${results.skipped} ⏭️`);
-    console.log('='.repeat(60));
+  async detectBreakingChanges(serviceName, route, newSchema) {
+    const oldSchema = await this.registry.getSchema(serviceName, route, 'latest');
 
-    if (results.failed > 0) {
-      console.log('\n❌ Failed Tests:');
-      for (const provider of results.providers) {
-        for (const test of provider.tests) {
-          if (test.status === 'failed') {
-            console.log(`\n  ${provider.provider}${test.endpoint}`);
-            for (const error of test.errors) {
-              console.log(`    - ${error.type}: ${error.message || JSON.stringify(error)}`);
-            }
-          }
-        }
-      }
+    if (!oldSchema) {
+      return { breakingChanges: [] };
     }
 
-    console.log('');
-  }
+    const differences = this.registry.compareSchemas(oldSchema, newSchema);
+    const breakingChanges = differences.filter(d => d.breaking);
 
-  /**
-   * 检查是否全部通过
-   * @returns {boolean}
-   */
-  allPassed() {
-    return this.results.failed === 0 && this.results.total > 0;
+    return {
+      serviceName,
+      route,
+      breakingChanges,
+      timestamp: new Date().toISOString()
+    };
   }
 }
 

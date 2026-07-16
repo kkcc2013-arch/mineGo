@@ -1,0 +1,148 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "user-service-profile-response",
+  "title": "User Profile Response",
+  "description": "用户资料查询响应 Schema",
+  "type": "object",
+  "required": ["success", "code", "data"],
+  "properties": {
+    "success": {
+      "type": "boolean",
+      "description": "请求是否成功"
+    },
+    "code": {
+      "type": "integer",
+      "enum": [200, 400, 401, 403, 404, 500],
+      "description": "HTTP 状态码"
+    },
+    "message": {
+      "type": "string",
+      "description": "响应消息"
+    },
+    "data": {
+      "type": "object",
+      "description": "用户资料数据",
+      "required": ["userId", "username", "email"],
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "用户唯一标识"
+        },
+        "username": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 50,
+          "description": "用户名"
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "邮箱地址"
+        },
+        "avatar": {
+          "type": "string",
+          "format": "uri",
+          "description": "头像 URL"
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "玩家等级"
+        },
+        "experience": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "经验值"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "创建时间"
+        },
+        "lastLoginAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "最后登录时间"
+        },
+        "settings": {
+          "type": "object",
+          "properties": {
+            "language": {
+              "type": "string",
+              "enum": ["en", "zh", "ja", "ko"],
+              "description": "语言设置"
+            },
+            "notifications": {
+              "type": "boolean",
+              "description": "是否启用通知"
+            }
+          }
+        },
+        "stats": {
+          "type": "object",
+          "properties": {
+            "pokemonCaught": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "捕捉精灵数量"
+            },
+            "battlesWon": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "战斗胜利次数"
+            },
+            "gymsVisited": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "访问道馆数量"
+            }
+          }
+        }
+      }
+    },
+    "_links": {
+      "type": "object",
+      "description": "HATEOAS 链接",
+      "properties": {
+        "self": {
+          "type": "object",
+          "properties": {
+            "href": { "type": "string" },
+            "method": { "type": "string" }
+          }
+        },
+        "update": {
+          "type": "object",
+          "properties": {
+            "href": { "type": "string" },
+            "method": { "type": "string" }
+          }
+        },
+        "inventory": {
+          "type": "object",
+          "properties": {
+            "href": { "type": "string" },
+            "method": { "type": "string" }
+          }
+        }
+      }
+    },
+    "_meta": {
+      "type": "object",
+      "description": "元数据",
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "apiVersion": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
