@@ -24,3 +24,4 @@
     23|| REQ-00561 | 敏感API二次认证与风险行为分级控制系统 | 安全加固 | P1 | new | gateway, user-service, backend/shared/security | 2026-07-15 10:00 |
     24|| REQ-00562 | 国际化内容合规性审计与隐私合规自动扫描系统 | 合规/隐私 | P1 | new | localization-service, security-service, content-management | 2026-07-15 15:00 |
 | REQ-00564 | 微服务契约测试Mock服务自动生成系统 | 测试覆盖 | P1 | new | backend/shared, test-suite, api-gateway | 2026-07-16 09:00 |
+| REQ-00565 | 数据库敏感字段透明加密系统 | 安全加固 | P0 | new | backend/shared/crypto, user-service, payment-service, social-service | 2026-07-16 02:05 |
