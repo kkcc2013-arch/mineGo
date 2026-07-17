@@ -6,6 +6,9 @@ const { createLogger } = require('@pmg/shared/logger');
 const metrics = require('@pmg/shared/metrics');
 const { getAlertManager } = require('@pmg/shared/alerting');
 
+// REQ-00584: 从 TimeoutPolicyManager 获取超时配置
+const { timeoutPolicyManager, TIMEOUT_LEVELS } = require('@pmg/shared/TimeoutPolicyManager');
+
 const logger = createLogger('gateway:circuit-breakers');
 
 /**
@@ -16,58 +19,68 @@ const manager = new CircuitBreakerManager();
 /**
  * Service Circuit Breaker Configurations
  * 
- * Each service has tuned thresholds based on:
- * - Criticality: Core services have lower thresholds
- * - Recovery time: Services that recover quickly have shorter timeouts
- * - Call frequency: Frequently called services need higher thresholds
+ * REQ-00584: 超时值现在从 TimeoutPolicyManager 获取
+ * 每个服务使用分级超时策略（L1~L4）
+ * 
+ * 熔断阈值基于：
+ * - 关键性：核心服务有更低的阈值
+ * - 恢复时间：恢复快的服务有更短的超时
+ * - 调用频率：频繁调用的服务需要更高的阈值
  */
 const serviceConfigs = {
   'user-service': {
     failureThreshold: 5,
     successThreshold: 2,
-    timeout: 30000,      // 30s
+    timeout: TIMEOUT_LEVELS.L2_STANDARD_WRITE.defaultMs,  // L2: 10s
+    timeoutLevel: 'L2',
     halfOpenMaxCalls: 3
   },
   
   'location-service': {
     failureThreshold: 10,  // Higher threshold (frequently called)
     successThreshold: 3,
-    timeout: 20000,        // 20s (recovers quickly)
+    timeout: TIMEOUT_LEVELS.L1_FAST_READ.defaultMs,        // L1: 3s
+    timeoutLevel: 'L1',
     halfOpenMaxCalls: 5
   },
   
   'pokemon-service': {
     failureThreshold: 5,
     successThreshold: 2,
-    timeout: 30000,
+    timeout: TIMEOUT_LEVELS.L2_STANDARD_WRITE.defaultMs,  // L2: 10s
+    timeoutLevel: 'L2',
     halfOpenMaxCalls: 3
   },
   
   'catch-service': {
     failureThreshold: 3,   // Lower threshold (core gameplay)
     successThreshold: 2,
-    timeout: 15000,        // 15s
+    timeout: TIMEOUT_LEVELS.L2_STANDARD_WRITE.defaultMs,   // L2: 10s
+    timeoutLevel: 'L2',
     halfOpenMaxCalls: 2
   },
   
   'gym-service': {
     failureThreshold: 5,
     successThreshold: 2,
-    timeout: 30000,
+    timeout: TIMEOUT_LEVELS.L3_BATCH_OPERATION.defaultMs,  // L3: 30s
+    timeoutLevel: 'L3',
     halfOpenMaxCalls: 3
   },
   
   'social-service': {
     failureThreshold: 8,   // Higher threshold (non-critical)
     successThreshold: 2,
-    timeout: 60000,        // 60s
+    timeout: TIMEOUT_LEVELS.L3_BATCH_OPERATION.defaultMs,  // L3: 30s
+    timeoutLevel: 'L3',
     halfOpenMaxCalls: 3
   },
   
   'reward-service': {
     failureThreshold: 5,
     successThreshold: 2,
-    timeout: 60000,        // 60s (may take time to recover)
+    timeout: TIMEOUT_LEVELS.L3_BATCH_OPERATION.defaultMs,  // L3: 30s
+    timeoutLevel: 'L3',
     halfOpenMaxCalls: 3
   }
   
@@ -77,9 +90,19 @@ const serviceConfigs = {
 
 /**
  * Initialize Circuit Breakers for all services
+ * REQ-00584: 支持从 TimeoutPolicyManager 动态获取超时值
  */
-function initializeCircuitBreakers() {
+async function initializeCircuitBreakers() {
+  // 确保 TimeoutPolicyManager 已初始化
+  await timeoutPolicyManager.initialize();
+  
   for (const [serviceName, config] of Object.entries(serviceConfigs)) {
+    // 从 TimeoutPolicyManager 获取最新超时配置
+    const dynamicTimeout = timeoutPolicyManager.getTimeout(
+      `/api/v2/${serviceName.replace('-service', '')}`,
+      'POST'
+    );
+    const effectiveTimeout = dynamicTimeout?.defaultMs || config.timeout;
     const cb = manager.getOrCreate(serviceName, config);
     
     // Set up event listeners
