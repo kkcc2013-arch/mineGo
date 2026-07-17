@@ -1,5 +1,6 @@
 | 编号 | 标题 | 类别 | 优先级 | 状态 | 服务 | 创建时间 |
 |------|------|------|------|------|------|----------|
+| REQ-00592 | 生产环境部署健康检查与自动回滚系统 | 运维/CICD | P0 | new | k8s-operator, cicd-pipeline, monitoring | 2026-07-17 08:00 |
 | REQ-00591 | 本地化内容协作审批工作流系统 | 国际化/本地化 | P2 | new | gateway, admin-dashboard, backend/shared/i18n | 2026-07-17 01:00 |
 | REQ-00590 | 跨区域数据同步一致性校验系统 | 合规/运维 | P1 | new | database-replica | 2026-07-17 06:00 |
 | REQ-00586 | Node.js 内存泄露自动诊断工具链 | 性能优化 | P1 | new | backend-gateway, backend-shared | 2026-07-17 01:00 |
