@@ -50,3 +50,5 @@
 | REQ-00582 | 微服务链路追踪采样率智能自适应与成本优化系统 | 可观测性 | P1 | done | gateway, backend/shared/tracing | 2026-07-16 20:15 |
 | REQ-00586 | GPS 位置欺骗检测与虚拟定位防护系统 | 反作弊 | P0 | done | game-client、gateway、location-service、backend/security、backend/analysis、Redis、PostgreSQL | 2026-07-16 22:00 |
 | REQ-00587 | 用户界面文本智能截断与本地化适配系统 | 国际化/本地化 | P1 | new | game-client、backend/shared/i18n/textTruncator.js、所有后端服务、admin-dashboard | 2026-07-16 23:00 |
+| REQ-00588 | 敏感 API 二次身份验证与风控行为分级系统 | 安全加固 | P0 | done | gateway, user-service, backend/security, admin-dashboard | 2026-07-16 23:30 |
+| REQ-00589 | 微服务架构可视化与 API 依赖关系图谱系统 | 文档/开发者体验 | P1 | new | admin-dashboard, gateway, 所有后端服务, docs-site | 2026-07-17 00:00 |
