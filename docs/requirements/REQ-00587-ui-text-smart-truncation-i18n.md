@@ -3,7 +3,7 @@
 - **编号**：REQ-00587
 - **类别**：国际化/本地化
 - **优先级**：P1
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：game-client、backend/shared/i18n/textTruncator.js、所有后端服务、admin-dashboard
 - **创建时间**：2026-07-16 23:00
 - **依赖需求**：无
