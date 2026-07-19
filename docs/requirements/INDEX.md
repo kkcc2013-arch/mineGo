@@ -1,7 +1,8 @@
 | 编号 | 标题 | 类别 | 优先级 | 状态 | 服务 | 创建时间 |
 |------|------|------|------|------|------|----------|
+| REQ-00595 | 游戏资源预加载与高效缓存失效策略 | 性能优化 | P1 | new | game-client, cdn-gateway | 2026-07-19 10:00 |
 | REQ-00594 | 游戏内实时性能瓶颈自诊断引擎 | 可观测性 | P1 | new | game-client, gateway, backend-metrics | 2026-07-19 09:00 |
-   4|| REQ-00593 | 灾备故障场景自动发现与混沌验证覆盖系统 | 容灾/高可用 | P1 | new | backend/shared/disasterRecovery, backend/shared/ChaosEngine, admin-dashboard | 2026-07-19 03:00 |
+| REQ-00593 | 灾备故障场景自动发现与混沌验证覆盖系统 | 容灾/高可用 | P1 | new | backend/shared/disasterRecovery, backend/shared/ChaosEngine, admin-dashboard | 2026-07-19 03:00 |
 | REQ-00592 | 生产环境部署健康检查与自动回滚系统 | 运维/CICD | P0 | done | k8s-operator, cicd-pipeline, monitoring | 2026-07-17 08:00 |
 | REQ-00591 | 本地化内容协作审批工作流系统 | 国际化/本地化 | P2 | new | gateway, admin-dashboard, backend/shared/i18n | 2026-07-17 01:00 |
 | REQ-00590 | 跨区域数据同步一致性校验系统 | 合规/运维 | P1 | new | database-replica | 2026-07-17 06:00 |
@@ -11,5 +12,6 @@
 | REQ-00583 | 游戏内实时语音聊天安全合规审计系统 | 合规/隐私 | P1 | new | social-service, gateway, voice-chat-service | 2026-07-16 22:00 |
 | REQ-00582 | 微服务链路追踪采样率智能自适应与成本优化系统 | 可观测性 | P1 | new | gateway, backend/shared/tracing | 2026-07-16 20:15 |
 | REQ-00581 | 数据库连接池智能预热与动态自适应管理系统 | 性能优化 | P1 | done | backend-gateway, database-manager | 2026-07-16 12:00 |
-| REQ-00580 | WebSocket 消息批处理队列内存优化 | 性能优化 | P1 | done | backend/shared/websocket | 2026-07-16 19:00 |
-| REQ-00579 | 年龄限制中间件测试覆盖 | 测试覆盖 | P0 | done | gateway, user-service | 2026-07-16 18:00 |
+    15|| REQ-00580 | WebSocket 消息批处理队列内存优化 | 性能优化 | P1 | done | backend/shared/websocket | 2026-07-16 19:00 |
+    16|| REQ-00579 | 年龄限制中间件测试覆盖 | 测试覆盖 | P0 | done | gateway, user-service | 2026-07-16 18:00 |
+    17|| REQ-00596 | 游戏资源动态加载智能优先级调度系统 | 性能优化 | P1 | new | game-client, resource-manager, cdn-gateway | 2026-07-19 12:00 |
