@@ -1,0 +1,130 @@
+# ============================================================
+# PMG — Gateway 部署健康检查配置
+# REQ-00592: 生产环境部署健康检查与自动回滚系统
+# ============================================================
+
+apiVersion: pmg.io/v1
+kind: DeploymentHealthCheck
+metadata:
+  name: gateway-health-check
+  namespace: pmg
+  labels:
+    app: pmg-operator
+    component: health-check
+    service: gateway
+spec:
+  targetDeployment: api-gateway
+  targetNamespace: pmg
+  
+  # 监控窗口：部署后 5 分钟
+  windowSeconds: 300
+  checkIntervalSeconds: 10
+  
+  # 错误率阈值：超过 1% 触发回滚
+  errorRateThreshold: 0.01
+  
+  # 延迟阈值：P99 超过 2 秒触发回滚
+  latencyThresholdMs: 2000
+  
+  # 重启次数阈值：Pod 重启超过 3 次触发回滚
+  restartCountThreshold: 3
+  
+  # 回滚配置
+  rollbackConfig:
+    enabled: true
+    maxRollbackHistory: 10
+    slackChannel: "#pmg-deployments"
+    notificationWebhook: "https://hooks.slack.com/services/xxx/yyy/zzz"
+  
+  # 健康探针配置
+  probes:
+    httpPath: /health
+    httpPort: 8080
+    successThreshold: 2  # 至少 2 个 Pod 健康
+    failureThreshold: 3  # 连续 3 次失败触发回滚
+  
+  # Prometheus 查询模板
+  prometheusQueries:
+    errorRateQuery: 'sum(rate(http_requests_total{status=~"5..",service="api-gateway"}[1m]))/sum(rate(http_requests_total{service="api-gateway"}[1m]))'
+    latencyP99Query: 'histogram_quantile(0.99,sum(rate(http_request_duration_seconds_bucket{service="api-gateway"}[1m]))by(le))'
+    restartCountQuery: 'kube_pod_container_status_restart_counts{pod=~"api-gateway.*"}'
+
+---
+# ============================================================
+# User Service 健康检查
+# ============================================================
+apiVersion: pmg.io/v1
+kind: DeploymentHealthCheck
+metadata:
+  name: user-service-health-check
+  namespace: pmg
+spec:
+  targetDeployment: user-service
+  windowSeconds: 300
+  checkIntervalSeconds: 10
+  errorRateThreshold: 0.01
+  latencyThresholdMs: 1500
+  restartCountThreshold: 3
+  
+  rollbackConfig:
+    enabled: true
+    slackChannel: "#pmg-deployments"
+  
+  probes:
+    httpPath: /health
+    httpPort: 8081
+
+---
+# ============================================================
+# Payment Service 健康检查（更严格阈值）
+# ============================================================
+apiVersion: pmg.io/v1
+kind: DeploymentHealthCheck
+metadata:
+  name: payment-service-health-check
+  namespace: pmg
+  labels:
+    critical: "true"
+spec:
+  targetDeployment: payment-service
+  windowSeconds: 600  # 支付服务监控窗口更长
+  checkIntervalSeconds: 5   # 更频繁检查
+  errorRateThreshold: 0.005  # 更严格：0.5%
+  latencyThresholdMs: 1000    # 更严格：1 秒
+  restartCountThreshold: 2    # 更严格：重启 2 次
+  
+  rollbackConfig:
+    enabled: true
+    slackChannel: "#pmg-alerts-critical"
+    notificationWebhook: "https://hooks.slack.com/services/xxx/yyy/zzz"
+  
+  probes:
+    httpPath: /health
+    httpPort: 8088
+    successThreshold: 2
+    failureThreshold: 2  # 支付服务更快触发回滚
+
+---
+# ============================================================
+# Location Service 健康检查
+# ============================================================
+apiVersion: pmg.io/v1
+kind: DeploymentHealthCheck
+metadata:
+  name: location-service-health-check
+  namespace: pmg
+spec:
+  targetDeployment: location-service
+  windowSeconds: 300
+  checkIntervalSeconds: 10
+  errorRateThreshold: 0.02  # LBS 服务容忍度稍高
+  latencyThresholdMs: 3000  # GPS 查询延迟容忍度更高
+  restartCountThreshold: 3
+  
+  rollbackConfig:
+    enabled: true
+    slackChannel: "#pmg-deployments"
+  
+  probes:
+    httpPath: /health
+    httpPort: 8082

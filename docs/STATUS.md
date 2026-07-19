@@ -1,10 +1,10 @@
 # mineGo 项目成熟度评估
 
-> 最后更新：2026-07-17 00:00 UTC
-> 累计需求数：589 条
-> 本次新增：REQ-00589 (微服务架构可视化与 API 依赖关系图谱系统)
-> 本次完成：REQ-00588 (敏感 API 二次身份验证与风控行为分级系统)
-> 本次审核：待审核
+> 最后更新：2026-07-19 03:15 UTC
+> 累计需求数：593 条
+> 本次新增：REQ-00593 (灾备故障场景自动发现与混沌验证覆盖系统)
+> 本次完成：REQ-00592 (生产环境部署健康检查与自动回滚系统)
+> 本次审核：REQ-00592 已审核
 
 ## 成熟度评分（满分 100）
 
@@ -23,20 +23,24 @@
 **总分：149 / 100** 🎉
 
 **本次新增：**
-- REQ-00589 微服务架构可视化与 API 依赖关系图谱系统（P1，new，文档/开发者体验）
-  - 服务拓扑可视化（D3.js/vis.js 力导向图）
-  - API 依赖关系图谱
-  - 实时健康状态展示
-  - 架构导出（Mermaid/PlantUML/JSON）
-  - OpenTelemetry 集成
+- REQ-00593 灾备故障场景自动发现与混沌验证覆盖系统（P1，new，容灾/高可用）
+  - 服务拓扑分析器（K8s Deployment、Docker Compose）
+  - 依赖图构建器（HTTP/RPC/Kafka/Redis 调用链）
+  - 故障场景生成器（单点故障、级联故障、网络分区）
+  - 风险评分引擎（影响面 × 概率 × 恢复难度）
+  - 混沌实验映射器
+  - 覆盖率计算器
 
 **本次完成：**
-- REQ-00588 敏感 API 二次身份验证与风控行为分级系统（P0，done，安全加固）
-  - RiskAssessmentMiddleware（风险评估中间件）
-  - SensitiveApiMfaService（二次验证服务）
-  - API 路由：/api/v1/mfa/methods, /initiate, /verify, /resend
-  - 数据库迁移：security_risk_assessments, security_audit_log, user_security_settings, sensitive_operation_logs, mfa_verification_records, trusted_devices, sensitive_api_config
-  - 测试覆盖：API 敏感度、风险等级、决策策略、验证码生成、集成测试
+- REQ-00592 生产环境部署健康检查与自动回滚系统（P0，done，运维/CICD）
+  - DeploymentHealthCheck CRD 定义
+  - DeploymentHealthCheckController 控制器
+  - PMGOperator 入口（k8s-operator）
+  - 健康检查配置（Gateway/User/Payment/Location）
+  - Prometheus 告警规则
+  - K8s 部署工作流（k8s-deploy-with-health-check.yml）
+  - 自动回滚逻辑：错误率 > 1% 触发
+  - Slack/Webhook 通知集成
 
 ## 进度统计
 

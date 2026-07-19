@@ -1,0 +1,140 @@
+# ============================================================
+# PMG — Deployment Health Check Prometheus Rules
+# REQ-00592: 部署健康检查告警规则
+# ============================================================
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: pmg-deployment-health-alerts
+  namespace: pmg
+  labels:
+    app: pmg-operator
+    role: alert-rules
+    release: prometheus
+spec:
+  groups:
+    - name: pmg-deployment-health.rules
+      interval: 30s
+      rules:
+        # ── 部署后高错误率告警 ───────────────────────
+        - alert: PMGDeploymentHighErrorRate
+          expr: |
+            sum(rate(http_requests_total{status=~"5..",namespace="pmg"}[2m])) 
+            / sum(rate(http_requests_total{namespace="pmg"}[2m])) > 0.01
+          for: 1m
+          labels:
+            severity: critical
+            category: deployment-health
+          annotations:
+            summary: "部署后服务错误率过高"
+            description: |
+              服务 {{ $labels.service }} 部署后错误率达到 {{ $value | humanizePercentage }}，
+              超过阈值 1%。请检查部署日志，必要时执行回滚。
+            runbook: "https://wiki.pmg.io/runbooks/deployment-high-error-rate"
+        
+        # ── 部署后高延迟告警 ───────────────────────
+        - alert: PMGDeploymentHighLatency
+          expr: |
+            histogram_quantile(0.99, 
+              sum(rate(http_request_duration_seconds_bucket{namespace="pmg"}[2m])) by (le, service)
+            ) > 2
+          for: 2m
+          labels:
+            severity: warning
+            category: deployment-health
+          annotations:
+            summary: "部署后服务延迟过高"
+            description: |
+              服务 {{ $labels.service }} 部署后 P99 延迟达到 {{ $value | humanizeDuration }}，
+              超过阈值 2 秒。可能影响用户体验。
+        
+        # ── Pod 频繁重启告警 ───────────────────────
+        - alert: PMGDeploymentPodRestartLoop
+          expr: |
+            increase(kube_pod_container_status_restart_counts{namespace="pmg"}[10m]) >= 3
+          for: 1m
+          labels:
+            severity: critical
+            category: deployment-health
+          annotations:
+            summary: "部署后 Pod 频繁重启"
+            description: |
+              Pod {{ $labels.pod }} 在过去 10 分钟内重启了 {{ $value }} 次，
+              可能存在启动失败或运行时崩溃问题。建议执行回滚。
+        
+        # ── 部署后可用性下降告警 ───────────────────────
+        - alert: PMGDeploymentAvailabilityDrop
+          expr: |
+            kube_deployment_status_replicas_available{namespace="pmg"} 
+            / kube_deployment_spec_replicas{namespace="pmg"} < 0.8
+          for: 2m
+          labels:
+            severity: critical
+            category: deployment-health
+          annotations:
+            summary: "部署后副本可用性过低"
+            description: |
+              Deployment {{ $labels.deployment }} 当前可用副本仅占期望副本的 {{ $value | humanizePercentage }}，
+              可能存在启动问题。请检查 Pod 状态和事件。
+        
+        # ── 健康检查端点失败告警 ───────────────────────
+        - alert: PMGDeploymentHealthCheckFailing
+          expr: |
+            probe_success{job="blackbox",module="http_2xx",namespace="pmg"} == 0
+          for: 1m
+          labels:
+            severity: critical
+            category: deployment-health
+          annotations:
+            summary: "部署后健康检查端点失败"
+            description: |
+              服务健康检查端点 {{ $labels.instance }} 返回失败状态，
+              新部署可能存在问题。
+        
+        # ── 新部署后 HTTP 5xx 增加 ───────────────────────
+        - alert: PMGDeploymentHttp5xxSpike
+          expr: |
+            (
+              sum(rate(http_requests_total{status=~"5..",namespace="pmg"}[5m]))
+              - sum(rate(http_requests_total{status=~"5..",namespace="pmg"}[5m] offset 10m))
+            ) > 10
+          for: 30s
+          labels:
+            severity: warning
+            category: deployment-health
+          annotations:
+            summary: "部署后 HTTP 5xx 错误激增"
+            description: |
+              部署后 HTTP 5xx 错误率相比之前增加了 {{ $value | humanize }} req/s，
+              可能是新版本引入了问题。
+        
+        # ── 回滚触发事件 ───────────────────────
+        - alert: PMGRollbackTriggered
+          expr: |
+            increase(pmg_rollback_total[5m]) > 0
+          labels:
+            severity: info
+            category: deployment-health
+          annotations:
+            summary: "自动回滚已触发"
+            description: |
+              Deployment {{ $labels.deployment }} 因健康检查失败触发自动回滚，
+              已回滚至修订版本 {{ $labels.revision }}。
+
+    - name: pmg-rollback-metrics
+      interval: 60s
+      rules:
+        # ── 回滚计数指标 ───────────────────────
+        - record: pmg:rollback:rate_1h
+          expr: increase(pmg_rollback_total[1h])
+        
+        - record: pmg:health_check:success_rate
+          expr: |
+            sum(pmg_health_check_passed_total) 
+            / sum(pmg_health_check_total)
+        
+        - record: pmg:deployment:error_rate
+          expr: |
+            sum(rate(http_requests_total{status=~"5..",namespace="pmg"}[5m]))
+            / sum(rate(http_requests_total{namespace="pmg"}[5m]))

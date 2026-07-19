@@ -1,0 +1,187 @@
+# ============================================================
+# PMG — Deployment Health Check CRD
+# REQ-00592: 生产环境部署健康检查与自动回滚系统
+# ============================================================
+
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: deploymenthealthchecks.pmg.io
+  labels:
+    app: pmg-operator
+    component: health-check
+spec:
+  group: pmg.io
+  names:
+    kind: DeploymentHealthCheck
+    listKind: DeploymentHealthCheckList
+    plural: deploymenthealthchecks
+    singular: deploymenthealthcheck
+    shortNames: [dhc]
+  scope: Namespaced
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [targetDeployment]
+              properties:
+                targetDeployment:
+                  type: string
+                  description: 目标 Deployment 名称
+                
+                targetNamespace:
+                  type: string
+                  default: pmg
+                  description: 目标命名空间
+                
+                # 健康检查窗口
+                windowSeconds:
+                  type: integer
+                  default: 300
+                  description: 部署后监控窗口（秒）
+                
+                checkIntervalSeconds:
+                  type: integer
+                  default: 10
+                  description: 检查间隔（秒）
+                
+                # 错误率阈值
+                errorRateThreshold:
+                  type: number
+                  default: 0.01
+                  description: 错误率阈值（默认 1%）
+                
+                # 延迟阈值
+                latencyThresholdMs:
+                  type: integer
+                  default: 2000
+                  description: P99 延迟阈值（毫秒）
+                
+                # 重启次数阈值
+                restartCountThreshold:
+                  type: integer
+                  default: 3
+                  description: 允许的最大重启次数
+                
+                # 回滚配置
+                rollbackConfig:
+                  type: object
+                  properties:
+                    enabled:
+                      type: boolean
+                      default: true
+                    maxRollbackHistory:
+                      type: integer
+                      default: 10
+                    notificationWebhook:
+                      type: string
+                    slackChannel:
+                      type: string
+                
+                # 健康探针配置
+                probes:
+                  type: object
+                  properties:
+                    httpPath:
+                      type: string
+                      default: /health
+                    httpPort:
+                      type: integer
+                      default: 8080
+                    successThreshold:
+                      type: integer
+                      default: 1
+                    failureThreshold:
+                      type: integer
+                      default: 3
+                
+                # Prometheus 查询
+                prometheusQueries:
+                  type: object
+                  properties:
+                    errorRateQuery:
+                      type: string
+                      default: 'sum(rate(http_requests_total{status=~"5..",service="{{service}}"}[1m]))/sum(rate(http_requests_total{service="{{service}}"}[1m]))'
+                    latencyP99Query:
+                      type: string
+                      default: 'histogram_quantile(0.99,sum(rate(http_request_duration_seconds_bucket{service="{{service}}"}[1m]))by(le))'
+                
+            status:
+              type: object
+              properties:
+                phase:
+                  type: string
+                  enum: [Pending, Monitoring, Healthy, Failed, RollbackTriggered, RollbackComplete]
+                
+                currentRevision:
+                  type: string
+                
+                previousRevision:
+                  type: string
+                
+                healthChecksTotal:
+                  type: integer
+                
+                healthChecksPassed:
+                  type: integer
+                
+                healthChecksFailed:
+                  type: integer
+                
+                currentErrorRate:
+                  type: number
+                
+                currentLatencyP99:
+                  type: number
+                
+                lastCheckTime:
+                  type: string
+                  format: date-time
+                
+                rollbackCount:
+                  type: integer
+                
+                lastRollbackTime:
+                  type: string
+                  format: date-time
+                
+                lastRollbackReason:
+                  type: string
+                
+                conditions:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                      status:
+                        type: string
+                      lastTransitionTime:
+                        type: string
+                        format: date-time
+                      reason:
+                        type: string
+                      message:
+                        type: string
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: Deployment
+          type: string
+          jsonPath: .spec.targetDeployment
+        - name: Phase
+          type: string
+          jsonPath: .status.phase
+        - name: Error-Rate
+          type: string
+          jsonPath: .status.currentErrorRate
+        - name: Age
+          type: date
+          jsonPath: .metadata.creationTimestamp

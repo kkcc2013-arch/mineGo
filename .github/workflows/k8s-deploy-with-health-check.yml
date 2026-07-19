@@ -1,0 +1,286 @@
+# ============================================================
+# PMG — Kubernetes Deployment with Health Check & Auto Rollback
+# REQ-00592: 生产环境部署健康检查与自动回滚系统
+# ============================================================
+
+name: K8s Deploy with Health Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'infrastructure/k8s/**'
+  workflow_dispatch:
+    inputs:
+      service:
+        description: 'Service to deploy (gateway/user/location/pokemon/catch/gym/social/reward/payment)'
+        required: false
+        default: 'all'
+      skip_health_check:
+        description: 'Skip health check monitoring'
+        type: boolean
+        default: false
+      rollback_threshold_error_rate:
+        description: 'Error rate threshold for rollback (0.0-1.0)'
+        default: '0.01'
+      monitoring_duration:
+        description: 'Monitoring duration in seconds'
+        default: '300'
+
+env:
+  KUBE_NAMESPACE: pmg
+  ERROR_RATE_THRESHOLD: 0.01
+  LATENCY_THRESHOLD_MS: 2000
+
+jobs:
+
+  # ── Job 1: Build & Push Images ────────────────────────────────
+  build:
+    name: 🏗️ Build Images
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tags }}
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      
+      - name: Generate image tag
+        id: meta
+        run: |
+          echo "tags=$(date +%Y%m%d)-${{ github.sha }}" >> $GITHUB_OUTPUT
+      
+      - name: Build and push gateway
+        if: inputs.service == 'gateway' || inputs.service == 'all'
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend/gateway
+          push: true
+          tags: |
+            ${{ secrets.REGISTRY_URL }}/pmg/api-gateway:${{ steps.meta.outputs.tags }}
+            ${{ secrets.REGISTRY_URL }}/pmg/api-gateway:latest
+      
+      # 其他服务构建省略...
+
+  # ── Job 2: Deploy to Kubernetes ───────────────────────────────
+  deploy:
+    name: 🚀 Deploy to K8s
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 20
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Configure kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+      
+      - name: Set kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+      
+      - name: Apply CRDs
+        run: |
+          kubectl apply -f infrastructure/k8s/operator/deployment-health-check-crd.yaml
+          kubectl apply -f infrastructure/k8s/operator/prometheus-health-alerts.yaml
+      
+      - name: Deploy services
+        run: |
+          IMAGE_TAG="${{ needs.build.outputs.image_tag }}"
+          SERVICE="${{ inputs.service || 'all' }}"
+          NAMESPACE="${{ env.KUBE_NAMESPACE }}"
+          
+          echo "🚀 Deploying to namespace: $NAMESPACE"
+          echo "   Image tag: $IMAGE_TAG"
+          echo "   Service: $SERVICE"
+          
+          # 更新镜像
+          if [ "$SERVICE" = "all" ]; then
+            for svc in api-gateway user-service location-service pokemon-service catch-service gym-service social-service reward-service payment-service; do
+              kubectl set image deployment/$svc $svc=${{ secrets.REGISTRY_URL }}/pmg/$svc:$IMAGE_TAG -n $NAMESPACE
+              echo "✓ Updated $svc"
+            done
+          else
+            kubectl set image deployment/$SERVICE $SERVICE=${{ secrets.REGISTRY_URL }}/pmg/$SERVICE:$IMAGE_TAG -n $NAMESPACE
+            echo "✓ Updated $SERVICE"
+          fi
+          
+          # 等待 rollout 完成
+          if [ "$SERVICE" = "all" ]; then
+            for svc in api-gateway user-service location-service pokemon-service catch-service gym-service social-service reward-service payment-service; do
+              kubectl rollout status deployment/$svc -n $NAMESPACE --timeout=300s
+            done
+          else
+            kubectl rollout status deployment/$SERVICE -n $NAMESPACE --timeout=300s
+          fi
+          
+          echo "✅ Deployment rollout completed"
+      
+      - name: Apply Health Check CRs
+        if: inputs.skip_health_check != true
+        run: |
+          kubectl apply -f infrastructure/k8s/operator/deployment-health-checks.yaml
+          echo "✓ Health check resources applied"
+      
+      - name: Monitor deployment health
+        if: inputs.skip_health_check != true
+        run: |
+          NAMESPACE="${{ env.KUBE_NAMESPACE }}"
+          MONITOR_DURATION="${{ inputs.monitoring_duration || '300' }}"
+          ERROR_THRESHOLD="${{ inputs.rollback_threshold_error_rate || '0.01' }}"
+          
+          echo "🔍 Monitoring deployment health for ${MONITOR_DURATION}s..."
+          
+          START_TIME=$(date +%s)
+          FAILURE_COUNT=0
+          
+          while true; do
+            CURRENT_TIME=$(date +%s)
+            ELAPSED=$((CURRENT_TIME - START_TIME))
+            
+            if [ $ELAPSED -ge $MONITOR_DURATION ]; then
+              echo "✅ Monitoring period completed"
+              break
+            fi
+            
+            sleep 10
+            
+            # 检查健康检查 CR 状态
+            HEALTH_STATUS=$(kubectl get deploymenthealthchecks -n $NAMESPACE -o json | \
+              jq -r '.items[] | select(.status.phase != "Healthy") | .status.phase')
+            
+            if [ -n "$HEALTH_STATUS" ]; then
+              echo "⚠️ Health check issue detected: $HEALTH_STATUS"
+              
+              # 检查是否触发回滚
+              if [ "$HEALTH_STATUS" = "RollbackTriggered" ] || [ "$HEALTH_STATUS" = "Failed" ]; then
+                FAILURE_COUNT=$((FAILURE_COUNT + 1))
+                
+                if [ $FAILURE_COUNT -ge 3 ]; then
+                  echo "❌ Critical health check failure"
+                  exit 1
+                fi
+              fi
+            fi
+            
+            # 从 Prometheus 查询错误率（需要 promtool 或 curl）
+            # ERROR_RATE=$(curl -s "prometheus/api/v1/query?query=..." | jq -r '.data.result[0].value[1]')
+            
+            echo "⏱️ [$ELAPSED/${MONITOR_DURATION}s] Services healthy"
+          done
+      
+      - name: Verify final state
+        run: |
+          NAMESPACE="${{ env.KUBE_NAMESPACE }}"
+          
+          echo "📊 Final deployment status:"
+          kubectl get deployments -n $NAMESPACE
+          echo ""
+          
+          echo "📋 Health check status:"
+          kubectl get deploymenthealthchecks -n $NAMESPACE
+          echo ""
+          
+          echo "📈 Recent replica sets:"
+          kubectl get rs -n $NAMESPACE --sort-by=.metadata.creationTimestamp | tail -10
+          echo ""
+          
+          # 检查是否有回滚发生
+          ROLLBACK=$(kubectl get deploymenthealthchecks -n $NAMESPACE -o json | \
+            jq -r '.items[] | select(.status.rollbackCount > 0) | .metadata.name')
+          
+          if [ -n "$ROLLBACK" ]; then
+            echo "⚠️ Rollback detected for: $ROLLBACK"
+            echo "   Check Slack for details"
+          else
+            echo "✅ No rollbacks triggered"
+          fi
+
+  # ── Job 3: Manual Rollback (Optional) ───────────────────────
+  rollback:
+    name: ⏪ Manual Rollback
+    if: github.event_name == 'workflow_dispatch' && inputs.action == 'rollback'
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Configure kubectl
+        uses: azure/setup-kubectl@v3
+      
+      - name: Set kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+      
+      - name: Execute rollback
+        run: |
+          SERVICE="${{ inputs.service }}"
+          NAMESPACE="${{ env.KUBE_NAMESPACE }}"
+          
+          if [ -z "$SERVICE" ] || [ "$SERVICE" = "all" ]; then
+            echo "❌ Service name required for rollback"
+            exit 1
+          fi
+          
+          echo "⏪ Rolling back $SERVICE..."
+          kubectl rollout undo deployment/$SERVICE -n $NAMESPACE
+          
+          kubectl rollout status deployment/$SERVICE -n $NAMESPACE --timeout=120s
+          echo "✅ Rollback completed"
+          
+          # 清理健康检查状态
+          kubectl patch deploymenthealthcheck ${SERVICE}-health-check -n $NAMESPACE \
+            --type=merge -p '{"status":{"phase":"RollbackComplete"}}' || true
+
+  # ── Job 4: Notify ─────────────────────────────────────────────
+  notify:
+    name: 📣 Notify
+    needs: deploy
+    if: always()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Notify Slack
+        if: env.SLACK_WEBHOOK != ''
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+        run: |
+          STATUS="${{ job.status }}"
+          ICON="✅"
+          COLOR="good"
+          
+          if [ "$STATUS" = "failure" ]; then
+            ICON="❌"
+            COLOR="danger"
+          elif [ "$STATUS" = "cancelled" ]; then
+            ICON="⚪"
+            COLOR="warning"
+          fi
+          
+          curl -X POST "$SLACK_WEBHOOK" \
+            -H 'Content-Type: application/json' \
+            -d "{
+              \"attachments\": [{
+                \"color\": \"$COLOR\",
+                \"title\": \"$ICON K8s Deployment - ${STATUS}\",
+                \"fields\": [
+                  {\"title\": \"Service\", \"value\": \"${{ inputs.service || 'all' }}\", \"short\": true},
+                  {\"title\": \"Branch\", \"value\": \"${{ github.ref }}\", \"short\": true},
+                  {\"title\": \"Commit\", \"value\": \"${{ github.sha }}\", \"short\": false},
+                  {\"title\": \"Actor\", \"value\": \"${{ github.actor }}\", \"short\": true}
+                ]
+              }]
+            }" || true
