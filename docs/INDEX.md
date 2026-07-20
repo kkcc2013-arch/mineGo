@@ -34,7 +34,7 @@
 | REQ-00523 | 数据库查询结果缓存失效智能同步系统 | 性能优化 | P1 | new | backend/shared/cache, database/cdc, gateway | 2026-07-09 14:00 |
 | REQ-00524 | 游戏日期时间格式本地化与智能显示系统 | 国际化/本地化 | P1 | new | backend/shared/dateTimeFormat.js、gateway/middleware、user-service、game-client、admin-dashboard | 2026-07-09 04:05 |
 | REQ-00525 | Property-Based Testing 框架与 API Fuzz Testing 系统 | 测试覆盖 | P1 | done | backend/tests, backend/shared/testing, all services, GitHub Actions | 2026-07-09 09:00 |
-| REQ-00537 | 变异测试框架与测试质量度量系统 | 测试覆盖 | P1 | new | backend/tests, backend/shared/testing, .github/workflows, all services | 2026-07-11 09:00 |
+| REQ-00537 | 变异测试框架与测试质量度量系统 | 测试覆盖 | P1 | done | backend/tests, backend/shared/testing, .github/workflows, all services | 2026-07-11 09:00 |
 | REQ-00538 | 任务执行状态实时监控与智能告警系统 | 运维/CICD | P1 | done | backend/jobs、backend/shared/jobMonitor、gateway、admin-dashboard | 2026-07-11 12:00 |
 | REQ-00545 | API 性能采样数据智能分析与自动调优建议系统 | 性能优化 | P1 | new | backend/shared/performanceSamplingAnalysis、gateway/src/middleware/perfSamplingAnalysis、backend/jobs/performanceAnalysisJob.js、infrastructure/monitoring、admin-dashboard | 2026-07-12 17:00 |
 | REQ-00546 | API Mock 服务与测试隔离系统 | 测试覆盖 | P1 | done | backend/tests、backend/shared/mockService、所有后端服务、gateway、.github/workflows | 2026-07-12 18:45 |
@@ -54,3 +54,4 @@
 | REQ-00589 | 微服务架构可视化与 API 依赖关系图谱系统 | 文档/开发者体验 | P1 | new | admin-dashboard, gateway, 所有后端服务, docs-site | 2026-07-17 00:00 |
 | REQ-00590 | CI/CD 流水线执行效率分析与瓶颈定位系统 | 运维/CICD | P1 | new | .github/workflows、backend/jobs/pipelineAnalyzer.js、admin-dashboard、infrastructure/monitoring | 2026-07-19 04:00 |
 | REQ-00600 | 动态模块加载器与依赖注入容器系统 | 可扩展性/解耦 | P1 | new | backend/shared/moduleLoader、backend/shared/diContainer、gateway、所有后端服务 | 2026-07-20 01:00 |
+| REQ-00601 | 数据库 Schema 变更智能影响分析与风险评估系统 | 数据库/数据治理 | P1 | new | database/migrate.js、backend/shared/schemaChangeAnalyzer.js、backend/shared/schemaImpactAnalyzer.js、gateway、所有后端服务、admin-dashboard | 2026-07-20 02:00 |
