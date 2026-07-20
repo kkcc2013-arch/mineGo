@@ -1,0 +1,463 @@
+{
+  "dashboard": {
+    "title": "REQ-00585: 数据库死锁监控仪表盘",
+    "tags": ["minego", "database", "deadlock", "monitoring"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "30s",
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "死锁检测总数",
+        "type": "stat",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "sum by (service) (increase(minego_db_deadlocks_detected_total[1h]))",
+            "legendFormat": "{{service}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "colorMode": "background",
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {"color": "green", "value": 0},
+                  {"color": "yellow", "value": 1},
+                  {"color": "red", "value": 5}
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "已解决死锁数",
+        "type": "stat",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 6,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "sum by (service) (increase(minego_db_deadlocks_resolved_total[1h]))",
+            "legendFormat": "{{service}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "colorMode": "background",
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {"color": "green", "value": 0}
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "活跃事务数（死锁发生时）",
+        "type": "gauge",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 12,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "minego_db_active_transactions_at_deadlock",
+            "legendFormat": "{{service}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "fieldConfig": {
+            "defaults": {
+              "max": 50,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {"color": "green", "value": 0},
+                  {"color": "yellow", "value": 10},
+                  {"color": "red", "value": 30}
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "死锁解决率",
+        "type": "stat",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 18,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "sum(increase(minego_db_deadlocks_resolved_total[1h])) / sum(increase(minego_db_deadlocks_detected_total[1h])) * 100",
+            "legendFormat": "解决率",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "unit": "percent",
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {"color": "red", "value": 0},
+                  {"color": "yellow", "value": 70},
+                  {"color": "green", "value": 90}
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 5,
+        "title": "死锁趋势（按服务）",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 4
+        },
+        "targets": [
+          {
+            "expr": "sum by (service) (rate(minego_db_deadlocks_detected_total[5m]))",
+            "legendFormat": "{{service}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "right"
+          },
+          "tooltip": {
+            "mode": "multi"
+          }
+        },
+        "fieldConfig": {
+          "defaults": {
+            "custom": {
+              "lineWidth": 2,
+              "fillOpacity": 10
+            }
+          }
+        }
+      },
+      {
+        "id": 6,
+        "title": "按严重性分布",
+        "type": "piechart",
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 12,
+          "y": 4
+        },
+        "targets": [
+          {
+            "expr": "sum by (severity) (minego_db_deadlocks_detected_total)",
+            "legendFormat": "{{severity}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "legend": {
+            "displayMode": "table",
+            "placement": "right",
+            "values": ["value", "percent"]
+          }
+        }
+      },
+      {
+        "id": 7,
+        "title": "重试次数分布",
+        "type": "histogram",
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 18,
+          "y": 4
+        },
+        "targets": [
+          {
+            "expr": "sum by (transaction_name) (increase(minego_db_deadlock_retry_count[1h]))",
+            "legendFormat": "{{transaction_name}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "legend": {
+            "displayMode": "list",
+            "placement": "bottom"
+          }
+        }
+      },
+      {
+        "id": 8,
+        "title": "热点表死锁分布",
+        "type": "bargauge",
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 0,
+          "y": 12
+        },
+        "targets": [
+          {
+            "expr": "topk(10, sum by (table) (minego_db_deadlock_by_table_total))",
+            "legendFormat": "Table {{table}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "displayMode": "gradient",
+          "orientation": "horizontal",
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {"color": "green", "value": 0},
+                  {"color": "yellow", "value": 5},
+                  {"color": "red", "value": 10}
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 9,
+        "title": "锁类型分布",
+        "type": "bargauge",
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 12,
+          "y": 12
+        },
+        "targets": [
+          {
+            "expr": "sum by (lock_type) (minego_db_deadlock_by_lock_type_total)",
+            "legendFormat": "{{lock_type}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "displayMode": "gradient",
+          "orientation": "horizontal",
+          "fieldConfig": {
+            "defaults": {
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {"color": "green", "value": 0},
+                  {"color": "yellow", "value": 5},
+                  {"color": "red", "value": 15}
+                ]
+              }
+            }
+          }
+        }
+      },
+      {
+        "id": 10,
+        "title": "近期死锁告警规则",
+        "type": "alertlist",
+        "gridPos": {
+          "h": 6,
+          "w": 24,
+          "x": 0,
+          "y": 18
+        },
+        "targets": [{}],
+        "options": {
+          "alertName": "",
+          "dashboardAlerts": false,
+          "groupMode": "default",
+          "limit": 10,
+          "maxItems": 10,
+          "onlyFiring": true,
+          "showOptions": "current",
+          "sortOrder": 1,
+          "stateFilter": ["firing"],
+          "viewMode": "list"
+        }
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "service",
+          "type": "query",
+          "label": "Service",
+          "datasource": "Prometheus",
+          "query": "label_values(minego_db_deadlocks_detected_total, service)",
+          "refresh": 2,
+          "sort": 1
+        },
+        {
+          "name": "severity",
+          "type": "custom",
+          "label": "Severity",
+          "options": [
+            {"text": "All", "value": "$__all", "selected": true},
+            {"text": "low", "value": "low"},
+            {"text": "medium", "value": "medium"},
+            {"text": "high", "value": "high"},
+            {"text": "critical", "value": "critical"}
+          ],
+          "query": "All,low,medium,high,critical"
+        }
+      ]
+    },
+    "alerting": {
+      "alertRuleGroups": [
+        {
+          "name": "deadlock_alerts",
+          "interval": "1m",
+          "rules": [
+            {
+              "uid": "deadlock_critical",
+              "title": "Critical Deadlock Rate",
+              "condition": "C",
+              "data": [
+                {
+                  "refId": "A",
+                  "relativeTimeRange": {"from": 300, "to": 0},
+                  "model": {
+                    "expr": "sum(rate(minego_db_deadlocks_detected_total{severity=\"critical\"}[5m]))",
+                    "refId": "A"
+                  }
+                },
+                {
+                  "refId": "B",
+                  "relativeTimeRange": {"from": 0, "to": 0},
+                  "model": {
+                    "type": "reduce",
+                    "reducer": "last",
+                    "expression": "A",
+                    "refId": "B"
+                  }
+                },
+                {
+                  "refId": "C",
+                  "relativeTimeRange": {"from": 0, "to": 0},
+                  "model": {
+                    "type": "threshold",
+                    "expression": "B",
+                    "conditions": [
+                      {
+                        "evaluator": {"type": "gt", "params": [0.1]},
+                        "operator": {"type": "and"},
+                        "query": {"params": ["B"]}
+                      }
+                    ],
+                    "refId": "C"
+                  }
+                }
+              ],
+              "noDataState": "NoData",
+              "execErrState": "Alerting",
+              "for": "2m",
+              "annotations": {
+                "description": "Critical deadlock rate detected: {{$values.B}} per second",
+                "summary": "High frequency critical deadlocks detected"
+              },
+              "labels": {
+                "severity": "critical",
+                "team": "backend"
+              }
+            },
+            {
+              "uid": "deadlock_warning",
+              "title": "High Deadlock Rate",
+              "condition": "C",
+              "data": [
+                {
+                  "refId": "A",
+                  "relativeTimeRange": {"from": 300, "to": 0},
+                  "model": {
+                    "expr": "sum(rate(minego_db_deadlocks_detected_total[5m]))",
+                    "refId": "A"
+                  }
+                },
+                {
+                  "refId": "B",
+                  "relativeTimeRange": {"from": 0, "to": 0},
+                  "model": {
+                    "type": "reduce",
+                    "reducer": "last",
+                    "expression": "A",
+                    "refId": "B"
+                  }
+                },
+                {
+                  "refId": "C",
+                  "relativeTimeRange": {"from": 0, "to": 0},
+                  "model": {
+                    "type": "threshold",
+                    "expression": "B",
+                    "conditions": [
+                      {
+                        "evaluator": {"type": "gt", "params": [0.5]},
+                        "operator": {"type": "and"},
+                        "query": {"params": ["B"]}
+                      }
+                    ],
+                    "refId": "C"
+                  }
+                }
+              ],
+              "noDataState": "NoData",
+              "execErrState": "Alerting",
+              "for": "5m",
+              "annotations": {
+                "description": "Deadlock rate is high: {{$values.B}} per second",
+                "summary": "Elevated deadlock frequency detected"
+              },
+              "labels": {
+                "severity": "warning",
+                "team": "backend"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
