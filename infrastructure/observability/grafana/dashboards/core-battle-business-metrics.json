@@ -1,0 +1,390 @@
+{
+  "dashboard": {
+    "title": "Core Battle Business Metrics Dashboard",
+    "uid": "core-battle-metrics",
+    "tags": ["minego", "battle", "business-metrics"],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Battle Win Rate by Type",
+        "type": "gauge",
+        "gridPos": {
+          "h": 6,
+          "w": 6,
+          "x": 0,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "battle_win_rate_ratio",
+            "legendFormat": "{{battle_type}} - {{player_level_range}}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "orientation": "horizontal",
+          "showThresholdLabels": false,
+          "showThresholdMarkers": true
+        },
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 1,
+            "unit": "percentunit",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "red", "value": null },
+                { "color": "yellow", "value": 0.3 },
+                { "color": "green", "value": 0.5 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Battle Settlement Duration (P95)",
+        "type": "graph",
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 6,
+          "y": 0
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(battle_settlement_duration_seconds_bucket[5m]))",
+            "legendFormat": "P95 {{battle_type}}",
+            "refId": "A"
+          },
+          {
+            "expr": "histogram_quantile(0.50, rate(battle_settlement_duration_seconds_bucket[5m]))",
+            "legendFormat": "P50 {{battle_type}}",
+            "refId": "B"
+          }
+        ],
+        "yaxes": [
+          { "format": "s", "label": "Duration" },
+          { "format": "short" }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Battle Total Count",
+        "type": "stat",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 0,
+          "y": 6
+        },
+        "targets": [
+          {
+            "expr": "sum(increase(battle_total_count[1h]))",
+            "legendFormat": "Total Battles",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area"
+        }
+      },
+      {
+        "id": 4,
+        "title": "Battle Win Count",
+        "type": "stat",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 6,
+          "y": 6
+        },
+        "targets": [
+          {
+            "expr": "sum(increase(battle_win_count[1h]))",
+            "legendFormat": "Total Wins",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "colorMode": "value",
+          "graphMode": "area"
+        }
+      },
+      {
+        "id": 5,
+        "title": "Battle Settlement Errors",
+        "type": "graph",
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 12,
+          "y": 6
+        },
+        "targets": [
+          {
+            "expr": "sum by (battle_type, error_type) (rate(battle_settlement_error_total[5m]))",
+            "legendFormat": "{{battle_type}} - {{error_type}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          { "format": "short", "label": "Errors/s" },
+          { "format": "short" }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Skill Execution Duration (P95)",
+        "type": "heatmap",
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 0,
+          "y": 10
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(skill_execution_duration_seconds_bucket[5m])) by (le)",
+            "legendFormat": "{{le}}",
+            "refId": "A",
+            "format": "heatmap"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Skill Execution Errors by Skill",
+        "type": "table",
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 12,
+          "y": 10
+        },
+        "targets": [
+          {
+            "expr": "topk(20, sum by (skill_id, skill_name, error_type) (increase(skill_execution_error_total[1h])))",
+            "legendFormat": "",
+            "refId": "A",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {},
+              "indexByName": { "skill_id": 0, "skill_name": 1, "error_type": 2, "Value": 3 },
+              "renameByName": { "Value": "Error Count" }
+            }
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Damage Distribution",
+        "type": "histogram",
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 0,
+          "y": 16
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(battle_damage_dealt_detailed_bucket[5m])) by (le)",
+            "refId": "A",
+            "format": "heatmap"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Critical Hit Rate",
+        "type": "gauge",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 12,
+          "y": 16
+        },
+        "targets": [
+          {
+            "expr": "avg(battle_critical_hit_rate)",
+            "legendFormat": "Avg Critical Rate",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "orientation": "horizontal",
+          "showThresholdMarkers": true
+        },
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 0.5,
+            "unit": "percentunit",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "blue", "value": null },
+                { "color": "green", "value": 0.1 },
+                { "color": "yellow", "value": 0.2 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 10,
+        "title": "Damage Deviation Ratio",
+        "type": "gauge",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 18,
+          "y": 16
+        },
+        "targets": [
+          {
+            "expr": "avg(battle_damage_deviation_ratio)",
+            "legendFormat": "Avg Deviation",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "orientation": "horizontal",
+          "showThresholdMarkers": true
+        },
+        "fieldConfig": {
+          "defaults": {
+            "min": 0,
+            "max": 0.5,
+            "unit": "percentunit",
+            "thresholds": {
+              "mode": "absolute",
+              "steps": [
+                { "color": "green", "value": null },
+                { "color": "yellow", "value": 0.2 },
+                { "color": "red", "value": 0.3 }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 11,
+        "title": "Type Effectiveness Rate",
+        "type": "graph",
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 12,
+          "y": 20
+        },
+        "targets": [
+          {
+            "expr": "battle_type_effectiveness_rate",
+            "legendFormat": "{{effectiveness_level}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Battle Settlement Timeouts",
+        "type": "graph",
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 0,
+          "y": 22
+        },
+        "targets": [
+          {
+            "expr": "sum by (battle_type) (rate(battle_settlement_timeout_total[5m]))",
+            "legendFormat": "{{battle_type}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          { "format": "short", "label": "Timeouts/s" },
+          { "format": "short" }
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [0.01],
+                "type": "gt"
+              },
+              "operator": { "type": "and" },
+              "query": { "params": ["A", "5m", "now"] },
+              "reducer": { "params": [], "type": "avg" },
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "frequency": "1m",
+          "handler": 1,
+          "name": "Battle Timeout Alert",
+          "noDataState": "no_data",
+          "notifications": []
+        }
+      },
+      {
+        "id": 13,
+        "title": "Active Battle Traces",
+        "type": "stat",
+        "gridPos": {
+          "h": 3,
+          "w": 6,
+          "x": 12,
+          "y": 26
+        },
+        "targets": [
+          {
+            "expr": "count(battle_trace_start_total - battle_trace_end_total)",
+            "legendFormat": "Active Traces",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "colorMode": "value",
+          "graphMode": "none"
+        }
+      },
+      {
+        "id": 14,
+        "title": "Skill Trigger Success Rate",
+        "type": "graph",
+        "gridPos": {
+          "h": 6,
+          "w": 12,
+          "x": 0,
+          "y": 28
+        },
+        "targets": [
+          {
+            "expr": "avg by (skill_name) (skill_trigger_success_rate)",
+            "legendFormat": "{{skill_name}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          { "format": "percentunit", "label": "Success Rate", "max": 1, "min": 0 },
+          { "format": "short" }
+        ]
+      }
+    ]
+  },
+  "overwrite": true
+}
