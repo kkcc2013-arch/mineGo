@@ -1,6 +1,4 @@
-| 编号 | 标题 | 类别 | 优先级 | 状态 | 服务 | 创建时间 |
-|------|------|------|------|------|------|----------|
-| REQ-00606 | 游戏客户端渲染性能智能监控与告警系统 | 可观测性 | P1 | new | game-client, performance-monitor | 2026-07-20 15:00 |
+| REQ-00607 | 微服务跨服务依赖解耦与统一服务发现机制 | 可扩展性/解耦 | P1 | new | gateway, catch-service, gym-service, pokemon-service, user-service, location-service, social-service, reward-service, payment-service | 2026-07-20 09:00 |
 | REQ-00605 | 游戏资源包差分更新与增量同步系统 | 性能优化 | P1 | new | game-client, resource-manager, cdn-gateway | 2026-07-20 14:00 |
 | REQ-00594 | 游戏内实时性能瓶颈自诊断引擎 | 可观测性 | P1 | new | game-client, gateway, backend-metrics | 2026-07-19 09:00 |
 | REQ-00593 | 灾备故障场景自动发现与混沌验证覆盖系统 | 容灾/高可用 | P1 | new | backend/shared/disasterRecovery, backend/shared/ChaosEngine, admin-dashboard | 2026-07-19 03:00 |
