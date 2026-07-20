@@ -1,202 +1,209 @@
-// backend/services/user-service/src/routes/timezone.js
-// REQ-00029: 游戏事件时区本地化与多时区支持
+/**
+ * 用户时区偏好管理 - REQ-00612
+ * 路由：获取/更新用户时区偏好
+ */
+
 'use strict';
 
 const express = require('express');
-const { z } = require('zod');
-const { query } = require('../../../../shared/db');
-const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
-
 const router = express.Router();
-router.use(requireAuth);
+const { createLogger } = require('../../../shared/logger');
+const db = require('../../../shared/db');
+const { TimezoneUtils } = require('../../gateway/src/middleware/timezone');
 
-// 常用时区列表（用于验证和前端展示）
-const COMMON_TIMEZONES = [
-  { id: 'UTC', label: 'UTC (协调世界时)', offset: '+00:00' },
-  { id: 'Asia/Shanghai', label: '中国标准时间 (北京)', offset: '+08:00' },
-  { id: 'Asia/Tokyo', label: '日本标准时间', offset: '+09:00' },
-  { id: 'Asia/Seoul', label: '韩国标准时间', offset: '+09:00' },
-  { id: 'Asia/Hong_Kong', label: '香港时间', offset: '+08:00' },
-  { id: 'Asia/Taipei', label: '台北时间', offset: '+08:00' },
-  { id: 'Asia/Singapore', label: '新加坡时间', offset: '+08:00' },
-  { id: 'America/New_York', label: '美国东部时间', offset: '-05:00' },
-  { id: 'America/Chicago', label: '美国中部时间', offset: '-06:00' },
-  { id: 'America/Denver', label: '美国山地时间', offset: '-07:00' },
-  { id: 'America/Los_Angeles', label: '美国太平洋时间', offset: '-08:00' },
-  { id: 'Europe/London', label: '英国时间', offset: '+00:00' },
-  { id: 'Europe/Paris', label: '中欧时间', offset: '+01:00' },
-  { id: 'Europe/Berlin', label: '德国时间', offset: '+01:00' },
-  { id: 'Europe/Moscow', label: '莫斯科时间', offset: '+03:00' },
-  { id: 'Australia/Sydney', label: '悉尼时间', offset: '+11:00' },
-  { id: 'Pacific/Auckland', label: '新西兰时间', offset: '+13:00' }
-];
+const logger = createLogger('user-timezone');
 
-// 验证时区是否有效
-async function isValidTimezone(tz) {
+/**
+ * 获取用户时区偏好
+ * GET /users/:userId/timezone
+ */
+router.get('/:userId/timezone', async (req, res) => {
   try {
-    const { rows } = await query(
-      'SELECT 1 FROM pg_timezone_names WHERE name = $1 LIMIT 1',
-      [tz]
-    );
-    return rows.length > 0 || tz === 'UTC';
-  } catch (err) {
-    console.error('Timezone validation error:', err);
-    return tz === 'UTC'; // UTC 总是有效
-  }
-}
+    const { userId } = req.params;
 
-// 获取时区当前偏移量（考虑夏令时）
-function getTimezoneOffset(tz) {
-  try {
-    const now = new Date();
-    const formatter = new Intl.DateTimeFormat('en-US', {
-      timeZone: tz,
-      timeZoneName: 'longOffset'
-    });
-    const parts = formatter.formatToParts(now);
-    const offsetPart = parts.find(p => p.type === 'timeZoneName');
-    return offsetPart ? offsetPart.value : '+00:00';
-  } catch (err) {
-    return '+00:00';
-  }
-}
-
-// GET /users/me/timezone - 获取用户时区设置
-router.get('/me/timezone', async (req, res, next) => {
-  try {
-    const { rows: [user] } = await query(
-      'SELECT timezone, timezone_updated_at FROM users WHERE id = $1',
-      [req.user.sub]
+    // 查询用户时区偏好
+    const result = await db.query(
+      `SELECT timezone, auto_detect, updated_at 
+       FROM user_timezone_preferences 
+       WHERE user_id = $1`,
+      [userId]
     );
 
-    if (!user) {
-      throw new AppError(2003, '用户不存在', 404);
+    if (result.rows.length === 0) {
+      // 返回默认值
+      return res.json({
+        userId,
+        timezone: 'UTC',
+        autoDetect: true,
+        updatedAt: null
+      });
     }
 
-    const timezone = user.timezone || 'UTC';
-    const offset = getTimezoneOffset(timezone);
-    
-    // 计算本地时间
-    const localTime = new Date().toLocaleString('en-US', { 
-      timeZone: timezone,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
+    const row = result.rows[0];
+    res.json({
+      userId,
+      timezone: row.timezone,
+      autoDetect: row.auto_detect,
+      updatedAt: row.updated_at
     });
-
-    res.json(successResp({
-      timezone,
-      offset,
-      localTime,
-      updatedAt: user.timezone_updated_at,
-      commonTimezones: COMMON_TIMEZONES
-    }));
   } catch (err) {
-    next(err);
+    logger.error({ userId: req.params.userId, error: err.message }, 'Failed to get timezone');
+    res.status(500).json({ error: 'Failed to get timezone preference' });
   }
 });
 
-// PUT /users/me/timezone - 更新用户时区设置
-router.put('/me/timezone', async (req, res, next) => {
+/**
+ * 更新用户时区偏好
+ * PUT /users/:userId/timezone
+ */
+router.put('/:userId/timezone', async (req, res) => {
   try {
-    const schema = z.object({
-      timezone: z.string().min(1).max(100)
-    });
-    
-    const { timezone } = schema.parse(req.body);
+    const { userId } = req.params;
+    const { timezone, autoDetect } = req.body;
 
-    // 验证时区是否有效
-    const valid = await isValidTimezone(timezone);
-    if (!valid) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          code: 'INVALID_TIMEZONE',
-          message: `无效的时区: ${timezone}`,
-          hint: '请使用 IANA 时区标识符，如 Asia/Shanghai, America/New_York'
-        }
+    // 验证时区
+    if (!TimezoneUtils.isValidTimezone(timezone)) {
+      return res.status(400).json({ 
+        error: 'Invalid timezone',
+        supportedTimezones: TimezoneUtils.getSupportedTimezones()
       });
     }
+
+    // 更新或插入
+    const result = await db.query(
+      `INSERT INTO user_timezone_preferences (user_id, timezone, auto_detect, updated_at)
+       VALUES ($1, $2, $3, NOW())
+       ON CONFLICT (user_id)
+       DO UPDATE SET 
+         timezone = EXCLUDED.timezone,
+         auto_detect = EXCLUDED.auto_detect,
+         updated_at = NOW()
+       RETURNING *`,
+      [userId, timezone, autoDetect || false]
+    );
+
+    const row = result.rows[0];
+    logger.info({ userId, timezone, autoDetect }, 'Timezone preference updated');
+
+    res.json({
+      userId: row.user_id,
+      timezone: row.timezone,
+      autoDetect: row.auto_detect,
+      updatedAt: row.updated_at
+    });
+  } catch (err) {
+    logger.error({ userId: req.params.userId, error: err.message }, 'Failed to update timezone');
+    res.status(500).json({ error: 'Failed to update timezone preference' });
+  }
+});
+
+/**
+ * 自动检测时区（基于 IP）
+ * POST /users/:userId/timezone/auto-detect
+ */
+router.post('/:userId/timezone/auto-detect', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+    // 这里可以集成 GeoIP 服务（如 MaxMind）
+    // 简化实现：根据 IP 段推断时区
+    const detectedTimezone = detectTimezoneByIP(ip);
 
     // 更新用户时区
-    await query(
-      'UPDATE users SET timezone = $1, timezone_updated_at = NOW() WHERE id = $2',
-      [timezone, req.user.sub]
+    const result = await db.query(
+      `INSERT INTO user_timezone_preferences (user_id, timezone, auto_detect, updated_at)
+       VALUES ($1, $2, true, NOW())
+       ON CONFLICT (user_id)
+       DO UPDATE SET 
+         timezone = EXCLUDED.timezone,
+         auto_detect = true,
+         updated_at = NOW()
+       RETURNING *`,
+      [userId, detectedTimezone]
     );
 
-    const offset = getTimezoneOffset(timezone);
-    const localTime = new Date().toLocaleString('en-US', { 
-      timeZone: timezone,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
+    const row = result.rows[0];
+    logger.info({ userId, ip, detectedTimezone }, 'Timezone auto-detected');
+
+    res.json({
+      userId: row.user_id,
+      timezone: row.timezone,
+      autoDetect: true,
+      detectedFromIP: ip,
+      updatedAt: row.updated_at
     });
-
-    res.json(successResp({
-      timezone,
-      offset,
-      localTime
-    }, '时区设置已更新'));
   } catch (err) {
-    if (err.name === 'ZodError') {
-      return res.status(400).json({
-        success: false,
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: '请求参数验证失败',
-          details: err.errors
-        }
-      });
-    }
-    next(err);
+    logger.error({ userId: req.params.userId, error: err.message }, 'Failed to auto-detect timezone');
+    res.status(500).json({ error: 'Failed to auto-detect timezone' });
   }
 });
 
-// GET /users/timezones - 获取可用时区列表
-router.get('/timezones', async (req, res, next) => {
-  try {
-    // 返回常用时区列表
-    // 如果需要完整列表，可以从数据库查询 pg_timezone_names
-    const { rows } = await query(`
-      SELECT name, utc_offset 
-      FROM pg_timezone_names 
-      WHERE name NOT LIKE 'posix/%' 
-        AND name NOT LIKE 'SystemV/%'
-      ORDER BY utc_offset, name
-      LIMIT 200
-    `);
-
-    res.json(successResp({
-      common: COMMON_TIMEZONES,
-      all: rows.map(r => ({
-        id: r.name,
-        offset: formatOffset(r.utc_offset)
-      }))
-    }));
-  } catch (err) {
-    // 如果查询失败，至少返回常用时区
-    res.json(successResp({
-      common: COMMON_TIMEZONES,
-      all: COMMON_TIMEZONES
-    }));
+/**
+ * 根据IP推断时区（简化版）
+ */
+function detectTimezoneByIP(ip) {
+  // 实际生产环境应使用 GeoIP 数据库（如 MaxMind GeoIP2）
+  // 这里提供简化实现
+  
+  // 如果是本地 IP，返回默认时区
+  if (ip === '127.0.0.1' || ip === '::1' || ip.startsWith('192.168.') || ip.startsWith('10.')) {
+    return 'UTC';
   }
+
+  // 实际应调用 GeoIP 服务
+  // 示例：根据 IP 段映射到时区
+  const ipTimezoneMap = {
+    'China': 'Asia/Shanghai',
+    'Japan': 'Asia/Tokyo',
+    'US-East': 'America/New_York',
+    'US-West': 'America/Los_Angeles',
+    'UK': 'Europe/London',
+    'France': 'Europe/Paris',
+    'Australia': 'Australia/Sydney'
+  };
+
+  // 默认返回 UTC
+  return 'UTC';
+}
+
+/**
+ * 获取时区列表
+ * GET /users/timezones
+ */
+router.get('/timezones', (req, res) => {
+  const supportedTimezones = TimezoneUtils.getSupportedTimezones();
+  
+  // 获取每个时区的详细信息
+  const timezoneInfo = supportedTimezones.map(tz => ({
+    id: tz,
+    offset: TimezoneUtils.getOffset(tz),
+    isDST: TimezoneUtils.isDST(tz),
+    label: getTimezoneLabel(tz)
+  }));
+
+  res.json({
+    timezones: timezoneInfo,
+    total: timezoneInfo.length
+  });
 });
 
-// 辅助函数：格式化 UTC 偏移量
-function formatOffset(seconds) {
-  const hours = Math.floor(Math.abs(seconds) / 3600);
-  const mins = Math.floor((Math.abs(seconds) % 3600) / 60);
-  const sign = seconds >= 0 ? '+' : '-';
-  return `${sign}${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+/**
+ * 获取时区显示标签
+ */
+function getTimezoneLabel(timezone) {
+  const labels = {
+    'UTC': 'UTC (Coordinated Universal Time)',
+    'Asia/Shanghai': '中国标准时间 (CST)',
+    'Asia/Tokyo': '日本标准时间 (JST)',
+    'America/New_York': '美国东部时间 (EST/EDT)',
+    'America/Los_Angeles': '美国太平洋时间 (PST/PDT)',
+    'Europe/London': '英国时间 (GMT/BST)',
+    'Europe/Paris': '欧洲中部时间 (CET/CEST)',
+    'Australia/Sydney': '澳大利亚东部时间 (AEST/AEDT)'
+  };
+
+  return labels[timezone] || timezone;
 }
 
 module.exports = router;
-module.exports.COMMON_TIMEZONES = COMMON_TIMEZONES;
