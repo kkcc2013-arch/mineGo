@@ -39,7 +39,7 @@
 | REQ-00545 | API 性能采样数据智能分析与自动调优建议系统 | 性能优化 | P1 | new | backend/shared/performanceSamplingAnalysis、gateway/src/middleware/perfSamplingAnalysis、backend/jobs/performanceAnalysisJob.js、infrastructure/monitoring、admin-dashboard | 2026-07-12 17:00 |
 | REQ-00546 | API Mock 服务与测试隔离系统 | 测试覆盖 | P1 | done | backend/tests、backend/shared/mockService、所有后端服务、gateway、.github/workflows | 2026-07-12 18:45 |
 | REQ-00547 | API 响应 Schema 强制执行与合约测试自动化系统 | API 设计规范 | P1 | done | gateway、所有后端服务、backend/shared/schemaRegistry.js、backend/tests/contract、.github/workflows | 2026-07-12 19:00 |
-| REQ-00548 | API 请求签名验证与防篡改保护系统 | API 设计规范 | P1 | new | gateway、所有后端服务、backend/shared/requestSignatureService.js、game-client、admin-dashboard | 2026-07-15 04:00 |
+| REQ-00548 | API 请求签名验证与防篡改保护系统 | API 设计规范 | P1 | done | gateway、所有后端服务、backend/shared/requestSignatureService.js、game-client、admin-dashboard | 2026-07-15 04:00 |
 | REQ-00549 | 服务生命周期状态机与优雅转换系统 | 可扩展性/解耦 | P1 | done | backend/shared/serviceLifecycle、gateway、所有后端服务、infrastructure/k8s | 2026-07-16 11:13 |
 | REQ-00550 | 游戏内货币本地化显示与智能区域适配系统 | 国际化/本地化 | P1 | done | backend/shared/currencyLocalizer、payment-service、user-service、gateway、game-client、admin-dashboard | 2026-07-16 11:00 |
 | REQ-00551 | API 错误码交互式文档与在线调试沙盒系统 | 文档/开发者体验 | P1 | new | gateway、admin-dashboard、docs-site、backend/shared/errorCodes | 2026-07-16 14:00 |
@@ -56,3 +56,4 @@
 | REQ-00600 | 动态模块加载器与依赖注入容器系统 | 可扩展性/解耦 | P1 | new | backend/shared/moduleLoader、backend/shared/diContainer、gateway、所有后端服务 | 2026-07-20 01:00 |
 | REQ-00601 | 数据库 Schema 变更智能影响分析与风险评估系统 | 数据库/数据治理 | P1 | done | database/migrate.js、backend/shared/schemaChangeAnalyzer.js、backend/shared/schemaImpactAnalyzer.js、gateway、所有后端服务、admin-dashboard | 2026-07-20 02:00 |
 | REQ-00602 | 游戏内加载骨架屏与智能进度指示系统 | 前端体验 | P2 | new | game-client、frontend/game-client/src/components、frontend/game-client/src/styles | 2026-07-20 03:00 |
+| REQ-00611 | 游戏实时字幕与听觉障碍支持系统 | 无障碍(a11y) | P2 | new | game-client、backend/shared/subtitles、user-service、所有音频播放模块 | 2026-07-20 15:00 |
