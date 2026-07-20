@@ -1,3 +1,5 @@
+    24|| REQ-00612 | 全球化业务实时时区调度与跨区协作支持系统 | 国际化/本地化 | P1 | new | gateway, user-service, game-event-service | 2026-07-20 16:00 |
+| REQ-00610 | API 请求响应链路分布式追踪数据可视化增强 | 可观测性 | P1 | new | gateway, tracing, observability-dashboard | 2026-07-20 15:00 |
 | REQ-00609 | RPO/RTO 实时监控与预警告警系统 | 容灾/高可用 | P1 | new | backend/shared/disasterRecovery, gateway, monitoring, alerting | 2026-07-20 14:00 |
 | REQ-00607 | 微服务跨服务依赖解耦与统一服务发现机制 | 可扩展性/解耦 | P1 | done | gateway, catch-service, gym-service, pokemon-service, user-service, location-service, social-service, reward-service, payment-service | 2026-07-20 09:00 |
 | REQ-00605 | 游戏资源包差分更新与增量同步系统 | 性能优化 | P1 | new | game-client, resource-manager, cdn-gateway | 2026-07-20 14:00 |
