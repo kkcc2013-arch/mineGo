@@ -15,6 +15,7 @@
     15|| REQ-00580 | WebSocket 消息批处理队列内存优化 | 性能优化 | P1 | done | backend/shared/websocket | 2026-07-16 19:00 |
     16|| REQ-00579 | 年龄限制中间件测试覆盖 | 测试覆盖 | P0 | done | gateway, user-service | 2026-07-16 18:00 |
     17|| REQ-00601 | 高并发下接口响应式缓存更新优化 | 性能优化 | P1 | new | api-gateway, cache-service | 2026-07-20 10:00 |
+| REQ-00603 | 游戏客户端触摸手势智能识别与优化系统 | 前端体验 | P1 | new | game-client, touch-input-handler, gesture-recognizer | 2026-07-20 04:00 |
 | REQ-00599 | API 响应延迟异常检测与智能告警系统 | 可观测性 | P1 | new | API Gateway, Monitoring Service | 2026-07-20 09:00 |
 | REQ-00598 | 道馆战斗引擎与连击系统单元测试覆盖 | 测试覆盖 | P1 | done | gym-service, battleEngine.js, comboEngine.js | 2026-07-20 00:05 |
 | REQ-00597 | API 网关智能威胁检测与自动响应系统 | 安全加固 | P1 | new | gateway, user-service, backend/shared/threatDetection, Redis, Kafka | 2026-07-19 05:48 |
