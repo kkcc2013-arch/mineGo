@@ -1,6 +1,6 @@
 | 编号 | 标题 | 类别 | 优先级 | 状态 | 服务 | 创建时间 |
 |------|------|------|------|------|------|----------|
-| REQ-00595 | 游戏资源预加载与高效缓存失效策略 | 性能优化 | P1 | new | game-client, cdn-gateway | 2026-07-19 10:00 |
+| REQ-00605 | 游戏资源包差分更新与增量同步系统 | 性能优化 | P1 | new | game-client, resource-manager, cdn-gateway | 2026-07-20 14:00 |
 | REQ-00594 | 游戏内实时性能瓶颈自诊断引擎 | 可观测性 | P1 | new | game-client, gateway, backend-metrics | 2026-07-19 09:00 |
 | REQ-00593 | 灾备故障场景自动发现与混沌验证覆盖系统 | 容灾/高可用 | P1 | new | backend/shared/disasterRecovery, backend/shared/ChaosEngine, admin-dashboard | 2026-07-19 03:00 |
 | REQ-00592 | 生产环境部署健康检查与自动回滚系统 | 运维/CICD | P0 | done | k8s-operator, cicd-pipeline, monitoring | 2026-07-17 08:00 |
