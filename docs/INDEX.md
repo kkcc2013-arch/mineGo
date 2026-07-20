@@ -58,3 +58,4 @@
 | REQ-00602 | 游戏内加载骨架屏与智能进度指示系统 | 前端体验 | P2 | new | game-client、frontend/game-client/src/components、frontend/game-client/src/styles | 2026-07-20 03:00 |
 | REQ-00611 | 游戏实时字幕与听觉障碍支持系统 | 无障碍(a11y) | P2 | new | game-client、backend/shared/subtitles、user-service、所有音频播放模块 | 2026-07-20 15:00 |
 | REQ-00612 | 精灵训练特训系统与专项能力提升机制 | 功能增强 | P1 | new | pokemon-service、gateway、game-client、backend/shared/trainingService.js、database/migrations | 2026-07-20 18:00 |
+| REQ-00619 | 服务依赖配置统一与初始化模块重构 | 技术债/重构 | P1 | new | backend/shared/config、backend/shared/dependencies、所有后端服务、gateway | 2026-07-20 20:05 |
