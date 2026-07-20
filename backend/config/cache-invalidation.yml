@@ -1,0 +1,142 @@
+# Cache Invalidation Configuration
+# REQ-00523: 数据库查询结果缓存失效智能同步系统
+
+# 表到缓存键的映射规则
+tables:
+  # 用户表
+  users:
+    primaryKey: id
+    cacheKeys:
+      - pattern: "user:{id}"
+        type: "exact"
+      - pattern: "user:{id}:*"
+        type: "prefix"
+  
+  # 精灵表
+  pokemon:
+    primaryKey: id
+    cacheKeys:
+      - pattern: "pokemon:{id}"
+        type: "exact"
+      - pattern: "pokemon:user:{userId}"
+        type: "exact"
+      - pattern: "pokemon:nearby:*"
+        type: "prefix"
+  
+  # 精灵种类表
+  pokemon_species:
+    primaryKey: id
+    cacheKeys:
+      - pattern: "species:{id}"
+        type: "exact"
+      - pattern: "pokedex:*"
+        type: "prefix"
+  
+  # 道馆表
+  gyms:
+    primaryKey: id
+    cacheKeys:
+      - pattern: "gym:{id}"
+        type: "exact"
+      - pattern: "gyms:nearby:*"
+        type: "prefix"
+      - pattern: "raid:{id}"
+        type: "exact"
+  
+  # 物品表
+  items:
+    primaryKey: id
+    cacheKeys:
+      - pattern: "item:{id}"
+        type: "exact"
+      - pattern: "items:*"
+        type: "prefix"
+  
+  # 用户物品表
+  user_items:
+    primaryKey: [user_id, item_id]
+    cacheKeys:
+      - pattern: "inventory:{userId}"
+        type: "exact"
+      - pattern: "user:{userId}:items"
+        type: "exact"
+  
+  # 好友关系表
+  friendships:
+    primaryKey: id
+    cacheKeys:
+      - pattern: "friends:{userId}"
+        type: "exact"
+      - pattern: "friend:*"
+        type: "prefix"
+  
+  # 交易表
+  trades:
+    primaryKey: id
+    cacheKeys:
+      - pattern: "trade:{id}"
+        type: "exact"
+      - pattern: "trades:user:{userId}"
+        type: "exact"
+  
+  # 市场列表
+  marketplace_listings:
+    primaryKey: id
+    cacheKeys:
+      - pattern: "listing:{id}"
+        type: "exact"
+      - pattern: "marketplace:*"
+        type: "prefix"
+  
+  # 捕捉记录
+  catches:
+    primaryKey: id
+    cacheKeys:
+      - pattern: "catch:{id}"
+        type: "exact"
+      - pattern: "catches:user:{userId}"
+        type: "prefix"
+  
+  # 成就表
+  achievements:
+    primaryKey: id
+    cacheKeys:
+      - pattern: "achievement:{id}"
+        type: "exact"
+      - pattern: "achievements:user:{userId}"
+        type: "exact"
+  
+  # Raid 表
+  raids:
+    primaryKey: id
+    cacheKeys:
+      - pattern: "raid:{id}"
+        type: "exact"
+      - pattern: "raids:nearby:*"
+        type: "prefix"
+  
+  # 队伍表
+  teams:
+    primaryKey: id
+    cacheKeys:
+      - pattern: "team:{id}"
+        type: "exact"
+      - pattern: "teams:*"
+        type: "prefix"
+
+# 全局设置
+settings:
+  # 防震荡延迟（毫秒）
+  debounceMs: 50
+  
+  # 最大重试次数
+  maxRetries: 3
+  
+  # 重试延迟（毫秒）
+  retryDelayMs: 100
+  
+  # 启用监控指标
+  enableMetrics: true
+  
+  # 日志级别
+  logLevel: "info"
