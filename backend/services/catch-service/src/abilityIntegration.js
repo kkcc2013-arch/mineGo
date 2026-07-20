@@ -1,38 +1,49 @@
 /**
- * REQ-00086: 捕捉时特性分配集成模块
+ * REQ-00086 & REQ-00607: 捕捉时特性分配集成模块
  * 在精灵被成功捕捉时自动分配特性
+ * 已重构：使用 ServiceClient 调用 pokemon-service API
  */
 
 const logger = require('../../../shared/logger');
 const { metrics } = require('../../../shared/metrics');
+const ServiceClient = require('../../../shared/ServiceClient');
 
 class AbilityIntegration {
-  constructor() {
-    this.abilityService = null;
-    this.loadAttempted = false;
+  constructor(options = {}) {
+    this.serviceClient = options.serviceClient || new ServiceClient({
+      serviceName: 'catch-service'
+    });
+    this.initialized = false;
   }
 
   /**
-   * 确保特性服务已加载
+   * 初始化服务客户端
    */
-  async ensureAbilityService() {
-    if (this.abilityService) {
+  async initialize() {
+    if (this.initialized) {
       return true;
     }
-    
-    if (this.loadAttempted) {
-      return false;
-    }
-    
-    this.loadAttempted = true;
     
     try {
-      const AbilityService = require('../../pokemon-service/src/abilityService');
-      this.abilityService = new AbilityService();
-      logger.info('AbilityService loaded for catch integration');
+      // 注册到服务发现
+      if (process.env.SERVICE_DISCOVERY_ENABLED === 'true') {
+        const { ServiceDiscoveryClient } = require('../../../shared/serviceDiscovery/ServiceDiscoveryClient');
+        const discoveryClient = new ServiceDiscoveryClient();
+        
+        await discoveryClient.register('catch-service', {
+          host: process.env.SERVICE_HOST || 'localhost',
+          port: parseInt(process.env.SERVICE_PORT || '3003'),
+          version: process.env.SERVICE_VERSION || '1.0.0'
+        });
+        
+        logger.info('Catch-service registered to service discovery');
+      }
+      
+      this.initialized = true;
       return true;
+      
     } catch (error) {
-      logger.warn('AbilityService not available for catch integration', {
+      logger.warn('Failed to initialize ability integration', {
         error: error.message
       });
       return false;
@@ -53,48 +64,47 @@ class AbilityIntegration {
   async assignAbilitiesOnCatch(playerPokemonId, speciesId, options = {}) {
     const { isEventSpawn = false, forceHidden = false, hiddenChanceOverride } = options;
     
-    // 计算隐藏特性概率
-    let hiddenChance = hiddenChanceOverride ?? 0.01; // 默认 1%
-    
-    if (isEventSpawn) {
-      hiddenChance = 0.05; // 活动刷新 5%
-    }
-    
-    if (forceHidden) {
-      hiddenChance = 1.0; // 强制 100%
-    }
-    
-    if (!await this.ensureAbilityService()) {
-      logger.warn('Cannot assign abilities: AbilityService not available', {
-        playerPokemonId,
-        speciesId
-      });
-      return [];
-    }
-    
     try {
-      const abilities = await this.abilityService.assignAbilitiesToPokemon(
-        playerPokemonId,
-        speciesId,
-        { hiddenChance, forceHidden }
+      // 调用 pokemon-service 内部 API
+      const result = await this.serviceClient.post(
+        'pokemon-service',
+        '/internal/ability/assign',
+        {
+          playerPokemonId,
+          speciesId,
+          isEventSpawn,
+          forceHidden,
+          hiddenChanceOverride
+        },
+        {
+          timeout: 5000,
+          maxRetries: 2
+        }
       );
       
       // 记录指标
-      if (abilities.length > 0) {
+      if (result) {
         metrics.gauge('catch_ability_assigned', 1, {
           species: speciesId,
-          has_hidden: abilities.some(a => a.isHidden).toString()
+          has_hidden: result.hidden ? 'true' : 'false'
         });
       }
       
-      logger.info('Abilities assigned on catch', {
+      logger.info('Abilities assigned on catch via ServiceClient', {
         playerPokemonId,
         speciesId,
-        abilities: abilities.map(a => a.id),
-        hasHidden: abilities.some(a => a.isHidden)
+        abilityId: result.abilityId,
+        hidden: result.hidden
       });
       
-      return abilities;
+      // 转换为兼容格式
+      return [{
+        id: result.abilityId,
+        slot: result.slot,
+        isHidden: result.hidden,
+        assignedAt: result.assignedAt
+      }];
+      
     } catch (error) {
       logger.error('Failed to assign abilities on catch', {
         playerPokemonId,
@@ -103,6 +113,7 @@ class AbilityIntegration {
       });
       
       // 特性分配失败不应该阻止捕捉成功
+      // 降级返回空数组
       return [];
     }
   }
@@ -114,29 +125,15 @@ class AbilityIntegration {
    * @returns {Promise<Object>} 特性信息
    */
   async getSpeciesAbilityInfo(speciesId) {
-    if (!await this.ensureAbilityService()) {
-      return null;
-    }
-    
     try {
-      const abilities = await this.abilityService.getPokemonAbilities(speciesId);
+      const result = await this.serviceClient.get(
+        'pokemon-service',
+        `/internal/ability/info/${speciesId}`,
+        { timeout: 3000 }
+      );
       
-      return {
-        normal: abilities.normal.map(a => ({
-          id: a.id,
-          nameZh: a.nameZh,
-          nameEn: a.nameEn,
-          description: a.description,
-          probability: a.probability
-        })),
-        hidden: abilities.hidden ? {
-          id: abilities.hidden.id,
-          nameZh: abilities.hidden.nameZh,
-          nameEn: abilities.hidden.nameEn,
-          description: abilities.hidden.description,
-          chance: '1%' // 默认隐藏特性概率
-        } : null
-      };
+      return result;
+      
     } catch (error) {
       logger.error('Failed to get species ability info', {
         speciesId,
@@ -153,13 +150,15 @@ class AbilityIntegration {
    * @returns {Promise<boolean>}
    */
   async hasHiddenAbility(playerPokemonId) {
-    if (!await this.ensureAbilityService()) {
-      return false;
-    }
-    
     try {
-      const abilities = await this.abilityService.getPlayerPokemonAbilities(playerPokemonId);
-      return abilities.some(a => a.isHidden && a.unlockedAt);
+      const result = await this.serviceClient.get(
+        'pokemon-service',
+        `/internal/ability/check-hidden/${playerPokemonId}`,
+        { timeout: 3000 }
+      );
+      
+      return result.hasHidden;
+      
     } catch (error) {
       return false;
     }
@@ -172,12 +171,13 @@ class AbilityIntegration {
    * @returns {Promise<Object|null>}
    */
   async getActiveAbility(playerPokemonId) {
-    if (!await this.ensureAbilityService()) {
-      return null;
-    }
-    
     try {
-      return await this.abilityService.getActiveAbility(playerPokemonId);
+      return await this.serviceClient.get(
+        'pokemon-service',
+        `/internal/ability/active/${playerPokemonId}`,
+        { timeout: 3000 }
+      );
+      
     } catch (error) {
       return null;
     }
@@ -187,9 +187,9 @@ class AbilityIntegration {
 // 单例实例
 let instance = null;
 
-function getAbilityIntegration() {
+function getAbilityIntegration(options = {}) {
   if (!instance) {
-    instance = new AbilityIntegration();
+    instance = new AbilityIntegration(options);
   }
   return instance;
 }

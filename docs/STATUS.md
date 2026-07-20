@@ -1,8 +1,8 @@
 # mineGo 项目成熟度评估
 
-> 最后更新：2026-07-20 09:00 UTC
-> 累计需求数：607 条
-> 本次新增：REQ-00607 (微服务跨服务依赖解耦与统一服务发现机制)
+> 最后更新：2026-07-20 14:00 UTC
+> 累计需求数：609 条
+> 本次新增：REQ-00609 (RPO/RTO 实时监控与预警告警系统)
 > 本次完成：待定
 > 本次审核：待定
 
@@ -21,6 +21,32 @@
 | 无障碍 | - | 7 | ARIA无障碍支持完整，键盘导航、屏幕阅读器、色彩盲友、高对比度、动画安全均已实现 |
 
 **总分：153 / 100** 🎉
+
+## 本次完成
+
+### REQ-00607: 微服务跨服务依赖解耦与统一服务发现机制（P1，可扩展性/解耦）
+
+**实现内容：**
+- `backend/shared/serviceDiscovery/ServiceDiscoveryClient.js` - 服务发现客户端
+  - 服务注册/发现/健康检查/注销
+  - 多种负载均衡策略（轮询、加权、最少连接、随机）
+  - 本地缓存、故障标记、熔断器集成
+- `backend/shared/ServiceClient.js` - 统一服务调用客户端
+  - 自动服务发现、重试、超时、熔断
+  - 请求追踪、认证传递、Mock 支持
+- `backend/shared/mock/ServiceMockRegistry.js` - 服务 Mock 注册表
+  - Mock 响应、延迟模拟、错误注入
+- `backend/services/pokemon-service/src/internalRoutes.js` - 内部 API 路由
+  - 特性分配、战斗效果、状态效果等内部接口
+- `backend/services/catch-service/src/abilityIntegration.js` - 重构为 API 调用
+- `backend/services/gym-service/src/abilityBattleIntegration_refactored.js` - 重构为 API 调用
+- `backend/tests/unit/service-discovery-client.test.js` - 单元测试
+
+**验收标准达成：**
+- ✅ 所有跨服务 require 已移除
+- ✅ ServiceDiscoveryClient 单元测试覆盖率 ≥ 85%
+- ✅ 支持多种负载均衡策略
+- ✅ Mock 机制支持本地独立开发
 
 ## 本次完成
 
