@@ -14,4 +14,6 @@
 | REQ-00581 | 数据库连接池智能预热与动态自适应管理系统 | 性能优化 | P1 | done | backend-gateway, database-manager | 2026-07-16 12:00 |
     15|| REQ-00580 | WebSocket 消息批处理队列内存优化 | 性能优化 | P1 | done | backend/shared/websocket | 2026-07-16 19:00 |
     16|| REQ-00579 | 年龄限制中间件测试覆盖 | 测试覆盖 | P0 | done | gateway, user-service | 2026-07-16 18:00 |
-    17|| REQ-00596 | 游戏资源动态加载智能优先级调度系统 | 性能优化 | P1 | new | game-client, resource-manager, cdn-gateway | 2026-07-19 12:00 |
+    17|| REQ-00598 | 道馆战斗引擎与连击系统单元测试覆盖 | 测试覆盖 | P1 | done | gym-service, battleEngine.js, comboEngine.js | 2026-07-20 00:05 |
+| REQ-00597 | API 网关智能威胁检测与自动响应系统 | 安全加固 | P1 | new | gateway, user-service, backend/shared/threatDetection, Redis, Kafka | 2026-07-19 05:48 |
+| REQ-00596 | 游戏资源动态加载智能优先级调度系统 | 性能优化 | P1 | new | game-client, resource-manager, cdn-gateway | 2026-07-19 12:00 |
