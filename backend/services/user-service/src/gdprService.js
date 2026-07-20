@@ -3,9 +3,9 @@
  * 提供数据导出、删除等 GDPR 合规功能
  */
 
-const logger = require('../../shared/logger');
-const { auditLog, AuditActions } = require('../../shared/auditLog');
-const DataMasking = require('../../shared/dataMasking');
+const logger = require('../../../shared/logger');
+const { auditLog, AuditActions } = require('../../../shared/auditLog');
+const DataMasking = require('../../../shared/dataMasking');
 
 class GDPRService {
   constructor(db, eventBus = null) {

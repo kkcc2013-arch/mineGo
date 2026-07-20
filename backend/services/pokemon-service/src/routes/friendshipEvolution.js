@@ -3,10 +3,10 @@
 
 const express = require('express');
 const router = express.Router();
-const { requireAuth, AppError, successResp } = require('../../../shared/auth');
-const { query } = require('../../../shared/db');
+const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
+const { query } = require('../../../../shared/db');
 const { FriendshipCalculator } = require('../friendshipCalculator');
-const { createLogger } = require('../../../shared/logger');
+const { createLogger } = require('../../../../shared/logger');
 
 const logger = createLogger('friendship-evolution-routes');
 

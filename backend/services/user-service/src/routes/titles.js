@@ -7,9 +7,9 @@
 
 const { Router } = require('express');
 const { TitleService } = require('../titleService');
-const { db } = require('../../../shared/db');
-const { requireAuth, AppError, successResp } = require('../../../shared/auth');
-const { createLogger } = require('../../../shared/logger');
+const { db } = require('../../../../shared/db');
+const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
+const { createLogger } = require('../../../../shared/logger');
 
 const logger = createLogger('user-service:titles');
 const router = Router();
@@ -240,7 +240,7 @@ router.get('/titles/leaderboard', async (req, res, next) => {
     const leaderboard = await TitleService.getTitleLeaderboard(parseInt(limit));
     
     // 记录指标
-    const { metrics } = require('../../../shared/metrics');
+    const { metrics } = require('../../../../shared/metrics');
     if (metrics && metrics.increment) {
       metrics.increment('title_leaderboard_views_total');
     }

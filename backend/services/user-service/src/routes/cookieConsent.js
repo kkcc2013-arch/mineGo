@@ -5,8 +5,8 @@
 
 const express = require('express');
 const router = express.Router();
-const logger = require('../../../shared/logger');
-const { auditLog, AuditActions } = require('../../../shared/auditLog');
+const logger = require('../../../../shared/logger');
+const { auditLog, AuditActions } = require('../../../../shared/auditLog');
 
 let db;
 

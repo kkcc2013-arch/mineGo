@@ -12,7 +12,7 @@ const { dbQueryDuration } = require('./metrics');
 // REQ-00575: 预编译语句管理
 const { PREPARED_STATEMENTS, getStatementByName } = require('./preparedStatements');
 
-const { Client: PrometheusClient } = require('prom-client');
+const PrometheusClient = require('prom-client');
 
 // 预编译语句性能指标
 const preparedQueryDuration = new PrometheusClient.Histogram({

@@ -5,8 +5,8 @@
 const express = require('express');
 const router = express.Router();
 const { bagUpgradeService } = require('../bagUpgradeService');
-const { requireAuth, requireAdmin, AppError, Errors, successResp } = require('../../../shared/auth');
-const { validateRequest } = require('../../../shared/middleware/validation');
+const { requireAuth, requireAdmin, AppError, Errors, successResp } = require('../../../../shared/auth');
+const { validateRequest } = require('../../../../shared/middleware/validation');
 
 /**
  * GET /api/v1/inventory/upgrades
@@ -207,6 +207,6 @@ router.get('/admin/upgrades/stats', requireAuth, requireAdmin, async (req, res, 
 });
 
 // 导入 query 函数
-const { query } = require('../../../shared/db');
+const { query } = require('../../../../shared/db');
 
 module.exports = router;

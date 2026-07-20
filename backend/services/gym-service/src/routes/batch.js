@@ -4,10 +4,10 @@
 
 const express = require('express');
 const router = express.Router();
-const { query } = require('../../../shared/db');
-const { requireAuth, AppError, successResp } = require('../../../shared/auth');
-const { createLogger } = require('../../../shared/logger');
-const { getJSON, setJSON } = require('../../../shared/redis');
+const { query } = require('../../../../shared/db');
+const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
+const { createLogger } = require('../../../../shared/logger');
+const { getJSON, setJSON } = require('../../../../shared/redis');
 
 const logger = createLogger('gym-batch');
 

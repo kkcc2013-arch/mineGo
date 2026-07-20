@@ -5,9 +5,9 @@
 const express = require('express');
 const router = express.Router();
 const { getBondSkillService } = require('../bondSkillService');
-const { createLogger } = require('../../../shared/logger');
-const { authenticate } = require('../../../shared/authMiddleware');
-const { rateLimit } = require('../../../shared/rateLimitMiddleware');
+const { createLogger } = require('../../../../shared/logger');
+const { authenticate } = require('../../../../shared/authMiddleware');
+const { rateLimit } = require('../../../../shared/rateLimitMiddleware');
 
 const logger = createLogger('bond-skill-routes');
 const bondSkillService = getBondSkillService();

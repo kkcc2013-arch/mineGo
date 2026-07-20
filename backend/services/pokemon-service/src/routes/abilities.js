@@ -5,7 +5,7 @@
 const express = require('express');
 const router = express.Router();
 const AbilityService = require('../abilityService');
-const logger = require('../../../shared/logger');
+const logger = require('../../../../shared/logger');
 
 const abilityService = new AbilityService();
 

@@ -6,7 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const SecureExportService = require('../services/secureExportService');
-const authMiddleware = require('../../../shared/authMiddleware');
+const authMiddleware = require('../../../../shared/authMiddleware');
 
 // 初始化服务（延迟初始化，需要依赖注入）
 let secureExportService = null;

@@ -8,9 +8,9 @@
 
 const express = require('express');
 const router = express.Router();
-const DataLifecycleManager = require('../../../shared/DataLifecycleManager');
-const { requireAuth } = require('../../../shared/auth');
-const logger = require('../../../shared/logger');
+const DataLifecycleManager = require('../../../../shared/DataLifecycleManager');
+const { requireAuth } = require('../../../../shared/auth');
+const logger = require('../../../../shared/logger');
 
 /**
  * 管理员权限检查中间件

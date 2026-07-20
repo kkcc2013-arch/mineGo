@@ -6,8 +6,8 @@
 const express = require('express');
 const router = express.Router();
 const { EvolutionVisualizationService, EVOLUTION_TYPES } = require('../evolutionVisualizationService');
-const { requireAuth, AppError, successResp } = require('../../../shared/auth');
-const { logger } = require('../../../shared/logger');
+const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
+const { logger } = require('../../../../shared/logger');
 
 const evolutionVizService = new EvolutionVisualizationService();
 

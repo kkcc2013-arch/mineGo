@@ -9,7 +9,7 @@ const TranslationCache = require('../../../shared/i18n/translationCache');
 const coverageMonitor = require('../../../shared/i18n/coverageMonitor');
 const machineTranslation = require('../../../shared/i18n/machineTranslation');
 const RegionalAdapter = require('../../../shared/i18n/regionalAdapter');
-const { authMiddleware } = require('../middleware/auth');
+const { authenticate: authMiddleware } = require('../middleware/auth');
 const { createLogger } = require('../../../shared/logger');
 
 const logger = createLogger('i18n-routes');

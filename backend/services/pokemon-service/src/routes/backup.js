@@ -8,14 +8,14 @@
 
 const express = require('express');
 const router = express.Router();
-const { query } = require('../../../shared/db');
-const { requireAuth, successResp } = require('../../../shared/auth');
-const { createLogger } = require('../../../shared/logger');
+const { query } = require('../../../../shared/db');
+const { requireAuth, successResp } = require('../../../../shared/auth');
+const { createLogger } = require('../../../../shared/logger');
 const { 
   getBackupService, 
   BACKUP_TYPES, 
   RESTORE_MODES 
-} = require('../../../shared/pokemonBackupService');
+} = require('../../../../shared/pokemonBackupService');
 
 const logger = createLogger('backup-routes');
 
@@ -29,7 +29,7 @@ router.get('/list', requireAuth, async (req, res) => {
     const { limit, offset, type, status } = req.query;
     
     const backupService = getBackupService(
-      require('../../../shared/db').getPool(),
+      require('../../../../shared/db').getPool(),
       req.app.locals.redis
     );
     
@@ -56,7 +56,7 @@ router.post('/create', requireAuth, async (req, res) => {
     const userId = req.user.id;
     
     const backupService = getBackupService(
-      require('../../../shared/db').getPool(),
+      require('../../../../shared/db').getPool(),
       req.app.locals.redis
     );
     
@@ -91,7 +91,7 @@ router.post('/restore/:backupId', requireAuth, async (req, res) => {
     const { restoreMode, conflictResolution, pokemonIds } = req.body;
     
     const backupService = getBackupService(
-      require('../../../shared/db').getPool(),
+      require('../../../../shared/db').getPool(),
       req.app.locals.redis
     );
     
@@ -130,7 +130,7 @@ router.delete('/:backupId', requireAuth, async (req, res) => {
     const backupId = parseInt(req.params.backupId);
     
     const backupService = getBackupService(
-      require('../../../shared/db').getPool(),
+      require('../../../../shared/db').getPool(),
       req.app.locals.redis
     );
     
@@ -159,7 +159,7 @@ router.get('/export', requireAuth, async (req, res) => {
     const format = req.query.format || 'json';
     
     const backupService = getBackupService(
-      require('../../../shared/db').getPool(),
+      require('../../../../shared/db').getPool(),
       req.app.locals.redis
     );
     
@@ -195,7 +195,7 @@ router.post('/auto-backup', requireAuth, async (req, res) => {
     }
     
     const backupService = getBackupService(
-      require('../../../shared/db').getPool(),
+      require('../../../../shared/db').getPool(),
       req.app.locals.redis
     );
     
@@ -282,7 +282,7 @@ router.get('/restore-history', requireAuth, async (req, res) => {
     const { limit, offset } = req.query;
     
     const backupService = getBackupService(
-      require('../../../shared/db').getPool(),
+      require('../../../../shared/db').getPool(),
       req.app.locals.redis
     );
     

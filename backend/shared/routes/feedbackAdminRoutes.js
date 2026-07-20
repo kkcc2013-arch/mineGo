@@ -5,10 +5,10 @@
 
 const express = require('express');
 const router = express.Router();
-const db = require('../../../shared/db');
-const logger = require('../../../shared/logger');
-const auth = require('../../../shared/auth');
-const adminAuth = require('../../../shared/middleware/adminAuth');
+const db = require('../db');
+const logger = require('../logger');
+const auth = require('../auth');
+const adminAuth = require('../middleware/adminAuth');
 
 /**
  * 获取反馈统计概览

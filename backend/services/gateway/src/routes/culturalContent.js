@@ -4,12 +4,12 @@
 
 const express = require('express');
 const { z } = require('zod');
-const { requireAuth, AppError, successResp, errorResp } = require('../../../shared/auth');
-const { query } = require('../../../shared/db');
-const { getCulturalContentFilter } = require('../../../shared/CulturalContentFilter');
-const { getComplianceRuleEngine } = require('../../../shared/ComplianceRuleEngine');
-const { getCulturalContentModerator } = require('../../../shared/CulturalContentModerator');
-const { createLogger } = require('../../../shared/logger');
+const { requireAuth, AppError, successResp, errorResp } = require('../../../../shared/auth');
+const { query } = require('../../../../shared/db');
+const { getCulturalContentFilter } = require('../../../../shared/CulturalContentFilter');
+const { getComplianceRuleEngine } = require('../../../../shared/ComplianceRuleEngine');
+const { getCulturalContentModerator } = require('../../../../shared/CulturalContentModerator');
+const { createLogger } = require('../../../../shared/logger');
 
 const logger = createLogger('gateway:cultural');
 const router = express.Router();

@@ -5,8 +5,8 @@
 
 const WebSocket = require('ws');
 const { v4: uuidv4 } = require('uuid');
-const { createLogger } = require('../../../shared/logger');
-const { getPool } = require('../../../shared/db');
+const { createLogger } = require('../../../../shared/logger');
+const { getPool } = require('../../../../shared/db');
 
 const logger = createLogger('voice-signaling');
 

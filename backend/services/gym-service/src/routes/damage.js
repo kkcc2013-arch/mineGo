@@ -7,11 +7,11 @@
 
 const express = require('express');
 const router = express.Router();
-const { calculateDamage, estimateAverageDamage, WEATHER_BOOST_MAP } = require('../../../shared/damageCalculator');
-const { TYPE_CHART, getTypeMultiplier, getAllTypes, isValidType } = require('../../../shared/typeChart');
-const { requireAuth, successResp, AppError } = require('../../../shared/auth');
-const { query } = require('../../../shared/db');
-const logger = require('../../../shared/logger');
+const { calculateDamage, estimateAverageDamage, WEATHER_BOOST_MAP } = require('../../../../shared/damageCalculator');
+const { TYPE_CHART, getTypeMultiplier, getAllTypes, isValidType } = require('../../../../shared/typeChart');
+const { requireAuth, successResp, AppError } = require('../../../../shared/auth');
+const { query } = require('../../../../shared/db');
+const logger = require('../../../../shared/logger');
 
 /**
  * POST /gym/damage/simulate - 伤害模拟计算

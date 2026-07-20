@@ -7,12 +7,12 @@
 
 const express = require('express');
 const router = express.Router();
-const exchangeRateService = require('../../../shared/exchangeRateService');
-const currencyFormatter = require('../../../shared/currencyFormatter');
-const { query } = require('../../../shared/db');
-const { createLogger } = require('../../../shared/logger');
-const { requireAuth, requireAdmin, successResp, AppError } = require('../../../shared/auth');
-const metrics = require('../../../shared/metrics');
+const exchangeRateService = require('../../../../shared/exchangeRateService');
+const currencyFormatter = require('../../../../shared/currencyFormatter');
+const { query } = require('../../../../shared/db');
+const { createLogger } = require('../../../../shared/logger');
+const { requireAuth, requireAdmin, successResp, AppError } = require('../../../../shared/auth');
+const metrics = require('../../../../shared/metrics');
 
 const logger = createLogger('currency-routes');
 

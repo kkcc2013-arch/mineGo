@@ -22,8 +22,8 @@ const express = require('express');
 const router = express.Router();
 const bagCapacityService = require('../bagCapacityService');
 const bagSortService = require('../bagSortService');
-const { requireAuth } = require('../../../shared/auth');
-const logger = require('../../../shared/logger');
+const { requireAuth } = require('../../../../shared/auth');
+const logger = require('../../../../shared/logger');
 
 // ═══════════════════════════════════════════════════════════
 // 容量管理路由
@@ -318,7 +318,7 @@ router.post('/transfer-from-storage', requireAuth, async (req, res) => {
       });
     }
 
-    const { query } = require('../../../shared/db');
+    const { query } = require('../../../../shared/db');
     const result = await query(`
       UPDATE pokemon 
       SET storage_status = 'bag'
@@ -350,7 +350,7 @@ router.post('/transfer-from-storage', requireAuth, async (req, res) => {
  */
 router.get('/alert-config', requireAuth, async (req, res) => {
   try {
-    const { query } = require('../../../shared/db');
+    const { query } = require('../../../../shared/db');
     const result = await query(`
       SELECT * FROM bag_alert_config WHERE user_id = $1
     `, [req.user.id]);

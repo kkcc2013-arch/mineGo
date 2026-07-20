@@ -3,8 +3,8 @@
 
 const express = require('express');
 const router = express.Router();
-const { query } = require('../../../shared/db');
-const { requireAuth, AppError, successResp } = require('../../../shared/auth');
+const { query } = require('../../../../shared/db');
+const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
 const Redis = require('ioredis');
 
 const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');

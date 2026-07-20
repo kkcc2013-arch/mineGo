@@ -6,10 +6,10 @@
 const express = require('express');
 const router = express.Router();
 const Joi = require('joi');
-const { getPushNotificationService } = require('../../../shared/pushNotificationService');
-const { getClient } = require('../../../shared/db');
-const logger = require('../../../shared/logger');
-const { authenticate: auth } = require('../../../shared/authMiddleware');
+const { getPushNotificationService } = require('../../../../shared/pushNotificationService');
+const { getClient } = require('../../../../shared/db');
+const logger = require('../../../../shared/logger');
+const { authenticate: auth } = require('../../../../shared/authMiddleware');
 
 // 验证模式
 const registerDeviceSchema = Joi.object({

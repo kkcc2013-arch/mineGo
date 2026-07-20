@@ -4,8 +4,8 @@
 'use strict';
 
 const { v4: uuidv4 } = require('uuid');
-const { createLogger } = require('../../../shared/logger');
-const { getPool } = require('../../../shared/db');
+const { createLogger } = require('../../../../shared/logger');
+const { getPool } = require('../../../../shared/db');
 const bcrypt = require('bcrypt');
 
 const logger = createLogger('voice-room');

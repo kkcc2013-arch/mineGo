@@ -3,7 +3,7 @@
  * 负责季节任务、商店、成就和奖励系统
  */
 
-const { SeasonalEngine, SEASONS } = require('../../shared/seasonalEngine');
+const { SeasonalEngine, SEASONS } = require('../../../shared/seasonalEngine');
 
 class SeasonalRewardManager {
   constructor(db, redis, eventBus) {

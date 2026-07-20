@@ -5,9 +5,9 @@
 
 const express = require('express');
 const router = express.Router();
-const translationManager = require('../shared/TranslationManager');
-const { authenticate, requireAdmin } = require('../shared/auth');
-const logger = require('../shared/logger');
+const translationManager = require('../../../shared/TranslationManager');
+const { authenticate, requireAdmin } = require('../../../shared/auth');
+const logger = require('../../../shared/logger');
 
 /**
  * 获取所有翻译（客户端初始化）

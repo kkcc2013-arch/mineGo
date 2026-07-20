@@ -13,11 +13,11 @@
 'use strict';
 
 const crypto = require('crypto');
-const { db } = require('../../../shared/db');
-const { createLogger } = require('../../../shared/logger');
-const { metrics } = require('../../../shared/metrics');
-const EventBus = require('../../../shared/EventBus');
-const { EVENTS } = require('../../../shared/events');
+const { db } = require('../../shared/db');
+const { createLogger } = require('../../shared/logger');
+const { metrics } = require('../../shared/metrics');
+const EventBus = require('../../shared/EventBus');
+const { EVENTS } = require('../../shared/events');
 
 const logger = createLogger('security-report');
 
@@ -450,20 +450,20 @@ function setupSecurityReportRoutes(app) {
 
   // 内存违规报告
   app.post('/api/security/report', 
-    require('../../../shared/middleware/auth').authenticate,
+    require('../../shared/middleware/auth').authenticate,
     controller.handleMemoryViolation.bind(controller)
   );
 
   // 调试检测报告
   app.post('/api/security/debug-detected',
-    require('../../../shared/middleware/auth').authenticate,
+    require('../../shared/middleware/auth').authenticate,
     controller.handleDebugDetection.bind(controller)
   );
 
   // 获取用户安全状态（管理员）
   app.get('/api/security/status/:userId',
-    require('../../../shared/middleware/auth').authenticate,
-    require('../../../shared/middleware/auth').requireAdmin,
+    require('../../shared/middleware/auth').authenticate,
+    require('../../shared/middleware/auth').requireAdmin,
     async (req, res) => {
       const status = await controller.getUserSecurityStatus(req.params.userId);
       res.json(status);

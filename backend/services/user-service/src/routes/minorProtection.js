@@ -5,9 +5,9 @@
 
 const express = require('express');
 const router = express.Router();
-const { query } = require('../../../shared/db');
-const { getRedis } = require('../../../shared/redis');
-const { authMiddleware } = require('../../../shared/authMiddleware');
+const { query } = require('../../../../shared/db');
+const { getRedis } = require('../../../../shared/redis');
+const { authenticate: authMiddleware } = require('../../../../shared/authMiddleware');
 const {
   checkCurfewTime,
   getDailyPlayTimeLimit,
@@ -15,8 +15,8 @@ const {
   checkUserCanPlay,
   getRemainingPlayTime,
   CURFEW_CONFIG
-} = require('../../../shared/minorPlayTimeService');
-const { getAgeProfile, isMinor } = require('../../../shared/ageVerification');
+} = require('../../../../shared/minorPlayTimeService');
+const { getAgeProfile, isMinor } = require('../../../../shared/ageVerification');
 
 /**
  * GET /minor-protection/status
@@ -133,7 +133,7 @@ router.post('/heartbeat', authMiddleware, async (req, res, next) => {
     }
     
     // 记录心跳（1分钟）
-    const { recordPlayTimeIncrement } = require('../../../shared/minorPlayTimeService');
+    const { recordPlayTimeIncrement } = require('../../../../shared/minorPlayTimeService');
     await recordPlayTimeIncrement(userId, 1, `heartbeat:${userId}:${Date.now()}`);
     
     res.json({

@@ -6,9 +6,9 @@
 const express = require('express');
 const router = express.Router();
 const Joi = require('joi');
-const { getPushNotificationService } = require('../../../shared/pushNotificationService');
-const { getClient } = require('../../../shared/db');
-const logger = require('../../../shared/logger');
+const { getPushNotificationService } = require('../../../../../shared/pushNotificationService');
+const { getClient } = require('../../../../../shared/db');
+const logger = require('../../../../../shared/logger');
 const adminAuth = require('../middleware/adminAuth');
 
 // 验证模式

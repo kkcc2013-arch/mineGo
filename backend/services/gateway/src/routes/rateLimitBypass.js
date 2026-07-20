@@ -5,9 +5,9 @@
 
 const express = require('express');
 const router = express.Router();
-const { RateLimitMonitor } = require('../../../shared/rateLimitMonitor');
-const { createLogger } = require('../../../shared/logger');
-const { authenticate, requireAdmin } = require('../../../shared/middleware/auth');
+const { RateLimitMonitor } = require('../../../../shared/rateLimitMonitor');
+const { createLogger } = require('../../../../shared/logger');
+const { authenticate, requireAdmin } = require('../../../../shared/middleware/auth');
 
 const logger = createLogger('rate-limit-bypass-routes');
 

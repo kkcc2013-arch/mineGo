@@ -14,7 +14,7 @@
 const WebSocket = require('ws');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
-const { logger, metrics } = require('../../../shared');
+const { logger, metrics } = require('../../../../shared');
 const { BattleRoomManager } = require('./BattleRoomManager');
 const { HeartbeatManager } = require('./HeartbeatManager');
 

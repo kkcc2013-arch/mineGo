@@ -5,8 +5,8 @@
  * @module injectionDetectionMiddleware
  */
 
-const { InjectionGuard } = require('../../../shared/InjectionGuard');
-const { logger } = require('../../../shared/logger');
+const { InjectionGuard } = require('../../../../shared/InjectionGuard');
+const { logger } = require('../../../../shared/logger');
 
 // 创建注入防护实例
 const injectionGuard = new InjectionGuard({
@@ -296,7 +296,7 @@ function xssProtectionMiddleware(options = {}) {
     autoSanitize = false,
   } = options;
 
-  const { XSSEncoder } = require('../../../shared/InputSanitizer');
+  const { XSSEncoder } = require('../../../../shared/InputSanitizer');
 
   // 请求拦截：净化输入
   if (autoSanitize) {

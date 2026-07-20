@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { body, param, query, validationResult } = require('express-validator');
-const { query: db } = require('../../../shared/db');
-const { requireAuth } = require('../../../shared/auth');
-const { successResp, errorResp } = require('../../../shared');
+const { query: db } = require('../../../../shared/db');
+const { requireAuth } = require('../../../../shared/auth');
+const { successResp, errorResp } = require('../../../../shared');
 
 // 所有路由需要认证
 router.use(requireAuth);

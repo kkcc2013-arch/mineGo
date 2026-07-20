@@ -4,8 +4,8 @@
 'use strict';
 
 const crypto = require('crypto');
-const { createLogger } = require('../../../shared/logger');
-const { getPool } = require('../../../shared/db');
+const { createLogger } = require('../../../../shared/logger');
+const { getPool } = require('../../../../shared/db');
 
 const logger = createLogger('turn-server');
 

@@ -5,7 +5,7 @@
 const express = require('express');
 const router = express.Router();
 const { SeasonalRewardManager } = require('../seasonalRewards');
-const { SeasonalEngine } = require('../../../shared/seasonalEngine');
+const { SeasonalEngine } = require('../../../../shared/seasonalEngine');
 
 // 初始化管理器（在实际应用中通过依赖注入）
 let seasonalManager = null;

@@ -15,7 +15,7 @@ const logger = createLogger('cache-warmup-init');
  * 初始化缓存并预热热点数据
  * 
  * 使用方式：
- * const { initCacheWithWarmup } = require('../../../shared/cacheWarmupInit');
+ * const { initCacheWithWarmup } = require('.//cacheWarmupInit');
  * 
  * async function startServer() {
  *   await initCacheWithWarmup();

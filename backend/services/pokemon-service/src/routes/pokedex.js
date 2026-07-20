@@ -6,9 +6,9 @@
 const express = require('express');
 const router = express.Router();
 const { pokedexService } = require('../pokedexService');
-const { query } = require('../../../shared/db');
-const { createLogger } = require('../../../shared/logger');
-const { requireAuth: authenticate, optionalAuth } = require('../../../shared/auth');
+const { query } = require('../../../../shared/db');
+const { createLogger } = require('../../../../shared/logger');
+const { requireAuth: authenticate, optionalAuth } = require('../../../../shared/auth');
 
 const logger = createLogger('pokedex-routes');
 

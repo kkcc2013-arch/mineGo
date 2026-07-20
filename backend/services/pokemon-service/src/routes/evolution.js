@@ -6,7 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const { EvolutionService } = require('../evolutionService');
-const { logger } = require('../../../shared/logger');
+const { logger } = require('../../../../shared/logger');
 
 const evolutionService = new EvolutionService();
 

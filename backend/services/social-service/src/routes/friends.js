@@ -7,8 +7,8 @@
 const express = require('express');
 const router = express.Router();
 const friendService = require('../friendService');
-const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
-const { createLogger } = require('../../../shared/logger');
+const { requireAuth, AppError, successResp, errorHandler } = require('../../../../shared/auth');
+const { createLogger } = require('../../../../shared/logger');
 
 const logger = createLogger('friend-routes');
 

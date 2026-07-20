@@ -3,7 +3,7 @@
  * 负责季节性精灵刷新和热点位置管理
  */
 
-const { SeasonalEngine, SEASONS } = require('../../shared/seasonalEngine');
+const { SeasonalEngine, SEASONS } = require('../../../shared/seasonalEngine');
 
 class SeasonalSpawnManager {
   constructor(db, redis, eventBus) {

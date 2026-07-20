@@ -5,7 +5,7 @@
 
 'use strict';
 
-const { createLogger } = require('../../../shared/logger');
+const { createLogger } = require('../../../../shared/logger');
 
 const logger = createLogger('inventory-sorter');
 

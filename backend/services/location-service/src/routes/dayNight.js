@@ -5,9 +5,9 @@
 'use strict';
 
 const express = require('express');
-const { query } = require('../../../shared/db');
-const { requireAuth, AppError, successResp } = require('../../../shared/auth');
-const { createLogger } = require('../../../shared/logger');
+const { query } = require('../../../../shared/db');
+const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
+const { createLogger } = require('../../../../shared/logger');
 const { 
   dayNightService, 
   getCurrentTimePeriod, 

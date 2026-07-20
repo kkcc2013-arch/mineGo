@@ -5,7 +5,7 @@
 const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
-const db = require('../../../shared/db');
+const db = require('../../../../shared/db');
 
 /**
  * GET /users/me/state

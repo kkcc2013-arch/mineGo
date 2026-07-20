@@ -5,8 +5,8 @@
  * REQ-00551: 跨语言实时聊天翻译系统
  */
 
-const RealtimeTranslationEngine = require('../../../shared/ai/realtimeTranslationEngine');
-const { createLogger } = require('../../../shared/logger');
+const RealtimeTranslationEngine = require('../../../../shared/ai/realtimeTranslationEngine');
+const { createLogger } = require('../../../../shared/logger');
 
 const logger = createLogger('chat-translation-middleware');
 

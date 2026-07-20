@@ -7,8 +7,8 @@
 
 const express = require('express');
 const router = express.Router();
-const { createLogger } = require('../../../shared/logger');
-const { getEquipmentService } = require('../../../shared/equipmentService');
+const { createLogger } = require('../../../../shared/logger');
+const { getEquipmentService } = require('../../../../shared/equipmentService');
 
 const logger = createLogger('equipment-routes');
 

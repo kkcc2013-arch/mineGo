@@ -5,8 +5,8 @@
 const express = require('express');
 const router = express.Router();
 const trainingCampService = require('../trainingCampService');
-const { requireAuth, AppError, successResp } = require('../../../shared/auth');
-const { createLogger } = require('../../../shared/logger');
+const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
+const { createLogger } = require('../../../../shared/logger');
 
 const logger = createLogger('training-camp-routes');
 

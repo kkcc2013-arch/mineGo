@@ -6,7 +6,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { BusinessMetricsCollector } = require('../../../shared/businessMetrics');
+const { BusinessMetricsCollector } = require('../../../../shared/businessMetrics');
 const { authenticate, requireAdmin } = require('../../../../shared/middleware/auth');
 const { AppError, Errors } = require('../../../../shared/errorHandler');
 const { asyncHandler } = require('../../../../shared/errorHandler');

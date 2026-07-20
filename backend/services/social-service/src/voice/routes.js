@@ -6,8 +6,8 @@
 const express = require('express');
 const router = express.Router();
 const { body, param, query, validationResult } = require('express-validator');
-const logger = require('../../../shared/logger');
-const authMiddleware = require('../../../shared/middleware/auth');
+const logger = require('../../../../shared/logger');
+const authMiddleware = require('../../../../shared/middleware/auth');
 const VoiceSignalingServer = require('./signalingServer');
 const TURNServerManager = require('./turnServer');
 const voiceMetrics = require('./voiceMetrics');

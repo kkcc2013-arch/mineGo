@@ -7,8 +7,8 @@ const express = require('express');
 const router = express.Router();
 const { Pool } = require('pg');
 const Redis = require('ioredis');
-const logger = require('../shared/logger');
-const { metrics } = require('../shared/metrics');
+const logger = require('../../../../shared/logger');
+const { metrics } = require('../../../../shared/metrics');
 
 const db = new Pool({
   connectionString: process.env.DATABASE_URL,

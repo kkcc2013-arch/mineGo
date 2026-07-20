@@ -5,9 +5,9 @@
 
 'use strict';
 
-const { query } = require('../../../shared/db');
-const redis = require('../../../shared/redis');
-const { createLogger } = require('../../../shared/logger');
+const { query } = require('../../../../shared/db');
+const redis = require('../../../../shared/redis');
+const { createLogger } = require('../../../../shared/logger');
 const InventorySorter = require('./InventorySorter');
 
 const logger = createLogger('organization-advisor');

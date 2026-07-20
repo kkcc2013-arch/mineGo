@@ -7,10 +7,10 @@
  * 检测不可能行程、瞬移模式、位置锁定和多账号协同作弊
  */
 
-const { query, preparedQuery } = require('../../../shared/db');
-const { getRedis, setJSON, getJSON } = require('../../../shared/redis');
-const { createLogger } = require('../../../shared/logger');
-const metrics = require('../../../shared/metrics');
+const { query, preparedQuery } = require('../../shared/db');
+const { getRedis, setJSON, getJSON } = require('../../shared/redis');
+const { createLogger } = require('../../shared/logger');
+const metrics = require('../../shared/metrics');
 
 const logger = createLogger('location-anomaly-detector');
 

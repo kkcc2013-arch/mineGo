@@ -7,9 +7,9 @@
 
 const express = require('express');
 const router = express.Router();
-const { DataDeletionService } = require('../../../shared/dataDeletionService');
-const { requireAuth, optionalAuth } = require('../../../shared/auth');
-const logger = require('../../../shared/logger');
+const { DataDeletionService } = require('../../../../shared/dataDeletionService');
+const { requireAuth, optionalAuth } = require('../../../../shared/auth');
+const logger = require('../../../../shared/logger');
 
 let deletionService = null;
 

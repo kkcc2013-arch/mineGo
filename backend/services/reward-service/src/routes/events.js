@@ -5,8 +5,8 @@
 const express = require('express');
 const router = express.Router();
 const eventService = require('../eventService');
-const { requireAuth, successResp, errorResp } = require('../../../shared/auth');
-const { createLogger } = require('../../../shared/logger');
+const { requireAuth, successResp, errorResp } = require('../../../../shared/auth');
+const { createLogger } = require('../../../../shared/logger');
 
 const logger = createLogger('event-routes');
 
@@ -17,7 +17,7 @@ const optionalAuth = (req, res, next) => {
     return next(); // Allow unauthenticated access
   }
   try {
-    const { verifyAccess } = require('../../../shared/auth');
+    const { verifyAccess } = require('../../../../shared/auth');
     const payload = verifyAccess(header.slice(7));
     req.user = payload;
     next();

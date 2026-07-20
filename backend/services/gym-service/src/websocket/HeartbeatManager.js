@@ -8,7 +8,7 @@
  * - 清理超时连接
  */
 
-const { logger } = require('../../../shared');
+const { logger } = require('../../../../shared');
 
 class HeartbeatManager {
   constructor(wsServer) {

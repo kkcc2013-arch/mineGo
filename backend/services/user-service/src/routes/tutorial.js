@@ -148,7 +148,7 @@ router.get('/features', requireAuth, async (req, res) => {
       res.json({ success: true, data: { featureKey, unlocked } });
     } else {
       // 返回所有已解锁功能
-      const { db } = require('../../../shared/db');
+      const { db } = require('../../../../shared/db');
       const result = await db.query(`
         SELECT fu.feature_key, fu.feature_name, fu.description, ufu.unlocked_at
         FROM feature_unlocks fu
@@ -206,7 +206,7 @@ router.get('/faq/search', async (req, res) => {
 router.get('/faq/:faqId', async (req, res) => {
   try {
     const faqId = parseInt(req.params.faqId);
-    const { db } = require('../../../shared/db');
+    const { db } = require('../../../../shared/db');
     
     const result = await db.query(
       'SELECT * FROM help_faq WHERE id = $1 AND is_active = TRUE',

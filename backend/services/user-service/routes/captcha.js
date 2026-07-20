@@ -9,9 +9,9 @@ const express = require('express');
 const router = express.Router();
 const { body, param, query, validationResult } = require('express-validator');
 
-const CaptchaChallengeGenerator = require('../../shared/CaptchaChallengeGenerator');
-const CaptchaValidator = require('../../shared/CaptchaValidator');
-const CaptchaTrigger = require('../../shared/CaptchaTrigger');
+const CaptchaChallengeGenerator = require('../../../shared/CaptchaChallengeGenerator');
+const CaptchaValidator = require('../../../shared/CaptchaValidator');
+const CaptchaTrigger = require('../../../shared/CaptchaTrigger');
 const { Pool } = require('pg');
 const redis = require('redis');
 

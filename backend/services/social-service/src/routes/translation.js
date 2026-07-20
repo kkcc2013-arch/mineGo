@@ -7,10 +7,10 @@
 
 const express = require('express');
 const router = express.Router();
-const RealtimeTranslationEngine = require('../../../shared/ai/realtimeTranslationEngine');
-const { createLogger } = require('../../../shared/logger');
-const { authMiddleware } = require('../../../shared/auth');
-const { rateLimiter } = require('../../../shared/rateLimiter');
+const RealtimeTranslationEngine = require('../../../../shared/ai/realtimeTranslationEngine');
+const { createLogger } = require('../../../../shared/logger');
+const { requireAuth: authMiddleware } = require('../../../../shared/auth');
+const { rateLimiter } = require('../../../../shared/rateLimiter');
 
 const logger = createLogger('translation-routes');
 

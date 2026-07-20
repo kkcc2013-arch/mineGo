@@ -6,9 +6,9 @@
 const express = require('express');
 const router = express.Router();
 const comboService = require('../src/comboService');
-const { authenticate } = require('../../../shared/middleware/auth');
-const { rateLimit } = require('../../../shared/middleware/rateLimit');
-const logger = require('../../../shared/logger');
+const { authenticate } = require('../../../../shared/middleware/auth');
+const { rateLimit } = require('../../../../shared/middleware/rateLimit');
+const logger = require('../../../../shared/logger');
 
 /**
  * 获取所有可用连击链

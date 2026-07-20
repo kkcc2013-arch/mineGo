@@ -8,8 +8,8 @@
 const express = require('express');
 const router = express.Router();
 const { achievementService, ACHIEVEMENT_CATEGORIES } = require('../achievementService');
-const { requireAuth, successResp, AppError } = require('../../../shared/auth');
-const { createLogger } = require('../../../shared/logger');
+const { requireAuth, successResp, AppError } = require('../../../../shared/auth');
+const { createLogger } = require('../../../../shared/logger');
 
 const logger = createLogger('achievement-routes');
 

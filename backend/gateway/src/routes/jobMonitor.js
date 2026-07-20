@@ -5,10 +5,10 @@
 
 const express = require('express');
 const router = express.Router();
-const { JobStatusAggregator } = require('../shared/jobMonitor/jobStatusAggregator');
-const { JobExecutionLogger } = require('../shared/jobMonitor/jobExecutionLogger');
-const { JobHealthChecker } = require('../shared/jobMonitor/jobHealthChecker');
-const { TrendAnalyzer } = require('../shared/jobMonitor/trendAnalyzer');
+const { JobStatusAggregator } = require('../../../shared/jobMonitor/jobStatusAggregator');
+const { JobExecutionLogger } = require('../../../shared/jobMonitor/jobExecutionLogger');
+const { JobHealthChecker } = require('../../../shared/jobMonitor/jobHealthChecker');
+const { TrendAnalyzer } = require('../../../shared/jobMonitor/trendAnalyzer');
 
 // 单例实例
 let aggregator = null;

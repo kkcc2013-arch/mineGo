@@ -3,11 +3,11 @@
 
 const express = require('express');
 const router = express.Router();
-const db = require('../../../shared/db');
-const redis = require('../../../shared/redis');
-const EventBus = require('../../../shared/EventBus');
-const { createLogger } = require('../../../shared/logger');
-const { verifyAccess } = require('../../../shared/auth');
+const db = require('../../../../shared/db');
+const redis = require('../../../../shared/redis');
+const EventBus = require('../../../../shared/EventBus');
+const { createLogger } = require('../../../../shared/logger');
+const { verifyAccess } = require('../../../../shared/auth');
 
 const logger = createLogger('user-service:language');
 

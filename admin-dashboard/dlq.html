@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>REQ-00519 死信队列管理系统 | mineGo Admin</title>
+  <link rel="stylesheet" href="css/dlq.css">
+</head>
+<body>
+  <div class="dlq-container">
+    <!-- 头部 -->
+    <header class="dlq-header">
+      <h1>死信队列 (DLQ) 管理</h1>
+      <div class="header-actions">
+        <button id="refreshBtn" class="btn btn-secondary">
+          <span class="icon">🔄</span> 刷新
+        </button>
+        <button id="clearDLQBtn" class="btn btn-danger">
+          <span class="icon">🗑️</span> 清空 DLQ
+        </button>
+      </div>
+    </header>
+
+    <!-- 统计概览 -->
+    <section class="stats-overview">
+      <div class="stat-card" id="totalTasks">
+        <div class="stat-icon">📋</div>
+        <div class="stat-content">
+          <div class="stat-value">-</div>
+          <div class="stat-label">总任务数</div>
+        </div>
+      </div>
+      <div class="stat-card" id="redisQueue">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-content">
+          <div class="stat-value">-</div>
+          <div class="stat-label">Redis 队列</div>
+        </div>
+      </div>
+      <div class="stat-card" id="dbQueue">
+        <div class="stat-icon">🗄️</div>
+        <div class="stat-content">
+          <div class="stat-value">-</div>
+          <div class="stat-label">数据库队列</div>
+        </div>
+      </div>
+      <div class="stat-card" id="successRate">
+        <div class="stat-icon">✅</div>
+        <div class="stat-content">
+          <div class="stat-value">-</div>
+          <div class="stat-label">成功率</div>
+        </div>
+      </div>
+      <div class="stat-card alert-card" id="alertStatus">
+        <div class="stat-icon">⚠️</div>
+        <div class="stat-content">
+          <div class="stat-value">-</div>
+          <div class="stat-label">告警状态</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 筛选器 -->
+    <section class="filters-section">
+      <div class="filter-group">
+        <label for="typeFilter">任务类型:</label>
+        <select id="typeFilter">
+          <option value="">全部</option>
+          <option value="data_deletion">数据删除</option>
+          <option value="data_export">数据导出</option>
+          <option value="backup">备份</option>
+          <option value="index_maintenance">索引维护</option>
+          <option value="alert">告警</option>
+          <option value="payment">支付</option>
+          <option value="notification">通知</option>
+          <option value="other">其他</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="statusFilter">状态:</label>
+        <select id="statusFilter">
+          <option value="">全部</option>
+          <option value="dead_letter">死信</option>
+          <option value="retrying">重试中</option>
+          <option value="resolved">已解决</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="errorFilter">错误类型:</label>
+        <select id="errorFilter">
+          <option value="">全部</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <button id="applyFilterBtn" class="btn btn-primary">应用筛选</button>
+      </div>
+    </section>
+
+    <!-- DLQ 任务列表 -->
+    <section class="dlq-tasks-section">
+      <h2>任务列表</h2>
+      <div class="table-container">
+        <table id="dlqTasksTable">
+          <thead>
+            <tr>
+              <th>任务 ID</th>
+              <th>类型</th>
+              <th>状态</th>
+              <th>重试次数</th>
+              <th>错误信息</th>
+              <th>移入时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="tasksBody">
+            <!-- 动态填充 -->
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pagination">
+        <!-- 动态填充 -->
+      </div>
+    </section>
+
+    <!-- 告警历史 -->
+    <section class="alerts-section">
+      <h2>告警历史</h2>
+      <div id="alertsTimeline" class="alerts-timeline">
+        <!-- 动态填充 -->
+      </div>
+    </section>
+
+    <!-- 任务详情模态框 -->
+    <div id="taskModal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>任务详情</h3>
+          <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="taskDetail">
+          <!-- 动态填充 -->
+        </div>
+        <div class="modal-footer">
+          <button id="retryTaskBtn" class="btn btn-primary">重试任务</button>
+          <button id="resolveTaskBtn" class="btn btn-success">标记已解决</button>
+          <button class="btn btn-secondary" onclick="closeModal()">关闭</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 确认模态框 -->
+    <div id="confirmModal" class="modal hidden">
+      <div class="modal-content modal-sm">
+        <div class="modal-header">
+          <h3>确认操作</h3>
+        </div>
+        <div class="modal-body" id="confirmMessage">
+          <!-- 确认消息 -->
+        </div>
+        <div class="modal-footer">
+          <button id="confirmBtn" class="btn btn-danger">确认</button>
+          <button class="btn btn-secondary" onclick="closeConfirmModal()">取消</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/dlq-manager.js"></script>
+</body>
+</html>

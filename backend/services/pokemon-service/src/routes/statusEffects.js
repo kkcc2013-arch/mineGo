@@ -7,9 +7,9 @@
 const express = require('express');
 const router = express.Router();
 const StatusEffectEngine = require('../statusEffectEngine');
-const { requireAuth, AppError, successResp } = require('../../../shared/auth');
-const { createLogger } = require('../../../shared/logger');
-const { getRedisClient } = require('../../../shared/redis');
+const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
+const { createLogger } = require('../../../../shared/logger');
+const { getRedisClient } = require('../../../../shared/redis');
 
 const logger = createLogger('status-effects-routes');
 

@@ -7,12 +7,12 @@ const express = require('express');
 const router = express.Router();
 const crypto = require('crypto');
 
-const db = require('../../../shared/db');
-const logger = require('../../../shared/logger');
-const ReleaseCalculator = require('../../../shared/ReleaseCalculator');
-const { authenticate } = require('../../../shared/authMiddleware');
-const { sendKafkaEvent } = require('../../../shared/kafkaProducer');
-const metrics = require('../../../shared/metrics');
+const db = require('../../../../shared/db');
+const logger = require('../../../../shared/logger');
+const ReleaseCalculator = require('../../../../shared/ReleaseCalculator');
+const { authenticate } = require('../../../../shared/authMiddleware');
+const { sendKafkaEvent } = require('../../../../shared/kafkaProducer');
+const metrics = require('../../../../shared/metrics');
 
 /**
  * POST /api/pokemon/release/preview

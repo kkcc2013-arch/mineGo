@@ -11,7 +11,7 @@
  */
 
 const { v4: uuidv4 } = require('uuid');
-const { logger } = require('../../../shared');
+const { logger } = require('../../../../shared');
 
 class BattleRoomManager {
   constructor(wsServer) {

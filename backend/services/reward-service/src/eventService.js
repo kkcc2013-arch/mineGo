@@ -3,9 +3,9 @@
  * 支持多种活动类型、自动触发、实时奖励发放和活动数据分析
  */
 
-const { db } = require('../../shared/db');
-const { createLogger } = require('../../shared/logger');
-const { publishEvent, EVENTS } = require('../../shared/EventBus');
+const { db } = require('../../../shared/db');
+const { createLogger } = require('../../../shared/logger');
+const { publishEvent, EVENTS } = require('../../../shared/EventBus');
 const cron = require('node-cron');
 
 const logger = createLogger('event-service');

@@ -7,10 +7,10 @@
 
 const express = require('express');
 const router = express.Router();
-const { query, getClient } = require('../../../shared/db');
-const redis = require('../../../shared/redis');
-const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
-const { createLogger, requestLogger } = require('../../../shared/logger');
+const { query, getClient } = require('../../../../shared/db');
+const redis = require('../../../../shared/redis');
+const { requireAuth, AppError, successResp, errorHandler } = require('../../../../shared/auth');
+const { createLogger, requestLogger } = require('../../../../shared/logger');
 const InventorySorter = require('../inventory/InventorySorter');
 const OrganizationAdvisor = require('../inventory/OrganizationAdvisor');
 

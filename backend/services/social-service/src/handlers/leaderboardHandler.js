@@ -4,7 +4,7 @@
  */
 
 const LeaderboardService = require('../leaderboardService');
-const logger = require('../../../shared/logger');
+const logger = require('../../../../shared/logger');
 
 const leaderboardService = new LeaderboardService();
 

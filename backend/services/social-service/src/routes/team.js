@@ -6,10 +6,10 @@
 const express = require('express');
 const router = express.Router();
 const { body, param, query, validationResult } = require('express-validator');
-const authMiddleware = require('../../../shared/middleware/auth');
+const authMiddleware = require('../../../../shared/middleware/auth');
 const { getTeamService } = require('../teamService');
 const { getVoiceRoomManager } = require('../voice/roomManager');
-const { createLogger } = require('../../../shared/logger');
+const { createLogger } = require('../../../../shared/logger');
 
 const logger = createLogger('team-routes');
 

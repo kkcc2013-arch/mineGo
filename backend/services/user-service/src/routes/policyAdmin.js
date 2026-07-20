@@ -15,18 +15,18 @@
 const express = require('express');
 const router = express.Router();
 const { z } = require('zod');
-const { createLogger } = require('../../../shared/logger');
-const { auditLog, AuditActions } = require('../../../shared/auditLog');
+const { createLogger } = require('../../../../shared/logger');
+const { auditLog, AuditActions } = require('../../../../shared/auditLog');
 const {
   getPrivacyPolicyService,
   POLICY_TYPES,
   POLICY_STATUS
-} = require('../../../shared/privacyPolicyService');
+} = require('../../../../shared/privacyPolicyService');
 const {
   getPolicyNotificationService,
   NOTIFICATION_TYPES
-} = require('../../../shared/policyNotificationService');
-const { AppError, successResp, errorResp } = require('../../../shared/errors');
+} = require('../../../../shared/policyNotificationService');
+const { AppError, successResp, errorResp } = require('../../../../shared/errors');
 
 const logger = createLogger('policy-admin');
 
@@ -389,7 +389,7 @@ function initPolicyAdminRoutes() {
 
 // 简化的查询函数（避免依赖外部db模块）
 async function executeQuery(query, params) {
-  const { query: dbQuery } = require('../../../shared/db');
+  const { query: dbQuery } = require('../../../../shared/db');
   return dbQuery(query, params);
 }
 

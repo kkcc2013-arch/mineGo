@@ -5,8 +5,8 @@
 
 const express = require('express');
 const router = express.Router();
-const DPAManager = require('../../../shared/compliance/DPAManager');
-const { authenticate, requireAdmin } = require('../../../shared/middleware/auth');
+const DPAManager = require('../../../../shared/compliance/DPAManager');
+const { authenticate, requireAdmin } = require('../../../../shared/middleware/auth');
 const multer = require('multer');
 const path = require('path');
 
@@ -329,7 +329,7 @@ router.get('/compliance/expiring', authenticate, async (req, res) => {
  */
 router.get('/compliance/view', authenticate, async (req, res) => {
   try {
-    const result = await require('../../../shared/db').query(`
+    const result = await require('../../../../shared/db').query(`
       SELECT * FROM dpa_compliance_view ORDER BY expiry_status, latest_expiry DESC
     `);
 

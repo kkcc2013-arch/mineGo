@@ -6,8 +6,8 @@
 const express = require('express');
 const router = express.Router();
 const { teamBattleService, BATTLE_TYPES, TEAM_STATUS, COMBO_SKILLS } = require('../teamBattleService');
-const { requireAuth, AppError, successResp } = require('../../../shared/auth');
-const logger = require('../../../shared/logger');
+const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
+const logger = require('../../../../shared/logger');
 
 // ==================== 团队管理 API ====================
 

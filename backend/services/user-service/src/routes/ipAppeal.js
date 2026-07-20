@@ -6,7 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const { getIpBanManager } = require('../../../../gateway/src/middleware/ipBan');
-const { logger } = require('../../../shared/index');
+const { logger } = require('../../../../shared/index');
 
 /**
  * POST /api/ip-appeal

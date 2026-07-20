@@ -1,8 +1,8 @@
 'use strict';
 
-const { getDelayQueue } = require('../../../shared/DelayQueue');
-const { createLogger } = require('../../../shared/logger');
-const { incrementCounter } = require('../../../shared/metrics');
+const { getDelayQueue } = require('../../../../shared/DelayQueue');
+const { createLogger } = require('../../../../shared/logger');
+const { incrementCounter } = require('../../../../shared/metrics');
 
 const logger = createLogger('order-timeout-handler');
 

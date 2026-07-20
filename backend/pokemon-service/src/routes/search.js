@@ -6,10 +6,10 @@
 
 const express = require('express');
 const router = express.Router();
-const { requireAuth, successResp, AppError } = require('../../shared/auth');
-const pokemonSearchService = require('../../shared/pokemonSearchService');
-const metrics = require('../../shared/metrics');
-const { createLogger } = require('../../shared/logger');
+const { requireAuth, successResp, AppError } = require('../../../shared/auth');
+const pokemonSearchService = require('../../../shared/pokemonSearchService');
+const metrics = require('../../../shared/metrics');
+const { createLogger } = require('../../../shared/logger');
 
 const logger = createLogger('pokemon-search-routes');
 

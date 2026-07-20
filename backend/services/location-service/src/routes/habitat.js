@@ -5,8 +5,8 @@
 
 const express = require('express');
 const router = express.Router();
-const { requireAuth, successResp, AppError } = require('../../../shared/auth');
-const { habitatService } = require('../../../shared/habitatService');
+const { requireAuth, successResp, AppError } = require('../../../../shared/auth');
+const { habitatService } = require('../../../../shared/habitatService');
 
 /**
  * GET /api/habitat/current

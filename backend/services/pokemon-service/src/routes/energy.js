@@ -8,7 +8,7 @@
 const express = require('express');
 const router = express.Router();
 const energyService = require('../energyService');
-const { createLogger } = require('../../../shared/logger');
+const { createLogger } = require('../../../../shared/logger');
 
 const logger = createLogger('energy-routes');
 

@@ -6,13 +6,13 @@
  */
 
 const express = require('express');
-const { query } = require('../../../shared/db');
-const { getRedis } = require('../../../shared/redis');
-const { requireAuth, successResp, AppError } = require('../../../shared/auth');
-const { createLogger } = require('../../../shared/logger');
+const { query } = require('../../../../shared/db');
+const { getRedis } = require('../../../../shared/redis');
+const { requireAuth, successResp, AppError } = require('../../../../shared/auth');
+const { createLogger } = require('../../../../shared/logger');
 const { locationTrustEngine } = require('../locationTrustEngine');
-const { locationAnomalyDetector } = require('../../../analysis/src/locationAnomalyDetector');
-const { locationSpoofResponse } = require('../../../security/src/locationSpoofResponse');
+const { locationAnomalyDetector } = require('../../../../analysis/src/locationAnomalyDetector');
+const { locationSpoofResponse } = require('../../../../security/src/locationSpoofResponse');
 
 const logger = createLogger('location-verify-route');
 const router = express.Router();

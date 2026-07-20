@@ -3,8 +3,8 @@
  * 处理用户数据区域映射、跨境传输请求审批、传输日志记录
  */
 
-const logger = require('../../../shared/logger');
-const { publishEvent } = require('../../../shared/EventBus');
+const logger = require('../../../../shared/logger');
+const { publishEvent } = require('../../../../shared/EventBus');
 
 // 数据区域配置（缓存）
 const DataRegions = {

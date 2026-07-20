@@ -2,12 +2,12 @@
 
 const express = require('express');
 const router = express.Router();
-const { authenticate } = require('../../../shared/authMiddleware');
-const DeviceFingerprint = require('../../../shared/DeviceFingerprint');
-const DeviceTrustManager = require('../../../shared/DeviceTrustManager');
-const db = require('../../../shared/db');
-const redis = require('../../../shared/redis');
-const logger = require('../../../shared/logger');
+const { authenticate } = require('../../../../shared/authMiddleware');
+const DeviceFingerprint = require('../../../../shared/DeviceFingerprint');
+const DeviceTrustManager = require('../../../../shared/DeviceTrustManager');
+const db = require('../../../../shared/db');
+const redis = require('../../../../shared/redis');
+const logger = require('../../../../shared/logger');
 
 const fingerprint = new DeviceFingerprint();
 const trustManager = new DeviceTrustManager();
