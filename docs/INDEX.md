@@ -57,3 +57,4 @@
 | REQ-00601 | 数据库 Schema 变更智能影响分析与风险评估系统 | 数据库/数据治理 | P1 | done | database/migrate.js、backend/shared/schemaChangeAnalyzer.js、backend/shared/schemaImpactAnalyzer.js、gateway、所有后端服务、admin-dashboard | 2026-07-20 02:00 |
 | REQ-00602 | 游戏内加载骨架屏与智能进度指示系统 | 前端体验 | P2 | new | game-client、frontend/game-client/src/components、frontend/game-client/src/styles | 2026-07-20 03:00 |
 | REQ-00611 | 游戏实时字幕与听觉障碍支持系统 | 无障碍(a11y) | P2 | new | game-client、backend/shared/subtitles、user-service、所有音频播放模块 | 2026-07-20 15:00 |
+| REQ-00612 | 精灵训练特训系统与专项能力提升机制 | 功能增强 | P1 | new | pokemon-service、gateway、game-client、backend/shared/trainingService.js、database/migrations | 2026-07-20 18:00 |
