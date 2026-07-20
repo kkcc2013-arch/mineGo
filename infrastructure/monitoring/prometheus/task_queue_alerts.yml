@@ -1,0 +1,148 @@
+# Task Queue and DLQ Prometheus Alert Rules
+# REQ-00519: 任务队列告警配置
+
+groups:
+  - name: task_queue_alerts
+    interval: 30s
+    rules:
+      # DLQ 大小告警
+      - alert: DLQSizeExceeded
+        expr: task_queue_dlq_size > 100
+        for: 5m
+        labels:
+          severity: warning
+          category: task_queue
+        annotations:
+          summary: "Dead Letter Queue size exceeded threshold"
+          description: "DLQ for task type {{ $labels.task_type }} has {{ $value }} items, which exceeds the threshold of 100."
+          action: "Check DLQ items via admin dashboard and investigate failing tasks."
+
+      # DLQ 严重大小告警
+      - alert: DLQSizeCritical
+        expr: task_queue_dlq_size > 500
+        for: 10m
+        labels:
+          severity: critical
+          category: task_queue
+        annotations:
+          summary: "Dead Letter Queue size critically high"
+          description: "DLQ for task type {{ $labels.task_type }} has {{ $value }} items, indicating a critical system issue."
+          action: "Immediate investigation required. Check error logs and consider manual intervention."
+
+      # 队列积压告警
+      - alert: QueueBacklogExceeded
+        expr: task_queue_size{queue_type="pending"} > 1000
+        for: 10m
+        labels:
+          severity: warning
+          category: task_queue
+        annotations:
+          summary: "Task queue backlog exceeded threshold"
+          description: "Queue for task type {{ $labels.task_type }} has {{ $value }} pending items, indicating processing bottleneck."
+          action: "Check consumer status and consider scaling workers."
+
+      # 队列严重积压告警
+      - alert: QueueBacklogCritical
+        expr: task_queue_size{queue_type="pending"} > 5000
+        for: 15m
+        labels:
+          severity: critical
+          category: task_queue
+        annotations:
+          summary: "Task queue backlog critically high"
+          description: "Queue for task type {{ $labels.task_type }} has {{ $value }} pending items, indicating severe processing issues."
+          action: "Immediate scaling of workers required. Check for system failures."
+
+      # 任务处理错误率告警
+      - alert: TaskProcessingErrorRateHigh
+        expr: |
+          (
+            sum(rate(task_queue_processed_total{status="failed"}[5m])) 
+            by (task_type)
+            /
+            sum(rate(task_queue_processed_total[5m])) 
+            by (task_type)
+          ) > 0.5
+        for: 5m
+        labels:
+          severity: warning
+          category: task_queue
+        annotations:
+          summary: "Task processing error rate is high"
+          description: "Error rate for {{ $labels.task_type }} is {{ $value | humanizePercentage }}, exceeding 50%."
+          action: "Check recent changes and error logs for the task processor."
+
+      # 定时任务积压告警
+      - alert: ScheduledTasksBacklog
+        expr: task_queue_size{queue_type="scheduled"} > 500
+        for: 10m
+        labels:
+          severity: warning
+          category: task_queue
+        annotations:
+          summary: "Too many scheduled tasks pending"
+          description: "{{ $value }} scheduled tasks for {{ $labels.task_type }} are waiting to be processed."
+          action: "Check if retry mechanism is working properly and if there are many failed retries."
+
+      # 重试延迟过高告警
+      - alert: HighRetryDelay
+        expr: histogram_quantile(0.9, rate(task_queue_retry_delay_seconds_bucket[5m])) > 600
+        for: 10m
+        labels:
+          severity: warning
+          category: task_queue
+        annotations:
+          summary: "Task retry delay is very high"
+          description: "90th percentile retry delay for {{ $labels.task_type }} is {{ $value | humanizeDuration }}."
+          action: "Check if the exponential backoff is too aggressive or if tasks are stuck in retry loops."
+
+      # DLQ 任务年龄告警
+      - alert: OldItemsInDLQ
+        expr: |
+          (
+            time() 
+            - 
+            timestamp(task_queue_dlq_oldest_item_timestamp) 
+          ) > 3600
+        for: 5m
+        labels:
+          severity: warning
+          category: task_queue
+        annotations:
+          summary: "Old items in Dead Letter Queue"
+          description: "Oldest item in DLQ for {{ $labels.task_type }} is more than 1 hour old."
+          action: "Review DLQ items and decide whether to retry or discard them."
+
+      # 无任务处理告警（消费者可能停止）
+      - alert: NoTasksProcessed
+        expr: |
+          sum(increase(task_queue_processed_total[10m])) by (task_type) == 0
+          and
+          task_queue_size{queue_type="pending"} > 0
+        for: 15m
+        labels:
+          severity: critical
+          category: task_queue
+        annotations:
+          summary: "No tasks being processed"
+          description: "No tasks processed for {{ $labels.task_type }} in the last 10 minutes, but {{ $value }} tasks are pending."
+          action: "Check if the task consumer is running and healthy."
+
+      # 任务处理速率下降告警
+      - alert: TaskProcessingRateDropped
+        expr: |
+          (
+            sum(rate(task_queue_processed_total{status="success"}[10m])) by (task_type)
+            <
+            sum(rate(task_queue_processed_total{status="success"}[10m] offset 1h)) by (task_type) * 0.5
+          )
+          and
+          task_queue_size{queue_type="pending"} > 100
+        for: 10m
+        labels:
+          severity: warning
+          category: task_queue
+        annotations:
+          summary: "Task processing rate dropped significantly"
+          description: "Processing rate for {{ $labels.task_type }} dropped by more than 50% compared to 1 hour ago."
+          action: "Check for system load issues or errors in task processors."

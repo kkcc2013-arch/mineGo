@@ -7,7 +7,7 @@
 | 标题 | 后端任务队列可靠性增强与死信处理系统 |
 | 类别 | 运维/CICD |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | backend/jobs, Redis, Kafka, infrastructure/monitoring |
 | 创建时间 | 2026-07-09 03:00 |
 

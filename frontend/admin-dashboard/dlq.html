@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>死信队列管理 - mineGo Admin</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <style>
+        .dlq-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card.warning {
+            border-left: 4px solid #ff9800;
+        }
+
+        .stat-card.critical {
+            border-left: 4px solid #f44336;
+        }
+
+        .stat-card h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2196F3;
+            margin: 10px 0;
+        }
+
+        .stat-value.warning {
+            color: #ff9800;
+        }
+
+        .stat-value.critical {
+            color: #f44336;
+        }
+
+        .task-type-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+
+        .task-type-tab {
+            padding: 10px 20px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 4px 4px 0 0;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .task-type-tab:hover {
+            background: #e0e0e0;
+        }
+
+        .task-type-tab.active {
+            background: #2196F3;
+            color: white;
+        }
+
+        .task-type-tab .badge {
+            background: #f44336;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .dlq-table {
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .dlq-table th, .dlq-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .dlq-table th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .dlq-table tr:hover {
+            background: #fafafa;
+        }
+
+        .error-message {
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #f44336;
+        }
+
+        .error-message:hover {
+            white-space: normal;
+            overflow: visible;
+            position: relative;
+            z-index: 10;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1976D2;
+        }
+
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #f57c00;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .btn-secondary {
+            background: #757575;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #616161;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #757575;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .detail-item {
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+        }
+
+        .detail-item label {
+            display: block;
+            font-size: 12px;
+            color: #757575;
+            margin-bottom: 5px;
+        }
+
+        .detail-item .value {
+            font-size: 14px;
+            color: #333;
+            word-break: break-all;
+        }
+
+        .error-stack {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 8px 15px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .pagination button.active {
+            background: #2196F3;
+            color: white;
+            border-color: #2196F3;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #757575;
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            fill: #e0e0e0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2196F3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert-banner {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 15px 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .alert-banner.critical {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 4px;
+            z-index: 2000;
+            animation: slideIn 0.3s;
+        }
+
+        .toast.success {
+            background: #4caf50;
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="admin-nav">
+        <div class="nav-brand">mineGo Admin</div>
+        <div class="nav-links">
+            <a href="../index.html">Dashboard</a>
+            <a href="users.html">Users</a>
+            <a href="monitoring.html">Monitoring</a>
+            <a href="dlq.html" class="active">DLQ Management</a>
+        </div>
+    </nav>
+
+    <div class="dlq-container">
+        <h1>Dead Letter Queue Management</h1>
+        
+        <div id="alertBanner" class="alert-banner" style="display: none;">
+            <span id="alertMessage"></span>
+            <button class="btn btn-secondary" onclick="dismissAlert()">Dismiss</button>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <!-- Stats will be loaded dynamically -->
+        </div>
+
+        <div class="task-type-tabs" id="taskTypeTabs">
+            <!-- Tabs will be loaded dynamically -->
+        </div>
+
+        <div id="dlqContent">
+            <div class="loading">Loading...</div>
+        </div>
+
+        <div class="pagination" id="pagination" style="display: none;">
+            <!-- Pagination will be loaded dynamically -->
+        </div>
+    </div>
+
+    <!-- Task Detail Modal -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Task Details</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="taskDetails">
+                <!-- Details will be loaded dynamically -->
+            </div>
+            <div class="action-buttons" style="margin-top: 20px; justify-content: flex-end;">
+                <button class="btn btn-primary" id="retryBtn" onclick="retryTask()">Retry Task</button>
+                <button class="btn btn-danger" id="deleteBtn" onclick="deleteTask()">Delete Task</button>
+                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2 id="confirmTitle">Confirm Action</h2>
+            <p id="confirmMessage"></p>
+            <div class="action-buttons" style="justify-content: flex-end;">
+                <button class="btn btn-danger" id="confirmYesBtn">Confirm</button>
+                <button class="btn btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/admin/dlq';
+        let currentTaskType = 'push_notification';
+        let currentPage = 0;
+        let pageSize = 20;
+        let currentTaskId = null;
+        let dlqStats = {};
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStats();
+            setInterval(loadStats, 60000); // Refresh every minute
+        });
+
+        // Load DLQ statistics
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    dlqStats = data.data;
+                    renderStats(data.data);
+                    renderTabs(data.data);
+                    
+                    // Check for alerts
+                    checkForAlerts(data.data);
+                }
+            } catch (error) {
+                showToast('Failed to load DLQ stats', 'error');
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Render statistics cards
+        function renderStats(stats) {
+            const statsGrid = document.getElementById('statsGrid');
+            const totalDLQ = Object.values(stats).reduce((sum, s) => sum + (s.size || 0), 0);
+            
+            let html = `
+                <div class="stat-card ${totalDLQ > 100 ? 'critical' : totalDLQ > 50 ? 'warning' : ''}">
+                    <h3>Total DLQ Items</h3>
+                    <div class="stat-value ${totalDLQ > 100 ? 'critical' : totalDLQ > 50 ? 'warning' : ''}">${totalDLQ}</div>
+                    <p>Across all task types</p>
+                </div>
+            `;
+
+            for (const [taskType, stat] of Object.entries(stats)) {
+                const isWarning = stat.size > 20;
+                const isCritical = stat.size > 100;
+                
+                html += `
+                    <div class="stat-card ${isCritical ? 'critical' : isWarning ? 'warning' : ''}">
+                        <h3>${formatTaskType(taskType)}</h3>
+                        <div class="stat-value ${isCritical ? 'critical' : isWarning ? 'warning' : ''}">${stat.size}</div>
+                        <p>Oldest: ${formatAge(stat.oldestItemAge || 0)}</p>
+                    </div>
+                `;
+            }
+
+            statsGrid.innerHTML = html;
+        }
+
+        // Render task type tabs
+        function renderTabs(stats) {
+            const tabs = document.getElementById('taskTypeTabs');
+            const taskTypes = Object.keys(stats);
+            
+            if (taskTypes.length === 0) {
+                tabs.innerHTML = '<p>No DLQ items found</p>';
+                return;
+            }
+
+            let html = taskTypes.map(type => {
+                const isActive = type === currentTaskType;
+                const size = stats[type]?.size || 0;
+                
+                return `
+                    <button class="task-type-tab ${isActive ? 'active' : ''}" onclick="switchTaskType('${type}')">
+                        ${formatTaskType(type)}
+                        ${size > 0 ? `<span class="badge">${size}</span>` : ''}
+                    </button>
+                `;
+            }).join('');
+
+            tabs.innerHTML = html;
+        }
+
+        // Load DLQ items for a task type
+        async function loadDLQItems(taskType, page = 0) {
+            const content = document.getElementById('dlqContent');
+            content.innerHTML = '<div class="loading">Loading...</div>';
+
+            try {
+                const offset = page * pageSize;
+                const response = await fetch(`${API_BASE}/${taskType}?limit=${pageSize}&offset=${offset}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    renderDLQTable(data.data);
+                    renderPagination(data.data.total, page);
+                }
+            } catch (error) {
+                showToast('Failed to load DLQ items', 'error');
+                console.error('Error loading items:', error);
+            }
+        }
+
+        // Render DLQ table
+        function renderDLQTable(data) {
+            const content = document.getElementById('dlqContent');
+            
+            if (data.items.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                        </svg>
+                        <h3>No items in Dead Letter Queue</h3>
+                        <p>All tasks are processing normally</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <table class="dlq-table">
+                    <thead>
+                        <tr>
+                            <th>Task ID</th>
+                            <th>Failed At</th>
+                            <th>Retry Count</th>
+                            <th>Error Message</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            data.items.forEach(item => {
+                html += `
+                    <tr>
+                        <td><code>${item.id}</code></td>
+                        <td>${formatDate(item.failedAt)}</td>
+                        <td>${item.retryCount}</td>
+                        <td class="error-message">${item.error?.message || 'Unknown error'}</td>
+                        <td class="action-buttons">
+                            <button class="btn btn-primary btn-sm" onclick="viewTask('${item.id}')">View</button>
+                            <button class="btn btn-warning btn-sm" onclick="retryTaskById('${item.id}')">Retry</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteTaskById('${item.id}')">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            content.innerHTML = html;
+        }
+
+        // Render pagination
+        function renderPagination(total, currentPage) {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(total / pageSize);
+            
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
+                return;
+            }
+
+            let html = `
+                <button ${currentPage === 0 ? 'disabled' : ''} onclick="loadDLQItems('${currentTaskType}', ${currentPage - 1})">Previous</button>
+            `;
+
+            for (let i = 0; i < totalPages; i++) {
+                if (i === currentPage) {
+                    html += `<button class="active">${i + 1}</button>`;
+                } else if (i < 3 || i >= totalPages - 3) {
+                    html += `<button onclick="loadDLQItems('${currentTaskType}', ${i})">${i + 1}</button>`;
+                } else if (i === 3 || i === totalPages - 4) {
+                    html += `<span>...</span>`;
+                }
+            }
+
+            html += `
+                <button ${currentPage === totalPages - 1 ? 'disabled' : ''} onclick="loadDLQItems('${currentTaskType}', ${currentPage + 1})">Next</button>
+            `;
+
+            pagination.innerHTML = html;
+            pagination.style.display = 'flex';
+        }
+
+        // Switch task type
+        function switchTaskType(taskType) {
+            currentTaskType = taskType;
+            currentPage = 0;
+            
+            // Update active tab
+            document.querySelectorAll('.task-type-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            loadDLQItems(taskType, 0);
+        }
+
+        // View task details
+        async function viewTask(taskId) {
+            currentTaskId = taskId;
+            
+            try {
+                const response = await fetch(`${API_BASE}/${currentTaskType}/${taskId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    renderTaskDetails(data.data);
+                    document.getElementById('taskModal').classList.add('active');
+                }
+            } catch (error) {
+                showToast('Failed to load task details', 'error');
+            }
+        }
+
+        // Render task details in modal
+        function renderTaskDetails(task) {
+            const details = document.getElementById('taskDetails');
+            
+            details.innerHTML = `
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <label>Task ID</label>
+                        <div class="value">${task.id}</div>
+                    </div>
+                    <div class="detail-item">
+                        <label>Task Type</label>
+                        <div class="value">${task.taskType}</div>
+                    </div>
+                    <div class="detail-item">
+                        <label>Retry Count</label>
+                        <div class="value">${task.retryCount}</div>
+                    </div>
+                    <div class="detail-item">
+                        <label>Failed At</label>
+                        <div class="value">${formatDate(task.failedAt)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <label>Created At</label>
+                        <div class="value">${formatDate(task.originalCreatedAt)}</div>
+                    </div>
+                </div>
+                
+                <h3 style="margin-top: 20px;">Error Details</h3>
+                <div class="detail-item" style="margin-top: 10px;">
+                    <label>Message</label>
+                    <div class="value">${task.error?.message || 'No error message'}</div>
+                </div>
+                
+                <h4 style="margin-top: 15px;">Stack Trace</h4>
+                <div class="error-stack">${task.error?.stack || 'No stack trace available'}</div>
+                
+                <h3 style="margin-top: 20px;">Task Data</h3>
+                <pre class="error-stack">${JSON.stringify(task.taskData, null, 2)}</pre>
+            `;
+        }
+
+        // Retry task
+        async function retryTask() {
+            if (!currentTaskId) return;
+            
+            showConfirm(
+                'Retry Task',
+                'Are you sure you want to retry this task?',
+                async () => {
+                    try {
+                        const response = await fetch(`${API_BASE}/${currentTaskType}/${currentTaskId}/retry`, {
+                            method: 'POST'
+                        });
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            showToast('Task requeued successfully', 'success');
+                            closeModal();
+                            loadDLQItems(currentTaskType, currentPage);
+                            loadStats();
+                        }
+                    } catch (error) {
+                        showToast('Failed to retry task', 'error');
+                    }
+                }
+            );
+        }
+
+        // Delete task
+        async function deleteTask() {
+            if (!currentTaskId) return;
+            
+            showConfirm(
+                'Delete Task',
+                'Are you sure you want to delete this task? This action cannot be undone.',
+                async () => {
+                    try {
+                        const response = await fetch(`${API_BASE}/${currentTaskType}/${currentTaskId}`, {
+                            method: 'DELETE'
+                        });
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            showToast('Task deleted successfully', 'success');
+                            closeModal();
+                            loadDLQItems(currentTaskType, currentPage);
+                            loadStats();
+                        }
+                    } catch (error) {
+                        showToast('Failed to delete task', 'error');
+                    }
+                }
+            );
+        }
+
+        // Quick retry by ID
+        async function retryTaskById(taskId) {
+            try {
+                const response = await fetch(`${API_BASE}/${currentTaskType}/${taskId}/retry`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Task requeued successfully', 'success');
+                    loadDLQItems(currentTaskType, currentPage);
+                    loadStats();
+                }
+            } catch (error) {
+                showToast('Failed to retry task', 'error');
+            }
+        }
+
+        // Quick delete by ID
+        async function deleteTaskById(taskId) {
+            showConfirm(
+                'Delete Task',
+                'Are you sure you want to delete this task?',
+                async () => {
+                    try {
+                        const response = await fetch(`${API_BASE}/${currentTaskType}/${taskId}`, {
+                            method: 'DELETE'
+                        });
+                        const data = await response.json();
+                        
+                        if (data.success) {
+                            showToast('Task deleted successfully', 'success');
+                            loadDLQItems(currentTaskType, currentPage);
+                            loadStats();
+                        }
+                    } catch (error) {
+                        showToast('Failed to delete task', 'error');
+                    }
+                }
+            );
+        }
+
+        // Check for alerts
+        function checkForAlerts(stats) {
+            let totalItems = 0;
+            let criticalTaskTypes = [];
+            
+            for (const [taskType, stat] of Object.entries(stats)) {
+                totalItems += stat.size || 0;
+                if (stat.size > 100) {
+                    criticalTaskTypes.push(taskType);
+                }
+            }
+            
+            if (criticalTaskTypes.length > 0) {
+                showAlert(`Critical: High DLQ count for: ${criticalTaskTypes.join(', ')}`, true);
+            } else if (totalItems > 50) {
+                showAlert(`Warning: Total DLQ items (${totalItems}) exceeded 50`, false);
+            } else {
+                dismissAlert();
+            }
+        }
+
+        // Utility functions
+        function formatTaskType(type) {
+            return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString();
+        }
+
+        function formatAge(seconds) {
+            if (seconds < 60) return `${seconds}s`;
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h`;
+            return `${Math.floor(seconds / 86400)}d`;
+        }
+
+        function closeModal() {
+            document.getElementById('taskModal').classList.remove('active');
+            currentTaskId = null;
+        }
+
+        function showConfirm(title, message, onConfirm) {
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = message;
+            
+            const confirmBtn = document.getElementById('confirmYesBtn');
+            confirmBtn.onclick = () => {
+                closeConfirmModal();
+                onConfirm();
+            };
+            
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+        }
+
+        function showAlert(message, isCritical) {
+            const banner = document.getElementById('alertBanner');
+            const msgEl = document.getElementById('alertMessage');
+            
+            banner.className = isCritical ? 'alert-banner critical' : 'alert-banner';
+            msgEl.textContent = message;
+            banner.style.display = 'flex';
+        }
+
+        function dismissAlert() {
+            document.getElementById('alertBanner').style.display = 'none';
+        }
+
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Load initial data
+        loadDLQItems(currentTaskType, 0);
+    </script>
+</body>
+</html>
