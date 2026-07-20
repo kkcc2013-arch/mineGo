@@ -6,3 +6,4 @@
      6|     6| REQ-00619 | 核心战斗引擎业务测试覆盖框架 | 测试覆盖 | P1 | new | gym-service, battle-engine-module | 2026-07-21 00:00 |
      7|| REQ-00620 | 游戏离线体验与 Service Worker 智能缓存管理系统 | 前端体验 | P1 | new | frontend/game-client, service-worker, backend/gateway | 2026-07-20 21:00 |
      8|| REQ-00621 | GDPR/CCPA 自动化数据主体请求处理系统 | 合规/隐私 | P1 | new | user-service, data-platform, gateway | 2026-07-21 02:00 |
+| REQ-00622 | API 请求参数统一验证与注入防护中间件系统 | API 设计规范 | P1 | done | gateway/middleware/validation, backend/shared/validators, 所有后端服务路由层 | 2026-07-20 22:00 |
