@@ -43,7 +43,7 @@
 | REQ-00549 | 服务生命周期状态机与优雅转换系统 | 可扩展性/解耦 | P1 | done | backend/shared/serviceLifecycle、gateway、所有后端服务、infrastructure/k8s | 2026-07-16 11:13 |
 | REQ-00550 | 游戏内货币本地化显示与智能区域适配系统 | 国际化/本地化 | P1 | done | backend/shared/currencyLocalizer、payment-service、user-service、gateway、game-client、admin-dashboard | 2026-07-16 11:00 |
 | REQ-00551 | API 错误码交互式文档与在线调试沙盒系统 | 文档/开发者体验 | P1 | new | gateway、admin-dashboard、docs-site、backend/shared/errorCodes | 2026-07-16 14:00 |
-| REQ-00552 | WebSocket 连接池自适应伸缩与资源优化系统 | 性能优化 | P1 | new | backend/shared/websocket、gateway、infrastructure/monitoring、backend/jobs | 2026-07-16 15:00 |
+| REQ-00552 | WebSocket 连接池自适应伸缩与资源优化系统 | 性能优化 | P1 | done | backend/shared/websocket、gateway、infrastructure/monitoring、backend/jobs | 2026-07-16 15:00 |
 | REQ-00579 | 年龄限制中间件测试覆盖 | 测试覆盖 | P0 | done | gateway, user-service | 2026-07-16 18:00 |
 | REQ-00580 | WebSocket 消息批处理队列内存优化 | 性能优化 | P1 | done | backend/shared/websocket | 2026-07-16 19:00 |
 | REQ-00581 | 数据库连接池智能预热与动态自适应管理系统 | 性能优化 | P1 | new | backend-gateway, database-manager | 2026-07-16 12:00 |
@@ -53,3 +53,4 @@
 | REQ-00588 | 敏感 API 二次身份验证与风控行为分级系统 | 安全加固 | P0 | done | gateway, user-service, backend/security, admin-dashboard | 2026-07-16 23:30 |
 | REQ-00589 | 微服务架构可视化与 API 依赖关系图谱系统 | 文档/开发者体验 | P1 | new | admin-dashboard, gateway, 所有后端服务, docs-site | 2026-07-17 00:00 |
 | REQ-00590 | CI/CD 流水线执行效率分析与瓶颈定位系统 | 运维/CICD | P1 | new | .github/workflows、backend/jobs/pipelineAnalyzer.js、admin-dashboard、infrastructure/monitoring | 2026-07-19 04:00 |
+| REQ-00600 | 动态模块加载器与依赖注入容器系统 | 可扩展性/解耦 | P1 | new | backend/shared/moduleLoader、backend/shared/diContainer、gateway、所有后端服务 | 2026-07-20 01:00 |
