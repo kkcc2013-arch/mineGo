@@ -55,3 +55,4 @@
 | REQ-00590 | CI/CD 流水线执行效率分析与瓶颈定位系统 | 运维/CICD | P1 | new | .github/workflows、backend/jobs/pipelineAnalyzer.js、admin-dashboard、infrastructure/monitoring | 2026-07-19 04:00 |
 | REQ-00600 | 动态模块加载器与依赖注入容器系统 | 可扩展性/解耦 | P1 | new | backend/shared/moduleLoader、backend/shared/diContainer、gateway、所有后端服务 | 2026-07-20 01:00 |
 | REQ-00601 | 数据库 Schema 变更智能影响分析与风险评估系统 | 数据库/数据治理 | P1 | new | database/migrate.js、backend/shared/schemaChangeAnalyzer.js、backend/shared/schemaImpactAnalyzer.js、gateway、所有后端服务、admin-dashboard | 2026-07-20 02:00 |
+| REQ-00602 | 游戏内加载骨架屏与智能进度指示系统 | 前端体验 | P2 | new | game-client、frontend/game-client/src/components、frontend/game-client/src/styles | 2026-07-20 03:00 |
