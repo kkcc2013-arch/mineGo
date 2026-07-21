@@ -1,0 +1,78 @@
+# 智能调度器配置
+
+scheduler:
+  enabled: true
+  schedulingInterval: 60000  # 60秒
+  predictionAccuracyThreshold: 0.85
+
+scaling:
+  minReplicas: 2
+  maxReplicas: 50
+  scalingCooldown: 300000  # 5分钟
+  proactiveScalingWindow: 900000  # 提前15分钟
+
+  thresholds:
+    cpu: 70
+    memory: 80
+    requests: 1000
+
+trafficAnalysis:
+  historyWindow: 86400000  # 24小时
+  predictionWindow: 14400000  # 4小时
+  sampleInterval: 60000  # 1分钟
+
+instanceTypes:
+  onDemand:
+    costMultiplier: 1.0
+    reliability: 0.9999
+    availability: always
+
+  spot:
+    costMultiplier: 0.3
+    reliability: 0.95
+    availability: conditional
+    interruptionRate: 0.05
+
+  reserved:
+    costMultiplier: 0.6
+    reliability: 0.9999
+    availability: limited
+
+serviceTiers:
+  critical:
+    minReliability: 0.9999
+    allowedInstanceTypes:
+      - onDemand
+      - reserved
+    maxSpotRatio: 0
+
+  important:
+    minReliability: 0.99
+    allowedInstanceTypes:
+      - onDemand
+      - reserved
+      - spot
+    maxSpotRatio: 0.3
+
+  normal:
+    minReliability: 0.95
+    allowedInstanceTypes:
+      - onDemand
+      - spot
+    maxSpotRatio: 0.7
+
+serviceClassification:
+  gateway: critical
+  user-service: critical
+  payment-service: critical
+  pokemon-service: important
+  location-service: important
+  catch-service: important
+  gym-service: important
+  social-service: normal
+  reward-service: normal
+
+costOptimization:
+  enabled: true
+  reportInterval: 3600000  # 每小时生成成本报告
+  alertThreshold: 10000  # 成本超过此值告警（元/小时）

@@ -7,7 +7,7 @@
 | 标题 | 智能资源调度与自动扩缩容系统 |
 | 类别 | 运维/CICD |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | infrastructure, gateway, autoscaling |
 | 创建时间 | 2026-07-20 18:00 |
 
