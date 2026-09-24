@@ -23,11 +23,24 @@ CREATE TABLE IF NOT EXISTS regions (
   CONSTRAINT fk_parent_region FOREIGN KEY (parent_code) 
     REFERENCES regions(code) ON DELETE SET NULL
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE regions ADD COLUMN IF NOT EXISTS code VARCHAR(20);
+ALTER TABLE regions ADD COLUMN IF NOT EXISTS parent_code VARCHAR(20);
+ALTER TABLE regions ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+ALTER TABLE regions ADD COLUMN IF NOT EXISTS level VARCHAR(20);
+ALTER TABLE regions ADD COLUMN IF NOT EXISTS geo_bounds JSONB;
+ALTER TABLE regions ADD COLUMN IF NOT EXISTS timezone VARCHAR(50);
+ALTER TABLE regions ADD COLUMN IF NOT EXISTS currency VARCHAR(10);
+ALTER TABLE regions ADD COLUMN IF NOT EXISTS language VARCHAR(10);
+ALTER TABLE regions ADD COLUMN IF NOT EXISTS compliance_rules JSONB;
+ALTER TABLE regions ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE regions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE regions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
-CREATE INDEX idx_regions_code ON regions(code);
-CREATE INDEX idx_regions_parent ON regions(parent_code);
-CREATE INDEX idx_regions_level ON regions(level);
-CREATE INDEX idx_regions_active ON regions(is_active);
+CREATE INDEX IF NOT EXISTS idx_regions_code ON regions(code);
+CREATE INDEX IF NOT EXISTS idx_regions_parent ON regions(parent_code);
+CREATE INDEX IF NOT EXISTS idx_regions_level ON regions(level);
+CREATE INDEX IF NOT EXISTS idx_regions_active ON regions(is_active);
 
 COMMENT ON TABLE regions IS '区域定义表，支持国家/省份/城市三级';
 COMMENT ON COLUMN regions.code IS '区域代码：ISO 3166-1 国家代码或自定义地区代码';
@@ -53,10 +66,19 @@ CREATE TABLE IF NOT EXISTS region_pokemon_weights (
   CONSTRAINT unique_region_pokemon UNIQUE (region_code, pokemon_id),
   CONSTRAINT valid_spawn_weight CHECK (spawn_weight >= 0 AND spawn_weight <= 10)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE region_pokemon_weights ADD COLUMN IF NOT EXISTS region_code VARCHAR(20);
+ALTER TABLE region_pokemon_weights ADD COLUMN IF NOT EXISTS pokemon_id INTEGER;
+ALTER TABLE region_pokemon_weights ADD COLUMN IF NOT EXISTS spawn_weight DECIMAL(5,4) DEFAULT 1.0;
+ALTER TABLE region_pokemon_weights ADD COLUMN IF NOT EXISTS is_exclusive BOOLEAN DEFAULT false;
+ALTER TABLE region_pokemon_weights ADD COLUMN IF NOT EXISTS start_date TIMESTAMP;
+ALTER TABLE region_pokemon_weights ADD COLUMN IF NOT EXISTS end_date TIMESTAMP;
+ALTER TABLE region_pokemon_weights ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE region_pokemon_weights ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
-CREATE INDEX idx_region_pokemon_weights_region ON region_pokemon_weights(region_code);
-CREATE INDEX idx_region_pokemon_weights_pokemon ON region_pokemon_weights(pokemon_id);
-CREATE INDEX idx_region_pokemon_weights_dates ON region_pokemon_weights(start_date, end_date);
+CREATE INDEX IF NOT EXISTS idx_region_pokemon_weights_region ON region_pokemon_weights(region_code);
+CREATE INDEX IF NOT EXISTS idx_region_pokemon_weights_pokemon ON region_pokemon_weights(pokemon_id);
+CREATE INDEX IF NOT EXISTS idx_region_pokemon_weights_dates ON region_pokemon_weights(start_date, end_date);
 
 COMMENT ON TABLE region_pokemon_weights IS '区域精灵刷新权重配置，支持区域专属和权重调整';
 COMMENT ON COLUMN region_pokemon_weights.spawn_weight IS '刷新权重倍数，1.0 为标准权重';
@@ -84,11 +106,23 @@ CREATE TABLE IF NOT EXISTS region_events (
   
   CONSTRAINT valid_event_times CHECK (end_time > start_time)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE region_events ADD COLUMN IF NOT EXISTS event_id VARCHAR(50);
+ALTER TABLE region_events ADD COLUMN IF NOT EXISTS region_codes TEXT[];
+ALTER TABLE region_events ADD COLUMN IF NOT EXISTS title JSONB;
+ALTER TABLE region_events ADD COLUMN IF NOT EXISTS description JSONB;
+ALTER TABLE region_events ADD COLUMN IF NOT EXISTS event_type VARCHAR(50);
+ALTER TABLE region_events ADD COLUMN IF NOT EXISTS bonuses JSONB;
+ALTER TABLE region_events ADD COLUMN IF NOT EXISTS start_time TIMESTAMP;
+ALTER TABLE region_events ADD COLUMN IF NOT EXISTS end_time TIMESTAMP;
+ALTER TABLE region_events ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE region_events ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE region_events ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
-CREATE INDEX idx_region_events_event_id ON region_events(event_id);
-CREATE INDEX idx_region_events_regions ON region_events USING GIN(region_codes);
-CREATE INDEX idx_region_events_time ON region_events(start_time, end_time);
-CREATE INDEX idx_region_events_active ON region_events(is_active);
+CREATE INDEX IF NOT EXISTS idx_region_events_event_id ON region_events(event_id);
+CREATE INDEX IF NOT EXISTS idx_region_events_regions ON region_events USING GIN(region_codes);
+CREATE INDEX IF NOT EXISTS idx_region_events_time ON region_events(start_time, end_time);
+CREATE INDEX IF NOT EXISTS idx_region_events_active ON region_events(is_active);
 
 COMMENT ON TABLE region_events IS '区域活动配置，支持按地区定制活动';
 COMMENT ON COLUMN region_events.region_codes IS '适用区域代码数组，如 {CN, JP, KR}';
@@ -115,10 +149,19 @@ CREATE TABLE IF NOT EXISTS compliance_rules (
   CONSTRAINT fk_region_compliance FOREIGN KEY (region_code) 
     REFERENCES regions(code) ON DELETE CASCADE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS region_code VARCHAR(20);
+ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS content_type VARCHAR(50);
+ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS content_id INTEGER;
+ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS filter_action VARCHAR(20);
+ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS modified_content JSONB;
+ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS reason VARCHAR(200);
+ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
-CREATE INDEX idx_compliance_rules_region ON compliance_rules(region_code);
-CREATE INDEX idx_compliance_rules_content ON compliance_rules(content_type, content_id);
-CREATE INDEX idx_compliance_rules_action ON compliance_rules(filter_action);
+CREATE INDEX IF NOT EXISTS idx_compliance_rules_region ON compliance_rules(region_code);
+CREATE INDEX IF NOT EXISTS idx_compliance_rules_content ON compliance_rules(content_type, content_id);
+CREATE INDEX IF NOT EXISTS idx_compliance_rules_action ON compliance_rules(filter_action);
 
 COMMENT ON TABLE compliance_rules IS '合规过滤规则，用于自动过滤或修改敏感内容';
 COMMENT ON COLUMN compliance_rules.filter_action IS '过滤动作：hide-隐藏, modify-替换, restrict-限制访问';
@@ -135,8 +178,13 @@ CREATE TABLE IF NOT EXISTS user_regions (
   CONSTRAINT fk_user_region FOREIGN KEY (region_code) 
     REFERENCES regions(code) ON DELETE SET NULL
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_regions ADD COLUMN IF NOT EXISTS user_id VARCHAR(50);
+ALTER TABLE user_regions ADD COLUMN IF NOT EXISTS region_code VARCHAR(20);
+ALTER TABLE user_regions ADD COLUMN IF NOT EXISTS detected_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE user_regions ADD COLUMN IF NOT EXISTS last_updated TIMESTAMP DEFAULT NOW();
 
-CREATE INDEX idx_user_regions_region ON user_regions(region_code);
+CREATE INDEX IF NOT EXISTS idx_user_regions_region ON user_regions(region_code);
 
 COMMENT ON TABLE user_regions IS '用户区域映射缓存，避免重复检测';
 
@@ -177,15 +225,19 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_regions_updated_at ON regions;
 CREATE TRIGGER update_regions_updated_at BEFORE UPDATE ON regions
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_region_pokemon_weights_updated_at ON region_pokemon_weights;
 CREATE TRIGGER update_region_pokemon_weights_updated_at BEFORE UPDATE ON region_pokemon_weights
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_region_events_updated_at ON region_events;
 CREATE TRIGGER update_region_events_updated_at BEFORE UPDATE ON region_events
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_compliance_rules_updated_at ON compliance_rules;
 CREATE TRIGGER update_compliance_rules_updated_at BEFORE UPDATE ON compliance_rules
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 

@@ -22,13 +22,29 @@ CREATE TABLE IF NOT EXISTS user_sessions (
   is_suspicious BOOLEAN DEFAULT false,
   risk_score INTEGER DEFAULT 0 -- 风险评分 0-100
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS session_token_hash VARCHAR(64);
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS refresh_token_hash VARCHAR(64);
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS device_fingerprint VARCHAR(255);
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS device_name VARCHAR(100);
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS device_type VARCHAR(20);
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS ip_address INET;
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS user_agent TEXT;
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS geo_location JSONB;
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS last_activity_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS is_suspicious BOOLEAN DEFAULT false;
+ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS risk_score INTEGER DEFAULT 0;
 
 -- 索引
-CREATE INDEX idx_user_sessions_user_active ON user_sessions(user_id, is_active, last_activity_at DESC);
-CREATE INDEX idx_user_sessions_token ON user_sessions(session_token_hash);
-CREATE INDEX idx_user_sessions_refresh ON user_sessions(refresh_token_hash);
-CREATE INDEX idx_user_sessions_expires ON user_sessions(expires_at) WHERE is_active = true;
-CREATE INDEX idx_user_sessions_suspicious ON user_sessions(is_suspicious) WHERE is_suspicious = true;
+CREATE INDEX IF NOT EXISTS idx_user_sessions_user_active ON user_sessions(user_id, is_active, last_activity_at DESC);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_token ON user_sessions(session_token_hash);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_refresh ON user_sessions(refresh_token_hash);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_expires ON user_sessions(expires_at) WHERE is_active = true;
+CREATE INDEX IF NOT EXISTS idx_user_sessions_suspicious ON user_sessions(is_suspicious) WHERE is_suspicious = true;
 
 COMMENT ON TABLE user_sessions IS '用户会话管理表';
 COMMENT ON COLUMN user_sessions.session_token_hash IS '会话令牌哈希值';
@@ -53,11 +69,21 @@ CREATE TABLE IF NOT EXISTS session_audit_logs (
   metadata JSONB,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE session_audit_logs ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE session_audit_logs ADD COLUMN IF NOT EXISTS session_id INTEGER;
+ALTER TABLE session_audit_logs ADD COLUMN IF NOT EXISTS action VARCHAR(50);
+ALTER TABLE session_audit_logs ADD COLUMN IF NOT EXISTS device_fingerprint VARCHAR(255);
+ALTER TABLE session_audit_logs ADD COLUMN IF NOT EXISTS ip_address INET;
+ALTER TABLE session_audit_logs ADD COLUMN IF NOT EXISTS geo_location JSONB;
+ALTER TABLE session_audit_logs ADD COLUMN IF NOT EXISTS user_agent TEXT;
+ALTER TABLE session_audit_logs ADD COLUMN IF NOT EXISTS metadata JSONB;
+ALTER TABLE session_audit_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 
 -- 索引
-CREATE INDEX idx_session_audit_user_time ON session_audit_logs(user_id, created_at DESC);
-CREATE INDEX idx_session_audit_action ON session_audit_logs(action, created_at DESC);
-CREATE INDEX idx_session_audit_session ON session_audit_logs(session_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_session_audit_user_time ON session_audit_logs(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_session_audit_action ON session_audit_logs(action, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_session_audit_session ON session_audit_logs(session_id, created_at DESC);
 
 COMMENT ON TABLE session_audit_logs IS '会话审计日志表';
 COMMENT ON COLUMN session_audit_logs.action IS '会话操作类型';
@@ -78,11 +104,21 @@ CREATE TABLE IF NOT EXISTS session_anomaly_events (
   action_taken VARCHAR(50), -- none, logged, challenged, terminated
   resolution_notes TEXT
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE session_anomaly_events ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE session_anomaly_events ADD COLUMN IF NOT EXISTS session_id INTEGER;
+ALTER TABLE session_anomaly_events ADD COLUMN IF NOT EXISTS anomaly_type VARCHAR(50);
+ALTER TABLE session_anomaly_events ADD COLUMN IF NOT EXISTS severity VARCHAR(20);
+ALTER TABLE session_anomaly_events ADD COLUMN IF NOT EXISTS details JSONB;
+ALTER TABLE session_anomaly_events ADD COLUMN IF NOT EXISTS detected_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE session_anomaly_events ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE session_anomaly_events ADD COLUMN IF NOT EXISTS action_taken VARCHAR(50);
+ALTER TABLE session_anomaly_events ADD COLUMN IF NOT EXISTS resolution_notes TEXT;
 
 -- 索引
-CREATE INDEX idx_session_anomaly_user ON session_anomaly_events(user_id, detected_at DESC);
-CREATE INDEX idx_session_anomaly_severity ON session_anomaly_events(severity, resolved_at) WHERE resolved_at IS NULL;
-CREATE INDEX idx_session_anomaly_type ON session_anomaly_events(anomaly_type, detected_at DESC);
+CREATE INDEX IF NOT EXISTS idx_session_anomaly_user ON session_anomaly_events(user_id, detected_at DESC);
+CREATE INDEX IF NOT EXISTS idx_session_anomaly_severity ON session_anomaly_events(severity, resolved_at) WHERE resolved_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_session_anomaly_type ON session_anomaly_events(anomaly_type, detected_at DESC);
 
 COMMENT ON TABLE session_anomaly_events IS '会话异常事件表';
 COMMENT ON COLUMN session_anomaly_events.anomaly_type IS '异常类型';
@@ -106,10 +142,21 @@ CREATE TABLE IF NOT EXISTS user_trusted_devices (
   metadata JSONB,
   UNIQUE(user_id, device_fingerprint)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_trusted_devices ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE user_trusted_devices ADD COLUMN IF NOT EXISTS device_fingerprint VARCHAR(255);
+ALTER TABLE user_trusted_devices ADD COLUMN IF NOT EXISTS device_name VARCHAR(100);
+ALTER TABLE user_trusted_devices ADD COLUMN IF NOT EXISTS device_type VARCHAR(20);
+ALTER TABLE user_trusted_devices ADD COLUMN IF NOT EXISTS first_seen_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE user_trusted_devices ADD COLUMN IF NOT EXISTS last_seen_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE user_trusted_devices ADD COLUMN IF NOT EXISTS is_trusted BOOLEAN DEFAULT false;
+ALTER TABLE user_trusted_devices ADD COLUMN IF NOT EXISTS trust_level VARCHAR(20) DEFAULT 'low';
+ALTER TABLE user_trusted_devices ADD COLUMN IF NOT EXISTS verification_count INTEGER DEFAULT 0;
+ALTER TABLE user_trusted_devices ADD COLUMN IF NOT EXISTS metadata JSONB;
 
 -- 索引
-CREATE INDEX idx_trusted_devices_user ON user_trusted_devices(user_id, last_seen_at DESC);
-CREATE INDEX idx_trusted_devices_trusted ON user_trusted_devices(user_id, is_trusted) WHERE is_trusted = true;
+CREATE INDEX IF NOT EXISTS idx_trusted_devices_user ON user_trusted_devices(user_id, last_seen_at DESC);
+CREATE INDEX IF NOT EXISTS idx_trusted_devices_trusted ON user_trusted_devices(user_id, is_trusted) WHERE is_trusted = true;
 
 COMMENT ON TABLE user_trusted_devices IS '用户信任设备列表';
 COMMENT ON COLUMN user_trusted_devices.trust_level IS '设备信任级别';
@@ -126,6 +173,12 @@ CREATE TABLE IF NOT EXISTS session_config (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_by INTEGER REFERENCES users(id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE session_config ADD COLUMN IF NOT EXISTS config_key VARCHAR(100);
+ALTER TABLE session_config ADD COLUMN IF NOT EXISTS config_value TEXT;
+ALTER TABLE session_config ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE session_config ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE session_config ADD COLUMN IF NOT EXISTS updated_by INTEGER;
 
 -- 插入默认配置
 INSERT INTO session_config (config_key, config_value, description) VALUES

@@ -9,6 +9,11 @@ CREATE TABLE IF NOT EXISTS evolution_chains (
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE evolution_chains ADD COLUMN IF NOT EXISTS chain_name VARCHAR(100);
+ALTER TABLE evolution_chains ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE evolution_chains ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE evolution_chains ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
 -- 进化节点表（每个精灵作为节点）
 CREATE TABLE IF NOT EXISTS evolution_nodes (
@@ -19,6 +24,12 @@ CREATE TABLE IF NOT EXISTS evolution_nodes (
     is_root BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE evolution_nodes ADD COLUMN IF NOT EXISTS chain_id INTEGER;
+ALTER TABLE evolution_nodes ADD COLUMN IF NOT EXISTS pokemon_species_id INTEGER;
+ALTER TABLE evolution_nodes ADD COLUMN IF NOT EXISTS node_position JSONB DEFAULT '{"x": 0, "y": 0, "level": 1}';
+ALTER TABLE evolution_nodes ADD COLUMN IF NOT EXISTS is_root BOOLEAN DEFAULT FALSE;
+ALTER TABLE evolution_nodes ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 -- 进化路径表（节点之间的连接）
 CREATE TABLE IF NOT EXISTS evolution_paths (
@@ -62,6 +73,12 @@ CREATE TABLE IF NOT EXISTS evolution_paths (
     is_hidden BOOLEAN DEFAULT FALSE, -- 隐藏进化路径
     created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE evolution_paths ADD COLUMN IF NOT EXISTS from_node_id INTEGER;
+ALTER TABLE evolution_paths ADD COLUMN IF NOT EXISTS to_node_id INTEGER;
+ALTER TABLE evolution_paths ADD COLUMN IF NOT EXISTS evolution_type VARCHAR(50);
+ALTER TABLE evolution_paths ADD COLUMN IF NOT EXISTS conditions JSONB DEFAULT '{}';
+ALTER TABLE evolution_paths ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 -- 进化条件说明多语言表
 CREATE TABLE IF NOT EXISTS evolution_condition_descriptions (
@@ -73,6 +90,12 @@ CREATE TABLE IF NOT EXISTS evolution_condition_descriptions (
     created_at TIMESTAMP DEFAULT NOW(),
     UNIQUE(evolution_path_id, language_code)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE evolution_condition_descriptions ADD COLUMN IF NOT EXISTS evolution_path_id INTEGER;
+ALTER TABLE evolution_condition_descriptions ADD COLUMN IF NOT EXISTS language_code VARCHAR(10);
+ALTER TABLE evolution_condition_descriptions ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE evolution_condition_descriptions ADD COLUMN IF NOT EXISTS hint TEXT;
+ALTER TABLE evolution_condition_descriptions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 -- 用户进化预览缓存表（用于快速显示进化后属性）
 CREATE TABLE IF NOT EXISTS user_evolution_previews (
@@ -85,6 +108,13 @@ CREATE TABLE IF NOT EXISTS user_evolution_previews (
     expires_at TIMESTAMP DEFAULT NOW() + INTERVAL '24 hours',
     UNIQUE(user_id, pokemon_instance_id, target_species_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_evolution_previews ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_evolution_previews ADD COLUMN IF NOT EXISTS pokemon_instance_id UUID;
+ALTER TABLE user_evolution_previews ADD COLUMN IF NOT EXISTS target_species_id INTEGER;
+ALTER TABLE user_evolution_previews ADD COLUMN IF NOT EXISTS preview_data JSONB;
+ALTER TABLE user_evolution_previews ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE user_evolution_previews ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP DEFAULT NOW() + INTERVAL '24 hours';
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_evolution_nodes_species ON evolution_nodes(pokemon_species_id);

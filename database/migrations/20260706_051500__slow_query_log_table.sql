@@ -21,6 +21,20 @@ CREATE TABLE IF NOT EXISTS slow_query_log (
     collected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS query_id VARCHAR(64);
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS query_text TEXT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS calls BIGINT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS total_time_ms FLOAT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS mean_time_ms FLOAT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS min_time_ms FLOAT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS max_time_ms FLOAT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS rows_affected BIGINT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS shared_blks_hit BIGINT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS shared_blks_read BIGINT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS cache_hit_ratio FLOAT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS collected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_slow_query_log_query_id ON slow_query_log(query_id);
@@ -41,6 +55,16 @@ CREATE TABLE IF NOT EXISTS index_suggestions (
     applied BOOLEAN DEFAULT FALSE,
     applied_at TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS table_name VARCHAR(255);
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS column_name VARCHAR(255);
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS suggestion_type VARCHAR(50);
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS reason TEXT;
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS priority VARCHAR(20);
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS estimated_impact TEXT;
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS applied BOOLEAN DEFAULT FALSE;
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS applied_at TIMESTAMP;
 
 CREATE INDEX IF NOT EXISTS idx_index_suggestions_table ON index_suggestions(table_name);
 CREATE INDEX IF NOT EXISTS idx_index_suggestions_applied ON index_suggestions(applied);
@@ -56,6 +80,14 @@ CREATE TABLE IF NOT EXISTS query_performance_baseline (
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS query_signature VARCHAR(64);
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS avg_execution_time_ms FLOAT;
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS p95_execution_time_ms FLOAT;
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS p99_execution_time_ms FLOAT;
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS calls_per_hour FLOAT;
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 CREATE INDEX IF NOT EXISTS idx_query_performance_signature ON query_performance_baseline(query_signature);
 

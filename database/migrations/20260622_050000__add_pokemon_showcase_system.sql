@@ -15,6 +15,13 @@ CREATE TABLE IF NOT EXISTS pokemon_favorites (
     UNIQUE(user_id, display_order),
     UNIQUE(user_id, pokemon_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokemon_favorites ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE pokemon_favorites ADD COLUMN IF NOT EXISTS pokemon_id UUID;
+ALTER TABLE pokemon_favorites ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE pokemon_favorites ADD COLUMN IF NOT EXISTS display_order INTEGER DEFAULT 0;
+ALTER TABLE pokemon_favorites ADD COLUMN IF NOT EXISTS is_showcased BOOLEAN DEFAULT true;
+ALTER TABLE pokemon_favorites ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 
 -- ============================================================
 -- 精灵点赞表
@@ -27,6 +34,11 @@ CREATE TABLE IF NOT EXISTS pokemon_likes (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(pokemon_id, user_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokemon_likes ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE pokemon_likes ADD COLUMN IF NOT EXISTS pokemon_id UUID;
+ALTER TABLE pokemon_likes ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE pokemon_likes ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 
 -- ============================================================
 -- 精灵评语表
@@ -40,6 +52,13 @@ CREATE TABLE IF NOT EXISTS pokemon_comments (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokemon_comments ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE pokemon_comments ADD COLUMN IF NOT EXISTS pokemon_id UUID;
+ALTER TABLE pokemon_comments ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE pokemon_comments ADD COLUMN IF NOT EXISTS comment TEXT;
+ALTER TABLE pokemon_comments ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE pokemon_comments ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
 -- ============================================================
 -- 精灵展示统计表
@@ -53,6 +72,13 @@ CREATE TABLE IF NOT EXISTS pokemon_showcase_stats (
     last_liked_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokemon_showcase_stats ADD COLUMN IF NOT EXISTS pokemon_id UUID;
+ALTER TABLE pokemon_showcase_stats ADD COLUMN IF NOT EXISTS like_count INTEGER DEFAULT 0;
+ALTER TABLE pokemon_showcase_stats ADD COLUMN IF NOT EXISTS comment_count INTEGER DEFAULT 0;
+ALTER TABLE pokemon_showcase_stats ADD COLUMN IF NOT EXISTS view_count INTEGER DEFAULT 0;
+ALTER TABLE pokemon_showcase_stats ADD COLUMN IF NOT EXISTS last_liked_at TIMESTAMPTZ;
+ALTER TABLE pokemon_showcase_stats ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
 -- ============================================================
 -- 用户点赞限额表（每日重置）
@@ -65,6 +91,12 @@ CREATE TABLE IF NOT EXISTS user_like_quotas (
     last_reset_date DATE DEFAULT CURRENT_DATE,
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_like_quotas ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_like_quotas ADD COLUMN IF NOT EXISTS likes_today INTEGER DEFAULT 0;
+ALTER TABLE user_like_quotas ADD COLUMN IF NOT EXISTS comments_today INTEGER DEFAULT 0;
+ALTER TABLE user_like_quotas ADD COLUMN IF NOT EXISTS last_reset_date DATE DEFAULT CURRENT_DATE;
+ALTER TABLE user_like_quotas ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
 -- ============================================================
 -- 创建索引
@@ -109,16 +141,19 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_pokemon_comments_updated_at ON pokemon_comments;
 CREATE TRIGGER update_pokemon_comments_updated_at
     BEFORE UPDATE ON pokemon_comments
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_pokemon_showcase_stats_updated_at ON pokemon_showcase_stats;
 CREATE TRIGGER update_pokemon_showcase_stats_updated_at
     BEFORE UPDATE ON pokemon_showcase_stats
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_user_like_quotas_updated_at ON user_like_quotas;
 CREATE TRIGGER update_user_like_quotas_updated_at
     BEFORE UPDATE ON user_like_quotas
     FOR EACH ROW

@@ -21,6 +21,22 @@ CREATE TABLE IF NOT EXISTS voice_rooms (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   closed_at TIMESTAMP WITH TIME ZONE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS creator_id VARCHAR(50);
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS guild_id VARCHAR(50);
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS max_members INTEGER DEFAULT 10;
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255);
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS persistent BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS config JSONB DEFAULT '{
+    "bitrate": 64000,
+    "codec": "opus",
+    "noiseSuppression": true,
+    "echoCancellation": true
+  }'::jsonb;
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS closed_at TIMESTAMP WITH TIME ZONE;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_voice_rooms_creator ON voice_rooms(creator_id);
@@ -40,6 +56,16 @@ CREATE TABLE IF NOT EXISTS voice_room_members (
   joined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   left_at TIMESTAMP WITH TIME ZONE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS room_id UUID;
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS user_id VARCHAR(50);
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'member';
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS socket_id VARCHAR(100);
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS muted BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS deafened BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS joined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS left_at TIMESTAMP WITH TIME ZONE;
 CREATE UNIQUE INDEX IF NOT EXISTS voice_room_members_room_id_user_id_uniq ON voice_room_members (room_id, user_id) WHERE left_at IS NULL;
 
 -- 索引
@@ -64,6 +90,21 @@ CREATE TABLE IF NOT EXISTS voice_chat_statistics (
   started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   ended_at TIMESTAMP WITH TIME ZONE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS user_id VARCHAR(50);
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS room_id UUID;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS duration_seconds INTEGER;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS bytes_sent BIGINT;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS bytes_received BIGINT;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS codec VARCHAR(20);
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS average_bitrate INTEGER;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS packet_loss REAL;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS jitter REAL;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS latency_ms INTEGER;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS quality_score INTEGER;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS ended_at TIMESTAMP WITH TIME ZONE;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_voice_stats_user ON voice_chat_statistics(user_id);
@@ -82,6 +123,16 @@ CREATE TABLE IF NOT EXISTS turn_credentials (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   revoked_at TIMESTAMP WITH TIME ZONE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS user_id VARCHAR(50);
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS username VARCHAR(100);
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS credential_hash VARCHAR(255);
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS ip_address INET;
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS user_agent TEXT;
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS revoked_at TIMESTAMP WITH TIME ZONE;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_turn_creds_user ON turn_credentials(user_id);
@@ -99,6 +150,14 @@ CREATE TABLE IF NOT EXISTS voice_room_events (
   metadata JSONB,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE voice_room_events ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE voice_room_events ADD COLUMN IF NOT EXISTS room_id UUID;
+ALTER TABLE voice_room_events ADD COLUMN IF NOT EXISTS event_type VARCHAR(50);
+ALTER TABLE voice_room_events ADD COLUMN IF NOT EXISTS user_id VARCHAR(50);
+ALTER TABLE voice_room_events ADD COLUMN IF NOT EXISTS target_user_id VARCHAR(50);
+ALTER TABLE voice_room_events ADD COLUMN IF NOT EXISTS metadata JSONB;
+ALTER TABLE voice_room_events ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_voice_events_room ON voice_room_events(room_id);

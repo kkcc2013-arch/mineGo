@@ -13,6 +13,13 @@ CREATE TABLE IF NOT EXISTS supported_currencies (
     supported_since TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT chk_currency_code CHECK (LENGTH(currency_code) = 3)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE supported_currencies ADD COLUMN IF NOT EXISTS currency_code CHAR(3);
+ALTER TABLE supported_currencies ADD COLUMN IF NOT EXISTS currency_name VARCHAR(50);
+ALTER TABLE supported_currencies ADD COLUMN IF NOT EXISTS currency_symbol VARCHAR(10);
+ALTER TABLE supported_currencies ADD COLUMN IF NOT EXISTS decimal_places INTEGER DEFAULT 2;
+ALTER TABLE supported_currencies ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE supported_currencies ADD COLUMN IF NOT EXISTS supported_since TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 CREATE INDEX IF NOT EXISTS idx_supported_currencies_active ON supported_currencies(is_active);
 
@@ -37,6 +44,14 @@ CREATE TABLE IF NOT EXISTS exchange_rates (
     CONSTRAINT chk_rate_positive CHECK (rate > 0),
     CONSTRAINT chk_currencies_different CHECK (from_currency <> to_currency)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE exchange_rates ADD COLUMN IF NOT EXISTS from_currency CHAR(3);
+ALTER TABLE exchange_rates ADD COLUMN IF NOT EXISTS to_currency CHAR(3);
+ALTER TABLE exchange_rates ADD COLUMN IF NOT EXISTS rate DECIMAL(20, 10);
+ALTER TABLE exchange_rates ADD COLUMN IF NOT EXISTS source VARCHAR(50);
+ALTER TABLE exchange_rates ADD COLUMN IF NOT EXISTS fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE exchange_rates ADD COLUMN IF NOT EXISTS valid_until TIMESTAMP;
+ALTER TABLE exchange_rates ADD COLUMN IF NOT EXISTS is_current BOOLEAN DEFAULT true;
 
 CREATE INDEX IF NOT EXISTS idx_exchange_rates_current ON exchange_rates(from_currency, to_currency) WHERE is_current = true;
 CREATE INDEX IF NOT EXISTS idx_exchange_rates_validity ON exchange_rates(valid_until);
@@ -58,6 +73,16 @@ CREATE TABLE IF NOT EXISTS rate_locks (
     used BOOLEAN DEFAULT false,
     CONSTRAINT chk_locked_rate_positive CHECK (locked_rate > 0)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE rate_locks ADD COLUMN IF NOT EXISTS lock_id VARCHAR(64);
+ALTER TABLE rate_locks ADD COLUMN IF NOT EXISTS from_currency CHAR(3);
+ALTER TABLE rate_locks ADD COLUMN IF NOT EXISTS to_currency CHAR(3);
+ALTER TABLE rate_locks ADD COLUMN IF NOT EXISTS locked_rate DECIMAL(20, 10);
+ALTER TABLE rate_locks ADD COLUMN IF NOT EXISTS locked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE rate_locks ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
+ALTER TABLE rate_locks ADD COLUMN IF NOT EXISTS reference_type VARCHAR(20);
+ALTER TABLE rate_locks ADD COLUMN IF NOT EXISTS reference_id VARCHAR(100);
+ALTER TABLE rate_locks ADD COLUMN IF NOT EXISTS used BOOLEAN DEFAULT false;
 
 CREATE INDEX IF NOT EXISTS idx_rate_locks_lookup ON rate_locks(lock_id, expires_at) WHERE used = false;
 CREATE INDEX IF NOT EXISTS idx_rate_locks_expires ON rate_locks(expires_at);
@@ -77,6 +102,15 @@ CREATE TABLE IF NOT EXISTS exchange_rate_history (
     low_rate DECIMAL(20, 10),
     CONSTRAINT uq_rate_history UNIQUE(from_currency, to_currency, recorded_at)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE exchange_rate_history ADD COLUMN IF NOT EXISTS from_currency CHAR(3);
+ALTER TABLE exchange_rate_history ADD COLUMN IF NOT EXISTS to_currency CHAR(3);
+ALTER TABLE exchange_rate_history ADD COLUMN IF NOT EXISTS rate DECIMAL(20, 10);
+ALTER TABLE exchange_rate_history ADD COLUMN IF NOT EXISTS recorded_at DATE;
+ALTER TABLE exchange_rate_history ADD COLUMN IF NOT EXISTS open_rate DECIMAL(20, 10);
+ALTER TABLE exchange_rate_history ADD COLUMN IF NOT EXISTS close_rate DECIMAL(20, 10);
+ALTER TABLE exchange_rate_history ADD COLUMN IF NOT EXISTS high_rate DECIMAL(20, 10);
+ALTER TABLE exchange_rate_history ADD COLUMN IF NOT EXISTS low_rate DECIMAL(20, 10);
 
 CREATE INDEX IF NOT EXISTS idx_rate_history_lookup ON exchange_rate_history(from_currency, to_currency, recorded_at DESC);
 
@@ -93,6 +127,12 @@ CREATE TABLE IF NOT EXISTS product_prices (
     CONSTRAINT uq_product_price UNIQUE(product_id, currency_code),
     CONSTRAINT chk_price_positive CHECK (price > 0)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE product_prices ADD COLUMN IF NOT EXISTS product_id VARCHAR(100);
+ALTER TABLE product_prices ADD COLUMN IF NOT EXISTS currency_code CHAR(3);
+ALTER TABLE product_prices ADD COLUMN IF NOT EXISTS price DECIMAL(20, 2);
+ALTER TABLE product_prices ADD COLUMN IF NOT EXISTS original_price DECIMAL(20, 2);
+ALTER TABLE product_prices ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 CREATE INDEX IF NOT EXISTS idx_product_prices_lookup ON product_prices(product_id);
 
@@ -122,6 +162,18 @@ CREATE TABLE IF NOT EXISTS currency_conversion_logs (
     reference_id VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE currency_conversion_logs ADD COLUMN IF NOT EXISTS user_id VARCHAR(100);
+ALTER TABLE currency_conversion_logs ADD COLUMN IF NOT EXISTS from_currency CHAR(3);
+ALTER TABLE currency_conversion_logs ADD COLUMN IF NOT EXISTS to_currency CHAR(3);
+ALTER TABLE currency_conversion_logs ADD COLUMN IF NOT EXISTS from_amount DECIMAL(20, 2);
+ALTER TABLE currency_conversion_logs ADD COLUMN IF NOT EXISTS to_amount DECIMAL(20, 2);
+ALTER TABLE currency_conversion_logs ADD COLUMN IF NOT EXISTS rate DECIMAL(20, 10);
+ALTER TABLE currency_conversion_logs ADD COLUMN IF NOT EXISTS rate_source VARCHAR(50);
+ALTER TABLE currency_conversion_logs ADD COLUMN IF NOT EXISTS rate_lock_id VARCHAR(64);
+ALTER TABLE currency_conversion_logs ADD COLUMN IF NOT EXISTS conversion_type VARCHAR(20);
+ALTER TABLE currency_conversion_logs ADD COLUMN IF NOT EXISTS reference_id VARCHAR(100);
+ALTER TABLE currency_conversion_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 CREATE INDEX IF NOT EXISTS idx_currency_conversion_user ON currency_conversion_logs(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_currency_conversion_ref ON currency_conversion_logs(reference_id);

@@ -247,6 +247,134 @@ def fix_role_grants(sql):
     return ''.join(out), n
 
 
+STOP_WORDS = ('NOT', 'NULL', 'DEFAULT', 'PRIMARY', 'UNIQUE', 'REFERENCES', 'CHECK', 'CONSTRAINT',
+              'GENERATED', 'COLLATE')
+
+
+def _column_defs(body, bmask):
+    """解析 CREATE TABLE 表体里的列定义 → [(name, type, default or None)]。"""
+    cols = []
+    for (a, b) in split_top_level(body, bmask):
+        item = re.sub(r'--[^\n]*', '', body[a:b]).strip()
+        if not item:
+            continue
+        first = item.split()[0].upper().strip('"')
+        if first in ('CONSTRAINT', 'PRIMARY', 'UNIQUE', 'FOREIGN', 'CHECK', 'EXCLUDE', 'INDEX', 'KEY', 'LIKE'):
+            continue
+        if re.search(r'\bGENERATED\b', item, re.I):
+            continue
+        m = re.match(r'("?[A-Za-z_][A-Za-z0-9_]*"?)\s+(.*)$', item, re.S)
+        if not m:
+            continue
+        name, rest = m.group(1), m.group(2)
+        # 类型：直到第一个顶层约束关键字
+        toks, depth, i, typ_end = rest, 0, 0, len(rest)
+        while i < len(toks):
+            ch = toks[i]
+            depth += {'(': 1, ')': -1}.get(ch, 0)
+            if depth == 0 and (i == 0 or toks[i - 1].isspace()):
+                word = re.match(r'[A-Za-z]+', toks[i:])
+                if word and word.group(0).upper() in STOP_WORDS:
+                    typ_end = i
+                    break
+            i += 1
+        typ = rest[:typ_end].strip()
+        default = None
+        dm = re.search(r'\bDEFAULT\b', rest[typ_end:], re.I)
+        if dm:
+            start = typ_end + dm.end()
+            depth, j = 0, start
+            while j < len(rest):
+                ch = rest[j]
+                depth += {'(': 1, ')': -1}.get(ch, 0)
+                if depth == 0 and rest[j].isspace():
+                    word = re.match(r'\s+([A-Za-z]+)', rest[j:])
+                    if word and word.group(1).upper() in STOP_WORDS and word.group(1).upper() != 'NULL':
+                        break
+                j += 1
+            default = rest[start:j].strip() or None
+        if typ:
+            cols.append((name, typ, default))
+    return cols
+
+
+def fix_idempotency(sql):
+    """让 CREATE 语句可重复执行，并在 CREATE TABLE IF NOT EXISTS 后补齐已存在旧表缺少的列。"""
+    n = 0
+    rules = [
+        (r'\bCREATE\s+(UNIQUE\s+)?INDEX\s+(?!IF\s+NOT\s+EXISTS|CONCURRENTLY)([A-Za-z_])', r'CREATE \1INDEX IF NOT EXISTS \2'),
+        (r'\bCREATE\s+TABLE\s+(?!IF\s+NOT\s+EXISTS)([A-Za-z_"])', r'CREATE TABLE IF NOT EXISTS \1'),
+        (r'\bCREATE\s+SEQUENCE\s+(?!IF\s+NOT\s+EXISTS)([A-Za-z_])', r'CREATE SEQUENCE IF NOT EXISTS \1'),
+        (r'\bCREATE\s+FUNCTION\b', 'CREATE OR REPLACE FUNCTION'),
+        (r'\bCREATE\s+VIEW\b', 'CREATE OR REPLACE VIEW'),
+        (r'\bADD\s+COLUMN\s+(?!IF\s+NOT\s+EXISTS)([A-Za-z_"])', r'ADD COLUMN IF NOT EXISTS \1'),
+        (r'\bCREATE\s+MATERIALIZED\s+VIEW\s+(?!IF\s+NOT\s+EXISTS)([A-Za-z_])', r'CREATE MATERIALIZED VIEW IF NOT EXISTS \1'),
+    ]
+    mask = strip_comments_mask(sql)
+    for pat, rep in rules:
+        out, pos = [], 0
+        for m in re.finditer(pat, mask, re.I):
+            out.append(sql[pos:m.start()])
+            out.append(re.sub(pat, rep, sql[m.start():m.end()], flags=re.I))
+            pos = m.end(); n += 1
+        out.append(sql[pos:])
+        sql = ''.join(out)
+        mask = strip_comments_mask(sql)
+    # CREATE TYPE ... AS ENUM/(...)：已存在时跳过
+    out, pos = [], 0
+    for m in re.finditer(r'CREATE\s+TYPE\s+([A-Za-z0-9_."]+)\s+AS\s+[^;]*;', mask, re.I | re.S):
+        stmt = sql[m.start():m.end()]
+        before = sql[max(0, m.start() - 40):m.start()]
+        if 'BEGIN' in before.upper():
+            continue
+        out.append(sql[pos:m.start()])
+        out.append(f'DO $type$ BEGIN {stmt} EXCEPTION WHEN duplicate_object THEN NULL; END $type$;')
+        pos = m.end(); n += 1
+    out.append(sql[pos:]); sql = ''.join(out); mask = strip_comments_mask(sql)
+    # CREATE TRIGGER name ... ON table：先 DROP TRIGGER IF EXISTS
+    out, pos = [], 0
+    for m in re.finditer(r'CREATE\s+(?:OR\s+REPLACE\s+)?TRIGGER\s+([A-Za-z0-9_"]+)\b[^;]*?\bON\s+([A-Za-z0-9_."]+)', mask, re.I | re.S):
+        prev = sql[max(0, m.start() - 200):m.start()]
+        if re.search(r'DROP\s+TRIGGER\s+IF\s+EXISTS\s+' + re.escape(m.group(1)), prev, re.I):
+            continue
+        out.append(sql[pos:m.start()])
+        out.append(f'DROP TRIGGER IF EXISTS {m.group(1)} ON {m.group(2)};\n')
+        pos = m.start(); n += 1
+    out.append(sql[pos:]); sql = ''.join(out); mask = strip_comments_mask(sql)
+    # 补列
+    out, pos = [], 0
+    for m in re.finditer(r'CREATE\s+TABLE\s+IF\s+NOT\s+EXISTS\s+([A-Za-z0-9_."]+)\s*\(', mask, re.I):
+        open_i = m.end() - 1
+        d, k = 0, open_i
+        while k < len(mask):
+            d += {'(': 1, ')': -1}.get(mask[k], 0)
+            if d == 0:
+                break
+            k += 1
+        after = mask[k:k + 200]
+        if re.match(r'\)\s*(INHERITS|PARTITION\s+OF)', after, re.I):
+            continue
+        cols = _column_defs(sql[open_i + 1:k], mask[open_i + 1:k])
+        semi = mask.find(';', k)
+        if semi < 0 or not cols:
+            continue
+        adds = []
+        for (name, typ, default) in cols:
+            t = typ.upper()
+            if t in ('SERIAL', 'BIGSERIAL', 'SMALLSERIAL'):
+                continue  # 主键列，旧表必然已有
+            dflt = f' DEFAULT {default}' if default else ''
+            adds.append(f'ALTER TABLE {m.group(1)} ADD COLUMN IF NOT EXISTS {name} {typ}{dflt};')
+        marker = '-- [fix_sql_dialect] 补齐已存在旧表缺少的列'
+        if marker in sql[semi:semi + 200]:
+            continue
+        out.append(sql[pos:semi + 1])
+        out.append('\n' + marker + '\n' + '\n'.join(adds))
+        pos = semi + 1; n += 1
+    out.append(sql[pos:])
+    return ''.join(out), n
+
+
 def fix_trailing_value_commas(sql):
     pat = re.compile(r',([ \t]*(?:--[^\n]*)?\n(?:[ \t]*--[^\n]*\n|[ \t]*\n)*)([ \t]*)(ON\s+CONFLICT\b|;)', re.I)
     new, n = pat.subn(lambda m: m.group(1) + m.group(2) + m.group(3), sql)
@@ -254,7 +382,10 @@ def fix_trailing_value_commas(sql):
 
 
 def main():
-    for path in sys.argv[1:]:
+    args = sys.argv[1:]
+    idem = '--idempotent' in args
+    args = [a for a in args if a != '--idempotent']
+    for path in args:
         sql = open(path, encoding='utf-8').read()
         orig = sql
         sql, c1 = fix_line_comments(sql)
@@ -263,6 +394,9 @@ def main():
         sql, c4 = fix_index_expressions(sql)
         sql, c5 = fix_role_grants(sql)
         c3 += c4 + c5
+        if idem:
+            sql, c6 = fix_idempotency(sql)
+            c3 += c6
         if sql != orig:
             open(path, 'w', encoding='utf-8').write(sql)
         print(f'{path}: comments={c1} inline-index/unique={c2} trailing-commas={c3}')

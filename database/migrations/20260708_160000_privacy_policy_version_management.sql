@@ -22,10 +22,25 @@ CREATE TABLE IF NOT EXISTS privacy_policies (
   created_by UUID REFERENCES users(id),
   metadata JSONB DEFAULT '{}'
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS version VARCHAR(20);
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS policy_type VARCHAR(30) DEFAULT 'privacy_policy';
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS title VARCHAR(200);
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS content_url TEXT;
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS content_hash VARCHAR(64);
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS summary TEXT;
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS effective_date TIMESTAMP WITH TIME ZONE;
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS mandatory_confirm BOOLEAN DEFAULT TRUE;
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'draft';
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS published_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS deprecated_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS created_by UUID;
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
 
-CREATE INDEX idx_privacy_policies_version ON privacy_policies(version);
-CREATE INDEX idx_privacy_policies_status ON privacy_policies(status);
-CREATE INDEX idx_privacy_policies_effective_date ON privacy_policies(effective_date);
+CREATE INDEX IF NOT EXISTS idx_privacy_policies_version ON privacy_policies(version);
+CREATE INDEX IF NOT EXISTS idx_privacy_policies_status ON privacy_policies(status);
+CREATE INDEX IF NOT EXISTS idx_privacy_policies_effective_date ON privacy_policies(effective_date);
 
 COMMENT ON TABLE privacy_policies IS '隐私政策和服务条款版本管理表';
 
@@ -48,11 +63,23 @@ CREATE TABLE IF NOT EXISTS user_privacy_confirmations (
   revoke_reason VARCHAR(100),
   UNIQUE(user_id, policy_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS policy_id INTEGER;
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS policy_version VARCHAR(20);
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS confirmed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS ip_address VARCHAR(45);
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS user_agent TEXT;
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS device_id VARCHAR(100);
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS confirmation_type VARCHAR(20) DEFAULT 'explicit';
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS content_snapshot TEXT;
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS revoked_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS revoke_reason VARCHAR(100);
 
-CREATE INDEX idx_user_confirmations_user ON user_privacy_confirmations(user_id);
-CREATE INDEX idx_user_confirmations_policy ON user_privacy_confirmations(policy_id);
-CREATE INDEX idx_user_confirmations_version ON user_privacy_confirmations(policy_version);
-CREATE INDEX idx_user_confirmations_date ON user_privacy_confirmations(confirmed_at);
+CREATE INDEX IF NOT EXISTS idx_user_confirmations_user ON user_privacy_confirmations(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_confirmations_policy ON user_privacy_confirmations(policy_id);
+CREATE INDEX IF NOT EXISTS idx_user_confirmations_version ON user_privacy_confirmations(policy_version);
+CREATE INDEX IF NOT EXISTS idx_user_confirmations_date ON user_privacy_confirmations(confirmed_at);
 
 COMMENT ON TABLE user_privacy_confirmations IS '用户隐私政策确认记录表';
 
@@ -73,11 +100,22 @@ CREATE TABLE IF NOT EXISTS privacy_update_notifications (
   retry_count INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS policy_id INTEGER;
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS notification_type VARCHAR(30);
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending';
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS scheduled_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS sent_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS read_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS error_message TEXT;
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS retry_count INTEGER DEFAULT 0;
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
-CREATE INDEX idx_policy_notifications_policy ON privacy_update_notifications(policy_id);
-CREATE INDEX idx_policy_notifications_user ON privacy_update_notifications(user_id);
-CREATE INDEX idx_policy_notifications_status ON privacy_update_notifications(status);
-CREATE INDEX idx_policy_notifications_scheduled ON privacy_update_notifications(scheduled_at);
+CREATE INDEX IF NOT EXISTS idx_policy_notifications_policy ON privacy_update_notifications(policy_id);
+CREATE INDEX IF NOT EXISTS idx_policy_notifications_user ON privacy_update_notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_policy_notifications_status ON privacy_update_notifications(status);
+CREATE INDEX IF NOT EXISTS idx_policy_notifications_scheduled ON privacy_update_notifications(scheduled_at);
 
 -- ============================================================
 -- 4. 用户政策状态视图

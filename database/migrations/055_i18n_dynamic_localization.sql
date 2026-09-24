@@ -12,6 +12,12 @@ CREATE TABLE IF NOT EXISTS translation_keys (
   updated_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(key, context)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE translation_keys ADD COLUMN IF NOT EXISTS context VARCHAR(100) DEFAULT 'default';
+ALTER TABLE translation_keys ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE translation_keys ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';
+ALTER TABLE translation_keys ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE translation_keys ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
 COMMENT ON TABLE translation_keys IS '翻译键定义表';
 
@@ -31,6 +37,17 @@ CREATE TABLE IF NOT EXISTS translations (
   updated_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(locale, key, context)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS locale VARCHAR(10);
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS context VARCHAR(100) DEFAULT 'default';
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS value TEXT;
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS translator VARCHAR(100);
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS machine_translated BOOLEAN DEFAULT FALSE;
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMP;
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS reviewed_by VARCHAR(100);
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
 COMMENT ON TABLE translations IS '翻译内容表';
 
@@ -44,6 +61,13 @@ CREATE TABLE IF NOT EXISTS translation_feedback (
   comment TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE translation_feedback ADD COLUMN IF NOT EXISTS user_id VARCHAR(36);
+ALTER TABLE translation_feedback ADD COLUMN IF NOT EXISTS locale VARCHAR(10);
+ALTER TABLE translation_feedback ADD COLUMN IF NOT EXISTS translation_key VARCHAR(255);
+ALTER TABLE translation_feedback ADD COLUMN IF NOT EXISTS rating INTEGER;
+ALTER TABLE translation_feedback ADD COLUMN IF NOT EXISTS comment TEXT;
+ALTER TABLE translation_feedback ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 COMMENT ON TABLE translation_feedback IS '玩家翻译质量反馈表';
 
@@ -56,6 +80,12 @@ CREATE TABLE IF NOT EXISTS user_locale_preferences (
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_locale_preferences ADD COLUMN IF NOT EXISTS user_id VARCHAR(36);
+ALTER TABLE user_locale_preferences ADD COLUMN IF NOT EXISTS locale VARCHAR(10);
+ALTER TABLE user_locale_preferences ADD COLUMN IF NOT EXISTS auto_detected BOOLEAN DEFAULT FALSE;
+ALTER TABLE user_locale_preferences ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE user_locale_preferences ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
 COMMENT ON TABLE user_locale_preferences IS '用户语言偏好表';
 
@@ -201,14 +231,17 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS update_translation_keys_updated_at ON translation_keys;
 CREATE TRIGGER update_translation_keys_updated_at
     BEFORE UPDATE ON translation_keys
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_translations_updated_at ON translations;
 CREATE TRIGGER update_translations_updated_at
     BEFORE UPDATE ON translations
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_user_locale_updated_at ON user_locale_preferences;
 CREATE TRIGGER update_user_locale_updated_at
     BEFORE UPDATE ON user_locale_preferences
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

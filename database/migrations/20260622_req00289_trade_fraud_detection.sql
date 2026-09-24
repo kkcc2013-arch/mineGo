@@ -14,10 +14,18 @@ CREATE TABLE IF NOT EXISTS trade_fraud_analysis (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE trade_fraud_analysis ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE trade_fraud_analysis ADD COLUMN IF NOT EXISTS trade_id UUID;
+ALTER TABLE trade_fraud_analysis ADD COLUMN IF NOT EXISTS scores JSONB DEFAULT '[]';
+ALTER TABLE trade_fraud_analysis ADD COLUMN IF NOT EXISTS overall_score DECIMAL(5,4) DEFAULT 0;
+ALTER TABLE trade_fraud_analysis ADD COLUMN IF NOT EXISTS risk_level VARCHAR(20) DEFAULT 'low';
+ALTER TABLE trade_fraud_analysis ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE trade_fraud_analysis ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 
-CREATE INDEX idx_trade_fraud_analysis_trade_id ON trade_fraud_analysis(trade_id);
-CREATE INDEX idx_trade_fraud_analysis_risk_level ON trade_fraud_analysis(risk_level);
-CREATE INDEX idx_trade_fraud_analysis_created_at ON trade_fraud_analysis(created_at);
+CREATE INDEX IF NOT EXISTS idx_trade_fraud_analysis_trade_id ON trade_fraud_analysis(trade_id);
+CREATE INDEX IF NOT EXISTS idx_trade_fraud_analysis_risk_level ON trade_fraud_analysis(risk_level);
+CREATE INDEX IF NOT EXISTS idx_trade_fraud_analysis_created_at ON trade_fraud_analysis(created_at);
 
 COMMENT ON TABLE trade_fraud_analysis IS '交易欺诈分析结果';
 COMMENT ON COLUMN trade_fraud_analysis.scores IS '各检测器的评分结果（JSON数组）';
@@ -37,10 +45,18 @@ CREATE TABLE IF NOT EXISTS trade_value_warnings (
   acknowledged_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE trade_value_warnings ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE trade_value_warnings ADD COLUMN IF NOT EXISTS trade_id UUID;
+ALTER TABLE trade_value_warnings ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE trade_value_warnings ADD COLUMN IF NOT EXISTS warning_data JSONB;
+ALTER TABLE trade_value_warnings ADD COLUMN IF NOT EXISTS acknowledged BOOLEAN DEFAULT false;
+ALTER TABLE trade_value_warnings ADD COLUMN IF NOT EXISTS acknowledged_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE trade_value_warnings ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 
-CREATE INDEX idx_trade_value_warnings_trade_id ON trade_value_warnings(trade_id);
-CREATE INDEX idx_trade_value_warnings_user_id ON trade_value_warnings(user_id);
-CREATE INDEX idx_trade_value_warnings_acknowledged ON trade_value_warnings(acknowledged);
+CREATE INDEX IF NOT EXISTS idx_trade_value_warnings_trade_id ON trade_value_warnings(trade_id);
+CREATE INDEX IF NOT EXISTS idx_trade_value_warnings_user_id ON trade_value_warnings(user_id);
+CREATE INDEX IF NOT EXISTS idx_trade_value_warnings_acknowledged ON trade_value_warnings(acknowledged);
 
 COMMENT ON TABLE trade_value_warnings IS '交易价值警告记录';
 
@@ -55,10 +71,16 @@ CREATE TABLE IF NOT EXISTS trade_audit_log (
   audit_data JSONB NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE trade_audit_log ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE trade_audit_log ADD COLUMN IF NOT EXISTS trade_id UUID;
+ALTER TABLE trade_audit_log ADD COLUMN IF NOT EXISTS event_type VARCHAR(50);
+ALTER TABLE trade_audit_log ADD COLUMN IF NOT EXISTS audit_data JSONB;
+ALTER TABLE trade_audit_log ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 
-CREATE INDEX idx_trade_audit_log_trade_id ON trade_audit_log(trade_id);
-CREATE INDEX idx_trade_audit_log_event_type ON trade_audit_log(event_type);
-CREATE INDEX idx_trade_audit_log_created_at ON trade_audit_log(created_at);
+CREATE INDEX IF NOT EXISTS idx_trade_audit_log_trade_id ON trade_audit_log(trade_id);
+CREATE INDEX IF NOT EXISTS idx_trade_audit_log_event_type ON trade_audit_log(event_type);
+CREATE INDEX IF NOT EXISTS idx_trade_audit_log_created_at ON trade_audit_log(created_at);
 
 -- 分区（按月）
 -- CREATE TABLE trade_audit_log_partitioned (
@@ -79,10 +101,17 @@ CREATE TABLE IF NOT EXISTS trade_rollbacks (
   reason TEXT,
   rolled_back_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE trade_rollbacks ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE trade_rollbacks ADD COLUMN IF NOT EXISTS trade_id UUID;
+ALTER TABLE trade_rollbacks ADD COLUMN IF NOT EXISTS initiator_id UUID;
+ALTER TABLE trade_rollbacks ADD COLUMN IF NOT EXISTS receiver_id UUID;
+ALTER TABLE trade_rollbacks ADD COLUMN IF NOT EXISTS reason TEXT;
+ALTER TABLE trade_rollbacks ADD COLUMN IF NOT EXISTS rolled_back_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 
-CREATE INDEX idx_trade_rollbacks_trade_id ON trade_rollbacks(trade_id);
-CREATE INDEX idx_trade_rollbacks_initiator_id ON trade_rollbacks(initiator_id);
-CREATE INDEX idx_trade_rollbacks_receiver_id ON trade_rollbacks(receiver_id);
+CREATE INDEX IF NOT EXISTS idx_trade_rollbacks_trade_id ON trade_rollbacks(trade_id);
+CREATE INDEX IF NOT EXISTS idx_trade_rollbacks_initiator_id ON trade_rollbacks(initiator_id);
+CREATE INDEX IF NOT EXISTS idx_trade_rollbacks_receiver_id ON trade_rollbacks(receiver_id);
 
 COMMENT ON TABLE trade_rollbacks IS '交易回滚记录';
 
@@ -124,10 +153,18 @@ CREATE TABLE IF NOT EXISTS user_security_events (
   device_fingerprint VARCHAR(255),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_security_events ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE user_security_events ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_security_events ADD COLUMN IF NOT EXISTS event_type VARCHAR(50);
+ALTER TABLE user_security_events ADD COLUMN IF NOT EXISTS event_data JSONB;
+ALTER TABLE user_security_events ADD COLUMN IF NOT EXISTS ip_address INET;
+ALTER TABLE user_security_events ADD COLUMN IF NOT EXISTS device_fingerprint VARCHAR(255);
+ALTER TABLE user_security_events ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 
-CREATE INDEX idx_user_security_events_user_id ON user_security_events(user_id);
-CREATE INDEX idx_user_security_events_event_type ON user_security_events(event_type);
-CREATE INDEX idx_user_security_events_created_at ON user_security_events(created_at);
+CREATE INDEX IF NOT EXISTS idx_user_security_events_user_id ON user_security_events(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_security_events_event_type ON user_security_events(event_type);
+CREATE INDEX IF NOT EXISTS idx_user_security_events_created_at ON user_security_events(created_at);
 
 COMMENT ON TABLE user_security_events IS '用户安全事件记录（密码修改、登录异常等）';
 
@@ -144,8 +181,15 @@ CREATE TABLE IF NOT EXISTS trade_network_cache (
   last_analyzed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(user_id1, user_id2)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE trade_network_cache ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE trade_network_cache ADD COLUMN IF NOT EXISTS user_id1 UUID;
+ALTER TABLE trade_network_cache ADD COLUMN IF NOT EXISTS user_id2 UUID;
+ALTER TABLE trade_network_cache ADD COLUMN IF NOT EXISTS cluster_id UUID;
+ALTER TABLE trade_network_cache ADD COLUMN IF NOT EXISTS network_metrics JSONB;
+ALTER TABLE trade_network_cache ADD COLUMN IF NOT EXISTS last_analyzed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 
-CREATE INDEX idx_trade_network_cache_cluster_id ON trade_network_cache(cluster_id);
+CREATE INDEX IF NOT EXISTS idx_trade_network_cache_cluster_id ON trade_network_cache(cluster_id);
 
 COMMENT ON TABLE trade_network_cache IS '交易网络分析缓存';
 
@@ -161,6 +205,7 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS update_trade_fraud_analysis_updated_at ON trade_fraud_analysis;
 CREATE TRIGGER update_trade_fraud_analysis_updated_at
   BEFORE UPDATE ON trade_fraud_analysis
   FOR EACH ROW
@@ -189,6 +234,7 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS trigger_log_trade_status_change ON pokemon_trades;
 CREATE TRIGGER trigger_log_trade_status_change
   AFTER UPDATE ON pokemon_trades
   FOR EACH ROW

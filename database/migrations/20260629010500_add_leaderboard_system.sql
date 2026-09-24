@@ -2,7 +2,7 @@
 -- 创建时间：2026-06-29
 
 -- 排行榜类型枚举
-CREATE TYPE leaderboard_type AS ENUM (
+DO $type$ BEGIN CREATE TYPE leaderboard_type AS ENUM (
   'catch_total',        -- 捕捉总数榜
   'catch_rare',         -- 稀有捕捉榜
   'battle_pvp',         -- PVP积分榜
@@ -10,7 +10,7 @@ CREATE TYPE leaderboard_type AS ENUM (
   'pokedex_completion', -- 图鉴完成榜
   'shiny_collection',   -- 闪光收集榜
   'guild_contribution'  -- 公会贡献榜
-);
+); EXCEPTION WHEN duplicate_object THEN NULL; END $type$;
 
 -- 赛季表
 CREATE TABLE IF NOT EXISTS seasons (
@@ -23,6 +23,14 @@ CREATE TABLE IF NOT EXISTS seasons (
   rewards JSONB DEFAULT '[]',
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE seasons ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+ALTER TABLE seasons ADD COLUMN IF NOT EXISTS leaderboard_type leaderboard_type;
+ALTER TABLE seasons ADD COLUMN IF NOT EXISTS start_time TIMESTAMP;
+ALTER TABLE seasons ADD COLUMN IF NOT EXISTS end_time TIMESTAMP;
+ALTER TABLE seasons ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';
+ALTER TABLE seasons ADD COLUMN IF NOT EXISTS rewards JSONB DEFAULT '[]';
+ALTER TABLE seasons ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 -- 排行榜主表
 CREATE TABLE IF NOT EXISTS leaderboards (
@@ -37,6 +45,15 @@ CREATE TABLE IF NOT EXISTS leaderboards (
   updated_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(leaderboard_type, season_id, player_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE leaderboards ADD COLUMN IF NOT EXISTS leaderboard_type leaderboard_type;
+ALTER TABLE leaderboards ADD COLUMN IF NOT EXISTS season_id INTEGER;
+ALTER TABLE leaderboards ADD COLUMN IF NOT EXISTS player_id INTEGER;
+ALTER TABLE leaderboards ADD COLUMN IF NOT EXISTS score BIGINT DEFAULT 0;
+ALTER TABLE leaderboards ADD COLUMN IF NOT EXISTS rank INTEGER;
+ALTER TABLE leaderboards ADD COLUMN IF NOT EXISTS previous_rank INTEGER;
+ALTER TABLE leaderboards ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
+ALTER TABLE leaderboards ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
 -- 排名历史记录
 CREATE TABLE IF NOT EXISTS leaderboard_history (
@@ -50,6 +67,15 @@ CREATE TABLE IF NOT EXISTS leaderboard_history (
   rewards_claimed_at TIMESTAMP,
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE leaderboard_history ADD COLUMN IF NOT EXISTS season_id INTEGER;
+ALTER TABLE leaderboard_history ADD COLUMN IF NOT EXISTS player_id INTEGER;
+ALTER TABLE leaderboard_history ADD COLUMN IF NOT EXISTS leaderboard_type leaderboard_type;
+ALTER TABLE leaderboard_history ADD COLUMN IF NOT EXISTS final_rank INTEGER;
+ALTER TABLE leaderboard_history ADD COLUMN IF NOT EXISTS final_score BIGINT;
+ALTER TABLE leaderboard_history ADD COLUMN IF NOT EXISTS rewards_claimed BOOLEAN DEFAULT FALSE;
+ALTER TABLE leaderboard_history ADD COLUMN IF NOT EXISTS rewards_claimed_at TIMESTAMP;
+ALTER TABLE leaderboard_history ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_leaderboards_type_season ON leaderboards(leaderboard_type, season_id);

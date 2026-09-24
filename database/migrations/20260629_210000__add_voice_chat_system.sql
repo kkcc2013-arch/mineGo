@@ -32,6 +32,27 @@ CREATE TABLE IF NOT EXISTS voice_rooms (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   closed_at TIMESTAMPTZ
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS creator_id VARCHAR(50);
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS guild_id VARCHAR(50);
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS max_members INTEGER DEFAULT 10;
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255);
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS persistent BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS room_type VARCHAR(20) DEFAULT 'temporary';
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS config JSONB DEFAULT '{
+    "bitrate": 64000,
+    "codec": "opus",
+    "noiseSuppression": true,
+    "echoCancellation": true,
+    "autoGainControl": true
+  }'::jsonb;
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS total_joins INTEGER DEFAULT 0;
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS peak_members INTEGER DEFAULT 0;
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS closed_at TIMESTAMPTZ;
 
 -- 语音房间成员表
 CREATE TABLE IF NOT EXISTS voice_room_members (
@@ -50,6 +71,17 @@ CREATE TABLE IF NOT EXISTS voice_room_members (
   joined_at TIMESTAMPTZ DEFAULT NOW(),
   left_at TIMESTAMPTZ
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS room_id UUID;
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS user_id VARCHAR(50);
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'member';
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS socket_id VARCHAR(100);
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS muted BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS deafened BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS speaking BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS joined_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS left_at TIMESTAMPTZ;
 CREATE UNIQUE INDEX IF NOT EXISTS voice_room_members_room_id_user_id_uniq ON voice_room_members (room_id, user_id) WHERE left_at IS NULL;
 
 -- 语音聊天统计表
@@ -75,6 +107,21 @@ CREATE TABLE IF NOT EXISTS voice_chat_statistics (
   started_at TIMESTAMPTZ DEFAULT NOW(),
   ended_at TIMESTAMPTZ
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS user_id VARCHAR(50);
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS room_id UUID;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS room_type VARCHAR(20);
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS duration_seconds INTEGER DEFAULT 0;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS bytes_sent BIGINT DEFAULT 0;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS bytes_received BIGINT DEFAULT 0;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS codec VARCHAR(20) DEFAULT 'opus';
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS average_bitrate INTEGER DEFAULT 0;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS packet_loss REAL DEFAULT 0.0;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS jitter_ms INTEGER DEFAULT 0;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS connection_type VARCHAR(20);
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS started_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS ended_at TIMESTAMPTZ;
 
 -- TURN 凭证表（用于记录和审计）
 CREATE TABLE IF NOT EXISTS turn_credentials (
@@ -87,6 +134,15 @@ CREATE TABLE IF NOT EXISTS turn_credentials (
   last_used_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS user_id VARCHAR(50);
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS username VARCHAR(100);
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS credential_hash VARCHAR(255);
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ;
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS used_count INTEGER DEFAULT 0;
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS last_used_at TIMESTAMPTZ;
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 
 -- 语音房间权限配置表
 CREATE TABLE IF NOT EXISTS voice_room_permissions (
@@ -107,6 +163,18 @@ CREATE TABLE IF NOT EXISTS voice_room_permissions (
   
   UNIQUE (room_id, role)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS room_id UUID;
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS role VARCHAR(20);
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS can_speak BOOLEAN DEFAULT TRUE;
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS can_hear BOOLEAN DEFAULT TRUE;
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS can_kick BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS can_ban BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS can_change_config BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS can_invite BOOLEAN DEFAULT TRUE;
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS can_change_role BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_voice_rooms_creator ON voice_rooms(creator_id);

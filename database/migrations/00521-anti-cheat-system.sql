@@ -17,6 +17,18 @@ CREATE TABLE IF NOT EXISTS device_fingerprints (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(device_id, fingerprint_hash)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS device_id VARCHAR(100);
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS fingerprint_hash VARCHAR(64);
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS device_info JSONB;
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS security_flags JSONB;
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS trust_score INTEGER DEFAULT 100;
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS first_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS is_trusted BOOLEAN DEFAULT false;
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE device_fingerprints IS '设备指纹注册表，用于识别和追踪用户设备';
 
@@ -35,6 +47,14 @@ CREATE TABLE IF NOT EXISTS capture_validations (
   action_taken VARCHAR(50),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE capture_validations ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE capture_validations ADD COLUMN IF NOT EXISTS pokemon_id INTEGER;
+ALTER TABLE capture_validations ADD COLUMN IF NOT EXISTS capture_session_id VARCHAR(100);
+ALTER TABLE capture_validations ADD COLUMN IF NOT EXISTS validation_result JSONB;
+ALTER TABLE capture_validations ADD COLUMN IF NOT EXISTS risk_level VARCHAR(20);
+ALTER TABLE capture_validations ADD COLUMN IF NOT EXISTS action_taken VARCHAR(50);
+ALTER TABLE capture_validations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE capture_validations IS '捕捉请求验证记录，记录每次捕捉验证的结果';
 
@@ -56,6 +76,17 @@ CREATE TABLE IF NOT EXISTS security_violations (
   resolved_at TIMESTAMP,
   resolved_by INTEGER REFERENCES users(id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS violation_type VARCHAR(50);
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS severity INTEGER;
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS evidence JSONB;
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS response_type VARCHAR(50);
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS response_details JSONB;
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'active';
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMP;
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS resolved_by INTEGER;
 
 COMMENT ON TABLE security_violations IS '安全违规记录，记录用户违规行为和处理结果';
 
@@ -74,6 +105,14 @@ CREATE TABLE IF NOT EXISTS user_shadow_bans (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_shadow_bans ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE user_shadow_bans ADD COLUMN IF NOT EXISTS effects JSONB;
+ALTER TABLE user_shadow_bans ADD COLUMN IF NOT EXISTS reason VARCHAR(100);
+ALTER TABLE user_shadow_bans ADD COLUMN IF NOT EXISTS severity INTEGER;
+ALTER TABLE user_shadow_bans ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
+ALTER TABLE user_shadow_bans ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE user_shadow_bans ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE user_shadow_bans IS '用户影子封禁状态，实现降权效果';
 
@@ -89,6 +128,12 @@ CREATE TABLE IF NOT EXISTS user_monitoring_flags (
   evidence JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_monitoring_flags ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE user_monitoring_flags ADD COLUMN IF NOT EXISTS reason VARCHAR(100);
+ALTER TABLE user_monitoring_flags ADD COLUMN IF NOT EXISTS severity INTEGER;
+ALTER TABLE user_monitoring_flags ADD COLUMN IF NOT EXISTS evidence JSONB;
+ALTER TABLE user_monitoring_flags ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE user_monitoring_flags IS '用户监控标记，记录需要增强监控的用户';
 
@@ -105,6 +150,14 @@ CREATE TABLE IF NOT EXISTS security_appeals (
   reviewed_at TIMESTAMP,
   reviewed_by INTEGER REFERENCES users(id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS violation_id INTEGER;
+ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS appeal_reason TEXT;
+ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'pending';
+ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMP;
+ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS reviewed_by INTEGER;
 
 COMMENT ON TABLE security_appeals IS '安全违规申诉记录';
 
@@ -123,6 +176,15 @@ CREATE TABLE IF NOT EXISTS capture_sessions (
   expires_at TIMESTAMP,
   status VARCHAR(50) DEFAULT 'active'
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS session_id VARCHAR(100);
+ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS pokemon_id INTEGER;
+ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS latitude DECIMAL(10, 8);
+ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS longitude DECIMAL(11, 8);
+ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
+ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'active';
 
 COMMENT ON TABLE capture_sessions IS '捕捉会话记录，用于验证捕捉窗口';
 
@@ -139,6 +201,13 @@ CREATE TABLE IF NOT EXISTS capture_attempts (
   risk_score INTEGER,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE capture_attempts ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE capture_attempts ADD COLUMN IF NOT EXISTS pokemon_id INTEGER;
+ALTER TABLE capture_attempts ADD COLUMN IF NOT EXISTS session_id VARCHAR(100);
+ALTER TABLE capture_attempts ADD COLUMN IF NOT EXISTS result VARCHAR(50);
+ALTER TABLE capture_attempts ADD COLUMN IF NOT EXISTS risk_score INTEGER;
+ALTER TABLE capture_attempts ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE capture_attempts IS '捕捉尝试记录，用于统计捕捉成功率';
 
@@ -182,11 +251,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_device_fingerprints_updated_at ON device_fingerprints;
 CREATE TRIGGER update_device_fingerprints_updated_at
   BEFORE UPDATE ON device_fingerprints
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_user_shadow_bans_updated_at ON user_shadow_bans;
 CREATE TRIGGER update_user_shadow_bans_updated_at
   BEFORE UPDATE ON user_shadow_bans
   FOR EACH ROW

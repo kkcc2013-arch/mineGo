@@ -34,6 +34,26 @@ CREATE TABLE IF NOT EXISTS drill_records (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS id VARCHAR(100);
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS scenario_id VARCHAR(100);
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS scenario_name VARCHAR(200);
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS type VARCHAR(50);
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS status VARCHAR(50);
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS start_time TIMESTAMP;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS end_time TIMESTAMP;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS duration INTEGER;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS chaos_experiments JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS metrics JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS results JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS rto INTEGER;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS rpo INTEGER;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS created_by VARCHAR(100);
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS auto_rollback BOOLEAN DEFAULT true;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS manual_stop BOOLEAN DEFAULT false;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS error_message TEXT;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 演练场景配置表
 CREATE TABLE IF NOT EXISTS drill_scenarios (
@@ -64,6 +84,24 @@ CREATE TABLE IF NOT EXISTS drill_scenarios (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS id VARCHAR(100);
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS name VARCHAR(200);
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS type VARCHAR(50);
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS chaos_experiments JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS duration INTEGER DEFAULT 1800000;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS target_services TEXT[] DEFAULT '{}';
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS target_region VARCHAR(100);
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS rto_target INTEGER DEFAULT 300000;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS rpo_target INTEGER DEFAULT 60000;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS auto_rollback BOOLEAN DEFAULT true;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS enabled BOOLEAN DEFAULT true;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS schedule_cron VARCHAR(100);
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS last_run TIMESTAMP;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS next_run TIMESTAMP;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 混沌实验记录表
 CREATE TABLE IF NOT EXISTS chaos_experiments (
@@ -86,6 +124,17 @@ CREATE TABLE IF NOT EXISTS chaos_experiments (
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS id VARCHAR(100);
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS drill_id VARCHAR(100);
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS kind VARCHAR(100);
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS status VARCHAR(50);
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS namespace VARCHAR(100);
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS resource_name VARCHAR(200);
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS injected_at TIMESTAMP;
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS rolled_back_at TIMESTAMP;
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS target_services TEXT[] DEFAULT '{}';
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- SLO 监控快照表
 CREATE TABLE IF NOT EXISTS slo_snapshots (
@@ -108,6 +157,17 @@ CREATE TABLE IF NOT EXISTS slo_snapshots (
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS drill_id VARCHAR(100);
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS captured_at TIMESTAMP;
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS availability NUMERIC(5, 4);
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS latency_p50 NUMERIC(10, 3);
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS latency_p95 NUMERIC(10, 3);
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS latency_p99 NUMERIC(10, 3);
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS error_rate NUMERIC(5, 4);
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS throughput INTEGER;
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS extra_metrics JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 演练报告表
 CREATE TABLE IF NOT EXISTS drill_reports (
@@ -126,6 +186,13 @@ CREATE TABLE IF NOT EXISTS drill_reports (
     -- 导出路径（如果导出为文件）
     export_path TEXT
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE drill_reports ADD COLUMN IF NOT EXISTS id VARCHAR(100);
+ALTER TABLE drill_reports ADD COLUMN IF NOT EXISTS drill_id VARCHAR(100);
+ALTER TABLE drill_reports ADD COLUMN IF NOT EXISTS format VARCHAR(50) DEFAULT 'standard';
+ALTER TABLE drill_reports ADD COLUMN IF NOT EXISTS content JSONB;
+ALTER TABLE drill_reports ADD COLUMN IF NOT EXISTS generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE drill_reports ADD COLUMN IF NOT EXISTS export_path TEXT;
 
 -- 演练建议表
 CREATE TABLE IF NOT EXISTS drill_recommendations (
@@ -149,6 +216,18 @@ CREATE TABLE IF NOT EXISTS drill_recommendations (
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS drill_id VARCHAR(100);
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS category VARCHAR(100);
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS severity VARCHAR(50);
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS message TEXT;
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS metric_name VARCHAR(100);
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS current_value NUMERIC;
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS target_value NUMERIC;
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'open';
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMP;
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS resolved_by VARCHAR(100);
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 演练统计视图
 CREATE OR REPLACE VIEW drill_statistics AS
@@ -202,12 +281,12 @@ FROM drill_records
 WHERE status = 'running';
 
 -- 索引
-CREATE INDEX idx_drill_records_status ON drill_records(status);
-CREATE INDEX idx_drill_records_scenario ON drill_records(scenario_id);
-CREATE INDEX idx_drill_records_start_time ON drill_records(start_time DESC);
-CREATE INDEX idx_chaos_experiments_drill ON chaos_experiments(drill_id);
-CREATE INDEX idx_slo_snapshots_drill ON slo_snapshots(drill_id);
-CREATE INDEX idx_drill_recommendations_status ON drill_recommendations(status);
+CREATE INDEX IF NOT EXISTS idx_drill_records_status ON drill_records(status);
+CREATE INDEX IF NOT EXISTS idx_drill_records_scenario ON drill_records(scenario_id);
+CREATE INDEX IF NOT EXISTS idx_drill_records_start_time ON drill_records(start_time DESC);
+CREATE INDEX IF NOT EXISTS idx_chaos_experiments_drill ON chaos_experiments(drill_id);
+CREATE INDEX IF NOT EXISTS idx_slo_snapshots_drill ON slo_snapshots(drill_id);
+CREATE INDEX IF NOT EXISTS idx_drill_recommendations_status ON drill_recommendations(status);
 
 -- 触发器：自动更新 updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -218,11 +297,13 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS update_drill_records_updated_at ON drill_records;
 CREATE TRIGGER update_drill_records_updated_at
     BEFORE UPDATE ON drill_records
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_drill_scenarios_updated_at ON drill_scenarios;
 CREATE TRIGGER update_drill_scenarios_updated_at
     BEFORE UPDATE ON drill_scenarios
     FOR EACH ROW

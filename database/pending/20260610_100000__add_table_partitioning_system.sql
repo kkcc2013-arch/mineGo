@@ -50,6 +50,19 @@ CREATE TABLE IF NOT EXISTS catch_records (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     PRIMARY KEY (id, created_at)
 ) PARTITION BY RANGE (created_at);
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE catch_records ADD COLUMN IF NOT EXISTS id UUID;
+ALTER TABLE catch_records ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE catch_records ADD COLUMN IF NOT EXISTS pokemon_id UUID;
+ALTER TABLE catch_records ADD COLUMN IF NOT EXISTS location GEOMETRY(Point, 4326);
+ALTER TABLE catch_records ADD COLUMN IF NOT EXISTS catch_method VARCHAR(50);
+ALTER TABLE catch_records ADD COLUMN IF NOT EXISTS ball_type VARCHAR(50);
+ALTER TABLE catch_records ADD COLUMN IF NOT EXISTS catch_rate DECIMAL(5, 4);
+ALTER TABLE catch_records ADD COLUMN IF NOT EXISTS experience_gained INTEGER;
+ALTER TABLE catch_records ADD COLUMN IF NOT EXISTS stardust_gained INTEGER;
+ALTER TABLE catch_records ADD COLUMN IF NOT EXISTS candy_gained INTEGER;
+ALTER TABLE catch_records ADD COLUMN IF NOT EXISTS device_info JSONB;
+ALTER TABLE catch_records ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_catch_records_user 
@@ -106,6 +119,16 @@ CREATE TABLE IF NOT EXISTS location_updates (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     PRIMARY KEY (id, created_at)
 ) PARTITION BY RANGE (created_at);
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE location_updates ADD COLUMN IF NOT EXISTS id UUID;
+ALTER TABLE location_updates ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE location_updates ADD COLUMN IF NOT EXISTS location GEOMETRY(Point, 4326);
+ALTER TABLE location_updates ADD COLUMN IF NOT EXISTS accuracy FLOAT;
+ALTER TABLE location_updates ADD COLUMN IF NOT EXISTS speed FLOAT;
+ALTER TABLE location_updates ADD COLUMN IF NOT EXISTS heading FLOAT;
+ALTER TABLE location_updates ADD COLUMN IF NOT EXISTS source VARCHAR(50);
+ALTER TABLE location_updates ADD COLUMN IF NOT EXISTS device_id VARCHAR(100);
+ALTER TABLE location_updates ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_location_updates_user 
     ON location_updates (user_id, created_at);
@@ -154,6 +177,18 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     PRIMARY KEY (id, created_at)
 ) PARTITION BY RANGE (created_at);
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS id UUID;
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS action VARCHAR(100);
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS resource_type VARCHAR(50);
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS resource_id VARCHAR(100);
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS old_values JSONB;
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS new_values JSONB;
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS ip_address INET;
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS user_agent TEXT;
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS metadata JSONB;
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_audit_logs_user 
     ON audit_logs (user_id, created_at);
@@ -200,6 +235,14 @@ CREATE TABLE IF NOT EXISTS event_logs (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     PRIMARY KEY (id, created_at)
 ) PARTITION BY RANGE (created_at);
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE event_logs ADD COLUMN IF NOT EXISTS id UUID;
+ALTER TABLE event_logs ADD COLUMN IF NOT EXISTS event_type VARCHAR(100);
+ALTER TABLE event_logs ADD COLUMN IF NOT EXISTS event_source VARCHAR(50);
+ALTER TABLE event_logs ADD COLUMN IF NOT EXISTS payload JSONB;
+ALTER TABLE event_logs ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE event_logs ADD COLUMN IF NOT EXISTS session_id VARCHAR(100);
+ALTER TABLE event_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_event_logs_type 
     ON event_logs (event_type, created_at);
@@ -251,6 +294,19 @@ CREATE TABLE IF NOT EXISTS payment_transactions (
     updated_at TIMESTAMP WITH TIME ZONE,
     PRIMARY KEY (id, created_at)
 ) PARTITION BY RANGE (created_at);
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE payment_transactions ADD COLUMN IF NOT EXISTS id UUID;
+ALTER TABLE payment_transactions ADD COLUMN IF NOT EXISTS order_id VARCHAR(100);
+ALTER TABLE payment_transactions ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE payment_transactions ADD COLUMN IF NOT EXISTS amount DECIMAL(20, 2);
+ALTER TABLE payment_transactions ADD COLUMN IF NOT EXISTS currency CHAR(3) DEFAULT 'USD';
+ALTER TABLE payment_transactions ADD COLUMN IF NOT EXISTS status VARCHAR(50);
+ALTER TABLE payment_transactions ADD COLUMN IF NOT EXISTS payment_method VARCHAR(50);
+ALTER TABLE payment_transactions ADD COLUMN IF NOT EXISTS provider VARCHAR(50);
+ALTER TABLE payment_transactions ADD COLUMN IF NOT EXISTS provider_transaction_id VARCHAR(200);
+ALTER TABLE payment_transactions ADD COLUMN IF NOT EXISTS metadata JSONB;
+ALTER TABLE payment_transactions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE payment_transactions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE;
 
 CREATE INDEX IF NOT EXISTS idx_payment_transactions_user 
     ON payment_transactions (user_id, created_at);

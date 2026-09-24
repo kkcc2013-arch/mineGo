@@ -15,6 +15,18 @@ CREATE TABLE IF NOT EXISTS bag_upgrade_config (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE bag_upgrade_config ADD COLUMN IF NOT EXISTS upgrade_id VARCHAR(50);
+ALTER TABLE bag_upgrade_config ADD COLUMN IF NOT EXISTS category VARCHAR(20);
+ALTER TABLE bag_upgrade_config ADD COLUMN IF NOT EXISTS increment INTEGER;
+ALTER TABLE bag_upgrade_config ADD COLUMN IF NOT EXISTS gold_cost INTEGER;
+ALTER TABLE bag_upgrade_config ADD COLUMN IF NOT EXISTS gem_cost INTEGER;
+ALTER TABLE bag_upgrade_config ADD COLUMN IF NOT EXISTS required_level INTEGER DEFAULT 1;
+ALTER TABLE bag_upgrade_config ADD COLUMN IF NOT EXISTS max_upgrades INTEGER DEFAULT 10;
+ALTER TABLE bag_upgrade_config ADD COLUMN IF NOT EXISTS display_order INTEGER DEFAULT 0;
+ALTER TABLE bag_upgrade_config ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE bag_upgrade_config ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE bag_upgrade_config ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE bag_upgrade_config IS '背包扩容配置表，定义各类别扩容的价格和限制';
 COMMENT ON COLUMN bag_upgrade_config.category IS '背包分类：base=基础容量，pokeball=精灵球，potion=药水等';
@@ -32,6 +44,13 @@ CREATE TABLE IF NOT EXISTS player_bag_upgrades (
   transaction_id VARCHAR(100),
   CONSTRAINT unique_purchase_record UNIQUE(user_id, upgrade_id, purchased_at)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE player_bag_upgrades ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE player_bag_upgrades ADD COLUMN IF NOT EXISTS upgrade_id VARCHAR(50);
+ALTER TABLE player_bag_upgrades ADD COLUMN IF NOT EXISTS purchase_method VARCHAR(20);
+ALTER TABLE player_bag_upgrades ADD COLUMN IF NOT EXISTS cost_amount INTEGER DEFAULT 0;
+ALTER TABLE player_bag_upgrades ADD COLUMN IF NOT EXISTS purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE player_bag_upgrades ADD COLUMN IF NOT EXISTS transaction_id VARCHAR(100);
 
 CREATE INDEX IF NOT EXISTS idx_player_bag_upgrades_user ON player_bag_upgrades(user_id);
 CREATE INDEX IF NOT EXISTS idx_player_bag_upgrades_method ON player_bag_upgrades(purchase_method);
@@ -126,6 +145,17 @@ CREATE TABLE IF NOT EXISTS bag_upgrade_audit_log (
   performed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   notes TEXT
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE bag_upgrade_audit_log ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE bag_upgrade_audit_log ADD COLUMN IF NOT EXISTS upgrade_id VARCHAR(50);
+ALTER TABLE bag_upgrade_audit_log ADD COLUMN IF NOT EXISTS action VARCHAR(20);
+ALTER TABLE bag_upgrade_audit_log ADD COLUMN IF NOT EXISTS purchase_method VARCHAR(20);
+ALTER TABLE bag_upgrade_audit_log ADD COLUMN IF NOT EXISTS cost_amount INTEGER;
+ALTER TABLE bag_upgrade_audit_log ADD COLUMN IF NOT EXISTS old_capacity INTEGER;
+ALTER TABLE bag_upgrade_audit_log ADD COLUMN IF NOT EXISTS new_capacity INTEGER;
+ALTER TABLE bag_upgrade_audit_log ADD COLUMN IF NOT EXISTS performed_by INTEGER;
+ALTER TABLE bag_upgrade_audit_log ADD COLUMN IF NOT EXISTS performed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE bag_upgrade_audit_log ADD COLUMN IF NOT EXISTS notes TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_bag_upgrade_audit_user ON bag_upgrade_audit_log(user_id);
 CREATE INDEX IF NOT EXISTS idx_bag_upgrade_audit_time ON bag_upgrade_audit_log(performed_at DESC);

@@ -20,6 +20,19 @@ CREATE TABLE IF NOT EXISTS pokedex_progress (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, pokemon_species_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS pokemon_species_id INTEGER;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS seen BOOLEAN DEFAULT FALSE;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS caught BOOLEAN DEFAULT FALSE;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS catch_count INTEGER DEFAULT 0;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS shiny_caught BOOLEAN DEFAULT FALSE;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS first_seen_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS first_caught_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS last_seen_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS last_caught_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE pokedex_progress IS '用户图鉴进度记录';
 COMMENT ON COLUMN pokedex_progress.seen IS '是否见过该精灵';
@@ -52,6 +65,20 @@ CREATE TABLE IF NOT EXISTS pokedex_milestones (
     is_repeatable BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS milestone_type VARCHAR(20);
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS category VARCHAR(50);
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS threshold INTEGER;
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS reward_type VARCHAR(50);
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS reward_data JSONB;
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS title VARCHAR(100);
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS title_zh VARCHAR(100);
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS description_zh TEXT;
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS icon VARCHAR(100);
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS is_repeatable BOOLEAN DEFAULT FALSE;
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE pokedex_milestones IS '图鉴里程碑奖励配置';
 
@@ -82,6 +109,11 @@ CREATE TABLE IF NOT EXISTS user_milestone_claims (
     claimed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, milestone_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_milestone_claims ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_milestone_claims ADD COLUMN IF NOT EXISTS milestone_id INTEGER;
+ALTER TABLE user_milestone_claims ADD COLUMN IF NOT EXISTS reward_data JSONB;
+ALTER TABLE user_milestone_claims ADD COLUMN IF NOT EXISTS claimed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE user_milestone_claims IS '用户里程碑奖励领取记录';
 
@@ -106,6 +138,20 @@ CREATE TABLE IF NOT EXISTS pokedex_achievements (
     sort_order INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS achievement_key VARCHAR(50);
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS name_zh VARCHAR(100);
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS description_zh TEXT;
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS requirement_type VARCHAR(50);
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS requirement_value INTEGER;
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS reward_type VARCHAR(50);
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS reward_data JSONB;
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS badge_icon VARCHAR(255);
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS badge_color VARCHAR(50);
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE pokedex_achievements IS '图鉴成就配置';
 
@@ -137,6 +183,10 @@ CREATE TABLE IF NOT EXISTS user_pokedex_achievements (
     unlocked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, achievement_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_pokedex_achievements ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_pokedex_achievements ADD COLUMN IF NOT EXISTS achievement_id INTEGER;
+ALTER TABLE user_pokedex_achievements ADD COLUMN IF NOT EXISTS unlocked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE user_pokedex_achievements IS '用户图鉴成就解锁记录';
 
@@ -158,6 +208,18 @@ CREATE TABLE IF NOT EXISTS pokedex_stats_cache (
     generation_stats JSONB DEFAULT '{}',
     last_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS total_species INTEGER DEFAULT 905;
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS seen_count INTEGER DEFAULT 0;
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS caught_count INTEGER DEFAULT 0;
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS shiny_count INTEGER DEFAULT 0;
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS legendary_count INTEGER DEFAULT 0;
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS completion_percentage DECIMAL(5,2) DEFAULT 0.00;
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS region_stats JSONB DEFAULT '{}';
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS type_stats JSONB DEFAULT '{}';
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS generation_stats JSONB DEFAULT '{}';
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS last_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE pokedex_stats_cache IS '图鉴统计缓存（实时更新）';
 
@@ -226,6 +288,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_pokedex_progress_update ON pokedex_progress;
 CREATE TRIGGER trg_pokedex_progress_update
 AFTER INSERT OR UPDATE ON pokedex_progress
 FOR EACH ROW
@@ -251,6 +314,21 @@ CREATE TABLE IF NOT EXISTS pokemon_species (
     rarity VARCHAR(20),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS pokedex_number INTEGER;
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS name_zh VARCHAR(100);
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS name_ja VARCHAR(100);
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS generation INTEGER;
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS region VARCHAR(50);
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS types TEXT[];
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS is_legendary BOOLEAN DEFAULT FALSE;
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS is_mythical BOOLEAN DEFAULT FALSE;
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS base_stats JSONB;
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS evolution_chain INTEGER[];
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS catch_rate DECIMAL(5,2);
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS rarity VARCHAR(20);
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE pokemon_species IS '精灵种类基础数据';
 

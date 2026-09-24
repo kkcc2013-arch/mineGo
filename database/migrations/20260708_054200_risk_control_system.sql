@@ -18,11 +18,22 @@ CREATE TABLE IF NOT EXISTS user_behavior_events (
   accuracy DOUBLE PRECISION,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_behavior_events ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE user_behavior_events ADD COLUMN IF NOT EXISTS event_type VARCHAR(50);
+ALTER TABLE user_behavior_events ADD COLUMN IF NOT EXISTS event_data JSONB;
+ALTER TABLE user_behavior_events ADD COLUMN IF NOT EXISTS ip_address INET;
+ALTER TABLE user_behavior_events ADD COLUMN IF NOT EXISTS device_id VARCHAR(255);
+ALTER TABLE user_behavior_events ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION;
+ALTER TABLE user_behavior_events ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION;
+ALTER TABLE user_behavior_events ADD COLUMN IF NOT EXISTS altitude DOUBLE PRECISION;
+ALTER TABLE user_behavior_events ADD COLUMN IF NOT EXISTS accuracy DOUBLE PRECISION;
+ALTER TABLE user_behavior_events ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 -- 索引
-CREATE INDEX idx_behavior_events_user_time ON user_behavior_events(user_id, created_at DESC);
-CREATE INDEX idx_behavior_events_type ON user_behavior_events(event_type);
-CREATE INDEX idx_behavior_events_location ON user_behavior_events USING GIST ((ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)));
+CREATE INDEX IF NOT EXISTS idx_behavior_events_user_time ON user_behavior_events(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_behavior_events_type ON user_behavior_events(event_type);
+CREATE INDEX IF NOT EXISTS idx_behavior_events_location ON user_behavior_events USING GIST ((ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)));
 
 -- 分区（按月分区，保留 3 个月）
 -- 注意：需要在后续维护中创建新的分区
@@ -42,10 +53,19 @@ CREATE TABLE IF NOT EXISTS anti_cheat_audit_logs (
   processed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE anti_cheat_audit_logs ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE anti_cheat_audit_logs ADD COLUMN IF NOT EXISTS event_type VARCHAR(50);
+ALTER TABLE anti_cheat_audit_logs ADD COLUMN IF NOT EXISTS event_data JSONB;
+ALTER TABLE anti_cheat_audit_logs ADD COLUMN IF NOT EXISTS rules_triggered JSONB;
+ALTER TABLE anti_cheat_audit_logs ADD COLUMN IF NOT EXISTS risk_score INTEGER;
+ALTER TABLE anti_cheat_audit_logs ADD COLUMN IF NOT EXISTS action_taken VARCHAR(50);
+ALTER TABLE anti_cheat_audit_logs ADD COLUMN IF NOT EXISTS processed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE anti_cheat_audit_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
-CREATE INDEX idx_audit_logs_user ON anti_cheat_audit_logs(user_id, created_at DESC);
-CREATE INDEX idx_audit_logs_score ON anti_cheat_audit_logs(risk_score) WHERE risk_score >= 60;
-CREATE INDEX idx_audit_logs_action ON anti_cheat_audit_logs(action_taken);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON anti_cheat_audit_logs(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_logs_score ON anti_cheat_audit_logs(risk_score) WHERE risk_score >= 60;
+CREATE INDEX IF NOT EXISTS idx_audit_logs_action ON anti_cheat_audit_logs(action_taken);
 
 -- ============================================================
 -- 用户封禁记录表
@@ -62,9 +82,18 @@ CREATE TABLE IF NOT EXISTS user_bans (
   unbanned_by INTEGER,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_bans ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE user_bans ADD COLUMN IF NOT EXISTS ban_type VARCHAR(20);
+ALTER TABLE user_bans ADD COLUMN IF NOT EXISTS reason TEXT;
+ALTER TABLE user_bans ADD COLUMN IF NOT EXISTS triggered_rules JSONB;
+ALTER TABLE user_bans ADD COLUMN IF NOT EXISTS score INTEGER;
+ALTER TABLE user_bans ADD COLUMN IF NOT EXISTS unbanned_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE user_bans ADD COLUMN IF NOT EXISTS unbanned_by INTEGER;
+ALTER TABLE user_bans ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
-CREATE INDEX idx_user_bans_user ON user_bans(user_id);
-CREATE INDEX idx_user_bans_active ON user_bans(user_id) WHERE unbanned_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_user_bans_user ON user_bans(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_bans_active ON user_bans(user_id) WHERE unbanned_at IS NULL;
 
 -- ============================================================
 -- 人工审核队列表
@@ -83,9 +112,20 @@ CREATE TABLE IF NOT EXISTS manual_review_queue (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   resolved_at TIMESTAMP WITH TIME ZONE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE manual_review_queue ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE manual_review_queue ADD COLUMN IF NOT EXISTS trigger_type VARCHAR(50);
+ALTER TABLE manual_review_queue ADD COLUMN IF NOT EXISTS details TEXT;
+ALTER TABLE manual_review_queue ADD COLUMN IF NOT EXISTS score INTEGER;
+ALTER TABLE manual_review_queue ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending';
+ALTER TABLE manual_review_queue ADD COLUMN IF NOT EXISTS assigned_to INTEGER;
+ALTER TABLE manual_review_queue ADD COLUMN IF NOT EXISTS resolution_notes TEXT;
+ALTER TABLE manual_review_queue ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE manual_review_queue ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE manual_review_queue ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMP WITH TIME ZONE;
 
-CREATE INDEX idx_manual_review_status ON manual_review_queue(status, created_at);
-CREATE INDEX idx_manual_review_user ON manual_review_queue(user_id);
+CREATE INDEX IF NOT EXISTS idx_manual_review_status ON manual_review_queue(status, created_at);
+CREATE INDEX IF NOT EXISTS idx_manual_review_user ON manual_review_queue(user_id);
 
 -- ============================================================
 -- 风控规则配置表
@@ -103,6 +143,16 @@ CREATE TABLE IF NOT EXISTS risk_control_rules (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE risk_control_rules ADD COLUMN IF NOT EXISTS rule_id VARCHAR(50);
+ALTER TABLE risk_control_rules ADD COLUMN IF NOT EXISTS rule_name VARCHAR(100);
+ALTER TABLE risk_control_rules ADD COLUMN IF NOT EXISTS category VARCHAR(50);
+ALTER TABLE risk_control_rules ADD COLUMN IF NOT EXISTS severity VARCHAR(20);
+ALTER TABLE risk_control_rules ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE risk_control_rules ADD COLUMN IF NOT EXISTS config JSONB;
+ALTER TABLE risk_control_rules ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE risk_control_rules ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE risk_control_rules ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 -- 插入默认规则
 INSERT INTO risk_control_rules (rule_id, rule_name, category, severity, description) VALUES
@@ -127,9 +177,15 @@ CREATE TABLE IF NOT EXISTS user_risk_scores (
   window_size_seconds INTEGER,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_risk_scores ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE user_risk_scores ADD COLUMN IF NOT EXISTS score INTEGER;
+ALTER TABLE user_risk_scores ADD COLUMN IF NOT EXISTS top_rules JSONB;
+ALTER TABLE user_risk_scores ADD COLUMN IF NOT EXISTS window_size_seconds INTEGER;
+ALTER TABLE user_risk_scores ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
-CREATE INDEX idx_risk_scores_user_time ON user_risk_scores(user_id, created_at DESC);
-CREATE INDEX idx_risk_scores_high ON user_risk_scores(score) WHERE score >= 60;
+CREATE INDEX IF NOT EXISTS idx_risk_scores_user_time ON user_risk_scores(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_risk_scores_high ON user_risk_scores(score) WHERE score >= 60;
 
 -- ============================================================
 -- 实时风控状态表（Redis 缓存备份）
@@ -144,6 +200,14 @@ CREATE TABLE IF NOT EXISTS user_risk_state (
   restriction_reason TEXT,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_risk_state ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE user_risk_state ADD COLUMN IF NOT EXISTS current_score INTEGER DEFAULT 0;
+ALTER TABLE user_risk_state ADD COLUMN IF NOT EXISTS warning_count INTEGER DEFAULT 0;
+ALTER TABLE user_risk_state ADD COLUMN IF NOT EXISTS last_warning_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE user_risk_state ADD COLUMN IF NOT EXISTS restriction_level VARCHAR(20) DEFAULT 'normal';
+ALTER TABLE user_risk_state ADD COLUMN IF NOT EXISTS restriction_reason TEXT;
+ALTER TABLE user_risk_state ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 -- ============================================================
 -- 统计视图
@@ -210,11 +274,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_risk_control_rules_updated_at ON risk_control_rules;
 CREATE TRIGGER update_risk_control_rules_updated_at
   BEFORE UPDATE ON risk_control_rules
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_manual_review_updated_at ON manual_review_queue;
 CREATE TRIGGER update_manual_review_updated_at
   BEFORE UPDATE ON manual_review_queue
   FOR EACH ROW

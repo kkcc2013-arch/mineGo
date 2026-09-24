@@ -14,6 +14,16 @@ CREATE TABLE IF NOT EXISTS data_regions (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE data_regions ADD COLUMN IF NOT EXISTS region_code VARCHAR(20);
+ALTER TABLE data_regions ADD COLUMN IF NOT EXISTS region_name VARCHAR(100);
+ALTER TABLE data_regions ADD COLUMN IF NOT EXISTS countries TEXT[];
+ALTER TABLE data_regions ADD COLUMN IF NOT EXISTS storage_location VARCHAR(100);
+ALTER TABLE data_regions ADD COLUMN IF NOT EXISTS applicable_laws TEXT[];
+ALTER TABLE data_regions ADD COLUMN IF NOT EXISTS compliance_requirements JSONB DEFAULT '{}';
+ALTER TABLE data_regions ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE data_regions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE data_regions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 2. 用户数据区域映射表
 CREATE TABLE IF NOT EXISTS user_data_regions (
@@ -26,6 +36,13 @@ CREATE TABLE IF NOT EXISTS user_data_regions (
   assigned_by INTEGER, -- 管理员ID（如果是手动分配）
   CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_data_regions ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_data_regions ADD COLUMN IF NOT EXISTS region_code VARCHAR(20);
+ALTER TABLE user_data_regions ADD COLUMN IF NOT EXISTS assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE user_data_regions ADD COLUMN IF NOT EXISTS assignment_reason VARCHAR(50);
+ALTER TABLE user_data_regions ADD COLUMN IF NOT EXISTS ip_address_at_assignment INET;
+ALTER TABLE user_data_regions ADD COLUMN IF NOT EXISTS assigned_by INTEGER;
 
 -- 3. 跨境传输请求表
 CREATE TABLE IF NOT EXISTS data_transfer_requests (
@@ -53,6 +70,26 @@ CREATE TABLE IF NOT EXISTS data_transfer_requests (
   CONSTRAINT fk_approver FOREIGN KEY (approved_by) REFERENCES users(id),
   CONSTRAINT chk_different_regions CHECK (source_region != target_region)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS request_id VARCHAR(50) DEFAULT ('DTR-' || to_char(now(), 'YYYYMMDD') || '-' || LPAD(nextval('data_transfer_request_seq')::TEXT, 6, '0'));
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS requester_id UUID;
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS source_region VARCHAR(20);
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS target_region VARCHAR(20);
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS data_types TEXT[];
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS legal_basis VARCHAR(50);
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS purpose TEXT;
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS recipient_info JSONB;
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS data_subjects_affected INTEGER DEFAULT 0;
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS risk_assessment JSONB;
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS protection_measures TEXT[];
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS scc_reference VARCHAR(100);
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending';
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS approved_by UUID;
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP;
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS rejection_reason TEXT;
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS executed_at TIMESTAMP;
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 创建序列
 CREATE SEQUENCE IF NOT EXISTS data_transfer_request_seq;
@@ -74,6 +111,20 @@ CREATE TABLE IF NOT EXISTS data_transfer_logs (
   user_agent TEXT,
   metadata JSONB DEFAULT '{}'
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE data_transfer_logs ADD COLUMN IF NOT EXISTS transfer_request_id INTEGER;
+ALTER TABLE data_transfer_logs ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE data_transfer_logs ADD COLUMN IF NOT EXISTS source_region VARCHAR(20);
+ALTER TABLE data_transfer_logs ADD COLUMN IF NOT EXISTS target_region VARCHAR(20);
+ALTER TABLE data_transfer_logs ADD COLUMN IF NOT EXISTS data_type VARCHAR(50);
+ALTER TABLE data_transfer_logs ADD COLUMN IF NOT EXISTS data_category VARCHAR(50);
+ALTER TABLE data_transfer_logs ADD COLUMN IF NOT EXISTS legal_basis VARCHAR(50);
+ALTER TABLE data_transfer_logs ADD COLUMN IF NOT EXISTS purpose VARCHAR(200);
+ALTER TABLE data_transfer_logs ADD COLUMN IF NOT EXISTS data_volume_kb INTEGER DEFAULT 0;
+ALTER TABLE data_transfer_logs ADD COLUMN IF NOT EXISTS transferred_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE data_transfer_logs ADD COLUMN IF NOT EXISTS ip_address INET;
+ALTER TABLE data_transfer_logs ADD COLUMN IF NOT EXISTS user_agent TEXT;
+ALTER TABLE data_transfer_logs ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
 
 -- 5. 标准合同条款表
 CREATE TABLE IF NOT EXISTS standard_contractual_clauses (
@@ -89,6 +140,17 @@ CREATE TABLE IF NOT EXISTS standard_contractual_clauses (
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE standard_contractual_clauses ADD COLUMN IF NOT EXISTS scc_code VARCHAR(50);
+ALTER TABLE standard_contractual_clauses ADD COLUMN IF NOT EXISTS scc_name VARCHAR(200);
+ALTER TABLE standard_contractual_clauses ADD COLUMN IF NOT EXISTS version VARCHAR(20);
+ALTER TABLE standard_contractual_clauses ADD COLUMN IF NOT EXISTS issuer VARCHAR(100);
+ALTER TABLE standard_contractual_clauses ADD COLUMN IF NOT EXISTS applicable_transfers TEXT[];
+ALTER TABLE standard_contractual_clauses ADD COLUMN IF NOT EXISTS content TEXT;
+ALTER TABLE standard_contractual_clauses ADD COLUMN IF NOT EXISTS effective_date DATE;
+ALTER TABLE standard_contractual_clauses ADD COLUMN IF NOT EXISTS expiry_date DATE;
+ALTER TABLE standard_contractual_clauses ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE standard_contractual_clauses ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 6. 数据传输影响评估表
 CREATE TABLE IF NOT EXISTS transfer_impact_assessments (
@@ -121,6 +183,25 @@ CREATE TABLE IF NOT EXISTS transfer_impact_assessments (
   
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS assessment_id VARCHAR(50) DEFAULT ('TIA-' || to_char(now(), 'YYYYMMDD') || '-' || LPAD(nextval('tia_seq')::TEXT, 6, '0'));
+ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS transfer_request_id INTEGER;
+ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS assessor_id UUID;
+ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS data_types_assessed TEXT[];
+ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS data_volume_estimate INTEGER;
+ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS data_subjects_count INTEGER;
+ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS sensitive_data_present BOOLEAN DEFAULT false;
+ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS source_region_laws JSONB DEFAULT '{}';
+ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS target_region_laws JSONB DEFAULT '{}';
+ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS legal_gaps TEXT[];
+ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS risk_level VARCHAR(20);
+ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS identified_risks JSONB DEFAULT '[]';
+ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS risk_mitigation_measures JSONB DEFAULT '[]';
+ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS recommendation VARCHAR(50);
+ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS conditions TEXT[];
+ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS assessment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS valid_until DATE;
+ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 创建序列
 CREATE SEQUENCE IF NOT EXISTS tia_seq;

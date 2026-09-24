@@ -11,6 +11,12 @@ CREATE TABLE IF NOT EXISTS user_privacy_preferences (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(user_id, category)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_privacy_preferences ADD COLUMN IF NOT EXISTS user_id VARCHAR(64);
+ALTER TABLE user_privacy_preferences ADD COLUMN IF NOT EXISTS category VARCHAR(32);
+ALTER TABLE user_privacy_preferences ADD COLUMN IF NOT EXISTS collectable BOOLEAN DEFAULT true;
+ALTER TABLE user_privacy_preferences ADD COLUMN IF NOT EXISTS consented_at TIMESTAMP;
+ALTER TABLE user_privacy_preferences ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 2. 隐私政策版本表
 CREATE TABLE IF NOT EXISTS privacy_policy_versions (
@@ -23,6 +29,14 @@ CREATE TABLE IF NOT EXISTS privacy_policy_versions (
   content_ja_jp TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE privacy_policy_versions ADD COLUMN IF NOT EXISTS version VARCHAR(16);
+ALTER TABLE privacy_policy_versions ADD COLUMN IF NOT EXISTS effective_date DATE;
+ALTER TABLE privacy_policy_versions ADD COLUMN IF NOT EXISTS changes TEXT[];
+ALTER TABLE privacy_policy_versions ADD COLUMN IF NOT EXISTS content_zh_cn TEXT;
+ALTER TABLE privacy_policy_versions ADD COLUMN IF NOT EXISTS content_en_us TEXT;
+ALTER TABLE privacy_policy_versions ADD COLUMN IF NOT EXISTS content_ja_jp TEXT;
+ALTER TABLE privacy_policy_versions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 3. 数据透明度报告表
 CREATE TABLE IF NOT EXISTS data_transparency_reports (
@@ -33,6 +47,11 @@ CREATE TABLE IF NOT EXISTS data_transparency_reports (
   generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(user_id, month)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE data_transparency_reports ADD COLUMN IF NOT EXISTS user_id VARCHAR(64);
+ALTER TABLE data_transparency_reports ADD COLUMN IF NOT EXISTS month VARCHAR(7);
+ALTER TABLE data_transparency_reports ADD COLUMN IF NOT EXISTS report_json JSONB;
+ALTER TABLE data_transparency_reports ADD COLUMN IF NOT EXISTS generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 4. 用户政策接受记录
 CREATE TABLE IF NOT EXISTS privacy_policy_acceptance (
@@ -42,6 +61,10 @@ CREATE TABLE IF NOT EXISTS privacy_policy_acceptance (
   accepted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(user_id, policy_version)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE privacy_policy_acceptance ADD COLUMN IF NOT EXISTS user_id VARCHAR(64);
+ALTER TABLE privacy_policy_acceptance ADD COLUMN IF NOT EXISTS policy_version VARCHAR(16);
+ALTER TABLE privacy_policy_acceptance ADD COLUMN IF NOT EXISTS accepted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 5. 数据访问日志表（扩展审计日志）
 CREATE TABLE IF NOT EXISTS data_access_logs (
@@ -53,6 +76,13 @@ CREATE TABLE IF NOT EXISTS data_access_logs (
   details TEXT,
   accessed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE data_access_logs ADD COLUMN IF NOT EXISTS user_id VARCHAR(64);
+ALTER TABLE data_access_logs ADD COLUMN IF NOT EXISTS category VARCHAR(32);
+ALTER TABLE data_access_logs ADD COLUMN IF NOT EXISTS action VARCHAR(64);
+ALTER TABLE data_access_logs ADD COLUMN IF NOT EXISTS purpose VARCHAR(128);
+ALTER TABLE data_access_logs ADD COLUMN IF NOT EXISTS details TEXT;
+ALTER TABLE data_access_logs ADD COLUMN IF NOT EXISTS accessed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_user_privacy_preferences_user ON user_privacy_preferences(user_id);

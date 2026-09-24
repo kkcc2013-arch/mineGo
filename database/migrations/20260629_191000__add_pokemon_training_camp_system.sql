@@ -2,7 +2,7 @@
 -- 创建时间：2026-06-29 19:10 UTC
 
 -- 训练营配置表
-CREATE TABLE training_camps (
+CREATE TABLE IF NOT EXISTS training_camps (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     type VARCHAR(50) NOT NULL CHECK (type IN ('experience', 'skill', 'friendship')),
@@ -13,9 +13,18 @@ CREATE TABLE training_camps (
     icon_url VARCHAR(255),
     created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE training_camps ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+ALTER TABLE training_camps ADD COLUMN IF NOT EXISTS type VARCHAR(50);
+ALTER TABLE training_camps ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE training_camps ADD COLUMN IF NOT EXISTS max_level INT DEFAULT 10;
+ALTER TABLE training_camps ADD COLUMN IF NOT EXISTS base_capacity INT DEFAULT 3;
+ALTER TABLE training_camps ADD COLUMN IF NOT EXISTS capacity_per_level INT DEFAULT 1;
+ALTER TABLE training_camps ADD COLUMN IF NOT EXISTS icon_url VARCHAR(255);
+ALTER TABLE training_camps ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 -- 训练课程配置表
-CREATE TABLE training_courses (
+CREATE TABLE IF NOT EXISTS training_courses (
     id SERIAL PRIMARY KEY,
     camp_id INT REFERENCES training_camps(id),
     name VARCHAR(100) NOT NULL,
@@ -36,9 +45,28 @@ CREATE TABLE training_courses (
     icon_url VARCHAR(255),
     created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS camp_id INT;
+ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS duration_minutes INT;
+ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS cost_type VARCHAR(50);
+ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS cost_amount INT DEFAULT 0;
+ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS exp_reward INT DEFAULT 0;
+ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS exp_reward_per_level INT DEFAULT 0;
+ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS skill_id INT;
+ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS friendship_reward INT DEFAULT 0;
+ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS friendship_reward_per_level INT DEFAULT 0;
+ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS required_camp_level INT DEFAULT 1;
+ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS max_pokemon_level INT;
+ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS min_pokemon_level INT DEFAULT 1;
+ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS is_premium BOOLEAN DEFAULT FALSE;
+ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS daily_limit INT DEFAULT 0;
+ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS icon_url VARCHAR(255);
+ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 -- 玩家训练营等级表
-CREATE TABLE user_training_camps (
+CREATE TABLE IF NOT EXISTS user_training_camps (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     camp_id INT REFERENCES training_camps(id),
@@ -50,9 +78,19 @@ CREATE TABLE user_training_camps (
     updated_at TIMESTAMP DEFAULT NOW(),
     UNIQUE(user_id, camp_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_training_camps ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE user_training_camps ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_training_camps ADD COLUMN IF NOT EXISTS camp_id INT;
+ALTER TABLE user_training_camps ADD COLUMN IF NOT EXISTS level INT DEFAULT 1;
+ALTER TABLE user_training_camps ADD COLUMN IF NOT EXISTS capacity INT DEFAULT 3;
+ALTER TABLE user_training_camps ADD COLUMN IF NOT EXISTS unlocked_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE user_training_camps ADD COLUMN IF NOT EXISTS upgraded_at TIMESTAMP;
+ALTER TABLE user_training_camps ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE user_training_camps ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
 -- 训练队列表
-CREATE TABLE training_slots (
+CREATE TABLE IF NOT EXISTS training_slots (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     camp_id INT NOT NULL REFERENCES training_camps(id),
@@ -91,9 +129,31 @@ CREATE TABLE training_slots (
         (SELECT capacity FROM user_training_camps WHERE user_id = training_slots.user_id AND camp_id = training_slots.camp_id)
     )
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS camp_id INT;
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS slot_index INT;
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS pokemon_id UUID;
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS course_id INT;
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'training';
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS started_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS ends_at TIMESTAMP;
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP;
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS boost_used BOOLEAN DEFAULT FALSE;
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS boost_type VARCHAR(50);
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS boost_ends_at TIMESTAMP;
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS expected_exp INT DEFAULT 0;
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS expected_friendship INT DEFAULT 0;
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS expected_skill_id INT;
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS actual_exp INT DEFAULT 0;
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS actual_friendship INT DEFAULT 0;
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS skill_learned BOOLEAN DEFAULT FALSE;
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
 -- 训练报告表
-CREATE TABLE training_reports (
+CREATE TABLE IF NOT EXISTS training_reports (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     slot_id UUID NOT NULL REFERENCES training_slots(id) ON DELETE CASCADE,
@@ -120,9 +180,26 @@ CREATE TABLE training_reports (
     completed_at TIMESTAMP NOT NULL DEFAULT NOW(),
     created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS slot_id UUID;
+ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS pokemon_id UUID;
+ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS camp_type VARCHAR(50);
+ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS course_name VARCHAR(100);
+ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS duration_minutes INT;
+ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS exp_gained INT DEFAULT 0;
+ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS friendship_gained INT DEFAULT 0;
+ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS skill_learned_id INT;
+ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS skill_learned_name VARCHAR(100);
+ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS cost_type VARCHAR(50);
+ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS cost_amount INT DEFAULT 0;
+ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS rating VARCHAR(20) DEFAULT 'normal';
+ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 -- 训练加速道具表
-CREATE TABLE training_boosts (
+CREATE TABLE IF NOT EXISTS training_boosts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     boost_type VARCHAR(50) NOT NULL CHECK (boost_type IN ('time_50', 'time_75', 'instant', 'exp_double')),
@@ -131,14 +208,22 @@ CREATE TABLE training_boosts (
     purchased_at TIMESTAMP DEFAULT NOW(),
     created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE training_boosts ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE training_boosts ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE training_boosts ADD COLUMN IF NOT EXISTS boost_type VARCHAR(50);
+ALTER TABLE training_boosts ADD COLUMN IF NOT EXISTS remaining_uses INT DEFAULT 1;
+ALTER TABLE training_boosts ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
+ALTER TABLE training_boosts ADD COLUMN IF NOT EXISTS purchased_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE training_boosts ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 -- 索引
-CREATE INDEX idx_user_training_camps_user ON user_training_camps(user_id);
-CREATE INDEX idx_training_slots_user ON training_slots(user_id);
-CREATE INDEX idx_training_slots_status ON training_slots(status, ends_at);
-CREATE INDEX idx_training_slots_pokemon ON training_slots(pokemon_id);
-CREATE INDEX idx_training_reports_user ON training_reports(user_id, completed_at DESC);
-CREATE INDEX idx_training_boosts_user ON training_boosts(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_training_camps_user ON user_training_camps(user_id);
+CREATE INDEX IF NOT EXISTS idx_training_slots_user ON training_slots(user_id);
+CREATE INDEX IF NOT EXISTS idx_training_slots_status ON training_slots(status, ends_at);
+CREATE INDEX IF NOT EXISTS idx_training_slots_pokemon ON training_slots(pokemon_id);
+CREATE INDEX IF NOT EXISTS idx_training_reports_user ON training_reports(user_id, completed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_training_boosts_user ON training_boosts(user_id);
 
 -- 插入默认训练营配置
 INSERT INTO training_camps (name, type, description, max_level, base_capacity, capacity_per_level) VALUES

@@ -19,6 +19,19 @@ CREATE TABLE IF NOT EXISTS achievements (
     
     FOREIGN KEY (prerequisite_achievement_id) REFERENCES achievements(achievement_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS achievement_id VARCHAR(50);
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS category VARCHAR(30);
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS name JSONB;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS description JSONB;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS icon_url VARCHAR(500);
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS rarity VARCHAR(20);
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS points INTEGER DEFAULT 10;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS is_hidden BOOLEAN DEFAULT FALSE;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS trigger_conditions JSONB;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS rewards JSONB;
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS prerequisite_achievement_id VARCHAR(50);
+ALTER TABLE achievements ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 -- 用户成就表
 CREATE TABLE IF NOT EXISTS user_achievements (
@@ -38,6 +51,17 @@ CREATE TABLE IF NOT EXISTS user_achievements (
     FOREIGN KEY (achievement_id) REFERENCES achievements(achievement_id) ON DELETE CASCADE,
     UNIQUE(user_id, achievement_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS achievement_id VARCHAR(50);
+ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS progress INTEGER DEFAULT 0;
+ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS target INTEGER;
+ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS completed BOOLEAN DEFAULT FALSE;
+ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP;
+ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS rewards_claimed BOOLEAN DEFAULT FALSE;
+ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS rewards_claimed_at TIMESTAMP;
+ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
 -- 成就进度快照（用于快速查询）
 CREATE TABLE IF NOT EXISTS achievement_progress_snapshots (
@@ -50,6 +74,12 @@ CREATE TABLE IF NOT EXISTS achievement_progress_snapshots (
     
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE achievement_progress_snapshots ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE achievement_progress_snapshots ADD COLUMN IF NOT EXISTS category_progress JSONB DEFAULT '{}';
+ALTER TABLE achievement_progress_snapshots ADD COLUMN IF NOT EXISTS total_points INTEGER DEFAULT 0;
+ALTER TABLE achievement_progress_snapshots ADD COLUMN IF NOT EXISTS achievements_completed INTEGER DEFAULT 0;
+ALTER TABLE achievement_progress_snapshots ADD COLUMN IF NOT EXISTS last_updated TIMESTAMP DEFAULT NOW();
 
 -- 成就触发事件日志
 CREATE TABLE IF NOT EXISTS achievement_events (
@@ -62,6 +92,12 @@ CREATE TABLE IF NOT EXISTS achievement_events (
     
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE achievement_events ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE achievement_events ADD COLUMN IF NOT EXISTS event_type VARCHAR(50);
+ALTER TABLE achievement_events ADD COLUMN IF NOT EXISTS event_data JSONB;
+ALTER TABLE achievement_events ADD COLUMN IF NOT EXISTS processed BOOLEAN DEFAULT FALSE;
+ALTER TABLE achievement_events ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 -- 称号表
 CREATE TABLE IF NOT EXISTS user_titles (
@@ -76,6 +112,12 @@ CREATE TABLE IF NOT EXISTS user_titles (
     FOREIGN KEY (source_achievement_id) REFERENCES achievements(achievement_id) ON DELETE SET NULL,
     UNIQUE(user_id, title_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS title_id VARCHAR(50);
+ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS source_achievement_id VARCHAR(50);
+ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT FALSE;
+ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS unlocked_at TIMESTAMP DEFAULT NOW();
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_user_achievements_user ON user_achievements(user_id);

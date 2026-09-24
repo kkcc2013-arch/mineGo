@@ -26,6 +26,16 @@ CREATE TABLE IF NOT EXISTS language_change_logs (
   device_id VARCHAR(255),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS previous_language VARCHAR(10);
+ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS new_language VARCHAR(10);
+ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS change_source VARCHAR(50) DEFAULT 'user_request';
+ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS session_preserved BOOLEAN DEFAULT TRUE;
+ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS ip_address INET;
+ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS device_id VARCHAR(255);
+ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 
 -- 3. 创建索引
 CREATE INDEX IF NOT EXISTS idx_language_change_logs_user ON language_change_logs(user_id, created_at DESC);
@@ -94,6 +104,11 @@ CREATE TABLE IF NOT EXISTS language_cache (
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   ttl_seconds INTEGER DEFAULT 3600
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE language_cache ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE language_cache ADD COLUMN IF NOT EXISTS language VARCHAR(10);
+ALTER TABLE language_cache ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE language_cache ADD COLUMN IF NOT EXISTS ttl_seconds INTEGER DEFAULT 3600;
 
 -- 9. 评论
 COMMENT ON COLUMN users.language IS '用户偏好语言代码: zh, en, ja';

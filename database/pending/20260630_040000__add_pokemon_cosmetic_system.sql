@@ -23,6 +23,25 @@ CREATE TABLE IF NOT EXISTS cosmetic_items (
     max_equipped INT DEFAULT 1,             -- 同类最多装备数量
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS id VARCHAR(50);
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS name JSONB;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS description JSONB;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS category VARCHAR(30);
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS rarity VARCHAR(20);
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS icon_url VARCHAR(500);
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS model_url VARCHAR(500);
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS position_data JSONB;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS animation_data JSONB;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS available_from TIMESTAMPTZ;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS available_until TIMESTAMPTZ;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS source_type VARCHAR(30);
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS source_id VARCHAR(100);
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS price_coins INT DEFAULT 0;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS price_gems INT DEFAULT 0;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS is_stackable BOOLEAN DEFAULT FALSE;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS max_equipped INT DEFAULT 1;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_cosmetic_items_category ON cosmetic_items(category);
 CREATE INDEX IF NOT EXISTS idx_cosmetic_items_rarity ON cosmetic_items(rarity);
@@ -44,6 +63,13 @@ CREATE TABLE IF NOT EXISTS user_cosmetics (
     expires_at TIMESTAMPTZ,                 -- 过期时间（限时装饰物）
     UNIQUE(user_id, cosmetic_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_cosmetics ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_cosmetics ADD COLUMN IF NOT EXISTS cosmetic_id VARCHAR(50);
+ALTER TABLE user_cosmetics ADD COLUMN IF NOT EXISTS quantity INT DEFAULT 1;
+ALTER TABLE user_cosmetics ADD COLUMN IF NOT EXISTS obtained_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE user_cosmetics ADD COLUMN IF NOT EXISTS obtained_from VARCHAR(30);
+ALTER TABLE user_cosmetics ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ;
 
 CREATE INDEX IF NOT EXISTS idx_user_cosmetics_user ON user_cosmetics(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_cosmetics_expires ON user_cosmetics(expires_at) WHERE expires_at IS NOT NULL;
@@ -60,6 +86,12 @@ CREATE TABLE IF NOT EXISTS pokemon_cosmetics (
     equipped_by UUID REFERENCES users(id),
     UNIQUE(pokemon_instance_id, cosmetic_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokemon_cosmetics ADD COLUMN IF NOT EXISTS pokemon_instance_id VARCHAR(50);
+ALTER TABLE pokemon_cosmetics ADD COLUMN IF NOT EXISTS cosmetic_id VARCHAR(50);
+ALTER TABLE pokemon_cosmetics ADD COLUMN IF NOT EXISTS slot_position INT DEFAULT 0;
+ALTER TABLE pokemon_cosmetics ADD COLUMN IF NOT EXISTS equipped_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE pokemon_cosmetics ADD COLUMN IF NOT EXISTS equipped_by UUID;
 
 CREATE INDEX IF NOT EXISTS idx_pokemon_cosmetics_pokemon ON pokemon_cosmetics(pokemon_instance_id);
 CREATE INDEX IF NOT EXISTS idx_pokemon_cosmetics_cosmetic ON pokemon_cosmetics(cosmetic_id);
@@ -75,6 +107,12 @@ CREATE TABLE IF NOT EXISTS cosmetic_presets (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE cosmetic_presets ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE cosmetic_presets ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+ALTER TABLE cosmetic_presets ADD COLUMN IF NOT EXISTS preset_data JSONB;
+ALTER TABLE cosmetic_presets ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE cosmetic_presets ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_cosmetic_presets_user ON cosmetic_presets(user_id);
 
@@ -90,6 +128,14 @@ CREATE TABLE IF NOT EXISTS cosmetic_statistics (
     total_revenue_gems BIGINT DEFAULT 0,    -- 宝石收入
     last_updated TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE cosmetic_statistics ADD COLUMN IF NOT EXISTS cosmetic_id VARCHAR(50);
+ALTER TABLE cosmetic_statistics ADD COLUMN IF NOT EXISTS total_owned INT DEFAULT 0;
+ALTER TABLE cosmetic_statistics ADD COLUMN IF NOT EXISTS total_equipped INT DEFAULT 0;
+ALTER TABLE cosmetic_statistics ADD COLUMN IF NOT EXISTS total_purchased INT DEFAULT 0;
+ALTER TABLE cosmetic_statistics ADD COLUMN IF NOT EXISTS total_revenue_coins BIGINT DEFAULT 0;
+ALTER TABLE cosmetic_statistics ADD COLUMN IF NOT EXISTS total_revenue_gems BIGINT DEFAULT 0;
+ALTER TABLE cosmetic_statistics ADD COLUMN IF NOT EXISTS last_updated TIMESTAMPTZ DEFAULT NOW();
 
 COMMENT ON TABLE cosmetic_statistics IS 'REQ-00125: 装饰物统计表';
 

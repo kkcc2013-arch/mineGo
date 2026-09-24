@@ -13,6 +13,14 @@ CREATE TABLE IF NOT EXISTS friend_requests (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(from_user_id, to_user_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE friend_requests ADD COLUMN IF NOT EXISTS from_user_id UUID;
+ALTER TABLE friend_requests ADD COLUMN IF NOT EXISTS to_user_id UUID;
+ALTER TABLE friend_requests ADD COLUMN IF NOT EXISTS message TEXT DEFAULT '';
+ALTER TABLE friend_requests ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending';
+ALTER TABLE friend_requests ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '7 days');
+ALTER TABLE friend_requests ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE friend_requests ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 CREATE INDEX IF NOT EXISTS idx_friend_requests_to ON friend_requests(to_user_id, status, expires_at);
 CREATE INDEX IF NOT EXISTS idx_friend_requests_from ON friend_requests(from_user_id, status);
@@ -35,6 +43,13 @@ CREATE TABLE IF NOT EXISTS friend_interactions (
     friendship_points_earned INTEGER DEFAULT 0,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE friend_interactions ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE friend_interactions ADD COLUMN IF NOT EXISTS friend_user_id UUID;
+ALTER TABLE friend_interactions ADD COLUMN IF NOT EXISTS interaction_type VARCHAR(50);
+ALTER TABLE friend_interactions ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
+ALTER TABLE friend_interactions ADD COLUMN IF NOT EXISTS friendship_points_earned INTEGER DEFAULT 0;
+ALTER TABLE friend_interactions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 CREATE INDEX IF NOT EXISTS idx_friend_interactions_user_friend ON friend_interactions(user_id, friend_user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_friend_interactions_type ON friend_interactions(interaction_type);
@@ -86,6 +101,14 @@ CREATE TABLE IF NOT EXISTS user_online_status (
     current_location_lng DECIMAL(11, 8),
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_online_status ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_online_status ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'offline';
+ALTER TABLE user_online_status ADD COLUMN IF NOT EXISTS last_active_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE user_online_status ADD COLUMN IF NOT EXISTS last_heartbeat_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE user_online_status ADD COLUMN IF NOT EXISTS current_location_lat DECIMAL(10, 8);
+ALTER TABLE user_online_status ADD COLUMN IF NOT EXISTS current_location_lng DECIMAL(11, 8);
+ALTER TABLE user_online_status ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 CREATE INDEX IF NOT EXISTS idx_online_status_time ON user_online_status(last_active_at DESC);
 
@@ -96,6 +119,10 @@ CREATE TABLE IF NOT EXISTS friend_system_config (
     description TEXT,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE friend_system_config ADD COLUMN IF NOT EXISTS value INTEGER;
+ALTER TABLE friend_system_config ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE friend_system_config ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 插入默认配置
 INSERT INTO friend_system_config (key, value, description) VALUES
@@ -115,6 +142,11 @@ CREATE TABLE IF NOT EXISTS friendship_level_thresholds (
     label VARCHAR(20) NOT NULL, -- Good, Great, Ultra, Best, Lucky
     rewards JSONB DEFAULT '{}'
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE friendship_level_thresholds ADD COLUMN IF NOT EXISTS level INTEGER;
+ALTER TABLE friendship_level_thresholds ADD COLUMN IF NOT EXISTS min_points INTEGER;
+ALTER TABLE friendship_level_thresholds ADD COLUMN IF NOT EXISTS label VARCHAR(20);
+ALTER TABLE friendship_level_thresholds ADD COLUMN IF NOT EXISTS rewards JSONB DEFAULT '{}';
 
 INSERT INTO friendship_level_thresholds (level, min_points, label, rewards) VALUES
 (1, 0, 'Good', '{"gift_unlock": true}'::jsonb),

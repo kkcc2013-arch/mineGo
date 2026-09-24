@@ -36,6 +36,16 @@ CREATE TABLE IF NOT EXISTS content_localizations (
   CONSTRAINT uq_content_localization 
     UNIQUE (content_type, content_id, field_name, language)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS id UUID DEFAULT uuid_generate_v4();
+ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS content_type VARCHAR(50);
+ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS content_id VARCHAR(100);
+ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS field_name VARCHAR(50);
+ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS language VARCHAR(10);
+ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS translation TEXT;
+ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS metadata JSONB;
+ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
 -- Indexes for efficient querying
 CREATE INDEX IF NOT EXISTS idx_localization_content 
@@ -68,6 +78,22 @@ CREATE TABLE IF NOT EXISTS items (
   created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE items ADD COLUMN IF NOT EXISTS id VARCHAR(50);
+ALTER TABLE items ADD COLUMN IF NOT EXISTS category VARCHAR(30);
+ALTER TABLE items ADD COLUMN IF NOT EXISTS name_zh VARCHAR(100);
+ALTER TABLE items ADD COLUMN IF NOT EXISTS name_en VARCHAR(100);
+ALTER TABLE items ADD COLUMN IF NOT EXISTS name_ja VARCHAR(100);
+ALTER TABLE items ADD COLUMN IF NOT EXISTS description_zh TEXT;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS description_en TEXT;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS description_ja TEXT;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS effect_type VARCHAR(50);
+ALTER TABLE items ADD COLUMN IF NOT EXISTS effect_value DECIMAL(10,4);
+ALTER TABLE items ADD COLUMN IF NOT EXISTS shop_price INTEGER;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS is_premium BOOLEAN DEFAULT FALSE;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS sprite_url VARCHAR(500);
+ALTER TABLE items ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE items ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_items_category ON items(category);
 CREATE INDEX IF NOT EXISTS idx_items_premium ON items(is_premium) WHERE is_premium = TRUE;
@@ -98,6 +124,25 @@ CREATE TABLE IF NOT EXISTS pokemon_moves (
   created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokemon_moves ADD COLUMN IF NOT EXISTS id VARCHAR(50);
+ALTER TABLE pokemon_moves ADD COLUMN IF NOT EXISTS move_type pokemon_type_enum;
+ALTER TABLE pokemon_moves ADD COLUMN IF NOT EXISTS category VARCHAR(20);
+ALTER TABLE pokemon_moves ADD COLUMN IF NOT EXISTS name_zh VARCHAR(100);
+ALTER TABLE pokemon_moves ADD COLUMN IF NOT EXISTS name_en VARCHAR(100);
+ALTER TABLE pokemon_moves ADD COLUMN IF NOT EXISTS name_ja VARCHAR(100);
+ALTER TABLE pokemon_moves ADD COLUMN IF NOT EXISTS description_zh TEXT;
+ALTER TABLE pokemon_moves ADD COLUMN IF NOT EXISTS description_en TEXT;
+ALTER TABLE pokemon_moves ADD COLUMN IF NOT EXISTS description_ja TEXT;
+ALTER TABLE pokemon_moves ADD COLUMN IF NOT EXISTS power SMALLINT;
+ALTER TABLE pokemon_moves ADD COLUMN IF NOT EXISTS energy_cost SMALLINT;
+ALTER TABLE pokemon_moves ADD COLUMN IF NOT EXISTS energy_gain SMALLINT;
+ALTER TABLE pokemon_moves ADD COLUMN IF NOT EXISTS cooldown_ms INTEGER DEFAULT 1000;
+ALTER TABLE pokemon_moves ADD COLUMN IF NOT EXISTS duration_ms INTEGER DEFAULT 500;
+ALTER TABLE pokemon_moves ADD COLUMN IF NOT EXISTS accuracy DECIMAL(5,4) DEFAULT 1.0;
+ALTER TABLE pokemon_moves ADD COLUMN IF NOT EXISTS critical_chance DECIMAL(5,4) DEFAULT 0.05;
+ALTER TABLE pokemon_moves ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE pokemon_moves ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_moves_type ON pokemon_moves(move_type);
 CREATE INDEX IF NOT EXISTS idx_moves_category ON pokemon_moves(category);
@@ -241,6 +286,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_content_localizations_updated ON content_localizations;
 CREATE TRIGGER trg_content_localizations_updated
   BEFORE UPDATE ON content_localizations
   FOR EACH ROW

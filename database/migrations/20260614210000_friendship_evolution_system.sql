@@ -12,6 +12,14 @@ CREATE TABLE IF NOT EXISTS pokemon_friendship_logs (
   new_value INTEGER NOT NULL,            -- 变化后值
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokemon_friendship_logs ADD COLUMN IF NOT EXISTS pokemon_instance_id UUID;
+ALTER TABLE pokemon_friendship_logs ADD COLUMN IF NOT EXISTS change_amount INTEGER;
+ALTER TABLE pokemon_friendship_logs ADD COLUMN IF NOT EXISTS source VARCHAR(50);
+ALTER TABLE pokemon_friendship_logs ADD COLUMN IF NOT EXISTS context JSONB DEFAULT '{}';
+ALTER TABLE pokemon_friendship_logs ADD COLUMN IF NOT EXISTS previous_value INTEGER;
+ALTER TABLE pokemon_friendship_logs ADD COLUMN IF NOT EXISTS new_value INTEGER;
+ALTER TABLE pokemon_friendship_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 -- 亲密度进化规则表
 CREATE TABLE IF NOT EXISTS friendship_evolution_rules (
@@ -23,6 +31,13 @@ CREATE TABLE IF NOT EXISTS friendship_evolution_rules (
   additional_conditions JSONB DEFAULT '{}', -- 其他条件（如携带道具）
   evolution_method VARCHAR(50) DEFAULT 'level_up'  -- level_up, trade, item
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS species_id INTEGER;
+ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS target_species_id INTEGER;
+ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS required_friendship INTEGER DEFAULT 220;
+ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS time_restriction VARCHAR(20);
+ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS additional_conditions JSONB DEFAULT '{}';
+ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS evolution_method VARCHAR(50) DEFAULT 'level_up';
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_friendship_logs_pokemon ON pokemon_friendship_logs(pokemon_instance_id, created_at DESC);

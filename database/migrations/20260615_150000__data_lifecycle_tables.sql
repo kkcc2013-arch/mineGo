@@ -14,6 +14,14 @@ CREATE TABLE IF NOT EXISTS data_retention_policies (
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE data_retention_policies ADD COLUMN IF NOT EXISTS category VARCHAR(32);
+ALTER TABLE data_retention_policies ADD COLUMN IF NOT EXISTS category_name VARCHAR(64);
+ALTER TABLE data_retention_policies ADD COLUMN IF NOT EXISTS retention_days INTEGER;
+ALTER TABLE data_retention_policies ADD COLUMN IF NOT EXISTS cleanup_policy VARCHAR(32);
+ALTER TABLE data_retention_policies ADD COLUMN IF NOT EXISTS enabled BOOLEAN DEFAULT true;
+ALTER TABLE data_retention_policies ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE data_retention_policies ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
 -- 插入默认策略
 INSERT INTO data_retention_policies (category, category_name, retention_days, cleanup_policy) VALUES
@@ -37,6 +45,16 @@ CREATE TABLE IF NOT EXISTS user_data_deletion_requests (
   notes TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_data_deletion_requests ADD COLUMN IF NOT EXISTS user_id VARCHAR(64);
+ALTER TABLE user_data_deletion_requests ADD COLUMN IF NOT EXISTS request_type VARCHAR(16);
+ALTER TABLE user_data_deletion_requests ADD COLUMN IF NOT EXISTS requested_at TIMESTAMP;
+ALTER TABLE user_data_deletion_requests ADD COLUMN IF NOT EXISTS scheduled_deletion_at TIMESTAMP;
+ALTER TABLE user_data_deletion_requests ADD COLUMN IF NOT EXISTS status VARCHAR(16);
+ALTER TABLE user_data_deletion_requests ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP;
+ALTER TABLE user_data_deletion_requests ADD COLUMN IF NOT EXISTS performed_by VARCHAR(64);
+ALTER TABLE user_data_deletion_requests ADD COLUMN IF NOT EXISTS notes TEXT;
+ALTER TABLE user_data_deletion_requests ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_user_deletion_requests_user ON user_data_deletion_requests(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_deletion_requests_status ON user_data_deletion_requests(status);
@@ -58,6 +76,19 @@ CREATE TABLE IF NOT EXISTS data_cleanup_audit_logs (
   error_message TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE data_cleanup_audit_logs ADD COLUMN IF NOT EXISTS operation_type VARCHAR(32);
+ALTER TABLE data_cleanup_audit_logs ADD COLUMN IF NOT EXISTS category VARCHAR(32);
+ALTER TABLE data_cleanup_audit_logs ADD COLUMN IF NOT EXISTS table_name VARCHAR(128);
+ALTER TABLE data_cleanup_audit_logs ADD COLUMN IF NOT EXISTS record_count INTEGER;
+ALTER TABLE data_cleanup_audit_logs ADD COLUMN IF NOT EXISTS reason TEXT;
+ALTER TABLE data_cleanup_audit_logs ADD COLUMN IF NOT EXISTS performed_by VARCHAR(64);
+ALTER TABLE data_cleanup_audit_logs ADD COLUMN IF NOT EXISTS retention_days INTEGER;
+ALTER TABLE data_cleanup_audit_logs ADD COLUMN IF NOT EXISTS criteria JSONB;
+ALTER TABLE data_cleanup_audit_logs ADD COLUMN IF NOT EXISTS execution_time_ms INTEGER;
+ALTER TABLE data_cleanup_audit_logs ADD COLUMN IF NOT EXISTS status VARCHAR(16);
+ALTER TABLE data_cleanup_audit_logs ADD COLUMN IF NOT EXISTS error_message TEXT;
+ALTER TABLE data_cleanup_audit_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_cleanup_audit_logs_operation ON data_cleanup_audit_logs(operation_type, created_at);
 CREATE INDEX IF NOT EXISTS idx_cleanup_audit_logs_category ON data_cleanup_audit_logs(category, created_at);
@@ -79,6 +110,19 @@ CREATE TABLE IF NOT EXISTS data_archives (
   metadata JSONB DEFAULT '{}',
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE data_archives ADD COLUMN IF NOT EXISTS archive_id VARCHAR(64);
+ALTER TABLE data_archives ADD COLUMN IF NOT EXISTS category VARCHAR(32);
+ALTER TABLE data_archives ADD COLUMN IF NOT EXISTS table_name VARCHAR(64);
+ALTER TABLE data_archives ADD COLUMN IF NOT EXISTS record_count INTEGER;
+ALTER TABLE data_archives ADD COLUMN IF NOT EXISTS storage_path VARCHAR(512);
+ALTER TABLE data_archives ADD COLUMN IF NOT EXISTS storage_type VARCHAR(32);
+ALTER TABLE data_archives ADD COLUMN IF NOT EXISTS compressed BOOLEAN DEFAULT true;
+ALTER TABLE data_archives ADD COLUMN IF NOT EXISTS file_size_bytes BIGINT;
+ALTER TABLE data_archives ADD COLUMN IF NOT EXISTS archived_at TIMESTAMP;
+ALTER TABLE data_archives ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
+ALTER TABLE data_archives ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
+ALTER TABLE data_archives ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_data_archives_category ON data_archives(category);
 CREATE INDEX IF NOT EXISTS idx_data_archives_archived_at ON data_archives(archived_at);

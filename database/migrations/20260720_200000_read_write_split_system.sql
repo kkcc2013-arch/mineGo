@@ -10,6 +10,9 @@ CREATE TABLE IF NOT EXISTS replica_lag_heartbeat (
   heartbeat_time BIGINT NOT NULL,
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE replica_lag_heartbeat ADD COLUMN IF NOT EXISTS heartbeat_time BIGINT;
+ALTER TABLE replica_lag_heartbeat ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_replica_lag_heartbeat_time 
 ON replica_lag_heartbeat(heartbeat_time);
@@ -43,6 +46,13 @@ CREATE TABLE IF NOT EXISTS replica_monitor_log (
   error_message TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE replica_monitor_log ADD COLUMN IF NOT EXISTS replica_id VARCHAR(50);
+ALTER TABLE replica_monitor_log ADD COLUMN IF NOT EXISTS lag_ms INTEGER;
+ALTER TABLE replica_monitor_log ADD COLUMN IF NOT EXISTS healthy BOOLEAN DEFAULT true;
+ALTER TABLE replica_monitor_log ADD COLUMN IF NOT EXISTS check_method VARCHAR(20);
+ALTER TABLE replica_monitor_log ADD COLUMN IF NOT EXISTS error_message TEXT;
+ALTER TABLE replica_monitor_log ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_replica_monitor_replica 
 ON replica_monitor_log(replica_id);
@@ -70,6 +80,17 @@ CREATE TABLE IF NOT EXISTS replica_config (
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE replica_config ADD COLUMN IF NOT EXISTS replica_id VARCHAR(50);
+ALTER TABLE replica_config ADD COLUMN IF NOT EXISTS host VARCHAR(255);
+ALTER TABLE replica_config ADD COLUMN IF NOT EXISTS port INTEGER;
+ALTER TABLE replica_config ADD COLUMN IF NOT EXISTS weight INTEGER DEFAULT 1;
+ALTER TABLE replica_config ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE replica_config ADD COLUMN IF NOT EXISTS lag_warning_threshold_ms INTEGER DEFAULT 500;
+ALTER TABLE replica_config ADD COLUMN IF NOT EXISTS lag_critical_threshold_ms INTEGER DEFAULT 2000;
+ALTER TABLE replica_config ADD COLUMN IF NOT EXISTS lag_max_threshold_ms INTEGER DEFAULT 5000;
+ALTER TABLE replica_config ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE replica_config ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
 -- 初始配置（示例）
 INSERT INTO replica_config (replica_id, host, port, weight)
@@ -94,6 +115,17 @@ CREATE TABLE IF NOT EXISTS read_write_split_log (
   error_message TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE read_write_split_log ADD COLUMN IF NOT EXISTS request_id VARCHAR(100);
+ALTER TABLE read_write_split_log ADD COLUMN IF NOT EXISTS pool_type VARCHAR(20);
+ALTER TABLE read_write_split_log ADD COLUMN IF NOT EXISTS query_type VARCHAR(20);
+ALTER TABLE read_write_split_log ADD COLUMN IF NOT EXISTS consistency_level VARCHAR(20);
+ALTER TABLE read_write_split_log ADD COLUMN IF NOT EXISTS table_name VARCHAR(100);
+ALTER TABLE read_write_split_log ADD COLUMN IF NOT EXISTS query_duration_ms INTEGER;
+ALTER TABLE read_write_split_log ADD COLUMN IF NOT EXISTS rows_affected INTEGER;
+ALTER TABLE read_write_split_log ADD COLUMN IF NOT EXISTS error_occurred BOOLEAN DEFAULT false;
+ALTER TABLE read_write_split_log ADD COLUMN IF NOT EXISTS error_message TEXT;
+ALTER TABLE read_write_split_log ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_rw_split_log_pool 
 ON read_write_split_log(pool_type);
@@ -118,6 +150,14 @@ CREATE TABLE IF NOT EXISTS failover_event (
   recovered_at TIMESTAMP,
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE failover_event ADD COLUMN IF NOT EXISTS event_type VARCHAR(50);
+ALTER TABLE failover_event ADD COLUMN IF NOT EXISTS from_pool VARCHAR(50);
+ALTER TABLE failover_event ADD COLUMN IF NOT EXISTS to_pool VARCHAR(50);
+ALTER TABLE failover_event ADD COLUMN IF NOT EXISTS reason TEXT;
+ALTER TABLE failover_event ADD COLUMN IF NOT EXISTS lag_ms INTEGER;
+ALTER TABLE failover_event ADD COLUMN IF NOT EXISTS recovered_at TIMESTAMP;
+ALTER TABLE failover_event ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_failover_event_type 
 ON failover_event(event_type);

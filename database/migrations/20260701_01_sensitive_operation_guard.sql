@@ -17,12 +17,25 @@ CREATE TABLE IF NOT EXISTS risk_evaluations (
   location_lng DOUBLE PRECISION,
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE risk_evaluations ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE risk_evaluations ADD COLUMN IF NOT EXISTS operation VARCHAR(100);
+ALTER TABLE risk_evaluations ADD COLUMN IF NOT EXISTS risk_level VARCHAR(20);
+ALTER TABLE risk_evaluations ADD COLUMN IF NOT EXISTS risk_score INTEGER;
+ALTER TABLE risk_evaluations ADD COLUMN IF NOT EXISTS factors JSONB;
+ALTER TABLE risk_evaluations ADD COLUMN IF NOT EXISTS recommendation TEXT[];
+ALTER TABLE risk_evaluations ADD COLUMN IF NOT EXISTS ip_address VARCHAR(45);
+ALTER TABLE risk_evaluations ADD COLUMN IF NOT EXISTS device_id VARCHAR(100);
+ALTER TABLE risk_evaluations ADD COLUMN IF NOT EXISTS user_agent TEXT;
+ALTER TABLE risk_evaluations ADD COLUMN IF NOT EXISTS location_lat DOUBLE PRECISION;
+ALTER TABLE risk_evaluations ADD COLUMN IF NOT EXISTS location_lng DOUBLE PRECISION;
+ALTER TABLE risk_evaluations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
-CREATE INDEX idx_risk_evaluations_user ON risk_evaluations(user_id);
-CREATE INDEX idx_risk_evaluations_operation ON risk_evaluations(operation);
-CREATE INDEX idx_risk_evaluations_level ON risk_evaluations(risk_level);
-CREATE INDEX idx_risk_evaluations_created ON risk_evaluations(created_at);
-CREATE INDEX idx_risk_evaluations_score ON risk_evaluations(risk_score);
+CREATE INDEX IF NOT EXISTS idx_risk_evaluations_user ON risk_evaluations(user_id);
+CREATE INDEX IF NOT EXISTS idx_risk_evaluations_operation ON risk_evaluations(operation);
+CREATE INDEX IF NOT EXISTS idx_risk_evaluations_level ON risk_evaluations(risk_level);
+CREATE INDEX IF NOT EXISTS idx_risk_evaluations_created ON risk_evaluations(created_at);
+CREATE INDEX IF NOT EXISTS idx_risk_evaluations_score ON risk_evaluations(risk_score);
 
 -- 敏感操作审计日志
 CREATE TABLE IF NOT EXISTS sensitive_operation_logs (
@@ -43,12 +56,28 @@ CREATE TABLE IF NOT EXISTS sensitive_operation_logs (
   error_message TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS operation VARCHAR(100);
+ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS risk_level VARCHAR(20);
+ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS risk_score INTEGER;
+ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS status VARCHAR(20);
+ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS verification_type VARCHAR(50);
+ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS verification_passed BOOLEAN;
+ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS ip_address VARCHAR(45);
+ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS device_id VARCHAR(100);
+ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS request_id VARCHAR(100);
+ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS request_metadata JSONB;
+ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS response_status INTEGER;
+ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS duration_ms INTEGER;
+ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS error_message TEXT;
+ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
-CREATE INDEX idx_sensitive_ops_user ON sensitive_operation_logs(user_id);
-CREATE INDEX idx_sensitive_ops_operation ON sensitive_operation_logs(operation);
-CREATE INDEX idx_sensitive_ops_status ON sensitive_operation_logs(status);
-CREATE INDEX idx_sensitive_ops_created ON sensitive_operation_logs(created_at);
-CREATE INDEX idx_sensitive_ops_level ON sensitive_operation_logs(risk_level);
+CREATE INDEX IF NOT EXISTS idx_sensitive_ops_user ON sensitive_operation_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_sensitive_ops_operation ON sensitive_operation_logs(operation);
+CREATE INDEX IF NOT EXISTS idx_sensitive_ops_status ON sensitive_operation_logs(status);
+CREATE INDEX IF NOT EXISTS idx_sensitive_ops_created ON sensitive_operation_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_sensitive_ops_level ON sensitive_operation_logs(risk_level);
 
 -- 设备信任记录
 CREATE TABLE IF NOT EXISTS device_trust (
@@ -68,10 +97,25 @@ CREATE TABLE IF NOT EXISTS device_trust (
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE device_trust ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE device_trust ADD COLUMN IF NOT EXISTS device_id VARCHAR(100);
+ALTER TABLE device_trust ADD COLUMN IF NOT EXISTS device_fingerprint VARCHAR(255);
+ALTER TABLE device_trust ADD COLUMN IF NOT EXISTS is_trusted BOOLEAN DEFAULT false;
+ALTER TABLE device_trust ADD COLUMN IF NOT EXISTS is_suspicious BOOLEAN DEFAULT false;
+ALTER TABLE device_trust ADD COLUMN IF NOT EXISTS is_rooted BOOLEAN DEFAULT false;
+ALTER TABLE device_trust ADD COLUMN IF NOT EXISTS fingerprint_mismatch BOOLEAN DEFAULT false;
+ALTER TABLE device_trust ADD COLUMN IF NOT EXISTS first_seen TIMESTAMP DEFAULT NOW();
+ALTER TABLE device_trust ADD COLUMN IF NOT EXISTS last_seen TIMESTAMP DEFAULT NOW();
+ALTER TABLE device_trust ADD COLUMN IF NOT EXISTS usage_count INTEGER DEFAULT 0;
+ALTER TABLE device_trust ADD COLUMN IF NOT EXISTS risk_score INTEGER DEFAULT 0;
+ALTER TABLE device_trust ADD COLUMN IF NOT EXISTS metadata JSONB;
+ALTER TABLE device_trust ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE device_trust ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
-CREATE INDEX idx_device_trust_user ON device_trust(user_id);
-CREATE INDEX idx_device_trust_device ON device_trust(device_id);
-CREATE INDEX idx_device_trust_suspicious ON device_trust(is_suspicious);
+CREATE INDEX IF NOT EXISTS idx_device_trust_user ON device_trust(user_id);
+CREATE INDEX IF NOT EXISTS idx_device_trust_device ON device_trust(device_id);
+CREATE INDEX IF NOT EXISTS idx_device_trust_suspicious ON device_trust(is_suspicious);
 
 -- IP 风险记录
 CREATE TABLE IF NOT EXISTS ip_risk_records (
@@ -88,10 +132,22 @@ CREATE TABLE IF NOT EXISTS ip_risk_records (
   last_updated TIMESTAMP DEFAULT NOW(),
   metadata JSONB
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE ip_risk_records ADD COLUMN IF NOT EXISTS ip_address VARCHAR(45);
+ALTER TABLE ip_risk_records ADD COLUMN IF NOT EXISTS is_vpn BOOLEAN DEFAULT false;
+ALTER TABLE ip_risk_records ADD COLUMN IF NOT EXISTS is_tor BOOLEAN DEFAULT false;
+ALTER TABLE ip_risk_records ADD COLUMN IF NOT EXISTS is_proxy BOOLEAN DEFAULT false;
+ALTER TABLE ip_risk_records ADD COLUMN IF NOT EXISTS is_blacklisted BOOLEAN DEFAULT false;
+ALTER TABLE ip_risk_records ADD COLUMN IF NOT EXISTS threat_score INTEGER DEFAULT 0;
+ALTER TABLE ip_risk_records ADD COLUMN IF NOT EXISTS country VARCHAR(10);
+ALTER TABLE ip_risk_records ADD COLUMN IF NOT EXISTS city VARCHAR(100);
+ALTER TABLE ip_risk_records ADD COLUMN IF NOT EXISTS isp VARCHAR(255);
+ALTER TABLE ip_risk_records ADD COLUMN IF NOT EXISTS last_updated TIMESTAMP DEFAULT NOW();
+ALTER TABLE ip_risk_records ADD COLUMN IF NOT EXISTS metadata JSONB;
 
-CREATE INDEX idx_ip_risk_ip ON ip_risk_records(ip_address);
-CREATE INDEX idx_ip_risk_threat ON ip_risk_records(threat_score);
-CREATE INDEX idx_ip_risk_blacklisted ON ip_risk_records(is_blacklisted);
+CREATE INDEX IF NOT EXISTS idx_ip_risk_ip ON ip_risk_records(ip_address);
+CREATE INDEX IF NOT EXISTS idx_ip_risk_threat ON ip_risk_records(threat_score);
+CREATE INDEX IF NOT EXISTS idx_ip_risk_blacklisted ON ip_risk_records(is_blacklisted);
 
 -- 敏感操作配置
 CREATE TABLE IF NOT EXISTS sensitive_operations_config (
@@ -110,6 +166,20 @@ CREATE TABLE IF NOT EXISTS sensitive_operations_config (
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE sensitive_operations_config ADD COLUMN IF NOT EXISTS operation VARCHAR(100);
+ALTER TABLE sensitive_operations_config ADD COLUMN IF NOT EXISTS level VARCHAR(20) DEFAULT 'medium';
+ALTER TABLE sensitive_operations_config ADD COLUMN IF NOT EXISTS weight INTEGER DEFAULT 50;
+ALTER TABLE sensitive_operations_config ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE sensitive_operations_config ADD COLUMN IF NOT EXISTS requires_mfa BOOLEAN DEFAULT false;
+ALTER TABLE sensitive_operations_config ADD COLUMN IF NOT EXISTS requires_sms BOOLEAN DEFAULT false;
+ALTER TABLE sensitive_operations_config ADD COLUMN IF NOT EXISTS requires_email BOOLEAN DEFAULT false;
+ALTER TABLE sensitive_operations_config ADD COLUMN IF NOT EXISTS requires_captcha BOOLEAN DEFAULT false;
+ALTER TABLE sensitive_operations_config ADD COLUMN IF NOT EXISTS cooldown_ms INTEGER DEFAULT 0;
+ALTER TABLE sensitive_operations_config ADD COLUMN IF NOT EXISTS max_attempts INTEGER DEFAULT 10;
+ALTER TABLE sensitive_operations_config ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE sensitive_operations_config ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE sensitive_operations_config ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
 -- 插入默认敏感操作配置
 INSERT INTO sensitive_operations_config (operation, level, weight, description, requires_mfa, requires_sms, requires_captcha, cooldown_ms, max_attempts)
@@ -157,9 +227,19 @@ CREATE TABLE IF NOT EXISTS user_risk_stats (
   risk_trend VARCHAR(20), -- increasing, stable, decreasing
   updated_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_risk_stats ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE user_risk_stats ADD COLUMN IF NOT EXISTS total_operations INTEGER DEFAULT 0;
+ALTER TABLE user_risk_stats ADD COLUMN IF NOT EXISTS high_risk_count INTEGER DEFAULT 0;
+ALTER TABLE user_risk_stats ADD COLUMN IF NOT EXISTS critical_risk_count INTEGER DEFAULT 0;
+ALTER TABLE user_risk_stats ADD COLUMN IF NOT EXISTS failed_operations INTEGER DEFAULT 0;
+ALTER TABLE user_risk_stats ADD COLUMN IF NOT EXISTS last_operation_at TIMESTAMP;
+ALTER TABLE user_risk_stats ADD COLUMN IF NOT EXISTS cumulative_risk_score INTEGER DEFAULT 0;
+ALTER TABLE user_risk_stats ADD COLUMN IF NOT EXISTS risk_trend VARCHAR(20);
+ALTER TABLE user_risk_stats ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
-CREATE INDEX idx_user_risk_stats_user ON user_risk_stats(user_id);
-CREATE INDEX idx_user_risk_stats_risk ON user_risk_stats(cumulative_risk_score);
+CREATE INDEX IF NOT EXISTS idx_user_risk_stats_user ON user_risk_stats(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_risk_stats_risk ON user_risk_stats(cumulative_risk_score);
 
 -- 注释
 COMMENT ON TABLE risk_evaluations IS '风险评估记录';

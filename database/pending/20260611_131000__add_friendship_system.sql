@@ -22,6 +22,20 @@ CREATE TABLE IF NOT EXISTS pokemon_friendship (
     CONSTRAINT valid_daily_walking_bonus CHECK (daily_walking_bonus >= 0 AND daily_walking_bonus <= 10),
     UNIQUE(pokemon_instance_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS pokemon_instance_id INTEGER;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS friendship_value INTEGER DEFAULT 50;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS friendship_level VARCHAR(20) DEFAULT 'normal';
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS daily_walking_bonus INTEGER DEFAULT 0;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS last_walking_bonus_date DATE;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS daily_interaction_count INTEGER DEFAULT 0;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS last_interaction_date DATE;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS total_interactions INTEGER DEFAULT 0;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS days_with_trainer INTEGER DEFAULT 0;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS first_obtained_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS last_interaction_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE pokemon_friendship IS '精灵好感度表';
 COMMENT ON COLUMN pokemon_friendship.friendship_value IS '好感度值 (0-255)';
@@ -39,6 +53,15 @@ CREATE TABLE IF NOT EXISTS friendship_history (
     metadata JSONB DEFAULT '{}',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS pokemon_instance_id INTEGER;
+ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS change_type VARCHAR(50);
+ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS change_amount INTEGER;
+ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS before_value INTEGER;
+ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS after_value INTEGER;
+ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS source VARCHAR(100);
+ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
+ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE friendship_history IS '好感度变化历史记录';
 
@@ -52,6 +75,13 @@ CREATE TABLE IF NOT EXISTS friendship_evolution_rules (
     additional_item_id INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS species_id INTEGER;
+ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS evolution_species_id INTEGER;
+ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS required_friendship INTEGER DEFAULT 220;
+ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS time_condition VARCHAR(20);
+ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS additional_item_id INTEGER;
+ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE friendship_evolution_rules IS '亲密度进化规则配置';
 
@@ -66,6 +96,14 @@ CREATE TABLE IF NOT EXISTS friendship_interaction_config (
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE friendship_interaction_config ADD COLUMN IF NOT EXISTS interaction_type VARCHAR(50);
+ALTER TABLE friendship_interaction_config ADD COLUMN IF NOT EXISTS friendship_change INTEGER;
+ALTER TABLE friendship_interaction_config ADD COLUMN IF NOT EXISTS daily_limit INTEGER DEFAULT NULL;
+ALTER TABLE friendship_interaction_config ADD COLUMN IF NOT EXISTS cooldown_hours INTEGER DEFAULT 0;
+ALTER TABLE friendship_interaction_config ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE friendship_interaction_config ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
+ALTER TABLE friendship_interaction_config ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE friendship_interaction_config IS '好感度互动类型配置';
 

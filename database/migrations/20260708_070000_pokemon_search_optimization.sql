@@ -32,6 +32,12 @@ CREATE TABLE IF NOT EXISTS pokemon_search_cache (
   expires_at TIMESTAMP NOT NULL,
   UNIQUE(user_id, search_term)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokemon_search_cache ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE pokemon_search_cache ADD COLUMN IF NOT EXISTS search_term VARCHAR(100);
+ALTER TABLE pokemon_search_cache ADD COLUMN IF NOT EXISTS result_ids JSONB;
+ALTER TABLE pokemon_search_cache ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE pokemon_search_cache ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
 
 CREATE INDEX IF NOT EXISTS idx_search_cache_user_term ON pokemon_search_cache(user_id, search_term);
 CREATE INDEX IF NOT EXISTS idx_search_cache_expires ON pokemon_search_cache(expires_at);

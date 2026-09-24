@@ -20,6 +20,18 @@ CREATE TABLE IF NOT EXISTS bag_capacity_config (
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE bag_capacity_config ADD COLUMN IF NOT EXISTS player_level_min INT DEFAULT 1;
+ALTER TABLE bag_capacity_config ADD COLUMN IF NOT EXISTS player_level_max INT;
+ALTER TABLE bag_capacity_config ADD COLUMN IF NOT EXISTS base_capacity INT DEFAULT 300;
+ALTER TABLE bag_capacity_config ADD COLUMN IF NOT EXISTS max_capacity INT DEFAULT 3000;
+ALTER TABLE bag_capacity_config ADD COLUMN IF NOT EXISTS expansion_unit INT DEFAULT 50;
+ALTER TABLE bag_capacity_config ADD COLUMN IF NOT EXISTS gold_cost_per_unit INT DEFAULT 200;
+ALTER TABLE bag_capacity_config ADD COLUMN IF NOT EXISTS diamond_cost_per_unit INT DEFAULT 100;
+ALTER TABLE bag_capacity_config ADD COLUMN IF NOT EXISTS vip_bonus_capacity JSONB DEFAULT '{"1": 50, "2": 100, "3": 150, "4": 200, "5": 300}';
+ALTER TABLE bag_capacity_config ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
+ALTER TABLE bag_capacity_config ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE bag_capacity_config ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
 -- 插入默认配置
 INSERT INTO bag_capacity_config 
@@ -47,6 +59,15 @@ CREATE TABLE IF NOT EXISTS player_bag_capacity (
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE player_bag_capacity ADD COLUMN IF NOT EXISTS user_id BIGINT;
+ALTER TABLE player_bag_capacity ADD COLUMN IF NOT EXISTS current_capacity INT DEFAULT 300;
+ALTER TABLE player_bag_capacity ADD COLUMN IF NOT EXISTS max_ever_purchased INT DEFAULT 0;
+ALTER TABLE player_bag_capacity ADD COLUMN IF NOT EXISTS used_slots INT DEFAULT 0;
+ALTER TABLE player_bag_capacity ADD COLUMN IF NOT EXISTS bonus_capacity INT DEFAULT 0;
+ALTER TABLE player_bag_capacity ADD COLUMN IF NOT EXISTS last_capacity_check TIMESTAMP DEFAULT NOW();
+ALTER TABLE player_bag_capacity ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE player_bag_capacity ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_player_bag_capacity_user ON player_bag_capacity(user_id);
 CREATE INDEX IF NOT EXISTS idx_player_bag_capacity_check ON player_bag_capacity(last_capacity_check);
@@ -68,6 +89,17 @@ CREATE TABLE IF NOT EXISTS bag_expansion_history (
     metadata JSONB DEFAULT '{}',
     created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS user_id BIGINT;
+ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS expansion_type VARCHAR(20);
+ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS units INT;
+ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS capacity_before INT;
+ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS capacity_after INT;
+ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS cost_amount INT;
+ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS cost_currency VARCHAR(20);
+ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS transaction_id VARCHAR(100);
+ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
+ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_bag_expansion_history_user ON bag_expansion_history(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_bag_expansion_history_type ON bag_expansion_history(expansion_type, created_at DESC);
@@ -88,6 +120,16 @@ CREATE TABLE IF NOT EXISTS bag_alert_config (
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE bag_alert_config ADD COLUMN IF NOT EXISTS user_id BIGINT;
+ALTER TABLE bag_alert_config ADD COLUMN IF NOT EXISTS enable_alert BOOLEAN DEFAULT TRUE;
+ALTER TABLE bag_alert_config ADD COLUMN IF NOT EXISTS alert_thresholds INT[] DEFAULT '{85, 90, 95, 99}';
+ALTER TABLE bag_alert_config ADD COLUMN IF NOT EXISTS auto_transfer_to_storage BOOLEAN DEFAULT FALSE;
+ALTER TABLE bag_alert_config ADD COLUMN IF NOT EXISTS auto_transfer_threshold INT DEFAULT 95;
+ALTER TABLE bag_alert_config ADD COLUMN IF NOT EXISTS notification_method VARCHAR(20) DEFAULT 'push';
+ALTER TABLE bag_alert_config ADD COLUMN IF NOT EXISTS last_alert_sent TIMESTAMP;
+ALTER TABLE bag_alert_config ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE bag_alert_config ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_bag_alert_config_user ON bag_alert_config(user_id);
 CREATE INDEX IF NOT EXISTS idx_bag_alert_config_enabled ON bag_alert_config(enable_alert) WHERE enable_alert = TRUE;
@@ -119,11 +161,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_player_bag_capacity_updated_at ON player_bag_capacity;
 CREATE TRIGGER update_player_bag_capacity_updated_at
     BEFORE UPDATE ON player_bag_capacity
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_bag_alert_config_updated_at ON bag_alert_config;
 CREATE TRIGGER update_bag_alert_config_updated_at
     BEFORE UPDATE ON bag_alert_config
     FOR EACH ROW
@@ -162,6 +206,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_bag_used_slots_trigger ON pokemon;
 CREATE TRIGGER update_bag_used_slots_trigger
     AFTER INSERT OR UPDATE ON pokemon
     FOR EACH ROW

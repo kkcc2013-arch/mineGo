@@ -16,6 +16,11 @@ CREATE TABLE IF NOT EXISTS user_timezone_preferences (
     'Australia/Sydney'
   ))
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_timezone_preferences ADD COLUMN IF NOT EXISTS user_id VARCHAR(100);
+ALTER TABLE user_timezone_preferences ADD COLUMN IF NOT EXISTS timezone VARCHAR(100) DEFAULT 'UTC';
+ALTER TABLE user_timezone_preferences ADD COLUMN IF NOT EXISTS auto_detect BOOLEAN DEFAULT true;
+ALTER TABLE user_timezone_preferences ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ;
 
 -- 为 events 表添加时区相关字段
 ALTER TABLE events ADD COLUMN IF NOT EXISTS is_timezone_relative BOOLEAN DEFAULT false;

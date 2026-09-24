@@ -40,6 +40,23 @@ CREATE TABLE IF NOT EXISTS marketplace_listings (
         listing_type != 'auction' OR starting_bid IS NOT NULL
     )
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS listing_id VARCHAR(36);
+ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS seller_id UUID;
+ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS pokemon_id INTEGER;
+ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS listing_type VARCHAR(20);
+ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS fixed_price INTEGER;
+ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS starting_bid INTEGER;
+ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS buyout_price INTEGER;
+ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS current_highest_bid INTEGER DEFAULT 0;
+ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS current_highest_bidder_id UUID;
+ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS bid_count INTEGER DEFAULT 0;
+ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS sold_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';
+ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS featured BOOLEAN DEFAULT false;
+ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS view_count INTEGER DEFAULT 0;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_marketplace_seller_id ON marketplace_listings(seller_id);
@@ -64,6 +81,15 @@ CREATE TABLE IF NOT EXISTS marketplace_bids (
     ),
     CONSTRAINT valid_bid_amount CHECK (bid_amount > 0)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE marketplace_bids ADD COLUMN IF NOT EXISTS bid_id VARCHAR(36);
+ALTER TABLE marketplace_bids ADD COLUMN IF NOT EXISTS listing_id INTEGER;
+ALTER TABLE marketplace_bids ADD COLUMN IF NOT EXISTS bidder_id UUID;
+ALTER TABLE marketplace_bids ADD COLUMN IF NOT EXISTS bid_amount INTEGER;
+ALTER TABLE marketplace_bids ADD COLUMN IF NOT EXISTS is_auto_bid BOOLEAN DEFAULT false;
+ALTER TABLE marketplace_bids ADD COLUMN IF NOT EXISTS max_auto_bid INTEGER;
+ALTER TABLE marketplace_bids ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE marketplace_bids ADD COLUMN IF NOT EXISTS is_winning BOOLEAN DEFAULT false;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_bids_listing_bidder ON marketplace_bids(listing_id, bidder_id);
@@ -78,6 +104,10 @@ CREATE TABLE IF NOT EXISTS marketplace_favorites (
     
     UNIQUE(user_id, listing_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE marketplace_favorites ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE marketplace_favorites ADD COLUMN IF NOT EXISTS listing_id INTEGER;
+ALTER TABLE marketplace_favorites ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_favorites_user ON marketplace_favorites(user_id);
 
@@ -96,6 +126,16 @@ CREATE TABLE IF NOT EXISTS marketplace_transactions (
     
     CONSTRAINT valid_final_price CHECK (final_price > 0)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE marketplace_transactions ADD COLUMN IF NOT EXISTS transaction_id VARCHAR(36);
+ALTER TABLE marketplace_transactions ADD COLUMN IF NOT EXISTS listing_id INTEGER;
+ALTER TABLE marketplace_transactions ADD COLUMN IF NOT EXISTS seller_id UUID;
+ALTER TABLE marketplace_transactions ADD COLUMN IF NOT EXISTS buyer_id UUID;
+ALTER TABLE marketplace_transactions ADD COLUMN IF NOT EXISTS pokemon_id INTEGER;
+ALTER TABLE marketplace_transactions ADD COLUMN IF NOT EXISTS final_price INTEGER;
+ALTER TABLE marketplace_transactions ADD COLUMN IF NOT EXISTS fee_amount INTEGER;
+ALTER TABLE marketplace_transactions ADD COLUMN IF NOT EXISTS transaction_type VARCHAR(20);
+ALTER TABLE marketplace_transactions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_transactions_seller ON marketplace_transactions(seller_id, created_at);
@@ -114,6 +154,13 @@ CREATE TABLE IF NOT EXISTS marketplace_price_history (
     
     UNIQUE(pokemon_species_id, recorded_date)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE marketplace_price_history ADD COLUMN IF NOT EXISTS pokemon_species_id INTEGER;
+ALTER TABLE marketplace_price_history ADD COLUMN IF NOT EXISTS avg_price INTEGER;
+ALTER TABLE marketplace_price_history ADD COLUMN IF NOT EXISTS min_price INTEGER;
+ALTER TABLE marketplace_price_history ADD COLUMN IF NOT EXISTS max_price INTEGER;
+ALTER TABLE marketplace_price_history ADD COLUMN IF NOT EXISTS transaction_count INTEGER DEFAULT 0;
+ALTER TABLE marketplace_price_history ADD COLUMN IF NOT EXISTS recorded_date DATE;
 
 CREATE INDEX IF NOT EXISTS idx_price_history_species_date ON marketplace_price_history(pokemon_species_id, recorded_date);
 
@@ -131,6 +178,18 @@ CREATE TABLE IF NOT EXISTS marketplace_user_stats (
     last_listing_at TIMESTAMP WITH TIME ZONE,
     last_transaction_at TIMESTAMP WITH TIME ZONE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE marketplace_user_stats ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE marketplace_user_stats ADD COLUMN IF NOT EXISTS total_listings INTEGER DEFAULT 0;
+ALTER TABLE marketplace_user_stats ADD COLUMN IF NOT EXISTS total_sales INTEGER DEFAULT 0;
+ALTER TABLE marketplace_user_stats ADD COLUMN IF NOT EXISTS total_purchases INTEGER DEFAULT 0;
+ALTER TABLE marketplace_user_stats ADD COLUMN IF NOT EXISTS total_earned INTEGER DEFAULT 0;
+ALTER TABLE marketplace_user_stats ADD COLUMN IF NOT EXISTS total_spent INTEGER DEFAULT 0;
+ALTER TABLE marketplace_user_stats ADD COLUMN IF NOT EXISTS total_fees_paid INTEGER DEFAULT 0;
+ALTER TABLE marketplace_user_stats ADD COLUMN IF NOT EXISTS rating_score DECIMAL(3,2) DEFAULT 5.00;
+ALTER TABLE marketplace_user_stats ADD COLUMN IF NOT EXISTS rating_count INTEGER DEFAULT 0;
+ALTER TABLE marketplace_user_stats ADD COLUMN IF NOT EXISTS last_listing_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE marketplace_user_stats ADD COLUMN IF NOT EXISTS last_transaction_at TIMESTAMP WITH TIME ZONE;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_user_stats_sales ON marketplace_user_stats(total_sales DESC);

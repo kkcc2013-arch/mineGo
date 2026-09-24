@@ -16,6 +16,19 @@ CREATE TABLE IF NOT EXISTS abilities (
     meta_data JSONB DEFAULT '{}',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE abilities ADD COLUMN IF NOT EXISTS id VARCHAR(50);
+ALTER TABLE abilities ADD COLUMN IF NOT EXISTS name_en VARCHAR(100);
+ALTER TABLE abilities ADD COLUMN IF NOT EXISTS name_zh VARCHAR(100);
+ALTER TABLE abilities ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE abilities ADD COLUMN IF NOT EXISTS type VARCHAR(20);
+ALTER TABLE abilities ADD COLUMN IF NOT EXISTS trigger_condition JSONB;
+ALTER TABLE abilities ADD COLUMN IF NOT EXISTS effect_config JSONB;
+ALTER TABLE abilities ADD COLUMN IF NOT EXISTS priority INTEGER DEFAULT 0;
+ALTER TABLE abilities ADD COLUMN IF NOT EXISTS is_hidden BOOLEAN DEFAULT FALSE;
+ALTER TABLE abilities ADD COLUMN IF NOT EXISTS introduced_generation INTEGER DEFAULT 9;
+ALTER TABLE abilities ADD COLUMN IF NOT EXISTS meta_data JSONB DEFAULT '{}';
+ALTER TABLE abilities ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE abilities IS '精灵特性定义表';
 COMMENT ON COLUMN abilities.type IS '特性类型: passive=被动, trigger=触发, environment=环境, immunity=免疫, transformation=转换';
@@ -32,6 +45,12 @@ CREATE TABLE IF NOT EXISTS pokemon_abilities (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(pokemon_species_id, ability_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokemon_abilities ADD COLUMN IF NOT EXISTS pokemon_species_id VARCHAR(50);
+ALTER TABLE pokemon_abilities ADD COLUMN IF NOT EXISTS ability_id VARCHAR(50);
+ALTER TABLE pokemon_abilities ADD COLUMN IF NOT EXISTS slot INTEGER;
+ALTER TABLE pokemon_abilities ADD COLUMN IF NOT EXISTS probability DECIMAL(5, 4) DEFAULT 1.0;
+ALTER TABLE pokemon_abilities ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 CREATE INDEX IF NOT EXISTS idx_pokemon_abilities_species ON pokemon_abilities(pokemon_species_id);
 CREATE INDEX IF NOT EXISTS idx_pokemon_abilities_ability ON pokemon_abilities(ability_id);
@@ -50,6 +69,14 @@ CREATE TABLE IF NOT EXISTS player_pokemon_abilities (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(player_pokemon_id, slot)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE player_pokemon_abilities ADD COLUMN IF NOT EXISTS player_pokemon_id INTEGER;
+ALTER TABLE player_pokemon_abilities ADD COLUMN IF NOT EXISTS ability_id VARCHAR(50);
+ALTER TABLE player_pokemon_abilities ADD COLUMN IF NOT EXISTS slot INTEGER;
+ALTER TABLE player_pokemon_abilities ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
+ALTER TABLE player_pokemon_abilities ADD COLUMN IF NOT EXISTS is_hidden BOOLEAN DEFAULT FALSE;
+ALTER TABLE player_pokemon_abilities ADD COLUMN IF NOT EXISTS unlocked_at TIMESTAMP;
+ALTER TABLE player_pokemon_abilities ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 CREATE INDEX IF NOT EXISTS idx_player_pokemon_abilities_pokemon ON player_pokemon_abilities(player_pokemon_id);
 CREATE INDEX IF NOT EXISTS idx_player_pokemon_abilities_active ON player_pokemon_abilities(player_pokemon_id, is_active);
@@ -67,6 +94,14 @@ CREATE TABLE IF NOT EXISTS ability_trigger_logs (
     effect_result JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE ability_trigger_logs ADD COLUMN IF NOT EXISTS battle_id VARCHAR(50);
+ALTER TABLE ability_trigger_logs ADD COLUMN IF NOT EXISTS player_pokemon_id INTEGER;
+ALTER TABLE ability_trigger_logs ADD COLUMN IF NOT EXISTS ability_id VARCHAR(50);
+ALTER TABLE ability_trigger_logs ADD COLUMN IF NOT EXISTS trigger_type VARCHAR(50);
+ALTER TABLE ability_trigger_logs ADD COLUMN IF NOT EXISTS trigger_context JSONB;
+ALTER TABLE ability_trigger_logs ADD COLUMN IF NOT EXISTS effect_result JSONB;
+ALTER TABLE ability_trigger_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 CREATE INDEX IF NOT EXISTS idx_ability_trigger_logs_battle ON ability_trigger_logs(battle_id);
 CREATE INDEX IF NOT EXISTS idx_ability_trigger_logs_ability ON ability_trigger_logs(ability_id, created_at);
@@ -86,6 +121,16 @@ CREATE TABLE IF NOT EXISTS ability_items (
     obtained_from JSONB DEFAULT '[]',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE ability_items ADD COLUMN IF NOT EXISTS id VARCHAR(50);
+ALTER TABLE ability_items ADD COLUMN IF NOT EXISTS name_en VARCHAR(100);
+ALTER TABLE ability_items ADD COLUMN IF NOT EXISTS name_zh VARCHAR(100);
+ALTER TABLE ability_items ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE ability_items ADD COLUMN IF NOT EXISTS item_type VARCHAR(50);
+ALTER TABLE ability_items ADD COLUMN IF NOT EXISTS effect_config JSONB;
+ALTER TABLE ability_items ADD COLUMN IF NOT EXISTS rarity VARCHAR(20) DEFAULT 'rare';
+ALTER TABLE ability_items ADD COLUMN IF NOT EXISTS obtained_from JSONB DEFAULT '[]';
+ALTER TABLE ability_items ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 COMMENT ON TABLE ability_items IS '特性道具定义表';
 

@@ -20,10 +20,23 @@ CREATE TABLE IF NOT EXISTS catch_success_stats (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT uk_user_pokemon_ball_hour UNIQUE(user_id, pokemon_id, ball_type, hour_timestamp)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS pokemon_id VARCHAR(64);
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS pokemon_rarity VARCHAR(32);
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS ball_type VARCHAR(32);
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS attempt_count INTEGER DEFAULT 0;
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS success_count INTEGER DEFAULT 0;
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS expected_success_rate DECIMAL(5,4);
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS actual_success_rate DECIMAL(5,4);
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS anomaly_score DECIMAL(5,2) DEFAULT 0.0;
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS hour_timestamp TIMESTAMPTZ;
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
-CREATE INDEX idx_catch_stats_user ON catch_success_stats(user_id, hour_timestamp DESC);
-CREATE INDEX idx_catch_stats_anomaly ON catch_success_stats(hour_timestamp, anomaly_score DESC);
-CREATE INDEX idx_catch_stats_rarity ON catch_success_stats(pokemon_rarity, hour_timestamp);
+CREATE INDEX IF NOT EXISTS idx_catch_stats_user ON catch_success_stats(user_id, hour_timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_catch_stats_anomaly ON catch_success_stats(hour_timestamp, anomaly_score DESC);
+CREATE INDEX IF NOT EXISTS idx_catch_stats_rarity ON catch_success_stats(pokemon_rarity, hour_timestamp);
 
 COMMENT ON TABLE catch_success_stats IS '捕捉成功率统计表，用于分析玩家捕捉行为异常';
 
@@ -55,6 +68,20 @@ CREATE TABLE IF NOT EXISTS item_usage_records (
     anomaly_details JSONB,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS item_type VARCHAR(64);
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS item_category VARCHAR(32);
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS session_id VARCHAR(128);
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS pokemon_id VARCHAR(64);
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS quantity_used INTEGER DEFAULT 1;
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS quantity_before INTEGER;
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS quantity_after INTEGER;
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS expected_effect DECIMAL(5,4);
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS actual_effect DECIMAL(5,4);
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS anomaly_detected BOOLEAN DEFAULT false;
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS anomaly_details JSONB;
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 CREATE INDEX IF NOT EXISTS idx_item_usage_records_user_time ON item_usage_records (user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_item_usage_records_anomaly ON item_usage_records (anomaly_detected, created_at DESC);
 
@@ -76,6 +103,19 @@ CREATE TABLE IF NOT EXISTS risk_decision_logs (
     device_fingerprint VARCHAR(256),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS session_id VARCHAR(128);
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS action_type VARCHAR(32);
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS risk_score DECIMAL(5,2);
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS risk_level VARCHAR(16);
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS action_taken VARCHAR(32);
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS rule_scores JSONB DEFAULT '{}';
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS request_data_hash VARCHAR(128);
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS client_ip_hash VARCHAR(64);
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS user_agent_hash VARCHAR(64);
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS device_fingerprint VARCHAR(256);
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 CREATE INDEX IF NOT EXISTS idx_risk_decision_logs_risk_user ON risk_decision_logs (user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_risk_decision_logs_risk_level ON risk_decision_logs (risk_level, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_risk_decision_logs_risk_session ON risk_decision_logs (session_id);
@@ -99,6 +139,20 @@ CREATE TABLE IF NOT EXISTS user_risk_profiles (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS total_catch_attempts BIGINT DEFAULT 0;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS total_anomaly_detections BIGINT DEFAULT 0;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS total_blocks BIGINT DEFAULT 0;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS last_anomaly_at TIMESTAMPTZ;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS last_block_at TIMESTAMPTZ;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS baseline_success_rate DECIMAL(5,4);
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS current_streak_anomaly INTEGER DEFAULT 0;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS is_flagged BOOLEAN DEFAULT false;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS flag_reason TEXT;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS flag_expires_at TIMESTAMPTZ;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 CREATE INDEX IF NOT EXISTS idx_user_risk_profiles_flagged ON user_risk_profiles (is_flagged, updated_at DESC);
 
 COMMENT ON TABLE user_risk_profiles IS '用户风控状态表，追踪用户的整体风控状态';
@@ -112,10 +166,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_catch_stats_timestamp ON catch_success_stats;
 CREATE TRIGGER update_catch_stats_timestamp
 BEFORE UPDATE ON catch_success_stats
 FOR EACH ROW EXECUTE FUNCTION update_timestamp();
 
+DROP TRIGGER IF EXISTS update_user_risk_timestamp ON user_risk_profiles;
 CREATE TRIGGER update_user_risk_timestamp
 BEFORE UPDATE ON user_risk_profiles
 FOR EACH ROW EXECUTE FUNCTION update_timestamp();

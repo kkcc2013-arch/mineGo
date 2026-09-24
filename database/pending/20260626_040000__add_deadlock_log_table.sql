@@ -15,6 +15,14 @@ CREATE TABLE IF NOT EXISTS deadlock_log (
   retry_count INTEGER DEFAULT 0,
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS code VARCHAR(10);
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS message TEXT;
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS detail TEXT;
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS processes JSONB;
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS transaction_name VARCHAR(255);
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS retry_count INTEGER DEFAULT 0;
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_deadlock_log_created_at ON deadlock_log(created_at);

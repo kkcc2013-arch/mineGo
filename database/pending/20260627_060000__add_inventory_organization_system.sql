@@ -52,6 +52,15 @@ CREATE TABLE IF NOT EXISTS user_inventory_preferences (
   
   CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_inventory_preferences ADD COLUMN IF NOT EXISTS user_id VARCHAR(255);
+ALTER TABLE user_inventory_preferences ADD COLUMN IF NOT EXISTS primary_sort VARCHAR(50) DEFAULT 'combatPower';
+ALTER TABLE user_inventory_preferences ADD COLUMN IF NOT EXISTS secondary_sort VARCHAR(50) DEFAULT 'rarity';
+ALTER TABLE user_inventory_preferences ADD COLUMN IF NOT EXISTS sort_order VARCHAR(10) DEFAULT 'desc';
+ALTER TABLE user_inventory_preferences ADD COLUMN IF NOT EXISTS default_group_by VARCHAR(50);
+ALTER TABLE user_inventory_preferences ADD COLUMN IF NOT EXISTS custom_groups JSONB DEFAULT '{}';
+ALTER TABLE user_inventory_preferences ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE user_inventory_preferences ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 触发器：自动更新 updated_at
 CREATE OR REPLACE FUNCTION update_inventory_preferences_timestamp()
@@ -78,6 +87,11 @@ CREATE TABLE IF NOT EXISTS user_candies (
   
   CONSTRAINT fk_user_candy FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_candies ADD COLUMN IF NOT EXISTS user_id VARCHAR(255);
+ALTER TABLE user_candies ADD COLUMN IF NOT EXISTS amount INTEGER DEFAULT 0;
+ALTER TABLE user_candies ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE user_candies ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 战斗队伍表
 CREATE TABLE IF NOT EXISTS battle_teams (
@@ -91,6 +105,13 @@ CREATE TABLE IF NOT EXISTS battle_teams (
   
   CONSTRAINT fk_user_team FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE battle_teams ADD COLUMN IF NOT EXISTS user_id VARCHAR(255);
+ALTER TABLE battle_teams ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+ALTER TABLE battle_teams ADD COLUMN IF NOT EXISTS pokemon_ids TEXT[];
+ALTER TABLE battle_teams ADD COLUMN IF NOT EXISTS used_at TIMESTAMP;
+ALTER TABLE battle_teams ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE battle_teams ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 CREATE INDEX IF NOT EXISTS idx_battle_teams_user ON battle_teams(user_id);
 

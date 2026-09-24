@@ -16,9 +16,17 @@ CREATE TABLE IF NOT EXISTS partition_archive_metadata (
   checksum VARCHAR(64),
   restored_at TIMESTAMP WITH TIME ZONE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE partition_archive_metadata ADD COLUMN IF NOT EXISTS partition_name VARCHAR(100);
+ALTER TABLE partition_archive_metadata ADD COLUMN IF NOT EXISTS table_name VARCHAR(50);
+ALTER TABLE partition_archive_metadata ADD COLUMN IF NOT EXISTS row_count INTEGER;
+ALTER TABLE partition_archive_metadata ADD COLUMN IF NOT EXISTS archived_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE partition_archive_metadata ADD COLUMN IF NOT EXISTS storage_location TEXT;
+ALTER TABLE partition_archive_metadata ADD COLUMN IF NOT EXISTS checksum VARCHAR(64);
+ALTER TABLE partition_archive_metadata ADD COLUMN IF NOT EXISTS restored_at TIMESTAMP WITH TIME ZONE;
 
-CREATE INDEX idx_archive_table ON partition_archive_metadata(table_name);
-CREATE INDEX idx_archive_date ON partition_archive_metadata(archived_at);
+CREATE INDEX IF NOT EXISTS idx_archive_table ON partition_archive_metadata(table_name);
+CREATE INDEX IF NOT EXISTS idx_archive_date ON partition_archive_metadata(archived_at);
 
 -- 分区健康记录表
 CREATE TABLE IF NOT EXISTS partition_health_log (
@@ -30,8 +38,15 @@ CREATE TABLE IF NOT EXISTS partition_health_log (
   issues JSONB,
   status VARCHAR(20) DEFAULT 'healthy'
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE partition_health_log ADD COLUMN IF NOT EXISTS table_name VARCHAR(50);
+ALTER TABLE partition_health_log ADD COLUMN IF NOT EXISTS check_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE partition_health_log ADD COLUMN IF NOT EXISTS partition_count INTEGER;
+ALTER TABLE partition_health_log ADD COLUMN IF NOT EXISTS total_size_bytes BIGINT;
+ALTER TABLE partition_health_log ADD COLUMN IF NOT EXISTS issues JSONB;
+ALTER TABLE partition_health_log ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'healthy';
 
-CREATE INDEX idx_health_table ON partition_health_log(table_name, check_at);
+CREATE INDEX IF NOT EXISTS idx_health_table ON partition_health_log(table_name, check_at);
 
 -- ============================================================
 -- 2. 捕捉记录表分区改造
