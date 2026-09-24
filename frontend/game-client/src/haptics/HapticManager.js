@@ -89,7 +89,23 @@ export class HapticManager {
     'bag_open': [15]
   };
 
+  // 场景分组（REQ-00316：可按场景启用/禁用）
+  static sceneOf(patternName) {
+    const n = String(patternName || '');
+    if (/^(catch_|throw_)/.test(n)) return 'catch';
+    if (/^battle_/.test(n)) return 'battle';
+    if (/^(map_|direction_|location_|pokemon_spawn)/.test(n)) return 'navigation';
+    if (/^(level_up|achievement|reward|daily_bonus|item_|friend_|gift_|trade_|inventory_|bag_)/.test(n)) return 'special';
+    return 'ui';
+  }
+
   constructor() {
+    // Epic E21：百分比强度（0-200%，REQ-00316）、按场景开关、调用记录与统计、震动监听（手柄震动镜像）
+    this._scalePct = 100;
+    this._scenes = { catch: true, battle: true, ui: true, navigation: true, special: true };
+    this.history = [];
+    this.stats = { total: 0, delivered: 0, byPattern: {} };
+    this._listeners = new Set();
     this._intensity = HapticManager.INTENSITY.MEDIUM;
     this._enabled = true;
     this._silentModeBoost = true;
@@ -113,18 +129,28 @@ export class HapticManager {
    * @param {number} options.intensity - 临时覆盖强度
    */
   vibrate(patternName, options = {}) {
-    if (!this._supported || !this._enabled || this._intensity === 0) {
+    const scene = options.scene || HapticManager.sceneOf(patternName);
+    const pattern = HapticManager.PATTERNS[patternName];
+    const rec = { pattern: patternName, scene, t: Date.now(), delivered: false, reason: null, scaled: null };
+    this.history.push(rec);
+    if (this.history.length > 100) this.history.shift();
+    this.stats.total++;
+    this.stats.byPattern[patternName] = (this.stats.byPattern[patternName] || 0) + 1;
+
+    if (!pattern) {
+      rec.reason = 'unknown';
+      console.warn(`[HapticManager] 未知的震动模式: ${patternName}`);
       return false;
     }
+    if (!this._enabled || this._intensity === 0 || this._scalePct === 0) { rec.reason = 'disabled'; return false; }
+    if (this._scenes[scene] === false) { rec.reason = 'scene-off'; return false; }
+    rec.scaled = this._scalePattern(pattern, options.intensity ?? this._intensity);
+    this._listeners.forEach((fn) => { try { fn(rec); } catch { /* ignore */ } });
+    if (!this._supported) { rec.reason = 'unsupported'; return false; }
 
     if (!this._unlocked) {
+      rec.reason = 'locked';
       console.debug('[HapticManager] 震动未解锁，等待用户交互');
-      return false;
-    }
-
-    const pattern = HapticManager.PATTERNS[patternName];
-    if (!pattern) {
-      console.warn(`[HapticManager] 未知的震动模式: ${patternName}`);
       return false;
     }
 
@@ -139,12 +165,37 @@ export class HapticManager {
     
     try {
       navigator.vibrate(scaledPattern);
+      rec.delivered = true;
+      this.stats.delivered++;
       return true;
     } catch (err) {
       console.warn('[HapticManager] 震动失败:', err);
       return false;
     }
   }
+
+  /** 百分比强度 0-200（REQ-00316），100 为默认 */
+  setScalePercent(pct) {
+    this._scalePct = Math.max(0, Math.min(200, Number(pct) || 0));
+  }
+
+  getScalePercent() { return this._scalePct; }
+
+  setSceneEnabled(scene, enabled) { this._scenes[scene] = !!enabled; }
+
+  setScenes(scenes = {}) { Object.assign(this._scenes, scenes); }
+
+  isSceneEnabled(scene) { return this._scenes[scene] !== false; }
+
+  /** 设备震动能力：none（无 Vibration API）/ basic（navigator.vibrate）/ advanced（手柄双马达等） */
+  getCapability() {
+    const pads = typeof navigator !== 'undefined' && navigator.getGamepads ? [...navigator.getGamepads()].filter(Boolean) : [];
+    if (pads.some((p) => p.vibrationActuator)) return 'advanced';
+    return this._supported ? 'basic' : 'none';
+  }
+
+  /** 订阅每次震动请求（手柄震动镜像、调试统计） */
+  onVibrate(fn) { this._listeners.add(fn); return () => this._listeners.delete(fn); }
 
   /**
    * 使用自定义模式震动
@@ -271,13 +322,13 @@ export class HapticManager {
       [HapticManager.INTENSITY.STRONG]: 1.5
     };
     
-    const scale = scaleMap[intensity] || 1.0;
+    const scale = (scaleMap[intensity] || 1.0) * (this._scalePct / 100);
     
     // 震动时长缩放，暂停时长不变
     return pattern.map((value, index) => {
       if (index % 2 === 0) {
-        // 震动时长
-        return Math.round(value * scale);
+        // 震动时长（单段上限 1000ms）
+        return Math.min(1000, Math.round(value * scale));
       } else {
         // 暂停时长保持不变
         return value;
