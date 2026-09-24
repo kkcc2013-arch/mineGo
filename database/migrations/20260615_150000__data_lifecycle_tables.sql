@@ -22,6 +22,15 @@ ALTER TABLE data_retention_policies ADD COLUMN IF NOT EXISTS cleanup_policy VARC
 ALTER TABLE data_retention_policies ADD COLUMN IF NOT EXISTS enabled BOOLEAN DEFAULT true;
 ALTER TABLE data_retention_policies ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE data_retention_policies ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- 旧版表（20260605_161000__add_gdpr_tables.sql）以 table_name 为主键；本版按 category 维护，需要唯一索引且放开 table_name 非空
+CREATE UNIQUE INDEX IF NOT EXISTS uq_data_retention_policies_category ON data_retention_policies(category);
+DO $drp$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public'
+             AND table_name = 'data_retention_policies' AND column_name = 'table_name') THEN
+    ALTER TABLE data_retention_policies DROP CONSTRAINT IF EXISTS data_retention_policies_pkey;
+    ALTER TABLE data_retention_policies ALTER COLUMN table_name DROP NOT NULL;
+  END IF;
+END $drp$;
 
 -- 插入默认策略
 INSERT INTO data_retention_policies (category, category_name, retention_days, cleanup_policy) VALUES

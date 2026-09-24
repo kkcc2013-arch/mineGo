@@ -218,28 +218,40 @@ ON CONFLICT (id) DO NOTHING;
 
 -- 为部分精灵分配特性示例
 -- 皮卡丘
-INSERT INTO pokemon_abilities (pokemon_species_id, ability_id, slot, probability) VALUES
+INSERT INTO pokemon_abilities (pokemon_species_id, ability_id, slot, probability)
+SELECT v.species, v.ability, v.slot, v.probability FROM (VALUES
 ('pikachu', 'static', 1, 0.5),
 ('pikachu', 'lightning_rod', 2, 0.5),
 ('pikachu', 'speed_boost', 3, 0.01)
+) AS v(species, ability, slot, probability)
+WHERE EXISTS (SELECT 1 FROM abilities a WHERE a.id = v.ability)  -- 种子中部分特性未在 abilities 中定义
 ON CONFLICT (pokemon_species_id, ability_id) DO NOTHING;
 
 -- 小火龙
-INSERT INTO pokemon_abilities (pokemon_species_id, ability_id, slot, probability) VALUES
+INSERT INTO pokemon_abilities (pokemon_species_id, ability_id, slot, probability)
+SELECT v.species, v.ability, v.slot, v.probability FROM (VALUES
 ('charmander', 'blaze', 1, 1.0),
 ('charmander', 'solar_power', 3, 0.01)
+) AS v(species, ability, slot, probability)
+WHERE EXISTS (SELECT 1 FROM abilities a WHERE a.id = v.ability)  -- 种子中部分特性未在 abilities 中定义
 ON CONFLICT (pokemon_species_id, ability_id) DO NOTHING;
 
 -- 杰尼龟
-INSERT INTO pokemon_abilities (pokemon_species_id, ability_id, slot, probability) VALUES
+INSERT INTO pokemon_abilities (pokemon_species_id, ability_id, slot, probability)
+SELECT v.species, v.ability, v.slot, v.probability FROM (VALUES
 ('squirtle', 'torrent', 1, 1.0),
 ('squirtle', 'rain_dish', 3, 0.01)
+) AS v(species, ability, slot, probability)
+WHERE EXISTS (SELECT 1 FROM abilities a WHERE a.id = v.ability)  -- 种子中部分特性未在 abilities 中定义
 ON CONFLICT (pokemon_species_id, ability_id) DO NOTHING;
 
 -- 妙蛙种子
-INSERT INTO pokemon_abilities (pokemon_species_id, ability_id, slot, probability) VALUES
+INSERT INTO pokemon_abilities (pokemon_species_id, ability_id, slot, probability)
+SELECT v.species, v.ability, v.slot, v.probability FROM (VALUES
 ('bulbasaur', 'overgrow', 1, 1.0),
 ('bulbasaur', 'chlorophyll', 3, 0.01)
+) AS v(species, ability, slot, probability)
+WHERE EXISTS (SELECT 1 FROM abilities a WHERE a.id = v.ability)  -- 种子中部分特性未在 abilities 中定义
 ON CONFLICT (pokemon_species_id, ability_id) DO NOTHING;
 
 -- 添加缺失的叶绿素特性

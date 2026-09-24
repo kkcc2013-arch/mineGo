@@ -2,6 +2,10 @@
 -- 创建数据存储区域配置、跨境传输请求、传输日志表
 
 -- 1. 数据存储区域配置表
+-- 序列须先于引用它们的列默认值创建
+CREATE SEQUENCE IF NOT EXISTS data_transfer_request_seq;
+CREATE SEQUENCE IF NOT EXISTS tia_seq;
+
 CREATE TABLE IF NOT EXISTS data_regions (
   id SERIAL PRIMARY KEY,
   region_code VARCHAR(20) NOT NULL UNIQUE,
@@ -45,6 +49,7 @@ ALTER TABLE user_data_regions ADD COLUMN IF NOT EXISTS ip_address_at_assignment 
 ALTER TABLE user_data_regions ADD COLUMN IF NOT EXISTS assigned_by INTEGER;
 
 -- 3. 跨境传输请求表
+
 CREATE TABLE IF NOT EXISTS data_transfer_requests (
   id SERIAL PRIMARY KEY,
   request_id VARCHAR(50) NOT NULL UNIQUE DEFAULT ('DTR-' || to_char(now(), 'YYYYMMDD') || '-' || LPAD(nextval('data_transfer_request_seq')::TEXT, 6, '0')),
@@ -92,7 +97,6 @@ ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS created_at TIMESTAMP
 ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 创建序列
-CREATE SEQUENCE IF NOT EXISTS data_transfer_request_seq;
 
 -- 4. 数据传输日志表
 CREATE TABLE IF NOT EXISTS data_transfer_logs (
@@ -204,7 +208,6 @@ ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS valid_until DAT
 ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 创建序列
-CREATE SEQUENCE IF NOT EXISTS tia_seq;
 
 -- 7. 索引优化
 CREATE INDEX IF NOT EXISTS idx_user_data_regions_user ON user_data_regions(user_id);
@@ -225,7 +228,7 @@ INSERT INTO data_regions (region_code, region_name, countries, storage_location,
 ('RU', 'Russia', ARRAY['RU'], 'ru-central-1', ARRAY['RU_Data_Localization'], '{"localization_required": true}'),
 ('JP', 'Japan', ARRAY['JP'], 'ap-northeast-1', ARRAY['APPI'], '{"consent_required": true}'),
 ('GB', 'United Kingdom', ARRAY['GB'], 'eu-west-2', ARRAY['UK_GDPR'], '{"consent_required": true, "breach_notification_hours": 72}'),
-('ROW', 'Rest of World', ARRAY['*'], 'us-east-1', ARRAY[], '{}')
+('ROW', 'Rest of World', ARRAY['*'], 'us-east-1', ARRAY[]::TEXT[], '{}')
 ON CONFLICT (region_code) DO NOTHING;
 
 -- 9. 初始化标准合同条款

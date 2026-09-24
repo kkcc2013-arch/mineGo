@@ -24,15 +24,7 @@ SELECT
 FROM pokemon_instances;
 
 -- 添加用户特殊 IV 统计视图
-CREATE OR REPLACE VIEW user_special_iv_stats AS
-SELECT 
-  user_id,
-  COUNT(*) FILTER (WHERE is_zero_iv = TRUE) as zero_iv_count,
-  COUNT(*) FILTER (WHERE is_perfect_iv = TRUE) as perfect_iv_count,
-  COUNT(*) FILTER (WHERE is_lucky = TRUE) as lucky_count,
-  COUNT(*) as total_count
-FROM pokemon_instances
-GROUP BY user_id;
+-- user_special_iv_stats 已由 pending/20260613_160000__add_special_iv_system.sql 以"表 + 触发器"维护，这里不再建同名视图
 
 -- 添加注释
 COMMENT ON COLUMN pokemon_instances.is_zero_iv IS '零 IV 精灵标识（攻击/防御/HP 都是 0），稀有收藏品';
