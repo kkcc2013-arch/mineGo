@@ -12,46 +12,46 @@
 
 | # | 任务 | 对应缺陷 | 状态 |
 |---|---|---|---|
-| 0.1 | `ecosystem.config.js` 移除明文密钥，改为从 `.env` 加载；提供 `.env.example` | S1 | ⬜ |
-| 0.2 | `NODE_ENV=production` 时强制忽略 `SMS_DEV_MODE` | S2 | ⬜ |
-| 0.3 | 修复 reward 排行榜 SQL 注入（参数化 + 枚举白名单） | S3 | ⬜ |
-| 0.4 | 网关管理类接口加管理员鉴权 | S6 | ⬜ |
-| 0.5 | 统一 JWT 黑名单 key | S7 | ⬜ |
-| 0.6 | 活动管理接口加 `requireAdmin` | S8 | ⬜ |
+| 0.1 | `ecosystem.config.js` 移除明文密钥，改为从 `.env` 加载；提供 `.env.example` | S1 | ✅ |
+| 0.2 | `NODE_ENV=production` 时强制忽略 `SMS_DEV_MODE` | S2 | ✅ |
+| 0.3 | 修复 reward 排行榜 SQL 注入（参数化 + 枚举白名单） | S3 | ✅ |
+| 0.4 | 网关管理类接口加管理员鉴权 | S6 | ✅ |
+| 0.5 | 统一 JWT 黑名单 key | S7 | ✅ |
+| 0.6 | 活动管理接口加 `requireAdmin` | S8 | ✅ |
 
 ## Phase 1 — 能启动（PM2 全部 online）
 
 | # | 任务 | 对应缺陷 | 状态 |
 |---|---|---|---|
-| 1.1 | 修复 user-service / social-service 错误的相对 require | B1 B2 | ⬜ |
-| 1.2 | 去掉网关对绝对路径软链接的依赖 | B3 | ⬜ |
-| 1.3 | docker-compose / PM2 补齐必需环境变量；payment 在未配置渠道密钥时降级而非崩溃 | B4 B5 | ⬜ |
-| 1.4 | 修复种子数据外键、补充刷怪点种子 | C11 | ⬜ |
+| 1.1 | 修复 user-service / social-service 错误的相对 require | B1 B2 | ✅ |
+| 1.2 | 去掉网关对绝对路径软链接的依赖 | B3 | ✅ |
+| 1.3 | docker-compose / PM2 补齐必需环境变量；payment 在未配置渠道密钥时降级而非崩溃 | B4 B5 | ✅ |
+| 1.4 | 修复种子数据外键、补充刷怪点种子 | C11 | ✅ |
 | 1.5 | 新增 `database/bootstrap-dev.js`：多轮收敛执行全部迁移并输出失败报告 | 2.3 | ✅ |
-| 1.6 | 新增核心链路补丁迁移（`ADD COLUMN IF NOT EXISTS` 补齐 catch/location 用到的列） | C3 C5 | ⬜ |
-| 1.7 | 新增本地 PM2 配置（`ecosystem.local.config.js`，读取 `.env`，路径相对仓库） | — | ⬜ |
+| 1.6 | 修复核心链路依赖的迁移（昼夜系统、特殊 IV）+ `database/tools/fix_fk_types.py` 批量修复外键类型（35 个文件 100 处），新库失败数 102→79 | C3 C5 | ✅ |
+| 1.7 | `ecosystem.config.js` 改为可移植：部署目录默认取自身所在目录、配置读 `.env`、实例数可配（未另建 local 配置） | — | ✅ |
 
 ## Phase 2 — 主链路可用（注册 → 登录 → 上报位置 → 附近精灵 → 捕捉 → 背包）
 
 | # | 任务 | 对应缺陷 | 状态 |
 |---|---|---|---|
-| 2.1 | 网关 `pathRewrite` 修正（auth 与 7 个缓存路由） | C1 C8 | ⬜ |
-| 2.2 | 修复 JWT `exp`/`expiresIn` 冲突 | C2 | ⬜ |
-| 2.3 | 错误处理器识别 `statusCode/httpStatus`，Zod 错误返回 400 | C7 | ⬜ |
-| 2.4 | 刷怪：去掉不存在列依赖、坐标转数值、稀有度权重生效、全局刷怪加分布式锁 | C3 C4 P1-3 P1-4 | ⬜ |
-| 2.5 | 捕捉：修复关闭会话 UPDATE、坐标 `Number.isFinite` 校验、浆果/评级先校验再扣球、原子抢占防重复捕获 | C5 C6 P1-1 P1-2 P1-5 | ⬜ |
-| 2.6 | 网关新增 `/v1/rewards` 路由 | C9 | ⬜ |
-| 2.7 | 统一 `req.user.sub` 取用户 id | C10 | ⬜ |
-| 2.8 | 端到端冒烟脚本 `scripts/smoke-core-flow.js` | — | ⬜ |
+| 2.1 | 网关 `pathRewrite` 修正（auth 与 7 个缓存路由） | C1 C8 | ✅ |
+| 2.2 | 修复 JWT `exp`/`expiresIn` 冲突 | C2 | ✅ |
+| 2.3 | 错误处理器识别 `statusCode/httpStatus`，Zod 错误返回 400 | C7 | ✅ |
+| 2.4 | 刷怪：去掉不存在列依赖、坐标转数值、稀有度权重生效、全局刷怪加分布式锁 | C3 C4 P1-3 P1-4 | ✅ |
+| 2.5 | 捕捉：修复关闭会话 UPDATE、坐标 `Number.isFinite` 校验、浆果/评级先校验再扣球、原子抢占防重复捕获 | C5 C6 P1-1 P1-2 P1-5 | ✅ |
+| 2.6 | 网关新增 `/v1/rewards` 路由 | C9 | ✅ |
+| 2.7 | 统一 `req.user.sub` 取用户 id | C10 | ✅ |
+| 2.8 | 端到端冒烟脚本 `scripts/smoke-core-flow.js` | — | ✅ |
 
 ## Phase 3 — 资金/道具类竞态修复
 
 | # | 任务 | 对应缺陷 | 状态 |
 |---|---|---|---|
-| 3.1 | 支付回调/校验：条件 UPDATE + `rowCount` 判定，防重复入账 | S4 | ⬜ |
-| 3.2 | 交易确认：`FOR UPDATE` 锁定 + 持有者校验 | S5 | ⬜ |
-| 3.3 | 每日登录奖励 `SET NX` 抢占；每日任务条件 UPDATE | P1-7 | ⬜ |
-| 3.4 | `ipBanMiddleware` 前置；网关 `trust proxy` | P1-8 P1-9 | ⬜ |
+| 3.1 | 支付回调/校验：条件 UPDATE + `rowCount` 判定，防重复入账 | S4 | ✅ |
+| 3.2 | 交易确认：`FOR UPDATE` 锁定 + 持有者校验 | S5 | ✅ |
+| 3.3 | 每日登录奖励 `SET NX` 抢占；每日任务条件 UPDATE | P1-7 | ✅ |
+| 3.4 | `ipBanMiddleware` 前置；网关 `trust proxy` | P1-8 P1-9 | ✅ |
 
 ## Phase 4 — 未完成 P0 需求（服务端部分）
 
@@ -80,3 +80,5 @@
 | 2026-09-24 15:10 | 克隆仓库，搭建 PG16+PostGIS、Redis 7 环境 |
 | 2026-09-24 15:40 | 完成评审（3 路并行审查：核心服务 / 外围服务 / done 需求真实性），输出评审报告与未完成需求清单 |
 | 2026-09-24 15:45 | 新增 `database/bootstrap-dev.js`，新库执行结果：87 成功 / 102 失败 |
+| 2026-09-24 16:00 | Phase 0/1/2 完成：9 个服务在 PM2 下全部 online，`/health` 全部 200；迁移失败降至 79；`scripts/smoke-core-flow.js` 20/20 通过（commit a0977ad） |
+| 2026-09-24 16:06 | Phase 3 完成：支付防重复入账、交易防盗换、签到/任务防重复领取、排行榜注入修复；顺带修复排行榜恒 500；冒烟 23 项（commit 08303de） |
