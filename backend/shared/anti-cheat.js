@@ -26,6 +26,12 @@ const LOCATION_HISTORY_TTL_SEC = 24 * 3600;
 // REQ-00586: 多账号协同作弊——同一精确坐标（~1m）10 分钟内出现 3 个及以上账号
 const COLOCATION_WINDOW_SEC = 600;
 const COLOCATION_ACCOUNT_THRESHOLD = 3;
+// 瞬移后重新建立轨迹基线：候选位置 300 米内连续 3 次、至少跨 2 分钟
+const REBASE_RADIUS_M = 300;
+const REBASE_MIN_REPORTS = 3;
+const REBASE_MIN_SPAN_MS = 2 * 60 * 1000;
+// 同一"事件"只扣一次分：30 分钟内的重复严重异常只阻断不重复扣分
+const INCIDENT_DEDUP_SEC = 1800;
 
 // 可信度分数配置
 const TRUST_SCORE = {
@@ -185,11 +191,30 @@ async function checkSpeedAnomaly(userId, lat, lng, timestamp = Date.now()) {
   const distance = haversineDistance(last.lat, last.lng, lat, lng);
   const level = getSpeedAnomalyLevel(speed);
 
-  // 更新历史记录（保留最近 20 条）。瞬移/不可能行程的点不写入可信轨迹，
-  // 否则一次伪造会让下一次真实上报也被判为"瞬移回来"而重复扣分
-  if (!(level === 'CRITICAL' || speed > SPEED_LIMITS.IMPOSSIBLE)) {
+  // 更新历史记录（保留最近 20 条）。瞬移/不可能行程的点先不写入可信轨迹（避免伪造点污染轨迹），
+  // 而是记为"候选新位置"：同一位置附近连续 REBASE_MIN_REPORTS 次、跨度 ≥ REBASE_MIN_SPAN_MS 的上报
+  // （例如乘飞机落地后）会被接受为新的轨迹起点，不再持续判为瞬移。
+  const severe = level === 'CRITICAL' || speed > SPEED_LIMITS.IMPOSSIBLE;
+  if (!severe) {
     const newHistory = [...history, { lat, lng, timestamp }].slice(-20);
     await setJSON(historyKey, newHistory, LOCATION_HISTORY_TTL_SEC);
+    await redis.del(`anticheat:candidate:${userId}`);
+  } else {
+    const candKey = `anticheat:candidate:${userId}`;
+    const cand = await getJSON(candKey);
+    if (cand && haversineDistance(cand.lat, cand.lng, lat, lng) <= REBASE_RADIUS_M) {
+      cand.count += 1;
+      cand.lat = lat; cand.lng = lng;
+      if (cand.count >= REBASE_MIN_REPORTS && timestamp - cand.firstTs >= REBASE_MIN_SPAN_MS) {
+        await setJSON(historyKey, [{ lat, lng, timestamp }], LOCATION_HISTORY_TTL_SEC);
+        await redis.del(candKey);
+        logger.info({ userId, lat, lng, reports: cand.count }, 'Location trajectory re-baselined');
+        return { isAnomaly: false, speed: 0, level: null, rebased: true };
+      }
+      await setJSON(candKey, cand, 1800);
+    } else {
+      await setJSON(candKey, { lat, lng, firstTs: timestamp, count: 1 }, 1800);
+    }
   }
 
   const result = {
@@ -432,18 +457,22 @@ function validateLocation(req, res, next) {
   return (async () => {
     const body = req.body || {};
     const { accuracy, altitude, isMock } = body;
-    // 兼容捕捉接口的 playerLat/playerLng（原实现只读 lat/lng，捕捉时从未执行反作弊校验）
-    const rawLat = body.lat ?? body.playerLat;
-    const rawLng = body.lng ?? body.playerLng;
+    // 兼容捕捉接口的 playerLat/playerLng（原实现只读 lat/lng，捕捉时从未执行反作弊校验）。
+    // 两组坐标同时出现时必须一致，否则可以"用一组坐标过风控、另一组坐标做业务"。
+    const pick = (a, b) => (a !== undefined && a !== null ? a : b);
+    const rawLat = pick(body.playerLat, body.lat);
+    const rawLng = pick(body.playerLng, body.lng);
 
-    // 如果没有位置信息，跳过验证（坐标合法性由业务接口自行校验）
-    if (rawLat === undefined || rawLng === undefined) {
+    // 如果没有位置信息，跳过验证（坐标必填与否由业务接口决定）
+    if (rawLat === undefined || rawLat === null || rawLng === undefined || rawLng === null) {
       return next();
     }
     const lat = Number(rawLat);
     const lng = Number(rawLng);
-    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-      return next();
+    const conflict = (body.lat != null && body.playerLat != null && Number(body.lat) !== lat) ||
+                     (body.lng != null && body.playerLng != null && Number(body.lng) !== lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180 || conflict) {
+      return res.status(400).json({ code: 1001, message: '位置坐标无效', data: null });
     }
 
     const userId = req.user?.sub;
@@ -471,22 +500,27 @@ function validateLocation(req, res, next) {
         blockedReason = 'LOW_TRUST_SCORE';
       }
 
-      // 严重速度异常 / 不可能行程（REQ-00586）
+      // 严重速度异常 / 不可能行程（REQ-00586）。同一事件 30 分钟内只扣一次分，之后仅阻断
+      const redis = getRedis();
+      const firstInIncident = async (kind) =>
+        !!(await redis.set(`anticheat:incident:${userId}:${kind}`, '1', 'EX', INCIDENT_DEDUP_SEC, 'NX'));
       if (speedResult.impossible) {
-        await recordCheatAttempt(userId, 'IMPOSSIBLE_TRAVEL', 'CRITICAL', speedResult);
+        if (await firstInIncident('travel')) await recordCheatAttempt(userId, 'IMPOSSIBLE_TRAVEL', 'CRITICAL', speedResult);
         blocked = true;
         blockedReason = 'IMPOSSIBLE_TRAVEL';
       } else if (speedResult.level === 'CRITICAL' || speedResult.level === 'HIGH') {
-        await recordCheatAttempt(userId, 'SPEED_ANOMALY', speedResult.level, speedResult);
+        if (await firstInIncident(`speed-${speedResult.level}`)) {
+          await recordCheatAttempt(userId, 'SPEED_ANOMALY', speedResult.level, speedResult);
+        }
         if (speedResult.level === 'CRITICAL') {
           blocked = true;
           blockedReason = 'SPEED_ANOMALY_CRITICAL';
         }
       }
 
-      // 多账号同坐标（REQ-00586）：只记录并扣分，不直接阻断（避免误伤同一地点的真实玩家）
+      // 多账号同坐标（REQ-00586）：只记录并扣分，不直接阻断（避免误伤同一地点的真实玩家）；同一坐标只记一次
       const coloc = await checkColocation(userId, lat, lng);
-      if (coloc.flagged) {
+      if (coloc.flagged && await firstInIncident(`coloc:${lat.toFixed(5)}:${lng.toFixed(5)}`)) {
         await recordCheatAttempt(userId, 'MULTI_ACCOUNT_COLOCATION', 'MEDIUM', { lat, lng, accounts: coloc.accounts });
       }
 

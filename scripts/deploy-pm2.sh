@@ -9,6 +9,7 @@
 #   ERROR_RATE_THRESHOLD     5xx 比例阈值，默认 0.01（1%）
 #   ROLLBACK_WATCH_SECONDS   回滚后的验证窗口，默认 60
 #   RUN_MIGRATIONS=true      部署时执行 database/migrate.js up（回滚时不会执行）
+#   MIGRATE_FROM=<version>   配合 RUN_MIGRATIONS，只执行版本号不小于该值的迁移（如 20260924_000000）
 #   SKIP_FETCH=true          不执行 git fetch（离线/本地测试）
 #   NPM_INSTALL_FLAGS        默认 "--omit=dev"
 #
@@ -51,18 +52,20 @@ deps_changed() { # from to
   ! git diff --quiet "$1" "$2" -- 'backend/package.json' 'backend/package-lock.json' 'backend/*/package.json' 'backend/services/*/package.json'
 }
 
+# 注意：该函数在 if 条件中调用，bash 会关闭 set -e，因此每一步都显式 || return 1
 switch_to() { # sha from_sha run_migrations
   local sha="$1" from="$2" migrate="$3"
-  git -c advice.detachedHead=false checkout --quiet --detach "$sha"
+  git -c advice.detachedHead=false checkout --quiet --detach "$sha" || { log "git checkout $sha 失败"; return 1; }
+  [ "$(git rev-parse HEAD)" = "$sha" ] || { log "HEAD 与目标提交不一致"; return 1; }
   if deps_changed "$from" "$sha" || [ ! -d backend/node_modules ]; then
     log "依赖有变化，npm install $NPM_INSTALL_FLAGS"
-    (cd backend && npm install $NPM_INSTALL_FLAGS --no-audit --no-fund --loglevel=error)
+    (cd backend && npm install $NPM_INSTALL_FLAGS --no-audit --no-fund --loglevel=error) || { log "npm install 失败"; return 1; }
   fi
   if [ "$migrate" = "true" ]; then
     log "执行数据库迁移"
-    (cd backend && node ../database/migrate.js up)
+    (cd backend && node ../database/migrate.js up ${MIGRATE_FROM:+--from "$MIGRATE_FROM"}) || { log "数据库迁移失败"; return 1; }
   fi
-  pm2 startOrReload ecosystem.config.js --update-env
+  pm2 startOrReload ecosystem.config.js --update-env || { log "pm2 reload 失败"; return 1; }
 }
 
 health() { # watch_seconds

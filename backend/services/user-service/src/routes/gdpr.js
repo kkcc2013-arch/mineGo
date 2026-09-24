@@ -47,6 +47,13 @@ router.get('/privacy-policy', async (req, res) => {
 router.get('/export', requireAuth, async (req, res) => {
   const userId = req.user.sub;
   try {
+    // 导出会扫描大量表：每用户每小时最多 3 次
+    const redis = require('../../../../shared/redis').getRedis();
+    const rlKey = `gdpr:export:rl:${userId}`;
+    const n = await redis.incr(rlKey);
+    if (n === 1) await redis.expire(rlKey, 3600);
+    if (n > 3) return res.status(429).json({ error: 'Too many export requests, please try again later' });
+
     const userData = await accountData.exportUserData(userId);
     if (!userData) return res.status(404).json({ error: 'User not found' });
 

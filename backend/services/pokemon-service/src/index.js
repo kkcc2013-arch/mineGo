@@ -399,6 +399,7 @@ async function main() {
 
           const items = generateStopDrop(bonusDrop);
 
+          try {
           await transaction(async (client) => {
             const balls = items.filter(i => i.type === 'POKE_BALL').reduce((s,i)=>s+i.qty,0);
             const gBalls = items.filter(i => i.type === 'GREAT_BALL').reduce((s,i)=>s+i.qty,0);
@@ -417,6 +418,10 @@ async function main() {
                 SET current_value=user_achievements.current_value+1, updated_at=NOW()
             `, [userId]);
           });
+          } catch (txErr) {
+            await getRedis().del(cooldownKey).catch(() => {}); // 发放失败：释放冷却，允许重试
+            throw txErr;
+          }
 
           res.json(successResp({ items, streak, bonusDrop }));
         } catch (err) { next(err); }

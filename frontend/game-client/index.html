@@ -204,6 +204,10 @@
     <input id="inp-code" class="form-input" type="text" placeholder="验证码" maxlength="6" inputmode="numeric" data-testid="code-input" aria-label="验证码">
     <button class="btn-sms" id="btn-sms" onclick="sendSms()" data-testid="sms-btn">发送验证码</button>
   </div>
+  <label style="display:flex;gap:6px;align-items:flex-start;font-size:12px;opacity:.85;margin:4px 0 10px">
+    <input id="inp-consent" type="checkbox" data-testid="consent-checkbox" aria-label="同意隐私政策和服务条款">
+    <span>我已阅读并同意《隐私政策》和《服务条款》（首次登录即注册，必须勾选）</span>
+  </label>
   <button class="btn btn-primary" onclick="doLogin()" data-testid="login-btn">登录 / 注册</button>
 </div>
 
@@ -521,8 +525,13 @@ window.doLogin = async function() {
     try { user = await api.login(phone, code); }
     catch (e) {
       if (e.code === 1001 || (e.message||'').includes('not found') || (e.message||'').includes('注册')) {
+        // 注册需要用户明确同意（服务端缺少 consent 返回 400/1010）
+        if (!document.getElementById('inp-consent').checked) {
+          toast('首次登录需勾选同意隐私政策和服务条款', 'err');
+          return;
+        }
         const nick = '训练师' + Math.floor(Math.random() * 9000 + 1000);
-        user = await api.register(phone, code, nick);
+        user = await api.register(phone, code, nick, { privacyPolicy: true, termsOfService: true });
       } else throw e;
     }
     afterLogin(user);

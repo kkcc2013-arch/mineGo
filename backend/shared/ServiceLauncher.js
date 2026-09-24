@@ -98,7 +98,7 @@ class ServiceLauncher {
    */
   createApp() {
     const app = express();
-    app.set('trust proxy', process.env.TRUST_PROXY || 'loopback');
+    app.set('trust proxy', require('./trustProxy').parseTrustProxy(process.env.TRUST_PROXY));
 
     // ── 安全中间件 ─────────────────────────────────────────────
     app.use(helmet(this.helmetConfig));

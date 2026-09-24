@@ -123,7 +123,7 @@ async function main() {
   var lastPos = { lat: Number(target.lat) + 0.0001, lng: Number(target.lng) }; // eslint-disable-line no-var
   const firstLoc = await call('POST', '/v1/location', { token, body: { ...lastPos, accuracy: 10 } });
   record('上报位置 /v1/location', firstLoc.status === 200, `status=${firstLoc.status} risk=${firstLoc.data && firstLoc.data.riskLevel}`);
-  const bad = await call('POST', '/v1/catch/session', { token, body: { spawnId: target.id, playerLat: 'x', playerLng: 'y' } });
+  const bad = await call('POST', '/v1/catch/session', { token, body: { spawnId: target.id, playerLat: 'x', playerLng: 'y', lat: 'x', lng: 'y' } });
   record('安全：非数字坐标创建捕捉会话被拒绝', bad.status === 400, `status=${bad.status}`);
   const far = await call('POST', '/v1/catch/session', { token, body: { spawnId: target.id, playerLat: Number(target.lat) + 0.05, playerLng: Number(target.lng) } });
   // 坐标与精灵相距 5km：可能被距离校验拒绝（400），也可能被反作弊判定为瞬移（403）
@@ -221,11 +221,14 @@ async function main() {
     const tp = await call('POST', '/v1/location', { token, body: { lat: 39.9042, lng: 116.4074, accuracy: 10 } });
     record('反作弊：不可能行程（>1000 km/h）被拦截', tp.status === 403 && tp.body && tp.body.code === 6001,
       `status=${tp.status} reason=${tp.body && tp.body.data && tp.body.data.reason}`);
-    // 本用户已有两次不可能行程（上面的远程捕捉 + 这次瞬移），可信度降到 RESTRICTED 以下，位置功能降级
+    // 同一事件 30 分钟内只扣一次分（上面的远程捕捉已扣 40 → 60），伪造点不写入可信轨迹：
+    // 回到真实位置可以正常上报，风险等级为 MEDIUM
     const back = await call('POST', '/v1/location', { token, body: { lat: lastPos.lat, lng: lastPos.lng, accuracy: 10 } });
-    const reason = back.body && back.body.data && back.body.data.reason;
-    record('反作弊：多次作弊后可信度过低，位置功能降级', back.status === 403 && reason === 'LOW_TRUST_SCORE',
-      `status=${back.status} reason=${reason} trust=${back.body && back.body.data && back.body.data.trustScore}`);
+    record('反作弊：伪造点不污染轨迹、同一事件不重复扣分', back.status === 200 && back.data && back.data.riskLevel === 'MEDIUM',
+      `status=${back.status} risk=${back.data && back.data.riskLevel}`);
+    // 坐标冲突（lat 与 playerLat 不一致）直接拒绝
+    const conflict = await call('POST', '/v1/catch/session', { token, body: { spawnId: wild[0].id, lat: lastPos.lat, lng: lastPos.lng, playerLat: lastPos.lat + 0.01, playerLng: lastPos.lng } });
+    record('反作弊：两组坐标不一致被拒绝', conflict.status === 400, `status=${conflict.status}`);
   }
 
   // 9. 奖励服务可经网关访问
@@ -271,6 +274,8 @@ async function main() {
   await call('POST', '/v1/auth/logout', { token });
   const ref2 = await call('POST', '/v1/auth/refresh', { body: { refreshToken } });
   record('安全：登出后 refresh token 失效', ref2.status === 401, `status=${ref2.status}`);
+  const expAfter = await call('GET', '/v1/gdpr/export', { token });
+  record('安全：登出后的 access token 不能导出个人数据', expAfter.status === 401, `status=${expAfter.status}`);
 
   await redis.quit();
 }

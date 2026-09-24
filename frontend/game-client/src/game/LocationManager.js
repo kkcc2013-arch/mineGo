@@ -5,6 +5,7 @@
 const LOCATION_INTERVAL_MS = 2000;   // Report every 2s
 const WARN_SPEED_KMH       = 25;
 const MOVEMENT_THRESHOLD_M = 5;      // Ignore jitter < 5m
+const HEARTBEAT_MS         = 60000;  // 原地不动时也定期上报：服务端以最近上报位置校验捕捉/补给站
 
 export class LocationManager extends EventTarget {
   constructor(apiClient) {
@@ -105,7 +106,11 @@ export class LocationManager extends EventTarget {
 
   // ── Batch flush to server ─────────────────────────────────
   async _flush() {
-    if (!this._queue.length || !this._lastPos) return;
+    if (!this._lastPos) return;
+    if (!this._queue.length) {
+      if (Date.now() - (this._lastSentAt || 0) < HEARTBEAT_MS) return;
+      this._queue.push({ lat: this._lastPos.lat, lng: this._lastPos.lng, accuracy: this._lastPos.accuracy, timestamp: Date.now() });
+    }
 
     // Take the most recent position only (server only needs latest)
     const latest = this._queue[this._queue.length - 1];
@@ -113,6 +118,7 @@ export class LocationManager extends EventTarget {
 
     try {
       const result = await this._api.updateLocation(latest.lat, latest.lng, latest.accuracy);
+      this._lastSentAt = Date.now();
       if (result.nearbyAlert) {
         this.dispatchEvent(new CustomEvent('nearbyAlert', { detail: result }));
       }

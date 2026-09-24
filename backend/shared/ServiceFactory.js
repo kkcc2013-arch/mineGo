@@ -71,7 +71,7 @@ class ServiceFactory {
     // trustProxy: false 关闭；字符串/数字按 Express 语义；true 或未设置 => 只信任回环（网关同机转发）
     const trustProxy = opts.trustProxy === false ? false
       : (typeof opts.trustProxy === 'string' || typeof opts.trustProxy === 'number') ? opts.trustProxy
-        : (process.env.TRUST_PROXY || 'loopback');
+        : require('./trustProxy').parseTrustProxy(process.env.TRUST_PROXY);
     app.set('trust proxy', trustProxy);
     app.use(helmet(opts.helmet));
     app.use(cors(opts.cors));

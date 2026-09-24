@@ -102,7 +102,7 @@ const app  = express();
 const PORT = process.env.PORT || 8080;
 
 // 只信任来自本机反向代理的 X-Forwarded-For（可用 TRUST_PROXY 覆盖），否则 req.ip 可被伪造
-app.set('trust proxy', process.env.TRUST_PROXY || 'loopback');
+app.set('trust proxy', require('@pmg/shared/trustProxy').parseTrustProxy(process.env.TRUST_PROXY));
 
 // ── Service registry ─────────────────────────────────────────
 const SERVICES = {
@@ -361,8 +361,13 @@ app.use('/v1/users',
   proxy(SERVICES.user, { '^/': '/users/' })
 );
 
-// REQ-00044: GDPR 数据导出 / 删除（隐私政策公开，其余需登录，由 user-service 自行鉴权）
+// REQ-00044: GDPR 数据导出 / 删除。隐私政策公开；其余经网关鉴权（含 token 黑名单，
+// 登出/吊销后的 token 不能再导出个人数据或发起删除）
+app.get('/v1/gdpr/privacy-policy',
+  proxy(SERVICES.user, { '^/v1/': '/' })
+);
 app.use('/v1/gdpr',
+  authMiddleware,
   proxy(SERVICES.user, { '^/': '/gdpr/' })
 );
 

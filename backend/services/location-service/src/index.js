@@ -315,7 +315,8 @@ app.post('/location', requireAuth, validateLocation, async (req, res, next) => {
     }
 
     // Store position in Redis (for speed checks + GEO queries)
-    await setJSON(prevKey, { lat, lng, ts: Date.now() }, 300);
+    // 30 分钟：捕捉/补给站以此为服务端位置（原 5 分钟，玩家原地不动超过 5 分钟就无法捕捉）
+    await setJSON(prevKey, { lat, lng, ts: Date.now() }, 1800);
     await geoAdd('geo:players', lng, lat, userId);
 
     // Check if any nearby spawns should trigger
