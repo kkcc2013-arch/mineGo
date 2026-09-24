@@ -408,7 +408,7 @@ def relax_legacy_not_null(sql):
     """在"补齐列"块之后：旧表中新定义没有的列（非主键）去掉 NOT NULL，否则按新定义插入会失败。"""
     marker = '-- [fix_sql_dialect] 补齐已存在旧表缺少的列\n'
     out, pos, n = [], 0, 0
-    for m in re.finditer(re.escape(marker) + r'((?:ALTER TABLE ([A-Za-z0-9_."]+) ADD COLUMN IF NOT EXISTS ([A-Za-z0-9_"]+)[^\n]*\n)+)', sql):
+    for m in re.finditer(re.escape(marker) + r'((?:ALTER TABLE ([A-Za-z0-9_."]+) ADD COLUMN IF NOT EXISTS ([A-Za-z0-9_"]+)[^;]*;[^\n]*\n)+)', sql):
         block = m.group(1)
         if '-- [fix_sql_dialect] 放开旧表' in sql[m.end():m.end() + 80]:
             continue

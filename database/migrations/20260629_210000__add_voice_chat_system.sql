@@ -42,16 +42,6 @@ ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255);
 ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS persistent BOOLEAN DEFAULT FALSE;
 ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS room_type VARCHAR(20) DEFAULT 'temporary';
 ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS config JSONB DEFAULT '{
--- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
-DO $relax$ DECLARE c RECORD; BEGIN
-  FOR c IN SELECT a.attname FROM pg_attribute a
-           WHERE a.attrelid = to_regclass('public.voice_rooms') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
-             AND a.attname NOT IN ('id', 'name', 'creator_id', 'guild_id', 'max_members', 'password_hash', 'persistent', 'room_type', 'config', 'id')
-             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
-  LOOP
-    EXECUTE format('ALTER TABLE voice_rooms ALTER COLUMN %I DROP NOT NULL', c.attname);
-  END LOOP;
-END $relax$;
     "bitrate": 64000,
     "codec": "opus",
     "noiseSuppression": true,
@@ -63,6 +53,16 @@ ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS total_joins INTEGER DEFAULT 0;
 ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS peak_members INTEGER DEFAULT 0;
 ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS closed_at TIMESTAMPTZ;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.voice_rooms') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'name', 'creator_id', 'guild_id', 'max_members', 'password_hash', 'persistent', 'room_type', 'config', 'status', 'total_joins', 'peak_members', 'created_at', 'closed_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE voice_rooms ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 语音房间成员表
 CREATE TABLE IF NOT EXISTS voice_room_members (

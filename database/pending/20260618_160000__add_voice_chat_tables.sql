@@ -30,16 +30,6 @@ ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS max_members INTEGER DEFAULT 10;
 ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255);
 ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS persistent BOOLEAN DEFAULT FALSE;
 ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS config JSONB DEFAULT '{
--- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
-DO $relax$ DECLARE c RECORD; BEGIN
-  FOR c IN SELECT a.attname FROM pg_attribute a
-           WHERE a.attrelid = to_regclass('public.voice_rooms') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
-             AND a.attname NOT IN ('id', 'name', 'creator_id', 'guild_id', 'max_members', 'password_hash', 'persistent', 'config', 'id')
-             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
-  LOOP
-    EXECUTE format('ALTER TABLE voice_rooms ALTER COLUMN %I DROP NOT NULL', c.attname);
-  END LOOP;
-END $relax$;
     "bitrate": 64000,
     "codec": "opus",
     "noiseSuppression": true,
@@ -47,6 +37,16 @@ END $relax$;
   }'::jsonb;
 ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS closed_at TIMESTAMP WITH TIME ZONE;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.voice_rooms') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'name', 'creator_id', 'guild_id', 'max_members', 'password_hash', 'persistent', 'config', 'created_at', 'closed_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE voice_rooms ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_voice_rooms_creator ON voice_rooms(creator_id);
