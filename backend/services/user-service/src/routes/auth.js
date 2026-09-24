@@ -1,7 +1,6 @@
 // user-service/src/routes/auth.js
 'use strict';
 const express  = require('express');
-const bcrypt   = require('bcryptjs');
 const { z }    = require('zod');
 const { v4: uuidv4 } = require('uuid');
 const { query, transaction } = require('../../../../shared/db');
@@ -11,7 +10,25 @@ const {
   AppError, successResp, errorResp
 } = require('../../../../shared/auth');
 
+const fieldCrypto = require('../../../../shared/fieldCrypto');
+
 const router = express.Router();
+
+// ── REQ-00565: 手机号加密存储 + 盲索引查询 ─────────────────────
+const PHONE_CTX = 'users.phone';
+/** 写入用：{ phone: 密文, phoneHash: 盲索引 }；未配置密钥时退化为明文 */
+function protectPhone(phone) {
+  if (!fieldCrypto.isEnabled()) return { phone, phoneHash: null };
+  return { phone: fieldCrypto.encrypt(phone, PHONE_CTX), phoneHash: fieldCrypto.blindIndex(phone, PHONE_CTX) };
+}
+/** 查询条件：优先盲索引，同时兼容尚未回填的明文历史行 */
+function phoneLookup(phone) {
+  if (!fieldCrypto.isEnabled()) return { where: 'phone = $1', params: [phone] };
+  return {
+    where: '(phone_hash = $1 OR (phone_hash IS NULL AND phone = $2))',
+    params: [fieldCrypto.blindIndex(phone, PHONE_CTX), phone],
+  };
+}
 
 // ── Schemas ───────────────────────────────────────────────────
 const RegisterSchema = z.object({
@@ -106,10 +123,10 @@ router.post('/register', async (req, res, next) => {
     });
 
     const result = await transaction(async (client) => {
-      // Check phone uniqueness
-      const phoneHash = await bcrypt.hash(phone, 4); // light hash for lookup — real impl uses separate index
+      // Check phone uniqueness（盲索引 + 历史明文）
+      const lookup = phoneLookup(phone);
       const existing  = await client.query(
-        'SELECT id FROM users WHERE phone = $1', [phone]
+        `SELECT id FROM users WHERE ${lookup.where}`, lookup.params
       );
       if (existing.rows.length > 0) throw new AppError(2001, '该手机号已注册', 409);
 
@@ -119,12 +136,13 @@ router.post('/register', async (req, res, next) => {
       );
       if (nickExists.rows.length > 0) throw new AppError(2002, '昵称已被使用', 409);
 
-      // Create user
+      // Create user（手机号密文 + 盲索引）
+      const protectedPhone = protectPhone(phone);
       const { rows: [user] } = await client.query(`
-        INSERT INTO users (phone, nickname)
-        VALUES ($1, $2)
+        INSERT INTO users (phone, phone_hash, nickname)
+        VALUES ($1, $2, $3)
         RETURNING id, nickname, level, xp, stardust, coins, roles, created_at
-      `, [phone, nickname]);
+      `, [protectedPhone.phone, protectedPhone.phoneHash, nickname]);
 
       // Create initial daily quest
       await client.query(`
@@ -200,9 +218,10 @@ router.post('/login', async (req, res, next) => {
     const { phone, smsCode } = LoginSchema.parse(req.body);
 
     // Check user exists BEFORE consuming the one-time code
+    const lookup = phoneLookup(phone);
     const { rows } = await query(
-      'SELECT id, nickname, level, xp, team, roles, is_banned, ban_reason FROM users WHERE phone = $1',
-      [phone]
+      `SELECT id, nickname, level, xp, team, roles, is_banned, ban_reason, phone_hash FROM users WHERE ${lookup.where}`,
+      lookup.params
     );
     if (rows.length === 0) throw new AppError(2003, '账号不存在，请先注册', 404);
     const user = rows[0];
@@ -210,8 +229,14 @@ router.post('/login', async (req, res, next) => {
 
     await verifySmsCode(phone, smsCode, 'login');
 
-    // Update last login
-    await query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [user.id]);
+    // Update last login；历史明文手机号在登录时顺带加密（REQ-00565 渐进迁移）
+    if (!user.phone_hash && fieldCrypto.isEnabled()) {
+      const p = protectPhone(phone);
+      await query('UPDATE users SET last_login_at = NOW(), phone = $2, phone_hash = $3 WHERE id = $1 AND phone_hash IS NULL',
+        [user.id, p.phone, p.phoneHash]);
+    } else {
+      await query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [user.id]);
+    }
 
     const tokens = issueTokens(user, {
       deviceName: req.headers['x-device-name'] || 'Unknown',

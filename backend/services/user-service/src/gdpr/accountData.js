@@ -16,6 +16,7 @@
 const { query, getClient } = require('../../../../shared/db');
 const { getRedis } = require('../../../../shared/redis');
 const { createLogger } = require('../../../../shared/logger');
+const fieldCrypto = require('../../../../shared/fieldCrypto');
 
 const logger = createLogger('gdpr-account-data');
 
@@ -114,11 +115,17 @@ async function exportUserData(userId) {
     }
   }
 
+  // REQ-00565: 手机号以密文存储，导出给用户本人时解密
+  const profile = scrub(user);
+  if (profile.phone) {
+    try { profile.phone = fieldCrypto.decrypt(profile.phone, 'users.phone'); } catch { profile.phone = null; }
+  }
+
   return {
     format: 'minego-gdpr-export/v1',
     exportedAt: new Date().toISOString(),
     userId,
-    profile: scrub(user),
+    profile,
     data,
     truncated,
     notes: '每张表最多导出 ' + EXPORT_ROW_LIMIT + ' 行；如需完整数据请联系客服。哈希/密钥类字段不导出。',
