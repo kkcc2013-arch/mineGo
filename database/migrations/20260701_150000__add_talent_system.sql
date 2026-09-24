@@ -4,7 +4,7 @@
 -- 精灵天赋配置表
 CREATE TABLE IF NOT EXISTS pokemon_talent_config (
     id SERIAL PRIMARY KEY,
-    pokemon_id INTEGER NOT NULL REFERENCES pokemon(id) ON DELETE CASCADE,
+    pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     
     -- 已分配天赋 JSON: { "talent_id": level }
     allocated_talents JSONB DEFAULT '{}',
@@ -112,7 +112,7 @@ ALTER TABLE talent_tree_definitions ADD COLUMN IF NOT EXISTS updated_at TIMESTAM
 -- 天赋点获取记录表
 CREATE TABLE IF NOT EXISTS talent_point_records (
     id SERIAL PRIMARY KEY,
-    pokemon_id INTEGER NOT NULL REFERENCES pokemon(id) ON DELETE CASCADE,
+    pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     
     -- 来源类型: level_up/evolution/achievement/item
     source_type VARCHAR(50) NOT NULL,
@@ -135,8 +135,8 @@ ALTER TABLE talent_point_records ADD COLUMN IF NOT EXISTS created_at TIMESTAMP D
 -- 天赋重置历史表
 CREATE TABLE IF NOT EXISTS talent_reset_history (
     id SERIAL PRIMARY KEY,
-    pokemon_id INTEGER NOT NULL REFERENCES pokemon(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id),
     
     -- 重置前配置
     previous_talents JSONB NOT NULL,

@@ -2,7 +2,7 @@
 -- 启用 pg_stat_statements 扩展并创建相关表
 
 -- 启用 pg_stat_statements 扩展（需要超级用户权限）
-CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+DO $ext$ BEGIN CREATE EXTENSION IF NOT EXISTS pg_stat_statements; EXCEPTION WHEN OTHERS THEN RAISE NOTICE '扩展 pg_stat_statements 不可用，跳过：%', SQLERRM; END $ext$;
 
 -- 创建慢查询分析历史表
 CREATE TABLE IF NOT EXISTS slow_query_history (

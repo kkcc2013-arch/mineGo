@@ -375,6 +375,35 @@ def fix_idempotency(sql):
     return ''.join(out), n
 
 
+OPTIONAL_EXT = ('pg_cron', 'pg_stat_statements', 'timescaledb', 'pg_partman', 'pg_repack', 'pgaudit', 'pg_hint_plan', 'hypopg')
+
+
+def fix_optional_extensions(sql):
+    """可选扩展（pg_cron/pg_stat_statements 等）不可用或无权限时跳过，相关 cron.* 调用仅在扩展存在时执行。"""
+    n = 0
+    mask = strip_comments_mask(sql)
+    out, pos = [], 0
+    pat = re.compile(r'CREATE\s+EXTENSION\s+(?:IF\s+NOT\s+EXISTS\s+)?"?(' + '|'.join(OPTIONAL_EXT) + r')"?[^;]*;', re.I)
+    for m in pat.finditer(mask):
+        if 'BEGIN' in sql[max(0, m.start() - 30):m.start()].upper():
+            continue
+        ext = m.group(1)
+        out.append(sql[pos:m.start()])
+        out.append(f"DO $ext$ BEGIN CREATE EXTENSION IF NOT EXISTS {ext}; "
+                   f"EXCEPTION WHEN OTHERS THEN RAISE NOTICE '扩展 {ext} 不可用，跳过：%', SQLERRM; END $ext$;")
+        pos = m.end(); n += 1
+    out.append(sql[pos:]); sql = ''.join(out); mask = strip_comments_mask(sql)
+    out, pos = [], 0
+    for m in re.finditer(r'SELECT\s+(cron\.\w+\s*\([^;]*\))\s*;', mask, re.I | re.S):
+        call = sql[m.start(1):m.end(1)]
+        out.append(sql[pos:m.start()])
+        out.append(f"DO $cron$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN "
+                   f"PERFORM {call}; END IF; END $cron$;")
+        pos = m.end(); n += 1
+    out.append(sql[pos:])
+    return ''.join(out), n
+
+
 def fix_trailing_value_commas(sql):
     pat = re.compile(r',([ \t]*(?:--[^\n]*)?\n(?:[ \t]*--[^\n]*\n|[ \t]*\n)*)([ \t]*)(ON\s+CONFLICT\b|;)', re.I)
     new, n = pat.subn(lambda m: m.group(1) + m.group(2) + m.group(3), sql)
@@ -393,6 +422,8 @@ def main():
         sql, c3 = fix_trailing_value_commas(sql)
         sql, c4 = fix_index_expressions(sql)
         sql, c5 = fix_role_grants(sql)
+        sql, c7 = fix_optional_extensions(sql)
+        c5 += c7
         c3 += c4 + c5
         if idem:
             sql, c6 = fix_idempotency(sql)

@@ -53,16 +53,19 @@ AFTER INSERT OR UPDATE OR DELETE ON users
 FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation();
 
 -- 精灵表
-DROP TRIGGER IF EXISTS cdc_pokemon_trigger ON pokemon;
+DROP TRIGGER IF EXISTS cdc_pokemon_trigger ON pokemon_instances;
 CREATE TRIGGER cdc_pokemon_trigger
-AFTER INSERT OR UPDATE OR DELETE ON pokemon
+AFTER INSERT OR UPDATE OR DELETE ON pokemon_instances
 FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation();
 
 -- 捕捉记录表
-DROP TRIGGER IF EXISTS cdc_catch_records_trigger ON catch_records;
-CREATE TRIGGER cdc_catch_records_trigger
-AFTER INSERT OR DELETE ON catch_records
-FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation();
+-- catch_records 由分区迁移创建，未启用分区的环境里不存在：存在时才挂触发器
+DO $cdc$ BEGIN
+  IF to_regclass('public.catch_records') IS NOT NULL THEN
+    EXECUTE 'DROP TRIGGER IF EXISTS cdc_catch_records_trigger ON catch_records';
+    EXECUTE 'CREATE TRIGGER cdc_catch_records_trigger AFTER INSERT OR DELETE ON catch_records FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation()';
+  END IF;
+END $cdc$;
 
 -- 道馆表
 DROP TRIGGER IF EXISTS cdc_gyms_trigger ON gyms;

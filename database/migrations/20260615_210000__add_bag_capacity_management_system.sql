@@ -138,16 +138,16 @@ CREATE INDEX IF NOT EXISTS idx_bag_alert_config_enabled ON bag_alert_config(enab
 -- 5. 扩展 pokemon 表 - 添加收藏标记字段
 -- ═══════════════════════════════════════════════════════════
 
-ALTER TABLE pokemon 
+ALTER TABLE pokemon_instances 
 ADD COLUMN IF NOT EXISTS is_favorited BOOLEAN DEFAULT FALSE,
 ADD COLUMN IF NOT EXISTS favorite_at TIMESTAMP,
 ADD COLUMN IF NOT EXISTS bag_sort_order INT DEFAULT 0,
 ADD COLUMN IF NOT EXISTS storage_status VARCHAR(20) DEFAULT 'bag' CHECK (storage_status IN ('bag', 'storage', 'transfer'));
 
 -- 创建索引
-CREATE INDEX IF NOT EXISTS idx_pokemon_bag_sort ON pokemon(user_id, bag_sort_order);
-CREATE INDEX IF NOT EXISTS idx_pokemon_favorited ON pokemon(user_id, is_favorited) WHERE is_favorited = TRUE;
-CREATE INDEX IF NOT EXISTS idx_pokemon_storage_status ON pokemon(user_id, storage_status);
+CREATE INDEX IF NOT EXISTS idx_pokemon_bag_sort ON pokemon_instances(user_id, bag_sort_order);
+CREATE INDEX IF NOT EXISTS idx_pokemon_favorited ON pokemon_instances(user_id, is_favorited) WHERE is_favorited = TRUE;
+CREATE INDEX IF NOT EXISTS idx_pokemon_storage_status ON pokemon_instances(user_id, storage_status);
 
 -- ═══════════════════════════════════════════════════════════
 -- 6. 触发器：自动更新 updated_at
@@ -206,9 +206,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS update_bag_used_slots_trigger ON pokemon;
+DROP TRIGGER IF EXISTS update_bag_used_slots_trigger ON pokemon_instances;
 CREATE TRIGGER update_bag_used_slots_trigger
-    AFTER INSERT OR UPDATE ON pokemon
+    AFTER INSERT OR UPDATE ON pokemon_instances
     FOR EACH ROW
     EXECUTE FUNCTION update_bag_used_slots();
 

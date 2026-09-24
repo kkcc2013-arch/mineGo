@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS marketplace_listings (
     id SERIAL PRIMARY KEY,
     listing_id VARCHAR(36) UNIQUE NOT NULL,
     seller_id UUID NOT NULL REFERENCES users(id),
-    pokemon_id INTEGER NOT NULL REFERENCES pokemon(id),
+    pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id),
     
     -- 交易类型
     listing_type VARCHAR(20) NOT NULL CHECK (listing_type IN ('fixed', 'auction')),
@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS marketplace_transactions (
     listing_id INTEGER NOT NULL REFERENCES marketplace_listings(id),
     seller_id UUID NOT NULL REFERENCES users(id),
     buyer_id UUID NOT NULL REFERENCES users(id),
-    pokemon_id INTEGER NOT NULL REFERENCES pokemon(id),
+    pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id),
     final_price INTEGER NOT NULL,
     fee_amount INTEGER NOT NULL,
     transaction_type VARCHAR(20) NOT NULL CHECK (transaction_type IN ('fixed', 'auction')),

@@ -299,77 +299,77 @@ $$ LANGUAGE plpgsql;
 -- 4. 自动维护定时任务（需要 pg_cron 扩展）
 
 -- 安装 pg_cron 扩展（如果未安装）
-CREATE EXTENSION IF NOT EXISTS pg_cron;
+DO $ext$ BEGIN CREATE EXTENSION IF NOT EXISTS pg_cron; EXCEPTION WHEN OTHERS THEN RAISE NOTICE '扩展 pg_cron 不可用，跳过：%', SQLERRM; END $ext$;
 
 -- 每天凌晨 2:00 预创建分区
-SELECT cron.schedule(
+DO $cron$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN PERFORM cron.schedule(
   'precreate-catch-partitions',
   '0 2 * * *',
   $$SELECT precreate_partitions('catch_records', 7)$$
-);
+); END IF; END $cron$;
 
-SELECT cron.schedule(
+DO $cron$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN PERFORM cron.schedule(
   'precreate-location-partitions',
   '0 2 * * *',
   $$SELECT precreate_partitions('location_updates', 7)$$
-);
+); END IF; END $cron$;
 
-SELECT cron.schedule(
+DO $cron$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN PERFORM cron.schedule(
   'precreate-audit-partitions',
   '0 2 * * *',
   $$SELECT precreate_partitions('audit_logs', 7)$$
-);
+); END IF; END $cron$;
 
-SELECT cron.schedule(
+DO $cron$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN PERFORM cron.schedule(
   'precreate-event-partitions',
   '0 2 * * *',
   $$SELECT precreate_partitions('event_logs', 7)$$
-);
+); END IF; END $cron$;
 
-SELECT cron.schedule(
+DO $cron$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN PERFORM cron.schedule(
   'precreate-payment-partitions',
   '0 2 * * *',
   $$SELECT precreate_partitions('payment_transactions', 7)$$
-);
+); END IF; END $cron$;
 
 -- 每天凌晨 3:00 归档旧分区
-SELECT cron.schedule(
+DO $cron$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN PERFORM cron.schedule(
   'archive-old-catch-partitions',
   '0 3 * * *',
   $$SELECT archive_old_partitions('catch_records', 90)$$
-);
+); END IF; END $cron$;
 
-SELECT cron.schedule(
+DO $cron$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN PERFORM cron.schedule(
   'archive-old-location-partitions',
   '0 3 * * *',
   $$SELECT archive_old_partitions('location_updates', 30)$$
-);
+); END IF; END $cron$;
 
-SELECT cron.schedule(
+DO $cron$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN PERFORM cron.schedule(
   'archive-old-audit-partitions',
   '0 3 * * *',
   $$SELECT archive_old_partitions('audit_logs', 365)$$
-);
+); END IF; END $cron$;
 
 -- 每天凌晨 4:00 清理过期分区
-SELECT cron.schedule(
+DO $cron$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN PERFORM cron.schedule(
   'drop-expired-location-partitions',
   '0 4 * * *',
   $$SELECT drop_expired_partitions('location_updates', 60)$$
-);
+); END IF; END $cron$;
 
-SELECT cron.schedule(
+DO $cron$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN PERFORM cron.schedule(
   'drop-expired-event-partitions',
   '0 4 * * *',
   $$SELECT drop_expired_partitions('event_logs', 90)$$
-);
+); END IF; END $cron$;
 
 -- 每小时检查分区健康状态
-SELECT cron.schedule(
+DO $cron$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN PERFORM cron.schedule(
   'check-partition-health',
   '0 * * * *',
   $$SELECT check_partition_health('catch_records')$$
-);
+); END IF; END $cron$;
 
 -- 5. 创建默认分区（防止数据丢失）
 
@@ -449,7 +449,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 确保扩展存在
-CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+DO $ext$ BEGIN CREATE EXTENSION IF NOT EXISTS pg_stat_statements; EXCEPTION WHEN OTHERS THEN RAISE NOTICE '扩展 pg_stat_statements 不可用，跳过：%', SQLERRM; END $ext$;
 
 -- 完成提示
 DO $$

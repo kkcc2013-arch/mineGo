@@ -27,11 +27,11 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 定时清理任务（每 10 分钟）
-SELECT cron.schedule(
+DO $cron$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN PERFORM cron.schedule(
   'cleanup_heartbeats',
   '*/10 * * * *',
   'SELECT cleanup_old_heartbeats()'
-);
+); END IF; END $cron$;
 
 -- ============================================================
 -- 副本监控日志表
@@ -252,11 +252,11 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 定时清理任务（每天凌晨 2 点）
-SELECT cron.schedule(
+DO $cron$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN PERFORM cron.schedule(
   'cleanup_monitor_logs',
   '0 2 * * *',
   'SELECT cleanup_old_monitor_logs()'
-);
+); END IF; END $cron$;
 
 -- ============================================================
 -- 注释

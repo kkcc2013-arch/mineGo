@@ -5,7 +5,7 @@
 -- 1. 启用 pg_stat_statements 扩展
 -- =====================================================
 
-CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+DO $ext$ BEGIN CREATE EXTENSION IF NOT EXISTS pg_stat_statements; EXCEPTION WHEN OTHERS THEN RAISE NOTICE '扩展 pg_stat_statements 不可用，跳过：%', SQLERRM; END $ext$;
 
 -- =====================================================
 -- 2. 创建慢查询日志表

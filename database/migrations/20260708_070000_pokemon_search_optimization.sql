@@ -2,30 +2,31 @@
 -- 数据库迁移脚本
 
 -- 复合索引：用户精灵列表高频查询
-CREATE INDEX IF NOT EXISTS idx_pokemon_user_cp_desc ON pokemon(user_id, cp DESC);
-CREATE INDEX IF NOT EXISTS idx_pokemon_user_created_desc ON pokemon(user_id, created_at DESC);
-CREATE INDEX IF NOT EXISTS idx_pokemon_user_species ON pokemon(user_id, species_id);
+CREATE INDEX IF NOT EXISTS idx_pokemon_user_cp_desc ON pokemon_instances(user_id, cp DESC);
+CREATE INDEX IF NOT EXISTS idx_pokemon_user_created_desc ON pokemon_instances(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_pokemon_user_species ON pokemon_instances(user_id, species_id);
 
 -- 类型筛选索引
-CREATE INDEX IF NOT EXISTS idx_pokemon_user_type ON pokemon(user_id, (types[1]));
+-- 已移除：pokemon_instances 没有 types 列（属性在 pokemon_species.type1/type2），按属性筛选需 JOIN species
 
 -- CP 范围筛选索引（部分索引）
-CREATE INDEX IF NOT EXISTS idx_pokemon_user_cp_high ON pokemon(user_id, cp) WHERE cp >= 2000;
-CREATE INDEX IF NOT EXISTS idx_pokemon_user_cp_mid ON pokemon(user_id, cp) WHERE cp BETWEEN 500 AND 2000;
+CREATE INDEX IF NOT EXISTS idx_pokemon_user_cp_high ON pokemon_instances(user_id, cp) WHERE cp >= 2000;
+CREATE INDEX IF NOT EXISTS idx_pokemon_user_cp_mid ON pokemon_instances(user_id, cp) WHERE cp BETWEEN 500 AND 2000;
 
 -- 全文搜索扩展
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- 全文搜索索引（精灵昵称）
-CREATE INDEX IF NOT EXISTS idx_pokemon_nickname_trgm ON pokemon USING gin (nickname gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_pokemon_nickname_trgm ON pokemon_instances USING gin (nickname gin_trgm_ops);
 
 -- 精灵种类名称搜索索引
-CREATE INDEX IF NOT EXISTS idx_pokemon_species_name_trgm ON pokemon_species USING gin (name gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_pokemon_species_name_trgm ON pokemon_species USING gin (name_zh gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_pokemon_species_name_en_trgm ON pokemon_species USING gin (name_en gin_trgm_ops);
 
 -- 搜索辅助表
 CREATE TABLE IF NOT EXISTS pokemon_search_cache (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES users(id),
   search_term VARCHAR(100) NOT NULL,
   result_ids JSONB NOT NULL,
   created_at TIMESTAMP DEFAULT NOW(),
@@ -51,4 +52,4 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 创建定时清理任务（每小时执行）
-SELECT cron.schedule('clean_search_cache', '0 * * * *', 'SELECT clean_expired_search_cache()');
+DO $cron$ BEGIN IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN PERFORM cron.schedule('clean_search_cache', '0 * * * *', 'SELECT clean_expired_search_cache()'); END IF; END $cron$;

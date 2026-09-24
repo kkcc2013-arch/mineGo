@@ -5,17 +5,17 @@
 -- =====================================================
 -- 1. 为 pokemon 表添加体力字段
 -- =====================================================
-ALTER TABLE pokemon 
+ALTER TABLE pokemon_instances 
 ADD COLUMN IF NOT EXISTS max_stamina INTEGER DEFAULT 100,
 ADD COLUMN IF NOT EXISTS current_stamina INTEGER DEFAULT 100,
 ADD COLUMN IF NOT EXISTS last_stamina_update TIMESTAMP DEFAULT NOW(),
 ADD COLUMN IF NOT EXISTS fatigue_level VARCHAR(20) DEFAULT 'fresh';
 
 -- 添加注释
-COMMENT ON COLUMN pokemon.max_stamina IS '最大体力值';
-COMMENT ON COLUMN pokemon.current_stamina IS '当前体力值';
-COMMENT ON COLUMN pokemon.last_stamina_update IS '上次体力更新时间';
-COMMENT ON COLUMN pokemon.fatigue_level IS '疲劳等级: fresh/normal/tired/exhausted';
+COMMENT ON COLUMN pokemon_instances.max_stamina IS '最大体力值';
+COMMENT ON COLUMN pokemon_instances.current_stamina IS '当前体力值';
+COMMENT ON COLUMN pokemon_instances.last_stamina_update IS '上次体力更新时间';
+COMMENT ON COLUMN pokemon_instances.fatigue_level IS '疲劳等级: fresh/normal/tired/exhausted';
 
 -- =====================================================
 -- 2. 创建体力消耗配置表
@@ -124,8 +124,8 @@ ON CONFLICT DO NOTHING;
 -- =====================================================
 CREATE TABLE IF NOT EXISTS rest_records (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  pokemon_id INTEGER NOT NULL REFERENCES pokemon(id),
+  user_id UUID NOT NULL REFERENCES users(id),
+  pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id),
   station_id INTEGER NOT NULL REFERENCES rest_stations(id),
   started_at TIMESTAMP DEFAULT NOW(),
   ended_at TIMESTAMP,
@@ -152,8 +152,8 @@ CREATE INDEX IF NOT EXISTS idx_rest_records_active ON rest_records(status, start
 -- =====================================================
 CREATE TABLE IF NOT EXISTS stamina_history (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  pokemon_id INTEGER NOT NULL REFERENCES pokemon(id),
+  user_id UUID NOT NULL REFERENCES users(id),
+  pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id),
   activity_type VARCHAR(50) NOT NULL,
   stamina_change INTEGER NOT NULL,
   stamina_before INTEGER,
@@ -181,7 +181,7 @@ CREATE INDEX IF NOT EXISTS idx_stamina_history_pokemon ON stamina_history(pokemo
 -- =====================================================
 CREATE TABLE IF NOT EXISTS user_stamina_items (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES users(id),
   item_id INTEGER NOT NULL REFERENCES stamina_recovery_items(id),
   quantity INTEGER DEFAULT 0,
   last_used_at TIMESTAMP,
@@ -202,9 +202,9 @@ CREATE INDEX IF NOT EXISTS idx_user_stamina_items_user ON user_stamina_items(use
 -- =====================================================
 -- 8. 创建索引优化查询
 -- =====================================================
-CREATE INDEX IF NOT EXISTS idx_pokemon_stamina ON pokemon(user_id, current_stamina);
-CREATE INDEX IF NOT EXISTS idx_pokemon_stamina_update ON pokemon(last_stamina_update);
-CREATE INDEX IF NOT EXISTS idx_pokemon_fatigue ON pokemon(fatigue_level);
+CREATE INDEX IF NOT EXISTS idx_pokemon_stamina ON pokemon_instances(user_id, current_stamina);
+CREATE INDEX IF NOT EXISTS idx_pokemon_stamina_update ON pokemon_instances(last_stamina_update);
+CREATE INDEX IF NOT EXISTS idx_pokemon_fatigue ON pokemon_instances(fatigue_level);
 
 -- =====================================================
 -- 9. 创建触发器自动更新 updated_at
