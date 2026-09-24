@@ -38,7 +38,14 @@ const fileEnv = loadEnv();
 const BASE = process.env.BASE_URL || 'http://127.0.0.1:8080';
 const REDIS_URL = process.env.REDIS_URL || fileEnv.REDIS_URL ||
   `redis://:${encodeURIComponent(fileEnv.REDIS_PASSWORD || '')}@${fileEnv.REDIS_HOST || '127.0.0.1'}:${fileEnv.REDIS_PORT || 6379}/0`;
-const CENTER = { lat: Number(process.env.SMOKE_LAT || 31.2398), lng: Number(process.env.SMOKE_LNG || 121.5014) };
+// 默认在 backend/seed_spawns.js 的几个刷怪中心中随机选一个（每个刷怪点被捕获后 15 分钟才会重新刷新）
+const SEED_CENTERS = [
+  { lat: 31.2398, lng: 121.5014 }, { lat: 31.2304, lng: 121.4737 }, { lat: 31.2397, lng: 121.4905 },
+  { lat: 31.2269, lng: 121.4918 }, { lat: 31.2198, lng: 121.4631 }, { lat: 31.2350, lng: 121.4800 },
+];
+const CENTER = process.env.SMOKE_LAT
+  ? { lat: Number(process.env.SMOKE_LAT), lng: Number(process.env.SMOKE_LNG) }
+  : SEED_CENTERS[Math.floor(Math.random() * SEED_CENTERS.length)];
 
 const results = [];
 function record(name, ok, detail = '') {
@@ -64,6 +71,8 @@ async function call(method, url, { body, token, headers = {} } = {}) {
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// 真实 GPS 有米级抖动；多个测试账号上报完全相同的坐标会（正确地）触发"多账号同坐标"反作弊
+const jitter = () => (Math.random() - 0.5) * 0.00004; // 约 ±2 米
 
 async function main() {
   const redis = new Redis(REDIS_URL, { lazyConnect: true, maxRetriesPerRequest: 2 });
@@ -120,12 +129,12 @@ async function main() {
 
   // 6. 先在第一只精灵旁上报真实位置，再做伪造坐标 / 远程捕捉的负面测试
   const target = wild[0];
-  var lastPos = { lat: Number(target.lat) + 0.0001, lng: Number(target.lng) }; // eslint-disable-line no-var
+  var lastPos = { lat: Number(target.lat) + 0.0001 + jitter(), lng: Number(target.lng) + jitter() }; // eslint-disable-line no-var
   const firstLoc = await call('POST', '/v1/location', { token, body: { ...lastPos, accuracy: 10 } });
   record('上报位置 /v1/location', firstLoc.status === 200, `status=${firstLoc.status} risk=${firstLoc.data && firstLoc.data.riskLevel}`);
   const bad = await call('POST', '/v1/catch/session', { token, body: { spawnId: target.id, playerLat: 'x', playerLng: 'y', lat: 'x', lng: 'y' } });
   record('安全：非数字坐标创建捕捉会话被拒绝', bad.status === 400, `status=${bad.status}`);
-  const far = await call('POST', '/v1/catch/session', { token, body: { spawnId: target.id, playerLat: Number(target.lat) + 0.05, playerLng: Number(target.lng) } });
+  const far = await call('POST', '/v1/catch/session', { token, body: { spawnId: target.id, playerLat: Number(target.lat) + 0.05 + jitter(), playerLng: Number(target.lng) + jitter() } });
   // 坐标与精灵相距 5km：可能被距离校验拒绝（400），也可能被反作弊判定为瞬移（403）
   record('安全：距离过远被拒绝', far.status === 400 || far.status === 403, `status=${far.status}`);
 
@@ -141,14 +150,17 @@ async function main() {
   let throws = 0;
   // 从第一只开始，按与其距离排序，尽量少走路
   const first = { lat: Number(wild[0].lat), lng: Number(wild[0].lng) };
+  const RARITY_ORDER = { COMMON: 0, UNCOMMON: 1, RARE: 2, EPIC: 3, LEGENDARY: 4 };
   const ordered = wild.slice().sort((a, b) =>
     distM(first, { lat: Number(a.lat), lng: Number(a.lng) }) - distM(first, { lat: Number(b.lat), lng: Number(b.lng) }));
+  // 优先尝试普通精灵（捕捉率高），减少随机性
+  ordered.sort((a, b) => (RARITY_ORDER[a.rarity] ?? 2) - (RARITY_ORDER[b.rarity] ?? 2));
   for (const w of ordered.slice(0, 6)) {
-    const pos = { lat: Number(w.lat) + 0.0001, lng: Number(w.lng) };
+    const pos = { lat: Number(w.lat) + 0.0001 + jitter(), lng: Number(w.lng) + jitter() };
     if (lastPos) {
       // 以约 36 km/h 的速度"走过去"，避免触发服务端速度异常检测
       const waitMs = Math.ceil(distM(lastPos, pos) / 10) * 1000;
-      if (waitMs > 20000) continue;
+      if (waitMs > 60000) continue;
       await sleep(waitMs);
     }
     const { lat, lng } = pos;
@@ -161,8 +173,14 @@ async function main() {
       continue;
     }
     const sessionId = sess.data.sessionId;
-    for (let i = 0; i < 25; i++) {
-      const t = await call('POST', '/v1/catch/throw', { token, body: { sessionId, ballType: 'POKE_BALL', throwRating: 'EXCELLENT', isCurve: true } });
+    for (let i = 0; i < 40; i++) {
+      let t = await call('POST', '/v1/catch/throw', { token, body: { sessionId, ballType: 'POKE_BALL', throwRating: 'EXCELLENT', isCurve: true } });
+      if (t.status === 429 && t.body && t.body.code === 6003) {
+        // 捕捉频率限制（30 次/分钟）生效：等下一分钟再投（会话 2 分钟有效）
+        console.log('   (捕捉限频，等待 61 秒)');
+        await sleep(61000);
+        t = await call('POST', '/v1/catch/throw', { token, body: { sessionId, ballType: 'POKE_BALL', throwRating: 'EXCELLENT', isCurve: true } });
+      }
       throws++;
       if (t.status !== 200) { record('投掷 /v1/catch/throw', false, `status=${t.status} ${JSON.stringify(t.body).slice(0, 160)}`); break; }
       if (t.data.result === 'CAUGHT') { caught = t.data; caughtWildId = w.id; break; }
@@ -203,8 +221,8 @@ async function main() {
     const waitMs = Math.ceil(distM(lastPos, stop) / 10) * 1000;
     if (waitMs <= 60000) {
       await sleep(waitMs);
-      await call('POST', '/v1/location', { token, body: { lat: stop.lat, lng: stop.lng, accuracy: 10 } });
-      lastPos = { lat: stop.lat, lng: stop.lng };
+      lastPos = { lat: stop.lat + jitter(), lng: stop.lng + jitter() };
+      await call('POST', '/v1/location', { token, body: { ...lastPos, accuracy: 10 } });
       const spin1 = await call('POST', `/v1/pokestops/${stop.id}/spin`, { token, body: {} });
       record('补给站旋转 /v1/pokestops/:id/spin', spin1.status === 200, `status=${spin1.status} items=${spin1.data && JSON.stringify(spin1.data.items)}`);
       const spin2 = await call('POST', `/v1/pokestops/${stop.id}/spin`, { token, body: {} });
@@ -218,7 +236,7 @@ async function main() {
 
   // 8c. REQ-00586：瞬移（上海 → 北京，1 秒内）被判定为不可能行程
   if (lastPos) {
-    const tp = await call('POST', '/v1/location', { token, body: { lat: 39.9042, lng: 116.4074, accuracy: 10 } });
+    const tp = await call('POST', '/v1/location', { token, body: { lat: 39.9042 + jitter(), lng: 116.4074 + jitter(), accuracy: 10 } });
     record('反作弊：不可能行程（>1000 km/h）被拦截', tp.status === 403 && tp.body && tp.body.code === 6001,
       `status=${tp.status} reason=${tp.body && tp.body.data && tp.body.data.reason}`);
     // 同一事件 30 分钟内只扣一次分（上面的远程捕捉已扣 40 → 60），伪造点不写入可信轨迹：

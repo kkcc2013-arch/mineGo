@@ -3,7 +3,7 @@
 - **编号**：REQ-00042
 - **类别**：可观测性/监控
 - **优先级**：P0
-- **状态**：new
+- **状态**：partial
 - **涉及服务/模块**：gateway, user-service, catch-service, pokemon-service, gym-service, shared/tracing, shared/logger
 - **创建时间**：2026-07-16 12:00
 - **依赖需求**：REQ-00040 (Redis缓存层)
@@ -213,3 +213,16 @@ groups:
 - REQ-00043：自定义业务指标 Dashboard（DAU、留存率、付费转化）
 - REQ-00044：日志脱敏与敏感数据过滤（GDPR 合规）
 - REQ-00045：追踪数据采样策略动态调整
+
+## 实现记录（2026-09-24）
+
+状态：**partial**（服务端 trace_id 贯通已完成；监控栈需容器环境，未部署）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 所有微服务 JSON 日志含 `trace_id` | ✅ | `shared/traceContext.js`（AsyncLocalStorage）+ pino mixin；网关生成 W3C 兼容 trace id 并透传 `x-trace-id`/`traceparent`；冒烟用例"traceparent 贯穿网关" |
+| Jaeger UI 跨服务调用链 | ❌ | 生产机不允许 Docker，未部署 Jaeger |
+| Grafana/Loki 按 trace_id 查询 | ❌ | 同上；日志已为 JSON，可直接被 Loki/ELK 采集 |
+| 服务拓扑图 | ❌ | 依赖 Jaeger |
+| 错误率告警 | ❌ | 未部署 AlertManager |
+| 一键启动监控栈 | ❌ | 依赖容器环境 |

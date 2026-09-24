@@ -7,7 +7,7 @@
 | 标题 | 实现 GDPR 兼容的数据删除与导出接口 |
 | 类别 | 合规/隐私 |
 | 优先级 | P0 |
-| 状态 | new |
+| 状态 | partial |
 | 涉及服务 | user-service, data-service |
 | 创建时间 | 2026-07-16 10:00 |
 
@@ -41,3 +41,14 @@
 ## 参考
 
 - [GDPR Right to be Forgotten](https://gdpr.eu/right-to-be-forgotten/)
+
+## 实现记录（2026-09-24）
+
+状态：**partial**（服务端 API 与自动清理已完成；前端 UI 未做）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 用户可通过前端 UI 申请导出 | ⚠️ API 完成 | `GET /v1/gdpr/export`（每小时 3 次）；游戏客户端尚无入口 |
+| 导出 JSON 完整 | ✅ | 运行时从外键元数据发现所有"归属于用户"的表，剔除哈希/密钥列，手机号解密 |
+| 申请删除进入冷却期并确认 | ✅ | `DELETE /v1/gdpr/delete`（需输入确认语）→ 30 天冷却，`/v1/gdpr/status` 查询、`/v1/gdpr/delete/cancel` 撤销 |
+| 冷却期满后自动清理关联数据 | ✅ | `user-service/src/gdpr/accountData.js` 定时任务：删除归属数据、保留财务/审计/风控证据、users 行匿名化、清理 Redis、吊销 token；管理员可立即执行 |

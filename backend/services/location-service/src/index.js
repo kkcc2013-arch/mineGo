@@ -93,7 +93,13 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
   const spawnKey = `spawn:${spawnPointId}`;
   const existing = await getJSON(spawnKey);
-  if (existing) return existing; // already active
+  if (existing) {
+    // 刷怪点上一只精灵仍在场才复用；已被捕获/过期则允许重新刷新
+    // （原实现只看 Redis 键，被捕获后该刷怪点 30 分钟内不会再刷，且会把已捕获精灵重新加回 GEO 索引）
+    const { rows: [w] } = await query('SELECT is_caught, expires_at FROM wild_pokemon WHERE id = $1', [existing.id]);
+    if (w && !w.is_caught && new Date(w.expires_at) > new Date()) return existing;
+    await getRedis().del(spawnKey);
+  }
 
   // REQ-00102: Get current time period for day/night spawn bonuses
   const timePeriodInfo = await getCurrentTimePeriod(0);
@@ -244,10 +250,7 @@ async function runSpawnCycle(centerLat, centerLng) {
   for (const pt of points) {
     try {
       const result = await spawnPokemonForPoint(pt.id, pt.lat, pt.lng, pt.biome);
-      if (result) {
-        await geoAdd('geo:wild_pokemon', pt.lng, pt.lat, result.id);
-        spawned++;
-      }
+      if (result) spawned++; // spawnPokemonForPoint 已写入 GEO 索引
     } catch (err) {
       console.error('[Spawn] Error for point', pt.id, err.message);
     }

@@ -23,7 +23,7 @@ const SPEED_LIMITS = {
 
 // REQ-00586: 位置历史保留 24 小时（原为 1 小时，停止上报 1 小时后再"瞬移"不会被发现）
 const LOCATION_HISTORY_TTL_SEC = 24 * 3600;
-// REQ-00586: 多账号协同作弊——同一精确坐标（~1m）10 分钟内出现 3 个及以上账号
+// REQ-00586: 多账号协同作弊——完全相同的坐标（~1cm）10 分钟内出现 3 个及以上账号
 const COLOCATION_WINDOW_SEC = 600;
 const COLOCATION_ACCOUNT_THRESHOLD = 3;
 // 瞬移后重新建立轨迹基线：候选位置 300 米内连续 3 次、至少跨 2 分钟
@@ -431,12 +431,14 @@ async function checkActionRate(userId, actionType) {
  */
 /**
  * REQ-00586: 多账号同坐标检测
- * 真实 GPS 存在抖动，多个不同账号在 10 分钟内上报完全相同的坐标（5 位小数 ≈ 1 米）是虚拟定位/多开的典型特征。
+ * 真实 GPS 存在抖动，多个不同账号在 10 分钟内上报完全相同的坐标（7 位小数 ≈ 1 厘米）是虚拟定位/多开的典型特征。
  * @returns {Promise<{flagged: boolean, accounts: number}>}
  */
 async function checkColocation(userId, lat, lng) {
   const redis = getRedis();
-  const key = `anticheat:coloc:${lat.toFixed(5)}:${lng.toFixed(5)}`;
+  // 7 位小数 ≈ 1 厘米：不同设备的真实 GPS 几乎不可能给出完全相同的坐标，而虚拟定位常复用同一组数值；
+  // 用 5 位（≈1 米）会误伤聚集在热门补给站/道馆的真实玩家
+  const key = `anticheat:coloc:${lat.toFixed(7)}:${lng.toFixed(7)}`;
   await redis.sadd(key, String(userId));
   await redis.expire(key, COLOCATION_WINDOW_SEC);
   const accounts = await redis.scard(key);
@@ -520,7 +522,7 @@ function validateLocation(req, res, next) {
 
       // 多账号同坐标（REQ-00586）：只记录并扣分，不直接阻断（避免误伤同一地点的真实玩家）；同一坐标只记一次
       const coloc = await checkColocation(userId, lat, lng);
-      if (coloc.flagged && await firstInIncident(`coloc:${lat.toFixed(5)}:${lng.toFixed(5)}`)) {
+      if (coloc.flagged && await firstInIncident(`coloc:${lat.toFixed(7)}:${lng.toFixed(7)}`)) {
         await recordCheatAttempt(userId, 'MULTI_ACCOUNT_COLOCATION', 'MEDIUM', { lat, lng, accounts: coloc.accounts });
       }
 

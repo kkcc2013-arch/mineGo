@@ -3,6 +3,7 @@
 > 评审对象：`main@5cac6ab`（2026-07-21 最后一次提交，共 918 个 commit）
 > 评审方式：静态阅读 + require 依赖图分析 + 在全新 PostgreSQL 16/PostGIS 3.4 + Redis 7 环境中实际启动各服务并请求接口
 > 配套文档：[未完成需求清单](../requirements/OPEN-REQUIREMENTS.md) · [实施计划与进度](../IMPLEMENTATION-PLAN-20260924.md)
+> 处置情况：第 2 节全部 P0 缺陷与第 4 节 P1 问题 1–10 已在本轮修复（见实施计划 Phase 0–3 与"独立复审与修正"）；第 2.3 节迁移失败数 102 → 79。
 
 ## 1. 结论摘要
 

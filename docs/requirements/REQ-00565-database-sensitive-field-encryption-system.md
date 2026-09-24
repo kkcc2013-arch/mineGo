@@ -3,7 +3,7 @@
 - **编号**：REQ-00565
 - **类别**：安全加固
 - **优先级**：P0
-- **状态**：new
+- **状态**：partial
 - **涉及服务/模块**：backend/shared/crypto、user-service、payment-service、social-service、database
 - **创建时间**：2026-07-16 02:05
 - **依赖需求**：REQ-00016（GDPR合规）、REQ-00394（API敏感参数脱敏）
@@ -350,3 +350,17 @@ async function migrateEncryptUsers() {
 
 **创建时间**：2026-07-16 02:05 UTC
 **创建者**：mineGo 开发循环自动化系统
+
+## 实现记录（2026-09-24）
+
+状态：**partial**（`users.phone` 已完成；其他服务的敏感字段未覆盖）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 敏感字段存储为加密字符串 | ✅ | `shared/fieldCrypto.js`：AES-256-GCM，`enc:v1:<kid>:<base64>`，AAD 绑定字段 |
+| 应用层返回明文 | ✅ | 登录/注册/GDPR 导出按需解密 |
+| 精确查询 | ✅ | HMAC-SHA256 盲索引存 `users.phone_hash`（唯一索引） |
+| 查询性能下降 ≤ 10% | ⚠️ 未压测 | 盲索引为等值索引查询，理论上与明文唯一索引相同 |
+| 密钥存储于 Vault/加密文件 | ⚠️ | 目前为服务器 `.env`（权限 600），未接入 Vault |
+| 密钥轮换后历史数据可解密 | ✅ | 多 kid 并存；`scripts/encrypt-user-phones.js --rotate` 已实测 k1→k2 |
+| 其他字段（支付、社交等） | ❌ | 未覆盖 |

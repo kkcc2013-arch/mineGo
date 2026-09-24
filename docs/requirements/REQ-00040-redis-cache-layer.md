@@ -7,7 +7,7 @@
 | 标题 | 实现 Redis 分布式缓存层 |
 | 类别 | 性能优化 |
 | 优先级 | P0 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | api-gateway, core-service |
 | 创建时间 | 2026-07-16 09:00 |
 
@@ -40,3 +40,17 @@
 ## 参考
 
 - Redis 最佳实践文档
+
+## 实现记录（2026-09-24）
+
+状态：**done**（验收项均已在云端主机实测）
+
+| 验收标准 | 结果 | 证据 |
+|---|---|---|
+| Redis 缓存服务已集成并运行 | ✅ | `backend/gateway/src/middleware/responseCache.js`，8 个读接口经 `cachedProxy`；响应头 `X-Cache: HIT/MISS/BYPASS` |
+| 缓存命中率 ≥ 70% | ✅（测试流量） | `GET /api/admin/cache/stats`（管理员）实测 71%；生产以 Prometheus `minego_gateway_cache_requests_total` 为准 |
+| 数据更新时缓存正确失效 | ✅ | 用户写操作成功后"用户缓存版本号"+1；冒烟用例"写操作后缓存失效" |
+| 缓存故障时降级直接读库 | ✅ | 缓存 Redis 不可达时 `X-Cache: BYPASS`，请求 200 且 <30ms |
+
+补充：原 `cacheMiddleware` 对代理响应从未生效（拦截 `res.json`，代理不经过它），且缓存键使用了不存在的 `req.user.id`，已替换。
+已知限制：其他玩家造成的数据变化（如交易对方）依赖 TTL（≤60s）过期。
