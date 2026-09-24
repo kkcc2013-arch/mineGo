@@ -97,7 +97,9 @@
 
 1. **轮换凭据**（旧值已随公开仓库泄露）：数据库密码、Redis 密码、`JWT_ACCESS_SECRET`、`JWT_REFRESH_SECRET`。
 2. 在 `/data/mineGo/.env` 按 `.env.example` 填写新凭据，另生成 `FIELD_ENCRYPTION_KEYS`、`FIELD_ENCRYPTION_ACTIVE_KID`、`FIELD_HASH_KEY`；`chmod 600 .env`。
-3. 执行新增迁移：`cd backend && node ../database/migrate.js up --from 20260924_000000`。
+3. 执行迁移（先 `pg_dump` 备份）：`cd backend && node ../database/migrate.js status` 查看已记录的版本；
+   - 生产库的历史迁移若大多已手工执行但没有 `schema_migrations` 记录：先 `node ../database/migrate.js baseline --until 20260924` 把 9 月 24 日前的迁移记为已执行，再 `node ../database/migrate.js up`；
+   - `up` 逐个文件独立事务，失败项会列出且不影响已成功项；若某项报"已存在"且确认对象已在库中，用 `baseline <版本号>` 标记后重跑 `up`。
 4. 回填手机号密文：`node scripts/encrypt-user-phones.js --dry-run` 确认后去掉 `--dry-run` 执行，再 `--verify`。
 5. 部署：`scripts/deploy-pm2.sh origin/main`（观察 5 分钟，失败自动回滚）。
 6. 授予管理员：`UPDATE users SET roles = array_append(roles, 'admin') WHERE id = '<uuid>';`（重新登录后生效）。
@@ -181,7 +183,8 @@
 | # | 任务 | 状态 |
 |---|---|---|
 | 5.0 | PM2 端口/进程名可平移（`PORT_BASE`、`PM2_NAME_PREFIX`），user-service 读取 `PORT`（原硬编码 8081 会与已有实例共享端口） | ✅ da32749 |
-| 5.1 | 修复剩余 77 个失败迁移，全新库 0 失败 | ⬜ |
+| 5.1 | 修复剩余失败迁移：全新库 **194/194 成功**（原 115 成功 / 79 失败）。新增 `database/tools/fix_sql_dialect.py`（MySQL 风格内联索引/部分唯一约束/`//` 注释/多余逗号/不存在角色的 GRANT/可选扩展 pg_cron、pg_stat_statements → 等价 PostgreSQL；`--idempotent` 让失败迁移可重复执行、同表新旧定义冲突时补列并放开旧表独有列的 NOT NULL）与 `database/tools/sequelizeShim.js`；其余逐个按真实表结构修正（`pokemon`→`pokemon_instances`、`username`→`nickname`、外键类型改 UUID、重名函数/视图、分区冲突、种子数据外键等）。修复过程中发现并修复一个影响主链路的问题：背包计数触发器依赖的 `pokemon_instances.is_released` 从未创建，迁移全部生效后每次捕捉入库都会 500 | ✅ |
+| 5.1b | `database/migrate.js`：同时读 `pending/` 与 `migrations/`、支持 JS 迁移、**每个文件独立事务**、多轮收敛、咨询锁、完成后退出、`baseline` 命令。全新库（V1 基线）`up` 执行 195 个、退出码 0，重复执行无待执行项 | ✅ |
 | 5.2 | 评审遗留功能缺陷 | ⬜ |
 
 ## 进度日志
@@ -202,3 +205,4 @@
 | 2026-09-24 16:45 | 独立复审 12 项问题全部处理（commit a94544b） |
 | 2026-09-24 17:05 | 反复运行冒烟时暴露两处问题并修复：刷怪点上的精灵被捕获后 30 分钟内不再刷新（且会把已捕获精灵加回 GEO 索引）；"多账号同坐标"精度 1 米会误伤聚集在热门补给站的真实玩家，改为 1 厘米。冒烟连续 3 次 37/37，单测全部通过 |
 | 2026-09-24 17:30 | 第二轮开始：修复包推送到分支 `dev/review-20260924` 并开 PR #5（未合并 main，合并即触发生产部署）；本机 mine 容器建立隔离 CI 栈复现基线（冒烟 37/37、单测通过、迁移 117/77）；442 个未完成需求归为 34 个 Epic 并排定波次 |
+| 2026-09-25 07:40 | W1-A 完成：全新库迁移 194/194 成功；`migrate.js` 生产路径验证（195 个、幂等）；冒烟 37/37、单测通过。并行执行代理因环境多次重启中断未产出，改为前台小步提交 + 及时推送 |
