@@ -137,8 +137,8 @@ ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS revoked_at TIMESTAMP WITH 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_turn_creds_user ON turn_credentials(user_id);
 CREATE INDEX IF NOT EXISTS idx_turn_creds_expires ON turn_credentials(expires_at);
-CREATE INDEX IF NOT EXISTS idx_turn_creds_active ON turn_credentials(user_id) 
-  WHERE revoked_at IS NULL AND expires_at > NOW();
+CREATE INDEX IF NOT EXISTS idx_turn_creds_active ON turn_credentials(user_id)
+  WHERE revoked_at IS NULL;  -- 谓词不能用 NOW()（非 IMMUTABLE），过期过滤放到查询里
 
 -- 语音房间事件日志表
 CREATE TABLE IF NOT EXISTS voice_room_events (

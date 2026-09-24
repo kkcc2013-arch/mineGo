@@ -34,7 +34,7 @@ CREATE INDEX IF NOT EXISTS idx_job_logs_job_id ON job_execution_logs(job_id);
 CREATE INDEX IF NOT EXISTS idx_job_logs_status ON job_execution_logs(status);
 CREATE INDEX IF NOT EXISTS idx_job_logs_start_time ON job_execution_logs(start_time DESC);
 CREATE INDEX IF NOT EXISTS idx_job_logs_category ON job_execution_logs(category);
-CREATE INDEX IF NOT EXISTS idx_job_logs_created_at ON job_execution_logs(created_time DESC);
+CREATE INDEX IF NOT EXISTS idx_job_logs_created_at ON job_execution_logs(created_at DESC);
 
 -- 创建告警历史表
 CREATE TABLE IF NOT EXISTS job_alert_history (
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS job_alert_history (
   metadata JSONB,
   sent_at TIMESTAMP NOT NULL,
   acknowledged_at TIMESTAMP,
-  acknowledged_by INTEGER REFERENCES users(id),
+  acknowledged_by UUID REFERENCES users(id),
   created_at TIMESTAMP DEFAULT NOW()
 );
 -- [fix_sql_dialect] 补齐已存在旧表缺少的列

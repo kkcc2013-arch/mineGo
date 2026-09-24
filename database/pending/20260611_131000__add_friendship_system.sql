@@ -127,49 +127,49 @@ ON CONFLICT (interaction_type) DO NOTHING;
 INSERT INTO friendship_evolution_rules (species_id, evolution_species_id, required_friendship, time_condition)
 SELECT s.id, e.id, 220, NULL
 FROM pokemon_species s, pokemon_species e
-WHERE s.species_id = 113 AND e.species_id = 242
+WHERE s.id = 113 AND e.id = 242
 ON CONFLICT DO NOTHING;
 
 INSERT INTO friendship_evolution_rules (species_id, evolution_species_id, required_friendship, time_condition)
 SELECT s.id, e.id, 220, 'day'
 FROM pokemon_species s, pokemon_species e
-WHERE s.species_id = 175 AND e.species_id = 176
+WHERE s.id = 175 AND e.id = 176
 ON CONFLICT DO NOTHING;
 
 INSERT INTO friendship_evolution_rules (species_id, evolution_species_id, required_friendship, time_condition)
 SELECT s.id, e.id, 220, NULL
 FROM pokemon_species s, pokemon_species e
-WHERE s.species_id = 176 AND e.species_id = 468
+WHERE s.id = 176 AND e.id = 468
 ON CONFLICT DO NOTHING;
 
 INSERT INTO friendship_evolution_rules (species_id, evolution_species_id, required_friendship, time_condition)
 SELECT s.id, e.id, 220, 'day'
 FROM pokemon_species s, pokemon_species e
-WHERE s.species_id = 133 AND e.species_id = 196
+WHERE s.id = 133 AND e.id = 196
 ON CONFLICT DO NOTHING;
 
 INSERT INTO friendship_evolution_rules (species_id, evolution_species_id, required_friendship, time_condition)
 SELECT s.id, e.id, 220, 'night'
 FROM pokemon_species s, pokemon_species e
-WHERE s.species_id = 133 AND e.species_id = 197
+WHERE s.id = 133 AND e.id = 197
 ON CONFLICT DO NOTHING;
 
 INSERT INTO friendship_evolution_rules (species_id, evolution_species_id, required_friendship, time_condition)
 SELECT s.id, e.id, 220, NULL
 FROM pokemon_species s, pokemon_species e
-WHERE s.species_id = 183 AND e.species_id = 184
+WHERE s.id = 183 AND e.id = 184
 ON CONFLICT DO NOTHING;
 
 INSERT INTO friendship_evolution_rules (species_id, evolution_species_id, required_friendship, time_condition)
 SELECT s.id, e.id, 220, NULL
 FROM pokemon_species s, pokemon_species e
-WHERE s.species_id = 280 AND e.species_id = 281
+WHERE s.id = 280 AND e.id = 281
 ON CONFLICT DO NOTHING;
 
 INSERT INTO friendship_evolution_rules (species_id, evolution_species_id, required_friendship, time_condition)
 SELECT s.id, e.id, 220, NULL
 FROM pokemon_species s, pokemon_species e
-WHERE s.species_id = 406 AND e.species_id = 407
+WHERE s.id = 406 AND e.id = 407
 ON CONFLICT DO NOTHING;
 
 -- 创建索引

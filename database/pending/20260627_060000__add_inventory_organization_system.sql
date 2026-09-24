@@ -17,18 +17,19 @@ COMMENT ON COLUMN pokemon_instances.sort_priority IS '自定义排序优先级';
 COMMENT ON COLUMN pokemon_instances.deleted_at IS '软删除时间';
 COMMENT ON COLUMN pokemon_instances.nickname IS '精灵昵称';
 
+-- 软删除标记（背包整理/批量放生使用；原迁移引用了但从未创建）
+ALTER TABLE pokemon_instances ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN NOT NULL DEFAULT FALSE;
+
 -- 创建索引优化查询
 CREATE INDEX IF NOT EXISTS idx_pokemon_user_favorite 
-  ON pokemon_instances(user_id, is_favorite DESC, combat_power DESC)
+  ON pokemon_instances(user_id, is_favorite DESC, cp DESC)
   WHERE is_deleted = FALSE;
 
 CREATE INDEX IF NOT EXISTS idx_pokemon_user_locked 
   ON pokemon_instances(user_id, is_locked DESC, created_at DESC)
   WHERE is_deleted = FALSE;
 
-CREATE INDEX IF NOT EXISTS idx_pokemon_user_types 
-  ON pokemon_instances(user_id, (types[1]))
-  WHERE is_deleted = FALSE;
+-- idx_pokemon_user_types 已移除：pokemon_instances 无 types 列（属性在 pokemon_species），按属性筛选走 species_id 索引 + JOIN
 
 CREATE INDEX IF NOT EXISTS idx_pokemon_user_species
   ON pokemon_instances(user_id, species_id)

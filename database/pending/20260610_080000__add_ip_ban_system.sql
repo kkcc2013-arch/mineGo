@@ -23,7 +23,7 @@ ALTER TABLE ip_blacklist ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
 ALTER TABLE ip_blacklist ADD COLUMN IF NOT EXISTS blocked_by UUID;
 ALTER TABLE ip_blacklist ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
-CREATE INDEX IF NOT EXISTS idx_ip_blacklist_ip ON ip_blacklist USING gist(ip_address);
+CREATE INDEX IF NOT EXISTS idx_ip_blacklist_ip ON ip_blacklist USING gist(ip_address inet_ops);
 CREATE INDEX IF NOT EXISTS idx_ip_blacklist_expires ON ip_blacklist(expires_at) WHERE expires_at IS NOT NULL;
 
 -- IP 白名单表
@@ -40,7 +40,7 @@ ALTER TABLE ip_whitelist ADD COLUMN IF NOT EXISTS description VARCHAR(500);
 ALTER TABLE ip_whitelist ADD COLUMN IF NOT EXISTS added_by UUID;
 ALTER TABLE ip_whitelist ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 
-CREATE INDEX IF NOT EXISTS idx_ip_whitelist_ip ON ip_whitelist USING gist(ip_address);
+CREATE INDEX IF NOT EXISTS idx_ip_whitelist_ip ON ip_whitelist USING gist(ip_address inet_ops);
 
 -- IP 风险评分表
 CREATE TABLE IF NOT EXISTS ip_risk_scores (
