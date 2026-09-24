@@ -47,16 +47,20 @@ $$ LANGUAGE plpgsql;
 
 -- 为各表创建触发器
 -- 用户表
-DROP TRIGGER IF EXISTS cdc_users_trigger ON users;
-CREATE TRIGGER cdc_users_trigger
-AFTER INSERT OR UPDATE OR DELETE ON users
-FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation();
+DO $cdc$ BEGIN
+  IF to_regclass('public.users') IS NOT NULL THEN
+    EXECUTE 'DROP TRIGGER IF EXISTS cdc_users_trigger ON users';
+    EXECUTE 'CREATE TRIGGER cdc_users_trigger AFTER INSERT OR UPDATE OR DELETE ON users FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation()';
+  END IF;
+END $cdc$;
 
 -- 精灵表
-DROP TRIGGER IF EXISTS cdc_pokemon_trigger ON pokemon_instances;
-CREATE TRIGGER cdc_pokemon_trigger
-AFTER INSERT OR UPDATE OR DELETE ON pokemon_instances
-FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation();
+DO $cdc$ BEGIN
+  IF to_regclass('public.pokemon_instances') IS NOT NULL THEN
+    EXECUTE 'DROP TRIGGER IF EXISTS cdc_pokemon_trigger ON pokemon_instances';
+    EXECUTE 'CREATE TRIGGER cdc_pokemon_trigger AFTER INSERT OR UPDATE OR DELETE ON pokemon_instances FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation()';
+  END IF;
+END $cdc$;
 
 -- 捕捉记录表
 -- catch_records 由分区迁移创建，未启用分区的环境里不存在：存在时才挂触发器
@@ -68,52 +72,68 @@ DO $cdc$ BEGIN
 END $cdc$;
 
 -- 道馆表
-DROP TRIGGER IF EXISTS cdc_gyms_trigger ON gyms;
-CREATE TRIGGER cdc_gyms_trigger
-AFTER INSERT OR UPDATE OR DELETE ON gyms
-FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation();
+DO $cdc$ BEGIN
+  IF to_regclass('public.gyms') IS NOT NULL THEN
+    EXECUTE 'DROP TRIGGER IF EXISTS cdc_gyms_trigger ON gyms';
+    EXECUTE 'CREATE TRIGGER cdc_gyms_trigger AFTER INSERT OR UPDATE OR DELETE ON gyms FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation()';
+  END IF;
+END $cdc$;
 
 -- 道馆队伍表
-DROP TRIGGER IF EXISTS cdc_gyms_teams_trigger ON gyms_teams;
-CREATE TRIGGER cdc_gyms_teams_trigger
-AFTER INSERT OR UPDATE OR DELETE ON gyms_teams
-FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation();
+DO $cdc$ BEGIN
+  IF to_regclass('public.gyms_teams') IS NOT NULL THEN  -- 该表未由任何迁移创建，存在时才挂触发器
+    EXECUTE 'DROP TRIGGER IF EXISTS cdc_gyms_teams_trigger ON gyms_teams';
+    EXECUTE 'CREATE TRIGGER cdc_gyms_teams_trigger AFTER INSERT OR UPDATE OR DELETE ON gyms_teams FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation()';
+  END IF;
+END $cdc$;
 
 -- Raid 表
-DROP TRIGGER IF EXISTS cdc_raids_trigger ON raids;
-CREATE TRIGGER cdc_raids_trigger
-AFTER INSERT OR UPDATE OR DELETE ON raids
-FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation();
+DO $cdc$ BEGIN
+  IF to_regclass('public.raids') IS NOT NULL THEN
+    EXECUTE 'DROP TRIGGER IF EXISTS cdc_raids_trigger ON raids';
+    EXECUTE 'CREATE TRIGGER cdc_raids_trigger AFTER INSERT OR UPDATE OR DELETE ON raids FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation()';
+  END IF;
+END $cdc$;
 
 -- 好友表
-DROP TRIGGER IF EXISTS cdc_friends_trigger ON friends;
-CREATE TRIGGER cdc_friends_trigger
-AFTER INSERT OR UPDATE OR DELETE ON friends
-FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation();
+DO $cdc$ BEGIN
+  IF to_regclass('public.friends') IS NOT NULL THEN
+    EXECUTE 'DROP TRIGGER IF EXISTS cdc_friends_trigger ON friends';
+    EXECUTE 'CREATE TRIGGER cdc_friends_trigger AFTER INSERT OR UPDATE OR DELETE ON friends FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation()';
+  END IF;
+END $cdc$;
 
 -- 道具表
-DROP TRIGGER IF EXISTS cdc_items_trigger ON items;
-CREATE TRIGGER cdc_items_trigger
-AFTER INSERT OR UPDATE OR DELETE ON items
-FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation();
+DO $cdc$ BEGIN
+  IF to_regclass('public.items') IS NOT NULL THEN
+    EXECUTE 'DROP TRIGGER IF EXISTS cdc_items_trigger ON items';
+    EXECUTE 'CREATE TRIGGER cdc_items_trigger AFTER INSERT OR UPDATE OR DELETE ON items FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation()';
+  END IF;
+END $cdc$;
 
 -- 用户背包表
-DROP TRIGGER IF EXISTS cdc_inventory_trigger ON inventory;
-CREATE TRIGGER cdc_inventory_trigger
-AFTER INSERT OR UPDATE OR DELETE ON inventory
-FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation();
+DO $cdc$ BEGIN
+  IF to_regclass('public.inventory') IS NOT NULL THEN
+    EXECUTE 'DROP TRIGGER IF EXISTS cdc_inventory_trigger ON inventory';
+    EXECUTE 'CREATE TRIGGER cdc_inventory_trigger AFTER INSERT OR UPDATE OR DELETE ON inventory FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation()';
+  END IF;
+END $cdc$;
 
 -- 奖励记录表
-DROP TRIGGER IF EXISTS cdc_reward_records_trigger ON reward_records;
-CREATE TRIGGER cdc_reward_records_trigger
-AFTER INSERT OR UPDATE ON reward_records
-FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation();
+DO $cdc$ BEGIN
+  IF to_regclass('public.reward_records') IS NOT NULL THEN
+    EXECUTE 'DROP TRIGGER IF EXISTS cdc_reward_records_trigger ON reward_records';
+    EXECUTE 'CREATE TRIGGER cdc_reward_records_trigger AFTER INSERT OR UPDATE ON reward_records FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation()';
+  END IF;
+END $cdc$;
 
 -- 支付记录表
-DROP TRIGGER IF EXISTS cdc_payments_trigger ON payments;
-CREATE TRIGGER cdc_payments_trigger
-AFTER INSERT OR UPDATE ON payments
-FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation();
+DO $cdc$ BEGIN
+  IF to_regclass('public.payments') IS NOT NULL THEN
+    EXECUTE 'DROP TRIGGER IF EXISTS cdc_payments_trigger ON payments';
+    EXECUTE 'CREATE TRIGGER cdc_payments_trigger AFTER INSERT OR UPDATE ON payments FOR EACH ROW EXECUTE FUNCTION notify_cache_invalidation()';
+  END IF;
+END $cdc$;
 
 -- 注释
 COMMENT ON FUNCTION notify_cache_invalidation() IS 

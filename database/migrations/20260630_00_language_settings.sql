@@ -71,12 +71,12 @@ RETURNS TRIGGER AS $$BEGIN
     );
     
     -- 发布通知（通过 pg_notify）
-    NOTIFY 'language_changed', json_build_object(
+    PERFORM pg_notify('language_changed', json_build_object(
       'userId', NEW.id,
       'previousLanguage', OLD.language,
       'newLanguage', NEW.language,
       'timestamp', EXTRACT(EPOCH FROM NOW()) * 1000
-    )::text;
+    )::text);
   END IF;
   
   RETURN NEW;
@@ -117,6 +117,4 @@ COMMENT ON TABLE language_change_logs IS 'REQ-00393: 语言变更日志表';
 COMMENT ON VIEW language_usage_stats IS 'REQ-00393: 语言使用统计视图';
 
 -- 完成
-INSERT INTO schema_migrations (version, applied_at, description)
-VALUES ('20260630_00', NOW(), 'REQ-00393: 动态语言切换无需重新登录系统 - 语言设置字段和日志表')
-ON CONFLICT (version) DO NOTHING;
+-- 迁移记录由迁移执行器维护（database/migrate.js），不在迁移内手工写入

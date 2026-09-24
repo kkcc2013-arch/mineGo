@@ -40,7 +40,7 @@ CREATE INDEX IF NOT EXISTS idx_device_fingerprints_trust ON device_fingerprints(
 CREATE TABLE IF NOT EXISTS capture_validations (
   id SERIAL PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  pokemon_id INTEGER NOT NULL REFERENCES pokemon(id),
+  pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id),
   capture_session_id VARCHAR(100) NOT NULL,
   validation_result JSONB NOT NULL,
   risk_level VARCHAR(20) NOT NULL,
@@ -169,7 +169,7 @@ CREATE TABLE IF NOT EXISTS capture_sessions (
   id SERIAL PRIMARY KEY,
   session_id VARCHAR(100) UNIQUE NOT NULL,
   user_id UUID NOT NULL REFERENCES users(id),
-  pokemon_id INTEGER NOT NULL REFERENCES pokemon(id),
+  pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id),
   latitude DECIMAL(10, 8),
   longitude DECIMAL(11, 8),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -195,7 +195,7 @@ CREATE INDEX IF NOT EXISTS idx_capture_sessions_user ON capture_sessions(user_id
 CREATE TABLE IF NOT EXISTS capture_attempts (
   id SERIAL PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES users(id),
-  pokemon_id INTEGER NOT NULL REFERENCES pokemon(id),
+  pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id),
   session_id VARCHAR(100) REFERENCES capture_sessions(session_id),
   result VARCHAR(50) NOT NULL,
   risk_score INTEGER,
@@ -232,15 +232,7 @@ COMMENT ON COLUMN users.ban_reason IS '封禁原因';
 COMMENT ON COLUMN users.banned_at IS '封禁时间';
 
 -- 插入初始数据
-INSERT INTO device_fingerprints (user_id, device_id, fingerprint_hash, device_info, security_flags, trust_score)
-SELECT 
-  1,
-  'test-device-001',
-  'abc123def456',
-  '{"platform": "android", "model": "Pixel 6", "osVersion": "12"}',
-  '{"emulatorDetected": false, "rootDetected": false}',
-  100
-WHERE NOT EXISTS (SELECT 1 FROM device_fingerprints WHERE device_id = 'test-device-001');
+-- 已移除测试设备样例数据（user_id=1 在 UUID 主键下无效，且测试数据不应进生产迁移）
 
 -- 创建触发器：自动更新 updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()

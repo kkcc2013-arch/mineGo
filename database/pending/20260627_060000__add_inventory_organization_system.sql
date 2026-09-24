@@ -42,7 +42,7 @@ CREATE INDEX IF NOT EXISTS idx_pokemon_user_cp
 -- 用户背包偏好表
 CREATE TABLE IF NOT EXISTS user_inventory_preferences (
   id SERIAL PRIMARY KEY,
-  user_id VARCHAR(255) NOT NULL UNIQUE,
+  user_id UUID NOT NULL UNIQUE,
   primary_sort VARCHAR(50) DEFAULT 'combatPower',
   secondary_sort VARCHAR(50) DEFAULT 'rarity',
   sort_order VARCHAR(10) DEFAULT 'desc',
@@ -81,7 +81,7 @@ CREATE TRIGGER trigger_update_inventory_preferences_timestamp
 -- 用户糖果表（用于转移奖励）
 CREATE TABLE IF NOT EXISTS user_candies (
   id SERIAL PRIMARY KEY,
-  user_id VARCHAR(255) NOT NULL UNIQUE,
+  user_id UUID NOT NULL UNIQUE,
   amount INTEGER DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -133,9 +133,7 @@ WHERE NOT EXISTS (
 ON CONFLICT DO NOTHING;
 
 -- 添加索引以支持按稀有度排序
-CREATE INDEX IF NOT EXISTS idx_pokemon_user_rarity
-  ON pokemon_instances(user_id, rarity)
-  WHERE is_deleted = FALSE;
+-- idx_pokemon_user_rarity 已移除：稀有度在 pokemon_species.rarity，按稀有度排序需 JOIN species（走 species_id 索引）
 
 -- 添加索引以支持按亲密度排序
 CREATE INDEX IF NOT EXISTS idx_pokemon_user_friendship

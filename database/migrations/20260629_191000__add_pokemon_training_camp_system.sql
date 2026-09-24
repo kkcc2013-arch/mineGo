@@ -97,7 +97,7 @@ CREATE TABLE IF NOT EXISTS training_slots (
     slot_index INT NOT NULL CHECK (slot_index >= 0 AND slot_index < 20),
     
     -- 训练的精灵
-    pokemon_id UUID NOT NULL REFERENCES user_pokemon(id) ON DELETE CASCADE,
+    pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     course_id INT NOT NULL REFERENCES training_courses(id),
     
     -- 训练状态
@@ -125,9 +125,7 @@ CREATE TABLE IF NOT EXISTS training_slots (
     updated_at TIMESTAMP DEFAULT NOW(),
     
     UNIQUE(user_id, camp_id, slot_index),
-    CONSTRAINT valid_slot CHECK (slot_index < 
-        (SELECT capacity FROM user_training_camps WHERE user_id = training_slots.user_id AND camp_id = training_slots.camp_id)
-    )
+    CONSTRAINT valid_slot CHECK (slot_index >= 0)  -- 上限依赖 user_training_camps.capacity，CHECK 不能含子查询，改由服务端校验
 );
 -- [fix_sql_dialect] 补齐已存在旧表缺少的列
 ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
@@ -157,7 +155,7 @@ CREATE TABLE IF NOT EXISTS training_reports (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     slot_id UUID NOT NULL REFERENCES training_slots(id) ON DELETE CASCADE,
-    pokemon_id UUID NOT NULL REFERENCES user_pokemon(id) ON DELETE CASCADE,
+    pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     
     -- 训练信息
     camp_type VARCHAR(50) NOT NULL,
