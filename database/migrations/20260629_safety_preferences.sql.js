@@ -11,7 +11,7 @@ const migrations = [
       -- 用户安全偏好表
       CREATE TABLE IF NOT EXISTS user_safety_preferences (
         id SERIAL PRIMARY KEY,
-        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         
         -- 癫痫防护
         epilepsy_protection VARCHAR(20) DEFAULT 'moderate' 
@@ -134,7 +134,7 @@ const migrations = [
       -- 安全事件日志表
       CREATE TABLE IF NOT EXISTS safety_event_log (
         id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(id),
+        user_id UUID REFERENCES users(id),
         event_type VARCHAR(50) NOT NULL,
         animation_id VARCHAR(100),
         
@@ -194,4 +194,11 @@ async function runMigration(db) {
 module.exports = {
   migrations,
   runMigration
+};
+// 迁移执行器（database/migrate.js、database/bootstrap-dev.js）调用 up(client)：
+// 依次执行上面的 SQL（每段均为 IF NOT EXISTS，可重复执行）；迁移记录由执行器维护。
+module.exports.up = async (client) => {
+  for (const migration of migrations) {
+    await client.query(migration.sql);
+  }
 };

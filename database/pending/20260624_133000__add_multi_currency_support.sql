@@ -189,11 +189,12 @@ CREATE INDEX IF NOT EXISTS idx_product_prices_lookup ON product_prices(product_i
 -- ============================================
 -- 7. Payment Orders Enhancement
 -- ============================================
-ALTER TABLE payment_orders ADD COLUMN IF NOT EXISTS amount_usd DECIMAL(20, 2);
-ALTER TABLE payment_orders ADD COLUMN IF NOT EXISTS amount_local DECIMAL(20, 2);
-ALTER TABLE payment_orders ADD COLUMN IF NOT EXISTS local_currency CHAR(3) DEFAULT 'USD';
-ALTER TABLE payment_orders ADD COLUMN IF NOT EXISTS exchange_rate DECIMAL(20, 10);
-ALTER TABLE payment_orders ADD COLUMN IF NOT EXISTS rate_lock_id VARCHAR(64);
+-- 支付订单表是 V1 的 orders（payment-service 读写 orders；payment_orders 从未创建）
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS amount_usd DECIMAL(20, 2);
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS amount_local DECIMAL(20, 2);
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS local_currency CHAR(3) DEFAULT 'USD';
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS exchange_rate DECIMAL(20, 10);
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS rate_lock_id VARCHAR(64);
 
 -- ============================================
 -- 8. Currency Conversion Audit Log

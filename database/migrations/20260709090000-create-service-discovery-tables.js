@@ -1,10 +1,13 @@
 'use strict';
 
+// 本迁移按 Sequelize queryInterface 编写；迁移执行器传入的是 pg client，经 sequelizeShim 转成幂等 SQL 执行
+const { wrapSequelizeMigration } = require('../tools/sequelizeShim');
+
 /**
  * REQ-00508: 服务发现与健康检查数据表迁移
  */
 
-module.exports = {
+module.exports = wrapSequelizeMigration({
   up: async (queryInterface, Sequelize) => {
     // 服务实例表
     await queryInterface.createTable('service_instances', {
@@ -176,4 +179,4 @@ module.exports = {
     await queryInterface.dropTable('health_check_history');
     await queryInterface.dropTable('service_instances');
   }
-};
+});
