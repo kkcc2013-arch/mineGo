@@ -311,7 +311,7 @@ ALTER TABLE guild_buffs ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
 ALTER TABLE guild_buffs ADD COLUMN IF NOT EXISTS cost INTEGER;
 
 CREATE INDEX IF NOT EXISTS idx_guild_buffs_guild ON guild_buffs(guild_id);
-CREATE INDEX IF NOT EXISTS idx_guild_buffs_active ON guild_buffs(guild_id, expires_at) WHERE expires_at > CURRENT_TIMESTAMP;
+CREATE INDEX IF NOT EXISTS idx_guild_buffs_active ON guild_buffs(guild_id, expires_at);  -- 谓词不能用 CURRENT_TIMESTAMP（非 IMMUTABLE）
 
 -- 公会聊天消息表
 CREATE TABLE IF NOT EXISTS guild_chat_messages (

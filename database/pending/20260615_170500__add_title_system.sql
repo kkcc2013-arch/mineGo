@@ -27,6 +27,23 @@ CREATE TABLE IF NOT EXISTS title_definitions (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS title_id VARCHAR(50);
+ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS name JSONB;
+ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS description JSONB;
+ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS category VARCHAR(30);
+ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS rarity VARCHAR(20);
+ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS icon_url TEXT;
+ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS stat_bonuses JSONB DEFAULT '{}';
+ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS unlock_type VARCHAR(30);
+ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS unlock_criteria JSONB;
+ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS special_effects JSONB DEFAULT '{}';
+ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS is_limited BOOLEAN DEFAULT false;
+ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS available_until TIMESTAMP;
+ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS display_order INT DEFAULT 0;
+ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_title_definitions_category ON title_definitions(category);
@@ -51,6 +68,15 @@ CREATE TABLE IF NOT EXISTS user_titles (
   
   UNIQUE(user_id, title_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS title_id VARCHAR(50);
+ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS source_type VARCHAR(30);
+ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS source_id VARCHAR(100);
+ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT false;
+ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS is_favorite BOOLEAN DEFAULT false;
+ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS unlocked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_user_titles_user ON user_titles(user_id);
@@ -114,6 +140,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_update_title_definitions_updated_at ON title_definitions;
 CREATE TRIGGER trigger_update_title_definitions_updated_at
 BEFORE UPDATE ON title_definitions
 FOR EACH ROW

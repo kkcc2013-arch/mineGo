@@ -92,7 +92,11 @@ INSERT INTO pokedex_milestones (milestone_type, threshold, sort_order, reward_ty
 ('count', 10, 6, 'items', '{"items": [{"id": "poke_ball", "count": 5}]}', 'First Steps', '初学者', 'Caught 10 different species', '捕获10种不同精灵', '🚶'),
 ('count', 50, 7, 'items', '{"items": [{"id": "great_ball", "count": 30}]}', 'Collector', '收藏家', 'Caught 50 different species', '捕获50种不同精灵', '📦'),
 ('count', 100, 8, 'items', '{"items": [{"id": "ultra_ball", "count": 50}]}', 'Expert', '专家', 'Caught 100 different species', '捕获100种不同精灵', '🎓'),
-('count', 200, 9, 'items', '{"items": [{"id": "master_ball", "count": 10}]}', 'Master', '大师', 'Caught 200 different species', '捕获200种不同精灵', '👑'),
+('count', 200, 9, 'items', '{"items": [{"id": "master_ball", "count": 10}]}', 'Master', '大师', 'Caught 200 different species', '捕获200种不同精灵', '👑')
+ON CONFLICT DO NOTHING;
+
+-- special 类里程碑带 category（shiny/legendary）列
+INSERT INTO pokedex_milestones (milestone_type, threshold, sort_order, category, reward_type, reward_data, title, title_zh, description, description_zh, icon) VALUES
 ('special', 5, 10, 'shiny', 'items', '{"items": [{"id": "shiny_charm", "count": 1}]}', 'Shiny Hunter', '闪光猎人', 'Caught 5 shiny Pokemon', '捕获5只闪光精灵', '✨'),
 ('special', 10, 11, 'shiny', 'items', '{"items": [{"id": "golden_shiny_charm", "count": 1}]}', 'Shiny Master', '闪光大师', 'Caught 10 shiny Pokemon', '捕获10只闪光精灵', '💎'),
 ('special', 3, 12, 'legendary', 'items', '{"items": [{"id": "legendary_encounter_boost", "count": 1}]}', 'Legend Seeker', '传说追寻者', 'Caught 3 legendary Pokemon', '捕获3只传说精灵', '🔥')
@@ -275,7 +279,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-COMMENT ON FUNCTION update_pokedex_stats IS '更新用户图鉴统计缓存';
+COMMENT ON FUNCTION update_pokedex_stats(UUID) IS '更新用户图鉴统计缓存';
 
 -- ============================================
 -- 创建触发器：自动更新缓存
@@ -346,4 +350,4 @@ DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app')
 DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON user_pokedex_achievements TO minego_app'; END IF; END $grant$;
 DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON pokedex_stats_cache TO minego_app'; END IF; END $grant$;
 DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON pokemon_species TO minego_app'; END IF; END $grant$;
-DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT EXECUTE ON FUNCTION update_pokedex_stats TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT EXECUTE ON FUNCTION update_pokedex_stats(UUID) TO minego_app'; END IF; END $grant$;

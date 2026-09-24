@@ -12,6 +12,13 @@ CREATE TABLE IF NOT EXISTS translation_keys (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE translation_keys ADD COLUMN IF NOT EXISTS category VARCHAR(50);
+ALTER TABLE translation_keys ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE translation_keys ADD COLUMN IF NOT EXISTS context TEXT;
+ALTER TABLE translation_keys ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE translation_keys ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE translation_keys ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_translation_keys_category ON translation_keys(category);
 CREATE INDEX IF NOT EXISTS idx_translation_keys_active ON translation_keys(is_active);
@@ -33,6 +40,17 @@ CREATE TABLE IF NOT EXISTS translations (
     
     CONSTRAINT translations_key_language_version_unique UNIQUE(key_id, language, version)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS key_id INTEGER;
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS language VARCHAR(10);
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS content TEXT;
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending';
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS translated_by INTEGER;
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS reviewed_by INTEGER;
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS version INTEGER DEFAULT 1;
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE translations ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_translations_key ON translations(key_id);
 CREATE INDEX IF NOT EXISTS idx_translations_language ON translations(language);
@@ -50,6 +68,14 @@ CREATE TABLE IF NOT EXISTS translation_history (
     change_reason TEXT,
     changed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE translation_history ADD COLUMN IF NOT EXISTS key_id INTEGER;
+ALTER TABLE translation_history ADD COLUMN IF NOT EXISTS language VARCHAR(10);
+ALTER TABLE translation_history ADD COLUMN IF NOT EXISTS old_content TEXT;
+ALTER TABLE translation_history ADD COLUMN IF NOT EXISTS new_content TEXT;
+ALTER TABLE translation_history ADD COLUMN IF NOT EXISTS changed_by INTEGER;
+ALTER TABLE translation_history ADD COLUMN IF NOT EXISTS change_reason TEXT;
+ALTER TABLE translation_history ADD COLUMN IF NOT EXISTS changed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_translation_history_key ON translation_history(key_id);
 CREATE INDEX IF NOT EXISTS idx_translation_history_language ON translation_history(language);
@@ -65,6 +91,13 @@ CREATE TABLE IF NOT EXISTS translation_progress (
     completion_pct DECIMAL(5,2) DEFAULT 0.00,
     last_updated TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE translation_progress ADD COLUMN IF NOT EXISTS language VARCHAR(10);
+ALTER TABLE translation_progress ADD COLUMN IF NOT EXISTS total_keys INTEGER DEFAULT 0;
+ALTER TABLE translation_progress ADD COLUMN IF NOT EXISTS translated_keys INTEGER DEFAULT 0;
+ALTER TABLE translation_progress ADD COLUMN IF NOT EXISTS approved_keys INTEGER DEFAULT 0;
+ALTER TABLE translation_progress ADD COLUMN IF NOT EXISTS completion_pct DECIMAL(5,2) DEFAULT 0.00;
+ALTER TABLE translation_progress ADD COLUMN IF NOT EXISTS last_updated TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 -- 翻译任务表
 CREATE TABLE IF NOT EXISTS translation_tasks (
@@ -81,6 +114,16 @@ CREATE TABLE IF NOT EXISTS translation_tasks (
     
     CONSTRAINT translation_tasks_key_lang_unique UNIQUE(key_id, language)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE translation_tasks ADD COLUMN IF NOT EXISTS key_id INTEGER;
+ALTER TABLE translation_tasks ADD COLUMN IF NOT EXISTS language VARCHAR(10);
+ALTER TABLE translation_tasks ADD COLUMN IF NOT EXISTS assigned_to INTEGER;
+ALTER TABLE translation_tasks ADD COLUMN IF NOT EXISTS priority VARCHAR(20) DEFAULT 'normal';
+ALTER TABLE translation_tasks ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending';
+ALTER TABLE translation_tasks ADD COLUMN IF NOT EXISTS due_date TIMESTAMP WITH TIME ZONE;
+ALTER TABLE translation_tasks ADD COLUMN IF NOT EXISTS notes TEXT;
+ALTER TABLE translation_tasks ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE translation_tasks ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_translation_tasks_assigned ON translation_tasks(assigned_to);
 CREATE INDEX IF NOT EXISTS idx_translation_tasks_status ON translation_tasks(status);
@@ -95,6 +138,12 @@ CREATE TABLE IF NOT EXISTS translation_comments (
     comment TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE translation_comments ADD COLUMN IF NOT EXISTS key_id INTEGER;
+ALTER TABLE translation_comments ADD COLUMN IF NOT EXISTS language VARCHAR(10);
+ALTER TABLE translation_comments ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE translation_comments ADD COLUMN IF NOT EXISTS comment TEXT;
+ALTER TABLE translation_comments ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_translation_comments_key ON translation_comments(key_id);
 CREATE INDEX IF NOT EXISTS idx_translation_comments_key_lang ON translation_comments(key_id, language);

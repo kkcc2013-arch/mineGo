@@ -34,6 +34,24 @@ CREATE TABLE IF NOT EXISTS deadlock_log (
     -- 额外上下文
     context JSONB DEFAULT '{}'
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS deadlock_id VARCHAR(64);
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS error_code VARCHAR(20);
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS error_message TEXT;
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS error_detail TEXT;
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS error_hint TEXT;
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS service_name VARCHAR(100);
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS transaction_name VARCHAR(200);
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS trace_id VARCHAR(64);
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS involved_processes JSONB DEFAULT '[]';
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS involved_tables JSONB DEFAULT '[]';
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS lock_types JSONB DEFAULT '[]';
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS sql_queries JSONB DEFAULT '[]';
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS retry_count INTEGER DEFAULT 0;
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS resolved BOOLEAN DEFAULT FALSE;
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS severity VARCHAR(20) DEFAULT 'low';
+ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS context JSONB DEFAULT '{}';
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_deadlock_log_created_at ON deadlock_log(created_at DESC);
@@ -65,6 +83,17 @@ CREATE TABLE IF NOT EXISTS deadlock_stats_hourly (
     
     UNIQUE(hour_timestamp, service_name)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE deadlock_stats_hourly ADD COLUMN IF NOT EXISTS hour_timestamp TIMESTAMPTZ;
+ALTER TABLE deadlock_stats_hourly ADD COLUMN IF NOT EXISTS service_name VARCHAR(100);
+ALTER TABLE deadlock_stats_hourly ADD COLUMN IF NOT EXISTS total_deadlocks INTEGER DEFAULT 0;
+ALTER TABLE deadlock_stats_hourly ADD COLUMN IF NOT EXISTS resolved_deadlocks INTEGER DEFAULT 0;
+ALTER TABLE deadlock_stats_hourly ADD COLUMN IF NOT EXISTS failed_deadlocks INTEGER DEFAULT 0;
+ALTER TABLE deadlock_stats_hourly ADD COLUMN IF NOT EXISTS avg_retry_count NUMERIC(10, 2) DEFAULT 0;
+ALTER TABLE deadlock_stats_hourly ADD COLUMN IF NOT EXISTS hot_tables JSONB DEFAULT '{}';
+ALTER TABLE deadlock_stats_hourly ADD COLUMN IF NOT EXISTS operation_distribution JSONB DEFAULT '{}';
+ALTER TABLE deadlock_stats_hourly ADD COLUMN IF NOT EXISTS lock_type_distribution JSONB DEFAULT '{}';
+ALTER TABLE deadlock_stats_hourly ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_deadlock_stats_hourly_time ON deadlock_stats_hourly(hour_timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_deadlock_stats_hourly_service ON deadlock_stats_hourly(service_name);
@@ -90,6 +119,17 @@ CREATE TABLE IF NOT EXISTS deadlock_patterns (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE deadlock_patterns ADD COLUMN IF NOT EXISTS pattern_hash VARCHAR(64);
+ALTER TABLE deadlock_patterns ADD COLUMN IF NOT EXISTS involved_tables JSONB;
+ALTER TABLE deadlock_patterns ADD COLUMN IF NOT EXISTS lock_types JSONB;
+ALTER TABLE deadlock_patterns ADD COLUMN IF NOT EXISTS operation_types JSONB;
+ALTER TABLE deadlock_patterns ADD COLUMN IF NOT EXISTS occurrence_count INTEGER DEFAULT 1;
+ALTER TABLE deadlock_patterns ADD COLUMN IF NOT EXISTS first_seen TIMESTAMPTZ;
+ALTER TABLE deadlock_patterns ADD COLUMN IF NOT EXISTS last_seen TIMESTAMPTZ;
+ALTER TABLE deadlock_patterns ADD COLUMN IF NOT EXISTS recommendation TEXT;
+ALTER TABLE deadlock_patterns ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE deadlock_patterns ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
 CREATE INDEX IF NOT EXISTS idx_deadlock_patterns_tables ON deadlock_patterns USING GIN(involved_tables);
 CREATE INDEX IF NOT EXISTS idx_deadlock_patterns_count ON deadlock_patterns(occurrence_count DESC);
@@ -115,6 +155,15 @@ CREATE TABLE IF NOT EXISTS deadlock_alert_config (
     
     UNIQUE(service_name)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE deadlock_alert_config ADD COLUMN IF NOT EXISTS service_name VARCHAR(100);
+ALTER TABLE deadlock_alert_config ADD COLUMN IF NOT EXISTS alert_threshold INTEGER DEFAULT 3;
+ALTER TABLE deadlock_alert_config ADD COLUMN IF NOT EXISTS critical_threshold INTEGER DEFAULT 5;
+ALTER TABLE deadlock_alert_config ADD COLUMN IF NOT EXISTS notification_channels JSONB DEFAULT '["log"]';
+ALTER TABLE deadlock_alert_config ADD COLUMN IF NOT EXISTS cooldown_minutes INTEGER DEFAULT 30;
+ALTER TABLE deadlock_alert_config ADD COLUMN IF NOT EXISTS enabled BOOLEAN DEFAULT TRUE;
+ALTER TABLE deadlock_alert_config ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE deadlock_alert_config ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 
 -- 初始化默认配置
 INSERT INTO deadlock_alert_config (service_name, alert_threshold, critical_threshold, notification_channels)

@@ -261,7 +261,7 @@ CREATE TRIGGER update_pokedex_milestones_updated_at
 -- ============================================================
 -- 10. 存储过程：更新图鉴统计缓存
 -- ============================================================
-CREATE OR REPLACE FUNCTION update_pokedex_stats(p_user_id INTEGER)
+CREATE OR REPLACE FUNCTION update_pokedex_stats(p_user_id UUID)
 RETURNS VOID AS $$
 DECLARE
     v_total_species INTEGER;

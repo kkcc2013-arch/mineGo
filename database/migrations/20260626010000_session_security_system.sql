@@ -263,7 +263,7 @@ CREATE OR REPLACE VIEW v_recent_anomalies AS
 SELECT
   sae.id,
   sae.user_id,
-  u.username,
+  u.nickname AS username,
   sae.session_id,
   sae.anomaly_type,
   sae.severity,
@@ -274,7 +274,7 @@ SELECT
   us.ip_address
 FROM session_anomaly_events sae
 JOIN users u ON u.id = sae.user_id
-LEFT JOIN user_sessions us ON us.id = sae.session_id
+LEFT JOIN user_sessions us ON us.id::text = sae.session_id::text
 WHERE sae.resolved_at IS NULL
 ORDER BY
   CASE sae.severity
