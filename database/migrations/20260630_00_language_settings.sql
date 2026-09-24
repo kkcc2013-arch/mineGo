@@ -36,6 +36,16 @@ ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS session_preserved BOOL
 ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS ip_address INET;
 ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS device_id VARCHAR(255);
 ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.language_change_logs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'user_id', 'previous_language', 'new_language', 'change_source', 'session_preserved', 'ip_address', 'device_id', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE language_change_logs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 3. 创建索引
 CREATE INDEX IF NOT EXISTS idx_language_change_logs_user ON language_change_logs(user_id, created_at DESC);
@@ -109,6 +119,16 @@ ALTER TABLE language_cache ADD COLUMN IF NOT EXISTS user_id UUID;
 ALTER TABLE language_cache ADD COLUMN IF NOT EXISTS language VARCHAR(10);
 ALTER TABLE language_cache ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE language_cache ADD COLUMN IF NOT EXISTS ttl_seconds INTEGER DEFAULT 3600;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.language_cache') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'language', 'updated_at', 'ttl_seconds', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE language_cache ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 9. 评论
 COMMENT ON COLUMN users.language IS '用户偏好语言代码: zh, en, ja';

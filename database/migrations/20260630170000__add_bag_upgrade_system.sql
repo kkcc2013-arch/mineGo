@@ -27,6 +27,20 @@ ALTER TABLE bag_upgrade_config ADD COLUMN IF NOT EXISTS display_order INTEGER DE
 ALTER TABLE bag_upgrade_config ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
 ALTER TABLE bag_upgrade_config ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE bag_upgrade_config ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.bag_upgrade_config') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('upgrade_id', 'category', 'increment', 'gold_cost', 'gem_cost', 'required_level', 'max_upgrades', 'display_order', 'is_active', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE bag_upgrade_config ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
+-- 旧版（20260612_090000）分类约束不含 berry/misc，替换为新版约束
+ALTER TABLE bag_upgrade_config DROP CONSTRAINT IF EXISTS bag_upgrade_config_category_check;
+ALTER TABLE bag_upgrade_config ADD CONSTRAINT bag_upgrade_config_category_check
+  CHECK (category IN ('base', 'pokeball', 'potion', 'tm', 'evolution', 'special', 'berry', 'misc'));
 
 COMMENT ON TABLE bag_upgrade_config IS '背包扩容配置表，定义各类别扩容的价格和限制';
 COMMENT ON COLUMN bag_upgrade_config.category IS '背包分类：base=基础容量，pokeball=精灵球，potion=药水等';
@@ -51,6 +65,16 @@ ALTER TABLE player_bag_upgrades ADD COLUMN IF NOT EXISTS purchase_method VARCHAR
 ALTER TABLE player_bag_upgrades ADD COLUMN IF NOT EXISTS cost_amount INTEGER DEFAULT 0;
 ALTER TABLE player_bag_upgrades ADD COLUMN IF NOT EXISTS purchased_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE player_bag_upgrades ADD COLUMN IF NOT EXISTS transaction_id VARCHAR(100);
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.player_bag_upgrades') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'upgrade_id', 'purchase_method', 'cost_amount', 'purchased_at', 'transaction_id', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE player_bag_upgrades ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_player_bag_upgrades_user ON player_bag_upgrades(user_id);
 CREATE INDEX IF NOT EXISTS idx_player_bag_upgrades_method ON player_bag_upgrades(purchase_method);
@@ -156,6 +180,16 @@ ALTER TABLE bag_upgrade_audit_log ADD COLUMN IF NOT EXISTS new_capacity INTEGER;
 ALTER TABLE bag_upgrade_audit_log ADD COLUMN IF NOT EXISTS performed_by INTEGER;
 ALTER TABLE bag_upgrade_audit_log ADD COLUMN IF NOT EXISTS performed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE bag_upgrade_audit_log ADD COLUMN IF NOT EXISTS notes TEXT;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.bag_upgrade_audit_log') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'upgrade_id', 'action', 'purchase_method', 'cost_amount', 'old_capacity', 'new_capacity', 'performed_by', 'performed_at', 'notes', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE bag_upgrade_audit_log ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_bag_upgrade_audit_user ON bag_upgrade_audit_log(user_id);
 CREATE INDEX IF NOT EXISTS idx_bag_upgrade_audit_time ON bag_upgrade_audit_log(performed_at DESC);

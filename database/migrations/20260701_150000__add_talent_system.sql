@@ -31,6 +31,16 @@ ALTER TABLE pokemon_talent_config ADD COLUMN IF NOT EXISTS used_points INTEGER D
 ALTER TABLE pokemon_talent_config ADD COLUMN IF NOT EXISTS hidden_attributes JSONB DEFAULT '{}';
 ALTER TABLE pokemon_talent_config ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE pokemon_talent_config ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokemon_talent_config') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('pokemon_id', 'allocated_talents', 'total_points', 'used_points', 'hidden_attributes', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokemon_talent_config ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 天赋定义表 (系统配置)
 CREATE TABLE IF NOT EXISTS talent_definitions (
@@ -83,6 +93,16 @@ ALTER TABLE talent_definitions ADD COLUMN IF NOT EXISTS unlock_condition JSONB D
 ALTER TABLE talent_definitions ADD COLUMN IF NOT EXISTS pokemon_types JSONB DEFAULT '[]';
 ALTER TABLE talent_definitions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE talent_definitions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.talent_definitions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'name', 'name_i18n', 'description', 'description_i18n', 'category', 'max_level', 'cost_per_level', 'effects', 'prerequisites', 'unlock_condition', 'pokemon_types', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE talent_definitions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 天赋树定义表
 CREATE TABLE IF NOT EXISTS talent_tree_definitions (
@@ -108,6 +128,16 @@ ALTER TABLE talent_tree_definitions ADD COLUMN IF NOT EXISTS branches JSONB;
 ALTER TABLE talent_tree_definitions ADD COLUMN IF NOT EXISTS total_talent_points INTEGER DEFAULT 15;
 ALTER TABLE talent_tree_definitions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE talent_tree_definitions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.talent_tree_definitions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('pokemon_type', 'branches', 'total_talent_points', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE talent_tree_definitions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 天赋点获取记录表
 CREATE TABLE IF NOT EXISTS talent_point_records (
@@ -131,6 +161,16 @@ ALTER TABLE talent_point_records ADD COLUMN IF NOT EXISTS source_type VARCHAR(50
 ALTER TABLE talent_point_records ADD COLUMN IF NOT EXISTS points INTEGER;
 ALTER TABLE talent_point_records ADD COLUMN IF NOT EXISTS details JSONB DEFAULT '{}';
 ALTER TABLE talent_point_records ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.talent_point_records') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('pokemon_id', 'source_type', 'points', 'details', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE talent_point_records ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 天赋重置历史表
 CREATE TABLE IF NOT EXISTS talent_reset_history (
@@ -156,6 +196,16 @@ ALTER TABLE talent_reset_history ADD COLUMN IF NOT EXISTS previous_talents JSONB
 ALTER TABLE talent_reset_history ADD COLUMN IF NOT EXISTS refunded_points INTEGER;
 ALTER TABLE talent_reset_history ADD COLUMN IF NOT EXISTS consumed_item_id VARCHAR(100);
 ALTER TABLE talent_reset_history ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.talent_reset_history') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('pokemon_id', 'user_id', 'previous_talents', 'refunded_points', 'consumed_item_id', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE talent_reset_history ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 天赋推荐配置表
 CREATE TABLE IF NOT EXISTS talent_recommendations (
@@ -190,6 +240,16 @@ ALTER TABLE talent_recommendations ADD COLUMN IF NOT EXISTS description_i18n JSO
 ALTER TABLE talent_recommendations ADD COLUMN IF NOT EXISTS rating INTEGER DEFAULT 0;
 ALTER TABLE talent_recommendations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE talent_recommendations ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.talent_recommendations') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('pokemon_type', 'style', 'recommended_talents', 'description', 'description_i18n', 'rating', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE talent_recommendations ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_talent_config_pokemon ON pokemon_talent_config(pokemon_id);

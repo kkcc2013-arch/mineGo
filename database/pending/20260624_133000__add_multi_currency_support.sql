@@ -20,6 +20,16 @@ ALTER TABLE supported_currencies ADD COLUMN IF NOT EXISTS currency_symbol VARCHA
 ALTER TABLE supported_currencies ADD COLUMN IF NOT EXISTS decimal_places INTEGER DEFAULT 2;
 ALTER TABLE supported_currencies ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
 ALTER TABLE supported_currencies ADD COLUMN IF NOT EXISTS supported_since TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.supported_currencies') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('currency_code', 'currency_name', 'currency_symbol', 'decimal_places', 'is_active', 'supported_since', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE supported_currencies ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_supported_currencies_active ON supported_currencies(is_active);
 
@@ -52,6 +62,16 @@ ALTER TABLE exchange_rates ADD COLUMN IF NOT EXISTS source VARCHAR(50);
 ALTER TABLE exchange_rates ADD COLUMN IF NOT EXISTS fetched_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE exchange_rates ADD COLUMN IF NOT EXISTS valid_until TIMESTAMP;
 ALTER TABLE exchange_rates ADD COLUMN IF NOT EXISTS is_current BOOLEAN DEFAULT true;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.exchange_rates') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('from_currency', 'to_currency', 'rate', 'source', 'fetched_at', 'valid_until', 'is_current', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE exchange_rates ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_exchange_rates_current ON exchange_rates(from_currency, to_currency) WHERE is_current = true;
 CREATE INDEX IF NOT EXISTS idx_exchange_rates_validity ON exchange_rates(valid_until);
@@ -83,6 +103,16 @@ ALTER TABLE rate_locks ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
 ALTER TABLE rate_locks ADD COLUMN IF NOT EXISTS reference_type VARCHAR(20);
 ALTER TABLE rate_locks ADD COLUMN IF NOT EXISTS reference_id VARCHAR(100);
 ALTER TABLE rate_locks ADD COLUMN IF NOT EXISTS used BOOLEAN DEFAULT false;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.rate_locks') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('lock_id', 'from_currency', 'to_currency', 'locked_rate', 'locked_at', 'expires_at', 'reference_type', 'reference_id', 'used', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE rate_locks ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_rate_locks_lookup ON rate_locks(lock_id, expires_at) WHERE used = false;
 CREATE INDEX IF NOT EXISTS idx_rate_locks_expires ON rate_locks(expires_at);
@@ -111,6 +141,16 @@ ALTER TABLE exchange_rate_history ADD COLUMN IF NOT EXISTS open_rate DECIMAL(20,
 ALTER TABLE exchange_rate_history ADD COLUMN IF NOT EXISTS close_rate DECIMAL(20, 10);
 ALTER TABLE exchange_rate_history ADD COLUMN IF NOT EXISTS high_rate DECIMAL(20, 10);
 ALTER TABLE exchange_rate_history ADD COLUMN IF NOT EXISTS low_rate DECIMAL(20, 10);
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.exchange_rate_history') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('from_currency', 'to_currency', 'rate', 'recorded_at', 'open_rate', 'close_rate', 'high_rate', 'low_rate', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE exchange_rate_history ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_rate_history_lookup ON exchange_rate_history(from_currency, to_currency, recorded_at DESC);
 
@@ -133,6 +173,16 @@ ALTER TABLE product_prices ADD COLUMN IF NOT EXISTS currency_code CHAR(3);
 ALTER TABLE product_prices ADD COLUMN IF NOT EXISTS price DECIMAL(20, 2);
 ALTER TABLE product_prices ADD COLUMN IF NOT EXISTS original_price DECIMAL(20, 2);
 ALTER TABLE product_prices ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.product_prices') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('product_id', 'currency_code', 'price', 'original_price', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE product_prices ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_product_prices_lookup ON product_prices(product_id);
 
@@ -174,6 +224,16 @@ ALTER TABLE currency_conversion_logs ADD COLUMN IF NOT EXISTS rate_lock_id VARCH
 ALTER TABLE currency_conversion_logs ADD COLUMN IF NOT EXISTS conversion_type VARCHAR(20);
 ALTER TABLE currency_conversion_logs ADD COLUMN IF NOT EXISTS reference_id VARCHAR(100);
 ALTER TABLE currency_conversion_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.currency_conversion_logs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'from_currency', 'to_currency', 'from_amount', 'to_amount', 'rate', 'rate_source', 'rate_lock_id', 'conversion_type', 'reference_id', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE currency_conversion_logs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_currency_conversion_user ON currency_conversion_logs(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_currency_conversion_ref ON currency_conversion_logs(reference_id);

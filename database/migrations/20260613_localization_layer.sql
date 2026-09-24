@@ -46,6 +46,16 @@ ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS translation TEXT;
 ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS metadata JSONB;
 ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.content_localizations') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'content_type', 'content_id', 'field_name', 'language', 'translation', 'metadata', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE content_localizations ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- Indexes for efficient querying
 CREATE INDEX IF NOT EXISTS idx_localization_content 
@@ -94,6 +104,16 @@ ALTER TABLE items ADD COLUMN IF NOT EXISTS is_premium BOOLEAN DEFAULT FALSE;
 ALTER TABLE items ADD COLUMN IF NOT EXISTS sprite_url VARCHAR(500);
 ALTER TABLE items ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE items ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.items') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'category', 'name_zh', 'name_en', 'name_ja', 'description_zh', 'description_en', 'description_ja', 'effect_type', 'effect_value', 'shop_price', 'is_premium', 'sprite_url', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE items ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_items_category ON items(category);
 CREATE INDEX IF NOT EXISTS idx_items_premium ON items(is_premium) WHERE is_premium = TRUE;
@@ -145,6 +165,16 @@ ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS accuracy DECIMAL(5,4) DEF
 ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS critical_chance DECIMAL(5,4) DEFAULT 0.05;
 ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.move_catalog_i18n') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'move_type', 'category', 'name_zh', 'name_en', 'name_ja', 'description_zh', 'description_en', 'description_ja', 'power', 'energy_cost', 'energy_gain', 'cooldown_ms', 'duration_ms', 'accuracy', 'critical_chance', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE move_catalog_i18n ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_moves_type ON move_catalog_i18n(move_type);
 CREATE INDEX IF NOT EXISTS idx_moves_category ON move_catalog_i18n(category);

@@ -22,6 +22,16 @@ ALTER TABLE training_camps ADD COLUMN IF NOT EXISTS base_capacity INT DEFAULT 3;
 ALTER TABLE training_camps ADD COLUMN IF NOT EXISTS capacity_per_level INT DEFAULT 1;
 ALTER TABLE training_camps ADD COLUMN IF NOT EXISTS icon_url VARCHAR(255);
 ALTER TABLE training_camps ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.training_camps') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('name', 'type', 'description', 'max_level', 'base_capacity', 'capacity_per_level', 'icon_url', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE training_camps ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 训练课程配置表
 CREATE TABLE IF NOT EXISTS training_courses (
@@ -64,6 +74,16 @@ ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS is_premium BOOLEAN DEFAULT
 ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS daily_limit INT DEFAULT 0;
 ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS icon_url VARCHAR(255);
 ALTER TABLE training_courses ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.training_courses') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('camp_id', 'name', 'description', 'duration_minutes', 'cost_type', 'cost_amount', 'exp_reward', 'exp_reward_per_level', 'skill_id', 'friendship_reward', 'friendship_reward_per_level', 'required_camp_level', 'max_pokemon_level', 'min_pokemon_level', 'is_premium', 'daily_limit', 'icon_url', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE training_courses ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 玩家训练营等级表
 CREATE TABLE IF NOT EXISTS user_training_camps (
@@ -88,6 +108,16 @@ ALTER TABLE user_training_camps ADD COLUMN IF NOT EXISTS unlocked_at TIMESTAMP D
 ALTER TABLE user_training_camps ADD COLUMN IF NOT EXISTS upgraded_at TIMESTAMP;
 ALTER TABLE user_training_camps ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE user_training_camps ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_training_camps') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'user_id', 'camp_id', 'level', 'capacity', 'unlocked_at', 'upgraded_at', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_training_camps ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 训练队列表
 CREATE TABLE IF NOT EXISTS training_slots (
@@ -149,6 +179,16 @@ ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS actual_friendship INT DEFAUL
 ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS skill_learned BOOLEAN DEFAULT FALSE;
 ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE training_slots ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.training_slots') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'user_id', 'camp_id', 'slot_index', 'pokemon_id', 'course_id', 'status', 'started_at', 'ends_at', 'completed_at', 'boost_used', 'boost_type', 'boost_ends_at', 'expected_exp', 'expected_friendship', 'expected_skill_id', 'actual_exp', 'actual_friendship', 'skill_learned', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE training_slots ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 训练报告表
 CREATE TABLE IF NOT EXISTS training_reports (
@@ -195,6 +235,16 @@ ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS cost_amount INT DEFAULT 0;
 ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS rating VARCHAR(20) DEFAULT 'normal';
 ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE training_reports ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.training_reports') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'user_id', 'slot_id', 'pokemon_id', 'camp_type', 'course_name', 'duration_minutes', 'exp_gained', 'friendship_gained', 'skill_learned_id', 'skill_learned_name', 'cost_type', 'cost_amount', 'rating', 'completed_at', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE training_reports ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 训练加速道具表
 CREATE TABLE IF NOT EXISTS training_boosts (
@@ -214,6 +264,16 @@ ALTER TABLE training_boosts ADD COLUMN IF NOT EXISTS remaining_uses INT DEFAULT 
 ALTER TABLE training_boosts ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
 ALTER TABLE training_boosts ADD COLUMN IF NOT EXISTS purchased_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE training_boosts ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.training_boosts') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'user_id', 'boost_type', 'remaining_uses', 'expires_at', 'purchased_at', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE training_boosts ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_user_training_camps_user ON user_training_camps(user_id);

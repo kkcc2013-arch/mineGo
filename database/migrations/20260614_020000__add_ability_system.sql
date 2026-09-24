@@ -29,6 +29,16 @@ ALTER TABLE abilities ADD COLUMN IF NOT EXISTS is_hidden BOOLEAN DEFAULT FALSE;
 ALTER TABLE abilities ADD COLUMN IF NOT EXISTS introduced_generation INTEGER DEFAULT 9;
 ALTER TABLE abilities ADD COLUMN IF NOT EXISTS meta_data JSONB DEFAULT '{}';
 ALTER TABLE abilities ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.abilities') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'name_en', 'name_zh', 'description', 'type', 'trigger_condition', 'effect_config', 'priority', 'is_hidden', 'introduced_generation', 'meta_data', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE abilities ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE abilities IS '精灵特性定义表';
 COMMENT ON COLUMN abilities.type IS '特性类型: passive=被动, trigger=触发, environment=环境, immunity=免疫, transformation=转换';
@@ -51,6 +61,16 @@ ALTER TABLE pokemon_abilities ADD COLUMN IF NOT EXISTS ability_id VARCHAR(50);
 ALTER TABLE pokemon_abilities ADD COLUMN IF NOT EXISTS slot INTEGER;
 ALTER TABLE pokemon_abilities ADD COLUMN IF NOT EXISTS probability DECIMAL(5, 4) DEFAULT 1.0;
 ALTER TABLE pokemon_abilities ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokemon_abilities') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('pokemon_species_id', 'ability_id', 'slot', 'probability', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokemon_abilities ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_pokemon_abilities_species ON pokemon_abilities(pokemon_species_id);
 CREATE INDEX IF NOT EXISTS idx_pokemon_abilities_ability ON pokemon_abilities(ability_id);
@@ -77,6 +97,16 @@ ALTER TABLE player_pokemon_abilities ADD COLUMN IF NOT EXISTS is_active BOOLEAN 
 ALTER TABLE player_pokemon_abilities ADD COLUMN IF NOT EXISTS is_hidden BOOLEAN DEFAULT FALSE;
 ALTER TABLE player_pokemon_abilities ADD COLUMN IF NOT EXISTS unlocked_at TIMESTAMP;
 ALTER TABLE player_pokemon_abilities ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.player_pokemon_abilities') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('player_pokemon_id', 'ability_id', 'slot', 'is_active', 'is_hidden', 'unlocked_at', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE player_pokemon_abilities ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_player_pokemon_abilities_pokemon ON player_pokemon_abilities(player_pokemon_id);
 CREATE INDEX IF NOT EXISTS idx_player_pokemon_abilities_active ON player_pokemon_abilities(player_pokemon_id, is_active);
@@ -102,6 +132,16 @@ ALTER TABLE ability_trigger_logs ADD COLUMN IF NOT EXISTS trigger_type VARCHAR(5
 ALTER TABLE ability_trigger_logs ADD COLUMN IF NOT EXISTS trigger_context JSONB;
 ALTER TABLE ability_trigger_logs ADD COLUMN IF NOT EXISTS effect_result JSONB;
 ALTER TABLE ability_trigger_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.ability_trigger_logs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('battle_id', 'player_pokemon_id', 'ability_id', 'trigger_type', 'trigger_context', 'effect_result', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE ability_trigger_logs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_ability_trigger_logs_battle ON ability_trigger_logs(battle_id);
 CREATE INDEX IF NOT EXISTS idx_ability_trigger_logs_ability ON ability_trigger_logs(ability_id, created_at);
@@ -131,6 +171,16 @@ ALTER TABLE ability_items ADD COLUMN IF NOT EXISTS effect_config JSONB;
 ALTER TABLE ability_items ADD COLUMN IF NOT EXISTS rarity VARCHAR(20) DEFAULT 'rare';
 ALTER TABLE ability_items ADD COLUMN IF NOT EXISTS obtained_from JSONB DEFAULT '[]';
 ALTER TABLE ability_items ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.ability_items') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'name_en', 'name_zh', 'description', 'item_type', 'effect_config', 'rarity', 'obtained_from', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE ability_items ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE ability_items IS '特性道具定义表';
 

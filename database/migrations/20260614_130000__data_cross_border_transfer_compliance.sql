@@ -28,6 +28,16 @@ ALTER TABLE data_regions ADD COLUMN IF NOT EXISTS compliance_requirements JSONB 
 ALTER TABLE data_regions ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
 ALTER TABLE data_regions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE data_regions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.data_regions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('region_code', 'region_name', 'countries', 'storage_location', 'applicable_laws', 'compliance_requirements', 'is_active', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE data_regions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 2. 用户数据区域映射表
 CREATE TABLE IF NOT EXISTS user_data_regions (
@@ -47,6 +57,16 @@ ALTER TABLE user_data_regions ADD COLUMN IF NOT EXISTS assigned_at TIMESTAMP DEF
 ALTER TABLE user_data_regions ADD COLUMN IF NOT EXISTS assignment_reason VARCHAR(50);
 ALTER TABLE user_data_regions ADD COLUMN IF NOT EXISTS ip_address_at_assignment INET;
 ALTER TABLE user_data_regions ADD COLUMN IF NOT EXISTS assigned_by INTEGER;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_data_regions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'region_code', 'assigned_at', 'assignment_reason', 'ip_address_at_assignment', 'assigned_by', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_data_regions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 3. 跨境传输请求表
 
@@ -95,6 +115,16 @@ ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS rejection_reason TEX
 ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS executed_at TIMESTAMP;
 ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE data_transfer_requests ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.data_transfer_requests') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('request_id', 'requester_id', 'source_region', 'target_region', 'data_types', 'legal_basis', 'purpose', 'recipient_info', 'data_subjects_affected', 'risk_assessment', 'protection_measures', 'scc_reference', 'status', 'approved_by', 'approved_at', 'rejection_reason', 'executed_at', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE data_transfer_requests ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 创建序列
 
@@ -129,6 +159,16 @@ ALTER TABLE data_transfer_logs ADD COLUMN IF NOT EXISTS transferred_at TIMESTAMP
 ALTER TABLE data_transfer_logs ADD COLUMN IF NOT EXISTS ip_address INET;
 ALTER TABLE data_transfer_logs ADD COLUMN IF NOT EXISTS user_agent TEXT;
 ALTER TABLE data_transfer_logs ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.data_transfer_logs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('transfer_request_id', 'user_id', 'source_region', 'target_region', 'data_type', 'data_category', 'legal_basis', 'purpose', 'data_volume_kb', 'transferred_at', 'ip_address', 'user_agent', 'metadata', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE data_transfer_logs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 5. 标准合同条款表
 CREATE TABLE IF NOT EXISTS standard_contractual_clauses (
@@ -155,6 +195,16 @@ ALTER TABLE standard_contractual_clauses ADD COLUMN IF NOT EXISTS effective_date
 ALTER TABLE standard_contractual_clauses ADD COLUMN IF NOT EXISTS expiry_date DATE;
 ALTER TABLE standard_contractual_clauses ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
 ALTER TABLE standard_contractual_clauses ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.standard_contractual_clauses') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('scc_code', 'scc_name', 'version', 'issuer', 'applicable_transfers', 'content', 'effective_date', 'expiry_date', 'is_active', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE standard_contractual_clauses ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 6. 数据传输影响评估表
 CREATE TABLE IF NOT EXISTS transfer_impact_assessments (
@@ -206,6 +256,16 @@ ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS conditions TEXT
 ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS assessment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS valid_until DATE;
 ALTER TABLE transfer_impact_assessments ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.transfer_impact_assessments') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('assessment_id', 'transfer_request_id', 'assessor_id', 'data_types_assessed', 'data_volume_estimate', 'data_subjects_count', 'sensitive_data_present', 'source_region_laws', 'target_region_laws', 'legal_gaps', 'risk_level', 'identified_risks', 'risk_mitigation_measures', 'recommendation', 'conditions', 'assessment_date', 'valid_until', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE transfer_impact_assessments ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 创建序列
 

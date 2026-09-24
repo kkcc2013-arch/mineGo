@@ -38,6 +38,16 @@ ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP WITH TIM
 ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
 ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS is_suspicious BOOLEAN DEFAULT false;
 ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS risk_score INTEGER DEFAULT 0;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_sessions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'session_token_hash', 'refresh_token_hash', 'device_fingerprint', 'device_name', 'device_type', 'ip_address', 'user_agent', 'geo_location', 'created_at', 'last_activity_at', 'expires_at', 'is_active', 'is_suspicious', 'risk_score', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_sessions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_user_sessions_user_active ON user_sessions(user_id, is_active, last_activity_at DESC);
@@ -79,6 +89,16 @@ ALTER TABLE session_audit_logs ADD COLUMN IF NOT EXISTS geo_location JSONB;
 ALTER TABLE session_audit_logs ADD COLUMN IF NOT EXISTS user_agent TEXT;
 ALTER TABLE session_audit_logs ADD COLUMN IF NOT EXISTS metadata JSONB;
 ALTER TABLE session_audit_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.session_audit_logs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'session_id', 'action', 'device_fingerprint', 'ip_address', 'geo_location', 'user_agent', 'metadata', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE session_audit_logs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_session_audit_user_time ON session_audit_logs(user_id, created_at DESC);
@@ -114,6 +134,16 @@ ALTER TABLE session_anomaly_events ADD COLUMN IF NOT EXISTS detected_at TIMESTAM
 ALTER TABLE session_anomaly_events ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMP WITH TIME ZONE;
 ALTER TABLE session_anomaly_events ADD COLUMN IF NOT EXISTS action_taken VARCHAR(50);
 ALTER TABLE session_anomaly_events ADD COLUMN IF NOT EXISTS resolution_notes TEXT;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.session_anomaly_events') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'session_id', 'anomaly_type', 'severity', 'details', 'detected_at', 'resolved_at', 'action_taken', 'resolution_notes', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE session_anomaly_events ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_session_anomaly_user ON session_anomaly_events(user_id, detected_at DESC);
@@ -153,6 +183,16 @@ ALTER TABLE user_trusted_devices ADD COLUMN IF NOT EXISTS is_trusted BOOLEAN DEF
 ALTER TABLE user_trusted_devices ADD COLUMN IF NOT EXISTS trust_level VARCHAR(20) DEFAULT 'low';
 ALTER TABLE user_trusted_devices ADD COLUMN IF NOT EXISTS verification_count INTEGER DEFAULT 0;
 ALTER TABLE user_trusted_devices ADD COLUMN IF NOT EXISTS metadata JSONB;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_trusted_devices') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'device_fingerprint', 'device_name', 'device_type', 'first_seen_at', 'last_seen_at', 'is_trusted', 'trust_level', 'verification_count', 'metadata', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_trusted_devices ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_trusted_devices_user ON user_trusted_devices(user_id, last_seen_at DESC);
@@ -179,6 +219,16 @@ ALTER TABLE session_config ADD COLUMN IF NOT EXISTS config_value TEXT;
 ALTER TABLE session_config ADD COLUMN IF NOT EXISTS description TEXT;
 ALTER TABLE session_config ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE session_config ADD COLUMN IF NOT EXISTS updated_by INTEGER;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.session_config') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('config_key', 'config_value', 'description', 'updated_at', 'updated_by', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE session_config ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 插入默认配置
 INSERT INTO session_config (config_key, config_value, description) VALUES

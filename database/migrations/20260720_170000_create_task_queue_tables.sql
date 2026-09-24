@@ -36,6 +36,16 @@ ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS resolution_action VARCHAR
 ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;
 ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.dead_letter_queue') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('task_id', 'task_type', 'task_data', 'error_message', 'error_stack', 'error_code', 'retry_count', 'failed_at', 'original_created_at', 'resolved_at', 'resolved_by', 'resolution_action', 'metadata', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE dead_letter_queue ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_dlq_task_type ON dead_letter_queue(task_type);
@@ -72,6 +82,16 @@ ALTER TABLE task_execution_history ADD COLUMN IF NOT EXISTS error_stack TEXT;
 ALTER TABLE task_execution_history ADD COLUMN IF NOT EXISTS worker_id VARCHAR(100);
 ALTER TABLE task_execution_history ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;
 ALTER TABLE task_execution_history ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.task_execution_history') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('task_id', 'task_type', 'status', 'attempt_number', 'started_at', 'completed_at', 'duration_ms', 'error_message', 'error_stack', 'worker_id', 'metadata', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE task_execution_history ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_task_history_task_id ON task_execution_history(task_id);
@@ -93,6 +113,16 @@ ALTER TABLE task_queue_metrics ADD COLUMN IF NOT EXISTS metric_name VARCHAR(100)
 ALTER TABLE task_queue_metrics ADD COLUMN IF NOT EXISTS metric_value DOUBLE PRECISION;
 ALTER TABLE task_queue_metrics ADD COLUMN IF NOT EXISTS labels JSONB DEFAULT '{}'::jsonb;
 ALTER TABLE task_queue_metrics ADD COLUMN IF NOT EXISTS recorded_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.task_queue_metrics') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('task_type', 'metric_name', 'metric_value', 'labels', 'recorded_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE task_queue_metrics ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引（用于快速查询最近指标）
 CREATE INDEX IF NOT EXISTS idx_metrics_task_type_time ON task_queue_metrics(task_type, recorded_at DESC);
@@ -135,6 +165,16 @@ ALTER TABLE task_retry_configs ADD COLUMN IF NOT EXISTS jitter_ms INTEGER DEFAUL
 ALTER TABLE task_retry_configs ADD COLUMN IF NOT EXISTS enabled BOOLEAN DEFAULT TRUE;
 ALTER TABLE task_retry_configs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 ALTER TABLE task_retry_configs ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.task_retry_configs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('task_type', 'max_retries', 'initial_delay_ms', 'max_delay_ms', 'backoff_multiplier', 'jitter_ms', 'enabled', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE task_retry_configs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 插入默认配置
 INSERT INTO task_retry_configs (task_type, max_retries, initial_delay_ms, max_delay_ms) VALUES
@@ -175,6 +215,16 @@ ALTER TABLE dlq_alert_rules ADD COLUMN IF NOT EXISTS cooldown_seconds INTEGER DE
 ALTER TABLE dlq_alert_rules ADD COLUMN IF NOT EXISTS last_triggered_at TIMESTAMP WITH TIME ZONE;
 ALTER TABLE dlq_alert_rules ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 ALTER TABLE dlq_alert_rules ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.dlq_alert_rules') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('rule_name', 'task_type', 'metric_type', 'threshold_value', 'comparison_operator', 'severity', 'duration_seconds', 'enabled', 'cooldown_seconds', 'last_triggered_at', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE dlq_alert_rules ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 插入默认告警规则
 INSERT INTO dlq_alert_rules (rule_name, task_type, metric_type, threshold_value, severity) VALUES

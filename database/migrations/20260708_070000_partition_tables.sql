@@ -24,6 +24,16 @@ ALTER TABLE partition_archive_metadata ADD COLUMN IF NOT EXISTS archived_at TIME
 ALTER TABLE partition_archive_metadata ADD COLUMN IF NOT EXISTS storage_location TEXT;
 ALTER TABLE partition_archive_metadata ADD COLUMN IF NOT EXISTS checksum VARCHAR(64);
 ALTER TABLE partition_archive_metadata ADD COLUMN IF NOT EXISTS restored_at TIMESTAMP WITH TIME ZONE;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.partition_archive_metadata') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('partition_name', 'table_name', 'row_count', 'archived_at', 'storage_location', 'checksum', 'restored_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE partition_archive_metadata ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_archive_table ON partition_archive_metadata(table_name);
 CREATE INDEX IF NOT EXISTS idx_archive_date ON partition_archive_metadata(archived_at);
@@ -45,6 +55,16 @@ ALTER TABLE partition_health_log ADD COLUMN IF NOT EXISTS partition_count INTEGE
 ALTER TABLE partition_health_log ADD COLUMN IF NOT EXISTS total_size_bytes BIGINT;
 ALTER TABLE partition_health_log ADD COLUMN IF NOT EXISTS issues JSONB;
 ALTER TABLE partition_health_log ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'healthy';
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.partition_health_log') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('table_name', 'check_at', 'partition_count', 'total_size_bytes', 'issues', 'status', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE partition_health_log ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_health_table ON partition_health_log(table_name, check_at);
 

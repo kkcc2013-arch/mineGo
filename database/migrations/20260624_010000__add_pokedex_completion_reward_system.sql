@@ -33,6 +33,16 @@ ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS last_seen_at TIMESTAMP WIT
 ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS last_caught_at TIMESTAMP WITH TIME ZONE;
 ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokedex_progress') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'pokemon_species_id', 'seen', 'caught', 'catch_count', 'shiny_caught', 'first_seen_at', 'first_caught_at', 'last_seen_at', 'last_caught_at', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokedex_progress ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE pokedex_progress IS '用户图鉴进度记录';
 COMMENT ON COLUMN pokedex_progress.seen IS '是否见过该精灵';
@@ -79,6 +89,16 @@ ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS description_zh TEXT;
 ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS icon VARCHAR(100);
 ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS is_repeatable BOOLEAN DEFAULT FALSE;
 ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokedex_milestones') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('milestone_type', 'category', 'threshold', 'sort_order', 'reward_type', 'reward_data', 'title', 'title_zh', 'description', 'description_zh', 'icon', 'is_repeatable', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokedex_milestones ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE pokedex_milestones IS '图鉴里程碑奖励配置';
 
@@ -118,6 +138,16 @@ ALTER TABLE user_milestone_claims ADD COLUMN IF NOT EXISTS user_id UUID;
 ALTER TABLE user_milestone_claims ADD COLUMN IF NOT EXISTS milestone_id INTEGER;
 ALTER TABLE user_milestone_claims ADD COLUMN IF NOT EXISTS reward_data JSONB;
 ALTER TABLE user_milestone_claims ADD COLUMN IF NOT EXISTS claimed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_milestone_claims') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'milestone_id', 'reward_data', 'claimed_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_milestone_claims ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE user_milestone_claims IS '用户里程碑奖励领取记录';
 
@@ -156,6 +186,16 @@ ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS badge_icon VARCHAR(255
 ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS badge_color VARCHAR(50);
 ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
 ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokedex_achievements') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('achievement_key', 'name', 'name_zh', 'description', 'description_zh', 'requirement_type', 'requirement_value', 'reward_type', 'reward_data', 'badge_icon', 'badge_color', 'sort_order', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokedex_achievements ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE pokedex_achievements IS '图鉴成就配置';
 
@@ -191,6 +231,16 @@ CREATE TABLE IF NOT EXISTS user_pokedex_achievements (
 ALTER TABLE user_pokedex_achievements ADD COLUMN IF NOT EXISTS user_id UUID;
 ALTER TABLE user_pokedex_achievements ADD COLUMN IF NOT EXISTS achievement_id INTEGER;
 ALTER TABLE user_pokedex_achievements ADD COLUMN IF NOT EXISTS unlocked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_pokedex_achievements') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'achievement_id', 'unlocked_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_pokedex_achievements ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE user_pokedex_achievements IS '用户图鉴成就解锁记录';
 
@@ -224,6 +274,16 @@ ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS region_stats JSONB DEFA
 ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS type_stats JSONB DEFAULT '{}';
 ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS generation_stats JSONB DEFAULT '{}';
 ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS last_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokedex_stats_cache') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'total_species', 'seen_count', 'caught_count', 'shiny_count', 'legendary_count', 'completion_percentage', 'region_stats', 'type_stats', 'generation_stats', 'last_updated', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokedex_stats_cache ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE pokedex_stats_cache IS '图鉴统计缓存（实时更新）';
 
@@ -333,6 +393,16 @@ ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS evolution_chain INTEGER[];
 ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS catch_rate DECIMAL(5,2);
 ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS rarity VARCHAR(20);
 ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokemon_species') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('pokedex_number', 'name', 'name_zh', 'name_ja', 'generation', 'region', 'types', 'is_legendary', 'is_mythical', 'base_stats', 'evolution_chain', 'catch_rate', 'rarity', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokemon_species ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE pokemon_species IS '精灵种类基础数据';
 

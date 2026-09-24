@@ -29,6 +29,16 @@ ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS last_seen TIMESTAMP DEF
 ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS is_trusted BOOLEAN DEFAULT false;
 ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.device_fingerprints') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'device_id', 'fingerprint_hash', 'device_info', 'security_flags', 'trust_score', 'first_seen', 'last_seen', 'is_trusted', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE device_fingerprints ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE device_fingerprints IS '设备指纹注册表，用于识别和追踪用户设备';
 
@@ -55,6 +65,16 @@ ALTER TABLE capture_validations ADD COLUMN IF NOT EXISTS validation_result JSONB
 ALTER TABLE capture_validations ADD COLUMN IF NOT EXISTS risk_level VARCHAR(20);
 ALTER TABLE capture_validations ADD COLUMN IF NOT EXISTS action_taken VARCHAR(50);
 ALTER TABLE capture_validations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.capture_validations') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'pokemon_id', 'capture_session_id', 'validation_result', 'risk_level', 'action_taken', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE capture_validations ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE capture_validations IS '捕捉请求验证记录，记录每次捕捉验证的结果';
 
@@ -87,6 +107,16 @@ ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFA
 ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMP;
 ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS resolved_by INTEGER;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.security_violations') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'violation_type', 'severity', 'evidence', 'response_type', 'response_details', 'status', 'created_at', 'resolved_at', 'resolved_by', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE security_violations ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE security_violations IS '安全违规记录，记录用户违规行为和处理结果';
 
@@ -113,6 +143,16 @@ ALTER TABLE user_shadow_bans ADD COLUMN IF NOT EXISTS severity INTEGER;
 ALTER TABLE user_shadow_bans ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
 ALTER TABLE user_shadow_bans ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE user_shadow_bans ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_shadow_bans') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'effects', 'reason', 'severity', 'expires_at', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_shadow_bans ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE user_shadow_bans IS '用户影子封禁状态，实现降权效果';
 
@@ -134,6 +174,16 @@ ALTER TABLE user_monitoring_flags ADD COLUMN IF NOT EXISTS reason VARCHAR(100);
 ALTER TABLE user_monitoring_flags ADD COLUMN IF NOT EXISTS severity INTEGER;
 ALTER TABLE user_monitoring_flags ADD COLUMN IF NOT EXISTS evidence JSONB;
 ALTER TABLE user_monitoring_flags ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_monitoring_flags') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'reason', 'severity', 'evidence', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_monitoring_flags ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE user_monitoring_flags IS '用户监控标记，记录需要增强监控的用户';
 
@@ -158,6 +208,16 @@ ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT
 ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMP;
 ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS reviewed_by INTEGER;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.security_appeals') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'violation_id', 'appeal_reason', 'status', 'created_at', 'reviewed_at', 'reviewed_by', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE security_appeals ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE security_appeals IS '安全违规申诉记录';
 
@@ -185,6 +245,16 @@ ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS longitude DECIMAL(11, 8);
 ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
 ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'active';
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.capture_sessions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('session_id', 'user_id', 'pokemon_id', 'latitude', 'longitude', 'created_at', 'expires_at', 'status', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE capture_sessions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE capture_sessions IS '捕捉会话记录，用于验证捕捉窗口';
 
@@ -208,6 +278,16 @@ ALTER TABLE capture_attempts ADD COLUMN IF NOT EXISTS session_id VARCHAR(100);
 ALTER TABLE capture_attempts ADD COLUMN IF NOT EXISTS result VARCHAR(50);
 ALTER TABLE capture_attempts ADD COLUMN IF NOT EXISTS risk_score INTEGER;
 ALTER TABLE capture_attempts ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.capture_attempts') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'pokemon_id', 'session_id', 'result', 'risk_score', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE capture_attempts ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE capture_attempts IS '捕捉尝试记录，用于统计捕捉成功率';
 

@@ -32,6 +32,16 @@ ALTER TABLE achievements ADD COLUMN IF NOT EXISTS trigger_conditions JSONB;
 ALTER TABLE achievements ADD COLUMN IF NOT EXISTS rewards JSONB;
 ALTER TABLE achievements ADD COLUMN IF NOT EXISTS prerequisite_achievement_id VARCHAR(50);
 ALTER TABLE achievements ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.achievements') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('achievement_id', 'category', 'name', 'description', 'icon_url', 'rarity', 'points', 'is_hidden', 'trigger_conditions', 'rewards', 'prerequisite_achievement_id', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE achievements ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 用户成就表
 CREATE TABLE IF NOT EXISTS user_achievements (
@@ -62,6 +72,16 @@ ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS rewards_claimed BOOLEAN D
 ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS rewards_claimed_at TIMESTAMP;
 ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE user_achievements ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_achievements') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'achievement_id', 'progress', 'target', 'completed', 'completed_at', 'rewards_claimed', 'rewards_claimed_at', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_achievements ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 成就进度快照（用于快速查询）
 CREATE TABLE IF NOT EXISTS achievement_progress_snapshots (
@@ -80,6 +100,16 @@ ALTER TABLE achievement_progress_snapshots ADD COLUMN IF NOT EXISTS category_pro
 ALTER TABLE achievement_progress_snapshots ADD COLUMN IF NOT EXISTS total_points INTEGER DEFAULT 0;
 ALTER TABLE achievement_progress_snapshots ADD COLUMN IF NOT EXISTS achievements_completed INTEGER DEFAULT 0;
 ALTER TABLE achievement_progress_snapshots ADD COLUMN IF NOT EXISTS last_updated TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.achievement_progress_snapshots') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'category_progress', 'total_points', 'achievements_completed', 'last_updated', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE achievement_progress_snapshots ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 成就触发事件日志
 CREATE TABLE IF NOT EXISTS achievement_events (
@@ -98,6 +128,16 @@ ALTER TABLE achievement_events ADD COLUMN IF NOT EXISTS event_type VARCHAR(50);
 ALTER TABLE achievement_events ADD COLUMN IF NOT EXISTS event_data JSONB;
 ALTER TABLE achievement_events ADD COLUMN IF NOT EXISTS processed BOOLEAN DEFAULT FALSE;
 ALTER TABLE achievement_events ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.achievement_events') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'event_type', 'event_data', 'processed', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE achievement_events ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 称号表
 CREATE TABLE IF NOT EXISTS user_titles (
@@ -118,6 +158,16 @@ ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS title_id VARCHAR(50);
 ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS source_achievement_id VARCHAR(50);
 ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT FALSE;
 ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS unlocked_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_titles') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'title_id', 'source_achievement_id', 'is_active', 'unlocked_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_titles ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_user_achievements_user ON user_achievements(user_id);

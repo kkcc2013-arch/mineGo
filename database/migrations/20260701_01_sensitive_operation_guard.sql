@@ -30,6 +30,16 @@ ALTER TABLE risk_evaluations ADD COLUMN IF NOT EXISTS user_agent TEXT;
 ALTER TABLE risk_evaluations ADD COLUMN IF NOT EXISTS location_lat DOUBLE PRECISION;
 ALTER TABLE risk_evaluations ADD COLUMN IF NOT EXISTS location_lng DOUBLE PRECISION;
 ALTER TABLE risk_evaluations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.risk_evaluations') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'operation', 'risk_level', 'risk_score', 'factors', 'recommendation', 'ip_address', 'device_id', 'user_agent', 'location_lat', 'location_lng', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE risk_evaluations ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_risk_evaluations_user ON risk_evaluations(user_id);
 CREATE INDEX IF NOT EXISTS idx_risk_evaluations_operation ON risk_evaluations(operation);
@@ -72,6 +82,16 @@ ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS response_status IN
 ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS duration_ms INTEGER;
 ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS error_message TEXT;
 ALTER TABLE sensitive_operation_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.sensitive_operation_logs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'operation', 'risk_level', 'risk_score', 'status', 'verification_type', 'verification_passed', 'ip_address', 'device_id', 'request_id', 'request_metadata', 'response_status', 'duration_ms', 'error_message', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE sensitive_operation_logs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_sensitive_ops_user ON sensitive_operation_logs(user_id);
 CREATE INDEX IF NOT EXISTS idx_sensitive_ops_operation ON sensitive_operation_logs(operation);
@@ -112,6 +132,16 @@ ALTER TABLE device_trust ADD COLUMN IF NOT EXISTS risk_score INTEGER DEFAULT 0;
 ALTER TABLE device_trust ADD COLUMN IF NOT EXISTS metadata JSONB;
 ALTER TABLE device_trust ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE device_trust ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.device_trust') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'device_id', 'device_fingerprint', 'is_trusted', 'is_suspicious', 'is_rooted', 'fingerprint_mismatch', 'first_seen', 'last_seen', 'usage_count', 'risk_score', 'metadata', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE device_trust ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_device_trust_user ON device_trust(user_id);
 CREATE INDEX IF NOT EXISTS idx_device_trust_device ON device_trust(device_id);
@@ -144,6 +174,16 @@ ALTER TABLE ip_risk_records ADD COLUMN IF NOT EXISTS city VARCHAR(100);
 ALTER TABLE ip_risk_records ADD COLUMN IF NOT EXISTS isp VARCHAR(255);
 ALTER TABLE ip_risk_records ADD COLUMN IF NOT EXISTS last_updated TIMESTAMP DEFAULT NOW();
 ALTER TABLE ip_risk_records ADD COLUMN IF NOT EXISTS metadata JSONB;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.ip_risk_records') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('ip_address', 'is_vpn', 'is_tor', 'is_proxy', 'is_blacklisted', 'threat_score', 'country', 'city', 'isp', 'last_updated', 'metadata', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE ip_risk_records ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_ip_risk_ip ON ip_risk_records(ip_address);
 CREATE INDEX IF NOT EXISTS idx_ip_risk_threat ON ip_risk_records(threat_score);
@@ -180,6 +220,16 @@ ALTER TABLE sensitive_operations_config ADD COLUMN IF NOT EXISTS max_attempts IN
 ALTER TABLE sensitive_operations_config ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
 ALTER TABLE sensitive_operations_config ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE sensitive_operations_config ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.sensitive_operations_config') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('operation', 'level', 'weight', 'description', 'requires_mfa', 'requires_sms', 'requires_email', 'requires_captcha', 'cooldown_ms', 'max_attempts', 'is_active', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE sensitive_operations_config ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 插入默认敏感操作配置
 INSERT INTO sensitive_operations_config (operation, level, weight, description, requires_mfa, requires_sms, requires_captcha, cooldown_ms, max_attempts)
@@ -237,6 +287,16 @@ ALTER TABLE user_risk_stats ADD COLUMN IF NOT EXISTS last_operation_at TIMESTAMP
 ALTER TABLE user_risk_stats ADD COLUMN IF NOT EXISTS cumulative_risk_score INTEGER DEFAULT 0;
 ALTER TABLE user_risk_stats ADD COLUMN IF NOT EXISTS risk_trend VARCHAR(20);
 ALTER TABLE user_risk_stats ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_risk_stats') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'total_operations', 'high_risk_count', 'critical_risk_count', 'failed_operations', 'last_operation_at', 'cumulative_risk_score', 'risk_trend', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_risk_stats ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_user_risk_stats_user ON user_risk_stats(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_risk_stats_risk ON user_risk_stats(cumulative_risk_score);

@@ -22,6 +22,16 @@ ALTER TABLE ip_blacklist ADD COLUMN IF NOT EXISTS blocked_at TIMESTAMP DEFAULT N
 ALTER TABLE ip_blacklist ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
 ALTER TABLE ip_blacklist ADD COLUMN IF NOT EXISTS blocked_by UUID;
 ALTER TABLE ip_blacklist ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.ip_blacklist') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('ip_address', 'reason', 'severity', 'is_auto', 'blocked_at', 'expires_at', 'blocked_by', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE ip_blacklist ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- IP 白名单表
 CREATE TABLE IF NOT EXISTS ip_whitelist (
@@ -36,6 +46,16 @@ ALTER TABLE ip_whitelist ADD COLUMN IF NOT EXISTS ip_address INET;
 ALTER TABLE ip_whitelist ADD COLUMN IF NOT EXISTS description VARCHAR(500);
 ALTER TABLE ip_whitelist ADD COLUMN IF NOT EXISTS added_by UUID;
 ALTER TABLE ip_whitelist ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.ip_whitelist') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('ip_address', 'description', 'added_by', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE ip_whitelist ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- IP 风险评分表
 CREATE TABLE IF NOT EXISTS ip_risk_scores (
@@ -66,6 +86,16 @@ ALTER TABLE ip_risk_scores ADD COLUMN IF NOT EXISTS is_vpn BOOLEAN DEFAULT false
 ALTER TABLE ip_risk_scores ADD COLUMN IF NOT EXISTS is_tor BOOLEAN DEFAULT false;
 ALTER TABLE ip_risk_scores ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
 ALTER TABLE ip_risk_scores ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.ip_risk_scores') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('ip_address', 'risk_score', 'violation_count', 'last_violation_at', 'last_access_at', 'country_code', 'city', 'isp', 'is_vpn', 'is_tor', 'metadata', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE ip_risk_scores ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- IP 封禁申诉表
 CREATE TABLE IF NOT EXISTS ip_ban_appeals (
@@ -88,6 +118,16 @@ ALTER TABLE ip_ban_appeals ADD COLUMN IF NOT EXISTS reviewed_by UUID;
 ALTER TABLE ip_ban_appeals ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMP;
 ALTER TABLE ip_ban_appeals ADD COLUMN IF NOT EXISTS review_note TEXT;
 ALTER TABLE ip_ban_appeals ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.ip_ban_appeals') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('ip_address', 'user_id', 'appeal_reason', 'status', 'reviewed_by', 'reviewed_at', 'review_note', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE ip_ban_appeals ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- IP 访问日志表（用于风险评分计算）
 CREATE TABLE IF NOT EXISTS ip_access_logs (
@@ -114,6 +154,16 @@ ALTER TABLE ip_access_logs ADD COLUMN IF NOT EXISTS is_blocked BOOLEAN DEFAULT f
 ALTER TABLE ip_access_logs ADD COLUMN IF NOT EXISTS block_reason VARCHAR(100);
 ALTER TABLE ip_access_logs ADD COLUMN IF NOT EXISTS user_agent VARCHAR(500);
 ALTER TABLE ip_access_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.ip_access_logs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('ip_address', 'user_id', 'endpoint', 'method', 'status_code', 'response_time_ms', 'is_blocked', 'block_reason', 'user_agent', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE ip_access_logs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- IP 触发事件表（用于自动封禁判断）
 CREATE TABLE IF NOT EXISTS ip_trigger_events (
@@ -130,6 +180,16 @@ ALTER TABLE ip_trigger_events ADD COLUMN IF NOT EXISTS trigger_type VARCHAR(50);
 ALTER TABLE ip_trigger_events ADD COLUMN IF NOT EXISTS user_id INTEGER;
 ALTER TABLE ip_trigger_events ADD COLUMN IF NOT EXISTS details JSONB DEFAULT '{}';
 ALTER TABLE ip_trigger_events ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.ip_trigger_events') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('ip_address', 'trigger_type', 'user_id', 'details', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE ip_trigger_events ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 地理位置封禁表
 CREATE TABLE IF NOT EXISTS geo_ban (
@@ -148,6 +208,16 @@ ALTER TABLE geo_ban ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
 ALTER TABLE geo_ban ADD COLUMN IF NOT EXISTS banned_by UUID;
 ALTER TABLE geo_ban ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE geo_ban ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.geo_ban') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('country_code', 'reason', 'is_active', 'banned_by', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE geo_ban ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_ip_blacklist_ip ON ip_blacklist USING gist(ip_address inet_ops);

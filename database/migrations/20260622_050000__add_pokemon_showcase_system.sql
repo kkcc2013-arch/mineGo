@@ -22,6 +22,16 @@ ALTER TABLE pokemon_favorites ADD COLUMN IF NOT EXISTS user_id UUID;
 ALTER TABLE pokemon_favorites ADD COLUMN IF NOT EXISTS display_order INTEGER DEFAULT 0;
 ALTER TABLE pokemon_favorites ADD COLUMN IF NOT EXISTS is_showcased BOOLEAN DEFAULT true;
 ALTER TABLE pokemon_favorites ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokemon_favorites') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'pokemon_id', 'user_id', 'display_order', 'is_showcased', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokemon_favorites ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- ============================================================
 -- 精灵点赞表
@@ -39,6 +49,16 @@ ALTER TABLE pokemon_likes ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uu
 ALTER TABLE pokemon_likes ADD COLUMN IF NOT EXISTS pokemon_id UUID;
 ALTER TABLE pokemon_likes ADD COLUMN IF NOT EXISTS user_id UUID;
 ALTER TABLE pokemon_likes ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokemon_likes') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'pokemon_id', 'user_id', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokemon_likes ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- ============================================================
 -- 精灵评语表
@@ -59,6 +79,16 @@ ALTER TABLE pokemon_comments ADD COLUMN IF NOT EXISTS user_id UUID;
 ALTER TABLE pokemon_comments ADD COLUMN IF NOT EXISTS comment TEXT;
 ALTER TABLE pokemon_comments ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE pokemon_comments ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokemon_comments') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'pokemon_id', 'user_id', 'comment', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokemon_comments ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- ============================================================
 -- 精灵展示统计表
@@ -79,6 +109,16 @@ ALTER TABLE pokemon_showcase_stats ADD COLUMN IF NOT EXISTS comment_count INTEGE
 ALTER TABLE pokemon_showcase_stats ADD COLUMN IF NOT EXISTS view_count INTEGER DEFAULT 0;
 ALTER TABLE pokemon_showcase_stats ADD COLUMN IF NOT EXISTS last_liked_at TIMESTAMPTZ;
 ALTER TABLE pokemon_showcase_stats ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokemon_showcase_stats') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('pokemon_id', 'like_count', 'comment_count', 'view_count', 'last_liked_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokemon_showcase_stats ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- ============================================================
 -- 用户点赞限额表（每日重置）
@@ -97,6 +137,16 @@ ALTER TABLE user_like_quotas ADD COLUMN IF NOT EXISTS likes_today INTEGER DEFAUL
 ALTER TABLE user_like_quotas ADD COLUMN IF NOT EXISTS comments_today INTEGER DEFAULT 0;
 ALTER TABLE user_like_quotas ADD COLUMN IF NOT EXISTS last_reset_date DATE DEFAULT CURRENT_DATE;
 ALTER TABLE user_like_quotas ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_like_quotas') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'likes_today', 'comments_today', 'last_reset_date', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_like_quotas ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- ============================================================
 -- 创建索引

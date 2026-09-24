@@ -39,6 +39,16 @@ ALTER TABLE pokemon_search_cache ADD COLUMN IF NOT EXISTS search_term VARCHAR(10
 ALTER TABLE pokemon_search_cache ADD COLUMN IF NOT EXISTS result_ids JSONB;
 ALTER TABLE pokemon_search_cache ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE pokemon_search_cache ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokemon_search_cache') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'search_term', 'result_ids', 'created_at', 'expires_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokemon_search_cache ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_search_cache_user_term ON pokemon_search_cache(user_id, search_term);
 CREATE INDEX IF NOT EXISTS idx_search_cache_expires ON pokemon_search_cache(expires_at);

@@ -21,6 +21,16 @@ ALTER TABLE user_timezone_preferences ADD COLUMN IF NOT EXISTS user_id VARCHAR(1
 ALTER TABLE user_timezone_preferences ADD COLUMN IF NOT EXISTS timezone VARCHAR(100) DEFAULT 'UTC';
 ALTER TABLE user_timezone_preferences ADD COLUMN IF NOT EXISTS auto_detect BOOLEAN DEFAULT true;
 ALTER TABLE user_timezone_preferences ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_timezone_preferences') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'timezone', 'auto_detect', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_timezone_preferences ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 为 events 表添加时区相关字段
 ALTER TABLE events ADD COLUMN IF NOT EXISTS is_timezone_relative BOOLEAN DEFAULT false;

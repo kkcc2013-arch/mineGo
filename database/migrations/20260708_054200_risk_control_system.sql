@@ -29,6 +29,16 @@ ALTER TABLE user_behavior_events ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECI
 ALTER TABLE user_behavior_events ADD COLUMN IF NOT EXISTS altitude DOUBLE PRECISION;
 ALTER TABLE user_behavior_events ADD COLUMN IF NOT EXISTS accuracy DOUBLE PRECISION;
 ALTER TABLE user_behavior_events ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_behavior_events') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'event_type', 'event_data', 'ip_address', 'device_id', 'latitude', 'longitude', 'altitude', 'accuracy', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_behavior_events ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_behavior_events_user_time ON user_behavior_events(user_id, created_at DESC);
@@ -62,6 +72,16 @@ ALTER TABLE anti_cheat_audit_logs ADD COLUMN IF NOT EXISTS risk_score INTEGER;
 ALTER TABLE anti_cheat_audit_logs ADD COLUMN IF NOT EXISTS action_taken VARCHAR(50);
 ALTER TABLE anti_cheat_audit_logs ADD COLUMN IF NOT EXISTS processed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 ALTER TABLE anti_cheat_audit_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.anti_cheat_audit_logs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'event_type', 'event_data', 'rules_triggered', 'risk_score', 'action_taken', 'processed_at', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE anti_cheat_audit_logs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_audit_logs_user ON anti_cheat_audit_logs(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_audit_logs_score ON anti_cheat_audit_logs(risk_score) WHERE risk_score >= 60;
@@ -91,6 +111,16 @@ ALTER TABLE user_bans ADD COLUMN IF NOT EXISTS score INTEGER;
 ALTER TABLE user_bans ADD COLUMN IF NOT EXISTS unbanned_at TIMESTAMP WITH TIME ZONE;
 ALTER TABLE user_bans ADD COLUMN IF NOT EXISTS unbanned_by INTEGER;
 ALTER TABLE user_bans ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_bans') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'ban_type', 'reason', 'triggered_rules', 'score', 'unbanned_at', 'unbanned_by', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_bans ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_user_bans_user ON user_bans(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_bans_active ON user_bans(user_id) WHERE unbanned_at IS NULL;
@@ -123,6 +153,16 @@ ALTER TABLE manual_review_queue ADD COLUMN IF NOT EXISTS resolution_notes TEXT;
 ALTER TABLE manual_review_queue ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 ALTER TABLE manual_review_queue ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 ALTER TABLE manual_review_queue ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMP WITH TIME ZONE;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.manual_review_queue') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'trigger_type', 'details', 'score', 'status', 'assigned_to', 'resolution_notes', 'created_at', 'updated_at', 'resolved_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE manual_review_queue ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_manual_review_status ON manual_review_queue(status, created_at);
 CREATE INDEX IF NOT EXISTS idx_manual_review_user ON manual_review_queue(user_id);
@@ -153,6 +193,16 @@ ALTER TABLE risk_control_rules ADD COLUMN IF NOT EXISTS config JSONB;
 ALTER TABLE risk_control_rules ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
 ALTER TABLE risk_control_rules ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 ALTER TABLE risk_control_rules ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.risk_control_rules') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('rule_id', 'rule_name', 'category', 'severity', 'description', 'config', 'is_active', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE risk_control_rules ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 插入默认规则
 INSERT INTO risk_control_rules (rule_id, rule_name, category, severity, description) VALUES
@@ -183,6 +233,16 @@ ALTER TABLE user_risk_scores ADD COLUMN IF NOT EXISTS score INTEGER;
 ALTER TABLE user_risk_scores ADD COLUMN IF NOT EXISTS top_rules JSONB;
 ALTER TABLE user_risk_scores ADD COLUMN IF NOT EXISTS window_size_seconds INTEGER;
 ALTER TABLE user_risk_scores ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_risk_scores') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'score', 'top_rules', 'window_size_seconds', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_risk_scores ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_risk_scores_user_time ON user_risk_scores(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_risk_scores_high ON user_risk_scores(score) WHERE score >= 60;
@@ -208,6 +268,16 @@ ALTER TABLE user_risk_state ADD COLUMN IF NOT EXISTS last_warning_at TIMESTAMP W
 ALTER TABLE user_risk_state ADD COLUMN IF NOT EXISTS restriction_level VARCHAR(20) DEFAULT 'normal';
 ALTER TABLE user_risk_state ADD COLUMN IF NOT EXISTS restriction_reason TEXT;
 ALTER TABLE user_risk_state ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_risk_state') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'current_score', 'warning_count', 'last_warning_at', 'restriction_level', 'restriction_reason', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_risk_state ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- ============================================================
 -- 统计视图

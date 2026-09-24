@@ -31,6 +31,16 @@ ALTER TABLE seasons ADD COLUMN IF NOT EXISTS end_time TIMESTAMP;
 ALTER TABLE seasons ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';
 ALTER TABLE seasons ADD COLUMN IF NOT EXISTS rewards JSONB DEFAULT '[]';
 ALTER TABLE seasons ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.seasons') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('name', 'leaderboard_type', 'start_time', 'end_time', 'status', 'rewards', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE seasons ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 排行榜主表
 CREATE TABLE IF NOT EXISTS leaderboards (
@@ -54,6 +64,16 @@ ALTER TABLE leaderboards ADD COLUMN IF NOT EXISTS rank INTEGER;
 ALTER TABLE leaderboards ADD COLUMN IF NOT EXISTS previous_rank INTEGER;
 ALTER TABLE leaderboards ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
 ALTER TABLE leaderboards ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.leaderboards') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('leaderboard_type', 'season_id', 'player_id', 'score', 'rank', 'previous_rank', 'metadata', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE leaderboards ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 排名历史记录
 CREATE TABLE IF NOT EXISTS leaderboard_history (
@@ -76,6 +96,16 @@ ALTER TABLE leaderboard_history ADD COLUMN IF NOT EXISTS final_score BIGINT;
 ALTER TABLE leaderboard_history ADD COLUMN IF NOT EXISTS rewards_claimed BOOLEAN DEFAULT FALSE;
 ALTER TABLE leaderboard_history ADD COLUMN IF NOT EXISTS rewards_claimed_at TIMESTAMP;
 ALTER TABLE leaderboard_history ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.leaderboard_history') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('season_id', 'player_id', 'leaderboard_type', 'final_rank', 'final_score', 'rewards_claimed', 'rewards_claimed_at', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE leaderboard_history ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_leaderboards_type_season ON leaderboards(leaderboard_type, season_id);

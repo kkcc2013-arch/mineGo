@@ -98,6 +98,16 @@ ALTER TABLE device_registrations ADD COLUMN IF NOT EXISTS detection_details JSON
 ALTER TABLE device_registrations ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
 ALTER TABLE device_registrations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 ALTER TABLE device_registrations ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.device_registrations') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('device_id', 'fingerprint', 'brand', 'model', 'device_name', 'os_type', 'os_version', 'app_version', 'sdk_version', 'cpu_abi', 'screen_width', 'screen_height', 'screen_density', 'sensor_count', 'has_battery', 'is_emulator', 'emulator_type', 'is_rooted', 'root_type', 'is_jailbroken', 'is_virtual_env', 'virtual_env_type', 'has_hook_framework', 'hook_framework_type', 'risk_score', 'trust_level', 'status', 'restrictions', 'ban_reason', 'first_seen_at', 'last_seen_at', 'last_check_at', 'banned_at', 'detection_details', 'metadata', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE device_registrations ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_device_registrations_device_id ON device_registrations(device_id);
@@ -146,6 +156,16 @@ ALTER TABLE device_account_associations ADD COLUMN IF NOT EXISTS is_primary_devi
 ALTER TABLE device_account_associations ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'ACTIVE';
 ALTER TABLE device_account_associations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 ALTER TABLE device_account_associations ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.device_account_associations') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('device_id', 'user_id', 'first_login_at', 'last_login_at', 'login_count', 'login_ip', 'login_location', 'is_primary_device', 'status', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE device_account_associations ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_device_account_device ON device_account_associations(device_id);
@@ -192,6 +212,16 @@ ALTER TABLE device_integrity_logs ADD COLUMN IF NOT EXISTS hook_detected BOOLEAN
 ALTER TABLE device_integrity_logs ADD COLUMN IF NOT EXISTS client_version VARCHAR(20);
 ALTER TABLE device_integrity_logs ADD COLUMN IF NOT EXISTS check_duration_ms INTEGER;
 ALTER TABLE device_integrity_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.device_integrity_logs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('device_id', 'user_id', 'detection_result', 'risk_score', 'trust_level', 'action_taken', 'emulator_detected', 'root_detected', 'virtual_env_detected', 'hook_detected', 'client_version', 'check_duration_ms', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE device_integrity_logs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_integrity_logs_device ON device_integrity_logs(device_id);
@@ -247,6 +277,16 @@ ALTER TABLE device_cluster_detection ADD COLUMN IF NOT EXISTS action_taken VARCH
 ALTER TABLE device_cluster_detection ADD COLUMN IF NOT EXISTS first_detected_at TIMESTAMP WITH TIME ZONE;
 ALTER TABLE device_cluster_detection ADD COLUMN IF NOT EXISTS last_updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 ALTER TABLE device_cluster_detection ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.device_cluster_detection') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('device_id', 'account_count', 'suspicious_account_ids', 'internal_transfer_count', 'internal_trade_count', 'active_hours_per_day', 'continuous_activity_hours', 'is_cluster_device', 'cluster_type', 'risk_score', 'status', 'action_taken', 'first_detected_at', 'last_updated_at', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE device_cluster_detection ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_cluster_device ON device_cluster_detection(device_id);
@@ -295,6 +335,16 @@ ALTER TABLE device_risk_rules ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT
 ALTER TABLE device_risk_rules ADD COLUMN IF NOT EXISTS priority INTEGER DEFAULT 100;
 ALTER TABLE device_risk_rules ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 ALTER TABLE device_risk_rules ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.device_risk_rules') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('rule_name', 'rule_type', 'base_score', 'multiplier', 'action', 'restrictions', 'message', 'thresholds', 'conditions', 'is_active', 'priority', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE device_risk_rules ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 插入默认规则
 INSERT INTO device_risk_rules (rule_name, rule_type, base_score, action, message, is_active, priority) VALUES

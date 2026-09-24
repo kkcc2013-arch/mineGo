@@ -23,6 +23,16 @@ ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS processes JSONB;
 ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS transaction_name VARCHAR(255);
 ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS retry_count INTEGER DEFAULT 0;
 ALTER TABLE deadlock_log ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.deadlock_log') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('code', 'message', 'detail', 'processes', 'transaction_name', 'retry_count', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE deadlock_log ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_deadlock_log_created_at ON deadlock_log(created_at);

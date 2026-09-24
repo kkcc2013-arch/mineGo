@@ -41,6 +41,16 @@ ALTER TABLE error_groups ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMP;
 ALTER TABLE error_groups ADD COLUMN IF NOT EXISTS resolved_by VARCHAR(64);
 ALTER TABLE error_groups ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE error_groups ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.error_groups') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'fingerprint', 'error_code', 'error_name', 'message_pattern', 'key_frames', 'service', 'status', 'first_seen', 'last_seen', 'occurrence_count', 'affected_users_count', 'root_cause', 'resolution', 'resolved_at', 'resolved_by', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE error_groups ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_error_groups_fingerprint ON error_groups(fingerprint);
 CREATE INDEX IF NOT EXISTS idx_error_groups_service ON error_groups(service);
@@ -79,6 +89,16 @@ ALTER TABLE error_events ADD COLUMN IF NOT EXISTS trace_id VARCHAR(64);
 ALTER TABLE error_events ADD COLUMN IF NOT EXISTS occurred_at TIMESTAMP;
 ALTER TABLE error_events ADD COLUMN IF NOT EXISTS context JSONB;
 ALTER TABLE error_events ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.error_events') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'group_id', 'error_code', 'error_name', 'message', 'stack_trace', 'service', 'user_id', 'request_id', 'trace_id', 'occurred_at', 'context', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE error_events ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_error_events_group_id ON error_events(group_id);
 CREATE INDEX IF NOT EXISTS idx_error_events_occurred_at ON error_events(occurred_at DESC);
@@ -109,6 +129,16 @@ ALTER TABLE error_snapshots ADD COLUMN IF NOT EXISTS environment JSONB;
 ALTER TABLE error_snapshots ADD COLUMN IF NOT EXISTS system JSONB;
 ALTER TABLE error_snapshots ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE error_snapshots ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.error_snapshots') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'group_id', 'error_event_id', 'request', 'user', 'trace', 'environment', 'system', 'created_at', 'expires_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE error_snapshots ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_error_snapshots_group_id ON error_snapshots(group_id);
 CREATE INDEX IF NOT EXISTS idx_error_snapshots_expires_at ON error_snapshots(expires_at);
@@ -129,6 +159,16 @@ ALTER TABLE root_cause_analyses ADD COLUMN IF NOT EXISTS causes JSONB;
 ALTER TABLE root_cause_analyses ADD COLUMN IF NOT EXISTS recommendation JSONB;
 ALTER TABLE root_cause_analyses ADD COLUMN IF NOT EXISTS analyzed_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE root_cause_analyses ADD COLUMN IF NOT EXISTS analyzed_by VARCHAR(64) DEFAULT 'system';
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.root_cause_analyses') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'group_id', 'causes', 'recommendation', 'analyzed_at', 'analyzed_by', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE root_cause_analyses ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_root_cause_group_id ON root_cause_analyses(group_id);
 CREATE INDEX IF NOT EXISTS idx_root_cause_analyzed_at ON root_cause_analyses(analyzed_at DESC);
@@ -153,6 +193,16 @@ ALTER TABLE error_alerts ADD COLUMN IF NOT EXISTS sent_at TIMESTAMP;
 ALTER TABLE error_alerts ADD COLUMN IF NOT EXISTS acknowledged_at TIMESTAMP;
 ALTER TABLE error_alerts ADD COLUMN IF NOT EXISTS acknowledged_by VARCHAR(64);
 ALTER TABLE error_alerts ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.error_alerts') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'group_id', 'severity', 'channel', 'sent_at', 'acknowledged_at', 'acknowledged_by', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE error_alerts ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_error_alerts_group_id ON error_alerts(group_id);
 CREATE INDEX IF NOT EXISTS idx_error_alerts_sent_at ON error_alerts(sent_at DESC);

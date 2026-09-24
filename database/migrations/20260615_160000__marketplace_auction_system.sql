@@ -57,6 +57,16 @@ ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS sold_at TIMESTAMP WITH
 ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';
 ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS featured BOOLEAN DEFAULT false;
 ALTER TABLE marketplace_listings ADD COLUMN IF NOT EXISTS view_count INTEGER DEFAULT 0;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.marketplace_listings') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('listing_id', 'seller_id', 'pokemon_id', 'listing_type', 'fixed_price', 'starting_bid', 'buyout_price', 'current_highest_bid', 'current_highest_bidder_id', 'bid_count', 'created_at', 'expires_at', 'sold_at', 'status', 'featured', 'view_count', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE marketplace_listings ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_marketplace_seller_id ON marketplace_listings(seller_id);
@@ -90,6 +100,16 @@ ALTER TABLE marketplace_bids ADD COLUMN IF NOT EXISTS is_auto_bid BOOLEAN DEFAUL
 ALTER TABLE marketplace_bids ADD COLUMN IF NOT EXISTS max_auto_bid INTEGER;
 ALTER TABLE marketplace_bids ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 ALTER TABLE marketplace_bids ADD COLUMN IF NOT EXISTS is_winning BOOLEAN DEFAULT false;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.marketplace_bids') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('bid_id', 'listing_id', 'bidder_id', 'bid_amount', 'is_auto_bid', 'max_auto_bid', 'created_at', 'is_winning', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE marketplace_bids ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_bids_listing_bidder ON marketplace_bids(listing_id, bidder_id);
@@ -108,6 +128,16 @@ CREATE TABLE IF NOT EXISTS marketplace_favorites (
 ALTER TABLE marketplace_favorites ADD COLUMN IF NOT EXISTS user_id UUID;
 ALTER TABLE marketplace_favorites ADD COLUMN IF NOT EXISTS listing_id INTEGER;
 ALTER TABLE marketplace_favorites ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.marketplace_favorites') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'listing_id', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE marketplace_favorites ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_favorites_user ON marketplace_favorites(user_id);
 
@@ -136,6 +166,16 @@ ALTER TABLE marketplace_transactions ADD COLUMN IF NOT EXISTS final_price INTEGE
 ALTER TABLE marketplace_transactions ADD COLUMN IF NOT EXISTS fee_amount INTEGER;
 ALTER TABLE marketplace_transactions ADD COLUMN IF NOT EXISTS transaction_type VARCHAR(20);
 ALTER TABLE marketplace_transactions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.marketplace_transactions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('transaction_id', 'listing_id', 'seller_id', 'buyer_id', 'pokemon_id', 'final_price', 'fee_amount', 'transaction_type', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE marketplace_transactions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_transactions_seller ON marketplace_transactions(seller_id, created_at);
@@ -161,6 +201,16 @@ ALTER TABLE marketplace_price_history ADD COLUMN IF NOT EXISTS min_price INTEGER
 ALTER TABLE marketplace_price_history ADD COLUMN IF NOT EXISTS max_price INTEGER;
 ALTER TABLE marketplace_price_history ADD COLUMN IF NOT EXISTS transaction_count INTEGER DEFAULT 0;
 ALTER TABLE marketplace_price_history ADD COLUMN IF NOT EXISTS recorded_date DATE;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.marketplace_price_history') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('pokemon_species_id', 'avg_price', 'min_price', 'max_price', 'transaction_count', 'recorded_date', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE marketplace_price_history ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_price_history_species_date ON marketplace_price_history(pokemon_species_id, recorded_date);
 
@@ -190,6 +240,16 @@ ALTER TABLE marketplace_user_stats ADD COLUMN IF NOT EXISTS rating_score DECIMAL
 ALTER TABLE marketplace_user_stats ADD COLUMN IF NOT EXISTS rating_count INTEGER DEFAULT 0;
 ALTER TABLE marketplace_user_stats ADD COLUMN IF NOT EXISTS last_listing_at TIMESTAMP WITH TIME ZONE;
 ALTER TABLE marketplace_user_stats ADD COLUMN IF NOT EXISTS last_transaction_at TIMESTAMP WITH TIME ZONE;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.marketplace_user_stats') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'total_listings', 'total_sales', 'total_purchases', 'total_earned', 'total_spent', 'total_fees_paid', 'rating_score', 'rating_count', 'last_listing_at', 'last_transaction_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE marketplace_user_stats ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_user_stats_sales ON marketplace_user_stats(total_sales DESC);

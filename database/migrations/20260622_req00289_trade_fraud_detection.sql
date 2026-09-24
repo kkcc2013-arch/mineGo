@@ -22,6 +22,16 @@ ALTER TABLE trade_fraud_analysis ADD COLUMN IF NOT EXISTS overall_score DECIMAL(
 ALTER TABLE trade_fraud_analysis ADD COLUMN IF NOT EXISTS risk_level VARCHAR(20) DEFAULT 'low';
 ALTER TABLE trade_fraud_analysis ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE trade_fraud_analysis ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.trade_fraud_analysis') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'trade_id', 'scores', 'overall_score', 'risk_level', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE trade_fraud_analysis ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_trade_fraud_analysis_trade_id ON trade_fraud_analysis(trade_id);
 CREATE INDEX IF NOT EXISTS idx_trade_fraud_analysis_risk_level ON trade_fraud_analysis(risk_level);
@@ -53,6 +63,16 @@ ALTER TABLE trade_value_warnings ADD COLUMN IF NOT EXISTS warning_data JSONB;
 ALTER TABLE trade_value_warnings ADD COLUMN IF NOT EXISTS acknowledged BOOLEAN DEFAULT false;
 ALTER TABLE trade_value_warnings ADD COLUMN IF NOT EXISTS acknowledged_at TIMESTAMP WITH TIME ZONE;
 ALTER TABLE trade_value_warnings ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.trade_value_warnings') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'trade_id', 'user_id', 'warning_data', 'acknowledged', 'acknowledged_at', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE trade_value_warnings ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_trade_value_warnings_trade_id ON trade_value_warnings(trade_id);
 CREATE INDEX IF NOT EXISTS idx_trade_value_warnings_user_id ON trade_value_warnings(user_id);
@@ -77,6 +97,16 @@ ALTER TABLE trade_audit_log ADD COLUMN IF NOT EXISTS trade_id UUID;
 ALTER TABLE trade_audit_log ADD COLUMN IF NOT EXISTS event_type VARCHAR(50);
 ALTER TABLE trade_audit_log ADD COLUMN IF NOT EXISTS audit_data JSONB;
 ALTER TABLE trade_audit_log ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.trade_audit_log') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'trade_id', 'event_type', 'audit_data', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE trade_audit_log ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_trade_audit_log_trade_id ON trade_audit_log(trade_id);
 CREATE INDEX IF NOT EXISTS idx_trade_audit_log_event_type ON trade_audit_log(event_type);
@@ -108,6 +138,16 @@ ALTER TABLE trade_rollbacks ADD COLUMN IF NOT EXISTS initiator_id UUID;
 ALTER TABLE trade_rollbacks ADD COLUMN IF NOT EXISTS receiver_id UUID;
 ALTER TABLE trade_rollbacks ADD COLUMN IF NOT EXISTS reason TEXT;
 ALTER TABLE trade_rollbacks ADD COLUMN IF NOT EXISTS rolled_back_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.trade_rollbacks') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'trade_id', 'initiator_id', 'receiver_id', 'reason', 'rolled_back_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE trade_rollbacks ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_trade_rollbacks_trade_id ON trade_rollbacks(trade_id);
 CREATE INDEX IF NOT EXISTS idx_trade_rollbacks_initiator_id ON trade_rollbacks(initiator_id);
@@ -161,6 +201,16 @@ ALTER TABLE user_security_events ADD COLUMN IF NOT EXISTS event_data JSONB;
 ALTER TABLE user_security_events ADD COLUMN IF NOT EXISTS ip_address INET;
 ALTER TABLE user_security_events ADD COLUMN IF NOT EXISTS device_fingerprint VARCHAR(255);
 ALTER TABLE user_security_events ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_security_events') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'user_id', 'event_type', 'event_data', 'ip_address', 'device_fingerprint', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_security_events ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_user_security_events_user_id ON user_security_events(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_security_events_event_type ON user_security_events(event_type);
@@ -188,6 +238,16 @@ ALTER TABLE trade_network_cache ADD COLUMN IF NOT EXISTS user_id2 UUID;
 ALTER TABLE trade_network_cache ADD COLUMN IF NOT EXISTS cluster_id UUID;
 ALTER TABLE trade_network_cache ADD COLUMN IF NOT EXISTS network_metrics JSONB;
 ALTER TABLE trade_network_cache ADD COLUMN IF NOT EXISTS last_analyzed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.trade_network_cache') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'user_id1', 'user_id2', 'cluster_id', 'network_metrics', 'last_analyzed_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE trade_network_cache ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_trade_network_cache_cluster_id ON trade_network_cache(cluster_id);
 

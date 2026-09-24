@@ -24,6 +24,16 @@ ALTER TABLE spawn_cell_configs ADD COLUMN IF NOT EXISTS spawn_pool_override TEXT
 ALTER TABLE spawn_cell_configs ADD COLUMN IF NOT EXISTS enabled BOOLEAN DEFAULT true;
 ALTER TABLE spawn_cell_configs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE spawn_cell_configs ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.spawn_cell_configs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('geohash', 'base_spawn_count', 'min_spawn', 'max_spawn', 'spawn_pool_override', 'enabled', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE spawn_cell_configs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_spawn_cell_configs_geohash ON spawn_cell_configs(geohash);
 CREATE INDEX IF NOT EXISTS idx_spawn_cell_configs_enabled ON spawn_cell_configs(enabled) WHERE enabled = true;
@@ -60,6 +70,16 @@ ALTER TABLE spawn_events ADD COLUMN IF NOT EXISTS featured_pokemon INTEGER[];
 ALTER TABLE spawn_events ADD COLUMN IF NOT EXISTS enabled BOOLEAN DEFAULT true;
 ALTER TABLE spawn_events ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE spawn_events ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.spawn_events') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('name', 'type', 'start_time', 'end_time', 'affected_areas', 'spawn_multiplier', 'featured_pokemon', 'enabled', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE spawn_events ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_spawn_events_time ON spawn_events(start_time, end_time);
 CREATE INDEX IF NOT EXISTS idx_spawn_events_enabled ON spawn_events(enabled) WHERE enabled = true;
@@ -88,6 +108,16 @@ CREATE TABLE IF NOT EXISTS spawn_pools (
 ALTER TABLE spawn_pools ADD COLUMN IF NOT EXISTS biome VARCHAR(50);
 ALTER TABLE spawn_pools ADD COLUMN IF NOT EXISTS pokemon_id INTEGER;
 ALTER TABLE spawn_pools ADD COLUMN IF NOT EXISTS weight DECIMAL(8,4) DEFAULT 1.0;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.spawn_pools') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('biome', 'pokemon_id', 'weight', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE spawn_pools ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 ALTER TABLE spawn_pools ALTER COLUMN weight TYPE DECIMAL(8,4);
 ALTER TABLE spawn_pools ADD COLUMN IF NOT EXISTS min_level INTEGER DEFAULT 1;
 ALTER TABLE spawn_pools ADD COLUMN IF NOT EXISTS max_level INTEGER DEFAULT 30;
@@ -130,6 +160,16 @@ ALTER TABLE spawn_statistics ADD COLUMN IF NOT EXISTS despawns INTEGER DEFAULT 0
 ALTER TABLE spawn_statistics ADD COLUMN IF NOT EXISTS avg_active_players DECIMAL(5,2);
 ALTER TABLE spawn_statistics ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE spawn_statistics ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.spawn_statistics') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('geohash', 'date', 'hour', 'total_spawns', 'spawns_by_rarity', 'captures', 'despawns', 'avg_active_players', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE spawn_statistics ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_spawn_statistics_geohash_date ON spawn_statistics(geohash, date);
 CREATE INDEX IF NOT EXISTS idx_spawn_statistics_date ON spawn_statistics(date);
@@ -157,6 +197,16 @@ ALTER TABLE spawn_admin_logs ADD COLUMN IF NOT EXISTS target_id VARCHAR(100);
 ALTER TABLE spawn_admin_logs ADD COLUMN IF NOT EXISTS changes JSONB;
 ALTER TABLE spawn_admin_logs ADD COLUMN IF NOT EXISTS reason TEXT;
 ALTER TABLE spawn_admin_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.spawn_admin_logs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('admin_id', 'action', 'target_type', 'target_id', 'changes', 'reason', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE spawn_admin_logs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_spawn_admin_logs_admin ON spawn_admin_logs(admin_id);
 CREATE INDEX IF NOT EXISTS idx_spawn_admin_logs_created ON spawn_admin_logs(created_at);

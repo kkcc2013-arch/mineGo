@@ -404,6 +404,35 @@ def fix_optional_extensions(sql):
     return ''.join(out), n
 
 
+def relax_legacy_not_null(sql):
+    """在"补齐列"块之后：旧表中新定义没有的列（非主键）去掉 NOT NULL，否则按新定义插入会失败。"""
+    marker = '-- [fix_sql_dialect] 补齐已存在旧表缺少的列\n'
+    out, pos, n = [], 0, 0
+    for m in re.finditer(re.escape(marker) + r'((?:ALTER TABLE ([A-Za-z0-9_."]+) ADD COLUMN IF NOT EXISTS ([A-Za-z0-9_"]+)[^\n]*\n)+)', sql):
+        block = m.group(1)
+        if '-- [fix_sql_dialect] 放开旧表' in sql[m.end():m.end() + 80]:
+            continue
+        table = re.search(r'ALTER TABLE ([A-Za-z0-9_."]+)', block).group(1).split('.')[-1].strip('"')
+        cols = re.findall(r'ADD COLUMN IF NOT EXISTS ("?[A-Za-z0-9_]+"?)', block)
+        # 新定义里的 SERIAL 主键列没有出现在补列块中，统一把 id 视为新定义已有
+        known = ', '.join("'" + c.strip('"') + "'" for c in cols + ['id'])
+        out.append(sql[pos:m.end()])
+        out.append(f"""-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.{table}') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ({known})
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE {table} ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
+""")
+        pos = m.end(); n += 1
+    out.append(sql[pos:])
+    return ''.join(out), n
+
+
 def fix_trailing_value_commas(sql):
     pat = re.compile(r',([ \t]*(?:--[^\n]*)?\n(?:[ \t]*--[^\n]*\n|[ \t]*\n)*)([ \t]*)(ON\s+CONFLICT\b|;)', re.I)
     new, n = pat.subn(lambda m: m.group(1) + m.group(2) + m.group(3), sql)
@@ -427,7 +456,8 @@ def main():
         c3 += c4 + c5
         if idem:
             sql, c6 = fix_idempotency(sql)
-            c3 += c6
+            sql, c8 = relax_legacy_not_null(sql)
+            c3 += c6 + c8
         if sql != orig:
             open(path, 'w', encoding='utf-8').write(sql)
         print(f'{path}: comments={c1} inline-index/unique={c2} trailing-commas={c3}')

@@ -37,6 +37,16 @@ ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS published_at TIMESTAMP WIT
 ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS deprecated_at TIMESTAMP WITH TIME ZONE;
 ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS created_by UUID;
 ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.privacy_policies') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('version', 'policy_type', 'title', 'content_url', 'content_hash', 'summary', 'effective_date', 'mandatory_confirm', 'status', 'created_at', 'published_at', 'deprecated_at', 'created_by', 'metadata', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE privacy_policies ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_privacy_policies_version ON privacy_policies(version);
 CREATE INDEX IF NOT EXISTS idx_privacy_policies_status ON privacy_policies(status);
@@ -75,6 +85,16 @@ ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS confirmation_typ
 ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS content_snapshot TEXT;
 ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS revoked_at TIMESTAMP WITH TIME ZONE;
 ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS revoke_reason VARCHAR(100);
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_privacy_confirmations') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'policy_id', 'policy_version', 'confirmed_at', 'ip_address', 'user_agent', 'device_id', 'confirmation_type', 'content_snapshot', 'revoked_at', 'revoke_reason', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_privacy_confirmations ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_user_confirmations_user ON user_privacy_confirmations(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_confirmations_policy ON user_privacy_confirmations(policy_id);
@@ -111,6 +131,16 @@ ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS read_at TIMEST
 ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS error_message TEXT;
 ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS retry_count INTEGER DEFAULT 0;
 ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.privacy_update_notifications') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('policy_id', 'user_id', 'notification_type', 'status', 'scheduled_at', 'sent_at', 'read_at', 'error_message', 'retry_count', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE privacy_update_notifications ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_policy_notifications_policy ON privacy_update_notifications(policy_id);
 CREATE INDEX IF NOT EXISTS idx_policy_notifications_user ON privacy_update_notifications(user_id);

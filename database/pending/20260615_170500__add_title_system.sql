@@ -44,6 +44,16 @@ ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS available_until TIMESTAMP
 ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS display_order INT DEFAULT 0;
 ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE title_definitions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.title_definitions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('title_id', 'name', 'description', 'category', 'rarity', 'icon_url', 'stat_bonuses', 'unlock_type', 'unlock_criteria', 'special_effects', 'is_active', 'is_limited', 'available_until', 'display_order', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE title_definitions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_title_definitions_category ON title_definitions(category);
@@ -77,6 +87,16 @@ ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT false
 ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS is_favorite BOOLEAN DEFAULT false;
 ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS unlocked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE user_titles ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_titles') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'title_id', 'source_type', 'source_id', 'is_active', 'is_favorite', 'unlocked_at', 'expires_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_titles ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_user_titles_user ON user_titles(user_id);

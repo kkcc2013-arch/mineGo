@@ -36,6 +36,16 @@ ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS first_obtained_at TIMEST
 ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS last_interaction_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokemon_friendship') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('pokemon_instance_id', 'friendship_value', 'friendship_level', 'daily_walking_bonus', 'last_walking_bonus_date', 'daily_interaction_count', 'last_interaction_date', 'total_interactions', 'days_with_trainer', 'first_obtained_at', 'last_interaction_at', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokemon_friendship ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE pokemon_friendship IS '精灵好感度表';
 COMMENT ON COLUMN pokemon_friendship.friendship_value IS '好感度值 (0-255)';
@@ -62,6 +72,16 @@ ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS after_value INTEGER;
 ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS source VARCHAR(100);
 ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
 ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.friendship_history') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('pokemon_instance_id', 'change_type', 'change_amount', 'before_value', 'after_value', 'source', 'metadata', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE friendship_history ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE friendship_history IS '好感度变化历史记录';
 
@@ -82,6 +102,16 @@ ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS required_friends
 ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS time_condition VARCHAR(20);
 ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS additional_item_id INTEGER;
 ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.friendship_evolution_rules') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('species_id', 'evolution_species_id', 'required_friendship', 'time_condition', 'additional_item_id', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE friendship_evolution_rules ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE friendship_evolution_rules IS '亲密度进化规则配置';
 
@@ -104,6 +134,16 @@ ALTER TABLE friendship_interaction_config ADD COLUMN IF NOT EXISTS cooldown_hour
 ALTER TABLE friendship_interaction_config ADD COLUMN IF NOT EXISTS description TEXT;
 ALTER TABLE friendship_interaction_config ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
 ALTER TABLE friendship_interaction_config ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.friendship_interaction_config') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('interaction_type', 'friendship_change', 'daily_limit', 'cooldown_hours', 'description', 'is_active', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE friendship_interaction_config ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE friendship_interaction_config IS '好感度互动类型配置';
 

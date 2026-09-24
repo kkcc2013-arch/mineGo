@@ -36,6 +36,32 @@ ALTER TABLE regions ADD COLUMN IF NOT EXISTS compliance_rules JSONB;
 ALTER TABLE regions ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
 ALTER TABLE regions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE regions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.regions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('code', 'parent_code', 'name', 'level', 'geo_bounds', 'timezone', 'currency', 'language', 'compliance_rules', 'is_active', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE regions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
+-- regions 可能已由 089_create_region_sync_tables.sql 以 id VARCHAR 主键创建，外键引用 regions(code) 需要唯一索引
+CREATE UNIQUE INDEX IF NOT EXISTS uq_regions_code ON regions(code);
+-- 089 版的 regions.id 是 VARCHAR 主键（无默认值），本迁移按 code 插入区域：id 为空时取 code
+CREATE OR REPLACE FUNCTION regions_default_id() RETURNS trigger AS $$
+BEGIN
+  IF NEW.id IS NULL THEN NEW.id := NEW.code; END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+DO $rg$ BEGIN
+  IF (SELECT data_type FROM information_schema.columns WHERE table_schema = 'public'
+       AND table_name = 'regions' AND column_name = 'id') = 'character varying' THEN
+    DROP TRIGGER IF EXISTS trg_regions_default_id ON regions;
+    CREATE TRIGGER trg_regions_default_id BEFORE INSERT ON regions FOR EACH ROW EXECUTE FUNCTION regions_default_id();
+  END IF;
+END $rg$;
 
 CREATE INDEX IF NOT EXISTS idx_regions_code ON regions(code);
 CREATE INDEX IF NOT EXISTS idx_regions_parent ON regions(parent_code);
@@ -75,6 +101,16 @@ ALTER TABLE region_pokemon_weights ADD COLUMN IF NOT EXISTS start_date TIMESTAMP
 ALTER TABLE region_pokemon_weights ADD COLUMN IF NOT EXISTS end_date TIMESTAMP;
 ALTER TABLE region_pokemon_weights ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE region_pokemon_weights ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.region_pokemon_weights') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('region_code', 'pokemon_id', 'spawn_weight', 'is_exclusive', 'start_date', 'end_date', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE region_pokemon_weights ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_region_pokemon_weights_region ON region_pokemon_weights(region_code);
 CREATE INDEX IF NOT EXISTS idx_region_pokemon_weights_pokemon ON region_pokemon_weights(pokemon_id);
@@ -118,6 +154,16 @@ ALTER TABLE region_events ADD COLUMN IF NOT EXISTS end_time TIMESTAMP;
 ALTER TABLE region_events ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
 ALTER TABLE region_events ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE region_events ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.region_events') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('event_id', 'region_codes', 'title', 'description', 'event_type', 'bonuses', 'start_time', 'end_time', 'is_active', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE region_events ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_region_events_event_id ON region_events(event_id);
 CREATE INDEX IF NOT EXISTS idx_region_events_regions ON region_events USING GIN(region_codes);
@@ -158,6 +204,16 @@ ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS modified_content JSONB;
 ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS reason VARCHAR(200);
 ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.compliance_rules') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('region_code', 'content_type', 'content_id', 'filter_action', 'modified_content', 'reason', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE compliance_rules ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_compliance_rules_region ON compliance_rules(region_code);
 CREATE INDEX IF NOT EXISTS idx_compliance_rules_content ON compliance_rules(content_type, content_id);
@@ -183,6 +239,16 @@ ALTER TABLE user_regions ADD COLUMN IF NOT EXISTS user_id VARCHAR(50);
 ALTER TABLE user_regions ADD COLUMN IF NOT EXISTS region_code VARCHAR(20);
 ALTER TABLE user_regions ADD COLUMN IF NOT EXISTS detected_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE user_regions ADD COLUMN IF NOT EXISTS last_updated TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_regions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'region_code', 'detected_at', 'last_updated', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_regions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_user_regions_region ON user_regions(region_code);
 

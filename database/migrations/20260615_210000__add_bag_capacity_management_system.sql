@@ -32,6 +32,16 @@ ALTER TABLE bag_capacity_config ADD COLUMN IF NOT EXISTS vip_bonus_capacity JSON
 ALTER TABLE bag_capacity_config ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
 ALTER TABLE bag_capacity_config ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE bag_capacity_config ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.bag_capacity_config') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('player_level_min', 'player_level_max', 'base_capacity', 'max_capacity', 'expansion_unit', 'gold_cost_per_unit', 'diamond_cost_per_unit', 'vip_bonus_capacity', 'is_active', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE bag_capacity_config ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 插入默认配置
 INSERT INTO bag_capacity_config 
@@ -68,6 +78,16 @@ ALTER TABLE player_bag_capacity ADD COLUMN IF NOT EXISTS bonus_capacity INT DEFA
 ALTER TABLE player_bag_capacity ADD COLUMN IF NOT EXISTS last_capacity_check TIMESTAMP DEFAULT NOW();
 ALTER TABLE player_bag_capacity ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE player_bag_capacity ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.player_bag_capacity') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'current_capacity', 'max_ever_purchased', 'used_slots', 'bonus_capacity', 'last_capacity_check', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE player_bag_capacity ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_player_bag_capacity_user ON player_bag_capacity(user_id);
 CREATE INDEX IF NOT EXISTS idx_player_bag_capacity_check ON player_bag_capacity(last_capacity_check);
@@ -100,6 +120,16 @@ ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS cost_currency VARCHAR
 ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS transaction_id VARCHAR(100);
 ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
 ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.bag_expansion_history') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'expansion_type', 'units', 'capacity_before', 'capacity_after', 'cost_amount', 'cost_currency', 'transaction_id', 'metadata', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE bag_expansion_history ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_bag_expansion_history_user ON bag_expansion_history(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_bag_expansion_history_type ON bag_expansion_history(expansion_type, created_at DESC);
@@ -130,6 +160,16 @@ ALTER TABLE bag_alert_config ADD COLUMN IF NOT EXISTS notification_method VARCHA
 ALTER TABLE bag_alert_config ADD COLUMN IF NOT EXISTS last_alert_sent TIMESTAMP;
 ALTER TABLE bag_alert_config ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE bag_alert_config ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.bag_alert_config') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'enable_alert', 'alert_thresholds', 'auto_transfer_to_storage', 'auto_transfer_threshold', 'notification_method', 'last_alert_sent', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE bag_alert_config ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_bag_alert_config_user ON bag_alert_config(user_id);
 CREATE INDEX IF NOT EXISTS idx_bag_alert_config_enabled ON bag_alert_config(enable_alert) WHERE enable_alert = TRUE;

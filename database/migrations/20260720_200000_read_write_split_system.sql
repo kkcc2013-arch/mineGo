@@ -13,6 +13,16 @@ CREATE TABLE IF NOT EXISTS replica_lag_heartbeat (
 -- [fix_sql_dialect] 补齐已存在旧表缺少的列
 ALTER TABLE replica_lag_heartbeat ADD COLUMN IF NOT EXISTS heartbeat_time BIGINT;
 ALTER TABLE replica_lag_heartbeat ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.replica_lag_heartbeat') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('heartbeat_time', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE replica_lag_heartbeat ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_replica_lag_heartbeat_time 
 ON replica_lag_heartbeat(heartbeat_time);
@@ -53,6 +63,16 @@ ALTER TABLE replica_monitor_log ADD COLUMN IF NOT EXISTS healthy BOOLEAN DEFAULT
 ALTER TABLE replica_monitor_log ADD COLUMN IF NOT EXISTS check_method VARCHAR(20);
 ALTER TABLE replica_monitor_log ADD COLUMN IF NOT EXISTS error_message TEXT;
 ALTER TABLE replica_monitor_log ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.replica_monitor_log') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('replica_id', 'lag_ms', 'healthy', 'check_method', 'error_message', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE replica_monitor_log ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_replica_monitor_replica 
 ON replica_monitor_log(replica_id);
@@ -91,6 +111,16 @@ ALTER TABLE replica_config ADD COLUMN IF NOT EXISTS lag_critical_threshold_ms IN
 ALTER TABLE replica_config ADD COLUMN IF NOT EXISTS lag_max_threshold_ms INTEGER DEFAULT 5000;
 ALTER TABLE replica_config ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE replica_config ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.replica_config') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('replica_id', 'host', 'port', 'weight', 'is_active', 'lag_warning_threshold_ms', 'lag_critical_threshold_ms', 'lag_max_threshold_ms', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE replica_config ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 初始配置（示例）
 INSERT INTO replica_config (replica_id, host, port, weight)
@@ -126,6 +156,16 @@ ALTER TABLE read_write_split_log ADD COLUMN IF NOT EXISTS rows_affected INTEGER;
 ALTER TABLE read_write_split_log ADD COLUMN IF NOT EXISTS error_occurred BOOLEAN DEFAULT false;
 ALTER TABLE read_write_split_log ADD COLUMN IF NOT EXISTS error_message TEXT;
 ALTER TABLE read_write_split_log ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.read_write_split_log') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('request_id', 'pool_type', 'query_type', 'consistency_level', 'table_name', 'query_duration_ms', 'rows_affected', 'error_occurred', 'error_message', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE read_write_split_log ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_rw_split_log_pool 
 ON read_write_split_log(pool_type);
@@ -158,6 +198,16 @@ ALTER TABLE failover_event ADD COLUMN IF NOT EXISTS reason TEXT;
 ALTER TABLE failover_event ADD COLUMN IF NOT EXISTS lag_ms INTEGER;
 ALTER TABLE failover_event ADD COLUMN IF NOT EXISTS recovered_at TIMESTAMP;
 ALTER TABLE failover_event ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.failover_event') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('event_type', 'from_pool', 'to_pool', 'reason', 'lag_ms', 'recovered_at', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE failover_event ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_failover_event_type 
 ON failover_event(event_type);

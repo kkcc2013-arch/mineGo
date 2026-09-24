@@ -63,6 +63,16 @@ ALTER TABLE catch_records ADD COLUMN IF NOT EXISTS stardust_gained INTEGER;
 ALTER TABLE catch_records ADD COLUMN IF NOT EXISTS candy_gained INTEGER;
 ALTER TABLE catch_records ADD COLUMN IF NOT EXISTS device_info JSONB;
 ALTER TABLE catch_records ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.catch_records') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'user_id', 'pokemon_id', 'location', 'catch_method', 'ball_type', 'catch_rate', 'experience_gained', 'stardust_gained', 'candy_gained', 'device_info', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE catch_records ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_catch_records_user 
@@ -129,6 +139,16 @@ ALTER TABLE location_updates ADD COLUMN IF NOT EXISTS heading FLOAT;
 ALTER TABLE location_updates ADD COLUMN IF NOT EXISTS source VARCHAR(50);
 ALTER TABLE location_updates ADD COLUMN IF NOT EXISTS device_id VARCHAR(100);
 ALTER TABLE location_updates ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.location_updates') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'user_id', 'location', 'accuracy', 'speed', 'heading', 'source', 'device_id', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE location_updates ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_location_updates_user 
     ON location_updates (user_id, created_at);
@@ -189,6 +209,16 @@ ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS ip_address INET;
 ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS user_agent TEXT;
 ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS metadata JSONB;
 ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.audit_logs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'user_id', 'action', 'resource_type', 'resource_id', 'old_values', 'new_values', 'ip_address', 'user_agent', 'metadata', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE audit_logs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_audit_logs_user 
     ON audit_logs (user_id, created_at);
@@ -243,6 +273,16 @@ ALTER TABLE event_logs ADD COLUMN IF NOT EXISTS payload JSONB;
 ALTER TABLE event_logs ADD COLUMN IF NOT EXISTS user_id UUID;
 ALTER TABLE event_logs ADD COLUMN IF NOT EXISTS session_id VARCHAR(100);
 ALTER TABLE event_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.event_logs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'event_type', 'event_source', 'payload', 'user_id', 'session_id', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE event_logs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_event_logs_type 
     ON event_logs (event_type, created_at);
@@ -307,6 +347,16 @@ ALTER TABLE payment_transactions ADD COLUMN IF NOT EXISTS provider_transaction_i
 ALTER TABLE payment_transactions ADD COLUMN IF NOT EXISTS metadata JSONB;
 ALTER TABLE payment_transactions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
 ALTER TABLE payment_transactions ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.payment_transactions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'order_id', 'user_id', 'amount', 'currency', 'status', 'payment_method', 'provider', 'provider_transaction_id', 'metadata', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE payment_transactions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_payment_transactions_user 
     ON payment_transactions (user_id, created_at);

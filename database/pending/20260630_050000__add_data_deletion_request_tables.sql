@@ -59,6 +59,16 @@ ALTER TABLE data_deletion_requests ADD COLUMN IF NOT EXISTS verification_expires
 ALTER TABLE data_deletion_requests ADD COLUMN IF NOT EXISTS verified_at TIMESTAMPTZ;
 ALTER TABLE data_deletion_requests ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE data_deletion_requests ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.data_deletion_requests') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'user_id', 'request_type', 'status', 'reason', 'requested_data_types', 'approval_status', 'approved_by', 'approved_at', 'rejection_reason', 'processing_started_at', 'processing_completed_at', 'retry_count', 'max_retries', 'ip_address', 'user_agent', 'verification_code', 'verification_expires_at', 'verified_at', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE data_deletion_requests ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 数据删除任务表（细粒度删除任务）
 CREATE TABLE IF NOT EXISTS data_deletion_tasks (
@@ -90,6 +100,35 @@ CREATE TABLE IF NOT EXISTS data_deletion_tasks (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS request_id UUID;
+ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS task_name VARCHAR(100);
+ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS service_name VARCHAR(50);
+ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS data_category VARCHAR(50);
+ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending';
+ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS table_name VARCHAR(100);
+ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS query_template TEXT;
+ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS affected_rows INTEGER DEFAULT 0;
+ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS backup_path TEXT;
+ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS started_at TIMESTAMPTZ;
+ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS completed_at TIMESTAMPTZ;
+ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS duration_ms INTEGER;
+ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS error_message TEXT;
+ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS retry_count INTEGER DEFAULT 0;
+ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS depends_on UUID[] DEFAULT ARRAY[]::UUID[];
+ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.data_deletion_tasks') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'request_id', 'task_name', 'service_name', 'data_category', 'status', 'table_name', 'query_template', 'affected_rows', 'backup_path', 'started_at', 'completed_at', 'duration_ms', 'error_message', 'retry_count', 'depends_on', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE data_deletion_tasks ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 DO $fk$ BEGIN
   IF (SELECT data_type FROM information_schema.columns
        WHERE table_schema = 'public' AND table_name = 'data_deletion_requests' AND column_name = 'id') = 'uuid'
@@ -117,6 +156,16 @@ ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS retry_count INTEGER DEF
 ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS depends_on UUID[] DEFAULT ARRAY[]::UUID[];
 ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.data_deletion_tasks') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'request_id', 'task_name', 'service_name', 'data_category', 'status', 'table_name', 'query_template', 'affected_rows', 'backup_path', 'started_at', 'completed_at', 'duration_ms', 'error_message', 'retry_count', 'depends_on', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE data_deletion_tasks ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 数据删除证明表（合规凭证）
 CREATE TABLE IF NOT EXISTS data_deletion_certificates (
@@ -151,6 +200,16 @@ ALTER TABLE data_deletion_certificates ADD COLUMN IF NOT EXISTS signature TEXT;
 ALTER TABLE data_deletion_certificates ADD COLUMN IF NOT EXISTS signature_algorithm VARCHAR(50) DEFAULT 'SHA256-RSA';
 ALTER TABLE data_deletion_certificates ADD COLUMN IF NOT EXISTS retention_until TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '7 years');
 ALTER TABLE data_deletion_certificates ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.data_deletion_certificates') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'request_id', 'user_id', 'certificate_number', 'deletion_summary', 'deleted_data_categories', 'total_records_deleted', 'signature', 'signature_algorithm', 'retention_until', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE data_deletion_certificates ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 数据类别定义表
 CREATE TABLE IF NOT EXISTS data_categories (
@@ -177,6 +236,16 @@ ALTER TABLE data_categories ADD COLUMN IF NOT EXISTS is_deletable BOOLEAN DEFAUL
 ALTER TABLE data_categories ADD COLUMN IF NOT EXISTS deletion_priority INTEGER DEFAULT 50;
 ALTER TABLE data_categories ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
 ALTER TABLE data_categories ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.data_categories') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'category_code', 'category_name', 'description', 'related_tables', 'retention_period_days', 'is_deletable', 'deletion_priority', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE data_categories ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 预定义数据类别
 INSERT INTO data_categories (category_code, category_name, description, related_tables, retention_period_days, deletion_priority) VALUES
@@ -213,6 +282,16 @@ ALTER TABLE data_deletion_approval_history ADD COLUMN IF NOT EXISTS previous_sta
 ALTER TABLE data_deletion_approval_history ADD COLUMN IF NOT EXISTS new_status VARCHAR(20);
 ALTER TABLE data_deletion_approval_history ADD COLUMN IF NOT EXISTS comment TEXT;
 ALTER TABLE data_deletion_approval_history ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.data_deletion_approval_history') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'request_id', 'action', 'actor_id', 'actor_type', 'previous_status', 'new_status', 'comment', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE data_deletion_approval_history ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_deletion_requests_user_id ON data_deletion_requests(user_id);

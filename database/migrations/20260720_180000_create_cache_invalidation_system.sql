@@ -19,6 +19,16 @@ ALTER TABLE cdc_status ADD COLUMN IF NOT EXISTS last_heartbeat TIMESTAMP DEFAULT
 ALTER TABLE cdc_status ADD COLUMN IF NOT EXISTS config JSONB;
 ALTER TABLE cdc_status ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE cdc_status ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.cdc_status') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('instance_id', 'status', 'last_heartbeat', 'config', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE cdc_status ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE cdc_status IS 'CDC 实例状态追踪表';
 
@@ -45,6 +55,16 @@ ALTER TABLE cache_invalidation_log ADD COLUMN IF NOT EXISTS latency_ms INTEGER;
 ALTER TABLE cache_invalidation_log ADD COLUMN IF NOT EXISTS success BOOLEAN DEFAULT true;
 ALTER TABLE cache_invalidation_log ADD COLUMN IF NOT EXISTS error_message TEXT;
 ALTER TABLE cache_invalidation_log ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.cache_invalidation_log') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('instance_id', 'table_name', 'operation', 'cache_keys', 'primary_key_value', 'latency_ms', 'success', 'error_message', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE cache_invalidation_log ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE cache_invalidation_log IS '缓存失效事件日志';
 
@@ -71,6 +91,16 @@ ALTER TABLE cache_invalidation_rules ADD COLUMN IF NOT EXISTS enabled BOOLEAN DE
 ALTER TABLE cache_invalidation_rules ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE cache_invalidation_rules ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE cache_invalidation_rules ADD COLUMN IF NOT EXISTS created_by UUID;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.cache_invalidation_rules') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('table_name', 'primary_key', 'cache_key_patterns', 'enabled', 'created_at', 'updated_at', 'created_by', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE cache_invalidation_rules ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE cache_invalidation_rules IS '缓存失效规则配置表';
 
@@ -96,6 +126,16 @@ ALTER TABLE cache_invalidation_stats ADD COLUMN IF NOT EXISTS failed_invalidatio
 ALTER TABLE cache_invalidation_stats ADD COLUMN IF NOT EXISTS avg_latency_ms REAL;
 ALTER TABLE cache_invalidation_stats ADD COLUMN IF NOT EXISTS success_rate REAL;
 ALTER TABLE cache_invalidation_stats ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.cache_invalidation_stats') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('hour_timestamp', 'instance_id', 'total_changes', 'invalidated_keys', 'failed_invalidations', 'avg_latency_ms', 'success_rate', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE cache_invalidation_stats ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE cache_invalidation_stats IS '缓存失效统计表（按小时聚合）';
 

@@ -20,6 +20,16 @@ ALTER TABLE pokemon_friendship_logs ADD COLUMN IF NOT EXISTS context JSONB DEFAU
 ALTER TABLE pokemon_friendship_logs ADD COLUMN IF NOT EXISTS previous_value INTEGER;
 ALTER TABLE pokemon_friendship_logs ADD COLUMN IF NOT EXISTS new_value INTEGER;
 ALTER TABLE pokemon_friendship_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokemon_friendship_logs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('pokemon_instance_id', 'change_amount', 'source', 'context', 'previous_value', 'new_value', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokemon_friendship_logs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 亲密度进化规则表
 CREATE TABLE IF NOT EXISTS friendship_evolution_rules (
@@ -38,6 +48,16 @@ ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS required_friends
 ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS time_restriction VARCHAR(20);
 ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS additional_conditions JSONB DEFAULT '{}';
 ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS evolution_method VARCHAR(50) DEFAULT 'level_up';
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.friendship_evolution_rules') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('species_id', 'target_species_id', 'required_friendship', 'time_restriction', 'additional_conditions', 'evolution_method', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE friendship_evolution_rules ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 -- 旧版定义（pending/20260611_131000）使用 evolution_species_id NOT NULL；本版使用 target_species_id，两列保持同步
 DO $fe$ BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public'

@@ -24,6 +24,16 @@ ALTER TABLE traffic_metrics ADD COLUMN IF NOT EXISTS active_users INTEGER DEFAUL
 ALTER TABLE traffic_metrics ADD COLUMN IF NOT EXISTS cpu_usage DECIMAL(5,2);
 ALTER TABLE traffic_metrics ADD COLUMN IF NOT EXISTS memory_usage DECIMAL(5,2);
 ALTER TABLE traffic_metrics ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.traffic_metrics') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('timestamp', 'service_name', 'request_count', 'avg_response_time', 'error_count', 'active_users', 'cpu_usage', 'memory_usage', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE traffic_metrics ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_traffic_metrics_time ON traffic_metrics(timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_traffic_metrics_service ON traffic_metrics(service_name, timestamp DESC);
@@ -45,6 +55,16 @@ ALTER TABLE traffic_predictions ADD COLUMN IF NOT EXISTS confidence DECIMAL(5,4)
 ALTER TABLE traffic_predictions ADD COLUMN IF NOT EXISTS model_version VARCHAR(32) DEFAULT 'v1';
 ALTER TABLE traffic_predictions ADD COLUMN IF NOT EXISTS metadata JSONB;
 ALTER TABLE traffic_predictions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.traffic_predictions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('timestamp', 'predicted_value', 'confidence', 'model_version', 'metadata', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE traffic_predictions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_traffic_predictions_time ON traffic_predictions(timestamp DESC);
 
@@ -59,6 +79,16 @@ CREATE TABLE IF NOT EXISTS traffic_actuals (
 ALTER TABLE traffic_actuals ADD COLUMN IF NOT EXISTS timestamp TIMESTAMP;
 ALTER TABLE traffic_actuals ADD COLUMN IF NOT EXISTS actual_value DECIMAL(10,2);
 ALTER TABLE traffic_actuals ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.traffic_actuals') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('timestamp', 'actual_value', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE traffic_actuals ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_traffic_actuals_time ON traffic_actuals(timestamp DESC);
 
@@ -89,6 +119,16 @@ ALTER TABLE scaling_events ADD COLUMN IF NOT EXISTS confidence DECIMAL(5,4);
 ALTER TABLE scaling_events ADD COLUMN IF NOT EXISTS success BOOLEAN DEFAULT true;
 ALTER TABLE scaling_events ADD COLUMN IF NOT EXISTS error_message TEXT;
 ALTER TABLE scaling_events ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.scaling_events') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('timestamp', 'service_name', 'action', 'from_replicas', 'to_replicas', 'reason', 'trigger_type', 'confidence', 'success', 'error_message', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE scaling_events ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_scaling_events_time ON scaling_events(timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_scaling_events_service ON scaling_events(service_name, timestamp DESC);
@@ -114,6 +154,16 @@ ALTER TABLE scheduled_events ADD COLUMN IF NOT EXISTS expected_traffic_multiplie
 ALTER TABLE scheduled_events ADD COLUMN IF NOT EXISTS metadata JSONB;
 ALTER TABLE scheduled_events ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
 ALTER TABLE scheduled_events ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.scheduled_events') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('event_type', 'event_name', 'event_start', 'event_end', 'expected_traffic_multiplier', 'metadata', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE scheduled_events ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_scheduled_events_time ON scheduled_events(event_start, event_end);
 
@@ -136,6 +186,16 @@ ALTER TABLE cost_metrics ADD COLUMN IF NOT EXISTS instance_count INTEGER;
 ALTER TABLE cost_metrics ADD COLUMN IF NOT EXISTS hourly_cost DECIMAL(10,2);
 ALTER TABLE cost_metrics ADD COLUMN IF NOT EXISTS region VARCHAR(32);
 ALTER TABLE cost_metrics ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.cost_metrics') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('timestamp', 'service_name', 'instance_type', 'instance_count', 'hourly_cost', 'region', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE cost_metrics ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_cost_metrics_time ON cost_metrics(timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_cost_metrics_service ON cost_metrics(service_name, timestamp DESC);
@@ -161,6 +221,16 @@ ALTER TABLE resource_usage ADD COLUMN IF NOT EXISTS network_in_gb DECIMAL(8,4);
 ALTER TABLE resource_usage ADD COLUMN IF NOT EXISTS network_out_gb DECIMAL(8,4);
 ALTER TABLE resource_usage ADD COLUMN IF NOT EXISTS storage_gb DECIMAL(8,4);
 ALTER TABLE resource_usage ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.resource_usage') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('timestamp', 'service_name', 'cpu_cores', 'memory_gb', 'network_in_gb', 'network_out_gb', 'storage_gb', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE resource_usage ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_resource_usage_time ON resource_usage(timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_resource_usage_service ON resource_usage(service_name, timestamp DESC);
