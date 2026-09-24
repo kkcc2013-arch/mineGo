@@ -4,13 +4,17 @@
  * 
  * Usage:
  *   node migrate.js up              - Run all pending migrations
+ *   node migrate.js up --from 20260924_000000 - Run only pending migrations with version >= given
  *   node migrate.js down [version]  - Rollback to version (or last migration)
  *   node migrate.js status          - Show migration status
  *   node migrate.js create <desc>   - Create new migration file
  *   node migrate.js verify          - Verify checksums of executed migrations
  */
 
-const { Pool } = require('pg');
+// pg 安装在 backend/node_modules（database/ 目录下没有 node_modules，原实现从任何位置运行都会 MODULE_NOT_FOUND）
+let Pool;
+try { ({ Pool } = require('pg')); }
+catch { ({ Pool } = require(require('path').join(__dirname, '..', 'backend', 'node_modules', 'pg'))); }
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
@@ -348,7 +352,7 @@ async function runMigration(client, migration, direction = 'up') {
 /**
  * Run all pending migrations
  */
-async function runPendingMigrations() {
+async function runPendingMigrations({ fromVersion = null } = {}) {
   const client = await getPool().connect();
   
   try {
@@ -367,8 +371,11 @@ async function runPendingMigrations() {
       const executed = await getExecutedMigrations(client);
       const pending = await getPendingMigrationFiles();
       
-      // Filter out already executed
-      const toRun = pending.filter(p => !executed.find(e => e.version === p.version));
+      // Filter out already executed（--from 只运行版本号 >= fromVersion 的迁移，
+      // 用于历史迁移链存在失败项时单独补齐新迁移）
+      const toRun = pending
+        .filter(p => !executed.find(e => e.version === p.version))
+        .filter(p => !fromVersion || p.version >= fromVersion);
       
       if (toRun.length === 0) {
         console.log('No pending migrations to run.');
@@ -580,9 +587,11 @@ async function main() {
   
   try {
     switch (command) {
-      case 'up':
-        await runPendingMigrations();
+      case 'up': {
+        const fromIdx = args.indexOf('--from');
+        await runPendingMigrations({ fromVersion: fromIdx > 0 ? args[fromIdx + 1] : null });
         break;
+      }
         
       case 'down':
         const targetVersion = args[1];
@@ -616,8 +625,10 @@ async function main() {
         console.error('Usage: node migrate.js [up|down|status|create|verify]');
         process.exit(1);
     }
+  } catch (err) {
+    // 原实现缺少 catch，成功执行后也会因引用未定义的 err 而崩溃
     console.error('Migration failed:', err);
-    process.exit(1);
+    process.exitCode = 1;
   } finally {
     if (pool) {
       await pool.end();
