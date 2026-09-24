@@ -431,6 +431,9 @@ async function main() {
       // 子路由挂载
       // ═══════════════════════════════════════════════════════════
 
+      // REQ-00337: 精灵语音描述（盲人友好信息）
+      app.use('/pokemon', require('./routes/voiceDescription'));
+
       // REQ-00019: 技能学习系统路由
       app.use('/', require('./routes/moves'));
 

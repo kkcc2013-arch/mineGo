@@ -32,6 +32,7 @@ const deviceManagementRouter = require('./routes/deviceManagement'); // REQ-0025
 const sessionManagementRouter = require('./routes/sessionManagement'); // REQ-00219: 会话异常检测与自动防护
 const languageRouter = require('./routes/language'); // REQ-00393: 动态语言切换无需重新登录
 const minorProtectionRouter = require('./routes/minorProtection'); // REQ-00578: 未成年人保护路由
+const preferencesRouter = require('./routes/preferences'); // Epic E21: 通用偏好（无障碍设置云端同步）
 const { initNotificationHandlers } = require('./handlers/notificationHandler');
 
 // Create service launcher
@@ -50,6 +51,10 @@ const service = new ServiceLauncher({
       path: '/users',
       router: userRouter,
       rateLimit: { windowMs: 60_000, max: 100 }
+    },
+    {
+      path: '/users', // Epic E21: GET/PUT/DELETE /users/me/preferences/:namespace（user_preferences JSONB）
+      router: preferencesRouter
     },
     {
       path: '/users',
