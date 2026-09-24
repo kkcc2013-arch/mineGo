@@ -466,6 +466,7 @@ import { api, ApiError } from './src/api/client.js';
 import { store }         from './src/game/GameStore.js';
 import { LocationManager } from './src/game/LocationManager.js';
 import { CatchEngine }   from './src/game/CatchEngine.js';
+import { initFeatures }  from './src/bootstrap/features.js';
 
 // ── State ─────────────────────────────────────────────────────
 const locMgr   = new LocationManager(api);
@@ -856,6 +857,9 @@ window.showLanguageSelector = function() {
   document.body.appendChild(modal);
   modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
 };
+
+// ── 可选功能模块（无障碍 / 体验增强等），失败不影响主流程 ──────────
+initFeatures({ api, store, toast }).catch(() => {});
 </script>
 </body>
 </html>
