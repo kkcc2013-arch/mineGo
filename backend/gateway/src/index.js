@@ -23,6 +23,8 @@ const cache = require('@pmg/shared/cache');
 const { cacheMiddleware } = require('@pmg/shared/cacheMiddleware');
 const cacheInvalidation = require('@pmg/shared/cacheInvalidation');
 const { cacheRoutes, presets } = require('./cacheConfig');
+// REQ-00040: 真正生效的网关读缓存（原 cacheMiddleware 对代理响应无效）
+const { cachedProxy, invalidateOnWrite, getStats: getCacheStats } = require('./middleware/responseCache');
 
 // REQ-00039: 缓存预热系统
 const cacheWarmup = require('@pmg/shared/cacheWarmup');
@@ -159,6 +161,9 @@ app.use((req, res, next) => {
 app.use((req, res, next) => ipBanMiddleware(req, res, next));
 app.use((req, res, next) => ipAccessLogMiddleware(req, res, next));
 
+// REQ-00040: 用户写操作成功后使其读缓存失效
+app.use(invalidateOnWrite());
+
 // Structured logging & metrics
 app.use(requestLogger(logger));
 app.use(metrics.httpMetricsMiddleware(SERVICE_NAME));
@@ -268,20 +273,20 @@ const getRedis = require('@pmg/shared/redis').getRedis;
 })();
 
 // ── Proxy factory ─────────────────────────────────────────────
+function proxyError(err, req, res) {
+  logger.error({ err, reqId: req.headers['x-request-id'], path: req.path }, 'Proxy error');
+  if (res && !res.headersSent && typeof res.status === 'function') {
+    res.status(502).json({ code: 9002, message: '下游服务暂时不可用', data: null });
+  }
+}
+
 function proxy(target, pathRewrite) {
   return createProxyMiddleware({
     target,
     changeOrigin: true,
     xfwd: true, // 透传 X-Forwarded-For，下游服务按真实客户端 IP 限流
     pathRewrite,
-    on: {
-      error: (err, req, res) => {
-        logger.error({ err, reqId: req.headers['x-request-id'], path: req.path }, 'Proxy error');
-        if (!res.headersSent) {
-          res.status(502).json({ code: 9002, message: '下游服务暂时不可用', data: null });
-        }
-      },
-    },
+    on: { error: proxyError },
   });
 }
 
@@ -335,15 +340,13 @@ app.use('/v1/auth',     proxy(SERVICES.user, { '^/': '/auth/' }));
 // 用户资料 - 缓存 5 分钟
 app.get('/v1/users/:id/profile',
   authMiddleware,
-  cacheMiddleware({ ...presets.userData, keyPrefix: 'api:profile:', ttl: 300 }),
-  proxy(SERVICES.user, { '^/v1/': '/' })
+  cachedProxy({ route: 'profile', target: SERVICES.user, pathRewrite: { '^/v1/': '/' }, ttl: 300, perUser: true, onError: proxyError })
 );
 
 // 用户统计 - 缓存 5 分钟
 app.get('/v1/users/:id/stats',
   authMiddleware,
-  cacheMiddleware({ ...presets.userData, keyPrefix: 'api:user-stats:', ttl: 300 }),
-  proxy(SERVICES.user, { '^/v1/': '/' })
+  cachedProxy({ route: 'user-stats', target: SERVICES.user, pathRewrite: { '^/v1/': '/' }, ttl: 300, perUser: true, onError: proxyError })
 );
 
 // 其他用户路由（不缓存）
@@ -360,8 +363,7 @@ app.use('/v1/gdpr',
 // 好友列表 - 缓存 3 分钟
 app.get('/v1/friends',
   authMiddleware,
-  cacheMiddleware({ ...presets.list, keyPrefix: 'api:friends:', ttl: 180 }),
-  proxy(SERVICES.social, { '^/v1/': '/' })
+  cachedProxy({ route: 'friends', target: SERVICES.social, pathRewrite: { '^/v1/': '/' }, ttl: 180, perUser: true, onError: proxyError })
 );
 
 // 其他好友路由（不缓存）
@@ -390,18 +392,21 @@ app.use('/v1/location',
 // 精灵图鉴 - 缓存 1 小时（静态数据）
 app.get('/v1/pokemon/pokedex',
   authMiddleware,
-  cacheMiddleware({ ...presets.userData, keyPrefix: 'api:pokedex:', ttl: 300 }),
-  proxy(SERVICES.pokemon, { '^/v1/': '/' })
+  cachedProxy({ route: 'pokedex', target: SERVICES.pokemon, pathRewrite: { '^/v1/': '/' }, ttl: 300, perUser: true, onError: proxyError })
 );
 
 // 用户精灵列表 - 缓存 2 分钟
 app.get('/v1/pokemon',
   authMiddleware,
-  cacheMiddleware({ ...presets.userData, keyPrefix: 'api:pokemon-list:', ttl: 120 }),
-  proxy(SERVICES.pokemon, { '^/v1/': '/' })
+  cachedProxy({ route: 'pokemon-list', target: SERVICES.pokemon, pathRewrite: { '^/v1/': '/' }, ttl: 120, perUser: true, onError: proxyError })
 );
 
-// 其他精灵路由（不缓存）
+// 背包 - 按用户缓存 60 秒，用户任一写操作（如捕捉成功）后立即失效（REQ-00040）
+app.get('/v1/pokemon/my',
+  authMiddleware,
+  cachedProxy({ route: 'pokemon-my', target: SERVICES.pokemon, pathRewrite: { '^/v1/': '/' }, ttl: 60, perUser: true, onError: proxyError })
+);
+
 // 其他精灵路由（不缓存）- REQ-00040: 用户级限流
 app.use('/v1/pokemon',
   authMiddleware,
@@ -423,8 +428,7 @@ app.use('/v1/catch',
 // 道馆附近查询 - 缓存 1 分钟
 app.get('/v1/gyms/nearby',
   authMiddleware,
-  cacheMiddleware({ ...presets.dynamic, keyPrefix: 'api:gyms-nearby:', ttl: 60 }),
-  proxy(SERVICES.gym, { '^/v1/': '/' })
+  cachedProxy({ route: 'gyms-nearby', target: SERVICES.gym, pathRewrite: { '^/v1/': '/' }, ttl: 60, perUser: false, onError: proxyError })
 );
 
 // 其他道馆路由（不缓存）
@@ -436,8 +440,7 @@ app.use('/v1/gyms',
 // Raid 附近查询 - 缓存 30 秒
 app.get('/v1/raids/nearby',
   authMiddleware,
-  cacheMiddleware({ ...presets.dynamic, keyPrefix: 'api:raids-nearby:', ttl: 30 }),
-  proxy(SERVICES.gym, { '^/v1/': '/' })
+  cachedProxy({ route: 'raids-nearby', target: SERVICES.gym, pathRewrite: { '^/v1/': '/' }, ttl: 30, perUser: false, onError: proxyError })
 );
 
 // 其他 Raid 路由（不缓存）
@@ -515,6 +518,11 @@ app.use('/api/admin/dependencies', authMiddleware, requireAdmin, dependenciesRou
 // ── Delay Queue Admin API (REQ-00043) ────────────────────────────
 // 延迟队列管理接口（管理员专用）
 app.use('/api/admin/delay-queue', authMiddleware, requireAdmin, delayQueueAdminRoutes);
+
+// ── REQ-00040: 网关缓存命中率 ───────────────────────────────
+app.get('/api/admin/cache/stats', authMiddleware, requireAdmin, async (req, res) => {
+  res.json({ success: true, data: await getCacheStats() });
+});
 
 // ── REQ-00586: 反作弊管理（可疑玩家列表 / 证据）────────────────────
 app.use('/api/admin/anticheat',

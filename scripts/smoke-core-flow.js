@@ -60,7 +60,7 @@ async function call(method, url, { body, token, headers = {} } = {}) {
   let json = null;
   const text = await res.text();
   try { json = JSON.parse(text); } catch { json = { raw: text.slice(0, 200) }; }
-  return { status: res.status, body: json, data: json && json.data };
+  return { status: res.status, body: json, data: json && json.data, headers: res.headers };
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -177,6 +177,13 @@ async function main() {
     const arr = Array.isArray(list) ? list : [];
     const found = arr.some((p) => p.id === caught.pokemonInstanceId);
     record('背包 /v1/pokemon/my 包含新捕获的精灵', my.status === 200 && found, `status=${my.status} count=${arr.length}`);
+
+    // REQ-00040：背包读缓存——再次读取命中缓存；用户写操作后失效
+    const my2 = await call('GET', '/v1/pokemon/my?limit=20', { token });
+    record('网关缓存：重复读取背包命中缓存', my2.headers.get('x-cache') === 'HIT', `x-cache=${my2.headers.get('x-cache')}`);
+    await call('POST', '/v1/location', { token, body: { ...lastPos, accuracy: 10 } });
+    const my3 = await call('GET', '/v1/pokemon/my?limit=20', { token });
+    record('网关缓存：写操作后缓存失效', my3.headers.get('x-cache') === 'MISS', `x-cache=${my3.headers.get('x-cache')}`);
 
     // 已捕获的精灵不应再出现在附近列表
     const nearby2 = await call('GET', `/v1/map/nearby?lat=${CENTER.lat}&lng=${CENTER.lng}&radius=1000`, { token });
