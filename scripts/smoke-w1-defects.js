@@ -3,6 +3,7 @@
  * 评审遗留功能缺陷（W1-B）回归冒烟：经网关验证
  *   活动系统（列表/详情/参与/领奖入账/管理员创建-暂停-恢复-取消、并发领奖只成功一次、非法 ID 返回 400）
  *   训练师等级（经验增长自动升级、升级奖励查询与并发领取只成功一次）
+ *   道具入账（补给站全部掉落入账 + 经验；捕捉使用浆果时原子扣减，不足时球也不扣）
  *
  * 用法：BASE_URL=http://127.0.0.1:8080 node scripts/smoke-w1-defects.js
  * 依赖 scripts/lib/smoke-helpers.js（读 .env 推导 REDIS_URL / DATABASE_URL）
@@ -88,9 +89,90 @@ async function testTrainerLevel() {
   record('等级：个人信息中的等级同步更新', lvl === 5, `level=${lvl}`);
 }
 
+const CENTERS = [
+  { lat: 31.2398, lng: 121.5014 }, { lat: 31.2304, lng: 121.4737 }, { lat: 31.2397, lng: 121.4905 },
+  { lat: 31.2269, lng: 121.4918 }, { lat: 31.2198, lng: 121.4631 }, { lat: 31.2350, lng: 121.4800 },
+];
+const jitter = () => (Math.random() - 0.5) * 0.00004;
+
+async function nearby(token) {
+  const c = CENTERS[Math.floor(Math.random() * CENTERS.length)];
+  for (let i = 0; i < 10; i++) {
+    const r = await call('GET', `/v1/map/nearby?lat=${c.lat}&lng=${c.lng}&radius=1000`, { token });
+    const d = r.data || {};
+    if ((d.wildPokemons || []).length) return d;
+    await new Promise((res) => setTimeout(res, 1500));
+  }
+  return {};
+}
+
+async function testItems() {
+  const db = getDb();
+  // 1) 补给站：玩家首次上报就在补给站旁（避免移动速度反作弊），旋转后全部掉落入账、+50 经验
+  const spinner = await newUser('spn');
+  const map1 = await nearby(spinner.token);
+  const stop = (map1.pokestops || [])[0];
+  if (!stop) { record('道具：附近有补给站', false); return; }
+  await call('POST', '/v1/location', { token: spinner.token, body: { lat: Number(stop.lat) + jitter(), lng: Number(stop.lng) + jitter(), accuracy: 10 } });
+  const before = await call('GET', '/v1/users/me/items', { token: spinner.token });
+  const xp0 = (await db.query('SELECT xp FROM users WHERE id = $1', [spinner.userId])).rows[0].xp;
+  const spin = await call('POST', `/v1/pokestops/${stop.id}/spin`, { token: spinner.token, body: {} });
+  const after = await call('GET', '/v1/users/me/items', { token: spinner.token });
+  const xp1 = (await db.query('SELECT xp FROM users WHERE id = $1', [spinner.userId])).rows[0].xp;
+  const dropped = (spin.data && spin.data.items) || [];
+  const count = (bag, type) => (bag.data.balls[type] ?? (bag.data.items.find((i) => i.itemId === type) || { quantity: 0 }).quantity);
+  const allCredited = spin.status === 200 && before.status === 200 && dropped.every((d) => count(after, d.type) - count(before, d.type) === d.qty);
+  record('道具：补给站所有掉落都入账（含浆果/高级球）', allCredited, `status=${spin.status} items=${JSON.stringify(dropped)}`);
+  record('道具：转动补给站获得 50 经验', Number(xp1) - Number(xp0) === 50, `Δxp=${Number(xp1) - Number(xp0)}`);
+
+  // 1b) 直接调用入账模块（补给站掉落是随机的，确保浆果路径一定被覆盖）：堆叠累加 + 扣减到 0 删除行 + 并发扣减不超扣
+  const { addItems, consumeItem } = require('../backend/shared/inventory');
+  const client = await db.connect();
+  try {
+    await addItems(client, spinner.userId, [{ type: 'RAZZ_BERRY', qty: 2 }, { type: 'GOLDEN_RAZZ_BERRY', qty: 1 }, { type: 'ULTRA_BALL', qty: 1 }]);
+    await addItems(client, spinner.userId, [{ type: 'RAZZ_BERRY', qty: 1 }, { type: 'NOT_AN_ITEM', qty: 1 }]);
+  } finally { client.release(); }
+  const bag = await call('GET', '/v1/users/me/items', { token: spinner.token });
+  const qty = (id) => ((bag.data.items || []).find((i) => i.itemId === id) || { quantity: 0 }).quantity;
+  record('道具：浆果按用户堆叠累加（2+1=3），未定义道具跳过', qty('RAZZ_BERRY') >= 3 && qty('GOLDEN_RAZZ_BERRY') >= 1 && qty('NOT_AN_ITEM') === 0, `razz=${qty('RAZZ_BERRY')} golden=${qty('GOLDEN_RAZZ_BERRY')}`);
+  const n = qty('RAZZ_BERRY');
+  const results = await Promise.all(Array.from({ length: n + 3 }, async () => {
+    const c = await db.connect();
+    try { await c.query('BEGIN'); const ok = await consumeItem(c, spinner.userId, 'RAZZ_BERRY', 1); await c.query('COMMIT'); return ok; }
+    finally { c.release(); }
+  }));
+  const left = (await db.query("SELECT COUNT(*)::int AS rows FROM player_inventory WHERE user_id = $1 AND item_id = 'RAZZ_BERRY'", [spinner.userId])).rows[0].rows;
+  record('道具：并发扣减不超扣，扣完删除堆叠行', results.filter(Boolean).length === n && left === 0, `ok=${results.filter(Boolean).length}/${n + 3} rowsLeft=${left}`);
+
+  // 2) 捕捉使用浆果：夹具给 1 个树果，第一次投掷扣 1 球 1 果，第二次果不足 → 400 且不扣球
+  const catcher = await newUser('bry');
+  const map2 = await nearby(catcher.token);
+  const w = (map2.wildPokemons || [])[0];
+  if (!w) { record('道具：附近有野生精灵', false); return; }
+  const pos = { lat: Number(w.lat) + 0.0001 + jitter(), lng: Number(w.lng) + jitter() };
+  await call('POST', '/v1/location', { token: catcher.token, body: { ...pos, accuracy: 10 } });
+  await db.query(
+    `INSERT INTO player_inventory (user_id, item_id, quantity) VALUES ($1, 'RAZZ_BERRY', 1)
+     ON CONFLICT (user_id, item_id) WHERE slot_index IS NULL DO UPDATE SET quantity = 1`, [catcher.userId]);
+  const sess = await call('POST', '/v1/catch/session', { token: catcher.token, body: { spawnId: w.id, playerLat: pos.lat, playerLng: pos.lng } });
+  const sessionId = sess.data && (sess.data.sessionId || sess.data.id);
+  if (!sessionId) { record('道具：创建捕捉会话', false, `status=${sess.status} ${JSON.stringify(sess.body).slice(0, 120)}`); return; }
+  const balls0 = (await db.query('SELECT pokeball_count FROM users WHERE id = $1', [catcher.userId])).rows[0].pokeball_count;
+  const t1 = await call('POST', '/v1/catch/throw', { token: catcher.token, body: { sessionId, ballType: 'POKE_BALL', throwRating: 'MISS', berryUsed: 'RAZZ_BERRY' } });
+  const berries1 = (await db.query("SELECT COALESCE(SUM(quantity),0)::int AS n FROM player_inventory WHERE user_id = $1 AND item_id = 'RAZZ_BERRY'", [catcher.userId])).rows[0].n;
+  const balls1 = (await db.query('SELECT pokeball_count FROM users WHERE id = $1', [catcher.userId])).rows[0].pokeball_count;
+  record('道具：投掷使用树果成功，扣 1 球 1 果', t1.status === 200 && berries1 === 0 && balls0 - balls1 === 1, `status=${t1.status} berries=${berries1} Δballs=${balls0 - balls1}`);
+  const t2 = await call('POST', '/v1/catch/throw', { token: catcher.token, body: { sessionId, ballType: 'POKE_BALL', throwRating: 'MISS', berryUsed: 'RAZZ_BERRY' } });
+  const balls2 = (await db.query('SELECT pokeball_count FROM users WHERE id = $1', [catcher.userId])).rows[0].pokeball_count;
+  record('道具：树果不足时拒绝且不扣球', t2.status === 400 && balls2 === balls1, `status=${t2.status} Δballs=${balls1 - balls2}`);
+  const t3 = await call('POST', '/v1/catch/throw', { token: catcher.token, body: { sessionId, ballType: 'POKE_BALL', throwRating: 'MISS', berryUsed: 'MAGIC_BEAN' } });
+  record('道具：未知浆果类型被拒绝', t3.status === 400, `status=${t3.status}`);
+}
+
 (async () => {
   await testEvents();
   await testTrainerLevel();
+  await testItems();
   await finish();
 })().catch(async (e) => {
   record('执行异常', false, e.message);

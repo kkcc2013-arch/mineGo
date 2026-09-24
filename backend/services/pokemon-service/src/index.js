@@ -2,6 +2,7 @@
 // REQ-00211: 微服务样板代码统一初始化器 - 重构版本
 'use strict';
 
+const { addItems } = require('../../../shared/inventory');
 const { ServiceFactory } = require('../../../shared/ServiceFactory');
 const { query, transaction } = require('../../../shared/db');
 const { requireAuth, AppError, successResp } = require('../../../shared/auth');
@@ -401,10 +402,11 @@ async function main() {
 
           try {
           await transaction(async (client) => {
-            const balls = items.filter(i => i.type === 'POKE_BALL').reduce((s,i)=>s+i.qty,0);
-            const gBalls = items.filter(i => i.type === 'GREAT_BALL').reduce((s,i)=>s+i.qty,0);
-            if (balls)  await client.query('UPDATE users SET pokeball_count=pokeball_count+$1 WHERE id=$2', [balls, userId]);
-            if (gBalls) await client.query('UPDATE users SET greatball_count=greatball_count+$1 WHERE id=$2', [gBalls, userId]);
+            // 全部掉落入账：精灵球进 users 计数列，浆果等进 player_inventory（原实现只加了普通球/超级球，浆果和高级球丢失）
+            const { skipped } = await addItems(client, userId, items);
+            if (skipped.length) logger.warn({ userId, skipped }, 'pokestop drop contains undefined items (not credited)');
+            // 转动补给站获得 50 经验（等级由数据库触发器换算）
+            await client.query('UPDATE users SET xp = xp + 50 WHERE id = $1', [userId]);
 
             await client.query(`
               INSERT INTO pokestop_spins (user_id, pokestop_id, items_received, streak_day)

@@ -84,12 +84,20 @@ function getDb() {
 async function newUser(prefix = 'smk') {
   const r = await getRedis();
   const phone = `13${String(Date.now()).slice(-6)}${String(crypto.randomInt(0, 1000)).padStart(3, '0')}`;
-  await call('POST', '/v1/auth/sms-code', { body: { phone, scene: 'register' } });
+  // 注册/验证码接口按 IP 限流：批量造测试账号时遇到 429 退避重试
+  const withRetry = async (fn) => {
+    for (let i = 0; ; i++) {
+      const res = await fn();
+      if (res.status !== 429 || i >= 12) return res;
+      await sleep(5000);
+    }
+  };
+  await withRetry(() => call('POST', '/v1/auth/sms-code', { body: { phone, scene: 'register' } }));
   const code = await r.get(`sms:code:${phone}:register`);
   const nickname = `${prefix}${phone.slice(-7)}`;
-  const reg = await call('POST', '/v1/auth/register', {
+  const reg = await withRetry(() => call('POST', '/v1/auth/register', {
     body: { phone, smsCode: code, nickname, consent: { privacyPolicy: true, termsOfService: true } },
-  });
+  }));
   if (!reg.data || !reg.data.accessToken) throw new Error(`注册失败 status=${reg.status} ${JSON.stringify(reg.body).slice(0, 200)}`);
   const token = reg.data.accessToken;
   const me = await call('GET', '/v1/users/me', { token });

@@ -5,6 +5,7 @@ const { z }   = require('zod');
 const { query } = require('../../../../shared/db');
 const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
 const { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('../../../../shared/i18n');
+const { getStackableItems } = require('../../../../shared/inventory');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -26,6 +27,24 @@ router.get('/me', async (req, res, next) => {
 
     if (!rows[0]) throw new AppError(2003, '用户不存在', 404);
     res.json(successResp(rows[0]));
+  } catch (err) { next(err); }
+});
+
+// ── GET /users/me/items ── 道具背包：精灵球（users 计数列）+ 可堆叠道具（浆果等，player_inventory）
+router.get('/me/items', async (req, res, next) => {
+  try {
+    const userId = req.user.sub;
+    const { rows: [u] } = await query(
+      'SELECT pokeball_count, greatball_count, ultraball_count, masterball_count FROM users WHERE id = $1', [userId]);
+    if (!u) throw new AppError(2003, '用户不存在', 404);
+    const items = await getStackableItems({ query }, userId);
+    res.json(successResp({
+      balls: {
+        POKE_BALL: u.pokeball_count, GREAT_BALL: u.greatball_count,
+        ULTRA_BALL: u.ultraball_count, MASTER_BALL: u.masterball_count,
+      },
+      items,
+    }));
   } catch (err) { next(err); }
 });
 

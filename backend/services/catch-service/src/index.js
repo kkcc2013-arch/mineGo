@@ -2,8 +2,9 @@
 // REQ-00169: 微服务启动器统一化 - 使用 ServiceFactory 重构
 'use strict';
 
+const { consumeItem } = require('../../../shared/inventory');
 const { ServiceFactory } = require('../../../shared/ServiceFactory');
-const { query, preparedQuery } = require('../../../shared/db');
+const { query, preparedQuery, transaction } = require('../../../shared/db');
 const { transactionSerializable } = require('../../../shared/transactionManager');
 const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
 const { requireAuth, AppError, successResp } = require('../../../shared/auth');
@@ -331,9 +332,8 @@ async function executeCatchThrow(req, res, next) {
       throw new AppError(3007, '无效投掷评级', 400);
     }
     const berry = berryUsed || 'NONE';
-    if (berry !== 'NONE') {
-      // 浆果库存系统尚未接入主链路，暂不接受浆果加成（原实现不校验也不扣除 = 免费 ×2.5）
-      throw new AppError(3008, '暂不支持使用浆果', 400);
+    if (!Object.prototype.hasOwnProperty.call(BERRY_MULT, berry)) {
+      throw new AppError(3008, '无效浆果类型', 400);
     }
 
     // 同一会话串行化：并发投掷会读到同一份会话状态
@@ -362,11 +362,17 @@ async function executeCatchThrow(req, res, next) {
     // read balance > 0 and both decrement, resulting in a negative balance.
     // The atomic UPDATE returns rowCount=0 if balance was already 0, which is
     // used as the "insufficient balls" signal.
-    const { rowCount } = await query(
-      `UPDATE users SET ${ballCol} = ${ballCol} - 1 WHERE id = $1 AND ${ballCol} > 0`,
-      [userId]
-    );
-    if (rowCount === 0) throw new AppError(3005, '精灵球不足', 400);
+    // 球与浆果在同一事务内原子扣减：任一不足则都不扣
+    await transaction(async (client) => {
+      const { rowCount } = await client.query(
+        `UPDATE users SET ${ballCol} = ${ballCol} - 1 WHERE id = $1 AND ${ballCol} > 0`,
+        [userId]
+      );
+      if (rowCount === 0) throw new AppError(3005, '精灵球不足', 400);
+      if (berry !== 'NONE' && !(await consumeItem(client, userId, berry, 1))) {
+        throw new AppError(3010, '浆果不足', 400);
+      }
+    });
 
     // REQ-00361: Calculate habitat bonus
     let habitatBonus = 1.0;
