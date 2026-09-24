@@ -4,6 +4,7 @@ const express = require('express');
 const cors    = require('cors');
 const helmet  = require('helmet');
 const { query, transaction } = require('../../../shared/db');
+const { grantRewards } = require('./rewardGrant');
 const { getRedis } = require('../../../shared/redis');
 const { requireAuth, requireAdmin, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
@@ -129,6 +130,52 @@ app.post('/rewards/daily/claim', requireAuth, async (req, res, next) => {
     await redis.setex(key, 172800, JSON.stringify({ date: today, streak, reward }));
 
     res.json(successResp({ streak, reward }, `第 ${streak} 天签到成功！`));
+  } catch (err) { next(err); }
+});
+
+// ── 训练师升级奖励 ───────────────────────────────────────────
+// 升级由数据库触发器根据经验自动完成并写入 trainer_level_ups（见 20260925_020000 迁移），这里负责查询与发放奖励
+app.get('/rewards/level-ups', requireAuth, async (req, res, next) => {
+  try {
+    const userId = req.user.sub;
+    const [ups, me] = await Promise.all([
+      query(`SELECT id, from_level, to_level, rewards, claimed_at, created_at
+               FROM trainer_level_ups WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`, [userId]),
+      query(`SELECT u.level, u.xp,
+                    (SELECT total_xp FROM trainer_levels WHERE level = u.level) AS level_xp,
+                    (SELECT total_xp FROM trainer_levels WHERE level = u.level + 1) AS next_level_xp
+               FROM users u WHERE u.id = $1`, [userId]),
+    ]);
+    const u = me.rows[0] || {};
+    res.json(successResp({
+      level: u.level,
+      xp: Number(u.xp || 0),
+      currentLevelXp: u.level_xp == null ? null : Number(u.level_xp),
+      nextLevelXp: u.next_level_xp == null ? null : Number(u.next_level_xp),
+      unclaimed: ups.rows.filter((r) => !r.claimed_at),
+      history: ups.rows,
+    }));
+  } catch (err) { next(err); }
+});
+
+app.post('/rewards/level-ups/claim', requireAuth, async (req, res, next) => {
+  try {
+    const userId = req.user.sub;
+    const result = await transaction(async (client) => {
+      // 条件更新抢占：并发领取只有一个请求能拿到未领取记录
+      const { rows } = await client.query(
+        `UPDATE trainer_level_ups SET claimed_at = NOW()
+          WHERE user_id = $1 AND claimed_at IS NULL
+          RETURNING id, to_level, rewards`, [userId]);
+      if (!rows.length) throw new AppError(2024, '没有待领取的升级奖励', 400);
+      const merged = {};
+      for (const r of rows) {
+        for (const [k, v] of Object.entries(r.rewards || {})) merged[k] = (merged[k] || 0) + Number(v);
+      }
+      const grant = await grantRewards(client, userId, merged);
+      return { levels: rows.map((r) => r.to_level), rewards: merged, level: grant.level };
+    });
+    res.json(successResp(result, '升级奖励已发放'));
   } catch (err) { next(err); }
 });
 

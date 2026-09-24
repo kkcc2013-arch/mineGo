@@ -26,6 +26,14 @@ const optionalAuth = (req, res, next) => {
   }
 };
 
+// 活动 ID 为整数：非法值直接 400（原先 parseInt 得到 NaN 后在数据库层报错变成 500）
+router.param('eventId', (req, res, next, value) => {
+  if (!/^\d{1,10}$/.test(String(value))) {
+    return res.status(400).json({ error: 'Invalid event id' });
+  }
+  next();
+});
+
 /**
  * GET /api/events
  * 获取所有活跃活动列表
