@@ -4,7 +4,7 @@
 -- 设备指纹表
 CREATE TABLE IF NOT EXISTS device_fingerprints (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   device_id VARCHAR(100) NOT NULL,
   fingerprint_hash VARCHAR(64) NOT NULL,
   device_info JSONB NOT NULL,
@@ -39,7 +39,7 @@ CREATE INDEX IF NOT EXISTS idx_device_fingerprints_trust ON device_fingerprints(
 -- 捕捉验证记录表
 CREATE TABLE IF NOT EXISTS capture_validations (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   pokemon_id INTEGER NOT NULL REFERENCES pokemon(id),
   capture_session_id VARCHAR(100) NOT NULL,
   validation_result JSONB NOT NULL,
@@ -65,7 +65,7 @@ CREATE INDEX IF NOT EXISTS idx_capture_validations_session ON capture_validation
 -- 违规记录表
 CREATE TABLE IF NOT EXISTS security_violations (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   violation_type VARCHAR(50) NOT NULL,
   severity INTEGER NOT NULL CHECK (severity >= 0 AND severity <= 100),
   evidence JSONB NOT NULL,
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS security_violations (
   status VARCHAR(50) DEFAULT 'active',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   resolved_at TIMESTAMP,
-  resolved_by INTEGER REFERENCES users(id)
+  resolved_by UUID REFERENCES users(id)
 );
 -- [fix_sql_dialect] 补齐已存在旧表缺少的列
 ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS user_id INTEGER;
@@ -97,7 +97,7 @@ CREATE INDEX IF NOT EXISTS idx_security_violations_type ON security_violations(v
 -- 用户影子封禁表
 CREATE TABLE IF NOT EXISTS user_shadow_bans (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   effects JSONB NOT NULL,
   reason VARCHAR(100),
   severity INTEGER CHECK (severity >= 0 AND severity <= 100),
@@ -122,7 +122,7 @@ CREATE INDEX IF NOT EXISTS idx_user_shadow_bans_expires ON user_shadow_bans(expi
 -- 用户监控标记表
 CREATE TABLE IF NOT EXISTS user_monitoring_flags (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   reason VARCHAR(100),
   severity INTEGER CHECK (severity >= 0 AND severity <= 100),
   evidence JSONB,
@@ -142,13 +142,13 @@ CREATE INDEX IF NOT EXISTS idx_user_monitoring_flags_user ON user_monitoring_fla
 -- 安全申诉表
 CREATE TABLE IF NOT EXISTS security_appeals (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   violation_id INTEGER NOT NULL REFERENCES security_violations(id),
   appeal_reason TEXT NOT NULL,
   status VARCHAR(50) DEFAULT 'pending',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   reviewed_at TIMESTAMP,
-  reviewed_by INTEGER REFERENCES users(id)
+  reviewed_by UUID REFERENCES users(id)
 );
 -- [fix_sql_dialect] 补齐已存在旧表缺少的列
 ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS user_id INTEGER;
@@ -168,7 +168,7 @@ CREATE INDEX IF NOT EXISTS idx_security_appeals_status ON security_appeals(statu
 CREATE TABLE IF NOT EXISTS capture_sessions (
   id SERIAL PRIMARY KEY,
   session_id VARCHAR(100) UNIQUE NOT NULL,
-  user_id INTEGER NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES users(id),
   pokemon_id INTEGER NOT NULL REFERENCES pokemon(id),
   latitude DECIMAL(10, 8),
   longitude DECIMAL(11, 8),
@@ -194,7 +194,7 @@ CREATE INDEX IF NOT EXISTS idx_capture_sessions_user ON capture_sessions(user_id
 -- 捕捉尝试记录表
 CREATE TABLE IF NOT EXISTS capture_attempts (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES users(id),
   pokemon_id INTEGER NOT NULL REFERENCES pokemon(id),
   session_id VARCHAR(100) REFERENCES capture_sessions(session_id),
   result VARCHAR(50) NOT NULL,

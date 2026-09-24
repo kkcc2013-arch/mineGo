@@ -79,7 +79,7 @@ COMMENT ON TABLE user_cosmetics IS 'REQ-00125: 用户装饰物库存表';
 -- 3. 精灵装备装饰物表
 CREATE TABLE IF NOT EXISTS pokemon_cosmetics (
     id SERIAL PRIMARY KEY,
-    pokemon_instance_id VARCHAR(50) NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
+    pokemon_instance_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     cosmetic_id VARCHAR(50) NOT NULL REFERENCES cosmetic_items(id) ON DELETE CASCADE,
     slot_position INT DEFAULT 0,            -- 装饰物槽位
     equipped_at TIMESTAMPTZ DEFAULT NOW(),

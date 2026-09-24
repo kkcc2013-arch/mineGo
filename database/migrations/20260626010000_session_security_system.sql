@@ -6,7 +6,7 @@
 -- =====================================================
 CREATE TABLE IF NOT EXISTS user_sessions (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   session_token_hash VARCHAR(64) NOT NULL UNIQUE,
   refresh_token_hash VARCHAR(64) NOT NULL UNIQUE,
   device_fingerprint VARCHAR(255) NOT NULL,
@@ -59,7 +59,7 @@ COMMENT ON COLUMN user_sessions.risk_score IS '会话风险评分 0-100';
 -- =====================================================
 CREATE TABLE IF NOT EXISTS session_audit_logs (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   session_id INTEGER REFERENCES user_sessions(id) ON DELETE SET NULL,
   action VARCHAR(50) NOT NULL, -- created, refreshed, destroyed, hijacked_detected, geo_anomaly, device_change
   device_fingerprint VARCHAR(255),
@@ -94,7 +94,7 @@ COMMENT ON COLUMN session_audit_logs.metadata IS '额外元数据';
 -- =====================================================
 CREATE TABLE IF NOT EXISTS session_anomaly_events (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   session_id INTEGER REFERENCES user_sessions(id) ON DELETE SET NULL,
   anomaly_type VARCHAR(50) NOT NULL, -- geo_jump, device_change, concurrent_limit, ip_change, suspicious_location
   severity VARCHAR(20) NOT NULL CHECK (severity IN ('low', 'medium', 'high', 'critical')),
@@ -130,7 +130,7 @@ COMMENT ON COLUMN session_anomaly_events.action_taken IS '采取的处理措施'
 -- =====================================================
 CREATE TABLE IF NOT EXISTS user_trusted_devices (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   device_fingerprint VARCHAR(255) NOT NULL,
   device_name VARCHAR(100),
   device_type VARCHAR(20),
@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS session_config (
   config_value TEXT NOT NULL,
   description TEXT,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  updated_by INTEGER REFERENCES users(id)
+  updated_by UUID REFERENCES users(id)
 );
 -- [fix_sql_dialect] 补齐已存在旧表缺少的列
 ALTER TABLE session_config ADD COLUMN IF NOT EXISTS config_key VARCHAR(100);

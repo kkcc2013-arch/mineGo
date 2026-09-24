@@ -63,7 +63,7 @@ ALTER TABLE data_deletion_requests ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP
 -- 数据删除任务表（细粒度删除任务）
 CREATE TABLE IF NOT EXISTS data_deletion_tasks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    request_id UUID NOT NULL REFERENCES data_deletion_requests(id) ON DELETE CASCADE,
+    request_id UUID NOT NULL,  -- 外键在下方按实际类型条件添加（旧库中 data_deletion_requests.id 可能是 SERIAL）
     task_name VARCHAR(100) NOT NULL,
     service_name VARCHAR(50) NOT NULL,
     data_category VARCHAR(50) NOT NULL,
@@ -91,6 +91,14 @@ CREATE TABLE IF NOT EXISTS data_deletion_tasks (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+DO $fk$ BEGIN
+  IF (SELECT data_type FROM information_schema.columns
+       WHERE table_schema = 'public' AND table_name = 'data_deletion_requests' AND column_name = 'id') = 'uuid'
+     AND NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'data_deletion_tasks_request_id_fkey') THEN
+    ALTER TABLE data_deletion_tasks ADD CONSTRAINT data_deletion_tasks_request_id_fkey
+      FOREIGN KEY (request_id) REFERENCES data_deletion_requests(id) ON DELETE CASCADE;
+  END IF;
+END $fk$;
 -- [fix_sql_dialect] 补齐已存在旧表缺少的列
 ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
 ALTER TABLE data_deletion_tasks ADD COLUMN IF NOT EXISTS request_id UUID;
