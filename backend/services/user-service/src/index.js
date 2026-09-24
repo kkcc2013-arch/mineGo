@@ -38,7 +38,7 @@ const { initNotificationHandlers } = require('./handlers/notificationHandler');
 const service = new ServiceLauncher({
   serviceName: 'user-service',
   version: '1.0.0',
-  port: 8081,
+  port: Number(process.env.PORT) || 8081,
   
   routes: [
     {

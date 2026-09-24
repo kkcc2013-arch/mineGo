@@ -64,7 +64,7 @@ const commonEnv = {
   JWT_SECRET: env('JWT_SECRET', env('JWT_ACCESS_SECRET')), // 道馆战斗 WebSocket 使用
   JWT_ACCESS_TTL: env('JWT_ACCESS_TTL', '24h'),
   JWT_REFRESH_TTL: env('JWT_REFRESH_TTL', '30d'),
-  GATEWAY_PORT: env('GATEWAY_PORT', '8080'),
+  GATEWAY_PORT: env('GATEWAY_PORT', env('PORT_BASE', '8080')),
   ADMIN_PORT: env('ADMIN_PORT', '3000'),
   EVENT_BUS_ADAPTER: env('EVENT_BUS_ADAPTER', 'redis'),
   TRUST_PROXY: env('TRUST_PROXY', 'loopback'),
@@ -86,17 +86,33 @@ for (const k of Object.keys(paymentEnv)) if (!paymentEnv[k]) delete paymentEnv[k
 const LOG_DIR = env('LOG_DIR', `${DEPLOY_DIR}/logs`);
 const instances = (key, def) => Number(env(key, def));
 
+// 端口与进程名可整体平移，便于在同一台机器上并行运行预发/CI 栈（默认与生产一致）
+const PORT_BASE = Number(env('PORT_BASE', '8080'));
+const NAME_PREFIX = env('PM2_NAME_PREFIX', 'pmg-');
+const port = (offset) => String(PORT_BASE + offset);
+const serviceUrls = {
+  USER_SERVICE_URL:     `http://localhost:${port(1)}`,
+  LOCATION_SERVICE_URL: `http://localhost:${port(2)}`,
+  POKEMON_SERVICE_URL:  `http://localhost:${port(3)}`,
+  CATCH_SERVICE_URL:    `http://localhost:${port(4)}`,
+  GYM_SERVICE_URL:      `http://localhost:${port(5)}`,
+  SOCIAL_SERVICE_URL:   `http://localhost:${port(6)}`,
+  REWARD_SERVICE_URL:   `http://localhost:${port(7)}`,
+  PAYMENT_SERVICE_URL:  `http://localhost:${port(8)}`,
+};
+Object.assign(commonEnv, serviceUrls);
+
 module.exports = {
   apps: [
 
     // ── API Gateway ────────────────────────────────────────
     {
-      name:        'pmg-gateway',
+      name:        `${NAME_PREFIX}gateway`,
       script:      `${BACKEND}/gateway/src/index.js`,
       cwd:         `${BACKEND}/gateway`,
       instances:   instances('GATEWAY_INSTANCES', 2), // load balanced
       exec_mode:   'cluster',
-      env:         { ...commonEnv, PORT: '8080' },
+      env:         { ...commonEnv, PORT: port(0) },
       error_file:  `${LOG_DIR}/gateway-error.log`,
       out_file:    `${LOG_DIR}/gateway-out.log`,
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
@@ -106,11 +122,11 @@ module.exports = {
 
     // ── User Service ───────────────────────────────────────
     {
-      name:        'pmg-user',
+      name:        `${NAME_PREFIX}user`,
       script:      `${BACKEND}/services/user-service/src/index.js`,
       cwd:         `${BACKEND}/services/user-service`,
       instances:   1,
-      env:         { ...commonEnv, PORT: '8081' },
+      env:         { ...commonEnv, PORT: port(1) },
       error_file:  `${LOG_DIR}/user-error.log`,
       out_file:    `${LOG_DIR}/user-out.log`,
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
@@ -119,12 +135,12 @@ module.exports = {
 
     // ── Location Service ────────────────────────────────────
     {
-      name:        'pmg-location',
+      name:        `${NAME_PREFIX}location`,
       script:      `${BACKEND}/services/location-service/src/index.js`,
       cwd:         `${BACKEND}/services/location-service`,
       instances:   instances('LOCATION_INSTANCES', 2),
       exec_mode:   'cluster',
-      env:         { ...commonEnv, PORT: '8082' },
+      env:         { ...commonEnv, PORT: port(2) },
       error_file:  `${LOG_DIR}/location-error.log`,
       out_file:    `${LOG_DIR}/location-out.log`,
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
@@ -133,11 +149,11 @@ module.exports = {
 
     // ── Pokemon Service ─────────────────────────────────────
     {
-      name:        'pmg-pokemon',
+      name:        `${NAME_PREFIX}pokemon`,
       script:      `${BACKEND}/services/pokemon-service/src/index.js`,
       cwd:         `${BACKEND}/services/pokemon-service`,
       instances:   1,
-      env:         { ...commonEnv, PORT: '8083' },
+      env:         { ...commonEnv, PORT: port(3) },
       error_file:  `${LOG_DIR}/pokemon-error.log`,
       out_file:    `${LOG_DIR}/pokemon-out.log`,
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
@@ -146,12 +162,12 @@ module.exports = {
 
     // ── Catch Service ───────────────────────────────────────
     {
-      name:        'pmg-catch',
+      name:        `${NAME_PREFIX}catch`,
       script:      `${BACKEND}/services/catch-service/src/index.js`,
       cwd:         `${BACKEND}/services/catch-service`,
       instances:   instances('CATCH_INSTANCES', 2),
       exec_mode:   'cluster',
-      env:         { ...commonEnv, PORT: '8084' },
+      env:         { ...commonEnv, PORT: port(4) },
       error_file:  `${LOG_DIR}/catch-error.log`,
       out_file:    `${LOG_DIR}/catch-out.log`,
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
@@ -160,11 +176,11 @@ module.exports = {
 
     // ── Gym Service ─────────────────────────────────────────
     {
-      name:        'pmg-gym',
+      name:        `${NAME_PREFIX}gym`,
       script:      `${BACKEND}/services/gym-service/src/index.js`,
       cwd:         `${BACKEND}/services/gym-service`,
       instances:   1,                    // WebSocket — single instance
-      env:         { ...commonEnv, PORT: '8085', WS_BATTLE_PORT: env('WS_BATTLE_PORT', '8089') }, // 8086 与 social-service 冲突
+      env:         { ...commonEnv, PORT: port(5), WS_BATTLE_PORT: env('WS_BATTLE_PORT', port(9)) }, // 8086 与 social-service 冲突
       error_file:  `${LOG_DIR}/gym-error.log`,
       out_file:    `${LOG_DIR}/gym-out.log`,
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
@@ -173,11 +189,11 @@ module.exports = {
 
     // ── Social Service ──────────────────────────────────────
     {
-      name:        'pmg-social',
+      name:        `${NAME_PREFIX}social`,
       script:      `${BACKEND}/services/social-service/src/index.js`,
       cwd:         `${BACKEND}/services/social-service`,
       instances:   1,
-      env:         { ...commonEnv, PORT: '8086' },
+      env:         { ...commonEnv, PORT: port(6) },
       error_file:  `${LOG_DIR}/social-error.log`,
       out_file:    `${LOG_DIR}/social-out.log`,
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
@@ -186,11 +202,11 @@ module.exports = {
 
     // ── Reward Service ──────────────────────────────────────
     {
-      name:        'pmg-reward',
+      name:        `${NAME_PREFIX}reward`,
       script:      `${BACKEND}/services/reward-service/src/index.js`,
       cwd:         `${BACKEND}/services/reward-service`,
       instances:   1,
-      env:         { ...commonEnv, PORT: '8087' },
+      env:         { ...commonEnv, PORT: port(7) },
       error_file:  `${LOG_DIR}/reward-error.log`,
       out_file:    `${LOG_DIR}/reward-out.log`,
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
@@ -199,11 +215,11 @@ module.exports = {
 
     // ── Payment Service ─────────────────────────────────────
     {
-      name:        'pmg-payment',
+      name:        `${NAME_PREFIX}payment`,
       script:      `${BACKEND}/services/payment-service/src/index.js`,
       cwd:         `${BACKEND}/services/payment-service`,
       instances:   1,
-      env:         { ...commonEnv, ...paymentEnv, PORT: '8088' },
+      env:         { ...commonEnv, ...paymentEnv, PORT: port(8) },
       error_file:  `${LOG_DIR}/payment-error.log`,
       out_file:    `${LOG_DIR}/payment-out.log`,
       log_date_format: 'YYYY-MM-DD HH:mm:ss',
