@@ -18,7 +18,14 @@ const SPEED_LIMITS = {
   BIKE: 15,       // 骑行：54km/h
   DRIVE: 50,      // 驾车：180km/h
   TELEPORT: 200,  // 瞬移阈值（明显作弊）
+  IMPOSSIBLE: 1000 / 3.6, // REQ-00586: 超过 1000 km/h 视为不可能行程
 };
+
+// REQ-00586: 位置历史保留 24 小时（原为 1 小时，停止上报 1 小时后再"瞬移"不会被发现）
+const LOCATION_HISTORY_TTL_SEC = 24 * 3600;
+// REQ-00586: 多账号协同作弊——同一精确坐标（~1m）10 分钟内出现 3 个及以上账号
+const COLOCATION_WINDOW_SEC = 600;
+const COLOCATION_ACCOUNT_THRESHOLD = 3;
 
 // 可信度分数配置
 const TRUST_SCORE = {
@@ -168,7 +175,7 @@ async function checkSpeedAnomaly(userId, lat, lng, timestamp = Date.now()) {
 
   if (history.length === 0) {
     // 首次记录，无异常
-    await setJSON(historyKey, [{ lat, lng, timestamp }], 3600);
+    await setJSON(historyKey, [{ lat, lng, timestamp }], LOCATION_HISTORY_TTL_SEC);
     return { isAnomaly: false, speed: 0, level: null };
   }
 
@@ -178,15 +185,20 @@ async function checkSpeedAnomaly(userId, lat, lng, timestamp = Date.now()) {
   const distance = haversineDistance(last.lat, last.lng, lat, lng);
   const level = getSpeedAnomalyLevel(speed);
 
-  // 更新历史记录（保留最近 20 条）
-  const newHistory = [...history, { lat, lng, timestamp }].slice(-20);
-  await setJSON(historyKey, newHistory, 3600);
+  // 更新历史记录（保留最近 20 条）。瞬移/不可能行程的点不写入可信轨迹，
+  // 否则一次伪造会让下一次真实上报也被判为"瞬移回来"而重复扣分
+  if (!(level === 'CRITICAL' || speed > SPEED_LIMITS.IMPOSSIBLE)) {
+    const newHistory = [...history, { lat, lng, timestamp }].slice(-20);
+    await setJSON(historyKey, newHistory, LOCATION_HISTORY_TTL_SEC);
+  }
 
   const result = {
     isAnomaly: !!level,
     speed: Math.round(speed * 100) / 100,
+    speedKmh: Math.round(speed * 3.6),
     distance: Math.round(distance),
     level,
+    impossible: speed > SPEED_LIMITS.IMPOSSIBLE, // REQ-00586: 不可能行程
     timeDiff: Math.round((timestamp - last.timestamp) / 1000),
   };
 
@@ -307,9 +319,11 @@ async function updateTrustScore(userId, delta, reason) {
 async function recordCheatAttempt(userId, type, severity, details = {}) {
   const penalty = type === 'SPEED_ANOMALY'
     ? getSpeedPenalty(severity)
-    : type === 'GPS_FAKE'
-      ? TRUST_SCORE.PENALTY.GPS_FAKE_CONFIRM
-      : TRUST_SCORE.PENALTY.BEHAVIOR_ANOMALY;
+    : type === 'IMPOSSIBLE_TRAVEL'
+      ? TRUST_SCORE.PENALTY.SPEED_HIGH * 2
+      : type === 'GPS_FAKE'
+        ? TRUST_SCORE.PENALTY.GPS_FAKE_CONFIRM
+        : TRUST_SCORE.PENALTY.BEHAVIOR_ANOMALY;
 
   const scoreBefore = await getTrustScore(userId);
   const scoreAfter = await updateTrustScore(userId, -penalty, type);
@@ -390,12 +404,45 @@ async function checkActionRate(userId, actionType) {
  * 位置验证中间件
  * 验证用户位置是否合理，检测速度异常和 GPS 伪造
  */
+/**
+ * REQ-00586: 多账号同坐标检测
+ * 真实 GPS 存在抖动，多个不同账号在 10 分钟内上报完全相同的坐标（5 位小数 ≈ 1 米）是虚拟定位/多开的典型特征。
+ * @returns {Promise<{flagged: boolean, accounts: number}>}
+ */
+async function checkColocation(userId, lat, lng) {
+  const redis = getRedis();
+  const key = `anticheat:coloc:${lat.toFixed(5)}:${lng.toFixed(5)}`;
+  await redis.sadd(key, String(userId));
+  await redis.expire(key, COLOCATION_WINDOW_SEC);
+  const accounts = await redis.scard(key);
+  return { flagged: accounts >= COLOCATION_ACCOUNT_THRESHOLD, accounts };
+}
+
+/**
+ * REQ-00586: 按可信度分数给出风险等级，供业务侧降级使用
+ */
+function getRiskLevel(score) {
+  if (score >= TRUST_SCORE.THRESHOLD.NORMAL) return 'LOW';
+  if (score >= TRUST_SCORE.THRESHOLD.WARNING) return 'MEDIUM';
+  if (score >= TRUST_SCORE.THRESHOLD.RESTRICTED) return 'HIGH';
+  return 'CRITICAL';
+}
+
 function validateLocation(req, res, next) {
   return (async () => {
-    const { lat, lng, accuracy, altitude, isMock } = req.body;
+    const body = req.body || {};
+    const { accuracy, altitude, isMock } = body;
+    // 兼容捕捉接口的 playerLat/playerLng（原实现只读 lat/lng，捕捉时从未执行反作弊校验）
+    const rawLat = body.lat ?? body.playerLat;
+    const rawLng = body.lng ?? body.playerLng;
 
-    // 如果没有位置信息，跳过验证
-    if (lat === undefined || lng === undefined) {
+    // 如果没有位置信息，跳过验证（坐标合法性由业务接口自行校验）
+    if (rawLat === undefined || rawLng === undefined) {
+      return next();
+    }
+    const lat = Number(rawLat);
+    const lng = Number(rawLng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
       return next();
     }
 
@@ -424,13 +471,23 @@ function validateLocation(req, res, next) {
         blockedReason = 'LOW_TRUST_SCORE';
       }
 
-      // 严重速度异常
-      if (speedResult.level === 'CRITICAL' || speedResult.level === 'HIGH') {
+      // 严重速度异常 / 不可能行程（REQ-00586）
+      if (speedResult.impossible) {
+        await recordCheatAttempt(userId, 'IMPOSSIBLE_TRAVEL', 'CRITICAL', speedResult);
+        blocked = true;
+        blockedReason = 'IMPOSSIBLE_TRAVEL';
+      } else if (speedResult.level === 'CRITICAL' || speedResult.level === 'HIGH') {
         await recordCheatAttempt(userId, 'SPEED_ANOMALY', speedResult.level, speedResult);
         if (speedResult.level === 'CRITICAL') {
           blocked = true;
           blockedReason = 'SPEED_ANOMALY_CRITICAL';
         }
+      }
+
+      // 多账号同坐标（REQ-00586）：只记录并扣分，不直接阻断（避免误伤同一地点的真实玩家）
+      const coloc = await checkColocation(userId, lat, lng);
+      if (coloc.flagged) {
+        await recordCheatAttempt(userId, 'MULTI_ACCOUNT_COLOCATION', 'MEDIUM', { lat, lng, accounts: coloc.accounts });
       }
 
       // GPS 伪造检测
@@ -440,7 +497,7 @@ function validateLocation(req, res, next) {
         blockedReason = 'GPS_FAKE_DETECTED';
       }
 
-      // 记录位置到数据库（异步）
+      // 记录位置到数据库（异步；user_id 为 UUID，见迁移 20260924_110000）
       query(`
         INSERT INTO user_location_history (user_id, lat, lng, accuracy, altitude, is_mock, recorded_at)
         VALUES ($1, $2, $3, $4, $5, $6, NOW())
@@ -452,6 +509,7 @@ function validateLocation(req, res, next) {
       // 设置结果到请求对象
       req.antiCheat = {
         trustScore,
+        riskLevel: getRiskLevel(trustScore),
         speedResult,
         fakeResult,
         blocked,
@@ -548,8 +606,14 @@ async function recoverTrustScores() {
   const redis = getRedis();
 
   try {
-    // 获取所有可信度键
-    const keys = await redis.keys('anticheat:trust:*');
+    // 获取所有可信度键（SCAN，避免 KEYS 阻塞 Redis）
+    const keys = [];
+    let cursor = '0';
+    do {
+      const [next, batch] = await redis.scan(cursor, 'MATCH', 'anticheat:trust:*', 'COUNT', 500);
+      cursor = next;
+      keys.push(...batch);
+    } while (cursor !== '0');
 
     for (const key of keys) {
       const score = parseInt(await redis.get(key), 10);
@@ -585,6 +649,8 @@ module.exports = {
   updateTrustScore,
   recordCheatAttempt,
   checkActionRate,
+  checkColocation,
+  getRiskLevel,
 
   // 中间件
   validateLocation,

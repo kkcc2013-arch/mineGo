@@ -5,7 +5,9 @@ const cors     = require('cors');
 const helmet   = require('helmet');
 const { query, preparedQuery }  = require('../../../shared/db');
 const { getRedis, geoAdd, geoRadius, setJSON, getJSON } = require('../../../shared/redis');
-const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
+const { requireAuth, requireAdmin, AppError, successResp, errorHandler } = require('../../../shared/auth');
+// REQ-00586: 服务端 GPS 欺骗检测（速度/不可能行程/多账号同坐标 + 可信度评分）
+const { validateLocation, getTrustScore, getRiskLevel, recoverTrustScores } = require('../../../shared/anti-cheat');
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
 const { getWeather, getBoostedTypes, getTypeNameZh } = require('../../../shared/weatherService');
@@ -283,7 +285,7 @@ app.get('/map/weather', requireAuth, async (req, res, next) => {
 });
 
 // POST /location  — player GPS update
-app.post('/location', requireAuth, async (req, res, next) => {
+app.post('/location', requireAuth, validateLocation, async (req, res, next) => {
   try {
     const lat = Number(req.body && req.body.lat);
     const lng = Number(req.body && req.body.lng);
@@ -319,7 +321,13 @@ app.post('/location', requireAuth, async (req, res, next) => {
     // Check if any nearby spawns should trigger
     const nearbyCount = await getNearbyWildCount(lat, lng, 500);
 
-    res.json(successResp({ nearbyAlert: nearbyCount > 0 }));
+    const ac = req.antiCheat;
+    res.json(successResp({
+      nearbyAlert: nearbyCount > 0,
+      // REQ-00586: 中高风险用户由客户端提示，服务端在捕捉/补给站处降级
+      riskLevel: ac ? ac.riskLevel : undefined,
+      warning: ac && ac.speedResult && ac.speedResult.isAnomaly ? 'speed_anomaly' : undefined,
+    }));
   } catch (err) { next(err); }
 });
 
@@ -506,6 +514,56 @@ app.use('/habitat', habitatRouter);
 
 // ── Location Verification Routes (REQ-00586: GPS 位置欺骗检测) ──────────────
 app.use('/api/v1/location', locationVerifyRouter);
+
+// ── REQ-00586: 反作弊管理（可疑玩家列表 / 证据），经网关 /api/admin/anticheat 访问 ──
+app.get('/anticheat/suspicious', requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    const hours = Math.min(Math.max(parseInt(req.query.hours || '24', 10) || 24, 1), 24 * 30);
+    const { rows } = await query(`
+      SELECT r.user_id, u.nickname, COUNT(*)::int AS events,
+             array_agg(DISTINCT r.type) AS types,
+             MIN(r.trust_score_after) AS min_trust_score,
+             MAX(r.created_at) AS last_seen
+      FROM anti_cheat_records r
+      LEFT JOIN users u ON u.id = r.user_id
+      WHERE r.user_id IS NOT NULL
+        AND r.type NOT IN ('TRUST_DECREASE', 'TRUST_INCREASE')
+        AND r.created_at > NOW() - make_interval(hours => $1)
+      GROUP BY r.user_id, u.nickname
+      ORDER BY events DESC, last_seen DESC
+      LIMIT 100
+    `, [hours]);
+    const players = await Promise.all(rows.map(async (r) => {
+      const trustScore = await getTrustScore(r.user_id);
+      return { ...r, trustScore, riskLevel: getRiskLevel(trustScore) };
+    }));
+    res.json(successResp({ hours, players }));
+  } catch (err) { next(err); }
+});
+
+app.get('/anticheat/users/:userId/evidence', requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const [{ rows: records }, { rows: locations }] = await Promise.all([
+      query(`SELECT type, severity, details, trust_score_before, trust_score_after, action_taken, created_at
+             FROM anti_cheat_records WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`, [userId]),
+      query(`SELECT lat, lng, accuracy, is_mock, recorded_at
+             FROM user_location_history WHERE user_id = $1 ORDER BY recorded_at DESC LIMIT 50`, [userId]),
+    ]);
+    const trustScore = await getTrustScore(userId);
+    res.json(successResp({ userId, trustScore, riskLevel: getRiskLevel(trustScore), records, locations }));
+  } catch (err) { next(err); }
+});
+
+// REQ-00586: 可信度每小时恢复 +1（多实例下用 Redis 锁保证只执行一次）
+setInterval(async () => {
+  try {
+    const ok = await getRedis().set('lock:anticheat:trust-recovery', process.pid, 'EX', 3000, 'NX');
+    if (ok) await recoverTrustScores();
+  } catch (err) {
+    logger.error({ err: err.message }, 'trust score recovery failed');
+  }
+}, 60 * 60 * 1000).unref();
 
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'Location service started'));

@@ -511,6 +511,13 @@ app.use('/api/admin/dependencies', authMiddleware, requireAdmin, dependenciesRou
 // 延迟队列管理接口（管理员专用）
 app.use('/api/admin/delay-queue', authMiddleware, requireAdmin, delayQueueAdminRoutes);
 
+// ── REQ-00586: 反作弊管理（可疑玩家列表 / 证据）────────────────────
+app.use('/api/admin/anticheat',
+  authMiddleware,
+  requireAdmin,
+  proxy(SERVICES.location, { '^/': '/anticheat/' })
+);
+
 // ── Time Period API (REQ-00102) ────────────────────────────
 // 昼夜循环系统接口（公开）
 app.use('/api/time', timePeriodRoutes);

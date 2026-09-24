@@ -5,6 +5,8 @@
 const { ServiceFactory } = require('../../../shared/ServiceFactory');
 const { query, transaction } = require('../../../shared/db');
 const { requireAuth, AppError, successResp } = require('../../../shared/auth');
+const { getRedis, getJSON } = require('../../../shared/redis');
+const { haversineDistance, requireTrustScore, TRUST_SCORE } = require('../../../shared/anti-cheat');
 const { createContentLocalizer, DEFAULT_LANGUAGE } = require('../../../shared/contentLocalizer');
 
 // Content Localizer instance
@@ -357,10 +359,26 @@ async function main() {
       });
 
       // POST /pokestops/:id/spin
-      app.post('/pokestops/:id/spin', requireAuth, async (req, res, next) => {
+      app.post('/pokestops/:id/spin', requireAuth, requireTrustScore(TRUST_SCORE.THRESHOLD.RESTRICTED), async (req, res, next) => {
         try {
           const userId     = req.user.sub;
           const pokestopId = req.params.id;
+
+          // 补给站必须存在，且玩家（以服务端记录的最近位置为准）在 80 米内
+          // 原实现既不校验补给站也不校验距离，可远程无限刷球
+          const { rows: [stop] } = await query('SELECT id, lat, lng FROM pokestops WHERE id = $1', [pokestopId]);
+          if (!stop) throw new AppError(4011, '补给站不存在', 404);
+          const pos = await getJSON(`player:pos:${userId}`);
+          if (!pos) throw new AppError(3006, '请先上报当前位置', 400);
+          const distM = haversineDistance(Number(pos.lat), Number(pos.lng), Number(stop.lat), Number(stop.lng));
+          if (!(distM <= 80)) throw new AppError(4012, '距离补给站太远（需在80米内）', 400);
+
+          // 冷却：原子占位（原实现先查后插存在竞态，可并发多次领取）
+          const cooldownKey = `pokestop:cooldown:${userId}:${pokestopId}`;
+          if (!(await getRedis().set(cooldownKey, '1', 'EX', 300, 'NX'))) {
+            const ttl = await getRedis().ttl(cooldownKey);
+            throw new AppError(4010, `补给站冷却中，还需 ${Math.max(ttl, 1)} 秒`, 400);
+          }
 
           const { rows: [lastSpin] } = await query(`
             SELECT spun_at, streak_day FROM pokestop_spins

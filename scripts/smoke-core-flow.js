@@ -116,12 +116,16 @@ async function main() {
   record('附近精灵 /v1/map/nearby 返回野生精灵', wild.length > 0, `count=${wild.length}`);
   if (!wild.length) throw new Error('没有刷出精灵，无法继续捕捉测试');
 
-  // 6. 安全：伪造坐标 / 远程捕捉
+  // 6. 先在第一只精灵旁上报真实位置，再做伪造坐标 / 远程捕捉的负面测试
   const target = wild[0];
+  var lastPos = { lat: Number(target.lat) + 0.0001, lng: Number(target.lng) }; // eslint-disable-line no-var
+  const firstLoc = await call('POST', '/v1/location', { token, body: { ...lastPos, accuracy: 10 } });
+  record('上报位置 /v1/location', firstLoc.status === 200, `status=${firstLoc.status} risk=${firstLoc.data && firstLoc.data.riskLevel}`);
   const bad = await call('POST', '/v1/catch/session', { token, body: { spawnId: target.id, playerLat: 'x', playerLng: 'y' } });
   record('安全：非数字坐标创建捕捉会话被拒绝', bad.status === 400, `status=${bad.status}`);
   const far = await call('POST', '/v1/catch/session', { token, body: { spawnId: target.id, playerLat: Number(target.lat) + 0.05, playerLng: Number(target.lng) } });
-  record('安全：距离过远被拒绝', far.status === 400, `status=${far.status}`);
+  // 坐标与精灵相距 5km：可能被距离校验拒绝（400），也可能被反作弊判定为瞬移（403）
+  record('安全：距离过远被拒绝', far.status === 400 || far.status === 403, `status=${far.status}`);
 
   // 7. 上报位置到精灵附近 → 捕捉
   const distM = (a, b) => {
@@ -133,7 +137,6 @@ async function main() {
   let caught = null;
   let caughtWildId = null;
   let throws = 0;
-  let lastPos = null;
   // 从第一只开始，按与其距离排序，尽量少走路
   const first = { lat: Number(wild[0].lat), lng: Number(wild[0].lng) };
   const ordered = wild.slice().sort((a, b) =>
@@ -179,6 +182,41 @@ async function main() {
     const nearby2 = await call('GET', `/v1/map/nearby?lat=${CENTER.lat}&lng=${CENTER.lng}&radius=1000`, { token });
     const still = ((nearby2.data && nearby2.data.wildPokemons) || []).some((w) => String(w.id) === String(caughtWildId));
     record('已捕获精灵从附近列表移除', nearby2.status === 200 && !still);
+  }
+
+  // 8b. 补给站：必须在 80 米内；冷却期内不能重复旋转
+  const nb = await call('GET', `/v1/map/nearby?lat=${CENTER.lat}&lng=${CENTER.lng}&radius=1000`, { token });
+  const stops = ((nb.data && nb.data.pokestops) || []).map((p) => ({ ...p, lat: Number(p.lat), lng: Number(p.lng) }));
+  if (stops.length && lastPos) {
+    stops.sort((a, b) => distM(lastPos, a) - distM(lastPos, b));
+    const stop = stops[0];
+    const farStop = stops.find((p) => distM(stop, p) > 200);
+    const waitMs = Math.ceil(distM(lastPos, stop) / 10) * 1000;
+    if (waitMs <= 60000) {
+      await sleep(waitMs);
+      await call('POST', '/v1/location', { token, body: { lat: stop.lat, lng: stop.lng, accuracy: 10 } });
+      lastPos = { lat: stop.lat, lng: stop.lng };
+      const spin1 = await call('POST', `/v1/pokestops/${stop.id}/spin`, { token, body: {} });
+      record('补给站旋转 /v1/pokestops/:id/spin', spin1.status === 200, `status=${spin1.status} items=${spin1.data && JSON.stringify(spin1.data.items)}`);
+      const spin2 = await call('POST', `/v1/pokestops/${stop.id}/spin`, { token, body: {} });
+      record('补给站冷却期内重复旋转被拒绝', spin2.status === 400, `status=${spin2.status}`);
+      if (farStop) {
+        const spin3 = await call('POST', `/v1/pokestops/${farStop.id}/spin`, { token, body: {} });
+        record('安全：远程旋转补给站被拒绝', spin3.status === 400, `status=${spin3.status} dist=${Math.round(distM(stop, farStop))}m`);
+      }
+    }
+  }
+
+  // 8c. REQ-00586：瞬移（上海 → 北京，1 秒内）被判定为不可能行程
+  if (lastPos) {
+    const tp = await call('POST', '/v1/location', { token, body: { lat: 39.9042, lng: 116.4074, accuracy: 10 } });
+    record('反作弊：不可能行程（>1000 km/h）被拦截', tp.status === 403 && tp.body && tp.body.code === 6001,
+      `status=${tp.status} reason=${tp.body && tp.body.data && tp.body.data.reason}`);
+    // 本用户已有两次不可能行程（上面的远程捕捉 + 这次瞬移），可信度降到 RESTRICTED 以下，位置功能降级
+    const back = await call('POST', '/v1/location', { token, body: { lat: lastPos.lat, lng: lastPos.lng, accuracy: 10 } });
+    const reason = back.body && back.body.data && back.body.data.reason;
+    record('反作弊：多次作弊后可信度过低，位置功能降级', back.status === 403 && reason === 'LOW_TRUST_SCORE',
+      `status=${back.status} reason=${reason} trust=${back.body && back.body.data && back.body.data.trustScore}`);
   }
 
   // 9. 奖励服务可经网关访问

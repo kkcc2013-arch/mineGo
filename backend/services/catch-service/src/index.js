@@ -483,7 +483,8 @@ async function main() {
       app.locals.logger  = logger;
       app.locals.metrics = require('../../../shared/metrics');
 
-      app.post('/catch/session', requireAuth, validateLocation, checkRateLimit('CATCH'), createCatchSession);
+      // REQ-00586: 可信度低于 RESTRICTED(40) 的玩家禁止捕捉（位置功能降级）
+      app.post('/catch/session', requireAuth, validateLocation, requireTrustScore(TRUST_SCORE.THRESHOLD.RESTRICTED), checkRateLimit('CATCH'), createCatchSession);
       app.post('/catch/throw',   requireAuth, checkRateLimit('CATCH'), executeCatchThrow);
 
       logger.info('Catch service routes initialized');

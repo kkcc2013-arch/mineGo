@@ -123,7 +123,7 @@ router.post('/register', async (req, res, next) => {
       const { rows: [user] } = await client.query(`
         INSERT INTO users (phone, nickname)
         VALUES ($1, $2)
-        RETURNING id, nickname, level, xp, stardust, coins, created_at
+        RETURNING id, nickname, level, xp, stardust, coins, roles, created_at
       `, [phone, nickname]);
 
       // Create initial daily quest
@@ -201,7 +201,7 @@ router.post('/login', async (req, res, next) => {
 
     // Check user exists BEFORE consuming the one-time code
     const { rows } = await query(
-      'SELECT id, nickname, level, xp, team, is_banned, ban_reason FROM users WHERE phone = $1',
+      'SELECT id, nickname, level, xp, team, roles, is_banned, ban_reason FROM users WHERE phone = $1',
       [phone]
     );
     if (rows.length === 0) throw new AppError(2003, '账号不存在，请先注册', 404);
@@ -238,8 +238,9 @@ router.post('/refresh', async (req, res, next) => {
     const blacklisted = payload.jti && await getJwtBlacklist().isBlacklisted(payload.jti);
     if (blacklisted) throw new AppError(1003, 'Token 已失效', 401);
 
-    const { rows } = await query('SELECT id, nickname, level FROM users WHERE id = $1', [payload.sub]);
+    const { rows } = await query('SELECT id, nickname, level, roles, is_banned FROM users WHERE id = $1', [payload.sub]);
     if (!rows[0]) throw new AppError(2003, '用户不存在', 404);
+    if (rows[0].is_banned) throw new AppError(2004, '账号已被封禁', 403);
 
     const tokens = issueTokens(rows[0]);
     res.json(successResp(tokens));
@@ -300,7 +301,7 @@ async function verifySmsCode(phone, code, scene) {
 function issueTokens(user, deviceInfo = {}) {
   const jti = uuidv4();
   const now = Math.floor(Date.now() / 1000);
-  const accessToken  = signAccess({ sub: user.id, nickname: user.nickname, level: user.level, role: user.role, roles: user.roles, jti });
+  const accessToken  = signAccess({ sub: user.id, nickname: user.nickname, level: user.level, roles: Array.isArray(user.roles) ? user.roles : [], jti });
   const refreshToken = signRefresh({ sub: user.id, jti });
 
   // Register session in blacklist (async, don't wait)
