@@ -170,6 +170,8 @@ const service = new ServiceLauncher({
     const eventBus = EventBus.getEventBus();
     initGDPRRoutes(db, eventBus);
     app.use('/gdpr', gdprRouter);
+    // REQ-00044: 冷却期到期的账号删除申请自动清理
+    require('./gdpr/accountData').startDeletionScheduler();
     
     // Initialize privacy preference routes - REQ-00053
     initPrivacyRoutes(db);

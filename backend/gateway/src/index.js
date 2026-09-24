@@ -352,6 +352,11 @@ app.use('/v1/users',
   proxy(SERVICES.user, { '^/': '/users/' })
 );
 
+// REQ-00044: GDPR 数据导出 / 删除（隐私政策公开，其余需登录，由 user-service 自行鉴权）
+app.use('/v1/gdpr',
+  proxy(SERVICES.user, { '^/': '/gdpr/' })
+);
+
 // 好友列表 - 缓存 3 分钟
 app.get('/v1/friends',
   authMiddleware,

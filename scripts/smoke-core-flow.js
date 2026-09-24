@@ -242,6 +242,20 @@ async function main() {
   const spoof = await call('GET', '/v1/pokemon/my', { headers: { 'x-user-id': reg.data.user ? reg.data.user.id : 'x' } });
   record('安全：未带 token 伪造 x-user-id 被拒绝', spoof.status === 401, `status=${spoof.status}`);
 
+  // 11b. REQ-00044：GDPR 数据导出 / 删除申请 / 撤销
+  const exp = await call('GET', '/v1/gdpr/export', { token });
+  const expTables = Object.keys((exp.body && exp.body.data) || {});
+  record('GDPR 导出 /v1/gdpr/export 包含精灵与捕捉数据', exp.status === 200 &&
+    (!caught || (expTables.includes('pokemon_instances') && expTables.includes('catch_sessions'))),
+    `status=${exp.status} tables=${expTables.length}`);
+  const del = await call('DELETE', '/v1/gdpr/delete', { token, body: { confirmation: 'DELETE MY ACCOUNT', reason: 'smoke' } });
+  record('GDPR 删除申请进入冷却期', del.status === 202 && del.body && del.body.status === 'PENDING',
+    `status=${del.status} scheduledFor=${del.body && del.body.scheduledFor}`);
+  const st = await call('GET', '/v1/gdpr/status', { token });
+  record('GDPR 删除状态可查询', st.status === 200 && st.body && st.body.latest && st.body.latest.status === 'PENDING', `status=${st.status}`);
+  const cancel = await call('POST', '/v1/gdpr/delete/cancel', { token });
+  record('GDPR 冷却期内撤销删除', cancel.status === 200 && cancel.body && cancel.body.status === 'CANCELLED', `status=${cancel.status}`);
+
   // 12. 刷新 token；登出后 refresh token 失效
   const ref = await call('POST', '/v1/auth/refresh', { body: { refreshToken } });
   record('刷新 token /v1/auth/refresh', ref.status === 200 && !!(ref.data && ref.data.accessToken), `status=${ref.status}`);
