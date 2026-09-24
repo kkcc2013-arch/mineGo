@@ -5,7 +5,7 @@
 const express = require('express');
 const router = express.Router();
 const eventService = require('../eventService');
-const { requireAuth, successResp, errorResp } = require('../../../../shared/auth');
+const { requireAuth, requireAdmin, successResp, errorResp } = require('../../../../shared/auth');
 const { createLogger } = require('../../../../shared/logger');
 
 const logger = createLogger('event-routes');
@@ -73,7 +73,7 @@ router.get('/:eventId', optionalAuth, async (req, res) => {
  * POST /api/events
  * 创建新活动（管理员）
  */
-router.post('/', requireAuth, async (req, res) => {
+router.post('/', requireAuth, requireAdmin, async (req, res) => {
   try {
     // TODO: 添加管理员权限检查
     
@@ -131,10 +131,11 @@ router.post('/:eventId/claim', requireAuth, async (req, res) => {
  * POST /api/events/:eventId/tasks/:taskId/complete
  * 完成活动任务
  */
-router.post('/:eventId/tasks/:taskId/complete', requireAuth, async (req, res) => {
+router.post('/:eventId/tasks/:taskId/complete', requireAuth, requireAdmin, async (req, res) => {
   try {
     const { eventId, taskId } = req.params;
-    const userId = req.user.sub;
+    // 仅服务端/管理员调用：为指定玩家完成任务（原实现任何玩家可直接领取任务奖励）
+    const userId = (req.body && req.body.userId) || req.user.sub;
     
     const result = await eventService.completeEventTask(
       parseInt(eventId),
@@ -156,7 +157,10 @@ router.post('/:eventId/tasks/:taskId/complete', requireAuth, async (req, res) =>
 router.post('/:eventId/shop/:shopItemId/purchase', requireAuth, async (req, res) => {
   try {
     const { eventId, shopItemId } = req.params;
-    const { quantity = 1 } = req.body;
+    const quantity = Number((req.body && req.body.quantity) ?? 1);
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 99) {
+      return res.status(400).json({ error: 'quantity 必须是 1-99 的整数' });
+    }
     const userId = req.user.sub;
     
     const result = await eventService.purchaseFromEventShop(
@@ -199,7 +203,7 @@ router.get('/:eventId/leaderboard', async (req, res) => {
  * POST /api/events/:eventId/pause
  * 暂停活动（管理员）
  */
-router.post('/:eventId/pause', requireAuth, async (req, res) => {
+router.post('/:eventId/pause', requireAuth, requireAdmin, async (req, res) => {
   try {
     const { eventId } = req.params;
     
@@ -216,7 +220,7 @@ router.post('/:eventId/pause', requireAuth, async (req, res) => {
  * POST /api/events/:eventId/resume
  * 恢复活动（管理员）
  */
-router.post('/:eventId/resume', requireAuth, async (req, res) => {
+router.post('/:eventId/resume', requireAuth, requireAdmin, async (req, res) => {
   try {
     const { eventId } = req.params;
     
@@ -233,7 +237,7 @@ router.post('/:eventId/resume', requireAuth, async (req, res) => {
  * POST /api/events/:eventId/cancel
  * 取消活动（管理员）
  */
-router.post('/:eventId/cancel', requireAuth, async (req, res) => {
+router.post('/:eventId/cancel', requireAuth, requireAdmin, async (req, res) => {
   try {
     const { eventId } = req.params;
     

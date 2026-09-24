@@ -33,6 +33,8 @@ const VALID_TRANSITIONS = {
   CANCELLED: [],
   REFUNDED:  []
 };
+// 可以转为 PAID 的状态（用于条件 UPDATE）
+const PAYABLE_STATUSES = Object.keys(VALID_TRANSITIONS).filter((k) => VALID_TRANSITIONS[k].includes(ORDER_STATUS.PAID));
 
 // Payment channel secrets (from environment)
 // 渠道密钥（从环境变量读取）
@@ -224,17 +226,21 @@ app.post('/payment/orders/:id/verify', requireAuth, async (req, res, next) => {
       throw new AppError(5006, '支付验证失败', 400);
     }
 
-    await transactionSerializable(async (client) => {
-      await client.query(`
+    const granted = await transactionSerializable(async (client) => {
+      // 条件更新：只有仍处于可转为 PAID 的状态时才入账，/verify 与 webhook 并发或重复回调只会成功一次
+      const upd = await client.query(`
         UPDATE orders SET status=$1, channel_order_id=$2, paid_at=NOW(), updated_at=NOW()
-        WHERE id=$3
-      `, [ORDER_STATUS.PAID, channelOrderId || `MOCK_${Date.now()}`, orderId]);
+        WHERE id=$3 AND status = ANY($4::order_status_enum[])
+      `, [ORDER_STATUS.PAID, channelOrderId || `MOCK_${Date.now()}`, orderId, PAYABLE_STATUSES]);
+      if (upd.rowCount !== 1) return false;
 
       // Grant premium coins
       await client.query(`
         UPDATE users SET premium_coins=premium_coins+$1 WHERE id=$2
       `, [order.premium_coins_grant, userId]);
+      return true;
     });
+    if (!granted) return res.json(successResp({ alreadyPaid: true }));
 
     logger.info({ orderId, userId, coinsGranted: order.premium_coins_grant }, 'Payment verified and coins granted');
 
@@ -310,20 +316,31 @@ app.post('/payment/webhook/:channel', express.raw({ type: '*/*' }), async (req, 
       return res.status(404).send('ORDER_NOT_FOUND');
     }
 
+    if (order.payment_channel && order.payment_channel !== channel) {
+      logger.error({ orderId: order.id, channel, orderChannel: order.payment_channel }, 'Webhook channel mismatch');
+      return res.status(400).send('CHANNEL_MISMATCH');
+    }
+    if (callbackData.amountFen != null && Number(callbackData.amountFen) !== Number(order.amount_fen)) {
+      logger.error({ orderId: order.id, paid: callbackData.amountFen, expected: order.amount_fen }, 'Webhook amount mismatch');
+      return res.status(400).send('AMOUNT_MISMATCH');
+    }
+
     if (canTransition(order.status, ORDER_STATUS.PAID)) {
-      await transactionSerializable(async (client) => {
-        await client.query(`
+      const granted = await transactionSerializable(async (client) => {
+        const upd = await client.query(`
           UPDATE orders
           SET status=$1, channel_order_id=$2, channel_response=$3, paid_at=NOW(), updated_at=NOW()
-          WHERE id=$4
-        `, [ORDER_STATUS.PAID, callbackData.channelOrderId, rawBody, order.id]);
+          WHERE id=$4 AND status = ANY($5::order_status_enum[])
+        `, [ORDER_STATUS.PAID, callbackData.channelOrderId, rawBody, order.id, PAYABLE_STATUSES]);
+        if (upd.rowCount !== 1) return false; // 重复回调或与 /verify 并发：已入账
 
         await client.query(`
           UPDATE users SET premium_coins=premium_coins+$1 WHERE id=$2
         `, [order.premium_coins_grant, order.user_id]);
+        return true;
       });
 
-      logger.info({ orderId: order.id, channel }, 'Payment confirmed via webhook');
+      logger.info({ orderId: order.id, channel, granted }, 'Payment confirmed via webhook');
     } else {
       logger.info({ orderId: order.id, status: order.status }, 'Order already processed');
     }
@@ -404,15 +421,19 @@ function parseWebhookData(channel, rawBody) {
     if (channel === 'WECHAT') {
       const orderIdMatch        = rawBody.match(/<out_trade_no>([^<]+)<\/out_trade_no>/);
       const channelOrderIdMatch = rawBody.match(/<transaction_id>([^<]+)<\/transaction_id>/);
+      const totalFeeMatch       = rawBody.match(/<total_fee>(\d+)<\/total_fee>/);
       return {
         orderId:        orderIdMatch        ? orderIdMatch[1]        : null,
-        channelOrderId: channelOrderIdMatch ? channelOrderIdMatch[1] : null
+        channelOrderId: channelOrderIdMatch ? channelOrderIdMatch[1] : null,
+        amountFen:      totalFeeMatch       ? Number(totalFeeMatch[1]) : null
       };
     } else if (channel === 'ALIPAY') {
       const params = new URLSearchParams(rawBody);
+      const totalAmount = params.get('total_amount'); // 单位：元
       return {
         orderId:        params.get('out_trade_no'),
-        channelOrderId: params.get('trade_no')
+        channelOrderId: params.get('trade_no'),
+        amountFen:      totalAmount != null ? Math.round(Number(totalAmount) * 100) : null
       };
     } else if (channel === 'APPLE') {
       const data = JSON.parse(rawBody);

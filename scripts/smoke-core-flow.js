@@ -185,6 +185,15 @@ async function main() {
   const daily = await call('GET', '/v1/rewards/daily', { token });
   record('奖励服务 /v1/rewards/daily 可访问', daily.status === 200, `status=${daily.status}`);
 
+  // 9b. 并发领取每日签到只能成功一次；排行榜 team 参数注入被拒绝
+  const claims = await Promise.all(Array.from({ length: 5 }, () => call('POST', '/v1/rewards/daily/claim', { token, body: {} })));
+  const okClaims = claims.filter((c) => c.status === 200).length;
+  record('并发：每日签到 5 个并发请求只成功 1 次', okClaims === 1, `success=${okClaims} statuses=${claims.map((c) => c.status).join(',')}`);
+  const inj = await call('GET', `/v1/rewards/leaderboard?team=${encodeURIComponent("x' OR '1'='1")}`, { token });
+  record('安全：排行榜 team 参数注入被拒绝', inj.status === 400, `status=${inj.status}`);
+  const lb = await call('GET', '/v1/rewards/leaderboard?team=valor', { token });
+  record('排行榜按队伍过滤正常', lb.status === 200, `status=${lb.status}`);
+
   // 10. 安全：管理接口需要管理员
   const adm1 = await call('GET', '/api/admin/delay-queue/stats');
   const adm2 = await call('GET', '/api/admin/delay-queue/stats', { token });

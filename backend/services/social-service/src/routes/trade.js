@@ -312,11 +312,25 @@ router.post('/:id/confirm', requireAuth, async (req, res, next) => {
 
     // 执行交易（事务）
     await transaction(async (client) => {
-      // 转移精灵所有权
-      await client.query('UPDATE pokemon_instances SET user_id = $1 WHERE id = $2', 
-        [userId, trade.offered_pokemon]);
-      await client.query('UPDATE pokemon_instances SET user_id = $1 WHERE id = $2', 
-        [trade.initiator_id, trade.received_pokemon]);
+      // 先以条件更新锁定交易状态：并发确认只有一个事务能继续
+      const lockTrade = await client.query(`
+        UPDATE pokemon_trades SET status = 'PROCESSING'
+        WHERE id = $1 AND receiver_id = $2 AND status = 'PENDING'
+      `, [tradeId, userId]);
+      if (lockTrade.rowCount !== 1) {
+        throw new AppError(2017, '交易请求不存在或已处理', 409);
+      }
+
+      // 转移精灵所有权：必须校验当前持有者（原实现不校验，同一只精灵挂在多个交易里可被多次换走）
+      const moveOffered = await client.query(
+        'UPDATE pokemon_instances SET user_id = $1 WHERE id = $2 AND user_id = $3',
+        [userId, trade.offered_pokemon, trade.initiator_id]);
+      const moveReceived = await client.query(
+        'UPDATE pokemon_instances SET user_id = $1 WHERE id = $2 AND user_id = $3',
+        [trade.initiator_id, trade.received_pokemon, userId]);
+      if (moveOffered.rowCount !== 1 || moveReceived.rowCount !== 1) {
+        throw new AppError(3015, '交易中的精灵已不属于原持有者，交易取消', 409);
+      }
 
       // 幸运精灵：提升IV
       if (isLucky) {
@@ -330,11 +344,14 @@ router.post('/:id/confirm', requireAuth, async (req, res, next) => {
         `, [trade.offered_pokemon, trade.received_pokemon]);
       }
 
-      // 扣除双方星尘
-      await client.query('UPDATE users SET stardust = stardust - $1 WHERE id = $2', 
+      // 扣除双方星尘（余额不足则整个交易回滚）
+      const payA = await client.query('UPDATE users SET stardust = stardust - $1 WHERE id = $2 AND stardust >= $1', 
         [trade.stardust_cost, trade.initiator_id]);
-      await client.query('UPDATE users SET stardust = stardust - $1 WHERE id = $2', 
+      const payB = await client.query('UPDATE users SET stardust = stardust - $1 WHERE id = $2 AND stardust >= $1', 
         [trade.stardust_cost, userId]);
+      if (payA.rowCount !== 1 || payB.rowCount !== 1) {
+        throw new AppError(3010, '星尘不足', 400);
+      }
 
       // 更新交易状态
       await client.query(`

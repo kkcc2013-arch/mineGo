@@ -5,7 +5,7 @@ const cors    = require('cors');
 const helmet  = require('helmet');
 const { query, transaction } = require('../../../shared/db');
 const { getRedis } = require('../../../shared/redis');
-const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
+const { requireAuth, requireAdmin, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
 
@@ -97,6 +97,12 @@ app.post('/rewards/daily/claim', requireAuth, async (req, res, next) => {
 
     const reward = DAILY_LOGIN_REWARDS[(streak - 1) % 7];
 
+    // 先原子占位再发奖：原实现 GET → 发奖 → SETEX，并发请求会重复发奖
+    const claimKey = `daily:login:claim:${userId}:${today}`;
+    const claimed = await redis.set(claimKey, '1', 'EX', 172800, 'NX');
+    if (!claimed) throw new AppError(2020, '今日签到奖励已领取', 400);
+
+    try {
     await transaction(async (client) => {
       // Award items
       await client.query(`
@@ -114,6 +120,10 @@ app.post('/rewards/daily/claim', requireAuth, async (req, res, next) => {
           reward.stardust   || 0,
           reward.xp         || 0]);
     });
+    } catch (e) {
+      await redis.del(claimKey); // 发奖失败释放占位，允许重试
+      throw e;
+    }
 
     // Persist streak in Redis (48h TTL gives 1-day leeway)
     await redis.setex(key, 172800, JSON.stringify({ date: today, streak, reward }));
@@ -173,6 +183,13 @@ app.post('/rewards/quests/claim', requireAuth, async (req, res, next) => {
     const reward = { pokeballs: 10, stardust: 1000, xp: 500, coins: 5 };
 
     await transaction(async (client) => {
+      // 条件更新抢占领奖资格：原实现在事务外检查 reward_claimed，并发请求可重复领取
+      const gate = await client.query(`
+        UPDATE daily_quests SET reward_claimed=true, completed_at=NOW()
+        WHERE user_id=$1 AND quest_date=CURRENT_DATE AND reward_claimed=false
+      `, [userId]);
+      if (gate.rowCount === 0) throw new AppError(2022, '今日任务奖励已领取', 400);
+
       await client.query(`
         UPDATE users SET
           pokeball_count = pokeball_count + $2,
@@ -181,11 +198,6 @@ app.post('/rewards/quests/claim', requireAuth, async (req, res, next) => {
           coins          = coins          + $5
         WHERE id=$1
       `, [userId, reward.pokeballs, reward.stardust, reward.xp, reward.coins]);
-
-      await client.query(`
-        UPDATE daily_quests SET reward_claimed=true, completed_at=NOW()
-        WHERE user_id=$1 AND quest_date=CURRENT_DATE
-      `, [userId]);
     });
 
     res.json(successResp({ reward }, '任务奖励已领取！'));
@@ -199,7 +211,11 @@ app.get('/rewards/leaderboard', requireAuth, async (req, res, next) => {
 
     const validTypes = { xp: 'u.xp', level: 'u.level', catches: 'u.xp' }; // simplified
     const orderCol   = validTypes[type] || 'u.xp';
-    const teamFilter = team ? `AND u.team = '${team.toUpperCase()}'` : '';
+    // team 走白名单 + 参数化（原实现把查询串直接拼进 SQL，存在注入）
+    const VALID_TEAMS = ['VALOR', 'MYSTIC', 'INSTINCT']; // team_enum
+    const teamValue = team ? String(team).toUpperCase() : null;
+    if (teamValue && !VALID_TEAMS.includes(teamValue)) throw new AppError(1001, 'team 参数无效', 400);
+    const teamFilter = teamValue ? 'AND u.team = $1' : '';
 
     const { rows } = await query(`
       SELECT
@@ -211,13 +227,13 @@ app.get('/rewards/leaderboard', requireAuth, async (req, res, next) => {
       WHERE u.is_banned = false ${teamFilter}
       ORDER BY ${orderCol} DESC
       LIMIT 100
-    `);
+    `, teamValue ? [teamValue] : []);
 
     // Find current user's rank
     const { rows: [myRank] } = await query(`
       SELECT COUNT(*)::int + 1 AS rank
-      FROM users WHERE ${orderCol} > (SELECT ${orderCol} FROM users WHERE id=$1)
-        AND is_banned=false
+      FROM users u WHERE ${orderCol} > (SELECT ${orderCol} FROM users u WHERE u.id=$1)
+        AND u.is_banned=false
     `, [req.user.sub]);
 
     res.json(successResp({ leaderboard: rows, myRank: myRank?.rank || null }));
@@ -226,9 +242,14 @@ app.get('/rewards/leaderboard', requireAuth, async (req, res, next) => {
 
 // ── POST /rewards/achievements/check  — check & unlock ───────
 // Called internally by other services after state changes
-app.post('/rewards/achievements/check', requireAuth, async (req, res, next) => {
+app.post('/rewards/achievements/check', requireAuth, requireAdmin, async (req, res, next) => {
   try {
-    const { achievementId, increment = 1 } = req.body;
+    // 仅供内部/管理调用：原实现任何玩家都能给自己任意成就任意进度
+    const { achievementId } = req.body;
+    const increment = Number(req.body.increment ?? 1);
+    if (!Number.isInteger(increment) || increment < 1 || increment > 100) {
+      throw new AppError(1001, 'increment 无效', 400);
+    }
     const userId = req.user.sub;
 
     const { rows: [def] } = await query(
