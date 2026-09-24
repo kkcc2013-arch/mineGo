@@ -91,7 +91,7 @@ BEGIN
       
       -- 创建分区表
       CREATE TABLE catch_records (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        id UUID NOT NULL DEFAULT gen_random_uuid(),
         user_id INTEGER NOT NULL,
         species_id INTEGER NOT NULL,
         latitude DECIMAL(10, 8),
@@ -106,7 +106,8 @@ BEGIN
         stardust_reward INTEGER DEFAULT 100,
         candy_reward INTEGER DEFAULT 3,
         habitat_bonus DECIMAL(3, 2) DEFAULT 1.0,
-        metadata JSONB
+        metadata JSONB,
+        PRIMARY KEY (id, caught_at)  -- 分区表主键必须包含分区键
       ) PARTITION BY RANGE (caught_at);
       
       -- 恢复数据
@@ -118,7 +119,7 @@ BEGIN
   ELSE
     -- 表不存在，创建新分区表
     CREATE TABLE catch_records (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      id UUID NOT NULL DEFAULT gen_random_uuid(),
       user_id INTEGER NOT NULL,
       species_id INTEGER NOT NULL,
       latitude DECIMAL(10, 8),
@@ -133,8 +134,9 @@ BEGIN
       stardust_reward INTEGER DEFAULT 100,
       candy_reward INTEGER DEFAULT 3,
       habitat_bonus DECIMAL(3, 2) DEFAULT 1.0,
-      metadata JSONB
-    ) PARTITION BY RANGE (caught_at);
+      metadata JSONB,
+        PRIMARY KEY (id, caught_at)  -- 分区表主键必须包含分区键
+      ) PARTITION BY RANGE (caught_at);
   END IF;
 END $$;
 
@@ -189,7 +191,7 @@ BEGIN
       DROP TABLE battle_logs CASCADE;
       
       CREATE TABLE battle_logs (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        id UUID NOT NULL DEFAULT gen_random_uuid(),
         user_id INTEGER NOT NULL,
         opponent_id INTEGER,
         gym_id INTEGER,
@@ -201,7 +203,8 @@ BEGIN
         damage_taken INTEGER,
         pokemon_used JSONB,
         rewards JSONB,
-        metadata JSONB
+        metadata JSONB,
+        PRIMARY KEY (id, battle_at)  -- 分区表主键必须包含分区键
       ) PARTITION BY RANGE (battle_at);
       
       INSERT INTO battle_logs SELECT * FROM battle_logs_temp;
@@ -209,7 +212,7 @@ BEGIN
     END IF;
   ELSE
     CREATE TABLE battle_logs (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      id UUID NOT NULL DEFAULT gen_random_uuid(),
       user_id INTEGER NOT NULL,
       opponent_id INTEGER,
       gym_id INTEGER,
@@ -221,8 +224,9 @@ BEGIN
       damage_taken INTEGER,
       pokemon_used JSONB,
       rewards JSONB,
-      metadata JSONB
-    ) PARTITION BY RANGE (battle_at);
+      metadata JSONB,
+        PRIMARY KEY (id, battle_at)  -- 分区表主键必须包含分区键
+      ) PARTITION BY RANGE (battle_at);
   END IF;
 END $$;
 
@@ -277,7 +281,7 @@ BEGIN
       DROP TABLE trade_records CASCADE;
       
       CREATE TABLE trade_records (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        id UUID NOT NULL DEFAULT gen_random_uuid(),
         sender_id INTEGER NOT NULL,
         receiver_id INTEGER NOT NULL,
         pokemon_id INTEGER NOT NULL,
@@ -285,7 +289,8 @@ BEGIN
         status VARCHAR(20) NOT NULL DEFAULT 'completed',
         candy_cost INTEGER DEFAULT 0,
         stardust_cost INTEGER DEFAULT 0,
-        metadata JSONB
+        metadata JSONB,
+        PRIMARY KEY (id, traded_at)  -- 分区表主键必须包含分区键
       ) PARTITION BY RANGE (traded_at);
       
       INSERT INTO trade_records SELECT * FROM trade_records_temp;
@@ -293,7 +298,7 @@ BEGIN
     END IF;
   ELSE
     CREATE TABLE trade_records (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      id UUID NOT NULL DEFAULT gen_random_uuid(),
       sender_id INTEGER NOT NULL,
       receiver_id INTEGER NOT NULL,
       pokemon_id INTEGER NOT NULL,
@@ -301,8 +306,9 @@ BEGIN
       status VARCHAR(20) NOT NULL DEFAULT 'completed',
       candy_cost INTEGER DEFAULT 0,
       stardust_cost INTEGER DEFAULT 0,
-      metadata JSONB
-    ) PARTITION BY RANGE (traded_at);
+      metadata JSONB,
+        PRIMARY KEY (id, traded_at)  -- 分区表主键必须包含分区键
+      ) PARTITION BY RANGE (traded_at);
   END IF;
 END $$;
 
@@ -333,7 +339,7 @@ BEGIN
       DROP TABLE payment_transactions CASCADE;
       
       CREATE TABLE payment_transactions (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        id UUID NOT NULL DEFAULT gen_random_uuid(),
         user_id INTEGER NOT NULL,
         amount DECIMAL(10, 2) NOT NULL,
         currency VARCHAR(10) DEFAULT 'USD',
@@ -343,7 +349,8 @@ BEGIN
         transaction_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
         payment_method VARCHAR(50),
         receipt_id VARCHAR(200),
-        metadata JSONB
+        metadata JSONB,
+        PRIMARY KEY (id, transaction_at)  -- 分区表主键必须包含分区键
       ) PARTITION BY RANGE (transaction_at);
       
       INSERT INTO payment_transactions SELECT * FROM payment_transactions_temp;
@@ -351,7 +358,7 @@ BEGIN
     END IF;
   ELSE
     CREATE TABLE payment_transactions (
-      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      id UUID NOT NULL DEFAULT gen_random_uuid(),
       user_id INTEGER NOT NULL,
       amount DECIMAL(10, 2) NOT NULL,
       currency VARCHAR(10) DEFAULT 'USD',
@@ -361,8 +368,9 @@ BEGIN
       transaction_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
       payment_method VARCHAR(50),
       receipt_id VARCHAR(200),
-      metadata JSONB
-    ) PARTITION BY RANGE (transaction_at);
+      metadata JSONB,
+        PRIMARY KEY (id, transaction_at)  -- 分区表主键必须包含分区键
+      ) PARTITION BY RANGE (transaction_at);
   END IF;
 END $$;
 
@@ -386,7 +394,7 @@ CREATE TABLE IF NOT EXISTS payment_transactions_2026_08
 -- user_behavior_events 已在 REQ-00494 中创建，这里确保分区架构
 DO $$
 BEGIN
-  IF EXISTS (SELECT 1 FROM pg_tables WHERE tablename = 'user_behavior_events') THEN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'user_behavior_events' AND column_name = 'event_time') THEN  -- 已有表可能没有 event_time 列
     -- 表已存在，检查是否需要添加分区索引
     IF NOT EXISTS (
       SELECT 1 FROM pg_indexes WHERE indexname = 'idx_behavior_events_time'
@@ -408,12 +416,15 @@ BEGIN
   FOR partition_rec IN 
     SELECT tablename FROM pg_tables WHERE tablename LIKE 'catch_records_%' AND tablename != 'catch_records_default'
   LOOP
+    BEGIN  -- LIKE 前缀会匹配到结构不同的同名前缀表，缺列时跳过
     EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON %I (user_id)', 
       partition_rec.tablename || '_user_idx', partition_rec.tablename);
     EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON %I (species_id)', 
       partition_rec.tablename || '_species_idx', partition_rec.tablename);
     EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON %I (caught_at)', 
       partition_rec.tablename || '_time_idx', partition_rec.tablename);
+    EXCEPTION WHEN undefined_column OR wrong_object_type THEN NULL;
+    END;
   END LOOP;
 END $$;
 
@@ -425,12 +436,15 @@ BEGIN
   FOR partition_rec IN 
     SELECT tablename FROM pg_tables WHERE tablename LIKE 'battle_logs_%' AND tablename != 'battle_logs_default'
   LOOP
+    BEGIN  -- LIKE 前缀会匹配到结构不同的同名前缀表，缺列时跳过
     EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON %I (user_id)', 
       partition_rec.tablename || '_user_idx', partition_rec.tablename);
     EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON %I (battle_type)', 
       partition_rec.tablename || '_type_idx', partition_rec.tablename);
     EXECUTE format('CREATE INDEX IF NOT EXISTS %I ON %I (battle_at)', 
       partition_rec.tablename || '_time_idx', partition_rec.tablename);
+    EXCEPTION WHEN undefined_column OR wrong_object_type THEN NULL;
+    END;
   END LOOP;
 END $$;
 
@@ -512,6 +526,7 @@ CREATE OR REPLACE FUNCTION archive_old_partitions(
   p_retention_days INTEGER DEFAULT 30
 ) RETURNS INTEGER AS $$
 DECLARE
+  v_row_count BIGINT;
   v_partition_rec RECORD;
   v_archived_count INTEGER := 0;
   v_cutoff_date TEXT;
@@ -525,9 +540,9 @@ BEGIN
       AND tablename != p_table_name || '_default'
   LOOP
     -- 记录归档日志
+    EXECUTE format('SELECT count(*) FROM %I', v_partition_rec.tablename) INTO v_row_count;  -- 表名是变量，需动态 SQL
     INSERT INTO partition_archive_metadata (partition_name, table_name, row_count)
-    SELECT v_partition_rec.tablename, p_table_name, 
-      (SELECT count(*) FROM v_partition_rec.tablename::regclass);
+    VALUES (v_partition_rec.tablename, p_table_name, v_row_count);
     
     -- 删除分区（实际应该先导出再删除）
     -- EXECUTE format('DROP TABLE IF EXISTS %I', v_partition_rec.tablename);
@@ -613,9 +628,4 @@ DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app')
 -- 迁移记录
 -- ============================================================
 
-INSERT INTO schema_migrations_log (version, description, applied_at)
-VALUES (
-  '20260708_070000_partition_tables',
-  'REQ-00027: Core tables partition strategy - catch_records, battle_logs, trade_records, payment_transactions',
-  NOW()
-) ON CONFLICT (version) DO NOTHING;
+-- 迁移记录由迁移执行器维护（database/migrate.js），不在迁移内手工写入

@@ -128,19 +128,7 @@ END $relax$;
 CREATE INDEX IF NOT EXISTS idx_metrics_task_type_time ON task_queue_metrics(task_type, recorded_at DESC);
 CREATE INDEX IF NOT EXISTS idx_metrics_name_time ON task_queue_metrics(metric_name, recorded_at DESC);
 
--- 分区（按月分区，保留 6 个月数据）
-CREATE TABLE IF NOT EXISTS task_queue_metrics_202607 PARTITION OF task_queue_metrics
-    FOR VALUES FROM ('2026-07-01') TO ('2026-08-01');
-CREATE TABLE IF NOT EXISTS task_queue_metrics_202608 PARTITION OF task_queue_metrics
-    FOR VALUES FROM ('2026-08-01') TO ('2026-09-01');
-CREATE TABLE IF NOT EXISTS task_queue_metrics_202609 PARTITION OF task_queue_metrics
-    FOR VALUES FROM ('2026-09-01') TO ('2026-10-01');
-CREATE TABLE IF NOT EXISTS task_queue_metrics_202610 PARTITION OF task_queue_metrics
-    FOR VALUES FROM ('2026-10-01') TO ('2026-11-01');
-CREATE TABLE IF NOT EXISTS task_queue_metrics_202611 PARTITION OF task_queue_metrics
-    FOR VALUES FROM ('2026-11-01') TO ('2026-12-01');
-CREATE TABLE IF NOT EXISTS task_queue_metrics_202612 PARTITION OF task_queue_metrics
-    FOR VALUES FROM ('2026-12-01') TO ('2027-01-01');
+-- 原计划按月分区，但 task_queue_metrics 未声明 PARTITION BY（且写死了 2026 年日期）；保持普通表，过期数据由清理任务按 recorded_at 删除
 
 -- 任务重试策略配置表
 CREATE TABLE IF NOT EXISTS task_retry_configs (
@@ -307,7 +295,7 @@ SELECT
     COUNT(*) FILTER (WHERE status = 'failed') as failed_count,
     COUNT(*) FILTER (WHERE status = 'retrying') as retrying_count,
     ROUND(
-        COUNT(*) FILTER (WHERE status = 'completed)::NUMERIC / NULLIF(COUNT(*), 0) * 100,
+        COUNT(*) FILTER (WHERE status = 'completed')::NUMERIC / NULLIF(COUNT(*), 0) * 100,
         2
     ) as success_rate,
     AVG(duration_ms) FILTER (WHERE status = 'completed') as avg_duration_ms,

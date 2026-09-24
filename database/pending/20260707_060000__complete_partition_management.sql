@@ -8,7 +8,8 @@
 -- 1. 分区管理函数
 
 -- 创建单个分区的函数
-CREATE OR REPLACE FUNCTION create_partition(
+-- 原名 create_partition 与 migrations/20260708_070000_partition_tables.sql 的同签名函数语义不同（本函数操作 <表名>_partitioned），改名避免覆盖
+CREATE OR REPLACE FUNCTION pm_create_partition(
   p_table_name TEXT,
   p_start_date DATE,
   p_end_date DATE
@@ -28,6 +29,14 @@ BEGIN
   
   -- 创建分区局部索引
   PERFORM create_partition_indexes(v_partition_name, p_table_name);
+END;
+$$ LANGUAGE plpgsql;
+
+-- 便捷重载：日期 + INTERVAL 得到的是 TIMESTAMP（precreate_partitions 等调用）
+CREATE OR REPLACE FUNCTION pm_create_partition(p_table_name TEXT, p_start TIMESTAMP, p_end TIMESTAMP)
+RETURNS VOID AS $$
+BEGIN
+  PERFORM pm_create_partition(p_table_name, p_start::date, p_end::date);
 END;
 $$ LANGUAGE plpgsql;
 
@@ -77,7 +86,7 @@ BEGIN
     v_partition_name := p_table_name || '_' || to_char(v_date, 'YYYY_MM_DD');
     
     BEGIN
-      PERFORM create_partition(
+      PERFORM pm_create_partition(
         p_table_name,
         v_date,
         v_date + INTERVAL '1 day'
@@ -391,35 +400,85 @@ CREATE TABLE IF NOT EXISTS payment_transactions_default
 -- 6. 创建初始分区（当前月份和未来2个月）
 
 -- catch_records 初始分区
-SELECT create_partition('catch_records', DATE_TRUNC('month', CURRENT_DATE), DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month');
-SELECT create_partition('catch_records', DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month', DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '2 month');
-SELECT create_partition('catch_records', DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '2 month', DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '3 month');
+DO $ip$ BEGIN
+  IF (SELECT relkind FROM pg_class WHERE oid = to_regclass('public.catch_records_partitioned')) = 'p' THEN
+    PERFORM pm_create_partition('catch_records', (DATE_TRUNC('month', CURRENT_DATE))::date, (DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month')::date);
+  END IF;
+EXCEPTION WHEN invalid_object_definition THEN RAISE NOTICE '初始分区与已有分区重叠，跳过';
+END $ip$;
+DO $ip$ BEGIN
+  IF (SELECT relkind FROM pg_class WHERE oid = to_regclass('public.catch_records_partitioned')) = 'p' THEN
+    PERFORM pm_create_partition('catch_records', (DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month')::date, (DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '2 month')::date);
+  END IF;
+EXCEPTION WHEN invalid_object_definition THEN RAISE NOTICE '初始分区与已有分区重叠，跳过';
+END $ip$;
+DO $ip$ BEGIN
+  IF (SELECT relkind FROM pg_class WHERE oid = to_regclass('public.catch_records_partitioned')) = 'p' THEN
+    PERFORM pm_create_partition('catch_records', (DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '2 month')::date, (DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '3 month')::date);
+  END IF;
+EXCEPTION WHEN invalid_object_definition THEN RAISE NOTICE '初始分区与已有分区重叠，跳过';
+END $ip$;
 
 -- location_updates 初始分区（按天）
-SELECT precreate_partitions('location_updates', 7);
+DO $ip$ BEGIN
+  IF (SELECT relkind FROM pg_class WHERE oid = to_regclass('public.location_updates_partitioned')) = 'p' THEN
+    PERFORM precreate_partitions('location_updates', 7);
+  END IF;
+EXCEPTION WHEN invalid_object_definition THEN RAISE NOTICE '预建分区与已有分区重叠，跳过';
+END $ip$;
 
 -- audit_logs 初始分区
-SELECT create_partition('audit_logs', DATE_TRUNC('month', CURRENT_DATE), DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month');
-SELECT create_partition('audit_logs', DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month', DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '2 month');
+DO $ip$ BEGIN
+  IF (SELECT relkind FROM pg_class WHERE oid = to_regclass('public.audit_logs_partitioned')) = 'p' THEN
+    PERFORM pm_create_partition('audit_logs', (DATE_TRUNC('month', CURRENT_DATE))::date, (DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month')::date);
+  END IF;
+EXCEPTION WHEN invalid_object_definition THEN RAISE NOTICE '初始分区与已有分区重叠，跳过';
+END $ip$;
+DO $ip$ BEGIN
+  IF (SELECT relkind FROM pg_class WHERE oid = to_regclass('public.audit_logs_partitioned')) = 'p' THEN
+    PERFORM pm_create_partition('audit_logs', (DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month')::date, (DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '2 month')::date);
+  END IF;
+EXCEPTION WHEN invalid_object_definition THEN RAISE NOTICE '初始分区与已有分区重叠，跳过';
+END $ip$;
 
 -- event_logs 初始分区（按周）
-SELECT create_partition('event_logs', DATE_TRUNC('week', CURRENT_DATE), DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '1 week');
-SELECT create_partition('event_logs', DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '1 week', DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '2 week');
+DO $ip$ BEGIN
+  IF (SELECT relkind FROM pg_class WHERE oid = to_regclass('public.event_logs_partitioned')) = 'p' THEN
+    PERFORM pm_create_partition('event_logs', (DATE_TRUNC('week', CURRENT_DATE))::date, (DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '1 week')::date);
+  END IF;
+EXCEPTION WHEN invalid_object_definition THEN RAISE NOTICE '初始分区与已有分区重叠，跳过';
+END $ip$;
+DO $ip$ BEGIN
+  IF (SELECT relkind FROM pg_class WHERE oid = to_regclass('public.event_logs_partitioned')) = 'p' THEN
+    PERFORM pm_create_partition('event_logs', (DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '1 week')::date, (DATE_TRUNC('week', CURRENT_DATE) + INTERVAL '2 week')::date);
+  END IF;
+EXCEPTION WHEN invalid_object_definition THEN RAISE NOTICE '初始分区与已有分区重叠，跳过';
+END $ip$;
 
 -- payment_transactions 初始分区
-SELECT create_partition('payment_transactions', DATE_TRUNC('month', CURRENT_DATE), DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month');
-SELECT create_partition('payment_transactions', DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month', DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '2 month');
+DO $ip$ BEGIN
+  IF (SELECT relkind FROM pg_class WHERE oid = to_regclass('public.payment_transactions_partitioned')) = 'p' THEN
+    PERFORM pm_create_partition('payment_transactions', (DATE_TRUNC('month', CURRENT_DATE))::date, (DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month')::date);
+  END IF;
+EXCEPTION WHEN invalid_object_definition THEN RAISE NOTICE '初始分区与已有分区重叠，跳过';
+END $ip$;
+DO $ip$ BEGIN
+  IF (SELECT relkind FROM pg_class WHERE oid = to_regclass('public.payment_transactions_partitioned')) = 'p' THEN
+    PERFORM pm_create_partition('payment_transactions', (DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month')::date, (DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '2 month')::date);
+  END IF;
+EXCEPTION WHEN invalid_object_definition THEN RAISE NOTICE '初始分区与已有分区重叠，跳过';
+END $ip$;
 
 -- 7. 创建视图用于查询历史数据
 
-CREATE OR REPLACE VIEW catch_records_archive_view AS
-SELECT * FROM catch_records_partitioned
-UNION ALL
-SELECT * FROM catch_records_archive_2025_01
-UNION ALL
-SELECT * FROM catch_records_archive_2025_02
--- 添加更多归档表
-;
+-- 归档视图：归档表按月生成（archive_old_partitions），这里按实际存在的归档表动态建视图
+DO $av$ DECLARE q TEXT := 'SELECT * FROM catch_records_partitioned'; t RECORD; BEGIN
+  IF to_regclass('public.catch_records_partitioned') IS NULL THEN RETURN; END IF;
+  FOR t IN SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename LIKE 'catch_records_archive_%' ORDER BY tablename LOOP
+    q := q || ' UNION ALL SELECT * FROM ' || quote_ident(t.tablename);
+  END LOOP;
+  EXECUTE 'CREATE OR REPLACE VIEW catch_records_archive_view AS ' || q;
+END $av$;
 
 -- 8. 性能监控函数
 
@@ -459,7 +518,7 @@ BEGIN
   RAISE NOTICE 'Status: Implemented';
   RAISE NOTICE '========================================';
   RAISE NOTICE 'Created functions:';
-  RAISE NOTICE '  - create_partition()';
+  RAISE NOTICE '  - pm_create_partition()';
   RAISE NOTICE '  - precreate_partitions()';
   RAISE NOTICE '  - archive_old_partitions()';
   RAISE NOTICE '  - drop_expired_partitions()';

@@ -5,7 +5,8 @@
 -- =====================================================
 
 -- 分区管理函数
-CREATE OR REPLACE FUNCTION create_partition_if_not_exists(
+-- 函数原名 create_partition_if_not_exists 与 20260619_000000__add_table_partitioning.sql 中的同名函数返回类型不同，改名避免冲突
+CREATE OR REPLACE FUNCTION create_range_partition_if_absent(
   parent_table TEXT,
   partition_name TEXT,
   start_date TIMESTAMP WITH TIME ZONE,
@@ -85,28 +86,28 @@ CREATE INDEX IF NOT EXISTS idx_catch_records_created
     ON catch_records (created_at);
 
 -- 创建初始分区（当前月和未来3个月）
-SELECT create_partition_if_not_exists(
+SELECT create_range_partition_if_absent(
     'catch_records',
     'catch_records_2026_06',
     '2026-06-01 00:00:00+00',
     '2026-07-01 00:00:00+00'
 );
 
-SELECT create_partition_if_not_exists(
+SELECT create_range_partition_if_absent(
     'catch_records',
     'catch_records_2026_07',
     '2026-07-01 00:00:00+00',
     '2026-08-01 00:00:00+00'
 );
 
-SELECT create_partition_if_not_exists(
+SELECT create_range_partition_if_absent(
     'catch_records',
     'catch_records_2026_08',
     '2026-08-01 00:00:00+00',
     '2026-09-01 00:00:00+00'
 );
 
-SELECT create_partition_if_not_exists(
+SELECT create_range_partition_if_absent(
     'catch_records',
     'catch_records_2026_09',
     '2026-09-01 00:00:00+00',
@@ -158,21 +159,21 @@ CREATE INDEX IF NOT EXISTS idx_location_updates_created
     ON location_updates (created_at);
 
 -- 创建初始日分区（今天和未来7天）
-SELECT create_partition_if_not_exists(
+SELECT create_range_partition_if_absent(
     'location_updates',
     'location_updates_2026_06_10',
     '2026-06-10 00:00:00+00',
     '2026-06-11 00:00:00+00'
 );
 
-SELECT create_partition_if_not_exists(
+SELECT create_range_partition_if_absent(
     'location_updates',
     'location_updates_2026_06_11',
     '2026-06-11 00:00:00+00',
     '2026-06-12 00:00:00+00'
 );
 
-SELECT create_partition_if_not_exists(
+SELECT create_range_partition_if_absent(
     'location_updates',
     'location_updates_2026_06_12',
     '2026-06-12 00:00:00+00',
@@ -230,21 +231,21 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_created
     ON audit_logs (created_at);
 
 -- 创建初始月分区
-SELECT create_partition_if_not_exists(
+SELECT create_range_partition_if_absent(
     'audit_logs',
     'audit_logs_2026_06',
     '2026-06-01 00:00:00+00',
     '2026-07-01 00:00:00+00'
 );
 
-SELECT create_partition_if_not_exists(
+SELECT create_range_partition_if_absent(
     'audit_logs',
     'audit_logs_2026_07',
     '2026-07-01 00:00:00+00',
     '2026-08-01 00:00:00+00'
 );
 
-SELECT create_partition_if_not_exists(
+SELECT create_range_partition_if_absent(
     'audit_logs',
     'audit_logs_2026_08',
     '2026-08-01 00:00:00+00',
@@ -294,21 +295,21 @@ CREATE INDEX IF NOT EXISTS idx_event_logs_created
     ON event_logs (created_at);
 
 -- 创建初始周分区
-SELECT create_partition_if_not_exists(
+SELECT create_range_partition_if_absent(
     'event_logs',
     'event_logs_2026_w24',
     '2026-06-09 00:00:00+00',
     '2026-06-16 00:00:00+00'
 );
 
-SELECT create_partition_if_not_exists(
+SELECT create_range_partition_if_absent(
     'event_logs',
     'event_logs_2026_w25',
     '2026-06-16 00:00:00+00',
     '2026-06-23 00:00:00+00'
 );
 
-SELECT create_partition_if_not_exists(
+SELECT create_range_partition_if_absent(
     'event_logs',
     'event_logs_2026_w26',
     '2026-06-23 00:00:00+00',
@@ -368,21 +369,21 @@ CREATE INDEX IF NOT EXISTS idx_payment_transactions_created
     ON payment_transactions (created_at);
 
 -- 创建初始月分区
-SELECT create_partition_if_not_exists(
+SELECT create_range_partition_if_absent(
     'payment_transactions',
     'payment_transactions_2026_06',
     '2026-06-01 00:00:00+00',
     '2026-07-01 00:00:00+00'
 );
 
-SELECT create_partition_if_not_exists(
+SELECT create_range_partition_if_absent(
     'payment_transactions',
     'payment_transactions_2026_07',
     '2026-07-01 00:00:00+00',
     '2026-08-01 00:00:00+00'
 );
 
-SELECT create_partition_if_not_exists(
+SELECT create_range_partition_if_absent(
     'payment_transactions',
     'payment_transactions_2026_08',
     '2026-08-01 00:00:00+00',
@@ -434,7 +435,7 @@ BEGIN
         partition_name_str := tbl.table_name || '_' || to_char(partition_start, 'YYYY_MM');
         
         BEGIN
-            PERFORM create_partition_if_not_exists(
+            PERFORM create_range_partition_if_absent(
                 tbl.table_name,
                 partition_name_str,
                 partition_start,
