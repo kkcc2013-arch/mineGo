@@ -101,9 +101,11 @@ async function main() {
   const token = login.data.accessToken;
   const refreshToken = login.data.refreshToken;
 
-  // 4. 个人信息
-  const me = await call('GET', '/v1/users/me', { token });
+  // 4. 个人信息（同时验证 REQ-00042：上游传入的 traceparent 被沿用并回传）
+  const tid = require('crypto').randomBytes(16).toString('hex');
+  const me = await call('GET', '/v1/users/me', { token, headers: { traceparent: `00-${tid}-${'1'.repeat(16)}-01` } });
   record('个人信息 /v1/users/me', me.status === 200, `status=${me.status}`);
+  record('链路追踪：traceparent 贯穿网关并回传 X-Trace-Id', me.headers.get('x-trace-id') === tid, `x-trace-id=${me.headers.get('x-trace-id')}`);
 
   // 5. 附近精灵（首次请求触发附近刷怪，异步完成）
   let wild = [];

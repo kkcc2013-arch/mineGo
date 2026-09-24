@@ -11,6 +11,7 @@ const YAML         = require('yamljs');
 const path         = require('path');
 const { verifyAccess, requireAdmin } = require('@pmg/shared/auth');
 const { createLogger, requestLogger } = require('@pmg/shared/logger');
+const traceContext = require('@pmg/shared/traceContext');
 const metrics = require('@pmg/shared/metrics');
 const { authWithBlacklistMiddleware } = require('./middleware/jwtBlacklist');
 
@@ -147,12 +148,17 @@ app.use((req, _res, next) => {
 });
 
 // Request ID & Trace ID injection
+// REQ-00042: 统一 trace id（W3C 兼容 32 位 hex），透传给下游服务（x-trace-id + traceparent）
 app.use((req, res, next) => {
-  const traceId = req.headers['x-trace-id'] || uuidv4();
-  const spanId = uuidv4();
-  req.headers['x-request-id'] = req.headers['x-request-id'] || `gw-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+  const traceId = traceContext.traceIdFromHeaders(req.headers) || traceContext.newTraceId();
+  const spanId = traceContext.newSpanId();
+  const rid = req.headers['x-request-id'];
+  req.headers['x-request-id'] = (typeof rid === 'string' && /^[A-Za-z0-9._-]{1,64}$/.test(rid))
+    ? rid : `gw-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
   req.headers['x-trace-id'] = traceId;
   req.headers['x-span-id'] = spanId;
+  const tp = traceContext.traceparent(traceId, spanId);
+  if (tp) req.headers.traceparent = tp;
   res.setHeader('X-Trace-Id', traceId);
   next();
 });

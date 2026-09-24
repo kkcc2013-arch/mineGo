@@ -103,3 +103,24 @@ test('auth: 旧版 errorHandler 保留 4xx 状态码，Zod 错误返回 400', ()
   auth.errorHandler(Object.assign(new Error('bad'), { name: 'ZodError', issues: [] }), {}, r2, () => {});
   assert.equal(r2.code, 400);
 });
+
+// ── REQ-00042: trace id 解析与清洗 ─────────────────────────────
+const traceContext = require('../../shared/traceContext');
+
+test('traceContext: 解析 traceparent / x-trace-id，拒绝非法值', () => {
+  const tid = 'a'.repeat(32);
+  assert.equal(traceContext.traceIdFromHeaders({ traceparent: `00-${tid}-${'b'.repeat(16)}-01` }), tid);
+  assert.equal(traceContext.traceIdFromHeaders({ 'x-trace-id': '0af76519-16cd-43dd-8448-eb211c80319c' }), '0af7651916cd43dd8448eb211c80319c');
+  assert.equal(traceContext.traceIdFromHeaders({ 'x-trace-id': 'bad\nvalue"{}' }), null);
+  assert.equal(traceContext.traceIdFromHeaders({ traceparent: `00-${'0'.repeat(32)}-${'b'.repeat(16)}-01` }), null);
+  assert.match(traceContext.newTraceId(), /^[0-9a-f]{32}$/);
+});
+
+test('traceContext: AsyncLocalStorage 在异步链路中保持上下文', async () => {
+  const seen = await traceContext.als.run({ traceId: 't-1', requestId: 'r-1' }, async () => {
+    await new Promise((r) => setTimeout(r, 5));
+    return traceContext.current();
+  });
+  assert.deepEqual(seen, { traceId: 't-1', requestId: 'r-1' });
+  assert.equal(traceContext.current(), null);
+});

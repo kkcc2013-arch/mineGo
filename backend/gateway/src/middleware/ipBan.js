@@ -101,7 +101,8 @@ async function ipBanMiddleware(req, res, next) {
  * IP 访问日志中间件（请求结束时记录）
  */
 function ipAccessLogMiddleware(req, res, next) {
-  if (!ipBanManager) {
+  // 每个请求写 2 条数据库记录，默认关闭；需要时设置 IP_ACCESS_LOG_ENABLED=true
+  if (!ipBanManager || process.env.IP_ACCESS_LOG_ENABLED !== 'true') {
     return next();
   }
 
