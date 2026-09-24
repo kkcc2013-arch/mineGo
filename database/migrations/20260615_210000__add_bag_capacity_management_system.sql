@@ -60,7 +60,7 @@ ON CONFLICT DO NOTHING;
 
 CREATE TABLE IF NOT EXISTS player_bag_capacity (
     id SERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL UNIQUE,
+    user_id UUID NOT NULL UNIQUE,
     current_capacity INT NOT NULL DEFAULT 300,
     max_ever_purchased INT NOT NULL DEFAULT 0,
     used_slots INT NOT NULL DEFAULT 0,
@@ -70,7 +70,7 @@ CREATE TABLE IF NOT EXISTS player_bag_capacity (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 -- [fix_sql_dialect] 补齐已存在旧表缺少的列
-ALTER TABLE player_bag_capacity ADD COLUMN IF NOT EXISTS user_id BIGINT;
+ALTER TABLE player_bag_capacity ADD COLUMN IF NOT EXISTS user_id UUID;
 ALTER TABLE player_bag_capacity ADD COLUMN IF NOT EXISTS current_capacity INT DEFAULT 300;
 ALTER TABLE player_bag_capacity ADD COLUMN IF NOT EXISTS max_ever_purchased INT DEFAULT 0;
 ALTER TABLE player_bag_capacity ADD COLUMN IF NOT EXISTS used_slots INT DEFAULT 0;
@@ -98,7 +98,7 @@ CREATE INDEX IF NOT EXISTS idx_player_bag_capacity_check ON player_bag_capacity(
 
 CREATE TABLE IF NOT EXISTS bag_expansion_history (
     id SERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL,
+    user_id UUID NOT NULL,
     expansion_type VARCHAR(20) NOT NULL CHECK (expansion_type IN ('gold', 'diamond', 'item', 'vip', 'event', 'system')),
     units INT NOT NULL,
     capacity_before INT NOT NULL,
@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS bag_expansion_history (
     created_at TIMESTAMP DEFAULT NOW()
 );
 -- [fix_sql_dialect] 补齐已存在旧表缺少的列
-ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS user_id BIGINT;
+ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS user_id UUID;
 ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS expansion_type VARCHAR(20);
 ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS units INT;
 ALTER TABLE bag_expansion_history ADD COLUMN IF NOT EXISTS capacity_before INT;
@@ -140,7 +140,7 @@ CREATE INDEX IF NOT EXISTS idx_bag_expansion_history_type ON bag_expansion_histo
 
 CREATE TABLE IF NOT EXISTS bag_alert_config (
     id SERIAL PRIMARY KEY,
-    user_id BIGINT NOT NULL UNIQUE,
+    user_id UUID NOT NULL UNIQUE,
     enable_alert BOOLEAN DEFAULT TRUE,
     alert_thresholds INT[] DEFAULT '{85, 90, 95, 99}',
     auto_transfer_to_storage BOOLEAN DEFAULT FALSE,
@@ -151,7 +151,7 @@ CREATE TABLE IF NOT EXISTS bag_alert_config (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 -- [fix_sql_dialect] 补齐已存在旧表缺少的列
-ALTER TABLE bag_alert_config ADD COLUMN IF NOT EXISTS user_id BIGINT;
+ALTER TABLE bag_alert_config ADD COLUMN IF NOT EXISTS user_id UUID;
 ALTER TABLE bag_alert_config ADD COLUMN IF NOT EXISTS enable_alert BOOLEAN DEFAULT TRUE;
 ALTER TABLE bag_alert_config ADD COLUMN IF NOT EXISTS alert_thresholds INT[] DEFAULT '{85, 90, 95, 99}';
 ALTER TABLE bag_alert_config ADD COLUMN IF NOT EXISTS auto_transfer_to_storage BOOLEAN DEFAULT FALSE;
@@ -182,7 +182,10 @@ ALTER TABLE pokemon_instances
 ADD COLUMN IF NOT EXISTS is_favorited BOOLEAN DEFAULT FALSE,
 ADD COLUMN IF NOT EXISTS favorite_at TIMESTAMP,
 ADD COLUMN IF NOT EXISTS bag_sort_order INT DEFAULT 0,
-ADD COLUMN IF NOT EXISTS storage_status VARCHAR(20) DEFAULT 'bag' CHECK (storage_status IN ('bag', 'storage', 'transfer'));
+ADD COLUMN IF NOT EXISTS storage_status VARCHAR(20) DEFAULT 'bag' CHECK (storage_status IN ('bag', 'storage', 'transfer')),
+-- 放生标记：下方背包计数触发器与 bagCapacityService 依赖（原迁移引用但未创建，导致每次捕捉入库都失败）
+ADD COLUMN IF NOT EXISTS is_released BOOLEAN NOT NULL DEFAULT FALSE,
+ADD COLUMN IF NOT EXISTS released_at TIMESTAMP;
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_pokemon_bag_sort ON pokemon_instances(user_id, bag_sort_order);
