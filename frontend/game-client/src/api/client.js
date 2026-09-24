@@ -107,8 +107,10 @@ class ApiClient {
     return this.post('/auth/sms-code', { phone, scene }, { noAuth: true });
   }
 
-  async register(phone, smsCode, nickname) {
-    const data = await this.post('/auth/register', { phone, smsCode, nickname }, { noAuth: true });
+  // consent: { privacyPolicy: boolean, termsOfService: boolean } —— 必须来自用户在界面上的勾选，
+  // 服务端缺少 consent 会返回 400（code 1010）
+  async register(phone, smsCode, nickname, consent) {
+    const data = await this.post('/auth/register', { phone, smsCode, nickname, consent }, { noAuth: true });
     this.setTokens(data.accessToken, data.refreshToken);
     return data;
   }

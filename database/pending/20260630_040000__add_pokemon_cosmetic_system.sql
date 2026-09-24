@@ -36,7 +36,7 @@ COMMENT ON COLUMN cosmetic_items.rarity IS '稀有度: common/uncommon/rare/epic
 -- 2. 用户装饰物库存表
 CREATE TABLE IF NOT EXISTS user_cosmetics (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     cosmetic_id VARCHAR(50) NOT NULL REFERENCES cosmetic_items(id) ON DELETE CASCADE,
     quantity INT DEFAULT 1,                 -- 数量（可叠加装饰物）
     obtained_at TIMESTAMPTZ DEFAULT NOW(),
@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS pokemon_cosmetics (
     cosmetic_id VARCHAR(50) NOT NULL REFERENCES cosmetic_items(id) ON DELETE CASCADE,
     slot_position INT DEFAULT 0,            -- 装饰物槽位
     equipped_at TIMESTAMPTZ DEFAULT NOW(),
-    equipped_by INTEGER REFERENCES users(id),
+    equipped_by UUID REFERENCES users(id),
     UNIQUE(pokemon_instance_id, cosmetic_id)
 );
 
@@ -69,7 +69,7 @@ COMMENT ON TABLE pokemon_cosmetics IS 'REQ-00125: 精灵装备装饰物表';
 -- 4. 装饰物组合方案表（预设搭配）
 CREATE TABLE IF NOT EXISTS cosmetic_presets (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     preset_data JSONB NOT NULL,             -- {"cosmetic_id": slot_position, ...}
     created_at TIMESTAMPTZ DEFAULT NOW(),

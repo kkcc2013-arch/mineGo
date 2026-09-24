@@ -58,14 +58,16 @@ router.post('/sms-code', async (req, res, next) => {
 
     // Generate code (in prod: call SMS provider API)
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(`[SMS] To ${phone}: ${code} (scene: ${scene})`);
+    // 生产环境不得把验证码写入日志或返回给客户端（SMS_DEV_MODE 在 production 下强制失效）
+    const smsDevMode = process.env.SMS_DEV_MODE === 'true' && process.env.NODE_ENV !== 'production';
+    if (smsDevMode) console.log(`[SMS] To ${phone}: ${code} (scene: ${scene})`);
 
     // Store with 5min TTL
     await redis.setex(`sms:code:${phone}:${scene}`, 300, code);
     await redis.setex(lockKey, 60, '1');
     await redis.setex(dailyKey, 86400, (dailyCount + 1).toString());
 
-    const devPayload = process.env.SMS_DEV_MODE === 'true' ? { expireIn: 300, dev_code: code } : { expireIn: 300 };
+    const devPayload = smsDevMode ? { expireIn: 300, dev_code: code } : { expireIn: 300 };
     res.json(successResp(devPayload, '验证码已发送'));
   } catch (err) { next(err); }
 });
@@ -231,8 +233,9 @@ router.post('/refresh', async (req, res, next) => {
     try { payload = verifyRefresh(refreshToken); }
     catch { throw new AppError(1003, 'Refresh Token 无效或已过期', 401); }
 
-    // Check blacklist
-    const blacklisted = await getRedis().get(`token:blacklist:${payload.jti}`);
+    // Check blacklist（与 /logout 使用同一个 JwtBlacklist，旧实现读的 key 与写入的 key 不一致）
+    const { getJwtBlacklist } = require('../../../../shared/JwtBlacklist');
+    const blacklisted = payload.jti && await getJwtBlacklist().isBlacklisted(payload.jti);
     if (blacklisted) throw new AppError(1003, 'Token 已失效', 401);
 
     const { rows } = await query('SELECT id, nickname, level FROM users WHERE id = $1', [payload.sub]);
@@ -280,16 +283,24 @@ router.post('/logout', async (req, res, next) => {
 // ── Helpers ───────────────────────────────────────────────────
 async function verifySmsCode(phone, code, scene) {
   const redis  = getRedis();
-  const stored = await redis.get(`sms:code:${phone}:${scene}`);
+  const codeKey = `sms:code:${phone}:${scene}`;
+  const failKey = `sms:fail:${phone}:${scene}`;
+  const stored = await redis.get(codeKey);
   if (!stored)  throw new AppError(1008, '验证码已过期，请重新获取', 400);
-  if (stored !== code) throw new AppError(1009, '验证码错误', 400);
-  await redis.del(`sms:code:${phone}:${scene}`);  // one-time use
+  if (stored !== String(code)) {
+    // 防暴力枚举：同一验证码最多错 5 次，超过即作废
+    const fails = await redis.incr(failKey);
+    if (fails === 1) await redis.expire(failKey, 300);
+    if (fails >= 5) await redis.del(codeKey, failKey);
+    throw new AppError(1009, '验证码错误', 400);
+  }
+  await redis.del(codeKey, failKey);  // one-time use
 }
 
 function issueTokens(user, deviceInfo = {}) {
   const jti = uuidv4();
   const now = Math.floor(Date.now() / 1000);
-  const accessToken  = signAccess({ sub: user.id, nickname: user.nickname, level: user.level, jti, iat: now, exp: now + 86400 });
+  const accessToken  = signAccess({ sub: user.id, nickname: user.nickname, level: user.level, role: user.role, roles: user.roles, jti });
   const refreshToken = signRefresh({ sub: user.id, jti });
 
   // Register session in blacklist (async, don't wait)

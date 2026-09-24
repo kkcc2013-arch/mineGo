@@ -159,7 +159,7 @@ COMMENT ON TABLE user_pokedex_achievements IS '用户图鉴成就解锁记录';
 -- 6. 图鉴统计缓存表
 -- ============================================================
 CREATE TABLE IF NOT EXISTS pokedex_stats_cache (
-    user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     
     -- 基础统计
     total_species INTEGER DEFAULT 0,

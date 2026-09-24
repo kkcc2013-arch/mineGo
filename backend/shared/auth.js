@@ -83,6 +83,25 @@ async function getRefreshSecret() {
   return process.env.JWT_REFRESH_SECRET || 'pmg-refresh-secret-change-in-prod';
 }
 
+/**
+ * 去掉由签名选项控制的注册声明（payload 同时带 exp 与 expiresIn 时 jsonwebtoken 会抛错）
+ */
+function stripRegisteredClaims(payload) {
+  if (!payload || typeof payload !== 'object') return payload;
+  const { exp, iat, nbf, ...rest } = payload; // eslint-disable-line no-unused-vars
+  return rest;
+}
+
+/**
+ * 统一用户身份：token 用 sub 表示用户 id，历史代码大量读取 req.user.id
+ */
+function normalizeUser(payload) {
+  if (payload && typeof payload === 'object' && payload.id === undefined && payload.sub !== undefined) {
+    payload.id = payload.sub;
+  }
+  return payload;
+}
+
 const ACCESS_SECRET_ENV  = process.env.JWT_ACCESS_SECRET;
 const REFRESH_SECRET_ENV = process.env.JWT_REFRESH_SECRET;
 const ACCESS_TTL  = process.env.JWT_ACCESS_TTL  || '24h';
@@ -103,14 +122,14 @@ const REFRESH_SECRET = REFRESH_SECRET_ENV || 'pmg-refresh-secret-change-in-prod'
  */
 async function signAccessAsync(payload) {
   const secret = await getAccessSecret();
-  return jwt.sign(payload, secret, { expiresIn: ACCESS_TTL, algorithm: 'HS256' });
+  return jwt.sign(stripRegisteredClaims(payload), secret, { expiresIn: ACCESS_TTL, algorithm: 'HS256' });
 }
 
 /**
  * 签发访问令牌（同步版本，向后兼容）
  */
 function signAccess(payload) {
-  return jwt.sign(payload, ACCESS_SECRET, { expiresIn: ACCESS_TTL, algorithm: 'HS256' });
+  return jwt.sign(stripRegisteredClaims(payload), ACCESS_SECRET, { expiresIn: ACCESS_TTL, algorithm: 'HS256' });
 }
 
 /**
@@ -118,14 +137,14 @@ function signAccess(payload) {
  */
 async function signRefreshAsync(payload) {
   const secret = await getRefreshSecret();
-  return jwt.sign(payload, secret, { expiresIn: REFRESH_TTL, algorithm: 'HS256' });
+  return jwt.sign(stripRegisteredClaims(payload), secret, { expiresIn: REFRESH_TTL, algorithm: 'HS256' });
 }
 
 /**
  * 签发刷新令牌（同步版本，向后兼容）
  */
 function signRefresh(payload) {
-  return jwt.sign(payload, REFRESH_SECRET, { expiresIn: REFRESH_TTL, algorithm: 'HS256' });
+  return jwt.sign(stripRegisteredClaims(payload), REFRESH_SECRET, { expiresIn: REFRESH_TTL, algorithm: 'HS256' });
 }
 
 /**
@@ -174,7 +193,7 @@ function requireAuth(req, res, next) {
 
   try {
     const payload = verifyAccess(token);
-    req.user = payload;
+    req.user = normalizeUser(payload);
     next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
@@ -203,7 +222,7 @@ function optionalAuth(req, res, next) {
 
   try {
     const payload = verifyAccess(token);
-    req.user = payload;
+    req.user = normalizeUser(payload);
   } catch (err) {
     // 忽略错误，继续执行
   }
@@ -316,6 +335,13 @@ function errorHandler(err, req, res, next) {
   }
   if (err instanceof AuthenticationError) {
     return res.status(err.statusCode).json(err.toJSON(req.requestId));
+  }
+  if (err && err.name === 'ZodError') {
+    return res.status(400).json(errorResp('VAL-001', 'Validation failed', { issues: err.issues }));
+  }
+  const status = err && (err.httpStatus || err.statusCode || err.status);
+  if (Number.isInteger(status) && status >= 400 && status < 500) {
+    return res.status(status).json(errorResp(err.code || 'GEN-400', err.message));
   }
   logger.error({ error: err.message, stack: err.stack }, 'Error');
   res.status(500).json(errorResp('GEN-004', 'Internal server error'));

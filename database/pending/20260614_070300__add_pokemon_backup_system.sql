@@ -72,7 +72,7 @@ COMMENT ON COLUMN pokemon_restore_records.restore_mode IS '恢复模式：merge(
 
 -- 备份配额表
 CREATE TABLE IF NOT EXISTS user_backup_quotas (
-    user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     max_manual_backups INTEGER DEFAULT 5,
     current_manual_backups INTEGER DEFAULT 0,
     max_storage_bytes BIGINT DEFAULT 104857600, -- 100MB
@@ -88,7 +88,7 @@ COMMENT ON COLUMN user_backup_quotas.max_storage_bytes IS '最大存储空间（
 
 -- 自动备份配置表
 CREATE TABLE IF NOT EXISTS user_auto_backup_config (
-    user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     enabled BOOLEAN DEFAULT false,
     schedule VARCHAR(20) DEFAULT 'daily' CHECK (schedule IN ('daily', 'weekly')),
     include_items BOOLEAN DEFAULT true,

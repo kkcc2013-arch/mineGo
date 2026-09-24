@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS guilds (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_active_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
-    created_by INTEGER REFERENCES users(id),
+    created_by UUID REFERENCES users(id),
     
     CONSTRAINT valid_guild_level CHECK (level >= 1 AND level <= 50)
 );
@@ -56,7 +56,7 @@ CREATE INDEX idx_guilds_created ON guilds(created_at DESC);
 CREATE TABLE IF NOT EXISTS guild_members (
     id SERIAL PRIMARY KEY,
     guild_id INTEGER NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     
     -- 职位
     role VARCHAR(20) DEFAULT 'member' CHECK (role IN ('leader', 'co_leader', 'elder', 'member', 'novice')),
@@ -91,12 +91,12 @@ CREATE INDEX idx_guild_members_role ON guild_members(guild_id, role);
 CREATE TABLE IF NOT EXISTS guild_applications (
     id SERIAL PRIMARY KEY,
     guild_id INTEGER NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     
     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected', 'withdrawn')),
     
     application_text TEXT,
-    reviewed_by INTEGER REFERENCES users(id),
+    reviewed_by UUID REFERENCES users(id),
     reviewed_at TIMESTAMP,
     review_note TEXT,
     
@@ -112,8 +112,8 @@ CREATE INDEX idx_guild_applications_user ON guild_applications(user_id);
 CREATE TABLE IF NOT EXISTS guild_invitations (
     id SERIAL PRIMARY KEY,
     guild_id INTEGER NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    inviter_id INTEGER NOT NULL REFERENCES users(id),
-    invitee_id INTEGER NOT NULL REFERENCES users(id),
+    inviter_id UUID NOT NULL REFERENCES users(id),
+    invitee_id UUID NOT NULL REFERENCES users(id),
     
     invite_code VARCHAR(20) UNIQUE,
     
@@ -134,7 +134,7 @@ CREATE INDEX idx_guild_invitations_invitee ON guild_invitations(invitee_id, stat
 CREATE TABLE IF NOT EXISTS guild_donations (
     id SERIAL PRIMARY KEY,
     guild_id INTEGER NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES users(id),
     donation_type VARCHAR(20) NOT NULL CHECK (donation_type IN ('coins', 'items', 'pokemon')),
     amount INTEGER NOT NULL,
     contribution_gained INTEGER DEFAULT 0,
@@ -184,7 +184,7 @@ CREATE TABLE IF NOT EXISTS user_guild_tasks (
     id SERIAL PRIMARY KEY,
     guild_id INTEGER NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
     task_id INTEGER NOT NULL REFERENCES guild_tasks(id) ON DELETE CASCADE,
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES users(id),
     
     progress INTEGER DEFAULT 0,
     completed_count INTEGER DEFAULT 0,
@@ -221,7 +221,7 @@ CREATE INDEX idx_guild_buffs_active ON guild_buffs(guild_id, expires_at) WHERE e
 CREATE TABLE IF NOT EXISTS guild_chat_messages (
     id SERIAL PRIMARY KEY,
     guild_id INTEGER NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    user_id INTEGER REFERENCES users(id),
+    user_id UUID REFERENCES users(id),
     
     message_type VARCHAR(20) DEFAULT 'text' CHECK (message_type IN ('text', 'system', 'announcement')),
     content TEXT NOT NULL,
@@ -237,7 +237,7 @@ CREATE INDEX idx_guild_chat_guild ON guild_chat_messages(guild_id, created_at DE
 CREATE TABLE IF NOT EXISTS guild_announcements (
     id SERIAL PRIMARY KEY,
     guild_id INTEGER NOT NULL REFERENCES guilds(id) ON DELETE CASCADE,
-    author_id INTEGER NOT NULL REFERENCES users(id),
+    author_id UUID NOT NULL REFERENCES users(id),
     
     title VARCHAR(200) NOT NULL,
     content TEXT NOT NULL,

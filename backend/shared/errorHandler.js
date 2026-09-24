@@ -209,7 +209,7 @@ function errorHandler(err, req, res, next) {
   const language = getUserLanguage(req);
   
   // 解析错误
-  let errorCode, httpStatus, numericCode, params, details;
+  let errorCode, httpStatus, numericCode, params, details, passthroughMessage;
   
   if (err instanceof AppError) {
     // AppError 实例
@@ -237,6 +237,24 @@ function errorHandler(err, req, res, next) {
     numericCode = errorDef.code;
     params = {};
     details = { jwtError: err.message };
+  } else if (err.name === 'ZodError') {
+    // Zod 验证错误
+    errorCode = 'VALIDATION_ERROR';
+    const errorDef = getErrorDefinition(errorCode);
+    httpStatus = errorDef.httpStatus;
+    numericCode = errorDef.code;
+    params = { field: err.issues?.[0]?.path?.join('.') || 'unknown', details: err.issues?.[0]?.message };
+    details = err.issues;
+  } else if (Number.isInteger(err.httpStatus || err.statusCode || err.status) &&
+             (err.httpStatus || err.statusCode || err.status) >= 400 &&
+             (err.httpStatus || err.statusCode || err.status) < 500) {
+    // 其它模块的业务错误（shared/auth AppError、AuthenticationError 等）：保留其 4xx 状态码与消息
+    httpStatus = err.httpStatus || err.statusCode || err.status;
+    errorCode = typeof err.code === 'string' ? err.code : 'CLIENT_ERROR';
+    numericCode = err.numericCode || (typeof err.code === 'number' ? err.code : httpStatus);
+    params = {};
+    details = err.details;
+    passthroughMessage = err.message;
   } else {
     // 通用错误
     errorCode = 'UNKNOWN_ERROR';
@@ -251,7 +269,7 @@ function errorHandler(err, req, res, next) {
   }
   
   // 获取本地化错误消息
-  const localizedMessage = getLocalizedErrorMessage(errorCode, language, params);
+  const localizedMessage = passthroughMessage || getLocalizedErrorMessage(errorCode, language, params);
   
   // 记录错误日志
   const logger = req.app?.locals?.logger || console;

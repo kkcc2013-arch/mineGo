@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS csp_violation_reports (
   column_number INTEGER,
   user_agent TEXT,
   ip_address INET,
-  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -25,7 +25,7 @@ CREATE INDEX IF NOT EXISTS idx_csp_reports_user ON csp_violation_reports(user_id
 CREATE TABLE IF NOT EXISTS security_events (
   id SERIAL PRIMARY KEY,
   event_type VARCHAR(50) NOT NULL,
-  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
   ip_address INET,
   user_agent TEXT,
   details JSONB DEFAULT '{}',
@@ -43,7 +43,7 @@ CREATE INDEX IF NOT EXISTS idx_security_events_severity ON security_events(sever
 CREATE TABLE IF NOT EXISTS csrf_token_blacklist (
   id SERIAL PRIMARY KEY,
   token_hash VARCHAR(64) NOT NULL UNIQUE,
-  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   reason VARCHAR(255),
   expires_at TIMESTAMPTZ NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS security_config (
   config_key VARCHAR(100) NOT NULL UNIQUE,
   config_value JSONB NOT NULL,
   description TEXT,
-  updated_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  updated_by UUID REFERENCES users(id) ON DELETE SET NULL,
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );

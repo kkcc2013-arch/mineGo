@@ -4,7 +4,7 @@
 -- 数据删除请求表
 CREATE TABLE IF NOT EXISTS data_deletion_requests (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     request_type VARCHAR(20) NOT NULL CHECK (request_type IN ('full', 'partial')),
     status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN (
         'pending', 'verifying', 'approved', 'processing', 
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS data_deletion_requests (
     approval_status VARCHAR(20) DEFAULT 'pending' CHECK (approval_status IN (
         'pending', 'auto_approved', 'manual_approved', 'rejected'
     )),
-    approved_by INTEGER REFERENCES users(id),
+    approved_by UUID REFERENCES users(id),
     approved_at TIMESTAMPTZ,
     rejection_reason TEXT,
     
@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS data_deletion_approval_history (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     request_id UUID NOT NULL REFERENCES data_deletion_requests(id) ON DELETE CASCADE,
     action VARCHAR(50) NOT NULL,
-    actor_id INTEGER REFERENCES users(id),
+    actor_id UUID REFERENCES users(id),
     actor_type VARCHAR(20) DEFAULT 'system' CHECK (actor_type IN ('system', 'admin', 'auto')),
     previous_status VARCHAR(20),
     new_status VARCHAR(20),

@@ -77,8 +77,8 @@ CREATE TABLE IF NOT EXISTS evolution_condition_descriptions (
 -- 用户进化预览缓存表（用于快速显示进化后属性）
 CREATE TABLE IF NOT EXISTS user_evolution_previews (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    pokemon_instance_id INTEGER NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    pokemon_instance_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     target_species_id INTEGER NOT NULL REFERENCES pokemon_species(id),
     preview_data JSONB NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),

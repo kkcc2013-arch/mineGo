@@ -37,7 +37,7 @@ CREATE INDEX IF NOT EXISTS idx_title_definitions_unlock_achievement ON title_def
 -- 用户称号表
 CREATE TABLE IF NOT EXISTS user_titles (
   id BIGSERIAL PRIMARY KEY,
-  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   title_id VARCHAR(50) NOT NULL REFERENCES title_definitions(title_id),
   
   source_type VARCHAR(30) NOT NULL,  -- achievement/event/purchase/gift

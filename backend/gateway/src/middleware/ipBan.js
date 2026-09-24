@@ -139,21 +139,9 @@ function ipAccessLogMiddleware(req, res, next) {
  * 获取客户端真实 IP
  */
 function getClientIp(req) {
-  // 优先检查代理头
-  const forwarded = req.headers['x-forwarded-for'];
-  if (forwarded) {
-    // X-Forwarded-For 可能包含多个 IP，取第一个
-    return forwarded.split(',')[0].trim();
-  }
-  
-  // 其他常见代理头
-  const realIp = req.headers['x-real-ip'];
-  if (realIp) {
-    return realIp;
-  }
-  
-  // 直连 IP
-  return req.ip || req.connection?.remoteAddress || '0.0.0.0';
+  // 使用 Express 按 'trust proxy' 解析出的 req.ip。
+  // 直接读取 X-Forwarded-For / X-Real-IP 可被客户端伪造，封禁可被轻易绕过。
+  return req.ip || req.socket?.remoteAddress || '0.0.0.0';
 }
 
 /**

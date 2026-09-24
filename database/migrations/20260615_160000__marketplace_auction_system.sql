@@ -5,7 +5,7 @@
 CREATE TABLE IF NOT EXISTS marketplace_listings (
     id SERIAL PRIMARY KEY,
     listing_id VARCHAR(36) UNIQUE NOT NULL,
-    seller_id INTEGER NOT NULL REFERENCES users(id),
+    seller_id UUID NOT NULL REFERENCES users(id),
     pokemon_id INTEGER NOT NULL REFERENCES pokemon(id),
     
     -- 交易类型
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS marketplace_listings (
     
     -- 拍卖信息
     current_highest_bid INTEGER DEFAULT 0,
-    current_highest_bidder_id INTEGER REFERENCES users(id),
+    current_highest_bidder_id UUID REFERENCES users(id),
     bid_count INTEGER DEFAULT 0,
     
     -- 时间信息
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS marketplace_bids (
     id SERIAL PRIMARY KEY,
     bid_id VARCHAR(36) UNIQUE NOT NULL,
     listing_id INTEGER NOT NULL REFERENCES marketplace_listings(id) ON DELETE CASCADE,
-    bidder_id INTEGER NOT NULL REFERENCES users(id),
+    bidder_id UUID NOT NULL REFERENCES users(id),
     bid_amount INTEGER NOT NULL,
     is_auto_bid BOOLEAN DEFAULT false,
     max_auto_bid INTEGER,
@@ -72,7 +72,7 @@ CREATE INDEX IF NOT EXISTS idx_bids_bidder_created ON marketplace_bids(bidder_id
 -- 市场收藏表
 CREATE TABLE IF NOT EXISTS marketplace_favorites (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     listing_id INTEGER NOT NULL REFERENCES marketplace_listings(id) ON DELETE CASCADE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     
@@ -86,8 +86,8 @@ CREATE TABLE IF NOT EXISTS marketplace_transactions (
     id SERIAL PRIMARY KEY,
     transaction_id VARCHAR(36) UNIQUE NOT NULL,
     listing_id INTEGER NOT NULL REFERENCES marketplace_listings(id),
-    seller_id INTEGER NOT NULL REFERENCES users(id),
-    buyer_id INTEGER NOT NULL REFERENCES users(id),
+    seller_id UUID NOT NULL REFERENCES users(id),
+    buyer_id UUID NOT NULL REFERENCES users(id),
     pokemon_id INTEGER NOT NULL REFERENCES pokemon(id),
     final_price INTEGER NOT NULL,
     fee_amount INTEGER NOT NULL,
@@ -119,7 +119,7 @@ CREATE INDEX IF NOT EXISTS idx_price_history_species_date ON marketplace_price_h
 
 -- 用户市场统计表
 CREATE TABLE IF NOT EXISTS marketplace_user_stats (
-    user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     total_listings INTEGER DEFAULT 0,
     total_sales INTEGER DEFAULT 0,
     total_purchases INTEGER DEFAULT 0,

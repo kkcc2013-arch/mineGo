@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS cache_invalidation_rules (
   enabled BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
-  created_by INTEGER REFERENCES users(id)
+  created_by UUID REFERENCES users(id)
 );
 
 COMMENT ON TABLE cache_invalidation_rules IS '缓存失效规则配置表';

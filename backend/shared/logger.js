@@ -123,6 +123,8 @@ module.exports = {
   createLogger,
   childLogger,
   requestLogger,
+  logger: defaultLogger, // 兼容 `const { logger } = require('shared/logger')` 的写法
+  child: defaultLogger.child.bind(defaultLogger),
   info: defaultLogger.info.bind(defaultLogger),
   error: defaultLogger.error.bind(defaultLogger),
   warn: defaultLogger.warn.bind(defaultLogger),

@@ -4,7 +4,7 @@
 -- 设备管理表
 CREATE TABLE IF NOT EXISTS user_devices (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   fingerprint VARCHAR(64) NOT NULL,
   device_name VARCHAR(255),
   device_type VARCHAR(50), -- 'mobile', 'tablet', 'desktop'
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS user_devices (
 CREATE TABLE IF NOT EXISTS device_activity_log (
   id SERIAL PRIMARY KEY,
   device_id INTEGER NOT NULL REFERENCES user_devices(id) ON DELETE CASCADE,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   action VARCHAR(100) NOT NULL,
   ip_address INET,
   location VARCHAR(255),

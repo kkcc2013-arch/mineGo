@@ -13,7 +13,7 @@
 CREATE TABLE IF NOT EXISTS security_sessions (
   id SERIAL PRIMARY KEY,
   session_id VARCHAR(128) UNIQUE NOT NULL,
-  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
   device_id VARCHAR(256) NOT NULL,
   secret_key VARCHAR(256) NOT NULL,
   tamper_count INTEGER DEFAULT 0,

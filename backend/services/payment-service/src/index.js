@@ -35,24 +35,27 @@ const VALID_TRANSITIONS = {
 };
 
 // Payment channel secrets (from environment)
-// FIX: Fail-fast in production — missing secrets → refuse to start
+// 渠道密钥（从环境变量读取）
 const CHANNEL_SECRETS = {
   WECHAT: process.env.WECHAT_SECRET,
   ALIPAY: process.env.ALIPAY_SECRET,
   APPLE:  process.env.APPLE_SHARED_SECRET
 };
 
+// 生产环境：缺少密钥的渠道直接禁用（验签恒失败、回调返回 503），不再让整个支付服务拒绝启动，
+// 也绝不回退到公开的开发密钥。
 if (process.env.NODE_ENV === 'production') {
   const missing = Object.entries(CHANNEL_SECRETS).filter(([, v]) => !v).map(([k]) => k);
   if (missing.length > 0) {
-    throw new Error(`FATAL: Missing payment channel secrets in production: ${missing.join(', ')}`);
+    // eslint-disable-next-line no-console
+    console.error(`[payment-service] payment channels disabled (missing secrets): ${missing.join(', ')}`);
   }
+} else {
+  // 非生产环境的开发密钥
+  if (!CHANNEL_SECRETS.WECHAT) CHANNEL_SECRETS.WECHAT = 'dev_wechat_secret_key';
+  if (!CHANNEL_SECRETS.ALIPAY) CHANNEL_SECRETS.ALIPAY = 'dev_alipay_secret_key';
+  if (!CHANNEL_SECRETS.APPLE)  CHANNEL_SECRETS.APPLE  = 'dev_apple_secret_key';
 }
-
-// Development fallbacks (never reached in production due to fail-fast above)
-if (!CHANNEL_SECRETS.WECHAT) CHANNEL_SECRETS.WECHAT = 'dev_wechat_secret_key';
-if (!CHANNEL_SECRETS.ALIPAY) CHANNEL_SECRETS.ALIPAY = 'dev_alipay_secret_key';
-if (!CHANNEL_SECRETS.APPLE)  CHANNEL_SECRETS.APPLE  = 'dev_apple_secret_key';
 
 const app  = express();
 const PORT = process.env.PORT || 8088;
@@ -287,6 +290,10 @@ app.post('/payment/webhook/:channel', express.raw({ type: '*/*' }), async (req, 
     }
 
     const secret = CHANNEL_SECRETS[channel];
+    if (!secret) {
+      logger.error({ channel }, 'Webhook for disabled payment channel');
+      return res.status(503).send('CHANNEL_DISABLED');
+    }
     if (!verifyWebhookSignature(rawBody, signature, secret)) {
       logger.error({ channel }, 'Webhook signature verification failed');
       return res.status(401).send('INVALID_SIGNATURE');

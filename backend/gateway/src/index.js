@@ -9,7 +9,7 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 const swaggerUi    = require('swagger-ui-express');
 const YAML         = require('yamljs');
 const path         = require('path');
-const { verifyAccess } = require('@pmg/shared/auth');
+const { verifyAccess, requireAdmin } = require('@pmg/shared/auth');
 const { createLogger, requestLogger } = require('@pmg/shared/logger');
 const metrics = require('@pmg/shared/metrics');
 const { authWithBlacklistMiddleware } = require('./middleware/jwtBlacklist');
@@ -98,6 +98,9 @@ const SERVICE_NAME = 'gateway';
 const app  = express();
 const PORT = process.env.PORT || 8080;
 
+// 只信任来自本机反向代理的 X-Forwarded-For（可用 TRUST_PROXY 覆盖），否则 req.ip 可被伪造
+app.set('trust proxy', process.env.TRUST_PROXY || 'loopback');
+
 // ── Service registry ─────────────────────────────────────────
 const SERVICES = {
   user:     process.env.USER_SERVICE_URL     || 'http://localhost:8081',
@@ -131,8 +134,15 @@ app.use(rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { code: 1007, message: '请求过于频繁，请稍后重试' },
-  keyGenerator: (req) => req.headers['x-forwarded-for'] || req.ip,
+  keyGenerator: (req) => req.ip,
 }));
+
+// 身份类请求头只能由网关在鉴权后写入，入口处一律清除客户端伪造的值
+const TRUSTED_INTERNAL_HEADERS = ['x-user-id', 'x-user-level', 'x-user-jti', 'x-user-roles', 'x-internal-token', 'x-service-token'];
+app.use((req, _res, next) => {
+  for (const h of TRUSTED_INTERNAL_HEADERS) delete req.headers[h];
+  next();
+});
 
 // Request ID & Trace ID injection
 app.use((req, res, next) => {
@@ -144,6 +154,10 @@ app.use((req, res, next) => {
   res.setHeader('X-Trace-Id', traceId);
   next();
 });
+
+// REQ-00075: IP 封禁必须在所有业务路由之前执行（原先注册在路由之后，只对 404 生效）
+app.use((req, res, next) => ipBanMiddleware(req, res, next));
+app.use((req, res, next) => ipAccessLogMiddleware(req, res, next));
 
 // Structured logging & metrics
 app.use(requestLogger(logger));
@@ -170,10 +184,10 @@ app.use('/api/device', authMiddleware, deviceIntegrityRoutes);
 app.use('/api/v1/security', securityRoutes);
 
 // ── REQ-00130: Business Events Routes ────────────────────────────
-app.use('/api/events', businessEventsRoutes);
+app.use('/api/events', authMiddleware, requireAdmin, businessEventsRoutes);
 
 // ── REQ-00071: Autoscaling Routes ────────────────────────────
-app.use('/api/v1/autoscaling', autoscalingRoutes);
+app.use('/api/v1/autoscaling', authMiddleware, requireAdmin, autoscalingRoutes);
 
 // ── Health ────────────────────────────────────────────────────
 app.get('/health', async (_req, res) => {
@@ -258,6 +272,7 @@ function proxy(target, pathRewrite) {
   return createProxyMiddleware({
     target,
     changeOrigin: true,
+    xfwd: true, // 透传 X-Forwarded-For，下游服务按真实客户端 IP 限流
     pathRewrite,
     on: {
       error: (err, req, res) => {
@@ -276,7 +291,7 @@ app.use('/api/version', apiVersionRoutes);
 
 // ── v1 API Routes (Legacy) ──────────────────────────────────────────
 // Public (no auth) - REQ-00040: 认证接口限流
-app.use('/api/v1/auth', authRateLimiter(), proxy(SERVICES.user, { '^/api/v1/': '/' }));
+app.use('/api/v1/auth', authRateLimiter(), proxy(SERVICES.user, { '^/': '/auth/' }));
 
 // Protected v1 routes - REQ-00040: 高风险接口限流
 app.use('/api/v1/catch',
@@ -292,7 +307,7 @@ app.use('/api/v1/users',
 
 // ── v2 API Routes (Current) ──────────────────────────────────────────
 // Public (no auth) - REQ-00040: 认证接口限流
-app.use('/api/v2/auth', authRateLimiter(), proxy(SERVICES.user, { '^/api/v2/': '/' }));
+app.use('/api/v2/auth', authRateLimiter(), proxy(SERVICES.user, { '^/': '/auth/' }));
 
 // Protected v2 routes - REQ-00040: 高风险接口限流
 app.use('/api/v2/catch',
@@ -314,21 +329,21 @@ app.use('/api/v2/pokemon',
 // ── Legacy Routes (Default to current version) ──────────────────────
 // 以下路由保持向后兼容，默认使用当前版本
 // Public (no auth)
-app.use('/v1/auth',     proxy(SERVICES.user, { '^/v1/': '/auth/' }));
+app.use('/v1/auth',     proxy(SERVICES.user, { '^/': '/auth/' }));
 
 // Protected with cache (REQ-00031)
 // 用户资料 - 缓存 5 分钟
 app.get('/v1/users/:id/profile',
   authMiddleware,
   cacheMiddleware({ ...presets.userData, keyPrefix: 'api:profile:', ttl: 300 }),
-  proxy(SERVICES.user, { '^/': '/users/' })
+  proxy(SERVICES.user, { '^/v1/': '/' })
 );
 
 // 用户统计 - 缓存 5 分钟
 app.get('/v1/users/:id/stats',
   authMiddleware,
   cacheMiddleware({ ...presets.userData, keyPrefix: 'api:user-stats:', ttl: 300 }),
-  proxy(SERVICES.user, { '^/': '/users/' })
+  proxy(SERVICES.user, { '^/v1/': '/' })
 );
 
 // 其他用户路由（不缓存）
@@ -341,7 +356,7 @@ app.use('/v1/users',
 app.get('/v1/friends',
   authMiddleware,
   cacheMiddleware({ ...presets.list, keyPrefix: 'api:friends:', ttl: 180 }),
-  proxy(SERVICES.social, { '^/': '/friends/' })
+  proxy(SERVICES.social, { '^/v1/': '/' })
 );
 
 // 其他好友路由（不缓存）
@@ -369,15 +384,16 @@ app.use('/v1/location',
 
 // 精灵图鉴 - 缓存 1 小时（静态数据）
 app.get('/v1/pokemon/pokedex',
-  cacheMiddleware({ ...presets.static, keyPrefix: 'api:pokedex:', ttl: 3600 }),
-  proxy(SERVICES.pokemon, { '^/': '/pokemon/' })
+  authMiddleware,
+  cacheMiddleware({ ...presets.userData, keyPrefix: 'api:pokedex:', ttl: 300 }),
+  proxy(SERVICES.pokemon, { '^/v1/': '/' })
 );
 
 // 用户精灵列表 - 缓存 2 分钟
 app.get('/v1/pokemon',
   authMiddleware,
   cacheMiddleware({ ...presets.userData, keyPrefix: 'api:pokemon-list:', ttl: 120 }),
-  proxy(SERVICES.pokemon, { '^/': '/pokemon/' })
+  proxy(SERVICES.pokemon, { '^/v1/': '/' })
 );
 
 // 其他精灵路由（不缓存）
@@ -403,7 +419,7 @@ app.use('/v1/catch',
 app.get('/v1/gyms/nearby',
   authMiddleware,
   cacheMiddleware({ ...presets.dynamic, keyPrefix: 'api:gyms-nearby:', ttl: 60 }),
-  proxy(SERVICES.gym, { '^/': '/gyms/' })
+  proxy(SERVICES.gym, { '^/v1/': '/' })
 );
 
 // 其他道馆路由（不缓存）
@@ -416,13 +432,30 @@ app.use('/v1/gyms',
 app.get('/v1/raids/nearby',
   authMiddleware,
   cacheMiddleware({ ...presets.dynamic, keyPrefix: 'api:raids-nearby:', ttl: 30 }),
-  proxy(SERVICES.gym, { '^/': '/raids/' })
+  proxy(SERVICES.gym, { '^/v1/': '/' })
 );
 
 // 其他 Raid 路由（不缓存）
 app.use('/v1/raids',
   authMiddleware,
   proxy(SERVICES.gym, { '^/': '/raids/' })
+);
+
+// 奖励服务（每日奖励/任务/排行榜/赛季/活动）— 原网关缺少该路由，reward-service 无法从外部访问
+app.use('/v1/rewards',
+  authMiddleware,
+  userLevelRateLimiter(),
+  proxy(SERVICES.reward, { '^/': '/rewards/' })
+);
+
+app.use('/v1/events',
+  authMiddleware,
+  proxy(SERVICES.reward, { '^/': '/events/' })
+);
+
+// Payment webhook (no auth — signed by channel)；必须注册在需要鉴权的 /v1/payment 之前
+app.use('/v1/payment/webhook',
+  proxy(SERVICES.payment, { '^/': '/payment/webhook/' })
 );
 
 // REQ-00040: 支付接口高风险限流
@@ -432,14 +465,9 @@ app.use('/v1/payment',
   proxy(SERVICES.payment, { '^/': '/payment/' })
 );
 
-// Payment webhook (no auth — signed by channel)
-app.use('/v1/payment/webhook',
-  proxy(SERVICES.payment, { '^/': '/payment/webhook/' })
-);
-
 // ── Cache Warmup Management API (REQ-00039) ────────────────────
 // 获取预热状态
-app.get('/admin/cache/warmup/status', async (req, res) => {
+app.get('/admin/cache/warmup/status', authMiddleware, requireAdmin, async (req, res) => {
   try {
     const status = cacheWarmup.getStatus();
     res.json({ success: true, data: status });
@@ -450,9 +478,9 @@ app.get('/admin/cache/warmup/status', async (req, res) => {
 });
 
 // 手动触发预热
-app.post('/admin/cache/warmup/trigger', async (req, res) => {
+app.post('/admin/cache/warmup/trigger', authMiddleware, requireAdmin, express.json(), async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name } = req.body || {};
     await cacheWarmup.triggerWarmup(name);
     res.json({ success: true, message: name ? `Warmup triggered for ${name}` : 'Full warmup triggered' });
   } catch (err) {
@@ -463,25 +491,25 @@ app.post('/admin/cache/warmup/trigger', async (req, res) => {
 
 // ── Cost Monitoring API (REQ-00040) ────────────────────────────
 // 成本概览和报告
-app.use('/api/costs', costReportRoutes);
+app.use('/api/costs', authMiddleware, requireAdmin, costReportRoutes);
 
 // 预算管理
-app.use('/api/budgets', costReportRoutes);
+app.use('/api/budgets', authMiddleware, requireAdmin, costReportRoutes);
 
 // ── Config Management API (REQ-00085) ────────────────────────────
 // 配置中心管理接口
-app.use('/admin/config', configRoutes);
+app.use('/admin/config', authMiddleware, requireAdmin, configRoutes);
 
 // 配置中心健康检查（无需认证）
 app.use('/config/health', configRoutes);
 
 // ── Dependencies Analysis API (REQ-00103) ────────────────────────────
 // 微服务依赖分析接口（管理员专用）
-app.use('/api/admin/dependencies', dependenciesRoutes);
+app.use('/api/admin/dependencies', authMiddleware, requireAdmin, dependenciesRoutes);
 
 // ── Delay Queue Admin API (REQ-00043) ────────────────────────────
 // 延迟队列管理接口（管理员专用）
-app.use('/api/admin/delay-queue', delayQueueAdminRoutes);
+app.use('/api/admin/delay-queue', authMiddleware, requireAdmin, delayQueueAdminRoutes);
 
 // ── Time Period API (REQ-00102) ────────────────────────────
 // 昼夜循环系统接口（公开）
@@ -504,14 +532,8 @@ app.use('/api/time', timePeriodRoutes);
   }
 })();
 
-// IP 封禁中间件（全局应用，在认证之前）
-app.use(ipBanMiddleware);
-
-// IP 访问日志中间件
-app.use(ipAccessLogMiddleware);
-
 // IP 封禁管理 API（管理员）
-app.use('/api/admin', ipBanAdminRoutes);
+app.use('/api/admin', authMiddleware, requireAdmin, ipBanAdminRoutes);
 
 // 404 fallback
 app.use((req, res) => res.status(404).json({ code: 1005, message: `路由不存在: ${req.method} ${req.path}`, data: null }));

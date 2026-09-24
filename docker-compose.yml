@@ -90,6 +90,7 @@ services:
       REDIS_HOST: redis
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
     networks: [pmg-internal]
     depends_on:
       postgres: {condition: service_healthy}
@@ -115,6 +116,7 @@ services:
       REDIS_HOST: redis
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
     networks: [pmg-internal]
     depends_on:
       postgres: {condition: service_healthy}
@@ -139,6 +141,7 @@ services:
       REDIS_HOST: redis
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
     networks: [pmg-internal]
     depends_on:
       postgres: {condition: service_healthy}
@@ -164,6 +167,7 @@ services:
       REDIS_HOST: redis
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
     networks: [pmg-internal]
     depends_on:
       postgres: {condition: service_healthy}
@@ -187,6 +191,7 @@ services:
       NODE_ENV: production
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
     networks: [pmg-internal]
     depends_on:
       postgres: {condition: service_healthy}
@@ -211,6 +216,7 @@ services:
       REDIS_HOST: redis
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
     networks: [pmg-internal]
     depends_on:
       postgres: {condition: service_healthy}
@@ -234,6 +240,7 @@ services:
       NODE_ENV: production
       DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
     networks: [pmg-internal]
     depends_on:
       postgres: {condition: service_healthy}
@@ -256,6 +263,7 @@ services:
       PORT: "8080"
       NODE_ENV: production
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       USER_SERVICE_URL:     http://user-service:8081
       LOCATION_SERVICE_URL: http://location-service:8082
       POKEMON_SERVICE_URL:  http://pokemon-service:8083

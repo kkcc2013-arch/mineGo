@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS data_regions (
 -- 2. 用户数据区域映射表
 CREATE TABLE IF NOT EXISTS user_data_regions (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL UNIQUE,
+  user_id UUID NOT NULL UNIQUE,
   region_code VARCHAR(20) NOT NULL REFERENCES data_regions(region_code),
   assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   assignment_reason VARCHAR(50) NOT NULL, -- 'ip_detection', 'user_selection', 'legal_requirement'
@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS user_data_regions (
 CREATE TABLE IF NOT EXISTS data_transfer_requests (
   id SERIAL PRIMARY KEY,
   request_id VARCHAR(50) NOT NULL UNIQUE DEFAULT ('DTR-' || to_char(now(), 'YYYYMMDD') || '-' || LPAD(nextval('data_transfer_request_seq')::TEXT, 6, '0')),
-  requester_id INTEGER NOT NULL,
+  requester_id UUID NOT NULL,
   source_region VARCHAR(20) NOT NULL,
   target_region VARCHAR(20) NOT NULL,
   data_types TEXT[] NOT NULL, -- ['personal', 'location', 'payment', 'game_data']
@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS data_transfer_requests (
   protection_measures TEXT[],
   scc_reference VARCHAR(100), -- 标准合同条款引用
   status VARCHAR(20) DEFAULT 'pending', -- 'pending', 'approved', 'rejected', 'executed', 'cancelled'
-  approved_by INTEGER,
+  approved_by UUID,
   approved_at TIMESTAMP,
   rejection_reason TEXT,
   executed_at TIMESTAMP,
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS transfer_impact_assessments (
   id SERIAL PRIMARY KEY,
   assessment_id VARCHAR(50) NOT NULL UNIQUE DEFAULT ('TIA-' || to_char(now(), 'YYYYMMDD') || '-' || LPAD(nextval('tia_seq')::TEXT, 6, '0')),
   transfer_request_id INTEGER REFERENCES data_transfer_requests(id),
-  assessor_id INTEGER REFERENCES users(id),
+  assessor_id UUID REFERENCES users(id),
   
   -- 数据评估
   data_types_assessed TEXT[] NOT NULL,

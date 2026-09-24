@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS dead_letter_queue (
   moved_to_dlq_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   retried_from_dlq_at TIMESTAMP,
   resolved_at TIMESTAMP,
-  resolved_by INTEGER REFERENCES users(id),
+  resolved_by UUID REFERENCES users(id),
   resolution_note TEXT,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -85,7 +85,7 @@ CREATE TABLE IF NOT EXISTS dlq_alerts (
   message TEXT NOT NULL,
   triggered_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   resolved_at TIMESTAMP,
-  resolved_by INTEGER REFERENCES users(id),
+  resolved_by UUID REFERENCES users(id),
   resolution_note TEXT,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

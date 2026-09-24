@@ -203,8 +203,8 @@ window.pmgGame = {
     return data;
   },
 
-  async register(phone, smsCode, nickname) {
-    const data = await api.register(phone, smsCode, nickname);
+  async register(phone, smsCode, nickname, consent) {
+    const data = await api.register(phone, smsCode, nickname, consent);
     const user = await api.getMe();
     store.setUser(user);
     onLoggedIn();

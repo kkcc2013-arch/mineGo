@@ -4,7 +4,7 @@
 -- 亲密度记录表
 CREATE TABLE IF NOT EXISTS pokemon_friendship_logs (
   id SERIAL PRIMARY KEY,
-  pokemon_instance_id INTEGER NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
+  pokemon_instance_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
   change_amount INTEGER NOT NULL,        -- 亲密度变化量（正/负）
   source VARCHAR(50) NOT NULL,           -- 变化来源：walk, battle, feed, spa, gift, trade
   context JSONB DEFAULT '{}',            -- 额外上下文信息

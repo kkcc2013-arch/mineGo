@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS privacy_policies (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   published_at TIMESTAMP WITH TIME ZONE,
   deprecated_at TIMESTAMP WITH TIME ZONE,
-  created_by INTEGER REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
   metadata JSONB DEFAULT '{}'
 );
 
@@ -35,7 +35,7 @@ COMMENT ON TABLE privacy_policies IS '隐私政策和服务条款版本管理表
 
 CREATE TABLE IF NOT EXISTS user_privacy_confirmations (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   policy_id INTEGER NOT NULL REFERENCES privacy_policies(id),
   policy_version VARCHAR(20) NOT NULL,
   confirmed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -63,7 +63,7 @@ COMMENT ON TABLE user_privacy_confirmations IS '用户隐私政策确认记录�
 CREATE TABLE IF NOT EXISTS privacy_update_notifications (
   id SERIAL PRIMARY KEY,
   policy_id INTEGER NOT NULL REFERENCES privacy_policies(id),
-  user_id INTEGER REFERENCES users(id),
+  user_id UUID REFERENCES users(id),
   notification_type VARCHAR(30) NOT NULL CHECK (notification_type IN ('email', 'push', 'in_app', 'sms')),
   status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'sent', 'failed', 'read', 'confirmed')),
   scheduled_at TIMESTAMP WITH TIME ZONE,

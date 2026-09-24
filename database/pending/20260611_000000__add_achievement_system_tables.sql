@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS achievements (
 -- 用户成就表
 CREATE TABLE IF NOT EXISTS user_achievements (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
+    user_id UUID NOT NULL,
     achievement_id VARCHAR(50) NOT NULL,
     progress INTEGER DEFAULT 0,
     target INTEGER NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS user_achievements (
 -- 成就进度快照（用于快速查询）
 CREATE TABLE IF NOT EXISTS achievement_progress_snapshots (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER UNIQUE NOT NULL,
+    user_id UUID UNIQUE NOT NULL,
     category_progress JSONB NOT NULL DEFAULT '{}',
     total_points INTEGER DEFAULT 0,
     achievements_completed INTEGER DEFAULT 0,
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS achievement_progress_snapshots (
 -- 成就触发事件日志
 CREATE TABLE IF NOT EXISTS achievement_events (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
+    user_id UUID NOT NULL,
     event_type VARCHAR(50) NOT NULL,
     event_data JSONB,
     processed BOOLEAN DEFAULT FALSE,
@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS achievement_events (
 -- 称号表
 CREATE TABLE IF NOT EXISTS user_titles (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL,
+    user_id UUID NOT NULL,
     title_id VARCHAR(50) NOT NULL,
     source_achievement_id VARCHAR(50),
     is_active BOOLEAN DEFAULT FALSE,

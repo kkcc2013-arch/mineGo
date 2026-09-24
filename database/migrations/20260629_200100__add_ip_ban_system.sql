@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS ip_blacklist (
   is_auto BOOLEAN DEFAULT false,      -- 是否自动封禁
   blocked_at TIMESTAMP DEFAULT NOW(),
   expires_at TIMESTAMP,               -- NULL 表示永久封禁
-  blocked_by INTEGER REFERENCES users(id), -- 封禁操作人
+  blocked_by UUID REFERENCES users(id), -- 封禁操作人
   created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS ip_whitelist (
   id SERIAL PRIMARY KEY,
   ip_address INET NOT NULL,
   description VARCHAR(500),
-  added_by INTEGER REFERENCES users(id),
+  added_by UUID REFERENCES users(id),
   created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -44,10 +44,10 @@ CREATE TABLE IF NOT EXISTS ip_risk_scores (
 CREATE TABLE IF NOT EXISTS ip_ban_appeals (
   id SERIAL PRIMARY KEY,
   ip_address INET NOT NULL,
-  user_id INTEGER REFERENCES users(id),
+  user_id UUID REFERENCES users(id),
   appeal_reason TEXT NOT NULL,
   status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
-  reviewed_by INTEGER REFERENCES users(id),
+  reviewed_by UUID REFERENCES users(id),
   reviewed_at TIMESTAMP,
   review_note TEXT,
   created_at TIMESTAMP DEFAULT NOW()
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS geo_ban (
   country_code VARCHAR(2) NOT NULL,   -- ISO 3166-1 国家代码
   reason VARCHAR(500) NOT NULL,
   is_active BOOLEAN DEFAULT true,
-  banned_by INTEGER REFERENCES users(id),
+  banned_by UUID REFERENCES users(id),
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );

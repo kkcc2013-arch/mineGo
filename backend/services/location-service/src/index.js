@@ -85,6 +85,10 @@ async function getWeatherBonus(lat, lng) {
 }
 
 async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
+  // spawn_points.lat/lng 是 NUMERIC，pg 驱动返回字符串；天气服务对字符串坐标直接抛错
+  lat = Number(lat);
+  lng = Number(lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
   const spawnKey = `spawn:${spawnPointId}`;
   const existing = await getJSON(spawnKey);
   if (existing) return existing; // already active
@@ -96,7 +100,7 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
 
   // Pick species based on biome + rarity weights + day/night weights
   const { rows: species } = await query(`
-    SELECT id, rarity, type1, time_preference, is_nocturnal, is_diurnal FROM pokemon_species
+    SELECT id, name_zh, rarity, type1, time_preference, is_nocturnal, is_diurnal FROM pokemon_species
     WHERE ($1 = 'ANY' OR $1 = ANY(biomes) OR biomes IS NULL)
     ORDER BY random()
     LIMIT 50
@@ -110,7 +114,10 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
   // Weighted random selection
   let totalWeight = 0;
   const weighted = weightedSpecies.map(s => {
-    const w = s.finalWeight || RARITY_WEIGHTS[s.rarity] || 10;
+    // 稀有度权重 × 昼夜倍率（原实现只用 finalWeight≈1，稀有度从未生效，传说与普通同概率）
+    const rarityWeight = RARITY_WEIGHTS[s.rarity] || 10;
+    const dayNightFactor = Number.isFinite(s.finalWeight) && s.finalWeight > 0 ? s.finalWeight : 1;
+    const w = rarityWeight * dayNightFactor;
     totalWeight += w;
     return { ...s, weight: w, ivBonus: s.ivBonus || 0 };
   });
@@ -167,9 +174,11 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
     INSERT INTO wild_pokemon
       (spawn_point_id, species_id, lat, lng, location, cp, iv_attack, iv_defense, iv_hp,
        is_shiny, weather_boosted, expires_at)
-    VALUES ($1,$2,$3,$4, ST_GeographyFromText('SRID=4326;POINT(${lng} ${lat})'), $5,$6,$7,$8,$9,$10,$11)
+    VALUES ($1,$2,$3,$4, ST_SetSRID(ST_MakePoint($12::float8, $13::float8), 4326)::geography, $5,$6,$7,$8,$9,$10,$11)
     RETURNING id, species_id, lat, lng, cp, is_shiny, weather_boosted, expires_at
-  `, [spawnPointId, chosen.id, lat, lng, cp, iv_attack, iv_defense, iv_hp, isShiny, weatherBoosted, expiresAt]);
+  `, [spawnPointId, chosen.id, lat, lng, cp, iv_attack, iv_defense, iv_hp, isShiny, weatherBoosted, expiresAt, lng, lat]);
+  wild.name_zh = chosen.name_zh;
+  wild.rarity = chosen.rarity;
 
   const payload = { 
     ...wild, 
@@ -206,13 +215,28 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
 }
 
 // Background spawn worker (runs every 5 min in prod, triggered here)
-async function runSpawnCycle() {
+// 以玩家位置为中心只刷新附近刷怪点，并用 Redis 锁防止多实例/并发请求重复刷怪
+const SPAWN_CYCLE_RADIUS_M = Number(process.env.SPAWN_CYCLE_RADIUS_M || 3000);
+async function runSpawnCycle(centerLat, centerLng) {
+  const redis = getRedis();
+  const cell = Number.isFinite(centerLat) ? `${centerLat.toFixed(2)}:${centerLng.toFixed(2)}` : 'global';
+  const lockKey = `lock:spawn-cycle:${cell}`;
+  const locked = await redis.set(lockKey, process.pid, 'EX', 60, 'NX');
+  if (!locked) return;
+
+  const params = [];
+  let near = '';
+  if (Number.isFinite(centerLat) && Number.isFinite(centerLng)) {
+    params.push(centerLng, centerLat, SPAWN_CYCLE_RADIUS_M);
+    near = `AND ST_DWithin(location, ST_SetSRID(ST_MakePoint($1::float8, $2::float8), 4326)::geography, $3)`;
+  }
   const { rows: points } = await query(`
     SELECT id, lat, lng, biome FROM spawn_points
     WHERE is_active = true
       AND (last_spawn_at IS NULL OR last_spawn_at < NOW() - INTERVAL '15 minutes')
+      ${near}
     LIMIT 200
-  `);
+  `, params);
 
   let spawned = 0;
   for (const pt of points) {
@@ -261,8 +285,12 @@ app.get('/map/weather', requireAuth, async (req, res, next) => {
 // POST /location  — player GPS update
 app.post('/location', requireAuth, async (req, res, next) => {
   try {
-    const { lat, lng, accuracy } = req.body;
-    if (!lat || !lng) throw new AppError(1001, 'lat/lng 必填', 400);
+    const lat = Number(req.body && req.body.lat);
+    const lng = Number(req.body && req.body.lng);
+    // 原实现用 !lat 判断，纬度/经度为 0 时被误拒；非数字字符串会让后续距离计算得到 NaN
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+      throw new AppError(1001, 'lat/lng 无效', 400);
+    }
 
     const userId = req.user.sub;
 
@@ -304,8 +332,8 @@ app.get('/map/nearby', requireAuth, async (req, res, next) => {
 
     if (isNaN(lat) || isNaN(lng)) throw new AppError(1001, 'lat/lng 无效', 400);
 
-    // Trigger spawn cycle if needed
-    runSpawnCycle().catch(console.error);
+    // Trigger spawn cycle if needed（附近刷怪点，带分布式锁）
+    runSpawnCycle(lat, lng).catch(err => logger.error({ err: err.message }, 'spawn cycle failed'));
 
     const [wildPokemons, pokestops, gyms] = await Promise.all([
       getNearbyWild(lat, lng, radius),
