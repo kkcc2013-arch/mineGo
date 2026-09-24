@@ -56,28 +56,4 @@ VALUES
 ON CONFLICT (user_id) DO NOTHING;
 
 -- 插入测试活动
-INSERT INTO events (name, description, start_time, end_time, is_timezone_relative, target_timezone, type, rewards, metadata)
-VALUES 
-  (
-    '限时挑战赛',
-    '北京时间 20:00 开启的限时活动',
-    NOW() + INTERVAL '2 hours',
-    NOW() + INTERVAL '4 hours',
-    false,
-    null,
-    'challenge',
-    '{"coins": 1000, "items": ["rare_candy"]}',
-    '{"difficulty": "hard"}'
-  ),
-  (
-    '全球庆祝活动',
-    '每个地区当地时间 18:00 开启',
-    NOW() + INTERVAL '1 hour',
-    NOW() + INTERVAL '24 hours',
-    true,
-    'Asia/Shanghai',
-    'global',
-    '{"coins": 500, "items": ["lucky_egg"]}',
-    '{"regions": ["asia", "america", "europe"]}'
-  )
-ON CONFLICT DO NOTHING;
+-- 已移除示例活动数据：events 表结构（title/event_key/event_type）与示例不符，且演示数据不应进迁移

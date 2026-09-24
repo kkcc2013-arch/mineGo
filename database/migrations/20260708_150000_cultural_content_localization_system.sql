@@ -15,6 +15,27 @@ CREATE TABLE IF NOT EXISTS cultural_content_rules (
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE cultural_content_rules ADD COLUMN IF NOT EXISTS entity_type VARCHAR(50);
+ALTER TABLE cultural_content_rules ADD COLUMN IF NOT EXISTS entity_id INTEGER;
+ALTER TABLE cultural_content_rules ADD COLUMN IF NOT EXISTS content_field VARCHAR(50);
+ALTER TABLE cultural_content_rules ADD COLUMN IF NOT EXISTS sensitivity_level VARCHAR(20);
+ALTER TABLE cultural_content_rules ADD COLUMN IF NOT EXISTS cultural_context VARCHAR(50);
+ALTER TABLE cultural_content_rules ADD COLUMN IF NOT EXISTS affected_regions JSONB;
+ALTER TABLE cultural_content_rules ADD COLUMN IF NOT EXISTS restriction_type VARCHAR(20);
+ALTER TABLE cultural_content_rules ADD COLUMN IF NOT EXISTS alternative_content JSONB;
+ALTER TABLE cultural_content_rules ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE cultural_content_rules ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.cultural_content_rules') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('entity_type', 'entity_id', 'content_field', 'sensitivity_level', 'cultural_context', 'affected_regions', 'restriction_type', 'alternative_content', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE cultural_content_rules ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_cultural_rules_entity ON cultural_content_rules(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_cultural_rules_regions ON cultural_content_rules USING GIN(affected_regions);
@@ -36,6 +57,27 @@ CREATE TABLE IF NOT EXISTS region_restricted_entities (
   updated_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(entity_type, entity_id, region_code)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE region_restricted_entities ADD COLUMN IF NOT EXISTS entity_type VARCHAR(50);
+ALTER TABLE region_restricted_entities ADD COLUMN IF NOT EXISTS entity_id INTEGER;
+ALTER TABLE region_restricted_entities ADD COLUMN IF NOT EXISTS region_code VARCHAR(10);
+ALTER TABLE region_restricted_entities ADD COLUMN IF NOT EXISTS restriction_level VARCHAR(20);
+ALTER TABLE region_restricted_entities ADD COLUMN IF NOT EXISTS reason TEXT;
+ALTER TABLE region_restricted_entities ADD COLUMN IF NOT EXISTS alternative_content JSONB;
+ALTER TABLE region_restricted_entities ADD COLUMN IF NOT EXISTS effective_from TIMESTAMP;
+ALTER TABLE region_restricted_entities ADD COLUMN IF NOT EXISTS effective_until TIMESTAMP;
+ALTER TABLE region_restricted_entities ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE region_restricted_entities ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.region_restricted_entities') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('entity_type', 'entity_id', 'region_code', 'restriction_level', 'reason', 'alternative_content', 'effective_from', 'effective_until', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE region_restricted_entities ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_region_restricted_lookup ON region_restricted_entities(entity_type, entity_id, region_code);
 CREATE INDEX IF NOT EXISTS idx_region_restricted_level ON region_restricted_entities(restriction_level);
@@ -52,6 +94,24 @@ CREATE TABLE IF NOT EXISTS content_age_ratings (
   created_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(entity_type, entity_id, rating_system, region_code)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE content_age_ratings ADD COLUMN IF NOT EXISTS entity_type VARCHAR(50);
+ALTER TABLE content_age_ratings ADD COLUMN IF NOT EXISTS entity_id INTEGER;
+ALTER TABLE content_age_ratings ADD COLUMN IF NOT EXISTS rating_system VARCHAR(20);
+ALTER TABLE content_age_ratings ADD COLUMN IF NOT EXISTS region_code VARCHAR(10);
+ALTER TABLE content_age_ratings ADD COLUMN IF NOT EXISTS age_rating VARCHAR(20);
+ALTER TABLE content_age_ratings ADD COLUMN IF NOT EXISTS content_descriptors JSONB;
+ALTER TABLE content_age_ratings ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.content_age_ratings') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('entity_type', 'entity_id', 'rating_system', 'region_code', 'age_rating', 'content_descriptors', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE content_age_ratings ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_age_ratings_entity ON content_age_ratings(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_age_ratings_region ON content_age_ratings(region_code);
@@ -69,7 +129,27 @@ CREATE TABLE IF NOT EXISTS compliance_rules (
   updated_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(region_code, rule_type)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS region_code VARCHAR(10);
+ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS rule_type VARCHAR(50);
+ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS rule_config JSONB;
+ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS effective_from TIMESTAMP DEFAULT NOW();
+ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE compliance_rules ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.compliance_rules') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('region_code', 'rule_type', 'rule_config', 'effective_from', 'is_active', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE compliance_rules ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
+-- compliance_rules 可能已由其他迁移创建（无此唯一约束），按 (region_code, rule_type) 去重需要唯一索引
+CREATE UNIQUE INDEX IF NOT EXISTS uq_compliance_rules_region_rule ON compliance_rules(region_code, rule_type);
 CREATE INDEX IF NOT EXISTS idx_compliance_rules_region ON compliance_rules(region_code);
 CREATE INDEX IF NOT EXISTS idx_compliance_rules_type ON compliance_rules(rule_type);
 
@@ -84,6 +164,24 @@ CREATE TABLE IF NOT EXISTS cultural_sensitive_words (
   severity INTEGER DEFAULT 50 CHECK (severity BETWEEN 0 AND 100),
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE cultural_sensitive_words ADD COLUMN IF NOT EXISTS word VARCHAR(255);
+ALTER TABLE cultural_sensitive_words ADD COLUMN IF NOT EXISTS language VARCHAR(10);
+ALTER TABLE cultural_sensitive_words ADD COLUMN IF NOT EXISTS sensitivity_type VARCHAR(50);
+ALTER TABLE cultural_sensitive_words ADD COLUMN IF NOT EXISTS cultural_context VARCHAR(100);
+ALTER TABLE cultural_sensitive_words ADD COLUMN IF NOT EXISTS action VARCHAR(20) DEFAULT 'reject';
+ALTER TABLE cultural_sensitive_words ADD COLUMN IF NOT EXISTS severity INTEGER DEFAULT 50;
+ALTER TABLE cultural_sensitive_words ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.cultural_sensitive_words') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('word', 'language', 'sensitivity_type', 'cultural_context', 'action', 'severity', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE cultural_sensitive_words ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_sensitive_words_lookup ON cultural_sensitive_words(word, language);
 CREATE INDEX IF NOT EXISTS idx_sensitive_words_type ON cultural_sensitive_words(sensitivity_type);
@@ -104,6 +202,28 @@ CREATE TABLE IF NOT EXISTS user_compliance_records (
   updated_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(user_id, region_code)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_compliance_records ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_compliance_records ADD COLUMN IF NOT EXISTS region_code VARCHAR(10);
+ALTER TABLE user_compliance_records ADD COLUMN IF NOT EXISTS age_verified BOOLEAN DEFAULT false;
+ALTER TABLE user_compliance_records ADD COLUMN IF NOT EXISTS verified_age INTEGER;
+ALTER TABLE user_compliance_records ADD COLUMN IF NOT EXISTS gdpr_consent BOOLEAN DEFAULT false;
+ALTER TABLE user_compliance_records ADD COLUMN IF NOT EXISTS coppa_consent BOOLEAN DEFAULT false;
+ALTER TABLE user_compliance_records ADD COLUMN IF NOT EXISTS consent_version VARCHAR(20);
+ALTER TABLE user_compliance_records ADD COLUMN IF NOT EXISTS consent_date TIMESTAMP;
+ALTER TABLE user_compliance_records ADD COLUMN IF NOT EXISTS last_check TIMESTAMP DEFAULT NOW();
+ALTER TABLE user_compliance_records ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE user_compliance_records ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_compliance_records') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'region_code', 'age_verified', 'verified_age', 'gdpr_consent', 'coppa_consent', 'consent_version', 'consent_date', 'last_check', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_compliance_records ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_compliance_user ON user_compliance_records(user_id);
 
@@ -123,6 +243,29 @@ CREATE TABLE IF NOT EXISTS content_moderation_logs (
   created_at TIMESTAMP DEFAULT NOW(),
   reviewed_at TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE content_moderation_logs ADD COLUMN IF NOT EXISTS content_type VARCHAR(50);
+ALTER TABLE content_moderation_logs ADD COLUMN IF NOT EXISTS content_id VARCHAR(100);
+ALTER TABLE content_moderation_logs ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE content_moderation_logs ADD COLUMN IF NOT EXISTS original_content TEXT;
+ALTER TABLE content_moderation_logs ADD COLUMN IF NOT EXISTS filtered_content TEXT;
+ALTER TABLE content_moderation_logs ADD COLUMN IF NOT EXISTS detected_violations JSONB;
+ALTER TABLE content_moderation_logs ADD COLUMN IF NOT EXISTS action_taken VARCHAR(20);
+ALTER TABLE content_moderation_logs ADD COLUMN IF NOT EXISTS region_code VARCHAR(10);
+ALTER TABLE content_moderation_logs ADD COLUMN IF NOT EXISTS moderator_id INTEGER;
+ALTER TABLE content_moderation_logs ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending';
+ALTER TABLE content_moderation_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE content_moderation_logs ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.content_moderation_logs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('content_type', 'content_id', 'user_id', 'original_content', 'filtered_content', 'detected_violations', 'action_taken', 'region_code', 'moderator_id', 'status', 'created_at', 'reviewed_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE content_moderation_logs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_moderation_status ON content_moderation_logs(status);
 CREATE INDEX IF NOT EXISTS idx_moderation_user ON content_moderation_logs(user_id);
@@ -166,7 +309,7 @@ ON CONFLICT DO NOTHING;
 
 -- 插入初始合规规则
 INSERT INTO compliance_rules (region_code, rule_type, rule_config, is_active)
-VALUES
+SELECT v.region_code, v.rule_type, v.rule_config::jsonb, v.is_active FROM (VALUES
   -- 中国防沉迷规则
   ('CN', 'playtime_limit', '{"daily_limit_hours": 1.5, "night_restriction": {"start_hour": 22, "end_hour": 8}, "age_threshold": 18}', true),
   ('CN', 'payment_limit', '{"max_single_amount": 50, "max_monthly_amount": 200, "age_threshold": 16}', true),
@@ -186,6 +329,8 @@ VALUES
   -- 中东地区宗教合规
   ('SA', 'content_filter', '{"religious_content": true, "violence_level": "low"}', true),
   ('AE', 'content_filter', '{"religious_content": true, "violence_level": "low"}', true)
+) AS v(region_code, rule_type, rule_config, is_active)
+WHERE EXISTS (SELECT 1 FROM regions r WHERE r.code = v.region_code)  -- 只为已登记的区域写规则（外键 fk_region_compliance）
 ON CONFLICT (region_code, rule_type) DO NOTHING;
 
 -- 插入初始文化敏感词库
@@ -216,16 +361,19 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_update_cultural_rules ON cultural_content_rules;
 CREATE TRIGGER trigger_update_cultural_rules
 BEFORE UPDATE ON cultural_content_rules
 FOR EACH ROW
 EXECUTE FUNCTION update_cultural_rules_timestamp();
 
+DROP TRIGGER IF EXISTS trigger_update_compliance_rules ON compliance_rules;
 CREATE TRIGGER trigger_update_compliance_rules
 BEFORE UPDATE ON compliance_rules
 FOR EACH ROW
 EXECUTE FUNCTION update_cultural_rules_timestamp();
 
+DROP TRIGGER IF EXISTS trigger_update_user_compliance ON user_compliance_records;
 CREATE TRIGGER trigger_update_user_compliance
 BEFORE UPDATE ON user_compliance_records
 FOR EACH ROW

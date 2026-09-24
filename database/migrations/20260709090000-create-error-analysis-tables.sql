@@ -111,7 +111,7 @@ CREATE TABLE IF NOT EXISTS error_snapshots (
   group_id VARCHAR(36) REFERENCES error_groups(id) ON DELETE CASCADE,
   error_event_id VARCHAR(36) REFERENCES error_events(id) ON DELETE CASCADE,
   request JSONB,
-  user JSONB,
+  "user" JSONB,
   trace JSONB,
   environment JSONB,
   system JSONB,
@@ -123,7 +123,7 @@ ALTER TABLE error_snapshots ADD COLUMN IF NOT EXISTS id VARCHAR(36);
 ALTER TABLE error_snapshots ADD COLUMN IF NOT EXISTS group_id VARCHAR(36);
 ALTER TABLE error_snapshots ADD COLUMN IF NOT EXISTS error_event_id VARCHAR(36);
 ALTER TABLE error_snapshots ADD COLUMN IF NOT EXISTS request JSONB;
-ALTER TABLE error_snapshots ADD COLUMN IF NOT EXISTS user JSONB;
+ALTER TABLE error_snapshots ADD COLUMN IF NOT EXISTS "user" JSONB;
 ALTER TABLE error_snapshots ADD COLUMN IF NOT EXISTS trace JSONB;
 ALTER TABLE error_snapshots ADD COLUMN IF NOT EXISTS environment JSONB;
 ALTER TABLE error_snapshots ADD COLUMN IF NOT EXISTS system JSONB;

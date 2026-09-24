@@ -301,7 +301,7 @@ SELECT
     AVG(rto) AS avg_rto,
     AVG(rpo) AS avg_rpo,
     
-    AVG((results->'sloCompliance'->'availability'->>'passed')::boolean) AS avg_availability_compliance,
+    AVG(((results->'sloCompliance'->'availability'->>'passed')::boolean)::int) AS avg_availability_compliance,
     
     MAX(start_time) AS last_drill_time,
     MIN(start_time) AS first_drill_time
