@@ -66,7 +66,7 @@ ADD COLUMN IF NOT EXISTS friendship_points INTEGER DEFAULT 10;
 CREATE MATERIALIZED VIEW IF NOT EXISTS friend_leaderboard_mv AS
 SELECT 
     u.id AS user_id,
-    u.username,
+    u.nickname AS username,
     u.avatar_url,
     u.level,
     COUNT(DISTINCT CASE WHEN f.user_a = u.id THEN f.user_b ELSE f.user_a END) AS friend_count,
@@ -76,7 +76,7 @@ SELECT
     CURRENT_TIMESTAMP AS updated_at
 FROM users u
 LEFT JOIN friendships f ON (f.user_a = u.id OR f.user_b = u.id)
-GROUP BY u.id, u.username, u.avatar_url, u.level;
+GROUP BY u.id, u.nickname, u.avatar_url, u.level;
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_leaderboard_mv_user ON friend_leaderboard_mv(user_id);
 CREATE INDEX IF NOT EXISTS idx_leaderboard_mv_points ON friend_leaderboard_mv(total_friendship_points DESC);

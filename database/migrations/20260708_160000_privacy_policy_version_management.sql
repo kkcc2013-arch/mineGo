@@ -125,7 +125,7 @@ CREATE OR REPLACE VIEW user_policy_status AS
 SELECT 
   u.id AS user_id,
   u.phone,
-  u.email,
+  NULL::text AS email,  -- users 表无 email 列（仅手机号）
   u.created_at AS user_created_at,
   pp.id AS latest_policy_id,
   pp.version AS latest_policy_version,

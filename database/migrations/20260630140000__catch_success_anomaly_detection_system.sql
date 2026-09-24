@@ -181,7 +181,7 @@ CREATE OR REPLACE VIEW v_high_risk_catches AS
 SELECT
     cs.id,
     cs.user_id,
-    u.username,
+    u.nickname AS username,
     cs.pokemon_id,
     ps.name_zh,
     cs.risk_score,
@@ -201,7 +201,7 @@ COMMENT ON VIEW v_high_risk_catches IS '高风险捕捉会话汇总视图';
 CREATE OR REPLACE VIEW v_user_catch_anomaly_stats AS
 SELECT
     urp.user_id,
-    u.username,
+    u.nickname AS username,
     urp.total_catch_attempts,
     urp.total_anomaly_detections,
     CASE
@@ -221,6 +221,14 @@ ORDER BY urp.total_anomaly_detections DESC;
 COMMENT ON VIEW v_user_catch_anomaly_stats IS '用户异常捕捉统计视图';
 
 -- 插入默认风控配置（如果配置表存在）
+-- 通用系统配置表（原迁移直接插入但从未建表）
+CREATE TABLE IF NOT EXISTS system_config (
+    config_key   VARCHAR(100) PRIMARY KEY,
+    config_value TEXT NOT NULL,
+    description  TEXT,
+    updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 INSERT INTO system_config (config_key, config_value, description)
 VALUES 
     ('risk.catch.anomaly_threshold', '70', '捕捉成功率异常评分阈值'),

@@ -40,7 +40,7 @@ ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT
 CREATE INDEX IF NOT EXISTS idx_slow_query_log_query_id ON slow_query_log(query_id);
 CREATE INDEX IF NOT EXISTS idx_slow_query_log_collected_at ON slow_query_log(collected_at);
 CREATE INDEX IF NOT EXISTS idx_slow_query_log_mean_time ON slow_query_log(mean_time_ms DESC);
-CREATE INDEX IF NOT EXISTS idx_slow_query_log_collected_date ON slow_query_log(((collected_at AT TIME ZONE 'UTC')::date));
+-- 按日期查询直接用 idx_slow_query_log_collected_at 做范围扫描（collected_at 在不同迁移中分别为 TIMESTAMP/TIMESTAMPTZ，::date 表达式索引对后者不是 IMMUTABLE）
 
 -- 索引建议表
 CREATE TABLE IF NOT EXISTS index_suggestions (

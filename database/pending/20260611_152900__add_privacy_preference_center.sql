@@ -37,6 +37,15 @@ ALTER TABLE privacy_policy_versions ADD COLUMN IF NOT EXISTS content_zh_cn TEXT;
 ALTER TABLE privacy_policy_versions ADD COLUMN IF NOT EXISTS content_en_us TEXT;
 ALTER TABLE privacy_policy_versions ADD COLUMN IF NOT EXISTS content_ja_jp TEXT;
 ALTER TABLE privacy_policy_versions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- 旧版定义（20260605_161000__add_gdpr_tables.sql）的 title/content/published_at 为 NOT NULL，新版多语言内容不再使用
+DO $pp$ DECLARE c TEXT; BEGIN
+  FOREACH c IN ARRAY ARRAY['title', 'content', 'published_at'] LOOP
+    IF EXISTS (SELECT 1 FROM information_schema.columns
+               WHERE table_schema = 'public' AND table_name = 'privacy_policy_versions' AND column_name = c) THEN
+      EXECUTE format('ALTER TABLE privacy_policy_versions ALTER COLUMN %I DROP NOT NULL', c);
+    END IF;
+  END LOOP;
+END $pp$;
 
 -- 3. 数据透明度报告表
 CREATE TABLE IF NOT EXISTS data_transparency_reports (

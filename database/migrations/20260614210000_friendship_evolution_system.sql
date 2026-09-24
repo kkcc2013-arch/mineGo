@@ -38,6 +38,13 @@ ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS required_friends
 ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS time_restriction VARCHAR(20);
 ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS additional_conditions JSONB DEFAULT '{}';
 ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS evolution_method VARCHAR(50) DEFAULT 'level_up';
+-- 旧版定义（pending/20260611_131000）使用 evolution_species_id NOT NULL；本版使用 target_species_id，两列保持同步
+DO $fe$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public'
+             AND table_name = 'friendship_evolution_rules' AND column_name = 'evolution_species_id') THEN
+    ALTER TABLE friendship_evolution_rules ALTER COLUMN evolution_species_id DROP NOT NULL;
+  END IF;
+END $fe$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_friendship_logs_pokemon ON pokemon_friendship_logs(pokemon_instance_id, created_at DESC);
@@ -56,35 +63,35 @@ UPDATE pokemon_instances SET friendship = 70 WHERE friendship IS NULL;
 INSERT INTO friendship_evolution_rules (species_id, target_species_id, required_friendship, time_restriction, evolution_method)
 SELECT s.id, t.id, 220, NULL, 'level_up'
 FROM pokemon_species s, pokemon_species t
-WHERE s.name = 'Pikachu' AND t.name = 'Raichu'
+WHERE s.name_en = 'Pikachu' AND t.name_en = 'Raichu'
 ON CONFLICT DO NOTHING;
 
 -- 伊布 -> 太阳伊布（白天）
 INSERT INTO friendship_evolution_rules (species_id, target_species_id, required_friendship, time_restriction, evolution_method)
 SELECT s.id, t.id, 220, 'day', 'level_up'
 FROM pokemon_species s, pokemon_species t
-WHERE s.name = 'Eevee' AND t.name = 'Espeon'
+WHERE s.name_en = 'Eevee' AND t.name_en = 'Espeon'
 ON CONFLICT DO NOTHING;
 
 -- 伊布 -> 月亮伊布（夜晚）
 INSERT INTO friendship_evolution_rules (species_id, target_species_id, required_friendship, time_restriction, evolution_method)
 SELECT s.id, t.id, 220, 'night', 'level_up'
 FROM pokemon_species s, pokemon_species t
-WHERE s.name = 'Eevee' AND t.name = 'Umbreon'
+WHERE s.name_en = 'Eevee' AND t.name_en = 'Umbreon'
 ON CONFLICT DO NOTHING;
 
 -- 吉利蛋 -> 幸福蛋
 INSERT INTO friendship_evolution_rules (species_id, target_species_id, required_friendship, time_restriction, evolution_method)
 SELECT s.id, t.id, 220, NULL, 'level_up'
 FROM pokemon_species s, pokemon_species t
-WHERE s.name = 'Chansey' AND t.name = 'Blissey'
+WHERE s.name_en = 'Chansey' AND t.name_en = 'Blissey'
 ON CONFLICT DO NOTHING;
 
 -- 波克比 -> 波克基古
 INSERT INTO friendship_evolution_rules (species_id, target_species_id, required_friendship, time_restriction, evolution_method)
 SELECT s.id, t.id, 220, NULL, 'level_up'
 FROM pokemon_species s, pokemon_species t
-WHERE s.name = 'Togepi' AND t.name = 'Togetic'
+WHERE s.name_en = 'Togepi' AND t.name_en = 'Togetic'
 ON CONFLICT DO NOTHING;
 
 -- 注释
@@ -92,3 +99,10 @@ COMMENT ON TABLE pokemon_friendship_logs IS '精灵亲密度变化日志';
 COMMENT ON TABLE friendship_evolution_rules IS '亲密度进化规则';
 COMMENT ON COLUMN pokemon_friendship_logs.source IS '变化来源：walk, battle_win, battle_raid, feed_berry, feed_golden_berry, spa_treatment, gift_receive, trade_away, faint, energy_drink';
 COMMENT ON COLUMN friendship_evolution_rules.time_restriction IS '时间限制：day=白天, night=夜晚, null=无限制';
+
+DO $fe2$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public'
+             AND table_name = 'friendship_evolution_rules' AND column_name = 'evolution_species_id') THEN
+    UPDATE friendship_evolution_rules SET evolution_species_id = target_species_id WHERE evolution_species_id IS NULL;
+  END IF;
+END $fe2$;
