@@ -5,6 +5,7 @@
  *   训练师等级（经验增长自动升级、升级奖励查询与并发领取只成功一次）
  *   道具入账（补给站全部掉落入账 + 经验；捕捉使用浆果时原子扣减，不足时球也不扣）
  *   服务端不信任 x-user-id 请求头（绕过网关直连服务端口伪造身份被拒绝）
+ *   时区：核心表时间列为 TIMESTAMPTZ；每日任务按游戏日（GAME_TIMEZONE）建档
  *
  * 用法：BASE_URL=http://127.0.0.1:8080 node scripts/smoke-w1-defects.js
  * 依赖 scripts/lib/smoke-helpers.js（读 .env 推导 REDIS_URL / DATABASE_URL）
@@ -186,8 +187,23 @@ async function testForgedIdentity() {
   record('身份：直连服务只带伪造 x-user-id 访问背包被拒绝', r4.status === 401, `status=${r4.status}`);
 }
 
+async function testTimezone() {
+  const db = getDb();
+  const { rows } = await db.query(`SELECT COUNT(*)::int AS n FROM information_schema.columns
+     WHERE table_schema = 'public' AND data_type = 'timestamp without time zone'
+       AND table_name IN ('users','catch_sessions','pokestop_spins','wild_pokemon','raids','events','orders')`);
+  record('时区：核心表时间列均为 TIMESTAMPTZ', rows[0].n === 0, `timestamp 列=${rows[0].n}`);
+  const u = await newUser('tz');
+  const q = await call('GET', '/v1/rewards/quests', { token: u.token });
+  const tz = process.env.GAME_TIMEZONE || 'Asia/Shanghai';
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+  const row = (await db.query("SELECT to_char(quest_date, 'YYYY-MM-DD') AS d FROM daily_quests WHERE user_id = $1", [u.userId])).rows[0];
+  record(`时区：每日任务按游戏日（${tz}）建档`, q.status === 200 && row && row.d === today, `status=${q.status} quest_date=${row && row.d} expected=${today}`);
+}
+
 (async () => {
   await testEvents();
+  await testTimezone();
   await testForgedIdentity();
   await testTrainerLevel();
   await testItems();
