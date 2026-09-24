@@ -8,23 +8,14 @@ const friendshipService = require('../../../../shared/friendshipService');
 const { logger, metrics } = require('../../../../shared');
 
 /**
- * 认证中间件（简化版）
+ * 认证中间件：校验 JWT（原实现直接信任 x-user-id 请求头 / session，可冒充任意用户）
  */
-const authenticate = (req, res, next) => {
-  // 从 header 或 session 获取用户信息
-  const userId = req.headers['x-user-id'] || req.session?.userId;
-  
-  if (!userId) {
-    return res.status(401).json({ 
-      success: false, 
-      error: 'unauthorized',
-      message: '请先登录' 
-    });
-  }
-  
-  req.user = { id: userId };
+const { requireAuth } = require('../../../../shared/auth');
+const authenticate = (req, res, next) => requireAuth(req, res, (err) => {
+  if (err) return next(err);
+  req.user.id = req.user.sub; // 本文件后续代码使用 req.user.id
   next();
-};
+});
 
 /**
  * 获取精灵好感度

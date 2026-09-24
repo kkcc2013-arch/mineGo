@@ -14,7 +14,7 @@ const logger = require('../shared/logger');
  */
 router.get('/preferences', async (req, res) => {
   try {
-    const userId = req.user?.sub || req.headers['x-user-id'];
+    const userId = req.user && req.user.sub;
     
     if (!userId) {
       return res.status(401).json({
@@ -68,7 +68,7 @@ router.get('/preferences', async (req, res) => {
  */
 router.put('/preferences', async (req, res) => {
   try {
-    const userId = req.user?.sub || req.headers['x-user-id'];
+    const userId = req.user && req.user.sub;
     
     if (!userId) {
       return res.status(401).json({
@@ -387,7 +387,7 @@ router.post('/event', async (req, res) => {
  */
 router.get('/events', async (req, res) => {
   try {
-    const userId = req.user?.sub || req.headers['x-user-id'];
+    const userId = req.user && req.user.sub;
     const { limit = 50, severity } = req.query;
 
     let sql = `SELECT * FROM safety_event_log WHERE user_id = $1`;

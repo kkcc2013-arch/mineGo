@@ -4,13 +4,14 @@
  *   活动系统（列表/详情/参与/领奖入账/管理员创建-暂停-恢复-取消、并发领奖只成功一次、非法 ID 返回 400）
  *   训练师等级（经验增长自动升级、升级奖励查询与并发领取只成功一次）
  *   道具入账（补给站全部掉落入账 + 经验；捕捉使用浆果时原子扣减，不足时球也不扣）
+ *   服务端不信任 x-user-id 请求头（绕过网关直连服务端口伪造身份被拒绝）
  *
  * 用法：BASE_URL=http://127.0.0.1:8080 node scripts/smoke-w1-defects.js
  * 依赖 scripts/lib/smoke-helpers.js（读 .env 推导 REDIS_URL / DATABASE_URL）
  */
 'use strict';
 
-const { record, call, newUser, makeAdmin, finish, getDb } = require('./lib/smoke-helpers');
+const { BASE, record, call, newUser, makeAdmin, finish, getDb } = require('./lib/smoke-helpers');
 
 async function testEvents() {
   const player = await newUser('evt');
@@ -169,8 +170,25 @@ async function testItems() {
   record('道具：未知浆果类型被拒绝', t3.status === 400, `status=${t3.status}`);
 }
 
+async function testForgedIdentity() {
+  // 直连 pokemon-service（网关端口 + 3）：只带伪造的 x-user-id、不带 token
+  const u = await newUser('fid');
+  const svc = BASE.replace(/:(\d+)$/, (_, p) => `:${Number(p) + 3}`);
+  const fake = { 'x-user-id': u.userId, 'Content-Type': 'application/json' };
+  const pid = '00000000-0000-0000-0000-000000000001';
+  const r1 = await fetch(`${svc}/pokemon/${pid}/evolution/check`, { headers: fake });
+  record('身份：直连服务伪造 x-user-id 访问进化接口被拒绝', r1.status === 401, `status=${r1.status}`);
+  const r2 = await fetch(`${svc}/pokemon/1/friendship`, { headers: fake });
+  record('身份：直连服务伪造 x-user-id 访问好感度接口被拒绝', r2.status === 401, `status=${r2.status}`);
+  const r3 = await fetch(`${svc}/pokemon/my`, { headers: { Authorization: `Bearer ${u.token}` } });
+  record('身份：携带有效 token 直连服务可正常访问', r3.status === 200, `status=${r3.status}`);
+  const r4 = await fetch(`${svc}/pokemon/my`, { headers: fake });
+  record('身份：直连服务只带伪造 x-user-id 访问背包被拒绝', r4.status === 401, `status=${r4.status}`);
+}
+
 (async () => {
   await testEvents();
+  await testForgedIdentity();
   await testTrainerLevel();
   await testItems();
   await finish();
