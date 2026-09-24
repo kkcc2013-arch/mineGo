@@ -2,7 +2,8 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <!-- WCAG 1.4.4：不禁止用户缩放（E21 无障碍） -->
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Pocket Monster Go</title>
   <!-- PWA Meta Tags -->
   <meta name="theme-color" content="#0d0f14">
@@ -189,6 +190,7 @@
   </div>
 </div>
 
+<main id="main-content">
 <!-- ── LOGIN ─────────────────────────────────────────────────── -->
 <div class="screen active" id="login" data-testid="login-screen">
   <div class="logo-wrap">
@@ -197,7 +199,7 @@
     <div class="logo-sub">GPS精灵捕捉手游 · 开启你的冒险</div>
   </div>
   <div class="form-group">
-    <label class="form-label">手机号</label>
+    <label class="form-label" for="inp-phone">手机号</label>
     <input id="inp-phone" class="form-input" type="tel" placeholder="请输入手机号" maxlength="11" inputmode="numeric" data-testid="phone-input" aria-label="手机号">
   </div>
   <div class="sms-row">
@@ -291,6 +293,7 @@
     <button class="btn btn-outline" onclick="doLogout()" data-testid="logout-btn">退出登录</button>
   </div>
 </div>
+</main>
 
 <!-- ── NAV ───────────────────────────────────────────────────── -->
 <nav id="nav" data-testid="nav-bar" role="navigation" aria-label="主导航">
@@ -367,9 +370,9 @@ window.addEventListener('offline', () => {
 window.addEventListener('load', updateOfflineStatus);
 
 // ── Language Support (i18n) ─────────────────────────────────────
-const SUPPORTED_LANGS = ['zh-CN', 'en-US', 'ja-JP'];
-const LANG_FLAGS = { 'zh-CN': '🇨🇳', 'en-US': '🇺🇸', 'ja-JP': '🇯🇵' };
-const LANG_NAMES = { 'zh-CN': '简体中文', 'en-US': 'English', 'ja-JP': '日本語' };
+const SUPPORTED_LANGS = ['zh-CN', 'en-US', 'ja-JP', 'ar-SA', 'he-IL']; // ar/he：RTL 布局（REQ-00244）
+const LANG_FLAGS = { 'zh-CN': '🇨🇳', 'en-US': '🇺🇸', 'ja-JP': '🇯🇵', 'ar-SA': '🇸🇦', 'he-IL': '🇮🇱' };
+const LANG_NAMES = { 'zh-CN': '简体中文', 'en-US': 'English', 'ja-JP': '日本語', 'ar-SA': 'العربية', 'he-IL': 'עברית' };
 
 function getCurrentLanguage() {
   return localStorage.getItem('pmg_language') || document.documentElement.lang || 'zh-CN';
@@ -482,7 +485,8 @@ function toast(msg, type = '') {
   const box = document.getElementById('toasts');
   const el  = Object.assign(document.createElement('div'), { className: `toast ${type}`, textContent: msg });
   box.appendChild(el);
-  setTimeout(() => el.remove(), 3500);
+  // 无障碍：慢速/节奏设置会延长提示显示时间（window.PMG_A11Y.holdScale）
+  setTimeout(() => el.remove(), 3500 * (window.PMG_A11Y?.holdScale?.() || 1));
 }
 window.toast = toast;
 
@@ -747,8 +751,9 @@ window.doThrow = async function() {
 function startRingAnim() {
   ringPct = 100; ringShrink = true;
   const tick = () => {
-    if (ringShrink) { ringPct -= 0.5; if (ringPct <= 20) ringShrink = false; }
-    else            { ringPct += 0.5; if (ringPct >= 100) ringShrink = true; }
+    const step = 0.5 * (catchEng.timeScale || 1); // 无障碍慢速模式：圆环收缩速度随节奏倍率变化
+    if (ringShrink) { ringPct -= step; if (ringPct <= 20) ringShrink = false; }
+    else            { ringPct += step; if (ringPct >= 100) ringShrink = true; }
     const fill = document.getElementById('ring-fill');
     if (fill) fill.style.width = ringPct + '%';
     ringAnim = requestAnimationFrame(tick);
@@ -790,9 +795,9 @@ if (localStorage.getItem('pmg_access_token')) {
 }
 
 // ── i18n Language Support ────────────────────────────────────────
-const SUPPORTED_LANGS = ['zh-CN', 'en-US', 'ja-JP'];
-const LANG_NAMES = { 'zh-CN': '简体中文', 'en-US': 'English', 'ja-JP': '日本語' };
-const LANG_FLAGS = { 'zh-CN': '🇨🇳', 'en-US': '🇺🇸', 'ja-JP': '🇯🇵' };
+const SUPPORTED_LANGS = ['zh-CN', 'en-US', 'ja-JP', 'ar-SA', 'he-IL']; // ar/he：RTL 布局（REQ-00244）
+const LANG_NAMES = { 'zh-CN': '简体中文', 'en-US': 'English', 'ja-JP': '日本語', 'ar-SA': 'العربية', 'he-IL': 'עברית' };
+const LANG_FLAGS = { 'zh-CN': '🇨🇳', 'en-US': '🇺🇸', 'ja-JP': '🇯🇵', 'ar-SA': '🇸🇦', 'he-IL': '🇮🇱' };
 
 function getCurrentLanguage() {
   return localStorage.getItem('pmg_language') || 'zh-CN';
@@ -859,7 +864,7 @@ window.showLanguageSelector = function() {
 };
 
 // ── 可选功能模块（无障碍 / 体验增强等），失败不影响主流程 ──────────
-initFeatures({ api, store, toast }).catch(() => {});
+initFeatures({ api, store, toast, catchEng, locMgr }).catch(() => {});
 </script>
 </body>
 </html>
