@@ -5,7 +5,7 @@
 -- =====================================================
 
 -- 分区管理函数
--- 函数原名 create_partition_if_not_exists 与 20260619_000000__add_table_partitioning.sql 中的同名函数返回类型不同，改名避免冲突
+-- 函数原名 create_partition_if_not_exists 与 20260619_000000__add_table_partitioning.sql 中的同名函数返回类型不同，改名避免冲突（partition_overview 亦被 20260708_070000 占用）
 CREATE OR REPLACE FUNCTION create_range_partition_if_absent(
   parent_table TEXT,
   partition_name TEXT,
@@ -394,7 +394,8 @@ SELECT create_range_partition_if_absent(
 -- 6. 分区统计视图
 -- =====================================================
 
-CREATE OR REPLACE VIEW partition_stats AS
+-- 与 20260707_060000__complete_partition_management.sql 的 partition_stats 列不同，改名避免冲突（partition_overview 亦被 20260708_070000 占用）
+CREATE OR REPLACE VIEW partition_table_overview AS
 SELECT 
     pc.relname AS parent_table,
     pt.relname AS partition_name,

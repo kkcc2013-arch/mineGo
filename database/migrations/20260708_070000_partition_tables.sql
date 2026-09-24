@@ -482,6 +482,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 批量预创建分区函数
+-- 早先的分区迁移（20260626100100 / 20260707_060000）定义过同签名但返回类型不同的版本，以本迁移为准
+DROP FUNCTION IF EXISTS precreate_partitions(TEXT, INTEGER);
 CREATE OR REPLACE FUNCTION precreate_partitions(
   p_table_name TEXT,
   p_days INTEGER DEFAULT 7
@@ -501,6 +503,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 获取分区统计函数
+-- 早先的分区迁移（20260626100100 / 20260707_060000）定义过同签名但返回类型不同的版本，以本迁移为准
+DROP FUNCTION IF EXISTS get_partition_stats(TEXT);
 CREATE OR REPLACE FUNCTION get_partition_stats(
   p_table_name TEXT
 ) RETURNS TABLE (
@@ -521,6 +525,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 归档冷数据分区函数
+-- 早先的分区迁移（20260626100100 / 20260707_060000）定义过同签名但返回类型不同的版本，以本迁移为准
+DROP FUNCTION IF EXISTS archive_old_partitions(TEXT, INTEGER);
 CREATE OR REPLACE FUNCTION archive_old_partitions(
   p_table_name TEXT,
   p_retention_days INTEGER DEFAULT 30
