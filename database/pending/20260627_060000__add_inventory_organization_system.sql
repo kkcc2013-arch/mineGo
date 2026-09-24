@@ -27,7 +27,7 @@ CREATE INDEX IF NOT EXISTS idx_pokemon_user_locked
   WHERE is_deleted = FALSE;
 
 CREATE INDEX IF NOT EXISTS idx_pokemon_user_types 
-  ON pokemon_instances(user_id, types[1])
+  ON pokemon_instances(user_id, (types[1]))
   WHERE is_deleted = FALSE;
 
 CREATE INDEX IF NOT EXISTS idx_pokemon_user_species

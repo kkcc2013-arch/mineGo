@@ -22,9 +22,7 @@ CREATE TABLE IF NOT EXISTS user_behavior_events (
 -- 索引
 CREATE INDEX idx_behavior_events_user_time ON user_behavior_events(user_id, created_at DESC);
 CREATE INDEX idx_behavior_events_type ON user_behavior_events(event_type);
-CREATE INDEX idx_behavior_events_location ON user_behavior_events USING GIST (
-  ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)
-);
+CREATE INDEX idx_behavior_events_location ON user_behavior_events USING GIST ((ST_SetSRID(ST_MakePoint(longitude, latitude), 4326)));
 
 -- 分区（按月分区，保留 3 个月）
 -- 注意：需要在后续维护中创建新的分区

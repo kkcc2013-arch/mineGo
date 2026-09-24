@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS player_equipment (
   is_equipped BOOLEAN NOT NULL DEFAULT FALSE,
   
   -- 装备到的精灵ID
-  equipped_to_pokemon_id BIGINT REFERENCES pokemon_instances(id) ON DELETE SET NULL,
+  equipped_to_pokemon_id UUID REFERENCES pokemon_instances(id) ON DELETE SET NULL,
   
   -- 获取时间
   acquired_at TIMESTAMP NOT NULL DEFAULT NOW(),
@@ -135,12 +135,9 @@ CREATE TABLE IF NOT EXISTS player_equipment (
   -- 来源ID（如raid_id, quest_id等）
   source_id VARCHAR(100),
   
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  
-  -- 约束：同一精灵同一类型只能装备一件
-  CONSTRAINT uq_pokemon_equipment_type UNIQUE (equipped_to_pokemon_id, template_id) 
-    WHERE is_equipped = TRUE
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+CREATE UNIQUE INDEX IF NOT EXISTS uq_pokemon_equipment_type ON player_equipment (equipped_to_pokemon_id, template_id) WHERE is_equipped = TRUE;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_player_equipment_user ON player_equipment(user_id);

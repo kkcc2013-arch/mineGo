@@ -182,8 +182,8 @@ CREATE INDEX IF NOT EXISTS idx_cdc_status_heartbeat ON cdc_status(last_heartbeat
 CREATE INDEX IF NOT EXISTS idx_invalidation_log_success ON cache_invalidation_log(success);
 
 -- 授权
-GRANT SELECT, INSERT, UPDATE, DELETE ON cdc_status TO minego_user;
-GRANT SELECT, INSERT, UPDATE, DELETE ON cache_invalidation_log TO minego_user;
-GRANT SELECT, INSERT, UPDATE, DELETE ON cache_invalidation_rules TO minego_user;
-GRANT SELECT, INSERT, UPDATE, DELETE ON cache_invalidation_stats TO minego_user;
-GRANT SELECT ON cache_invalidation_health TO minego_user;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON cdc_status TO minego_user'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON cache_invalidation_log TO minego_user'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON cache_invalidation_rules TO minego_user'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON cache_invalidation_stats TO minego_user'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT ON cache_invalidation_health TO minego_user'; END IF; END $grant$;

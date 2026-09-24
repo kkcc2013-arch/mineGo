@@ -47,10 +47,10 @@ CREATE TABLE IF NOT EXISTS slow_query_history (
     rows_returned BIGINT,
     shared_blks_hit BIGINT,
     shared_blks_read BIGINT,
-    recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_slow_query_history_query_id (query_id),
-    INDEX idx_slow_query_history_recorded_at (recorded_at)
+    recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX IF NOT EXISTS idx_slow_query_history_query_id ON slow_query_history (query_id);
+CREATE INDEX IF NOT EXISTS idx_slow_query_history_recorded_at ON slow_query_history (recorded_at);
 
 -- =====================================================
 -- 4. 创建索引建议表

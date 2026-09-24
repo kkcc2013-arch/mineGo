@@ -129,7 +129,7 @@ INSERT INTO spawn_pools (biome, pokemon_id, weight, min_level, max_level) VALUES
 ('grass', 20, 8.0, 20, 40),  -- 拉达
 ('grass', 25, 3.0, 5, 35),   -- 皮卡丘（稀有）
 ('grass', 43, 8.0, 1, 30),   -- 走路草
-('grass', 63, 6.0, 1, 25),   -- 凯西
+('grass', 63, 6.0, 1, 25)   -- 凯西
 ON CONFLICT (biome, pokemon_id) DO NOTHING;
 
 -- 水域生物群系
@@ -143,7 +143,7 @@ INSERT INTO spawn_pools (biome, pokemon_id, weight, min_level, max_level) VALUES
 ('water', 72, 7.0, 1, 30),   -- 玛瑙水母
 ('water', 73, 5.0, 30, 50),  -- 毒刺水母
 ('water', 86, 5.0, 1, 35),   -- 小海狮
-('water', 98, 4.0, 1, 30),   -- 大钳蟹
+('water', 98, 4.0, 1, 30)   -- 大钳蟹
 ON CONFLICT (biome, pokemon_id) DO NOTHING;
 
 -- 城市生物群系
@@ -155,7 +155,7 @@ INSERT INTO spawn_pools (biome, pokemon_id, weight, min_level, max_level) VALUES
 ('urban', 92, 8.0, 1, 30),   -- 鬼斯
 ('urban', 93, 5.0, 25, 40),  -- 鬼斯通
 ('urban', 109, 6.0, 1, 30),  -- 瓦斯弹
-('urban', 133, 2.0, 5, 40),  -- 伊布（稀有）
+('urban', 133, 2.0, 5, 40)  -- 伊布（稀有）
 ON CONFLICT (biome, pokemon_id) DO NOTHING;
 
 -- 森林生物群系
@@ -169,7 +169,7 @@ INSERT INTO spawn_pools (biome, pokemon_id, weight, min_level, max_level) VALUES
 ('forest', 25, 5.0, 3, 40),  -- 皮卡丘
 ('forest', 69, 12.0, 1, 30), -- 喇叭芽
 ('forest', 70, 8.0, 21, 40), -- 口呆花
-('forest', 123, 1.5, 15, 50), -- 飞天螳螂（稀有）
+('forest', 123, 1.5, 15, 50) -- 飞天螳螂（稀有）
 ON CONFLICT (biome, pokemon_id) DO NOTHING;
 
 -- 山地生物群系
@@ -180,7 +180,7 @@ INSERT INTO spawn_pools (biome, pokemon_id, weight, min_level, max_level) VALUES
 ('mountain', 75, 7.0, 25, 45), -- 隆隆石
 ('mountain', 95, 3.0, 10, 55), -- 大岩蛇（稀有）
 ('mountain', 111, 5.0, 1, 40), -- 铁甲犀牛
-('mountain', 126, 1.0, 20, 50), -- 鸭嘴火兽（稀有）
+('mountain', 126, 1.0, 20, 50) -- 鸭嘴火兽（稀有）
 ON CONFLICT (biome, pokemon_id) DO NOTHING;
 
 -- 洞穴生物群系
@@ -192,7 +192,7 @@ INSERT INTO spawn_pools (biome, pokemon_id, weight, min_level, max_level) VALUES
 ('cave', 66, 6.0, 1, 35),    -- 腕力
 ('cave', 74, 10.0, 1, 30),   -- 小拳石
 ('cave', 88, 4.0, 1, 35),    -- 臭泥
-('cave', 89, 2.5, 38, 50),   -- 臭臭泥
+('cave', 89, 2.5, 38, 50)   -- 臭臭泥
 ON CONFLICT (biome, pokemon_id) DO NOTHING;
 
 -- 插入默认区域配置（示例热门区域）

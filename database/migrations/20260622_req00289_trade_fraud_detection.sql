@@ -216,12 +216,12 @@ COMMENT ON VIEW high_risk_trades_view IS '高风险交易统计视图';
 -- 11. 权限设置
 -- ============================================================
 
-GRANT SELECT, INSERT, UPDATE ON trade_fraud_analysis TO minego_user;
-GRANT SELECT, INSERT, UPDATE ON trade_value_warnings TO minego_user;
-GRANT SELECT, INSERT ON trade_audit_log TO minego_user;
-GRANT SELECT, INSERT ON trade_rollbacks TO minego_user;
-GRANT SELECT, INSERT ON user_security_events TO minego_user;
-GRANT SELECT, INSERT, UPDATE ON trade_network_cache TO minego_user;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE ON trade_fraud_analysis TO minego_user'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE ON trade_value_warnings TO minego_user'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT, INSERT ON trade_audit_log TO minego_user'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT, INSERT ON trade_rollbacks TO minego_user'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT, INSERT ON user_security_events TO minego_user'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE ON trade_network_cache TO minego_user'; END IF; END $grant$;
 
 -- ============================================================
 -- 12. 初始数据

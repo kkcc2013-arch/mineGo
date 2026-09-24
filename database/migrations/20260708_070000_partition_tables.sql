@@ -569,10 +569,10 @@ FROM pg_tables WHERE tablename LIKE 'battle_logs_%';
 -- 12. 授权
 -- ============================================================
 
-GRANT SELECT, INSERT, UPDATE ON partition_archive_metadata TO minego_app;
-GRANT SELECT, INSERT ON partition_health_log TO minego_app;
-GRANT USAGE ON ALL FUNCTIONS IN SCHEMA public TO minego_app;
-GRANT SELECT ON partition_overview TO minego_app;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE ON partition_archive_metadata TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT ON partition_health_log TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT USAGE ON ALL FUNCTIONS IN SCHEMA public TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT ON partition_overview TO minego_app'; END IF; END $grant$;
 
 -- ============================================================
 -- 迁移记录

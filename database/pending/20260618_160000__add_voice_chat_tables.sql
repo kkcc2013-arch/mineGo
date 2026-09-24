@@ -38,9 +38,9 @@ CREATE TABLE IF NOT EXISTS voice_room_members (
   muted BOOLEAN DEFAULT FALSE,
   deafened BOOLEAN DEFAULT FALSE,
   joined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  left_at TIMESTAMP WITH TIME ZONE,
-  UNIQUE(room_id, user_id) WHERE left_at IS NULL
+  left_at TIMESTAMP WITH TIME ZONE
 );
+CREATE UNIQUE INDEX IF NOT EXISTS voice_room_members_room_id_user_id_uniq ON voice_room_members (room_id, user_id) WHERE left_at IS NULL;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_voice_room_members_room ON voice_room_members(room_id);

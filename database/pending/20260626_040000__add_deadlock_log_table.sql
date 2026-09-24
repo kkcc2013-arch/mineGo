@@ -1,4 +1,4 @@
-// database/pending/20260611_002000__add_deadlock_log_table.sql
+-- database/pending/20260611_002000__add_deadlock_log_table.sql
 /**
  * REQ-00096: 数据库事务隔离级别控制与死锁检测机制
  * 死锁日志表迁移

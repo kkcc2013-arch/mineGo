@@ -1,5 +1,5 @@
-// database/migrations/055_i18n_dynamic_localization.sql
-// REQ-00294: 动态本地化系统数据库迁移
+-- database/migrations/055_i18n_dynamic_localization.sql
+-- REQ-00294: 动态本地化系统数据库迁移
 
 -- 翻译键表
 CREATE TABLE IF NOT EXISTS translation_keys (

@@ -98,10 +98,9 @@ CREATE TABLE guild_applications (
     reviewed_at TIMESTAMP,
     review_note TEXT,
     
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    CONSTRAINT unique_pending_application UNIQUE (guild_id, user_id) WHERE (status = 'pending')
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE UNIQUE INDEX IF NOT EXISTS unique_pending_application ON guild_applications (guild_id, user_id) WHERE (status = 'pending');
 
 -- 公会邀请表
 CREATE TABLE guild_invitations (
@@ -117,10 +116,9 @@ CREATE TABLE guild_invitations (
     expires_at TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '7 days'),
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    responded_at TIMESTAMP,
-    
-    CONSTRAINT unique_pending_invitation UNIQUE (guild_id, invitee_id) WHERE (status = 'pending')
+    responded_at TIMESTAMP
 );
+CREATE UNIQUE INDEX IF NOT EXISTS unique_pending_invitation ON guild_invitations (guild_id, invitee_id) WHERE (status = 'pending');
 
 -- 公会仓库表（共享道具）
 CREATE TABLE guild_warehouse (

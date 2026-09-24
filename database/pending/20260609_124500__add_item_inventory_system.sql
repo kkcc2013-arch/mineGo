@@ -5,6 +5,25 @@
 -- =====================================================
 
 -- 1. 道具定义表
+-- 以 20260613_localization_layer.sql 的 items 结构（id VARCHAR(50) PK）为准；全新库上先建表，
+-- 使本迁移不依赖执行顺序（与 localization_layer 中的定义完全一致，IF NOT EXISTS 幂等）。
+CREATE TABLE IF NOT EXISTS items (
+  id              VARCHAR(50) PRIMARY KEY,  -- 'POKE_BALL', 'GREAT_BALL', 'POTION', etc.
+  category        VARCHAR(30) NOT NULL,     -- 'BALL', 'POTION', 'BERRY', 'EVOLUTION', 'SPECIAL'
+  name_zh         VARCHAR(100) NOT NULL,
+  name_en         VARCHAR(100) NOT NULL,
+  name_ja         VARCHAR(100),
+  description_zh  TEXT,
+  description_en  TEXT,
+  description_ja  TEXT,
+  effect_type     VARCHAR(50),              -- 'CATCH_BONUS', 'HEAL', 'STAT_BOOST'
+  effect_value    DECIMAL(10,4),
+  shop_price      INTEGER,                  -- Price in coins
+  is_premium      BOOLEAN NOT NULL DEFAULT FALSE,
+  sprite_url      VARCHAR(500),
+  created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
+  updated_at      TIMESTAMP NOT NULL DEFAULT NOW()
+);
 -- The items table already exists with a different schema (id VARCHAR(50) PK).
 -- We adapt by adding all missing columns and adding item_id as an alias to id.
 ALTER TABLE items ADD COLUMN IF NOT EXISTS item_id VARCHAR(50);

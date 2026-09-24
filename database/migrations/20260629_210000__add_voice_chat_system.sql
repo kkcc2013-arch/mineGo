@@ -48,10 +48,9 @@ CREATE TABLE IF NOT EXISTS voice_room_members (
   
   -- 时间
   joined_at TIMESTAMPTZ DEFAULT NOW(),
-  left_at TIMESTAMPTZ,
-  
-  UNIQUE (room_id, user_id) WHERE left_at IS NULL
+  left_at TIMESTAMPTZ
 );
+CREATE UNIQUE INDEX IF NOT EXISTS voice_room_members_room_id_user_id_uniq ON voice_room_members (room_id, user_id) WHERE left_at IS NULL;
 
 -- 语音聊天统计表
 CREATE TABLE IF NOT EXISTS voice_chat_statistics (

@@ -6,7 +6,7 @@
 -- 捕捉成功率统计表（按小时维度）
 CREATE TABLE IF NOT EXISTS catch_success_stats (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     pokemon_id VARCHAR(64) NOT NULL,
     pokemon_rarity VARCHAR(32) NOT NULL CHECK(pokemon_rarity IN ('common', 'uncommon', 'rare', 'epic', 'legendary')),
     ball_type VARCHAR(32) NOT NULL CHECK(ball_type IN ('POKE_BALL', 'GREAT_BALL', 'ULTRA_BALL', 'MASTER_BALL')),
@@ -41,7 +41,7 @@ CREATE INDEX IF NOT EXISTS idx_catch_sessions_risk ON catch_sessions(risk_level,
 -- 道具使用记录表（用于检测道具异常）
 CREATE TABLE IF NOT EXISTS item_usage_records (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     item_type VARCHAR(64) NOT NULL,
     item_category VARCHAR(32) NOT NULL CHECK(item_category IN ('ball', 'berry', 'medicine', 'evolution', 'boost')),
     session_id VARCHAR(128),
@@ -53,17 +53,17 @@ CREATE TABLE IF NOT EXISTS item_usage_records (
     actual_effect DECIMAL(5,4),
     anomaly_detected BOOLEAN DEFAULT false,
     anomaly_details JSONB,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    INDEX idx_user_time (user_id, created_at DESC),
-    INDEX idx_anomaly (anomaly_detected, created_at DESC)
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS idx_item_usage_records_user_time ON item_usage_records (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_item_usage_records_anomaly ON item_usage_records (anomaly_detected, created_at DESC);
 
 COMMENT ON TABLE item_usage_records IS '道具使用记录表，用于检测道具数量和效果篡改';
 
 -- 风控决策日志表
 CREATE TABLE IF NOT EXISTS risk_decision_logs (
     id BIGSERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     session_id VARCHAR(128),
     action_type VARCHAR(32) NOT NULL CHECK(action_type IN ('catch_attempt', 'item_use', 'inventory_check')),
     risk_score DECIMAL(5,2) NOT NULL,
@@ -74,18 +74,18 @@ CREATE TABLE IF NOT EXISTS risk_decision_logs (
     client_ip_hash VARCHAR(64),
     user_agent_hash VARCHAR(64),
     device_fingerprint VARCHAR(256),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    INDEX idx_risk_user (user_id, created_at DESC),
-    INDEX idx_risk_level (risk_level, created_at DESC),
-    INDEX idx_risk_session (session_id)
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS idx_risk_decision_logs_risk_user ON risk_decision_logs (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_risk_decision_logs_risk_level ON risk_decision_logs (risk_level, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_risk_decision_logs_risk_session ON risk_decision_logs (session_id);
 
 COMMENT ON TABLE risk_decision_logs IS '风控决策日志表，记录所有捕捉请求的风险评估';
 
 -- 用户风控状态表
 CREATE TABLE IF NOT EXISTS user_risk_profiles (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     total_catch_attempts BIGINT NOT NULL DEFAULT 0,
     total_anomaly_detections BIGINT NOT NULL DEFAULT 0,
     total_blocks BIGINT NOT NULL DEFAULT 0,
@@ -97,9 +97,9 @@ CREATE TABLE IF NOT EXISTS user_risk_profiles (
     flag_reason TEXT,
     flag_expires_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    INDEX idx_flagged (is_flagged, updated_at DESC)
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS idx_user_risk_profiles_flagged ON user_risk_profiles (is_flagged, updated_at DESC);
 
 COMMENT ON TABLE user_risk_profiles IS '用户风控状态表，追踪用户的整体风控状态';
 

@@ -261,11 +261,11 @@ CREATE INDEX IF NOT EXISTS idx_pokemon_species_region ON pokemon_species(region)
 -- ============================================
 -- 权限授予
 -- ============================================
-GRANT SELECT, INSERT, UPDATE, DELETE ON pokedex_progress TO minego_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON pokedex_milestones TO minego_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON user_milestone_claims TO minego_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON pokedex_achievements TO minego_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON user_pokedex_achievements TO minego_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON pokedex_stats_cache TO minego_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON pokemon_species TO minego_app;
-GRANT EXECUTE ON FUNCTION update_pokedex_stats TO minego_app;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON pokedex_progress TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON pokedex_milestones TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON user_milestone_claims TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON pokedex_achievements TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON user_pokedex_achievements TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON pokedex_stats_cache TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON pokemon_species TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT EXECUTE ON FUNCTION update_pokedex_stats TO minego_app'; END IF; END $grant$;
