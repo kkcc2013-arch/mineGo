@@ -186,7 +186,8 @@ GROUP BY DATE_TRUNC('day', p.timestamp)
 ORDER BY day DESC;
 
 -- 10. 创建视图：成本趋势
-CREATE OR REPLACE VIEW cost_trends AS
+-- 视图改名：cost_trends 已是 20260609_000000__add_cloud_cost_tables.sql 中的按日聚合表
+CREATE OR REPLACE VIEW cost_hourly_trends AS
 SELECT 
   DATE_TRUNC('hour', timestamp) AS hour,
   service_name,

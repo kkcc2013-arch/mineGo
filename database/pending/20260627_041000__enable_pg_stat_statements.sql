@@ -124,7 +124,7 @@ SELECT
     COUNT(*) as total_indexes,
     COUNT(*) FILTER (WHERE idx_scan > 0) as used_indexes,
     COUNT(*) FILTER (WHERE idx_scan = 0) as unused_indexes,
-    ROUND(COUNT(*) FILTER (WHERE idx_scan > 0)::FLOAT / COUNT(*) * 100, 2) as usage_ratio
+    ROUND((COUNT(*) FILTER (WHERE idx_scan > 0))::NUMERIC / NULLIF(COUNT(*), 0) * 100, 2) as usage_ratio
 FROM pg_stat_user_indexes
 GROUP BY schemaname, relname
 ORDER BY unused_indexes DESC;

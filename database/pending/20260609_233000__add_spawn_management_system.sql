@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS spawn_pools (
   id SERIAL PRIMARY KEY,
   biome VARCHAR(50) NOT NULL, -- grass, water, forest, urban, mountain, cave
   pokemon_id INTEGER NOT NULL,
-  weight DECIMAL(5,4) DEFAULT 1.0, -- 刷新权重
+  weight DECIMAL(8,4) DEFAULT 1.0, -- 刷新权重
   min_level INTEGER DEFAULT 1,
   max_level INTEGER DEFAULT 30,
   weather_boost JSONB, -- 天气加成配置
@@ -73,10 +73,12 @@ CREATE TABLE IF NOT EXISTS spawn_pools (
   created_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(biome, pokemon_id)
 );
+-- 权重取值 0.1~50（原 DECIMAL(5,4) 最大 9.9999，种子数据 12.0 会溢出）
 -- [fix_sql_dialect] 补齐已存在旧表缺少的列
 ALTER TABLE spawn_pools ADD COLUMN IF NOT EXISTS biome VARCHAR(50);
 ALTER TABLE spawn_pools ADD COLUMN IF NOT EXISTS pokemon_id INTEGER;
-ALTER TABLE spawn_pools ADD COLUMN IF NOT EXISTS weight DECIMAL(5,4) DEFAULT 1.0;
+ALTER TABLE spawn_pools ADD COLUMN IF NOT EXISTS weight DECIMAL(8,4) DEFAULT 1.0;
+ALTER TABLE spawn_pools ALTER COLUMN weight TYPE DECIMAL(8,4);
 ALTER TABLE spawn_pools ADD COLUMN IF NOT EXISTS min_level INTEGER DEFAULT 1;
 ALTER TABLE spawn_pools ADD COLUMN IF NOT EXISTS max_level INTEGER DEFAULT 30;
 ALTER TABLE spawn_pools ADD COLUMN IF NOT EXISTS weather_boost JSONB;

@@ -499,11 +499,4 @@ COMMENT ON TABLE guild_leaderboard IS '公会排行榜';
 COMMENT ON TABLE guild_buffs IS '公会增益效果表';
 COMMENT ON TABLE guild_chat_messages IS '公会聊天消息表';
 
--- 插入默认公会配置
-INSERT INTO guild_leaderboard (guild_id, leaderboard_type, score, period)
-SELECT 
-    0, 
-    'global', 
-    0, 
-    'all_time'
-WHERE NOT EXISTS (SELECT 1 FROM guild_leaderboard WHERE guild_id = 0);
+-- 原"默认公会配置"插入了 guild_id = 0 的排行榜行，而 guilds 中不存在 id=0，违反外键；排行榜行由公会创建时生成，已移除。

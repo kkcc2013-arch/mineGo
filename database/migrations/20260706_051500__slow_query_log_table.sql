@@ -40,7 +40,7 @@ ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT
 CREATE INDEX IF NOT EXISTS idx_slow_query_log_query_id ON slow_query_log(query_id);
 CREATE INDEX IF NOT EXISTS idx_slow_query_log_collected_at ON slow_query_log(collected_at);
 CREATE INDEX IF NOT EXISTS idx_slow_query_log_mean_time ON slow_query_log(mean_time_ms DESC);
-CREATE INDEX IF NOT EXISTS idx_slow_query_log_collected_date ON slow_query_log((collected_at::date));
+CREATE INDEX IF NOT EXISTS idx_slow_query_log_collected_date ON slow_query_log(((collected_at AT TIME ZONE 'UTC')::date));
 
 -- 索引建议表
 CREATE TABLE IF NOT EXISTS index_suggestions (
@@ -108,7 +108,9 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 创建分析结果汇总视图
-CREATE OR REPLACE VIEW slow_query_summary AS
+-- 与 pending/20260611_030000 中的同名视图列不同：先删除再按本迁移（新版）定义重建
+DROP VIEW IF EXISTS slow_query_summary;
+CREATE VIEW slow_query_summary AS
 SELECT 
     query_id,
     LEFT(query_text, 200) as query_preview,
