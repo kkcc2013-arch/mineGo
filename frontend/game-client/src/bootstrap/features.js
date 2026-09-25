@@ -3,10 +3,12 @@
 // 任一模块初始化失败不影响主流程（登录/地图/捕捉）。
 import { initAccessibility } from './a11y.js';
 import { initExperience } from './experience.js';
+import { initPrivacyCenter } from '../features/privacyCenter.js';
 
 const initializers = [
   ['a11y', initAccessibility],
   ['experience', initExperience],
+  ['privacy', initPrivacyCenter], // REQ-00044 数据导出/账号删除
 ];
 
 export async function initFeatures(ctx = {}) {
