@@ -292,10 +292,16 @@
   </div>
 </div>
 
+<!-- ── FRIENDS（REQ-00048/00228/00326/00377/00388，由 src/social/FriendsScreen.js 渲染） ── -->
+<div class="screen" id="friends" data-testid="friends-screen"></div>
+
 <!-- ── NAV ───────────────────────────────────────────────────── -->
 <nav id="nav" data-testid="nav-bar" role="navigation" aria-label="主导航">
   <div class="nav-tab on" id="tab-map" onclick="goScreen('map')" data-testid="nav-map" role="link" tabindex="0">
     <div class="nav-icon" aria-hidden="true">🗺️</div><span>地图</span>
+  </div>
+  <div class="nav-tab" id="tab-friends" onclick="goScreen('friends')" data-testid="nav-friends" role="link" tabindex="0">
+    <div class="nav-icon" aria-hidden="true">🤝</div><span>好友</span>
   </div>
   <div class="nav-tab" id="tab-profile" onclick="goScreen('profile')" data-testid="nav-profile" role="link" tabindex="0">
     <div class="nav-icon" aria-hidden="true">👤</div><span>我的</span>
@@ -490,9 +496,10 @@ window.toast = toast;
 window.goScreen = function(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  ['map','profile'].forEach(t => document.getElementById('tab-'+t)?.classList.toggle('on', t === id));
+  ['map','friends','profile'].forEach(t => document.getElementById('tab-'+t)?.classList.toggle('on', t === id));
   curScreen = id;
   if (id === 'map') loadMap();
+  if (id === 'friends') import('./src/social/FriendsScreen.js').then(m => m.showFriends(toast)).catch(e => toast(e.message || '好友模块加载失败', 'err'));
 };
 
 window.exitCatch = function() {
