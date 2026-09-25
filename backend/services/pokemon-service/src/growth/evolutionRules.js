@@ -18,18 +18,8 @@ const DAY_START_HOUR = 6;
 const NIGHT_START_HOUR = 18;
 const EVOLUTION_TRAINER_XP = 500;
 
-function toInt(v, d = 0) {
-  const n = Number(v);
-  return Number.isFinite(n) ? Math.trunc(n) : d;
-}
-
-/** 物种在给定 IV 下的基础 CP（1 级、无强化） */
-function baseCp(species, iv = {}) {
-  const a = toInt(species.base_attack) + toInt(iv.attack ?? iv.iv_attack);
-  const d = toInt(species.base_defense) + toInt(iv.defense ?? iv.iv_defense);
-  const h = toInt(species.base_hp) + toInt(iv.hp ?? iv.iv_hp);
-  return Math.max(10, Math.floor((a * Math.sqrt(Math.max(d, 1)) * Math.sqrt(Math.max(h, 1))) / 10));
-}
+/** 物种在给定 IV 下的基础 CP（1 级、无强化），与刷怪公式一致（shared/pokemonStats） */
+const { baseCp, toInt } = require('../../../../shared/pokemonStats');
 
 /** 等级倍率：每级 +2%（与经验引擎共用一个定义） */
 const { levelMultiplier } = require('../../../../shared/ExperienceEngine');

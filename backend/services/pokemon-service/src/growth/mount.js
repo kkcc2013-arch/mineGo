@@ -40,6 +40,12 @@ function mountGrowth(app, logger) {
   app.use('/pokemon/breeding', require('../routes/breeding'));
   app.use('/pokemon', require('../routes/specialTraining'));
   app.use('/pokemon', require('../routes/awakening'));
+  app.use('/pokemon', require('../routes/inheritance'));
+
+  every('inheritance-pool-purge', 6 * 3600 * 1000, async () => {
+    const n = await require('../inheritanceService').purgeExpired();
+    if (n) logger.info({ purged: n }, 'expired inheritance pools purged');
+  }, logger);
 
   every('exp-history-partitions', 24 * 3600 * 1000, async () => {
     await query('SELECT ensure_pokemon_exp_history_partitions(2)');

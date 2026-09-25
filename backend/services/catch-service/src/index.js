@@ -13,6 +13,7 @@ const { publishCatchSuccess, publishCatchFailed } = require('./eventProducers');
 const { habitatService } = require('../../../shared/habitatService');
 const { grantPokemonExperience } = require('../../../shared/pokemonExperience');
 const { catchBaseExperience } = require('../../../shared/ExperienceEngine');
+const { applyInheritanceOnCatch } = require('../../../shared/pokemonInheritance');
 
 // ============================================================
 // CATCH MECHANICS CONSTANTS
@@ -108,6 +109,20 @@ async function grantCatchGrowth(client, userId, session, pokemonId, sessionId, l
   }
 }
 
+/** 捕捉同家族精灵时自动应用传承池加成（保存点内执行，失败只回滚这一段） */
+async function applyCatchInheritance(client, userId, pokemonId, logger) {
+  await client.query('SAVEPOINT catch_inheritance');
+  try {
+    const r = await applyInheritanceOnCatch(client, { userId, pokemonId });
+    await client.query('RELEASE SAVEPOINT catch_inheritance');
+    return r;
+  } catch (err) {
+    await client.query('ROLLBACK TO SAVEPOINT catch_inheritance');
+    logger.error({ err: err.message, pokemonId }, 'catch inheritance failed');
+    return null;
+  }
+}
+
 /**
  * Handle successful catch
  */
@@ -187,7 +202,8 @@ async function handleCatch(userId, session, throwRating, isCurve, sessionId, log
     `, [userId, session.speciesId, session.cp, session.isShiny]);
 
 
-    // E07 精灵成长：新精灵的起始经验（稀有度 × 训练师等级差 × 连击 × 首次捕获）；失败不影响捕捉
+    // E07 精灵成长：先应用传承池加成（REQ-00361，改 IV/CP），再发放新精灵起始经验（REQ-00216）；失败都不影响捕捉
+    const inheritance = await applyCatchInheritance(client, userId, instance.id, logger);
     const growth = await grantCatchGrowth(client, userId, session, instance.id, sessionId, logger);
 
     // Close session
@@ -225,16 +241,18 @@ async function handleCatch(userId, session, throwRating, isCurve, sessionId, log
       pokemon: {
         speciesId: session.speciesId,
         name:      session.name_zh,
-        cp:        session.cp,
+        cp:        (growth && growth.cpAfter) || (inheritance && inheritance.cpAfter) || session.cp,
         isShiny:   session.isShiny,
-        iv: {
+        iv: inheritance ? inheritance.ivAfter : {
           attack:  session.iv_attack,
           defense: session.iv_defense,
           hp:      session.iv_hp,
         },
+        level:     growth ? growth.newLevel : 1,
       },
       rewards: { xp, stardust, candy, pokemonExp: growth ? growth.gainedExp : 0 },
       growth,
+      inheritance,
     };
   });
 

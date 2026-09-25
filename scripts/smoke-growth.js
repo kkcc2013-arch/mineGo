@@ -717,7 +717,53 @@ async function testBreeding() {
   record('培育：同一个蛋不能重复孵化（409）', again.status === 409, `status=${again.status}`);
 }
 
-const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina, tree: testEvolutionTree, bond: testBondSkills, camp: testTrainingCamp, special: testSpecialTraining, awakening: testAwakening, breeding: testBreeding };
+// ───────────────────── 传承（REQ-00361） ─────────────────────
+async function testInheritance() {
+  const u = await newUser('inh');
+  const p = await givePokemon(u.userId, 2, { iv: [15, 15, 15], friendship: 255 });
+  const fav = await givePokemon(u.userId, 1, { favorite: true });
+  const favR = await call('POST', `/v1/pokemon/${fav.id}/release-with-inheritance`, { token: u.token, body: { inherit: true } });
+  record('传承：收藏的精灵不能放生', favR.status === 400 && errName(favR) === 'POKEMON_FAVORITE', `status=${favR.status}`);
+  const noStone = await call('POST', `/v1/pokemon/${p.id}/release-with-inheritance`, { token: u.token, body: { inherit: true, inheritanceItem: 'LEGACY_STONE_PERFECT' } });
+  record('传承：没有传承石时拒绝', noStone.status === 400 && errName(noStone) === 'INSUFFICIENT_ITEMS', `status=${noStone.status}`);
+  const rel = await call('POST', `/v1/pokemon/${p.id}/release-with-inheritance`, { token: u.token, body: { inherit: true } });
+  const my = await call('GET', '/v1/pokemon/my?limit=50', { token: u.token });
+  record('传承：放生并传承（软删除、返还 1 糖果 + 100 星尘、按家族根写入传承池，亲密度满级传承率 50%）',
+    rel.status === 200 && rel.data.pool.speciesId === 1 && rel.data.pool.inheritanceRate === 0.5 && rel.data.pool.pool.ivAttack === 15
+      && (await pokemonRow(p.id)).is_released === true && !(my.data.pokemon || []).some((x) => x.id === p.id) && (await candy(u.userId, 1)) === 1,
+    `status=${rel.status} ${rel.status !== 200 ? JSON.stringify(rel.body).slice(0, 160) : JSON.stringify(rel.data.pool.currentBonus)}`);
+  const pool = await call('GET', '/v1/pokemon/inheritance/pool/2', { token: u.token });
+  record('传承：按物种查询传承池（家族共享，30 天有效，当前加成预览）', pool.status === 200 && pool.data.currentBonus.ivAttack === 8 && !pool.data.expired,
+    `status=${pool.status} ${JSON.stringify(pool.data && pool.data.currentBonus)}`);
+  await giveItem(u.userId, 'LEGACY_STONE_ADVANCED', 2);
+  const use1 = await call('POST', '/v1/pokemon/inheritance/use-item', { token: u.token, body: { speciesId: 1, itemId: 'LEGACY_STONE_ADVANCED' } });
+  const use2 = await call('POST', '/v1/pokemon/inheritance/use-item', { token: u.token, body: { speciesId: 1, itemId: 'LEGACY_STONE_ADVANCED' } });
+  record('传承：对传承池使用高级传承石（+20% 到 70%），每个池只能用一次', use1.status === 200 && use1.data.inheritanceRate === 0.7 && use2.status === 409,
+    `use1=${use1.status} rate=${use1.data && use1.data.inheritanceRate} use2=${use2.status}`);
+  await db().query("UPDATE pokemon_inheritance_pool SET refreshed_at = NOW() - INTERVAL '31 days', expires_at = NOW() - INTERVAL '1 day' WHERE user_id = $1", [u.userId]);
+  const expired = await call('GET', '/v1/pokemon/inheritance/pool', { token: u.token });
+  record('传承：30 天后传承池过期（列表不再返回）', expired.status === 200 && expired.data.length === 0, `n=${expired.data && expired.data.length}`);
+
+  if (!process.env.SKIP_CATCH) {
+    // 为每个家族放生一只满 IV、满亲密度的精灵并用完美传承石 → 捕到任何精灵都会继承
+    const { rows: roots } = await db().query('SELECT DISTINCT pokemon_family_root(id) AS r FROM pokemon_species');
+    await giveItem(u.userId, 'LEGACY_STONE_PERFECT', roots.length);
+    for (const { r } of roots) {
+      const x = await givePokemon(u.userId, r, { iv: [15, 15, 15], friendship: 255 });
+      await call('POST', `/v1/pokemon/${x.id}/release-with-inheritance`, { token: u.token, body: { inherit: true, inheritanceItem: 'LEGACY_STONE_PERFECT' } });
+    }
+    const caught = await catchOne(u);
+    record('传承：捕捉同家族精灵自动继承（完美传承 → IV 15/15/15，CP 增加）',
+      !!caught && caught.inheritance && caught.pokemon.iv.attack === 15 && caught.pokemon.iv.defense === 15 && caught.pokemon.iv.hp === 15 && caught.inheritance.cpAfter > caught.inheritance.cpBefore,
+      caught ? JSON.stringify({ inh: caught.inheritance && { r: caught.inheritance.rate, iv: caught.inheritance.ivAfter }, species: caught.pokemon.speciesId }) : '没有捕到');
+    const recs = await call('GET', '/v1/pokemon/inheritance/records', { token: u.token });
+    const stats = await call('GET', '/v1/pokemon/inheritance/stats', { token: u.token });
+    record('传承：传承记录与统计', recs.status === 200 && (!caught || recs.data.items.length === 1) && stats.status === 200 && stats.data.perfectInheritances >= (caught ? 1 : 0),
+      `records=${recs.data && recs.data.items.length} stats=${JSON.stringify(stats.data)}`);
+  }
+}
+
+const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina, tree: testEvolutionTree, bond: testBondSkills, camp: testTrainingCamp, special: testSpecialTraining, awakening: testAwakening, breeding: testBreeding, inheritance: testInheritance };
 
 (async () => {
   const want = process.argv.slice(2);
