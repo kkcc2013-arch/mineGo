@@ -37,6 +37,7 @@ function mountGrowth(app, logger) {
 
   app.use('/pokemon', require('../routes/growth'));
   app.use('/pokemon/training-camp', require('../routes/trainingCamp'));
+  app.use('/pokemon', require('../routes/specialTraining'));
 
   every('exp-history-partitions', 24 * 3600 * 1000, async () => {
     await query('SELECT ensure_pokemon_exp_history_partitions(2)');

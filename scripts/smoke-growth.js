@@ -563,7 +563,69 @@ async function testTrainingCamp() {
   record('训练营：训练报告（历史）', hist.status === 200 && hist.data.items.length === 2, `status=${hist.status} n=${hist.data && hist.data.items.length}`);
 }
 
-const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina, tree: testEvolutionTree, bond: testBondSkills, camp: testTrainingCamp };
+// ───────────────────── 专项特训（REQ-00612） ─────────────────────
+async function testSpecialTraining() {
+  const u = await newUser('spt');
+  const S = '/v1/pokemon/special-training';
+  const fac = await call('GET', `${S}/facilities`, { token: u.token });
+  record('特训：场地列表（基础场开放、力量训练场需训练师 5 级）', fac.status === 200 && fac.data.find((f) => f.facilityId === 'basic').unlocked && !fac.data.find((f) => f.facilityId === 'strength_gym').unlocked,
+    `status=${fac.status}`);
+  const p = await givePokemon(u.userId, 4);
+  await db().query("UPDATE pokemon_instances SET fast_move = 'SCRATCH', charge_move = 'FLAMETHROWER' WHERE id = $1", [p.id]);
+  const lockedFac = await call('POST', `/v1/pokemon/${p.id}/training/start`, { token: u.token, body: { trainingType: 'attack', facilityId: 'strength_gym' } });
+  const noItem = await call('POST', `/v1/pokemon/${p.id}/training/start`, { token: u.token, body: { trainingType: 'attack' } });
+  record('特训：场地未解锁 403、缺训练道具 400', lockedFac.status === 403 && noItem.status === 400 && errName(noItem) === 'INSUFFICIENT_ITEMS', `locked=${lockedFac.status} noItem=${noItem.status}`);
+
+  await db().query('UPDATE users SET coins = 1000 WHERE id = $1', [u.userId]);
+  const buy = await call('POST', `${S}/items/buy`, { token: u.token, body: { itemId: 'TRAIN_ENERGY_DRINK', quantity: 1 } });
+  const notForSale = await call('POST', `${S}/items/buy`, { token: u.token, body: { itemId: 'TRAIN_GOLDEN_APPLE' } });
+  record('特训：商店用金币购买训练道具（付费道具不出售）', buy.status === 200 && (await itemQty(u.userId, 'TRAIN_ENERGY_DRINK')) === 1 && notForSale.status === 400,
+    `buy=${buy.status} notForSale=${notForSale.status}`);
+  await setCandy(u.userId, 4, 300);
+  await giveItem(u.userId, 'TRAIN_GOLDEN_APPLE', 1);
+  const st = await call('POST', `/v1/pokemon/${p.id}/training/start`, { token: u.token, body: { trainingType: 'attack', useGoldenApple: true } });
+  record('特训：开始攻击特训（扣道具/100 糖果/体力，金苹果成功率 100%，精灵显示训练中）',
+    st.status === 200 && st.data.successRate === 1 && (await candy(u.userId, 4)) === 200 && (await pokemonRow(p.id)).occupied_by === 'special_training',
+    `status=${st.status} ${st.status !== 200 ? JSON.stringify(st.body).slice(0, 200) : ''}`);
+  const tid = st.data && st.data.trainingId;
+  const early = await call('POST', `/v1/pokemon/${p.id}/training/${tid}/complete`, { token: u.token });
+  await giveItem(u.userId, 'TRAINING_ACCELERATOR_1H', 1);
+  const acc = await call('POST', `${S}/items/use`, { token: u.token, body: { itemId: 'TRAINING_ACCELERATOR_1H', trainingId: tid } });
+  const q1 = await call('GET', `${S}/queue`, { token: u.token });
+  record('特训：未到时间不能完成；加速器缩短 1 小时；队列显示', early.status === 400 && acc.status === 200 && acc.data.ready === true && q1.data.slots.used === 1 && q1.data.slots.max === 3,
+    `early=${early.status} acc=${acc.status} queue=${JSON.stringify(q1.data && q1.data.slots)}`);
+  const done = await call('POST', `/v1/pokemon/${p.id}/training/${tid}/complete`, { token: u.token });
+  record('特训：完成后攻击 +1 级、首次训练成就发放 1000 糖果',
+    done.status === 200 && done.data.success && done.data.newLevel === 1 && done.data.achievements.some((a) => a.id === 'first_training') && (await candy(u.userId, 4)) === 1200,
+    `status=${done.status} ${JSON.stringify(done.data && { lv: done.data.newLevel, ach: done.data.achievements })}`);
+  const status = await call('GET', `/v1/pokemon/${p.id}/training`, { token: u.token });
+  record('特训：训练状态（属性等级与战斗加成、历史）', status.status === 200 && status.data.attributes.attack.level === 1 && status.data.bonuses.attackPct === 0.02 && status.data.trainingHistory.length === 1,
+    `status=${status.status}`);
+  await giveItem(u.userId, 'TRAIN_ENERGY_DRINK', 5);
+  const cool = await call('POST', `/v1/pokemon/${p.id}/training/start`, { token: u.token, body: { trainingType: 'attack' } });
+  record('特训：刚完成的精灵需要冷却 60 分钟', cool.status === 409 && errName(cool) === 'TRAINING_COOLDOWN', `status=${cool.status} ${errName(cool)}`);
+
+  const others = [];
+  for (let i = 0; i < 4; i++) others.push(await givePokemon(u.userId, 4));
+  const starts = [];
+  for (const o of others) starts.push(await call('POST', `/v1/pokemon/${o.id}/training/start`, { token: u.token, body: { trainingType: 'attack' } }));
+  record('特训：队列满（3）后不能再开', starts.slice(0, 3).every((r) => r.status === 200) && starts[3].status === 409 && errName(starts[3]) === 'QUEUE_FULL',
+    `statuses=${starts.map((r) => r.status)}`);
+  const cancel = await call('POST', `/v1/pokemon/${others[0].id}/training/${starts[0].data.trainingId}/cancel`, { token: u.token });
+  record('特训：取消后释放精灵（不退还材料）', cancel.status === 200 && (await pokemonRow(others[0].id)).occupied_by === null, `status=${cancel.status}`);
+
+  const sk = await call('POST', `/v1/pokemon/${p.id}/skill/SCRATCH/train`, { token: u.token, body: { dimension: 'power' } });
+  await giveItem(u.userId, 'TRAIN_MASTERY_MANUAL', 1);
+  const manual = await call('POST', `/v1/pokemon/${p.id}/skill/SCRATCH/train`, { token: u.token, body: { useManual: true } });
+  const notKnown = await call('POST', `/v1/pokemon/${p.id}/skill/HYPER_BEAM/train`, { token: u.token, body: { dimension: 'power' } });
+  record('特训：技能熟练度（威力 +1 扣 10 糖果；手册 +20 熟练度并解锁特效；未学会的技能不能练）',
+    sk.status === 200 && sk.data.mastery.power === 1 && manual.status === 200 && manual.data.mastery.masteryExp === 25 && manual.data.unlockedEffect && notKnown.status === 400,
+    `sk=${sk.status} manual=${manual.status} ${JSON.stringify(manual.data && manual.data.mastery)} notKnown=${notKnown.status}`);
+  const ach = await call('GET', `${S}/achievements`, { token: u.token });
+  record('特训：成就列表', ach.status === 200 && ach.data.find((a) => a.id === 'first_training').achieved, `status=${ach.status}`);
+}
+
+const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina, tree: testEvolutionTree, bond: testBondSkills, camp: testTrainingCamp, special: testSpecialTraining };
 
 (async () => {
   const want = process.argv.slice(2);
