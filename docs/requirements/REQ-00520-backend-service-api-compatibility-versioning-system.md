@@ -7,7 +7,7 @@
 | 标题 | 后端服务 API 兼容性版本管理与自动化测试系统 |
 | 类别 | 运维/CICD |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | partial |
 | 涉及服务 | gateway、所有后端服务、backend/shared/apiVersionManager.js、backend/tests |
 | 创建时间 | 2026-07-09 02:00 UTC |
 | 依赖需求 | REQ-00008（OpenAPI 文档与 API 标准化） |
@@ -341,3 +341,26 @@ jobs:
 - API 相关的生产事故降低 80%
 - 版本升级时间减少 60%
 - 开发者对新 API 集成满意度提升（通过问卷调查）
+
+## 实现记录（2026-09-25）
+
+状态：**partial**（已实现部分见下表，⚠️ 为未完成或未实测项）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 兼容性检测引擎实现完成：能检测 7 种破坏性变更类型 | ✅ | 8 种破坏性 + 4 种非破坏性，含严重级别 P0-P3；支持契约与 OpenAPI 两种输入 |
+| 兼容性检测引擎：对 10 个历史 API 变更案例检测准确率 ≥ 90% | ✅ | 单测 10 个案例（宿主机通过） |
+| 契约测试覆盖 9 个微服务：每个服务至少 10 个关键 API 的契约测试 | ⚠️ | 契约测试框架 `scripts/contract-test.js` 从契约自动生成用例（当前 65 个用例 / 22 个契约 / 8 个服务），未达到 9×10；扩充需用 `contract-scaffold.js` 在服务运行时采样生成契约草稿 |
+| 契约测试执行时间 < 5 分钟 | ⚠️ | 未运行（22 个契约约 65 个请求，预计远低于 5 分钟） |
+| 版本管理服务集成完成：支持版本声明、废弃、查询；Sunset Header 正确返回；版本使用统计准确 | ✅ | 见 REQ-00201 |
+| CI/CD 工作流部署成功：PR 中自动运行兼容性检查 | ⚠️ | 模板 `ci/github-workflows/api-standards.yml`（需有 workflow 权限的人拷贝到 `.github/workflows/`，未在 GitHub Actions 运行过） |
+| 破坏性变更自动评论通知 | ⚠️ | 模板中 github-script 步骤（同上） |
+| 阻止未审核的 P0 破坏性变更 | ✅ | `contract-snapshot.js --check`：所有未在 approved-breaking-changes.json 审批的破坏性变更都阻断（含 P0） |
+| 管理后台仪表盘可用：显示 API 版本列表和使用统计；兼容性报告可导出为 PDF/Markdown | ✅ | 管理面板"版本""兼容性报告"页（Markdown 下载、打印为 PDF） |
+| 文档完善：API 版本管理指南、迁移路径文档模板、开发者集成手册 | ✅ | `docs/api-standards/versioning-and-deprecation.md` 三部分 |
+
+- 代码：`backend/shared/apiStandards/compatibility.js`、`scripts/contract-snapshot.js`、`scripts/contract-test.js`、`scripts/contract-scaffold.js`
+- 单测：`cd backend && npm run test:api-standards`（api-standards-core / contract / lint 为纯逻辑，宿主机已运行通过：core 25/25、contract 11/11、lint 4/4；pipeline / ops / services 依赖 express / pino / prom-client，在 09-25 18:30 验证规则调整前于 CI 栈跑通过（pipeline 17/17、ops 20/20、services 5/5），之后追加的用例**未运行，待验证**）
+- 冒烟：`BASE_URL=http://<网关> node scripts/smoke-api-standards.js`（约 90 项断言，**未运行，待验证**）；核心冒烟 `scripts/smoke-core-flow.js` 在网关接入管道后于 CI 栈跑过 37/37（18:30 前）
+- 未完成：9 个服务 × 10 个关键接口的契约与契约测试（gym-service 目前没有契约）；CI 模板生效
+- 相关提交：分支 `work/e25-api`（Epic E25 API 设计规范，合并后见集成分支 squash 提交）

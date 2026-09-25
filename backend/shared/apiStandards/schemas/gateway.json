@@ -1,0 +1,29 @@
+{
+  "$id": "gateway",
+  "service": "gateway",
+  "definitions": {
+    "BatchResponse": {
+      "type": "object",
+      "required": ["responses", "summary"],
+      "properties": {
+        "responses": { "type": "array", "items": { "type": "object", "required": ["id", "status", "duration"], "properties": {
+          "id": { "type": "string" }, "status": { "type": "integer" }, "data": {}, "error": {}, "cached": { "type": "boolean" }, "duration": { "type": "integer" }, "priority": { "type": "string" } } } },
+        "summary": { "type": "object", "required": ["total", "success", "failed", "cached", "totalDuration", "costSaved"], "properties": {
+          "total": { "type": "integer" }, "success": { "type": "integer" }, "failed": { "type": "integer" }, "cached": { "type": "integer" }, "totalDuration": { "type": "integer" }, "costSaved": { "type": "number" }, "failedFast": { "type": "boolean" } } }
+      }
+    }
+  },
+  "contracts": [
+    { "id": "gateway.batch", "method": "POST", "route": "/api/v1/batch", "auth": "bearer", "description": "批量请求（REQ-00308）",
+      "requestSchema": { "type": "object", "required": ["requests"], "properties": { "requests": { "type": "array", "minItems": 1, "maxItems": 20 }, "options": { "type": "object" } } },
+      "schema": { "allOf": [{ "$ref": "common#/definitions/SuccessEnvelope" }, { "type": "object", "properties": { "data": { "$ref": "#/definitions/BatchResponse" } } }] } },
+    { "id": "gateway.discover", "method": "GET", "route": "/api/discover", "description": "资源发现（REQ-00518）",
+      "schema": { "type": "object", "required": ["_links", "_meta"], "properties": { "_links": { "$ref": "common#/definitions/Links" }, "_meta": { "type": "object", "required": ["api_version"] } } } },
+    { "id": "gateway.version", "method": "GET", "route": "/api/version", "description": "版本信息（REQ-00201）",
+      "schema": { "type": "object", "required": ["success", "data"], "properties": { "data": { "type": "object", "required": ["currentVersion", "supportedVersions", "versions"], "properties": {
+        "currentVersion": { "type": "integer" }, "supportedVersions": { "type": "array", "items": { "type": "integer" } },
+        "versions": { "type": "array", "items": { "type": "object", "required": ["version", "status"], "properties": { "version": { "type": "integer" }, "status": { "type": "string" } } } } } } } } },
+    { "id": "error.any", "method": "*", "route": "*", "status": "4xx|5xx", "description": "所有错误响应（REQ-00386）",
+      "schema": { "$ref": "common#/definitions/ErrorResponse" } }
+  ]
+}
