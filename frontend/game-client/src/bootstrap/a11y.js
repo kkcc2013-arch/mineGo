@@ -110,6 +110,7 @@ export async function initAccessibility(ctx = {}) {
     html.classList.toggle('a11y-high-contrast', p.color.highContrast || contrast === 'high' || contrast === 'max');
     html.setAttribute('data-a11y-contrast', contrast);
     html.setAttribute('data-a11y-cvd', p.color.mode);
+    html.classList.toggle('a11y-colorblind', p.color.mode !== 'none');
     html.classList.toggle('a11y-shapes', p.color.shapes || p.color.mode === 'achromatopsia');
     // 调色板：色觉模式替换 → 对比度级别覆盖
     // 预设色觉模式自动保证与背景 ≥4.5:1；自定义调色板尊重用户选择（面板内提示并可一键修正）
@@ -133,6 +134,8 @@ export async function initAccessibility(ctx = {}) {
       filters.push('url(#a11y-cvd-sim)');
     }
     document.body.style.filter = filters.join(' ');
+    if (p.color.mode !== 'none') html.style.setProperty('--colorblind-filter', filters.join(' ') || `palette(${p.color.mode})`);
+    else html.style.removeProperty('--colorblind-filter');
     document.body.style.zoom = p.display.uiScale !== 1 ? String(p.display.uiScale) : '';
     // 触觉
     hapticManager.setEnabled(p.haptics.enabled);
@@ -325,7 +328,7 @@ export async function initAccessibility(ctx = {}) {
   // ── 语义化与屏幕切换 ─────────────────────────────────────
   const semantics = new SemanticEnhancer({
     labelSpawn: (spawn) => {
-      const s = describeSpawns([spawn], state.nearby ? pos() : pos(), lang())[0];
+      const s = describeSpawns([spawn], pos(), lang())[0];
       return s ? spawnLabel(s, lang()) : null;
     },
     onScreen: (id) => onScreenChange(id),

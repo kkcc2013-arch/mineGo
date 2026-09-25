@@ -18,9 +18,10 @@ const range = (pref, label, min, max, step, unit = '', help) => ({ type: 'range'
 export const SECTIONS = [
   {
     id: 'vision', title: '👁 视觉：对比度、色觉与字体', controls: [
-      onOff('color.highContrast', '高对比度模式', '纯色背景、白/黄文字、按钮加粗描边（REQ-00566）'),
+      { ...onOff('color.highContrast', '高对比度模式', '纯色背景、白/黄文字、按钮加粗描边（REQ-00566）'), testid: 'high-contrast-toggle' },
+      { type: 'custom', render: 'cvdToggle' },
       sel('color.contrast', '对比度级别', [['normal', '普通'], ['enhanced', '增强'], ['high', '高'], ['max', '最大']]),
-      sel('color.mode', '色觉模式（智能颜色替换）', [['none', '标准'], ['protanopia', '红色盲'], ['deuteranopia', '绿色盲'], ['tritanopia', '蓝黄色盲'], ['achromatopsia', '全色盲（灰度 + 图案）'], ['custom', '自定义调色板']]),
+      { ...sel('color.mode', '色觉模式（智能颜色替换）', [['none', '标准'], ['protanopia', '红色盲'], ['deuteranopia', '绿色盲'], ['tritanopia', '蓝黄色盲'], ['achromatopsia', '全色盲（灰度 + 图案）'], ['custom', '自定义调色板']]), testid: 'colorblind-type-selector', optionTestid: 'colorblind-type-option' },
       onOff('color.filter', '色彩校准滤镜（daltonize）'),
       range('color.filterStrength', '校准强度', 0, 1, 0.1),
       onOff('color.shapes', '形状/图案标识（属性、准确度分区、提示类型）'),
@@ -146,13 +147,13 @@ function controlHtml(c, prefs) {
   const id = `a11y-c-${++uid}`;
   const v = c.pref ? getPath(prefs, c.pref) : undefined;
   const help = c.help ? `<span class="a11y-help" id="${id}-h">${escapeHtml(c.help)}</span>` : '';
-  const desc = c.help ? ` aria-describedby="${id}-h"` : '';
+  const desc = (c.help ? ` aria-describedby="${id}-h"` : '') + (c.testid ? ` data-testid="${c.testid}"` : '');
   switch (c.type) {
     case 'checkbox':
       return `<div class="a11y-field a11y-field-check"><input type="checkbox" id="${id}" data-pref="${c.pref}"${v ? ' checked' : ''}${desc}><label for="${id}">${escapeHtml(c.label)}</label>${help}</div>`;
     case 'select':
       return `<div class="a11y-field"><label for="${id}">${escapeHtml(c.label)}</label><select id="${id}" data-pref="${c.pref}"${desc}>${
-        c.options.map(([ov, ol]) => `<option value="${ov}"${String(ov) === String(v) ? ' selected' : ''}>${escapeHtml(ol)}</option>`).join('')}</select>${help}</div>`;
+        c.options.map(([ov, ol]) => `<option value="${ov}"${String(ov) === String(v) ? ' selected' : ''}${c.optionTestid && ov !== 'none' ? ` data-testid="${c.optionTestid}"` : ''}>${escapeHtml(ol)}</option>`).join('')}</select>${help}</div>`;
     case 'range':
       return `<div class="a11y-field"><label for="${id}">${escapeHtml(c.label)}：<output id="${id}-o" for="${id}">${v}${c.unit}</output></label><input type="range" id="${id}" data-pref="${c.pref}" data-unit="${c.unit}" min="${c.min}" max="${c.max}" step="${c.step}" value="${v}"${desc}>${help}</div>`;
     case 'color':
@@ -190,11 +191,19 @@ export class SettingsPanel {
         <button type="button" class="a11y-btn a11y-btn-primary" data-action="close">完成</button>
       </div>`;
     this.renderCustom(wrap);
-    wrap.addEventListener('change', (e) => this.onInput(e, true));
+    wrap.addEventListener('change', (e) => {
+      // 色盲模式快捷开关：开 = 绿色盲（最常见），关 = 标准
+      if (e.target && e.target.dataset && e.target.dataset.testid === 'colorblind-mode-toggle') {
+        this.store.set('color.mode', e.target.checked ? (this._lastCvd || 'deuteranopia') : 'none', { source: 'panel' });
+        this.refresh();
+        return;
+      }
+      this.onInput(e, true);
+    });
     wrap.addEventListener('input', (e) => { if (e.target.type === 'range') this.onInput(e, false); });
     wrap.addEventListener('click', (e) => this.onClick(e));
     this.dlg = openDialog({
-      id: 'a11y-settings', title: '无障碍设置', content: wrap, describedBy: 'a11y-settings-desc', className: 'a11y-settings-backdrop',
+      id: 'a11y-settings', title: '无障碍设置', content: wrap, describedBy: 'a11y-settings-desc', className: 'a11y-settings-backdrop', testid: 'accessibility-modal',
       onClose: () => { this.dlg = null; this.store.removeEventListener('change', this._onStore); },
     });
     this.wrap = wrap;
@@ -327,7 +336,11 @@ export class SettingsPanel {
     const sv = this.services;
     root.querySelectorAll('.a11y-custom').forEach((box) => {
       const kind = box.getAttribute('data-render');
-      if (kind === 'palette') {
+      if (kind === 'cvdToggle') {
+        const on = prefs.color.mode !== 'none';
+        if (on) this._lastCvd = prefs.color.mode;
+        box.innerHTML = `<div class="a11y-field a11y-field-check"><input type="checkbox" id="a11y-cvd-toggle" data-testid="colorblind-mode-toggle"${on ? ' checked' : ''}><label for="a11y-cvd-toggle">色盲模式（快捷开关，类型见下方）</label></div>`;
+      } else if (kind === 'palette') {
         const pal = paletteFor(prefs.color.mode === 'custom' ? 'custom' : prefs.color.mode, prefs.color.palette);
         const issues = checkPalette(pal);
         box.innerHTML = `<fieldset class="a11y-fieldset"><legend>自定义调色板（选择"自定义调色板"模式后生效）</legend>

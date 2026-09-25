@@ -46,10 +46,9 @@ export function trapFocus(container, { onEscape, initialFocus, restoreTo } = {})
   stack.push(entry);
   document.addEventListener('keydown', onKey, true);
   if (!container.hasAttribute('tabindex')) container.setAttribute('tabindex', '-1');
-  requestAnimationFrame(() => {
-    const target = (initialFocus && container.querySelector(initialFocus)) || focusableIn(container)[0] || container;
-    try { target.focus({ preventScroll: false }); } catch { /* ignore */ }
-  });
+  // 同步移入焦点（容器已在文档中），屏幕阅读器立即进入对话框
+  const target = (initialFocus && container.querySelector(initialFocus)) || focusableIn(container)[0] || container;
+  try { target.focus({ preventScroll: false }); } catch { /* ignore */ }
   return function release() {
     document.removeEventListener('keydown', onKey, true);
     const i = stack.indexOf(entry);
@@ -66,7 +65,7 @@ export function isDialogOpen() { return stack.length > 0; }
  * 打开一个模态对话框
  * @returns {{ el: HTMLElement, body: HTMLElement, close: Function }}
  */
-export function openDialog({ id, title, className = '', content, onClose, initialFocus, describedBy, closeLabel = '关闭' } = {}) {
+export function openDialog({ id, title, className = '', content, onClose, initialFocus, describedBy, closeLabel = '关闭', testid } = {}) {
   const existing = id && document.getElementById(id);
   if (existing && existing._a11yClose) existing._a11yClose();
   const backdrop = document.createElement('div');
@@ -78,6 +77,7 @@ export function openDialog({ id, title, className = '', content, onClose, initia
   dlg.setAttribute('aria-modal', 'true');
   const titleId = `${id || 'a11y-dlg'}-title`;
   dlg.setAttribute('aria-labelledby', titleId);
+  if (testid) dlg.setAttribute('data-testid', testid);
   if (describedBy) dlg.setAttribute('aria-describedby', describedBy);
   const head = document.createElement('div');
   head.className = 'a11y-dialog-head';

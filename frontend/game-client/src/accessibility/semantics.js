@@ -63,9 +63,8 @@ export class SemanticEnhancer {
     q('.sec-title, .inv-header').forEach((el) => heading(el, 2));
     q('.screen').forEach((s) => {
       if (!s.getAttribute('role')) s.setAttribute('role', 'region');
-      const h = s.querySelector('.logo-title, .catch-headline, .prof-name, .user-name');
-      if (h && !s.hasAttribute('aria-labelledby') && h.id) s.setAttribute('aria-labelledby', h.id);
-      else if (!s.hasAttribute('aria-label')) s.setAttribute('aria-label', { login: '登录', map: '地图', catch: '捕捉', profile: '我的' }[s.id] || s.id);
+      // 区域名用页面功能名（地图/捕捉/我的），而不是用户名等动态文本
+      if (!s.hasAttribute('aria-label')) s.setAttribute('aria-label', { login: '登录', map: '地图', catch: '捕捉', profile: '我的' }[s.id] || s.id);
     });
     q('.entity-icon, .inv-icon, .nav-icon, .avatar-circle, .prof-avatar, .empty-icon, .entity-right').forEach((el) => el.setAttribute('aria-hidden', 'true'));
     // 带 onclick 的非原生可聚焦元素
