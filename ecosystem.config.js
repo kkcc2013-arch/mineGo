@@ -110,6 +110,7 @@ const serviceUrls = {
   SOCIAL_SERVICE_URL:   `http://localhost:${port(6)}`,
   REWARD_SERVICE_URL:   `http://localhost:${port(7)}`,
   PAYMENT_SERVICE_URL:  `http://localhost:${port(8)}`,
+  GYM_BATTLE_WS_URL:    `http://localhost:${port(9)}`, // gym-service 实时对战 WebSocket（网关 /ws/battle 转发）
 };
 Object.assign(commonEnv, serviceUrls);
 
