@@ -763,7 +763,45 @@ async function testInheritance() {
   }
 }
 
-const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina, tree: testEvolutionTree, bond: testBondSkills, camp: testTrainingCamp, special: testSpecialTraining, awakening: testAwakening, breeding: testBreeding, inheritance: testInheritance };
+// ───────────────────── 合并进化（REQ-00390） ─────────────────────
+async function testMerge() {
+  const u = await newUser('mrg');
+  const M = '/v1/pokemon/merge';
+  const list = await call('GET', `${M}/recipes?lang=en`, { token: u.token });
+  const recipe = (code) => list.data.find((r) => r.code === code);
+  record('合并：配方列表（多语言、可用性）', list.status === 200 && recipe('bulbasaur_trio') && recipe('bulbasaur_trio').name === 'Seed Trio' && !recipe('bulbasaur_trio').availability.ready,
+    `status=${list.status} n=${list.data && list.data.length}`);
+  const bulbs = [];
+  for (let i = 0; i < 3; i++) bulbs.push(await givePokemon(u.userId, 1, { level: 6, iv: [12, 12, 12] }));
+  const fav = await givePokemon(u.userId, 1, { level: 6, favorite: true });
+  const pv = await call('POST', `${M}/preview`, { token: u.token, body: { recipeId: recipe('bulbasaur_trio').recipeId, pokemonIds: bulbs.map((b) => b.id) } });
+  record('合并：预览（校验通过、成功率构成、消耗清单、失败警告）', pv.status === 200 && pv.data.valid && pv.data.successRate.total > 70 && pv.data.consumes.length === 3 && pv.data.warning,
+    `status=${pv.status} rate=${JSON.stringify(pv.data && pv.data.successRate)}`);
+  const withFav = await call('POST', `${M}/execute`, { token: u.token, body: { recipeId: recipe('bulbasaur_trio').recipeId, pokemonIds: [bulbs[0].id, bulbs[1].id, fav.id] } });
+  record('合并：收藏的精灵不能参与（400，且不消耗任何精灵）', withFav.status === 400 && errName(withFav) === 'INVALID_SELECTION' && (await pokemonRow(bulbs[0].id)).is_released === false,
+    `status=${withFav.status} ${errName(withFav)}`);
+  const ex = await call('POST', `${M}/execute`, { token: u.token, body: { recipeId: recipe('bulbasaur_trio').recipeId, pokemonIds: bulbs.map((b) => b.id) } });
+  const consumed = (await Promise.all(bulbs.map((b) => pokemonRow(b.id)))).every((r) => r.is_released);
+  const out = ex.data && ex.data.output && await pokemonRow(ex.data.output.pokemonId);
+  record('合并：执行（参与精灵全部消耗；成功时产出妙蛙草/变异妙蛙花且来源 merged，失败无产出）',
+    ex.status === 200 && consumed && (ex.data.success ? (out && [2, 3].includes(out.species_id) && out.origin === 'merged') : ex.data.output === null),
+    `status=${ex.status} success=${ex.data && ex.data.success} variant=${ex.data && ex.data.isVariant} out=${out && out.species_id}`);
+  const pikas = [];
+  for (let i = 0; i < 5; i++) pikas.push(await givePokemon(u.userId, 25));
+  const noStone = await call('POST', `${M}/execute`, { token: u.token, body: { recipeId: recipe('pikachu_storm').recipeId, pokemonIds: pikas.map((p) => p.id) } });
+  record('合并：缺少配方道具时拒绝且不消耗精灵', noStone.status === 400 && errName(noStone) === 'INSUFFICIENT_ITEMS' && (await pokemonRow(pikas[0].id)).is_released === false,
+    `status=${noStone.status} ${errName(noStone)}`);
+  const birds = [];
+  for (const s of [144, 145, 146]) birds.push(await givePokemon(u.userId, s, { level: 20 }));
+  const locked = await call('POST', `${M}/execute`, { token: u.token, body: { recipeId: recipe('legendary_birds').recipeId, pokemonIds: birds.map((b) => b.id) } });
+  record('合并：未达到解锁条件的配方（训练师 30 级）返回 403', locked.status === 403, `status=${locked.status}`);
+  const hist = await call('GET', `${M}/history`, { token: u.token });
+  const stats = await call('GET', `${M}/stats`, { token: u.token });
+  record('合并：历史与统计', hist.status === 200 && hist.data.items.length === 1 && stats.status === 200 && stats.data.total === 1 && stats.data.pokemonConsumed === 3,
+    `hist=${hist.data && hist.data.items.length} stats=${JSON.stringify(stats.data)}`);
+}
+
+const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina, tree: testEvolutionTree, bond: testBondSkills, camp: testTrainingCamp, special: testSpecialTraining, awakening: testAwakening, breeding: testBreeding, inheritance: testInheritance, merge: testMerge };
 
 (async () => {
   const want = process.argv.slice(2);
