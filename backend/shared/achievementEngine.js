@@ -20,6 +20,7 @@ const logger = createLogger('achievement-engine');
 const MAX_ATTEMPTS = 5;
 const BATCH = 200;
 const DEFS_TTL_MS = 60 * 1000;
+const SCORE_EVENTS = new Set(['catch', 'egg_hatched', 'trade_completed']);
 
 // ── 指标 ──────────────────────────────────────────────────────
 let M = null;
@@ -288,6 +289,12 @@ async function processUserEvents(userId, { db = defaultDb(), limit = BATCH } = {
   for (const d of out.unlocked) m.unlocked.inc({ category: d.category, rarity: d.rarity });
   if (out.titles.length) m.titles.inc({ source: 'achievement' }, out.titles.length);
   if (out.processed) await profileCache.bump(userId);
+  // 收藏家积分（REQ-00327 排行榜）：影响积分的事件处理后刷新（失败不影响事件处理）
+  if (out.unlocked.length || out.events.some((e) => SCORE_EVENTS.has(e.event_type))) {
+    try { await require('./profileStats').refreshCollectorScore(userId, db); } catch (err) {
+      logger.warn({ err: err.message, userId }, 'refresh collector score failed');
+    }
+  }
   return { processed: out.processed, failed: out.failed, unlocked: out.unlocked.map((d) => d.achievement_id), titles: out.titles };
 }
 

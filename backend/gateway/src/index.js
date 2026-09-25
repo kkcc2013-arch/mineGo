@@ -342,18 +342,11 @@ app.use('/api/v2/pokemon',
 // Public (no auth)
 app.use('/v1/auth',     proxy(SERVICES.user, { '^/': '/auth/' }));
 
-// Protected with cache (REQ-00031)
-// 用户资料 - 缓存 5 分钟
-app.get('/v1/users/:id/profile',
-  authMiddleware,
-  cachedProxy({ route: 'profile', target: SERVICES.user, pathRewrite: { '^/v1/': '/' }, ttl: 300, perUser: true, onError: proxyError })
-);
-
-// 用户统计 - 缓存 5 分钟
-app.get('/v1/users/:id/stats',
-  authMiddleware,
-  cachedProxy({ route: 'user-stats', target: SERVICES.user, pathRewrite: { '^/v1/': '/' }, ttl: 300, perUser: true, onError: proxyError })
-);
+// 用户资料 / 统计（REQ-00327/REQ-00387）：不再在网关按查看者缓存——网关缓存只随查看者自己的写操作失效，
+// 被查看者改了资料后其他人最多 5 分钟看到旧数据。改由 user-service 按"被查看者 + 可见范围"缓存，
+// 被查看者的资料/称号/成就/收藏室变化即时失效（shared/profileCache）。
+// 分享卡片（公开资料，无需登录）
+app.use('/v1/profile-cards', proxy(SERVICES.user, { '^/': '/profile-cards/' }));
 
 // 其他用户路由（不缓存）
 app.use('/v1/users',

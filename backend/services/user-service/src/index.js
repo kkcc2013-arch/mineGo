@@ -28,6 +28,7 @@ const shareRouter = require('./routes/share'); // REQ-00153: 截图分享系统�
 const { router: dataTransferRouter, initDataTransferRoutes } = require('./routes/dataTransferCompliance'); // REQ-00089: 数据跨境传输合规
 const { router: dataDeletionRouter, initDataDeletionRoutes } = require('./routes/dataDeletion'); // REQ-00127: 用户数据删除请求管理
 const titlesRouter = require('./routes/titles'); // REQ-00106: 称号系统路由
+const profileRouter = require('./routes/profile'); // REQ-00327/REQ-00387: 玩家资料与资料卡
 const deviceManagementRouter = require('./routes/deviceManagement'); // REQ-00250: 设备管理路由
 const sessionManagementRouter = require('./routes/sessionManagement'); // REQ-00219: 会话异常检测与自动防护
 const languageRouter = require('./routes/language'); // REQ-00393: 动态语言切换无需重新登录
@@ -47,6 +48,16 @@ const service = new ServiceLauncher({
       path: '/users',
       router: titlesRouter,
       rateLimit: { windowMs: 60_000, max: 300 }
+    },
+    {
+      path: '/users', // REQ-00327/REQ-00387: 资料卡、统计摘要、收藏家排行（同样挂在 user.js 之前）
+      router: profileRouter,
+      rateLimit: { windowMs: 60_000, max: 300 }
+    },
+    {
+      path: '/profile-cards', // REQ-00387: 分享卡片（公开资料，无需登录）
+      router: profileRouter.publicRouter,
+      rateLimit: { windowMs: 60_000, max: 120 }
     },
     {
       path: '/auth',
