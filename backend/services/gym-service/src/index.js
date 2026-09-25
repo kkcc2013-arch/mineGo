@@ -12,6 +12,7 @@ const { requireAuth, verifyAccess, AppError, successResp, errorHandler } = requi
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
 const { validateLocation, checkRateLimit, requireTrustScore, TRUST_SCORE } = require('../../../shared/anti-cheat');
+const { battleViews } = require('../../../shared/social/pokemonPrivacyStore');
 const { initNotificationWS, sendNotificationToUser } = require('../../../shared/NotificationWebSocket');
 const battleRoutes = require('./routes/battle');
 const seasonRoutes = require('./routes/season');
@@ -162,6 +163,15 @@ app.get('/gyms/:id', requireAuth, async (req, res, next) => {
     `, [req.params.id]);
 
     if (!gym) throw new AppError(4001, '道馆不存在', 404);
+    // REQ-00377 战斗匿名模式：守护精灵开启匿名时，非主人只看到种类（CP/昵称隐藏），战斗计算不受影响
+    if (Array.isArray(gym.defenders) && gym.defenders.length) {
+      const views = await battleViews({ query }, req.user.sub, gym.defenders.map((d) => ({
+        id: d.pokemonId, user_id: d.userId, species_id: d.speciesId, cp: d.cp, nickname: d.nickname,
+      })));
+      gym.defenders = gym.defenders.map((d, i) => (views[i] && views[i].anonymous
+        ? { ...d, cp: null, nickname: null, hpCurrent: null, hpMax: null, anonymous: true }
+        : { ...d, anonymous: false }));
+    }
     res.json(successResp(gym));
   } catch (err) { next(err); }
 });

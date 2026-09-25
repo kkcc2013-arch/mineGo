@@ -606,3 +606,24 @@ CREATE TABLE IF NOT EXISTS interaction_reminders (
 );
 CREATE INDEX IF NOT EXISTS idx_interaction_reminders_user ON interaction_reminders(user_id, is_read, created_at DESC);
 CREATE UNIQUE INDEX IF NOT EXISTS uq_interaction_reminders_dedupe ON interaction_reminders(user_id, dedupe_key) WHERE dedupe_key IS NOT NULL;
+
+-- ============================================================
+-- 10. 排行榜物化视图与推荐所需索引
+-- ============================================================
+-- 全服社交排行榜：每个用户的好友数与友情点总和（social-service 每小时 REFRESH CONCURRENTLY）
+CREATE MATERIALIZED VIEW IF NOT EXISTS friend_leaderboard AS
+SELECT f.user_id,
+       COUNT(*)::int                                  AS friend_count,
+       COALESCE(SUM(f.friendship_points), 0)::bigint AS total_friendship_points,
+       MAX(f.last_interaction_at)                     AS last_active,
+       NOW()                                          AS refreshed_at
+  FROM friends f
+ WHERE f.status = 'accepted'
+ GROUP BY f.user_id;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_friend_leaderboard_user ON friend_leaderboard(user_id);
+CREATE INDEX IF NOT EXISTS idx_friend_leaderboard_points ON friend_leaderboard(total_friendship_points DESC);
+
+-- 附近玩家推荐：按经纬度范围查找
+CREATE INDEX IF NOT EXISTS idx_users_last_lat_lng ON users(last_lat, last_lng) WHERE last_lat IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_users_level_active ON users(level, last_active_at DESC);
+CREATE INDEX IF NOT EXISTS idx_pokemon_instances_user_caught ON pokemon_instances(user_id, caught_at DESC);
