@@ -3,7 +3,7 @@
 - **编号**：REQ-00198
 - **类别**：无障碍(a11y)
 - **优先级**：P2
-- **状态**：new
+- **状态**：partial
 - **涉及服务/模块**：game-client、frontend/game-client/src/game、frontend/game-client/src/accessibility、gateway
 - **创建时间**：2026-06-14 14:00
 - **依赖需求**：REQ-00017（无障碍访问支持）、REQ-00171（触觉反馈增强系统）
@@ -216,3 +216,27 @@ P2 理由：
 3. **技术风险低**：仅客户端时间缩放，不涉及服务器逻辑
 4. **合规加分项**：符合 Xbox/PlayStation 无障碍设计指南，有助于应用商店审核
 5. **边际成本低**：一次开发，长期受益，无需持续维护
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 在无障碍设置面板可调节捕捉场景速度（0.5x/0.75x/1.0x/1.25x/1.5x） | ✅ | 设置 → 游戏节奏：捕捉速度 0.25/0.5/0.75/1.0/1.25/1.5/2.0x |
+| 慢速模式（0.5x）下，精灵球摇动动画时长延长至 2 倍 | ⚠️ | 全部 CSS/WAAPI 动画 playbackRate = 倍率（0.5x 时长 ×2，e2e 校验 3s 动画有效时长 6s）；CatchEngine 的粒子摇动特效（effects/ParticleSystem）当前客户端未启用，未单独缩放 |
+| 慢速模式下，投掷窗口圆环收缩速度降至 50% | ✅ | `CatchEngine.timeScale` 缩放圆环收缩步长（判定用），index.html 显示圆环步长同样乘 timeScale（e2e 测得 0.5x 下 500ms 变化 7.5%，1.0x 约 15%） |
+| 战斗场景可独立调节速度，躲避窗口相应扩大 | ❌ | `pace.battle` 与 `PMG_A11Y.battleTiming(ms)` 已提供，但客户端没有战斗界面可接入，躲避窗口未实际扩大 |
+| PVP 模式下节奏控制禁用，显示提示信息 | ⚠️ | `PMG_A11Y.setCompetitive("pvp")` 或 `pmg:battle` 事件 mode=pvp 时强制 1.0x 并显示"竞技模式：辅助已禁用"；客户端暂无 PVP 入口 |
+| 设置持久化到 localStorage，刷新页面后保持 | ✅ | localStorage，刷新后保持 |
+| 设置同步到 user-service，跨设备登录后自动恢复 | ✅ | 登录/启动时拉取云端偏好（云端较新覆盖本地），修改后 600ms 防抖 PUT |
+| 界面显示当前速度倍率徽章（非 1.0x 时） | ✅ | 右下角"⏱ 速度 x 倍"徽章（非 1.0x 时） |
+| 预设模式一键切换（无障碍/轻松/标准/老玩家） | ✅ | 无障碍 0.5x / 轻松 0.75x / 标准 / 老玩家 1.25x 一键切换；`-`/`=` 快捷键 |
+| E2E 测试覆盖：慢速模式捕捉成功、战斗躲避成功 | ⚠️ | e2e 覆盖慢速圆环与一键投掷捕捉成功；战斗躲避无界面可测 |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：`database/migrations/20260925_010000__user_preferences.sql`（`user_preferences`：user_id UUID → users(id) ON DELETE CASCADE、namespace、prefs JSONB，主键 (user_id, namespace)，全部 IF NOT EXISTS）；偏好云端同步：user-service `GET/PUT/DELETE /users/me/preferences/:namespace`（`src/routes/preferences.js` + `src/services/userPreferences.js` 校验），经网关 `/v1/users/me/preferences/a11y`（网关已有 `/v1/users` 鉴权代理，未改网关）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：慢速模式下完整捕捉一次；战斗界面接入后补战斗节奏；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 备注：未完成：战斗场景节奏（客户端无战斗界面，接入点 `battleTiming()` 已就绪）。
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`

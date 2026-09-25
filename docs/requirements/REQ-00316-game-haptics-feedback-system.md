@@ -7,7 +7,7 @@
 | 标题 | 游戏触觉反馈增强与震动优化系统 |
 | 类别 | 无障碍(a11y) |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | game-client、catch-service、gym-service、backend/shared |
 | 创建时间 | 2026-06-24 10:00 |
 
@@ -1154,3 +1154,30 @@ export const hapticsMonitor = new HapticsMonitor();
 - [Vibration API - MDN](https://developer.mozilla.org/en-US/docs/Web/API/Vibration_API)
 - [Haptic Feedback Best Practices - Apple](https://developer.apple.com/design/human-interface-guidelines/patterns/playing-haptics/)
 - [Accessibility Guidelines for Haptics - W3C](https://www.w3.org/TR/wai-aria-practices/)
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 支持检测设备震动能力（basic/advanced/none） | ✅ | `HapticManager.getCapability()`：none（无 Vibration API）/ basic / advanced（手柄双马达） |
+| 实现 20+ 种触觉反馈模式 | ✅ | 47 种预设模式（含新增 long_press、destination_arrived） |
+| 捕捉场景集成：尝试、成功、失败、优秀投球 | ✅ | CatchEngine 原有 catch_throw / catch_success / catch_fled / catch_hit / throw_excellent\|great\|nice |
+| 战斗场景集成：攻击、命中、暴击、昏厥、胜利 | ⚠️ | battle_attack/hit/crit/lose/win 由 `pmg:battle` 契约触发；客户端当前无战斗界面 |
+| UI 场景集成：点击、长按、滚动边界、错误、成功 | ✅ | 点击（增强模式 button_press）、长按确认（long_press）、滚动边界（scroll）、错误（toast 错误 → error）、成功（道具/奖励） |
+| 导航场景集成：步伐、附近精灵、到达目的地 | ✅ | 步伐（定位更新 location_update，增强模式）、附近精灵（pokemon_spawn_nearby）、到达目标 30m 内（destination_arrived） |
+| 特殊事件：升级、成就解锁、道具拾取 | ⚠️ | 升级（GameStore 等级变化 → level_up）、道具拾取（item_pickup）已接入；客户端无成就界面，achievement 模式未触发 |
+| 用户可配置震动强度（0-200%） | ✅ | `setScalePercent(0–200)`，单段上限 1000ms |
+| 用户可按场景启用/禁用触觉反馈 | ✅ | 捕捉/战斗/界面/导航/特殊 5 个场景开关（`HapticManager.sceneOf`） |
+| 无障碍增强模式支持 | ✅ | 无障碍增强：界面点击、滚动边界、步伐也震动 |
+| 设置面板提供即时预览功能 | ✅ | 设置 → 触觉：6 个模式预览按钮 + 设备能力显示 |
+| 后端 API 保存用户偏好 | ✅ | `user_preferences`（namespace=a11y） |
+| 设备能力报告收集 | ✅ | 偏好上传时附 `device`：震动能力、语音合成/识别、手柄、减少动画偏好 |
+| 性能监控和统计 | ⚠️ | `HapticManager.stats`（总次数/送达/按模式计数）+ 调用历史，随 device 上报；无服务端统计面板 |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：`database/migrations/20260925_010000__user_preferences.sql`（`user_preferences`：user_id UUID → users(id) ON DELETE CASCADE、namespace、prefs JSONB，主键 (user_id, namespace)，全部 IF NOT EXISTS）；偏好云端同步：user-service `GET/PUT/DELETE /users/me/preferences/:namespace`（`src/routes/preferences.js` + `src/services/userPreferences.js` 校验），经网关 `/v1/users/me/preferences/a11y`（网关已有 `/v1/users` 鉴权代理，未改网关）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：Android 真机震动强度与各模式手感（iOS Safari 不支持 Vibration API）；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`

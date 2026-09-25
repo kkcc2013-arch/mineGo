@@ -7,7 +7,7 @@
 | 标题 | 游戏节奏控制与慢速模式系统 |
 | 类别 | 无障碍(a11y) |
 | 优先级 | P2 |
-| 状态 | new |
+| 状态 | partial |
 | 涉及服务 | game-client、frontend/game-client/src/accessibility、catch-service、gym-service、gateway |
 | 创建时间 | 2026-06-18 19:00 |
 
@@ -443,3 +443,28 @@ COMMENT ON TABLE slow_mode_usage_logs IS '慢速模式使用日志，用于检�
 - [Game Accessibility Guidelines - Adjustable Game Speed](https://gameaccessibilityguidelines.com/allow-the-game-to-be-played-at-a-slower-speed/)
 - [WCAG 2.1 - Enough Time](https://www.w3.org/TR/WCAG21/#enough-time)
 - [Phaser 3 Time Scale](https://photonstorm.github.io/phaser3-docs/Phaser.Time.Clock.html#timeScale)
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 玩家可以在设置中选择 0.25x、0.5x、0.75x、1.0x 四个游戏速度 | ✅ | 0.25x / 0.5x / 0.75x / 1.0x（另含 1.25–2x，与 REQ-00198 合并） |
+| 游戏速度设置在所有游戏模块中生效（捕捉、战斗、探索） | ⚠️ | 捕捉、探索（界面动画/提示）生效；战斗无界面，接入点 `battleTiming()` 已提供 |
+| 捕捉投掷时间窗口随游戏速度等比例延长 | ✅ | 捕捉窗口 = 圆环收缩速度 × 倍率（CatchEngine.timeScale） |
+| 道馆战斗回合时间随游戏速度等比例延长 | ❌ | 客户端没有道馆战斗界面，回合时间未接入 |
+| 所有动画（精灵出现、捕捉动画、战斗特效）正确减速 | ✅ | 精灵出现（bob/float）、提示等 CSS 动画 playbackRate 随倍率；战斗特效无界面 |
+| UI 提示显示时间随游戏速度延长 | ✅ | toast 显示 3500ms × holdScale；视觉提示/字幕时长同样放大 |
+| 游戏速度设置在游戏重启后保持 | ✅ | localStorage + 云端 |
+| 后端验证游戏速度设置的合法性 | ✅ | user-service `validatePreferences("a11y")`：倍率只允许 0.25/0.5/0.75/1/1.25/1.5/2，越界 400（单测 + 冒烟覆盖） |
+| 检测并防止滥用慢速模式进行作弊 | ⚠️ | 慢速只改客户端表现，捕捉结果仍由 catch-service 按服务端规则判定；保存慢速设置时服务端写审计日志（flags.slowMode）；未做基于慢速的行为分析模型 |
+| 设置界面符合 WCAG 2.1 AA 标准 | ✅ | 设置面板为原生表单控件 + label + 描述；axe 无严重问题（调整前运行） |
+| 单元测试覆盖率 ≥ 80% | ⚠️ | 未统计覆盖率 |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：`database/migrations/20260925_010000__user_preferences.sql`（`user_preferences`：user_id UUID → users(id) ON DELETE CASCADE、namespace、prefs JSONB，主键 (user_id, namespace)，全部 IF NOT EXISTS）；偏好云端同步：user-service `GET/PUT/DELETE /users/me/preferences/:namespace`（`src/routes/preferences.js` + `src/services/userPreferences.js` 校验），经网关 `/v1/users/me/preferences/a11y`（网关已有 `/v1/users` 鉴权代理，未改网关）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：慢速下捕捉体验；服务端越界校验；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 备注：未完成：道馆战斗回合时间（无战斗界面）。影响范围中的 GamePaceController/AnimationTimeScaler/slowModeValidator/gateway accessibility 路由以 `accessibility/pace.js` + user-service 偏好校验实现，未新建独立网关路由。
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`

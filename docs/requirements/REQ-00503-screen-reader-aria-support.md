@@ -3,7 +3,7 @@
 - **编号**：REQ-00503
 - **类别**：无障碍(a11y)
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：game-client、frontend/game-client/src/accessibility、所有 UI 组件
 - **创建时间**：2026-07-08 12:00
 - **依赖需求**：无
@@ -375,3 +375,26 @@ describe('无障碍测试', () => {
 - [ ] NVDA/VoiceOver/TalkBack 手动测试
 - [ ] 视障用户可用性测试（可选）
 - [ ] WCAG 2.1 AA 合规验证
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| **ARIA 角色覆盖**：所有交互元素（按钮、导航、列表、表单）拥有正确的 `role` 属性 | ✅ | 按钮/导航/单选组/进度条/对话框/区域/标题均有 role；带 onclick 的 div 自动补 role=button |
+| **实时播报功能**：精灵出现、捕捉结果、战斗状态变化时屏幕阅读器正确播报 | ⚠️ | 精灵出现、捕捉结果已播报；战斗状态通过 `pmg:battle` 契约（客户端无战斗界面） |
+| **焦点管理**：Tab 键导航顺序符合逻辑，模态框焦点陷阱正常工作 | ✅ | 焦点顺序、对话框焦点陷阱与恢复 |
+| **语义化 HTML**：使用语义化标签（`<nav>`、`<main>`、`<button>` 等）替代通用 `<div>` | ⚠️ | 新增 `<main>` 地标、label for、标题 role=heading；index.html 渲染的 div 控件用 ARIA role 补齐，未全部替换为原生 `<button>`（避免大改主流程） |
+| **NVDA 测试通过**：在 Windows 10/11 + Chrome/Firefox + NVDA 环境下完成核心用户路径测试 | ⚠️ | 需人工测试 |
+| **VoiceOver 测试通过**：在 macOS/iOS + Safari + VoiceOver 环境下完成核心用户路径测试 | ⚠️ | 需人工测试 |
+| **TalkBack 测试通过**：在 Android + Chrome + TalkBack 环境下完成核心用户路径测试 | ⚠️ | 需人工测试 |
+| **axe-core 测试通过**：所有核心 UI 组件无 axe-core 违规 | ✅ | 核心页面 axe 无违规（调整前运行，仅余 moderate/minor 以下为 0） |
+| **WCAG 2.1 AA 合规**：通过 W3C 无障碍评估工具验证达到 AA 级标准 | ⚠️ | axe 自动化通过；W3C 评估工具需人工 |
+| **焦点可见性**：所有可聚焦元素有清晰的焦点指示器（已有，但需验证与 ARIA 结合） | ✅ | 全局 `:focus-visible` 3px 轮廓，与 ARIA 控件结合（e2e 校验） |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：`database/migrations/20260925_010000__user_preferences.sql`（`user_preferences`：user_id UUID → users(id) ON DELETE CASCADE、namespace、prefs JSONB，主键 (user_id, namespace)，全部 IF NOT EXISTS）；偏好云端同步：user-service `GET/PUT/DELETE /users/me/preferences/:namespace`（`src/routes/preferences.js` + `src/services/userPreferences.js` 校验），经网关 `/v1/users/me/preferences/a11y`（网关已有 `/v1/users` 鉴权代理，未改网关）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：三种读屏环境核心路径；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`
