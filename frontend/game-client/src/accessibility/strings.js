@@ -3,6 +3,8 @@
 
 const S = {
   'zh-CN': {
+    cue_battle_action: '战斗动作', cue_battle_hit: '命中', cue_battle_faint: '倒下', cue_battle_win: '战斗胜利', cue_battle_lose: '战斗失败',
+    cap_battle_action: '[技能释放音效]', cap_battle_hit: '[命中的撞击声]', cap_battle_faint: '[精灵倒下的声音]', cap_battle_win: '[胜利号角]', cap_battle_lose: '[失败的低沉音效]',
     screen_login: '登录页面', screen_map: '地图页面', screen_catch: '捕捉页面', screen_profile: '我的页面',
     entered: '已进入{screen}',
     nearby_none: '附近暂无精灵',
@@ -39,6 +41,8 @@ const S = {
     balls: { POKE_BALL: '普通球', GREAT_BALL: '超级球', ULTRA_BALL: '高级球' },
   },
   'en-US': {
+    cue_battle_action: 'Battle move', cue_battle_hit: 'Hit', cue_battle_faint: 'Fainted', cue_battle_win: 'Victory', cue_battle_lose: 'Defeat',
+    cap_battle_action: '[Move sound]', cap_battle_hit: '[Impact]', cap_battle_faint: '[Pokémon faints]', cap_battle_win: '[Victory fanfare]', cap_battle_lose: '[Defeat sound]',
     screen_login: 'Login', screen_map: 'Map', screen_catch: 'Catch', screen_profile: 'Profile',
     entered: '{screen} screen',
     nearby_none: 'No Pokémon nearby',
@@ -66,6 +70,8 @@ const S = {
     balls: { POKE_BALL: 'Poké Ball', GREAT_BALL: 'Great Ball', ULTRA_BALL: 'Ultra Ball' },
   },
   'ja-JP': {
+    cue_battle_action: 'わざ', cue_battle_hit: '命中', cue_battle_faint: 'ひんし', cue_battle_win: '勝利', cue_battle_lose: '敗北',
+    cap_battle_action: '［わざの効果音］', cap_battle_hit: '［命中音］', cap_battle_faint: '［ひんしの音］', cap_battle_win: '［勝利のファンファーレ］', cap_battle_lose: '［敗北の音］',
     screen_login: 'ログイン', screen_map: 'マップ', screen_catch: '捕獲', screen_profile: 'マイページ',
     entered: '{screen}画面',
     nearby_none: '近くにポケモンはいません',

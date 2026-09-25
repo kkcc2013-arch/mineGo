@@ -11,7 +11,11 @@ export const DEFAULT_PREFS = Object.freeze({
   // REQ-00108 光敏安全
   photosensitive: { enabled: false, maxFlashHz: 3, reduceMotion: false, tested: false, sensitivity: 'unknown', promptOnRisk: true },
   // REQ-00162 / 00426 / 00503 屏幕阅读器与语音导航
-  screenReader: { speech: false, rate: 1, pitch: 1, volume: 1, verbosity: 'full', spatialAudio: false, autoMapSummary: true, readFocus: false },
+  screenReader: {
+    speech: false, rate: 1, pitch: 1, volume: 1, verbosity: 'full', spatialAudio: false, autoMapSummary: true, readFocus: false,
+    // REQ-00426：按类别开关播报（critical 级别不受类别开关影响）
+    categories: { map: true, spawn: true, catch: true, battle: true, system: true, navigation: true },
+  },
   // REQ-00180 键盘
   keyboard: { enabled: true, bindings: {} },
   // REQ-00198 / 00263 节奏
@@ -32,6 +36,8 @@ export const DEFAULT_PREFS = Object.freeze({
     enabled: false, preset: 'none', aimAssist: 'off', windowMultiplier: 1, oneTapThrow: false, trajectory: false,
     holdMs: 0, confirmMode: 'none', tremorFilter: 'off', targetSnap: false, oneHanded: 'off', largeTargets: false,
     fatigueThrows: 0, audioCue: false, cloudSync: false,
+    // REQ-00414 宏：[{ name, steps: [actionId…] }]，Alt+1…9 或语音说出名称触发
+    macros: [],
   },
   // REQ-00352 / 00382 听障视觉提示
   hearing: {
@@ -149,6 +155,14 @@ function sanitizeNode(path, def, value) {
     return out;
   }
   if (Array.isArray(def)) {
+    if (path === 'motor.macros') {
+      const list = Array.isArray(value) ? value : [];
+      return list
+        .filter((m) => isObj(m) && typeof m.name === 'string' && m.name.trim() && Array.isArray(m.steps))
+        .slice(0, 9)
+        .map((m) => ({ name: m.name.trim().slice(0, 30), steps: m.steps.filter((x) => typeof x === 'string' && /^[a-zA-Z]\w{0,30}$/.test(x)).slice(0, 8) }))
+        .filter((m) => m.steps.length);
+    }
     if (path === 'voiceControl.customCommands') {
       const list = Array.isArray(value) ? value : [];
       return list

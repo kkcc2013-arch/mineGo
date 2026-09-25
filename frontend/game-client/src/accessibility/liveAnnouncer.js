@@ -53,7 +53,8 @@ export class LiveAnnouncer {
     const prefs = this.getPrefs();
     const sr = prefs.screenReader || {};
     const level = opts.level || 'info';
-    if (!shouldAnnounce(level, sr.verbosity || 'full')) {
+    const catOff = opts.category && level !== 'critical' && sr.categories && sr.categories[opts.category] === false;
+    if (catOff || !shouldAnnounce(level, sr.verbosity || 'full')) {
       this.history.push({ message, level, skipped: true, t: Date.now() });
       return false;
     }

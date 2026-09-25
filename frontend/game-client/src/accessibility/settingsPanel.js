@@ -50,6 +50,9 @@ export const SECTIONS = [
       onOff('screenReader.spatialAudio', '空间音频定位（精灵方位声像 + 距离音调）'),
       onOff('screenReader.autoMapSummary', '地图刷新时自动播报附近摘要'),
       onOff('screenReader.readFocus', '朗读获得焦点的元素'),
+      onOff('screenReader.categories.map', '播报类别：地图摘要'), onOff('screenReader.categories.spawn', '播报类别：精灵出现'),
+      onOff('screenReader.categories.catch', '播报类别：捕捉'), onOff('screenReader.categories.battle', '播报类别：战斗'),
+      onOff('screenReader.categories.navigation', '播报类别：页面切换/方位变化'), onOff('screenReader.categories.system', '播报类别：系统提示'),
       { type: 'button', id: 'test-speech', label: '试听语音' },
     ],
   },
@@ -106,6 +109,7 @@ export const SECTIONS = [
       onOff('motor.largeTargets', '放大点击区域'),
       range('motor.fatigueThrows', '连续投球提醒（0 为关闭）', 0, 100, 5, '次'),
       onOff('motor.cloudSync', '同步到云端（默认关闭，保护隐私）'),
+      { type: 'custom', render: 'macros' },
       { type: 'custom', render: 'motorTest' },
     ],
   },
@@ -321,6 +325,34 @@ export class SettingsPanel {
         this.renderCustom(this.wrap);
         break;
       }
+      case 'macro-step': {
+        const sel = this.wrap.querySelector('#a11y-macro-action');
+        this._macroDraft = [...(this._macroDraft || []), sel.value].slice(0, 8);
+        this.renderCustom(this.wrap);
+        break;
+      }
+      case 'macro-clear-draft': this._macroDraft = []; this.renderCustom(this.wrap); break;
+      case 'macro-save': {
+        const name = this.wrap.querySelector('#a11y-macro-name');
+        const steps = this._macroDraft || [];
+        if (name && name.value.trim() && steps.length) {
+          const list = [...this.store.get('motor.macros'), { name: name.value.trim(), steps }].slice(0, 9);
+          this.store.set('motor.macros', list, { source: 'panel' });
+          this._macroDraft = [];
+          this.announcer.announce(`已保存宏 ${name.value.trim()}，快捷键 Alt+${list.length}`, { level: 'important' });
+        } else {
+          this.announcer.announce('请填写宏名称并至少添加一个步骤', { level: 'important' });
+        }
+        this.renderCustom(this.wrap);
+        break;
+      }
+      case 'macro-del': {
+        const i = Number(btn.dataset.index);
+        this.store.set('motor.macros', this.store.get('motor.macros').filter((_, j) => j !== i), { source: 'panel' });
+        this.renderCustom(this.wrap);
+        break;
+      }
+      case 'macro-run': sv.runMacro(Number(btn.dataset.index) + 1); break;
       case 'motor-test': {
         const out = this.wrap.querySelector('#a11y-motor-test-count');
         out.textContent = String(Number(out.textContent) + 1);
@@ -382,6 +414,22 @@ export class SettingsPanel {
           <div class="a11y-field"><label for="a11y-vc-phrase">说法</label><input id="a11y-vc-phrase" type="text" maxlength="40" autocomplete="off"></div>
           <div class="a11y-field"><label for="a11y-vc-action">执行动作</label><select id="a11y-vc-action">${Object.keys(COMMANDS).map((a) => `<option value="${a}">${escapeHtml(ACTION_LABELS[a] || a)}</option>`).join('')}</select></div>
           <button type="button" class="a11y-btn" data-action="vc-add">添加命令</button></fieldset>`;
+      } else if (kind === 'macros') {
+        const list = prefs.motor.macros;
+        const draft = this._macroDraft || [];
+        const label = (a) => escapeHtml(ACTION_LABELS[a] || (sv.shortcuts.actions[a] && sv.shortcuts.actions[a].label) || a);
+        const opts = [...new Set([...Object.keys(COMMANDS), ...Object.keys(sv.shortcuts.actions)])]
+          .filter((a) => !['help', 'settings', 'stopListening', 'repeat'].includes(a));
+        box.innerHTML = `<fieldset class="a11y-fieldset"><legend>宏（自定义操作序列，${list.length}/9；Alt+数字 或说出宏名称执行）</legend>
+          <ul class="a11y-list">${list.map((m, i) => `<li><kbd>Alt+${i + 1}</kbd> ${escapeHtml(m.name)}：${m.steps.map(label).join(' → ')}
+            <button type="button" class="a11y-btn a11y-btn-sm" data-action="macro-run" data-index="${i}" aria-label="运行宏 ${escapeHtml(m.name)}">运行</button>
+            <button type="button" class="a11y-btn a11y-btn-sm" data-action="macro-del" data-index="${i}" aria-label="删除宏 ${escapeHtml(m.name)}">删除</button></li>`).join('')}</ul>
+          <div class="a11y-field"><label for="a11y-macro-name">宏名称</label><input id="a11y-macro-name" type="text" maxlength="30" autocomplete="off"></div>
+          <div class="a11y-field"><label for="a11y-macro-action">步骤动作</label><select id="a11y-macro-action">${opts.map((a) => `<option value="${a}">${label(a)}</option>`).join('')}</select></div>
+          <p class="a11y-help" data-testid="macro-draft">当前步骤：${draft.length ? draft.map(label).join(' → ') : '（空）'}</p>
+          <div class="a11y-row"><button type="button" class="a11y-btn a11y-btn-sm" data-action="macro-step">加入步骤</button>
+          <button type="button" class="a11y-btn a11y-btn-sm" data-action="macro-clear-draft">清空步骤</button>
+          <button type="button" class="a11y-btn a11y-btn-sm" data-action="macro-save">保存宏</button></div></fieldset>`;
       } else if (kind === 'motorTest') {
         const mem = sv.cognitive.memories();
         box.innerHTML = `<fieldset class="a11y-fieldset"><legend>实时测试区</legend>

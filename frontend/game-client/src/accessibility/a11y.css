@@ -108,6 +108,10 @@ html[data-a11y-contrast="max"] body { font-weight: 700; }
 html[data-a11y-contrast="max"] a, html[data-a11y-contrast="max"] [role="button"], html[data-a11y-contrast="max"] button { text-decoration: underline; }
 
 /* ── 色觉：形状/文字标识（REQ-00474） ────────────────── */
+/* 选中/当前状态不只靠颜色：导航当前页加下划线与粗体，选中的精灵球加 ✓ */
+.nav-tab.on span { text-decoration: underline; text-underline-offset: 3px; font-weight: 800; }
+.nav-tab.on .nav-icon { transform: scale(1.1); }
+.ball-chip.sel::before { content: '✓ '; font-weight: 800; }
 .toast.ok::before { content: '✔ '; font-weight: 800; }
 .toast.err::before { content: '✖ '; font-weight: 800; }
 html.a11y-shapes .toast.ok { border-style: solid; border-width: 2px; }

@@ -86,7 +86,7 @@ export async function initAccessibility(ctx = {}) {
   const activeScreen = () => (document.querySelector('.screen.active') || {}).id;
 
   // ── 统一事件出口：播报 + 视觉提示 + 字幕 + 提示音 + 震动 ─────────
-  function emit(type, { text, speakText, level = 'important', haptic = true, earcon = true, pan = 0 } = {}) {
+  function emit(type, { text, speakText, level = 'important', haptic = true, earcon = true, pan = 0, category } = {}) {
     const def = CUE_DEFS[type];
     const L = lang();
     cues.show(type, { text, lang: L });
@@ -95,7 +95,7 @@ export async function initAccessibility(ctx = {}) {
       if (earcon && def.earcon && (P().screenReader.spatialAudio || P().motor.audioCue || P().screenReader.speech)) announcer.earcon(def.earcon, { pan });
       if (haptic && def.haptic) hapticManager.vibrate(def.haptic);
     }
-    if (speakText) announcer.announce(speakText, { level });
+    if (speakText) announcer.announce(speakText, { level, category: category || (def ? def.category : 'system') });
     document.dispatchEvent(new CustomEvent('pmg:a11y-event', { detail: { type, text } }));
   }
 
@@ -217,7 +217,7 @@ export async function initAccessibility(ctx = {}) {
       try { onNearby(await api.getNearby(pos().lat, pos().lng, 2000), true); return true; } catch { /* ignore */ }
     }
     const s = summarizeNearby(state.nearby || {}, pos(), lang());
-    announcer.announce(s.text, { level: 'important' });
+    announcer.announce(s.text, { level: 'important', category: 'map' });
     if (P().screenReader.spatialAudio && s.spawns[0]) {
       announcer.tone(toneForDistance(s.spawns[0].distance), { pan: s.spawns[0].pan, ms: 220 });
     }
@@ -259,7 +259,34 @@ export async function initAccessibility(ctx = {}) {
     prevBall: { label: '上一个精灵球', run: () => cycleBall(-1), announce: false },
     nextBall: { label: '下一个精灵球', run: () => cycleBall(1), announce: false },
   };
-  const runAction = (id) => { const a = actions[id]; return a ? a.run() !== false : false; };
+  const runAction = (id) => {
+    const m = /^macro:(\d)$/.exec(String(id));
+    if (m) return runMacro(Number(m[1]));
+    const a = actions[id];
+    return a ? a.run() !== false : false;
+  };
+  // REQ-00414 宏：按顺序执行一组动作（步骤间隔随节奏倍率放大），竞技模式下禁用
+  let macroRunning = false;
+  function runMacro(n) {
+    const macro = P().motor.macros[n - 1];
+    if (!macro || macroRunning || pace.competitive) return false;
+    macroRunning = true;
+    announcer.announce(`执行宏：${macro.name}`, { level: 'important' });
+    const steps = [...macro.steps];
+    const next = () => {
+      const step = steps.shift();
+      if (!step) { macroRunning = false; return; }
+      try { runAction(step); } catch (err) { console.warn('[a11y] macro step', step, err); }
+      setTimeout(next, 450 * pace.holdScale());
+    };
+    next();
+    return true;
+  }
+  document.addEventListener('keydown', (e) => {
+    if (!e.altKey || e.ctrlKey || e.metaKey || e.defaultPrevented) return;
+    const d = /^Digit([1-9])$/.exec(e.code || '');
+    if (d && runMacro(Number(d[1]))) e.preventDefault();
+  });
   function cycleBall(d) {
     if (!onScreen('catch')) return false;
     const chips = [...document.querySelectorAll('.ball-chip')];
@@ -306,14 +333,18 @@ export async function initAccessibility(ctx = {}) {
   });
 
   // ── 语音控制 ───────────────────────────────────────────
-  voice = new VoiceController({ getPrefs: P, run: runAction, announcer, lang });
+  voice = new VoiceController({
+    getPrefs: P, run: runAction, announcer, lang,
+    // 自定义命令 + 宏名称（说出宏名即执行）
+    customCommands: () => [...P().voiceControl.customCommands, ...P().motor.macros.map((m, i) => ({ phrase: m.name, action: `macro:${i + 1}` }))],
+  });
 
   // ── 设置面板 ───────────────────────────────────────────
   const panel = new SettingsPanel({
     store, announcer,
     services: {
       announcer, flashGuard, shortcuts, gamepad, cues, haptics: hapticManager, cognitive, voice,
-      toggleEmergency,
+      toggleEmergency, runMacro: (n) => runMacro(n),
       runSensitivityTest: () => runSensitivityTest({
         announce: (m) => announcer.announce(m, { level: 'info' }),
         onDone: ({ config, results }) => {
@@ -340,7 +371,7 @@ export async function initAccessibility(ctx = {}) {
     const html = document.documentElement;
     html.setAttribute('data-a11y-screen', id);
     html.classList.toggle('a11y-nav-shown', !!document.getElementById('nav')?.classList.contains('show'));
-    announcer.announce(t('entered', lang(), { screen: t(`screen_${id}`, lang()) }), { level: 'info' });
+    announcer.announce(t('entered', lang(), { screen: t(`screen_${id}`, lang()) }), { level: 'info', category: 'navigation' });
     cognitive.updateHint(id);
     motor.updateTrajectory();
     if (id !== 'catch') { document.getElementById('a11y-type-badges')?.remove(); document.getElementById('a11y-ps-prompt')?.remove(); }
@@ -372,7 +403,7 @@ export async function initAccessibility(ctx = {}) {
     if (state.firstNearby || force) {
       state.firstNearby = false;
       if (spawns.length) emit('pokemon:spawn', { text: spawns[0].name, haptic: true });
-      if (sr.autoMapSummary && onScreen('map')) announcer.announce(summarizeNearby(data, pos(), L).text, { level: 'info' });
+      if (sr.autoMapSummary && onScreen('map')) announcer.announce(summarizeNearby(data, pos(), L).text, { level: 'info', category: 'map' });
     } else if (fresh.length) {
       const n = fresh[0];
       emit('pokemon:spawn', { text: n.name, speakText: t('spawn_new', L, { name: n.name, dir: n.direction, dist: n.distance }), level: 'important', pan: n.pan });
@@ -380,7 +411,7 @@ export async function initAccessibility(ctx = {}) {
       && (Math.abs((state.nearest.distance || 0) - (spawns[0].distance || 0)) >= 20 || state.nearest.direction !== spawns[0].direction)) {
       // 最近精灵方位/距离明显变化时播报（REQ-00337）
       state.lastMove = Date.now();
-      announcer.announce(t('spawn_new', L, { name: spawns[0].name, dir: spawns[0].direction, dist: spawns[0].distance }).replace(/^[^：:]+[：:]\s*/, ''), { level: 'info' });
+      announcer.announce(t('spawn_new', L, { name: spawns[0].name, dir: spawns[0].direction, dist: spawns[0].distance }).replace(/^[^：:]+[：:]\s*/, ''), { level: 'info', category: 'navigation' });
     }
     state.nearest = spawns[0] || null;
     if (sr.spatialAudio && spawns[0] && spawns[0].distance !== null) announcer.tone(toneForDistance(spawns[0].distance), { pan: spawns[0].pan, ms: 180 });
@@ -413,7 +444,7 @@ export async function initAccessibility(ctx = {}) {
         const spawn = JSON.parse(decodeURIComponent(encoded));
         const s = describeSpawns([spawn], pos(), lang())[0];
         state.spawn = { ...spawn, _desc: s };
-        announcer.announce(t('catch_open', lang(), { name: s.name, cp: spawn.cp || '?' }), { level: 'important' });
+        announcer.announce(t('catch_open', lang(), { name: s.name, cp: spawn.cp || '?' }), { level: 'important', category: 'catch' });
         if (P().screenReader.spatialAudio && s.distance !== null) announcer.tone(toneForDistance(s.distance), { pan: s.pan, ms: 240 });
         cognitive.remember({ name: s.name, lat: spawn.lat, lng: spawn.lng, kind: 'encounter' });
         setTimeout(() => { showTypeBadges(spawn); maybePromptPhotosensitive(); motor.updateTrajectory(); }, 50);
@@ -432,10 +463,10 @@ export async function initAccessibility(ctx = {}) {
     });
     catchEng.addEventListener('fled', () => { emit('catch:fled', { haptic: false }); cognitive.warnChange(t('change_warning', lang()), 1500); });
     catchEng.addEventListener('ballUsed', () => emit('catch:escape', { haptic: false }));
-    catchEng.addEventListener('throwMiss', () => announcer.announce(t('catch_miss', lang()), { level: 'important' }));
+    catchEng.addEventListener('throwMiss', () => announcer.announce(t('catch_miss', lang()), { level: 'important', category: 'catch' }));
     catchEng.addEventListener('ballSelected', (e) => {
       const b = t('balls', lang())[e.detail && e.detail.ballType];
-      if (b) announcer.announce(t('ball_selected', lang(), { ball: b }), { level: 'info' });
+      if (b) announcer.announce(t('ball_selected', lang(), { ball: b }), { level: 'info', category: 'catch' });
     });
   }
 
@@ -452,7 +483,7 @@ export async function initAccessibility(ctx = {}) {
           announcer.announce(text, { level: 'critical' });
           emit('warning', { text, earcon: true });
         } else {
-          announcer.announce(text, { level: n.classList.contains('ok') ? 'important' : 'info' });
+          announcer.announce(text, { level: n.classList.contains('ok') ? 'important' : 'info', category: 'system' });
         }
       });
     }).observe(toastBox, { childList: true });
@@ -488,6 +519,38 @@ export async function initAccessibility(ctx = {}) {
       state.level = lv;
     });
   }
+
+  // 步行定位更新的轻触觉（导航场景，无障碍增强模式）
+  if (locMgr && typeof locMgr.addEventListener === 'function') {
+    locMgr.addEventListener('position', () => { if (P().haptics.enhanced) hapticManager.vibrate('location_update'); });
+  }
+
+  // ── 战斗无障碍接入契约（REQ-00198/00263/00316/00382/00426/00503）────────────
+  // 战斗界面（当前客户端未加载）只需 document.dispatchEvent(new CustomEvent('pmg:battle', { detail: { type, ... } }))，
+  // 并用 PMG_A11Y.battleTiming(ms) 计算动画/回合/躲避窗口时长；本模块负责播报、视觉提示、字幕、触觉与光敏限速。
+  const BATTLE = {
+    start: { cue: 'battle:start', haptic: 'battle_start', text: (d) => `战斗开始${d.opponent ? `：对手 ${d.opponent}` : ''}`, level: 'important' },
+    attack: { cue: 'battle:action', haptic: 'battle_attack', text: (d) => `${d.attacker || '我方'}使用了${d.move || '攻击'}`, level: 'info' },
+    hit: { cue: 'battle:hit', haptic: 'battle_hit', text: (d) => `命中${d.target ? ` ${d.target}` : ''}${d.damage ? `，造成 ${d.damage} 点伤害` : ''}${d.hp !== undefined ? `，剩余 HP ${d.hp}` : ''}`, level: 'info' },
+    crit: { cue: 'battle:hit', haptic: 'battle_crit', text: (d) => `会心一击！${d.damage ? `造成 ${d.damage} 点伤害` : ''}`, level: 'important' },
+    dodge: { cue: 'battle:action', haptic: 'battle_dodge', text: () => '成功躲避', level: 'info' },
+    status: { cue: 'battle:action', haptic: null, text: (d) => `${d.target || ''}${d.status ? `陷入${d.status}状态` : '状态变化'}`, level: 'info' },
+    faint: { cue: 'battle:faint', haptic: 'battle_lose', text: (d) => `${d.target || '精灵'}倒下了`, level: 'important' },
+    win: { cue: 'battle:win', haptic: 'battle_win', text: () => '战斗胜利', level: 'critical' },
+    lose: { cue: 'battle:lose', haptic: 'battle_lose', text: () => '战斗失败', level: 'critical' },
+  };
+  document.addEventListener('pmg:battle', (e) => {
+    const d = (e && e.detail) || {};
+    const def = BATTLE[d.type];
+    if (!def) return;
+    const text = def.text(d);
+    cues.show(def.cue, { text, lang: lang() });
+    subtitles.show(text, { kind: 'caption' });
+    if (def.haptic) hapticManager.vibrate(def.haptic, { scene: 'battle' });
+    announcer.announce(text, { level: def.level, category: 'battle' });
+    if (d.type === 'start' && d.mode && ['pvp', 'raid', 'leaderboard'].includes(d.mode)) window.PMG_A11Y.setCompetitive(d.mode);
+    if (['win', 'lose'].includes(d.type) && pace.competitive) window.PMG_A11Y.setCompetitive(null);
+  });
 
   // 地图列表滚动到边界时的触觉提示（无障碍增强模式）
   const mapBody = document.getElementById('map-body');
@@ -612,7 +675,8 @@ export async function initAccessibility(ctx = {}) {
 
   window.PMG_A11Y = {
     store, announcer, subtitles, pace, flashGuard, cues, direction, cognitive, motor, shortcuts, gamepad, voice, panel, semantics,
-    haptics: hapticManager, actions, runAction, state, emit, describe, toggleEmergency, locMgr,
+    haptics: hapticManager, actions, runAction, runMacro, state, emit, describe, toggleEmergency, locMgr,
+    battleTiming: (ms) => Math.round(ms / pace.battleScale()),
     holdScale: () => pace.holdScale(),
     setCompetitive: (kind) => { pace.setCompetitive(kind); motor.apply(); renderStatus(); if (kind) announcer.announce(t('pace_competitive', lang()), { level: 'important' }); },
   };

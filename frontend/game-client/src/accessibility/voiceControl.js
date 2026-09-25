@@ -47,7 +47,7 @@ export function parseCommand(transcript, lang = 'zh-CN', customCommands = []) {
   if (!text) return null;
   for (const c of customCommands || []) {
     const p = norm(c.phrase);
-    if (p && (text === p || text.includes(p)) && COMMANDS[c.action]) return { action: c.action, phrase: c.phrase, source: 'custom' };
+    if (p && (text === p || text.includes(p)) && (COMMANDS[c.action] || /^macro:\d$/.test(c.action))) return { action: c.action, phrase: c.phrase, source: 'custom' };
   }
   const primary = langKey(lang);
   const order = [primary, ...['zh', 'en', 'ja'].filter((k) => k !== primary)];
@@ -119,6 +119,7 @@ export class VoiceController {
   _onResult(e) {
     const t0 = performance.now();
     const vc = this.getPrefs().voiceControl;
+    const custom = typeof this.customCommands === 'function' ? this.customCommands() : vc.customCommands;
     const results = e.results || [];
     for (let i = e.resultIndex || 0; i < results.length; i++) {
       const res = results[i];
@@ -130,7 +131,7 @@ export class VoiceController {
         if (!alt) continue;
         const conf = alt.confidence === undefined || alt.confidence === 0 ? 1 : alt.confidence;
         if (conf < vc.minConfidence) continue;
-        const cmd = parseCommand(alt.transcript, this.rec ? this.rec.lang : this.lang(), vc.customCommands);
+        const cmd = parseCommand(alt.transcript, this.rec ? this.rec.lang : this.lang(), custom);
         if (cmd) { chosen = { ...cmd, transcript: alt.transcript, confidence: conf }; break; }
       }
       const transcript = (res[0] && res[0].transcript) || '';

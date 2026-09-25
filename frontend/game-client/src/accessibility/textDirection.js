@@ -56,7 +56,9 @@ export class DirectionManager {
   apply() {
     const t0 = performance.now();
     const html = document.documentElement;
-    const mode = (this.getPrefs().direction || {}).mode || 'auto';
+    let mode = (this.getPrefs().direction || {}).mode || 'auto';
+    // 翻译/布局预览：URL 参数 ?dir=rtl|ltr 临时强制方向（REQ-00413，不写入偏好）
+    try { const q = new URLSearchParams(location.search).get('dir'); if (q === 'rtl' || q === 'ltr') mode = q; } catch { /* ignore */ }
     const dir = directionFor(html.lang, mode);
     const changed = html.getAttribute('dir') !== dir;
     html.setAttribute('dir', dir);
