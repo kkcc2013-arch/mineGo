@@ -399,7 +399,43 @@ async function testStamina() {
   await db().query('DELETE FROM recovery_stations WHERE id = $1', [st.id]);
 }
 
-const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina };
+// ───────────────────── 进化路径可视化（REQ-00355） ─────────────────────
+async function testEvolutionTree() {
+  const u = await newUser('viz');
+  const t = await call('GET', '/v1/pokemon/species/2/evolution-chain', { token: u.token });
+  record('进化树：/v1/pokemon/species/2/evolution-chain（原 500）返回整个家族', t.status === 200 && t.data.rootSpeciesId === 1 && t.data.nodes.length === 3 && t.data.edges.length === 2,
+    `status=${t.status} nodes=${t.data && t.data.nodes && t.data.nodes.map((n) => n.speciesId)}`);
+  record('进化树：节点带阶段与布局坐标、边带条件描述与属性变化', t.data && t.data.nodes.every((n) => n.position && n.stage) && t.data.edges[0].conditionText && t.data.edges[0].statChanges,
+    `edge0=${t.data && JSON.stringify(t.data.edges[0]).slice(0, 120)}`);
+  const e0 = await call('GET', '/v1/pokemon/species/133/evolution-chain', { token: u.token });
+  const hiddenEdges = (e0.data && e0.data.edges || []).filter((e) => e.hidden);
+  record('进化树：伊布分支（5 条），隐藏路径未发现时打码并给提示', e0.status === 200 && e0.data.hasBranches && hiddenEdges.length === 2 && hiddenEdges.every((e) => e.to === null && e.hint),
+    `edges=${e0.data && e0.data.edges.length} hidden=${hiddenEdges.length}`);
+  await db().query(
+    `INSERT INTO pokedex_entries (user_id, species_id, seen_count, caught_count, first_caught_at) VALUES ($1, 196, 1, 1, NOW())
+     ON CONFLICT (user_id, species_id) DO UPDATE SET caught_count = 1`, [u.userId]);
+  const e1 = await call('GET', '/v1/pokemon/species/133/evolution-chain?lang=en', { token: u.token });
+  const sun = e1.data && e1.data.edges.find((e) => e.to === 196);
+  record('进化树：图鉴已捕获后隐藏路径显形，条件按语言描述', !!sun && /friendship 220\+/.test(sun.conditionText), `edge=${sun && sun.conditionText}`);
+  const pre = await call('GET', '/v1/pokemon/species/3/pre-evolutions', { token: u.token });
+  record('进化树：反向追溯前身', pre.status === 200 && pre.data.chain.map((c) => c.speciesId).join() === '1,2', `status=${pre.status}`);
+  const types = await call('GET', '/v1/pokemon/evolution-types?lang=ja', { token: u.token });
+  record('进化树：支持的进化类型（等级/道具/亲密度/时间/地点/交换/特殊）', types.status === 200 && ['level', 'item', 'friendship', 'time', 'location', 'trade', 'special'].every((k) => types.data.some((x) => x.type === k)), `status=${types.status}`);
+  const batch = await call('POST', '/v1/pokemon/batch-evolution-chains', { token: u.token, body: { speciesIds: [1, 25, 9999] } });
+  record('进化树：批量查询（不存在的物种单独报错）', batch.status === 200 && batch.data['1'].nodes && batch.data['9999'].error, `status=${batch.status}`);
+
+  const p = await givePokemon(u.userId, 1);
+  const pv = await call('GET', `/v1/pokemon/${p.id}/evolution-preview/2`, { token: u.token });
+  record('进化树：进化前后属性对比预览', pv.status === 200 && pv.data.comparison.cp.after > pv.data.comparison.cp.before && pv.data.canEvolve === false,
+    `status=${pv.status} cp=${pv.data && JSON.stringify(pv.data.comparison.cp)}`);
+  await setCandy(u.userId, 1, 25);
+  const rec = await call('GET', `/v1/pokemon/${p.id}/recommended-evolution`, { token: u.token });
+  record('进化树：推荐进化路径', rec.status === 200 && rec.data.recommendation && rec.data.recommendation.toSpeciesId === 2, `status=${rec.status}`);
+  const ev = await call('POST', '/v1/pokemon/evolve', { token: u.token, body: { pokemonId: p.id, targetSpeciesId: 2 } });
+  record('进化树：POST /v1/pokemon/evolve 执行进化（同一实现）', ev.status === 200 && ev.data.toSpecies.id === 2 && (await candy(u.userId, 1)) === 0, `status=${ev.status}`);
+}
+
+const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina, tree: testEvolutionTree };
 
 (async () => {
   const want = process.argv.slice(2);
