@@ -31,8 +31,9 @@ UPDATE users u SET friend_code = NULL
  WHERE friend_code IS NOT NULL
    AND (friend_code !~ '^[0-9]{12}$'
         OR EXISTS (SELECT 1 FROM users u2 WHERE u2.friend_code = u.friend_code AND u2.id < u.id));
-UPDATE users SET friend_code = gen_friend_code() WHERE friend_code IS NULL;
+-- 先建唯一索引（NULL 不冲突），生成函数里的存在性检查才能走索引，回填是 O(N) 而不是 O(N²)
 CREATE UNIQUE INDEX IF NOT EXISTS uq_users_friend_code ON users(friend_code);
+UPDATE users SET friend_code = gen_friend_code() WHERE friend_code IS NULL;
 
 CREATE OR REPLACE FUNCTION trg_users_friend_code_fn() RETURNS trigger AS $$
 BEGIN
