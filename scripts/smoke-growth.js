@@ -625,7 +625,47 @@ async function testSpecialTraining() {
   record('特训：成就列表', ach.status === 200 && ach.data.find((a) => a.id === 'first_training').achieved, `status=${ach.status}`);
 }
 
-const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina, tree: testEvolutionTree, bond: testBondSkills, camp: testTrainingCamp, special: testSpecialTraining };
+// ───────────────────── 觉醒 / 战斗档案 / 成长商店（REQ-00245） ─────────────────────
+async function testAwakening() {
+  const u = await newUser('awk');
+  const p = await givePokemon(u.userId, 25, { level: 20, experience: 8000, friendship: 150 });
+  const st0 = await call('GET', `/v1/pokemon/${p.id}/awakening`, { token: u.token });
+  const shardCheck = st0.data && st0.data.next.checks.find((c) => c.type === 'item:AWAKENING_SHARD');
+  record('觉醒：条件检查（等级/亲密度满足，觉醒碎片不足）', st0.status === 200 && st0.data.stage === 0 && !st0.data.next.met && shardCheck && !shardCheck.met
+    && st0.data.next.checks.find((c) => c.type === 'level').met, `status=${st0.status} ${JSON.stringify(st0.data && st0.data.next && st0.data.next.checks.map((c) => [c.type, c.met]))}`);
+  const early = await call('POST', `/v1/pokemon/${p.id}/awakening/awaken`, { token: u.token });
+  record('觉醒：条件不满足时拒绝（400）', early.status === 400 && errName(early) === 'AWAKENING_CONDITIONS_NOT_MET', `status=${early.status} ${errName(early)}`);
+
+  await db().query('UPDATE users SET coins = 1000, stardust = 5000 WHERE id = $1', [u.userId]);
+  const buy = await call('POST', '/v1/pokemon/growth-shop/buy', { token: u.token, body: { itemId: 'AWAKENING_SHARD', quantity: 10 } });
+  const shop = await call('GET', '/v1/pokemon/growth-shop/items?category=awakening', { token: u.token });
+  record('成长商店：金币购买觉醒碎片 ×10（扣 1000 金币）', buy.status === 200 && (await itemQty(u.userId, 'AWAKENING_SHARD')) === 10 && shop.data.find((i) => i.itemId === 'AWAKENING_SHARD').owned === 10,
+    `buy=${buy.status} ${buy.status !== 200 ? JSON.stringify(buy.body).slice(0, 160) : ''}`);
+  await setCandy(u.userId, 25, 50);
+  const aw = await call('POST', `/v1/pokemon/${p.id}/awakening/awaken`, { token: u.token });
+  const row = await pokemonRow(p.id);
+  record('觉醒：第 1 阶段觉醒（扣材料/糖果/星尘，抽取 1~2 个潜能，CP 同步加成，光环）',
+    aw.status === 200 && aw.data.stage === 1 && aw.data.potentials.length >= 1 && aw.data.potentials.length <= 2 && row.awakening_stage === 1
+      && (await itemQty(u.userId, 'AWAKENING_SHARD')) === 0 && (await candy(u.userId, 25)) === 0 && aw.data.aura === 'aura_green' && row.cp === aw.data.cpAfter,
+    `status=${aw.status} ${aw.status !== 200 ? JSON.stringify(aw.body).slice(0, 200) : JSON.stringify({ p: aw.data.potentials.map((x) => x.key), cp: [aw.data.cpBefore, aw.data.cpAfter] })}`);
+  const noEss = await call('POST', `/v1/pokemon/${p.id}/awakening/reroll`, { token: u.token, body: { stage: 1 } });
+  await giveItem(u.userId, 'AWAKENING_ESSENCE', 1);
+  await db().query('UPDATE users SET stardust = 1000 WHERE id = $1', [u.userId]);
+  const rr = await call('POST', `/v1/pokemon/${p.id}/awakening/reroll`, { token: u.token, body: { stage: 1 } });
+  record('觉醒：重洗潜能（无精华 400；消耗 1 精华 + 1000 星尘，下次费用翻倍）', noEss.status === 400 && rr.status === 200 && rr.data.nextCost.items[0].count === 2 && rr.data.nextCost.stardust === 2000,
+    `noEss=${noEss.status} rr=${rr.status}`);
+  const lv = await call('POST', `/v1/pokemon/${p.id}/awakening/awaken`, { token: u.token });
+  record('觉醒：第 2 阶段需要精灵 30 级', lv.status === 400 && /精灵等级/.test(lv.body.error && lv.body.error.message), `status=${lv.status}`);
+  const bp = await call('GET', `/v1/pokemon/${p.id}/battle-profile`, { token: u.token });
+  record('战斗档案：合成觉醒/特训/疲劳/等级后的战斗属性', bp.status === 200 && bp.data.awakening.stage === 1 && bp.data.stats.attack > 0 && bp.data.stats.levelMultiplier === 1.38 && bp.data.canBattle,
+    `status=${bp.status} ${JSON.stringify(bp.data && bp.data.stats)}`);
+  const ms = await call('GET', `/v1/pokemon/${p.id}/growth/milestones`, { token: u.token });
+  record('觉醒：记入成长里程碑', ms.status === 200 && ms.data.milestones.some((m) => m.type === 'awakening'), `status=${ms.status}`);
+  const pots = await call('GET', '/v1/pokemon/awakening/potentials?lang=en', { token: u.token });
+  record('觉醒：潜能池多语言', pots.status === 200 && pots.data.some((x) => x.name === 'Power Awakening'), `status=${pots.status}`);
+}
+
+const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina, tree: testEvolutionTree, bond: testBondSkills, camp: testTrainingCamp, special: testSpecialTraining, awakening: testAwakening };
 
 (async () => {
   const want = process.argv.slice(2);

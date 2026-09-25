@@ -13,7 +13,7 @@
 'use strict';
 
 const { query, transaction } = require('../../../shared/db');
-const { consumeItem } = require('../../../shared/inventory');
+const { consumeItem, addItems } = require('../../../shared/inventory');
 const { gameDate } = require('../../../shared/gameTime');
 const { grantPokemonExperience } = require('../../../shared/pokemonExperience');
 const rules = require('./growth/trainingCampRules');
@@ -211,6 +211,8 @@ async function complete(userId, slotId) {
       friendship = { gained: s.expected_friendship, current: f.friendship };
     }
     const move = s.camp_type === 'skill' ? await learnMove(client, s.pokemon_id) : null;
+    // 觉醒材料获取途径（REQ-00245）：每完成一次训练营训练掉落 1 个觉醒碎片
+    const { credited: drops } = await addItems(client, userId, [{ type: 'AWAKENING_SHARD', qty: 1 }]);
     const actualExp = growth ? growth.gainedExp : 0;
     await client.query(
       `UPDATE training_slots SET status = 'completed', completed_at = NOW(), actual_exp = $2, actual_friendship = $3,
@@ -222,7 +224,7 @@ async function complete(userId, slotId) {
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
       [userId, s.id, s.pokemon_id, s.camp_type, s.course_name, Math.max(1, Math.round((new Date(s.ends_at) - new Date(s.started_at)) / 60000)),
         actualExp, s.expected_friendship || 0, move ? move.name || move.moveId : null, s.cost_type, s.cost_amount || 0, s.rating || 'normal']);
-    return { slotId: s.id, pokemonId: s.pokemon_id, rating: s.rating, rewards: { exp: actualExp, friendship, skillLearned: move }, growth };
+    return { slotId: s.id, pokemonId: s.pokemon_id, rating: s.rating, rewards: { exp: actualExp, friendship, skillLearned: move, items: drops }, growth };
   });
 }
 

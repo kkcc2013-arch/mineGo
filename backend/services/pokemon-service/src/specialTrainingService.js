@@ -12,6 +12,7 @@ const { query, transaction } = require('../../../shared/db');
 const { consumeItem, addItems } = require('../../../shared/inventory');
 const { gameDate } = require('../../../shared/gameTime');
 const rules = require('./growth/specialTrainingRules');
+const shop = require('./growth/shop');
 const { consumeStamina } = require('./staminaService');
 const {
   GrowthError, lockOwnedPokemon, assertIdle, assertUuid, occupy, release, spendCurrency, spendCandy, addCandy,
@@ -237,29 +238,13 @@ async function queue(userId) {
   };
 }
 
+/** 训练道具（成长商店的 special_training 分类） */
 async function items(userId) {
-  const { rows } = await query(
-    `SELECT i.item_id AS "itemId", i.name_zh AS name, i.description_zh AS effect, i.rarity, i.shop_price AS price, i.is_premium AS premium,
-            COALESCE(pi.qty, 0)::int AS owned
-       FROM items i LEFT JOIN (SELECT item_id, SUM(quantity) AS qty FROM player_inventory WHERE user_id = $1 GROUP BY item_id) pi
-         ON pi.item_id = i.item_id
-      WHERE i.category = 'special_training' ORDER BY i.shop_price NULLS LAST, i.item_id`, [userId]);
-  return rows;
+  return shop.list(userId, { category: 'special_training' });
 }
 
-async function buy(userId, { itemId, quantity = 1 }) {
-  const qty = Number(quantity);
-  if (!Number.isInteger(qty) || qty < 1 || qty > 99) throw new GrowthError('INVALID_PARAM', 'quantity 必须是 1~99', 400);
-  return transaction(async (client) => {
-    const { rows: [it] } = await client.query(
-      `SELECT item_id, shop_price, is_premium FROM items WHERE item_id = $1 AND category = 'special_training'`, [itemId]);
-    if (!it) throw new GrowthError('INVALID_ITEM', `不是训练道具：${itemId}`, 400);
-    if (it.is_premium || !(Number(it.shop_price) > 0)) throw new GrowthError('NOT_FOR_SALE', '该道具不在商店出售', 400);
-    const total = Number(it.shop_price) * qty;
-    if (!(await spendCurrency(client, userId, 'coins', total))) throw new GrowthError('INSUFFICIENT_FUNDS', `金币不足（需要 ${total}）`, 400);
-    await addItems(client, userId, [{ type: itemId, qty }]);
-    return { itemId, quantity: qty, cost: { coins: total } };
-  });
+async function buy(userId, body) {
+  return shop.buy(userId, body || {}, { categories: ['special_training'] });
 }
 
 async function knownMove(p, moveId) {
