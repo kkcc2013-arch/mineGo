@@ -244,6 +244,10 @@ router.post('/login', async (req, res, next) => {
       ip: req.ip || req.connection.remoteAddress,
       userAgent: req.headers['user-agent']
     });
+    // REQ-00425：新设备登录生成安全类站内消息（异步，不影响登录）
+    require('../../../../shared/securityNotifier').onLogin(user.id, {
+      userAgent: req.headers['user-agent'], deviceType: req.headers['x-device-type'], deviceName: req.headers['x-device-name'], ip: req.ip,
+    }).catch(() => {});
     res.json(successResp({ ...tokens, userId: user.id, nickname: user.nickname, level: user.level, team: user.team }));
   } catch (err) { next(err); }
 });

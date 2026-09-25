@@ -5,12 +5,14 @@ import { initAccessibility } from './a11y.js';
 import { initExperience } from './experience.js';
 import { initPrivacyCenter } from '../features/privacyCenter.js';
 import { initBattle } from './battle.js';
+import { initProfileNotify } from '../features/profileNotify.js';
 
 const initializers = [
   ['a11y', initAccessibility],
   ['experience', initExperience],
   ['privacy', initPrivacyCenter], // REQ-00044 数据导出/账号删除
   ['battle', initBattle], // E11 战斗与技能：道馆/团战/联赛/回放/连击/推荐、帧率控制
+  ['profileNotify', initProfileNotify], // E05 成就/称号/资料卡/收藏室 + E13 消息中心（/ws/messages）
 ];
 
 export async function initFeatures(ctx = {}) {

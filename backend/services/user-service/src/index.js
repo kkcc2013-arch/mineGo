@@ -29,6 +29,7 @@ const shareRouter = require('./routes/share'); // REQ-00153: 截图分享系统�
 const { router: dataTransferRouter, initDataTransferRoutes } = require('./routes/dataTransferCompliance'); // REQ-00089: 数据跨境传输合规
 const { router: dataDeletionRouter, initDataDeletionRoutes } = require('./routes/dataDeletion'); // REQ-00127: 用户数据删除请求管理
 const titlesRouter = require('./routes/titles'); // REQ-00106: 称号系统路由
+const profileRouter = require('./routes/profile'); // REQ-00327/REQ-00387: 玩家资料与资料卡
 const deviceManagementRouter = require('./routes/deviceManagement'); // REQ-00250: 设备管理路由
 const sessionManagementRouter = require('./routes/sessionManagement'); // REQ-00219: 会话异常检测与自动防护
 const languageRouter = require('./routes/language'); // REQ-00393: 动态语言切换无需重新登录
@@ -43,6 +44,23 @@ const service = new ServiceLauncher({
   port: Number(process.env.PORT) || 8081,
   
   routes: [
+    {
+      // REQ-00106 称号、REQ-00327/00387 资料卡：挂在 user.js 之前（user.js 的 GET /users/:id 会吞掉 /users/titles 这类单段路径），
+      // 且不计入 /users 的 100 次/分钟限流
+      path: '/users',
+      router: titlesRouter,
+      rateLimit: { windowMs: 60_000, max: 300 }
+    },
+    {
+      path: '/users', // REQ-00327/REQ-00387: 资料卡、统计摘要、收藏家排行（同样挂在 user.js 之前）
+      router: profileRouter,
+      rateLimit: { windowMs: 60_000, max: 300 }
+    },
+    {
+      path: '/profile-cards', // REQ-00387: 分享卡片（公开资料，无需登录）
+      router: profileRouter.publicRouter,
+      rateLimit: { windowMs: 60_000, max: 120 }
+    },
     {
       path: '/auth',
       router: authRouter,
@@ -66,12 +84,13 @@ const service = new ServiceLauncher({
       router: friendRouter
     },
     {
-      path: '/notifications',
-      router: notificationsRouter
+      path: '/notifications', // REQ-00099/00261/00425: 消息中心（优先于旧的推送偏好/设备令牌路由）
+      router: messageCenterRouter,
+      rateLimit: { windowMs: 60_000, max: 300 }
     },
     {
-      path: '/notifications', // REQ-00120: 消息中心路由
-      router: messageCenterRouter
+      path: '/notifications', // 设备令牌注册、推送日志（旧接口）
+      router: notificationsRouter
     },
     {
       path: '/users', // REQ-00057: MFA 路由
@@ -115,10 +134,6 @@ const service = new ServiceLauncher({
       path: '/data-deletion', // REQ-00127: 用户数据删除请求管理路由
       router: dataDeletionRouter,
       rateLimit: { windowMs: 60_000, max: 20 }
-    },
-    {
-      path: '/users', // REQ-00106: 称号系统路由
-      router: titlesRouter
     },
     {
       path: '/devices', // REQ-00250: 设备管理路由
@@ -191,10 +206,17 @@ const service = new ServiceLauncher({
     // Initialize notification event handlers - REQ-00026
     initNotificationHandlers(eventBus);
     
-    // Initialize title service - REQ-00106
-    const { TitleService } = require('./titleService');
-    await TitleService.initialize();
-    console.log('Title service initialized');
+    // REQ-00076/00106/00261: 游戏事件消费者（成就进度、称号、事件消息）；LISTEN 实时 + 10 秒兜底扫描
+    require('../../../shared/achievementEngine').startConsumer();
+
+    // REQ-00261/00425: 消息实时推送（/ws/messages，网关代理升级请求）+ 投递分发（WS / APNs / FCM，未配置时降级站内）
+    const realtime = require('../../../shared/notificationRealtime');
+    realtime.attach(service.server);
+    realtime.startDispatcher();
+
+    // REQ-00106: 限时称号过期自动取消佩戴
+    const titles = require('../../../shared/titles');
+    setInterval(() => titles.expireTitles().catch(() => {}), 10 * 60 * 1000).unref();
     
     console.log('User service ready with health checks enabled');
   }

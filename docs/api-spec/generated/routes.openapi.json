@@ -4249,58 +4249,6 @@
         "x-source": "backend/gateway/src/index.js"
       }
     },
-    "/v1/users/{id}/profile": {
-      "get": {
-        "summary": "Protected with cache (REQ-00031) 用户资料 - 缓存 5 分钟",
-        "description": "Protected with cache (REQ-00031) 用户资料 - 缓存 5 分钟",
-        "tags": [
-          "gateway"
-        ],
-        "operationId": "gateway_get_v1_users_id_profile",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": "统一响应格式，见 docs/api-guidelines.md"
-          }
-        },
-        "x-source": "backend/gateway/src/index.js"
-      }
-    },
-    "/v1/users/{id}/stats": {
-      "get": {
-        "summary": "用户统计 - 缓存 5 分钟",
-        "description": "用户统计 - 缓存 5 分钟",
-        "tags": [
-          "gateway"
-        ],
-        "operationId": "gateway_get_v1_users_id_stats",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "default": {
-            "description": "统一响应格式，见 docs/api-guidelines.md"
-          }
-        },
-        "x-source": "backend/gateway/src/index.js"
-      }
-    },
     "/api/teams": {
       "post": {
         "summary": "创建团队 POST /api/teams",
@@ -7915,8 +7863,8 @@
     },
     "/achievements/{achievementId}": {
       "get": {
-        "summary": "获取成就详情",
-        "description": "GET /achievements/:achievementId - 获取成就详情",
+        "summary": "成就详情（含全服完成率）",
+        "description": "成就详情（含全服完成率）",
         "tags": [
           "pokemon"
         ],
@@ -7941,8 +7889,8 @@
     },
     "/achievements/{achievementId}/claim": {
       "post": {
-        "summary": "领取成就奖励",
-        "description": "POST /achievements/:achievementId/claim - 领取成就奖励",
+        "summary": "领取成就奖励（并发只成功一次）",
+        "description": "领取成就奖励（并发只成功一次）",
         "tags": [
           "pokemon"
         ],
@@ -7965,10 +7913,106 @@
         "x-source": "backend/services/pokemon-service/src/routes/achievements.js"
       }
     },
+    "/achievements/admin/definitions": {
+      "get": {
+        "summary": "── 管理员 ────────────────────────────────────────────────────",
+        "description": "── 管理员 ────────────────────────────────────────────────────",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_get_achievements_admin_definitions",
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/achievements.js"
+      },
+      "post": {
+        "summary": "管理员：新建成就",
+        "description": "管理员：新建成就",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_post_achievements_admin_definitions",
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/achievements.js"
+      }
+    },
+    "/achievements/admin/definitions/{achievementId}": {
+      "delete": {
+        "summary": "管理员：下线成就",
+        "description": "管理员：下线成就",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_delete_achievements_admin_definitions_achievementId",
+        "parameters": [
+          {
+            "name": "achievementId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/achievements.js"
+      },
+      "put": {
+        "summary": "管理员：修改成就",
+        "description": "管理员：修改成就",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_put_achievements_admin_definitions_achievementId",
+        "parameters": [
+          {
+            "name": "achievementId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/achievements.js"
+      }
+    },
+    "/achievements/admin/grant": {
+      "post": {
+        "summary": "管理员：给玩家补发成就进度",
+        "description": "管理员：给玩家补发成就进度",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_post_achievements_admin_grant",
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/achievements.js"
+      }
+    },
     "/achievements/categories": {
       "get": {
-        "summary": "获取成就类别列表",
-        "description": "GET /achievements/categories - 获取成就类别列表",
+        "summary": "成就分类",
+        "description": "成就分类",
         "tags": [
           "pokemon"
         ],
@@ -7981,10 +8025,26 @@
         "x-source": "backend/services/pokemon-service/src/routes/achievements.js"
       }
     },
+    "/achievements/claim-all": {
+      "post": {
+        "summary": "一键领取所有已完成成就的奖励",
+        "description": "一键领取所有已完成成就的奖励",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_post_achievements_claim_all",
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/achievements.js"
+      }
+    },
     "/achievements/leaderboard": {
       "get": {
-        "summary": "获取成就排行榜",
-        "description": "GET /achievements/leaderboard - 获取成就排行榜",
+        "summary": "成就点数排行榜",
+        "description": "成就点数排行榜",
         "tags": [
           "pokemon"
         ],
@@ -7999,8 +8059,8 @@
     },
     "/achievements/my": {
       "get": {
-        "summary": "获取用户成就列表",
-        "description": "GET /achievements/my - 获取用户成就列表",
+        "summary": "我的成就（分类/状态筛选",
+        "description": "我的成就（分类/状态筛选；隐藏成就解锁前只返回数量）",
         "tags": [
           "pokemon"
         ],
@@ -8015,54 +8075,12 @@
     },
     "/achievements/my/progress": {
       "get": {
-        "summary": "获取成就进度概览",
-        "description": "GET /achievements/my/progress - 获取成就进度概览",
+        "summary": "成就总览（点数、完成数、分类进度、可领取数、排名、最近解锁）",
+        "description": "成就总览（点数、完成数、分类进度、可领取数、排名、最近解锁）",
         "tags": [
           "pokemon"
         ],
         "operationId": "pokemon_get_achievements_my_progress",
-        "responses": {
-          "default": {
-            "description": "统一响应格式，见 docs/api-guidelines.md"
-          }
-        },
-        "x-source": "backend/services/pokemon-service/src/routes/achievements.js"
-      }
-    },
-    "/achievements/titles": {
-      "get": {
-        "summary": "获取用户称号列表",
-        "description": "GET /achievements/titles - 获取用户称号列表",
-        "tags": [
-          "pokemon"
-        ],
-        "operationId": "pokemon_get_achievements_titles",
-        "responses": {
-          "default": {
-            "description": "统一响应格式，见 docs/api-guidelines.md"
-          }
-        },
-        "x-source": "backend/services/pokemon-service/src/routes/achievements.js"
-      }
-    },
-    "/achievements/titles/{titleId}/activate": {
-      "post": {
-        "summary": "设置激活称号",
-        "description": "POST /achievements/titles/:titleId/activate - 设置激活称号",
-        "tags": [
-          "pokemon"
-        ],
-        "operationId": "pokemon_post_achievements_titles_titleId_activate",
-        "parameters": [
-          {
-            "name": "titleId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "default": {
             "description": "统一响应格式，见 docs/api-guidelines.md"
@@ -8722,6 +8740,570 @@
           }
         },
         "x-source": "backend/services/pokemon-service/src/routes/breeding.js"
+      }
+    },
+    "/collection-room": {
+      "get": {
+        "summary": "我的收藏室（首次自动创建）",
+        "description": "我的收藏室（首次自动创建）",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_get_collection_room",
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      },
+      "put": {
+        "summary": "修改收藏室设置（名称、主题、背景、公开、网格）",
+        "description": "修改收藏室设置（名称、主题、背景、公开、网格）",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_put_collection_room",
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/{roomId}/comments": {
+      "get": {
+        "summary": "收藏室留言列表",
+        "description": "收藏室留言列表",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_get_collection_room_roomId_comments",
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      },
+      "post": {
+        "summary": "发表留言",
+        "description": "发表留言",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_post_collection_room_roomId_comments",
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/{roomId}/comments/{commentId}": {
+      "delete": {
+        "summary": "删除留言（作者或房主）",
+        "description": "删除留言（作者或房主）",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_delete_collection_room_roomId_comments_commentId",
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/{roomId}/like": {
+      "delete": {
+        "summary": "取消点赞",
+        "description": "取消点赞",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_delete_collection_room_roomId_like",
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      },
+      "post": {
+        "summary": "点赞收藏室",
+        "description": "点赞收藏室",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_post_collection_room_roomId_like",
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/{roomId}/visit": {
+      "get": {
+        "summary": "按房间访问收藏室（记录访问）",
+        "description": "按房间访问收藏室（记录访问）",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_get_collection_room_roomId_visit",
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/{roomId}/visit/end": {
+      "post": {
+        "summary": "上报本次访问时长",
+        "description": "上报本次访问时长",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_post_collection_room_roomId_visit_end",
+        "parameters": [
+          {
+            "name": "roomId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/backgrounds": {
+      "get": {
+        "summary": "收藏室背景（含解锁状态）",
+        "description": "收藏室背景（含解锁状态）",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_get_collection_room_backgrounds",
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/backgrounds/{id}/purchase": {
+      "post": {
+        "summary": "金币购买付费背景",
+        "description": "金币购买付费背景",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_post_collection_room_backgrounds_id_purchase",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/decorations": {
+      "post": {
+        "summary": "摆放装饰",
+        "description": "摆放装饰",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_post_collection_room_decorations",
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/decorations/{id}": {
+      "delete": {
+        "summary": "收回装饰",
+        "description": "收回装饰",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_delete_collection_room_decorations_id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      },
+      "put": {
+        "summary": "移动/旋转装饰",
+        "description": "移动/旋转装饰",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_put_collection_room_decorations_id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/decorations/{itemCode}/purchase": {
+      "post": {
+        "summary": "商店购买装饰",
+        "description": "商店购买装饰",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_post_collection_room_decorations_itemCode_purchase",
+        "parameters": [
+          {
+            "name": "itemCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/decorations/catalog": {
+      "get": {
+        "summary": "装饰物品目录",
+        "description": "装饰物品目录",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_get_collection_room_decorations_catalog",
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/decorations/inventory": {
+      "get": {
+        "summary": "我的装饰库存",
+        "description": "我的装饰库存",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_get_collection_room_decorations_inventory",
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/layout": {
+      "put": {
+        "summary": "批量保存布局（拖拽编辑器）",
+        "description": "批量保存布局（拖拽编辑器）",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_put_collection_room_layout",
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/pokemon": {
+      "post": {
+        "summary": "展示精灵",
+        "description": "展示精灵",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_post_collection_room_pokemon",
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/pokemon/{pokemonId}": {
+      "delete": {
+        "summary": "撤下展示的精灵",
+        "description": "撤下展示的精灵",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_delete_collection_room_pokemon_pokemonId",
+        "parameters": [
+          {
+            "name": "pokemonId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      },
+      "put": {
+        "summary": "移动/缩放/切换展示模式",
+        "description": "移动/缩放/切换展示模式",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_put_collection_room_pokemon_pokemonId",
+        "parameters": [
+          {
+            "name": "pokemonId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/popular": {
+      "get": {
+        "summary": "热门收藏室排行",
+        "description": "热门收藏室排行",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_get_collection_room_popular",
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/stats": {
+      "get": {
+        "summary": "收藏统计",
+        "description": "收藏统计",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_get_collection_room_stats",
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/themes": {
+      "get": {
+        "summary": "收藏室主题（含解锁状态）",
+        "description": "收藏室主题（含解锁状态）",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_get_collection_room_themes",
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/themes/{id}/purchase": {
+      "post": {
+        "summary": "金币购买付费主题",
+        "description": "金币购买付费主题",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_post_collection_room_themes_id_purchase",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+      }
+    },
+    "/collection-room/users/{userId}": {
+      "get": {
+        "summary": "按玩家访问收藏室",
+        "description": "按玩家访问收藏室",
+        "tags": [
+          "pokemon"
+        ],
+        "operationId": "pokemon_get_collection_room_users_userId",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "default": {
+            "description": "统一响应格式，见 docs/api-guidelines.md"
+          }
+        },
+        "x-source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
       }
     },
     "/equipment/{id}": {
@@ -12516,7 +13098,7 @@
     "/rewards/achievements/check": {
       "post": {
         "summary": "── POST /rewards/achievements/check",
-        "description": "── POST /rewards/achievements/check  — check & unlock ─────── Called internally by other services after state changes",
+        "description": "── POST /rewards/achievements/check  — 管理员给成就加进度 ───────── 成就进度正常由业务表触发器 + shared/achievementEngine 推进；此接口仅供运维/管理员补发（REQ-00076）",
         "tags": [
           "reward"
         ],

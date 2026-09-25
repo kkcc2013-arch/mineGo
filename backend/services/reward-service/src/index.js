@@ -299,51 +299,20 @@ app.get('/rewards/leaderboard', requireAuth, offsetPaginationMiddleware({ defaul
   } catch (err) { next(err); }
 });
 
-// ── POST /rewards/achievements/check  — check & unlock ───────
-// Called internally by other services after state changes
+// ── POST /rewards/achievements/check  — 管理员给成就加进度 ─────────
+// 成就进度正常由业务表触发器 + shared/achievementEngine 推进；此接口仅供运维/管理员补发（REQ-00076）
 app.post('/rewards/achievements/check', requireAuth, requireAdmin, async (req, res, next) => {
   try {
-    // 仅供内部/管理调用：原实现任何玩家都能给自己任意成就任意进度
     const { achievementId } = req.body;
     const increment = Number(req.body.increment ?? 1);
     if (!Number.isInteger(increment) || increment < 1 || increment > 100) {
       throw new AppError(1001, 'increment 无效', 400);
     }
-    const userId = req.user.sub;
-
-    const { rows: [def] } = await query(
-      'SELECT * FROM achievement_definitions WHERE id=$1', [achievementId]
-    );
-    if (!def) return res.json(successResp({ updated: false }));
-
-    const { rows: [ua] } = await query(`
-      INSERT INTO user_achievements (user_id, achievement_id, current_value)
-      VALUES ($1,$2,$3)
-      ON CONFLICT (user_id, achievement_id)
-      DO UPDATE SET current_value=user_achievements.current_value+$3, updated_at=NOW()
-      RETURNING current_value, current_tier
-    `, [userId, achievementId, increment]);
-
-    // Check if new tier unlocked
-    const tiers  = Array.isArray(def.tiers) ? def.tiers : JSON.parse(def.tiers);
-    const curVal  = ua.current_value;
-    const curTier = ua.current_tier || 0;
-    let newTier   = curTier;
-
-    for (const t of tiers) {
-      if (curVal >= t.target && t.tier > curTier) newTier = t.tier;
-    }
-
-    if (newTier > curTier) {
-      await query(`
-        UPDATE user_achievements
-        SET current_tier=$1, unlocked_at=COALESCE(unlocked_at, NOW())
-        WHERE user_id=$2 AND achievement_id=$3
-      `, [newTier, userId, achievementId]);
-      res.json(successResp({ updated: true, newTier, achievement: def.name_zh }));
-    } else {
-      res.json(successResp({ updated: false }));
-    }
+    const userId = req.body.userId || req.user.sub;
+    if (!/^[0-9a-f-]{36}$/i.test(String(userId))) throw new AppError(1001, 'userId 无效', 400);
+    const r = await require('../../../shared/achievementEngine').grantProgress(userId, String(achievementId || ''), increment);
+    if (!r) return res.json(successResp({ updated: false }));
+    res.json(successResp({ updated: true, progress: r.progress, target: r.target, completed: r.completed, completedNow: r.completedNow }));
   } catch (err) { next(err); }
 });
 

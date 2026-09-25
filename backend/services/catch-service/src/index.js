@@ -4,6 +4,7 @@
 require('../../../shared/tracing').initTracing('catch-service'); // REQ-00042：须先于 express/http/pg/redis 加载，自动埋点才生效（未配置 OTEL_EXPORTER_OTLP_ENDPOINT 时不启用）
 
 const { consumeItem } = require('../../../shared/inventory');
+const titles = require('../../../shared/titles'); // REQ-00106: 称号经验加成
 const { ServiceFactory } = require('../../../shared/ServiceFactory');
 const { query, preparedQuery, transaction } = require('../../../shared/db');
 const { transactionSerializable } = require('../../../shared/transactionManager');
@@ -81,7 +82,8 @@ async function invalidateWildCache(wildId) {
 async function handleCatch(userId, session, throwRating, isCurve, sessionId, logger) {
   const XP_BY_RATING = { NICE: 120, GREAT: 170, EXCELLENT: 200 };
   const baseXp = XP_BY_RATING[throwRating] || 100;
-  const xp = baseXp + (isCurve ? 10 : 0) + (session.isShiny ? 500 : 0);
+  const baseCatchXp = baseXp + (isCurve ? 10 : 0) + (session.isShiny ? 500 : 0);
+  let xp = baseCatchXp;
   const stardust = 100;
   const candy    = 3;
 
@@ -95,6 +97,9 @@ async function handleCatch(userId, session, throwRating, isCurve, sessionId, log
     if (claimed.rowCount === 0) {
       throw new AppError(3001, '精灵已消失或被捕获', 409);
     }
+
+    // REQ-00106: 激活称号的经验加成（exp_bonus，上限 50%）
+    xp = Math.round(baseCatchXp * (1 + await titles.expBonus(client, userId)));
 
     // REQ-00019: Get random moves from learnset
     const { rows: learnset } = await client.query(`
@@ -161,13 +166,7 @@ async function handleCatch(userId, session, throwRating, isCurve, sessionId, log
       WHERE id=$1
     `, [sessionId, session.ballsThrown, instance.id, xp, stardust, candy]);
 
-    // Update catch achievement
-    await client.query(`
-      INSERT INTO user_achievements (user_id, achievement_id, current_value, updated_at)
-      VALUES ($1, 'catch_total', 1, NOW())
-      ON CONFLICT (user_id, achievement_id) DO UPDATE SET
-        current_value = user_achievements.current_value + 1, updated_at = NOW()
-    `, [userId]);
+    // 成就进度：catch_sessions 上的触发器在 result 变为 CAUGHT 时写游戏事件（REQ-00076，见 20260925_130000 迁移）
 
     // REQ-00086: 分配特性（在事务外异步执行，不阻塞捕捉流程）
     const pokemonInstanceId = instance.id;

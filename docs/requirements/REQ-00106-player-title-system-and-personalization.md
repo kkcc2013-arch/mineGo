@@ -7,7 +7,7 @@
 | 标题 | 玩家称号系统与个性化展示 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | user-service、pokemon-service、social-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-11 05:30 |
 
@@ -943,3 +943,39 @@ const titleMetrics = {
 - REQ-00076: 精灵成就系统与里程碑奖励（称号来源）
 - REQ-00074: 玩家排行榜系统（称号展示）
 - 原版 Pokemon GO 称号系统设计
+
+## 实现记录（2026-09-24）
+
+> E05「成就/称号/资料卡/收藏室」与 E13「消息中心与推送」统一实现：REQ-00076 / 00106 / 00327 / 00359 / 00387 / 00403 与 REQ-00099 / 00261 / 00425 共用同一套游戏事件 outbox、成就引擎与消息中心。
+> 状态 `implemented`：代码已全部完成，**未做服务级验证**（2026-09-25 18:30 起规则）。此前迁移 `20260925_130000`、`20260925_131000` 曾在隔离 CI 栈（栈 8）的存量库上执行无失败，user-service 启动后事件消费者、消息分发器、WebSocket 均正常监听；之后新增的迁移 `20260925_132000`、`20260925_133000`、全部接口、前端界面只做了静态检查（`node --check`、`scripts/check-deps.js`、宿主机纯逻辑/内存替身单测），**待验证**。
+
+**共用架构**
+
+- 事件来源：业务表上的触发器把"发生了什么"写入 outbox 表 `achievement_events`（与业务同事务，业务回滚事件也不存在；触发器内部异常只 `RAISE WARNING`，不影响业务）并 `pg_notify('pmg_game_events')`。接入的表：`catch_sessions`（捕捉成功）、`pokestop_spins`、`trainer_level_ups`（升级，覆盖所有加经验路径）、`friendships`/`friends`、`friend_requests`、`friend_gifts`、`pokemon_trades`、`gym_battles`、`raid_participants`、`pvp_battles`、`egg_hatching`、`event_participations`；收藏室的展示/装饰/被点赞由 JS 在同事务写事件。
+- 消费：`backend/shared/achievementEngine.js`，user-service 启动时 `LISTEN` 实时处理 + 10 秒兜底扫描 + 每小时清理；pokemon-service 查询成就前按需处理该玩家未处理事件。`FOR UPDATE SKIP LOCKED` 保证多消费者不重复处理；每个事件一个 SAVEPOINT，单事件失败不影响其他事件，失败 5 次后放弃并保留 `last_error`。
+- 规则：`backend/shared/achievementRules.js`（事件 → 指标、过滤条件、奖励拆分、事件 → 消息、多语言，纯函数）。
+- 消息：`backend/shared/notificationCenter.js`（生成/列表/未读/已读/删除/偏好/广播/分析/清理）、`notificationPolicy.js`（分类、偏好、免打扰、投递计划，纯函数）、`notificationRealtime.js`（`/ws/messages` 与 LISTEN 分发）、`pushProviders.js`（FCM/APNs）。
+- 迁移：`database/migrations/20260925_130000__e05_achievement_title_core.sql`（成就/称号收敛 + outbox 触发器）、`20260925_131000__e13_notification_center.sql`（消息中心）、`20260925_132000__e05_collection_room.sql`（收藏室）、`20260925_133000__e05_player_profile.sql`（资料卡）。均 `IF NOT EXISTS`/`ON CONFLICT` 幂等，外键均按 `users.id UUID`；依赖的表（`achievements`、`title_definitions`、`trainer_level_ups`、`notification_templates`、E01 的 `privacy_settings`/`blocked_users` 等）都在更早的迁移中创建（已逐条核对）。
+- 测试：单测 `cd backend && node --test tests/unit/achievementRules.test.js tests/unit/achievementEngine.test.js tests/unit/notificationPolicy.test.js tests/unit/notificationCenter.test.js tests/unit/profileRules.test.js tests/unit/collectionRoomRules.test.js tests/unit/securityNotifier.test.js`（53 例，已加入 `test:unit`，宿主机已运行通过；引擎与消息中心用 `tests/unit/helpers/fakeGameDb.js` 内存替身，不依赖数据库）；经网关冒烟 `BASE_URL=… node scripts/smoke-profile-notify.js`（约 97 项，**未运行**）；压测 `node scripts/bench-profile-notify.js`（**未运行**）；前端 `cd frontend/game-client && npx playwright test tests/e2e/profile-notify.spec.js`（Mock 接口，**未运行**）。
+- 前端：`frontend/game-client/src/features/profileNotify.js` + `src/features/profile-notify/*`（由 `src/bootstrap/features.js` 注册一行）：底部导航「消息」🔔、「我的」页「成长与收藏」卡片（成就、称号、资料卡、我的收藏室、热门收藏室、收藏家排行、消息与通知设置）。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 数据库表创建成功，包含完整的索引和约束 | ✅ | `title_definitions`/`user_titles` 已由 `pending/20260615_170500` 创建；迁移 `20260925_130000` 补：每人最多一个激活称号的部分唯一索引 `uq_user_titles_one_active`（先把历史上多余的激活行取消）、`user_titles.title_id → title_definitions` 外键（无孤儿行时才加）、解锁条件指向真实成就 ID（原种子引用的 `species_100`、`catch_500`、`all_achievements` 等并不存在）、已完成成就对应称号回填 |
+| 称号服务核心模块实现，支持解锁/激活/查询 | ✅ | `backend/shared/titles.js`（user-service 路由、资料卡、排行榜、捕捉经验加成共用）：目录/详情/我的称号/当前佩戴/批量查询佩戴（排行榜）/佩戴（行锁串行化）/取下/收藏/管理员发放/加成/过期处理/统计/排行。解锁由成就引擎在成就完成时自动写入（成就奖励 `title` 或 `unlock_criteria.achievement_id`），活动称号在活动完成（领奖）时按 `unlock_criteria.event_id` 解锁；收藏家 5 级发"传奇收藏家" |
+| 称号定义种子数据至少包含 20 个不同称号 | ✅ | 原 18 个 + 新增 19 个 = 37 个（捕捉/图鉴/道馆/对战/培育/交易/探索/补给站/等级/收藏室/成就猎人/活动常客/夜猫子/传奇收藏家…），三语名称 |
+| API 端点实现并通过测试（8+ 个端点） | ✅ | 13 个：`GET /v1/users/titles`、`/titles/leaderboard`、`/titles/:id`、`GET /v1/users/me/titles`、`/me/titles/active`、`/me/titles/stats`、`/me/titles/bonuses`、`PUT|POST /me/titles/:id/activate`、`DELETE /me/titles/active`、`PUT /me/titles/:id/favorite`、`POST /me/profile/title`、`GET /v1/users/:id/titles`、`/:id/titles/active`；管理员 `POST /v1/users/titles/grant`、`/titles/process-expired`。原"玩家自行解锁任意称号"接口 `POST /me/titles/:id/unlock` 已删除。冒烟覆盖 12 项（未运行） |
+| 前端称号管理组件实现 | ✅ | `src/features/profile-notify/achievements.js` `openTitles`：当前佩戴 + 加成、我的称号（稀有度、有效期、佩戴/收藏）、全部称号与获取方式 |
+| 称号在玩家资料、排行榜中正确展示 | ✅ | 资料卡头部与分享卡片 SVG、成就排行榜、收藏家排行榜、称号收集排行榜都带玩家佩戴的称号（`titles.getActiveTitles` 批量查询） |
+| 属性加成功能正常工作 | ⚠️ | `GET /v1/users/me/titles/bonuses` 返回佩戴称号的 `stat_bonuses`；`exp_bonus` 已接入 catch-service 捕捉经验（上限 50%，冒烟验证 210 × 1.02 = 214）。`catch_rate`、`battle_power`、`shiny_rate` 只提供数据，尚未接入捕捉概率/战斗伤害/闪光率计算（涉及 catch/gym 平衡，留待对应 Epic） |
+| 限时称号过期处理正确 | ✅ | 限时称号解锁时写 `expires_at`；已过期的不能佩戴（410）、不出现在默认列表；user-service 每 10 分钟取消过期称号的佩戴（`titles.expireTitles`），管理员也可手动触发 |
+| 与成就系统集成（完成成就自动解锁称号） | ✅ | 成就引擎完成成就时同事务解锁称号并发"新称号解锁"站内消息；冒烟：升级到 10 级自动获得"新星训练师"、首次捕捉获得"新手训练师" |
+| Prometheus 指标正常上报 | ✅ | `minego_titles_unlocked_total{source}`（成就引擎）；仪表盘见 `monitoring/grafana/dashboards/achievements-notifications.json`（未在生产验证） |
+| 单元测试覆盖率 > 80% | ⚠️ | 未测覆盖率。称号解锁路径由 `achievementEngine.test.js`（成就奖励 title、unlock_criteria、活动称号）覆盖；佩戴/加成/过期等数据库逻辑由冒烟覆盖（未运行） |
+| 性能测试：称号查询 < 50ms | ⚠️ | 未实测；`scripts/bench-profile-notify.js` 含 `GET /v1/users/me/titles` 的 P95（阈值 50ms） |
+
+- 入口：user-service `src/routes/titles.js`（挂载 `/users`，放在 `user.js` 之前——`user.js` 的 `GET /users/:id` 会吞掉 `/users/titles` 这类单段路径，且不计入 `/users` 的 100 次/分钟限流）；`backend/shared/titles.js`；网关沿用 `/v1/users/*`
+- 迁移：`database/migrations/20260925_130000__e05_achievement_title_core.sql`（称号部分）、`20260925_133000__e05_player_profile.sql`（传奇收藏家）
+- 测试：见上
+- 偏差：原 `user-service/src/titleService.js`（knex 风格 `db('table')` 调用，shared/db 并不支持，实际无法工作）及其失效单测已删除；`user_id` 为 UUID
+- 待验证：① 冒烟中称号解锁/并发佩戴/管理员发放/加成作用于捕捉经验；② 存量库中历史多个激活称号的收敛

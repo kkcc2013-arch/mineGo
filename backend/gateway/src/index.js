@@ -382,18 +382,11 @@ app.use('/api/v2/pokemon',
 // Public (no auth)
 app.use('/v1/auth',     proxy(SERVICES.user, { '^/': '/auth/' }));
 
-// Protected with cache (REQ-00031)
-// 用户资料 - 缓存 5 分钟
-app.get('/v1/users/:id/profile',
-  authMiddleware,
-  cachedProxy({ route: 'profile', target: SERVICES.user, pathRewrite: { '^/v1/': '/' }, ttl: 300, perUser: true, onError: proxyError })
-);
-
-// 用户统计 - 缓存 5 分钟
-app.get('/v1/users/:id/stats',
-  authMiddleware,
-  cachedProxy({ route: 'user-stats', target: SERVICES.user, pathRewrite: { '^/v1/': '/' }, ttl: 300, perUser: true, onError: proxyError })
-);
+// 用户资料 / 统计（REQ-00327/REQ-00387）：不再在网关按查看者缓存——网关缓存只随查看者自己的写操作失效，
+// 被查看者改了资料后其他人最多 5 分钟看到旧数据。改由 user-service 按"被查看者 + 可见范围"缓存，
+// 被查看者的资料/称号/成就/收藏室变化即时失效（shared/profileCache）。
+// 分享卡片（公开资料，无需登录）
+app.use('/v1/profile-cards', proxy(SERVICES.user, { '^/': '/profile-cards/' }));
 
 // 其他用户路由（不缓存）
 app.use('/v1/users',
@@ -531,6 +524,23 @@ app.use('/v1/events',
   proxy(SERVICES.reward, { '^/': '/events/' })
 );
 
+// ── Epic E05/E13：成就、消息中心 ───────────────────────────────
+// REQ-00076 成就（pokemon-service）
+app.use('/v1/achievements',
+  authMiddleware,
+  proxy(SERVICES.pokemon, { '^/': '/achievements/' })
+);
+// REQ-00359/00403 精灵收藏室（pokemon-service）
+app.use('/v1/collection-room',
+  authMiddleware,
+  proxy(SERVICES.pokemon, { '^/': '/collection-room/' })
+);
+// REQ-00099/00261/00425 消息中心（user-service）；实时推送见文末 /ws/notifications 升级代理
+app.use('/v1/notifications',
+  authMiddleware,
+  proxy(SERVICES.user, { '^/': '/notifications/' })
+);
+
 // Payment webhook (no auth — signed by channel)；必须注册在需要鉴权的 /v1/payment 之前
 app.use('/v1/payment/webhook',
   proxy(SERVICES.payment, { '^/': '/payment/webhook/' })
@@ -655,10 +665,12 @@ const server = app.listen(PORT, () => {
 // /ws/raid → gym-service（团战实时同步，token 与参与资格由 gym-service 校验）
 // /ws/battle → gym-service 实时对战 WebSocket（独立端口 WS_BATTLE_PORT，JWT 鉴权）
 // /ws/friends → social-service 好友实时推送（E01，token 由 social-service 校验）
+// /ws/messages → user-service 消息中心实时推送（E13 REQ-00261/00425，token 与登出黑名单由 user-service 握手时校验）
 const WS_TARGETS = {
   '/ws/friends': SERVICES.social,
   '/ws/raid': SERVICES.gym,
   '/ws/notifications': SERVICES.gym,
+  '/ws/messages': SERVICES.user,
   '/ws/battle': process.env.GYM_BATTLE_WS_URL || 'http://localhost:8089',
 };
 const wsProxies = Object.fromEntries(Object.entries(WS_TARGETS).map(([p, target]) => [p, createProxyMiddleware({
