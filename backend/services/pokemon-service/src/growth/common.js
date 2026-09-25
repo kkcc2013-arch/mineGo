@@ -7,6 +7,8 @@
 'use strict';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// 路由参数只匹配 UUID：成长路由挂在 /pokemon 下，/:id/stats 之类的模式否则会吞掉 /pokemon/release/stats 等其他模块的路径
+const ID = ':id([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})';
 
 const OCCUPY_LABELS = {
   training_camp: '训练营训练',
@@ -40,8 +42,17 @@ function toPositiveInt(v, field, { min = 1, max = 1_000_000 } = {}) {
   return n;
 }
 
-/** Express 异步路由包装 */
-const route = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+const { createLogger } = require('../../../../shared/logger');
+
+const logger = createLogger('pokemon-growth');
+
+/** Express 异步路由包装：非业务错误（5xx）记录原始错误信息后交给统一错误处理（生产环境响应里不带细节） */
+const route = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch((err) => {
+  if (!(err && err.httpStatus >= 400 && err.httpStatus < 500)) {
+    logger.error({ err: err && err.message, code: err && err.code, method: req.method, path: req.originalUrl }, 'growth route failed');
+  }
+  next(err);
+});
 
 function ok(res, data, message = 'ok', status = 200) {
   return res.status(status).json({ success: true, code: 0, message, data });
@@ -151,6 +162,7 @@ async function candyOf(db, userId, speciesId, { lock = false } = {}) {
 
 module.exports = {
   UUID_RE,
+  ID,
   candyOf,
   GrowthError,
   assertUuid,

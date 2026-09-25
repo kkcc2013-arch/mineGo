@@ -11,6 +11,8 @@ const { requireAuth, AppError, successResp } = require('../../../shared/auth');
 const { validateLocation, checkRateLimit, requireTrustScore, TRUST_SCORE } = require('../../../shared/anti-cheat');
 const { publishCatchSuccess, publishCatchFailed } = require('./eventProducers');
 const { habitatService } = require('../../../shared/habitatService');
+const { grantPokemonExperience } = require('../../../shared/pokemonExperience');
+const { catchBaseExperience } = require('../../../shared/ExperienceEngine');
 
 // ============================================================
 // CATCH MECHANICS CONSTANTS
@@ -72,6 +74,38 @@ async function invalidateWildCache(wildId) {
     redis.zrem('geo:wild_pokemon', String(wildId)),
     redis.del(`wild:${wildId}`),
   ]);
+}
+
+const COMBO_TTL_SEC = 600;
+
+/**
+ * 捕捉成功时给新精灵发放起始经验（REQ-00216）：在捕捉事务的保存点内执行，失败只回滚这一段
+ */
+async function grantCatchGrowth(client, userId, session, pokemonId, sessionId, logger) {
+  await client.query('SAVEPOINT catch_growth');
+  try {
+    const { rows: [ctx] } = await client.query(
+      `SELECT u.level AS trainer_level, u.last_lat, u.last_lng,
+              (SELECT caught_count FROM pokedex_entries WHERE user_id = $1 AND species_id = $2) AS caught_count
+         FROM users u WHERE u.id = $1`, [userId, session.speciesId]);
+    const combo = Number(await getRedis().get(`catch:combo:${userId}`).catch(() => 0)) + 1;
+    const growth = await grantPokemonExperience(client, {
+      userId,
+      pokemonId,
+      baseAmount: catchBaseExperience({ rarity: session.rarity, trainerLevel: ctx.trainer_level }),
+      sourceType: 'catch',
+      sourceId: sessionId,
+      context: { combo, firstCatch: Number(ctx.caught_count) === 1 },
+      metadata: { speciesId: session.speciesId, combo },
+      location: { lat: ctx.last_lat != null ? Number(ctx.last_lat) : null, lng: ctx.last_lng != null ? Number(ctx.last_lng) : null },
+    });
+    await client.query('RELEASE SAVEPOINT catch_growth');
+    return growth;
+  } catch (err) {
+    await client.query('ROLLBACK TO SAVEPOINT catch_growth');
+    logger.error({ err: err.message, pokemonId }, 'catch growth grant failed');
+    return null;
+  }
 }
 
 /**
@@ -153,6 +187,9 @@ async function handleCatch(userId, session, throwRating, isCurve, sessionId, log
     `, [userId, session.speciesId, session.cp, session.isShiny]);
 
 
+    // E07 精灵成长：新精灵的起始经验（稀有度 × 训练师等级差 × 连击 × 首次捕获）；失败不影响捕捉
+    const growth = await grantCatchGrowth(client, userId, session, instance.id, sessionId, logger);
+
     // Close session
     await client.query(`
       UPDATE catch_sessions SET ended_at=NOW(), result='CAUGHT', balls_used=$2,
@@ -196,9 +233,14 @@ async function handleCatch(userId, session, throwRating, isCurve, sessionId, log
           hp:      session.iv_hp,
         },
       },
-      rewards: { xp, stardust, candy },
+      rewards: { xp, stardust, candy, pokemonExp: growth ? growth.gainedExp : 0 },
+      growth,
     };
   });
+
+  // 连击计数（10 分钟内连续捕获）
+  getRedis().multi().incr(`catch:combo:${userId}`).expire(`catch:combo:${userId}`, COMBO_TTL_SEC).exec()
+    .catch((err) => logger.warn({ err: err.message }, 'catch combo update failed'));
 
   // Invalidate cache in location-service (non-blocking)
   invalidateWildCache(session.wildId).catch(err =>

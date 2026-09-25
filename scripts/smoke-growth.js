@@ -123,6 +123,11 @@ async function testEvolution() {
     record('进化：经网关捕捉一只精灵', !!caught, caught ? `species=${caught.pokemon.speciesId} cp=${caught.pokemon.cp}` : '没有捕到');
     if (caught) {
       const id = caught.pokemonInstanceId;
+      const ch = await call('GET', `/v1/pokemon/${id}/exp-history`, { token: u.token });
+      const catchExp = ch.data && ch.data.items && ch.data.items.find((i) => i.sourceType === 'catch');
+      record('经验：捕捉时新精灵获得起始经验（稀有度/等级差/首捕倍率）并记入经验历史',
+        caught.rewards.pokemonExp > 0 && !!catchExp && catchExp.expAmount === caught.rewards.pokemonExp,
+        `pokemonExp=${caught.rewards.pokemonExp} history=${catchExp && JSON.stringify({ base: catchExp.baseAmount, m: catchExp.multiplier })}`);
       const chk = await call('GET', `/v1/pokemon/${id}/evolution/check`, { token: u.token });
       record('进化：捕捉后 GET /v1/pokemon/:id/evolution/check 返回 200（原 500）', chk.status === 200 && Array.isArray(chk.data && chk.data.options),
         `status=${chk.status} options=${chk.data && chk.data.options && chk.data.options.length} eligible=${chk.data && chk.data.eligible}`);
@@ -220,9 +225,86 @@ async function testEvolution() {
   record('进化：训练中的精灵不能进化（409 POKEMON_BUSY）', busyR.status === 409 && errName(busyR) === 'POKEMON_BUSY', `status=${busyR.status} ${errName(busyR)}`);
   const hist = await call('GET', '/v1/pokemon/evolution/history', { token: u.token });
   record('进化：进化历史 /v1/pokemon/evolution/history', hist.status === 200 && hist.data.total >= 5, `status=${hist.status} total=${hist.data && hist.data.total}`);
+  const ms = await call('GET', `/v1/pokemon/${charm.id}/growth/milestones`, { token: u.token });
+  record('成长轨迹：进化记为里程碑', ms.status === 200 && ms.data.milestones.some((m) => m.type === 'evolution' && m.key === 'species:5'), `status=${ms.status}`);
 }
 
-const SECTIONS = { evolution: testEvolution };
+// ───────────────────── 经验 / 成长轨迹（REQ-00216 / REQ-00230） ─────────────────────
+async function testExperience() {
+  const u = await newUser('exp');
+  const pika = await givePokemon(u.userId, 25);
+  const g0 = await call('GET', `/v1/pokemon/${pika.id}/growth`, { token: u.token });
+  record('经验：成长概要 /v1/pokemon/:id/growth', g0.status === 200 && g0.data.level === 1 && g0.data.experience === 0 && g0.data.levelCap === 12,
+    `status=${g0.status} level=${g0.data && g0.data.level} cap=${g0.data && g0.data.levelCap}`);
+
+  const noItem = await call('POST', `/v1/pokemon/${pika.id}/experience/use-item`, { token: u.token, body: { itemId: 'EXP_CANDY_S', quantity: 1 } });
+  record('经验：没有经验糖果时 400', noItem.status === 400 && errName(noItem) === 'INSUFFICIENT_ITEMS', `status=${noItem.status} ${errName(noItem)}`);
+  await giveItem(u.userId, 'EXP_CANDY_S', 3);
+  const use = await call('POST', `/v1/pokemon/${pika.id}/experience/use-item`, { token: u.token, body: { itemId: 'EXP_CANDY_S', quantity: 2 } });
+  const expectedCp = Math.round(pika.cp * (1 + 0.02 * 11));
+  record('经验：使用经验糖果S×2 → +2000 经验、升到 12 级、CP 按等级倍率提升',
+    use.status === 200 && use.data.gainedExp === 2000 && use.data.newLevel === 12 && use.data.cpAfter === expectedCp && (await itemQty(u.userId, 'EXP_CANDY_S')) === 1,
+    `status=${use.status} gained=${use.data && use.data.gainedExp} level=${use.data && use.data.newLevel} cp=${pika.cp}→${use.data && use.data.cpAfter}`);
+  await giveItem(u.userId, 'EXP_CANDY_L', 1);
+  const capped = await call('POST', `/v1/pokemon/${pika.id}/experience/use-item`, { token: u.token, body: { itemId: 'EXP_CANDY_L' } });
+  record('经验：训练师 1 级时精灵等级上限 12（经验照常累积）', capped.status === 200 && capped.data.newLevel === 12 && capped.data.levelCapped === true && capped.data.newExperience === 22000,
+    `status=${capped.status} level=${capped.data && capped.data.newLevel} exp=${capped.data && capped.data.newExperience}`);
+
+  // 加成：幸运蛋 + VIP + 双倍经验活动 叠加
+  await giveItem(u.userId, 'LUCKY_EGG', 1);
+  const egg = await call('POST', '/v1/pokemon/experience/boosts', { token: u.token, body: { itemId: 'LUCKY_EGG' } });
+  record('经验：使用幸运蛋激活 30 分钟 ×2', egg.status === 200 && egg.data.multiplier === 2 && (await itemQty(u.userId, 'LUCKY_EGG')) === 0, `status=${egg.status}`);
+  await db().query('UPDATE users SET vip_level = 1 WHERE id = $1', [u.userId]);
+  const boosts = await call('GET', '/v1/pokemon/experience/boosts', { token: u.token });
+  record('经验：加成查询（幸运蛋 ×2 × VIP ×1.25 叠加）', boosts.status === 200 && boosts.data.boosts.length === 1 && boosts.data.multiplier >= 2.5,
+    `status=${boosts.status} multiplier=${boosts.data && boosts.data.multiplier} breakdown=${JSON.stringify(boosts.data && boosts.data.breakdown)}`);
+  const perm = await call('POST', '/v1/pokemon/experience/boosts', { token: u.token, body: { itemId: 'EXP_CARD_PERMANENT' } });
+  record('经验：没有永久经验卡时 400', perm.status === 400, `status=${perm.status} ${errName(perm)}`);
+
+  // 经验转移：80%
+  const buddy = await givePokemon(u.userId, 1);
+  const tr = await call('POST', `/v1/pokemon/${pika.id}/experience/transfer`, { token: u.token, body: { targetPokemonId: buddy.id, amount: 1000 } });
+  const buddyRow = await pokemonRow(buddy.id);
+  const pikaRow = await pokemonRow(pika.id);
+  record('经验：转移 1000 → 目标得 800、源扣 1000', tr.status === 200 && tr.data.received === 800 && buddyRow.experience === 800 && pikaRow.experience === 21000,
+    `status=${tr.status} buddy=${buddyRow.experience} pika=${pikaRow.experience} ${tr.status !== 200 ? JSON.stringify(tr.body).slice(0, 160) : ''}`);
+  const trTooMuch = await call('POST', `/v1/pokemon/${buddy.id}/experience/transfer`, { token: u.token, body: { targetPokemonId: pika.id, amount: 5000 } });
+  record('经验：转移超过已有经验被拒绝', trTooMuch.status === 400 && errName(trTooMuch) === 'INSUFFICIENT_EXPERIENCE', `status=${trTooMuch.status} ${errName(trTooMuch)}`);
+
+  // 历史 / 轨迹 / 来源 / 里程碑 / 预测 / 报告 / 统计
+  const hist = await call('GET', `/v1/pokemon/${pika.id}/exp-history?limit=10`, { token: u.token });
+  const types = (hist.data && hist.data.items || []).map((i) => i.sourceType);
+  record('成长轨迹：经验历史记录来源与前后等级', hist.status === 200 && types.includes('item') && types.includes('transfer_out') && hist.data.items[0].levelAfter >= 1,
+    `status=${hist.status} types=${types}`);
+  const traj = await call('GET', `/v1/pokemon/${pika.id}/growth/trajectory?days=7`, { token: u.token });
+  const last = traj.data && traj.data.points && traj.data.points[traj.data.points.length - 1];
+  record('成长轨迹：7 天曲线（补齐空白日、今日累计经验）', traj.status === 200 && traj.data.points.length === 7 && last.expGained > 0 && last.cumulativeExp === 21000,
+    `status=${traj.status} last=${JSON.stringify(last)}`);
+  const src = await call('GET', `/v1/pokemon/${pika.id}/growth/sources`, { token: u.token });
+  const pct = src.data ? src.data.sources.reduce((a, s) => a + s.percentage, 0) : 0;
+  record('成长轨迹：来源占比合计 100%', src.status === 200 && Math.round(pct) === 100 && src.data.sources[0].source === 'item', `status=${src.status} ${JSON.stringify(src.data && src.data.sources)}`);
+  const ms = await call('GET', `/v1/pokemon/${pika.id}/growth/milestones`, { token: u.token });
+  const keys = (ms.data && ms.data.milestones || []).map((m) => m.key);
+  record('成长轨迹：里程碑（首份经验/5 级/10 级/累计 1 万经验）', ms.status === 200 && ['first', 'level:5', 'level:10', 'exp:10000'].every((k) => keys.includes(k)), `keys=${keys}`);
+  const pred = await call('GET', `/v1/pokemon/${buddy.id}/growth/prediction`, { token: u.token });
+  record('成长轨迹：升级预测（日均经验、下一级所需天数、置信度）', pred.status === 200 && pred.data.avgDailyExp > 0 && pred.data.nextLevel && pred.data.nextLevel.days > 0 && pred.data.confidence >= 0,
+    `status=${pred.status} ${JSON.stringify(pred.data && { avg: pred.data.avgDailyExp, next: pred.data.nextLevel, c: pred.data.confidence })}`);
+  const rep = await call('GET', `/v1/pokemon/${pika.id}/growth/report?period=week`, { token: u.token });
+  record('成长轨迹：周报告', rep.status === 200 && rep.data.totalExp === 22000 && rep.data.topSource === 'item', `status=${rep.status} total=${rep.data && rep.data.totalExp}`);
+  const rep2 = await call('GET', `/v1/pokemon/${pika.id}/growth/report?period=week`, { token: u.token });
+  record('成长轨迹：报告命中缓存', rep2.status === 200 && rep2.data.cached === true, `cached=${rep2.data && rep2.data.cached}`);
+  const stats = await call('GET', '/v1/pokemon/experience/stats?period=week', { token: u.token });
+  record('经验：本人周统计（每日序列 + 来源）', stats.status === 200 && stats.data.daily.length === 7 && stats.data.totalExp >= 22800,
+    `status=${stats.status} total=${stats.data && stats.data.totalExp}`);
+  const other = await newUser('exo');
+  const peek = await call('GET', `/v1/pokemon/${pika.id}/exp-history`, { token: other.token });
+  record('成长轨迹：不能查看别人的精灵（404）', peek.status === 404, `status=${peek.status}`);
+  const { rows: parts } = await db().query(
+    "SELECT count(*)::int AS n FROM pg_inherits WHERE inhparent = 'pokemon_exp_history'::regclass");
+  record('成长轨迹：经验历史按月分区（DEFAULT + 当月起 3 个分区）', parts[0].n >= 4, `partitions=${parts[0].n}`);
+}
+
+const SECTIONS = { evolution: testEvolution, experience: testExperience };
 
 (async () => {
   const want = process.argv.slice(2);

@@ -31,11 +31,8 @@ function baseCp(species, iv = {}) {
   return Math.max(10, Math.floor((a * Math.sqrt(Math.max(d, 1)) * Math.sqrt(Math.max(h, 1))) / 10));
 }
 
-/** 等级倍率：每级 +2% */
-function levelMultiplier(level) {
-  const l = Math.min(100, Math.max(1, toInt(level, 1)));
-  return 1 + 0.02 * (l - 1);
-}
+/** 等级倍率：每级 +2%（与经验引擎共用一个定义） */
+const { levelMultiplier } = require('../../../../shared/ExperienceEngine');
 
 /** 按比例缩放 CP（下限 10） */
 function scaleCp(cp, fromFactor, toFactor) {

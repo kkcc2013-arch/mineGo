@@ -418,6 +418,8 @@ async function main() {
 
       // REQ-00119: 精灵进化与成长系统路由
       app.use('/pokemon', require('./routes/evolution'));
+      // Epic E07 精灵成长（经验/成长轨迹/体力/训练/觉醒/培育/传承/合并……），见 growth/mount.js
+      require('./growth/mount').mountGrowth(app, logger);
   app.use('/pokemon', require('./routes/evolutionVisualization'));
 
       // REQ-00123: 精灵收藏展示系统路由
