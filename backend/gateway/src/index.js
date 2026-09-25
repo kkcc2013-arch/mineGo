@@ -460,6 +460,25 @@ app.use('/v1/raids',
   proxy(SERVICES.gym, { '^/': '/raids/' })
 );
 
+// ── E11 战斗与技能（gym-service /battle/*）──────────────────────
+// 回放分享链接：公开访问（无需登录），查看次数/密码/有效期由服务端校验
+app.get('/v1/battle/replays/shared/:code',
+  proxy(SERVICES.gym, { '^/v1/': '/' })
+);
+// 能量/冷却/装备、连击、伤害、技能推荐、AI 助手、回放、竞技联赛、客户端帧率上报；
+// 回合接口 /v1/battle/sessions/:id/* 与 /v1/gyms/battles/:id/* 等价
+app.use('/v1/battle',
+  authMiddleware,
+  proxy(SERVICES.gym, { '^/': '/battle/' })
+);
+// 需求文档（REQ-00112 / REQ-00324）约定的接口路径
+app.get('/api/pokemon/:id/energy', authMiddleware, proxy(SERVICES.gym, { '^/api/pokemon/': '/battle/pokemon/' }));
+app.post('/api/pokemon/:id/energy/regenerate', authMiddleware, proxy(SERVICES.gym, { '^/api/pokemon/': '/battle/pokemon/' }));
+app.post('/api/pokemon/:id/moves/check', authMiddleware, proxy(SERVICES.gym, { '^/api/pokemon/': '/battle/pokemon/' }));
+app.get('/api/v1/pokemon/:speciesId/move-recommendations', authMiddleware,
+  proxy(SERVICES.gym, { '^/api/v1/pokemon/([^/]+)/move-recommendations': '/battle/recommendations/$1' })
+);
+
 // 奖励服务（每日奖励/任务/排行榜/赛季/活动）— 原网关缺少该路由，reward-service 无法从外部访问
 app.use('/v1/rewards',
   authMiddleware,
@@ -569,5 +588,26 @@ app.use('/api/admin', authMiddleware, requireAdmin, ipBanAdminRoutes);
 // 404 fallback
 app.use((req, res) => res.status(404).json({ code: 1005, message: `路由不存在: ${req.method} ${req.path}`, data: null }));
 
-app.listen(PORT, () => logger.info({ port: PORT }, 'API Gateway started'));
+const server = app.listen(PORT, () => logger.info({ port: PORT }, 'API Gateway started'));
+
+// ── WebSocket 升级转发 ─────────────────────────────────────────
+// /ws/raid → gym-service（团战实时同步，token 与参与资格由 gym-service 校验）
+// /ws/battle → gym-service 实时对战 WebSocket（独立端口 WS_BATTLE_PORT，JWT 鉴权）
+const WS_TARGETS = {
+  '/ws/raid': SERVICES.gym,
+  '/ws/notifications': SERVICES.gym,
+  '/ws/battle': process.env.GYM_BATTLE_WS_URL || 'http://localhost:8089',
+};
+const wsProxies = Object.fromEntries(Object.entries(WS_TARGETS).map(([p, target]) => [p, createProxyMiddleware({
+  target, ws: true, changeOrigin: true, pathFilter: p,
+  // /ws/battle 在对战服务上监听根路径
+  pathRewrite: p === '/ws/battle' ? { '^/ws/battle': '/' } : undefined,
+  on: { error: (err, req, socket) => { logger.warn({ err, path: req && req.url }, 'WS proxy error'); if (socket && socket.destroy) socket.destroy(); } },
+})]));
+server.on('upgrade', (req, socket, head) => {
+  const pathname = (req.url || '').split('?')[0];
+  const p = wsProxies[pathname];
+  if (!p) { socket.destroy(); return; }
+  p.upgrade(req, socket, head);
+});
 module.exports = app;
