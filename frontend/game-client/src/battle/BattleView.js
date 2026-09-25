@@ -180,7 +180,7 @@ export class BattleView {
     if (advice) this.advice = advice;
     const a = battle.attacker.active;
     const d = battle.defender.active;
-    this.el('turn').textContent = `第 ${battle.turn} 回合`;
+    this.el('turn').textContent = `第 ${battle.turn} 回合${battle.weather ? ` · ${WEATHER_NAME[battle.weather] || battle.weather}（同属性技能伤害 ×1.2、冷却 ×0.9）` : ''}`;
     this.el('att-name').textContent = a.name;
     this.el('att-meta').textContent = ` CP ${a.cp} · ${a.types.join('/')}`;
     this.el('def-name').textContent = d.name;
@@ -447,4 +447,5 @@ export function renderShare(sh) {
 }
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const WEATHER_NAME = { sunny: '☀️ 晴天', rainy: '🌧️ 雨天', cloudy: '☁️ 多云', partly_cloudy: '⛅ 少云', windy: '🌬️ 大风', snowy: '❄️ 雪天', foggy: '🌫️ 雾天', clear: '🌙 晴朗' };
 const ITEM_NAME = { POKE_BALL: '精灵球', GREAT_BALL: '超级球', ULTRA_BALL: '高级球', MASTER_BALL: '大师球' };

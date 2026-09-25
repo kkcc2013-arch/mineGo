@@ -49,7 +49,7 @@ async function prepareGymBattle(userId, gymId, body) {
 
   const state = createBattle({
     id: require('crypto').randomUUID(), type: 'gym', mode: 'PVE', userId, trainerLevel: Number(user.level) || 1,
-    attackerTeam: attackers, defenderTeam: defenders, seed: randomSeed(), weather: process.env.BATTLE_WEATHER || null,
+    attackerTeam: attackers, defenderTeam: defenders, seed: randomSeed(), weather: await repo.weatherAt(gym.lat, gym.lng),
     meta: {
       gymId: gym.id, gymName: gym.name, userTeam: user.team, defenderTeam: gym.controlling_team,
       nickname: user.nickname, pokemonIds: ids,

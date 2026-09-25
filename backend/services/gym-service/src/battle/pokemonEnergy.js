@@ -112,8 +112,9 @@ async function cooldownInfo(userId, pokemonId, mode = 'PVE', weather = null) {
   const src = b ? b.combatant : c;
   const turn = b ? b.state.turn + 1 : 0;
   const m = cooldown.MODE_STRATEGIES[mode] ? mode : 'PVE';
-  const p = cooldown.predict(src, { turn, ctx: { mode: m, weather, comboCount: b ? b.state.comboState.count : 0 } });
-  return { pokemonId, name: c.name, speed: c.speed, equipment: c.equipment, mastery: c.mastery, inBattle: !!b, ...p, strategies: cooldown.MODE_STRATEGIES };
+  const w = weather || (b ? b.state.weather : null);
+  const p = cooldown.predict(src, { turn, ctx: { mode: m, weather: w, comboCount: b ? b.state.comboState.count : 0 } });
+  return { pokemonId, name: c.name, speed: c.speed, equipment: c.equipment, mastery: c.mastery, inBattle: !!b, weather: w, ...p, strategies: cooldown.MODE_STRATEGIES };
 }
 
 async function masteryInfo(userId, pokemonId) {

@@ -150,6 +150,25 @@ async function getGymDefenders(gymId) {
   return rows;
 }
 
+/**
+ * 战斗天气（REQ-00311 天气影响冷却 / REQ-00146 天气加成伤害）：取道馆坐标的实时游戏天气
+ * （shared/weatherService，Redis 缓存 15 分钟，未配置 API Key 时按坐标生成稳定的回退天气）。
+ * BATTLE_WEATHER 环境变量可强制指定（活动/测试）；查询失败或超过 1.5 秒按无天气处理，不阻塞开战。
+ */
+async function weatherAt(lat, lng) {
+  if (process.env.BATTLE_WEATHER) return String(process.env.BATTLE_WEATHER).toLowerCase();
+  const la = Number(lat);
+  const ln = Number(lng);
+  if (!Number.isFinite(la) || !Number.isFinite(ln)) return null;
+  try {
+    const { getWeather } = require('../../../../shared/weatherService');
+    const w = await Promise.race([getWeather(la, ln), new Promise((resolve) => setTimeout(() => resolve(null), 1500))]);
+    return w && w.weather ? String(w.weather).toLowerCase() : null;
+  } catch {
+    return null;
+  }
+}
+
 /** 玩家各连击链的累计完成次数（连击熟练度：每次 +1%，上限 +20%） */
 async function getComboMastery(userId) {
   const { rows } = await query('SELECT chain_id, times_executed FROM user_combo_stats WHERE user_id::text = $1::text', [userId]);
@@ -177,5 +196,5 @@ async function assertNear(userId, lat, lng, radiusM, what) {
 module.exports = {
   isUuid, getMoves, getComboDetector, getEnergyRule, invalidateStaticCache, getLearnsets,
   getOwnedPokemon, getTopPokemon, toCombatants, getMasteryAndEquipment, getUser, getGym, getGymDefenders,
-  assertNear, haversineM, getComboMastery, POKEMON_COLUMNS, ACTIVE_POKEMON,
+  assertNear, haversineM, getComboMastery, weatherAt, POKEMON_COLUMNS, ACTIVE_POKEMON,
 };

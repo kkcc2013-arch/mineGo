@@ -106,7 +106,7 @@ async function bossFor(r) {
 }
 
 /** 参与者出战精灵快照（加入/换精灵时写入 Redis，攻击时读取，避免每次攻击查库） */
-async function writeParticipantState(raidId, userId, pokemonRow, prev = null, ttlSec = 3600) {
+async function writeParticipantState(raidId, userId, pokemonRow, prev = null, ttlSec = 3600, weather = undefined) {
   const [c] = await repo.toCombatants([pokemonRow]);
   const st = {
     pokemonId: c.pokemonId, combatant: c,
@@ -114,6 +114,7 @@ async function writeParticipantState(raidId, userId, pokemonRow, prev = null, tt
     history: [], seq: prev ? prev.seq : 0, comboState: prev ? prev.comboState : { count: 0, lastTriggered: {} },
     comboMastery: prev && prev.comboMastery ? prev.comboMastery : await repo.getComboMastery(userId).catch(() => ({})),
     trainerLevel: prev && prev.trainerLevel ? prev.trainerLevel : Number((await repo.getUser(userId).catch(() => ({ level: 1 }))).level) || 1,
+    weather: weather !== undefined ? weather : (prev ? prev.weather || null : null),
   };
   await getRedis().set(pKey(raidId, userId), JSON.stringify(st), 'EX', Math.max(60, ttlSec));
   return st;
@@ -153,7 +154,7 @@ async function join(userId, raidId, body = {}) {
     return !mine;
   });
   const ttl = Math.floor((new Date(r.ends_at).getTime() - Date.now()) / 1000) + 600;
-  await writeParticipantState(raidId, userId, rows[0], null, ttl);
+  await writeParticipantState(raidId, userId, rows[0], null, ttl, await repo.weatherAt(r.lat, r.lng));
   broadcaster(raidId, { type: 'PLAYER_JOINED', userId, participants: Number(r.participant_count) + (joined ? 1 : 0) });
   const boss = await bossFor(r);
   return {
@@ -222,7 +223,7 @@ async function attack(userId, raidId, { moveId, pokemonId } = {}) {
   }
 
   // 频率限制：上一次技能的出手时长 / 冷却结束前不能再次攻击（多实例共享，原子占位）
-  const cd = cooldown.effectiveCooldown(move, { mode: 'RAID', mastery: (att.mastery || {})[move.id], speed: att.speed, equipment: att.equipment });
+  const cd = cooldown.effectiveCooldown(move, { mode: 'RAID', mastery: (att.mastery || {})[move.id], speed: att.speed, equipment: att.equipment, weather: st.weather });
   const intervalMs = Math.max(move.durationMs || 500, cd.effectiveMs);
   const r = getRedis();
   const ok = await r.set(cdKey(raidId, userId), moveId, 'PX', intervalMs, 'NX');
@@ -238,7 +239,7 @@ async function attack(userId, raidId, { moveId, pokemonId } = {}) {
   const now = Date.now();
   const combo = deps.combos.detect(st.history, move.id, { now, seq: st.seq, attackerTypes: att.types, trainerLevel: st.trainerLevel || 1, lastTriggered: st.comboState.lastTriggered, masteryCounts: st.comboMastery || {} });
   const dmg = deps.damage.compute(att, boss, move, {
-    rng: Math.random, weather: process.env.BATTLE_WEATHER || null,
+    rng: Math.random, weather: st.weather || null,
     multiplier: combo ? combo.multiplier : 1, critBoostPct: combo ? combo.effects.critBoostPct : 0, ignoreDefensePct: combo ? combo.effects.ignoreDefensePct : 0,
   });
 
@@ -275,7 +276,7 @@ async function attack(userId, raidId, { moveId, pokemonId } = {}) {
 
   const defeated = upd.hp <= 0;
   const out = {
-    raidId, attackerId: userId, pokemonId: att.pokemonId, moveId: move.id, moveName: move.name, damage: dealt,
+    raidId, attackerId: userId, pokemonId: att.pokemonId, moveId: move.id, moveName: move.name, damage: dealt, weather: st.weather || null, weatherBoosted: dmg.weatherBoosted,
     rawDamage: dmg.damage, effectiveness: dmg.effectiveness, effectivenessText: dmg.effectivenessText, isCritical: dmg.isCrit,
     bossHpRemaining: upd.hp, bossHpMax: upd.hp_max, energy: st.energy, nextAttackInMs: intervalMs,
     combo: combo ? { chainId: combo.chain.chainId, name: combo.chain.name, quality: combo.quality, multiplier: combo.multiplier } : null,
