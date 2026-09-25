@@ -30,15 +30,18 @@ const uid = (req) => req.user.sub || req.user.id;
 const lang = (req) => req.query.lang || req.headers['x-language'] || req.headers['accept-language'];
 const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
+// 消息列表（分页、按状态/分类/类型筛选、增量 since），附未读数
 router.get('/', wrap(async (req, res) => {
   const { status, category, type, page, limit, since } = req.query;
   res.json(successResp(await center.list(uid(req), { status, category, type, page, limit, since, lang: lang(req) }, db)));
 }));
 
+// 未读数（总数 / 按分类 / 按类型）
 router.get('/unread-count', wrap(async (req, res) => {
   res.json(successResp(await center.unreadCount(uid(req), db)));
 }));
 
+// 消息分类（标签页）
 router.get('/categories', (req, res) => {
   const l = require('../../../../shared/achievementRules').normalizeLang(lang(req));
   res.json(successResp(policy.CATEGORIES.map((c) => ({
@@ -46,6 +49,7 @@ router.get('/categories', (req, res) => {
   }))));
 });
 
+// 通知偏好（分类开关、免打扰、渠道、临时静音）
 router.get('/preferences', wrap(async (req, res) => {
   const prefs = await center.getPreferences(uid(req), db);
   res.json(successResp({ ...policy.preferencesView(prefs), pushProviders: pushProviders.status() }));
@@ -55,23 +59,30 @@ const updatePrefs = wrap(async (req, res) => {
   const prefs = await center.updatePreferences(uid(req), req.body, db);
   res.json(successResp({ updated: true, ...policy.preferencesView(prefs) }));
 });
+// 更新通知偏好
 router.patch('/preferences', updatePrefs);
+// 更新通知偏好（PUT 兼容）
 router.put('/preferences', updatePrefs);
 
+// 批量标记已读（ids / all / category）
 router.post('/batch-read', wrap(async (req, res) => {
   const { ids, all, category } = req.body || {};
   res.json(successResp(await center.batchRead(uid(req), { ids, all: all === true, category }, db)));
 }));
+// 全部标记已读
 router.post('/read-all', wrap(async (req, res) => {
   res.json(successResp(await center.batchRead(uid(req), { all: true }, db)));
 }));
+// 批量删除消息
 router.post('/batch-delete', wrap(async (req, res) => {
   res.json(successResp(await center.batchDelete(uid(req), (req.body || {}).ids, db)));
 }));
+// 清空已读消息
 router.post('/clear-read', wrap(async (req, res) => {
   res.json(successResp(await center.clearRead(uid(req), { before: (req.body || {}).before }, db)));
 }));
 
+// 我的消息统计
 router.get('/stats', wrap(async (req, res) => {
   res.json(successResp(await center.userStats(uid(req), db)));
 }));
@@ -87,6 +98,7 @@ router.post('/admin/broadcast', requireAdmin, wrap(async (req, res) => {
   }, db);
   res.status(201).json(successResp(created));
 }));
+// 管理员查看投递/打开/点击分析
 router.get('/admin/analytics', requireAdmin, wrap(async (req, res) => {
   res.json(successResp(await center.analytics({ days: req.query.days }, db)));
 }));
@@ -101,11 +113,15 @@ router.get('/:id', wrap(async (req, res, next) => {
 const markRead = wrap(async (req, res) => {
   res.json(successResp(await center.markRead(uid(req), req.params.id, db)));
 });
+// 标记单条已读
 router.patch('/:id/read', markRead);
+// 标记单条已读（POST 兼容）
 router.post('/:id/read', markRead);
+// 点击消息（记录点击并返回跳转链接）
 router.post('/:id/click', wrap(async (req, res) => {
   res.json(successResp(await center.markClicked(uid(req), req.params.id, db)));
 }));
+// 删除消息
 router.delete('/:id', wrap(async (req, res, next) => {
   if (!center.UUID_RE.test(req.params.id)) return next();
   res.json(successResp(await center.remove(uid(req), req.params.id, db)));

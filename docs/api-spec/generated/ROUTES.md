@@ -232,8 +232,6 @@
 | GET | `/v1/pokemon/my` | 背包 - 按用户缓存 60 秒，用户任一写操作（如捕捉成功）后立即失效（REQ-00040） |
 | GET | `/v1/pokemon/pokedex` | 精灵图鉴 - 缓存 1 小时（静态数据） |
 | GET | `/v1/raids/nearby` | Raid 附近查询 - 缓存 30 秒 |
-| GET | `/v1/users/:id/profile` | Protected with cache (REQ-00031) 用户资料 - 缓存 5 分钟 |
-| GET | `/v1/users/:id/stats` | 用户统计 - 缓存 5 分钟 |
 
 ## gym
 
@@ -450,14 +448,18 @@
 | POST | `/abilities/pokemon/:pokemonId/use-item` | 使用特性道具 POST /api/pokemon/abilities/pokemon/:pokemonId/use-item |
 | GET | `/abilities/species/:speciesId` | 获取精灵种类的特性配置 GET /api/pokemon/abilities/species/:speciesId |
 | GET | `/abilities/stats/overview` | 获取特性统计 GET /api/pokemon/abilities/stats |
-| GET | `/achievements/:achievementId` | GET /achievements/:achievementId - 获取成就详情 |
-| POST | `/achievements/:achievementId/claim` | POST /achievements/:achievementId/claim - 领取成就奖励 |
-| GET | `/achievements/categories` | GET /achievements/categories - 获取成就类别列表 |
-| GET | `/achievements/leaderboard` | GET /achievements/leaderboard - 获取成就排行榜 |
-| GET | `/achievements/my` | GET /achievements/my - 获取用户成就列表 |
-| GET | `/achievements/my/progress` | GET /achievements/my/progress - 获取成就进度概览 |
-| GET | `/achievements/titles` | GET /achievements/titles - 获取用户称号列表 |
-| POST | `/achievements/titles/:titleId/activate` | POST /achievements/titles/:titleId/activate - 设置激活称号 |
+| GET | `/achievements/:achievementId` | 成就详情（含全服完成率） |
+| POST | `/achievements/:achievementId/claim` | 领取成就奖励（并发只成功一次） |
+| GET | `/achievements/admin/definitions` | ── 管理员 ──────────────────────────────────────────────────── |
+| POST | `/achievements/admin/definitions` | 管理员：新建成就 |
+| DELETE | `/achievements/admin/definitions/:achievementId` | 管理员：下线成就 |
+| PUT | `/achievements/admin/definitions/:achievementId` | 管理员：修改成就 |
+| POST | `/achievements/admin/grant` | 管理员：给玩家补发成就进度 |
+| GET | `/achievements/categories` | 成就分类 |
+| POST | `/achievements/claim-all` | 一键领取所有已完成成就的奖励 |
+| GET | `/achievements/leaderboard` | 成就点数排行榜 |
+| GET | `/achievements/my` | 我的成就（分类/状态筛选；隐藏成就解锁前只返回数量） |
+| GET | `/achievements/my/progress` | 成就总览（点数、完成数、分类进度、可领取数、排名、最近解锁） |
 | DELETE | `/backup/:backupId` | DELETE /api/pokemon/backup/:backupId 删除备份 |
 | GET | `/backup/:backupId` | GET /api/pokemon/backup/:backupId 获取备份详情 |
 | DELETE | `/backup/auto-backup` | DELETE /api/pokemon/backup/auto-backup 禁用自动备份 |
@@ -496,6 +498,32 @@
 | POST | `/breeding/start` | 开始培育 POST /api/breeding/start |
 | GET | `/breeding/stats` | 获取培育统计 GET /api/breeding/stats |
 | POST | `/breeding/upgrade` | 升级培育中心 POST /api/breeding/upgrade |
+| GET | `/collection-room` | 我的收藏室（首次自动创建） |
+| PUT | `/collection-room` | 修改收藏室设置（名称、主题、背景、公开、网格） |
+| GET | `/collection-room/:roomId/comments` | 收藏室留言列表 |
+| POST | `/collection-room/:roomId/comments` | 发表留言 |
+| DELETE | `/collection-room/:roomId/comments/:commentId` | 删除留言（作者或房主） |
+| DELETE | `/collection-room/:roomId/like` | 取消点赞 |
+| POST | `/collection-room/:roomId/like` | 点赞收藏室 |
+| GET | `/collection-room/:roomId/visit` | 按房间访问收藏室（记录访问） |
+| POST | `/collection-room/:roomId/visit/end` | 上报本次访问时长 |
+| GET | `/collection-room/backgrounds` | 收藏室背景（含解锁状态） |
+| POST | `/collection-room/backgrounds/:id/purchase` | 金币购买付费背景 |
+| POST | `/collection-room/decorations` | 摆放装饰 |
+| DELETE | `/collection-room/decorations/:id` | 收回装饰 |
+| PUT | `/collection-room/decorations/:id` | 移动/旋转装饰 |
+| POST | `/collection-room/decorations/:itemCode/purchase` | 商店购买装饰 |
+| GET | `/collection-room/decorations/catalog` | 装饰物品目录 |
+| GET | `/collection-room/decorations/inventory` | 我的装饰库存 |
+| PUT | `/collection-room/layout` | 批量保存布局（拖拽编辑器） |
+| POST | `/collection-room/pokemon` | 展示精灵 |
+| DELETE | `/collection-room/pokemon/:pokemonId` | 撤下展示的精灵 |
+| PUT | `/collection-room/pokemon/:pokemonId` | 移动/缩放/切换展示模式 |
+| GET | `/collection-room/popular` | 热门收藏室排行 |
+| GET | `/collection-room/stats` | 收藏统计 |
+| GET | `/collection-room/themes` | 收藏室主题（含解锁状态） |
+| POST | `/collection-room/themes/:id/purchase` | 金币购买付费主题 |
+| GET | `/collection-room/users/:userId` | 按玩家访问收藏室 |
 | GET | `/equipment/:id` | GET /api/pokemon/equipment/:id 获取装备详情 |
 | POST | `/equipment/equip` | POST /api/pokemon/equipment/equip 装备到精灵 |
 | GET | `/equipment/inventory` | GET /api/pokemon/equipment/inventory 获取玩家装备背包 |
@@ -681,7 +709,7 @@
 | POST | `/events/:eventId/tasks/:taskId/complete` | POST /api/events/:eventId/tasks/:taskId/complete 完成活动任务 |
 | GET | `/health` |  |
 | GET | `/metrics` | Metrics endpoint |
-| POST | `/rewards/achievements/check` | ── POST /rewards/achievements/check  — check & unlock ─────── Called internally by other services after state changes |
+| POST | `/rewards/achievements/check` | ── POST /rewards/achievements/check  — 管理员给成就加进度 ───────── 成就进度正常由业务表触发器 + shared/achievementEngine 推进；此接口仅供运维/管理员补发（REQ-00076） |
 | GET | `/rewards/daily` | ── GET /rewards/daily  — check today's login reward status ── |
 | POST | `/rewards/daily/claim` | ── POST /rewards/daily/claim ───────────────────────────────── |
 | GET | `/rewards/leaderboard` | ── GET /rewards/leaderboard  — global rankings ────────────── REQ-00302/465：page/pageSize 分页（默认第 1 页 100 条，与旧行为一致）；offset > 1000 时走延迟关联（deferred join）， 总数在大表上用规划器估算（countWithStrategy），响应补 pagination/meta.pagination/_links |

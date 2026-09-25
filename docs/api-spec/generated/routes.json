@@ -1,5 +1,5 @@
 {
-  "total": 762,
+  "total": 790,
   "routes": [
     {
       "service": "catch",
@@ -1542,20 +1542,6 @@
       "source": "backend/gateway/src/index.js"
     },
     {
-      "service": "gateway",
-      "method": "GET",
-      "path": "/v1/users/:id/profile",
-      "description": "Protected with cache (REQ-00031) 用户资料 - 缓存 5 分钟",
-      "source": "backend/gateway/src/index.js"
-    },
-    {
-      "service": "gateway",
-      "method": "GET",
-      "path": "/v1/users/:id/stats",
-      "description": "用户统计 - 缓存 5 分钟",
-      "source": "backend/gateway/src/index.js"
-    },
-    {
       "service": "gym",
       "method": "POST",
       "path": "/api/teams",
@@ -2931,56 +2917,84 @@
       "service": "pokemon",
       "method": "GET",
       "path": "/achievements/:achievementId",
-      "description": "GET /achievements/:achievementId - 获取成就详情",
+      "description": "成就详情（含全服完成率）",
       "source": "backend/services/pokemon-service/src/routes/achievements.js"
     },
     {
       "service": "pokemon",
       "method": "POST",
       "path": "/achievements/:achievementId/claim",
-      "description": "POST /achievements/:achievementId/claim - 领取成就奖励",
+      "description": "领取成就奖励（并发只成功一次）",
+      "source": "backend/services/pokemon-service/src/routes/achievements.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/achievements/admin/definitions",
+      "description": "── 管理员 ────────────────────────────────────────────────────",
+      "source": "backend/services/pokemon-service/src/routes/achievements.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/achievements/admin/definitions",
+      "description": "管理员：新建成就",
+      "source": "backend/services/pokemon-service/src/routes/achievements.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "DELETE",
+      "path": "/achievements/admin/definitions/:achievementId",
+      "description": "管理员：下线成就",
+      "source": "backend/services/pokemon-service/src/routes/achievements.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "PUT",
+      "path": "/achievements/admin/definitions/:achievementId",
+      "description": "管理员：修改成就",
+      "source": "backend/services/pokemon-service/src/routes/achievements.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/achievements/admin/grant",
+      "description": "管理员：给玩家补发成就进度",
       "source": "backend/services/pokemon-service/src/routes/achievements.js"
     },
     {
       "service": "pokemon",
       "method": "GET",
       "path": "/achievements/categories",
-      "description": "GET /achievements/categories - 获取成就类别列表",
+      "description": "成就分类",
+      "source": "backend/services/pokemon-service/src/routes/achievements.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/achievements/claim-all",
+      "description": "一键领取所有已完成成就的奖励",
       "source": "backend/services/pokemon-service/src/routes/achievements.js"
     },
     {
       "service": "pokemon",
       "method": "GET",
       "path": "/achievements/leaderboard",
-      "description": "GET /achievements/leaderboard - 获取成就排行榜",
+      "description": "成就点数排行榜",
       "source": "backend/services/pokemon-service/src/routes/achievements.js"
     },
     {
       "service": "pokemon",
       "method": "GET",
       "path": "/achievements/my",
-      "description": "GET /achievements/my - 获取用户成就列表",
+      "description": "我的成就（分类/状态筛选；隐藏成就解锁前只返回数量）",
       "source": "backend/services/pokemon-service/src/routes/achievements.js"
     },
     {
       "service": "pokemon",
       "method": "GET",
       "path": "/achievements/my/progress",
-      "description": "GET /achievements/my/progress - 获取成就进度概览",
-      "source": "backend/services/pokemon-service/src/routes/achievements.js"
-    },
-    {
-      "service": "pokemon",
-      "method": "GET",
-      "path": "/achievements/titles",
-      "description": "GET /achievements/titles - 获取用户称号列表",
-      "source": "backend/services/pokemon-service/src/routes/achievements.js"
-    },
-    {
-      "service": "pokemon",
-      "method": "POST",
-      "path": "/achievements/titles/:titleId/activate",
-      "description": "POST /achievements/titles/:titleId/activate - 设置激活称号",
+      "description": "成就总览（点数、完成数、分类进度、可领取数、排名、最近解锁）",
       "source": "backend/services/pokemon-service/src/routes/achievements.js"
     },
     {
@@ -3248,6 +3262,188 @@
       "path": "/breeding/upgrade",
       "description": "升级培育中心 POST /api/breeding/upgrade",
       "source": "backend/services/pokemon-service/src/routes/breeding.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/collection-room",
+      "description": "我的收藏室（首次自动创建）",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "PUT",
+      "path": "/collection-room",
+      "description": "修改收藏室设置（名称、主题、背景、公开、网格）",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/collection-room/:roomId/comments",
+      "description": "收藏室留言列表",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/collection-room/:roomId/comments",
+      "description": "发表留言",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "DELETE",
+      "path": "/collection-room/:roomId/comments/:commentId",
+      "description": "删除留言（作者或房主）",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "DELETE",
+      "path": "/collection-room/:roomId/like",
+      "description": "取消点赞",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/collection-room/:roomId/like",
+      "description": "点赞收藏室",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/collection-room/:roomId/visit",
+      "description": "按房间访问收藏室（记录访问）",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/collection-room/:roomId/visit/end",
+      "description": "上报本次访问时长",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/collection-room/backgrounds",
+      "description": "收藏室背景（含解锁状态）",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/collection-room/backgrounds/:id/purchase",
+      "description": "金币购买付费背景",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/collection-room/decorations",
+      "description": "摆放装饰",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "DELETE",
+      "path": "/collection-room/decorations/:id",
+      "description": "收回装饰",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "PUT",
+      "path": "/collection-room/decorations/:id",
+      "description": "移动/旋转装饰",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/collection-room/decorations/:itemCode/purchase",
+      "description": "商店购买装饰",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/collection-room/decorations/catalog",
+      "description": "装饰物品目录",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/collection-room/decorations/inventory",
+      "description": "我的装饰库存",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "PUT",
+      "path": "/collection-room/layout",
+      "description": "批量保存布局（拖拽编辑器）",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/collection-room/pokemon",
+      "description": "展示精灵",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "DELETE",
+      "path": "/collection-room/pokemon/:pokemonId",
+      "description": "撤下展示的精灵",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "PUT",
+      "path": "/collection-room/pokemon/:pokemonId",
+      "description": "移动/缩放/切换展示模式",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/collection-room/popular",
+      "description": "热门收藏室排行",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/collection-room/stats",
+      "description": "收藏统计",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/collection-room/themes",
+      "description": "收藏室主题（含解锁状态）",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/collection-room/themes/:id/purchase",
+      "description": "金币购买付费主题",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/collection-room/users/:userId",
+      "description": "按玩家访问收藏室",
+      "source": "backend/services/pokemon-service/src/routes/collectionRoom.js"
     },
     {
       "service": "pokemon",
@@ -4513,7 +4709,7 @@
       "service": "reward",
       "method": "POST",
       "path": "/rewards/achievements/check",
-      "description": "── POST /rewards/achievements/check  — check & unlock ─────── Called internally by other services after state changes",
+      "description": "── POST /rewards/achievements/check  — 管理员给成就加进度 ───────── 成就进度正常由业务表触发器 + shared/achievementEngine 推进；此接口仅供运维/管理员补发（REQ-00076）",
       "source": "backend/services/reward-service/src/index.js"
     },
     {

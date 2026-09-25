@@ -35,15 +35,18 @@ const TITLE_ID = /^[a-z0-9_]{2,50}$/;
 
 function bad(msg) { const e = new Error(msg); e.statusCode = 400; return e; }
 
+// 称号目录（含是否已拥有）
 router.get('/titles', requireAuth, wrap(async (req, res) => {
   const { category, rarity } = req.query;
   res.json(successResp(await titles.catalog({ lang: lang(req), category, rarity, userId: uid(req) }, db)));
 }));
 
+// 称号收集排行榜
 router.get('/titles/leaderboard', requireAuth, wrap(async (req, res) => {
   res.json(successResp(await titles.leaderboard({ limit: req.query.limit, lang: lang(req) }, db)));
 }));
 
+// 管理员发放称号
 router.post('/titles/grant', requireAuth, requireAdmin, wrap(async (req, res) => {
   const { userId, titleId } = req.body || {};
   if (!UUID_RE.test(String(userId || '')) || !TITLE_ID.test(String(titleId || ''))) throw bad('userId / titleId 无效');
@@ -52,10 +55,12 @@ router.post('/titles/grant', requireAuth, requireAdmin, wrap(async (req, res) =>
   res.json(successResp(r));
 }));
 
+// 管理员触发限时称号过期处理
 router.post('/titles/process-expired', requireAuth, requireAdmin, wrap(async (req, res) => {
   res.json(successResp(await titles.expireTitles(db)));
 }));
 
+// 称号详情
 router.get('/titles/:titleId', requireAuth, wrap(async (req, res) => {
   if (!TITLE_ID.test(req.params.titleId)) throw bad('titleId 无效');
   const t = await titles.getDefinition(req.params.titleId, lang(req), db);
@@ -63,19 +68,23 @@ router.get('/titles/:titleId', requireAuth, wrap(async (req, res) => {
   res.json(successResp(t));
 }));
 
+// 我的称号
 router.get('/me/titles', requireAuth, wrap(async (req, res) => {
   const { category, rarity, includeExpired } = req.query;
   res.json(successResp(await titles.listUserTitles(uid(req), { lang: lang(req), category, rarity, includeExpired: includeExpired === 'true' }, db)));
 }));
 
+// 当前佩戴的称号
 router.get('/me/titles/active', requireAuth, wrap(async (req, res) => {
   res.json(successResp(await titles.getActiveTitle(uid(req), lang(req), db)));
 }));
 
+// 我的称号统计（按稀有度）
 router.get('/me/titles/stats', requireAuth, wrap(async (req, res) => {
   res.json(successResp(await titles.stats(uid(req), db)));
 }));
 
+// 当前称号属性加成
 router.get('/me/titles/bonuses', requireAuth, wrap(async (req, res) => {
   res.json(successResp(await titles.getStatBonuses(uid(req), db)));
 }));
@@ -86,15 +95,19 @@ const activate = wrap(async (req, res) => {
   await profileCache.bump(uid(req));
   res.json(successResp({ ...r, title: await titles.getActiveTitle(uid(req), lang(req), db) }, '称号已佩戴'));
 });
+// 佩戴称号
 router.put('/me/titles/:titleId/activate', requireAuth, activate);
+// 佩戴称号（POST 兼容）
 router.post('/me/titles/:titleId/activate', requireAuth, activate);
 
+// 取下称号
 router.delete('/me/titles/active', requireAuth, wrap(async (req, res) => {
   const r = await titles.activate(uid(req), null, db);
   await profileCache.bump(uid(req));
   res.json(successResp(r, '称号已取下'));
 }));
 
+// 收藏/取消收藏称号
 router.put('/me/titles/:titleId/favorite', requireAuth, wrap(async (req, res) => {
   if (!TITLE_ID.test(req.params.titleId)) throw bad('titleId 无效');
   const fav = req.body && req.body.isFavorite !== undefined ? !!req.body.isFavorite : true;
@@ -110,11 +123,13 @@ router.post('/me/profile/title', requireAuth, wrap(async (req, res) => {
   res.json(successResp({ ...r, title: await titles.getActiveTitle(uid(req), lang(req), db) }));
 }));
 
+// 玩家的称号
 router.get('/:userId/titles', requireAuth, wrap(async (req, res, next) => {
   if (!UUID_RE.test(req.params.userId)) return next();
   res.json(successResp(await titles.listUserTitles(req.params.userId, { lang: lang(req) }, db)));
 }));
 
+// 玩家当前佩戴的称号
 router.get('/:userId/titles/active', requireAuth, wrap(async (req, res, next) => {
   if (!UUID_RE.test(req.params.userId)) return next();
   res.json(successResp(await titles.getActiveTitle(req.params.userId, lang(req), db)));
