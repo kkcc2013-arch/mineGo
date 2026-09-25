@@ -51,10 +51,11 @@ export class RaidManager extends EventTarget {
   }
 
   // ── Attack ────────────────────────────────────────────────
-  attack(moveId, estimatedDamage) {
-    if (!this._ws || this._ws.readyState !== WebSocket.OPEN) return;
-    this._send({ type: 'ATTACK', moveId, damage: estimatedDamage });
-    this._raidState.myDamage += estimatedDamage;
+  // 只提交技能 ID：伤害由服务端按出战精灵与技能计算，并按技能出手时长限频（结果见 ATTACK_RESULT / ERROR）
+  attack(moveId) {
+    if (!this._ws || this._ws.readyState !== WebSocket.OPEN) return false;
+    this._send({ type: 'ATTACK', moveId, requestId: String(Date.now()) });
+    return true;
   }
 
   leave() {
@@ -87,8 +88,8 @@ export class RaidManager extends EventTarget {
 
     this._ws.onclose = (ev) => {
       this._stopHeartbeat();
-      if (ev.code === 4001) {
-        // Auth failure — don't retry
+      if (ev.code === 4001 || ev.code === 4003 || ev.code === 4004) {
+        // 未登录 / 未参加该团战 / 团战 ID 无效 — 不重连
         this.dispatchEvent(new CustomEvent('authError'));
         return;
       }
@@ -154,6 +155,16 @@ export class RaidManager extends EventTarget {
             }
           }));
         }
+        break;
+
+      case 'ATTACK_RESULT':
+        this._raidState.myDamage += msg.damage || 0;
+        this.dispatchEvent(new CustomEvent('attackResult', { detail: msg }));
+        break;
+
+      case 'ERROR':
+        // 例如 ATTACK_TOO_FAST（details.retryAfterMs）、INSUFFICIENT_ENERGY、RAID_NOT_ACTIVE
+        this.dispatchEvent(new CustomEvent('attackError', { detail: msg }));
         break;
 
       case 'RAID_COMPLETED':

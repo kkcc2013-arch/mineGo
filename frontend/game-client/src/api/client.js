@@ -158,7 +158,7 @@ class ApiClient {
   // ── Gym / Raid ────────────────────────────────────────────
   getGym(id)                           { return this.get(`/gyms/${id}`); }
   defendGym(gymId, pokemonId)          { return this.post(`/gyms/${gymId}/defend`, { pokemonId }); }
-  battleGym(gymId, pokemonIds)         { return this.post(`/gyms/${gymId}/battle`, { attackerPokemons: pokemonIds }); }
+  battleGym(gymId, pokemonIds)         { return this.post(`/gyms/${gymId}/battle/start`, { pokemonIds }); }
   getRaid(id)                          { return this.get(`/raids/${id}`); }
   joinRaid(id)                         { return this.post(`/raids/${id}/join`); }
 

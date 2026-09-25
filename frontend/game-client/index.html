@@ -635,13 +635,16 @@ function renderMap(data, pos) {
 
   if (gyms.length) {
     html += `<div class="sec-title">🏟️ 道馆 (${gyms.length})</div><div class="card-list">`;
-    const tc = { red:'🔴 勇火队', blue:'🔵 神秘队', yellow:'🟡 本能队' };
+    const tc = { red:'🔴 勇火队', blue:'🔵 神秘队', yellow:'🟡 本能队', VALOR:'🔴 勇火队', MYSTIC:'🔵 神秘队', INSTINCT:'🟡 本能队' };
     gyms.forEach(g => {
-      html += `<div class="entity-card">
+      // 点击进入道馆挑战/团战（src/bootstrap/battle.js 提供 openGym/openRaid）
+      const raid = g.active_raid_id ? ` · 👹 团战 Lv.${g.raid_level}` : '';
+      const go = g.active_raid_id ? `openRaid('${g.active_raid_id}')` : `openGym('${g.id}')`;
+      html += `<div class="entity-card" data-gym-id="${g.id}" onclick="window.${g.active_raid_id ? 'openRaid' : 'openGym'} && ${go}">
         <div class="entity-icon">🏟️</div>
         <div class="entity-info"><div class="entity-name">${g.name||'道馆'}</div>
-          <div class="entity-meta">${tc[g.controlling_team]||'⚪ 无人占领'} · ${g.defender_count||0}只</div></div>
-        <div class="entity-right">›</div>
+          <div class="entity-meta">${tc[g.controlling_team]||'⚪ 无人占领'} · ${g.defender_count||0}只${raid}</div></div>
+        <div class="entity-right">${g.active_raid_id ? '团战 ›' : '挑战 ›'}</div>
       </div>`;
     });
     html += '</div>';
@@ -859,7 +862,7 @@ window.showLanguageSelector = function() {
 };
 
 // ── 可选功能模块（无障碍 / 体验增强等），失败不影响主流程 ──────────
-initFeatures({ api, store, toast }).catch(() => {});
+initFeatures({ api, store, toast, locMgr }).catch(() => {});
 </script>
 </body>
 </html>
