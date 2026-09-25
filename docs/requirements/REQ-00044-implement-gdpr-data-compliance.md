@@ -7,7 +7,7 @@
 | 标题 | 实现 GDPR 兼容的数据删除与导出接口 |
 | 类别 | 合规/隐私 |
 | 优先级 | P0 |
-| 状态 | partial |
+| 状态 | done |
 | 涉及服务 | user-service, data-service |
 | 创建时间 | 2026-07-16 10:00 |
 
@@ -52,3 +52,16 @@
 | 导出 JSON 完整 | ✅ | 运行时从外键元数据发现所有"归属于用户"的表，剔除哈希/密钥列，手机号解密 |
 | 申请删除进入冷却期并确认 | ✅ | `DELETE /v1/gdpr/delete`（需输入确认语）→ 30 天冷却，`/v1/gdpr/status` 查询、`/v1/gdpr/delete/cancel` 撤销 |
 | 冷却期满后自动清理关联数据 | ✅ | `user-service/src/gdpr/accountData.js` 定时任务：删除归属数据、保留财务/审计/风控证据、users 行匿名化、清理 Redis、吊销 token；管理员可立即执行 |
+
+## 实现记录（2026-09-25，补全前端入口）
+
+状态：**done**
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 用户可通过前端 UI 申请导出 | ✅ | 客户端"我的"页新增"隐私与数据"卡片（`frontend/game-client/src/features/privacyCenter.js`，由 `src/bootstrap/features.js` 装配）：一键导出并下载 `minego-data-export-YYYY-MM-DD.json`；超出每小时 3 次返回友好提示 |
+| 申请删除进入冷却期并确认 | ✅ | 可访问的模态对话框（`aria-modal`、焦点限制、Esc 关闭），需输入确认语；提交后显示预计删除日期，冷却期内可一键撤销 |
+| 导出/删除服务端能力 | ✅ | 见上一条实现记录（2026-09-24） |
+
+- 测试：`frontend/game-client/tests/e2e/privacy-center.e2e.js`（真实 Chrome + 真实后端）8/8：卡片展示、导出下载且内容属于本人、确认语错误被拒、删除进入冷却期（服务端 PENDING）、撤销（CANCELLED）、axe 无严重问题、无 JS 异常
+

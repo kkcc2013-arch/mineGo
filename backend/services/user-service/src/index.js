@@ -194,8 +194,14 @@ const service = new ServiceLauncher({
   }
 });
 
-// Start service
-service.start().catch(err => {
+// Start service：先加载字段加密密钥（Vault / 加密密钥文件 / 环境变量，REQ-00565），再开始接收请求
+(async () => {
+  const { initFieldKeys } = require('../../../shared/fieldKeyProvider');
+  const { query } = require('../../../shared/db');
+  const { createLogger } = require('../../../shared/logger');
+  await initFieldKeys({ auditQuery: query, logger: createLogger('field-keys') });
+  await service.start();
+})().catch(err => {
   console.error('Failed to start user-service:', err);
   process.exit(1);
 });

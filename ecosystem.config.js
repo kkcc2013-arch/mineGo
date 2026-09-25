@@ -46,8 +46,16 @@ const REDIS_HOST = env('REDIS_HOST', '127.0.0.1');
 const REDIS_PORT = env('REDIS_PORT', '6379');
 const REDIS_PASS = env('REDIS_PASSWORD');
 
+// 游戏日时区：Node 进程（TZ）与每个数据库会话（PGOPTIONS，node-postgres 的所有连接池都会读取）统一，
+// 使 JS 日期、CURRENT_DATE、DATE(ts)、NOW() 写入的 TIMESTAMP 都按同一时区解释
+const GAME_TIMEZONE = env('GAME_TIMEZONE', 'Asia/Shanghai');
+const PGOPTIONS = [env('PGOPTIONS', ''), `-c TimeZone=${GAME_TIMEZONE}`].filter(Boolean).join(' ');
+
 // Shared env for every service
 const commonEnv = {
+  GAME_TIMEZONE,
+  TZ: GAME_TIMEZONE,
+  PGOPTIONS,
   NODE_ENV: env('NODE_ENV', 'production'),
   POSTGRES_DB: PG_DB,
   POSTGRES_USER: PG_USER,

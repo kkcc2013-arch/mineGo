@@ -5,6 +5,7 @@ const cors    = require('cors');
 const helmet  = require('helmet');
 const { query, transaction } = require('../../../shared/db');
 const { grantRewards } = require('./rewardGrant');
+const { gameDate, previousGameDate } = require('../../../shared/gameTime');
 const { getRedis } = require('../../../shared/redis');
 const { requireAuth, requireAdmin, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
@@ -57,7 +58,7 @@ app.get('/rewards/daily', requireAuth, async (req, res, next) => {
     const data   = await redis.get(key);
 
     const existing = data ? JSON.parse(data) : null;
-    const today    = new Date().toISOString().slice(0, 10);
+    const today    = gameDate();
 
     if (existing && existing.date === today) {
       return res.json(successResp({ claimed: true, streak: existing.streak, reward: existing.reward }));
@@ -66,7 +67,7 @@ app.get('/rewards/daily', requireAuth, async (req, res, next) => {
     // Calculate streak
     let streak = 1;
     if (existing) {
-      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      const yesterday = previousGameDate();
       streak = existing.date === yesterday ? (existing.streak % 7) + 1 : 1;
     }
 
@@ -81,7 +82,7 @@ app.post('/rewards/daily/claim', requireAuth, async (req, res, next) => {
     const userId = req.user.sub;
     const redis  = getRedis();
     const key    = `daily:login:${userId}`;
-    const today  = new Date().toISOString().slice(0, 10);
+    const today  = gameDate();
     const data   = await redis.get(key);
     const existing = data ? JSON.parse(data) : null;
 
@@ -92,7 +93,7 @@ app.post('/rewards/daily/claim', requireAuth, async (req, res, next) => {
     // Calculate streak
     let streak = 1;
     if (existing) {
-      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      const yesterday = previousGameDate();
       streak = existing.date === yesterday ? (existing.streak % 7) + 1 : 1;
     }
 
@@ -187,13 +188,13 @@ app.get('/rewards/quests', requireAuth, async (req, res, next) => {
     // Upsert today's quest
     await query(`
       INSERT INTO daily_quests (user_id, quest_date)
-      VALUES ($1, CURRENT_DATE)
+      VALUES ($1, $2::date)
       ON CONFLICT (user_id, quest_date) DO NOTHING
-    `, [userId]);
+    `, [userId, gameDate()]);
 
     const { rows: [quest] } = await query(`
-      SELECT * FROM daily_quests WHERE user_id=$1 AND quest_date=CURRENT_DATE
-    `, [userId]);
+      SELECT * FROM daily_quests WHERE user_id=$1 AND quest_date=$2::date
+    `, [userId, gameDate()]);
 
     // Enrich with progress %
     const progress = {
@@ -214,8 +215,8 @@ app.post('/rewards/quests/claim', requireAuth, async (req, res, next) => {
   try {
     const userId = req.user.sub;
     const { rows: [quest] } = await query(`
-      SELECT * FROM daily_quests WHERE user_id=$1 AND quest_date=CURRENT_DATE
-    `, [userId]);
+      SELECT * FROM daily_quests WHERE user_id=$1 AND quest_date=$2::date
+    `, [userId, gameDate()]);
 
     if (!quest) throw new AppError(2021, '今日任务不存在', 404);
     if (quest.reward_claimed) throw new AppError(2022, '今日任务奖励已领取', 400);
@@ -233,8 +234,8 @@ app.post('/rewards/quests/claim', requireAuth, async (req, res, next) => {
       // 条件更新抢占领奖资格：原实现在事务外检查 reward_claimed，并发请求可重复领取
       const gate = await client.query(`
         UPDATE daily_quests SET reward_claimed=true, completed_at=NOW()
-        WHERE user_id=$1 AND quest_date=CURRENT_DATE AND reward_claimed=false
-      `, [userId]);
+        WHERE user_id=$1 AND quest_date=$2::date AND reward_claimed=false
+      `, [userId, gameDate()]);
       if (gate.rowCount === 0) throw new AppError(2022, '今日任务奖励已领取', 400);
 
       await client.query(`
