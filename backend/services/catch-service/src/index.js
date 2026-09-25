@@ -11,6 +11,8 @@ const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
 const { requireAuth, AppError, successResp } = require('../../../shared/auth');
 const { validateLocation, checkRateLimit, requireTrustScore, TRUST_SCORE } = require('../../../shared/anti-cheat');
 const { publishCatchSuccess, publishCatchFailed } = require('./eventProducers');
+const { getComboService } = require('./combo/CatchComboService'); // REQ-00369: 捕捉连击
+const { createComboRouter, createMilestoneNotifier } = require('./combo/routes');
 const { habitatService } = require('../../../shared/habitatService');
 
 // ============================================================
@@ -73,6 +75,22 @@ async function invalidateWildCache(wildId) {
     redis.zrem('geo:wild_pokemon', String(wildId)),
     redis.del(`wild:${wildId}`),
   ]);
+}
+
+/**
+ * REQ-00369：捕捉结束后记连击（捕捉事务已提交）。连击按会话幂等；任何异常只记日志并返回 null，
+ * 不影响捕捉结果（响应只是多一个可选的 combo 字段）。
+ */
+async function recordCombo(kind, userId, payload, logger) {
+  try {
+    const svc = getComboService();
+    return kind === 'success'
+      ? await svc.recordCatchSuccess(userId, payload)
+      : await svc.recordCatchFailure(userId, payload);
+  } catch (err) {
+    logger.warn({ err: err.message, userId, sessionId: payload && payload.sessionId }, 'catch combo update failed');
+    return null;
+  }
 }
 
 /**
@@ -442,7 +460,10 @@ async function executeCatchThrow(req, res, next) {
         isShiny:     session.isShiny,
         ...rewards.rewards,
       }, 'Pokemon caught');
-      return res.json(successResp({ result: 'CAUGHT', catchProb, ...rewards }));
+      const combo = await recordCombo('success', userId, {
+        sessionId, pokemonInstanceId: rewards.pokemonInstanceId, speciesId: session.speciesId,
+      }, logger);
+      return res.json(successResp({ result: 'CAUGHT', catchProb, ...rewards, ...(combo ? { combo } : {}) }));
     }
 
     // Check flee
@@ -465,7 +486,8 @@ async function executeCatchThrow(req, res, next) {
         logger.error({ err }, 'Failed to publish catch failed event')
       );
 
-      return res.json(successResp({ result: 'FLED', catchProb, rewards: { xp: 25 } }));
+      const combo = await recordCombo('failure', userId, { sessionId, reason: 'failed' }, logger);
+      return res.json(successResp({ result: 'FLED', catchProb, rewards: { xp: 25 }, ...(combo ? { combo } : {}) }));
     }
 
     await setJSON(`catch:session:${sessionId}`, session, 120);
@@ -493,6 +515,10 @@ async function main() {
       // REQ-00586: 可信度低于 RESTRICTED(40) 的玩家禁止捕捉（位置功能降级）
       app.post('/catch/session', requireAuth, validateLocation, requireTrustScore(TRUST_SCORE.THRESHOLD.RESTRICTED), checkRateLimit('CATCH'), createCatchSession);
       app.post('/catch/throw',   requireAuth, checkRateLimit('CATCH'), executeCatchThrow);
+
+      // REQ-00369: 捕捉连击（状态/历史/排行榜/保护道具/重置/奖励配置），经网关 /v1/catch/combo/* 访问
+      getComboService({ onMilestone: createMilestoneNotifier(logger), logger });
+      app.use('/catch/combo', createComboRouter(() => getComboService()));
 
       logger.info('Catch service routes initialized');
     }
