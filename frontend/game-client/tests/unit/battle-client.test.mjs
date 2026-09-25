@@ -131,3 +131,108 @@ test('回放帧：逐回合 HP、换人、击倒，回合末以服务端 HP 为�
   assert.equal(f[1].attacker.hp, 140, '帧是快照，不随后续回合变化');
   assert.ok(f[2].lines.some((l) => l.includes('双火花')));
 });
+
+// ── FrameRateController 运行时（假 window：手动推进 requestAnimationFrame） ─────────
+import { FrameRateController } from '../../src/battle/FrameRateController.js';
+
+function fakeWindow({ deviceMemory = 12, hardwareConcurrency = 8, hidden = false } = {}) {
+  const rafs = new Map();
+  let id = 0;
+  const intervals = [];
+  const listeners = {};
+  const w = {
+    navigator: { deviceMemory, hardwareConcurrency, connection: { rtt: 120, saveData: false } },
+    matchMedia: () => ({ matches: false }),
+    document: { hidden, documentElement: { dataset: {}, style: { props: {}, setProperty(k, v) { this.props[k] = v; } } } },
+    requestAnimationFrame: (cb) => { rafs.set(++id, cb); return id; },
+    cancelAnimationFrame: (i) => rafs.delete(i),
+    setInterval: (fn, ms) => { intervals.push({ fn, ms }); return intervals.length; },
+    addEventListener: (ev, fn) => { (listeners[ev] = listeners[ev] || []).push(fn); },
+    performance: { memory: { usedJSHeapSize: 50 * 1048576 } },
+    localStorage: { getItem: () => 'tok' },
+    PMG_CONFIG: { apiBase: '/v1' },
+    fetched: [],
+    fetch: async (url, opts) => { w.fetched.push({ url, opts }); return { ok: true }; },
+    /** 推进到时间 t：执行当前排队的全部帧回调 */
+    tick(t) { const cbs = [...rafs.values()]; rafs.clear(); cbs.forEach((cb) => cb(t)); },
+    listeners, intervals, rafs,
+  };
+  return w;
+}
+
+function fakeApi({ fail = false } = {}) {
+  const calls = [];
+  return {
+    calls,
+    async get(path) { calls.push(['GET', path]); return { ...TIER_DEFAULTS, degrade: { ...TIER_DEFAULTS.degrade, sampleWindowMs: 1000, cooldownMs: 1000 } }; },
+    async post(path, body) { calls.push(['POST', path, body]); if (fail) throw new Error('offline'); return { accepted: body.reports.length }; },
+  };
+}
+
+test('帧率控制器：按设备档位设目标帧率；30FPS 档跳帧渲染；补间完成后自动停止循环', async () => {
+  const w = fakeWindow({ deviceMemory: 2 });
+  const api = fakeApi();
+  const frc = new FrameRateController({ api, win: w });
+  assert.equal(frc.tier, 'low');
+  await frc.loadConfig();
+  assert.equal(frc.targetFps, 30);
+  assert.equal(w.document.documentElement.dataset.battleFx, 'low', '<html data-battle-fx> 标记特效等级');
+  const values = [];
+  frc.tween(0, 100, 200, (v) => values.push(v));
+  let renders = 0;
+  frc.subscribe(() => { renders++; });
+  for (let t = 0; t <= 1000; t += 1000 / 60) w.tick(t); // 60Hz 屏幕刷新 1 秒
+  assert.ok(renders >= 28 && renders <= 32, `30FPS 目标下 1 秒渲染约 30 帧，实际 ${renders}`);
+  assert.equal(values[values.length - 1], 100, '补间终值准确');
+  assert.ok(values.every((v, i) => i === 0 || v >= values[i - 1]), '补间单调');
+});
+
+test('帧率控制器：页面隐藏时不渲染；实测帧率持续偏低触发降级事件并更新 CSS 等级', async () => {
+  const w = fakeWindow({ deviceMemory: 12 });
+  const frc = new FrameRateController({ api: fakeApi(), win: w });
+  await frc.loadConfig();
+  assert.equal(frc.targetFps, 60);
+  const events = [];
+  frc.addEventListener('quality', (e) => events.push(e.detail));
+  let renders = 0;
+  frc.subscribe(() => { renders++; });
+  w.document.hidden = true;
+  for (let t = 0; t < 500; t += 16) w.tick(t);
+  assert.equal(renders, 0, '后台不渲染');
+  w.document.hidden = false;
+  for (let t = 500; t < 4000; t += 50) w.tick(t); // 设备只能跑到 20FPS
+  assert.ok(events.length >= 1, '触发降级');
+  assert.equal(events[0].type, 'downgrade');
+  assert.equal(events[0].effects, 'medium');
+  assert.equal(w.document.documentElement.dataset.battleFx, frc.effects);
+  assert.ok(frc.particleLimit < 300);
+});
+
+test('帧率控制器：性能数据快照与批量上报；失败保留重试；页面关闭用 keepalive', async () => {
+  const w = fakeWindow({ deviceMemory: 6 });
+  const api = fakeApi({ fail: true });
+  const frc = new FrameRateController({ api, win: w });
+  await frc.loadConfig();
+  frc.start('00000000-0000-4000-8000-000000000009');
+  frc.subscribe(() => {});
+  for (let t = 0; t < 2000; t += 1000 / 45) w.tick(t);
+  await frc.flush();
+  assert.equal(frc.pending.length, 1, '上报失败时保留');
+  const rep = frc.pending[0];
+  assert.equal(rep.deviceTier, 'mid');
+  assert.equal(rep.targetFps, 45);
+  assert.ok(rep.avgFps > 40 && rep.avgFps <= 46, `avgFps=${rep.avgFps}`);
+  assert.equal(rep.jsHeapMb, 50);
+  assert.equal(rep.networkRttMs, 120);
+  api.post = async (path, body) => { api.calls.push(['POST', path, body]); return {}; };
+  await frc.flush();
+  assert.equal(frc.pending.length, 0);
+  assert.equal(api.calls.filter((c) => c[1] === '/battle/perf/report').length, 2);
+  for (let t = 2000; t < 3000; t += 1000 / 45) w.tick(t);
+  assert.ok(w.listeners.pagehide && w.listeners.pagehide.length === 1, '注册页面关闭上报');
+  await w.listeners.pagehide[0]();
+  assert.equal(w.fetched.length, 1);
+  assert.equal(w.fetched[0].opts.keepalive, true);
+  assert.equal(w.fetched[0].opts.headers.Authorization, 'Bearer tok');
+  assert.equal(w.intervals[0].ms, TIER_DEFAULTS.report.intervalMs, '定时上报');
+});
