@@ -1,5 +1,6 @@
 // location-service/src/index.js  +  routes/map.js  (combined)
 'use strict';
+require('../../../shared/tracing').initTracing('location-service'); // REQ-00042：须先于 express/http/pg/redis 加载，自动埋点才生效（未配置 OTEL_EXPORTER_OTLP_ENDPOINT 时不启用）
 const express  = require('express');
 const cors     = require('cors');
 const helmet   = require('helmet');

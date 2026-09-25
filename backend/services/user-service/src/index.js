@@ -1,5 +1,6 @@
 // user-service/src/index.js - 重构版（使用 ServiceLauncher）
 'use strict';
+require('../../../shared/tracing').initTracing('user-service'); // REQ-00042：须先于 express/http/pg/redis 加载，自动埋点才生效（未配置 OTEL_EXPORTER_OTLP_ENDPOINT 时不启用）
 
 const { ServiceLauncher } = require('../../../shared/ServiceLauncher');
 const db = require('../../../shared/db');

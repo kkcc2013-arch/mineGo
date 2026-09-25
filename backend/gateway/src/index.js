@@ -1,5 +1,6 @@
 // gateway/src/index.js  — lightweight API Gateway
 'use strict';
+require('@pmg/shared/tracing').initTracing('api-gateway'); // REQ-00042：须先于 express/http/pg/redis 加载，自动埋点才生效（未配置 OTEL_EXPORTER_OTLP_ENDPOINT 时不启用）
 const express      = require('express');
 const cors         = require('cors');
 const helmet       = require('helmet');
@@ -150,7 +151,8 @@ app.use((req, _res, next) => {
 // Request ID & Trace ID injection
 // REQ-00042: 统一 trace id（W3C 兼容 32 位 hex），透传给下游服务（x-trace-id + traceparent）
 app.use((req, res, next) => {
-  const traceId = traceContext.traceIdFromHeaders(req.headers) || traceContext.newTraceId();
+  // 启用 OpenTelemetry 时以活动 span 的 trace id 为准（与出站 traceparent、Jaeger 一致）
+  const traceId = traceContext.activeTraceId() || traceContext.traceIdFromHeaders(req.headers) || traceContext.newTraceId();
   const spanId = traceContext.newSpanId();
   const rid = req.headers['x-request-id'];
   req.headers['x-request-id'] = (typeof rid === 'string' && /^[A-Za-z0-9._-]{1,64}$/.test(rid))

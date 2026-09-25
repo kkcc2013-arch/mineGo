@@ -1,6 +1,7 @@
 // catch-service/src/index.js
 // REQ-00169: 微服务启动器统一化 - 使用 ServiceFactory 重构
 'use strict';
+require('../../../shared/tracing').initTracing('catch-service'); // REQ-00042：须先于 express/http/pg/redis 加载，自动埋点才生效（未配置 OTEL_EXPORTER_OTLP_ENDPOINT 时不启用）
 
 const { consumeItem } = require('../../../shared/inventory');
 const { ServiceFactory } = require('../../../shared/ServiceFactory');

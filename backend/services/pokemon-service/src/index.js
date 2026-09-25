@@ -1,6 +1,7 @@
 // pokemon-service/src/index.js
 // REQ-00211: 微服务样板代码统一初始化器 - 重构版本
 'use strict';
+require('../../../shared/tracing').initTracing('pokemon-service'); // REQ-00042：须先于 express/http/pg/redis 加载，自动埋点才生效（未配置 OTEL_EXPORTER_OTLP_ENDPOINT 时不启用）
 
 const { addItems } = require('../../../shared/inventory');
 const { ServiceFactory } = require('../../../shared/ServiceFactory');

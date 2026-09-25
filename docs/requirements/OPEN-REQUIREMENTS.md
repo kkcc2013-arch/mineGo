@@ -52,10 +52,10 @@
 | [REQ-00040](./REQ-00040-redis-cache-layer.md) (重号) | 实现 Redis 分布式缓存层 | api-gateway, core-service | ✅ 已完成（2026-09-24）：网关读缓存、写后失效、故障降级、命中率指标 |
 | [REQ-00041](./REQ-00041-game-client-memory-scanning-protection.md) (重号) | Game Client Dynamic Memory Scanning and Protection System | game-client | ⏸️ 延后：纯客户端内存防护，需原生客户端，服务端无法落地 |
 | [REQ-00042](./REQ-00042-distributed-tracing-log-aggregation.md) (重号) | 分布式追踪与日志聚合平台集成 | gateway, user-service, catch-service, pokemon-serv | 🟡 部分完成：trace_id 全链路贯通；Jaeger/Loki/告警未部署（需容器环境） |
-| [REQ-00044](./REQ-00044-implement-gdpr-data-compliance.md) (重号) | 实现 GDPR 兼容的数据删除与导出接口 | user-service, data-service | 🟡 部分完成：导出/删除 API + 冷却期自动清理；前端 UI 未做 |
+| [REQ-00044](./REQ-00044-implement-gdpr-data-compliance.md) (重号) | 实现 GDPR 兼容的数据删除与导出接口 | user-service, data-service | ✅ 已完成（2026-09-25）：导出/删除 API、冷却期自动清理、客户端隐私中心（浏览器 E2E 8/8） |
 | [REQ-00558](./REQ-00558-team-realtime-collaboration-voice-chat.md) | 游戏客户端团队实时协作与语音通信系统 | game-client, social-service, gym-service, WebSocke | ⏸️ 延后：实时语音需 WebRTC/TURN 基础设施，超出本轮范围 |
-| [REQ-00565](./REQ-00565-database-sensitive-field-encryption-system.md) | 数据库敏感字段透明加密系统 | backend/shared/crypto、user-service、payment-service | 🟡 部分完成：手机号加密+盲索引+轮换；其他字段、Vault 未做 |
-| [REQ-00586](./REQ-00586-gps-location-spoofing-detection-system.md) (重号) | GPS 位置欺骗检测与虚拟定位防护系统 | game-client、gateway、location-service、backend/secur | 🟡 部分完成：服务端检测/降级/管理接口；客户端检测、地形、申诉未做 |
+| [REQ-00565](./REQ-00565-database-sensitive-field-encryption-system.md) | 数据库敏感字段透明加密系统 | backend/shared/crypto、user-service、payment-service | ✅ 已完成（2026-09-25）：手机号/邮箱加密+盲索引+轮换、Vault/加密密钥文件+访问审计、性能实测（真实 Vault 集群未连接） |
+| [REQ-00586](./REQ-00586-gps-location-spoofing-detection-system.md) (重号) | GPS 位置欺骗检测与虚拟定位防护系统 | game-client、gateway、location-service、backend/secur | ✅ 已完成（2026-09-25）：服务端检测/降级、客户端定位信号、水域/禁入区域校验、申诉、监控面板（原生客户端 mock 标记未做） |
 | [REQ-00592](./REQ-00592-production-deployment-health-rollback.md) | 生产环境部署健康检查与自动回滚系统 | k8s-operator, cicd-pipeline, monitoring | ✅ 已完成（2026-09-24）：PM2 部署健康检查 + 自动回滚（已实测） |
 
 ## P1 未完成（408 条，本轮不实现，进入待办池）

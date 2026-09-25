@@ -1,5 +1,6 @@
 // gym-service/src/index.js
 'use strict';
+require('../../../shared/tracing').initTracing('gym-service'); // REQ-00042：须先于 express/http/pg/redis 加载，自动埋点才生效（未配置 OTEL_EXPORTER_OTLP_ENDPOINT 时不启用）
 const express   = require('express');
 const http      = require('http');
 const WebSocket = require('ws');
