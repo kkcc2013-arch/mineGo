@@ -234,6 +234,8 @@ async function testMessageCenter(ctx) {
   const a = await newUser('msa');
   const b = await newUser('msb');
 
+  // b 注册了安卓推送令牌，但服务端没有 FCM 凭据 → 离线时降级为站内消息并记录原因
+  const dev = await call('POST', '/v1/notifications/device-token', { token: b.token, body: { platform: 'android', token: 'smoke-fcm-token' } });
   // 好友请求 → 接收方收到社交消息
   const fr = await call('POST', '/v1/friends/request', { token: a.token, body: { toUserId: b.userId, message: 'hi <b>there</b>' } });
   const got = await waitFor(async () => (await notificationsOf(b, '&category=social')).find((n) => n.type === 'social.friend_request'));
@@ -322,8 +324,11 @@ async function testMessageCenter(ctx) {
   record('实时推送：新消息经 WebSocket 实时到达（< 3 秒）', !!pushed && pushed.at - t0 < 3000, pushed ? `${pushed.at - t0}ms unread=${pushed.msg.unreadCount}` : 'timeout');
   ws.close();
   const ev2 = await q1(`SELECT COUNT(*)::int AS n FROM notification_events WHERE user_id = $1 AND event_type = 'delivered' AND channel = 'ws'`, [d.userId]);
-  const deferred = await q1(`SELECT metadata FROM notification_events WHERE user_id = $1 AND event_type = 'deferred' ORDER BY id DESC LIMIT 1`, [a.userId]);
-  record('实时推送：投递记录（WS 送达 / 离线降级原因）', ev2.n >= 1 && !!deferred, `ws=${ev2.n} deferred=${deferred && JSON.stringify(deferred.metadata)}`);
+  record('实时推送：投递记录 WS 送达', ev2.n >= 1, `ws=${ev2.n}`);
+  const deferred = await waitFor(() => q1(`SELECT e.metadata FROM notification_events e JOIN notifications n ON n.id = e.notification_id
+      WHERE e.user_id = $1 AND e.event_type = 'deferred' AND n.type = 'social.friend_request' ORDER BY e.id DESC LIMIT 1`, [b.userId]));
+  record('推送降级：有设备令牌但未配置 FCM 凭据 → 仅站内消息并记录原因', dev.status === 200 && !!deferred
+    && (deferred.metadata.reasons || []).includes('push_provider_unconfigured'), `device=${dev.status} deferred=${deferred && JSON.stringify(deferred.metadata)}`);
   const analytics = await call('GET', '/v1/notifications/admin/analytics?days=1', { token: admin.token });
   record('消息：管理员送达/打开率分析', analytics.status === 200 && analytics.data.totals.sent > 0, `sent=${analytics.data && analytics.data.totals.sent} openRate=${analytics.data && analytics.data.openRate}`);
 }
