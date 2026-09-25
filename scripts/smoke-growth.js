@@ -801,7 +801,55 @@ async function testMerge() {
     `hist=${hist.data && hist.data.items.length} stats=${JSON.stringify(stats.data)}`);
 }
 
-const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina, tree: testEvolutionTree, bond: testBondSkills, camp: testTrainingCamp, special: testSpecialTraining, awakening: testAwakening, breeding: testBreeding, inheritance: testInheritance, merge: testMerge };
+// ───────────────────── 成长接入战斗（E11 联赛对局：体力/疲劳/羁绊技能/战斗经验/忙碌不可出战） ─────────────────────
+async function testBattleIntegration() {
+  const d = (r) => (r.body && r.body.data) || {};
+  const setup = async (prefix, team) => {
+    const u = await newUser(prefix);
+    await call('POST', '/v1/users/team', { token: u.token, body: { team } });
+    return u;
+  };
+  const attacker = await setup('gba', 'VALOR');
+  const defender = await setup('gbd', 'MYSTIC');
+  const withMoves = async (userId, speciesId, cp, fast, charge, extra = {}) => {
+    const p = await givePokemon(userId, speciesId, { cp, iv: [15, 15, 15], ...extra });
+    await db().query('UPDATE pokemon_instances SET fast_move = $2, charge_move = $3 WHERE id = $1', [p.id, fast, charge]);
+    return p;
+  };
+  const zard = await withMoves(attacker.userId, 6, 2400, 'EMBER', 'FLAMETHROWER', { friendship: 230 });
+  const bulba = await withMoves(defender.userId, 1, 400, 'VINE_WHIP', 'SLUDGE_BOMB');
+  const busy = await withMoves(attacker.userId, 52, 1500, 'TACKLE', null);
+  await db().query("UPDATE pokemon_instances SET occupied_by = 'training_camp' WHERE id = $1", [busy.id]);
+
+  const skills = await call('GET', '/v1/pokemon/species/6/bond-skills', { token: attacker.token });
+  const slot1 = skills.data && skills.data.skills.find((s) => s.slot === 1);
+  await call('POST', `/v1/pokemon/${zard.id}/bond-skills/${slot1.id}/learn`, { token: attacker.token });
+  await call('POST', `/v1/pokemon/${zard.id}/bond-skills/${slot1.id}/activate`, { token: attacker.token });
+  await call('GET', '/v1/battle/league/me', { token: attacker.token });
+  await call('GET', '/v1/battle/league/me', { token: defender.token });
+  await call('PUT', '/v1/battle/league/defense-team', { token: defender.token, body: { pokemonIds: [bulba.id] } });
+
+  const busyMatch = await call('POST', '/v1/battle/league/match', { token: attacker.token, body: { pokemonIds: [busy.id] } });
+  record('战斗接入：训练中的精灵不能出战', busyMatch.status >= 400 && busyMatch.status < 500, `status=${busyMatch.status}`);
+
+  const match = await call('POST', '/v1/battle/league/match', { token: attacker.token, body: { pokemonIds: [zard.id] } });
+  const battleId = d(match).battleId;
+  const view = JSON.stringify(match.body || {});
+  record('战斗接入：激活的羁绊技能作为额外蓄力技进入对战', match.status === 200 && view.includes(`BOND_${slot1.id}`), `status=${match.status} ${view.slice(0, 160)}`);
+  let last = null;
+  for (let i = 0; battleId && i < 120; i++) {
+    last = await call('POST', `/v1/battle/sessions/${battleId}/turn`, { token: attacker.token, body: { useAdvice: true } });
+    if (last.status !== 200 || d(last).result) break;
+  }
+  record('战斗接入：对局完成', !!(last && d(last).result), last ? `status=${last.status}` : 'no battle');
+  const row = await pokemonRow(zard.id);
+  const { rows: sh } = await db().query("SELECT stamina_change FROM stamina_history WHERE pokemon_id = $1 AND source = 'battle'", [zard.id]);
+  record('战斗接入：结算时参战精灵扣体力（PVP 25）', sh.length === 1 && sh[0].stamina_change === -25 && row.current_stamina === 75, `history=${JSON.stringify(sh)} stamina=${row.current_stamina}`);
+  const hist = await call('GET', `/v1/pokemon/${zard.id}/exp-history`, { token: attacker.token });
+  record('战斗接入：按胜负获得精灵经验（来源 battle）', hist.status === 200 && hist.data.items.some((x) => x.sourceType === 'battle'), `types=${(hist.data && hist.data.items || []).map((x) => x.sourceType)}`);
+}
+
+const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina, tree: testEvolutionTree, bond: testBondSkills, camp: testTrainingCamp, special: testSpecialTraining, awakening: testAwakening, breeding: testBreeding, inheritance: testInheritance, merge: testMerge, battle: testBattleIntegration };
 
 (async () => {
   const want = process.argv.slice(2);

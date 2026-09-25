@@ -41,9 +41,13 @@ function presentTraining(t, now = new Date()) {
 async function status(pokemonId, userId) {
   const p = await lockOwnedPokemon({ query }, pokemonId, userId, { lock: false });
   const { points, levels } = await attributeLevels({ query }, pokemonId);
+  // 熟练度经验与战斗系统（E11）共用 pokemon_move_mastery.mastery：战斗中使用技能即增长；这里叠加特训维度等级
   const { rows: mastery } = await query(
-    `SELECT move_id, power, accuracy, critical_chance, mastery_exp, unlocked_effects FROM pokemon_skill_mastery
-      WHERE pokemon_instance_id = $1 ORDER BY move_id`, [pokemonId]);
+    `SELECT COALESCE(sm.move_id, mm.move_id) AS move_id, COALESCE(sm.power, 0) AS power, COALESCE(sm.accuracy, 0) AS accuracy,
+            COALESCE(sm.critical_chance, 0) AS critical_chance, COALESCE(mm.mastery, 0) AS mastery_exp, COALESCE(mm.uses, 0) AS uses
+       FROM (SELECT * FROM pokemon_skill_mastery WHERE pokemon_instance_id = $1) sm
+       FULL OUTER JOIN (SELECT * FROM pokemon_move_mastery WHERE pokemon_id = $1) mm ON mm.move_id = sm.move_id
+      ORDER BY 1`, [pokemonId]);
   const { rows: sessions } = await query(
     `SELECT * FROM special_training_sessions WHERE pokemon_id = $1 ORDER BY started_at DESC LIMIT 10`, [pokemonId]);
   const current = sessions.find((s) => s.status === 'training');
@@ -56,7 +60,7 @@ async function status(pokemonId, userId) {
     }])),
     bonuses: rules.attributeBonuses(levels),
     skillMastery: mastery.map((m) => ({ moveId: m.move_id, power: m.power, accuracy: m.accuracy, criticalChance: m.critical_chance,
-      masteryExp: m.mastery_exp, bonuses: rules.masteryBonuses(m) })),
+      masteryExp: Number(m.mastery_exp), battleUses: Number(m.uses), bonuses: rules.masteryBonuses({ ...m, mastery_exp: Number(m.mastery_exp) }) })),
     currentTraining: presentTraining(current),
     trainingHistory: sessions.filter((s) => s.status !== 'training').map((s) => presentTraining(s)),
   };
@@ -143,8 +147,8 @@ async function userStats(client, userId, pokemonId) {
        FROM special_training_sessions WHERE user_id = $1 AND status = 'completed'`, [userId]);
   const { levels } = await attributeLevels(client, pokemonId);
   const { rows: [m] } = await client.query(
-    `SELECT COALESCE(MAX(m.mastery_exp), 0)::int AS mx FROM pokemon_skill_mastery m
-       JOIN pokemon_instances pi ON pi.id = m.pokemon_instance_id WHERE pi.user_id = $1`, [userId]);
+    `SELECT COALESCE(MAX(m.mastery), 0)::int AS mx FROM pokemon_move_mastery m
+       JOIN pokemon_instances pi ON pi.id = m.pokemon_id WHERE pi.user_id = $1`, [userId]);
   return { completedSessions: s.n, totalHours: s.hours, levels, maxMasteryExp: m.mx };
 }
 
@@ -261,9 +265,12 @@ async function trainSkill(pokemonId, moveId, userId, body = {}) {
   return transaction(async (client) => {
     const p = await lockOwnedPokemon(client, pokemonId, userId);
     if (!(await knownMove(p, moveId))) throw new GrowthError('MOVE_NOT_LEARNED', '精灵没有学会这个技能', 400);
-    const { rows: [cur] } = await client.query(
-      'SELECT power, accuracy, critical_chance, mastery_exp FROM pokemon_skill_mastery WHERE pokemon_instance_id = $1 AND move_id = $2 FOR UPDATE',
+    const { rows: [dims] } = await client.query(
+      'SELECT power, accuracy, critical_chance FROM pokemon_skill_mastery WHERE pokemon_instance_id = $1 AND move_id = $2 FOR UPDATE',
       [pokemonId, moveId]);
+    const { rows: [mm] } = await client.query(
+      'SELECT mastery FROM pokemon_move_mastery WHERE pokemon_id = $1 AND move_id = $2 FOR UPDATE', [pokemonId, moveId]);
+    const cur = { ...(dims || {}), mastery_exp: mm ? Number(mm.mastery) : 0 };
     const next = rules.masteryTrain(cur || {}, dimension, { manual });
     if (next.maxed) throw new GrowthError('MASTERY_MAXED', '该维度已满级', 400);
     if (manual) {
@@ -281,10 +288,11 @@ async function trainSkill(pokemonId, moveId, userId, body = {}) {
          updated_at = NOW()`,
       [pokemonId, moveId, next.power, next.accuracy, next.critical_chance, next.mastery_exp,
         JSON.stringify(rules.masteryBonuses(next).effects)]);
+    await setMasteryExp(client, pokemonId, moveId, next.mastery_exp);
     const achievements = await grantAchievements(client, userId, p);
     return {
       moveId, dimension: manual ? 'mastery_exp' : dimension,
-      masteryGain: manual ? { mastery_exp: next.mastery_exp - ((cur && cur.mastery_exp) || 0) } : { [dimension]: 1 },
+      masteryGain: manual ? { mastery_exp: next.mastery_exp - cur.mastery_exp } : { [dimension]: 1 },
       mastery: { power: next.power, accuracy: next.accuracy, criticalChance: next.critical_chance, masteryExp: next.mastery_exp },
       unlockedEffect: next.unlockedEffects[0] || null,
       bonuses: rules.masteryBonuses(next),
@@ -293,12 +301,12 @@ async function trainSkill(pokemonId, moveId, userId, body = {}) {
   });
 }
 
-/** 战斗中使用技能获得熟练度经验（供战斗服务在自己的事务中调用） */
-async function addMasteryExp(client, pokemonId, moveId, amount = 1) {
+/** 熟练度经验写入战斗系统共用的 pokemon_move_mastery（战斗中使用技能由 E11 结算累加） */
+async function setMasteryExp(client, pokemonId, moveId, value) {
   await client.query(
-    `INSERT INTO pokemon_skill_mastery (pokemon_instance_id, move_id, mastery_exp) VALUES ($1, $2, LEAST(100, $3::int))
-     ON CONFLICT (pokemon_instance_id, move_id) DO UPDATE SET mastery_exp = LEAST(100, pokemon_skill_mastery.mastery_exp + $3::int), updated_at = NOW()`,
-    [pokemonId, moveId, amount]);
+    `INSERT INTO pokemon_move_mastery (pokemon_id, move_id, mastery) VALUES ($1, $2, LEAST(100, $3::int))
+     ON CONFLICT (pokemon_id, move_id) DO UPDATE SET mastery = LEAST(100, $3::int), updated_at = NOW()`,
+    [pokemonId, moveId, value]);
 }
 
 async function achievements(userId) {
@@ -313,4 +321,4 @@ async function battleBonuses(db, pokemonId) {
   return { levels, bonuses: rules.attributeBonuses(levels) };
 }
 
-module.exports = { status, facilities, start, complete, cancel, useItem, queue, items, buy, trainSkill, addMasteryExp, achievements, battleBonuses };
+module.exports = { status, facilities, start, complete, cancel, useItem, queue, items, buy, trainSkill, achievements, battleBonuses };

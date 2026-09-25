@@ -7,6 +7,7 @@ const { normalizeMove, buildCombatant } = require('./stats');
 const { ComboDetector } = require('./combo');
 const { normalizeRule, DEFAULT_RULE } = require('./energy');
 const { BattleError } = require('./engine');
+const growthBattle = require('../../../../shared/growthBattle');
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const isUuid = (v) => typeof v === 'string' && UUID_RE.test(v);
@@ -58,6 +59,8 @@ const POKEMON_COLUMNS = `
   ps.base_attack, ps.base_defense, ps.base_hp, ps.base_speed`;
 
 const ACTIVE_POKEMON = `COALESCE(pi.is_released, FALSE) = FALSE AND COALESCE(pi.is_deleted, FALSE) = FALSE AND pi.deleted_at IS NULL`;
+// E07：训练营/特训/培育/休息站中的精灵被占用，不能出战（occupied_by 由 pokemon-service 成长模块维护）
+const IDLE_POKEMON = 'pi.occupied_by IS NULL';
 
 async function getLearnsets(speciesIds) {
   const ids = [...new Set(speciesIds.filter(Boolean).map(Number))];
@@ -98,7 +101,7 @@ async function getMasteryAndEquipment(pokemonIds) {
 async function getOwnedPokemon(userId, pokemonIds) {
   const { rows } = await query(`SELECT ${POKEMON_COLUMNS}
       FROM pokemon_instances pi JOIN pokemon_species ps ON ps.id = pi.species_id
-     WHERE pi.id = ANY($1::uuid[]) AND pi.user_id = $2 AND ${ACTIVE_POKEMON}`, [pokemonIds, userId]);
+     WHERE pi.id = ANY($1::uuid[]) AND pi.user_id = $2 AND ${ACTIVE_POKEMON} AND ${IDLE_POKEMON}`, [pokemonIds, userId]);
   const byId = new Map(rows.map((r) => [r.id, r]));
   return pokemonIds.map((id) => byId.get(id)).filter(Boolean);
 }
@@ -107,7 +110,7 @@ async function getOwnedPokemon(userId, pokemonIds) {
 async function getTopPokemon(userId, limit = 6) {
   const { rows } = await query(`SELECT ${POKEMON_COLUMNS}
       FROM pokemon_instances pi JOIN pokemon_species ps ON ps.id = pi.species_id
-     WHERE pi.user_id = $1 AND ${ACTIVE_POKEMON} AND pi.defending_gym_id IS NULL
+     WHERE pi.user_id = $1 AND ${ACTIVE_POKEMON} AND ${IDLE_POKEMON} AND pi.defending_gym_id IS NULL
      ORDER BY pi.cp DESC LIMIT $2`, [userId, limit]);
   return rows;
 }
@@ -117,13 +120,15 @@ async function toCombatants(rows, { withProgress = true, hpRatios = new Map(), e
   const moves = await getMoves();
   const learnsets = await getLearnsets(rows.map((r) => r.species_id));
   const { mastery, equipment } = withProgress ? await getMasteryAndEquipment(rows.map((r) => r.id)) : { mastery: new Map(), equipment: new Map() };
-  return rows.map((r) => buildCombatant(r, moves, {
+  // E07：疲劳/专项特训/技能熟练度/激活的羁绊技能作用到战斗单位（CP 已含等级与觉醒加成）
+  const growth = withProgress ? await growthBattle.loadModifiers({ query }, rows.map((r) => r.id)) : new Map();
+  return rows.map((r) => growthBattle.applyToCombatant(buildCombatant(r, moves, {
     learnset: learnsets.get(Number(r.species_id)) || [],
     mastery: mastery.get(r.id) || {},
     equipment: equipment.get(r.id) || [],
     hpRatio: hpRatios.get(r.id),
     ...(extra.get(r.id) || {}),
-  }));
+  }), growth.get(r.id)));
 }
 
 async function getUser(userId) {

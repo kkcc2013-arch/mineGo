@@ -7,6 +7,7 @@ const { createLogger } = require('../../../../shared/logger');
 const replay = require('./replay');
 const ai = require('./ai');
 const battleMetrics = require('./metrics');
+const growthBattle = require('../../../../shared/growthBattle');
 
 const logger = createLogger('battle-settle');
 
@@ -95,7 +96,15 @@ async function persistBattleStats(client, state, sum) {
     await client.query(`INSERT INTO battle_move_logs (battle_id, battle_type, user_id, pokemon_id, species_id, fast_move, charge_move, move_id, damage, effectiveness, is_crit, combo_chain, result)
       VALUES ${vals.join(',')}`, params);
   }
-  return { comboItems: credited };
+  // E07 精灵成长：参战精灵扣体力、按胜负获得精灵经验（各自保存点内执行，失败不影响结算）
+  const growth = await growthBattle.settle(client, {
+    userId: state.userId,
+    pokemonIds: state.attacker.team.map((c) => c.pokemonId).filter((id) => id && !String(id).startsWith('bot-')),
+    battleType: state.type,
+    won,
+    battleId: state.id,
+  });
+  return { comboItems: credited, growth };
 }
 
 /**
