@@ -1,752 +1,290 @@
 /**
- * REQ-00046: 精灵培育系统与遗传机制
- * 核心培育服务
+ * 精灵培育与孵化服务（REQ-00276）
+ *
+ * 原实现自建 pg Pool / ioredis 连接、路由挂在网关未代理的 /breeding，外部不可达。重写为：
+ *   培育屋（breeding_centers，按槽位）→ 配对检查（蛋组）→ 开始培育（父母被占用、扣星尘、可用命运红线提升遗传率，
+ *   开始时即生成基因集合写入 breeding_pairs.offspring_data）→ 到时领取得到精灵蛋（pokemon_eggs）→ 放入孵化器
+ *   （记录当时的累计行走距离）→ 走够距离孵化出精灵（IV/技能/闪光按基因、世代 +1、写谱系与统计）
+ * 规则见 growth/breedingRules.js。
  */
-
-const { Pool } = require('pg');
-const Redis = require('ioredis');
-const { createLogger } = require('../../../shared/logger');
-const metrics = require('../../../shared/metrics');
-
-const logger = createLogger('breeding-service');
-
-class BreedingService {
-  constructor(config = {}) {
-    this.db = config.db || new Pool({
-      host: process.env.DB_HOST || 'localhost',
-      port: process.env.DB_PORT || 5432,
-      database: process.env.DB_NAME || 'minego',
-      user: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASSWORD || 'postgres'
-    });
-
-    this.redis = config.redis || new Redis({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: process.env.REDIS_PORT || 6379,
-      password: process.env.REDIS_PASSWORD
-    });
-
-    // 培育时间配置（单位：小时）
-    this.breedingTimes = {
-      common: 2,      // 普通精灵
-      uncommon: 3,    // 稀有精灵
-      rare: 4,        // 非常稀有
-      legendary: 12,  // 传说
-      mythical: 24    // 幻兽
-    };
-
-    // 孵化步数配置
-    this.hatchingSteps = {
-      common: 2560,
-      uncommon: 3840,
-      rare: 5120,
-      legendary: 10240,
-      mythical: 30720
-    };
-
-    // 个体值遗传规则
-    this.ivInheritance = {
-      maxParents: 3,      // 最多遗传 3 个个体值
-      destinyKnotBonus: 5, // 红线道具遗传 5 个
-      probability: 0.5     // 遗传概率
-    };
-  }
-
-  /**
-   * 获取或创建培育中心
-   */
-  async getOrCreateBreedingCenter(userId, transaction = null) {
-    const client = transaction || this.db;
-    
-    const result = await client.query(
-      `INSERT INTO breeding_centers (user_id)
-       VALUES ($1)
-       ON CONFLICT (user_id) DO UPDATE SET updated_at = NOW()
-       RETURNING *`,
-      [userId]
-    );
-
-    metrics.increment('breeding_center_accessed');
-    return result.rows[0];
-  }
-
-  /**
-   * 检查两只精灵是否可以培育
-   */
-  async canBreed(parent1Id, parent2Id) {
-    // 获取精灵详情
-    const pokemonResult = await this.db.query(
-      `SELECT up.id, up.species_id, up.gender, ps.name, ps.rarity, ps.is_breedable
-       FROM user_pokemon up
-       JOIN pokemon_species ps ON up.species_id = ps.id
-       WHERE up.id IN ($1, $2)`,
-      [parent1Id, parent2Id]
-    );
-
-    if (pokemonResult.rows.length !== 2) {
-      return { canBreed: false, reason: '精灵不存在' };
-    }
-
-    const parent1 = pokemonResult.rows.find(p => p.id === parent1Id);
-    const parent2 = pokemonResult.rows.find(p => p.id === parent2Id);
-
-    // 检查是否可培育
-    if (!parent1.is_breedable || !parent2.is_breedable) {
-      return { canBreed: false, reason: '这些精灵无法培育' };
-    }
-
-    // 检查性别（需要有雄性和雌性，或者其中一个是百变怪）
-    const hasDitto = parent1.species_id === 132 || parent2.species_id === 132;
-    if (!hasDitto) {
-      if (parent1.gender === parent2.gender) {
-        return { canBreed: false, reason: '相同性别的精灵无法培育' };
-      }
-      if (!parent1.gender || !parent2.gender) {
-        return { canBreed: false, reason: '无性别精灵只能与百变怪培育' };
-      }
-    }
-
-    // 检查蛋组
-    const eggGroupsResult = await this.db.query(
-      `SELECT species_id, egg_group_id
-       FROM species_egg_groups
-       WHERE species_id IN ($1, $2)`,
-      [parent1.species_id, parent2.species_id]
-    );
-
-    const parent1Groups = eggGroupsResult.rows
-      .filter(r => r.species_id === parent1.species_id)
-      .map(r => r.egg_group_id);
-    const parent2Groups = eggGroupsResult.rows
-      .filter(r => r.species_id === parent2.species_id)
-      .map(r => r.egg_group_id);
-
-    // 百变怪特殊处理
-    if (hasDitto) {
-      return { 
-        canBreed: true, 
-        reason: '百变怪可以与任何可培育精灵配对',
-        breedingTime: this.getBreedingTime(parent1.species_id === 132 ? parent2.rarity : parent1.rarity)
-      };
-    }
-
-    // 检查是否有共同蛋组（排除未发现组）
-    const commonGroup = parent1Groups.find(g => parent2Groups.includes(g) && g !== 12);
-    if (!commonGroup) {
-      return { canBreed: false, reason: '这两个精灵属于不同的蛋组，无法培育' };
-    }
-
-    return { 
-      canBreed: true, 
-      reason: '可以培育',
-      breedingTime: this.getBreedingTime(parent1.rarity, parent2.rarity)
-    };
-  }
-
-  /**
-   * 获取培育时间（小时）
-   */
-  getBreedingTime(rarity1, rarity2 = null) {
-    const rarityPriority = { legendary: 4, mythical: 5, rare: 3, uncommon: 2, common: 1 };
-    const maxRarity = rarity2 ? 
-      (rarityPriority[rarity1] >= rarityPriority[rarity2] ? rarity1 : rarity2) : 
-      rarity1;
-    
-    return this.breedingTimes[maxRarity] || this.breedingTimes.common;
-  }
-
-  /**
-   * 开始培育
-   */
-  async startBreeding(userId, parent1Id, parent2Id, slotIndex = 0) {
-    const client = await this.db.connect();
-    
-    try {
-      await client.query('BEGIN');
-
-      // 检查是否可以培育
-      const breedCheck = await this.canBreed(parent1Id, parent2Id);
-      if (!breedCheck.canBreed) {
-        throw new Error(breedCheck.reason);
-      }
-
-      // 获取培育中心
-      const center = await this.getOrCreateBreedingCenter(userId, client);
-
-      // 检查槽位
-      if (slotIndex >= center.slots) {
-        throw new Error(`槽位 ${slotIndex + 1} 未解锁，当前最大槽位数：${center.slots}`);
-      }
-
-      // 检查槽位是否已被占用
-      const slotCheck = await client.query(
-        `SELECT id FROM breeding_pairs 
-         WHERE center_id = $1 AND slot_index = $2 AND status IN ('breeding', 'ready')`,
-        [center.id, slotIndex]
-      );
-
-      if (slotCheck.rows.length > 0) {
-        throw new Error(`槽位 ${slotIndex + 1} 已被占用`);
-      }
-
-      // 检查精灵所有权
-      const ownershipCheck = await client.query(
-        `SELECT id, is_in_team, is_egg FROM user_pokemon WHERE id IN ($1, $2) AND user_id = $3`,
-        [parent1Id, parent2Id, userId]
-      );
-
-      if (ownershipCheck.rows.length !== 2) {
-        throw new Error('精灵不存在或不属于你');
-      }
-
-      const parent1 = ownershipCheck.rows.find(p => p.id === parent1Id);
-      const parent2 = ownershipCheck.rows.find(p => p.id === parent2Id);
-
-      if (parent1.is_egg || parent2.is_egg) {
-        throw new Error('精灵蛋无法培育');
-      }
-
-      if (parent1.is_in_team || parent2.is_in_team) {
-        throw new Error('队伍中的精灵无法培育，请先移出队伍');
-      }
-
-      // 预生成后代数据
-      const offspringData = await this.generateOffspringData(parent1Id, parent2Id, client);
-
-      // 计算培育完成时间
-      const readyAt = new Date(Date.now() + breedCheck.breedingTime * 60 * 60 * 1000);
-
-      // 创建培育配对
-      const result = await client.query(
-        `INSERT INTO breeding_pairs 
-         (center_id, slot_index, parent1_pokemon_id, parent2_pokemon_id, status, ready_at, offspring_data)
-         VALUES ($1, $2, $3, $4, 'breeding', $5, $6)
-         RETURNING *`,
-        [center.id, slotIndex, parent1Id, parent2Id, readyAt, JSON.stringify(offspringData)]
-      );
-
-      // 将精灵标记为培育中
-      await client.query(
-        `UPDATE user_pokemon SET is_breeding = true WHERE id IN ($1, $2)`,
-        [parent1Id, parent2Id]
-      );
-
-      await client.query('COMMIT');
-
-      metrics.increment('breeding_started');
-      logger.info('Breeding started', {
-        userId,
-        pairId: result.rows[0].id,
-        parent1Id,
-        parent2Id,
-        readyAt
-      });
-
-      return {
-        success: true,
-        pair: result.rows[0],
-        readyAt,
-        breedingTimeHours: breedCheck.breedingTime
-      };
-
-    } catch (error) {
-      await client.query('ROLLBACK');
-      logger.error('Failed to start breeding', { error: error.message, userId, parent1Id, parent2Id });
-      throw error;
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * 生成后代数据
-   */
-  async generateOffspringData(parent1Id, parent2Id, client) {
-    // 获取父母数据
-    const parentsResult = await client.query(
-      `SELECT up.id, up.species_id, up.iv_attack, up.iv_defense, up.iv_stamina,
-              up.move1, up.move2, up.is_shiny, up.gender,
-              ps.name, ps.rarity, ps.base_hatch_steps
-       FROM user_pokemon up
-       JOIN pokemon_species ps ON up.species_id = ps.id
-       WHERE up.id IN ($1, $2)`,
-      [parent1Id, parent2Id]
-    );
-
-    const parent1 = parentsResult.rows.find(p => p.id === parent1Id);
-    const parent2 = parentsResult.rows.find(p => p.id === parent2Id);
-
-    // 决定子代物种（通常是母方物种，百变怪例外）
-    let offspringSpeciesId = parent1.gender === 'female' ? parent1.species_id : parent2.species_id;
-    
-    // 百变怪特殊处理
-    if (parent1.species_id === 132) {
-      offspringSpeciesId = parent2.species_id;
-    } else if (parent2.species_id === 132) {
-      offspringSpeciesId = parent1.species_id;
-    }
-
-    // 遗传个体值
-    const inheritedIVs = this.calculateInheritedIVs(parent1, parent2);
-
-    // 遗传技能
-    const inheritedMoves = this.calculateInheritedMoves(parent1, parent2, offspringSpeciesId, client);
-
-    // 计算闪光概率（父母双方都是闪光时概率更高）
-    let shinyChance = 1 / 4096; // 基础概率
-    if (parent1.is_shiny && parent2.is_shiny) {
-      shinyChance = 1 / 64;
-    } else if (parent1.is_shiny || parent2.is_shiny) {
-      shinyChance = 1 / 1024;
-    }
-
-    const isShiny = Math.random() < shinyChance;
-
-    // 获取孵化步数
-    const hatchSteps = this.hatchingSteps[parent1.rarity] || this.hatchingSteps.common;
-
-    return {
-      species_id: offspringSpeciesId,
-      iv_attack: inheritedIVs.attack,
-      iv_defense: inheritedIVs.defense,
-      iv_stamina: inheritedIVs.stamina,
-      move1: inheritedMoves.move1,
-      move2: inheritedMoves.move2,
-      is_shiny: isShiny,
-      gender: await this.determineGender(offspringSpeciesId, client),
-      hatch_steps: hatchSteps,
-      parent1_id: parent1Id,
-      parent2_id: parent2Id,
-      parent1_species_id: parent1.species_id,
-      parent2_species_id: parent2.species_id
-    };
-  }
-
-  /**
-   * 计算遗传的个体值
-   */
-  calculateInheritedIVs(parent1, parent2) {
-    const result = {
-      attack: Math.floor(Math.random() * 16),
-      defense: Math.floor(Math.random() * 16),
-      stamina: Math.floor(Math.random() * 16)
-    };
-
-    // 随机选择遗传的属性数量（1-3个）
-    const inheritCount = Math.floor(Math.random() * 3) + 1;
-    const stats = ['attack', 'defense', 'stamina'];
-    const selectedStats = stats.sort(() => Math.random() - 0.5).slice(0, inheritCount);
-
-    selectedStats.forEach(stat => {
-      // 随机从父母中遗传
-      const source = Math.random() < 0.5 ? parent1 : parent2;
-      result[stat] = source[`iv_${stat}`];
-    });
-
-    return result;
-  }
-
-  /**
-   * 计算遗传的技能
-   */
-  calculateInheritedMoves(parent1, parent2, speciesId, client) {
-    const moves = {
-      move1: null,
-      move2: null
-    };
-
-    // 遗传技能概率
-    if (Math.random() < 0.3 && parent1.move1) {
-      moves.move1 = parent1.move1;
-    }
-    if (Math.random() < 0.3 && parent2.move1) {
-      moves.move2 = moves.move1 ? parent2.move1 : parent2.move1;
-    }
-
-    return moves;
-  }
-
-  /**
-   * 决定性别
-   */
-  async determineGender(speciesId, client) {
-    const speciesResult = await client.query(
-      `SELECT gender_ratio FROM pokemon_species WHERE id = $1`,
-      [speciesId]
-    );
-
-    if (speciesResult.rows.length === 0) {
-      return 'unknown';
-    }
-
-    const genderRatio = speciesResult.rows[0].gender_ratio;
-    
-    // -1 表示无性别
-    if (genderRatio === -1) {
-      return 'unknown';
-    }
-
-    // 根据性别比例随机决定
-    return Math.random() * 100 < genderRatio ? 'female' : 'male';
-  }
-
-  /**
-   * 获取培育状态
-   */
-  async getBreedingStatus(userId) {
-    const client = await this.db.connect();
-    
-    try {
-      const center = await this.getOrCreateBreedingCenter(userId, client);
-      
-      const pairsResult = await client.query(
-        `SELECT bp.*, 
-                up1.species_id as parent1_species_id,
-                up2.species_id as parent2_species_id,
-                ps1.name as parent1_name,
-                ps2.name as parent2_name
-         FROM breeding_pairs bp
-         LEFT JOIN user_pokemon up1 ON bp.parent1_pokemon_id = up1.id
-         LEFT JOIN user_pokemon up2 ON bp.parent2_pokemon_id = up2.id
-         LEFT JOIN pokemon_species ps1 ON up1.species_id = ps1.id
-         LEFT JOIN pokemon_species ps2 ON up2.species_id = ps2.id
-         WHERE bp.center_id = $1 AND bp.status IN ('breeding', 'ready')
-         ORDER BY bp.slot_index`,
-        [center.id]
-      );
-
-      // 检查已完成的培育
-      const now = new Date();
-      for (const pair of pairsResult.rows) {
-        if (pair.status === 'breeding' && new Date(pair.ready_at) <= now) {
-          await client.query(
-            `UPDATE breeding_pairs SET status = 'ready', updated_at = NOW() WHERE id = $1`,
-            [pair.id]
-          );
-          pair.status = 'ready';
-          metrics.increment('breeding_ready');
-        }
-      }
-
-      return {
-        center,
-        pairs: pairsResult.rows
-      };
-
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * 收集培育完成的蛋
-   */
-  async collectEgg(userId, pairId) {
-    const client = await this.db.connect();
-    
-    try {
-      await client.query('BEGIN');
-
-      // 获取培育配对
-      const pairResult = await client.query(
-        `SELECT bp.*, bc.user_id
-         FROM breeding_pairs bp
-         JOIN breeding_centers bc ON bp.center_id = bc.id
-         WHERE bp.id = $1`,
-        [pairId]
-      );
-
-      if (pairResult.rows.length === 0) {
-        throw new Error('培育配对不存在');
-      }
-
-      const pair = pairResult.rows[0];
-
-      if (pair.user_id !== userId) {
-        throw new Error('无权操作此培育配对');
-      }
-
-      if (pair.status !== 'ready') {
-        throw new Error('培育尚未完成');
-      }
-
-      // 创建精灵蛋
-      const offspringData = typeof pair.offspring_data === 'string' 
-        ? JSON.parse(pair.offspring_data) 
-        : pair.offspring_data;
-
-      const pokemonResult = await client.query(
-        `INSERT INTO user_pokemon 
-         (user_id, species_id, iv_attack, iv_defense, iv_stamina, move1, move2, 
-          is_shiny, gender, is_egg, egg_steps)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true, $10)
-         RETURNING *`,
-        [userId, offspringData.species_id, offspringData.iv_attack, 
-         offspringData.iv_defense, offspringData.iv_stamina,
-         offspringData.move1, offspringData.move2, offspringData.is_shiny,
-         offspringData.gender, offspringData.hatch_steps]
-      );
-
-      const pokemon = pokemonResult.rows[0];
-
-      // 创建孵化记录
-      await client.query(
-        `INSERT INTO egg_hatching (user_id, pokemon_id, required_steps)
-         VALUES ($1, $2, $3)`,
-        [userId, pokemon.id, offspringData.hatch_steps]
-      );
-
-      // 创建谱系记录
-      await client.query(
-        `INSERT INTO pokemon_lineage 
-         (pokemon_id, parent1_id, parent1_species_id, parent2_id, parent2_species_id, bred_by_user_id)
-         VALUES ($1, $2, $3, $4, $5, $6)`,
-        [pokemon.id, offspringData.parent1_id, offspringData.parent1_species_id,
-         offspringData.parent2_id, offspringData.parent2_species_id, userId]
-      );
-
-      // 更新培育配对状态
-      await client.query(
-        `UPDATE breeding_pairs 
-         SET status = 'collected', offspring_id = $1, collected_at = NOW(), updated_at = NOW()
-         WHERE id = $2`,
-        [pokemon.id, pairId]
-      );
-
-      // 释放父母精灵
-      await client.query(
-        `UPDATE user_pokemon SET is_breeding = false 
-         WHERE id IN ($1, $2)`,
-        [pair.parent1_pokemon_id, pair.parent2_pokemon_id]
-      );
-
-      // 更新统计
-      await client.query(
-        `INSERT INTO breeding_stats (user_id, total_breeds, last_bred_at)
-         VALUES ($1, 1, NOW())
-         ON CONFLICT (user_id) DO UPDATE 
-         SET total_breeds = breeding_stats.total_breeds + 1,
-             last_bred_at = NOW(),
-             updated_at = NOW()`,
-        [userId]
-      );
-
-      await client.query('COMMIT');
-
-      metrics.increment('egg_collected');
-      if (pokemon.is_shiny) {
-        metrics.increment('shiny_bred');
-      }
-
-      logger.info('Egg collected', {
-        userId,
-        pairId,
-        pokemonId: pokemon.id,
-        speciesId: offspringData.species_id,
-        isShiny: pokemon.is_shiny
-      });
-
-      return {
-        success: true,
-        pokemon,
-        offspringData
-      };
-
-    } catch (error) {
-      await client.query('ROLLBACK');
-      logger.error('Failed to collect egg', { error: error.message, userId, pairId });
-      throw error;
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * 更新孵化进度
-   */
-  async updateHatchingProgress(userId, steps) {
-    const result = await this.db.query(
-      `UPDATE egg_hatching 
-       SET current_steps = current_steps + $1, updated_at = NOW()
-       WHERE user_id = $2 AND hatched_at IS NULL
-       RETURNING *`,
-      [steps, userId]
-    );
-
-    // 检查是否孵化完成
-    const hatched = [];
-    for (const egg of result.rows) {
-      if (egg.current_steps >= egg.required_steps) {
-        const hatchedPokemon = await this.hatchEgg(egg.id, userId);
-        hatched.push(hatchedPokemon);
-      }
-    }
-
-    return { updated: result.rows.length, hatched };
-  }
-
-  /**
-   * 孵化精灵蛋
-   */
-  async hatchEgg(hatchingId, userId) {
-    const client = await this.db.connect();
-    
-    try {
-      await client.query('BEGIN');
-
-      const hatchingResult = await client.query(
-        `SELECT eh.*, up.species_id, up.is_shiny
-         FROM egg_hatching eh
-         JOIN user_pokemon up ON eh.pokemon_id = up.id
-         WHERE eh.id = $1 AND eh.user_id = $2`,
-        [hatchingId, userId]
-      );
-
-      if (hatchingResult.rows.length === 0) {
-        throw new Error('孵化记录不存在');
-      }
-
-      const hatching = hatchingResult.rows[0];
-
-      // 更新精灵状态
-      await client.query(
-        `UPDATE user_pokemon SET is_egg = false, egg_steps = NULL WHERE id = $1`,
-        [hatching.pokemon_id]
-      );
-
-      // 更新孵化记录
-      await client.query(
-        `UPDATE egg_hatching SET hatched_at = NOW() WHERE id = $1`,
-        [hatchingId]
-      );
-
-      // 更新统计
-      await client.query(
-        `INSERT INTO breeding_stats (user_id, total_eggs_hatched, last_hatched_at)
-         VALUES ($1, 1, NOW())
-         ON CONFLICT (user_id) DO UPDATE 
-         SET total_eggs_hatched = breeding_stats.total_eggs_hatched + 1,
-             last_hatched_at = NOW(),
-             updated_at = NOW()`,
-        [userId]
-      );
-
-      await client.query('COMMIT');
-
-      metrics.increment('egg_hatched');
-      if (hatching.is_shiny) {
-        metrics.increment('shiny_hatched');
-      }
-
-      logger.info('Egg hatched', {
-        userId,
-        pokemonId: hatching.pokemon_id,
-        speciesId: hatching.species_id,
-        isShiny: hatching.is_shiny
-      });
-
-      return hatching;
-
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * 取消培育
-   */
-  async cancelBreeding(userId, pairId) {
-    const client = await this.db.connect();
-    
-    try {
-      await client.query('BEGIN');
-
-      const pairResult = await client.query(
-        `SELECT bp.*, bc.user_id
-         FROM breeding_pairs bp
-         JOIN breeding_centers bc ON bp.center_id = bc.id
-         WHERE bp.id = $1`,
-        [pairId]
-      );
-
-      if (pairResult.rows.length === 0) {
-        throw new Error('培育配对不存在');
-      }
-
-      const pair = pairResult.rows[0];
-
-      if (pair.user_id !== userId) {
-        throw new Error('无权操作此培育配对');
-      }
-
-      // 更新状态
-      await client.query(
-        `UPDATE breeding_pairs SET status = 'cancelled', updated_at = NOW() WHERE id = $1`,
-        [pairId]
-      );
-
-      // 释放父母精灵
-      await client.query(
-        `UPDATE user_pokemon SET is_breeding = false 
-         WHERE id IN ($1, $2)`,
-        [pair.parent1_pokemon_id, pair.parent2_pokemon_id]
-      );
-
-      await client.query('COMMIT');
-
-      metrics.increment('breeding_cancelled');
-      logger.info('Breeding cancelled', { userId, pairId });
-
-      return { success: true };
-
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * 获取培育统计
-   */
-  async getBreedingStats(userId) {
-    const result = await this.db.query(
-      `SELECT * FROM breeding_stats WHERE user_id = $1`,
-      [userId]
-    );
-
-    return result.rows[0] || {
-      user_id: userId,
-      total_breeds: 0,
-      total_eggs_hatched: 0,
-      perfect_iv_breeds: 0,
-      shiny_breeds: 0
-    };
-  }
-
-  /**
-   * 升级培育中心（增加槽位）
-   */
-  async upgradeBreedingCenter(userId) {
-    const result = await this.db.query(
-      `UPDATE breeding_centers 
-       SET slots = LEAST(slots + 1, 10), upgraded_at = NOW(), updated_at = NOW()
-       WHERE user_id = $1 AND slots < 10
-       RETURNING *`,
-      [userId]
-    );
-
-    if (result.rows.length === 0) {
-      throw new Error('培育中心已达到最大槽位数');
-    }
-
-    metrics.increment('breeding_center_upgraded');
-    return result.rows[0];
-  }
+'use strict';
+
+const { query, transaction } = require('../../../shared/db');
+const { consumeItem } = require('../../../shared/inventory');
+const rules = require('./growth/breedingRules');
+const { baseCp } = require('./growth/evolutionRules');
+const { GrowthError, lockOwnedPokemon, assertIdle, assertUuid, occupy, release, spendCurrency } = require('./growth/common');
+
+const OCCUPY = 'breeding';
+
+async function ensureCenter(db, userId) {
+  await db.query('INSERT INTO breeding_centers (user_id) VALUES ($1) ON CONFLICT (user_id) DO NOTHING', [userId]);
+  const { rows: [c] } = await db.query('SELECT * FROM breeding_centers WHERE user_id = $1', [userId]);
+  return c;
 }
 
-module.exports = BreedingService;
+async function parentInfo(db, p) {
+  const { rows } = await db.query('SELECT egg_group_id FROM species_egg_groups WHERE species_id = $1', [p.species_id]);
+  const { rows: [r] } = await db.query('SELECT pokemon_family_root($1) AS root', [p.species_id]);
+  return { ...p, groups: rows.map((x) => Number(x.egg_group_id)), familyRoot: Number(r.root) };
+}
+
+async function learnsetOf(db, speciesId) {
+  const { rows } = await db.query(
+    `SELECT pm.move_id, m.category FROM pokemon_moves pm JOIN moves m ON m.id = pm.move_id
+      WHERE pm.species_id = $1 AND pm.learn_method IN ('TM', 'LEVEL_UP', 'TUTOR')`, [speciesId]);
+  return rows;
+}
+
+function presentPair(pr, now = new Date()) {
+  const ready = pr.status === 'breeding' && new Date(pr.ready_at) <= now;
+  return {
+    pairId: pr.id, slotIndex: pr.slot_index, motherId: pr.parent1_pokemon_id, fatherId: pr.parent2_pokemon_id,
+    status: ready ? 'ready' : pr.status, startedAt: pr.started_at, readyAt: pr.ready_at,
+    remainingMinutes: pr.status === 'breeding' ? Math.max(0, Math.ceil((new Date(pr.ready_at) - now) / 60000)) : 0,
+    offspringSpeciesId: pr.offspring_data && pr.offspring_data.speciesId,
+  };
+}
+
+async function eggsOf(db, userId) {
+  const { rows: [u] } = await db.query('SELECT total_distance_km FROM users WHERE id = $1', [userId]);
+  const { rows } = await db.query(
+    `SELECT e.*, ps.name_zh AS species_name FROM pokemon_eggs e JOIN pokemon_species ps ON ps.id = e.species_id
+      WHERE e.user_id = $1 AND e.status <> 'hatched' ORDER BY e.created_at`, [userId]);
+  return rows.map((e) => ({
+    eggId: e.id, speciesId: e.species_id, rarity: e.rarity, status: e.status, incubator: e.incubator,
+    generation: e.generation, createdAt: e.created_at, ...rules.hatchProgress(e, u ? u.total_distance_km : 0),
+  }));
+}
+
+async function getCenter(userId) {
+  const c = await ensureCenter({ query }, userId);
+  const { rows } = await query(
+    `SELECT * FROM breeding_pairs WHERE center_id = $1 AND status IN ('breeding', 'ready') ORDER BY slot_index`, [c.id]);
+  return { centerId: c.id, slots: c.slots, usedSlots: rows.length, pairs: rows.map((r) => presentPair(r)), eggs: await eggsOf({ query }, userId) };
+}
+
+async function check(userId, { motherId, fatherId, useDestinyKnot } = {}) {
+  assertUuid(motherId, 'motherId');
+  assertUuid(fatherId, 'fatherId');
+  const m = await lockOwnedPokemon({ query }, motherId, userId, { lock: false });
+  const f = await lockOwnedPokemon({ query }, fatherId, userId, { lock: false });
+  const mi = await parentInfo({ query }, m);
+  const fi = await parentInfo({ query }, f);
+  const comp = rules.compatibility(mi, fi);
+  const out = { compatible: comp.ok, reason: comp.reason, sharedGroups: comp.sharedGroups || [], busy: [m, f].filter((p) => p.occupied_by || p.defending_gym_id).map((p) => p.id) };
+  if (comp.ok) {
+    const sid = rules.offspringSpecies(mi, fi);
+    const { rows: [sp] } = await query('SELECT id, name_zh, rarity FROM pokemon_species WHERE id = $1', [sid]);
+    Object.assign(out, {
+      offspring: { speciesId: sp.id, name: sp.name_zh, rarity: sp.rarity, hatchKm: rules.hatchKm(sp.rarity) },
+      breedingMinutes: rules.breedingMinutes(sp.rarity, [m, f]),
+      cost: rules.breedingCost(sp.rarity),
+      inheritance: rules.inheritancePreview(!!useDestinyKnot),
+    });
+  }
+  return out;
+}
+
+async function start(userId, { motherId, fatherId, useDestinyKnot } = {}) {
+  assertUuid(motherId, 'motherId');
+  assertUuid(fatherId, 'fatherId');
+  if (motherId === fatherId) throw new GrowthError('INVALID_PAIR', '不能与自己配对', 400);
+  return transaction(async (client) => {
+    const c = await ensureCenter(client, userId);
+    await client.query('SELECT 1 FROM breeding_centers WHERE id = $1 FOR UPDATE', [c.id]);
+    // 固定加锁顺序
+    const [a, b] = [motherId, fatherId].sort();
+    await client.query('SELECT 1 FROM pokemon_instances WHERE id = ANY($1::uuid[]) AND user_id = $2 ORDER BY id FOR UPDATE', [[a, b], userId]);
+    const m = await lockOwnedPokemon(client, motherId, userId, { lock: false });
+    const f = await lockOwnedPokemon(client, fatherId, userId, { lock: false });
+    assertIdle(m, '培育');
+    assertIdle(f, '培育');
+    const mi = await parentInfo(client, m);
+    const fi = await parentInfo(client, f);
+    const comp = rules.compatibility(mi, fi);
+    if (!comp.ok) throw new GrowthError('INCOMPATIBLE', comp.reason, 400);
+
+    const { rows: used } = await client.query(
+      "SELECT slot_index FROM breeding_pairs WHERE center_id = $1 AND status IN ('breeding', 'ready')", [c.id]);
+    const taken = new Set(used.map((r) => r.slot_index));
+    const slot = [...Array(c.slots).keys()].find((i) => !taken.has(i));
+    if (slot == null) throw new GrowthError('NO_FREE_SLOT', `培育屋已满（${c.slots} 个槽位）`, 409);
+
+    const sid = rules.offspringSpecies(mi, fi);
+    const { rows: [sp] } = await client.query('SELECT id, name_zh, rarity FROM pokemon_species WHERE id = $1', [sid]);
+    const cost = rules.breedingCost(sp.rarity);
+    if (!(await spendCurrency(client, userId, 'stardust', cost.stardust))) throw new GrowthError('INSUFFICIENT_STARDUST', `星尘不足（需要 ${cost.stardust}）`, 400);
+    if (useDestinyKnot && !(await consumeItem(client, userId, 'DESTINY_KNOT', 1))) throw new GrowthError('INSUFFICIENT_ITEMS', '没有命运红线', 400);
+
+    const learnset = await learnsetOf(client, sid);
+    const genes = rules.inheritGenes(m, f, { destinyKnot: !!useDestinyKnot, learnset: learnset.map((x) => x.move_id) });
+    const minutes = rules.breedingMinutes(sp.rarity, [m, f]);
+    const readyAt = new Date(Date.now() + minutes * 60000);
+    await occupy(client, motherId, OCCUPY, readyAt);
+    await occupy(client, fatherId, OCCUPY, readyAt);
+    const data = { speciesId: sid, rarity: sp.rarity, genes, generation: Math.max(Number(m.generation || 0), Number(f.generation || 0)) + 1 };
+    const { rows: [pr] } = await client.query(
+      `INSERT INTO breeding_pairs (center_id, slot_index, parent1_pokemon_id, parent2_pokemon_id, status, started_at, ready_at, offspring_data)
+       VALUES ($1, $2, $3, $4, 'breeding', NOW(), $5, $6) RETURNING *`,
+      [c.id, slot, motherId, fatherId, readyAt, JSON.stringify(data)]);
+    await client.query(
+      `INSERT INTO breeding_stats (user_id, total_breeds, last_bred_at) VALUES ($1, 1, NOW())
+       ON CONFLICT (user_id) DO UPDATE SET total_breeds = breeding_stats.total_breeds + 1, last_bred_at = NOW(), updated_at = NOW()`, [userId]);
+    return { ...presentPair(pr), offspring: { speciesId: sid, name: sp.name_zh, rarity: sp.rarity }, breedingMinutes: minutes, cost, destinyKnot: !!useDestinyKnot };
+  });
+}
+
+async function lockPair(client, userId, pairId) {
+  assertUuid(pairId, 'pairId');
+  const { rows: [pr] } = await client.query(
+    `SELECT bp.* FROM breeding_pairs bp JOIN breeding_centers bc ON bc.id = bp.center_id
+      WHERE bp.id = $1 AND bc.user_id = $2 FOR UPDATE OF bp`, [pairId, userId]);
+  if (!pr) throw new GrowthError('PAIR_NOT_FOUND', '培育记录不存在', 404);
+  return pr;
+}
+
+async function collect(userId, pairId) {
+  return transaction(async (client) => {
+    const pr = await lockPair(client, userId, pairId);
+    if (pr.status !== 'breeding' && pr.status !== 'ready') throw new GrowthError('ALREADY_FINISHED', '该培育已结束', 409);
+    if (new Date(pr.ready_at) > new Date()) {
+      throw new GrowthError('NOT_READY', `培育尚未完成（还需 ${Math.ceil((new Date(pr.ready_at) - Date.now()) / 60000)} 分钟）`, 400);
+    }
+    const d = pr.offspring_data;
+    await release(client, pr.parent1_pokemon_id, OCCUPY);
+    await release(client, pr.parent2_pokemon_id, OCCUPY);
+    const { rows: [egg] } = await client.query(
+      `INSERT INTO pokemon_eggs (user_id, pair_id, species_id, mother_id, father_id, gene_set, rarity, required_km, generation)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      [userId, pr.id, d.speciesId, pr.parent1_pokemon_id, pr.parent2_pokemon_id, JSON.stringify(d.genes), d.rarity, rules.hatchKm(d.rarity), d.generation]);
+    await client.query("UPDATE breeding_pairs SET status = 'collected', collected_at = NOW(), updated_at = NOW() WHERE id = $1", [pr.id]);
+    return { pairId: pr.id, egg: { eggId: egg.id, speciesId: egg.species_id, rarity: egg.rarity, requiredKm: Number(egg.required_km) } };
+  });
+}
+
+async function cancel(userId, pairId) {
+  return transaction(async (client) => {
+    const pr = await lockPair(client, userId, pairId);
+    if (pr.status !== 'breeding' && pr.status !== 'ready') throw new GrowthError('ALREADY_FINISHED', '该培育已结束', 409);
+    await client.query("UPDATE breeding_pairs SET status = 'cancelled', updated_at = NOW() WHERE id = $1", [pr.id]);
+    await release(client, pr.parent1_pokemon_id, OCCUPY);
+    await release(client, pr.parent2_pokemon_id, OCCUPY);
+    return { pairId: pr.id, cancelled: true, refunded: false };
+  });
+}
+
+async function incubate(userId, eggId, { incubator = 'basic' } = {}) {
+  assertUuid(eggId, 'eggId');
+  const inc = rules.INCUBATORS[incubator];
+  if (!inc) throw new GrowthError('INVALID_INCUBATOR', `未知的孵化器 ${incubator}`, 400);
+  return transaction(async (client) => {
+    const { rows: [egg] } = await client.query('SELECT * FROM pokemon_eggs WHERE id = $1 AND user_id = $2 FOR UPDATE', [eggId, userId]);
+    if (!egg) throw new GrowthError('EGG_NOT_FOUND', '精灵蛋不存在', 404);
+    if (egg.status !== 'unhatched') throw new GrowthError('ALREADY_INCUBATING', '精灵蛋已在孵化中或已孵化', 409);
+    if (inc.item && !(await consumeItem(client, userId, inc.item, 1))) throw new GrowthError('INSUFFICIENT_ITEMS', `没有 ${inc.item}`, 400);
+    const { rows: [u] } = await client.query('SELECT total_distance_km FROM users WHERE id = $1', [userId]);
+    const { rows: [row] } = await client.query(
+      `UPDATE pokemon_eggs SET status = 'incubating', incubator = $2, speed_multiplier = $3, distance_start_km = $4, incubated_at = NOW()
+        WHERE id = $1 RETURNING *`, [egg.id, incubator, inc.multiplier, u.total_distance_km]);
+    return { eggId: row.id, incubator, speedMultiplier: inc.multiplier, ...rules.hatchProgress(row, u.total_distance_km) };
+  });
+}
+
+async function hatch(userId, eggId) {
+  assertUuid(eggId, 'eggId');
+  return transaction(async (client) => {
+    const { rows: [egg] } = await client.query('SELECT * FROM pokemon_eggs WHERE id = $1 AND user_id = $2 FOR UPDATE', [eggId, userId]);
+    if (!egg) throw new GrowthError('EGG_NOT_FOUND', '精灵蛋不存在', 404);
+    if (egg.status === 'hatched') throw new GrowthError('ALREADY_HATCHED', '精灵蛋已孵化', 409);
+    const { rows: [u] } = await client.query('SELECT total_distance_km FROM users WHERE id = $1', [userId]);
+    const pr = rules.hatchProgress(egg, u.total_distance_km);
+    if (!pr.ready) throw new GrowthError('NOT_READY', `还需行走 ${Math.max(0, Math.round((pr.requiredKm - pr.walkedKm) * 100) / 100)} km`, 400, pr);
+
+    const g = egg.gene_set;
+    const { rows: [sp] } = await client.query('SELECT * FROM pokemon_species WHERE id = $1', [egg.species_id]);
+    const ivs = { attack: g.ivs.attack.value, defense: g.ivs.defense.value, hp: g.ivs.hp.value };
+    const cp = baseCp(sp, ivs);
+    const learnset = await learnsetOf(client, egg.species_id);
+    const pick = (cat, inherited) => inherited || (learnset.filter((x) => x.category === cat).map((x) => x.move_id)[0]) || (cat === 'FAST' ? 'TACKLE' : 'STRUGGLE');
+    const fast = pick('FAST', g.moves.fast.move);
+    const charge = pick('CHARGE', g.moves.charge.move);
+    const perfect = ivs.attack === 15 && ivs.defense === 15 && ivs.hp === 15;
+    const { rows: [p] } = await client.query(
+      `INSERT INTO pokemon_instances (user_id, species_id, cp, hp_current, hp_max, iv_attack, iv_defense, iv_hp, is_shiny,
+                                      is_perfect_iv, fast_move, charge_move, learned_fast_moves, learned_charge_moves, generation, origin)
+       VALUES ($1,$2,$3,$4,$4,$5,$6,$7,$8,$9,$10::text,$11::text,ARRAY[$10::text],ARRAY[$11::text],$12,'bred') RETURNING id`,
+      [userId, egg.species_id, cp, Math.max(10, Math.floor(cp * 0.8)), ivs.attack, ivs.defense, ivs.hp, !!g.shiny, perfect, fast, charge, egg.generation]);
+    const { rows: parents } = await client.query('SELECT id, species_id, nickname FROM pokemon_instances WHERE id = ANY($1::uuid[])', [[egg.mother_id, egg.father_id].filter(Boolean)]);
+    const pm = parents.find((x) => x.id === egg.mother_id) || {};
+    const pf = parents.find((x) => x.id === egg.father_id) || {};
+    await client.query(
+      `INSERT INTO pokemon_lineage (pokemon_id, parent1_id, parent1_species_id, parent1_nickname, parent2_id, parent2_species_id, parent2_nickname, bred_by_user_id)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [p.id, pm.id || null, pm.species_id || null, pm.nickname || null, pf.id || null, pf.species_id || null, pf.nickname || null, userId]);
+    await client.query(
+      `INSERT INTO pokedex_entries (user_id, species_id, seen_count, caught_count, first_caught_at, best_cp, has_shiny)
+       VALUES ($1, $2, 1, 1, NOW(), $3, $4)
+       ON CONFLICT (user_id, species_id) DO UPDATE SET caught_count = pokedex_entries.caught_count + 1,
+         best_cp = GREATEST(COALESCE(pokedex_entries.best_cp, 0), EXCLUDED.best_cp), has_shiny = pokedex_entries.has_shiny OR EXCLUDED.has_shiny`,
+      [userId, egg.species_id, cp, !!g.shiny]);
+    await client.query(
+      `INSERT INTO candy_inventory (user_id, species_id, amount) VALUES ($1, $2, 5)
+       ON CONFLICT (user_id, species_id) DO UPDATE SET amount = candy_inventory.amount + EXCLUDED.amount`, [userId, egg.species_id]);
+    await client.query("UPDATE pokemon_eggs SET status = 'hatched', hatched_at = NOW(), hatched_pokemon_id = $2 WHERE id = $1", [egg.id, p.id]);
+    await client.query(
+      `INSERT INTO breeding_stats (user_id, total_eggs_hatched, perfect_iv_breeds, shiny_breeds, last_hatched_at) VALUES ($1, 1, $2, $3, NOW())
+       ON CONFLICT (user_id) DO UPDATE SET total_eggs_hatched = breeding_stats.total_eggs_hatched + 1,
+         perfect_iv_breeds = breeding_stats.perfect_iv_breeds + EXCLUDED.perfect_iv_breeds,
+         shiny_breeds = breeding_stats.shiny_breeds + EXCLUDED.shiny_breeds, last_hatched_at = NOW(), updated_at = NOW()`,
+      [userId, perfect ? 1 : 0, g.shiny ? 1 : 0]);
+    return {
+      pokemonId: p.id, speciesId: egg.species_id, name: sp.name_zh, cp, ivs, isShiny: !!g.shiny, generation: egg.generation,
+      genes: g, moves: { fast, charge }, candy: 5,
+    };
+  });
+}
+
+async function lineage(userId, pokemonId, { depth = 3 } = {}) {
+  const p = await lockOwnedPokemon({ query }, pokemonId, userId, { lock: false });
+  const maxDepth = Math.min(5, Math.max(1, Number(depth) || 3));
+  const node = async (id, d) => {
+    const { rows: [l] } = await query(
+      `SELECT l.*, s1.name_zh AS p1_name, s2.name_zh AS p2_name FROM pokemon_lineage l
+         LEFT JOIN pokemon_species s1 ON s1.id = l.parent1_species_id LEFT JOIN pokemon_species s2 ON s2.id = l.parent2_species_id
+        WHERE l.pokemon_id = $1 ORDER BY l.bred_at DESC LIMIT 1`, [id]);
+    if (!l || d >= maxDepth) return null;
+    return {
+      bredAt: l.bred_at,
+      mother: l.parent1_id || l.parent1_species_id ? { pokemonId: l.parent1_id, speciesId: l.parent1_species_id, name: l.parent1_nickname || l.p1_name, parents: l.parent1_id ? await node(l.parent1_id, d + 1) : null } : null,
+      father: l.parent2_id || l.parent2_species_id ? { pokemonId: l.parent2_id, speciesId: l.parent2_species_id, name: l.parent2_nickname || l.p2_name, parents: l.parent2_id ? await node(l.parent2_id, d + 1) : null } : null,
+    };
+  };
+  return { pokemonId: p.id, speciesId: Number(p.species_id), generation: Number(p.generation || 0), origin: p.origin, lineage: await node(p.id, 0) };
+}
+
+async function stats(userId) {
+  const { rows: [s] } = await query('SELECT * FROM breeding_stats WHERE user_id = $1', [userId]);
+  return s ? { totalBreeds: s.total_breeds, totalEggsHatched: s.total_eggs_hatched, perfectIvBreeds: s.perfect_iv_breeds, shinyBreeds: s.shiny_breeds, lastBredAt: s.last_bred_at, lastHatchedAt: s.last_hatched_at }
+    : { totalBreeds: 0, totalEggsHatched: 0, perfectIvBreeds: 0, shinyBreeds: 0 };
+}
+
+async function eggs(userId) {
+  return eggsOf({ query }, userId);
+}
+
+const MAX_SLOTS = 8;
+/** 升级培育屋：+1 槽位，费用 5000 × (当前槽位 − 3) 金币 */
+async function upgrade(userId) {
+  return transaction(async (client) => {
+    const c = await ensureCenter(client, userId);
+    const { rows: [cur] } = await client.query('SELECT slots FROM breeding_centers WHERE id = $1 FOR UPDATE', [c.id]);
+    if (cur.slots >= MAX_SLOTS) throw new GrowthError('MAX_LEVEL', '培育屋已达最大槽位', 400);
+    const cost = 5000 * Math.max(1, cur.slots - 3);
+    if (!(await spendCurrency(client, userId, 'coins', cost))) throw new GrowthError('INSUFFICIENT_FUNDS', `金币不足（需要 ${cost}）`, 400);
+    const { rows: [u] } = await client.query('UPDATE breeding_centers SET slots = slots + 1, upgraded_at = NOW(), updated_at = NOW() WHERE id = $1 RETURNING slots', [c.id]);
+    return { slots: u.slots, cost: { coins: cost } };
+  });
+}
+
+module.exports = { getCenter, check, start, collect, cancel, incubate, hatch, lineage, stats, eggs, upgrade };

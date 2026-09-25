@@ -1,304 +1,40 @@
 /**
- * REQ-00046: 精灵培育系统 API 路由
+ * 精灵培育与孵化路由（REQ-00276，挂载在 /pokemon/breeding，经网关 /v1/pokemon/breeding/*，均需 JWT）
+ *
+ *   GET  /center                    培育屋：槽位、进行中的培育与进度、精灵蛋与孵化进度
+ *   POST /check                     配对检查 { motherId, fatherId, useDestinyKnot? }：蛋组、后代物种、时间、费用、遗传概率
+ *   POST /start                     开始培育 { motherId, fatherId, useDestinyKnot? }
+ *   POST /pairs/:pairId/collect     培育完成领取精灵蛋
+ *   POST /pairs/:pairId/cancel      取消培育（不退星尘）
+ *   GET  /eggs                      我的精灵蛋
+ *   POST /eggs/:eggId/incubate      放入孵化器 { incubator: basic | INCUBATOR_SUPER | INCUBATOR_ULTRA }
+ *   POST /eggs/:eggId/hatch         行走距离达标后孵化
+ *   GET  /lineage/:pokemonId        血统追踪（最多 5 代）
+ *   GET  /stats                     培育统计
+ *   POST /upgrade                   培育屋扩容（金币）
+ * 原挂在网关未代理的 /breeding，且 /breeding/hatch/update 直接信任客户端上报的步数，已删除；孵化进度改按服务端累计行走距离。
  */
+'use strict';
 
 const express = require('express');
-const router = express.Router();
-const BreedingService = require('../breedingService');
 const { requireAuth } = require('../../../../shared/auth');
-const { createLogger } = require('../../../../shared/logger');
-const metrics = require('../../../../shared/metrics');
+const breeding = require('../breedingService');
+const { route, ok } = require('../growth/common');
 
-const logger = createLogger('pokemon-service');
-const breedingService = new BreedingService();
+const router = express.Router();
+router.use(requireAuth);
+const uid = (req) => req.user.sub;
 
-/**
- * 获取培育中心状态
- * GET /api/breeding/center
- */
-router.get('/center', requireAuth, async (req, res) => {
-  try {
-    const status = await breedingService.getBreedingStatus(req.user.id);
-    
-    res.json({
-      success: true,
-      data: status
-    });
-  } catch (error) {
-    logger.error('Failed to get breeding center status', {
-      error: error.message,
-      userId: req.user.id
-    });
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-/**
- * 检查两只精灵是否可以培育
- * POST /api/breeding/check
- */
-router.post('/check', requireAuth, async (req, res) => {
-  try {
-    const { parent1Id, parent2Id } = req.body;
-
-    if (!parent1Id || !parent2Id) {
-      return res.status(400).json({
-        success: false,
-        error: '缺少精灵 ID'
-      });
-    }
-
-    const result = await breedingService.canBreed(parent1Id, parent2Id);
-    
-    res.json({
-      success: true,
-      data: result
-    });
-  } catch (error) {
-    logger.error('Failed to check breeding compatibility', {
-      error: error.message,
-      userId: req.user.id
-    });
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-/**
- * 开始培育
- * POST /api/breeding/start
- */
-router.post('/start', requireAuth, async (req, res) => {
-  try {
-    const { parent1Id, parent2Id, slotIndex } = req.body;
-
-    if (!parent1Id || !parent2Id) {
-      return res.status(400).json({
-        success: false,
-        error: '缺少精灵 ID'
-      });
-    }
-
-    const result = await breedingService.startBreeding(
-      req.user.id,
-      parent1Id,
-      parent2Id,
-      slotIndex || 0
-    );
-
-    metrics.increment('breeding_api_start');
-    
-    res.json({
-      success: true,
-      data: result
-    });
-  } catch (error) {
-    logger.error('Failed to start breeding', {
-      error: error.message,
-      userId: req.user.id,
-      parent1Id: req.body.parent1Id,
-      parent2Id: req.body.parent2Id
-    });
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-/**
- * 收集培育完成的蛋
- * POST /api/breeding/collect/:pairId
- */
-router.post('/collect/:pairId', requireAuth, async (req, res) => {
-  try {
-    const { pairId } = req.params;
-
-    const result = await breedingService.collectEgg(req.user.id, pairId);
-
-    metrics.increment('breeding_api_collect');
-    
-    res.json({
-      success: true,
-      data: result
-    });
-  } catch (error) {
-    logger.error('Failed to collect egg', {
-      error: error.message,
-      userId: req.user.id,
-      pairId: req.params.pairId
-    });
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-/**
- * 取消培育
- * POST /api/breeding/cancel/:pairId
- */
-router.post('/cancel/:pairId', requireAuth, async (req, res) => {
-  try {
-    const { pairId } = req.params;
-
-    const result = await breedingService.cancelBreeding(req.user.id, pairId);
-
-    metrics.increment('breeding_api_cancel');
-    
-    res.json({
-      success: true,
-      data: result
-    });
-  } catch (error) {
-    logger.error('Failed to cancel breeding', {
-      error: error.message,
-      userId: req.user.id,
-      pairId: req.params.pairId
-    });
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-/**
- * 更新孵化进度
- * POST /api/breeding/hatch/update
- */
-router.post('/hatch/update', requireAuth, async (req, res) => {
-  try {
-    const { steps } = req.body;
-
-    if (!steps || steps < 0) {
-      return res.status(400).json({
-        success: false,
-        error: '无效的步数'
-      });
-    }
-
-    const result = await breedingService.updateHatchingProgress(req.user.id, steps);
-
-    metrics.increment('breeding_api_hatch_update');
-    if (result.hatched.length > 0) {
-      metrics.increment('breeding_api_hatch_complete');
-    }
-    
-    res.json({
-      success: true,
-      data: result
-    });
-  } catch (error) {
-    logger.error('Failed to update hatching progress', {
-      error: error.message,
-      userId: req.user.id,
-      steps: req.body.steps
-    });
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-/**
- * 获取培育统计
- * GET /api/breeding/stats
- */
-router.get('/stats', requireAuth, async (req, res) => {
-  try {
-    const stats = await breedingService.getBreedingStats(req.user.id);
-    
-    res.json({
-      success: true,
-      data: stats
-    });
-  } catch (error) {
-    logger.error('Failed to get breeding stats', {
-      error: error.message,
-      userId: req.user.id
-    });
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-/**
- * 升级培育中心
- * POST /api/breeding/upgrade
- */
-router.post('/upgrade', requireAuth, async (req, res) => {
-  try {
-    const result = await breedingService.upgradeBreedingCenter(req.user.id);
-
-    metrics.increment('breeding_api_upgrade');
-    
-    res.json({
-      success: true,
-      data: result
-    });
-  } catch (error) {
-    logger.error('Failed to upgrade breeding center', {
-      error: error.message,
-      userId: req.user.id
-    });
-    res.status(400).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
-
-/**
- * 获取精灵谱系
- * GET /api/breeding/lineage/:pokemonId
- */
-router.get('/lineage/:pokemonId', requireAuth, async (req, res) => {
-  try {
-    const { pokemonId } = req.params;
-
-    const result = await req.db.query(
-      `SELECT pl.*, 
-              ps1.name as parent1_name,
-              ps2.name as parent2_name
-       FROM pokemon_lineage pl
-       LEFT JOIN pokemon_species ps1 ON pl.parent1_species_id = ps1.id
-       LEFT JOIN pokemon_species ps2 ON pl.parent2_species_id = ps2.id
-       WHERE pl.pokemon_id = $1`,
-      [pokemonId]
-    );
-
-    if (result.rows.length === 0) {
-      return res.json({
-        success: true,
-        data: null
-      });
-    }
-    
-    res.json({
-      success: true,
-      data: result.rows[0]
-    });
-  } catch (error) {
-    logger.error('Failed to get pokemon lineage', {
-      error: error.message,
-      userId: req.user.id,
-      pokemonId: req.params.pokemonId
-    });
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
-  }
-});
+router.get('/center', route(async (req, res) => ok(res, await breeding.getCenter(uid(req)))));
+router.post('/check', route(async (req, res) => ok(res, await breeding.check(uid(req), req.body || {}))));
+router.post('/start', route(async (req, res) => ok(res, await breeding.start(uid(req), req.body || {}), '开始培育')));
+router.post('/pairs/:pairId/collect', route(async (req, res) => ok(res, await breeding.collect(uid(req), req.params.pairId), '获得精灵蛋')));
+router.post('/pairs/:pairId/cancel', route(async (req, res) => ok(res, await breeding.cancel(uid(req), req.params.pairId), '已取消培育')));
+router.get('/eggs', route(async (req, res) => ok(res, await breeding.eggs(uid(req)))));
+router.post('/eggs/:eggId/incubate', route(async (req, res) => ok(res, await breeding.incubate(uid(req), req.params.eggId, req.body || {}), '开始孵化')));
+router.post('/eggs/:eggId/hatch', route(async (req, res) => ok(res, await breeding.hatch(uid(req), req.params.eggId), '孵化成功！')));
+router.get('/lineage/:pokemonId', route(async (req, res) => ok(res, await breeding.lineage(uid(req), req.params.pokemonId, req.query))));
+router.get('/stats', route(async (req, res) => ok(res, await breeding.stats(uid(req)))));
+router.post('/upgrade', route(async (req, res) => ok(res, await breeding.upgrade(uid(req)), '培育屋已扩容')));
 
 module.exports = router;

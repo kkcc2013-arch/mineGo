@@ -37,6 +37,7 @@ function mountGrowth(app, logger) {
 
   app.use('/pokemon', require('../routes/growth'));
   app.use('/pokemon/training-camp', require('../routes/trainingCamp'));
+  app.use('/pokemon/breeding', require('../routes/breeding'));
   app.use('/pokemon', require('../routes/specialTraining'));
   app.use('/pokemon', require('../routes/awakening'));
 

@@ -408,7 +408,7 @@ async function main() {
       app.use('/', require('./routes/moves'));
 
       // REQ-00046: 精灵培育系统路由
-      app.use('/breeding', require('./routes/breeding'));
+      // REQ-00276 已移到 /pokemon/breeding（网关可达），见 growth/mount.js
 
       // REQ-00067: 精灵羁绊系统路由
       app.use('/pokemon', require('./routes/friendship'));

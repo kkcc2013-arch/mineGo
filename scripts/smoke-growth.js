@@ -665,7 +665,59 @@ async function testAwakening() {
   record('觉醒：潜能池多语言', pots.status === 200 && pots.data.some((x) => x.name === 'Power Awakening'), `status=${pots.status}`);
 }
 
-const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina, tree: testEvolutionTree, bond: testBondSkills, camp: testTrainingCamp, special: testSpecialTraining, awakening: testAwakening };
+// ───────────────────── 培育 / 遗传 / 孵化（REQ-00276） ─────────────────────
+async function testBreeding() {
+  const u = await newUser('brd');
+  const B = '/v1/pokemon/breeding';
+  const mother = await givePokemon(u.userId, 1, { iv: [15, 14, 13] });
+  const father = await givePokemon(u.userId, 4, { iv: [12, 15, 15] });
+  const chk = await call('POST', `${B}/check`, { token: u.token, body: { motherId: mother.id, fatherId: father.id } });
+  record('培育：配对检查（怪物蛋组相同，后代为母方家族根，给出时间/费用/遗传概率）',
+    chk.status === 200 && chk.data.compatible && chk.data.offspring.speciesId === 1 && chk.data.breedingMinutes > 30 && chk.data.inheritance.ivInheritanceRate === 0.5,
+    `status=${chk.status} ${JSON.stringify(chk.data).slice(0, 200)}`);
+  const a = await givePokemon(u.userId, 39);
+  const b = await givePokemon(u.userId, 74);
+  const bad = await call('POST', `${B}/start`, { token: u.token, body: { motherId: a.id, fatherId: b.id } });
+  record('培育：蛋组不同不能配对（400 INCOMPATIBLE）', bad.status === 400 && errName(bad) === 'INCOMPATIBLE', `status=${bad.status} ${errName(bad)}`);
+  const knot = await call('POST', `${B}/start`, { token: u.token, body: { motherId: mother.id, fatherId: father.id, useDestinyKnot: true } });
+  await db().query('UPDATE users SET stardust = 5000 WHERE id = $1', [u.userId]);
+  const knot2 = await call('POST', `${B}/start`, { token: u.token, body: { motherId: mother.id, fatherId: father.id, useDestinyKnot: true } });
+  record('培育：星尘不足/没有命运红线时拒绝', knot.status === 400 && knot2.status === 400 && errName(knot2) === 'INSUFFICIENT_ITEMS', `a=${knot.status}:${errName(knot)} b=${knot2.status}:${errName(knot2)}`);
+  await giveItem(u.userId, 'DESTINY_KNOT', 1);
+  const st = await call('POST', `${B}/start`, { token: u.token, body: { motherId: mother.id, fatherId: father.id, useDestinyKnot: true } });
+  const busy = await call('POST', `/v1/pokemon/${mother.id}/evolution/execute`, { token: u.token, body: {} });
+  record('培育：开始培育（扣星尘与命运红线，父母被占用不能进化）', st.status === 200 && st.data.destinyKnot && (await itemQty(u.userId, 'DESTINY_KNOT')) === 0 && busy.status === 409,
+    `status=${st.status} ${st.status !== 200 ? JSON.stringify(st.body).slice(0, 160) : ''} busy=${busy.status}`);
+  const pairId = st.data && st.data.pairId;
+  const early = await call('POST', `${B}/pairs/${pairId}/collect`, { token: u.token });
+  await db().query("UPDATE breeding_pairs SET ready_at = NOW() - INTERVAL '1 second' WHERE id = $1", [pairId]);
+  const col = await call('POST', `${B}/pairs/${pairId}/collect`, { token: u.token });
+  record('培育：到时领取精灵蛋并释放父母', early.status === 400 && col.status === 200 && col.data.egg.requiredKm === 5 && (await pokemonRow(mother.id)).occupied_by === null,
+    `early=${early.status} collect=${col.status} ${JSON.stringify(col.data && col.data.egg)}`);
+  const eggId = col.data && col.data.egg.eggId;
+  const notYet = await call('POST', `${B}/eggs/${eggId}/hatch`, { token: u.token });
+  const inc = await call('POST', `${B}/eggs/${eggId}/incubate`, { token: u.token, body: { incubator: 'basic' } });
+  await db().query('UPDATE users SET total_distance_km = total_distance_km + 3 WHERE id = $1', [u.userId]);
+  const half = await call('GET', `${B}/eggs`, { token: u.token });
+  record('培育：孵化进度按服务端累计行走距离（3/5 km = 60%）', notYet.status === 400 && inc.status === 200 && half.data[0].percent === 60 && !half.data[0].ready,
+    `notYet=${notYet.status} inc=${inc.status} ${JSON.stringify(half.data && half.data[0])}`);
+  await db().query('UPDATE users SET total_distance_km = total_distance_km + 2 WHERE id = $1', [u.userId]);
+  const hatch = await call('POST', `${B}/eggs/${eggId}/hatch`, { token: u.token });
+  const baby = hatch.data && await pokemonRow(hatch.data.pokemonId);
+  const ivSources = hatch.data ? Object.values(hatch.data.genes.ivs).map((g) => g.from) : [];
+  record('培育：孵化出后代（第 1 代、来源 bred、IV 由基因决定并记录来源）',
+    hatch.status === 200 && baby.species_id === 1 && baby.generation === 1 && baby.origin === 'bred'
+      && baby.iv_attack === hatch.data.ivs.attack && ivSources.every((s) => ['mother', 'father', 'random'].includes(s)),
+    `status=${hatch.status} ${JSON.stringify(hatch.data && { ivs: hatch.data.ivs, src: ivSources, mut: hatch.data.genes.mutation })}`);
+  const lin = await call('GET', `${B}/lineage/${hatch.data && hatch.data.pokemonId}`, { token: u.token });
+  record('培育：血统追踪', lin.status === 200 && lin.data.lineage.mother.pokemonId === mother.id && lin.data.lineage.father.pokemonId === father.id, `status=${lin.status}`);
+  const stats = await call('GET', `${B}/stats`, { token: u.token });
+  record('培育：统计', stats.status === 200 && stats.data.totalBreeds === 1 && stats.data.totalEggsHatched === 1, `status=${stats.status} ${JSON.stringify(stats.data)}`);
+  const again = await call('POST', `${B}/eggs/${eggId}/hatch`, { token: u.token });
+  record('培育：同一个蛋不能重复孵化（409）', again.status === 409, `status=${again.status}`);
+}
+
+const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina, tree: testEvolutionTree, bond: testBondSkills, camp: testTrainingCamp, special: testSpecialTraining, awakening: testAwakening, breeding: testBreeding };
 
 (async () => {
   const want = process.argv.slice(2);
