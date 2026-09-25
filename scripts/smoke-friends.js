@@ -361,6 +361,10 @@ async function main() {
   const coll = await call('GET', `/v1/pokemon/users/${B.userId}/collection`, { token: A.token });
   record('精灵可见性：好友查看收藏（隐藏的精灵不出现）', coll.status === 200 && coll.data.pokemon.some((p) => p.id === pB2) && !coll.data.pokemon.some((p) => p.id === pB3) && coll.data.hiddenCount === 1,
     `status=${coll.status} n=${coll.data && coll.data.pokemon && coll.data.pokemon.length}`);
+  const profC = await call('GET', `/v1/users/${B.userId}`, { token: C.token });
+  const profA = await call('GET', `/v1/users/${B.userId}`, { token: A.token });
+  record('隐私：公开资料接口按隐私过滤（陌生人看不到精灵数；好友看到的不含隐藏精灵）', profC.status === 200 && profC.data.pokemon_count === null && profA.data.pokemon_count === 2,
+    `stranger=${profC.data && profC.data.pokemon_count} friend=${profA.data && profA.data.pokemon_count}`);
   const collC = await call('GET', `/v1/pokemon/users/${B.userId}/collection`, { token: C.token });
   record('精灵可见性：陌生人无权查看收藏（403）', collC.status === 403, `status=${collC.status}`);
   // 道馆战斗匿名
