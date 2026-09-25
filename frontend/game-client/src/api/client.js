@@ -91,7 +91,12 @@ class ApiClient {
       if (data.offline || data.code === 9999) {
         throw new ApiError(9999, data.message || '当前离线，请检查网络连接', 503);
       }
-      throw new ApiError(data.code || res.status, data.message || '请求失败', res.status);
+      // 统一错误处理返回 { success:false, error:{ code, name, message } }，业务码/文案在 error 里
+      const e = (data && typeof data.error === 'object' && data.error) || {};
+      const err = new ApiError(data.code || e.code || res.status, data.message || e.message || '请求失败', res.status);
+      if (e.name) err.name_ = e.name;
+      if (e.details) err.details = e.details;
+      throw err;
     }
 
     return data.data;

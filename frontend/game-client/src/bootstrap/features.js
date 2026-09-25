@@ -5,12 +5,14 @@ import { initAccessibility } from './a11y.js';
 import { initExperience } from './experience.js';
 import { initPrivacyCenter } from '../features/privacyCenter.js';
 import { initBattle } from './battle.js';
+import { initGrowth } from './growth.js';
 
 const initializers = [
   ['a11y', initAccessibility],
   ['experience', initExperience],
   ['privacy', initPrivacyCenter], // REQ-00044 数据导出/账号删除
   ['battle', initBattle], // E11 战斗与技能：道馆/团战/联赛/回放/连击/推荐、帧率控制
+  ['growth', initGrowth], // E07 精灵成长：进化树/成长轨迹/体力/羁绊/觉醒/特训/训练营/培育/传承/合并
 ];
 
 export async function initFeatures(ctx = {}) {
