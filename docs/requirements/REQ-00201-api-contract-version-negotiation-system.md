@@ -7,7 +7,7 @@
 | 标题 | API 契约版本协商与灰度兼容系统 |
 | 类别 | API 设计规范 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | gateway、所有微服务、backend/shared、docs/api-spec |
 | 创建时间 | 2026-06-14 16:00 |
 
@@ -814,3 +814,28 @@ module.exports = router;
 - [HTTP Deprecation Header RFC 8594](https://tools.ietf.org/html/rfc8594)
 - [Semantic Versioning for APIs](https://semver.org/)
 - [Stripe API Versioning](https://stripe.com/docs/api/versioning)
+
+## 实现记录（2026-09-25）
+
+状态：**implemented**（代码已完成、未在服务上运行验证；按 09-25 验证规则，服务级验证由用户安排）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 支持 URL 路径版本标识（/v1/、/v2/） | ✅ | `/api/vN/…` 与旧前缀 `/vN/…`；`gateway/src/middleware/apiVersion.js` + `shared/apiStandards/versioning.js` `VersionRegistry.resolve` |
+| 支持 Accept Header 和自定义 Header 版本协商 | ✅ | 优先级 URL > `application/vnd.minego.vN+json` > `Accept-Version` > `X-API-Version` > 默认；响应头 `X-API-Version(-Source)`；冲突以 URL 为准并给 `X-API-Warning` |
+| 版本生命周期管理（development → testing → stable → deprecated → sunset） | ✅ | `VersionRegistry.transition` 校验合法迁移（非法 409），持久化到 `api_versions`；到达 sunsetAt 自动视为 sunset |
+| 废弃版本自动添加 Deprecation 和 Sunset 响应头 | ✅ | `Deprecation: @ts`、`Sunset`、`Link: rel="successor-version"` / `rel="deprecation"` |
+| 下线版本返回 410 Gone 响应 | ✅ | 统一错误格式（code 1014），含后继版本 |
+| 版本间请求/响应数据自动转换 | ✅ | 声明式规则 remove/rename/default/set/move（`TransformEngine`），内置 v1 用户资料规则 + `api_version_transforms`；管道阶段 versionTransformer，响应头 `X-API-Transformed` |
+| 破坏性变更文档化并可查询 | ✅ | `api_changes` 表；`GET /api/version/:v/breaking-changes`；管理接口 `POST /api/admin/api-versions/:v/changes` |
+| 版本使用统计与监控 | ✅ | `api_version_usage`（按日/版本/接口聚合，定期 flush）；管理接口与面板展示近 7 天用量与热门接口 |
+| 管理接口支持版本状态变更 | ✅ | `PATCH /api/admin/api-versions/:v`（管理员）；面板"版本"页只显示合法迁移按钮 |
+| OpenAPI 文档按版本自动生成 | ✅ | `GET /api/version/:v/openapi.json`（从 bundled.yaml 按版本前缀过滤，info.x-lifecycle/x-sunset）；契约生成的 `docs/api-spec/openapi.yaml` |
+
+- 入口：网关 `/api/version`（公开）、`/api/admin/api-versions`（管理员）、管理面板 `admin-dashboard/api-standards.html` → 版本
+- 迁移：`database/migrations/20260925_100000__api_design_standards.sql`（14 张表，幂等；18:30 前在 CI 栈全量 bootstrap 中执行通过）（`api_versions` 扩展 status/successor_version/migration_guide，新增 `api_changes`、`api_version_usage`、`api_version_transforms`）
+- 单测：`cd backend && npm run test:api-standards`（api-standards-core / contract / lint 为纯逻辑，宿主机已运行通过：core 25/25、contract 11/11、lint 4/4；pipeline / ops / services 依赖 express / pino / prom-client，在 09-25 18:30 验证规则调整前于 CI 栈跑通过（pipeline 17/17、ops 20/20、services 5/5），之后追加的用例**未运行，待验证**）；相关用例：版本协商优先级、生命周期迁移、TransformEngine、管道中 v1 转换
+- 冒烟：`BASE_URL=http://<网关> node scripts/smoke-api-standards.js`（约 90 项断言，**未运行，待验证**）；核心冒烟 `scripts/smoke-core-flow.js` 在网关接入管道后于 CI 栈跑过 37/37（18:30 前）（版本协商、deprecated 头、sunset 410、恢复、转换规则、breaking-changes、按版本 OpenAPI、使用统计）
+- 文档：`docs/api-standards/versioning-and-deprecation.md`
+- 待验证：把 v1 标为 deprecated → sunset 后旧客户端（game-client 走 `/v1/…`）确实收到 410，操作后记得恢复为 stable；`api_versions` 在已有生产库上的 ALTER（deprecated/sunset 转 TIMESTAMPTZ）
+- 相关提交：分支 `work/e25-api`（Epic E25 API 设计规范，合并后见集成分支 squash 提交）

@@ -3,7 +3,7 @@
 - **编号**：REQ-00251
 - **类别**：性能优化
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：gateway、所有微服务、backend/shared/JsonOptimizer.js、game-client
 - **创建时间**：2026-06-16 08:00
 - **依赖需求**：REQ-00072 (API 响应 Gzip/Brotli 压缩优化)
@@ -136,3 +136,25 @@ P1 优先级原因：
 3. 为移动端用户提供更好的体验（弱网环境）
 4. 依赖 REQ-00072 已完成，具备实施条件
 5. 对"项目可用"贡献：性能优化是生产可用的关键指标
+
+## 实现记录（2026-09-25）
+
+状态：**implemented**（代码已完成、未在服务上运行验证；按 09-25 验证规则，服务级验证由用户安排）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 精灵列表 API 响应体积减少 >= 30% | ✅ | `?_aliases=1` 别名压缩（单测：50 只精灵样本 ≥30%）；叠加 `?fields=` / `?fieldset=list` 与 MessagePack 更小。实测值由冒烟脚本输出（待验证） |
+| 字段选择参数 `?fields=id,name` 正确过滤响应 | ✅ | 网关 fieldProjector（嵌套、数组、括号分组），精灵列表同时在下游只查需要的列（`X-DB-Projection`） |
+| 别名压缩后字段名长度 <= 3 字符 | ✅ | `aliasFor()` 按频次分配 1~3 字符别名，避开原有短键 |
+| 客户端解压缩正确还原原始数据结构 | ✅ | `frontend/game-client/src/api/apiStandards.js` `expandAliasedBody()`，client.js 自动还原；前端单测与服务端 `compressKeys` 互逆 |
+| 序列化性能测试显示耗时降低 >= 20% | ⚠️ | 未实测。建议：`bench-api-performance.js` 对 `/v1/pokemon/my?pageSize=100` 分别以默认、`?fields=`、`?_aliases=1`、`Accept: application/x-msgpack` 各跑 1000 次比较 P50 与字节数 |
+| 现有 API 向后兼容（无 fields 参数时返回完整响应） | ✅ | 无参数时不投影、不压缩；信封字段（code/message/pagination）永不压缩 |
+| 单元测试覆盖率 >= 80% | ⚠️ | 单测覆盖 parseFields/project/stripSensitive/compressKeys/expandPayload/flatten 与管道集成；未跑覆盖率工具（仓库无 c8/nyc） |
+
+- 入口：网关转换管道（所有 `/v1`、`/api` 路由），`GET /api/fieldsets`
+- 代码：`backend/shared/apiStandards/fieldProjection.js`、`msgpack.js`、`transformers.js`（fieldProjector / aliasCompressor / serializer）
+- 单测：`cd backend && npm run test:api-standards`（api-standards-core / contract / lint 为纯逻辑，宿主机已运行通过：core 25/25、contract 11/11、lint 4/4；pipeline / ops / services 依赖 express / pino / prom-client，在 09-25 18:30 验证规则调整前于 CI 栈跑通过（pipeline 17/17、ops 20/20、services 5/5），之后追加的用例**未运行，待验证**）
+- 前端单测：`node --test frontend/game-client/tests/unit/api-standards-client.test.mjs`（宿主机 10/10 通过，Node ≥ 22.12）
+- 冒烟：`BASE_URL=http://<网关> node scripts/smoke-api-standards.js`（约 90 项断言，**未运行，待验证**）；核心冒烟 `scripts/smoke-core-flow.js` 在网关接入管道后于 CI 栈跑过 37/37（18:30 前）
+- 待验证：冒烟输出的"别名压缩 / MessagePack 体积对比"实测百分比
+- 相关提交：分支 `work/e25-api`（Epic E25 API 设计规范，合并后见集成分支 squash 提交）

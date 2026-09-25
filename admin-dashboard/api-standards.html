@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>API 规范治理 | mineGo Admin</title>
+<!--
+  Epic E25 管理面板：性能预算达标率/热点/趋势（REQ-00476）、API 命名规范统计（REQ-00329）、
+  版本生命周期与使用统计（REQ-00201/00520）、弃用登记与迁移进度（REQ-00407）、契约查看/版本对比/试校验（REQ-00315/00547）、
+  兼容性报告导出 Markdown / 打印为 PDF（REQ-00520）、转换管道指标（REQ-00542）。
+  所有数据来自网关管理接口（需管理员 token），页面不保存任何数据，token 仅存本机 localStorage。
+-->
+<style>
+  :root { --bg: #f7f7f8; --card: #fff; --fg: #1d1d1f; --muted: #6b6b76; --border: #e3e3e8; --accent: #3b5bdb; --bad: #d6336c; --warn: #e8590c; --ok: #2f9e44; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #141417; --card: #1d1d22; --fg: #ececf1; --muted: #9a9aa8; --border: #2c2c34; --accent: #7c93ff; --bad: #ff6b9a; --warn: #ffa94d; --ok: #69db7c; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.5 system-ui, -apple-system, "PingFang SC", sans-serif; background: var(--bg); color: var(--fg); }
+  header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  header h1 { font-size: 18px; margin: 0 auto 0 0; }
+  nav { display: flex; gap: 6px; flex-wrap: wrap; padding: 10px 20px 0; }
+  nav button[aria-selected="true"] { background: var(--accent); color: #fff; border-color: var(--accent); }
+  input, select, button, textarea { font: inherit; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--fg); }
+  button { cursor: pointer; }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  main { padding: 16px 20px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+  section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; min-width: 0; overflow-x: auto; }
+  section h2 { font-size: 15px; margin: 0 0 10px; }
+  .kpis { display: flex; gap: 12px; flex-wrap: wrap; }
+  .kpi { flex: 1 1 120px; border: 1px solid var(--border); border-radius: 10px; padding: 10px; }
+  .kpi b { display: block; font-size: 22px; font-variant-numeric: tabular-nums; }
+  .kpi span { color: var(--muted); font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  th { color: var(--muted); font-weight: 500; }
+  .bars { display: flex; align-items: flex-end; gap: 2px; height: 90px; }
+  .bars div { flex: 1; background: var(--accent); border-radius: 3px 3px 0 0; min-height: 2px; position: relative; }
+  .bars div i { position: absolute; left: 0; right: 0; bottom: 0; background: var(--bad); border-radius: 3px 3px 0 0; }
+  .muted { color: var(--muted); }
+  .err, .bad { color: var(--bad); }
+  .warn { color: var(--warn); }
+  .ok { color: var(--ok); }
+  .wide { grid-column: 1 / -1; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
+  pre { margin: 0; padding: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; max-height: 420px; overflow: auto; font-size: 12px; white-space: pre-wrap; word-break: break-word; }
+  .pill { display: inline-block; padding: 0 8px; border-radius: 999px; border: 1px solid var(--border); font-size: 12px; }
+  [hidden] { display: none !important; }
+  @media print { header, nav, .noprint { display: none !important; } main { display: block; } section { border: 0; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>API 规范治理（Epic E25）</h1>
+  <label>网关 <input id="base" size="26" placeholder="https://api.example.com"></label>
+  <label>管理员 Token <input id="token" type="password" size="22"></label>
+  <button class="primary" id="load">刷新</button>
+</header>
+<nav role="tablist">
+  <button role="tab" data-tab="perf" aria-selected="true">性能预算</button>
+  <button role="tab" data-tab="lint">命名规范</button>
+  <button role="tab" data-tab="versions">版本</button>
+  <button role="tab" data-tab="deprecations">弃用接口</button>
+  <button role="tab" data-tab="schemas">契约</button>
+  <button role="tab" data-tab="compat">兼容性报告</button>
+  <button role="tab" data-tab="pipelines">转换管道</button>
+</nav>
+<p id="msg" class="muted" role="status" style="padding: 0 20px"></p>
+
+<main data-panel="perf">
+  <section class="wide">
+    <h2>概览</h2>
+    <div class="kpis">
+      <div class="kpi"><b id="k-compliance">–</b><span>P95 预算达标率（已评估接口）</span></div>
+      <div class="kpi"><b id="k-configured">–</b><span>已配置预算的接口</span></div>
+      <div class="kpi"><b id="k-routes">–</b><span>观测到的接口</span></div>
+      <div class="kpi"><b id="k-alerts">–</b><span>最近严格预算告警</span></div>
+    </div>
+  </section>
+  <section>
+    <h2>趋势（每小时请求数 / 违规数）</h2>
+    <div class="row noprint"><select id="perf-hours"><option value="24">24 小时</option><option value="72">3 天</option><option value="168">7 天</option></select></div>
+    <div class="bars" id="perf-trend" aria-label="每小时请求与违规"></div>
+    <p class="muted" id="perf-trend-note"></p>
+  </section>
+  <section>
+    <h2>热点接口（P95 / 预算）</h2>
+    <table><thead><tr><th>接口</th><th class="num">P95</th><th class="num">预算</th><th class="num">热度</th></tr></thead><tbody id="perf-hot"></tbody></table>
+  </section>
+  <section class="wide">
+    <h2>各接口预算达标情况</h2>
+    <table><thead><tr><th>接口</th><th>级别</th><th class="num">样本</th><th class="num">P50</th><th class="num">P95</th><th class="num">P99</th><th class="num">MAX</th><th class="num">P95 预算</th><th class="num">达标率</th></tr></thead><tbody id="perf-routes"></tbody></table>
+  </section>
+</main>
+
+<main data-panel="lint" hidden>
+  <section class="wide">
+    <h2>API 命名规范统计</h2>
+    <div class="kpis">
+      <div class="kpi"><b id="l-routes">–</b><span>路由总数（9 个服务）</span></div>
+      <div class="kpi"><b id="l-errors">–</b><span>error（必须修复）</span></div>
+      <div class="kpi"><b id="l-warnings">–</b><span>warning</span></div>
+      <div class="kpi"><b id="l-rate">–</b><span>合规率（修复率）</span></div>
+    </div>
+  </section>
+  <section><h2>按规则</h2><table><thead><tr><th>规则</th><th class="num">违规数</th></tr></thead><tbody id="l-rules"></tbody></table></section>
+  <section><h2>按服务的路由数</h2><table><thead><tr><th>服务</th><th class="num">路由</th></tr></thead><tbody id="l-services"></tbody></table></section>
+  <section class="wide"><h2>违规明细（前 100 条）</h2><table><thead><tr><th>级别</th><th>规则</th><th>接口</th><th>位置</th><th>建议</th></tr></thead><tbody id="l-issues"></tbody></table></section>
+</main>
+
+<main data-panel="versions" hidden>
+  <section class="wide">
+    <h2>API 版本生命周期</h2>
+    <p class="muted">development → testing → stable → deprecated → sunset。deprecated 版本响应带 Deprecation / Sunset 头，sunset 版本返回 410。</p>
+    <table><thead><tr><th>版本</th><th>状态</th><th>弃用时间</th><th>下线时间</th><th>后继</th><th class="noprint">变更状态</th></tr></thead><tbody id="v-list"></tbody></table>
+  </section>
+  <section><h2>近 7 天调用量</h2><table><thead><tr><th>日期</th><th>版本</th><th class="num">请求</th><th class="num">接口数</th></tr></thead><tbody id="v-usage"></tbody></table></section>
+  <section><h2>调用最多的接口</h2><table><thead><tr><th>版本</th><th>接口</th><th class="num">请求</th></tr></thead><tbody id="v-top"></tbody></table></section>
+</main>
+
+<main data-panel="deprecations" hidden>
+  <section class="wide noprint">
+    <h2>登记弃用接口</h2>
+    <form id="d-form" class="row">
+      <select name="method"><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option><option value="*">任意方法</option></select>
+      <input name="endpoint" required placeholder="/v1/rewards/season（支持 :param 与 *）" size="34">
+      <label>下线日期 <input name="sunsetAt" type="date" required></label>
+      <input name="successorEndpoint" placeholder="接替接口 /v2/…" size="24">
+      <input name="breaking" placeholder="破坏性变更：字段 → 说明；多条用 ; 分隔" size="36">
+      <button class="primary">登记</button>
+      <button type="button" id="d-notify">通知高频调用方</button>
+    </form>
+  </section>
+  <section class="wide">
+    <h2>弃用接口与迁移进度</h2>
+    <table><thead><tr><th>接口</th><th>状态</th><th>下线</th><th class="num">剩余天数</th><th class="num">未迁移客户端</th><th class="num">调用次数</th><th class="num">迁移进度</th><th>接替</th><th class="noprint">操作</th></tr></thead><tbody id="d-list"></tbody></table>
+  </section>
+  <section class="wide" id="d-detail-wrap" hidden><h2 id="d-detail-title">客户端</h2><table><thead><tr><th>客户端</th><th>版本</th><th>用户</th><th class="num">调用</th><th>最近调用</th><th>已迁移</th><th>已通知</th></tr></thead><tbody id="d-detail"></tbody></table></section>
+</main>
+
+<main data-panel="schemas" hidden>
+  <section>
+    <h2>契约列表</h2>
+    <table><thead><tr><th>ID</th><th>接口</th><th>服务</th><th class="num">版本</th></tr></thead><tbody id="s-list"></tbody></table>
+  </section>
+  <section>
+    <h2 id="s-title">契约详情</h2>
+    <div class="row noprint">
+      <label>对比 <select id="s-from"></select> → <select id="s-to"><option value="">当前</option></select></label>
+      <button id="s-diff">版本对比</button><button id="s-mock">生成 Mock</button>
+    </div>
+    <pre id="s-view" class="muted">选择左侧契约</pre>
+  </section>
+  <section class="wide noprint">
+    <h2>试校验（粘贴响应体，检查是否符合所选契约）</h2>
+    <textarea id="s-body" rows="6" style="width:100%" placeholder='{"success":true,"code":0,"data":{…}}'></textarea>
+    <div class="row" style="margin-top:8px"><button id="s-validate">校验</button><span id="s-result" class="muted"></span></div>
+    <p class="muted">契约以仓库 backend/shared/apiStandards/schemas/*.json 为准：修改走 PR，并由 contract-snapshot 门禁检查破坏性变更；网关启动时同步到 api_schema_registry 形成版本历史。</p>
+  </section>
+  <section class="wide"><h2>最近的响应契约违规</h2><table><thead><tr><th>时间</th><th>契约</th><th>接口</th><th>状态码</th><th>错误</th></tr></thead><tbody id="s-violations"></tbody></table></section>
+</main>
+
+<main data-panel="compat" hidden>
+  <section class="wide">
+    <h2>兼容性报告（契约快照 → 当前）</h2>
+    <div class="row noprint"><button id="c-md">导出 Markdown</button><button id="c-pdf">打印 / 另存为 PDF</button></div>
+    <div class="kpis" style="margin-bottom:10px">
+      <div class="kpi"><b id="c-total">–</b><span>变更</span></div>
+      <div class="kpi"><b id="c-breaking">–</b><span>破坏性</span></div>
+      <div class="kpi"><b id="c-compatible">–</b><span>是否兼容</span></div>
+    </div>
+    <table><thead><tr><th>级别</th><th>类型</th><th>契约</th><th>位置</th><th>说明</th></tr></thead><tbody id="c-list"></tbody></table>
+  </section>
+</main>
+
+<main data-panel="pipelines" hidden>
+  <section class="wide">
+    <h2>转换管道</h2>
+    <table><thead><tr><th>管道</th><th>路由</th><th>阶段</th><th class="num">执行</th><th class="num">平均耗时</th><th class="num">P95</th><th class="num">缓存命中率</th><th class="num">阶段错误</th><th class="noprint">操作</th></tr></thead><tbody id="p-list"></tbody></table>
+  </section>
+</main>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k) || ''; localStorage.setItem(k, v); } catch { return ''; } };
+  $('base').value = store('apistd.base') || location.origin;
+  $('token').value = store('apistd.token');
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pct = (x) => (x === null || x === undefined ? '–' : `${(x * 100).toFixed(1)}%`);
+  const ms = (x) => (x === null || x === undefined ? '–' : `${Math.round(x)}ms`);
+  const day = (d) => (d ? new Date(d).toLocaleDateString() : '–');
+  const empty = (n, text = '暂无数据') => `<tr><td colspan="${n}" class="muted">${text}</td></tr>`;
+
+  async function api(method, path, body, { text = false } = {}) {
+    const res = await fetch(`${$('base').value.replace(/\/$/, '')}${path}`, {
+      method, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${$('token').value}` },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    if (text) { if (!res.ok) throw new Error(`${res.status}`); return res.text(); }
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(`${res.status} ${(data.error && data.error.message) || data.message || ''}`);
+    return data.data;
+  }
+  const say = (t, cls = 'muted') => { $('msg').textContent = t; $('msg').className = cls; };
+
+  // ── 性能预算 ──
+  async function loadPerf() {
+    const p = await api('GET', `/api/admin/api-standards/performance?hours=${$('perf-hours').value}`);
+    $('k-compliance').textContent = pct(p.summary.complianceRate);
+    $('k-configured').textContent = p.summary.configuredRoutes;
+    $('k-routes').textContent = p.summary.routes;
+    $('k-alerts').textContent = (p.recentAlerts || []).length;
+    const max = Math.max(1, ...p.trend.map((t) => t.total));
+    $('perf-trend').innerHTML = p.trend.map((t) => `<div style="height:${(t.total / max) * 100}%" title="${esc(t.hour)}：${t.total} 次，违规 ${t.violations}"><i style="height:${t.total ? (t.violations / t.total) * 100 : 0}%"></i></div>`).join('') || '<span class="muted">暂无数据（需 Redis）</span>';
+    $('perf-trend-note').textContent = `蓝色为请求量，红色为违规占比；共 ${p.trend.reduce((s, t) => s + t.total, 0)} 次请求、${p.trend.reduce((s, t) => s + t.violations, 0)} 次违规`;
+    $('perf-hot').innerHTML = p.hotspots.map((r) => `<tr><td>${esc(r.route)}</td><td class="num">${ms(r.observed.p95)}</td><td class="num">${ms(r.budget.p95)}</td><td class="num ${r.heat > 1 ? 'bad' : ''}">${r.heat}</td></tr>`).join('') || empty(4);
+    $('perf-routes').innerHTML = p.routes.sort((a, b) => b.heat - a.heat).map((r) => `<tr><td>${esc(r.route)}${r.configured ? '' : ' <span class="pill muted">默认预算</span>'}</td>
+      <td>${esc(r.priority || '')} ${esc(r.budgetType || '')}</td><td class="num">${r.observed.count}</td><td class="num">${ms(r.observed.p50)}</td>
+      <td class="num ${r.observed.p95 > r.budget.p95 ? 'bad' : ''}">${ms(r.observed.p95)}</td><td class="num">${ms(r.observed.p99)}</td><td class="num">${ms(r.observed.max)}</td>
+      <td class="num">${ms(r.budget.p95)}</td><td class="num">${pct(r.compliance)}</td></tr>`).join('') || empty(9);
+  }
+
+  // ── 命名规范 ──
+  async function loadLint() {
+    const l = await api('GET', '/api/admin/api-standards/lint');
+    $('l-routes').textContent = l.summary.routes;
+    $('l-errors').textContent = l.summary.errors;
+    $('l-errors').className = l.summary.errors ? 'bad' : 'ok';
+    $('l-warnings').textContent = l.summary.warnings;
+    $('l-rate').textContent = pct(l.summary.complianceRate);
+    $('l-rules').innerHTML = Object.entries(l.byRule).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="num">${v}</td></tr>`).join('') || empty(2, '没有违规');
+    $('l-services').innerHTML = Object.entries(l.summary.byService || {}).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="num">${v}</td></tr>`).join('');
+    $('l-issues').innerHTML = [...l.errors, ...l.warnings].slice(0, 100).map((i) => `<tr><td class="${i.severity === 'error' ? 'bad' : 'warn'}">${esc(i.severity)}</td><td>${esc(i.rule)}</td><td>${esc(i.method)} ${esc(i.path)}</td><td class="muted">${esc(i.file)}:${i.line}</td><td>${esc(i.message)}；${esc(i.suggestion)}</td></tr>`).join('') || empty(5, '没有违规');
+  }
+
+  // ── 版本 ──
+  const NEXT = { development: ['testing'], testing: ['stable', 'development'], stable: ['deprecated'], deprecated: ['sunset', 'stable'], sunset: [] };
+  async function loadVersions() {
+    const v = await api('GET', '/api/admin/api-versions');
+    $('v-list').innerHTML = v.versions.map((x) => `<tr data-v="${x.version}"><td>v${x.version}${x.version === v.current ? ' <span class="pill">当前</span>' : ''}</td><td>${esc(x.status)}</td><td>${day(x.deprecatedAt)}</td><td>${day(x.sunsetAt)}</td><td>${x.successor ? `v${esc(x.successor)}` : '–'}</td>
+      <td class="noprint">${(NEXT[x.status] || []).map((s) => `<button data-to="${s}">→ ${s}</button>`).join(' ')}</td></tr>`).join('');
+    $('v-usage').innerHTML = v.usage.map((u) => `<tr><td>${day(u.date)}</td><td>v${esc(u.version)}</td><td class="num">${u.requests}</td><td class="num">${u.endpoints}</td></tr>`).join('') || empty(4);
+    $('v-top').innerHTML = v.topEndpoints.map((u) => `<tr><td>v${esc(u.version)}</td><td>${esc(u.endpoint)}</td><td class="num">${u.requests}</td></tr>`).join('') || empty(3);
+  }
+  $('v-list').addEventListener('click', async (e) => {
+    const b = e.target.closest('button[data-to]');
+    if (!b) return;
+    const version = b.closest('tr').dataset.v;
+    const body = { status: b.dataset.to };
+    if (body.status === 'deprecated') {
+      const d = prompt('下线日期（YYYY-MM-DD）', new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10));
+      if (!d) return;
+      body.sunsetAt = new Date(d).toISOString();
+    }
+    if (body.status === 'sunset' && !confirm(`确认下线 v${version}？之后该版本所有请求返回 410。`)) return;
+    try { await api('PATCH', `/api/admin/api-versions/${version}`, body); await loadVersions(); say(`v${version} → ${body.status}`); } catch (err) { say(`操作失败：${err.message}`, 'err'); }
+  });
+
+  // ── 弃用 ──
+  async function loadDeprecations() {
+    const d = await api('GET', '/api/admin/deprecations');
+    $('d-list').innerHTML = d.deprecations.map((x) => `<tr data-id="${x.id}"><td>${esc(x.method)} ${esc(x.endpoint)}</td><td>${esc(x.status)}</td><td>${day(x.sunset_at)}</td>
+      <td class="num ${x.daysRemaining <= 7 ? 'bad' : ''}">${x.daysRemaining}</td><td class="num">${x.active_clients}</td><td class="num">${x.total_calls}</td><td class="num">${pct(x.migrationProgress)}</td>
+      <td>${esc(x.successor_endpoint || '–')}</td>
+      <td class="noprint actions"><button data-act="clients">客户端</button> <a href="${esc($('base').value.replace(/\/$/, ''))}/api/deprecations/${x.id}/migration-guide" target="_blank" rel="noopener">迁移文档</a>
+      ${x.status === 'active' ? ' <button data-act="cancel">取消</button>' : ''}</td></tr>`).join('') || empty(9, '没有登记的弃用接口');
+  }
+  $('d-list').addEventListener('click', async (e) => {
+    const b = e.target.closest('button[data-act]');
+    if (!b) return;
+    const id = b.closest('tr').dataset.id;
+    try {
+      if (b.dataset.act === 'cancel') {
+        if (!confirm('取消该弃用登记？')) return;
+        await api('DELETE', `/api/admin/deprecations/${id}`);
+        await loadDeprecations();
+      } else {
+        const d = await api('GET', `/api/admin/deprecations/${id}`);
+        $('d-detail-wrap').hidden = false;
+        $('d-detail-title').textContent = `${d.method} ${d.endpoint} 的调用方`;
+        $('d-detail').innerHTML = d.clients.map((c) => `<tr><td>${esc(c.client_id)}</td><td>${esc(c.client_version || '')}</td><td class="muted">${esc(c.user_id || '')}</td><td class="num">${c.deprecated_call_count}</td>
+          <td>${c.last_deprecated_call_at ? esc(new Date(c.last_deprecated_call_at).toLocaleString()) : '–'}</td><td>${c.migrated_at ? '✓' : ''}</td><td>${c.notification_sent_at ? esc(new Date(c.notification_sent_at).toLocaleDateString()) : ''}</td></tr>`).join('') || empty(7, '尚无调用');
+      }
+    } catch (err) { say(`操作失败：${err.message}`, 'err'); }
+  });
+  $('d-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const breakingChanges = String(f.get('breaking') || '').split(';').map((s) => s.trim()).filter(Boolean).map((s) => { const [field, change] = s.split('→').map((x) => x.trim()); return { field, change: change || '' }; });
+    try {
+      await api('POST', '/api/admin/deprecations', { method: f.get('method'), endpoint: f.get('endpoint'), sunsetAt: new Date(f.get('sunsetAt')).toISOString(), successorEndpoint: f.get('successorEndpoint') || undefined, breakingChanges });
+      e.target.reset(); await loadDeprecations(); say('已登记');
+    } catch (err) { say(`登记失败：${err.message}`, 'err'); }
+  });
+  $('d-notify').addEventListener('click', async () => {
+    try { const r = await api('POST', '/api/admin/deprecations/notify', { days: 30, minCalls: 5 }); say(`候选 ${r.candidates}，站内通知 ${r.notified}，记录日志 ${r.logged}`); await loadDeprecations(); } catch (err) { say(`通知失败：${err.message}`, 'err'); }
+  });
+
+  // ── 契约 ──
+  let currentContract = null;
+  async function loadSchemas() {
+    const [s, v] = await Promise.all([api('GET', '/api/admin/api-standards/schemas'), api('GET', '/api/admin/api-standards/schemas/violations')]);
+    $('s-list').innerHTML = s.contracts.map((c) => `<tr><td><a href="#" data-id="${esc(c.id)}">${esc(c.id)}</a></td><td>${esc(c.method)} ${esc(c.route)}</td><td>${esc(c.service)}</td><td class="num">${c.version ?? '–'}</td></tr>`).join('');
+    $('s-violations').innerHTML = v.violations.slice(0, 50).map((x) => `<tr><td>${x.at ? esc(new Date(x.at).toLocaleString()) : ''}</td><td>${esc(x.contract)}</td><td>${esc(x.method)} ${esc(x.path)}</td><td>${esc(x.status)}</td><td>${(x.errors || []).slice(0, 3).map((er) => `${esc(er.path)}：${esc(er.message)}`).join('<br>')}</td></tr>`).join('') || empty(5, '没有违规');
+  }
+  $('s-list').addEventListener('click', async (e) => {
+    const a = e.target.closest('a[data-id]');
+    if (!a) return;
+    e.preventDefault();
+    try {
+      const c = await api('GET', `/api/admin/api-standards/schemas/${encodeURIComponent(a.dataset.id)}`);
+      currentContract = c.id;
+      $('s-title').textContent = `${c.id}（${c.method} ${c.route}）`;
+      $('s-from').innerHTML = c.history.map((h) => `<option value="${h.version}">v${h.version} ${esc(new Date(h.created_at).toLocaleDateString())}</option>`).join('');
+      $('s-to').innerHTML = '<option value="">当前</option>' + c.history.map((h) => `<option value="${h.version}">v${h.version}</option>`).join('');
+      $('s-view').textContent = JSON.stringify({ schema: c.schema, requestSchema: c.requestSchema }, null, 2);
+      $('s-view').className = '';
+    } catch (err) { say(`加载失败：${err.message}`, 'err'); }
+  });
+  $('s-diff').addEventListener('click', async () => {
+    if (!currentContract) return;
+    try {
+      const q = `from=${$('s-from').value || 1}${$('s-to').value ? `&to=${$('s-to').value}` : ''}`;
+      const r = await api('GET', `/api/admin/api-standards/schemas/${encodeURIComponent(currentContract)}/diff?${q}`);
+      $('s-view').textContent = r.changes.length ? r.changes.map((c) => `[${c.severity}] ${c.type} ${c.path || ''} ${c.from !== undefined ? `${JSON.stringify(c.from)} → ${JSON.stringify(c.to)}` : ''}`).join('\n') : '两个版本之间没有结构差异';
+    } catch (err) { say(`对比失败：${err.message}`, 'err'); }
+  });
+  $('s-mock').addEventListener('click', async () => {
+    if (!currentContract) return;
+    try { const r = await api('GET', `/api/admin/api-standards/schemas/${encodeURIComponent(currentContract)}/mock`); $('s-view').textContent = JSON.stringify(r.mock, null, 2); } catch (err) { say(`生成失败：${err.message}`, 'err'); }
+  });
+  $('s-validate').addEventListener('click', async () => {
+    if (!currentContract) { $('s-result').textContent = '先选择契约'; return; }
+    let body;
+    try { body = JSON.parse($('s-body').value); } catch { $('s-result').textContent = 'JSON 格式错误'; $('s-result').className = 'err'; return; }
+    try {
+      const r = await api('POST', `/api/admin/api-standards/schemas/${encodeURIComponent(currentContract)}/validate`, { body });
+      $('s-result').className = r.valid ? 'ok' : 'err';
+      $('s-result').textContent = r.valid ? `符合契约（${r.durationMs}ms）` : r.errors.slice(0, 10).map((x) => `${x.path}：${x.message}`).join('；');
+    } catch (err) { say(`校验失败：${err.message}`, 'err'); }
+  });
+
+  // ── 兼容性报告 ──
+  async function loadCompat() {
+    const r = await api('GET', '/api/admin/api-standards/compat-report');
+    $('c-total').textContent = r.summary.total;
+    $('c-breaking').textContent = r.summary.breaking;
+    $('c-compatible').textContent = r.summary.compatible ? '是' : '否';
+    $('c-compatible').className = r.summary.compatible ? 'ok' : 'bad';
+    $('c-list').innerHTML = r.changes.map((c) => `<tr><td class="${c.breaking ? 'bad' : ''}">${esc(c.severity)}</td><td>${esc(c.type)}</td><td>${esc(c.contract || '')}</td><td>${esc(c.path || '')}</td><td>${esc(c.method || '')} ${esc(c.route || '')}${c.from !== undefined ? ` ${esc(JSON.stringify(c.from))} → ${esc(JSON.stringify(c.to))}` : ''}</td></tr>`).join('') || empty(5, '契约与快照一致');
+  }
+  $('c-md').addEventListener('click', async () => {
+    try {
+      const md = await api('GET', '/api/admin/api-standards/compat-report?format=markdown', null, { text: true });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown' }));
+      a.download = `api-compat-report-${new Date().toISOString().slice(0, 10)}.md`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    } catch (err) { say(`导出失败：${err.message}`, 'err'); }
+  });
+  $('c-pdf').addEventListener('click', () => window.print());
+
+  // ── 管道 ──
+  async function loadPipelines() {
+    const p = await api('GET', '/api/v1/pipelines');
+    const rows = await Promise.all(p.pipelines.map(async (x) => ({ x, m: await api('GET', `/api/v1/pipelines/${encodeURIComponent(x.name)}/metrics?period=24h`).catch(() => ({})) })));
+    $('p-list').innerHTML = rows.map(({ x, m }) => `<tr data-name="${esc(x.name)}"><td>${esc(x.name)}${x.builtin ? ' <span class="pill muted">内置</span>' : ''}</td><td>${esc(x.method || '')} ${esc(x.route || '*')}</td>
+      <td>${x.stages.map((s) => esc(s.transformer)).join(' → ')}</td><td class="num">${m.executions ?? '–'}</td><td class="num">${m.avgMs ?? '–'}</td><td class="num">${m.p95Ms ?? '–'}</td>
+      <td class="num">${pct(m.cacheHitRate)}</td><td class="num">${m.errors ?? '–'}</td><td class="noprint"><button data-act="refresh">清缓存</button></td></tr>`).join('');
+  }
+  $('p-list').addEventListener('click', async (e) => {
+    const b = e.target.closest('button[data-act="refresh"]');
+    if (!b) return;
+    try { const r = await api('POST', `/api/v1/pipelines/${encodeURIComponent(b.closest('tr').dataset.name)}/refresh-cache`); say(`已清除 ${r.cleared} 条缓存`); } catch (err) { say(`操作失败：${err.message}`, 'err'); }
+  });
+
+  const LOADERS = { perf: loadPerf, lint: loadLint, versions: loadVersions, deprecations: loadDeprecations, schemas: loadSchemas, compat: loadCompat, pipelines: loadPipelines };
+  let tab = store('apistd.tab') || 'perf';
+  if (!LOADERS[tab]) tab = 'perf';
+  function show(t) {
+    tab = t; store('apistd.tab', t);
+    document.querySelectorAll('nav [data-tab]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === t)));
+    document.querySelectorAll('main[data-panel]').forEach((m) => { m.hidden = m.dataset.panel !== t; });
+    load();
+  }
+  async function load() {
+    store('apistd.base', $('base').value); store('apistd.token', $('token').value);
+    if (!$('token').value) { say('请填写管理员 token'); return; }
+    say('加载中…');
+    try { await LOADERS[tab](); say(`已更新 ${new Date().toLocaleTimeString()}`); } catch (e) { say(`加载失败：${e.message}`, 'err'); }
+  }
+  document.querySelector('nav').addEventListener('click', (e) => { const b = e.target.closest('[data-tab]'); if (b) show(b.dataset.tab); });
+  $('perf-hours').addEventListener('change', load);
+  $('load').addEventListener('click', load);
+  show(tab);
+})();
+</script>
+</body>
+</html>

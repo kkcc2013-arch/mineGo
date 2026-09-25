@@ -1,0 +1,107 @@
+{
+  "$id": "common",
+  "description": "mineGo 统一响应信封与公共结构（REQ-00386 / REQ-00302 / REQ-00465 / REQ-00518）",
+  "definitions": {
+    "Meta": {
+      "type": "object",
+      "description": "响应元信息",
+      "properties": {
+        "requestId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "apiVersion": { "type": "integer" },
+        "pagination": { "$ref": "#/definitions/Pagination" }
+      }
+    },
+    "Link": {
+      "type": "object",
+      "required": ["href"],
+      "properties": {
+        "href": { "type": "string" },
+        "method": { "type": "string", "enum": ["GET", "POST", "PUT", "PATCH", "DELETE"] },
+        "title": { "type": "string" },
+        "templated": { "type": "boolean" }
+      }
+    },
+    "Links": {
+      "type": "object",
+      "description": "HAL 链接集合",
+      "additionalProperties": { "$ref": "#/definitions/Link" }
+    },
+    "Pagination": {
+      "type": "object",
+      "description": "分页元数据（offset 与 cursor 两种分页的并集）",
+      "required": ["type", "pageSize", "hasNext", "hasPrev"],
+      "properties": {
+        "type": { "type": "string", "enum": ["offset", "cursor"] },
+        "page": { "type": ["integer", "null"] },
+        "pageSize": { "type": "integer", "minimum": 1 },
+        "limit": { "type": "integer", "minimum": 1 },
+        "offset": { "type": ["integer", "null"], "minimum": 0 },
+        "total": { "type": ["integer", "null"] },
+        "totalPages": { "type": ["integer", "null"] },
+        "hasMore": { "type": "boolean" },
+        "hasNext": { "type": "boolean" },
+        "hasPrev": { "type": "boolean" },
+        "nextCursor": { "type": ["string", "null"] },
+        "prevCursor": { "type": ["string", "null"] }
+      }
+    },
+    "Deprecation": {
+      "type": "object",
+      "required": ["deprecated", "migrationGuide"],
+      "properties": {
+        "deprecated": { "const": true },
+        "deprecatedAt": { "type": "string", "format": "date-time" },
+        "sunsetAt": { "type": ["string", "null"] },
+        "daysRemaining": { "type": ["integer", "null"] },
+        "successorApi": { "type": ["string", "null"] },
+        "migrationGuide": { "type": "string" },
+        "breakingChanges": { "type": "array" }
+      }
+    },
+    "SuccessEnvelope": {
+      "type": "object",
+      "description": "成功响应信封：旧客户端依赖 code=0 与 data",
+      "required": ["success", "code", "data"],
+      "properties": {
+        "success": { "const": true },
+        "code": { "const": 0 },
+        "message": { "type": "string" },
+        "data": {},
+        "meta": { "$ref": "#/definitions/Meta" },
+        "pagination": { "$ref": "#/definitions/Pagination" },
+        "_links": { "$ref": "#/definitions/Links" },
+        "deprecation": { "$ref": "#/definitions/Deprecation" },
+        "timestamp": { "type": "string" }
+      }
+    },
+    "ErrorObject": {
+      "type": "object",
+      "required": ["code", "name", "message"],
+      "properties": {
+        "code": { "type": ["integer", "string"] },
+        "name": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]+$" },
+        "message": { "type": "string" },
+        "httpStatus": { "type": "integer" },
+        "i18nKey": { "type": "string" },
+        "docUrl": { "type": "string" },
+        "retryable": { "type": "boolean" },
+        "retryAfter": { "type": "number" },
+        "details": {}
+      }
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "description": "统一错误响应（error 为旧格式字符串时标准对象在 errorInfo）",
+      "required": ["success", "code", "message", "error"],
+      "properties": {
+        "success": { "const": false },
+        "code": { "type": ["integer", "string"] },
+        "message": { "type": "string" },
+        "error": { "anyOf": [{ "$ref": "#/definitions/ErrorObject" }, { "type": "string" }] },
+        "errorInfo": { "$ref": "#/definitions/ErrorObject" },
+        "meta": { "$ref": "#/definitions/Meta" }
+      }
+    }
+  }
+}

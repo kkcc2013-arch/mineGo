@@ -3,7 +3,7 @@
 - **编号**：REQ-00518
 - **类别**：API 设计规范
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：backend/shared/utils/ApiResponse.js、gateway/src/middleware、所有后端服务、game-client
 - **创建时间**：2026-07-09 01:00
 - **依赖需求**：REQ-00465（分页标准化）、REQ-00008（OpenAPI 文档）
@@ -394,3 +394,25 @@ if (navigator.can('evolve')) {
 4. **渐进实现**：可先支持核心资源，不影响现有 API 兼容性
 
 对"项目可用"贡献：提升 API 规范成熟度，从"REST-like"迈向真正的 RESTful。
+
+## 实现记录（2026-09-25）
+
+状态：**implemented**（代码已完成、未在服务上运行验证；按 09-25 验证规则，服务级验证由用户安排）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| LinksBuilder 单元测试覆盖 ≥ 90%（链接构建、条件判断、分页链接） | ⚠️ | 单测覆盖条件链接（可进化、本人资料、交易状态、补给站可转）、分页链接、Link 头解析；未跑覆盖率工具 |
+| ApiResponse withLinks/paginatedWithLinks/hal 方法可用且格式符合 HAL 标准 | ✅ | services 单测 |
+| LinkRegistry 包含 Pokemon、Gym、User、Trade 链接模板定义 | ✅ | 另有 species / raid / spawn（野生精灵）/ pokestop |
+| 至少 3 个核心资源 API（Pokemon 详情、Pokemon 列表、Gym 详情）返回 `_links` | ✅ | 网关按路径识别资源类型自动附加，服务无需改动 |
+| 前端 LinkNavigator 工具可解析链接并执行操作 | ✅ | 前端单测 |
+| api-guidelines.md 包含 HATEOAS 链接规范章节 | ✅ |  |
+| 集成测试验证链接导航流程（精灵详情 → 进化操作） | ✅ | 管道集成测试断言 evolve 链接；冒烟按链接执行 powerUp（测试精灵糖果不足，evolve 链接按条件不出现），待验证 |
+
+- 入口：网关管道 hateoasLinker / halFormatter；`GET /api/discover`；前端 `LinkNavigator`（`api.getPokemonNavigator(id)` / `nav.follow(rel)` / `api.pages()`）
+- 代码：`backend/shared/apiStandards/hateoas.js`（LinkRegistry / LinksBuilder / HalFormatter / ResourceDiscoverer）、`shared/utils/ApiResponse.js`、`frontend/game-client/src/api/apiStandards.js`
+- 单测：`cd backend && npm run test:api-standards`（api-standards-core / contract / lint 为纯逻辑，宿主机已运行通过：core 25/25、contract 11/11、lint 4/4；pipeline / ops / services 依赖 express / pino / prom-client，在 09-25 18:30 验证规则调整前于 CI 栈跑通过（pipeline 17/17、ops 20/20、services 5/5），之后追加的用例**未运行，待验证**）
+- 前端单测：`node --test frontend/game-client/tests/unit/api-standards-client.test.mjs`（宿主机 10/10 通过，Node ≥ 22.12）
+- 冒烟：`BASE_URL=http://<网关> node scripts/smoke-api-standards.js`（约 90 项断言，**未运行，待验证**）；核心冒烟 `scripts/smoke-core-flow.js` 在网关接入管道后于 CI 栈跑过 37/37（18:30 前）（含"精灵详情 → powerUp 按链接执行"、"_links.species 导航"）
+- 文档：`docs/api-guidelines.md` 第 4 节
+- 相关提交：分支 `work/e25-api`（Epic E25 API 设计规范，合并后见集成分支 squash 提交）

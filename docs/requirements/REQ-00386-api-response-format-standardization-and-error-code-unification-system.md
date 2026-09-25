@@ -3,7 +3,7 @@
 - **编号**：REQ-00386
 - **类别**：API 设计规范
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：所有微服务、backend/shared/middleware、gateway、frontend/game-client、frontend/admin-dashboard、docs/api-spec
 - **创建时间**：2026-06-30 12:00 UTC
 - **依赖需求**：无
@@ -832,3 +832,30 @@ export interface ResponseMeta {
 4. **可维护性提升**：标准化响应让问题排查和监控更简单
 5. **文档自动化**：统一格式支持自动生成准确的 API 文档
 6. **向后兼容设计**：渐进式迁移策略不影响现有功能
+
+## 实现记录（2026-09-25）
+
+状态：**implemented**（代码已完成、未在服务上运行验证；按 09-25 验证规则，服务级验证由用户安排）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| `backend/shared/utils/ApiResponse.js` 存在且导出 `success`, `created`, `paginated`, `list`, `noContent` 方法 | ✅ | 重写，另有 withLinks / paginatedWithLinks / hal / halPaginated / error；保留 `code: 0` |
+| `backend/shared/middleware/errorHandler.js` 存在且导出 `AppError`, `errorHandler`, `notFoundHandler`, `asyncHandler` | ✅ | 已存在；网关另加统一 JSON 错误处理（原先 requireAdmin 的 403 是 Express 默认 HTML） |
+| `backend/shared/errors/ErrorCodes.js` 包含至少 20 个错误码定义 | ✅ | 单测断言；网关错误目录 `errorCatalog.js` 60+ 项，`GET /api/errors` |
+| 所有错误码包含 `code`, `httpStatus`, `message`, `i18nKey` 四个字段 | ✅ | 单测断言 |
+| 测试用例验证：成功响应格式符合 `{ success: true, data: {}, meta: {} }` | ✅ | ApiResponse 单测 + 管道集成测试 |
+| 测试用例验证：错误响应格式符合 `{ success: false, error: {}, meta: {} }` | ✅ | 管道 errorNormalizer（只增不减：保留旧 code/message；字符串 error 另给 errorInfo） |
+| 测试用例验证：分页响应包含 `pagination` 字段且格式正确 | ✅ |  |
+| 测试用例验证：`AppError` 正确映射到 HTTP 状态码 | ✅ | `api-standards-services.test.js`（未运行，待验证） |
+| `docs/api-spec/openapi.yaml` 更新并包含 `SuccessResponse`, `ErrorResponse`, `PaginatedResponse` 组件定义 | ✅ | 由契约生成 |
+| `frontend/shared/types/api.ts` 类型定义文件存在且可编译 | ✅ | `tsc --noEmit --strict` 通过 |
+| 至少 3 个服务的响应格式已迁移使用新标准 | ✅ | 网关管道对全部服务统一补齐；pokemon / social / reward 三个服务的列表接口迁移到统一分页 |
+| 文档更新：`docs/api-guidelines.md` 包含响应格式规范说明 | ✅ | 重写第 1 节（与实际格式一致） |
+
+- 入口：网关管道 errorNormalizer / successNormalizer / metaInjector；`GET /api/errors[/:name]`
+- 代码：`backend/shared/apiStandards/errorCatalog.js`、`shared/utils/ApiResponse.js`、`gateway/src/index.js`（统一错误处理）
+- 单测：`cd backend && npm run test:api-standards`（api-standards-core / contract / lint 为纯逻辑，宿主机已运行通过：core 25/25、contract 11/11、lint 4/4；pipeline / ops / services 依赖 express / pino / prom-client，在 09-25 18:30 验证规则调整前于 CI 栈跑通过（pipeline 17/17、ops 20/20、services 5/5），之后追加的用例**未运行，待验证**）
+- 前端单测：`node --test frontend/game-client/tests/unit/api-standards-client.test.mjs`（宿主机 10/10 通过，Node ≥ 22.12）
+- 冒烟：`BASE_URL=http://<网关> node scripts/smoke-api-standards.js`（约 90 项断言，**未运行，待验证**）；核心冒烟 `scripts/smoke-core-flow.js` 在网关接入管道后于 CI 栈跑过 37/37（18:30 前）
+- 待验证：game-client 与管理后台现有页面对新增字段无兼容问题（只增不减，旧字段未改）
+- 相关提交：分支 `work/e25-api`（Epic E25 API 设计规范，合并后见集成分支 squash 提交）

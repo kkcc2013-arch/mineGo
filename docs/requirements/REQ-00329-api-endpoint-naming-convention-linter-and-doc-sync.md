@@ -3,7 +3,7 @@
 - **编号**：REQ-00329
 - **类别**：API 设计规范
 - **优先级**：P2
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：gateway、所有微服务、backend/shared/apiLinter.js、docs/api-spec、.github/workflows、scripts
 - **创建时间**：2026-06-26 00:27 UTC
 - **依赖需求**：REQ-00008（OpenAPI 文档与 API 设计规范统一）、REQ-00044（API 版本管理）
@@ -530,3 +530,25 @@ module.exports = OpenApiGenerator;
 - 降低新成员上手成本
 - 减少前后端协作摩擦
 - 为 API 长期演进打下基础
+
+## 实现记录（2026-09-25）
+
+状态：**implemented**（代码已完成、未在服务上运行验证；按 09-25 验证规则，服务级验证由用户安排）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| API Linter 工具完成，能扫描所有 9 个微服务的路由文件 | ✅ | `scripts/api-lint.js`：gateway + 8 个服务，解析 `app.use` 挂载前缀（含 `x.router` 形式）得到完整路径，约 1340 条 |
+| Linter 能检测 kebab-case、复数资源、版本前缀、HTTP 方法误用等违规 | ✅ | 9 条规则：invalid-path / duplicate / unsafe-get（error），kebab-case / no-verbs / plural-collection / nesting-depth / version-prefix / missing-jsdoc（warning） |
+| CI/CD 集成完成，PR 中自动运行 Linter 检查 | ✅ | 模板 `ci/github-workflows/api-standards.yml`（推送 token 无 workflow 权限，**需有权限的人拷贝到 `.github/workflows/`**） |
+| Linter 报告格式清晰，包含文件路径、行号、违规描述、修复建议 | ✅ | 文本 / JSON 两种格式 |
+| OpenAPI 文档自动生成工具完成，从 JSDoc 注释提取 API 信息 | ✅ | `--docs` 生成 `docs/api-spec/generated/routes.openapi.json`（summary/description 取自路由注释）与 `ROUTES.md` / `routes.json` |
+| 文档同步验证脚本完成，能检测文档与代码不一致 | ✅ | `--check-docs` 列出新增/删除的路由，不一致退出码 1 |
+| 所有现有 API 端点通过 Linter 检查（警告可接受，错误需修复） | ✅ | error 0；修复了 linter 发现的 3 处被遮蔽的重复路由（其中 pokemon-service 亲密度接口用 parseInt 解析 UUID，永远 400/404） |
+| API 命名规范文档完成，包含示例和最佳实践 | ✅ | `docs/api-standards/naming-conventions.md` |
+| 管理后台展示 API 规范统计（总数、违规数、修复率） | ✅ | `GET /api/admin/api-standards/lint` + 管理面板"命名规范"页 |
+
+- 入口：`node scripts/api-lint.js [--all|--json|--docs|--check-docs]`；管理面板 `admin-dashboard/api-standards.html`
+- 单测：`cd backend && npm run test:api-standards`（api-standards-core / contract / lint 为纯逻辑，宿主机已运行通过：core 25/25、contract 11/11、lint 4/4；pipeline / ops / services 依赖 express / pino / prom-client，在 09-25 18:30 验证规则调整前于 CI 栈跑通过（pipeline 17/17、ops 20/20、services 5/5），之后追加的用例**未运行，待验证**）（`api-standards-lint.test.js` 宿主机 4/4）
+- 注意：合并其他分支后新增路由会让 `--check-docs` 失败，需重新运行 `--docs` 提交生成物
+- 待验证：CI 模板拷贝到 `.github/workflows/` 后在 PR 上运行
+- 相关提交：分支 `work/e25-api`（Epic E25 API 设计规范，合并后见集成分支 squash 提交）

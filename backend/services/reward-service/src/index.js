@@ -11,6 +11,8 @@ const { getRedis } = require('../../../shared/redis');
 const { requireAuth, requireAdmin, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
+// REQ-00302/465：统一分页 + 延迟关联 + count 估算
+const { offsetPaginationMiddleware, buildLinks, deferredJoinSql, shouldUseDeferredJoin, countWithStrategy } = require('../../../shared/apiStandards/pagination');
 
 // Import event routes (REQ-00141)
 const eventsRouter = require('./routes/events');
@@ -254,7 +256,9 @@ app.post('/rewards/quests/claim', requireAuth, async (req, res, next) => {
 });
 
 // ── GET /rewards/leaderboard  — global rankings ──────────────
-app.get('/rewards/leaderboard', requireAuth, async (req, res, next) => {
+// REQ-00302/465：page/pageSize 分页（默认第 1 页 100 条，与旧行为一致）；offset > 1000 时走延迟关联（deferred join），
+//   总数在大表上用规划器估算（countWithStrategy），响应补 pagination/meta.pagination/_links
+app.get('/rewards/leaderboard', requireAuth, offsetPaginationMiddleware({ defaultPageSize: 100, maxPageSize: 100 }), async (req, res, next) => {
   try {
     const { type = 'xp', team } = req.query;
 
@@ -265,18 +269,21 @@ app.get('/rewards/leaderboard', requireAuth, async (req, res, next) => {
     const teamValue = team ? String(team).toUpperCase() : null;
     if (teamValue && !VALID_TEAMS.includes(teamValue)) throw new AppError(1001, 'team 参数无效', 400);
     const teamFilter = teamValue ? 'AND u.team = $1' : '';
-
-    const { rows } = await query(`
-      SELECT
-        ROW_NUMBER() OVER (ORDER BY ${orderCol} DESC) AS rank,
-        u.id, u.nickname, u.avatar_url, u.level, u.team,
-        u.xp,
-        (SELECT COUNT(*)::int FROM pokemon_instances WHERE user_id=u.id) AS pokemon_count
-      FROM users u
-      WHERE u.is_banned = false ${teamFilter}
-      ORDER BY ${orderCol} DESC
-      LIMIT 100
-    `, teamValue ? [teamValue] : []);
+    const baseParams = teamValue ? [teamValue] : [];
+    const { limit, offset } = req.pagination;
+    const params = [...baseParams, limit, offset];
+    const lp = `$${params.length - 1}`, op = `$${params.length}`;
+    const select = `u.id, u.nickname, u.avatar_url, u.level, u.team, u.xp,
+        (SELECT COUNT(*)::int FROM pokemon_instances WHERE user_id=u.id) AS pokemon_count`;
+    const deferred = shouldUseDeferredJoin(offset);
+    const sql = deferred
+      ? deferredJoinSql({ table: 'users', alias: 'u', select, where: `u.is_banned = false ${teamFilter}`, orderBy: `${orderCol} DESC, u.id`, limitParam: lp, offsetParam: op })
+      : `SELECT ${select} FROM users u WHERE u.is_banned = false ${teamFilter} ORDER BY ${orderCol} DESC, u.id LIMIT ${lp} OFFSET ${op}`;
+    const { rows: ranked } = await query(sql, params);
+    const rows = ranked.map((r, i) => ({ rank: String(offset + i + 1), ...r }));
+    const { total, estimated } = await countWithStrategy(query, `SELECT COUNT(*)::int FROM users u WHERE u.is_banned = false ${teamFilter}`, baseParams, { mode: 'estimate', exactBelow: 10000 });
+    res.setHeader('X-Pagination-Strategy', deferred ? 'deferred-join' : 'offset');
+    if (estimated) res.setHeader('X-Total-Count-Estimated', 'true');
 
     // Find current user's rank
     const { rows: [myRank] } = await query(`
@@ -285,7 +292,10 @@ app.get('/rewards/leaderboard', requireAuth, async (req, res, next) => {
         AND u.is_banned=false
     `, [req.user.sub]);
 
-    res.json(successResp({ leaderboard: rows, myRank: myRank?.rank || null }));
+    const meta = res.addPaginationMeta({ count: rows.length, total });
+    const links = buildLinks((req.originalUrl || req.url).split('?')[0], req.query, meta);
+    res.addLinks(links);
+    res.json({ ...successResp({ leaderboard: rows, myRank: myRank?.rank || null }), pagination: meta, meta: { pagination: meta }, _links: links });
   } catch (err) { next(err); }
 });
 

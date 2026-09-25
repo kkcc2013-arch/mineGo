@@ -7,7 +7,7 @@
 | 标题 | 精灵详情批量查询与数据聚合优化系统 |
 | 类别 | 性能优化 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | pokemon-service、gateway、backend/shared、Redis、PostgreSQL |
 | 创建时间 | 2026-06-27 06:00 UTC |
 
@@ -878,3 +878,29 @@ module.exports = {
 - [Redis Pipeline 批量操作](https://redis.io/docs/manual/pipelining/)
 - [Facebook DataLoader 批量查询模式](https://github.com/graphql/dataloader)
 - [Twitter 异步预取策略](https://blog.twitter.com/engineering/en_us/topics/infrastructure/2012/caching-with-twemproxy)
+
+## 实现记录（2026-09-25）
+
+状态：**implemented**（代码已完成、未在服务上运行验证；按 09-25 验证规则，服务级验证由用户安排）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 实现 `POST /api/pokemon/batch/details` 批量查询接口，支持一次请求最多 100 个精灵 | ✅ | `/v1/pokemon/batch/details`、`/api/v1/pokemon/batch/details`、`/api/pokemon/batch/details`；重写 `routes/batch.js`（原实现查询不存在的列且缓存未按用户隔离，可读取他人精灵） |
+| 实现智能数据聚合，支持 include 参数动态加载技能、装备、状态效果、战斗统计、历史记录 | ✅ | `PokemonBatchService`：skills / equipment / effects / battle / history，每类 1 条查询 |
+| 实现请求合并中间件，50ms 窗口内的独立请求自动合并 | ✅ | `shared/apiStandards/requestCoalescer.js`；`GET /pokemon/my/:id` 同一用户 50ms 内的详情请求合并为一次查询 |
+| 实现缓存预取与预热机制，预测准确率 ≥ 70% | ⚠️ | 列表返回后预取前 10 个详情，命中率统计 `GET /v1/pokemon/batch/metrics`（管理员）与 `pokemon_prefetch_total`；准确率需真实流量统计，未实测 |
+| 批量查询性能：100 个精灵详情查询延迟 < 500ms（P95） | ⚠️ | 冒烟脚本测 20 次 P95（待验证）；基准脚本含该端点 |
+| 缓存命中率：批量查询缓存命中率 ≥ 60% | ⚠️ | 重复查询场景由冒烟断言（待验证）；缓存按用户 + 缓存版本隔离，TTL 30s |
+| 数据库连接优化：批量查询减少 80% 的独立数据库连接 | ✅ | 整批 1 个连接（主查询 + include），100 个 id 相对逐个查询减少 99%；单测断言 `dbConnections === 1` |
+| 降级策略：部分数据查询失败不影响整体响应 | ✅ | 失败的 include 记入 `metadata.failedIncludes`，条目标 `_missing` 且不写缓存 |
+| 监控指标：暴露批量查询计数、延迟、缓存命中率等 Prometheus 指标 | ✅ | `pokemon_batch_query_total` / `_duration_seconds` / `_size`、`pokemon_batch_cache_total`、`pokemon_batch_db_queries_total`、`pokemon_detail_coalesced_requests_total`、`pokemon_prefetch_total` |
+| 单元测试覆盖率 ≥ 80% | ⚠️ | 单测覆盖服务全部分支（假 DB / 假 Redis）；未跑覆盖率工具 |
+| 集成测试：验证端到端批量查询流程 | ✅ | 冒烟脚本（100 id + 5 类 include、非本人 id、IDOR 防护、缓存、预取），待验证 |
+
+- 入口：pokemon-service `/pokemon/batch/details`、`/pokemon/batch/metrics`，`/pokemon/my?ids=`；前端 `api.batchPokemonDetails()`
+- 代码：`backend/services/pokemon-service/src/services/PokemonBatchService.js`、`routes/batch.js`、`src/index.js`
+- 单测：`cd backend && npm run test:api-standards`（api-standards-core / contract / lint 为纯逻辑，宿主机已运行通过：core 25/25、contract 11/11、lint 4/4；pipeline / ops / services 依赖 express / pino / prom-client，在 09-25 18:30 验证规则调整前于 CI 栈跑通过（pipeline 17/17、ops 20/20、services 5/5），之后追加的用例**未运行，待验证**）（`api-standards-services.test.js`）
+- 前端单测：`node --test frontend/game-client/tests/unit/api-standards-client.test.mjs`（宿主机 10/10 通过，Node ≥ 22.12）
+- 冒烟：`BASE_URL=http://<网关> node scripts/smoke-api-standards.js`（约 90 项断言，**未运行，待验证**）；核心冒烟 `scripts/smoke-core-flow.js` 在网关接入管道后于 CI 栈跑过 37/37（18:30 前）
+- 待验证：equipment / battle / history 三张表在生产库的列与索引（`player_equipment.equipped_to_pokemon_id`、`pokemon_battle_stats.pokemon_id`、`pokemon_friendship_logs.pokemon_instance_id` 均为 UUID）；`effects` 由实例字段推导（`battle_pokemon_status` 的实例 id 为整型，与 UUID 实例不兼容）
+- 相关提交：分支 `work/e25-api`（Epic E25 API 设计规范，合并后见集成分支 squash 提交）

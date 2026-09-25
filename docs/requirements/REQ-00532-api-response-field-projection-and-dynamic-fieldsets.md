@@ -3,7 +3,7 @@
 - **编号**：REQ-00532
 - **类别**：API 设计规范
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：gateway、所有后端服务、backend/shared/utils/FieldProjection.js、backend/shared/middleware/fieldProjectionMiddleware.js、game-client
 - **创建时间**：2026-07-11 06:00 UTC
 - **依赖需求**：REQ-00008（OpenAPI 文档标准化）、REQ-00307（API 请求验证与响应格式一致性）
@@ -769,3 +769,25 @@ module.exports = router;
 - 对移动端弱网环境优化明显
 
 该需求是实现"生产可用"目标的关键性能优化组件。
+
+## 实现记录（2026-09-25）
+
+状态：**implemented**（代码已完成、未在服务上运行验证；按 09-25 验证规则，服务级验证由用户安排）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| FieldProjection 支持解析逗号分隔字段、嵌套字段（`stats.hp`）、数组字段（`moves[].name`） | ✅ | 另支持括号分组 `trainer(id,nickname)` |
+| 预定义字段集正确工作，`?fieldset=list` 返回最小字段集 | ✅ | `GET /api/fieldsets`；管理员可维护（`fieldset_configs`） |
+| 中间件自动裁剪响应数据，不影响原有响应格式 | ✅ | 只裁剪 data（列表逐项），信封与分页保留 |
+| 敏感字段（password、token）被过滤，不返回给客户端 | ✅ | 全局剥离 + 不可选择 |
+| 数据库查询优化生效，Sequelize attributes 只查询需要的字段 | ✅ | 项目使用 pg 而非 Sequelize：`sqlColumns()` 按 fields/fieldset 生成 SELECT 列，精灵列表已接入（`X-DB-Projection`），网关对部分表示跳过完整契约校验 |
+| 无效字段返回 400 错误，包含允许字段列表 | ✅ | 契约声明 `strictFields` 的接口（精灵列表、图鉴列表） |
+| 字段数限制生效（默认最大 50 个字段） | ✅ | `API_MAX_FIELDS` 可调 |
+| Prometheus 指标记录字段投影使用情况 | ✅ | `api_field_projection_total{resource,mode}`，字段使用写 `field_usage_stats` |
+| 单元测试覆盖率 > 85% | ⚠️ | 单测覆盖解析 / 投影 / 字段集 / SQL 列 / 严格校验；未跑覆盖率工具 |
+
+- 入口：网关管道 fieldValidator / fieldProjector；`GET /api/fieldsets`；管理接口 `/api/admin/api-standards/fieldsets`、`/field-usage/:resourceType`
+- 迁移：`database/migrations/20260925_100000__api_design_standards.sql`（14 张表，幂等；18:30 前在 CI 栈全量 bootstrap 中执行通过）（`fieldset_configs`、`field_usage_stats`）
+- 单测：`cd backend && npm run test:api-standards`（api-standards-core / contract / lint 为纯逻辑，宿主机已运行通过：core 25/25、contract 11/11、lint 4/4；pipeline / ops / services 依赖 express / pino / prom-client，在 09-25 18:30 验证规则调整前于 CI 栈跑通过（pipeline 17/17、ops 20/20、services 5/5），之后追加的用例**未运行，待验证**）
+- 冒烟：`BASE_URL=http://<网关> node scripts/smoke-api-standards.js`（约 90 项断言，**未运行，待验证**）；核心冒烟 `scripts/smoke-core-flow.js` 在网关接入管道后于 CI 栈跑过 37/37（18:30 前）
+- 相关提交：分支 `work/e25-api`（Epic E25 API 设计规范，合并后见集成分支 squash 提交）

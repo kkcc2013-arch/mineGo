@@ -10,6 +10,23 @@ const { requireAuth, AppError, successResp } = require('../../../shared/auth');
 const { getRedis, getJSON } = require('../../../shared/redis');
 const { haversineDistance, requireTrustScore, TRUST_SCORE } = require('../../../shared/anti-cheat');
 const { createContentLocalizer, DEFAULT_LANGUAGE } = require('../../../shared/contentLocalizer');
+// REQ-00302/465 统一分页；REQ-00350 批量详情服务（请求合并 / 预取 / 缓存）
+const { offsetPaginationMiddleware, cursorPaginationMiddleware, keysetClause, keysetResult, buildLinks } = require('../../../shared/apiStandards/pagination');
+// REQ-00532：?fields= / ?fieldset= 时只查询需要的列
+const { sqlColumns, createDefaultFieldsets } = require('../../../shared/apiStandards/fieldProjection');
+const POKEMON_FIELDSETS = createDefaultFieldsets();
+const POKEMON_LIST_COLUMNS = {
+  id: 'pi.id', species_id: 'pi.species_id', nickname: 'pi.nickname', cp: 'pi.cp',
+  hp_current: 'pi.hp_current', hp_max: 'pi.hp_max',
+  iv_attack: 'pi.iv_attack', iv_defense: 'pi.iv_defense', iv_hp: 'pi.iv_hp',
+  iv_pct: 'ROUND((pi.iv_attack+pi.iv_defense+pi.iv_hp)*100.0/45, 1) AS iv_pct',
+  is_shiny: 'pi.is_shiny', is_lucky: 'pi.is_lucky', is_favorite: 'pi.is_favorite', power_up_count: 'pi.power_up_count',
+  fast_move: 'pi.fast_move', charge_move: 'pi.charge_move', caught_at: 'pi.caught_at',
+  name_zh: 'ps.name_zh', name_en: 'ps.name_en', type1: 'ps.type1', type2: 'ps.type2', sprite_url: 'ps.sprite_url',
+  sprite_shiny_url: 'ps.sprite_shiny_url', rarity: 'ps.rarity',
+  defending_gym_id: 'pi.defending_gym_id',
+};
+const batchRoutes = require('./routes/batch');
 
 // Content Localizer instance
 let contentLocalizer = null;
@@ -81,17 +98,57 @@ async function main() {
       // 核心路由 - 精灵列表与详情
       // ═══════════════════════════════════════════════════════════
 
-      // GET /pokemon/species — master data list (with localization)
-      app.get('/pokemon/species', async (req, res, next) => {
+      // GET /pokemon/species/stream — REQ-00526：图鉴全量 NDJSON 流（按 200 行分批读取、逐行写出，网关边压缩边转发）
+      app.get('/pokemon/species/stream', async (req, res, next) => {
+        const language = getLanguage(req);
+        let closed = false;
+        req.on('close', () => { closed = true; });
         try {
-          const { type1, rarity, limit = 50, offset = 0 } = req.query;
+          res.status(200);
+          res.setHeader('Content-Type', 'application/x-ndjson; charset=utf-8');
+          res.setHeader('X-Stream', '1');
+          let lastId = 0;
+          let count = 0;
+          for (;;) {
+            if (closed) break; // 客户端断开：停止查询，释放连接
+            const { rows } = await query(
+              `SELECT id, name_zh, name_en, name_ja, description_zh, description_en, description_ja, type1, type2, rarity,
+                      base_attack, base_defense, base_hp, candy_to_evolve, evolves_to, sprite_url, sprite_shiny_url
+                 FROM pokemon_species WHERE id > $1 ORDER BY id LIMIT 200`, [lastId]);
+            if (!rows.length) break;
+            let chunk = '';
+            for (const row of rows) {
+              const l = getLocalizedFields(row, language);
+              chunk += `${JSON.stringify({ id: row.id, name: l.name, description: l.description, type1: row.type1, type2: row.type2, rarity: row.rarity,
+                base_attack: row.base_attack, base_defense: row.base_defense, base_hp: row.base_hp, candy_to_evolve: row.candy_to_evolve,
+                evolves_to: row.evolves_to, sprite_url: row.sprite_url, sprite_shiny_url: row.sprite_shiny_url })}\n`;
+            }
+            count += rows.length;
+            lastId = rows[rows.length - 1].id;
+            if (!res.write(chunk)) await new Promise((r) => res.once('drain', r));
+            if (rows.length < 200) break;
+          }
+          if (!closed) res.end(`${JSON.stringify({ _summary: { count, locale: language } })}\n`);
+        } catch (err) {
+          if (!res.headersSent) return next(err);
+          res.destroy(err);
+        }
+        return undefined;
+      });
+
+      // GET /pokemon/species — master data list (with localization)
+      // REQ-00302/465：统一分页（page/pageSize，兼容 limit/offset；默认 50 条）+ total + 分页链接
+      app.get('/pokemon/species', offsetPaginationMiddleware({ defaultPageSize: 50, maxPageSize: 200 }), async (req, res, next) => {
+        try {
+          const { type1, rarity } = req.query;
           const language = getLanguage(req);
-          
+
           const conditions = ['1=1'];
           const params = [];
           if (type1)  { params.push(type1);   conditions.push(`type1=$${params.length}`); }
           if (rarity) { params.push(rarity);  conditions.push(`rarity=$${params.length}`); }
-          params.push(parseInt(limit)); params.push(parseInt(offset));
+          const countParams = [...params];
+          params.push(req.pagination.limit); params.push(req.pagination.offset);
 
           const { rows } = await query(`
             SELECT id, name_zh, name_en, name_ja, 
@@ -124,8 +181,9 @@ async function main() {
               _locale: localized._locale
             };
           });
-          
-          res.json(successResp(localizedRows));
+
+          const { rows: [cnt] } = await query(`SELECT COUNT(*)::int AS count FROM pokemon_species WHERE ${conditions.join(' AND ')}`, countParams);
+          res.paginated(localizedRows, { total: cnt.count, extra: { timestamp: new Date().toISOString() } });
         } catch (err) { next(err); }
       });
 
@@ -177,63 +235,76 @@ async function main() {
       // ═══════════════════════════════════════════════════════════
 
       // GET /pokemon/my — player's pokemon list
-      app.get('/pokemon/my', requireAuth, async (req, res, next) => {
+      // REQ-00302/465：统一分页（page/pageSize 或 limit/offset；cursor 游标分页）+ pagination/meta.pagination/_links，
+      //   保留 data.{pokemon,total,limit,offset} 旧结构；REQ-00350：?ids=a,b,c 按 id 批量取（≤100）+ 预取前 10 个详情
+      app.get('/pokemon/my', requireAuth, cursorPaginationMiddleware({ defaultPageSize: 30, maxPageSize: 100, cursorSecret: process.env.PAGINATION_CURSOR_SECRET || process.env.JWT_ACCESS_SECRET }), async (req, res, next) => {
         try {
-          const { sort = 'cp', order = 'desc', species_id, is_shiny, limit = 30, offset = 0 } = req.query;
+          const { sort = 'cp', order = 'desc', species_id, is_shiny, ids } = req.query;
           const userId = req.user.sub;
+          const p = req.pagination;
 
-          const validSorts = { cp:'pi.cp', iv:'(pi.iv_attack+pi.iv_defense+pi.iv_hp)', caught:'pi.caught_at' };
-          const sortCol    = validSorts[sort] || 'pi.cp';
+          const validSorts = { cp: { col: 'pi.cp', key: 'cp' }, iv: { col: '(pi.iv_attack+pi.iv_defense+pi.iv_hp)', key: 'iv_sum' }, caught: { col: 'pi.caught_at', key: 'caught_at' } };
+          const sortDef    = validSorts[sort] || validSorts.cp;
           const sortDir    = order === 'asc' ? 'ASC' : 'DESC';
 
           const conditions = ['pi.user_id=$1'];
           const params = [userId];
           if (species_id) { params.push(species_id); conditions.push(`pi.species_id=$${params.length}`); }
           if (is_shiny === 'true') conditions.push('pi.is_shiny=true');
+          if (ids !== undefined) {
+            const list = String(ids).split(',').map((x) => x.trim()).filter(Boolean);
+            if (!list.length || list.length > 100 || !list.every((x) => /^[0-9a-f-]{36}$/i.test(x))) throw new AppError(1001, 'ids 需为 1-100 个 UUID（逗号分隔）', 400);
+            params.push(list); conditions.push(`pi.id = ANY($${params.length}::uuid[])`);
+          }
+          const countConditions = [...conditions];
+          const countParams = [...params];
 
-          params.push(parseInt(limit)); params.push(parseInt(offset));
-
-          const { rows } = await query(`
-            SELECT pi.id, pi.species_id, pi.nickname, pi.cp,
-                   pi.hp_current, pi.hp_max,
-                   pi.iv_attack, pi.iv_defense, pi.iv_hp,
-                   ROUND((pi.iv_attack+pi.iv_defense+pi.iv_hp)*100.0/45, 1) AS iv_pct,
-                   pi.is_shiny, pi.is_lucky, pi.is_favorite, pi.power_up_count,
-                   pi.fast_move, pi.charge_move, pi.caught_at,
-                   ps.name_zh, ps.name_en, ps.type1, ps.type2, ps.sprite_url,
-                   ps.sprite_shiny_url, ps.rarity,
-                   pi.defending_gym_id
+          // 排序键总要查（游标需要）；iv_sum 仅用于排序/游标，返回前删除
+          const proj = sqlColumns(req.query, POKEMON_LIST_COLUMNS, { always: ['id', ...(sortDef.key === 'iv_sum' ? [] : [sortDef.key])], resource: 'pokemon', fieldsets: POKEMON_FIELDSETS });
+          if (proj.projected) res.setHeader('X-DB-Projection', proj.fields.join(','));
+          const select = `
+            SELECT ${proj.columns.join(', ')},
+                   (pi.iv_attack+pi.iv_defense+pi.iv_hp) AS iv_sum
             FROM pokemon_instances pi
-            JOIN pokemon_species ps ON ps.id = pi.species_id
-            WHERE ${conditions.join(' AND ')}
-            ORDER BY ${sortCol} ${sortDir}
-            LIMIT $${params.length-1} OFFSET $${params.length}
-          `, params);
+            JOIN pokemon_species ps ON ps.id = pi.species_id`;
 
-          const { rows: [total] } = await query(
-            `SELECT COUNT(*)::int FROM pokemon_instances WHERE user_id=$1 ${species_id ? 'AND species_id=$2':''}`,
-            species_id ? [userId, species_id] : [userId]
-          );
+          let rows, nextCursor = null, prevCursor = null, hasMore = null;
+          if (p.type === 'cursor') {
+            const k = keysetClause({ sortCol: sortDef.col.startsWith('(') ? 'pi.cp' : sortDef.col, idCol: 'pi.id', dir: sortDir, cursorData: p.cursorData, direction: p.direction, paramOffset: params.length, pageSize: p.pageSize });
+            // iv 表达式排序：keysetClause 只接受标识符，这里手工替换为表达式
+            const where = k.where ? k.where.replace('pi.cp,', sortDef.col.startsWith('(') ? `${sortDef.col},` : 'pi.cp,') : '';
+            const order = sortDef.col.startsWith('(') ? k.order.replace(/^pi\.cp/, sortDef.col) : k.order;
+            params.push(...k.params);
+            params.push(k.limit);
+            ({ rows } = await query(`${select} WHERE ${[...conditions, ...(where ? [where] : [])].join(' AND ')} ORDER BY ${order} LIMIT $${params.length}`, params));
+            const r = keysetResult(rows, { pageSize: p.pageSize, sortKey: sortDef.key, reversed: k.reversed, hadCursor: !!p.cursorData, secret: process.env.PAGINATION_CURSOR_SECRET || process.env.JWT_ACCESS_SECRET });
+            rows = r.items; nextCursor = r.nextCursor; prevCursor = r.prevCursor; hasMore = r.hasMore;
+          } else {
+            params.push(p.limit); params.push(p.offset);
+            ({ rows } = await query(`${select} WHERE ${conditions.join(' AND ')} ORDER BY ${sortDef.col} ${sortDir}, pi.id LIMIT $${params.length - 1} OFFSET $${params.length}`, params));
+          }
+          for (const r of rows) delete r.iv_sum;
 
-          res.json(successResp({ pokemon: rows, total: total.count, limit: parseInt(limit), offset: parseInt(offset) }));
+          const { rows: [total] } = await query(`SELECT COUNT(*)::int FROM pokemon_instances pi WHERE ${countConditions.join(' AND ')}`, countParams);
+
+          const meta = res.addPaginationMeta({ count: rows.length, total: total.count, nextCursor, prevCursor, hasMore });
+          const links = buildLinks((req.originalUrl || req.url).split('?')[0], req.query, meta);
+          res.addLinks(links);
+          res.json({
+            ...successResp({ pokemon: rows, total: total.count, limit: p.limit, offset: p.offset, nextCursor, prevCursor }),
+            pagination: meta,
+            meta: { pagination: meta },
+            _links: links,
+          });
+          // REQ-00350：预取列表前 10 个详情（异步，不阻塞响应）
+          if (rows.length && !ids) batchRoutes.getService().prefetch(userId, rows.slice(0, 10).map((r) => r.id)).catch(() => {});
         } catch (err) { next(err); }
       });
 
-      // GET /pokemon/my/:id
+      // GET /pokemon/my/:id — 50ms 窗口内同一用户的详情请求合并为一次查询；命中预取/按用户版本隔离的缓存（REQ-00350）
       app.get('/pokemon/my/:id', requireAuth, async (req, res, next) => {
         try {
-          const { rows: [pi] } = await query(`
-            SELECT pi.*, ps.name_zh, ps.name_en, ps.type1, ps.type2,
-                   ps.sprite_url, ps.sprite_shiny_url, ps.description_zh,
-                   ps.base_attack, ps.base_defense, ps.base_hp,
-                   ps.candy_to_evolve, ps.evolves_to,
-                   COALESCE(ci.amount,0) AS candy_count
-            FROM pokemon_instances pi
-            JOIN pokemon_species ps ON ps.id = pi.species_id
-            LEFT JOIN candy_inventory ci ON ci.user_id=pi.user_id AND ci.species_id=pi.species_id
-            WHERE pi.id=$1 AND pi.user_id=$2
-          `, [req.params.id, req.user.sub]);
-
+          const pi = await batchRoutes.getService().getDetail(req.params.id, req.user.sub);
           if (!pi) throw new AppError(3001, '精灵不存在', 404);
           res.json(successResp(pi));
         } catch (err) { next(err); }

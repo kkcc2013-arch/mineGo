@@ -15,6 +15,7 @@ const levels = require('../../../../shared/social/friendshipLevels');
 const { query } = require('../../../../shared/db');
 const { requireAuth, AppError, successResp, errorHandler } = require('../../../../shared/auth');
 const { isUuid } = require('../../../../shared/social/relationship');
+const { offsetPaginationMiddleware } = require('../../../../shared/apiStandards/pagination');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -32,8 +33,9 @@ const friendParam = (req) => {
 };
 
 // ── 列表 / 好友码 / 搜索 ──────────────────────────────────────
-router.get('/', h((req) => friendService.getFriendList(uid(req), {
-  page: req.query.page, limit: req.query.limit, sortBy: req.query.sortBy,
+// REQ-00302/465：统一分页参数（page/pageSize，兼容 limit/offset；非法值 400），默认 50、上限 400 与原实现一致
+router.get('/', offsetPaginationMiddleware({ defaultPageSize: 50, maxPageSize: 400 }), h((req) => friendService.getFriendList(uid(req), {
+  page: req.pagination.page, limit: req.pagination.limit, sortBy: req.query.sortBy,
   groupId: req.query.groupId, favorite: req.query.favorite,
 })));
 

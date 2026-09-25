@@ -1,0 +1,580 @@
+{
+  "$id": "pokemon",
+  "service": "pokemon",
+  "definitions": {
+    "PokemonSummary": {
+      "type": "object",
+      "required": [
+        "id",
+        "species_id",
+        "cp"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "species_id": {
+          "type": "integer"
+        },
+        "nickname": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "cp": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "hp_current": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "hp_max": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "iv_attack": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 15
+        },
+        "iv_defense": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 15
+        },
+        "iv_hp": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 15
+        },
+        "iv_pct": {
+          "type": [
+            "string",
+            "number"
+          ]
+        },
+        "is_shiny": {
+          "type": "boolean"
+        },
+        "is_lucky": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "is_favorite": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "fast_move": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "charge_move": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "caught_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name_zh": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name_en": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "type1": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "type2": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sprite_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rarity": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "_links": {
+          "$ref": "common#/definitions/Links"
+        },
+        "power_up_count": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "sprite_shiny_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "defending_gym_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "PokemonDetail": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/PokemonSummary"
+        },
+        {
+          "type": "object",
+          "required": [
+            "user_id"
+          ],
+          "properties": {
+            "user_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "candy_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "candy_to_evolve": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "evolves_to": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "base_attack": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "base_defense": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "base_hp": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Species": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "type1",
+        "rarity"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "description": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "type1": {
+          "type": "string"
+        },
+        "type2": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rarity": {
+          "type": "string",
+          "enum": [
+            "COMMON",
+            "UNCOMMON",
+            "RARE",
+            "EPIC",
+            "LEGENDARY",
+            "MYTHICAL"
+          ]
+        },
+        "base_attack": {
+          "type": "integer"
+        },
+        "base_defense": {
+          "type": "integer"
+        },
+        "base_hp": {
+          "type": "integer"
+        },
+        "candy_to_evolve": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "evolves_to": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "sprite_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sprite_shiny_url": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "_links": {
+          "$ref": "common#/definitions/Links"
+        },
+        "_locale": {
+          "type": "string"
+        }
+      }
+    },
+    "BatchDetails": {
+      "type": "object",
+      "required": [
+        "results",
+        "errors",
+        "metadata"
+      ],
+      "properties": {
+        "results": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/PokemonDetail"
+          }
+        },
+        "errors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        "metadata": {
+          "type": "object",
+          "required": [
+            "requested",
+            "found",
+            "failed",
+            "cached",
+            "queryTime"
+          ],
+          "properties": {
+            "requested": {
+              "type": "integer"
+            },
+            "found": {
+              "type": "integer"
+            },
+            "failed": {
+              "type": "integer"
+            },
+            "cached": {
+              "type": "integer"
+            },
+            "queryTime": {
+              "type": "integer"
+            },
+            "dbQueries": {
+              "type": "integer"
+            },
+            "partial": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  },
+  "contracts": [
+    {
+      "id": "pokemon.my.list",
+      "method": "GET",
+      "route": "/v1/pokemon/my",
+      "auth": "bearer",
+      "description": "我的精灵列表（分页）",
+      "schema": {
+        "allOf": [
+          {
+            "$ref": "common#/definitions/SuccessEnvelope"
+          },
+          {
+            "type": "object",
+            "required": [
+              "pagination"
+            ],
+            "properties": {
+              "pagination": {
+                "$ref": "common#/definitions/Pagination"
+              },
+              "data": {
+                "type": "object",
+                "required": [
+                  "pokemon",
+                  "total"
+                ],
+                "properties": {
+                  "pokemon": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/definitions/PokemonSummary"
+                    }
+                  },
+                  "total": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "limit": {
+                    "type": "integer"
+                  },
+                  "offset": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "strictFields": true
+    },
+    {
+      "id": "pokemon.my.detail",
+      "method": "GET",
+      "route": "/v1/pokemon/my/:id",
+      "auth": "bearer",
+      "description": "我的精灵详情",
+      "schema": {
+        "allOf": [
+          {
+            "$ref": "common#/definitions/SuccessEnvelope"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "$ref": "#/definitions/PokemonDetail"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "pokemon.species.list",
+      "method": "GET",
+      "route": "/v1/pokemon/species",
+      "auth": "bearer",
+      "description": "图鉴种类列表",
+      "schema": {
+        "allOf": [
+          {
+            "$ref": "common#/definitions/SuccessEnvelope"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Species"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "strictFields": true
+    },
+    {
+      "id": "pokemon.species.detail",
+      "method": "GET",
+      "route": "/v1/pokemon/species/:id",
+      "auth": "bearer",
+      "description": "图鉴种类详情",
+      "schema": {
+        "allOf": [
+          {
+            "$ref": "common#/definitions/SuccessEnvelope"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "$ref": "#/definitions/Species"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "pokemon.pokedex",
+      "method": "GET",
+      "route": "/v1/pokemon/pokedex",
+      "auth": "bearer",
+      "description": "个人图鉴",
+      "schema": {
+        "allOf": [
+          {
+            "$ref": "common#/definitions/SuccessEnvelope"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": [
+                  "entries"
+                ],
+                "properties": {
+                  "entries": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "caught_count"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "caught_count": {
+                          "type": "integer"
+                        },
+                        "seen_count": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "pokemon.batch.details",
+      "method": "POST",
+      "route": "/v1/pokemon/batch/details",
+      "auth": "bearer",
+      "description": "精灵详情批量查询（REQ-00350）",
+      "requestSchema": {
+        "type": "object",
+        "required": [
+          "ids"
+        ],
+        "properties": {
+          "ids": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 100,
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "include": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "skills",
+                "equipment",
+                "effects",
+                "battle",
+                "history"
+              ]
+            }
+          }
+        }
+      },
+      "schema": {
+        "allOf": [
+          {
+            "$ref": "common#/definitions/SuccessEnvelope"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "$ref": "#/definitions/BatchDetails"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
