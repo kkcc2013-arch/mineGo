@@ -6,7 +6,7 @@
 -- 捕捉成功率统计表（按小时维度）
 CREATE TABLE IF NOT EXISTS catch_success_stats (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     pokemon_id VARCHAR(64) NOT NULL,
     pokemon_rarity VARCHAR(32) NOT NULL CHECK(pokemon_rarity IN ('common', 'uncommon', 'rare', 'epic', 'legendary')),
     ball_type VARCHAR(32) NOT NULL CHECK(ball_type IN ('POKE_BALL', 'GREAT_BALL', 'ULTRA_BALL', 'MASTER_BALL')),
@@ -20,10 +20,33 @@ CREATE TABLE IF NOT EXISTS catch_success_stats (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT uk_user_pokemon_ball_hour UNIQUE(user_id, pokemon_id, ball_type, hour_timestamp)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS pokemon_id VARCHAR(64);
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS pokemon_rarity VARCHAR(32);
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS ball_type VARCHAR(32);
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS attempt_count INTEGER DEFAULT 0;
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS success_count INTEGER DEFAULT 0;
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS expected_success_rate DECIMAL(5,4);
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS actual_success_rate DECIMAL(5,4);
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS anomaly_score DECIMAL(5,2) DEFAULT 0.0;
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS hour_timestamp TIMESTAMPTZ;
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.catch_success_stats') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'pokemon_id', 'pokemon_rarity', 'ball_type', 'attempt_count', 'success_count', 'expected_success_rate', 'actual_success_rate', 'anomaly_score', 'hour_timestamp', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE catch_success_stats ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
-CREATE INDEX idx_catch_stats_user ON catch_success_stats(user_id, hour_timestamp DESC);
-CREATE INDEX idx_catch_stats_anomaly ON catch_success_stats(hour_timestamp, anomaly_score DESC);
-CREATE INDEX idx_catch_stats_rarity ON catch_success_stats(pokemon_rarity, hour_timestamp);
+CREATE INDEX IF NOT EXISTS idx_catch_stats_user ON catch_success_stats(user_id, hour_timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_catch_stats_anomaly ON catch_success_stats(hour_timestamp, anomaly_score DESC);
+CREATE INDEX IF NOT EXISTS idx_catch_stats_rarity ON catch_success_stats(pokemon_rarity, hour_timestamp);
 
 COMMENT ON TABLE catch_success_stats IS '捕捉成功率统计表，用于分析玩家捕捉行为异常';
 
@@ -41,7 +64,7 @@ CREATE INDEX IF NOT EXISTS idx_catch_sessions_risk ON catch_sessions(risk_level,
 -- 道具使用记录表（用于检测道具异常）
 CREATE TABLE IF NOT EXISTS item_usage_records (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     item_type VARCHAR(64) NOT NULL,
     item_category VARCHAR(32) NOT NULL CHECK(item_category IN ('ball', 'berry', 'medicine', 'evolution', 'boost')),
     session_id VARCHAR(128),
@@ -53,17 +76,41 @@ CREATE TABLE IF NOT EXISTS item_usage_records (
     actual_effect DECIMAL(5,4),
     anomaly_detected BOOLEAN DEFAULT false,
     anomaly_details JSONB,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    INDEX idx_user_time (user_id, created_at DESC),
-    INDEX idx_anomaly (anomaly_detected, created_at DESC)
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS item_type VARCHAR(64);
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS item_category VARCHAR(32);
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS session_id VARCHAR(128);
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS pokemon_id VARCHAR(64);
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS quantity_used INTEGER DEFAULT 1;
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS quantity_before INTEGER;
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS quantity_after INTEGER;
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS expected_effect DECIMAL(5,4);
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS actual_effect DECIMAL(5,4);
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS anomaly_detected BOOLEAN DEFAULT false;
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS anomaly_details JSONB;
+ALTER TABLE item_usage_records ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.item_usage_records') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'item_type', 'item_category', 'session_id', 'pokemon_id', 'quantity_used', 'quantity_before', 'quantity_after', 'expected_effect', 'actual_effect', 'anomaly_detected', 'anomaly_details', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE item_usage_records ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
+CREATE INDEX IF NOT EXISTS idx_item_usage_records_user_time ON item_usage_records (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_item_usage_records_anomaly ON item_usage_records (anomaly_detected, created_at DESC);
 
 COMMENT ON TABLE item_usage_records IS '道具使用记录表，用于检测道具数量和效果篡改';
 
 -- 风控决策日志表
 CREATE TABLE IF NOT EXISTS risk_decision_logs (
     id BIGSERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     session_id VARCHAR(128),
     action_type VARCHAR(32) NOT NULL CHECK(action_type IN ('catch_attempt', 'item_use', 'inventory_check')),
     risk_score DECIMAL(5,2) NOT NULL,
@@ -74,18 +121,41 @@ CREATE TABLE IF NOT EXISTS risk_decision_logs (
     client_ip_hash VARCHAR(64),
     user_agent_hash VARCHAR(64),
     device_fingerprint VARCHAR(256),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    INDEX idx_risk_user (user_id, created_at DESC),
-    INDEX idx_risk_level (risk_level, created_at DESC),
-    INDEX idx_risk_session (session_id)
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS session_id VARCHAR(128);
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS action_type VARCHAR(32);
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS risk_score DECIMAL(5,2);
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS risk_level VARCHAR(16);
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS action_taken VARCHAR(32);
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS rule_scores JSONB DEFAULT '{}';
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS request_data_hash VARCHAR(128);
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS client_ip_hash VARCHAR(64);
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS user_agent_hash VARCHAR(64);
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS device_fingerprint VARCHAR(256);
+ALTER TABLE risk_decision_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.risk_decision_logs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'session_id', 'action_type', 'risk_score', 'risk_level', 'action_taken', 'rule_scores', 'request_data_hash', 'client_ip_hash', 'user_agent_hash', 'device_fingerprint', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE risk_decision_logs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
+CREATE INDEX IF NOT EXISTS idx_risk_decision_logs_risk_user ON risk_decision_logs (user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_risk_decision_logs_risk_level ON risk_decision_logs (risk_level, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_risk_decision_logs_risk_session ON risk_decision_logs (session_id);
 
 COMMENT ON TABLE risk_decision_logs IS '风控决策日志表，记录所有捕捉请求的风险评估';
 
 -- 用户风控状态表
 CREATE TABLE IF NOT EXISTS user_risk_profiles (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     total_catch_attempts BIGINT NOT NULL DEFAULT 0,
     total_anomaly_detections BIGINT NOT NULL DEFAULT 0,
     total_blocks BIGINT NOT NULL DEFAULT 0,
@@ -97,9 +167,33 @@ CREATE TABLE IF NOT EXISTS user_risk_profiles (
     flag_reason TEXT,
     flag_expires_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    INDEX idx_flagged (is_flagged, updated_at DESC)
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS total_catch_attempts BIGINT DEFAULT 0;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS total_anomaly_detections BIGINT DEFAULT 0;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS total_blocks BIGINT DEFAULT 0;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS last_anomaly_at TIMESTAMPTZ;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS last_block_at TIMESTAMPTZ;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS baseline_success_rate DECIMAL(5,4);
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS current_streak_anomaly INTEGER DEFAULT 0;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS is_flagged BOOLEAN DEFAULT false;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS flag_reason TEXT;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS flag_expires_at TIMESTAMPTZ;
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE user_risk_profiles ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_risk_profiles') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'total_catch_attempts', 'total_anomaly_detections', 'total_blocks', 'last_anomaly_at', 'last_block_at', 'baseline_success_rate', 'current_streak_anomaly', 'is_flagged', 'flag_reason', 'flag_expires_at', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_risk_profiles ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
+CREATE INDEX IF NOT EXISTS idx_user_risk_profiles_flagged ON user_risk_profiles (is_flagged, updated_at DESC);
 
 COMMENT ON TABLE user_risk_profiles IS '用户风控状态表，追踪用户的整体风控状态';
 
@@ -112,10 +206,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_catch_stats_timestamp ON catch_success_stats;
 CREATE TRIGGER update_catch_stats_timestamp
 BEFORE UPDATE ON catch_success_stats
 FOR EACH ROW EXECUTE FUNCTION update_timestamp();
 
+DROP TRIGGER IF EXISTS update_user_risk_timestamp ON user_risk_profiles;
 CREATE TRIGGER update_user_risk_timestamp
 BEFORE UPDATE ON user_risk_profiles
 FOR EACH ROW EXECUTE FUNCTION update_timestamp();
@@ -125,7 +221,7 @@ CREATE OR REPLACE VIEW v_high_risk_catches AS
 SELECT
     cs.id,
     cs.user_id,
-    u.username,
+    u.nickname AS username,
     cs.pokemon_id,
     ps.name_zh,
     cs.risk_score,
@@ -145,7 +241,7 @@ COMMENT ON VIEW v_high_risk_catches IS '高风险捕捉会话汇总视图';
 CREATE OR REPLACE VIEW v_user_catch_anomaly_stats AS
 SELECT
     urp.user_id,
-    u.username,
+    u.nickname AS username,
     urp.total_catch_attempts,
     urp.total_anomaly_detections,
     CASE
@@ -165,6 +261,29 @@ ORDER BY urp.total_anomaly_detections DESC;
 COMMENT ON VIEW v_user_catch_anomaly_stats IS '用户异常捕捉统计视图';
 
 -- 插入默认风控配置（如果配置表存在）
+-- 通用系统配置表（原迁移直接插入但从未建表）
+CREATE TABLE IF NOT EXISTS system_config (
+    config_key   VARCHAR(100) PRIMARY KEY,
+    config_value TEXT NOT NULL,
+    description  TEXT,
+    updated_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE system_config ADD COLUMN IF NOT EXISTS config_key VARCHAR(100);
+ALTER TABLE system_config ADD COLUMN IF NOT EXISTS config_value TEXT;
+ALTER TABLE system_config ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE system_config ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.system_config') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('config_key', 'config_value', 'description', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE system_config ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
+
 INSERT INTO system_config (config_key, config_value, description)
 VALUES 
     ('risk.catch.anomaly_threshold', '70', '捕捉成功率异常评分阈值'),

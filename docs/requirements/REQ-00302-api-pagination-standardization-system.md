@@ -7,7 +7,7 @@
 | 标题 | API 分页与列表响应标准化系统 |
 | 类别 | API 设计规范 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | gateway、所有微服务、backend/shared/middleware、docs/api-spec |
 | 创建时间 | 2026-06-23 07:05 UTC |
 | 依赖需求 | REQ-00157（统一错误处理与 API 响应格式标准化） |
@@ -869,3 +869,36 @@ generateMigrationReport();
 5. **依赖性**：为后续 API 规范优化奠定基础
 
 不设 P0 是因为现有系统可正常工作，此为优化改进需求。
+
+## 实现记录（2026-09-25）
+
+状态：**implemented**（代码已完成、未在服务上运行验证；按 09-25 验证规则，服务级验证由用户安排）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 所有列表接口使用统一的 limit/offset 或 cursor 参数 | ⚠️ | 网关对所有路由接受 page/pageSize/cursor 并换算成下游 limit/offset；4 个接口已完整迁移（pokemon /my、/species，social /friends，reward /leaderboard）；合并集成分支后共 165 个列表接口，其余自定义参数 / 固定 LIMIT 的列表见迁移报告 |
+| 参数验证和默认值处理正确 | ✅ | `parsePagination`：非法值 400 `INVALID_PAGINATION`，超上限截断，接口级默认页大小 |
+| 支持 page/pageSize 别名（兼容） | ✅ | page/pageSize 与 limit/offset/size 互通，旧参数响应头 `X-Pagination-Deprecated-Params` |
+| 所有列表接口返回一致的 data/pagination/links 结构 | ✅ | 网关 paginationNormalizer 自动识别列表形态，补 `pagination` / `meta.pagination` / `_links` / `Link` / `X-Total-Count`（保留旧 data 结构） |
+| 分页元数据包含 total、limit、offset、page、hasMore | ✅ | 另含 pageSize、totalPages、hasNext、hasPrev、nextCursor、prevCursor |
+| HATEOAS 链接正确生成（self/next/prev/first/last） | ✅ | `buildLinks` / `toLinkHeader`；游标分页 first 为 `cursor=first` |
+| 偏移量 > 1000 时自动使用延迟关联查询 | ✅ | `shouldUseDeferredJoin` + `deferredJoinSql`，排行榜已接入（`X-Pagination-Strategy: deferred-join`） |
+| 游标分页正确实现，性能测试通过 | ⚠️ | keyset 游标（HMAC 签名）已在精灵列表实现，单测 + 冒烟覆盖连续翻页无重叠；性能测试未运行（见 REQ-00465） |
+| count 查询支持估算模式 | ✅ | `countWithStrategy` / `estimateCount`（EXPLAIN 行数，小表回退精确 COUNT），排行榜使用 |
+| offsetPaginationMiddleware 正确注入 req.pagination | ✅ | 单测 |
+| cursorPaginationMiddleware 正确处理游标编码/解码 | ✅ | 单测（签名防篡改、非法游标 400） |
+| res.addPaginationMeta 和 res.addLinks 辅助函数正常工作 | ✅ | 单测；精灵列表与排行榜使用 |
+| OpenAPI Schema 包含标准化的分页参数和响应 | ✅ | `docs/api-spec/openapi.yaml` components：Page / PageSize / Cursor 参数、Pagination、PaginatedResponse |
+| 迁移工具生成完整的迁移报告 | ✅ | `scripts/pagination-migration-report.js` → `docs/api-spec/generated/pagination-migration.md`（按服务列出已迁移 / 自定义参数 / 固定 LIMIT 与迁移方法） |
+| 至少 3 个现有路由完成迁移验证 | ✅ | 4 个（pokemon-service 2、social-service 1（E01 重写后的 routes/friends.js，默认 50、上限 400）、reward-service 1），旧客户端默认页大小保持不变 |
+| 单元测试覆盖率 ≥ 80% | ⚠️ | 未跑覆盖率工具 |
+| 性能测试验证延迟关联优化效果 | ⚠️ | 未实测。建议：排行榜造 10 万用户，比较 `page=300&pageSize=5` 普通 OFFSET 与延迟关联的 EXPLAIN ANALYZE |
+| 边界条件测试（空列表、最后一页、无效游标等） | ✅ | 单测 + 冒烟 |
+
+- 入口：网关管道（全部路由），已迁移接口 `/v1/pokemon/my`（offset + cursor + `?ids=`）、`/v1/pokemon/species`、`/v1/friends`、`/v1/rewards/leaderboard`
+- 代码：`backend/shared/apiStandards/pagination.js`、`transformers.js`（paramNormalizer / paginationNormalizer）
+- 单测：`cd backend && npm run test:api-standards`（api-standards-core / contract / lint 为纯逻辑，宿主机已运行通过：core 25/25、contract 11/11、lint 4/4；pipeline / ops / services 依赖 express / pino / prom-client，在 09-25 18:30 验证规则调整前于 CI 栈跑通过（pipeline 17/17、ops 20/20、services 5/5），之后追加的用例**未运行，待验证**）
+- 冒烟：`BASE_URL=http://<网关> node scripts/smoke-api-standards.js`（约 90 项断言，**未运行，待验证**）；核心冒烟 `scripts/smoke-core-flow.js` 在网关接入管道后于 CI 栈跑过 37/37（18:30 前）
+- 文档：`docs/api-guidelines.md` 第 3 节；迁移报告 `docs/api-spec/generated/pagination-migration.md`
+- 待验证：排行榜 `rank` 仍为字符串；精灵列表按 `sort=iv` 的游标翻页；只传 `page` 不传页大小时各接口使用自己的默认页大小
+- 相关提交：分支 `work/e25-api`（Epic E25 API 设计规范，合并后见集成分支 squash 提交）

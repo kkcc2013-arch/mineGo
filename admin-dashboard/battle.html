@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>战斗运营看板 | mineGo Admin</title>
+<style>
+  :root { --bg: #f7f7f8; --card: #fff; --fg: #1d1d1f; --muted: #6b6b76; --border: #e3e3e8; --accent: #3b5bdb; --bad: #d6336c; --ok: #2f9e44; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #141417; --card: #1d1d22; --fg: #ececf1; --muted: #9a9aa8; --border: #2c2c34; --accent: #7c93ff; --bad: #ff6b9a; --ok: #69db7c; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.5 system-ui, -apple-system, "PingFang SC", sans-serif; background: var(--bg); color: var(--fg); }
+  header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  header h1 { font-size: 18px; margin: 0 auto 0 0; }
+  input, select, button { font: inherit; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--fg); }
+  button { cursor: pointer; }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  main { padding: 16px 20px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+  section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; min-width: 0; }
+  section h2 { font-size: 15px; margin: 0 0 10px; }
+  .kpis { display: flex; gap: 12px; flex-wrap: wrap; }
+  .kpi { flex: 1 1 120px; border: 1px solid var(--border); border-radius: 10px; padding: 10px; }
+  .kpi b { display: block; font-size: 22px; }
+  .kpi span { color: var(--muted); font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  .muted { color: var(--muted); }
+  .err { color: var(--bad); }
+  .good { color: var(--ok); }
+  .wide { grid-column: 1 / -1; }
+  .meter { height: 8px; border-radius: 4px; background: var(--border); overflow: hidden; }
+  .meter i { display: block; height: 100%; background: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <h1>战斗运营看板（REQ-00357 AI 助手 / REQ-00325 设备帧率 / REQ-00192 伤害缓存）</h1>
+  <label>网关 <input id="base" size="26" placeholder="https://api.example.com"></label>
+  <label>管理员 Token <input id="token" type="password" size="22"></label>
+  <label>时间范围 <select id="days"><option value="1">24 小时</option><option value="7" selected>7 天</option><option value="30">30 天</option></select></label>
+  <button class="primary" id="load">刷新</button>
+</header>
+<p id="msg" class="muted" role="status" style="padding: 0 20px"></p>
+<main>
+  <section>
+    <h2>AI 策略助手</h2>
+    <div class="kpis">
+      <div class="kpi"><b id="k-acc">–</b><span>开战胜率预测命中率（目标 ≥70%）</span></div>
+      <div class="kpi"><b id="k-gap">–</b><span>预测校准偏差（目标 &lt;10%）</span></div>
+      <div class="kpi"><b id="k-cov">–</b><span>战后复盘覆盖率（目标 100%）</span></div>
+    </div>
+    <p class="muted" id="ai-note"></p>
+  </section>
+  <section>
+    <h2>A/B 实验</h2>
+    <p>B 组（蓄力优先）灰度比例：<b id="variant">–</b>%</p>
+    <label>调整为 <input id="variant-input" type="number" min="0" max="100" size="4">%</label>
+    <button id="variant-save">保存</button>
+    <p class="muted">按用户 ID 哈希稳定分组，新开的战斗生效。</p>
+  </section>
+  <section class="wide">
+    <h2>分组指标</h2>
+    <table><thead><tr><th>组</th><th>类型</th><th>请求</th><th>平均/P95 耗时</th><th>缓存命中</th><th>采纳率（样本）</th><th>满意度（样本）</th></tr></thead><tbody id="variants"></tbody></table>
+  </section>
+  <section class="wide">
+    <h2>客户端战斗帧率（目标：低端 30 / 中端 45 / 高端 60 FPS）</h2>
+    <table><thead><tr><th>设备档位</th><th>上报</th><th>平均 FPS</th><th>P5 FPS</th><th>达到档位目标</th><th>达到当前目标</th><th>平均降级次数</th><th>JS 堆</th><th>RTT</th></tr></thead><tbody id="perf"></tbody></table>
+    <p class="muted" id="perf-effects"></p>
+  </section>
+  <section>
+    <h2>伤害预计算缓存</h2>
+    <div class="kpis">
+      <div class="kpi"><b id="c-type">–</b><span>属性克制命中率（≥95%）</span></div>
+      <div class="kpi"><b id="c-l1">–</b><span>技能伤害命中率（≥80%）</span></div>
+      <div class="kpi"><b id="c-n">–</b><span>L1 条目 / 内存估算</span></div>
+    </div>
+    <p class="muted" id="c-note"></p>
+    <button id="cache-refresh">手动刷新缓存</button>
+  </section>
+</main>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k) || ''; localStorage.setItem(k, v); } catch { return ''; } };
+  $('base').value = store('bt.base') || location.origin;
+  $('token').value = store('bt.token');
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const pct = (v) => (v === null || v === undefined ? '–' : `${(Number(v) * 100).toFixed(1)}%`);
+
+  async function api(method, path, body) {
+    const res = await fetch(`${$('base').value.replace(/\/$/, '')}/v1/battle${path}`, {
+      method, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${$('token').value}` },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(`${res.status} ${data.message || ''}`);
+    return data.data;
+  }
+
+  async function load() {
+    store('bt.base', $('base').value); store('bt.token', $('token').value);
+    $('msg').textContent = '加载中…'; $('msg').className = 'muted';
+    try {
+      const days = Number($('days').value);
+      const [ai, perf, cache] = await Promise.all([api('GET', `/ai/stats?days=${days}`), api('GET', `/perf/dashboard?hours=${days * 24}`), api('GET', '/damage/cache/stats')]);
+      const p = ai.prediction || {};
+      $('k-acc').textContent = pct(p.accuracy);
+      $('k-gap').textContent = pct(p.calibrationGap);
+      $('k-cov').textContent = pct(ai.reviews && ai.reviews.coverage);
+      $('ai-note').textContent = `预测样本 ${p.samples || 0} · Brier ${p.brier ?? '–'} · 复盘 ${ai.reviews ? ai.reviews.reviews : 0} / 已结束战斗 ${ai.reviews ? ai.reviews.finishedBattles : 0} · 平均复盘分 ${ai.reviews ? ai.reviews.avg_score ?? '–' : '–'} · 每日配额 ${ai.dailyQuota}`;
+      $('variant').textContent = ai.variantBPercent;
+      $('variants').innerHTML = ai.byVariant.map((r) => `<tr><td>${esc(r.variant)}</td><td>${esc(r.advice_type)}</td><td>${r.requests}</td>
+        <td>${r.avg_latency_ms ?? '–'} / ${r.p95_latency_ms !== null ? Number(r.p95_latency_ms).toFixed(0) : '–'} ms</td><td>${pct(r.cache_hit_rate)}</td>
+        <td>${pct(r.follow_rate)}（${r.follow_samples}）</td><td>${pct(r.satisfaction)}（${r.feedback_samples}）</td></tr>`).join('') || '<tr><td colspan="7" class="muted">暂无数据</td></tr>';
+      $('perf').innerHTML = perf.tiers.map((t) => `<tr><td>${esc(t.device_tier)}</td><td>${t.reports}</td><td>${t.avg_fps}</td><td>${t.avg_p5_fps ?? '–'}</td>
+        <td class="${Number(t.meets_tier_goal_rate) >= 0.9 ? 'good' : 'err'}">${pct(t.meets_tier_goal_rate)}</td><td>${pct(t.on_target_rate)}</td>
+        <td>${t.avg_degrade_events}</td><td>${t.avg_heap_mb ?? '–'} MB</td><td>${t.avg_rtt_ms ?? '–'} ms</td></tr>`).join('') || '<tr><td colspan="9" class="muted">暂无上报</td></tr>';
+      $('perf-effects').textContent = `特效等级分布：${perf.effects.map((e) => `${e.effects_level || '未知'} ${e.reports}`).join(' · ') || '–'}`;
+      $('c-type').textContent = pct(cache.typeHitRate);
+      $('c-l1').textContent = pct(cache.l1HitRate);
+      $('c-n').textContent = `${cache.l1Entries} / ${(cache.l1MemoryBytesEstimate / 1048576).toFixed(1)}MB`;
+      $('c-note').textContent = `技能系数 ${cache.coefficientEntries} 项（命中 ${pct(cache.coefficientHitRate)}）· 预热 ${cache.warmupMs ?? '–'}ms · L2 TTL ${cache.l2TtlSec}s · 本实例计算 ${cache.calculations} 次 · AI 缓存命中 ${pct(cache.ai && cache.ai.advice.hitRate)}`;
+      $('msg').textContent = `已更新 ${new Date().toLocaleTimeString()}`;
+    } catch (e) {
+      $('msg').textContent = `加载失败：${e.message}`; $('msg').className = 'err';
+    }
+  }
+
+  $('variant-save').addEventListener('click', async () => {
+    try { await api('PUT', '/ai/experiment', { variantBPercent: Number($('variant-input').value) }); await load(); }
+    catch (e) { $('msg').textContent = `保存失败：${e.message}`; $('msg').className = 'err'; }
+  });
+  $('cache-refresh').addEventListener('click', async () => {
+    if (!confirm('清空伤害缓存（含 Redis L2）并重新预热？')) return;
+    try { const r = await api('POST', '/damage/cache/refresh'); $('msg').textContent = `已刷新：删除 ${r.deleted} 条 L2，重建系数 ${r.rewarmed.coefficients} 项`; await load(); }
+    catch (e) { $('msg').textContent = `刷新失败：${e.message}`; $('msg').className = 'err'; }
+  });
+  $('load').addEventListener('click', load);
+  if ($('token').value) load();
+})();
+</script>
+</body>
+</html>

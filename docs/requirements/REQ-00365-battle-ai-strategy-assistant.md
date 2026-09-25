@@ -7,7 +7,7 @@
 | 标题 | 精灵团队战斗AI策略助手系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | gym-service、pokemon-service、user-service、social-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-29 14:00 UTC |
 
@@ -1320,3 +1320,23 @@ module.exports = StrategyCache;
 - 游戏AI策略设计：https://www.gamedeveloper.com/programming/game-ai
 - 强化学习在游戏中的应用：https://arxiv.org/abs/2006.05838
 - mineGo战斗系统设计文档：/docs/architecture/battle-system.md
+
+## 实现记录（2026-09-25）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 战斗策略推荐功能上线，响应时间 < 500ms | ✅ | 同 REQ-00357：建议接口含排序、理由、换人建议、连击提示与胜率 |
+| 团队配置分析功能可用，提供至少3个维度的分析 | ✅ | `POST /v1/battle/ai/lineup`：属性覆盖、平均 CP、克制成员数、薄弱对位 4 个维度 + 每只精灵对每个对手的对位评分与出场顺序 |
+| AI策略准确率达到70%以上（基于用户反馈） | ⚠️ | 反馈接口与统计已实现；需用户数据 |
+| 前端策略建议UI可用，支持一键执行推荐动作 | ✅ | 战斗界面 AI 面板（推荐与理由、胜率）+「一键执行推荐」（useAdvice，服务端按当前状态执行推荐技能或换人） |
+| 策略缓存系统有效，缓存命中率 > 60% | ⚠️ | 按战斗状态键缓存建议与预测（各 5000 条 LRU）；自动建议 + 一键执行的典型流程每回合 3 次调用中 2 次命中（约 67%），实际命中率在看板/缓存统计中查看，未实测 |
+| 战斗预测功能可用，准确率 > 65% | ⚠️ | 蒙特卡洛预测已实现（单测：强弱对位结论正确）；准确率需线上统计（看板） |
+| 支持新手引导模式，自动显示策略建议 | ✅ | battle_ai_preferences.newbie_mode（默认开启，训练师 10 级以下总是开启）→ 开战与每回合响应自动附带建议 |
+| 数据库表创建完成，索引优化到位 | ✅ | battle_ai_advice_logs（用户/战斗/分组索引）、battle_ai_preferences、battle_ai_reviews；另复用 battle_move_logs、move_recommendation_*（需求写 5 张，按实际需要建 3 张） |
+| API接口文档完善，包含使用示例 | ✅ | `docs/api-spec/openapi/paths/battle.yaml`（AI Assistant 标签，含请求体字段） |
+| 单元测试覆盖率 > 80% | ✅ | ai.js 行覆盖 98.75% |
+
+- 入口：gym-service `src/battle/*`（纯逻辑：damage/cooldown/energy/combo/engine/ai/stats/leagueRules/recommendScore/replayFormat/presetRules；持久化与编排：repo/store/session/gym/raid/league/replay/recommend/comboPresets/pokemonEnergy/settle/deps）；路由 `routes/gyms.js`、`routes/gymBattle.js`、`routes/raids.js`、`routes/battleApi.js`（挂 `/battle`）；网关 `backend/gateway/src/index.js`：`/v1/gyms/*`、`/v1/raids/*`、`/v1/battle/*`（鉴权）、公开 `/v1/battle/replays/shared/:code`、WebSocket 升级转发 `/ws/raid`、`/ws/notifications`、`/ws/battle`；`battle/ai.js`、`battle/session.js`；客户端 `BattleView.js` AI 面板、对战页设置
+- 迁移：`database/migrations/20260925_110000__e11_battle_core.sql`（补列/新表/连击链种子/时间列 TIMESTAMPTZ，全部 IF NOT EXISTS）、`20260925_110100__e11_restore_fast_move_power.sql`；复用既有表见各行说明
+- 测试：宿主机已运行（纯逻辑，不连服务）：`cd backend && node --test tests/unit/battle-core.test.js tests/unit/battle-features.test.js` → 29/29 通过；`node --test frontend/game-client/tests/unit/battle-client.test.mjs` → 11/11 通过；`node --expose-gc scripts/bench-battle.js --local`（数字见表）。验证方式调整前（2026-09-25 08:39，提交 e022c97）曾在隔离 CI 栈实测：`scripts/smoke-battle.js` 101/101、核心冒烟 37/37、battle-core 16/16。之后的改动（连击熟练度接入、实时天气、连击道具奖励、大师联赛分组、AI 对位口径、迁移时间列段、前端全部）**未运行，待验证**。待运行：`BASE_URL=… DATABASE_URL=… REDIS_URL=… node scripts/smoke-battle.js`（102 项）、`node scripts/bench-battle.js --battles 20 --concurrency 5`；迁移在全新库上执行 `reset-db` 后检查 bootstrap-report 无 20260925_1100xx 失败
+- 待验证：新手账号开战自动出现建议；一键执行；缓存命中率

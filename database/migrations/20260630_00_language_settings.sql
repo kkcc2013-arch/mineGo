@@ -26,6 +26,26 @@ CREATE TABLE IF NOT EXISTS language_change_logs (
   device_id VARCHAR(255),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS previous_language VARCHAR(10);
+ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS new_language VARCHAR(10);
+ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS change_source VARCHAR(50) DEFAULT 'user_request';
+ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS session_preserved BOOLEAN DEFAULT TRUE;
+ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS ip_address INET;
+ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS device_id VARCHAR(255);
+ALTER TABLE language_change_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.language_change_logs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'user_id', 'previous_language', 'new_language', 'change_source', 'session_preserved', 'ip_address', 'device_id', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE language_change_logs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 3. 创建索引
 CREATE INDEX IF NOT EXISTS idx_language_change_logs_user ON language_change_logs(user_id, created_at DESC);
@@ -61,12 +81,12 @@ RETURNS TRIGGER AS $$BEGIN
     );
     
     -- 发布通知（通过 pg_notify）
-    NOTIFY 'language_changed', json_build_object(
+    PERFORM pg_notify('language_changed', json_build_object(
       'userId', NEW.id,
       'previousLanguage', OLD.language,
       'newLanguage', NEW.language,
       'timestamp', EXTRACT(EPOCH FROM NOW()) * 1000
-    )::text;
+    )::text);
   END IF;
   
   RETURN NEW;
@@ -94,6 +114,21 @@ CREATE TABLE IF NOT EXISTS language_cache (
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   ttl_seconds INTEGER DEFAULT 3600
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE language_cache ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE language_cache ADD COLUMN IF NOT EXISTS language VARCHAR(10);
+ALTER TABLE language_cache ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE language_cache ADD COLUMN IF NOT EXISTS ttl_seconds INTEGER DEFAULT 3600;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.language_cache') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'language', 'updated_at', 'ttl_seconds', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE language_cache ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 9. 评论
 COMMENT ON COLUMN users.language IS '用户偏好语言代码: zh, en, ja';
@@ -102,6 +137,4 @@ COMMENT ON TABLE language_change_logs IS 'REQ-00393: 语言变更日志表';
 COMMENT ON VIEW language_usage_stats IS 'REQ-00393: 语言使用统计视图';
 
 -- 完成
-INSERT INTO schema_migrations (version, applied_at, description)
-VALUES ('20260630_00', NOW(), 'REQ-00393: 动态语言切换无需重新登录系统 - 语言设置字段和日志表')
-ON CONFLICT (version) DO NOTHING;
+-- 迁移记录由迁移执行器维护（database/migrate.js），不在迁移内手工写入

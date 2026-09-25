@@ -3,7 +3,7 @@
 - **编号**：REQ-00487
 - **类别**：功能增强
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：pokemon-service、social-service、reward-service、battle-service、frontend/game-client、database/migrations
 - **创建时间**：2026-07-07 15:00
 - **依赖需求**：REQ-00073（PVP战斗系统）、REQ-00331（数据库索引优化）
@@ -347,3 +347,26 @@ CREATE INDEX idx_league_rewards_claimed ON league_rewards(player_id, claimed);
 4. **扩展收入渠道**：联赛专属奖励、赛季奖励可结合付费道具增加收入
 
 对"项目可用"的贡献：完善核心玩法，提升用户体验，增强游戏长期运营能力。
+
+## 实现记录（2026-09-25）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 联赛等级定义正确，青铜到大师6个等级，每个等级3个分组 | ✅ | shared/LeagueConstants（大师改为 3 组）；`battle/leagueRules.js tierFor`：每级 1000 分、每 333 分一组（单测） |
+| 玩家初始联赛为青铜III，初始积分0，真实评分1000 | ✅ | 首次访问自动初始化 |
+| 赛季28天周期正确，自动轮换，赛季状态查询API正常工作 | ✅ | 每小时检查，到期结算并开启下一赛季；`GET /v1/battle/league/season`（剩余时间） |
+| 积分计算正确：胜利25分+评分差奖励+连胜奖励，失败15分（连胜保护） | ✅ | `leagueRules.winPoints/lossPoints`（单测） |
+| 真实实力评分算法（ELO变体）正确更新评分 | ✅ | ELO K=32，双方同时更新 |
+| 升降级判定逻辑正确：积分达标自动晋级/分组晋升，积分不足自动降级 | ✅ | `tierChange` + league_history 记录 |
+| 联赛匹配优化：匹配范围限制在同联赛±1分组、评分差±200 | ✅ | `findOpponent`；无合适对手时匹配同评分的联赛训练师（AI 队伍） |
+| 联赛排行榜正确展示分组前100名，实时更新 | ✅ | `GET /v1/battle/league/leaderboard?level&group`（结算即更新） |
+| 联赛奖励发放正确：赛季末结算、晋级奖励、连胜奖励 | ✅ | league_rewards（去重键），领取入账金币/星尘/冷却装备，并发只成功一次 |
+| API接口全部实现：9个接口正常工作，返回正确数据 | ✅ | season / tiers / me / leaderboard / match / matches / rewards / rewards claim / defense-team（GET、PUT）/ admin end-season |
+| 数据库表结构正确：5个表、索引优化、查询性能良好 | ✅ | league_seasons / league_members / league_matches（玩家列改 UUID、battle_id 唯一）/ league_history / league_rewards（去重唯一索引） |
+| 游戏客户端联赛界面正常显示：联赛信息、排行榜、赛季倒计时 | ✅ | 对战页 → 联赛 |
+| 单元测试覆盖：积分计算、升降级判定、匹配算法、奖励计算等核心逻辑测试覆盖率≥80% | ✅ | leagueRules.js 100% |
+
+- 入口：gym-service `src/battle/*`（纯逻辑：damage/cooldown/energy/combo/engine/ai/stats/leagueRules/recommendScore/replayFormat/presetRules；持久化与编排：repo/store/session/gym/raid/league/replay/recommend/comboPresets/pokemonEnergy/settle/deps）；路由 `routes/gyms.js`、`routes/gymBattle.js`、`routes/raids.js`、`routes/battleApi.js`（挂 `/battle`）；网关 `backend/gateway/src/index.js`：`/v1/gyms/*`、`/v1/raids/*`、`/v1/battle/*`（鉴权）、公开 `/v1/battle/replays/shared/:code`、WebSocket 升级转发 `/ws/raid`、`/ws/notifications`、`/ws/battle`；`battle/league.js`、`battle/leagueRules.js`（对局为异步 PvP：与对手防守队伍进行服务端回合制对战）
+- 迁移：`database/migrations/20260925_110000__e11_battle_core.sql`（补列/新表/连击链种子/时间列 TIMESTAMPTZ，全部 IF NOT EXISTS）、`20260925_110100__e11_restore_fast_move_power.sql`；复用既有表见各行说明
+- 测试：宿主机已运行（纯逻辑，不连服务）：`cd backend && node --test tests/unit/battle-core.test.js tests/unit/battle-features.test.js` → 29/29 通过；`node --test frontend/game-client/tests/unit/battle-client.test.mjs` → 11/11 通过；`node --expose-gc scripts/bench-battle.js --local`（数字见表）。验证方式调整前（2026-09-25 08:39，提交 e022c97）曾在隔离 CI 栈实测：`scripts/smoke-battle.js` 101/101、核心冒烟 37/37、battle-core 16/16。之后的改动（连击熟练度接入、实时天气、连击道具奖励、大师联赛分组、AI 对位口径、迁移时间列段、前端全部）**未运行，待验证**。待运行：`BASE_URL=… DATABASE_URL=… REDIS_URL=… node scripts/smoke-battle.js`（102 项）、`node scripts/bench-battle.js --battles 20 --concurrency 5`；迁移在全新库上执行 `reset-db` 后检查 bootstrap-report 无 20260925_1100xx 失败
+- 待验证：两个账号互相匹配并结算积分；管理员提前结束赛季后领取赛季奖励

@@ -16,13 +16,35 @@ CREATE TABLE IF NOT EXISTS job_execution_logs (
   metadata JSONB,
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE job_execution_logs ADD COLUMN IF NOT EXISTS job_id VARCHAR(100);
+ALTER TABLE job_execution_logs ADD COLUMN IF NOT EXISTS job_name VARCHAR(200);
+ALTER TABLE job_execution_logs ADD COLUMN IF NOT EXISTS category VARCHAR(50);
+ALTER TABLE job_execution_logs ADD COLUMN IF NOT EXISTS status VARCHAR(20);
+ALTER TABLE job_execution_logs ADD COLUMN IF NOT EXISTS start_time TIMESTAMP;
+ALTER TABLE job_execution_logs ADD COLUMN IF NOT EXISTS end_time TIMESTAMP;
+ALTER TABLE job_execution_logs ADD COLUMN IF NOT EXISTS duration_ms INTEGER;
+ALTER TABLE job_execution_logs ADD COLUMN IF NOT EXISTS error_message TEXT;
+ALTER TABLE job_execution_logs ADD COLUMN IF NOT EXISTS error_stack TEXT;
+ALTER TABLE job_execution_logs ADD COLUMN IF NOT EXISTS metadata JSONB;
+ALTER TABLE job_execution_logs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.job_execution_logs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('job_id', 'job_name', 'category', 'status', 'start_time', 'end_time', 'duration_ms', 'error_message', 'error_stack', 'metadata', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE job_execution_logs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_job_logs_job_id ON job_execution_logs(job_id);
 CREATE INDEX IF NOT EXISTS idx_job_logs_status ON job_execution_logs(status);
 CREATE INDEX IF NOT EXISTS idx_job_logs_start_time ON job_execution_logs(start_time DESC);
 CREATE INDEX IF NOT EXISTS idx_job_logs_category ON job_execution_logs(category);
-CREATE INDEX IF NOT EXISTS idx_job_logs_created_at ON job_execution_logs(created_time DESC);
+CREATE INDEX IF NOT EXISTS idx_job_logs_created_at ON job_execution_logs(created_at DESC);
 
 -- 创建告警历史表
 CREATE TABLE IF NOT EXISTS job_alert_history (
@@ -36,9 +58,31 @@ CREATE TABLE IF NOT EXISTS job_alert_history (
   metadata JSONB,
   sent_at TIMESTAMP NOT NULL,
   acknowledged_at TIMESTAMP,
-  acknowledged_by INTEGER REFERENCES users(id),
+  acknowledged_by UUID REFERENCES users(id),
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE job_alert_history ADD COLUMN IF NOT EXISTS alert_id VARCHAR(100);
+ALTER TABLE job_alert_history ADD COLUMN IF NOT EXISTS job_id VARCHAR(100);
+ALTER TABLE job_alert_history ADD COLUMN IF NOT EXISTS alert_type VARCHAR(50);
+ALTER TABLE job_alert_history ADD COLUMN IF NOT EXISTS severity VARCHAR(20);
+ALTER TABLE job_alert_history ADD COLUMN IF NOT EXISTS message TEXT;
+ALTER TABLE job_alert_history ADD COLUMN IF NOT EXISTS channels JSONB;
+ALTER TABLE job_alert_history ADD COLUMN IF NOT EXISTS metadata JSONB;
+ALTER TABLE job_alert_history ADD COLUMN IF NOT EXISTS sent_at TIMESTAMP;
+ALTER TABLE job_alert_history ADD COLUMN IF NOT EXISTS acknowledged_at TIMESTAMP;
+ALTER TABLE job_alert_history ADD COLUMN IF NOT EXISTS acknowledged_by INTEGER;
+ALTER TABLE job_alert_history ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.job_alert_history') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('alert_id', 'job_id', 'alert_type', 'severity', 'message', 'channels', 'metadata', 'sent_at', 'acknowledged_at', 'acknowledged_by', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE job_alert_history ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_alert_history_job_id ON job_alert_history(job_id);
 CREATE INDEX IF NOT EXISTS idx_alert_history_severity ON job_alert_history(severity);
@@ -57,6 +101,26 @@ CREATE TABLE IF NOT EXISTS job_health_snapshots (
   factors JSONB,
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE job_health_snapshots ADD COLUMN IF NOT EXISTS job_id VARCHAR(100);
+ALTER TABLE job_health_snapshots ADD COLUMN IF NOT EXISTS health_score INTEGER;
+ALTER TABLE job_health_snapshots ADD COLUMN IF NOT EXISTS grade CHAR(1);
+ALTER TABLE job_health_snapshots ADD COLUMN IF NOT EXISTS success_rate NUMERIC(5, 2);
+ALTER TABLE job_health_snapshots ADD COLUMN IF NOT EXISTS avg_duration_ms INTEGER;
+ALTER TABLE job_health_snapshots ADD COLUMN IF NOT EXISTS run_count INTEGER;
+ALTER TABLE job_health_snapshots ADD COLUMN IF NOT EXISTS failure_count INTEGER;
+ALTER TABLE job_health_snapshots ADD COLUMN IF NOT EXISTS factors JSONB;
+ALTER TABLE job_health_snapshots ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.job_health_snapshots') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('job_id', 'health_score', 'grade', 'success_rate', 'avg_duration_ms', 'run_count', 'failure_count', 'factors', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE job_health_snapshots ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_health_snapshots_job_id ON job_health_snapshots(job_id);
 CREATE INDEX IF NOT EXISTS idx_health_snapshots_created_at ON job_health_snapshots(created_at DESC);
@@ -92,6 +156,23 @@ CREATE TABLE IF NOT EXISTS alert_suppression_log (
   reason TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE alert_suppression_log ADD COLUMN IF NOT EXISTS alert_key VARCHAR(200);
+ALTER TABLE alert_suppression_log ADD COLUMN IF NOT EXISTS original_alert_id VARCHAR(100);
+ALTER TABLE alert_suppression_log ADD COLUMN IF NOT EXISTS suppressed_at TIMESTAMP;
+ALTER TABLE alert_suppression_log ADD COLUMN IF NOT EXISTS suppression_window_ms INTEGER;
+ALTER TABLE alert_suppression_log ADD COLUMN IF NOT EXISTS reason TEXT;
+ALTER TABLE alert_suppression_log ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.alert_suppression_log') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('alert_key', 'original_alert_id', 'suppressed_at', 'suppression_window_ms', 'reason', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE alert_suppression_log ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_suppression_alert_key ON alert_suppression_log(alert_key);
 

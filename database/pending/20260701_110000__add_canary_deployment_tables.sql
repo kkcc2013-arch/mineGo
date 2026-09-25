@@ -34,11 +34,9 @@ CREATE TABLE IF NOT EXISTS canary_deployments (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     completed_at TIMESTAMP,
     
-    created_by INTEGER,
-    
-    CONSTRAINT unique_active_canary UNIQUE (service_name, status) 
-      WHERE status IN ('active', 'promoting')
+    created_by INTEGER
 );
+CREATE UNIQUE INDEX IF NOT EXISTS unique_active_canary ON canary_deployments (service_name, status) WHERE status IN ('active', 'promoting');
 
 -- 金丝雀发布历史表
 CREATE TABLE IF NOT EXISTS canary_deployment_history (

@@ -14,8 +14,8 @@ CREATE TABLE IF NOT EXISTS error_translations (
   version INTEGER DEFAULT 1,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-  created_by INTEGER REFERENCES users(id),
-  updated_by INTEGER REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   
   CONSTRAINT unique_error_translation UNIQUE(error_code, language)
 );
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS error_translation_audit (
   new_message TEXT NOT NULL,
   old_metadata JSONB,
   new_metadata JSONB,
-  changed_by INTEGER REFERENCES users(id),
+  changed_by UUID REFERENCES users(id),
   change_reason TEXT,
   changed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS missing_translation_alerts (
   last_detected TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
   detection_count INTEGER DEFAULT 1,
   acknowledged BOOLEAN DEFAULT FALSE,
-  acknowledged_by INTEGER REFERENCES users(id),
+  acknowledged_by UUID REFERENCES users(id),
   acknowledged_at TIMESTAMP WITH TIME ZONE,
   
   CONSTRAINT unique_missing_alert UNIQUE(error_code),

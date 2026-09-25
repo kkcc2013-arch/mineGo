@@ -1,0 +1,47 @@
+# E05/E13 Prometheus 告警规则（REQ-00076 成就处理、REQ-00261/REQ-00425 通知送达）
+# 指标由 backend/shared/achievementEngine.js 与 backend/shared/notificationRealtime.js 暴露（服务 /metrics）
+# 未在生产环境验证（生产 PM2 环境未部署 Prometheus/Alertmanager）
+groups:
+  - name: profile_notify_alerts
+    interval: 30s
+    rules:
+      - alert: GameEventProcessingFailures
+        expr: sum(rate(minego_game_events_processed_total{status="error"}[5m])) > 0.1
+        for: 10m
+        labels: { severity: warning, category: achievements }
+        annotations:
+          summary: "游戏事件（成就/消息）处理失败率偏高"
+          description: "过去 10 分钟每秒失败 {{ $value }} 个事件；查看 achievement_events.last_error。"
+      - alert: GameEventLagHigh
+        expr: histogram_quantile(0.95, sum(rate(minego_game_event_lag_seconds_bucket[5m])) by (le)) > 10
+        for: 10m
+        labels: { severity: warning, category: achievements }
+        annotations:
+          summary: "成就/消息事件处理延迟 P95 超过 10 秒"
+          description: "消费者可能掉线（LISTEN 断开）或数据库压力大，兜底扫描每 10 秒一次。"
+      - alert: AchievementProcessingSlow
+        expr: histogram_quantile(0.95, sum(rate(minego_achievement_processing_seconds_bucket[5m])) by (le)) > 0.05
+        for: 15m
+        labels: { severity: info, category: achievements }
+        annotations:
+          summary: "成就进度更新 P95 超过 50ms（REQ-00076 性能目标）"
+      - alert: NotificationRealtimeDeliveryDrop
+        expr: |
+          sum(rate(minego_notifications_delivered_total{channel="ws",result="ok"}[10m]))
+            / clamp_min(sum(rate(minego_notifications_delivered_total{channel="ws"}[10m])), 0.001) < 0.99
+        for: 15m
+        labels: { severity: warning, category: notifications }
+        annotations:
+          summary: "在线玩家实时通知送达率低于 99%（REQ-00425 KPI）"
+      - alert: NotificationDeliveryLatencyHigh
+        expr: histogram_quantile(0.95, sum(rate(minego_notification_delivery_seconds_bucket[5m])) by (le)) > 3
+        for: 10m
+        labels: { severity: warning, category: notifications }
+        annotations:
+          summary: "实时通知推送延迟 P95 超过 3 秒（REQ-00425 KPI）"
+      - alert: PushProviderFailures
+        expr: sum(rate(minego_notifications_delivered_total{channel=~"fcm|apns",result="error"}[10m])) > 0.05
+        for: 10m
+        labels: { severity: warning, category: notifications }
+        annotations:
+          summary: "APNs/FCM 推送失败偏多，检查凭据与设备令牌"

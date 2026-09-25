@@ -8,7 +8,7 @@
 | 标题 | 游戏内实时通知中心与消息推送系统 |
 | 类别 | 前端体验 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | gateway、user-service、social-service、reward-service、game-client、backend/shared |
 | 创建时间 | 2026-06-18 17:00 |
 
@@ -706,3 +706,40 @@ function showNotificationToast(notification) {
 - WebSocket 实时推送最佳实践
 - React 状态管理模式
 - PostgreSQL JSONB 查询优化
+
+## 实现记录（2026-09-24）
+
+> E05「成就/称号/资料卡/收藏室」与 E13「消息中心与推送」统一实现：REQ-00076 / 00106 / 00327 / 00359 / 00387 / 00403 与 REQ-00099 / 00261 / 00425 共用同一套游戏事件 outbox、成就引擎与消息中心。
+> 状态 `implemented`：代码已全部完成，**未做服务级验证**（2026-09-25 18:30 起规则）。此前迁移 `20260925_130000`、`20260925_131000` 曾在隔离 CI 栈（栈 8）的存量库上执行无失败，user-service 启动后事件消费者、消息分发器、WebSocket 均正常监听；之后新增的迁移 `20260925_132000`、`20260925_133000`、全部接口、前端界面只做了静态检查（`node --check`、`scripts/check-deps.js`、宿主机纯逻辑/内存替身单测），**待验证**。
+
+**共用架构**
+
+- 事件来源：业务表上的触发器把"发生了什么"写入 outbox 表 `achievement_events`（与业务同事务，业务回滚事件也不存在；触发器内部异常只 `RAISE WARNING`，不影响业务）并 `pg_notify('pmg_game_events')`。接入的表：`catch_sessions`（捕捉成功）、`pokestop_spins`、`trainer_level_ups`（升级，覆盖所有加经验路径）、`friendships`/`friends`、`friend_requests`、`friend_gifts`、`pokemon_trades`、`gym_battles`、`raid_participants`、`pvp_battles`、`egg_hatching`、`event_participations`；收藏室的展示/装饰/被点赞由 JS 在同事务写事件。
+- 消费：`backend/shared/achievementEngine.js`，user-service 启动时 `LISTEN` 实时处理 + 10 秒兜底扫描 + 每小时清理；pokemon-service 查询成就前按需处理该玩家未处理事件。`FOR UPDATE SKIP LOCKED` 保证多消费者不重复处理；每个事件一个 SAVEPOINT，单事件失败不影响其他事件，失败 5 次后放弃并保留 `last_error`。
+- 规则：`backend/shared/achievementRules.js`（事件 → 指标、过滤条件、奖励拆分、事件 → 消息、多语言，纯函数）。
+- 消息：`backend/shared/notificationCenter.js`（生成/列表/未读/已读/删除/偏好/广播/分析/清理）、`notificationPolicy.js`（分类、偏好、免打扰、投递计划，纯函数）、`notificationRealtime.js`（`/ws/messages` 与 LISTEN 分发）、`pushProviders.js`（FCM/APNs）。
+- 迁移：`database/migrations/20260925_130000__e05_achievement_title_core.sql`（成就/称号收敛 + outbox 触发器）、`20260925_131000__e13_notification_center.sql`（消息中心）、`20260925_132000__e05_collection_room.sql`（收藏室）、`20260925_133000__e05_player_profile.sql`（资料卡）。均 `IF NOT EXISTS`/`ON CONFLICT` 幂等，外键均按 `users.id UUID`；依赖的表（`achievements`、`title_definitions`、`trainer_level_ups`、`notification_templates`、E01 的 `privacy_settings`/`blocked_users` 等）都在更早的迁移中创建（已逐条核对）。
+- 测试：单测 `cd backend && node --test tests/unit/achievementRules.test.js tests/unit/achievementEngine.test.js tests/unit/notificationPolicy.test.js tests/unit/notificationCenter.test.js tests/unit/profileRules.test.js tests/unit/collectionRoomRules.test.js tests/unit/securityNotifier.test.js`（53 例，已加入 `test:unit`，宿主机已运行通过；引擎与消息中心用 `tests/unit/helpers/fakeGameDb.js` 内存替身，不依赖数据库）；经网关冒烟 `BASE_URL=… node scripts/smoke-profile-notify.js`（约 97 项，**未运行**）；压测 `node scripts/bench-profile-notify.js`（**未运行**）；前端 `cd frontend/game-client && npx playwright test tests/e2e/profile-notify.spec.js`（Mock 接口，**未运行**）。
+- 前端：`frontend/game-client/src/features/profileNotify.js` + `src/features/profile-notify/*`（由 `src/bootstrap/features.js` 注册一行）：底部导航「消息」🔔、「我的」页「成长与收藏」卡片（成就、称号、资料卡、我的收藏室、热门收藏室、收藏家排行、消息与通知设置）。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 通知数据库表已创建并正常工作 | ✅ | `notifications`（分类/优先级/标题/正文/模板键+参数/数据/图标/跳转/去重键/渠道/已读/点击/软删除/过期，插入即 `pg_notify('pmg_notifications')`）；模板沿用已有 `notification_templates` + `notification_template_contents`（补充称号/收藏室/公告等模板，中英日）；用户设置沿用已有 `user_push_preferences`（补充站内/推送/邮件开关、时区、临时静音、每小时推送上限）；另有 `notification_broadcasts`（全服公告/活动开始）、`notification_events`（投递/打开分析） |
+| NotificationService 核心服务实现完整 | ✅ | `backend/shared/notificationCenter.js`：`notify()`（按偏好过滤 → 模板渲染 → 去重写入 → 记 sent，可在业务事务内调用）、列表/未读/已读/批量/删除/清空/点击、偏好读写、广播创建与按玩家物化、分析、过期清理 |
+| GET /api/user/notifications 接口返回通知列表 | ✅ | 实际路径 `GET /v1/notifications`（与 REQ-00099 同一接口；网关统一 `/v1` 前缀） |
+| POST /api/user/notifications/:id/read 标记已读正常 | ✅ | `POST|PATCH /v1/notifications/:id/read`（只能操作自己的消息，非法 ID 400、不存在 404） |
+| POST /api/user/notifications/read-all 全部已读正常 | ✅ | `POST /v1/notifications/read-all`（等价 `batch-read {all:true}`） |
+| WebSocket 实时推送通知到在线用户 | ✅ | `wss://…/ws/messages?token=…`：网关 `WS_TARGETS` 把升级请求代理到 user-service；握手校验 access token 签名与登出黑名单（失败 401）；连接后下发 `hello`（未读数/分类未读）；新消息由 `pg_notify` → user-service 分发器按投递计划推送（`notification`，含最新未读数；免打扰时 `silent`）；支持 `PING`、`READ {id}`；30 秒心跳清理死连接；>1KB 消息压缩。注：gym-service 的 `/ws/notifications` 是团战通知通道，与此独立 |
+| 离线通知持久化，上线后同步 | ✅ | 所有消息先落库；离线玩家上线（WS 连接）时补推未读消息（最多 20 条，支持 `since` 增量）；客户端另有 IndexedDB 缓存与 `lastSyncTime` |
+| 通知过期自动清理机制 | ✅ | 默认 30 天过期（可按消息指定 1~365 天），查询只返回未过期；user-service 每小时清理过期消息、软删除超过 7 天的消息、90 天前的投递记录、过期 30 天的广播 |
+| 前端通知中心组件显示正常 | ✅ | `src/features/profile-notify/messageCenter.js`（见 REQ-00099），新消息 toast |
+| 未读数量徽章显示正确 | ✅ | `GET /v1/notifications/unread-count`（总数/按分类/按类型）+ WS 推送实时更新 |
+| 多语言支持正常 | ✅ | 消息落库时存模板键与参数（中文正文），读取时按 `?lang=` / `X-Language` 用对应语言模板重新渲染；参数也可按语言覆盖（如活动英/日文名）；分类标签三语 |
+| 单元测试覆盖率 ≥ 80% | ⚠️ | 未测覆盖率。`notificationPolicy.test.js`、`notificationCenter.test.js`（内存替身）共 14 例已通过；WS/分发由冒烟覆盖（未运行） |
+
+- 关键事件生成的消息：升级（`trainer_level_ups` 触发器）、成就解锁、称号解锁、获得装饰、好友请求、收到礼物、交易完成、收藏室被点赞/留言/升级、活动开始（`events` 状态变为 active 时写广播，读取时按玩家物化，关闭活动分类的玩家不会收到）、系统公告（管理员 `POST /v1/notifications/admin/broadcast`，可按等级/队伍定向）、新设备登录（安全类）；原 `handlers/notificationHandler.js` 的 EventBus 事件（稀有精灵、Raid、道馆被攻击等，生产 Kafka 未启用）改为走同一个消息中心
+- 入口：user-service `src/routes/messageCenter.js`、`src/index.js`（启动消息分发 `notificationRealtime.startDispatcher()` 与 `attach(server)`）；网关 `/v1/notifications/*`、`/ws/messages`
+- 迁移：`database/migrations/20260925_131000__e13_notification_center.sql`
+- 测试：见上；冒烟"实时推送"4 项（无效 token 被拒、hello、新消息 < 3 秒到达、投递记录）
+- 偏差：未新建 notification-service（部署为 PM2 单机，放在 user-service）；`user_notification_settings` 用已有 `user_push_preferences` 代替
+- 待验证：① 经 nginx/网关的 WebSocket 升级（`/ws/messages`）；② 两个玩家在线时好友请求实时到达；③ 过期清理任务

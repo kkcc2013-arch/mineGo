@@ -4,7 +4,7 @@
 -- 设备指纹表
 CREATE TABLE IF NOT EXISTS device_fingerprints (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   device_id VARCHAR(100) NOT NULL,
   fingerprint_hash VARCHAR(64) NOT NULL,
   device_info JSONB NOT NULL,
@@ -17,6 +17,28 @@ CREATE TABLE IF NOT EXISTS device_fingerprints (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(device_id, fingerprint_hash)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS device_id VARCHAR(100);
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS fingerprint_hash VARCHAR(64);
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS device_info JSONB;
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS security_flags JSONB;
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS trust_score INTEGER DEFAULT 100;
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS first_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS last_seen TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS is_trusted BOOLEAN DEFAULT false;
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.device_fingerprints') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'device_id', 'fingerprint_hash', 'device_info', 'security_flags', 'trust_score', 'first_seen', 'last_seen', 'is_trusted', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE device_fingerprints ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE device_fingerprints IS '设备指纹注册表，用于识别和追踪用户设备';
 
@@ -27,14 +49,32 @@ CREATE INDEX IF NOT EXISTS idx_device_fingerprints_trust ON device_fingerprints(
 -- 捕捉验证记录表
 CREATE TABLE IF NOT EXISTS capture_validations (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  pokemon_id INTEGER NOT NULL REFERENCES pokemon(id),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id),
   capture_session_id VARCHAR(100) NOT NULL,
   validation_result JSONB NOT NULL,
   risk_level VARCHAR(20) NOT NULL,
   action_taken VARCHAR(50),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE capture_validations ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE capture_validations ADD COLUMN IF NOT EXISTS pokemon_id INTEGER;
+ALTER TABLE capture_validations ADD COLUMN IF NOT EXISTS capture_session_id VARCHAR(100);
+ALTER TABLE capture_validations ADD COLUMN IF NOT EXISTS validation_result JSONB;
+ALTER TABLE capture_validations ADD COLUMN IF NOT EXISTS risk_level VARCHAR(20);
+ALTER TABLE capture_validations ADD COLUMN IF NOT EXISTS action_taken VARCHAR(50);
+ALTER TABLE capture_validations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.capture_validations') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'pokemon_id', 'capture_session_id', 'validation_result', 'risk_level', 'action_taken', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE capture_validations ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE capture_validations IS '捕捉请求验证记录，记录每次捕捉验证的结果';
 
@@ -45,7 +85,7 @@ CREATE INDEX IF NOT EXISTS idx_capture_validations_session ON capture_validation
 -- 违规记录表
 CREATE TABLE IF NOT EXISTS security_violations (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   violation_type VARCHAR(50) NOT NULL,
   severity INTEGER NOT NULL CHECK (severity >= 0 AND severity <= 100),
   evidence JSONB NOT NULL,
@@ -54,8 +94,29 @@ CREATE TABLE IF NOT EXISTS security_violations (
   status VARCHAR(50) DEFAULT 'active',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   resolved_at TIMESTAMP,
-  resolved_by INTEGER REFERENCES users(id)
+  resolved_by UUID REFERENCES users(id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS violation_type VARCHAR(50);
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS severity INTEGER;
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS evidence JSONB;
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS response_type VARCHAR(50);
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS response_details JSONB;
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'active';
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMP;
+ALTER TABLE security_violations ADD COLUMN IF NOT EXISTS resolved_by INTEGER;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.security_violations') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'violation_type', 'severity', 'evidence', 'response_type', 'response_details', 'status', 'created_at', 'resolved_at', 'resolved_by', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE security_violations ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE security_violations IS '安全违规记录，记录用户违规行为和处理结果';
 
@@ -66,7 +127,7 @@ CREATE INDEX IF NOT EXISTS idx_security_violations_type ON security_violations(v
 -- 用户影子封禁表
 CREATE TABLE IF NOT EXISTS user_shadow_bans (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   effects JSONB NOT NULL,
   reason VARCHAR(100),
   severity INTEGER CHECK (severity >= 0 AND severity <= 100),
@@ -74,6 +135,24 @@ CREATE TABLE IF NOT EXISTS user_shadow_bans (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_shadow_bans ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE user_shadow_bans ADD COLUMN IF NOT EXISTS effects JSONB;
+ALTER TABLE user_shadow_bans ADD COLUMN IF NOT EXISTS reason VARCHAR(100);
+ALTER TABLE user_shadow_bans ADD COLUMN IF NOT EXISTS severity INTEGER;
+ALTER TABLE user_shadow_bans ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
+ALTER TABLE user_shadow_bans ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE user_shadow_bans ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_shadow_bans') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'effects', 'reason', 'severity', 'expires_at', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_shadow_bans ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE user_shadow_bans IS '用户影子封禁状态，实现降权效果';
 
@@ -83,12 +162,28 @@ CREATE INDEX IF NOT EXISTS idx_user_shadow_bans_expires ON user_shadow_bans(expi
 -- 用户监控标记表
 CREATE TABLE IF NOT EXISTS user_monitoring_flags (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   reason VARCHAR(100),
   severity INTEGER CHECK (severity >= 0 AND severity <= 100),
   evidence JSONB,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_monitoring_flags ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE user_monitoring_flags ADD COLUMN IF NOT EXISTS reason VARCHAR(100);
+ALTER TABLE user_monitoring_flags ADD COLUMN IF NOT EXISTS severity INTEGER;
+ALTER TABLE user_monitoring_flags ADD COLUMN IF NOT EXISTS evidence JSONB;
+ALTER TABLE user_monitoring_flags ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_monitoring_flags') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'reason', 'severity', 'evidence', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_monitoring_flags ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE user_monitoring_flags IS '用户监控标记，记录需要增强监控的用户';
 
@@ -97,14 +192,32 @@ CREATE INDEX IF NOT EXISTS idx_user_monitoring_flags_user ON user_monitoring_fla
 -- 安全申诉表
 CREATE TABLE IF NOT EXISTS security_appeals (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   violation_id INTEGER NOT NULL REFERENCES security_violations(id),
   appeal_reason TEXT NOT NULL,
   status VARCHAR(50) DEFAULT 'pending',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   reviewed_at TIMESTAMP,
-  reviewed_by INTEGER REFERENCES users(id)
+  reviewed_by UUID REFERENCES users(id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS violation_id INTEGER;
+ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS appeal_reason TEXT;
+ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'pending';
+ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMP;
+ALTER TABLE security_appeals ADD COLUMN IF NOT EXISTS reviewed_by INTEGER;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.security_appeals') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'violation_id', 'appeal_reason', 'status', 'created_at', 'reviewed_at', 'reviewed_by', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE security_appeals ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE security_appeals IS '安全违规申诉记录';
 
@@ -115,14 +228,33 @@ CREATE INDEX IF NOT EXISTS idx_security_appeals_status ON security_appeals(statu
 CREATE TABLE IF NOT EXISTS capture_sessions (
   id SERIAL PRIMARY KEY,
   session_id VARCHAR(100) UNIQUE NOT NULL,
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  pokemon_id INTEGER NOT NULL REFERENCES pokemon(id),
+  user_id UUID NOT NULL REFERENCES users(id),
+  pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id),
   latitude DECIMAL(10, 8),
   longitude DECIMAL(11, 8),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   expires_at TIMESTAMP,
   status VARCHAR(50) DEFAULT 'active'
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS session_id VARCHAR(100);
+ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS pokemon_id INTEGER;
+ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS latitude DECIMAL(10, 8);
+ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS longitude DECIMAL(11, 8);
+ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
+ALTER TABLE capture_sessions ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'active';
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.capture_sessions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('session_id', 'user_id', 'pokemon_id', 'latitude', 'longitude', 'created_at', 'expires_at', 'status', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE capture_sessions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE capture_sessions IS '捕捉会话记录，用于验证捕捉窗口';
 
@@ -132,13 +264,30 @@ CREATE INDEX IF NOT EXISTS idx_capture_sessions_user ON capture_sessions(user_id
 -- 捕捉尝试记录表
 CREATE TABLE IF NOT EXISTS capture_attempts (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  pokemon_id INTEGER NOT NULL REFERENCES pokemon(id),
+  user_id UUID NOT NULL REFERENCES users(id),
+  pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id),
   session_id VARCHAR(100) REFERENCES capture_sessions(session_id),
   result VARCHAR(50) NOT NULL,
   risk_score INTEGER,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE capture_attempts ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE capture_attempts ADD COLUMN IF NOT EXISTS pokemon_id INTEGER;
+ALTER TABLE capture_attempts ADD COLUMN IF NOT EXISTS session_id VARCHAR(100);
+ALTER TABLE capture_attempts ADD COLUMN IF NOT EXISTS result VARCHAR(50);
+ALTER TABLE capture_attempts ADD COLUMN IF NOT EXISTS risk_score INTEGER;
+ALTER TABLE capture_attempts ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.capture_attempts') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'pokemon_id', 'session_id', 'result', 'risk_score', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE capture_attempts ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE capture_attempts IS '捕捉尝试记录，用于统计捕捉成功率';
 
@@ -163,15 +312,7 @@ COMMENT ON COLUMN users.ban_reason IS '封禁原因';
 COMMENT ON COLUMN users.banned_at IS '封禁时间';
 
 -- 插入初始数据
-INSERT INTO device_fingerprints (user_id, device_id, fingerprint_hash, device_info, security_flags, trust_score)
-SELECT 
-  1,
-  'test-device-001',
-  'abc123def456',
-  '{"platform": "android", "model": "Pixel 6", "osVersion": "12"}',
-  '{"emulatorDetected": false, "rootDetected": false}',
-  100
-WHERE NOT EXISTS (SELECT 1 FROM device_fingerprints WHERE device_id = 'test-device-001');
+-- 已移除测试设备样例数据（user_id=1 在 UUID 主键下无效，且测试数据不应进生产迁移）
 
 -- 创建触发器：自动更新 updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -182,11 +323,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS update_device_fingerprints_updated_at ON device_fingerprints;
 CREATE TRIGGER update_device_fingerprints_updated_at
   BEFORE UPDATE ON device_fingerprints
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_user_shadow_bans_updated_at ON user_shadow_bans;
 CREATE TRIGGER update_user_shadow_bans_updated_at
   BEFORE UPDATE ON user_shadow_bans
   FOR EACH ROW

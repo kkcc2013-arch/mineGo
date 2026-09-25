@@ -19,6 +19,10 @@ export class CatchEngine extends EventTarget {
     this._canvas  = canvas;
     this._ctx     = canvas ? canvas.getContext('2d') : null;
     this._isBusy  = false;
+    // 无障碍（Epic E21）：timeScale 为圆环收缩速度倍率（慢速模式 0.5 = 窗口延长 2 倍），
+    // aimAssist 为自动瞄准系数（0/0.3/0.6/0.85，把判定用的圆环缩放向最佳值拉近）
+    this.timeScale = 1;
+    this.aimAssist = 0;
 
     // 动画特效系统（延迟加载）
     this._effectsSystem = null;
@@ -90,7 +94,7 @@ export class CatchEngine extends EventTarget {
     if (!this._session) throw new Error('No active session');
 
     // Determine throw rating based on ring scale at throw time
-    const throwRating = this._calcThrowRating(this._ring.scale);
+    const throwRating = this._calcThrowRating(this._assistedRingScale());
     const isCurve     = Math.abs(velocityX) > 300; // Fast horizontal = curve
 
     // 触发投掷震动
@@ -316,6 +320,12 @@ export class CatchEngine extends EventTarget {
     return this._effectsSystem.combo.getState();
   }
 
+  // 自动瞄准辅助后的圆环缩放（aimAssist=0 时等于原值）
+  _assistedRingScale() {
+    const c = Math.max(0, Math.min(1, Number(this.aimAssist) || 0));
+    return RING_MIN_SCALE + (this._ring.scale - RING_MIN_SCALE) * (1 - c);
+  }
+
   // ── Throw rating from ring scale ─────────────────────────
   _calcThrowRating(ringScale) {
     // If the ring shrank below 30% and player hit inside → Excellent
@@ -331,11 +341,12 @@ export class CatchEngine extends EventTarget {
   _startAnimation() {
     const tick = () => {
       // Shrink / expand ring
+      const step = THROW_RING_SHRINK_RATE * (Number(this.timeScale) > 0 ? Number(this.timeScale) : 1);
       if (this._ring.shrinking) {
-        this._ring.scale -= THROW_RING_SHRINK_RATE;
+        this._ring.scale -= step;
         if (this._ring.scale <= RING_MIN_SCALE) this._ring.shrinking = false;
       } else {
-        this._ring.scale += THROW_RING_SHRINK_RATE;
+        this._ring.scale += step;
         if (this._ring.scale >= RING_MAX_SCALE) this._ring.shrinking = true;
       }
 

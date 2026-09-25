@@ -6,7 +6,7 @@
 -- =====================================================
 CREATE TABLE IF NOT EXISTS user_quotas (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
   quota_level VARCHAR(20) NOT NULL DEFAULT 'free' CHECK (quota_level IN ('free', 'vip', 'svip')),
   daily_limit INTEGER NOT NULL DEFAULT 1000,
   hourly_limit INTEGER NOT NULL DEFAULT 100,
@@ -51,7 +51,7 @@ CREATE INDEX IF NOT EXISTS idx_api_tier_configs_enabled ON api_tier_configs(enab
 -- =====================================================
 CREATE TABLE IF NOT EXISTS quota_usage_logs (
   id BIGSERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   api_pattern VARCHAR(255) NOT NULL,
   tier VARCHAR(20) NOT NULL,
   request_count INTEGER NOT NULL DEFAULT 1,
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS quota_config_history (
   quota_level VARCHAR(20) NOT NULL,
   old_config JSONB NOT NULL,
   new_config JSONB NOT NULL,
-  changed_by INTEGER REFERENCES users(id),
+  changed_by UUID REFERENCES users(id),
   reason TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );

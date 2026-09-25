@@ -1,0 +1,472 @@
+{
+  "$id": "game",
+  "service": "location/catch/reward/social/payment",
+  "definitions": {
+    "WildPokemon": {
+      "type": "object",
+      "required": [
+        "id",
+        "species_id",
+        "lat",
+        "lng"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "species_id": {
+          "type": "integer"
+        },
+        "lat": {
+          "type": [
+            "string",
+            "number"
+          ]
+        },
+        "lng": {
+          "type": [
+            "string",
+            "number"
+          ]
+        },
+        "cp": {
+          "type": "integer"
+        },
+        "is_shiny": {
+          "type": "boolean"
+        },
+        "expires_at": {
+          "type": "string"
+        },
+        "rarity": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }
+  },
+  "contracts": [
+    {
+      "id": "map.nearby",
+      "method": "GET",
+      "route": "/v1/map/nearby",
+      "auth": "bearer",
+      "service": "location",
+      "description": "附近的野生精灵 / 补给站 / 道馆",
+      "schema": {
+        "allOf": [
+          {
+            "$ref": "common#/definitions/SuccessEnvelope"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": [
+                  "wildPokemons",
+                  "pokestops"
+                ],
+                "properties": {
+                  "wildPokemons": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/definitions/WildPokemon"
+                    }
+                  },
+                  "pokestops": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "lat",
+                        "lng"
+                      ]
+                    }
+                  },
+                  "gyms": {
+                    "type": "array"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "location.update",
+      "method": "POST",
+      "route": "/v1/location",
+      "auth": "bearer",
+      "service": "location",
+      "description": "上报位置",
+      "requestSchema": {
+        "type": "object",
+        "required": [
+          "lat",
+          "lng"
+        ],
+        "properties": {
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lng": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "accuracy": {
+            "type": "number"
+          }
+        }
+      },
+      "schema": {
+        "allOf": [
+          {
+            "$ref": "common#/definitions/SuccessEnvelope"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": [
+                  "nearbyAlert"
+                ],
+                "properties": {
+                  "nearbyAlert": {
+                    "type": "boolean"
+                  },
+                  "riskLevel": {
+                    "type": "string",
+                    "enum": [
+                      "LOW",
+                      "MEDIUM",
+                      "HIGH",
+                      "CRITICAL"
+                    ]
+                  },
+                  "warning": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "catch.session",
+      "method": "POST",
+      "route": "/v1/catch/session",
+      "auth": "bearer",
+      "service": "catch",
+      "description": "创建捕捉会话",
+      "schema": {
+        "allOf": [
+          {
+            "$ref": "common#/definitions/SuccessEnvelope"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": [
+                  "sessionId"
+                ],
+                "properties": {
+                  "sessionId": {
+                    "type": "string"
+                  },
+                  "pokemon": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "catch.throw",
+      "method": "POST",
+      "route": "/v1/catch/throw",
+      "auth": "bearer",
+      "service": "catch",
+      "description": "投掷精灵球",
+      "schema": {
+        "allOf": [
+          {
+            "$ref": "common#/definitions/SuccessEnvelope"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": [
+                  "result"
+                ],
+                "properties": {
+                  "result": {
+                    "type": "string",
+                    "enum": [
+                      "CAUGHT",
+                      "FLED",
+                      "MISS",
+                      "BALL_USED"
+                    ]
+                  },
+                  "catchProb": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "rewards.daily",
+      "method": "GET",
+      "route": "/v1/rewards/daily",
+      "auth": "bearer",
+      "service": "reward",
+      "description": "每日签到状态",
+      "schema": {
+        "allOf": [
+          {
+            "$ref": "common#/definitions/SuccessEnvelope"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": [
+                  "claimed",
+                  "streak"
+                ],
+                "properties": {
+                  "claimed": {
+                    "type": "boolean"
+                  },
+                  "streak": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "reward": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "rewards.leaderboard",
+      "method": "GET",
+      "route": "/v1/rewards/leaderboard",
+      "auth": "bearer",
+      "service": "reward",
+      "description": "排行榜",
+      "schema": {
+        "allOf": [
+          {
+            "$ref": "common#/definitions/SuccessEnvelope"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": [
+                  "leaderboard"
+                ],
+                "properties": {
+                  "leaderboard": {
+                    "type": "array"
+                  },
+                  "myRank": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "social.friends",
+      "method": "GET",
+      "route": "/v1/friends",
+      "auth": "bearer",
+      "service": "social",
+      "description": "好友列表（E01：data.friends + data.pagination，按对方隐私设置过滤）",
+      "schema": {
+        "allOf": [
+          {
+            "$ref": "common#/definitions/SuccessEnvelope"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": [
+                  "friends",
+                  "pagination"
+                ],
+                "properties": {
+                  "friends": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "nickname"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "nickname": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "level": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ]
+                        },
+                        "friendship_level": {
+                          "type": [
+                            "integer",
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "friendship_points": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ]
+                        },
+                        "online_status": {
+                          "type": "string"
+                        },
+                        "favorite": {
+                          "type": [
+                            "boolean",
+                            "null"
+                          ]
+                        },
+                        "pending_gifts": {
+                          "type": [
+                            "integer",
+                            "null"
+                          ]
+                        }
+                      }
+                    }
+                  },
+                  "pagination": {
+                    "type": "object",
+                    "required": [
+                      "page",
+                      "limit",
+                      "total"
+                    ],
+                    "properties": {
+                      "page": {
+                        "type": "integer"
+                      },
+                      "limit": {
+                        "type": "integer"
+                      },
+                      "total": {
+                        "type": "integer"
+                      },
+                      "totalPages": {
+                        "type": "integer"
+                      }
+                    }
+                  },
+                  "limits": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "payment.products",
+      "method": "GET",
+      "route": "/v1/payment/products",
+      "auth": "bearer",
+      "service": "payment",
+      "description": "商品列表",
+      "schema": {
+        "allOf": [
+          {
+            "$ref": "common#/definitions/SuccessEnvelope"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "name",
+                    "amountFen"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "amountFen": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "coinsGrant": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

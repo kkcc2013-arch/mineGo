@@ -32,9 +32,9 @@ CREATE TABLE IF NOT EXISTS player_quests (
     completed_at TIMESTAMP,
     claimed_at TIMESTAMP,
     expires_at TIMESTAMP NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT unique_user_quest UNIQUE (user_id, quest_definition_id, assigned_at::date)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE UNIQUE INDEX IF NOT EXISTS unique_user_quest ON player_quests (user_id, quest_definition_id, (assigned_at::date));
 
 -- 任务完成历史
 CREATE TABLE IF NOT EXISTS quest_completion_history (
@@ -61,9 +61,9 @@ CREATE TABLE IF NOT EXISTS player_quest_streaks (
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_player_quests_user_status ON player_quests(user_id, status);
 CREATE INDEX IF NOT EXISTS idx_player_quests_expires ON player_quests(expires_at) WHERE status = 'in_progress';
-CREATE INDEX IF NOT EXISTS idx_quest_completion_user_date ON quest_completion_history(user_id, completed_at::date);
+CREATE INDEX IF NOT EXISTS idx_quest_completion_user_date ON quest_completion_history(user_id, (completed_at::date));
 CREATE INDEX IF NOT EXISTS idx_quest_definitions_type ON quest_definitions(quest_type, is_active);
-CREATE INDEX IF NOT EXISTS idx_player_quests_assigned ON player_quests(user_id, assigned_at::date);
+CREATE INDEX IF NOT EXISTS idx_player_quests_assigned ON player_quests(user_id, (assigned_at::date));
 
 -- 种子数据：示例任务定义
 INSERT INTO quest_definitions (quest_type, title_i18n_key, description_i18n_key, objective_type, objective_params, difficulty, reward_config, weight) VALUES

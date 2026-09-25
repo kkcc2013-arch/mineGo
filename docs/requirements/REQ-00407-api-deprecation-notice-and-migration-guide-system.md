@@ -3,7 +3,7 @@
 - **编号**：REQ-00407
 - **类别**：API 设计规范
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：gateway、所有微服务、backend/shared/deprecationManager.js、docs/api-spec、admin-dashboard
 - **创建时间**：2026-07-01 10:00 UTC
 - **依赖需求**：REQ-00044（API 版本管理）
@@ -349,3 +349,28 @@ class DeprecationNotifier {
 - [RFC 8594 - The Deprecation HTTP Header Field](https://datatracker.ietf.org/doc/html/rfc8594)
 - [RFC 8288 - Web Linking](https://datatracker.ietf.org/doc/html/rfc8288)
 - [GitHub API Deprecation](https://docs.github.com/en/rest/overview/api-versions)
+
+## 实现记录（2026-09-25）
+
+状态：**implemented**（代码已完成、未在服务上运行验证；按 09-25 验证规则，服务级验证由用户安排）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 管理后台可注册弃用 API，设置下线日期和接替 API | ✅ | `POST /api/admin/deprecations`（`/admin/api/deprecations` 等价）+ 管理面板"弃用接口"页 |
+| 弃用 API 响应包含正确的 Deprecation、Sunset、Link 响应头 | ✅ |  |
+| 弃用 API 响应体包含 deprecation 字段，含迁移指南链接 | ✅ | daysRemaining / successorApi / migrationGuide / breakingChanges |
+| Prometheus 正确记录弃用 API 调用量，按客户端维度统计 | ✅ | `api_deprecated_calls_total{endpoint,method,client_id,client_version}`，另写 `client_migration_status` |
+| Grafana 仪表板展示迁移进度和即将下线 API 列表 | ✅ | `monitoring/grafana/dashboards/api-standards.json`（网关导出 `api_deprecation_days_remaining`）；告警 `infrastructure/monitoring/prometheus/api_standards_alerts.yml`。未在生产环境验证 |
+| 自动生成迁移文档 Markdown，含代码示例和 Breaking Changes | ✅ | `GET /api/deprecations/:id/migration-guide` |
+| 系统自动识别高频调用弃用 API 的客户端并发送通知 | ✅ | 网关定时任务（Redis 锁）：30 天内下线、调用 ≥5 次 → 站内通知 `notification_history` 或告警日志，7 天内不重复 |
+| 下线日期到达后，弃用 API 返回 410 Gone，响应体包含迁移指引 | ✅ |  |
+| 单元测试覆盖所有核心逻辑，覆盖率 ≥ 80% | ⚠️ | 单测覆盖匹配 / 头 / 下线判定 / 统计 flush / 迁移文档；未跑覆盖率工具 |
+| 集成测试验证端到端流程 | ✅ | 冒烟：登记 → 头与响应体 → 客户端统计 → 通知 → 到期 410 → 取消（待验证） |
+
+- 入口：网关管道 deprecationGate / deprecationAnnotator；`/api/deprecations`（公开）、`/api/admin/deprecations`（管理员）
+- 迁移：`database/migrations/20260925_100000__api_design_standards.sql`（14 张表，幂等；18:30 前在 CI 栈全量 bootstrap 中执行通过）（`api_deprecations`、`client_migration_status` 扩展）
+- 单测：`cd backend && npm run test:api-standards`（api-standards-core / contract / lint 为纯逻辑，宿主机已运行通过：core 25/25、contract 11/11、lint 4/4；pipeline / ops / services 依赖 express / pino / prom-client，在 09-25 18:30 验证规则调整前于 CI 栈跑通过（pipeline 17/17、ops 20/20、services 5/5），之后追加的用例**未运行，待验证**）
+- 前端单测：`node --test frontend/game-client/tests/unit/api-standards-client.test.mjs`（宿主机 10/10 通过，Node ≥ 22.12）（`pmg:api-deprecated` 事件）
+- 冒烟：`BASE_URL=http://<网关> node scripts/smoke-api-standards.js`（约 90 项断言，**未运行，待验证**）；核心冒烟 `scripts/smoke-core-flow.js` 在网关接入管道后于 CI 栈跑过 37/37（18:30 前）
+- 文档：`docs/api-standards/versioning-and-deprecation.md`；原有 `POST /api/version/deprecation/mark` 补上了管理员鉴权（原来无鉴权）
+- 相关提交：分支 `work/e25-api`（Epic E25 API 设计规范，合并后见集成分支 squash 提交）

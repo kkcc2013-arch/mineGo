@@ -17,18 +17,19 @@ COMMENT ON COLUMN pokemon_instances.sort_priority IS '自定义排序优先级';
 COMMENT ON COLUMN pokemon_instances.deleted_at IS '软删除时间';
 COMMENT ON COLUMN pokemon_instances.nickname IS '精灵昵称';
 
+-- 软删除标记（背包整理/批量放生使用；原迁移引用了但从未创建）
+ALTER TABLE pokemon_instances ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN NOT NULL DEFAULT FALSE;
+
 -- 创建索引优化查询
 CREATE INDEX IF NOT EXISTS idx_pokemon_user_favorite 
-  ON pokemon_instances(user_id, is_favorite DESC, combat_power DESC)
+  ON pokemon_instances(user_id, is_favorite DESC, cp DESC)
   WHERE is_deleted = FALSE;
 
 CREATE INDEX IF NOT EXISTS idx_pokemon_user_locked 
   ON pokemon_instances(user_id, is_locked DESC, created_at DESC)
   WHERE is_deleted = FALSE;
 
-CREATE INDEX IF NOT EXISTS idx_pokemon_user_types 
-  ON pokemon_instances(user_id, types[1])
-  WHERE is_deleted = FALSE;
+-- idx_pokemon_user_types 已移除：pokemon_instances 无 types 列（属性在 pokemon_species），按属性筛选走 species_id 索引 + JOIN
 
 CREATE INDEX IF NOT EXISTS idx_pokemon_user_species
   ON pokemon_instances(user_id, species_id)
@@ -41,7 +42,7 @@ CREATE INDEX IF NOT EXISTS idx_pokemon_user_cp
 -- 用户背包偏好表
 CREATE TABLE IF NOT EXISTS user_inventory_preferences (
   id SERIAL PRIMARY KEY,
-  user_id VARCHAR(255) NOT NULL UNIQUE,
+  user_id UUID NOT NULL UNIQUE,
   primary_sort VARCHAR(50) DEFAULT 'combatPower',
   secondary_sort VARCHAR(50) DEFAULT 'rarity',
   sort_order VARCHAR(10) DEFAULT 'desc',
@@ -52,6 +53,25 @@ CREATE TABLE IF NOT EXISTS user_inventory_preferences (
   
   CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_inventory_preferences ADD COLUMN IF NOT EXISTS user_id VARCHAR(255);
+ALTER TABLE user_inventory_preferences ADD COLUMN IF NOT EXISTS primary_sort VARCHAR(50) DEFAULT 'combatPower';
+ALTER TABLE user_inventory_preferences ADD COLUMN IF NOT EXISTS secondary_sort VARCHAR(50) DEFAULT 'rarity';
+ALTER TABLE user_inventory_preferences ADD COLUMN IF NOT EXISTS sort_order VARCHAR(10) DEFAULT 'desc';
+ALTER TABLE user_inventory_preferences ADD COLUMN IF NOT EXISTS default_group_by VARCHAR(50);
+ALTER TABLE user_inventory_preferences ADD COLUMN IF NOT EXISTS custom_groups JSONB DEFAULT '{}';
+ALTER TABLE user_inventory_preferences ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE user_inventory_preferences ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_inventory_preferences') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'primary_sort', 'secondary_sort', 'sort_order', 'default_group_by', 'custom_groups', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_inventory_preferences ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 触发器：自动更新 updated_at
 CREATE OR REPLACE FUNCTION update_inventory_preferences_timestamp()
@@ -71,13 +91,28 @@ CREATE TRIGGER trigger_update_inventory_preferences_timestamp
 -- 用户糖果表（用于转移奖励）
 CREATE TABLE IF NOT EXISTS user_candies (
   id SERIAL PRIMARY KEY,
-  user_id VARCHAR(255) NOT NULL UNIQUE,
+  user_id UUID NOT NULL UNIQUE,
   amount INTEGER DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   
   CONSTRAINT fk_user_candy FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_candies ADD COLUMN IF NOT EXISTS user_id VARCHAR(255);
+ALTER TABLE user_candies ADD COLUMN IF NOT EXISTS amount INTEGER DEFAULT 0;
+ALTER TABLE user_candies ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE user_candies ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_candies') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'amount', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_candies ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 战斗队伍表
 CREATE TABLE IF NOT EXISTS battle_teams (
@@ -91,6 +126,23 @@ CREATE TABLE IF NOT EXISTS battle_teams (
   
   CONSTRAINT fk_user_team FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE battle_teams ADD COLUMN IF NOT EXISTS user_id VARCHAR(255);
+ALTER TABLE battle_teams ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+ALTER TABLE battle_teams ADD COLUMN IF NOT EXISTS pokemon_ids TEXT[];
+ALTER TABLE battle_teams ADD COLUMN IF NOT EXISTS used_at TIMESTAMP;
+ALTER TABLE battle_teams ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE battle_teams ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.battle_teams') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'name', 'pokemon_ids', 'used_at', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE battle_teams ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_battle_teams_user ON battle_teams(user_id);
 
@@ -111,9 +163,7 @@ WHERE NOT EXISTS (
 ON CONFLICT DO NOTHING;
 
 -- 添加索引以支持按稀有度排序
-CREATE INDEX IF NOT EXISTS idx_pokemon_user_rarity
-  ON pokemon_instances(user_id, rarity)
-  WHERE is_deleted = FALSE;
+-- idx_pokemon_user_rarity 已移除：稀有度在 pokemon_species.rarity，按稀有度排序需 JOIN species（走 species_id 索引）
 
 -- 添加索引以支持按亲密度排序
 CREATE INDEX IF NOT EXISTS idx_pokemon_user_friendship

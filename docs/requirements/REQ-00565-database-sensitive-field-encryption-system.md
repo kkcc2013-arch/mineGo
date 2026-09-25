@@ -3,7 +3,7 @@
 - **编号**：REQ-00565
 - **类别**：安全加固
 - **优先级**：P0
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：backend/shared/crypto、user-service、payment-service、social-service、database
 - **创建时间**：2026-07-16 02:05
 - **依赖需求**：REQ-00016（GDPR合规）、REQ-00394（API敏感参数脱敏）
@@ -350,3 +350,42 @@ async function migrateEncryptUsers() {
 
 **创建时间**：2026-07-16 02:05 UTC
 **创建者**：mineGo 开发循环自动化系统
+
+## 实现记录（2026-09-24）
+
+状态：**partial**（`users.phone` 已完成；其他服务的敏感字段未覆盖）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 敏感字段存储为加密字符串 | ✅ | `shared/fieldCrypto.js`：AES-256-GCM，`enc:v1:<kid>:<base64>`，AAD 绑定字段 |
+| 应用层返回明文 | ✅ | 登录/注册/GDPR 导出按需解密 |
+| 精确查询 | ✅ | HMAC-SHA256 盲索引存 `users.phone_hash`（唯一索引） |
+| 查询性能下降 ≤ 10% | ⚠️ 未压测 | 盲索引为等值索引查询，理论上与明文唯一索引相同 |
+| 密钥存储于 Vault/加密文件 | ⚠️ | 目前为服务器 `.env`（权限 600），未接入 Vault |
+| 密钥轮换后历史数据可解密 | ✅ | 多 kid 并存；`scripts/encrypt-user-phones.js --rotate` 已实测 k1→k2 |
+| 其他字段（支付、社交等） | ❌ | 未覆盖 |
+
+## 实现记录（2026-09-25，补全）
+
+状态：**done**
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 敏感字段存储为加密字符串（Base64） | ✅ | `users.phone`、`users.email`：`enc:v1:<kid>:<base64(iv\|tag\|ct)>` |
+| 应用层查询返回解密后的明文 | ✅ | `GET /v1/users/me` 返回明文邮箱；GDPR 导出解密手机号与邮箱（`scripts/smoke-p0.js`） |
+| 密文无法直接被 SQL 函数解析 | ✅ | 数据库只存密文，密钥只在应用进程内 |
+| 确定性/可搜索字段支持精确查询 | ✅ | HMAC-SHA256 盲索引：`phone_hash`、`email_hash`（小写规范化，部分唯一索引）；邮箱大小写不同的重复注册返回 409 |
+| 查询性能下降不超过 10% | ✅ | `scripts/bench-field-crypto.js`，10 万行、5000 次交替查询：盲索引列等值查询 0.037ms vs 明文唯一索引 0.039ms（差异 -6%，噪声范围内）；另加 HMAC+解密 ≈ 12µs/次 |
+| 不支持模糊/范围查询 | ✅ | 设计如此；昵称等非敏感字段不受影响 |
+| 密钥存储于 Vault 或加密文件 | ⚠️ | `shared/fieldKeyProvider.js`：HashiCorp Vault KV v2（`VAULT_ADDR`/`VAULT_TOKEN`/`FIELD_KEYS_VAULT_PATH`）或加密密钥文件（`FIELD_KEYS_FILE` + 口令，scrypt + AES-256-GCM，`scripts/field-keys-file.js` 生成/轮换），兼容原环境变量方式；单测用本地模拟的 Vault HTTP 接口验证（含 token 校验、KV v2 响应格式），**未连接真实 Vault 集群** |
+| 密钥轮换后新数据用新密钥、历史数据可解密 | ✅ | 多 kid 并存；`field-keys-file.js --add-kid` 追加并切换 active；单测验证新密文使用新 kid |
+| 密钥访问有审计日志 | ✅ | 每次加载（成功/失败）写 `audit_logs`（action=`field_keys.load`，来源、kid 列表、结果；不含密钥材料）与结构化日志；user-service 启动时先加载密钥再接收请求 |
+| 单条记录加解密延迟 < 1ms | ✅ | p99：加密 0.027ms、解密 0.018ms |
+| 批量 100 条加解密 < 50ms | ✅ | p99 1.9ms |
+| 内存使用增加 < 10% | ✅ | 10 万次加解密后 GC 后堆内存 +0.3%（RSS 因分配器高水位 +14%，不回收给系统，非泄漏） |
+| 其他字段（支付、实名等） | ⚠️ | 需求清单中的 `users.real_name`、`payment_methods.card_last_four/billing_address` 在当前库中不存在（系统不采集实名与银行卡，支付走第三方渠道）；新增敏感字段时按同一模式使用 `fieldCrypto.encrypt/blindIndex`（上下文 `表.列`） |
+
+- 入口：user-service 启动 `initFieldKeys`；`PATCH/GET /v1/users/me`（邮箱）；`GET /v1/gdpr/export`
+- 迁移：`database/migrations/20260925_060000__users_email_encryption.sql`（email 改 TEXT、`email_hash` + 部分唯一索引）
+- 测试：`backend/tests/unit/fieldKeyProvider.test.js`（4/4，纳入 `npm run test:unit`）；`scripts/smoke-p0.js` 8/8；`scripts/bench-field-crypto.js` 四项均达标
+

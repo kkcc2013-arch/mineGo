@@ -1,9 +1,12 @@
 // catch-service/src/index.js
 // REQ-00169: 微服务启动器统一化 - 使用 ServiceFactory 重构
 'use strict';
+require('../../../shared/tracing').initTracing('catch-service'); // REQ-00042：须先于 express/http/pg/redis 加载，自动埋点才生效（未配置 OTEL_EXPORTER_OTLP_ENDPOINT 时不启用）
 
+const { consumeItem } = require('../../../shared/inventory');
+const titles = require('../../../shared/titles'); // REQ-00106: 称号经验加成
 const { ServiceFactory } = require('../../../shared/ServiceFactory');
-const { query, preparedQuery } = require('../../../shared/db');
+const { query, preparedQuery, transaction } = require('../../../shared/db');
 const { transactionSerializable } = require('../../../shared/transactionManager');
 const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
 const { requireAuth, AppError, successResp } = require('../../../shared/auth');
@@ -61,21 +64,16 @@ function haversineM(lat1, lng1, lat2, lng2) {
 }
 
 /**
- * Invalidate wild pokemon cache in location-service
+ * 让 location-service 的附近精灵缓存失效。
+ * 两个服务共用同一个 Redis，直接删除 GEO 成员和详情缓存即可；
+ * 原实现走 HTTP + INTERNAL_SERVICE_TOKEN（从未配置），失效从未成功，已捕获的精灵会在附近列表里停留 30 分钟。
  */
 async function invalidateWildCache(wildId) {
-  const LOCATION_SERVICE_URL = process.env.LOCATION_SERVICE_URL || 'http://localhost:8082';
-  const INTERNAL_TOKEN = process.env.INTERNAL_SERVICE_TOKEN;
-  if (!INTERNAL_TOKEN) {
-    throw new Error('INTERNAL_SERVICE_TOKEN is not set');
-  }
-  const response = await fetch(`${LOCATION_SERVICE_URL}/cache/wild/${wildId}`, {
-    method: 'DELETE',
-    headers: { 'Authorization': `Bearer ${INTERNAL_TOKEN}` }
-  });
-  if (!response.ok) {
-    throw new Error(`Cache invalidation failed: ${response.status}`);
-  }
+  const redis = getRedis();
+  await Promise.all([
+    redis.zrem('geo:wild_pokemon', String(wildId)),
+    redis.del(`wild:${wildId}`),
+  ]);
 }
 
 /**
@@ -84,11 +82,25 @@ async function invalidateWildCache(wildId) {
 async function handleCatch(userId, session, throwRating, isCurve, sessionId, logger) {
   const XP_BY_RATING = { NICE: 120, GREAT: 170, EXCELLENT: 200 };
   const baseXp = XP_BY_RATING[throwRating] || 100;
-  const xp = baseXp + (isCurve ? 10 : 0) + (session.isShiny ? 500 : 0);
+  const baseCatchXp = baseXp + (isCurve ? 10 : 0) + (session.isShiny ? 500 : 0);
+  let xp = baseCatchXp;
   const stardust = 100;
   const candy    = 3;
 
   const result = await transactionSerializable(async (client) => {
+    // Mark wild as caught — 条件更新做原子抢占：并发投掷/多人同时捕捉时只有一个事务能成功
+    const claimed = await client.query({
+      name: 'claim_wild_pokemon_caught',
+      text: 'UPDATE wild_pokemon SET is_caught=true, caught_by=$1 WHERE id=$2 AND is_caught=false',
+      values: [userId, session.wildId]
+    });
+    if (claimed.rowCount === 0) {
+      throw new AppError(3001, '精灵已消失或被捕获', 409);
+    }
+
+    // REQ-00106: 激活称号的经验加成（exp_bonus，上限 50%）
+    xp = Math.round(baseCatchXp * (1 + await titles.expBonus(client, userId)));
+
     // REQ-00019: Get random moves from learnset
     const { rows: learnset } = await client.query(`
       SELECT move_id, m.category
@@ -117,7 +129,7 @@ async function handleCatch(userId, session, throwRating, isCurve, sessionId, log
       SELECT $1,$2,$3,$4,$4,$5,$6,$7,$8,false,$9,$10,
              (SELECT last_lat FROM users WHERE id=$1),
              (SELECT last_lng FROM users WHERE id=$1),
-             $11, $12, ARRAY[$11], ARRAY[$12]
+             $11::text, $12::text, ARRAY[$11::text], ARRAY[$12::text]
       RETURNING id
     `, [userId, session.speciesId, session.cp, Math.floor(session.cp * 0.8),
         session.iv_attack, session.iv_defense, session.iv_hp, session.isShiny,
@@ -138,35 +150,23 @@ async function handleCatch(userId, session, throwRating, isCurve, sessionId, log
 
     // Update pokedex
     await client.query(`
-      INSERT INTO pokedex_entries (user_id, species_id, seen_count, caught_count, first_caught_at, best_cp)
-      VALUES ($1,$2,1,1,NOW(),$3)
+      INSERT INTO pokedex_entries (user_id, species_id, seen_count, caught_count, first_caught_at, best_cp, has_shiny)
+      VALUES ($1,$2,1,1,NOW(),$3,$4)
       ON CONFLICT (user_id, species_id) DO UPDATE SET
         caught_count = pokedex_entries.caught_count + 1,
         best_cp = GREATEST(pokedex_entries.best_cp, $3),
         has_shiny = pokedex_entries.has_shiny OR $4
     `, [userId, session.speciesId, session.cp, session.isShiny]);
 
-    // Mark wild as caught - REQ-00575: 使用预编译查询
-    await client.query({
-      name: 'update_wild_pokemon_caught',
-      text: 'UPDATE wild_pokemon SET is_caught=true, caught_by=$1 WHERE id=$2',
-      values: [userId, session.wildId]
-    });
 
     // Close session
     await client.query(`
       UPDATE catch_sessions SET ended_at=NOW(), result='CAUGHT', balls_used=$2,
         instance_id=$3, xp_earned=$4, stardust_earned=$5, candy_earned=$6
-      WHERE id=$7
-    `, [userId, session.ballsThrown, instance.id, xp, stardust, candy, session.wildId]);
+      WHERE id=$1
+    `, [sessionId, session.ballsThrown, instance.id, xp, stardust, candy]);
 
-    // Update catch achievement
-    await client.query(`
-      INSERT INTO user_achievements (user_id, achievement_id, current_value, updated_at)
-      VALUES ($1, 'catch_total', 1, NOW())
-      ON CONFLICT (user_id, achievement_id) DO UPDATE SET
-        current_value = user_achievements.current_value + 1, updated_at = NOW()
-    `, [userId]);
+    // 成就进度：catch_sessions 上的触发器在 result 变为 CAUGHT 时写游戏事件（REQ-00076，见 20260925_130000 迁移）
 
     // REQ-00086: 分配特性（在事务外异步执行，不阻塞捕捉流程）
     const pokemonInstanceId = instance.id;
@@ -223,10 +223,21 @@ async function handleCatch(userId, session, throwRating, isCurve, sessionId, log
 async function createCatchSession(req, res, next) {
   const logger = req.app.locals.logger;
   try {
-    const { spawnId, playerLat, playerLng } = req.body;
+    const { spawnId } = req.body;
     if (!spawnId) throw new AppError(1001, 'spawnId 必填', 400);
 
     const userId = req.user.sub;
+    // 坐标必须是有限数字：原实现传 "x" 会得到 NaN，而 NaN > 100 为 false，距离校验被绕过
+    const playerLat = Number(req.body.playerLat ?? req.body.lat);
+    const playerLng = Number(req.body.playerLng ?? req.body.lng);
+    if (!Number.isFinite(playerLat) || !Number.isFinite(playerLng) ||
+        Math.abs(playerLat) > 90 || Math.abs(playerLng) > 180) {
+      throw new AppError(1001, '缺少定位坐标，请开启位置权限', 400);
+    }
+    // 该玩家对这只精灵已经逃跑过（逃跑只对当前玩家生效）
+    if (await getRedis().get(`catch:fled:${userId}:${spawnId}`)) {
+      throw new AppError(3001, '精灵已消失或被捕获', 404);
+    }
 
     // Verify wild pokemon exists and not caught
     const { rows: [wild] } = await query(`
@@ -245,11 +256,16 @@ async function createCatchSession(req, res, next) {
     // Previously `if (playerLat && playerLng)` allowed callers to bypass the check
     // entirely by omitting coordinates.
     // Distance threshold aligned with spec: 100m (was 150m in code, comment said 100m).
-    if (playerLat == null || playerLng == null) {
-      throw new AppError(1001, '缺少定位坐标，请开启位置权限', 400);
-    }
-    const dist = haversineM(wild.lat, wild.lng, playerLat, playerLng);
-    if (dist > 100) throw new AppError(3002, '距离太远，请靠近精灵（需在100米内）', 400);
+    const wildLat = Number(wild.lat);
+    const wildLng = Number(wild.lng);
+    const dist = haversineM(wildLat, wildLng, playerLat, playerLng);
+    if (!(dist <= 100)) throw new AppError(3002, '距离太远，请靠近精灵（需在100米内）', 400);
+
+    // 服务端校验：客户端坐标必须与最近一次上报给 location-service 的位置一致（防止只在捕捉接口伪造坐标）
+    const serverPos = await getJSON(`player:pos:${userId}`);
+    if (!serverPos) throw new AppError(3006, '请先上报当前位置', 400);
+    const drift = haversineM(Number(serverPos.lat), Number(serverPos.lng), playerLat, playerLng);
+    if (!(drift <= 200)) throw new AppError(3002, '当前位置与上报位置不一致，请刷新定位后重试', 400);
 
     // Create session
     const { rows: [session] } = await query(`
@@ -273,6 +289,8 @@ async function createCatchSession(req, res, next) {
       baseFleeRate:  parseFloat(wild.base_flee_rate),
       rarity:   wild.rarity,
       name_zh:  wild.name_zh,
+      lat:      wildLat,
+      lng:      wildLng,
       ballsThrown: 0,
     }, 120);
 
@@ -309,6 +327,23 @@ async function executeCatchThrow(req, res, next) {
     }
 
     const userId  = req.user.sub;
+    // 先校验枚举再扣球：原实现非法 throwRating 会先扣球再在插入时 500；未知浆果让概率变 NaN
+    if (!Object.prototype.hasOwnProperty.call(THROW_BONUS, throwRating)) {
+      throw new AppError(3007, '无效投掷评级', 400);
+    }
+    const berry = berryUsed || 'NONE';
+    if (!Object.prototype.hasOwnProperty.call(BERRY_MULT, berry)) {
+      throw new AppError(3008, '无效浆果类型', 400);
+    }
+
+    // 同一会话串行化：并发投掷会读到同一份会话状态
+    const redis = getRedis();
+    const lockKey = `lock:catch:throw:${sessionId}`;
+    if (!(await redis.set(lockKey, '1', 'EX', 10, 'NX'))) {
+      throw new AppError(3009, '操作过于频繁，请稍后', 429);
+    }
+    res.on('finish', () => { redis.del(lockKey).catch(() => {}); });
+
     const session = await getJSON(`catch:session:${sessionId}`);
     if (!session) throw new AppError(3003, '捕捉会话已过期', 400);
     if (session.userId !== userId) throw new AppError(1004, '无权操作', 403);
@@ -327,11 +362,17 @@ async function executeCatchThrow(req, res, next) {
     // read balance > 0 and both decrement, resulting in a negative balance.
     // The atomic UPDATE returns rowCount=0 if balance was already 0, which is
     // used as the "insufficient balls" signal.
-    const { rowCount } = await query(
-      `UPDATE users SET ${ballCol} = ${ballCol} - 1 WHERE id = $1 AND ${ballCol} > 0`,
-      [userId]
-    );
-    if (rowCount === 0) throw new AppError(3005, '精灵球不足', 400);
+    // 球与浆果在同一事务内原子扣减：任一不足则都不扣
+    await transaction(async (client) => {
+      const { rowCount } = await client.query(
+        `UPDATE users SET ${ballCol} = ${ballCol} - 1 WHERE id = $1 AND ${ballCol} > 0`,
+        [userId]
+      );
+      if (rowCount === 0) throw new AppError(3005, '精灵球不足', 400);
+      if (berry !== 'NONE' && !(await consumeItem(client, userId, berry, 1))) {
+        throw new AppError(3010, '浆果不足', 400);
+      }
+    });
 
     // REQ-00361: Calculate habitat bonus
     let habitatBonus = 1.0;
@@ -357,8 +398,8 @@ async function executeCatchThrow(req, res, next) {
       cp:       session.cp,
       ballType,
       throwRating,
-      isCurve:  isCurve  || false,
-      berryUsed: berryUsed || 'NONE',
+      isCurve:  isCurve === true,
+      berryUsed: berry,
       habitatBonus
     });
 
@@ -412,7 +453,9 @@ async function executeCatchThrow(req, res, next) {
         `UPDATE catch_sessions SET ended_at=NOW(), result='FLED', balls_used=$2 WHERE id=$1`,
         [sessionId, session.ballsThrown]
       );
-      await query('UPDATE wild_pokemon SET is_caught=true WHERE id=$1', [session.wildId]);
+      // 逃跑只对当前玩家生效（原实现把精灵标记为已捕获，所有玩家都看不到）
+      await getRedis().set(`catch:fled:${userId}:${session.wildId}`, '1', 'EX', 1800);
+      await query('UPDATE users SET xp = xp + 25 WHERE id=$1', [userId]);
       await getRedis().del(`catch:session:${sessionId}`);
       metrics.catchAttemptsTotal.inc({ result: 'escaped' });
       logger.info({ userId, speciesId: session.speciesId, ballsThrown: session.ballsThrown }, 'Pokemon fled');
@@ -446,7 +489,8 @@ async function main() {
       app.locals.logger  = logger;
       app.locals.metrics = require('../../../shared/metrics');
 
-      app.post('/catch/session', requireAuth, validateLocation, checkRateLimit('CATCH'), createCatchSession);
+      // REQ-00586: 可信度低于 RESTRICTED(40) 的玩家禁止捕捉（位置功能降级）
+      app.post('/catch/session', requireAuth, validateLocation, requireTrustScore(TRUST_SCORE.THRESHOLD.RESTRICTED), checkRateLimit('CATCH'), createCatchSession);
       app.post('/catch/throw',   requireAuth, checkRateLimit('CATCH'), executeCatchThrow);
 
       logger.info('Catch service routes initialized');

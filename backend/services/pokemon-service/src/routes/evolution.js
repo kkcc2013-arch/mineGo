@@ -7,8 +7,14 @@ const express = require('express');
 const router = express.Router();
 const { EvolutionService } = require('../evolutionService');
 const { logger } = require('../../../../shared/logger');
+const { requireAuth } = require('../../../../shared/auth');
+
+// 用户身份只取自经校验的 JWT（原先回退到可伪造的 x-user-id 请求头，直连服务端口即可冒充任意用户）
+router.use(requireAuth);
 
 const evolutionService = new EvolutionService();
+// 精灵实例与用户的 ID 都是 UUID（原实现 parseInt 后查询，任何真实请求都会失败）
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
  * GET /api/pokemon/:id/evolution/check
@@ -16,7 +22,7 @@ const evolutionService = new EvolutionService();
  */
 router.get('/:id/evolution/check', async (req, res) => {
     try {
-        const userId = req.user?.id || req.headers['x-user-id'];
+        const userId = req.user.sub;
         if (!userId) {
             return res.status(401).json({
                 success: false,
@@ -25,8 +31,8 @@ router.get('/:id/evolution/check', async (req, res) => {
             });
         }
         
-        const pokemonId = parseInt(req.params.id);
-        if (isNaN(pokemonId)) {
+        const pokemonId = req.params.id;
+        if (!UUID_RE.test(pokemonId)) {
             return res.status(400).json({
                 success: false,
                 error: 'INVALID_POKEMON_ID',
@@ -56,7 +62,7 @@ router.get('/:id/evolution/check', async (req, res) => {
  */
 router.post('/:id/evolution/execute', async (req, res) => {
     try {
-        const userId = req.user?.id || req.headers['x-user-id'];
+        const userId = req.user.sub;
         if (!userId) {
             return res.status(401).json({
                 success: false,
@@ -65,10 +71,10 @@ router.post('/:id/evolution/execute', async (req, res) => {
             });
         }
         
-        const pokemonId = parseInt(req.params.id);
+        const pokemonId = req.params.id;
         const { targetSpeciesId, skipAnimation } = req.body;
         
-        if (isNaN(pokemonId)) {
+        if (!UUID_RE.test(pokemonId)) {
             return res.status(400).json({
                 success: false,
                 error: 'INVALID_POKEMON_ID',
@@ -126,7 +132,7 @@ router.post('/:id/evolution/execute', async (req, res) => {
  */
 router.post('/:id/experience', async (req, res) => {
     try {
-        const userId = req.user?.id || req.headers['x-user-id'];
+        const userId = req.user.sub;
         if (!userId) {
             return res.status(401).json({
                 success: false,
@@ -135,10 +141,10 @@ router.post('/:id/experience', async (req, res) => {
             });
         }
         
-        const pokemonId = parseInt(req.params.id);
+        const pokemonId = req.params.id;
         const { amount, source, bonusMultiplier } = req.body;
         
-        if (isNaN(pokemonId)) {
+        if (!UUID_RE.test(pokemonId)) {
             return res.status(400).json({
                 success: false,
                 error: 'INVALID_POKEMON_ID',
@@ -186,7 +192,7 @@ router.post('/:id/experience', async (req, res) => {
  */
 router.post('/:id/friendship', async (req, res) => {
     try {
-        const userId = req.user?.id || req.headers['x-user-id'];
+        const userId = req.user.sub;
         if (!userId) {
             return res.status(401).json({
                 success: false,
@@ -194,10 +200,10 @@ router.post('/:id/friendship', async (req, res) => {
             });
         }
         
-        const pokemonId = parseInt(req.params.id);
+        const pokemonId = req.params.id;
         const { changeType, amount } = req.body;
         
-        if (isNaN(pokemonId)) {
+        if (!UUID_RE.test(pokemonId)) {
             return res.status(400).json({
                 success: false,
                 error: 'INVALID_POKEMON_ID'
@@ -231,7 +237,7 @@ router.post('/:id/friendship', async (req, res) => {
  */
 router.get('/:id/stats', async (req, res) => {
     try {
-        const userId = req.user?.id || req.headers['x-user-id'];
+        const userId = req.user.sub;
         if (!userId) {
             return res.status(401).json({
                 success: false,
@@ -239,7 +245,7 @@ router.get('/:id/stats', async (req, res) => {
             });
         }
         
-        const pokemonId = parseInt(req.params.id);
+        const pokemonId = req.params.id;
         
         const result = await evolutionService.db.query(`
             SELECT pi.*, ps.name as species_name, ps.types, ps.image_url,
@@ -311,7 +317,7 @@ router.get('/evolution/items', async (req, res) => {
  */
 router.get('/evolution/history/:userId', async (req, res) => {
     try {
-        const userId = parseInt(req.params.userId);
+        const userId = req.params.userId;
         const limit = parseInt(req.query.limit) || 20;
         const offset = parseInt(req.query.offset) || 0;
         

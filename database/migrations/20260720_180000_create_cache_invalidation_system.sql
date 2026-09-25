@@ -12,6 +12,23 @@ CREATE TABLE IF NOT EXISTS cdc_status (
   updated_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(instance_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE cdc_status ADD COLUMN IF NOT EXISTS instance_id VARCHAR(100);
+ALTER TABLE cdc_status ADD COLUMN IF NOT EXISTS status VARCHAR(20);
+ALTER TABLE cdc_status ADD COLUMN IF NOT EXISTS last_heartbeat TIMESTAMP DEFAULT NOW();
+ALTER TABLE cdc_status ADD COLUMN IF NOT EXISTS config JSONB;
+ALTER TABLE cdc_status ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE cdc_status ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.cdc_status') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('instance_id', 'status', 'last_heartbeat', 'config', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE cdc_status ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE cdc_status IS 'CDC 实例状态追踪表';
 
@@ -28,12 +45,32 @@ CREATE TABLE IF NOT EXISTS cache_invalidation_log (
   error_message TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE cache_invalidation_log ADD COLUMN IF NOT EXISTS instance_id VARCHAR(100);
+ALTER TABLE cache_invalidation_log ADD COLUMN IF NOT EXISTS table_name VARCHAR(100);
+ALTER TABLE cache_invalidation_log ADD COLUMN IF NOT EXISTS operation VARCHAR(20);
+ALTER TABLE cache_invalidation_log ADD COLUMN IF NOT EXISTS cache_keys TEXT[];
+ALTER TABLE cache_invalidation_log ADD COLUMN IF NOT EXISTS primary_key_value TEXT;
+ALTER TABLE cache_invalidation_log ADD COLUMN IF NOT EXISTS latency_ms INTEGER;
+ALTER TABLE cache_invalidation_log ADD COLUMN IF NOT EXISTS success BOOLEAN DEFAULT true;
+ALTER TABLE cache_invalidation_log ADD COLUMN IF NOT EXISTS error_message TEXT;
+ALTER TABLE cache_invalidation_log ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.cache_invalidation_log') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('instance_id', 'table_name', 'operation', 'cache_keys', 'primary_key_value', 'latency_ms', 'success', 'error_message', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE cache_invalidation_log ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE cache_invalidation_log IS '缓存失效事件日志';
 
-CREATE INDEX idx_invalidation_log_table ON cache_invalidation_log(table_name);
-CREATE INDEX idx_invalidation_log_created ON cache_invalidation_log(created_at);
-CREATE INDEX idx_invalidation_log_instance ON cache_invalidation_log(instance_id);
+CREATE INDEX IF NOT EXISTS idx_invalidation_log_table ON cache_invalidation_log(table_name);
+CREATE INDEX IF NOT EXISTS idx_invalidation_log_created ON cache_invalidation_log(created_at);
+CREATE INDEX IF NOT EXISTS idx_invalidation_log_instance ON cache_invalidation_log(instance_id);
 
 -- 创建缓存失效规则配置表
 CREATE TABLE IF NOT EXISTS cache_invalidation_rules (
@@ -44,8 +81,26 @@ CREATE TABLE IF NOT EXISTS cache_invalidation_rules (
   enabled BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
-  created_by INTEGER REFERENCES users(id)
+  created_by UUID REFERENCES users(id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE cache_invalidation_rules ADD COLUMN IF NOT EXISTS table_name VARCHAR(100);
+ALTER TABLE cache_invalidation_rules ADD COLUMN IF NOT EXISTS primary_key VARCHAR(100);
+ALTER TABLE cache_invalidation_rules ADD COLUMN IF NOT EXISTS cache_key_patterns JSONB;
+ALTER TABLE cache_invalidation_rules ADD COLUMN IF NOT EXISTS enabled BOOLEAN DEFAULT true;
+ALTER TABLE cache_invalidation_rules ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE cache_invalidation_rules ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE cache_invalidation_rules ADD COLUMN IF NOT EXISTS created_by UUID;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.cache_invalidation_rules') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('table_name', 'primary_key', 'cache_key_patterns', 'enabled', 'created_at', 'updated_at', 'created_by', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE cache_invalidation_rules ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE cache_invalidation_rules IS '缓存失效规则配置表';
 
@@ -62,10 +117,29 @@ CREATE TABLE IF NOT EXISTS cache_invalidation_stats (
   created_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(hour_timestamp, instance_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE cache_invalidation_stats ADD COLUMN IF NOT EXISTS hour_timestamp TIMESTAMP;
+ALTER TABLE cache_invalidation_stats ADD COLUMN IF NOT EXISTS instance_id VARCHAR(100);
+ALTER TABLE cache_invalidation_stats ADD COLUMN IF NOT EXISTS total_changes INTEGER DEFAULT 0;
+ALTER TABLE cache_invalidation_stats ADD COLUMN IF NOT EXISTS invalidated_keys INTEGER DEFAULT 0;
+ALTER TABLE cache_invalidation_stats ADD COLUMN IF NOT EXISTS failed_invalidations INTEGER DEFAULT 0;
+ALTER TABLE cache_invalidation_stats ADD COLUMN IF NOT EXISTS avg_latency_ms REAL;
+ALTER TABLE cache_invalidation_stats ADD COLUMN IF NOT EXISTS success_rate REAL;
+ALTER TABLE cache_invalidation_stats ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.cache_invalidation_stats') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('hour_timestamp', 'instance_id', 'total_changes', 'invalidated_keys', 'failed_invalidations', 'avg_latency_ms', 'success_rate', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE cache_invalidation_stats ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE cache_invalidation_stats IS '缓存失效统计表（按小时聚合）';
 
-CREATE INDEX idx_invalidation_stats_hour ON cache_invalidation_stats(hour_timestamp);
+CREATE INDEX IF NOT EXISTS idx_invalidation_stats_hour ON cache_invalidation_stats(hour_timestamp);
 
 -- 插入默认失效规则
 INSERT INTO cache_invalidation_rules (table_name, primary_key, cache_key_patterns) VALUES
@@ -182,8 +256,8 @@ CREATE INDEX IF NOT EXISTS idx_cdc_status_heartbeat ON cdc_status(last_heartbeat
 CREATE INDEX IF NOT EXISTS idx_invalidation_log_success ON cache_invalidation_log(success);
 
 -- 授权
-GRANT SELECT, INSERT, UPDATE, DELETE ON cdc_status TO minego_user;
-GRANT SELECT, INSERT, UPDATE, DELETE ON cache_invalidation_log TO minego_user;
-GRANT SELECT, INSERT, UPDATE, DELETE ON cache_invalidation_rules TO minego_user;
-GRANT SELECT, INSERT, UPDATE, DELETE ON cache_invalidation_stats TO minego_user;
-GRANT SELECT ON cache_invalidation_health TO minego_user;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON cdc_status TO minego_user'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON cache_invalidation_log TO minego_user'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON cache_invalidation_rules TO minego_user'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON cache_invalidation_stats TO minego_user'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT ON cache_invalidation_health TO minego_user'; END IF; END $grant$;

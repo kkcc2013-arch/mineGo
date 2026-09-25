@@ -137,9 +137,9 @@ async function createRedisStore(prefix) {
  * 生成限流键（IP + 用户ID）
  */
 function keyGenerator(req) {
-  const ip = req.headers['x-forwarded-for'] || req.ip || 'unknown';
-  const userId = req.user?.id || 'anonymous';
-  return `${ip}:${userId}`;
+  // 已登录按用户计数（换 IP 不能绕过）；未登录按 Express 解析出的 req.ip（受 trust proxy 约束，不可伪造）
+  const userId = req.user && (req.user.sub || req.user.id);
+  return userId ? `u:${userId}` : `ip:${req.ip || 'unknown'}`;
 }
 
 /**
@@ -160,7 +160,7 @@ function createRateLimiter(configName = 'global', options = {}) {
     handler: (req, res, next, options) => {
       // 记录限流事件
       logger.warn('Rate limit exceeded', {
-        ip: req.headers['x-forwarded-for'] || req.ip,
+        ip: req.ip,
         userId: req.user?.id || 'anonymous',
         path: req.path,
         method: req.method,
@@ -214,7 +214,7 @@ function userLevelRateLimiter() {
       keyGenerator,
       handler: (req, res) => {
         logger.warn('User-level rate limit exceeded', {
-          ip: req.headers['x-forwarded-for'] || req.ip,
+          ip: req.ip,
           userId: req.user?.id || 'anonymous',
           path: req.path,
           isAuthenticated
@@ -307,7 +307,7 @@ function dynamicRateLimiter(baseConfig = 'global') {
     keyGenerator,
     handler: (req, res) => {
       logger.warn('Dynamic rate limit exceeded', {
-        ip: req.headers['x-forwarded-for'] || req.ip,
+        ip: req.ip,
         path: req.path,
         currentMultiplier,
         effectiveMax: Math.floor(config.max * currentMultiplier)
@@ -336,7 +336,7 @@ async function distributedRateLimiter(configName = 'global') {
     keyGenerator,
     handler: (req, res) => {
       logger.warn('Distributed rate limit exceeded', {
-        ip: req.headers['x-forwarded-for'] || req.ip,
+        ip: req.ip,
         userId: req.user?.id || 'anonymous',
         path: req.path
       });

@@ -7,6 +7,17 @@ const { createLogger } = require('./logger');
 const logger = createLogger('event-bus');
 
 /**
+ * 是否启用 Kafka：显式 KAFKA_ENABLED 优先；否则配置了 KAFKA_BROKERS 或事件总线适配器为 kafka（默认）时启用。
+ * 生产机（PM2，无 Kafka）配置 EVENT_BUS_ADAPTER=redis，此时 Kafka 事件发布降级为空操作，
+ * 避免无限重连刷屏和 unhandledRejection。
+ */
+function isKafkaEnabled() {
+  if (process.env.KAFKA_ENABLED) return process.env.KAFKA_ENABLED === 'true';
+  if (process.env.KAFKA_BROKERS) return true;
+  return (process.env.EVENT_BUS_ADAPTER || 'kafka').toLowerCase() === 'kafka';
+}
+
+/**
  * EventBus - Kafka-based event bus for microservices communication
  * 
  * Features:
@@ -37,6 +48,7 @@ class EventBus {
     this.producer = null;
     this.consumers = new Map();
     this.isConnected = false;
+    this.disabled = config.enabled === undefined ? !isKafkaEnabled() : !config.enabled;
     
     // Metrics
     this.metrics = {
@@ -51,7 +63,7 @@ class EventBus {
    * Connect to Kafka
    */
   async connect() {
-    if (this.isConnected) return;
+    if (this.isConnected || this.disabled) return;
     
     try {
       this.producer = this.kafka.producer({
@@ -75,6 +87,10 @@ class EventBus {
    * @param {object} options - Publishing options
    */
   async publish(topic, event, options = {}) {
+    if (this.disabled) {
+      logger.debug({ topic, type: event && event.type }, 'Kafka disabled, event not published');
+      return { skipped: true };
+    }
     if (!this.isConnected) {
       await this.connect();
     }
@@ -119,6 +135,10 @@ class EventBus {
    * @param {object} options - Subscription options
    */
   async subscribe(topic, handler, options = {}) {
+    if (this.disabled) {
+      logger.info({ topic }, 'Kafka disabled, subscription skipped');
+      return null;
+    }
     const groupId = options.groupId || `${this.clientId}-${topic}`;
     
     const consumer = this.kafka.consumer({
@@ -264,6 +284,9 @@ class EventBus {
    * Health check
    */
   async healthCheck() {
+    if (this.disabled) {
+      return { status: 'disabled', healthy: true };
+    }
     if (!this.isConnected) {
       return { status: 'disconnected', healthy: false };
     }
@@ -304,7 +327,46 @@ function getEventBus(config) {
   return eventBusInstance;
 }
 
+// 业务事件类型（活动、排行榜、合规等服务通过 publishEvent 发布；原先这些服务 import 了不存在的导出，调用即抛错）
+const EVENTS = Object.freeze({
+  EVENT_CREATED: 'event.created',
+  EVENT_ACTIVATED: 'event.activated',
+  EVENT_DEACTIVATED: 'event.deactivated',
+  EVENT_JOINED: 'event.joined',
+  EVENT_PAUSED: 'event.paused',
+  EVENT_RESUMED: 'event.resumed',
+  EVENT_CANCELLED: 'event.cancelled',
+  SPAWN_BOOST_ACTIVATED: 'event.spawn_boost_activated',
+  REWARD_GRANT: 'reward.granted',
+  LEADERBOARD_UPDATED: 'leaderboard.updated',
+  DATA_TRANSFER_REQUESTED: 'compliance.data_transfer_requested',
+});
+
+/**
+ * 发布业务事件（尽力而为）：事件总线不可用时只记日志，绝不让业务请求失败
+ * @param {string} type    事件类型（EVENTS.*，也接受任意字符串）
+ * @param {object} payload 事件内容
+ * @param {object} [options]
+ * @param {string} [options.topic='game.events']
+ */
+async function publishEvent(type, payload = {}, { topic = 'game.events' } = {}) {
+  try {
+    const bus = getEventBus({ clientId: process.env.SERVICE_NAME || 'minego' });
+    return await bus.publish(topic, {
+      type,
+      ...payload,
+      timestamp: payload.timestamp || new Date().toISOString(),
+    });
+  } catch (err) {
+    logger.warn({ type, topic, err: err.message }, 'publishEvent failed (ignored)');
+    return { error: err.message };
+  }
+}
+
 module.exports = {
   EventBus,
   getEventBus,
+  isKafkaEnabled,
+  EVENTS,
+  publishEvent,
 };

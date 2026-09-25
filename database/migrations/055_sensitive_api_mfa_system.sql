@@ -43,7 +43,7 @@ ON security_audit_log(created_at);
 -- 创建用户安全设置表
 CREATE TABLE IF NOT EXISTS user_security_settings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id BIGINT UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   mfa_enabled BOOLEAN DEFAULT FALSE,
   mfa_type VARCHAR(20) DEFAULT 'sms',
   totp_enabled BOOLEAN DEFAULT FALSE,
@@ -101,7 +101,7 @@ ON mfa_verification_records(status);
 -- 创建设备信任表
 CREATE TABLE IF NOT EXISTS trusted_devices (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   device_id VARCHAR(100) NOT NULL,
   device_name VARCHAR(100),
   device_type VARCHAR(20),

@@ -10,3 +10,6 @@ coverage/
 
 # CI/CD deployment history
 .deploy-history/
+!.env.example
+dump.rdb
+logs/

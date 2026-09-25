@@ -66,7 +66,7 @@ ON CONFLICT (weather_type) DO NOTHING;
 -- 用户天气增益偏好表
 CREATE TABLE IF NOT EXISTS user_weather_preferences (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES users(id),
   enable_weather_boost BOOLEAN DEFAULT TRUE,
   show_weather_notifications BOOLEAN DEFAULT TRUE,
   favorite_weather_types TEXT[] DEFAULT ARRAY[]::TEXT[],

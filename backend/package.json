@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "concurrently \"npm run dev -w shared\" \"npm run dev -w services/user-service\" \"npm run dev -w services/location-service\" \"npm run dev -w services/pokemon-service\" \"npm run dev -w services/catch-service\" \"npm run dev -w services/gym-service\"",
     "test": "npm run test --workspaces --if-present",
-    "test:unit": "node tests/unit/catch.test.js && node tests/unit/auth.test.js && node tests/unit/spawn.test.js && node tests/unit/logger-metrics.test.js && node tests/unit/payment.test.js",
+    "test:unit": "node ../scripts/check-deps.js && node tests/unit/catch.test.js && node tests/unit/auth.test.js && node tests/unit/spawn.test.js && node tests/unit/logger-metrics.test.js && node tests/unit/payment.test.js && node --test tests/unit/security-core.test.js tests/unit/gameTime.test.js tests/unit/fieldKeyProvider.test.js tests/unit/otel-tracing.test.js tests/unit/friend-service.test.js tests/unit/friend-service-db.test.js tests/unit/a11y-backend.test.js tests/unit/battle-core.test.js tests/unit/battle-features.test.js tests/unit/api-standards-core.test.js tests/unit/api-standards-contract.test.js tests/unit/api-standards-pipeline.test.js tests/unit/api-standards-ops.test.js tests/unit/api-standards-services.test.js tests/unit/api-standards-lint.test.js tests/unit/achievementRules.test.js tests/unit/achievementEngine.test.js tests/unit/notificationPolicy.test.js tests/unit/notificationCenter.test.js tests/unit/profileRules.test.js tests/unit/collectionRoomRules.test.js tests/unit/securityNotifier.test.js",
     "test:integration": "jest --config tests/integration/jest.config.json",
     "test:e2e": "jest --config tests/integration/jest.config.json tests/e2e",
     "test:all": "npm run test:unit && npm run test:integration",
@@ -28,7 +28,9 @@
     "migrate:down": "node ../database/migrate.js down",
     "migrate:status": "node ../database/migrate.js status",
     "migrate:create": "node ../database/migrate.js create",
-    "migrate:verify": "node ../database/migrate.js verify"
+    "migrate:verify": "node ../database/migrate.js verify",
+    "test:api-standards": "node --test tests/unit/api-standards-*.test.js",
+    "lint:api": "node ../scripts/api-lint.js"
   },
   "devDependencies": {
     "@testcontainers/postgresql": "^12.0.1",
@@ -44,11 +46,10 @@
     "testcontainers": "^12.0.1"
   },
   "dependencies": {
-    "@opentelemetry/exporter-jaeger": "^2.7.1",
-    "@opentelemetry/resources": "^2.7.1",
-    "@opentelemetry/sdk-trace-base": "^2.7.1",
-    "@opentelemetry/sdk-trace-node": "^2.7.1",
-    "@opentelemetry/semantic-conventions": "^1.41.1",
+    "@opentelemetry/resources": "^2.11.0",
+    "@opentelemetry/sdk-trace-base": "^2.11.0",
+    "@opentelemetry/sdk-trace-node": "^2.11.0",
+    "@opentelemetry/semantic-conventions": "^1.43.0",
     "axios": "^1.17.0",
     "express-validator": "^7.3.2",
     "kafkajs": "^2.2.4",

@@ -3,7 +3,7 @@
 - **编号**：REQ-00042
 - **类别**：可观测性/监控
 - **优先级**：P0
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：gateway, user-service, catch-service, pokemon-service, gym-service, shared/tracing, shared/logger
 - **创建时间**：2026-07-16 12:00
 - **依赖需求**：REQ-00040 (Redis缓存层)
@@ -213,3 +213,36 @@ groups:
 - REQ-00043：自定义业务指标 Dashboard（DAU、留存率、付费转化）
 - REQ-00044：日志脱敏与敏感数据过滤（GDPR 合规）
 - REQ-00045：追踪数据采样策略动态调整
+
+## 实现记录（2026-09-24）
+
+状态：**partial**（服务端 trace_id 贯通已完成；监控栈需容器环境，未部署）→ 已由下方 2026-09-25 记录补全
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 所有微服务 JSON 日志含 `trace_id` | ✅ | `shared/traceContext.js`（AsyncLocalStorage）+ pino mixin；网关生成 W3C 兼容 trace id 并透传 `x-trace-id`/`traceparent`；冒烟用例"traceparent 贯穿网关" |
+| Jaeger UI 跨服务调用链 | ❌ | 生产机不允许 Docker，未部署 Jaeger |
+| Grafana/Loki 按 trace_id 查询 | ❌ | 同上；日志已为 JSON，可直接被 Loki/ELK 采集 |
+| 服务拓扑图 | ❌ | 依赖 Jaeger |
+| 错误率告警 | ❌ | 未部署 AlertManager |
+| 一键启动监控栈 | ❌ | 依赖容器环境 |
+
+## 实现记录（2026-09-25，补全）
+
+状态：**implemented**（代码与配置完成；按用户要求未启动服务验证，待验证）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 所有微服务 JSON 日志含 `trace_id` | ✅ | pino JSON Lines：`level`、`service`、`timestamp`（原为 `time`）、`trace_id`、`request_id`；请求之外有活动 span 时也带 `trace_id`（`shared/logger.js`） |
+| Jaeger 查看跨服务调用链 | ✅ 待验证 | `shared/tracing.js` 按 OTel JS 2.x 重写（原实现用已移除的 API，且从未被加载）；网关与 9 个服务入口第一行 `initTracing`；OTLP/HTTP → Jaeger v2；自动埋点 HTTP/Express/PG/ioredis/node-redis/kafkajs；采样开发 100%、生产 10%（ParentBased，整链一致）；启用时网关以活动 span 的 trace id 为准，日志与链路对得上 |
+| Grafana 查询 Loki 并按 `trace_id` 筛选 | ✅ 待验证 | Alloy 采集（Promtail 已停止维护）→ Loki 3.7（`trace_id` 为结构化元数据）；Grafana 数据源 Loki↔Jaeger 双向跳转（派生字段 / tracesToLogsV2） |
+| 服务拓扑图显示 9 个微服务调用关系 | ✅ 待验证 | `infrastructure/dashboards/service-topology.json`（Jaeger 依赖图 nodeGraph）；另有 `error-rate.json`、`latency-p99.json`（热力图） |
+| 错误率超阈值 AlertManager 告警（模拟测试） | ✅ 待验证 | `infrastructure/alertmanager/rules.yml`（5xx > 5%、P99 > 2s、服务不可达）+ promtool 单测 `rules.test.yml`（4 组用例）；Loki ruler 日志告警（error > 1 条/秒）；`scripts/fire-test-alert.sh` 向 Alertmanager 发模拟告警 |
+| 本地一键启动监控栈 | ✅ 待验证 | `docker compose up -d monitoring`（根 `docker-compose.yml` 的 monitoring profile：Jaeger、Loki、Alloy、Prometheus、Alertmanager、Grafana）；应用服务 `OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318` 开启上报；PM2 经 `ecosystem.config.js` 透传 |
+| K8s 部署配置 | ✅ 待验证 | `infrastructure/k8s/monitoring/`：`jaeger.yaml` 升级 v2（OTLP）、`loki.yaml`、`alloy-daemonset.yaml`、`grafana-logs-traces.yaml`（kube-prometheus-stack sidecar）；`pmg-config` 增加 `OTEL_EXPORTER_OTLP_ENDPOINT`；指标告警沿用已有 PrometheusRule |
+
+- 需求原文用 `JAEGER_ENDPOINT` + Jaeger 专用导出器：该导出器已废弃，改用标准 `OTEL_EXPORTER_OTLP_ENDPOINT`（`JAEGER_ENDPOINT` 在 `TracingPlugin.js` 中是 v1 地址，语义不同，未复用）
+- 依赖：`backend/shared/package.json` 新增 OTel 导出器与埋点包，移除已废弃的 `@opentelemetry/exporter-jaeger`；lockfile 已更新（仅 OTel 相关）
+- 测试：`backend/tests/unit/otel-tracing.test.js`（启用条件、导出地址、采样率含空字符串、trace id 对齐，已在宿主机运行通过，纳入 `test:unit`）；`infrastructure/alertmanager/rules.test.yml`（promtool，未运行）
+- 待验证：见 `infrastructure/monitoring/README.md` 的"验证清单"；生产机不允许 Docker，监控栈需部署在单独的主机或 K8s
+

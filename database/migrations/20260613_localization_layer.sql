@@ -36,6 +36,26 @@ CREATE TABLE IF NOT EXISTS content_localizations (
   CONSTRAINT uq_content_localization 
     UNIQUE (content_type, content_id, field_name, language)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS id UUID DEFAULT uuid_generate_v4();
+ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS content_type VARCHAR(50);
+ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS content_id VARCHAR(100);
+ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS field_name VARCHAR(50);
+ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS language VARCHAR(10);
+ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS translation TEXT;
+ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS metadata JSONB;
+ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE content_localizations ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.content_localizations') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'content_type', 'content_id', 'field_name', 'language', 'translation', 'metadata', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE content_localizations ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- Indexes for efficient querying
 CREATE INDEX IF NOT EXISTS idx_localization_content 
@@ -68,6 +88,32 @@ CREATE TABLE IF NOT EXISTS items (
   created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE items ADD COLUMN IF NOT EXISTS id VARCHAR(50);
+ALTER TABLE items ADD COLUMN IF NOT EXISTS category VARCHAR(30);
+ALTER TABLE items ADD COLUMN IF NOT EXISTS name_zh VARCHAR(100);
+ALTER TABLE items ADD COLUMN IF NOT EXISTS name_en VARCHAR(100);
+ALTER TABLE items ADD COLUMN IF NOT EXISTS name_ja VARCHAR(100);
+ALTER TABLE items ADD COLUMN IF NOT EXISTS description_zh TEXT;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS description_en TEXT;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS description_ja TEXT;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS effect_type VARCHAR(50);
+ALTER TABLE items ADD COLUMN IF NOT EXISTS effect_value DECIMAL(10,4);
+ALTER TABLE items ADD COLUMN IF NOT EXISTS shop_price INTEGER;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS is_premium BOOLEAN DEFAULT FALSE;
+ALTER TABLE items ADD COLUMN IF NOT EXISTS sprite_url VARCHAR(500);
+ALTER TABLE items ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE items ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.items') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'category', 'name_zh', 'name_en', 'name_ja', 'description_zh', 'description_en', 'description_ja', 'effect_type', 'effect_value', 'shop_price', 'is_premium', 'sprite_url', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE items ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_items_category ON items(category);
 CREATE INDEX IF NOT EXISTS idx_items_premium ON items(is_premium) WHERE is_premium = TRUE;
@@ -78,7 +124,9 @@ COMMENT ON TABLE items IS 'Game items with multi-language support';
 -- 4. CREATE POKEMON_MOVES TABLE WITH LOCALIZATION
 -- ============================================================
 
-CREATE TABLE IF NOT EXISTS pokemon_moves (
+-- 原表名 pokemon_moves 与 20260605_180000 的"物种可学技能表" pokemon_moves(species_id, move_id) 冲突，
+-- 这里是带多语言名称的技能目录，改名为 move_catalog_i18n。
+CREATE TABLE IF NOT EXISTS move_catalog_i18n (
   id              VARCHAR(50) PRIMARY KEY,  -- 'TACKLE', 'QUICK_ATTACK', 'THUNDERBOLT'
   move_type       pokemon_type_enum NOT NULL,
   category        VARCHAR(20) NOT NULL,     -- 'FAST', 'CHARGE'
@@ -98,11 +146,40 @@ CREATE TABLE IF NOT EXISTS pokemon_moves (
   created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at      TIMESTAMP NOT NULL DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS id VARCHAR(50);
+ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS move_type pokemon_type_enum;
+ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS category VARCHAR(20);
+ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS name_zh VARCHAR(100);
+ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS name_en VARCHAR(100);
+ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS name_ja VARCHAR(100);
+ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS description_zh TEXT;
+ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS description_en TEXT;
+ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS description_ja TEXT;
+ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS power SMALLINT;
+ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS energy_cost SMALLINT;
+ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS energy_gain SMALLINT;
+ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS cooldown_ms INTEGER DEFAULT 1000;
+ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS duration_ms INTEGER DEFAULT 500;
+ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS accuracy DECIMAL(5,4) DEFAULT 1.0;
+ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS critical_chance DECIMAL(5,4) DEFAULT 0.05;
+ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE move_catalog_i18n ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.move_catalog_i18n') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'move_type', 'category', 'name_zh', 'name_en', 'name_ja', 'description_zh', 'description_en', 'description_ja', 'power', 'energy_cost', 'energy_gain', 'cooldown_ms', 'duration_ms', 'accuracy', 'critical_chance', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE move_catalog_i18n ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
-CREATE INDEX IF NOT EXISTS idx_moves_type ON pokemon_moves(move_type);
-CREATE INDEX IF NOT EXISTS idx_moves_category ON pokemon_moves(category);
+CREATE INDEX IF NOT EXISTS idx_moves_type ON move_catalog_i18n(move_type);
+CREATE INDEX IF NOT EXISTS idx_moves_category ON move_catalog_i18n(category);
 
-COMMENT ON TABLE pokemon_moves IS 'Pokémon moves/skills with multi-language support';
+COMMENT ON TABLE move_catalog_i18n IS 'Pokémon moves/skills with multi-language support';
 
 -- ============================================================
 -- 5. UPDATE EVENTS TABLE FOR LOCALIZATION
@@ -188,7 +265,7 @@ ON CONFLICT (id) DO UPDATE SET
   description_ja = EXCLUDED.description_ja;
 
 -- Insert sample moves with localization
-INSERT INTO pokemon_moves (id, move_type, category, name_zh, name_en, name_ja, description_zh, description_en, description_ja, power, energy_cost, energy_gain, cooldown_ms)
+INSERT INTO move_catalog_i18n (id, move_type, category, name_zh, name_en, name_ja, description_zh, description_en, description_ja, power, energy_cost, energy_gain, cooldown_ms)
 VALUES 
   ('TACKLE', 'NORMAL', 'FAST', '撞击', 'Tackle', 'たいあたり', '用全身撞击对手', 'A full-body charge attack', '全身で相手にぶつかる', 5, NULL, 5, 1000),
   ('QUICK_ATTACK', 'NORMAL', 'FAST', '电光一闪', 'Quick Attack', 'でんこうせっか', '以肉眼无法看清的速度攻击', 'An extremely fast attack', '目に見えない速さで攻撃', 8, NULL, 8, 800),
@@ -241,6 +318,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_content_localizations_updated ON content_localizations;
 CREATE TRIGGER trg_content_localizations_updated
   BEFORE UPDATE ON content_localizations
   FOR EACH ROW
@@ -252,4 +330,4 @@ CREATE TRIGGER trg_content_localizations_updated
 
 -- GRANT SELECT, INSERT, UPDATE ON content_localizations TO game_user;
 -- GRANT SELECT, INSERT, UPDATE ON items TO game_user;
--- GRANT SELECT, INSERT, UPDATE ON pokemon_moves TO game_user;
+-- GRANT SELECT, INSERT, UPDATE ON move_catalog_i18n TO game_user;

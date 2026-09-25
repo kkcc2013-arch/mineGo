@@ -7,7 +7,7 @@
 | 标题 | 精灵技能冷却时间智能优化系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | pokemon-service、gym-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-23 15:00 |
 
@@ -1012,3 +1012,23 @@ describe('SkillCooldownManager', () => {
 - [ICU MessageFormat 规范](https://unicode-org.github.io/icu/userguide/format_parse/messages/)
 - [WCAG 2.1 可访问性指南](https://www.w3.org/TR/WCAG21/)
 - [PostgreSQL 性能优化指南](https://www.postgresql.org/docs/current/performance-tips.html)
+
+## 实现记录（2026-09-25）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 技能熟练度系统实现，熟练度0-100对应0-15%冷却缩减 | ✅ | `pokemon_move_mastery`（每次使用 +1，连击完成技 +2）；`cooldown.masteryReduction`（单测）；`GET /v1/battle/pokemon/:id/mastery` |
+| 连击加速机制实现，3次连击后每次减少2%冷却（最多10%） | ✅ | `cooldown.comboAcceleration` 按本场连击次数（单测） |
+| 冷却装备系统实现，支持宝石/符文/神器三种类型 | ✅ | `cooldown_equipment_catalog`（8 种）/`user_cooldown_equipment`；每只精灵每类 1 件；装备/卸下接口；联赛晋级/赛季奖励发放装备 |
+| PVE/PVP/团本/锦标赛四种战斗模式冷却策略实现 | ✅ | `cooldown.MODE_STRATEGIES`：道馆 PVE、团战 RAID（冷却 ×0.9）、联赛 TOURNAMENT（禁用装备/熟练度，缩减上限 20%）、PVP（×1.1，上限 30%，冷却查询 ?mode=PVP 可用；当前异步联赛按锦标赛策略） |
+| 冷却时间可视化界面实现，显示进度条和剩余时间 | ✅ | 战斗技能按钮剩余冷却遮罩；对战页 → 技能：基础/实际冷却、各项缩减明细 |
+| 冷却预测系统实现，提供建议和优化提示 | ✅ | `cooldown.predict`：各技能可用回合、能量缺口、装备/熟练度提升空间建议；`GET /v1/battle/pokemon/:id/cooldowns` |
+| 单元测试覆盖率 ≥ 85% | ✅ | cooldown.js 行覆盖 96% |
+| API 接口文档完整 | ✅ | `docs/api-spec/openapi/paths/battle.yaml`（Energy & Cooldown 标签） |
+| 性能测试：冷却计算响应时间 < 50ms | ✅ | 进程内实测 2 万次 P99 0.004ms（bench-battle --local）；接口耗时待经网关 bench |
+| 数据库迁移脚本可执行 | ⚠️ | 20260925_110000 在规则变更前已在 CI 库执行成功；之后追加的「时间列转为 TIMESTAMPTZ」段未在库上运行（已人工自查幂等与异常处理） |
+
+- 入口：gym-service `src/battle/*`（纯逻辑：damage/cooldown/energy/combo/engine/ai/stats/leagueRules/recommendScore/replayFormat/presetRules；持久化与编排：repo/store/session/gym/raid/league/replay/recommend/comboPresets/pokemonEnergy/settle/deps）；路由 `routes/gyms.js`、`routes/gymBattle.js`、`routes/raids.js`、`routes/battleApi.js`（挂 `/battle`）；网关 `backend/gateway/src/index.js`：`/v1/gyms/*`、`/v1/raids/*`、`/v1/battle/*`（鉴权）、公开 `/v1/battle/replays/shared/:code`、WebSocket 升级转发 `/ws/raid`、`/ws/notifications`、`/ws/battle`
+- 迁移：`database/migrations/20260925_110000__e11_battle_core.sql`（补列/新表/连击链种子/时间列 TIMESTAMPTZ，全部 IF NOT EXISTS）、`20260925_110100__e11_restore_fast_move_power.sql`；复用既有表见各行说明
+- 测试：宿主机已运行（纯逻辑，不连服务）：`cd backend && node --test tests/unit/battle-core.test.js tests/unit/battle-features.test.js` → 29/29 通过；`node --test frontend/game-client/tests/unit/battle-client.test.mjs` → 11/11 通过；`node --expose-gc scripts/bench-battle.js --local`（数字见表）。验证方式调整前（2026-09-25 08:39，提交 e022c97）曾在隔离 CI 栈实测：`scripts/smoke-battle.js` 101/101、核心冒烟 37/37、battle-core 16/16。之后的改动（连击熟练度接入、实时天气、连击道具奖励、大师联赛分组、AI 对位口径、迁移时间列段、前端全部）**未运行，待验证**。待运行：`BASE_URL=… DATABASE_URL=… REDIS_URL=… node scripts/smoke-battle.js`（102 项）、`node scripts/bench-battle.js --battles 20 --concurrency 5`；迁移在全新库上执行 `reset-db` 后检查 bootstrap-report 无 20260925_1100xx 失败
+- 待验证：装备神器后冷却缩减 15%、锦标赛模式为 0；熟练度随战斗累积

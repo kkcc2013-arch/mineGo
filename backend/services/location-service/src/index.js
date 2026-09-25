@@ -1,11 +1,14 @@
 // location-service/src/index.js  +  routes/map.js  (combined)
 'use strict';
+require('../../../shared/tracing').initTracing('location-service'); // REQ-00042：须先于 express/http/pg/redis 加载，自动埋点才生效（未配置 OTEL_EXPORTER_OTLP_ENDPOINT 时不启用）
 const express  = require('express');
 const cors     = require('cors');
 const helmet   = require('helmet');
 const { query, preparedQuery }  = require('../../../shared/db');
 const { getRedis, geoAdd, geoRadius, setJSON, getJSON } = require('../../../shared/redis');
-const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
+const { requireAuth, requireAdmin, AppError, successResp, errorHandler } = require('../../../shared/auth');
+// REQ-00586: 服务端 GPS 欺骗检测（速度/不可能行程/多账号同坐标 + 可信度评分）
+const { validateLocation, getTrustScore, getRiskLevel, recoverTrustScores } = require('../../../shared/anti-cheat');
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
 const { getWeather, getBoostedTypes, getTypeNameZh } = require('../../../shared/weatherService');
@@ -85,9 +88,19 @@ async function getWeatherBonus(lat, lng) {
 }
 
 async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
+  // spawn_points.lat/lng 是 NUMERIC，pg 驱动返回字符串；天气服务对字符串坐标直接抛错
+  lat = Number(lat);
+  lng = Number(lng);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
   const spawnKey = `spawn:${spawnPointId}`;
   const existing = await getJSON(spawnKey);
-  if (existing) return existing; // already active
+  if (existing) {
+    // 刷怪点上一只精灵仍在场才复用；已被捕获/过期则允许重新刷新
+    // （原实现只看 Redis 键，被捕获后该刷怪点 30 分钟内不会再刷，且会把已捕获精灵重新加回 GEO 索引）
+    const { rows: [w] } = await query('SELECT is_caught, expires_at FROM wild_pokemon WHERE id = $1', [existing.id]);
+    if (w && !w.is_caught && new Date(w.expires_at) > new Date()) return existing;
+    await getRedis().del(spawnKey);
+  }
 
   // REQ-00102: Get current time period for day/night spawn bonuses
   const timePeriodInfo = await getCurrentTimePeriod(0);
@@ -96,7 +109,7 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
 
   // Pick species based on biome + rarity weights + day/night weights
   const { rows: species } = await query(`
-    SELECT id, rarity, type1, time_preference, is_nocturnal, is_diurnal FROM pokemon_species
+    SELECT id, name_zh, rarity, type1, time_preference, is_nocturnal, is_diurnal FROM pokemon_species
     WHERE ($1 = 'ANY' OR $1 = ANY(biomes) OR biomes IS NULL)
     ORDER BY random()
     LIMIT 50
@@ -110,7 +123,10 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
   // Weighted random selection
   let totalWeight = 0;
   const weighted = weightedSpecies.map(s => {
-    const w = s.finalWeight || RARITY_WEIGHTS[s.rarity] || 10;
+    // 稀有度权重 × 昼夜倍率（原实现只用 finalWeight≈1，稀有度从未生效，传说与普通同概率）
+    const rarityWeight = RARITY_WEIGHTS[s.rarity] || 10;
+    const dayNightFactor = Number.isFinite(s.finalWeight) && s.finalWeight > 0 ? s.finalWeight : 1;
+    const w = rarityWeight * dayNightFactor;
     totalWeight += w;
     return { ...s, weight: w, ivBonus: s.ivBonus || 0 };
   });
@@ -167,9 +183,11 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
     INSERT INTO wild_pokemon
       (spawn_point_id, species_id, lat, lng, location, cp, iv_attack, iv_defense, iv_hp,
        is_shiny, weather_boosted, expires_at)
-    VALUES ($1,$2,$3,$4, ST_GeographyFromText('SRID=4326;POINT(${lng} ${lat})'), $5,$6,$7,$8,$9,$10,$11)
+    VALUES ($1,$2,$3,$4, ST_SetSRID(ST_MakePoint($12::float8, $13::float8), 4326)::geography, $5,$6,$7,$8,$9,$10,$11)
     RETURNING id, species_id, lat, lng, cp, is_shiny, weather_boosted, expires_at
-  `, [spawnPointId, chosen.id, lat, lng, cp, iv_attack, iv_defense, iv_hp, isShiny, weatherBoosted, expiresAt]);
+  `, [spawnPointId, chosen.id, lat, lng, cp, iv_attack, iv_defense, iv_hp, isShiny, weatherBoosted, expiresAt, lng, lat]);
+  wild.name_zh = chosen.name_zh;
+  wild.rarity = chosen.rarity;
 
   const payload = { 
     ...wild, 
@@ -206,22 +224,34 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
 }
 
 // Background spawn worker (runs every 5 min in prod, triggered here)
-async function runSpawnCycle() {
+// 以玩家位置为中心只刷新附近刷怪点，并用 Redis 锁防止多实例/并发请求重复刷怪
+const SPAWN_CYCLE_RADIUS_M = Number(process.env.SPAWN_CYCLE_RADIUS_M || 3000);
+async function runSpawnCycle(centerLat, centerLng) {
+  const redis = getRedis();
+  const cell = Number.isFinite(centerLat) ? `${centerLat.toFixed(2)}:${centerLng.toFixed(2)}` : 'global';
+  const lockKey = `lock:spawn-cycle:${cell}`;
+  const locked = await redis.set(lockKey, process.pid, 'EX', 60, 'NX');
+  if (!locked) return;
+
+  const params = [];
+  let near = '';
+  if (Number.isFinite(centerLat) && Number.isFinite(centerLng)) {
+    params.push(centerLng, centerLat, SPAWN_CYCLE_RADIUS_M);
+    near = `AND ST_DWithin(location, ST_SetSRID(ST_MakePoint($1::float8, $2::float8), 4326)::geography, $3)`;
+  }
   const { rows: points } = await query(`
     SELECT id, lat, lng, biome FROM spawn_points
     WHERE is_active = true
       AND (last_spawn_at IS NULL OR last_spawn_at < NOW() - INTERVAL '15 minutes')
+      ${near}
     LIMIT 200
-  `);
+  `, params);
 
   let spawned = 0;
   for (const pt of points) {
     try {
       const result = await spawnPokemonForPoint(pt.id, pt.lat, pt.lng, pt.biome);
-      if (result) {
-        await geoAdd('geo:wild_pokemon', pt.lng, pt.lat, result.id);
-        spawned++;
-      }
+      if (result) spawned++; // spawnPokemonForPoint 已写入 GEO 索引
     } catch (err) {
       console.error('[Spawn] Error for point', pt.id, err.message);
     }
@@ -232,7 +262,7 @@ async function runSpawnCycle() {
 // ============================================================
 // ROUTES
 // ============================================================
-app.get('/health', (_, res) => res.json({ status: 'ok', service: 'location-service' }));
+// （/health 已在上方注册；此处重复定义永远不会执行，已移除 —— REQ-00329 api-lint route/duplicate）
 
 // GET /map/weather — 获取当前天气
 app.get('/map/weather', requireAuth, async (req, res, next) => {
@@ -259,10 +289,14 @@ app.get('/map/weather', requireAuth, async (req, res, next) => {
 });
 
 // POST /location  — player GPS update
-app.post('/location', requireAuth, async (req, res, next) => {
+app.post('/location', requireAuth, validateLocation, async (req, res, next) => {
   try {
-    const { lat, lng, accuracy } = req.body;
-    if (!lat || !lng) throw new AppError(1001, 'lat/lng 必填', 400);
+    const lat = Number(req.body && req.body.lat);
+    const lng = Number(req.body && req.body.lng);
+    // 原实现用 !lat 判断，纬度/经度为 0 时被误拒；非数字字符串会让后续距离计算得到 NaN
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+      throw new AppError(1001, 'lat/lng 无效', 400);
+    }
 
     const userId = req.user.sub;
 
@@ -285,13 +319,20 @@ app.post('/location', requireAuth, async (req, res, next) => {
     }
 
     // Store position in Redis (for speed checks + GEO queries)
-    await setJSON(prevKey, { lat, lng, ts: Date.now() }, 300);
+    // 30 分钟：捕捉/补给站以此为服务端位置（原 5 分钟，玩家原地不动超过 5 分钟就无法捕捉）
+    await setJSON(prevKey, { lat, lng, ts: Date.now() }, 1800);
     await geoAdd('geo:players', lng, lat, userId);
 
     // Check if any nearby spawns should trigger
     const nearbyCount = await getNearbyWildCount(lat, lng, 500);
 
-    res.json(successResp({ nearbyAlert: nearbyCount > 0 }));
+    const ac = req.antiCheat;
+    res.json(successResp({
+      nearbyAlert: nearbyCount > 0,
+      // REQ-00586: 中高风险用户由客户端提示，服务端在捕捉/补给站处降级
+      riskLevel: ac ? ac.riskLevel : undefined,
+      warning: ac && ac.speedResult && ac.speedResult.isAnomaly ? 'speed_anomaly' : undefined,
+    }));
   } catch (err) { next(err); }
 });
 
@@ -304,8 +345,8 @@ app.get('/map/nearby', requireAuth, async (req, res, next) => {
 
     if (isNaN(lat) || isNaN(lng)) throw new AppError(1001, 'lat/lng 无效', 400);
 
-    // Trigger spawn cycle if needed
-    runSpawnCycle().catch(console.error);
+    // Trigger spawn cycle if needed（附近刷怪点，带分布式锁）
+    runSpawnCycle(lat, lng).catch(err => logger.error({ err: err.message }, 'spawn cycle failed'));
 
     const [wildPokemons, pokestops, gyms] = await Promise.all([
       getNearbyWild(lat, lng, radius),
@@ -478,6 +519,59 @@ app.use('/habitat', habitatRouter);
 
 // ── Location Verification Routes (REQ-00586: GPS 位置欺骗检测) ──────────────
 app.use('/api/v1/location', locationVerifyRouter);
+
+// ── REQ-00586: 反作弊管理（可疑玩家列表 / 证据），经网关 /api/admin/anticheat 访问 ──
+app.get('/anticheat/suspicious', requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    const hours = Math.min(Math.max(parseInt(req.query.hours || '24', 10) || 24, 1), 24 * 30);
+    const { rows } = await query(`
+      SELECT r.user_id, u.nickname, COUNT(*)::int AS events,
+             array_agg(DISTINCT r.type) AS types,
+             MIN(r.trust_score_after) AS min_trust_score,
+             MAX(r.created_at) AS last_seen
+      FROM anti_cheat_records r
+      LEFT JOIN users u ON u.id = r.user_id
+      WHERE r.user_id IS NOT NULL
+        AND r.type NOT IN ('TRUST_DECREASE', 'TRUST_INCREASE')
+        AND r.created_at > NOW() - make_interval(hours => $1)
+      GROUP BY r.user_id, u.nickname
+      ORDER BY events DESC, last_seen DESC
+      LIMIT 100
+    `, [hours]);
+    const players = await Promise.all(rows.map(async (r) => {
+      const trustScore = await getTrustScore(r.user_id);
+      return { ...r, trustScore, riskLevel: getRiskLevel(trustScore) };
+    }));
+    res.json(successResp({ hours, players }));
+  } catch (err) { next(err); }
+});
+
+app.get('/anticheat/users/:userId/evidence', requireAuth, requireAdmin, async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+    const [{ rows: records }, { rows: locations }] = await Promise.all([
+      query(`SELECT type, severity, details, trust_score_before, trust_score_after, action_taken, created_at
+             FROM anti_cheat_records WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`, [userId]),
+      query(`SELECT lat, lng, accuracy, is_mock, recorded_at
+             FROM user_location_history WHERE user_id = $1 ORDER BY recorded_at DESC LIMIT 50`, [userId]),
+    ]);
+    const trustScore = await getTrustScore(userId);
+    res.json(successResp({ userId, trustScore, riskLevel: getRiskLevel(trustScore), records, locations }));
+  } catch (err) { next(err); }
+});
+
+// REQ-00586 补全：申诉、地形区域管理、风控监控统计
+app.use('/', require('./routes/antiCheatAppeals'));
+
+// REQ-00586: 可信度每小时恢复 +1（多实例下用 Redis 锁保证只执行一次）
+setInterval(async () => {
+  try {
+    const ok = await getRedis().set('lock:anticheat:trust-recovery', process.pid, 'EX', 3000, 'NX');
+    if (ok) await recoverTrustScores();
+  } catch (err) {
+    logger.error({ err: err.message }, 'trust score recovery failed');
+  }
+}, 60 * 60 * 1000).unref();
 
 app.use(errorHandler);
 app.listen(PORT, () => logger.info({ port: PORT }, 'Location service started'));

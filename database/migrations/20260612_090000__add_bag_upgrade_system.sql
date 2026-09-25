@@ -27,7 +27,7 @@ COMMENT ON COLUMN bag_upgrade_config.max_upgrades IS '最大购买次数';
 -- 玩家背包扩容记录表
 CREATE TABLE IF NOT EXISTS player_bag_upgrades (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   upgrade_id VARCHAR(50) NOT NULL REFERENCES bag_upgrade_config(upgrade_id),
   purchase_method VARCHAR(20) NOT NULL CHECK (purchase_method IN ('gold', 'gem', 'achievement', 'event', 'free')),
   cost_amount INTEGER NOT NULL CHECK (cost_amount >= 0),

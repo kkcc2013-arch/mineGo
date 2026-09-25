@@ -22,6 +22,30 @@ CREATE TABLE IF NOT EXISTS pokemon_friendship (
     CONSTRAINT valid_daily_walking_bonus CHECK (daily_walking_bonus >= 0 AND daily_walking_bonus <= 10),
     UNIQUE(pokemon_instance_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS pokemon_instance_id INTEGER;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS friendship_value INTEGER DEFAULT 50;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS friendship_level VARCHAR(20) DEFAULT 'normal';
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS daily_walking_bonus INTEGER DEFAULT 0;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS last_walking_bonus_date DATE;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS daily_interaction_count INTEGER DEFAULT 0;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS last_interaction_date DATE;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS total_interactions INTEGER DEFAULT 0;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS days_with_trainer INTEGER DEFAULT 0;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS first_obtained_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS last_interaction_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE pokemon_friendship ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokemon_friendship') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('pokemon_instance_id', 'friendship_value', 'friendship_level', 'daily_walking_bonus', 'last_walking_bonus_date', 'daily_interaction_count', 'last_interaction_date', 'total_interactions', 'days_with_trainer', 'first_obtained_at', 'last_interaction_at', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokemon_friendship ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE pokemon_friendship IS '精灵好感度表';
 COMMENT ON COLUMN pokemon_friendship.friendship_value IS '好感度值 (0-255)';
@@ -39,6 +63,25 @@ CREATE TABLE IF NOT EXISTS friendship_history (
     metadata JSONB DEFAULT '{}',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS pokemon_instance_id INTEGER;
+ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS change_type VARCHAR(50);
+ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS change_amount INTEGER;
+ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS before_value INTEGER;
+ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS after_value INTEGER;
+ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS source VARCHAR(100);
+ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
+ALTER TABLE friendship_history ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.friendship_history') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('pokemon_instance_id', 'change_type', 'change_amount', 'before_value', 'after_value', 'source', 'metadata', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE friendship_history ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE friendship_history IS '好感度变化历史记录';
 
@@ -52,6 +95,23 @@ CREATE TABLE IF NOT EXISTS friendship_evolution_rules (
     additional_item_id INTEGER,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS species_id INTEGER;
+ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS evolution_species_id INTEGER;
+ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS required_friendship INTEGER DEFAULT 220;
+ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS time_condition VARCHAR(20);
+ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS additional_item_id INTEGER;
+ALTER TABLE friendship_evolution_rules ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.friendship_evolution_rules') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('species_id', 'evolution_species_id', 'required_friendship', 'time_condition', 'additional_item_id', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE friendship_evolution_rules ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE friendship_evolution_rules IS '亲密度进化规则配置';
 
@@ -66,6 +126,24 @@ CREATE TABLE IF NOT EXISTS friendship_interaction_config (
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE friendship_interaction_config ADD COLUMN IF NOT EXISTS interaction_type VARCHAR(50);
+ALTER TABLE friendship_interaction_config ADD COLUMN IF NOT EXISTS friendship_change INTEGER;
+ALTER TABLE friendship_interaction_config ADD COLUMN IF NOT EXISTS daily_limit INTEGER DEFAULT NULL;
+ALTER TABLE friendship_interaction_config ADD COLUMN IF NOT EXISTS cooldown_hours INTEGER DEFAULT 0;
+ALTER TABLE friendship_interaction_config ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE friendship_interaction_config ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;
+ALTER TABLE friendship_interaction_config ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.friendship_interaction_config') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('interaction_type', 'friendship_change', 'daily_limit', 'cooldown_hours', 'description', 'is_active', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE friendship_interaction_config ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE friendship_interaction_config IS '好感度互动类型配置';
 
@@ -89,49 +167,49 @@ ON CONFLICT (interaction_type) DO NOTHING;
 INSERT INTO friendship_evolution_rules (species_id, evolution_species_id, required_friendship, time_condition)
 SELECT s.id, e.id, 220, NULL
 FROM pokemon_species s, pokemon_species e
-WHERE s.species_id = 113 AND e.species_id = 242
+WHERE s.id = 113 AND e.id = 242
 ON CONFLICT DO NOTHING;
 
 INSERT INTO friendship_evolution_rules (species_id, evolution_species_id, required_friendship, time_condition)
 SELECT s.id, e.id, 220, 'day'
 FROM pokemon_species s, pokemon_species e
-WHERE s.species_id = 175 AND e.species_id = 176
+WHERE s.id = 175 AND e.id = 176
 ON CONFLICT DO NOTHING;
 
 INSERT INTO friendship_evolution_rules (species_id, evolution_species_id, required_friendship, time_condition)
 SELECT s.id, e.id, 220, NULL
 FROM pokemon_species s, pokemon_species e
-WHERE s.species_id = 176 AND e.species_id = 468
+WHERE s.id = 176 AND e.id = 468
 ON CONFLICT DO NOTHING;
 
 INSERT INTO friendship_evolution_rules (species_id, evolution_species_id, required_friendship, time_condition)
 SELECT s.id, e.id, 220, 'day'
 FROM pokemon_species s, pokemon_species e
-WHERE s.species_id = 133 AND e.species_id = 196
+WHERE s.id = 133 AND e.id = 196
 ON CONFLICT DO NOTHING;
 
 INSERT INTO friendship_evolution_rules (species_id, evolution_species_id, required_friendship, time_condition)
 SELECT s.id, e.id, 220, 'night'
 FROM pokemon_species s, pokemon_species e
-WHERE s.species_id = 133 AND e.species_id = 197
+WHERE s.id = 133 AND e.id = 197
 ON CONFLICT DO NOTHING;
 
 INSERT INTO friendship_evolution_rules (species_id, evolution_species_id, required_friendship, time_condition)
 SELECT s.id, e.id, 220, NULL
 FROM pokemon_species s, pokemon_species e
-WHERE s.species_id = 183 AND e.species_id = 184
+WHERE s.id = 183 AND e.id = 184
 ON CONFLICT DO NOTHING;
 
 INSERT INTO friendship_evolution_rules (species_id, evolution_species_id, required_friendship, time_condition)
 SELECT s.id, e.id, 220, NULL
 FROM pokemon_species s, pokemon_species e
-WHERE s.species_id = 280 AND e.species_id = 281
+WHERE s.id = 280 AND e.id = 281
 ON CONFLICT DO NOTHING;
 
 INSERT INTO friendship_evolution_rules (species_id, evolution_species_id, required_friendship, time_condition)
 SELECT s.id, e.id, 220, NULL
 FROM pokemon_species s, pokemon_species e
-WHERE s.species_id = 406 AND e.species_id = 407
+WHERE s.id = 406 AND e.id = 407
 ON CONFLICT DO NOTHING;
 
 -- 创建索引

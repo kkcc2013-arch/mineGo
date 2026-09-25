@@ -71,7 +71,7 @@ class IpBanManager {
    * 加载黑名单和白名单到缓存
    */
   async loadCaches() {
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       // 加载黑名单
       const blacklistResult = await client.query(`
@@ -177,7 +177,7 @@ class IpBanManager {
    * 检查地理位置封禁
    */
   async checkGeoBan(ipAddress) {
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       // 获取 IP 的国家代码
       const country = await this.getIpCountry(ipAddress);
@@ -199,7 +199,7 @@ class IpBanManager {
    * 获取 IP 国家代码（简化版，实际应使用 GeoIP 数据库）
    */
   async getIpCountry(ipAddress) {
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       const result = await client.query(
         'SELECT country_code FROM ip_risk_scores WHERE ip_address = $1',
@@ -215,7 +215,7 @@ class IpBanManager {
    * 添加 IP 到黑名单
    */
   async addToBlacklist(ipAddress, reason, severity = 'medium', expiresAt = null, blockedBy = null) {
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       await client.query('BEGIN');
       
@@ -268,7 +268,7 @@ class IpBanManager {
    * 从黑名单移除
    */
   async removeFromBlacklist(ipAddress) {
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       await client.query('BEGIN');
       
@@ -301,7 +301,7 @@ class IpBanManager {
    * 添加 IP 到白名单
    */
   async addToWhitelist(ipAddress, description = '', addedBy = null) {
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       await client.query('BEGIN');
       
@@ -340,7 +340,7 @@ class IpBanManager {
    * 从白名单移除
    */
   async removeFromWhitelist(ipAddress) {
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       await client.query('BEGIN');
       
@@ -372,7 +372,7 @@ class IpBanManager {
    * 记录触发事件并检查是否需要自动封禁
    */
   async recordTrigger(ipAddress, triggerType) {
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       const threshold = AUTO_BAN_THRESHOLDS[triggerType];
       if (!threshold) {
@@ -437,7 +437,7 @@ class IpBanManager {
       return parseInt(cached, 10);
     }
     
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       const result = await client.query(
         'SELECT risk_score FROM ip_risk_scores WHERE ip_address = $1',
@@ -459,7 +459,7 @@ class IpBanManager {
    * 更新风险评分
    */
   async updateRiskScore(ipAddress, delta, reason = '') {
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       await client.query('BEGIN');
       
@@ -500,7 +500,7 @@ class IpBanManager {
    * 记录访问日志
    */
   async logAccess(ipAddress, userId, endpoint, method, statusCode, responseTime, isBlocked = false, blockReason = null, userAgent = '') {
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       await client.query(`
         INSERT INTO ip_access_logs 
@@ -524,7 +524,7 @@ class IpBanManager {
    * 提交申诉
    */
   async submitAppeal(ipAddress, userId, appealReason) {
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       const result = await client.query(`
         INSERT INTO ip_ban_appeals (ip_address, user_id, appeal_reason)
@@ -544,7 +544,7 @@ class IpBanManager {
    * 处理申诉
    */
   async processAppeal(appealId, approved, reviewedBy, reviewNote = '') {
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       await client.query('BEGIN');
       
@@ -610,7 +610,7 @@ class IpBanManager {
    * 清理过期的封禁
    */
   async cleanupExpired() {
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       const result = await client.query(`
         DELETE FROM ip_blacklist
@@ -637,7 +637,7 @@ class IpBanManager {
    * 获取统计信息
    */
   async getStats() {
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       const blacklistCount = await client.query('SELECT COUNT(*) FROM ip_blacklist WHERE expires_at IS NULL OR expires_at > NOW()');
       const whitelistCount = await client.query('SELECT COUNT(*) FROM ip_whitelist');
@@ -673,7 +673,7 @@ class IpBanManager {
    * 添加地理位置封禁
    */
   async addGeoBan(countryCode, reason, bannedBy = null) {
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       await client.query(`
         INSERT INTO geo_ban (country_code, reason, banned_by)
@@ -694,7 +694,7 @@ class IpBanManager {
    * 解除地理位置封禁
    */
   async removeGeoBan(countryCode, removedBy = null) {
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       await client.query(`
         UPDATE geo_ban SET is_active = false, updated_at = NOW()
@@ -713,7 +713,7 @@ class IpBanManager {
    * 重置 IP 风险评分
    */
   async resetRiskScore(ipAddress) {
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       await client.query(`
         UPDATE ip_risk_scores
@@ -736,7 +736,7 @@ class IpBanManager {
    * 更新 removeFromWhitelist 支持操作人参数
    */
   async removeFromWhitelistWithLog(ipAddress, removedBy = null) {
-    const client = await this.db.connect();
+    const client = await (typeof this.db.getClient === 'function' ? this.db.getClient() : this.db.connect());
     try {
       await client.query('DELETE FROM ip_whitelist WHERE ip_address = $1', [ipAddress]);
       

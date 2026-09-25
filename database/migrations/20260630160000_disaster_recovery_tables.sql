@@ -8,9 +8,9 @@ CREATE TABLE IF NOT EXISTS disaster_recovery_region_health (
   health_score DECIMAL(5,2) NOT NULL CHECK (health_score >= 0 AND health_score <= 100),
   status VARCHAR(20) NOT NULL CHECK (status IN ('healthy', 'degraded', 'critical', 'offline')),
   dimensions JSONB NOT NULL DEFAULT '{}',
-  recorded_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  INDEX idx_dr_region_health_region_time (region_code, recorded_at DESC)
+  recorded_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS idx_disaster_recovery_region_health_dr_region_health_region_tim ON disaster_recovery_region_health (region_code, recorded_at DESC);
 
 COMMENT ON TABLE disaster_recovery_region_health IS '区域健康状态记录';
 
@@ -36,10 +36,10 @@ CREATE TABLE IF NOT EXISTS disaster_recovery_switch_history (
   completed_at TIMESTAMP,
   rollback_at TIMESTAMP,
   duration_ms INTEGER,
-  error_message TEXT,
-  INDEX idx_dr_switch_history_time (started_at DESC),
-  INDEX idx_dr_switch_history_regions (from_region, to_region)
+  error_message TEXT
 );
+CREATE INDEX IF NOT EXISTS idx_disaster_recovery_switch_history_dr_switch_history_time ON disaster_recovery_switch_history (started_at DESC);
+CREATE INDEX IF NOT EXISTS idx_disaster_recovery_switch_history_dr_switch_history_regions ON disaster_recovery_switch_history (from_region, to_region);
 
 COMMENT ON TABLE disaster_recovery_switch_history IS '灾备切换历史记录';
 
@@ -61,9 +61,9 @@ CREATE TABLE IF NOT EXISTS disaster_recovery_region_config (
   latencies JSONB DEFAULT '{}', -- 到其他区域的延迟映射
   is_active BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  INDEX idx_dr_region_config_primary (is_primary) WHERE is_primary = true
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS idx_disaster_recovery_region_config_dr_region_config_primary ON disaster_recovery_region_config (is_primary) WHERE is_primary = true;
 
 COMMENT ON TABLE disaster_recovery_region_config IS '区域灾备配置';
 
@@ -218,5 +218,5 @@ FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
 -- 授权
-GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO minego_app;
-GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO minego_app;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO minego_app'; END IF; END $grant$;

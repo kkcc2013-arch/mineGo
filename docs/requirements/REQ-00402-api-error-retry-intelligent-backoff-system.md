@@ -3,7 +3,7 @@
 - **编号**：REQ-00402
 - **类别**：API 设计规范
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：gateway、所有微服务、backend/shared/RetryManager.js、backend/shared/middleware/retryMiddleware.js、game-client
 - **创建时间**：2026-07-01 01:00 UTC
 - **依赖需求**：REQ-00014（熔断降级）、REQ-00023（分布式追踪）
@@ -1000,3 +1000,28 @@ COMMENT ON TABLE retry_stats_hourly IS '重试统计聚合';
 - 提供完整的可观测性，便于问题定位
 
 该需求是实现"生产可用"目标的必要组件。
+
+## 实现记录（2026-09-25）
+
+状态：**implemented**（代码已完成、未在服务上运行验证；按 09-25 验证规则，服务级验证由用户安排）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| RetryManager 支持指数退避、线性退避、自适应退避三种算法 | ✅ | `shared/RetryManager.js` 重写（保持原导出 API） |
+| 错误分类器能正确识别 HTTP 状态码、网络错误、业务错误 | ✅ | 含 axios 风格 `error.response.status`、Abort / 超时 / 预算耗尽 |
+| 抖动机制有效防止多客户端同时重试（惊群效应） | ✅ | full / equal / decorrelated jitter；单测验证分布；客户端同样 full jitter |
+| 重试预算管理器正确限制重试次数 | ✅ | 按每次重试消耗（原实现只检查一次），定时器 unref |
+| 超时控制正常工作，不会无限等待 | ✅ | 单次超时 + 总截止时间 deadline |
+| AbortSignal 支持正确取消正在进行的重试 | ✅ | 等待中立即取消 |
+| Prometheus 指标正确导出重试次数、成功率、延迟分布 | ✅ | retry_total / retry_success_total / retry_exhausted_total / retry_delay_ms / retry_duration_ms / retry_attempts / retry_budget_exhausted_total（单例注册，原实现重复 new 会抛错） |
+| 中间件正确注入 RetryManager 到请求上下文 | ✅ | 网关挂 `createRetryMiddleware`：`req.retryManager` / `req.retryableFetch`（只重试幂等请求） |
+| 客户端 SDK 正确处理重试逻辑 | ✅ | `frontend/game-client/src/api/client.js`：幂等请求（或带幂等键）在网络错误/408/429/502-504 时退避重试，优先 Retry-After，AbortSignal 取消 |
+| 单元测试覆盖率 > 85% | ⚠️ | 单测覆盖算法 / 分类 / 预算 / 超时 / Abort / 钩子 / fetch / 中间件；未跑覆盖率工具 |
+
+- 入口：网关代理幂等重试（`withProxyRetry`）、批量子请求重试、`req.retryManager`；管理接口 `GET /api/admin/api-standards/retry`
+- 迁移：`database/migrations/20260925_100000__api_design_standards.sql`（14 张表，幂等；18:30 前在 CI 栈全量 bootstrap 中执行通过）（`retry_configs` 含默认配置；`retry_events` / `retry_stats_hourly` 由既有迁移创建）
+- 单测：`cd backend && npm run test:api-standards`（api-standards-core / contract / lint 为纯逻辑，宿主机已运行通过：core 25/25、contract 11/11、lint 4/4；pipeline / ops / services 依赖 express / pino / prom-client，在 09-25 18:30 验证规则调整前于 CI 栈跑通过（pipeline 17/17、ops 20/20、services 5/5），之后追加的用例**未运行，待验证**）
+- 前端单测：`node --test frontend/game-client/tests/unit/api-standards-client.test.mjs`（宿主机 10/10 通过，Node ≥ 22.12）
+- 冒烟：`BASE_URL=http://<网关> node scripts/smoke-api-standards.js`（约 90 项断言，**未运行，待验证**）；核心冒烟 `scripts/smoke-core-flow.js` 在网关接入管道后于 CI 栈跑过 37/37（18:30 前）
+- 待验证：服务滚动重启时网关对 GET 的连接失败重试（`gateway_proxy_retries_total`）
+- 相关提交：分支 `work/e25-api`（Epic E25 API 设计规范，合并后见集成分支 squash 提交）

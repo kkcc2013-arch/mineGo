@@ -19,6 +19,28 @@ CREATE TABLE IF NOT EXISTS pool_usage_history (
   hour            INTEGER NOT NULL,
   day_of_week     INTEGER NOT NULL
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pool_usage_history ADD COLUMN IF NOT EXISTS id UUID DEFAULT uuid_generate_v4();
+ALTER TABLE pool_usage_history ADD COLUMN IF NOT EXISTS service_name VARCHAR(50);
+ALTER TABLE pool_usage_history ADD COLUMN IF NOT EXISTS pool_name VARCHAR(100);
+ALTER TABLE pool_usage_history ADD COLUMN IF NOT EXISTS total_connections INTEGER;
+ALTER TABLE pool_usage_history ADD COLUMN IF NOT EXISTS idle_connections INTEGER;
+ALTER TABLE pool_usage_history ADD COLUMN IF NOT EXISTS waiting_clients INTEGER;
+ALTER TABLE pool_usage_history ADD COLUMN IF NOT EXISTS utilization DECIMAL(5,4);
+ALTER TABLE pool_usage_history ADD COLUMN IF NOT EXISTS avg_query_time_ms INTEGER;
+ALTER TABLE pool_usage_history ADD COLUMN IF NOT EXISTS timestamp TIMESTAMP DEFAULT NOW();
+ALTER TABLE pool_usage_history ADD COLUMN IF NOT EXISTS hour INTEGER;
+ALTER TABLE pool_usage_history ADD COLUMN IF NOT EXISTS day_of_week INTEGER;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pool_usage_history') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'service_name', 'pool_name', 'total_connections', 'idle_connections', 'waiting_clients', 'utilization', 'avg_query_time_ms', 'timestamp', 'hour', 'day_of_week', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pool_usage_history ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_pool_history_service_time 
@@ -43,6 +65,28 @@ CREATE TABLE IF NOT EXISTS pool_config_changes (
   metrics_snapshot JSONB,
   timestamp       TIMESTAMP NOT NULL DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pool_config_changes ADD COLUMN IF NOT EXISTS id UUID DEFAULT uuid_generate_v4();
+ALTER TABLE pool_config_changes ADD COLUMN IF NOT EXISTS service_name VARCHAR(50);
+ALTER TABLE pool_config_changes ADD COLUMN IF NOT EXISTS old_max_size INTEGER;
+ALTER TABLE pool_config_changes ADD COLUMN IF NOT EXISTS new_max_size INTEGER;
+ALTER TABLE pool_config_changes ADD COLUMN IF NOT EXISTS old_min_size INTEGER;
+ALTER TABLE pool_config_changes ADD COLUMN IF NOT EXISTS new_min_size INTEGER;
+ALTER TABLE pool_config_changes ADD COLUMN IF NOT EXISTS action VARCHAR(20);
+ALTER TABLE pool_config_changes ADD COLUMN IF NOT EXISTS reason TEXT;
+ALTER TABLE pool_config_changes ADD COLUMN IF NOT EXISTS triggered_by VARCHAR(50);
+ALTER TABLE pool_config_changes ADD COLUMN IF NOT EXISTS metrics_snapshot JSONB;
+ALTER TABLE pool_config_changes ADD COLUMN IF NOT EXISTS timestamp TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pool_config_changes') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'service_name', 'old_max_size', 'new_max_size', 'old_min_size', 'new_min_size', 'action', 'reason', 'triggered_by', 'metrics_snapshot', 'timestamp', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pool_config_changes ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_pool_changes_service_time 
   ON pool_config_changes(service_name, timestamp DESC);
@@ -62,6 +106,27 @@ CREATE TABLE IF NOT EXISTS traffic_predictions (
   created_at      TIMESTAMP NOT NULL DEFAULT NOW(),
   expires_at      TIMESTAMP NOT NULL
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE traffic_predictions ADD COLUMN IF NOT EXISTS id UUID DEFAULT uuid_generate_v4();
+ALTER TABLE traffic_predictions ADD COLUMN IF NOT EXISTS prediction_time TIMESTAMP;
+ALTER TABLE traffic_predictions ADD COLUMN IF NOT EXISTS predicted_hour INTEGER;
+ALTER TABLE traffic_predictions ADD COLUMN IF NOT EXISTS predicted_day INTEGER;
+ALTER TABLE traffic_predictions ADD COLUMN IF NOT EXISTS expected_traffic VARCHAR(20);
+ALTER TABLE traffic_predictions ADD COLUMN IF NOT EXISTS confidence DECIMAL(3,2);
+ALTER TABLE traffic_predictions ADD COLUMN IF NOT EXISTS model_version VARCHAR(50);
+ALTER TABLE traffic_predictions ADD COLUMN IF NOT EXISTS features JSONB;
+ALTER TABLE traffic_predictions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE traffic_predictions ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.traffic_predictions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'prediction_time', 'predicted_hour', 'predicted_day', 'expected_traffic', 'confidence', 'model_version', 'features', 'created_at', 'expires_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE traffic_predictions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_traffic_predictions_time 
   ON traffic_predictions(prediction_time);
@@ -81,6 +146,26 @@ CREATE TABLE IF NOT EXISTS pool_preheat_records (
   error_message   TEXT,
   timestamp       TIMESTAMP NOT NULL DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pool_preheat_records ADD COLUMN IF NOT EXISTS id UUID DEFAULT uuid_generate_v4();
+ALTER TABLE pool_preheat_records ADD COLUMN IF NOT EXISTS service_name VARCHAR(50);
+ALTER TABLE pool_preheat_records ADD COLUMN IF NOT EXISTS preheat_type VARCHAR(50);
+ALTER TABLE pool_preheat_records ADD COLUMN IF NOT EXISTS target_connections INTEGER;
+ALTER TABLE pool_preheat_records ADD COLUMN IF NOT EXISTS actual_connections INTEGER;
+ALTER TABLE pool_preheat_records ADD COLUMN IF NOT EXISTS success BOOLEAN DEFAULT false;
+ALTER TABLE pool_preheat_records ADD COLUMN IF NOT EXISTS duration_ms INTEGER;
+ALTER TABLE pool_preheat_records ADD COLUMN IF NOT EXISTS error_message TEXT;
+ALTER TABLE pool_preheat_records ADD COLUMN IF NOT EXISTS timestamp TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pool_preheat_records') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'service_name', 'preheat_type', 'target_connections', 'actual_connections', 'success', 'duration_ms', 'error_message', 'timestamp', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pool_preheat_records ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_preheat_records_time 
   ON pool_preheat_records(timestamp DESC);

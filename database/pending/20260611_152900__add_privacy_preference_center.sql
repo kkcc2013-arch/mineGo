@@ -11,6 +11,22 @@ CREATE TABLE IF NOT EXISTS user_privacy_preferences (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(user_id, category)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_privacy_preferences ADD COLUMN IF NOT EXISTS user_id VARCHAR(64);
+ALTER TABLE user_privacy_preferences ADD COLUMN IF NOT EXISTS category VARCHAR(32);
+ALTER TABLE user_privacy_preferences ADD COLUMN IF NOT EXISTS collectable BOOLEAN DEFAULT true;
+ALTER TABLE user_privacy_preferences ADD COLUMN IF NOT EXISTS consented_at TIMESTAMP;
+ALTER TABLE user_privacy_preferences ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_privacy_preferences') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'category', 'collectable', 'consented_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_privacy_preferences ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 2. 隐私政策版本表
 CREATE TABLE IF NOT EXISTS privacy_policy_versions (
@@ -23,6 +39,33 @@ CREATE TABLE IF NOT EXISTS privacy_policy_versions (
   content_ja_jp TEXT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE privacy_policy_versions ADD COLUMN IF NOT EXISTS version VARCHAR(16);
+ALTER TABLE privacy_policy_versions ADD COLUMN IF NOT EXISTS effective_date DATE;
+ALTER TABLE privacy_policy_versions ADD COLUMN IF NOT EXISTS changes TEXT[];
+ALTER TABLE privacy_policy_versions ADD COLUMN IF NOT EXISTS content_zh_cn TEXT;
+ALTER TABLE privacy_policy_versions ADD COLUMN IF NOT EXISTS content_en_us TEXT;
+ALTER TABLE privacy_policy_versions ADD COLUMN IF NOT EXISTS content_ja_jp TEXT;
+ALTER TABLE privacy_policy_versions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.privacy_policy_versions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('version', 'effective_date', 'changes', 'content_zh_cn', 'content_en_us', 'content_ja_jp', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE privacy_policy_versions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
+-- 旧版定义（20260605_161000__add_gdpr_tables.sql）的 title/content/published_at 为 NOT NULL，新版多语言内容不再使用
+DO $pp$ DECLARE c TEXT; BEGIN
+  FOREACH c IN ARRAY ARRAY['title', 'content', 'published_at'] LOOP
+    IF EXISTS (SELECT 1 FROM information_schema.columns
+               WHERE table_schema = 'public' AND table_name = 'privacy_policy_versions' AND column_name = c) THEN
+      EXECUTE format('ALTER TABLE privacy_policy_versions ALTER COLUMN %I DROP NOT NULL', c);
+    END IF;
+  END LOOP;
+END $pp$;
 
 -- 3. 数据透明度报告表
 CREATE TABLE IF NOT EXISTS data_transparency_reports (
@@ -33,6 +76,21 @@ CREATE TABLE IF NOT EXISTS data_transparency_reports (
   generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(user_id, month)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE data_transparency_reports ADD COLUMN IF NOT EXISTS user_id VARCHAR(64);
+ALTER TABLE data_transparency_reports ADD COLUMN IF NOT EXISTS month VARCHAR(7);
+ALTER TABLE data_transparency_reports ADD COLUMN IF NOT EXISTS report_json JSONB;
+ALTER TABLE data_transparency_reports ADD COLUMN IF NOT EXISTS generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.data_transparency_reports') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'month', 'report_json', 'generated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE data_transparency_reports ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 4. 用户政策接受记录
 CREATE TABLE IF NOT EXISTS privacy_policy_acceptance (
@@ -42,6 +100,20 @@ CREATE TABLE IF NOT EXISTS privacy_policy_acceptance (
   accepted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(user_id, policy_version)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE privacy_policy_acceptance ADD COLUMN IF NOT EXISTS user_id VARCHAR(64);
+ALTER TABLE privacy_policy_acceptance ADD COLUMN IF NOT EXISTS policy_version VARCHAR(16);
+ALTER TABLE privacy_policy_acceptance ADD COLUMN IF NOT EXISTS accepted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.privacy_policy_acceptance') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'policy_version', 'accepted_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE privacy_policy_acceptance ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 5. 数据访问日志表（扩展审计日志）
 CREATE TABLE IF NOT EXISTS data_access_logs (
@@ -53,6 +125,23 @@ CREATE TABLE IF NOT EXISTS data_access_logs (
   details TEXT,
   accessed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE data_access_logs ADD COLUMN IF NOT EXISTS user_id VARCHAR(64);
+ALTER TABLE data_access_logs ADD COLUMN IF NOT EXISTS category VARCHAR(32);
+ALTER TABLE data_access_logs ADD COLUMN IF NOT EXISTS action VARCHAR(64);
+ALTER TABLE data_access_logs ADD COLUMN IF NOT EXISTS purpose VARCHAR(128);
+ALTER TABLE data_access_logs ADD COLUMN IF NOT EXISTS details TEXT;
+ALTER TABLE data_access_logs ADD COLUMN IF NOT EXISTS accessed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.data_access_logs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'category', 'action', 'purpose', 'details', 'accessed_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE data_access_logs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_user_privacy_preferences_user ON user_privacy_preferences(user_id);

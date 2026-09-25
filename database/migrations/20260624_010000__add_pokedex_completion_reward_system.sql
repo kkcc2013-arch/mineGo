@@ -20,6 +20,29 @@ CREATE TABLE IF NOT EXISTS pokedex_progress (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, pokemon_species_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS pokemon_species_id INTEGER;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS seen BOOLEAN DEFAULT FALSE;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS caught BOOLEAN DEFAULT FALSE;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS catch_count INTEGER DEFAULT 0;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS shiny_caught BOOLEAN DEFAULT FALSE;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS first_seen_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS first_caught_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS last_seen_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS last_caught_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE pokedex_progress ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokedex_progress') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'pokemon_species_id', 'seen', 'caught', 'catch_count', 'shiny_caught', 'first_seen_at', 'first_caught_at', 'last_seen_at', 'last_caught_at', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokedex_progress ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE pokedex_progress IS '用户图鉴进度记录';
 COMMENT ON COLUMN pokedex_progress.seen IS '是否见过该精灵';
@@ -52,6 +75,30 @@ CREATE TABLE IF NOT EXISTS pokedex_milestones (
     is_repeatable BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS milestone_type VARCHAR(20);
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS category VARCHAR(50);
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS threshold INTEGER;
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS reward_type VARCHAR(50);
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS reward_data JSONB;
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS title VARCHAR(100);
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS title_zh VARCHAR(100);
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS description_zh TEXT;
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS icon VARCHAR(100);
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS is_repeatable BOOLEAN DEFAULT FALSE;
+ALTER TABLE pokedex_milestones ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokedex_milestones') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('milestone_type', 'category', 'threshold', 'sort_order', 'reward_type', 'reward_data', 'title', 'title_zh', 'description', 'description_zh', 'icon', 'is_repeatable', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokedex_milestones ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE pokedex_milestones IS '图鉴里程碑奖励配置';
 
@@ -65,7 +112,11 @@ INSERT INTO pokedex_milestones (milestone_type, threshold, sort_order, reward_ty
 ('count', 10, 6, 'items', '{"items": [{"id": "poke_ball", "count": 5}]}', 'First Steps', '初学者', 'Caught 10 different species', '捕获10种不同精灵', '🚶'),
 ('count', 50, 7, 'items', '{"items": [{"id": "great_ball", "count": 30}]}', 'Collector', '收藏家', 'Caught 50 different species', '捕获50种不同精灵', '📦'),
 ('count', 100, 8, 'items', '{"items": [{"id": "ultra_ball", "count": 50}]}', 'Expert', '专家', 'Caught 100 different species', '捕获100种不同精灵', '🎓'),
-('count', 200, 9, 'items', '{"items": [{"id": "master_ball", "count": 10}]}', 'Master', '大师', 'Caught 200 different species', '捕获200种不同精灵', '👑'),
+('count', 200, 9, 'items', '{"items": [{"id": "master_ball", "count": 10}]}', 'Master', '大师', 'Caught 200 different species', '捕获200种不同精灵', '👑')
+ON CONFLICT DO NOTHING;
+
+-- special 类里程碑带 category（shiny/legendary）列
+INSERT INTO pokedex_milestones (milestone_type, threshold, sort_order, category, reward_type, reward_data, title, title_zh, description, description_zh, icon) VALUES
 ('special', 5, 10, 'shiny', 'items', '{"items": [{"id": "shiny_charm", "count": 1}]}', 'Shiny Hunter', '闪光猎人', 'Caught 5 shiny Pokemon', '捕获5只闪光精灵', '✨'),
 ('special', 10, 11, 'shiny', 'items', '{"items": [{"id": "golden_shiny_charm", "count": 1}]}', 'Shiny Master', '闪光大师', 'Caught 10 shiny Pokemon', '捕获10只闪光精灵', '💎'),
 ('special', 3, 12, 'legendary', 'items', '{"items": [{"id": "legendary_encounter_boost", "count": 1}]}', 'Legend Seeker', '传说追寻者', 'Caught 3 legendary Pokemon', '捕获3只传说精灵', '🔥')
@@ -82,6 +133,21 @@ CREATE TABLE IF NOT EXISTS user_milestone_claims (
     claimed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, milestone_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_milestone_claims ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_milestone_claims ADD COLUMN IF NOT EXISTS milestone_id INTEGER;
+ALTER TABLE user_milestone_claims ADD COLUMN IF NOT EXISTS reward_data JSONB;
+ALTER TABLE user_milestone_claims ADD COLUMN IF NOT EXISTS claimed_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_milestone_claims') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'milestone_id', 'reward_data', 'claimed_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_milestone_claims ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE user_milestone_claims IS '用户里程碑奖励领取记录';
 
@@ -106,6 +172,30 @@ CREATE TABLE IF NOT EXISTS pokedex_achievements (
     sort_order INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS achievement_key VARCHAR(50);
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS name_zh VARCHAR(100);
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS description_zh TEXT;
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS requirement_type VARCHAR(50);
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS requirement_value INTEGER;
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS reward_type VARCHAR(50);
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS reward_data JSONB;
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS badge_icon VARCHAR(255);
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS badge_color VARCHAR(50);
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
+ALTER TABLE pokedex_achievements ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokedex_achievements') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('achievement_key', 'name', 'name_zh', 'description', 'description_zh', 'requirement_type', 'requirement_value', 'reward_type', 'reward_data', 'badge_icon', 'badge_color', 'sort_order', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokedex_achievements ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE pokedex_achievements IS '图鉴成就配置';
 
@@ -137,6 +227,20 @@ CREATE TABLE IF NOT EXISTS user_pokedex_achievements (
     unlocked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, achievement_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_pokedex_achievements ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_pokedex_achievements ADD COLUMN IF NOT EXISTS achievement_id INTEGER;
+ALTER TABLE user_pokedex_achievements ADD COLUMN IF NOT EXISTS unlocked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_pokedex_achievements') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'achievement_id', 'unlocked_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_pokedex_achievements ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE user_pokedex_achievements IS '用户图鉴成就解锁记录';
 
@@ -158,6 +262,28 @@ CREATE TABLE IF NOT EXISTS pokedex_stats_cache (
     generation_stats JSONB DEFAULT '{}',
     last_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS total_species INTEGER DEFAULT 905;
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS seen_count INTEGER DEFAULT 0;
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS caught_count INTEGER DEFAULT 0;
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS shiny_count INTEGER DEFAULT 0;
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS legendary_count INTEGER DEFAULT 0;
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS completion_percentage DECIMAL(5,2) DEFAULT 0.00;
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS region_stats JSONB DEFAULT '{}';
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS type_stats JSONB DEFAULT '{}';
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS generation_stats JSONB DEFAULT '{}';
+ALTER TABLE pokedex_stats_cache ADD COLUMN IF NOT EXISTS last_updated TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokedex_stats_cache') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'total_species', 'seen_count', 'caught_count', 'shiny_count', 'legendary_count', 'completion_percentage', 'region_stats', 'type_stats', 'generation_stats', 'last_updated', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokedex_stats_cache ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE pokedex_stats_cache IS '图鉴统计缓存（实时更新）';
 
@@ -213,7 +339,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-COMMENT ON FUNCTION update_pokedex_stats IS '更新用户图鉴统计缓存';
+COMMENT ON FUNCTION update_pokedex_stats(UUID) IS '更新用户图鉴统计缓存';
 
 -- ============================================
 -- 创建触发器：自动更新缓存
@@ -226,6 +352,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_pokedex_progress_update ON pokedex_progress;
 CREATE TRIGGER trg_pokedex_progress_update
 AFTER INSERT OR UPDATE ON pokedex_progress
 FOR EACH ROW
@@ -251,6 +378,31 @@ CREATE TABLE IF NOT EXISTS pokemon_species (
     rarity VARCHAR(20),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS pokedex_number INTEGER;
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS name_zh VARCHAR(100);
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS name_ja VARCHAR(100);
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS generation INTEGER;
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS region VARCHAR(50);
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS types TEXT[];
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS is_legendary BOOLEAN DEFAULT FALSE;
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS is_mythical BOOLEAN DEFAULT FALSE;
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS base_stats JSONB;
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS evolution_chain INTEGER[];
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS catch_rate DECIMAL(5,2);
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS rarity VARCHAR(20);
+ALTER TABLE pokemon_species ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokemon_species') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('pokedex_number', 'name', 'name_zh', 'name_ja', 'generation', 'region', 'types', 'is_legendary', 'is_mythical', 'base_stats', 'evolution_chain', 'catch_rate', 'rarity', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokemon_species ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE pokemon_species IS '精灵种类基础数据';
 
@@ -261,11 +413,11 @@ CREATE INDEX IF NOT EXISTS idx_pokemon_species_region ON pokemon_species(region)
 -- ============================================
 -- 权限授予
 -- ============================================
-GRANT SELECT, INSERT, UPDATE, DELETE ON pokedex_progress TO minego_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON pokedex_milestones TO minego_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON user_milestone_claims TO minego_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON pokedex_achievements TO minego_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON user_pokedex_achievements TO minego_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON pokedex_stats_cache TO minego_app;
-GRANT SELECT, INSERT, UPDATE, DELETE ON pokemon_species TO minego_app;
-GRANT EXECUTE ON FUNCTION update_pokedex_stats TO minego_app;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON pokedex_progress TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON pokedex_milestones TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON user_milestone_claims TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON pokedex_achievements TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON user_pokedex_achievements TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON pokedex_stats_cache TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE, DELETE ON pokemon_species TO minego_app'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_app') THEN EXECUTE 'GRANT EXECUTE ON FUNCTION update_pokedex_stats(UUID) TO minego_app'; END IF; END $grant$;

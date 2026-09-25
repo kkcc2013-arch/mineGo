@@ -1,246 +1,152 @@
 /**
  * 统一 API 响应工具类
- * REQ-00518: 增强 HATEOAS 支持
- * 
- * 标准响应格式（HAL 规范）：
- * - 成功：{ success: true, data: {}, _links: {...}, meta: { requestId, timestamp } }
- * - 分页：{ success: true, data: [], _links: {...}, pagination: {...}, meta: {...} }
- * - 错误：{ success: false, error: { code, message, ... }, _links: {...}, meta: {...} }
+ * REQ-00386：统一响应格式（success / code / message / data / meta），错误走统一错误目录
+ * REQ-00518：HATEOAS（_links，HAL）
+ * REQ-00302/465：分页（pagination 与 meta.pagination，first/prev/next/last 链接）
+ *
+ * 兼容性：保留旧客户端依赖的 code:0 与 message（game-client 以 data.code !== 0 判错），只增字段。
+ *
+ *   ApiResponse.success(res, data, { links, meta, status })
+ *   ApiResponse.created(res, data)
+ *   ApiResponse.noContent(res)
+ *   ApiResponse.list(res, items, { total })                        不分页的完整列表
+ *   ApiResponse.paginated(res, items, { page, pageSize|limit, total, nextCursor })
+ *   ApiResponse.withLinks(res, data, resourceType, { pathId, isMe })  资源 + 操作链接
+ *   ApiResponse.paginatedWithLinks(res, items, resourceType, pagination)
+ *   ApiResponse.hal(res, data, resourceType)                       application/hal+json
+ *   ApiResponse.error(res, 'NOT_FOUND', { message, details })
  */
-
 'use strict';
 
-const { v4: uuidv4 } = require('uuid');
-const { defaultHalFormatter } = require('./HalFormatter');
-const { defaultLinkBuilder } = require('./LinkBuilder');
+const { randomUUID } = require('crypto');
+const pagination = require('../apiStandards/pagination');
+const hateoas = require('../apiStandards/hateoas');
+const { buildErrorBody } = require('../apiStandards/errorCatalog');
+
+const linkRegistry = hateoas.createDefaultRegistry();
+const linksBuilder = new hateoas.LinksBuilder(linkRegistry);
+
+function requestPath(res) {
+  const req = res.req || {};
+  return String(req.originalUrl || req.url || '/').split('?')[0];
+}
 
 class ApiResponse {
-  /**
-   * HATEOAS 配置
-   */
-  static hateoasConfig = {
-    enabled: true,
-    includeLinks: true,
-    includeEmbedded: true
-  };
-
-  /**
-   * 启用/禁用 HATEOAS
-   */
-  static setHateoasEnabled(enabled) {
-    this.hateoasConfig.enabled = enabled;
-  }
-
-  /**
-   * 生成请求元数据
-   */
   static _generateMeta(res, options = {}) {
+    const req = res.req || {};
     return {
-      requestId: res.locals?.requestId || uuidv4(),
+      requestId: (res.locals && res.locals.requestId) || (req.headers && req.headers['x-request-id']) || randomUUID(),
       timestamp: new Date().toISOString(),
-      ...options.meta
+      ...(options.meta || {}),
     };
   }
 
-  /**
-   * 成功响应（支持 HATEOAS）
-   * @param {Object} res - Express response 对象
-   * @param {*} data - 响应数据
-   * @param {Object} options - 可选配置
-   */
+  static _envelope(res, data, options = {}) {
+    const body = { success: true, code: 0, message: options.message || 'ok', data, meta: this._generateMeta(res, options) };
+    if (options.links) body._links = options.links;
+    return body;
+  }
+
+  /** 成功响应 { success, code:0, message, data, meta } */
   static success(res, data, options = {}) {
-    const response = {
-      success: true,
-      data,
-      meta: this._generateMeta(res, options)
-    };
-
-    // 添加 HATEOAS 链接（如果启用）
-    if (this.hateoasConfig.enabled && options.resourceType) {
-      response._links = this._buildLinks(res, data, options);
-    }
-
-    return res.status(options.status || 200).json(response);
+    return res.status(options.status || 200).json(this._envelope(res, data, options));
   }
 
-  /**
-   * 构建 HATEOAS 链接
-   */
-  static _buildLinks(res, data, options) {
-    const { resourceType, resourceId, context } = options;
-    
-    if (!resourceType) return undefined;
-    
-    const id = resourceId || data?.id || data?._id;
-    if (!id) return undefined;
-    
-    return defaultLinkBuilder.buildResourceLinks(resourceType, id, context || {});
-  }
-
-  /**
-   * 创建成功响应 (201)
-   * @param {Object} res - Express response 对象
-   * @param {*} data - 响应数据
-   * @param {Object} options - 可选配置
-   */
   static created(res, data, options = {}) {
-    return this.success(res, data, { ...options, status: 201 });
+    return this.success(res, data, { ...options, status: 201, message: options.message || 'created' });
   }
 
-  /**
-   * 无内容响应 (204)
-   * @param {Object} res - Express response 对象
-   */
   static noContent(res) {
     return res.status(204).send();
   }
 
-  /**
-   * 分页响应（支持 HATEOAS）
-   * @param {Object} res - Express response 对象
-   * @param {Array} items - 列表数据
-   * @param {Object} pagination - 分页信息 { page, limit, total }
-   * @param {Object} options - 可选配置
-   */
-  static paginated(res, items, pagination, options = {}) {
-    const { page, limit, total } = pagination;
-    const totalPages = Math.ceil(total / limit);
-
-    const response = {
-      success: true,
-      data: items,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total: parseInt(total),
-        totalPages,
-        hasMore: page < totalPages
-      },
-      meta: this._generateMeta(res, options)
-    };
-
-    // 添加 HATEOAS 分页链接
-    if (this.hateoasConfig.enabled && options.resourceType) {
-      const baseUrl = defaultLinkBuilder.getResourceBaseUrl(options.resourceType);
-      response._links = {
-        self: {
-          href: `${baseUrl}?page=${page}&limit=${limit}`,
-          method: 'GET',
-          title: `${options.resourceType} collection page ${page}`
-        }
-      };
-
-      // 添加分页链接
-      if (totalPages > 1) {
-        const paginationLinks = defaultLinkBuilder.buildPaginationLinks(baseUrl, pagination, options.query || {});
-        Object.assign(response._links, paginationLinks);
-      }
-    }
-
-    return res.status(200).json(response);
+  /** 完整列表（不分页）：仍给出分页元数据（单页） */
+  static list(res, items, options = {}) {
+    const total = options.total !== undefined ? options.total : items.length;
+    const meta = pagination.buildMeta({ type: 'offset', page: 1, pageSize: Math.max(items.length, 1), offset: 0, total, count: items.length });
+    const body = this._envelope(res, items, options);
+    body.pagination = meta;
+    body.meta.pagination = meta;
+    return res.status(options.status || 200).json(body);
   }
 
   /**
-   * HAL 格式响应（完全符合 HAL 规范）
-   * @param {Object} res - Express response 对象
-   * @param {*} data - 响应数据
-   * @param {string} resourceType - 资源类型
-   * @param {Object} options - 可选配置
+   * 分页响应
+   * @param {object} p { page, pageSize|limit, offset, total, nextCursor, prevCursor, type }
    */
-  static hal(res, data, resourceType, options = {}) {
-    const halResponse = defaultHalFormatter.formatResource(data, resourceType, {
-      ...options,
-      context: options.context || {}
+  static paginated(res, items, p = {}, options = {}) {
+    const pageSize = Number(p.pageSize || p.limit) || Math.max(items.length, 1);
+    const page = Number(p.page) || (p.offset !== undefined ? Math.floor(Number(p.offset) / pageSize) + 1 : 1);
+    const meta = pagination.buildMeta({
+      type: p.type || (p.nextCursor || p.prevCursor ? 'cursor' : 'offset'),
+      page, pageSize, offset: p.offset !== undefined ? Number(p.offset) : (page - 1) * pageSize,
+      total: p.total !== undefined ? Number(p.total) : null, count: items.length,
+      nextCursor: p.nextCursor, prevCursor: p.prevCursor, hasMore: p.hasMore,
     });
-    
-    // 添加 meta
-    halResponse._meta = this._generateMeta(res, options);
-    
-    return res.status(options.status || 200).json(halResponse);
+    const req = res.req || {};
+    const links = pagination.buildLinks(requestPath(res), req.query || {}, meta);
+    const header = pagination.toLinkHeader(links);
+    if (header && typeof res.setHeader === 'function') res.setHeader('Link', header);
+    const body = this._envelope(res, items, { ...options, links: { ...links, ...(options.links || {}) } });
+    body.pagination = meta;
+    body.meta.pagination = meta;
+    return res.status(200).json(body);
   }
 
-  /**
-   * HAL 分页响应
-   * @param {Object} res - Express response 对象
-   * @param {Array} items - 列表数据
-   * @param {string} resourceType - 资源类型
-   * @param {Object} pagination - 分页信息
-   * @param {Object} options - 可选配置
-   */
-  static halPaginated(res, items, resourceType, pagination, options = {}) {
-    const halResponse = defaultHalFormatter.formatPaginatedResponse(items, resourceType, pagination, options);
-    
-    // 添加 meta
-    halResponse._meta = this._generateMeta(res, options);
-    
-    return res.status(200).json(halResponse);
+  /** 资源 + HATEOAS 操作链接 */
+  static withLinks(res, data, resourceType, options = {}) {
+    const links = { self: { href: (res.req && res.req.originalUrl) || requestPath(res) }, ...linksBuilder.forResource(resourceType, data, options) };
+    return this.success(res, data, { ...options, links });
   }
 
-  /**
-   * 资源发现响应
-   * @param {Object} res - Express response 对象
-   * @param {Object} options - 可选配置
-   */
-  static discovery(res, options = {}) {
-    const { defaultResourceDiscoverer } = require('./ResourceDiscoverer');
-    
-    const discoveryResponse = defaultResourceDiscoverer.discoverAll(options);
-    
-    // 添加 meta
-    discoveryResponse._meta = {
-      ...discoveryResponse._meta,
-      requestId: res.locals?.requestId || uuidv4(),
-      timestamp: new Date().toISOString()
-    };
-
-    return res.status(200).json(discoveryResponse);
+  static paginatedWithLinks(res, items, resourceType, p = {}, options = {}) {
+    const withItemLinks = items.map((it) => (it && typeof it === 'object' ? { ...it, _links: linksBuilder.forResource(resourceType, it, {}) } : it));
+    return this.paginated(res, withItemLinks, p, { ...options, links: linksBuilder.forCollection(resourceType, requestPath(res)) });
   }
 
-  /**
-   * 操作确认响应
-   * @param {Object} res - Express response 对象
-   * @param {Object} result - 操作结果
-   * @param {Object} options - 可选配置
-   */
+  /** HAL 表示（Content-Type: application/hal+json） */
+  static hal(res, data, resourceType, options = {}) {
+    const links = { self: { href: (res.req && res.req.originalUrl) || requestPath(res) }, ...linksBuilder.forResource(resourceType, data, options) };
+    const body = hateoas.HalFormatter.format({ success: true, code: 0, data, _links: links, meta: this._generateMeta(res, options) }, { rel: resourceType });
+    res.status(options.status || 200);
+    if (typeof res.type === 'function') res.type('application/hal+json');
+    return res.json(body);
+  }
+
+  static halPaginated(res, items, resourceType, p = {}, options = {}) {
+    const pageSize = Number(p.pageSize || p.limit) || Math.max(items.length, 1);
+    const meta = pagination.buildMeta({ type: 'offset', page: Number(p.page) || 1, pageSize, offset: ((Number(p.page) || 1) - 1) * pageSize, total: p.total, count: items.length });
+    const links = pagination.buildLinks(requestPath(res), (res.req && res.req.query) || {}, meta);
+    const body = hateoas.HalFormatter.format({ success: true, code: 0, data: items.map((it) => ({ ...it, _links: linksBuilder.forResource(resourceType, it, {}) })), _links: links, pagination: meta, meta: this._generateMeta(res, options) }, { rel: resourceType });
+    if (typeof res.type === 'function') res.type('application/hal+json');
+    return res.status(200).json(body);
+  }
+
+  static discovery(res) {
+    return res.status(200).json(new hateoas.ResourceDiscoverer(linkRegistry).discover());
+  }
+
+  /** 统一错误响应 */
+  static error(res, name, options = {}) {
+    const { status, body } = buildErrorBody(name, { ...options, requestId: this._generateMeta(res).requestId });
+    return res.status(options.status || status).json(body);
+  }
+
   static actionResult(res, result, options = {}) {
     return this.success(res, result, options);
   }
 
-  /**
-   * 删除成功响应
-   * @param {Object} res - Express response 对象
-   * @param {number} affected - 影响的记录数
-   */
   static deleted(res, affected = 1) {
-    return this.success(res, { 
-      affected,
-      message: `Successfully deleted ${affected} item(s)`
-    });
+    return this.success(res, { affected, message: `Successfully deleted ${affected} item(s)` });
   }
 
-  /**
-   * 更新成功响应
-   * @param {Object} res - Express response 对象
-   * @param {Object} data - 更新后的数据
-   */
   static updated(res, data) {
     return this.success(res, data);
   }
 
-  /**
-   * 批量操作响应
-   * @param {Object} res - Express response 对象
-   * @param {Object} result - 批量操作结果
-   */
   static batchResult(res, result) {
     const { succeeded = [], failed = [], total = 0 } = result;
-    
-    return this.success(res, {
-      total,
-      succeeded: succeeded.length,
-      failed: failed.length,
-      details: { succeeded, failed }
-    });
+    return this.success(res, { total, succeeded: succeeded.length, failed: failed.length, details: { succeeded, failed } });
   }
 }
 

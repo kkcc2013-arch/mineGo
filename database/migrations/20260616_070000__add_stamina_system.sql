@@ -5,17 +5,17 @@
 -- =====================================================
 -- 1. 为 pokemon 表添加体力字段
 -- =====================================================
-ALTER TABLE pokemon 
+ALTER TABLE pokemon_instances 
 ADD COLUMN IF NOT EXISTS max_stamina INTEGER DEFAULT 100,
 ADD COLUMN IF NOT EXISTS current_stamina INTEGER DEFAULT 100,
 ADD COLUMN IF NOT EXISTS last_stamina_update TIMESTAMP DEFAULT NOW(),
 ADD COLUMN IF NOT EXISTS fatigue_level VARCHAR(20) DEFAULT 'fresh';
 
 -- 添加注释
-COMMENT ON COLUMN pokemon.max_stamina IS '最大体力值';
-COMMENT ON COLUMN pokemon.current_stamina IS '当前体力值';
-COMMENT ON COLUMN pokemon.last_stamina_update IS '上次体力更新时间';
-COMMENT ON COLUMN pokemon.fatigue_level IS '疲劳等级: fresh/normal/tired/exhausted';
+COMMENT ON COLUMN pokemon_instances.max_stamina IS '最大体力值';
+COMMENT ON COLUMN pokemon_instances.current_stamina IS '当前体力值';
+COMMENT ON COLUMN pokemon_instances.last_stamina_update IS '上次体力更新时间';
+COMMENT ON COLUMN pokemon_instances.fatigue_level IS '疲劳等级: fresh/normal/tired/exhausted';
 
 -- =====================================================
 -- 2. 创建体力消耗配置表
@@ -28,6 +28,22 @@ CREATE TABLE IF NOT EXISTS stamina_config (
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE stamina_config ADD COLUMN IF NOT EXISTS activity_type VARCHAR(50);
+ALTER TABLE stamina_config ADD COLUMN IF NOT EXISTS stamina_cost INTEGER;
+ALTER TABLE stamina_config ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE stamina_config ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE stamina_config ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.stamina_config') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('activity_type', 'stamina_cost', 'description', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE stamina_config ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 插入默认配置
 INSERT INTO stamina_config (activity_type, stamina_cost, description) VALUES
@@ -52,6 +68,23 @@ CREATE TABLE IF NOT EXISTS stamina_recovery_items (
   description TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE stamina_recovery_items ADD COLUMN IF NOT EXISTS item_name VARCHAR(100);
+ALTER TABLE stamina_recovery_items ADD COLUMN IF NOT EXISTS stamina_amount INTEGER;
+ALTER TABLE stamina_recovery_items ADD COLUMN IF NOT EXISTS cooldown_seconds INTEGER DEFAULT 0;
+ALTER TABLE stamina_recovery_items ADD COLUMN IF NOT EXISTS rarity VARCHAR(20) DEFAULT 'common';
+ALTER TABLE stamina_recovery_items ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE stamina_recovery_items ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.stamina_recovery_items') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('item_name', 'stamina_amount', 'cooldown_seconds', 'rarity', 'description', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE stamina_recovery_items ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 插入默认恢复道具
 INSERT INTO stamina_recovery_items (item_name, stamina_amount, cooldown_seconds, rarity, description) VALUES
@@ -81,6 +114,29 @@ CREATE TABLE IF NOT EXISTS rest_stations (
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE rest_stations ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+ALTER TABLE rest_stations ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE rest_stations ADD COLUMN IF NOT EXISTS location_lat DOUBLE PRECISION;
+ALTER TABLE rest_stations ADD COLUMN IF NOT EXISTS location_lng DOUBLE PRECISION;
+ALTER TABLE rest_stations ADD COLUMN IF NOT EXISTS location_geohash VARCHAR(12);
+ALTER TABLE rest_stations ADD COLUMN IF NOT EXISTS recovery_rate INTEGER DEFAULT 5;
+ALTER TABLE rest_stations ADD COLUMN IF NOT EXISTS capacity INTEGER DEFAULT 10;
+ALTER TABLE rest_stations ADD COLUMN IF NOT EXISTS current_users INTEGER DEFAULT 0;
+ALTER TABLE rest_stations ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE rest_stations ADD COLUMN IF NOT EXISTS station_type VARCHAR(30) DEFAULT 'normal';
+ALTER TABLE rest_stations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE rest_stations ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.rest_stations') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('name', 'description', 'location_lat', 'location_lng', 'location_geohash', 'recovery_rate', 'capacity', 'current_users', 'is_active', 'station_type', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE rest_stations ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 创建空间索引（如果 PostGIS 可用）
 CREATE INDEX IF NOT EXISTS idx_rest_stations_location ON rest_stations(location_geohash);
@@ -98,8 +154,8 @@ ON CONFLICT DO NOTHING;
 -- =====================================================
 CREATE TABLE IF NOT EXISTS rest_records (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  pokemon_id INTEGER NOT NULL REFERENCES pokemon(id),
+  user_id UUID NOT NULL REFERENCES users(id),
+  pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id),
   station_id INTEGER NOT NULL REFERENCES rest_stations(id),
   started_at TIMESTAMP DEFAULT NOW(),
   ended_at TIMESTAMP,
@@ -107,6 +163,25 @@ CREATE TABLE IF NOT EXISTS rest_records (
   status VARCHAR(20) DEFAULT 'active',
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE rest_records ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE rest_records ADD COLUMN IF NOT EXISTS pokemon_id INTEGER;
+ALTER TABLE rest_records ADD COLUMN IF NOT EXISTS station_id INTEGER;
+ALTER TABLE rest_records ADD COLUMN IF NOT EXISTS started_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE rest_records ADD COLUMN IF NOT EXISTS ended_at TIMESTAMP;
+ALTER TABLE rest_records ADD COLUMN IF NOT EXISTS stamina_recovered INTEGER DEFAULT 0;
+ALTER TABLE rest_records ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';
+ALTER TABLE rest_records ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.rest_records') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'pokemon_id', 'station_id', 'started_at', 'ended_at', 'stamina_recovered', 'status', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE rest_records ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_rest_records_user ON rest_records(user_id);
 CREATE INDEX IF NOT EXISTS idx_rest_records_pokemon ON rest_records(pokemon_id);
@@ -117,8 +192,8 @@ CREATE INDEX IF NOT EXISTS idx_rest_records_active ON rest_records(status, start
 -- =====================================================
 CREATE TABLE IF NOT EXISTS stamina_history (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id),
-  pokemon_id INTEGER NOT NULL REFERENCES pokemon(id),
+  user_id UUID NOT NULL REFERENCES users(id),
+  pokemon_id UUID NOT NULL REFERENCES pokemon_instances(id),
   activity_type VARCHAR(50) NOT NULL,
   stamina_change INTEGER NOT NULL,
   stamina_before INTEGER,
@@ -127,6 +202,26 @@ CREATE TABLE IF NOT EXISTS stamina_history (
   metadata JSONB,
   created_at TIMESTAMP DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE stamina_history ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE stamina_history ADD COLUMN IF NOT EXISTS pokemon_id INTEGER;
+ALTER TABLE stamina_history ADD COLUMN IF NOT EXISTS activity_type VARCHAR(50);
+ALTER TABLE stamina_history ADD COLUMN IF NOT EXISTS stamina_change INTEGER;
+ALTER TABLE stamina_history ADD COLUMN IF NOT EXISTS stamina_before INTEGER;
+ALTER TABLE stamina_history ADD COLUMN IF NOT EXISTS stamina_after INTEGER;
+ALTER TABLE stamina_history ADD COLUMN IF NOT EXISTS source VARCHAR(30) DEFAULT 'activity';
+ALTER TABLE stamina_history ADD COLUMN IF NOT EXISTS metadata JSONB;
+ALTER TABLE stamina_history ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.stamina_history') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'pokemon_id', 'activity_type', 'stamina_change', 'stamina_before', 'stamina_after', 'source', 'metadata', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE stamina_history ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_stamina_history_user ON stamina_history(user_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_stamina_history_pokemon ON stamina_history(pokemon_id, created_at DESC);
@@ -136,7 +231,7 @@ CREATE INDEX IF NOT EXISTS idx_stamina_history_pokemon ON stamina_history(pokemo
 -- =====================================================
 CREATE TABLE IF NOT EXISTS user_stamina_items (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES users(id),
   item_id INTEGER NOT NULL REFERENCES stamina_recovery_items(id),
   quantity INTEGER DEFAULT 0,
   last_used_at TIMESTAMP,
@@ -144,15 +239,32 @@ CREATE TABLE IF NOT EXISTS user_stamina_items (
   updated_at TIMESTAMP DEFAULT NOW(),
   UNIQUE(user_id, item_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_stamina_items ADD COLUMN IF NOT EXISTS user_id INTEGER;
+ALTER TABLE user_stamina_items ADD COLUMN IF NOT EXISTS item_id INTEGER;
+ALTER TABLE user_stamina_items ADD COLUMN IF NOT EXISTS quantity INTEGER DEFAULT 0;
+ALTER TABLE user_stamina_items ADD COLUMN IF NOT EXISTS last_used_at TIMESTAMP;
+ALTER TABLE user_stamina_items ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+ALTER TABLE user_stamina_items ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_stamina_items') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'item_id', 'quantity', 'last_used_at', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_stamina_items ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_user_stamina_items_user ON user_stamina_items(user_id);
 
 -- =====================================================
 -- 8. 创建索引优化查询
 -- =====================================================
-CREATE INDEX IF NOT EXISTS idx_pokemon_stamina ON pokemon(user_id, current_stamina);
-CREATE INDEX IF NOT EXISTS idx_pokemon_stamina_update ON pokemon(last_stamina_update);
-CREATE INDEX IF NOT EXISTS idx_pokemon_fatigue ON pokemon(fatigue_level);
+CREATE INDEX IF NOT EXISTS idx_pokemon_stamina ON pokemon_instances(user_id, current_stamina);
+CREATE INDEX IF NOT EXISTS idx_pokemon_stamina_update ON pokemon_instances(last_stamina_update);
+CREATE INDEX IF NOT EXISTS idx_pokemon_fatigue ON pokemon_instances(fatigue_level);
 
 -- =====================================================
 -- 9. 创建触发器自动更新 updated_at
@@ -165,14 +277,17 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS update_stamina_config_updated_at ON stamina_config;
 CREATE TRIGGER update_stamina_config_updated_at 
     BEFORE UPDATE ON stamina_config 
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_rest_stations_updated_at ON rest_stations;
 CREATE TRIGGER update_rest_stations_updated_at 
     BEFORE UPDATE ON rest_stations 
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_user_stamina_items_updated_at ON user_stamina_items;
 CREATE TRIGGER update_user_stamina_items_updated_at 
     BEFORE UPDATE ON user_stamina_items 
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

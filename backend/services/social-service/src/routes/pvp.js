@@ -4,6 +4,7 @@
  */
 
 const express = require('express');
+const { battleViews } = require('../../../../shared/social/pokemonPrivacyStore');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
 const { query, transaction } = require('../../shared/db');
@@ -126,10 +127,10 @@ router.post('/battle/start', requireAuth, async (req, res, next) => {
     }
     
     // 验证好友关系
+    // 好友关系以 friends 为准（旧代码查询 friendships 不存在的 user_id/friend_id 列，恒报 500）
     const { rows: [friendship] } = await query(`
-      SELECT id FROM friendships
-      WHERE (user_id = $1 AND friend_id = $2)
-         OR (user_id = $2 AND friend_id = $1)
+      SELECT id FROM friends
+      WHERE user_id = $1 AND friend_user_id = $2 AND status = 'accepted'
     `, [userId, friendId]);
     
     if (!friendship) {
@@ -181,7 +182,9 @@ router.post('/battle/start', requireAuth, async (req, res, next) => {
       battleType,
       opponent: {
         id: friendId,
-        rating: ranking2.elo_rating
+        rating: ranking2.elo_rating,
+        // REQ-00377 战斗匿名模式：对手开启匿名的精灵只展示种类与外观，战斗计算仍使用完整数据
+        team: await battleViews({ query }, userId, pokemon2)
       },
       message: '战斗已创建，等待双方准备'
     }));
