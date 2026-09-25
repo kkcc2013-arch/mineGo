@@ -3,7 +3,7 @@
 - **编号**：REQ-00288
 - **类别**：功能增强
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：catch-service, gym-service, pokemon-service, game-client
 - **创建时间**：2026-06-22 09:00 UTC
 - **依赖需求**：REQ-00019（精灵技能学习系统）
@@ -338,3 +338,27 @@ const PRESET_COMBOS = [
 5. **可扩展性强**：连击链系统支持后续持续更新新组合
 
 当前项目成熟度 84 分，战斗深度是核心功能的明显短板，本需求直接补强这一领域。
+
+## 实现记录（2026-09-25）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 连击链配置可从数据库正确加载 | ✅ | `combo_chains` 每分钟刷新；原种子 10 条中 7 条引用不存在的技能，迁移将其停用并新增 23 条基于现有技能表的连击链（有效 26 条） |
+| 技能序列按正确顺序释放可触发连击 | ✅ | `battle/combo.js ComboDetector.detect`：要求连续行动（中间无其他技能/换人/未命中）；单测 |
+| 时间窗口内完成连击判定正确 | ✅ | 按服务端时间戳（一键连招按步骤延迟推进的单调时钟）；超窗不触发（单测） |
+| 完美/优秀/普通连击质量评估正确 | ✅ | 耗时/窗口 <0.5 完美 ×1.25，<0.8 优秀 ×1.1，其余普通 |
+| 连击伤害倍率正确应用于战斗伤害计算 | ✅ | 倍率乘入服务端伤害公式；返回事件 combo 字段 |
+| 连击奖励（连击点数、经验、道具）正确发放 | ✅ | 连击点数与经验在道馆/联赛结算时入账；道具：每次完美连击 1 个超级球（每场最多 3）、单场 ≥3 次连击额外 1 个高级球（shared/inventory.addItems） |
+| 连击 UI 提示在客户端正确显示 | ✅ | 战斗界面显示可继续的连击链、下一步技能高亮与剩余窗口倒计时 |
+| 连击特效触发时机正确 | ✅ | 回合事件带 combo 时播放连击特效与震动（navigator.vibrate），按特效等级降级 |
+| 玩家连击统计数据正确记录 | ✅ | combo_records / user_combo_stats；`GET /v1/battle/combos/my/stats` |
+| 连击排行榜数据正确排序 | ✅ | `GET /v1/battle/combos/leaderboard` 按总连击点、完美次数、次数排序 |
+| PvP 战斗中连击效果正常生效 | ✅ | 竞技联赛对局（异步 PvP，对手防守队伍）使用同一引擎 |
+| 连击冷却时间正确应用 | ✅ | 同名连击触发后，下一次起手需间隔 chain_cooldown_turns 次行动（默认 3，单测） |
+| 单元测试覆盖率 ≥ 85% | ✅ | combo.js 行覆盖 98.98%（node --experimental-test-coverage） |
+| 集成测试覆盖连击完整流程 | ✅ | smoke-battle：连招预设→触发连击→统计/排行/练习/推荐；新增「完美连击道具奖励入账」项待运行 |
+
+- 入口：gym-service `src/battle/*`（纯逻辑：damage/cooldown/energy/combo/engine/ai/stats/leagueRules/recommendScore/replayFormat/presetRules；持久化与编排：repo/store/session/gym/raid/league/replay/recommend/comboPresets/pokemonEnergy/settle/deps）；路由 `routes/gyms.js`、`routes/gymBattle.js`、`routes/raids.js`、`routes/battleApi.js`（挂 `/battle`）；网关 `backend/gateway/src/index.js`：`/v1/gyms/*`、`/v1/raids/*`、`/v1/battle/*`（鉴权）、公开 `/v1/battle/replays/shared/:code`、WebSocket 升级转发 `/ws/raid`、`/ws/notifications`、`/ws/battle`
+- 迁移：`database/migrations/20260925_110000__e11_battle_core.sql`（补列/新表/连击链种子/时间列 TIMESTAMPTZ，全部 IF NOT EXISTS）、`20260925_110100__e11_restore_fast_move_power.sql`；复用既有表见各行说明
+- 测试：宿主机已运行（纯逻辑，不连服务）：`cd backend && node --test tests/unit/battle-core.test.js tests/unit/battle-features.test.js` → 29/29 通过；`node --test frontend/game-client/tests/unit/battle-client.test.mjs` → 11/11 通过；`node --expose-gc scripts/bench-battle.js --local`（数字见表）。验证方式调整前（2026-09-25 08:39，提交 e022c97）曾在隔离 CI 栈实测：`scripts/smoke-battle.js` 101/101、核心冒烟 37/37、battle-core 16/16。之后的改动（连击熟练度接入、实时天气、连击道具奖励、大师联赛分组、AI 对位口径、迁移时间列段、前端全部）**未运行，待验证**。待运行：`BASE_URL=… DATABASE_URL=… REDIS_URL=… node scripts/smoke-battle.js`（102 项）、`node scripts/bench-battle.js --battles 20 --concurrency 5`；迁移在全新库上执行 `reset-db` 后检查 bootstrap-report 无 20260925_1100xx 失败
+- 待验证：道馆战完美连击后背包超级球增加；联赛对局中连击生效
