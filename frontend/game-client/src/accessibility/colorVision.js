@@ -109,7 +109,7 @@ export function distinguishability(a, b, type = 'none') {
 // 游戏语义色（与 index.html :root 变量对应）
 export const BASE_PALETTE = {
   red: '#e63946', blue: '#3d8ef8', yellow: '#f4c430', green: '#2ecc71', purple: '#9b59b6',
-  text: '#e8eaf0', muted: '#6b7280', bg: '#0d0f14', surface: '#13161e', border: '#252938',
+  text: '#e8eaf0', muted: '#8b93a1', bg: '#0d0f14', surface: '#13161e', border: '#252938',
 };
 
 // 智能颜色替换：各色觉类型下"成功/错误/警告/信息"用可区分的颜色（Okabe-Ito）

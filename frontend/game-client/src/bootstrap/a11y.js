@@ -17,7 +17,7 @@ import { VoiceController } from '../accessibility/voiceControl.js';
 import { SemanticEnhancer } from '../accessibility/semantics.js';
 import { SettingsPanel } from '../accessibility/settingsPanel.js';
 import { openDialog, focusableIn, isDialogOpen } from '../accessibility/dialog.js';
-import { paletteFor, correctionMatrix, toFeColorMatrix, SIM_MATRICES, typeBadge } from '../accessibility/colorVision.js';
+import { paletteFor, fixPalette, correctionMatrix, toFeColorMatrix, SIM_MATRICES, typeBadge } from '../accessibility/colorVision.js';
 import { describeSpawns, summarizeNearby, spawnLabel, toneForDistance } from '../accessibility/mapSpeech.js';
 import { t, currentLang } from '../accessibility/strings.js';
 import { hapticManager } from '../haptics/HapticManager.js';
@@ -102,7 +102,9 @@ export async function initAccessibility(ctx = {}) {
     html.setAttribute('data-a11y-cvd', p.color.mode);
     html.classList.toggle('a11y-shapes', p.color.shapes || p.color.mode === 'achromatopsia');
     // 调色板：色觉模式替换 → 对比度级别覆盖
-    const pal = paletteFor(p.color.mode, p.color.palette);
+    // 预设色觉模式自动保证与背景 ≥4.5:1；自定义调色板尊重用户选择（面板内提示并可一键修正）
+    let pal = paletteFor(p.color.mode, p.color.palette);
+    if (p.color.mode !== 'custom') pal = fixPalette(pal);
     if (contrast === 'high' || contrast === 'max') Object.assign(pal, HC[contrast]);
     else if (contrast === 'enhanced') Object.assign(pal, HC.enhanced);
     const custom = p.color.mode !== 'none' || contrast !== 'normal';

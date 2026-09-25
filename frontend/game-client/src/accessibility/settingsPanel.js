@@ -279,9 +279,8 @@ export class SettingsPanel {
         const combo = await sv.shortcuts.captureCombo();
         if (combo) {
           const err = sv.shortcuts.rebind(action, combo);
-          this.announcer.announce(err || `已绑定为 ${combo}`, { level: 'important' });
-          const msg = this.wrap.querySelector('[data-testid="a11y-rebind-msg"]');
-          if (msg) msg.textContent = err || `已绑定为 ${combo}`;
+          this._rebindMsg = err || `已绑定为 ${combo}`;
+          this.announcer.announce(this._rebindMsg, { level: 'important' });
         }
         this.renderCustom(this.wrap);
         break;
@@ -351,7 +350,7 @@ export class SettingsPanel {
         box.innerHTML = `<table class="a11y-table"><caption>快捷键（点击"修改"后按下新按键）</caption><thead><tr><th scope="col">功能</th><th scope="col">按键</th><th scope="col">操作</th></tr></thead><tbody>
           ${Object.keys(DEFAULT_BINDINGS).filter((a) => sv.shortcuts.actions[a]).map((a) => `<tr><td>${escapeHtml(sv.shortcuts.actions[a].label)}</td><td><kbd>${escapeHtml(b[a])}</kbd></td>
           <td><button type="button" class="a11y-btn a11y-btn-sm" data-action="rebind" data-target="${a}" aria-label="修改 ${escapeHtml(sv.shortcuts.actions[a].label)} 的快捷键">修改</button></td></tr>`).join('')}
-          </tbody></table><p class="a11y-help" data-testid="a11y-rebind-msg" aria-live="polite"></p>
+          </tbody></table><p class="a11y-help" data-testid="a11y-rebind-msg">${escapeHtml(this._rebindMsg || '')}</p>
           <button type="button" class="a11y-btn" data-action="shortcuts-reset">恢复默认快捷键</button>`;
       } else if (kind === 'gamepad') {
         const list = sv.gamepad.connectedList();

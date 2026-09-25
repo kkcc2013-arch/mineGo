@@ -120,11 +120,21 @@ export class SemanticEnhancer {
           const spawn = JSON.parse(decodeURIComponent(m[1]));
           card.dataset.spawnId = spawn.id;
           card.dataset.speciesId = spawn.species_id || spawn.speciesId || '';
-          label = this.labelSpawn(spawn) || label;
+          label = this.labelSpawn({ ...spawn, species_name: spawn.species_name || spawn.speciesName || name }) || label;
         } catch { /* ignore */ }
         card.classList.add('a11y-spawn-card');
       }
       card.setAttribute('aria-label', label);
+      // 方向性箭头单独包裹，RTL 下只镜像箭头、不镜像距离数字（REQ-00244 / REQ-00413）
+      const r = card.querySelector('.entity-right');
+      if (r && !r.querySelector('.a11y-dir-icon') && /›\s*$/.test(r.textContent)) {
+        r.textContent = r.textContent.replace(/\s*›\s*$/, ' ');
+        const ic = document.createElement('span');
+        ic.className = 'a11y-dir-icon';
+        ic.setAttribute('aria-hidden', 'true');
+        ic.textContent = '›';
+        r.appendChild(ic);
+      }
     });
   }
 
