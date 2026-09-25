@@ -1325,6 +1325,28 @@ components:
                     - "BALL_USED"
                 catchProb:
                   type: "number"
+                combo:
+                  type:
+                    - "object"
+                    - "null"
+                  description: "REQ-00369 捕捉连击（CAUGHT/FLED 时返回；连击记录失败时省略）"
+                  properties:
+                    currentCombo:
+                      type: "integer"
+                      minimum: 0
+                    maxCombo:
+                      type: "integer"
+                      minimum: 0
+                    isNewRecord:
+                      type: "boolean"
+                    broken:
+                      type: "boolean"
+                    milestone:
+                      type:
+                        - "integer"
+                        - "null"
+                    rewards:
+                      type: "object"
     SocialFriendsResponse:
       allOf:
         - $ref: "#/components/schemas/SuccessEnvelope"

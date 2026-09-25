@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-25T11:11:02.845Z",
+  "generatedAt": "2026-09-25T11:18:58.120Z",
   "definitions": {
     "common": {
       "Meta": {
@@ -1014,6 +1014,38 @@
                   },
                   "catchProb": {
                     "type": "number"
+                  },
+                  "combo": {
+                    "type": [
+                      "object",
+                      "null"
+                    ],
+                    "description": "REQ-00369 捕捉连击（CAUGHT/FLED 时返回；连击记录失败时省略）",
+                    "properties": {
+                      "currentCombo": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "maxCombo": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "isNewRecord": {
+                        "type": "boolean"
+                      },
+                      "broken": {
+                        "type": "boolean"
+                      },
+                      "milestone": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "rewards": {
+                        "type": "object"
+                      }
+                    }
                   }
                 }
               }
@@ -1021,7 +1053,7 @@
           }
         ]
       },
-      "hash": "31359667dbbc64c8a46318dd0870c557b070a7f37a84723e329f2aca03da476f"
+      "hash": "0bddb63ec8693a6024973a313db2bc16927123f6fa3d1ebd28b46b7008e0ce4d"
     },
     "error.any": {
       "method": "*",

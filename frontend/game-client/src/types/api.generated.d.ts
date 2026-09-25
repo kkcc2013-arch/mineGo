@@ -280,6 +280,18 @@ export type CatchThrowResponse = SuccessEnvelope & {
   data?: {
     result: "CAUGHT" | "FLED" | "MISS" | "BALL_USED";
     catchProb?: number;
+    /** REQ-00369 捕捉连击（CAUGHT/FLED 时返回；连击记录失败时省略） */
+    combo?: {
+      currentCombo?: number;
+      maxCombo?: number;
+      isNewRecord?: boolean;
+      broken?: boolean;
+      milestone?: number | null;
+      rewards?: {
+        [key: string]: unknown;
+      };
+      [key: string]: unknown;
+    } | null;
     [key: string]: unknown;
   };
   [key: string]: unknown;
