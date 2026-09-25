@@ -108,7 +108,7 @@ function performMove(state, side, actor, target, move, { rng, now, deps, events 
   if (isAttacker && deps.combos) {
     combo = deps.combos.detect(state.history, move.id, {
       now, seq: state.seq, attackerTypes: actor.types, trainerLevel: state.trainerLevel,
-      lastTriggered: state.comboState.lastTriggered, masteryCounts: deps.comboMastery || {},
+      lastTriggered: state.comboState.lastTriggered, masteryCounts: deps.comboMastery || state.comboState.mastery || {},
     });
   }
 

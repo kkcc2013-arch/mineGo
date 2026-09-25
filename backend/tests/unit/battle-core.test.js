@@ -377,3 +377,21 @@ test('随机数：可序列化状态续接', () => {
   assert.equal(r2(), r3());
   assert.notEqual(a[0], a[1]);
 });
+
+test('回合引擎：连击熟练度（开战时载入 state.comboState.mastery）计入连击倍率', () => {
+  const run = (mastery) => {
+    const { state, deps } = newBattle(21, { trainerLevel: 1 });
+    state.comboState.mastery = mastery;
+    engine.activeOf(state, 'attacker').energy = 100;
+    let now = 6_000_000;
+    engine.playTurn(state, { moveId: 'EMBER', now: (now += 300) }, deps);
+    engine.playTurn(state, { moveId: 'EMBER', now: (now += 300) }, deps);
+    engine.playTurn(state, { moveId: 'FLAMETHROWER', now: (now += 300) }, deps);
+    return state.comboState.list.find((c) => c.chainId === 'EMBER_BURST');
+  };
+  const base = run({});
+  const skilled = run({ EMBER_BURST: 10 });
+  assert.ok(base && skilled, '两次都应触发火花爆燃');
+  assert.equal(base.multiplier, 1.875);
+  assert.equal(skilled.multiplier, Number((1.875 * 1.1).toFixed(3)), '完成 10 次 → +10%');
+});

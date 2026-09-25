@@ -150,6 +150,12 @@ async function getGymDefenders(gymId) {
   return rows;
 }
 
+/** 玩家各连击链的累计完成次数（连击熟练度：每次 +1%，上限 +20%） */
+async function getComboMastery(userId) {
+  const { rows } = await query('SELECT chain_id, times_executed FROM user_combo_stats WHERE user_id::text = $1::text', [userId]);
+  return Object.fromEntries(rows.map((r) => [r.chain_id, Number(r.times_executed) || 0]));
+}
+
 function haversineM(lat1, lng1, lat2, lng2) {
   const R = 6371000;
   const toRad = (x) => (x * Math.PI) / 180;
@@ -171,5 +177,5 @@ async function assertNear(userId, lat, lng, radiusM, what) {
 module.exports = {
   isUuid, getMoves, getComboDetector, getEnergyRule, invalidateStaticCache, getLearnsets,
   getOwnedPokemon, getTopPokemon, toCombatants, getMasteryAndEquipment, getUser, getGym, getGymDefenders,
-  assertNear, haversineM, POKEMON_COLUMNS, ACTIVE_POKEMON,
+  assertNear, haversineM, getComboMastery, POKEMON_COLUMNS, ACTIVE_POKEMON,
 };

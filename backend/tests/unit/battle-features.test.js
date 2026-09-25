@@ -58,13 +58,15 @@ test('联赛：积分 → 段位/分组，晋级、分组晋升、降级判定',
   assert.deepEqual(league.tierFor(1000), { level: 'SILVER', group: 'III' });
   assert.deepEqual(league.tierFor(4999), { level: 'DIAMOND', group: 'I' });
   assert.deepEqual(league.tierFor(9000), { level: 'MASTER', group: 'I' });
+  assert.deepEqual(league.tierFor(5100), { level: 'MASTER', group: 'III' });
+  for (const t of league.tiers()) assert.equal(t.groups.length, 3, `${t.level} 应有 3 个分组`);
   assert.equal(league.tierChange({ level: 'BRONZE', group: 'I' }, { level: 'SILVER', group: 'III' }), 'promote');
   assert.equal(league.tierChange({ level: 'SILVER', group: 'III' }, { level: 'BRONZE', group: 'I' }), 'demote');
   assert.equal(league.tierChange({ level: 'BRONZE', group: 'III' }, { level: 'BRONZE', group: 'II' }), 'groupPromote');
   assert.equal(league.tierChange({ level: 'BRONZE', group: 'II' }, { level: 'BRONZE', group: 'III' }), 'groupDemote');
   assert.deepEqual(league.adjacentGroups('GOLD', 'II'), ['III', 'II', 'I']);
   assert.deepEqual(league.adjacentGroups('GOLD', 'III'), ['III', 'II']);
-  assert.deepEqual(league.adjacentGroups('MASTER', 'I'), ['I']);
+  assert.deepEqual(league.adjacentGroups('MASTER', 'I'), ['II', 'I']);
 });
 
 test('联赛：一场对局后的积分/评分/段位/连胜结算', () => {
@@ -233,4 +235,25 @@ test('AI：战后复盘评分与建议；A/B 分组稳定可配置', () => {
   const ids = Array.from({ length: 400 }, (_, i) => `u${i}`);
   const bShare = ids.filter((id) => ai.variantFor(id, 30) === 'B').length / ids.length;
   assert.ok(bShare > 0.2 && bShare < 0.4, `B 组占比 ${bShare}`);
+});
+
+// ── 连招预设 ─────────────────────────────────────────────────
+test('连招预设：2-5 步、只能用已掌握技能、延迟 0-3000ms、条件类型校验与判定', () => {
+  const presets = require(`${B}/presetRules`);
+  const known = ['EMBER', 'FLAMETHROWER'];
+  assert.equal(presets.MAX_PRESETS, 5);
+  assert.throws(() => presets.validateSteps([{ moveId: 'EMBER' }], known), (e) => e.code === 'BAD_STEPS');
+  assert.throws(() => presets.validateSteps(Array(6).fill({ moveId: 'EMBER' }), known), (e) => e.code === 'BAD_STEPS');
+  assert.throws(() => presets.validateSteps([{ moveId: 'EMBER' }, { moveId: 'HYDRO_PUMP' }], known), /第 2 步/);
+  assert.throws(() => presets.validateSteps([{ moveId: 'EMBER' }, { moveId: 'EMBER', condition: { type: 'bogus' } }], known), /条件类型/);
+  const ok = presets.validateSteps([{ moveId: 'EMBER', delayMs: -5 }, { moveId: 'EMBER', delayMs: 99999 }, { moveId: 'FLAMETHROWER', condition: { type: 'energy_gte', value: '55' } }], known);
+  assert.deepEqual(ok.map((s) => s.delayMs), [0, 3000, 0]);
+  assert.deepEqual(ok[2].condition, { type: 'energy_gte', value: 55 });
+  const att = { energy: 60, hp: 50, maxHp: 100 };
+  const def = { hp: 20, maxHp: 100 };
+  assert.equal(presets.conditionOk(null, att, def), true);
+  assert.equal(presets.conditionOk({ type: 'energy_gte', value: 55 }, att, def), true);
+  assert.equal(presets.conditionOk({ type: 'energy_gte', value: 70 }, att, def), false);
+  assert.equal(presets.conditionOk({ type: 'target_hp_lte_pct', value: 25 }, att, def), true);
+  assert.equal(presets.conditionOk({ type: 'self_hp_gte_pct', value: 60 }, att, def), false);
 });

@@ -48,6 +48,7 @@ export class BattleClient {
   practice(chainId, steps) { return this.api.post(`/battle/combos/${enc(chainId)}/practice`, { steps }); }
   presets(pokemonId) { return this.api.get(`/battle/combos/presets${pokemonId ? `?pokemonId=${enc(pokemonId)}` : ''}`); }
   createPreset(body) { return this.api.post('/battle/combos/presets', body); }
+  updatePreset(id, body) { return this.put(`/battle/combos/presets/${enc(id)}`, body); }
   deletePreset(id) { return this.api.del(`/battle/combos/presets/${enc(id)}`); }
   comboRecommend(pokemonId) { return this.api.get(`/battle/combos/recommend/${enc(pokemonId)}`); }
 

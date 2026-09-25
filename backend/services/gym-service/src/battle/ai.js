@@ -117,7 +117,7 @@ function adviseMove(state, deps, { variant = 'A', style = 'balanced' } = {}) {
     let comboMult = 1;
     let comboName = null;
     if (deps.combos) {
-      const hit = deps.combos.detect(state.history, m.id, { now, seq: state.seq, attackerTypes: att.types, trainerLevel: state.trainerLevel, lastTriggered: state.comboState.lastTriggered });
+      const hit = deps.combos.detect(state.history, m.id, { now, seq: state.seq, attackerTypes: att.types, trainerLevel: state.trainerLevel, lastTriggered: state.comboState.lastTriggered, masteryCounts: state.comboState.mastery || {} });
       if (hit) { comboMult = hit.multiplier; comboName = hit.chain.name; }
     }
     const expDmg = Math.floor(dmg * comboMult);

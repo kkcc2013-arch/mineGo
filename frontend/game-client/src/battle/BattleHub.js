@@ -362,7 +362,7 @@ export class BattleHub {
     const [chains, stats, board, presets] = await Promise.all([this.client.chains(), this.client.comboStats(), this.client.comboLeaderboard(), this.client.presets()]);
     body.innerHTML = `<div class="bt-card"><div class="bt-h">我的连击</div><div class="bt-muted">共 ${stats.totals.combos} 次 · 完美 ${stats.totals.perfect} · 连击点 ${stats.totals.points}</div></div>
       <div class="sec-title">我的连招预设</div>
-      ${(presets.presets || []).map((p) => `<div class="bt-card bt-row"><div class="bt-grow"><b>${p.isDefault ? '⭐ ' : ''}${esc(p.name)}</b><div class="bt-muted">${p.steps.map((s) => esc(s.moveId)).join(' → ')} · 使用 ${p.stats.uses} 次 · 触发连击 ${p.stats.combosTriggered}</div></div><button class="bt-btn ghost" data-del-preset="${esc(p.id)}">删除</button></div>`).join('') || '<div class="bt-muted">还没有连招预设</div>'}
+      ${(presets.presets || []).map((p) => `<div class="bt-card bt-row"><div class="bt-grow"><b>${p.isDefault ? '⭐ ' : ''}${esc(p.name)}</b><div class="bt-muted">${p.steps.map((s) => esc(s.moveId)).join(' → ')} · 使用 ${p.stats.uses} 次 · 触发连击 ${p.stats.combosTriggered}</div></div>${p.isDefault ? '' : `<button class="bt-btn ghost" data-default-preset="${esc(p.id)}">设为默认</button>`}<button class="bt-btn ghost" data-edit-preset="${esc(p.id)}">编辑</button><button class="bt-btn ghost" data-del-preset="${esc(p.id)}">删除</button></div>`).join('') || '<div class="bt-muted">还没有连招预设</div>'}
       <button class="bt-btn ghost" data-new-preset style="margin:6px 0 12px">＋ 为精灵创建连招</button>
       <div class="sec-title">连击图鉴（${chains.chains.length}）</div>
       ${chains.chains.map((c) => `<div class="bt-card"><div class="bt-row"><b class="bt-grow">${esc(c.name)} ×${c.damageMultiplier}</b>${c.unlocked ? `<button class="bt-btn ghost" data-practice="${esc(c.chainId)}">练习</button>` : `<span class="bt-chip">Lv.${c.minTrainerLevel} 解锁</span>`}</div>
@@ -372,7 +372,11 @@ export class BattleHub {
       const pr = e.target.closest('[data-practice]');
       if (pr) return this.practice(chains.chains.find((c) => c.chainId === pr.dataset.practice));
       const del = e.target.closest('[data-del-preset]');
-      if (del) { await this.client.deletePreset(del.dataset.delPreset).catch((err) => this.toast(err.message, 'err')); return this.refresh(); }
+      if (del) { if (!confirm('删除这个连招？')) return; await this.client.deletePreset(del.dataset.delPreset).catch((err) => this.toast(err.message, 'err')); return this.refresh(); }
+      const def = e.target.closest('[data-default-preset]');
+      if (def) { await this.client.updatePreset(def.dataset.defaultPreset, { isDefault: true }).catch((err) => this.toast(err.message, 'err')); return this.refresh(); }
+      const ed = e.target.closest('[data-edit-preset]');
+      if (ed) return this.newPreset((presets.presets || []).find((p) => p.id === ed.dataset.editPreset));
       if (e.target.closest('[data-new-preset]')) this.newPreset();
     };
   }
@@ -399,26 +403,36 @@ export class BattleHub {
     return s;
   }
 
-  async newPreset() {
+  /** 创建或编辑连招预设（existing 为编辑对象：精灵不可更换） */
+  async newPreset(existing = null) {
     const mine = await this.myPokemon();
-    const s = this.sheet(`<div class="bt-h">创建连招（2-5 步）</div>
-      <select class="form-input" data-pp style="margin-bottom:8px">${mine.map((p) => `<option value="${esc(p.id)}">${esc(p.nickname || p.name_zh)} CP${p.cp}</option>`).join('')}</select>
+    const s = this.sheet(`<div class="bt-h">${existing ? '编辑' : '创建'}连招（2-5 步）</div>
+      <select class="form-input" data-pp style="margin-bottom:8px" ${existing ? 'disabled' : ''}>${mine.map((p) => `<option value="${esc(p.id)}" ${existing && existing.pokemonId === p.id ? 'selected' : ''}>${esc(p.nickname || p.name_zh)} CP${p.cp}</option>`).join('')}</select>
       <div data-pmoves></div><div class="bt-muted" data-psteps>步骤：</div>
-      <input class="form-input" data-pname maxlength="30" placeholder="连招名称" style="margin:8px 0">
+      <div class="bt-row"><span class="bt-muted">步骤间隔</span><input class="form-input" data-pdelay type="number" min="0" max="3000" step="100" value="300" style="width:90px;padding:6px"><span class="bt-muted">ms</span>
+        <button class="bt-btn ghost" data-pclear>清空步骤</button></div>
+      <input class="form-input" data-pname maxlength="30" placeholder="连招名称" style="margin:8px 0" value="${esc(existing ? existing.name : '')}">
+      <label class="bt-row bt-muted"><input type="checkbox" data-pdefault ${existing && existing.isDefault ? 'checked' : ''}> 设为该精灵的默认连招</label>
       <button class="bt-btn" data-psave style="width:100%">保存</button>`, async (e, sh) => {
       const add = e.target.closest('[data-padd]');
-      if (add && steps.length < 5) { steps.push({ moveId: add.dataset.padd, delayMs: steps.length ? 300 : 0 }); drawSteps(); }
+      if (add && steps.length < 5) { steps.push({ moveId: add.dataset.padd, delayMs: steps.length ? Number(sh.querySelector('[data-pdelay]').value) || 0 : 0 }); drawSteps(); }
+      if (e.target.closest('[data-pclear]')) { steps.length = 0; drawSteps(); }
       if (e.target.closest('[data-psave]')) {
         try {
-          await this.client.createPreset({ pokemonId: sh.querySelector('[data-pp]').value, name: sh.querySelector('[data-pname]').value || '我的连招', steps });
+          const body = { name: sh.querySelector('[data-pname]').value || '我的连招', steps, isDefault: sh.querySelector('[data-pdefault]').checked };
+          if (existing) await this.client.updatePreset(existing.id, body);
+          else await this.client.createPreset({ ...body, pokemonId: sh.querySelector('[data-pp]').value });
           this.toast('已保存', 'ok'); sh.remove(); this.refresh();
         } catch (err) { this.toast(err.message, 'err'); }
       }
     });
-    const steps = [];
-    const drawSteps = () => { s.querySelector('[data-psteps]').textContent = `步骤：${steps.map((x) => x.moveId).join(' → ')}`; };
+    const steps = existing ? existing.steps.map((x) => ({ moveId: x.moveId, delayMs: x.delayMs, condition: x.condition || undefined })) : [];
+    const drawSteps = () => { s.querySelector('[data-psteps]').textContent = `步骤：${steps.map((x, i) => (i ? `(+${x.delayMs}ms) ` : '') + x.moveId).join(' → ')}`; };
+    let first = true;
     const loadMoves = async () => {
-      steps.length = 0; drawSteps();
+      if (!(first && existing)) steps.length = 0;
+      first = false;
+      drawSteps();
       const en = await this.client.energy(s.querySelector('[data-pp]').value).catch(() => ({ moves: [] }));
       s.querySelector('[data-pmoves]').innerHTML = en.moves.map((m) => `<button class="bt-btn ghost" data-padd="${esc(m.id)}" style="margin:2px">${esc(m.name)}</button>`).join('');
     };

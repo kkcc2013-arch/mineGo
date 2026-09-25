@@ -112,6 +112,8 @@ async function writeParticipantState(raidId, userId, pokemonRow, prev = null, tt
     pokemonId: c.pokemonId, combatant: c,
     energy: prev ? Math.min(c.maxEnergy, prev.energy) : 0,
     history: [], seq: prev ? prev.seq : 0, comboState: prev ? prev.comboState : { count: 0, lastTriggered: {} },
+    comboMastery: prev && prev.comboMastery ? prev.comboMastery : await repo.getComboMastery(userId).catch(() => ({})),
+    trainerLevel: prev && prev.trainerLevel ? prev.trainerLevel : Number((await repo.getUser(userId).catch(() => ({ level: 1 }))).level) || 1,
   };
   await getRedis().set(pKey(raidId, userId), JSON.stringify(st), 'EX', Math.max(60, ttlSec));
   return st;
@@ -234,7 +236,7 @@ async function attack(userId, raidId, { moveId, pokemonId } = {}) {
   const deps = await getDeps();
   const boss = await bossFor({ ...p, boss_species_id: p.boss_species_id });
   const now = Date.now();
-  const combo = deps.combos.detect(st.history, move.id, { now, seq: st.seq, attackerTypes: att.types, trainerLevel: 50, lastTriggered: st.comboState.lastTriggered });
+  const combo = deps.combos.detect(st.history, move.id, { now, seq: st.seq, attackerTypes: att.types, trainerLevel: st.trainerLevel || 1, lastTriggered: st.comboState.lastTriggered, masteryCounts: st.comboMastery || {} });
   const dmg = deps.damage.compute(att, boss, move, {
     rng: Math.random, weather: process.env.BATTLE_WEATHER || null,
     multiplier: combo ? combo.multiplier : 1, critBoostPct: combo ? combo.effects.critBoostPct : 0, ignoreDefensePct: combo ? combo.effects.ignoreDefensePct : 0,

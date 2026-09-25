@@ -63,6 +63,7 @@ async function begin(state, deps) {
     const s = await store.load(existing);
     if (s && s.status === 'active') throw new BattleError('BATTLE_IN_PROGRESS', '你有一场未结束的战斗', 409, { battleId: existing });
   }
+  state.comboState.mastery = await require('./repo').getComboMastery(state.userId).catch(() => ({}));
   const prefs = await aiPrefs(state.userId);
   const variant = ai.variantFor(state.userId, await variantPercent());
   state.meta.ai = { variant, style: prefs.style, auto: !!(prefs.auto_advice && (prefs.newbie_mode || state.trainerLevel < 10)), trace: [], lastAdvice: null };
