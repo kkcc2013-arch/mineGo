@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>定位反作弊监控 | mineGo Admin</title>
+<style>
+  :root { --bg: #f7f7f8; --card: #fff; --fg: #1d1d1f; --muted: #6b6b76; --border: #e3e3e8; --accent: #3b5bdb; --bad: #d6336c; --ok: #2f9e44; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #141417; --card: #1d1d22; --fg: #ececf1; --muted: #9a9aa8; --border: #2c2c34; --accent: #7c93ff; --bad: #ff6b9a; --ok: #69db7c; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 14px/1.5 system-ui, -apple-system, "PingFang SC", sans-serif; background: var(--bg); color: var(--fg); }
+  header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  header h1 { font-size: 18px; margin: 0 auto 0 0; }
+  input, select, button { font: inherit; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--fg); }
+  button { cursor: pointer; }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  main { padding: 16px 20px; display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+  section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px; min-width: 0; }
+  section h2 { font-size: 15px; margin: 0 0 10px; }
+  .kpis { display: flex; gap: 12px; flex-wrap: wrap; }
+  .kpi { flex: 1 1 120px; border: 1px solid var(--border); border-radius: 10px; padding: 10px; }
+  .kpi b { display: block; font-size: 22px; }
+  .kpi span { color: var(--muted); font-size: 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 6px 4px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; }
+  .bars { display: flex; align-items: flex-end; gap: 2px; height: 90px; }
+  .bars div { flex: 1; background: var(--accent); border-radius: 3px 3px 0 0; min-height: 2px; }
+  .muted { color: var(--muted); }
+  .err { color: var(--bad); }
+  .actions { display: flex; gap: 6px; }
+  .wide { grid-column: 1 / -1; }
+</style>
+</head>
+<body>
+<header>
+  <h1>定位反作弊监控（REQ-00586）</h1>
+  <label>网关 <input id="base" size="26" placeholder="https://api.example.com"></label>
+  <label>管理员 Token <input id="token" type="password" size="22"></label>
+  <label>时间范围 <select id="hours"><option value="24">24 小时</option><option value="168">7 天</option><option value="720">30 天</option></select></label>
+  <button class="primary" id="load">刷新</button>
+</header>
+<p id="msg" class="muted" role="status" style="padding: 0 20px"></p>
+<main>
+  <section>
+    <h2>概览</h2>
+    <div class="kpis">
+      <div class="kpi"><b id="k-events">–</b><span>风控事件</span></div>
+      <div class="kpi"><b id="k-users">–</b><span>可信度低于限制线的玩家</span></div>
+      <div class="kpi"><b id="k-appeals">–</b><span>待审核申诉</span></div>
+    </div>
+  </section>
+  <section>
+    <h2>事件趋势（按小时）</h2>
+    <div class="bars" id="timeline" aria-label="每小时风控事件数"></div>
+  </section>
+  <section>
+    <h2>事件类型</h2>
+    <table><thead><tr><th>类型</th><th>级别</th><th>次数</th><th>玩家</th></tr></thead><tbody id="types"></tbody></table>
+  </section>
+  <section class="wide">
+    <h2>待审核申诉</h2>
+    <table><thead><tr><th>玩家</th><th>提交时可信度</th><th>申诉理由</th><th>最近风控记录</th><th>操作</th></tr></thead><tbody id="appeals"></tbody></table>
+  </section>
+  <section class="wide">
+    <h2>地形/禁入区域</h2>
+    <table><thead><tr><th>ID</th><th>名称</th><th>类型</th><th>来源</th><th>状态</th></tr></thead><tbody id="zones"></tbody></table>
+  </section>
+</main>
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k) || ''; localStorage.setItem(k, v); } catch { return ''; } };
+  $('base').value = store('ac.base') || location.origin;
+  $('token').value = store('ac.token');
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  async function api(method, path, body) {
+    const res = await fetch(`${$('base').value.replace(/\/$/, '')}/api/admin/anticheat${path}`, {
+      method, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${$('token').value}` },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(`${res.status} ${data.message || data.error || ''}`);
+    return data.data;
+  }
+
+  async function load() {
+    store('ac.base', $('base').value); store('ac.token', $('token').value);
+    $('msg').textContent = '加载中…'; $('msg').className = 'muted';
+    try {
+      const hours = $('hours').value;
+      const [stats, appeals, zones] = await Promise.all([api('GET', `/stats?hours=${hours}`), api('GET', '/appeals?status=PENDING'), api('GET', '/zones')]);
+      $('k-events').textContent = stats.byType.reduce((s, r) => s + r.count, 0);
+      $('k-users').textContent = stats.restrictedUsers;
+      $('k-appeals').textContent = stats.appeals.PENDING || 0;
+      const max = Math.max(1, ...stats.timeline.map((t) => t.count));
+      $('timeline').innerHTML = stats.timeline.map((t) => `<div style="height:${(t.count / max) * 100}%" title="${esc(new Date(t.hour).toLocaleString())}: ${t.count}"></div>`).join('') || '<span class="muted">暂无数据</span>';
+      $('types').innerHTML = stats.byType.map((r) => `<tr><td>${esc(r.type)}</td><td>${esc(r.severity)}</td><td>${r.count}</td><td>${r.users}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">暂无事件</td></tr>';
+      $('appeals').innerHTML = appeals.appeals.map((a) => `<tr data-id="${esc(a.id)}"><td>${esc(a.nickname)}</td><td>${esc(a.trust_score_at_submit)}</td><td>${esc(a.reason)}</td>
+        <td>${(a.incidents_snapshot || []).slice(0, 3).map((i) => esc(i.type)).join('<br>')}</td>
+        <td class="actions"><button data-act="APPROVE">通过</button><button data-act="REJECT">驳回</button></td></tr>`).join('') || '<tr><td colspan="5" class="muted">没有待审核申诉</td></tr>';
+      $('zones').innerHTML = zones.zones.map((z) => `<tr><td>${z.id}</td><td>${esc(z.name)}</td><td>${esc(z.kind)}</td><td>${esc(z.source)}</td><td>${z.active ? '启用' : '停用'}</td></tr>`).join('');
+      $('msg').textContent = `已更新 ${new Date().toLocaleTimeString()}`;
+    } catch (e) {
+      $('msg').textContent = `加载失败：${e.message}`; $('msg').className = 'err';
+    }
+  }
+
+  $('appeals').addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-act]');
+    if (!btn) return;
+    const id = btn.closest('tr').dataset.id;
+    const note = btn.dataset.act === 'REJECT' ? prompt('驳回理由（将展示给玩家）') : '';
+    if (note === null) return;
+    try { await api('POST', `/appeals/${id}/decision`, { decision: btn.dataset.act, note: note || undefined }); await load(); }
+    catch (err) { $('msg').textContent = `操作失败：${err.message}`; $('msg').className = 'err'; }
+  });
+  $('load').addEventListener('click', load);
+  if ($('token').value) load();
+})();
+</script>
+</body>
+</html>

@@ -46,7 +46,7 @@ const LEAGUE_LEVELS = {
     name: '大师联赛',
     minPoints: 5000,
     maxPoints: null,
-    groups: ['I'],
+    groups: ['I', 'II', 'III'], // REQ-00487：每个等级 3 个分组（5000 起每 333 分一组）
     rewards: { seasonEnd: 1000, promotion: 0 },
     icon: 'master_badge.png'
   }

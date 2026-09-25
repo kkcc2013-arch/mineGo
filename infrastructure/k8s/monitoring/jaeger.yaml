@@ -1,4 +1,7 @@
-# Jaeger All-in-One Deployment for Distributed Tracing
+# Jaeger v2 All-in-One（REQ-00042）
+# v1（all-in-one:1.52）已停止维护；v2 基于 OpenTelemetry Collector，原生接收 OTLP（4317 gRPC / 4318 HTTP）。
+# 服务端通过 pmg-config 中的 OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger-collector.monitoring:4318 上报（backend/shared/tracing.js）。
+# 存储：内存（最多 MEMORY_MAX_TRACES 条，重启丢失）；生产需改为 Elasticsearch/OpenSearch/Cassandra 存储。
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -20,50 +23,41 @@ spec:
     spec:
       containers:
       - name: jaeger
-        image: jaegertracing/all-in-one:1.52
+        image: jaegertracing/jaeger:2.21.0
         ports:
         - containerPort: 16686
           name: ui
           protocol: TCP
-        - containerPort: 14268
-          name: collector-http
+        - containerPort: 4317
+          name: otlp-grpc
           protocol: TCP
-        - containerPort: 14250
-          name: collector-grpc
+        - containerPort: 4318
+          name: otlp-http
           protocol: TCP
-        - containerPort: 6831
-          name: agent-udp
-          protocol: UDP
-        - containerPort: 5778
-          name: config
+        - containerPort: 13133
+          name: health
           protocol: TCP
-        env:
-        - name: COLLECTOR_ZIPKIN_HOST_PORT
-          value: ":9411"
-        - name: LOG_LEVEL
-          value: "info"
-        - name: MEMORY_MAX_TRACES
-          value: "50000"
         resources:
           requests:
             memory: "256Mi"
             cpu: "100m"
           limits:
-            memory: "512Mi"
+            memory: "1Gi"
             cpu: "500m"
         livenessProbe:
           httpGet:
-            path: /
-            port: 16686
+            path: /status
+            port: 13133
           initialDelaySeconds: 10
           periodSeconds: 30
         readinessProbe:
           httpGet:
-            path: /
-            port: 16686
+            path: /status
+            port: 13133
           initialDelaySeconds: 5
           periodSeconds: 10
 ---
+# Jaeger Service（UI + OTLP，供集群内统一访问）
 apiVersion: v1
 kind: Service
 metadata:
@@ -80,24 +74,16 @@ spec:
     port: 16686
     targetPort: 16686
     protocol: TCP
-  - name: collector-http
-    port: 14268
-    targetPort: 14268
+  - name: otlp-grpc
+    port: 4317
+    targetPort: 4317
     protocol: TCP
-  - name: collector-grpc
-    port: 14250
-    targetPort: 14250
-    protocol: TCP
-  - name: agent-udp
-    port: 6831
-    targetPort: 6831
-    protocol: UDP
-  - name: config
-    port: 5778
-    targetPort: 5778
+  - name: otlp-http
+    port: 4318
+    targetPort: 4318
     protocol: TCP
 ---
-# Jaeger Query Service (for UI access)
+# Jaeger Query Service（UI / API，Grafana 数据源与 Ingress 使用）
 apiVersion: v1
 kind: Service
 metadata:
@@ -116,7 +102,7 @@ spec:
     targetPort: 16686
     protocol: TCP
 ---
-# Jaeger Collector Service (for trace ingestion)
+# Jaeger Collector Service（OTLP 接收）
 apiVersion: v1
 kind: Service
 metadata:
@@ -130,36 +116,13 @@ spec:
   selector:
     app: jaeger
   ports:
-  - name: http
-    port: 14268
-    targetPort: 14268
+  - name: otlp-grpc
+    port: 4317
+    targetPort: 4317
     protocol: TCP
-  - name: grpc
-    port: 14250
-    targetPort: 14250
-    protocol: TCP
----
-# Jaeger Agent Service (for UDP trace reception)
-apiVersion: v1
-kind: Service
-metadata:
-  name: jaeger-agent
-  namespace: monitoring
-  labels:
-    app: jaeger
-    component: agent
-spec:
-  type: ClusterIP
-  selector:
-    app: jaeger
-  ports:
-  - name: udp
-    port: 6831
-    targetPort: 6831
-    protocol: UDP
-  - name: config
-    port: 5778
-    targetPort: 5778
+  - name: otlp-http
+    port: 4318
+    targetPort: 4318
     protocol: TCP
 ---
 # Ingress for Jaeger UI

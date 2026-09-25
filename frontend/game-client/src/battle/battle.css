@@ -1,0 +1,72 @@
+/* frontend/game-client/src/battle/battle.css — E11 战斗界面（道馆/联赛对战、团战、回放、联赛、连击、推荐） */
+#battle { padding-bottom: 64px; }
+.bt-tabs { display: flex; gap: 6px; padding: 10px 12px; overflow-x: auto; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.bt-tab { padding: 7px 12px; border-radius: 999px; background: var(--surface2); color: var(--muted); font-size: 13px; font-weight: 700; white-space: nowrap; cursor: pointer; border: 1px solid transparent; }
+.bt-tab.on { color: var(--text); border-color: var(--blue); }
+.bt-body { flex: 1; overflow-y: auto; padding: 12px 14px; -webkit-overflow-scrolling: touch; }
+.bt-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+.bt-row { display: flex; align-items: center; gap: 8px; }
+.bt-grow { flex: 1; min-width: 0; }
+.bt-muted { color: var(--muted); font-size: 12px; }
+.bt-h { font-size: 15px; font-weight: 800; margin-bottom: 6px; }
+.bt-btn { padding: 9px 14px; border-radius: 10px; border: none; background: var(--blue); color: #fff; font-weight: 700; font-size: 13px; cursor: pointer; }
+.bt-btn.ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+.bt-btn.warn { background: var(--red); }
+.bt-btn:disabled { opacity: .45; cursor: not-allowed; }
+.bt-chip { display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--surface2); font-size: 11px; margin: 2px 4px 2px 0; }
+.bt-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.bt-pick .bt-card { margin: 0; cursor: pointer; }
+.bt-pick .bt-card.sel { border-color: var(--blue); box-shadow: 0 0 0 1px var(--blue) inset; }
+
+/* 对战场景 */
+.bt-arena { position: fixed; inset: 0; z-index: 900; background: radial-gradient(ellipse at 50% 30%, #1d2a44 0%, var(--bg) 70%); display: flex; flex-direction: column; }
+.bt-arena-top { display: flex; align-items: center; gap: 8px; padding: 10px 12px; background: rgba(0,0,0,.25); }
+.bt-side { padding: 10px 14px; }
+.bt-mon { display: flex; align-items: center; gap: 10px; }
+.bt-mon-sprite { font-size: 54px; line-height: 1; transition: transform var(--battle-fx-duration, 240ms) ease; will-change: transform; }
+.bt-mon-sprite.hit { animation: bt-shake 280ms ease; }
+.bt-mon-sprite.faint { opacity: .25; filter: grayscale(1); }
+@keyframes bt-shake { 0%,100% { transform: translateX(0) } 25% { transform: translateX(-6px) } 75% { transform: translateX(6px) } }
+.bt-hp { height: 10px; border-radius: 6px; background: var(--surface2); overflow: hidden; }
+.bt-hp > i { display: block; height: 100%; width: 100%; transform-origin: left center; transition: background-color .3s; }
+.bt-energy { position: relative; height: 8px; border-radius: 6px; background: var(--surface2); overflow: visible; margin-top: 4px; }
+.bt-energy > i { display: block; height: 100%; border-radius: 6px; background: linear-gradient(90deg, #6ab7ff, #b88cff); }
+.bt-energy .tick { position: absolute; top: -3px; width: 2px; height: 14px; background: var(--muted); }
+.bt-energy .tick.ready { background: var(--yellow); }
+.bt-moves { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; padding: 10px 12px; }
+.bt-move { position: relative; padding: 12px 10px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text); text-align: left; cursor: pointer; overflow: hidden; }
+.bt-move .nm { font-weight: 800; font-size: 14px; }
+.bt-move .meta { font-size: 11px; color: var(--muted); }
+.bt-move.charge { border-color: #6a4cc2; }
+.bt-move.next { box-shadow: 0 0 0 2px var(--yellow) inset; }
+.bt-move.best::after { content: 'AI 推荐'; position: absolute; top: 6px; right: 6px; font-size: 10px; padding: 1px 6px; border-radius: 6px; background: var(--green); color: #04130a; }
+.bt-move:disabled { opacity: .5; }
+.bt-move .cd { position: absolute; inset: 0; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px; }
+.bt-advisor { margin: 0 12px; padding: 10px; border-radius: 12px; background: rgba(46,204,113,.08); border: 1px solid rgba(46,204,113,.35); font-size: 12px; }
+.bt-hints { margin: 6px 12px 0; font-size: 12px; color: var(--yellow); min-height: 16px; }
+.bt-log { flex: 1; overflow-y: auto; margin: 8px 12px; padding: 8px; border-radius: 10px; background: rgba(0,0,0,.25); font-size: 12px; line-height: 1.6; }
+.bt-actions { display: flex; gap: 8px; padding: 8px 12px 14px; flex-wrap: wrap; }
+.bt-combo-burst { position: fixed; left: 50%; top: 36%; transform: translate(-50%, -50%); font-size: 26px; font-weight: 900; color: var(--yellow); text-shadow: 0 0 18px rgba(244,196,48,.8); pointer-events: none; animation: bt-burst 900ms ease forwards; z-index: 950; }
+@keyframes bt-burst { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.6) } 30% { opacity: 1; transform: translate(-50%,-50%) scale(1.1) } 100% { opacity: 0; transform: translate(-50%,-80%) scale(1) } }
+.bt-particles { position: fixed; inset: 0; pointer-events: none; z-index: 940; }
+.bt-particle { position: absolute; width: 6px; height: 6px; border-radius: 50%; will-change: transform, opacity; }
+.bt-result { position: fixed; inset: 0; z-index: 960; background: rgba(0,0,0,.8); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.bt-result .bt-card { max-width: 380px; width: 100%; max-height: 90vh; overflow-y: auto; }
+
+/* 特效分级（FrameRateController 在 <html data-battle-fx> 上切换，过渡平滑） */
+html[data-battle-fx="medium"] .bt-combo-burst { text-shadow: none; }
+html[data-battle-fx="low"] .bt-combo-burst { text-shadow: none; animation-duration: 500ms; }
+html[data-battle-fx="low"] .bt-arena { background: var(--bg); }
+html[data-battle-fx="low"] .bt-mon-sprite.hit { animation: none; opacity: .7; }
+html[data-battle-fx="low"] .bt-particles { display: none; }
+
+/* 回放播放器 */
+.rp-controls { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+.rp-timeline { position: relative; height: 18px; background: var(--surface2); border-radius: 9px; cursor: pointer; margin: 8px 0; }
+.rp-timeline > i { display: block; height: 100%; border-radius: 9px; background: var(--blue); }
+.rp-marker { position: absolute; top: -3px; width: 8px; height: 24px; border-radius: 3px; background: var(--yellow); cursor: pointer; }
+.rp-marker.high { background: var(--red); }
+
+@media (prefers-reduced-motion: reduce) {
+  .bt-mon-sprite.hit, .bt-combo-burst { animation: none; }
+}

@@ -1,0 +1,27 @@
+# Alertmanager（REQ-00042，本地/测试环境）
+# 默认接收器不发送外部通知（本地只在 Alertmanager UI :9093 与 Grafana 中查看）。
+# 接入钉钉等渠道：参考 infrastructure/k8s/monitoring/dingtalk-webhook.yml，在 receivers 中加 webhook_configs。
+# 手动触发一条测试告警验证路由：scripts/fire-test-alert.sh
+route:
+  receiver: default
+  group_by: ['alertname', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    - matchers: ['severity="critical"']
+      receiver: critical
+      repeat_interval: 1h
+
+receivers:
+  - name: default
+  - name: critical
+    # webhook_configs:
+    #   - url: http://dingtalk-webhook:8060/dingtalk/minego/send
+    #     send_resolved: true
+
+inhibit_rules:
+  # 服务整体不可达时，抑制同一服务的错误率/延迟告警
+  - source_matchers: ['alertname="MinegoServiceDown"']
+    target_matchers: ['alertname=~"MinegoHighErrorRate|MinegoHighLatencyP99"']
+    equal: ['service']

@@ -1,21 +1,22 @@
 // gym-service/src/index.js
 'use strict';
+require('../../../shared/tracing').initTracing('gym-service'); // REQ-00042：须先于 express/http/pg/redis 加载，自动埋点才生效（未配置 OTEL_EXPORTER_OTLP_ENDPOINT 时不启用）
 const express   = require('express');
 const http      = require('http');
+const { EventEmitter } = require('events');
 const WebSocket = require('ws');
 const cors      = require('cors');
 const helmet    = require('helmet');
 const { query } = require('../../../shared/db');
-const { transactionRepeatableRead, IsolationLevel } = require('../../../shared/transactionManager');
-const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
-const { requireAuth, verifyAccess, AppError, successResp, errorHandler } = require('../../../shared/auth');
+const { verifyAccess, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
-const { validateLocation, checkRateLimit, requireTrustScore, TRUST_SCORE } = require('../../../shared/anti-cheat');
 const { initNotificationWS, sendNotificationToUser } = require('../../../shared/NotificationWebSocket');
-const battleRoutes = require('./routes/battle');
 const seasonRoutes = require('./routes/season');
 const { WebSocketServer: BattleWebSocketServer } = require('./websocket/WebSocketServer');
+const raid = require('./battle/raid');
+const battleDeps = require('./battle/deps');
+const { BattleError } = require('./battle/engine');
 
 const logger = createLogger('gym-service');
 const SERVICE_NAME = 'gym-service';
@@ -24,7 +25,7 @@ const app    = express();
 const server = http.createServer(app);
 const PORT   = process.env.PORT || 8085;
 
-app.use(helmet()); app.use(cors()); app.use(express.json());
+app.use(helmet()); app.use(cors()); app.use(express.json({ limit: '256kb' }));
 
 // Structured logging & metrics
 app.use(requestLogger(logger));
@@ -44,52 +45,83 @@ app.get('/metrics', async (req, res) => {
 });
 
 // ============================================================
-// WEBSOCKET — Real-time Raid sync
+// WEBSOCKET — 同一 HTTP 服务上有 /ws/raid 与 /ws/notifications 两个 WebSocket 端点。
+// ws 库的 WebSocketServer({ server, path }) 会对路径不匹配的升级请求直接回 400，
+// 两个实例共用一个 server 时互相中断对方的握手（原实现两个端点都连不上），因此这里统一分发 upgrade。
 // ============================================================
-const wss = new WebSocket.Server({ server, path: '/ws/raid' });
+const raidWss = new WebSocket.Server({ noServer: true });
+const notificationUpgrades = new EventEmitter();
 const raidRooms = new Map(); // raidId → Set<ws>
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-wss.on('connection', (ws, req) => {
-  // Expect ?token=...&raidId=...
+server.on('upgrade', (req, socket, head) => {
+  const pathname = (req.url || '').split('?')[0];
+  if (pathname === '/ws/raid') {
+    raidWss.handleUpgrade(req, socket, head, (ws) => raidWss.emit('connection', ws, req));
+  } else if (pathname === '/ws/notifications') {
+    notificationUpgrades.emit('upgrade', req, socket, head);
+  } else {
+    socket.write('HTTP/1.1 404 Not Found\r\nConnection: close\r\n\r\n');
+    socket.destroy();
+  }
+});
+
+function wsSend(ws, data) {
+  if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(data));
+}
+
+raidWss.on('connection', async (ws, req) => {
+  // ?token=...&raidId=...；只有已加入该 Raid 的玩家可以连接（4001 未登录 / 4003 未参加 / 4004 Raid 无效）
   const params = new URL(req.url, 'http://localhost').searchParams;
-  const token  = params.get('token');
   const raidId = params.get('raidId');
-
   let userId;
   try {
-    const payload = verifyAccess(token);
-    userId = payload.sub;
+    userId = verifyAccess(params.get('token')).sub;
   } catch {
     ws.close(4001, 'Unauthorized');
+    return;
+  }
+  if (!UUID_RE.test(raidId || '')) { ws.close(4004, 'Invalid raid'); return; }
+  try {
+    const { rows: [p] } = await query('SELECT 1 FROM raid_participants WHERE raid_id = $1 AND user_id = $2', [raidId, userId]);
+    if (!p) { ws.close(4003, 'Not a participant'); return; }
+  } catch (err) {
+    logger.error({ err }, 'raid ws participant check failed');
+    ws.close(1011, 'Server error');
     return;
   }
 
   ws.userId = userId;
   ws.raidId = raidId;
-
   if (!raidRooms.has(raidId)) raidRooms.set(raidId, new Set());
   raidRooms.get(raidId).add(ws);
-
-  console.log(`[Raid WS] User ${userId} joined raid ${raidId}`);
-  
-  // Update WebSocket metrics
-  metrics.websocketConnectionsActive.inc({ service: 'gym-service', room: raidId });
-  
-  broadcastToRaid(raidId, { type: 'PLAYER_JOINED', userId, participants: raidRooms.get(raidId).size });
+  metrics.websocketConnectionsActive.inc({ service: 'gym-service', room: 'raid' });
+  wsSend(ws, { type: 'CONNECTED', raidId, userId });
+  broadcastToRaid(raidId, { type: 'PLAYER_ONLINE', userId, online: raidRooms.get(raidId).size });
 
   ws.on('message', async (data) => {
+    let msg;
+    try { msg = JSON.parse(data); } catch { wsSend(ws, { type: 'ERROR', code: 'BAD_MESSAGE', message: '消息格式错误' }); return; }
+    if (!msg || msg.type !== 'ATTACK') return;
     try {
-      const msg = JSON.parse(data);
-      if (msg.type === 'ATTACK') {
-        await handleRaidAttack(ws.userId, ws.raidId, msg.moveId, msg.damage);
+      // 客户端上报的 damage 字段被忽略：伤害由服务端计算
+      const result = await raid.attack(ws.userId, ws.raidId, { moveId: msg.moveId, pokemonId: msg.pokemonId });
+      wsSend(ws, { type: 'ATTACK_RESULT', requestId: msg.requestId, ...result });
+    } catch (err) {
+      if (err instanceof BattleError) {
+        wsSend(ws, { type: 'ERROR', requestId: msg.requestId, code: err.code, message: err.message, details: err.details || {} });
+      } else {
+        logger.error({ err }, 'raid ws attack failed');
+        wsSend(ws, { type: 'ERROR', requestId: msg.requestId, code: 'SERVER_ERROR', message: '服务器错误' });
       }
-    } catch (e) { console.error('[Raid WS] Message error', e); }
+    }
   });
 
   ws.on('close', () => {
     raidRooms.get(raidId)?.delete(ws);
-    metrics.websocketConnectionsActive.dec({ service: 'gym-service', room: raidId });
-    broadcastToRaid(raidId, { type: 'PLAYER_LEFT', userId, participants: raidRooms.get(raidId)?.size || 0 });
+    if (raidRooms.get(raidId)?.size === 0) raidRooms.delete(raidId);
+    metrics.websocketConnectionsActive.dec({ service: 'gym-service', room: 'raid' });
+    broadcastToRaid(raidId, { type: 'PLAYER_OFFLINE', userId, online: raidRooms.get(raidId)?.size || 0 });
   });
 });
 
@@ -104,183 +136,17 @@ function broadcastToRaid(raidId, data) {
     }
   }
 }
-
-async function handleRaidAttack(userId, raidId, moveId, clientDamage) {
-  const raidKey = `raid:${raidId}`;
-  const raid    = await getJSON(raidKey);
-  if (!raid || raid.status !== 'ACTIVE') return;
-
-  // Server-side damage validation (simplified)
-  const damage = Math.min(clientDamage || 50, 500); // cap per hit
-
-  // Atomic decrement HP in Redis
-  const redis = getRedis();
-  const newHp = await redis.decrby(`raid:${raidId}:hp`, damage);
-
-  // Record damage for participant
-  await query(`
-    UPDATE raid_participants SET damage_dealt = damage_dealt + $1
-    WHERE raid_id=$2 AND user_id=$3
-  `, [damage, raidId, userId]);
-
-  const bossDefeated = newHp <= 0;
-
-  broadcastToRaid(raidId, {
-    type: 'RAID_ATTACK',
-    attackerId: userId,
-    damage,
-    bossHpRemaining: Math.max(0, newHp),
-    bossDefeated,
-  });
-
-  if (bossDefeated) {
-    await query(`UPDATE raids SET status='COMPLETED', updated_at=NOW() WHERE id=$1`, [raidId]);
-    await redis.del(`raid:${raidId}:hp`);
-    broadcastToRaid(raidId, { type: 'RAID_COMPLETED', raidId });
-  }
-}
+raid.setBroadcaster(broadcastToRaid);
 
 // ============================================================
-// GYM REST ROUTES
+// REST ROUTES
 // ============================================================
-
-// GET /gyms/:id
-app.get('/gyms/:id', requireAuth, async (req, res, next) => {
-  try {
-    const { rows: [gym] } = await query(`
-      SELECT g.*, 
-        json_agg(json_build_object(
-          'id', gd.id, 'userId', gd.user_id, 'pokemonId', gd.pokemon_id,
-          'hpCurrent', gd.hp_current, 'hpMax', gd.hp_max, 'assignedAt', gd.assigned_at,
-          'cp', pi.cp, 'speciesId', pi.species_id, 'nickname', pi.nickname
-        ) ORDER BY gd.assigned_at) FILTER (WHERE gd.id IS NOT NULL) AS defenders
-      FROM gyms g
-      LEFT JOIN gym_defenders gd ON gd.gym_id = g.id
-      LEFT JOIN pokemon_instances pi ON pi.id = gd.pokemon_id
-      WHERE g.id = $1
-      GROUP BY g.id
-    `, [req.params.id]);
-
-    if (!gym) throw new AppError(4001, '道馆不存在', 404);
-    res.json(successResp(gym));
-  } catch (err) { next(err); }
-});
-
-// POST /gyms/:id/defend  — assign pokemon to gym
-app.post('/gyms/:id/defend', requireAuth, async (req, res, next) => {
-  try {
-    const { pokemonId } = req.body;
-    const userId = req.user.sub;
-    const gymId  = req.params.id;
-
-    const { rows: [user] } = await query('SELECT team FROM users WHERE id=$1', [userId]);
-    const { rows: [gym]  } = await query('SELECT controlling_team FROM gyms WHERE id=$1', [gymId]);
-
-    if (!gym) throw new AppError(4001, '道馆不存在', 404);
-    if (gym.controlling_team && gym.controlling_team !== user.team) {
-      throw new AppError(4002, '道馆不属于你的队伍，请先挑战', 400);
-    }
-
-    // Max 6 defenders
-    const { rows: [cnt] } = await query(
-      'SELECT COUNT(*)::int AS n FROM gym_defenders WHERE gym_id=$1', [gymId]
-    );
-    if (cnt.n >= 6) throw new AppError(4003, '道馆已满（最多6只精灵）', 400);
-
-    // Can't place if already defending another gym
-    const { rows: [pi] } = await query(
-      'SELECT id, cp, hp_max, defending_gym_id FROM pokemon_instances WHERE id=$1 AND user_id=$2',
-      [pokemonId, userId]
-    );
-    if (!pi) throw new AppError(3001, '精灵不存在', 404);
-    if (pi.defending_gym_id) throw new AppError(4004, '该精灵已在其他道馆驻守', 400);
-
-    await transactionRepeatableRead(async (client) => {
-      // Update gym team
-      if (!gym.controlling_team) {
-        await client.query('UPDATE gyms SET controlling_team=$1, updated_at=NOW() WHERE id=$2',
-          [user.team, gymId]);
-      }
-      // Place defender
-      await client.query(`
-        INSERT INTO gym_defenders (gym_id, user_id, pokemon_id, hp_current, hp_max)
-        VALUES ($1,$2,$3,$4,$4)
-      `, [gymId, userId, pokemonId, pi.hp_max]);
-
-      await client.query('UPDATE pokemon_instances SET defending_gym_id=$1 WHERE id=$2', [gymId, pokemonId]);
-    });
-
-    res.json(successResp({ message: '精灵已驻守道馆' }));
-  } catch (err) { next(err); }
-});
-
-
-// ============================================================
-// BATTLE ROUTES (挂载 battle.js 路由)
-// ============================================================
-app.use('/api/v1', battleRoutes);
-
-// ============================================================
-// RAID ROUTES
-// ============================================================
-
-// GET /raids/:id
-app.get('/raids/:id', requireAuth, async (req, res, next) => {
-  try {
-    const { rows: [raid] } = await query(`
-      SELECT r.*, g.name AS gym_name, g.lat, g.lng,
-             ps.name_zh AS boss_name, ps.sprite_url AS boss_sprite,
-             COUNT(rp.id)::int AS participant_count
-      FROM raids r
-      JOIN gyms g ON g.id = r.gym_id
-      JOIN pokemon_species ps ON ps.id = r.boss_species_id
-      LEFT JOIN raid_participants rp ON rp.raid_id = r.id
-      WHERE r.id=$1 GROUP BY r.id,g.name,g.lat,g.lng,ps.name_zh,ps.sprite_url
-    `, [req.params.id]);
-    if (!raid) throw new AppError(4006, 'Raid 不存在', 404);
-    res.json(successResp(raid));
-  } catch (err) { next(err); }
-});
-
-// POST /raids/:id/join
-app.post('/raids/:id/join', requireAuth, async (req, res, next) => {
-  try {
-    const raidId = req.params.id;
-    const userId = req.user.sub;
-
-    const { rows: [raid] } = await query(
-      "SELECT * FROM raids WHERE id=$1 AND status='ACTIVE' AND ends_at > NOW()", [raidId]
-    );
-    if (!raid) throw new AppError(4006, 'Raid 不存在或已结束', 404);
-
-    const { rows: [cnt] } = await query(
-      'SELECT COUNT(*)::int AS n FROM raid_participants WHERE raid_id=$1', [raidId]
-    );
-    if (cnt.n >= raid.max_participants) throw new AppError(4007, 'Raid 人数已满', 400);
-
-    await query(`
-      INSERT INTO raid_participants (raid_id, user_id) VALUES ($1,$2)
-      ON CONFLICT (raid_id, user_id) DO NOTHING
-    `, [raidId, userId]);
-
-    // Set boss HP in Redis if not yet
-    const redis = getRedis();
-    const hpKey = `raid:${raidId}:hp`;
-    const exists = await redis.exists(hpKey);
-    if (!exists) {
-      const ttl = Math.floor((new Date(raid.ends_at) - Date.now()) / 1000);
-      await redis.setex(hpKey, ttl, raid.boss_hp_max.toString());
-    }
-
-    broadcastToRaid(raidId, { type: 'PLAYER_JOINED', userId });
-
-    res.json(successResp({
-      raidId, bossSpeciesId: raid.boss_species_id,
-      bossHpMax: raid.boss_hp_max, raidLevel: raid.raid_level,
-      endsAt: raid.ends_at, ballsGranted: 6,
-    }));
-  } catch (err) { next(err); }
-});
+// 道馆（附近/详情/驻守）、道馆对战（E11，替换原查询不存在表的 routes/battle.js）、团战
+app.use(require('./routes/gyms'));
+app.use(require('./routes/gymBattle'));
+app.use(require('./routes/raids'));
+// E11 战斗扩展接口：能量/冷却/装备、连击、伤害缓存、技能推荐、AI 助手、回放分享、竞技联赛、客户端帧率上报
+app.use('/battle', require('./routes/battleApi'));
 
 // REQ-00092: 批量查询接口
 const batchRouter = require('./routes/batch');
@@ -303,23 +169,23 @@ app.use('/api/v1/gym/season', seasonRoutes);
 app.use(errorHandler);
 
 // ============================================================
-// NOTIFICATION WEBSOCKET - REQ-00026
+// NOTIFICATION WEBSOCKET - REQ-00026（升级请求由上方统一分发）
 // ============================================================
-const notificationWss = initNotificationWS(server, '/ws/notifications');
+const notificationWss = initNotificationWS(notificationUpgrades, '/ws/notifications');
 
 // Export for other services to use
 module.exports.sendNotification = sendNotificationToUser;
 module.exports.notificationWss = notificationWss;
 
 // ============================================================
-// BATTLE WEBSOCKET - REQ-00262
+// BATTLE WEBSOCKET - REQ-00262（独立端口 WS_BATTLE_PORT，JWT 鉴权）
 // ============================================================
 let battleWsServer = null;
 
 function initBattleWebSocket() {
   battleWsServer = new BattleWebSocketServer({
     port: process.env.WS_BATTLE_PORT || 8086,
-    jwtSecret: process.env.JWT_SECRET
+    jwtSecret: process.env.JWT_SECRET,
   });
   battleWsServer.start();
   logger.info({ port: process.env.WS_BATTLE_PORT || 8086 }, 'Battle WebSocket server started');
@@ -342,11 +208,13 @@ async function initializeDelayQueue() {
   }
 }
 
-server.listen(PORT, async () => {
-  console.log(`[gym-service] listening on :${PORT}`);
-  // Initialize delay queue handlers
-  await initializeDelayQueue();
-  // Initialize battle WebSocket server
+server.listen(PORT, () => {
+  logger.info({ port: PORT }, '[gym-service] listening');
+  // 战斗 WebSocket 先于依赖 Kafka 的延迟队列启动（Kafka 不可用时重试约 8 秒，不应拖住对战连接）
   initBattleWebSocket();
+  initializeDelayQueue();
+  battleDeps.warmup().catch((err) => logger.error({ err }, 'battle damage cache warmup failed'));
+  raid.startScheduler();
+  try { require('./battle/league').startScheduler(); } catch (err) { logger.error({ err }, 'league scheduler failed'); }
 });
 module.exports = app;

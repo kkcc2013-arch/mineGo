@@ -1,0 +1,63 @@
+// Grafana Alloy 日志采集（REQ-00042，docker compose 环境）
+// Promtail 已于 2026-03 停止维护，改用 Alloy。
+// 采集名称以 pmg- 开头的容器（docker-compose.yml 中的 mineGo 服务）stdout，解析 pino JSON：
+//   标签：job=minego、service、level、container（低基数，可做筛选/告警）
+//   结构化元数据：trace_id（高基数，不做标签；Grafana 通过派生字段跳转 Jaeger）
+
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "minego" {
+  targets = discovery.docker.containers.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/pmg-.*"
+    action        = "keep"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    regex         = "/(.*)"
+    target_label  = "container"
+  }
+}
+
+loki.source.docker "minego" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.minego.output
+  labels     = { job = "minego" }
+  forward_to = [loki.process.minego.receiver]
+}
+
+loki.process "minego" {
+  stage.json {
+    expressions = {
+      level    = "level",
+      service  = "service",
+      trace_id = "trace_id",
+    }
+  }
+
+  stage.labels {
+    values = {
+      level   = "",
+      service = "",
+    }
+  }
+
+  stage.structured_metadata {
+    values = {
+      trace_id = "",
+    }
+  }
+
+  forward_to = [loki.write.default.receiver]
+}
+
+loki.write "default" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}

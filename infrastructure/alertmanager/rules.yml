@@ -1,0 +1,50 @@
+# REQ-00042 4.5：服务错误率与 P99 延迟告警（Prometheus 规则，经 Alertmanager 通知）
+# 指标来自 backend/shared/metrics.js：
+#   minego_http_requests_total{service,method,path,status}
+#   minego_http_request_duration_ms_bucket{service,method,path,le}（单位毫秒）
+# 基于日志 level=error 的告警是 LogQL，由 Loki ruler 评估：infrastructure/monitoring/loki/rules/fake/minego-logs.yml
+# 规则单测：promtool test rules infrastructure/alertmanager/rules.test.yml
+groups:
+  - name: minego-service-errors
+    rules:
+      - alert: MinegoHighErrorRate
+        # 5xx 占比超过 5%，且请求量不低于 0.1 次/秒（避免低流量时单个错误触发）
+        expr: |
+          (
+            sum by (service) (rate(minego_http_requests_total{status=~"5.."}[5m]))
+            /
+            sum by (service) (rate(minego_http_requests_total[5m]))
+          ) > 0.05
+          and
+          sum by (service) (rate(minego_http_requests_total[5m])) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "服务 {{ $labels.service }} 错误率过高"
+          description: "{{ $labels.service }} 近 5 分钟 5xx 占比超过 5%，请在 Grafana「错误率」面板和 Jaeger 中定位。"
+
+  - name: minego-service-latency
+    rules:
+      - alert: MinegoHighLatencyP99
+        # P99 超过 2 秒（直方图单位为毫秒）
+        expr: |
+          histogram_quantile(0.99,
+            sum by (le, service) (rate(minego_http_request_duration_ms_bucket[5m]))
+          ) > 2000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "{{ $labels.service }} P99 延迟超过 2 秒"
+          description: "{{ $labels.service }} 近 5 分钟 P99 延迟超过 2000ms，请在 Grafana「P99 延迟」面板和 Jaeger 中定位慢调用。"
+
+      - alert: MinegoServiceDown
+        # 从 job 名派生 service 标签，便于 Alertmanager 按 service 抑制同服务的错误率/延迟告警
+        expr: label_replace(up{job=~"minego-.*"}, "service", "$1", "job", "minego-(.*)") == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "{{ $labels.job }} 无法抓取指标"
+          description: "{{ $labels.job }}（{{ $labels.instance }}）超过 1 分钟不可达。"

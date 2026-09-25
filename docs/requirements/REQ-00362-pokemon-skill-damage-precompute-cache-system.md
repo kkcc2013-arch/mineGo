@@ -3,7 +3,7 @@
 - **编号**：REQ-00362
 - **类别**：性能优化
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：gym-service、pokemon-service、backend/shared、Redis、game-client
 - **创建时间**：2026-06-29 11:00 UTC
 - **依赖需求**：REQ-00054（道馆战斗系统）
@@ -202,3 +202,20 @@ class CacheInvalidationHandler {
 2. 可量化收益：响应时间降低 70%+
 3. 技术可行性：预计算模式成熟，风险可控
 4. 依赖 REQ-00054：需要战斗系统基础功能完成后实施
+
+## 实现记录（2026-09-25）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 属性克制预计算矩阵覆盖全部 18x18 种组合（324 种） | ✅ | `battle/damage.js TYPE_MATRIX`；单测逐项校验 324 项 |
+| 相同配置的战斗请求缓存命中率 > 80% | ✅ | 进程内 bench（宿主机 Node 22，10 万次攻击、100 种热门配置 Zipf 分布） L1 命中率 89.1%；CI 冒烟 99.26% |
+| 战斗回合 P95 响应时间 < 50ms（压测验证） | ⚠️ | 服务端纯计算单回合 P95 0.015ms（进程内）；规则变更前经网关实测回合接口 P95 12ms（6 回合，非压测）。并发压测 `node scripts/bench-battle.js --battles 20 --concurrency 5` 待运行 |
+| 精灵配置变更后，相关缓存在 5 秒内自动失效 | ✅ | 键由精灵实际攻防数值、属性、技能威力/属性组成：强化/进化/换技能后下一次计算立即使用新键（0 秒），旧条目不再被命中（单测「数值变化即换键」）；技能表改动 5 分钟内重新加载，可手动刷新立即生效 |
+| 内存缓存占用 < 100MB（10000 条记录） | ✅ | 实测 1 万条 L1 堆增量 5.63MB（node --expose-gc） |
+| Redis 缓存 TTL 设置为 1 小时，支持手动刷新 | ✅ | L2 键 `battle:dmg:*` EX 3600（DAMAGE_CACHE_TTL_SEC 可调）；管理员刷新接口与看板按钮 |
+| 单元测试覆盖率 > 90% | ⚠️ | damage.js 行覆盖 83%：未覆盖部分为 Redis L2 读写/清理（需要 Redis，由冒烟覆盖）；伤害公式与 L1 路径全覆盖 |
+
+- 入口：gym-service `src/battle/*`（纯逻辑：damage/cooldown/energy/combo/engine/ai/stats/leagueRules/recommendScore/replayFormat/presetRules；持久化与编排：repo/store/session/gym/raid/league/replay/recommend/comboPresets/pokemonEnergy/settle/deps）；路由 `routes/gyms.js`、`routes/gymBattle.js`、`routes/raids.js`、`routes/battleApi.js`（挂 `/battle`）；网关 `backend/gateway/src/index.js`：`/v1/gyms/*`、`/v1/raids/*`、`/v1/battle/*`（鉴权）、公开 `/v1/battle/replays/shared/:code`、WebSocket 升级转发 `/ws/raid`、`/ws/notifications`、`/ws/battle`；`battle/damage.js`、`battle/deps.js`；看板 `admin-dashboard/battle.html`
+- 迁移：`database/migrations/20260925_110000__e11_battle_core.sql`（补列/新表/连击链种子/时间列 TIMESTAMPTZ，全部 IF NOT EXISTS）、`20260925_110100__e11_restore_fast_move_power.sql`；复用既有表见各行说明
+- 测试：宿主机已运行（纯逻辑，不连服务）：`cd backend && node --test tests/unit/battle-core.test.js tests/unit/battle-features.test.js` → 29/29 通过；`node --test frontend/game-client/tests/unit/battle-client.test.mjs` → 11/11 通过；`node --expose-gc scripts/bench-battle.js --local`（数字见表）。验证方式调整前（2026-09-25 08:39，提交 e022c97）曾在隔离 CI 栈实测：`scripts/smoke-battle.js` 101/101、核心冒烟 37/37、battle-core 16/16。之后的改动（连击熟练度接入、实时天气、连击道具奖励、大师联赛分组、AI 对位口径、迁移时间列段、前端全部）**未运行，待验证**。待运行：`BASE_URL=… DATABASE_URL=… REDIS_URL=… node scripts/smoke-battle.js`（102 项）、`node scripts/bench-battle.js --battles 20 --concurrency 5`；迁移在全新库上执行 `reset-db` 后检查 bootstrap-report 无 20260925_1100xx 失败
+- 待验证：bench 经网关的回合 P95；精灵强化后伤害立即变化

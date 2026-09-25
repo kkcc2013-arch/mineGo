@@ -1,0 +1,1163 @@
+# 由 E11 实现时整理：战斗与技能相关接口（经网关 /v1 访问，除标注"公开"外均需 Bearer Token）
+# 实时通道：WebSocket /ws/raid?token&raidId（团战，仅参与者）、/ws/battle?token（实时对战，JWT 鉴权，拒绝已吊销令牌）
+# 错误响应：{ success:false, code:"<业务码>", message, details } ，业务码见各接口说明
+paths:
+  /gyms/nearby:
+    get:
+      tags: ["Gym Battle"]
+      summary: "附近道馆（PostGIS ST_DWithin，含进行中的团战）"
+      parameters:
+        - { name: lat, in: query, required: true, schema: { type: number } }
+        - { name: lng, in: query, required: true, schema: { type: number } }
+        - { name: radius, in: query, required: false, schema: { type: integer } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /gyms/{gymId}:
+    get:
+      tags: ["Gym Battle"]
+      summary: "道馆详情与驻守精灵"
+      parameters:
+        - { name: gymId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /gyms/{gymId}/defend:
+    post:
+      tags: ["Gym Battle"]
+      summary: "派驻精灵（需在道馆 100 米内；己方或中立道馆；最多 6 只；每人每馆 1 只）"
+      parameters:
+        - { name: gymId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"pokemonId": {"type": "string", "format": "uuid"}}}
+      responses:
+        '200':
+          description: "成功"
+        '400':
+          description: "位置过远 TOO_FAR / 道馆已满 GYM_FULL / 敌方道馆 GYM_ENEMY"
+        '401':
+          description: "未登录"
+  /gyms/{gymId}/battle/start:
+    post:
+      tags: ["Gym Battle"]
+      summary: "开始道馆挑战（服务端计算伤害；返回战斗状态、AI 胜率预测、新手建议）"
+      parameters:
+        - { name: gymId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"pokemonIds": {"type": "array", "items": {"type": "string", "format": "uuid"}, "minItems": 1, "maxItems": 6}}}
+      responses:
+        '200':
+          description: "成功"
+        '400':
+          description: "TOO_FAR / GYM_OWN_TEAM / GYM_EMPTY / POKEMON_UNAVAILABLE / POKEMON_DEFENDING"
+        '409':
+          description: "BATTLE_IN_PROGRESS"
+        '401':
+          description: "未登录"
+  /gyms/battles/history:
+    get:
+      tags: ["Gym Battle"]
+      summary: "我的道馆对战记录（含回放 ID）"
+      parameters:
+        - { name: limit, in: query, required: false, schema: { type: integer } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /gyms/battles/{battleId}:
+    get:
+      tags: ["Gym Battle"]
+      summary: "当前战斗状态与最近 10 回合"
+      parameters:
+        - { name: battleId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /gyms/battles/{battleId}/turn:
+    post:
+      tags: ["Gym Battle"]
+      summary: "出招：只提交技能 ID（客户端伤害字段被忽略）；useAdvice=true 一键执行 AI 推荐"
+      description: "战斗结束时响应含 result（结算、奖励、联赛积分、精彩时刻、AI 复盘、replayId）"
+      parameters:
+        - { name: battleId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"moveId": {"type": "string"}, "useAdvice": {"type": "boolean"}}}
+      responses:
+        '200':
+          description: "成功"
+        '400':
+          description: "INVALID_MOVE / MOVE_COOLDOWN / INSUFFICIENT_ENERGY"
+        '403':
+          description: "FORBIDDEN"
+        '409':
+          description: "BATTLE_ENDED / BATTLE_BUSY"
+        '401':
+          description: "未登录"
+  /gyms/battles/{battleId}/switch:
+    post:
+      tags: ["Gym Battle"]
+      summary: "换人（消耗一回合，守方行动一次）"
+      parameters:
+        - { name: battleId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"pokemonId": {"type": "string", "format": "uuid"}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /gyms/battles/{battleId}/combo:
+    post:
+      tags: ["Gym Battle"]
+      summary: "一键释放连招预设（步骤延迟计入连击时间窗口）"
+      parameters:
+        - { name: battleId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"presetId": {"type": "string", "format": "uuid"}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /gyms/battles/{battleId}/forfeit:
+    post:
+      tags: ["Gym Battle"]
+      summary: "认输"
+      parameters:
+        - { name: battleId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /gyms/battles/{battleId}/advice:
+    get:
+      tags: ["Gym Battle"]
+      summary: "AI 实时建议（排序、理由、换人建议、连击提示、胜率预测；计每日配额）"
+      parameters:
+        - { name: battleId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '429':
+          description: "AI_QUOTA_EXCEEDED"
+        '401':
+          description: "未登录"
+  /gyms/battles/{battleId}/predict:
+    get:
+      tags: ["Gym Battle"]
+      summary: "蒙特卡洛胜率预测"
+      parameters:
+        - { name: battleId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /gyms/battles/{battleId}/replay:
+    get:
+      tags: ["Gym Battle"]
+      summary: "该场战斗的回放"
+      parameters:
+        - { name: battleId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/sessions/{battleId}:
+    get:
+      tags: ["Battle Session"]
+      summary: "当前战斗状态与最近 10 回合"
+      parameters:
+        - { name: battleId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/sessions/{battleId}/turn:
+    post:
+      tags: ["Battle Session"]
+      summary: "出招：只提交技能 ID（客户端伤害字段被忽略）；useAdvice=true 一键执行 AI 推荐"
+      description: "战斗结束时响应含 result（结算、奖励、联赛积分、精彩时刻、AI 复盘、replayId）"
+      parameters:
+        - { name: battleId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"moveId": {"type": "string"}, "useAdvice": {"type": "boolean"}}}
+      responses:
+        '200':
+          description: "成功"
+        '400':
+          description: "INVALID_MOVE / MOVE_COOLDOWN / INSUFFICIENT_ENERGY"
+        '403':
+          description: "FORBIDDEN"
+        '409':
+          description: "BATTLE_ENDED / BATTLE_BUSY"
+        '401':
+          description: "未登录"
+  /battle/sessions/{battleId}/switch:
+    post:
+      tags: ["Battle Session"]
+      summary: "换人（消耗一回合，守方行动一次）"
+      parameters:
+        - { name: battleId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"pokemonId": {"type": "string", "format": "uuid"}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/sessions/{battleId}/combo:
+    post:
+      tags: ["Battle Session"]
+      summary: "一键释放连招预设（步骤延迟计入连击时间窗口）"
+      parameters:
+        - { name: battleId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"presetId": {"type": "string", "format": "uuid"}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/sessions/{battleId}/forfeit:
+    post:
+      tags: ["Battle Session"]
+      summary: "认输"
+      parameters:
+        - { name: battleId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/sessions/{battleId}/advice:
+    get:
+      tags: ["Battle Session"]
+      summary: "AI 实时建议（排序、理由、换人建议、连击提示、胜率预测；计每日配额）"
+      parameters:
+        - { name: battleId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '429':
+          description: "AI_QUOTA_EXCEEDED"
+        '401':
+          description: "未登录"
+  /battle/sessions/{battleId}/predict:
+    get:
+      tags: ["Battle Session"]
+      summary: "蒙特卡洛胜率预测"
+      parameters:
+        - { name: battleId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/sessions/{battleId}/replay:
+    get:
+      tags: ["Battle Session"]
+      summary: "该场战斗的回放"
+      parameters:
+        - { name: battleId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /raids/nearby:
+    get:
+      tags: ["Raid"]
+      summary: "附近团战"
+      parameters:
+        - { name: lat, in: query, required: true, schema: { type: number } }
+        - { name: lng, in: query, required: true, schema: { type: number } }
+        - { name: radius, in: query, required: false, schema: { type: integer } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /raids/spawn:
+    post:
+      tags: ["Raid"]
+      summary: "生成团战（管理员）"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"gymId": {"type": "string", "format": "uuid"}, "speciesId": {"type": "integer"}, "level": {"type": "integer"}, "startsInMin": {"type": "integer"}, "durationMin": {"type": "integer"}}}
+      responses:
+        '200':
+          description: "成功"
+        '403':
+          description: "需要管理员"
+        '409':
+          description: "RAID_EXISTS"
+        '401':
+          description: "未登录"
+  /raids/{raidId}:
+    get:
+      tags: ["Raid"]
+      summary: "团战详情（Boss 技能与弱点、我的参与情况）"
+      parameters:
+        - { name: raidId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /raids/{raidId}/join:
+    post:
+      tags: ["Raid"]
+      summary: "加入团战（100 米内；可指定 pokemonIds，否则取 CP 最高 6 只）"
+      parameters:
+        - { name: raidId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"pokemonIds": {"type": "array", "items": {"type": "string", "format": "uuid"}, "maxItems": 6}}}
+      responses:
+        '200':
+          description: "成功"
+        '400':
+          description: "TOO_FAR / RAID_FULL"
+        '409':
+          description: "RAID_NOT_ACTIVE"
+        '401':
+          description: "未登录"
+  /raids/{raidId}/attack:
+    post:
+      tags: ["Raid"]
+      summary: "攻击 Boss：伤害服务端计算，按技能 duration_ms 限频"
+      description: "WebSocket /ws/raid?token&raidId 发送 {type:\"ATTACK\", moveId, requestId} 等价；服务端回 ATTACK_RESULT / ERROR，并广播 RAID_ATTACK / RAID_COMPLETED"
+      parameters:
+        - { name: raidId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"moveId": {"type": "string"}, "pokemonId": {"type": "string", "format": "uuid"}}}
+      responses:
+        '200':
+          description: "成功"
+        '403':
+          description: "NOT_PARTICIPANT"
+        '429':
+          description: "ATTACK_TOO_FAST（details.retryAfterMs）"
+        '409':
+          description: "RAID_NOT_ACTIVE"
+        '401':
+          description: "未登录"
+  /raids/{raidId}/switch:
+    post:
+      tags: ["Raid"]
+      summary: "更换团战出战精灵"
+      parameters:
+        - { name: raidId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"pokemonId": {"type": "string", "format": "uuid"}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /raids/{raidId}/result:
+    get:
+      tags: ["Raid"]
+      summary: "伤害排行与奖励"
+      parameters:
+        - { name: raidId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/pokemon/{pokemonId}/energy:
+    get:
+      tags: ["Energy & Cooldown"]
+      summary: "能量池与战斗中实时能量/冷却（别名 GET /api/pokemon/{id}/energy）"
+      parameters:
+        - { name: pokemonId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/pokemon/{pokemonId}/energy/regenerate:
+    post:
+      tags: ["Energy & Cooldown"]
+      summary: "按经过时间结算自然回复（别名 POST /api/pokemon/{id}/energy/regenerate）"
+      parameters:
+        - { name: pokemonId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/pokemon/{pokemonId}/moves/check:
+    post:
+      tags: ["Energy & Cooldown"]
+      summary: "技能可用性检查（别名 POST /api/pokemon/{id}/moves/check）"
+      parameters:
+        - { name: pokemonId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"moveId": {"type": "string"}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/pokemon/{pokemonId}/cooldowns:
+    get:
+      tags: ["Energy & Cooldown"]
+      summary: "冷却明细与预测建议（熟练度/连击/速度/装备/天气/模式）"
+      parameters:
+        - { name: pokemonId, in: path, required: true, schema: { type: string } }
+        - { name: mode, in: query, required: false, schema: { type: string } }
+        - { name: weather, in: query, required: false, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/pokemon/{pokemonId}/mastery:
+    get:
+      tags: ["Energy & Cooldown"]
+      summary: "技能熟练度（0-100 → 冷却 -0~15%）"
+      parameters:
+        - { name: pokemonId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/moves/{moveId}/energy-info:
+    get:
+      tags: ["Energy & Cooldown"]
+      summary: "技能能量与四种模式下的冷却"
+      parameters:
+        - { name: moveId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/equipment/catalog:
+    get:
+      tags: ["Energy & Cooldown"]
+      summary: "冷却装备目录（宝石/符文/神器，合计上限 30%）"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/equipment/mine:
+    get:
+      tags: ["Energy & Cooldown"]
+      summary: "我的冷却装备"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/equipment/{itemId}/equip:
+    post:
+      tags: ["Energy & Cooldown"]
+      summary: "装备到精灵（每类 1 件）"
+      parameters:
+        - { name: itemId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"pokemonId": {"type": "string", "format": "uuid"}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/equipment/{itemId}/unequip:
+    post:
+      tags: ["Energy & Cooldown"]
+      summary: "卸下装备"
+      parameters:
+        - { name: itemId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/equipment/grant:
+    post:
+      tags: ["Energy & Cooldown"]
+      summary: "发放装备（管理员）"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"userId": {"type": "string", "format": "uuid"}, "equipmentId": {"type": "string"}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/combos:
+    get:
+      tags: ["Combo"]
+      summary: "连击链列表（解锁状态）"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/combos/my/stats:
+    get:
+      tags: ["Combo"]
+      summary: "我的连击统计"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/combos/leaderboard:
+    get:
+      tags: ["Combo"]
+      summary: "连击排行榜"
+      parameters:
+        - { name: chainId, in: query, required: false, schema: { type: string } }
+        - { name: limit, in: query, required: false, schema: { type: integer } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/combos/logs:
+    get:
+      tags: ["Combo"]
+      summary: "连击使用日志"
+      parameters:
+        - { name: limit, in: query, required: false, schema: { type: integer } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/combos/recommend/{pokemonId}:
+    get:
+      tags: ["Combo"]
+      summary: "按精灵已掌握技能推荐可用连击链"
+      parameters:
+        - { name: pokemonId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/combos/presets:
+    get:
+      tags: ["Combo"]
+      summary: "连招预设列表"
+      parameters:
+        - { name: pokemonId, in: query, required: false, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+    post:
+      tags: ["Combo"]
+      summary: "创建连招预设（每只精灵 ≤5 套，每套 2-5 步）"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"pokemonId": {"type": "string", "format": "uuid"}, "name": {"type": "string"}, "isDefault": {"type": "boolean"}, "steps": {"type": "array", "minItems": 2, "maxItems": 5, "items": {"type": "object", "properties": {"moveId": {"type": "string"}, "delayMs": {"type": "integer"}, "condition": {"type": "object", "properties": {"type": {"type": "string", "enum": ["energy_gte", "target_hp_lte_pct", "self_hp_gte_pct"]}, "value": {"type": "number"}}}}}}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/combos/presets/{presetId}:
+    put:
+      tags: ["Combo"]
+      summary: "编辑连招预设 / 设为默认"
+      parameters:
+        - { name: presetId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"name": {"type": "string"}, "isDefault": {"type": "boolean"}, "steps": {"type": "array", "items": {"type": "object"}}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+    delete:
+      tags: ["Combo"]
+      summary: "删除连招预设"
+      parameters:
+        - { name: presetId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/combos/{chainId}:
+    get:
+      tags: ["Combo"]
+      summary: "连击链详情与我的熟练度加成"
+      parameters:
+        - { name: chainId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/combos/{chainId}/practice:
+    post:
+      tags: ["Combo"]
+      summary: "练习模式（按点击时刻判定时间窗口与质量）"
+      parameters:
+        - { name: chainId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"steps": {"type": "array", "items": {"type": "object", "properties": {"moveId": {"type": "string"}, "atMs": {"type": "integer"}}}}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/damage/typechart:
+    get:
+      tags: ["Damage"]
+      summary: "18×18 属性克制矩阵（GO 倍率）"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/damage/simulate:
+    post:
+      tags: ["Damage"]
+      summary: "伤害模拟（我的精灵 vs 精灵种类）"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"attackerPokemonId": {"type": "string", "format": "uuid"}, "defenderSpeciesId": {"type": "integer"}, "defenderCp": {"type": "integer"}, "moveId": {"type": "string"}, "weather": {"type": "string"}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/damage/cache/stats:
+    get:
+      tags: ["Damage"]
+      summary: "伤害缓存统计（管理员）"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/damage/cache/refresh:
+    post:
+      tags: ["Damage"]
+      summary: "手动刷新伤害缓存（管理员，广播各实例）"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/recommendations/{speciesId}:
+    get:
+      tags: ["Recommendation"]
+      summary: "技能组合推荐（别名 GET /api/v1/pokemon/{speciesId}/move-recommendations）"
+      parameters:
+        - { name: speciesId, in: path, required: true, schema: { type: string } }
+        - { name: scenario, in: query, required: false, schema: { type: string } }
+        - { name: style, in: query, required: false, schema: { type: string } }
+        - { name: limit, in: query, required: false, schema: { type: integer } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/recommendations/preferences:
+    get:
+      tags: ["Recommendation"]
+      summary: "推荐偏好"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+    put:
+      tags: ["Recommendation"]
+      summary: "保存推荐偏好"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"scenario": {"type": "string", "enum": ["pve", "pvp", "gym", "raid"]}, "style": {"type": "string", "enum": ["balanced", "dps", "tank", "energy"]}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/recommendations/aggregate:
+    post:
+      tags: ["Recommendation"]
+      summary: "从战斗日志聚合推荐数据（管理员；另有每周自动任务）"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/ai/lineup:
+    post:
+      tags: ["AI Assistant"]
+      summary: "阵容优化（道馆或指定对手种类；含克制分析与预测胜率）"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"gymId": {"type": "string", "format": "uuid"}, "opponentSpeciesIds": {"type": "array", "items": {"type": "integer"}}, "opponentCp": {"type": "integer"}, "size": {"type": "integer"}}}
+      responses:
+        '200':
+          description: "成功"
+        '429':
+          description: "AI_QUOTA_EXCEEDED"
+        '401':
+          description: "未登录"
+  /battle/ai/reviews:
+    get:
+      tags: ["AI Assistant"]
+      summary: "我的战后复盘列表"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/ai/review/{battleId}:
+    get:
+      tags: ["AI Assistant"]
+      summary: "战后复盘详情"
+      parameters:
+        - { name: battleId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/ai/feedback:
+    post:
+      tags: ["AI Assistant"]
+      summary: "建议是否有帮助"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"adviceId": {"type": "integer"}, "helpful": {"type": "boolean"}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/ai/preferences:
+    get:
+      tags: ["AI Assistant"]
+      summary: "AI 偏好（新手模式/自动建议/风格）"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+    put:
+      tags: ["AI Assistant"]
+      summary: "保存 AI 偏好"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"newbieMode": {"type": "boolean"}, "autoAdvice": {"type": "boolean"}, "style": {"type": "string", "enum": ["balanced", "aggressive", "defensive"]}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/ai/quota:
+    get:
+      tags: ["AI Assistant"]
+      summary: "今日 AI 配额"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/ai/stats:
+    get:
+      tags: ["AI Assistant"]
+      summary: "运营指标：分组采纳率、满意度、预测准确率与校准、复盘覆盖率（管理员）"
+      parameters:
+        - { name: days, in: query, required: false, schema: { type: integer } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/ai/experiment:
+    put:
+      tags: ["AI Assistant"]
+      summary: "调整 B 组灰度比例（管理员）"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"variantBPercent": {"type": "integer"}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/replays/shared/{shareCode}:
+    get:
+      tags: ["Replay"]
+      summary: "通过分享码查看回放（公开，无需登录）"
+      security: []
+      parameters:
+        - { name: shareCode, in: path, required: true, schema: { type: string } }
+        - { name: password, in: query, required: false, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "PASSWORD_REQUIRED"
+        '410':
+          description: "SHARE_EXPIRED / VIEW_LIMIT"
+  /battle/replays/mine:
+    get:
+      tags: ["Replay"]
+      summary: "我的回放"
+      parameters:
+        - { name: result, in: query, required: false, schema: { type: string } }
+        - { name: limit, in: query, required: false, schema: { type: integer } }
+        - { name: offset, in: query, required: false, schema: { type: integer } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/replays/hot:
+    get:
+      tags: ["Replay"]
+      summary: "热门回放（按观看数或点赞数）"
+      parameters:
+        - { name: sort, in: query, required: false, schema: { type: string } }
+        - { name: days, in: query, required: false, schema: { type: integer } }
+        - { name: limit, in: query, required: false, schema: { type: integer } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/replays/search:
+    get:
+      tags: ["Replay"]
+      summary: "搜索回放（玩家/昵称/精灵种类/战斗类型/结果）"
+      parameters:
+        - { name: userId, in: query, required: false, schema: { type: string } }
+        - { name: nickname, in: query, required: false, schema: { type: string } }
+        - { name: speciesId, in: query, required: false, schema: { type: integer } }
+        - { name: type, in: query, required: false, schema: { type: string } }
+        - { name: result, in: query, required: false, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/replays/{replayId}:
+    get:
+      tags: ["Replay"]
+      summary: "回放详情与事件流（本人或公开回放）"
+      parameters:
+        - { name: replayId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+    patch:
+      tags: ["Replay"]
+      summary: "设置公开/私密"
+      parameters:
+        - { name: replayId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"isPublic": {"type": "boolean"}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+    delete:
+      tags: ["Replay"]
+      summary: "删除回放"
+      parameters:
+        - { name: replayId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/replays/{replayId}/share:
+    post:
+      tags: ["Replay"]
+      summary: "生成分享链接、二维码与社交分享入口"
+      parameters:
+        - { name: replayId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"platform": {"type": "string", "enum": ["wechat", "qq", "twitter", "link", "community"]}, "password": {"type": "string"}, "maxViews": {"type": "integer"}, "expiresInHours": {"type": "integer"}, "isPublic": {"type": "boolean"}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/replays/{replayId}/like:
+    post:
+      tags: ["Replay"]
+      summary: "点赞 / 取消点赞"
+      parameters:
+        - { name: replayId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/replays/{replayId}/comments:
+    get:
+      tags: ["Replay"]
+      summary: "评论列表"
+      parameters:
+        - { name: replayId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+    post:
+      tags: ["Replay"]
+      summary: "发表评论"
+      parameters:
+        - { name: replayId, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"comment": {"type": "string"}, "parentId": {"type": "integer"}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/league/season:
+    get:
+      tags: ["League"]
+      summary: "当前赛季（28 天，自动轮换）"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/league/tiers:
+    get:
+      tags: ["League"]
+      summary: "段位与分组定义"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/league/me:
+    get:
+      tags: ["League"]
+      summary: "我的联赛信息（新玩家青铜 III、0 分、评分 1000）"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/league/leaderboard:
+    get:
+      tags: ["League"]
+      summary: "分组排行榜（前 100）"
+      parameters:
+        - { name: level, in: query, required: false, schema: { type: string } }
+        - { name: group, in: query, required: false, schema: { type: string } }
+        - { name: limit, in: query, required: false, schema: { type: integer } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/league/match:
+    post:
+      tags: ["League"]
+      summary: "匹配（同段位 ±1 分组、评分差 ±200，无人时匹配联赛训练师）并开战"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"pokemonIds": {"type": "array", "items": {"type": "string", "format": "uuid"}, "maxItems": 3}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/league/matches:
+    get:
+      tags: ["League"]
+      summary: "我的联赛对局"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/league/rewards:
+    get:
+      tags: ["League"]
+      summary: "联赛奖励（赛季末/晋级/连胜）"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/league/rewards/{rewardId}/claim:
+    post:
+      tags: ["League"]
+      summary: "领取奖励（并发只成功一次）"
+      parameters:
+        - { name: rewardId, in: path, required: true, schema: { type: string } }
+      responses:
+        '200':
+          description: "成功"
+        '409':
+          description: "REWARD_UNAVAILABLE"
+        '401':
+          description: "未登录"
+  /battle/league/defense-team:
+    get:
+      tags: ["League"]
+      summary: "联赛防守队伍"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+    put:
+      tags: ["League"]
+      summary: "设置联赛防守队伍（1-3 只）"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"pokemonIds": {"type": "array", "items": {"type": "string", "format": "uuid"}, "maxItems": 3}}}
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/league/admin/end-season:
+    post:
+      tags: ["League"]
+      summary: "立即结束当前赛季并结算（管理员）"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/perf/config:
+    get:
+      tags: ["Client Perf"]
+      summary: "客户端帧率/特效分级配置"
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"
+  /battle/perf/report:
+    post:
+      tags: ["Client Perf"]
+      summary: "上报战斗帧率（批量 ≤20 条，非法条目被拒）"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {"type": "object", "properties": {"reports": {"type": "array", "maxItems": 20, "items": {"type": "object", "properties": {"deviceTier": {"type": "string"}, "deviceMemoryGb": {"type": "number"}, "cpuCores": {"type": "integer"}, "targetFps": {"type": "integer"}, "avgFps": {"type": "number"}, "p5Fps": {"type": "number"}, "droppedFrames": {"type": "integer"}, "effectsLevel": {"type": "string"}, "degradeEvents": {"type": "integer"}, "networkRttMs": {"type": "integer"}, "jsHeapMb": {"type": "number"}, "battleId": {"type": "string"}}}}}}
+      responses:
+        '200':
+          description: "成功"
+        '202':
+          description: "已接收"
+        '401':
+          description: "未登录"
+  /battle/perf/dashboard:
+    get:
+      tags: ["Client Perf"]
+      summary: "设备性能看板（管理员）"
+      parameters:
+        - { name: hours, in: query, required: false, schema: { type: integer } }
+      responses:
+        '200':
+          description: "成功"
+        '401':
+          description: "未登录"

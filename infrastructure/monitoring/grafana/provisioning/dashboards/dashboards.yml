@@ -1,0 +1,13 @@
+# Grafana 仪表盘加载（REQ-00042）：infrastructure/dashboards/*.json 挂载到 /var/lib/grafana/dashboards
+apiVersion: 1
+
+providers:
+  - name: minego
+    folder: mineGo
+    type: file
+    disableDeletion: false
+    allowUiUpdates: true
+    updateIntervalSeconds: 60
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false

@@ -7,7 +7,7 @@
 | 标题 | 游戏认知障碍支持与简化模式系统 |
 | 类别 | 无障碍(a11y) |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | partial |
 | 涉及服务 | game-client, user-service, pokemon-service, backend/shared |
 | 创建时间 | 2026-06-22 08:00 |
 
@@ -1397,3 +1397,62 @@ POST   /api/v1/cognitive/setup-wizard/complete      // 完成向导
 - [Microsoft Accessibility](https://www.microsoft.com/design/inclusive/)
 - [The Cognitive Accessibility Task Force (Cognitive A11Y TF)](https://www.w3.org/WAI/PF/cognitive-a11y-tf/)
 - [Dyslexia Style Guide](https://www.bdadyslexia.org.uk/advice/employers/creating-a-dyslexia-friendly-workplace/dyslexia-friendly-style-guide)
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| **简化模式** | ✅ | 见下列子项 |
+| └ 一键启用简化模式功能正常 | ✅ | 设置一键开关（认知与阅读 → 简化模式） |
+| └ 根据认知障碍类型自动应用对应设置 | ✅ | 设置向导 6 题 → `recommendSettings()` 按阅读/注意力/视觉/听觉/动作/光敏需求推荐（单测覆盖） |
+| └ UI 简化选项正确生效 | ✅ | 隐藏副标题/等级/提示/PWA 弹窗等次要信息，放大精灵卡片与投球按钮 |
+| └ 游戏玩法简化选项正确生效 | ✅ | 一键投掷、步骤提示、放慢节奏（向导推荐组合） |
+| **阅读障碍支持** | ⚠️ | 见下列子项 |
+| └ OpenDyslexic 字体正确加载 | ✅ | 随包提供 OpenDyslexic woff2（SIL OFL，`accessibility/fonts/`），`@font-face` 本地加载 |
+| └ 字号、行距、字间距设置生效 | ✅ | 行距 1.2–2.5、字间距 0–0.3em 滑块；字号用"界面缩放" |
+| └ 文字转语音功能正常 | ✅ | 朗读获得焦点的文字、`Alt+R` 朗读当前页面（Web Speech） |
+| └ 音节分解显示正确 | ❌ | 未实现音节分解 |
+| └ 朗读时单词高亮功能正常 | ❌ | 未实现朗读时单词高亮 |
+| **ADHD 支持** | ⚠️ | 见下列子项 |
+| └ 专注模式正确屏蔽干扰 | ✅ | 专注模式：只显示错误提示，隐藏装饰动画与 PWA 弹窗；播报级别可设为"仅重要" |
+| └ 番茄钟计时器功能正常 | ⚠️ | 只实现"休息提醒"（N 分钟后弹窗），未做完整番茄钟计时器 |
+| └ 任务分块显示清晰 | ✅ | 步骤提示条（登录/地图/捕捉/我的 各一条分步说明） |
+| └ 即时奖励反馈触发及时 | ✅ | 捕捉结果即时图标、字幕、音效与震动反馈 |
+| └ 进度可视化直观明了 | ❌ | 未实现进度可视化 |
+| **自闭症谱系支持** | ❌ | 见下列子项 |
+| └ 社交提示辅助正确显示 | ❌ | 网页客户端没有社交/聊天界面，未实现 |
+| └ 预设回复列表完整 | ❌ | 同上 |
+| └ 情绪指示器功能正常 | ❌ | 同上 |
+| └ 变更前警告提前发送 | ✅ | "界面自动切换前预告"：捕捉结束自动返回地图前显示并播报"即将返回地图" |
+| └ 陌生人互动过滤生效 | ❌ | 无社交界面，未实现 |
+| **记忆辅助** | ⚠️ | 见下列子项 |
+| └ 自动笔记功能正常 | ❌ | 未实现自动笔记 |
+| └ 上下文提示相关性高 | ✅ | 按页面显示上下文提示 |
+| └ 位置记忆记录准确 | ✅ | 位置记忆：最近 20 次遭遇/捕捉地点（仅本机，可清除） |
+| └ 任务提醒准时触发 | ⚠️ | 有休息提醒，未实现任务提醒 |
+| **设置向导** | ✅ | 见下列子项 |
+| └ 向导流程顺畅 | ✅ | 单页表单，逐题单选，提交即应用 |
+| └ 问题选项清晰 | ✅ | 6 个问题、每题 2–4 个选项 |
+| └ 根据回答正确推荐设置 | ✅ | 单测验证推荐结果 |
+| **无障碍合规** | ⚠️ | 见下列子项 |
+| └ WCAG 2.1 AAA 级认知功能标准合规 | ⚠️ | 需人工评估 |
+| └ Game Accessibility Guidelines 基础级合规 | ⚠️ | 需人工评估 |
+| └ 所有功能可通过键盘访问 | ✅ | 全部设置与向导可键盘操作 |
+| └ 屏幕阅读器兼容 | ✅ | 表单控件均有 label，对话框语义完整 |
+| **测试覆盖** | ⚠️ | 见下列子项 |
+| └ 单元测试覆盖率 ≥ 80% | ⚠️ | 未统计覆盖率 |
+| └ 集成测试通过 | ⚠️ | e2e 覆盖字体/简化模式，未运行 |
+| └ 与真实用户群体进行可用性测试 | ⚠️ | 需真实用户可用性测试 |
+| **文档完整** | ✅ | 见下列子项 |
+| └ 用户手册清晰 | ✅ | `docs/accessibility/a11y-guide.md` 使用手册 |
+| └ 开发者文档完整 | ✅ | 同文档开发者接入指南 |
+| └ 无障碍声明公开 | ✅ | 同文档"无障碍声明" |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：`database/migrations/20260925_010000__user_preferences.sql`（`user_preferences`：user_id UUID → users(id) ON DELETE CASCADE、namespace、prefs JSONB，主键 (user_id, namespace)，全部 IF NOT EXISTS）；偏好云端同步：user-service `GET/PUT/DELETE /users/me/preferences/:namespace`（`src/routes/preferences.js` + `src/services/userPreferences.js` 校验），经网关 `/v1/users/me/preferences/a11y`（网关已有 `/v1/users` 鉴权代理，未改网关）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：OpenDyslexic 字体渲染、简化/专注模式下主流程是否顺畅；向导推荐是否合理；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 备注：未完成：音节分解、朗读单词高亮、完整番茄钟、进度可视化、自闭症谱系社交辅助（客户端无社交界面）、自动笔记、任务提醒；需求中 Go/TS 后端与 10 张表未实现（偏好统一存 user_preferences）。
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`

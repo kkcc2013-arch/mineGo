@@ -76,6 +76,9 @@ const commonEnv = {
   ADMIN_PORT: env('ADMIN_PORT', '3000'),
   EVENT_BUS_ADAPTER: env('EVENT_BUS_ADAPTER', 'redis'),
   TRUST_PROXY: env('TRUST_PROXY', 'loopback'),
+  // REQ-00042：链路追踪（留空不启用）。例：OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:4318（docker compose up monitoring 的 Jaeger）
+  OTEL_EXPORTER_OTLP_ENDPOINT: env('OTEL_EXPORTER_OTLP_ENDPOINT', ''),
+  OTEL_TRACES_SAMPLER_ARG: env('OTEL_TRACES_SAMPLER_ARG', ''),
   FIELD_ENCRYPTION_KEYS: env('FIELD_ENCRYPTION_KEYS', ''),
   FIELD_ENCRYPTION_ACTIVE_KID: env('FIELD_ENCRYPTION_ACTIVE_KID', ''),
   FIELD_HASH_KEY: env('FIELD_HASH_KEY', ''),
@@ -107,6 +110,7 @@ const serviceUrls = {
   SOCIAL_SERVICE_URL:   `http://localhost:${port(6)}`,
   REWARD_SERVICE_URL:   `http://localhost:${port(7)}`,
   PAYMENT_SERVICE_URL:  `http://localhost:${port(8)}`,
+  GYM_BATTLE_WS_URL:    `http://localhost:${port(9)}`, // gym-service 实时对战 WebSocket（网关 /ws/battle 转发）
 };
 Object.assign(commonEnv, serviceUrls);
 

@@ -18,11 +18,14 @@ function createLogger(serviceName) {
       service: serviceName,
       pid: process.pid,
     },
-    timestamp: pino.stdTimeFunctions.isoTime,
-    // REQ-00042: 请求内的每条日志自动带上 trace_id / request_id
+    // REQ-00042：JSON Lines 字段 level / service / timestamp / trace_id
+    timestamp: () => `,"timestamp":"${new Date().toISOString()}"`,
+    // 请求内的每条日志自动带上 trace_id / request_id；请求之外（定时任务、消费者）有活动 span 时取 span 的 trace id
     mixin() {
       const ctx = traceContext.current();
-      return ctx ? { trace_id: ctx.traceId, request_id: ctx.requestId } : {};
+      if (ctx) return { trace_id: ctx.traceId, request_id: ctx.requestId };
+      const traceId = traceContext.activeTraceId();
+      return traceId ? { trace_id: traceId } : {};
     },
     formatters: {
       level: (label) => ({ level: label }),
@@ -38,6 +41,7 @@ function createLogger(serviceName) {
       options: {
         colorize: true,
         translateTime: 'SYS:standard',
+        timestampKey: 'timestamp',
         ignore: 'pid',
       }
     },

@@ -11,6 +11,8 @@ const { AsyncLocalStorage } = require('async_hooks');
 const crypto = require('crypto');
 
 const als = new AsyncLocalStorage();
+let otelApi = null;
+try { otelApi = require('@opentelemetry/api'); } catch { otelApi = null; }
 const TRACE_ID_RE = /^[0-9a-f]{32}$/i;
 const LOOSE_ID_RE = /^[A-Za-z0-9._-]{8,64}$/;
 
@@ -42,8 +44,19 @@ function traceparent(traceId, spanId) {
   return TRACE_ID_RE.test(traceId) ? `00-${traceId}-${spanId}-01` : undefined;
 }
 
+/**
+ * OpenTelemetry 当前活动 span 的 trace id（shared/tracing.js 未启用时返回 null）。
+ * 启用追踪后，HTTP 自动埋点会用自己的 traceparent 覆盖出站请求头，
+ * 因此网关必须以它为准，日志里的 trace_id 才能与 Jaeger 中的链路对上。
+ */
+function activeTraceId() {
+  const span = otelApi && otelApi.trace.getActiveSpan();
+  const id = span && span.spanContext().traceId;
+  return id && TRACE_ID_RE.test(id) && !/^0+$/.test(id) ? id : null;
+}
+
 function current() {
   return als.getStore() || null;
 }
 
-module.exports = { als, current, newTraceId, newSpanId, traceIdFromHeaders, traceparent };
+module.exports = { als, current, activeTraceId, newTraceId, newSpanId, traceIdFromHeaders, traceparent };

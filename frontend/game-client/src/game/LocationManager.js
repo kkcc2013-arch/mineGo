@@ -7,9 +7,12 @@ const WARN_SPEED_KMH       = 25;
 const MOVEMENT_THRESHOLD_M = 5;      // Ignore jitter < 5m
 const HEARTBEAT_MS         = 60000;  // 原地不动时也定期上报：服务端以最近上报位置校验捕捉/补给站
 
+import { LocationSignalCollector } from '../security/locationSignals.js';
+
 export class LocationManager extends EventTarget {
   constructor(apiClient) {
     super();
+    this._signals = new LocationSignalCollector(); // REQ-00586 定位完整性信号（每次原始定位都记录，含被抖动过滤的）
     this._api          = apiClient;
     this._watchId      = null;
     this._lastPos      = null;
@@ -62,6 +65,7 @@ export class LocationManager extends EventTarget {
 
   // ── Position handler ──────────────────────────────────────
   _onPosition(pos) {
+    this._signals.record(pos);
     const { latitude: lat, longitude: lng, accuracy } = pos.coords;
     const now = Date.now();
 
@@ -117,7 +121,7 @@ export class LocationManager extends EventTarget {
     this._queue   = [];
 
     try {
-      const result = await this._api.updateLocation(latest.lat, latest.lng, latest.accuracy);
+      const result = await this._api.updateLocation(latest.lat, latest.lng, latest.accuracy, { clientSignals: this._signals.summary() });
       this._lastSentAt = Date.now();
       if (result.nearbyAlert) {
         this.dispatchEvent(new CustomEvent('nearbyAlert', { detail: result }));

@@ -241,7 +241,7 @@ async function checkSpeedAnomaly(userId, lat, lng, timestamp = Date.now()) {
  * @returns {Object} 检测结果
  */
 function detectFakeGPS(locationData) {
-  const { accuracy, altitude, isMock, speedHistory = [] } = locationData;
+  const { accuracy, altitude, isMock, speedHistory = [], clientSignals } = locationData;
   const indicators = [];
 
   // 1. 系统标记为模拟位置
@@ -262,13 +262,65 @@ function detectFakeGPS(locationData) {
     }
   }
 
+  // 4. 客户端采集的定位信号（REQ-00586，Web 客户端 LocationManager 上报；原生客户端可额外上报系统 mock 标记）
+  const cs = clientSignals && typeof clientSignals === 'object' ? clientSignals : null;
+  if (cs) {
+    if (cs.webdriver === true) {
+      indicators.push({ type: 'AUTOMATION_DETECTED', severity: 'HIGH', detail: 'navigator.webdriver' });
+    }
+    // 真实 GPS 有米级抖动：连续大量样本坐标完全不变且精度恒定，是模拟定位/传感器覆盖的典型特征
+    const samples = Number(cs.samples) || 0;
+    if (samples >= 10 && Number(cs.identicalFixes) >= samples - 1 && cs.accuracyConstant === true) {
+      indicators.push({ type: 'STATIC_SPOOFED_FIXES', severity: 'MEDIUM', detail: `${cs.identicalFixes}/${samples} identical fixes` });
+    }
+    if (Number(cs.nonMonotonicTimestamps) > 0) {
+      indicators.push({ type: 'TIMESTAMP_ANOMALY', severity: 'MEDIUM', detail: `${cs.nonMonotonicTimestamps} non-monotonic` });
+    }
+    if (cs.accuracyZero === true) {
+      indicators.push({ type: 'ACCURACY_ZERO', severity: 'MEDIUM' });
+    }
+  }
+
+  const RANK = { LOW: 1, MEDIUM: 2, HIGH: 3, CRITICAL: 4 };
   return {
     isFake: indicators.length > 0,
     indicators,
     severity: indicators.length > 0
-      ? indicators.reduce((max, i) => i.severity > max ? i.severity : max, 'LOW')
+      ? indicators.reduce((max, i) => (RANK[i.severity] > RANK[max] ? i.severity : max), 'LOW')
       : null,
   };
+}
+
+/**
+ * 地形校验（REQ-00586）：坐标是否落在水域/禁入区域（geo_restricted_zones）
+ * 结果按约 100m 网格缓存 10 分钟；表不存在或查询失败时视为未命中（不影响主流程）
+ * @returns {Promise<{kind: string, name: string}|null>}
+ */
+async function checkTerrain(lat, lng) {
+  const cell = `${lat.toFixed(3)}:${lng.toFixed(3)}`;
+  const redis = getRedis();
+  const cacheKey = `anticheat:terrain:${cell}`;
+  try {
+    const cached = await redis.get(cacheKey);
+    if (cached !== null) return cached === '' ? null : JSON.parse(cached);
+    const { rows } = await query(
+      `SELECT kind, name FROM geo_restricted_zones
+        WHERE active AND ST_Intersects(area, ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography)
+        ORDER BY CASE kind WHEN 'restricted' THEN 0 ELSE 1 END LIMIT 1`, [lat, lng]);
+    const hit = rows[0] ? { kind: rows[0].kind, name: rows[0].name } : null;
+    await redis.set(cacheKey, hit ? JSON.stringify(hit) : '', 'EX', 600);
+    return hit;
+  } catch (err) {
+    logger.warn({ err: err.message }, 'terrain check failed');
+    return null;
+  }
+}
+
+/** 申诉通过后恢复可信度到初始值（记录调整原因） */
+async function restoreTrustScore(userId, reason = 'APPEAL_APPROVED') {
+  const current = await getTrustScore(userId);
+  if (current >= TRUST_SCORE.INITIAL) return current;
+  return updateTrustScore(userId, TRUST_SCORE.INITIAL - current, reason);
 }
 
 /**
@@ -348,7 +400,11 @@ async function recordCheatAttempt(userId, type, severity, details = {}) {
       ? TRUST_SCORE.PENALTY.SPEED_HIGH * 2
       : type === 'GPS_FAKE'
         ? TRUST_SCORE.PENALTY.GPS_FAKE_CONFIRM
-        : TRUST_SCORE.PENALTY.BEHAVIOR_ANOMALY;
+        : type === 'GPS_FAKE_SUSPECT'
+          ? TRUST_SCORE.PENALTY.GPS_FAKE_SUSPECT
+          : ['TERRAIN_WATER', 'TERRAIN_RESTRICTED', 'CLIENT_SIGNAL_ANOMALY'].includes(type)
+            ? TRUST_SCORE.PENALTY.SPEED_LOW
+            : TRUST_SCORE.PENALTY.BEHAVIOR_ANOMALY;
 
   const scoreBefore = await getTrustScore(userId);
   const scoreAfter = await updateTrustScore(userId, -penalty, type);
@@ -458,7 +514,7 @@ function getRiskLevel(score) {
 function validateLocation(req, res, next) {
   return (async () => {
     const body = req.body || {};
-    const { accuracy, altitude, isMock } = body;
+    const { accuracy, altitude, isMock, clientSignals } = body;
     // 兼容捕捉接口的 playerLat/playerLng（原实现只读 lat/lng，捕捉时从未执行反作弊校验）。
     // 两组坐标同时出现时必须一致，否则可以"用一组坐标过风控、另一组坐标做业务"。
     const pick = (a, b) => (a !== undefined && a !== null ? a : b);
@@ -487,7 +543,7 @@ function validateLocation(req, res, next) {
       const speedResult = await checkSpeedAnomaly(userId, lat, lng, Date.now());
 
       // 2. 检测 GPS 伪造
-      const fakeResult = detectFakeGPS({ accuracy, altitude, isMock });
+      const fakeResult = detectFakeGPS({ accuracy, altitude, isMock, clientSignals });
 
       // 3. 获取可信度分数
       const trustScore = await getTrustScore(userId);
@@ -526,11 +582,21 @@ function validateLocation(req, res, next) {
         await recordCheatAttempt(userId, 'MULTI_ACCOUNT_COLOCATION', 'MEDIUM', { lat, lng, accounts: coloc.accounts });
       }
 
-      // GPS 伪造检测
+      // GPS 伪造检测：CRITICAL（系统 mock 标记）阻断；HIGH（自动化工具等）记录扣分但不阻断；同类事件 30 分钟只记一次
       if (fakeResult.isFake && fakeResult.severity === 'CRITICAL') {
         await recordCheatAttempt(userId, 'GPS_FAKE', 'HIGH', fakeResult);
         blocked = true;
         blockedReason = 'GPS_FAKE_DETECTED';
+      } else if (fakeResult.isFake && fakeResult.severity === 'HIGH' && await firstInIncident('fake-high')) {
+        await recordCheatAttempt(userId, 'GPS_FAKE_SUSPECT', 'HIGH', fakeResult);
+      } else if (fakeResult.isFake && fakeResult.severity === 'MEDIUM' && await firstInIncident('fake-medium')) {
+        await recordCheatAttempt(userId, 'CLIENT_SIGNAL_ANOMALY', 'MEDIUM', fakeResult);
+      }
+
+      // 地形校验：落在水域/禁入区域 → 记录（同一区域 30 分钟一次），不直接阻断
+      const terrain = await checkTerrain(lat, lng);
+      if (terrain && await firstInIncident(`terrain:${terrain.name}`)) {
+        await recordCheatAttempt(userId, terrain.kind === 'water' ? 'TERRAIN_WATER' : 'TERRAIN_RESTRICTED', 'MEDIUM', { lat, lng, zone: terrain.name });
       }
 
       // 记录位置到数据库（异步；user_id 为 UUID，见迁移 20260924_110000）
@@ -548,6 +614,7 @@ function validateLocation(req, res, next) {
         riskLevel: getRiskLevel(trustScore),
         speedResult,
         fakeResult,
+        terrain,
         blocked,
         blockedReason,
       };
@@ -671,6 +738,8 @@ async function recoverTrustScores() {
 // ============================================================
 
 module.exports = {
+  checkTerrain,
+  restoreTrustScore,
   // 配置
   SPEED_LIMITS,
   TRUST_SCORE,

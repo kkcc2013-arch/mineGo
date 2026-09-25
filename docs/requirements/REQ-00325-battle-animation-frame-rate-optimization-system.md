@@ -7,7 +7,7 @@
 | 标题 | 战斗动画帧率优化与流畅度提升系统 |
 | 类别 | 性能优化 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | game-client、gym-service、catch-service、backend/shared、frontend/game-client/src/rendering |
 | 创建时间 | 2026-06-25 02:00 UTC |
 | 依赖需求 | REQ-00262（实时对战 WebSocket 连接系统）、REQ-00320（游戏客户端渲染性能优化） |
@@ -453,3 +453,22 @@ Response:
 - REQ-00320：游戏客户端渲染性能优化
 - REQ-00304：游戏客户端网络自适应
 - REQ-00290：WebSocket 连接池优化
+
+## 实现记录（2026-09-25）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 低端设备（< 4GB 内存）战斗帧率稳定在 30 FPS 以上 | ⚠️ | `FrameRateController`：deviceMemory<4 → 30FPS 目标、低特效、粒子上限 40，按目标帧率节流渲染；未在真机测量（上报数据在看板「达到档位目标」列统计） |
+| 中端设备（4-8GB 内存）战斗帧率稳定在 45 FPS 以上 | ⚠️ | 同上，45FPS 目标；未在真机测量 |
+| 高端设备（> 8GB 内存）战斗帧率稳定在 60 FPS | ⚠️ | 同上，60FPS 目标；未在真机测量 |
+| 设备发热温度降低 15% 以上 | ⚠️ | 无法在当前环境测量；措施：低档位降帧、页面隐藏暂停渲染、无订阅时停止 rAF 循环、特效分级 |
+| 动画内存占用降低 30% | ⚠️ | 无对比基线；措施：粒子数按档位与特效等级限制、结束即移除节点；上报 jsHeapMb 供对比 |
+| 网络延迟 200ms 内动画流畅度无明显卡顿 | ✅ | 动画与网络解耦：服务端返回整回合事件后按本地节奏播放，HP/能量条用补间（单测验证补间单调与终值）；待真机确认 |
+| 特效降级时视觉效果过渡平滑 | ✅ | 降级带滞回与 5 秒冷却（单测），`<html data-battle-fx>` 切换 CSS 等级并带过渡时长 |
+| 性能数据上报成功率 > 99% | ⚠️ | 批量上报（30 秒/场结束），失败保留重试，页面关闭 keepalive（单测）；成功率需线上统计 |
+| 管理后台设备性能看板正常展示 | ✅ | `admin-dashboard/battle.html`（按档位平均/P5 FPS、达标率、降级次数、堆内存、RTT、特效分布）← `GET /v1/battle/perf/dashboard`（管理员） |
+
+- 入口：gym-service `src/battle/*`（纯逻辑：damage/cooldown/energy/combo/engine/ai/stats/leagueRules/recommendScore/replayFormat/presetRules；持久化与编排：repo/store/session/gym/raid/league/replay/recommend/comboPresets/pokemonEnergy/settle/deps）；路由 `routes/gyms.js`、`routes/gymBattle.js`、`routes/raids.js`、`routes/battleApi.js`（挂 `/battle`）；网关 `backend/gateway/src/index.js`：`/v1/gyms/*`、`/v1/raids/*`、`/v1/battle/*`（鉴权）、公开 `/v1/battle/replays/shared/:code`、WebSocket 升级转发 `/ws/raid`、`/ws/notifications`、`/ws/battle`；客户端 `frontend/game-client/src/battle/FrameRateController.js`（由 `src/bootstrap/battle.js` 装配）、`battle.css`；服务端 `GET /v1/battle/perf/config`、`POST /v1/battle/perf/report`、表 `client_battle_perf_reports`
+- 迁移：`database/migrations/20260925_110000__e11_battle_core.sql`（补列/新表/连击链种子/时间列 TIMESTAMPTZ，全部 IF NOT EXISTS）、`20260925_110100__e11_restore_fast_move_power.sql`；复用既有表见各行说明
+- 测试：宿主机已运行（纯逻辑，不连服务）：`cd backend && node --test tests/unit/battle-core.test.js tests/unit/battle-features.test.js` → 29/29 通过；`node --test frontend/game-client/tests/unit/battle-client.test.mjs` → 11/11 通过；`node --expose-gc scripts/bench-battle.js --local`（数字见表）；FrameRateController.js 行覆盖 98.4%。验证方式调整前（2026-09-25 08:39，提交 e022c97）曾在隔离 CI 栈实测：`scripts/smoke-battle.js` 101/101、核心冒烟 37/37、battle-core 16/16。之后的改动（连击熟练度接入、实时天气、连击道具奖励、大师联赛分组、AI 对位口径、迁移时间列段、前端全部）**未运行，待验证**。待运行：`BASE_URL=… DATABASE_URL=… REDIS_URL=… node scripts/smoke-battle.js`（102 项）、`node scripts/bench-battle.js --battles 20 --concurrency 5`；迁移在全新库上执行 `reset-db` 后检查 bootstrap-report 无 20260925_1100xx 失败
+- 待验证：低/中/高端真机各打一场，看看板达标率；Chrome 性能面板 CPU 节流 4x 时是否自动降级

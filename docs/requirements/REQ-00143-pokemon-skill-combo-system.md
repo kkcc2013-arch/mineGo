@@ -7,7 +7,7 @@
 | 标题 | 精灵自定义技能组合与连招系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | pokemon-service、gym-service、social-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-12 05:00 |
 
@@ -1229,3 +1229,23 @@ metrics.gauge('combo_success_rate', 'Combo success rate percentage');
 - REQ-00054: 道馆战斗系统
 - REQ-00073: 玩家对战系统（PVP Duel）
 - REQ-00109: 精灵团队战斗系统（Team Battle）
+
+## 实现记录（2026-09-25）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 玩家可为每个精灵创建最多 5 个技能组合 | ✅ | `pokemon_skill_combos` 表；`battle/presetRules.js` MAX_PRESETS=5，第 6 套返回 400 PRESET_LIMIT |
+| 每个组合包含 2-5 个技能步骤 | ✅ | validateSteps 校验步数且技能必须是该精灵已掌握的技能（单测） |
+| 支持设置技能延迟和执行条件 | ✅ | delayMs 0-3000（计入连击时间窗口）；条件 energy_gte / target_hp_lte_pct / self_hp_gte_pct（单测） |
+| 战斗中可一键触发预设连招 | ✅ | `POST /v1/gyms/battles/:id/combo`（及 /v1/battle/sessions/:id/combo），按步骤依次出招，条件不满足/冷却/能量不足/倒下时停止并返回 stoppedReason；客户端「一键连招」 |
+| 连招效果系统正常工作（伤害加成、状态附加等） | ✅ | 连击链奖励：伤害倍率×质量×熟练度（上限 3.0）、必定附加状态、无视防御、暴击率、能量返还、回复、冷却缩减；smoke「一键连招触发冲撞三连」 |
+| 连招统计数据准确记录 | ✅ | 预设 uses/completions/combos_triggered/total_damage；combo_records、user_combo_stats、battle_move_logs |
+| 前端界面支持创建、编辑、删除、设置默认组合 | ✅ | 对战页 → 连击：创建（选精灵/点选技能/间隔）、编辑、删除、设为默认；战斗中一键连招列表 |
+| 单元测试覆盖核心逻辑 | ✅ | presetRules（97% 行覆盖）、combo 判定（99%）、引擎中连击生效 |
+| API 文档完整 | ✅ | `docs/api-spec/openapi/paths/battle.yaml`（Combo 标签：presets CRUD、combo 执行） |
+| Prometheus 指标正常上报 | ✅ | `minego_battle_combos_total{chain,quality,mode}` 等注册到 shared/metrics 的 registry（/metrics 可见） |
+
+- 入口：gym-service `src/battle/*`（纯逻辑：damage/cooldown/energy/combo/engine/ai/stats/leagueRules/recommendScore/replayFormat/presetRules；持久化与编排：repo/store/session/gym/raid/league/replay/recommend/comboPresets/pokemonEnergy/settle/deps）；路由 `routes/gyms.js`、`routes/gymBattle.js`、`routes/raids.js`、`routes/battleApi.js`（挂 `/battle`）；网关 `backend/gateway/src/index.js`：`/v1/gyms/*`、`/v1/raids/*`、`/v1/battle/*`（鉴权）、公开 `/v1/battle/replays/shared/:code`、WebSocket 升级转发 `/ws/raid`、`/ws/notifications`、`/ws/battle`
+- 迁移：`database/migrations/20260925_110000__e11_battle_core.sql`（补列/新表/连击链种子/时间列 TIMESTAMPTZ，全部 IF NOT EXISTS）、`20260925_110100__e11_restore_fast_move_power.sql`；复用既有表见各行说明
+- 测试：宿主机已运行（纯逻辑，不连服务）：`cd backend && node --test tests/unit/battle-core.test.js tests/unit/battle-features.test.js` → 29/29 通过；`node --test frontend/game-client/tests/unit/battle-client.test.mjs` → 11/11 通过；`node --expose-gc scripts/bench-battle.js --local`（数字见表）。验证方式调整前（2026-09-25 08:39，提交 e022c97）曾在隔离 CI 栈实测：`scripts/smoke-battle.js` 101/101、核心冒烟 37/37、battle-core 16/16。之后的改动（连击熟练度接入、实时天气、连击道具奖励、大师联赛分组、AI 对位口径、迁移时间列段、前端全部）**未运行，待验证**。待运行：`BASE_URL=… DATABASE_URL=… REDIS_URL=… node scripts/smoke-battle.js`（102 项）、`node scripts/bench-battle.js --battles 20 --concurrency 5`；迁移在全新库上执行 `reset-db` 后检查 bootstrap-report 无 20260925_1100xx 失败
+- 待验证：创建 2-5 步预设并在战斗中一键释放、步骤延迟是否计入连击窗口、编辑/设默认在界面生效

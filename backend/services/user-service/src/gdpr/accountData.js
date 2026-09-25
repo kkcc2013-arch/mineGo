@@ -139,6 +139,9 @@ async function exportUserData(userId) {
   if (profile.phone) {
     try { profile.phone = fieldCrypto.decrypt(profile.phone, 'users.phone'); } catch { profile.phone = null; }
   }
+  if (profile.email) {
+    try { profile.email = fieldCrypto.decrypt(profile.email, 'users.email'); } catch { profile.email = null; }
+  }
 
   return {
     format: 'minego-gdpr-export/v1',
@@ -239,7 +242,7 @@ async function purgeUser(userId) {
     const { rows: cols } = await client.query(
       `SELECT column_name FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'users'`);
     const has = new Set(cols.map((c) => c.column_name));
-    const optionalNulls = ['last_login_ip', 'friend_code', 'deletion_reason', 'language_preference', 'timezone', 'birth_date', 'email']
+    const optionalNulls = ['last_login_ip', 'friend_code', 'deletion_reason', 'language_preference', 'timezone', 'birth_date', 'email', 'email_hash']
       .filter((c) => has.has(c)).map((c) => `${ident(c)} = NULL`);
     await client.query(`
       UPDATE users SET

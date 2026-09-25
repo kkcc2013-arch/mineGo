@@ -7,7 +7,7 @@
 | 标题 | 游戏界面屏幕阅读器智能增强与语义化标注系统 |
 | 类别 | 无障碍(a11y) |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | game-client、shared/a11y、admin-dashboard |
 | 创建时间 | 2026-07-03 01:00 |
 
@@ -667,3 +667,27 @@ class A11yConfigManager {
 - [Apple VoiceOver Documentation](https://developer.apple.com/accessibility/ios/)
 - [Android Accessibility Developer Guide](https://developer.android.com/guide/topics/ui/accessibility)
 - [WCAG 2.1 Guidelines](https://www.w3.org/TR/WCAG21/)
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 所有游戏界面元素具有正确的 ARIA 标签 | ✅ | `semantics.js` 运行期补 role/aria-label/heading/region；静态标记补 `<main>`、label for |
+| 动态精灵信息能够被屏幕阅读器正确读取 | ✅ | 精灵卡片 aria-label、捕捉页播报、`V` 语音描述 |
+| 战斗状态变化实时播报 | ⚠️ | `pmg:battle` 契约播报（category=battle）；客户端无战斗界面 |
+| 焦点管理符合 WAI-ARIA 规范 | ✅ | 对话框焦点陷阱与恢复、页面切换焦点移到标题、radiogroup 漫游 tabindex |
+| 支持键盘完整导航（100% 功能可通过键盘访问） | ✅ | 快捷键 + Tab + Enter/Space + 方向键覆盖全部操作 |
+| 支持 VoiceOver（iOS/macOS）、TalkBack（Android）、NVDA/JAWS（Windows） | ⚠️ | 真机未验证 |
+| 用户可配置播报详细程度和类别 | ✅ | 播报级别 3 档 + 类别（地图/精灵出现/捕捉/战斗/页面切换/系统）开关 |
+| 快捷键可自定义 | ✅ | 设置 → 键盘 |
+| 通过 axe-core 自动化测试（无严重问题） | ✅ | e2e axe 扫描 6 个页面状态，调整前运行无 critical/serious（修复了 meta-viewport 禁止缩放与 color-contrast） |
+| 通过手动屏幕阅读器测试（覆盖核心流程） | ⚠️ | 需人工读屏测试 |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：`database/migrations/20260925_010000__user_preferences.sql`（`user_preferences`：user_id UUID → users(id) ON DELETE CASCADE、namespace、prefs JSONB，主键 (user_id, namespace)，全部 IF NOT EXISTS）；偏好云端同步：user-service `GET/PUT/DELETE /users/me/preferences/:namespace`（`src/routes/preferences.js` + `src/services/userPreferences.js` 校验），经网关 `/v1/users/me/preferences/a11y`（网关已有 `/v1/users` 鉴权代理，未改网关）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：NVDA/JAWS/VoiceOver/TalkBack 走核心流程（登录 → 地图 → 捕捉 → 设置）；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 备注：偏差：未新建 shared/a11y 与 admin-dashboard 设置管理界面（非验收项）。文档见 docs/accessibility/a11y-guide.md。
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`

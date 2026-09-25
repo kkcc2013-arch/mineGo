@@ -15,6 +15,8 @@ const WebSocket = require('ws');
 const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const { logger, metrics } = require('../../../../shared');
+const { verifyAccessAsync } = require('../../../../shared/auth');
+const { getJwtBlacklist } = require('../../../../shared/JwtBlacklist');
 const { BattleRoomManager } = require('./BattleRoomManager');
 const { HeartbeatManager } = require('./HeartbeatManager');
 
@@ -397,12 +399,25 @@ class WebSocketServer {
   }
 
   async verifyToken(token) {
-    return new Promise((resolve, reject) => {
-      jwt.verify(token, this.jwtSecret, (err, decoded) => {
-        if (err) reject(err);
-        else resolve(decoded);
-      });
-    });
+    // 与 HTTP 接口使用同一套访问令牌校验（JWT_ACCESS_SECRET / KMS）；仅当显式配置了不同的 JWT_SECRET 时作为兼容回退。
+    // 已登出/吊销（jti 在黑名单中）的令牌同样拒绝。
+    let decoded;
+    try {
+      decoded = await verifyAccessAsync(token);
+    } catch (err) {
+      if (!this.jwtSecret || err.name === 'TokenExpiredError') throw err;
+      decoded = jwt.verify(token, this.jwtSecret, { algorithms: ['HS256'] });
+    }
+    if (decoded && decoded.jti) {
+      let revoked = false;
+      try { revoked = await getJwtBlacklist().isBlacklisted(decoded.jti); } catch { revoked = false; }
+      if (revoked) {
+        const e = new Error('Token revoked');
+        e.name = 'JsonWebTokenError';
+        throw e;
+      }
+    }
+    return decoded;
   }
 
   extractToken(req) {

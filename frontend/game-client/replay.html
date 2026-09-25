@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>对战回放 · Pocket Monster Go</title>
+  <!-- REQ-00379 / REQ-00469：分享链接落地页（无需登录）。社交平台预览使用下列通用 OG 信息 -->
+  <meta property="og:title" content="Pocket Monster Go 精彩对战回放">
+  <meta property="og:description" content="来看看这场精彩的精灵对战！">
+  <meta property="og:type" content="website">
+  <link rel="icon" type="image/svg+xml" href="/icons/icon-192.svg">
+  <style>
+    :root{--bg:#0d0f14;--surface:#13161e;--surface2:#1a1e28;--border:#252938;--red:#e63946;--blue:#3d8ef8;--yellow:#f4c430;--green:#2ecc71;--purple:#9b59b6;--text:#e8eaf0;--muted:#6b7280}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:16px;max-width:720px;margin:0 auto}
+    .form-input{background:var(--surface);border:1.5px solid var(--border);color:var(--text);padding:10px 12px;border-radius:10px;font-size:15px}
+    .sec-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin:12px 0 6px}
+    a{color:var(--blue)}
+  </style>
+</head>
+<body>
+  <h1 style="font-size:20px;margin-bottom:10px">🎬 对战回放</h1>
+  <div id="app" data-testid="shared-replay"><div class="bt-muted">加载中…</div></div>
+  <p class="bt-muted" style="margin-top:16px">想亲自对战？<a href="/">打开 Pocket Monster Go</a></p>
+  <script type="module">
+    import { ReplayPlayer } from './src/battle/ReplayPlayer.js';
+    import { FrameRateController } from './src/battle/FrameRateController.js';
+    import { monEmoji } from './src/battle/BattleView.js';
+    import { escapeHtml as esc } from './src/battle/BattleClient.js';
+
+    const css = document.createElement('link');
+    css.rel = 'stylesheet';
+    css.href = './src/battle/battle.css';
+    document.head.appendChild(css);
+
+    const app = document.getElementById('app');
+    const code = (new URLSearchParams(location.search).get('code') || '').toUpperCase();
+    const frc = new FrameRateController({});
+
+    async function load(password) {
+      const q = password ? `?password=${encodeURIComponent(password)}` : '';
+      const token = localStorage.getItem('pmg_access_token');
+      const res = await fetch(`/v1/battle/replays/shared/${encodeURIComponent(code)}${q}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      const body = await res.json().catch(() => ({}));
+      if (res.status === 401 && body.code === 'PASSWORD_REQUIRED') return askPassword(!!password);
+      if (!res.ok) { app.innerHTML = `<div class="bt-card">😢 ${esc(body.message || '回放不可用')}</div>`; return; }
+      const data = body.data;
+      const s = data.summary || {};
+      document.title = `${data.result === 'win' ? '胜利' : '对战'}回放 · ${s.gymName || s.opponentName || ''} · Pocket Monster Go`;
+      app.innerHTML = `<div class="bt-card"><b>${esc(data.attackerNickname || '训练师')}</b> ${data.result === 'win' ? '赢得了' : '经历了'}一场 ${data.turns} 回合的对战
+        <div class="bt-muted">造成 ${s.damageDealt || 0} 伤害 · 连击 ${s.combos || 0} 次 · 精彩时刻 ${(data.highlights || []).length} 个</div></div><div id="player"></div>`;
+      const player = new ReplayPlayer(document.getElementById('player'), data, { frc, emoji: monEmoji });
+      if (new URLSearchParams(location.search).get('autoplay') !== '0') player.play();
+    }
+
+    function askPassword(wrong) {
+      app.innerHTML = `<div class="bt-card"><div class="bt-h">🔒 该回放需要访问密码</div>${wrong ? '<div style="color:var(--red)">密码错误</div>' : ''}
+        <input class="form-input" id="pw" type="password" placeholder="访问密码"> <button class="bt-btn" id="go">查看</button></div>`;
+      document.getElementById('go').onclick = () => load(document.getElementById('pw').value);
+    }
+
+    if (!/^[A-Z0-9]{6,12}$/.test(code)) app.innerHTML = '<div class="bt-card">分享链接无效</div>';
+    else load().catch((e) => { app.innerHTML = `<div class="bt-card">加载失败：${esc(e.message)}</div>`; });
+  </script>
+</body>
+</html>
