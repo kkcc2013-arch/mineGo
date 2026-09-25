@@ -15,6 +15,10 @@
 ALTER TABLE users ADD COLUMN IF NOT EXISTS friend_code VARCHAR(16);
 ALTER TABLE users ADD COLUMN IF NOT EXISTS last_active_at TIMESTAMP;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS birthday DATE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP;
+-- 代码读取的精灵软删除/放生标记（由更早的迁移添加；此处兜底保证依赖顺序）
+ALTER TABLE pokemon_instances ADD COLUMN IF NOT EXISTS is_released BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE pokemon_instances ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN NOT NULL DEFAULT false;
 
 CREATE OR REPLACE FUNCTION gen_friend_code() RETURNS VARCHAR AS $$
 DECLARE c VARCHAR;
@@ -113,6 +117,10 @@ END $$;
 CREATE INDEX IF NOT EXISTS idx_friends_user_points ON friends(user_id, friendship_points DESC) WHERE status = 'accepted';
 CREATE INDEX IF NOT EXISTS idx_friends_user_recent ON friends(user_id, last_interaction_at DESC NULLS LAST) WHERE status = 'accepted';
 CREATE INDEX IF NOT EXISTS idx_friends_group ON friends(group_id) WHERE group_id IS NOT NULL;
+
+-- 旧表 friendships 的扩展列（20260623 迁移添加；此处兜底，回填与同步触发器会读写）
+ALTER TABLE friendships ADD COLUMN IF NOT EXISTS friendship_points INTEGER DEFAULT 0;
+ALTER TABLE friendships ADD COLUMN IF NOT EXISTS friendship_level INTEGER DEFAULT 1;
 
 -- 旧 friendships 中的好友关系回填为 friends 双向两行（等级映射为不低于该等级阈值的友情点）
 INSERT INTO friends (user_id, friend_user_id, status, friendship_level, friendship_points,
