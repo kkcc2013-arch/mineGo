@@ -520,13 +520,17 @@ async function roomByUser(userId) {
   return rows[0];
 }
 
-function assertVisible(room, viewerId) {
-  if (!room.is_public && room.user_id !== viewerId) throw httpError(403, '该收藏室未公开', 'ROOM_PRIVATE');
+async function assertVisible(room, viewerId) {
+  if (room.user_id === viewerId) return;
+  if (!room.is_public) throw httpError(403, '该收藏室未公开', 'ROOM_PRIVATE');
+  // E01 黑名单：被房主拉黑的玩家不能参观/点赞/留言
+  const { rows: [b] } = await db.query('SELECT 1 FROM blocked_users WHERE user_id = $1 AND blocked_user_id = $2', [room.user_id, viewerId]);
+  if (b) throw httpError(403, '无法访问该收藏室', 'ROOM_BLOCKED');
 }
 
 /** 访问（记录每人每天一次的访客数与经验）；返回完整房间内容 + 本人点赞状态 + 最近留言 */
 async function visit(viewerId, room, lang) {
-  assertVisible(room, viewerId);
+  await assertVisible(room, viewerId);
   const isOwner = room.user_id === viewerId;
   if (!isOwner) {
     await db.transaction(async (client) => {
@@ -563,7 +567,7 @@ async function endVisit(viewerId, roomId, durationSeconds) {
 
 async function like(userId, roomId) {
   const room = await roomById(roomId);
-  assertVisible(room, userId);
+  await assertVisible(room, userId);
   if (room.user_id === userId) throw httpError(400, '不能给自己的收藏室点赞', 'SELF_LIKE');
   const res = await db.transaction(async (client) => {
     const { rows } = await client.query(
@@ -612,7 +616,7 @@ async function listComments(viewerId, roomId, { limit = 20, before } = {}) {
 
 async function addComment(userId, roomId, content) {
   const room = await roomById(roomId);
-  assertVisible(room, userId);
+  await assertVisible(room, userId);
   const v = rules.sanitizeComment(content);
   if (!v.ok) throw httpError(400, v.error, 'VALIDATION');
   const out = await db.transaction(async (client) => {

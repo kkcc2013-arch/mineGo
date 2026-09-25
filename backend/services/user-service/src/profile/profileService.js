@@ -164,16 +164,26 @@ async function getProfile(viewerId, targetId, { lang, source = 'in_app', ip } = 
   if (!UUID_RE.test(String(targetId || ''))) throw httpError(400, '用户 ID 无效', 'VALIDATION');
   const isOwner = viewerId === targetId;
   const { rows: [cfg] } = await db.query(
-    `SELECT u.id, COALESCE(c.visibility, 'public') AS visibility FROM users u
-       LEFT JOIN player_profile_configs c ON c.user_id = u.id WHERE u.id = $1 AND u.deleted_at IS NULL`, [targetId]);
+    `SELECT u.id, COALESCE(c.visibility, 'public') AS visibility,
+            ps.profile_visibility, ps.achievements_visibility,
+            ($2::uuid IS NOT NULL AND EXISTS (SELECT 1 FROM blocked_users b WHERE b.user_id = u.id AND b.blocked_user_id = $2::uuid)) AS blocked
+       FROM users u
+       LEFT JOIN player_profile_configs c ON c.user_id = u.id
+       LEFT JOIN privacy_settings ps ON ps.user_id = u.id
+      WHERE u.id = $1 AND u.deleted_at IS NULL`, [targetId, viewerId && UUID_RE.test(viewerId) ? viewerId : null]);
   if (!cfg) throw httpError(404, '用户不存在', 'USER_NOT_FOUND');
   const isFriend = !isOwner && viewerId ? await areFriends(viewerId, targetId) : false;
-  const audience = rules.audienceFor({ isOwner, isFriend, visibility: cfg.visibility });
+  // 资料卡可见性与 E01 隐私设置（REQ-00228）取更严格者；被对方拉黑只能看到基本信息
+  const visibility = rules.stricterVisibility(cfg.visibility, cfg.profile_visibility);
+  const audience = rules.audienceFor({ isOwner, isFriend, visibility, blocked: !!cfg.blocked });
   const l = normalizeLang(lang);
   const t0 = Date.now();
   const { value, hit } = await profileCache.cached(`profile:view:${targetId}:${audience}:${l}`, targetId, PROFILE_TTL,
     async () => rules.filterProfile(await buildFull(targetId, l), audience));
   const out = { ...value, isFriend, cache: { hit, ms: Date.now() - t0 } };
+  if (!out.restricted && !rules.achievementsVisible(cfg.achievements_visibility, audience)) {
+    delete out.achievements; delete out.badges; out.achievementsHidden = true;
+  }
   if (isOwner) out.views = await ownerViews(targetId);
   else logView(targetId, viewerId, source, ip);
   return out;
@@ -272,8 +282,10 @@ async function share(userId) {
   const urls = shareUrls(code);
   let qrCode = null;
   try { qrCode = await require('qrcode').toDataURL(urls.qrTargetUrl, { margin: 1, width: 256 }); } catch { /* qrcode 不可用时只返回链接 */ }
-  const { rows: [c] } = await db.query('SELECT visibility FROM player_profile_configs WHERE user_id = $1', [userId]);
-  return { shareCode: code, ...urls, qrCode, publicCardAvailable: !c || c.visibility === 'public' };
+  const { rows: [c] } = await db.query(
+    `SELECT c.visibility, ps.profile_visibility FROM player_profile_configs c
+       LEFT JOIN privacy_settings ps ON ps.user_id = c.user_id WHERE c.user_id = $1`, [userId]);
+  return { shareCode: code, ...urls, qrCode, publicCardAvailable: !c || rules.stricterVisibility(c.visibility, c.profile_visibility) === 'public' };
 }
 
 /** 资料卡 SVG（查看者可见范围内的数据） */
@@ -287,9 +299,11 @@ async function cardSvg(viewerId, targetId, lang) {
 /** 分享链接打开：仅公开资料可匿名查看 */
 async function byShareCode(code, { lang, source = 'share_link', ip } = {}) {
   if (!SHARE_CODE_RE.test(String(code || ''))) throw httpError(400, '分享码无效', 'VALIDATION');
-  const { rows: [c] } = await db.query('SELECT user_id, visibility FROM player_profile_configs WHERE share_code = $1', [code]);
+  const { rows: [c] } = await db.query(
+    `SELECT c.user_id, c.visibility, ps.profile_visibility FROM player_profile_configs c
+       LEFT JOIN privacy_settings ps ON ps.user_id = c.user_id WHERE c.share_code = $1`, [code]);
   if (!c) throw httpError(404, '分享链接不存在', 'SHARE_NOT_FOUND');
-  if (c.visibility !== 'public') throw httpError(403, '该玩家资料未公开', 'PROFILE_PRIVATE');
+  if (rules.stricterVisibility(c.visibility, c.profile_visibility) !== 'public') throw httpError(403, '该玩家资料未公开', 'PROFILE_PRIVATE');
   const p = await getProfile(null, c.user_id, { lang, source, ip });
   return { profile: p, svg: rules.renderCardSvg(p, { lang, shareUrl: shareUrls(code).shareUrl }) };
 }

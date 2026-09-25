@@ -5,8 +5,9 @@
  *   成就按稀有度 common 5 / rare 15 / epic 30 / legendary 50
  * 收藏家等级：1 初学者 0、2 收藏家 500、3 资深收藏家 2000、4 精灵学者 5000、5 传奇收藏家 10000
  *   特权：2 级精选精灵 3→5 只；3 级稀有头像框；4 级自定义资料背景（学者书房）；5 级专属称号"传奇收藏家"
- * 隐私：owner 全部；private/friends(非好友) → restricted 只含基本信息；public 非好友 → public（隐藏社交明细、
- *   行走距离/探索区域、最近活跃、访客记录）；好友 → full
+ * 隐私：owner 全部；被对方拉黑 / private / friends(非好友) → restricted 只含基本信息；public 非好友 → public（隐藏社交明细、
+ *   行走距离/探索区域、最近活跃、访客记录）；好友 → full。与 E01 隐私设置合并：可见性取两者更严格的一方，
+ *   privacy_settings.achievements_visibility 控制成就/徽章是否展示
  */
 'use strict';
 
@@ -132,9 +133,29 @@ function validateProfilePatch(body, { featuredLimit = 3 } = {}) {
   return { ok: true, value: out };
 }
 
+// E01 隐私设置（privacy_settings.*_visibility，REQ-00228）与资料卡可见性合并：取更严格的一方
+const VIS_RANK = { public: 0, friends: 1, close_friends: 1, custom: 1, private: 2, nobody: 2, hidden: 2 };
+function mapPrivacyVisibility(v) {
+  const r = VIS_RANK[String(v || 'public')];
+  return r === undefined ? 'public' : ['public', 'friends', 'private'][r];
+}
+function stricterVisibility(a, b) {
+  const ra = VIS_RANK[mapPrivacyVisibility(a)]; const rb = VIS_RANK[mapPrivacyVisibility(b)];
+  return ['public', 'friends', 'private'][Math.max(ra, rb)];
+}
+/** 成就是否对该查看者可见（privacy_settings.achievements_visibility） */
+function achievementsVisible(achievementsVisibility, audience) {
+  if (audience === 'owner') return true;
+  const v = mapPrivacyVisibility(achievementsVisibility);
+  if (v === 'private') return false;
+  if (v === 'friends') return audience === 'full';
+  return true;
+}
+
 /** 查看者身份 → 可见范围 */
-function audienceFor({ isOwner, isFriend, visibility }) {
+function audienceFor({ isOwner, isFriend, visibility, blocked = false }) {
   if (isOwner) return 'owner';
+  if (blocked) return 'restricted';
   if (visibility === 'private') return 'restricted';
   if (visibility === 'friends') return isFriend ? 'full' : 'restricted';
   return isFriend ? 'full' : 'public';
@@ -219,5 +240,6 @@ ${title}${collector}${team}${badges}${cells}
 module.exports = {
   COLLECTOR_LEVELS, ACHIEVEMENT_RARITY_POINTS, MAX_BADGES, VISIBILITIES, STATS_SECTIONS,
   computeCollectorScore, collectorLevel, featuredPokemonLimit, meetsUnlock, validateProfilePatch, audienceFor, filterProfile,
+  mapPrivacyVisibility, stricterVisibility, achievementsVisible,
   renderCardSvg, sanitizeText,
 };

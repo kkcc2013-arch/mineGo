@@ -114,3 +114,18 @@ test('SVG 卡片：包含昵称/等级/称号/统计，并转义用户输入', (
   assert.ok(svg.includes('>12<') && svg.includes('Achievements'));
   assert.ok(svg.includes('#1E88E5'), '队伍颜色');
 });
+
+test('与 E01 隐私设置合并：可见性取更严格者；拉黑视为受限；成就可见性', () => {
+  assert.equal(r.stricterVisibility('public', undefined), 'public');
+  assert.equal(r.stricterVisibility('public', 'close_friends'), 'friends');
+  assert.equal(r.stricterVisibility('friends', 'nobody'), 'private');
+  assert.equal(r.stricterVisibility('private', 'public'), 'private');
+  assert.equal(r.mapPrivacyVisibility('weird'), 'public');
+  assert.equal(r.audienceFor({ isFriend: true, visibility: 'public', blocked: true }), 'restricted');
+  assert.equal(r.audienceFor({ isOwner: true, visibility: 'public', blocked: true }), 'owner');
+  assert.equal(r.achievementsVisible('friends', 'public'), false);
+  assert.equal(r.achievementsVisible('friends', 'full'), true);
+  assert.equal(r.achievementsVisible('private', 'full'), false);
+  assert.equal(r.achievementsVisible('private', 'owner'), true);
+  assert.equal(r.achievementsVisible(undefined, 'public'), true);
+});
