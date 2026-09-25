@@ -42,6 +42,13 @@ const service = new ServiceLauncher({
   
   routes: [
     {
+      // REQ-00106 称号、REQ-00327/00387 资料卡：挂在 user.js 之前（user.js 的 GET /users/:id 会吞掉 /users/titles 这类单段路径），
+      // 且不计入 /users 的 100 次/分钟限流
+      path: '/users',
+      router: titlesRouter,
+      rateLimit: { windowMs: 60_000, max: 300 }
+    },
+    {
       path: '/auth',
       router: authRouter,
       rateLimit: { windowMs: 60_000, max: 20, message: { code: 1007, message: '请求太频繁' } }
@@ -60,12 +67,13 @@ const service = new ServiceLauncher({
       router: friendRouter
     },
     {
-      path: '/notifications',
-      router: notificationsRouter
+      path: '/notifications', // REQ-00099/00261/00425: 消息中心（优先于旧的推送偏好/设备令牌路由）
+      router: messageCenterRouter,
+      rateLimit: { windowMs: 60_000, max: 300 }
     },
     {
-      path: '/notifications', // REQ-00120: 消息中心路由
-      router: messageCenterRouter
+      path: '/notifications', // 设备令牌注册、推送日志（旧接口）
+      router: notificationsRouter
     },
     {
       path: '/users', // REQ-00057: MFA 路由
@@ -109,10 +117,6 @@ const service = new ServiceLauncher({
       path: '/data-deletion', // REQ-00127: 用户数据删除请求管理路由
       router: dataDeletionRouter,
       rateLimit: { windowMs: 60_000, max: 20 }
-    },
-    {
-      path: '/users', // REQ-00106: 称号系统路由
-      router: titlesRouter
     },
     {
       path: '/devices', // REQ-00250: 设备管理路由
@@ -185,10 +189,17 @@ const service = new ServiceLauncher({
     // Initialize notification event handlers - REQ-00026
     initNotificationHandlers(eventBus);
     
-    // Initialize title service - REQ-00106
-    const { TitleService } = require('./titleService');
-    await TitleService.initialize();
-    console.log('Title service initialized');
+    // REQ-00076/00106/00261: 游戏事件消费者（成就进度、称号、事件消息）；LISTEN 实时 + 10 秒兜底扫描
+    require('../../../shared/achievementEngine').startConsumer();
+
+    // REQ-00261/00425: 消息实时推送（/ws/notifications，网关代理升级请求）+ 投递分发（WS / APNs / FCM，未配置时降级站内）
+    const realtime = require('../../../shared/notificationRealtime');
+    realtime.attach(service.server);
+    realtime.startDispatcher();
+
+    // REQ-00106: 限时称号过期自动取消佩戴
+    const titles = require('../../../shared/titles');
+    setInterval(() => titles.expireTitles().catch(() => {}), 10 * 60 * 1000).unref();
     
     console.log('User service ready with health checks enabled');
   }

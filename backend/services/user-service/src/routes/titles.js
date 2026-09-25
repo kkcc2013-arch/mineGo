@@ -1,278 +1,123 @@
 'use strict';
 
 /**
- * 称号管理路由
- * REQ-00106: 玩家称号系统与个性化展示
+ * REQ-00106: 称号 API（网关 /v1/users/... → user-service /users/...）
+ *
+ *   GET  /users/titles?category=&rarity=         称号目录（含是否已拥有）
+ *   GET  /users/titles/leaderboard               称号收集排行
+ *   GET  /users/titles/:titleId                  称号详情
+ *   GET  /users/me/titles                        我的称号（?includeExpired=true 含已过期）
+ *   GET  /users/me/titles/active                 当前佩戴
+ *   GET  /users/me/titles/stats                  统计（按稀有度）
+ *   GET  /users/me/titles/bonuses                当前加成
+ *   PUT|POST /users/me/titles/:titleId/activate  佩戴（每人最多一个）
+ *   DELETE /users/me/titles/active               取下
+ *   PUT  /users/me/titles/:titleId/favorite      收藏 {isFavorite}
+ *   POST /users/me/profile/title {titleId|null}  资料卡展示称号（REQ-00327 别名）
+ *   GET  /users/:userId/titles, /users/:userId/titles/active  他人的称号
+ *   管理员：POST /users/titles/grant {userId, titleId}，POST /users/titles/process-expired
+ * 玩家不能自行解锁称号（原 POST /users/me/titles/:id/unlock 已移除）：称号只由成就/活动/管理员发放。
  */
 
-const { Router } = require('express');
-const { TitleService } = require('../titleService');
-const { db } = require('../../../../shared/db');
-const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
-const { createLogger } = require('../../../../shared/logger');
+const express = require('express');
+const db = require('../../../../shared/db');
+const titles = require('../../../../shared/titles');
+const profileCache = require('../../../../shared/profileCache');
+const { UUID_RE } = require('../../../../shared/notificationCenter');
+const { requireAuth, requireAdmin, successResp } = require('../../../../shared/auth');
 
-const logger = createLogger('user-service:titles');
-const router = Router();
+const router = express.Router();
 
-/**
- * GET /api/users/me/titles
- * 获取当前用户所有称号
- */
-router.get('/me/titles', requireAuth, async (req, res, next) => {
-  try {
-    const { category, rarity, includeExpired } = req.query;
-    
-    const titles = await TitleService.getUserTitles(req.user.id, {
-      category,
-      rarity,
-      includeExpired: includeExpired === 'true'
-    });
-    
-    res.json(successResp({ titles, total: titles.length }));
-  } catch (error) {
-    logger.error({ error: error.message }, 'Failed to get user titles');
-    next(error);
-  }
+const uid = (req) => req.user.sub || req.user.id;
+const lang = (req) => req.query.lang || req.headers['x-language'] || req.headers['accept-language'];
+const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+const TITLE_ID = /^[a-z0-9_]{2,50}$/;
+
+function bad(msg) { const e = new Error(msg); e.statusCode = 400; return e; }
+
+router.get('/titles', requireAuth, wrap(async (req, res) => {
+  const { category, rarity } = req.query;
+  res.json(successResp(await titles.catalog({ lang: lang(req), category, rarity, userId: uid(req) }, db)));
+}));
+
+router.get('/titles/leaderboard', requireAuth, wrap(async (req, res) => {
+  res.json(successResp(await titles.leaderboard({ limit: req.query.limit, lang: lang(req) }, db)));
+}));
+
+router.post('/titles/grant', requireAuth, requireAdmin, wrap(async (req, res) => {
+  const { userId, titleId } = req.body || {};
+  if (!UUID_RE.test(String(userId || '')) || !TITLE_ID.test(String(titleId || ''))) throw bad('userId / titleId 无效');
+  const r = await titles.grant(userId, titleId, { sourceType: 'admin', sourceId: uid(req) }, db);
+  await profileCache.bump(userId);
+  res.json(successResp(r));
+}));
+
+router.post('/titles/process-expired', requireAuth, requireAdmin, wrap(async (req, res) => {
+  res.json(successResp(await titles.expireTitles(db)));
+}));
+
+router.get('/titles/:titleId', requireAuth, wrap(async (req, res) => {
+  if (!TITLE_ID.test(req.params.titleId)) throw bad('titleId 无效');
+  const t = await titles.getDefinition(req.params.titleId, lang(req), db);
+  if (!t) { const e = new Error('称号不存在'); e.statusCode = 404; throw e; }
+  res.json(successResp(t));
+}));
+
+router.get('/me/titles', requireAuth, wrap(async (req, res) => {
+  const { category, rarity, includeExpired } = req.query;
+  res.json(successResp(await titles.listUserTitles(uid(req), { lang: lang(req), category, rarity, includeExpired: includeExpired === 'true' }, db)));
+}));
+
+router.get('/me/titles/active', requireAuth, wrap(async (req, res) => {
+  res.json(successResp(await titles.getActiveTitle(uid(req), lang(req), db)));
+}));
+
+router.get('/me/titles/stats', requireAuth, wrap(async (req, res) => {
+  res.json(successResp(await titles.stats(uid(req), db)));
+}));
+
+router.get('/me/titles/bonuses', requireAuth, wrap(async (req, res) => {
+  res.json(successResp(await titles.getStatBonuses(uid(req), db)));
+}));
+
+const activate = wrap(async (req, res) => {
+  if (!TITLE_ID.test(req.params.titleId)) throw bad('titleId 无效');
+  const r = await titles.activate(uid(req), req.params.titleId, db);
+  await profileCache.bump(uid(req));
+  res.json(successResp({ ...r, title: await titles.getActiveTitle(uid(req), lang(req), db) }, '称号已佩戴'));
 });
+router.put('/me/titles/:titleId/activate', requireAuth, activate);
+router.post('/me/titles/:titleId/activate', requireAuth, activate);
 
-/**
- * GET /api/users/me/titles/active
- * 获取当前用户激活的称号
- */
-router.get('/me/titles/active', requireAuth, async (req, res, next) => {
-  try {
-    const title = await TitleService.getActiveTitle(req.user.id);
-    res.json(successResp({ title }));
-  } catch (error) {
-    logger.error({ error: error.message }, 'Failed to get active title');
-    next(error);
-  }
-});
+router.delete('/me/titles/active', requireAuth, wrap(async (req, res) => {
+  const r = await titles.activate(uid(req), null, db);
+  await profileCache.bump(uid(req));
+  res.json(successResp(r, '称号已取下'));
+}));
 
-/**
- * GET /api/users/me/titles/stats
- * 获取当前用户称号统计
- */
-router.get('/me/titles/stats', requireAuth, async (req, res, next) => {
-  try {
-    const stats = await TitleService.getUserTitleStats(req.user.id);
-    res.json(successResp({ stats }));
-  } catch (error) {
-    logger.error({ error: error.message }, 'Failed to get title stats');
-    next(error);
-  }
-});
+router.put('/me/titles/:titleId/favorite', requireAuth, wrap(async (req, res) => {
+  if (!TITLE_ID.test(req.params.titleId)) throw bad('titleId 无效');
+  const fav = req.body && req.body.isFavorite !== undefined ? !!req.body.isFavorite : true;
+  res.json(successResp(await titles.setFavorite(uid(req), req.params.titleId, fav, db)));
+}));
 
-/**
- * PUT /api/users/me/titles/:titleId/activate
- * 激活称号
- */
-router.put('/me/titles/:titleId/activate', requireAuth, async (req, res, next) => {
-  try {
-    const { titleId } = req.params;
-    const title = await TitleService.setActiveTitle(req.user.id, titleId);
-    
-    logger.info({ userId: req.user.id, titleId }, 'Title activated');
-    
-    res.json(successResp({ 
-      title, 
-      message: 'Title activated successfully' 
-    }));
-  } catch (error) {
-    logger.error({ error: error.message, userId: req.user.id }, 'Failed to activate title');
-    next(error);
-  }
-});
+// REQ-00327: POST /users/me/profile/title —— 设置资料卡展示称号
+router.post('/me/profile/title', requireAuth, wrap(async (req, res) => {
+  const titleId = req.body && req.body.titleId;
+  if (titleId !== null && titleId !== undefined && !TITLE_ID.test(String(titleId))) throw bad('titleId 无效');
+  const r = await titles.activate(uid(req), titleId || null, db);
+  await profileCache.bump(uid(req));
+  res.json(successResp({ ...r, title: await titles.getActiveTitle(uid(req), lang(req), db) }));
+}));
 
-/**
- * PUT /api/users/me/titles/:titleId/favorite
- * 收藏/取消收藏称号
- */
-router.put('/me/titles/:titleId/favorite', requireAuth, async (req, res, next) => {
-  try {
-    const { titleId } = req.params;
-    const { isFavorite = true } = req.body;
-    
-    const success = await TitleService.setFavorite(req.user.id, titleId, isFavorite);
-    
-    if (!success) {
-      throw new AppError('Title not found', 404);
-    }
-    
-    res.json(successResp({ 
-      message: 'Favorite status updated',
-      isFavorite 
-    }));
-  } catch (error) {
-    logger.error({ error: error.message, userId: req.user.id }, 'Failed to set favorite');
-    next(error);
-  }
-});
+router.get('/:userId/titles', requireAuth, wrap(async (req, res, next) => {
+  if (!UUID_RE.test(req.params.userId)) return next();
+  res.json(successResp(await titles.listUserTitles(req.params.userId, { lang: lang(req) }, db)));
+}));
 
-/**
- * POST /api/users/me/titles/:titleId/unlock
- * 手动解锁称号（仅限特殊称号）
- */
-router.post('/me/titles/:titleId/unlock', requireAuth, async (req, res, next) => {
-  try {
-    const { titleId } = req.params;
-    const { sourceType = 'special', sourceId } = req.body;
-    
-    const result = await TitleService.unlockTitle(req.user.id, titleId, sourceType, sourceId);
-    
-    res.json(successResp({ 
-      title: result.title,
-      alreadyUnlocked: result.alreadyUnlocked,
-      message: result.alreadyUnlocked ? 'Title already unlocked' : 'Title unlocked successfully'
-    }));
-  } catch (error) {
-    logger.error({ error: error.message, userId: req.user.id }, 'Failed to unlock title');
-    next(error);
-  }
-});
-
-/**
- * GET /api/users/:userId/titles
- * 获取其他用户称号（公开信息）
- */
-router.get('/:userId/titles', async (req, res, next) => {
-  try {
-    const { userId } = req.params;
-    
-    const titles = await TitleService.getUserTitles(userId, {
-      includeExpired: false
-    });
-    
-    // 只返回公开信息
-    const publicTitles = titles.map(t => ({
-      titleId: t.titleId,
-      name: t.name,
-      category: t.category,
-      rarity: t.rarity,
-      iconUrl: t.iconUrl,
-      isActive: t.isActive,
-      unlockedAt: t.unlockedAt
-    }));
-    
-    res.json(successResp({ titles: publicTitles, total: publicTitles.length }));
-  } catch (error) {
-    logger.error({ error: error.message }, 'Failed to get user titles');
-    next(error);
-  }
-});
-
-/**
- * GET /api/users/:userId/titles/active
- * 获取其他用户激活称号（公开信息）
- */
-router.get('/:userId/titles/active', async (req, res, next) => {
-  try {
-    const { userId } = req.params;
-    
-    const title = await TitleService.getActiveTitle(userId);
-    
-    if (!title) {
-      return res.json(successResp({ title: null }));
-    }
-    
-    // 只返回公开信息
-    const publicTitle = {
-      titleId: title.titleId,
-      name: title.name,
-      category: title.category,
-      rarity: title.rarity,
-      iconUrl: title.iconUrl,
-      specialEffects: title.specialEffects
-    };
-    
-    res.json(successResp({ title: publicTitle }));
-  } catch (error) {
-    logger.error({ error: error.message }, 'Failed to get active title');
-    next(error);
-  }
-});
-
-/**
- * GET /api/titles
- * 获取所有称号定义
- */
-router.get('/titles', async (req, res, next) => {
-  try {
-    const { category, rarity } = req.query;
-    
-    const titles = TitleService.getAllTitleDefinitions({ category, rarity });
-    
-    res.json(successResp({ titles, total: titles.length }));
-  } catch (error) {
-    logger.error({ error: error.message }, 'Failed to get title definitions');
-    next(error);
-  }
-});
-
-/**
- * GET /api/titles/:titleId
- * 获取单个称号定义
- */
-router.get('/titles/:titleId', async (req, res, next) => {
-  try {
-    const { titleId } = req.params;
-    
-    const title = TitleService.getTitleDefinition(titleId);
-    
-    if (!title) {
-      throw new AppError('Title not found', 404);
-    }
-    
-    res.json(successResp({ title }));
-  } catch (error) {
-    logger.error({ error: error.message }, 'Failed to get title definition');
-    next(error);
-  }
-});
-
-/**
- * GET /api/titles/leaderboard
- * 获取称号排行榜
- */
-router.get('/titles/leaderboard', async (req, res, next) => {
-  try {
-    const { limit = 100 } = req.query;
-    const leaderboard = await TitleService.getTitleLeaderboard(parseInt(limit));
-    
-    // 记录指标
-    const { metrics } = require('../../../../shared/metrics');
-    if (metrics && metrics.increment) {
-      metrics.increment('title_leaderboard_views_total');
-    }
-    
-    res.json(successResp({ leaderboard }));
-  } catch (error) {
-    logger.error({ error: error.message }, 'Failed to get title leaderboard');
-    next(error);
-  }
-});
-
-/**
- * POST /api/titles/process-expired
- * 处理过期称号（管理员或定时任务）
- */
-router.post('/titles/process-expired', requireAuth, async (req, res, next) => {
-  try {
-    // 检查是否是管理员
-    if (!req.user.isAdmin) {
-      throw new AppError('Unauthorized', 403);
-    }
-    
-    const expiredCount = await TitleService.processExpiredTitles();
-    
-    res.json(successResp({ 
-      message: 'Expired titles processed',
-      expiredCount 
-    }));
-  } catch (error) {
-    logger.error({ error: error.message }, 'Failed to process expired titles');
-    next(error);
-  }
-});
+router.get('/:userId/titles/active', requireAuth, wrap(async (req, res, next) => {
+  if (!UUID_RE.test(req.params.userId)) return next();
+  res.json(successResp(await titles.getActiveTitle(req.params.userId, lang(req), db)));
+}));
 
 module.exports = router;

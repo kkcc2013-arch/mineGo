@@ -3,7 +3,32 @@
 'use strict';
 
 const { createLogger } = require('../../../../shared/logger');
-const { createNotification, NOTIFICATION_TYPES } = require('../routes/notifications');
+const db = require('../../../../shared/db');
+const center = require('../../../../shared/notificationCenter');
+
+// EventBus（Kafka，生产未启用）事件 → 站内消息（shared/notificationCenter，REQ-00261）。
+// 好友请求、礼物由数据库触发器 + 成就引擎生成消息，这里不再重复生成（映射为 null）。
+const NOTIFICATION_TYPES = {
+  RARE_SPAWN: (d) => ({ type: 'pokemon.nearby_rare', templateKey: 'spawn_rare', category: 'pokemon', priority: 'high',
+    params: { pokemon_name: d.speciesName, distance: `${Math.round(d.distance || 0)}m` }, data: d,
+    actionUrl: '/map', dedupeKey: `spawn:${d.speciesId}:${d.expireAt || ''}`, expiresInDays: 1 }),
+  RAID_STARTED: (d) => ({ type: 'event.raid_starting', templateKey: 'raid_nearby', category: 'event', priority: 'high',
+    params: { pokemon_name: d.bossName, time_left: d.expiresAt || '' }, data: d, actionUrl: `/raids/${d.raidId}`,
+    dedupeKey: `raid:${d.raidId}`, expiresInDays: 1 }),
+  FRIEND_REQUEST: null,
+  GIFT_RECEIVED: null,
+  QUEST_COMPLETE: (d) => ({ type: 'reward.quest_complete', category: 'reward', title: '任务完成',
+    body: `${d.questName || '每日任务'} 已完成，快去领取奖励`, data: d, actionUrl: '/rewards/quests', dedupeKey: `quest:${d.questId}` }),
+  GYM_UNDER_ATTACK: (d) => ({ type: 'event.gym_under_attack', category: 'event', priority: 'high', title: '道馆遭到攻击',
+    body: `${d.gymName || '你守护的道馆'} 正在被 ${d.attackerTeam || '其他队伍'} 攻击`, data: d, actionUrl: `/gyms/${d.gymId}` }),
+  GYM_LOST: (d) => ({ type: 'event.gym_lost', category: 'event', priority: 'normal', title: '道馆失守',
+    body: `${d.gymName || '你守护的道馆'} 已被 ${d.newTeam || '其他队伍'} 占领`, data: d, actionUrl: `/gyms/${d.gymId}` }),
+};
+
+async function createNotification(userId, build, data) {
+  if (!build || !userId) return;
+  await center.notify(db, userId, build(data || {}));
+}
 
 const logger = createLogger('notification-handler');
 

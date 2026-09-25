@@ -1,152 +1,81 @@
 /**
- * REQ-00076: Achievement Routes
- * Created: 2026-06-27 05:00 UTC
+ * REQ-00076: 成就系统 API（网关 /v1/achievements → pokemon-service /achievements）
+ *
+ *   GET  /achievements/categories              分类
+ *   GET  /achievements/my?category=&status=    我的成就（隐藏成就解锁前不出现，只返回 hiddenLocked 数量）
+ *   GET  /achievements/my/progress             总览：点数、完成数、分类进度、可领取数、排名、最近解锁
+ *   GET  /achievements/leaderboard             成就点数排行榜（带激活称号）
+ *   POST /achievements/claim-all               一键领取
+ *   GET  /achievements/:achievementId          详情（含全服完成率）
+ *   POST /achievements/:achievementId/claim    领取奖励（并发只成功一次）
+ *   管理员：GET/POST /achievements/admin/definitions，PUT/DELETE /achievements/admin/definitions/:id，
+ *           POST /achievements/admin/grant {userId, achievementId, amount}
  */
-
 'use strict';
 
 const express = require('express');
+const svc = require('../achievementService');
+const engine = require('../../../../shared/achievementEngine');
+const { requireAuth, requireAdmin, successResp } = require('../../../../shared/auth');
+const { UUID_RE } = require('../../../../shared/notificationCenter');
+
 const router = express.Router();
-const { achievementService, ACHIEVEMENT_CATEGORIES } = require('../achievementService');
-const { requireAuth, successResp, AppError } = require('../../../../shared/auth');
-const { createLogger } = require('../../../../shared/logger');
 
-const logger = createLogger('achievement-routes');
+const lang = (req) => req.query.lang || req.headers['x-language'] || req.headers['accept-language'];
+const uid = (req) => req.user.sub || req.user.id;
+const wrap = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
 
-/**
- * GET /achievements/my - 获取用户成就列表
- */
-router.get('/my', requireAuth, async (req, res, next) => {
-  try {
-    const { category, include_hidden, include_completed } = req.query;
-    
-    // 验证类别
-    if (category && !Object.values(ACHIEVEMENT_CATEGORIES).includes(category)) {
-      throw new AppError('INVALID_REQUEST', 'Invalid category', 400);
-    }
-    
-    const achievements = await achievementService.getUserAchievements(req.user.id, {
-      category,
-      includeHidden: include_hidden === 'true',
-      includeCompleted: include_completed !== 'false'
-    });
-    
-    res.json(successResp(achievements));
-  } catch (err) {
-    next(err);
-  }
-});
-
-/**
- * GET /achievements/my/progress - 获取成就进度概览
- */
-router.get('/my/progress', requireAuth, async (req, res, next) => {
-  try {
-    const overview = await achievementService.getProgressOverview(req.user.id);
-    res.json(successResp(overview));
-  } catch (err) {
-    next(err);
-  }
-});
-
-/**
- * GET /achievements/:achievementId - 获取成就详情
- */
-router.get('/:achievementId', requireAuth, async (req, res, next) => {
-  try {
-    const achievements = await achievementService.getUserAchievements(req.user.id);
-    const achievement = achievements.find(a => a.achievement_id === req.params.achievementId);
-    
-    if (!achievement) {
-      throw new AppError('NOT_FOUND', 'Achievement not found', 404);
-    }
-    
-    res.json(successResp(achievement));
-  } catch (err) {
-    next(err);
-  }
-});
-
-/**
- * POST /achievements/:achievementId/claim - 领取成就奖励
- */
-router.post('/:achievementId/claim', requireAuth, async (req, res, next) => {
-  try {
-    const rewards = await achievementService.claimRewards(req.user.id, req.params.achievementId);
-    
-    logger.info({ userId: req.user.id, achievementId: req.params.achievementId }, 'Rewards claimed');
-    
-    res.json(successResp({ rewards }));
-  } catch (err) {
-    if (err.message === 'Achievement not completed') {
-      next(new AppError('INVALID_REQUEST', err.message, 400));
-    } else if (err.message === 'Rewards already claimed') {
-      next(new AppError('INVALID_REQUEST', err.message, 400));
-    } else {
-      next(err);
-    }
-  }
-});
-
-/**
- * GET /achievements/leaderboard - 获取成就排行榜
- */
-router.get('/leaderboard', async (req, res, next) => {
-  try {
-    const { limit = 100, offset = 0 } = req.query;
-    
-    const leaderboard = await achievementService.getLeaderboard(
-      parseInt(limit),
-      parseInt(offset)
-    );
-    
-    res.json(successResp(leaderboard));
-  } catch (err) {
-    next(err);
-  }
-});
-
-/**
- * GET /achievements/titles - 获取用户称号列表
- */
-router.get('/titles', requireAuth, async (req, res, next) => {
-  try {
-    const titles = await achievementService.getUserTitles(req.user.id);
-    res.json(successResp(titles));
-  } catch (err) {
-    next(err);
-  }
-});
-
-/**
- * POST /achievements/titles/:titleId/activate - 设置激活称号
- */
-router.post('/titles/:titleId/activate', requireAuth, async (req, res, next) => {
-  try {
-    await achievementService.setActiveTitle(req.user.id, req.params.titleId);
-    res.json(successResp({ message: 'Title activated' }));
-  } catch (err) {
-    if (err.message === 'Title not found') {
-      next(new AppError('NOT_FOUND', err.message, 404));
-    } else {
-      next(err);
-    }
-  }
-});
-
-/**
- * GET /achievements/categories - 获取成就类别列表
- */
 router.get('/categories', (req, res) => {
-  const categories = Object.values(ACHIEVEMENT_CATEGORIES).map(cat => ({
-    id: cat,
-    name: {
-      zh: cat === 'catch' ? '捕捉' : cat === 'breed' ? '培育' : cat === 'battle' ? '战斗' : cat === 'social' ? '社交' : '探索',
-      en: cat.charAt(0).toUpperCase() + cat.slice(1)
-    }
-  }));
-  
-  res.json(successResp(categories));
+  const l = String(lang(req) || 'zh').slice(0, 2);
+  res.json(successResp(svc.CATEGORY_LIST.map((c) => ({
+    key: c, label: svc.CATEGORY_LABELS[c][l] || svc.CATEGORY_LABELS[c].zh, icon: svc.CATEGORY_LABELS[c].icon,
+  }))));
 });
+
+router.get('/my', requireAuth, wrap(async (req, res) => {
+  const { category, status } = req.query;
+  res.json(successResp(await svc.listForUser(uid(req), { category, status, lang: lang(req) })));
+}));
+
+router.get('/my/progress', requireAuth, wrap(async (req, res) => {
+  res.json(successResp(await svc.overview(uid(req), lang(req))));
+}));
+
+router.get('/leaderboard', requireAuth, wrap(async (req, res) => {
+  res.json(successResp(await svc.leaderboard({ limit: req.query.limit, offset: req.query.offset, lang: lang(req), userId: uid(req) })));
+}));
+
+router.post('/claim-all', requireAuth, wrap(async (req, res) => {
+  res.json(successResp(await svc.claimAll(uid(req))));
+}));
+
+// ── 管理员 ────────────────────────────────────────────────────
+router.get('/admin/definitions', requireAuth, requireAdmin, wrap(async (req, res) => {
+  res.json(successResp(await svc.adminList()));
+}));
+router.post('/admin/definitions', requireAuth, requireAdmin, wrap(async (req, res) => {
+  res.status(201).json(successResp(await svc.adminCreate(req.body)));
+}));
+router.put('/admin/definitions/:achievementId', requireAuth, requireAdmin, wrap(async (req, res) => {
+  res.json(successResp(await svc.adminUpdate(req.params.achievementId, req.body)));
+}));
+router.delete('/admin/definitions/:achievementId', requireAuth, requireAdmin, wrap(async (req, res) => {
+  res.json(successResp(await svc.adminDeactivate(req.params.achievementId)));
+}));
+router.post('/admin/grant', requireAuth, requireAdmin, wrap(async (req, res) => {
+  const { userId, achievementId, amount } = req.body || {};
+  if (!UUID_RE.test(String(userId || ''))) { const e = new Error('userId 无效'); e.statusCode = 400; throw e; }
+  const r = await engine.grantProgress(String(userId || ''), String(achievementId || ''), Number(amount) || 1);
+  if (!r) { const e = new Error('成就不存在'); e.statusCode = 404; throw e; }
+  res.json(successResp(r));
+}));
+
+router.get('/:achievementId', requireAuth, wrap(async (req, res) => {
+  res.json(successResp(await svc.detail(uid(req), req.params.achievementId, lang(req))));
+}));
+
+router.post('/:achievementId/claim', requireAuth, wrap(async (req, res) => {
+  res.json(successResp(await svc.claim(uid(req), req.params.achievementId), '奖励已领取'));
+}));
 
 module.exports = router;

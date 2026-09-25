@@ -472,6 +472,18 @@ app.use('/v1/events',
   proxy(SERVICES.reward, { '^/': '/events/' })
 );
 
+// ── Epic E05/E13：成就、消息中心 ───────────────────────────────
+// REQ-00076 成就（pokemon-service）
+app.use('/v1/achievements',
+  authMiddleware,
+  proxy(SERVICES.pokemon, { '^/': '/achievements/' })
+);
+// REQ-00099/00261/00425 消息中心（user-service）；实时推送见文末 /ws/notifications 升级代理
+app.use('/v1/notifications',
+  authMiddleware,
+  proxy(SERVICES.user, { '^/': '/notifications/' })
+);
+
 // Payment webhook (no auth — signed by channel)；必须注册在需要鉴权的 /v1/payment 之前
 app.use('/v1/payment/webhook',
   proxy(SERVICES.payment, { '^/': '/payment/webhook/' })
@@ -569,5 +581,15 @@ app.use('/api/admin', authMiddleware, requireAdmin, ipBanAdminRoutes);
 // 404 fallback
 app.use((req, res) => res.status(404).json({ code: 1005, message: `路由不存在: ${req.method} ${req.path}`, data: null }));
 
-app.listen(PORT, () => logger.info({ port: PORT }, 'API Gateway started'));
+const server = app.listen(PORT, () => logger.info({ port: PORT }, 'API Gateway started'));
+
+// REQ-00261/00425: 消息实时推送 WebSocket（/ws/notifications?token=…）升级请求代理到 user-service，
+// 鉴权（签名 + 登出黑名单）由 user-service 在握手时完成；其他路径的升级请求直接拒绝
+const notificationWsProxy = createProxyMiddleware({
+  target: SERVICES.user, changeOrigin: true, ws: true, pathFilter: '/ws/notifications', on: { error: proxyError },
+});
+server.on('upgrade', (req, socket, head) => {
+  if ((req.url || '').split('?')[0] === '/ws/notifications') return notificationWsProxy.upgrade(req, socket, head);
+  socket.destroy();
+});
 module.exports = app;

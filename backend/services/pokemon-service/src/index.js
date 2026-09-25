@@ -413,12 +413,7 @@ async function main() {
               VALUES ($1,$2,$3,$4)
             `, [userId, pokestopId, JSON.stringify(items), streak]);
 
-            await client.query(`
-              INSERT INTO user_achievements (user_id, achievement_id, current_value, updated_at)
-              VALUES ($1,'pokestop_spins',1,NOW())
-              ON CONFLICT (user_id,achievement_id) DO UPDATE
-                SET current_value=user_achievements.current_value+1, updated_at=NOW()
-            `, [userId]);
+            // 成就进度：pokestop_spins 上的触发器写游戏事件（REQ-00076，见 20260925_130000 迁移），这里不再写旧计数
           });
           } catch (txErr) {
             await getRedis().del(cooldownKey).catch(() => {}); // 发放失败：释放冷却，允许重试
@@ -491,12 +486,6 @@ async function main() {
       // REQ-00240: 精灵放生与资源回收系统
       app.use('/pokemon/release', require('./routes/release'));
       app.use('/training', require('./routes/trainingCamp'));
-
-      // ═══════════════════════════════════════════════════════════
-      // REQ-00076: 成就系统
-      // ═══════════════════════════════════════════════════════════
-
-      app.use('/achievements', require('./routes/achievements'));
 
       // ═══════════════════════════════════════════════════════════
       // REQ-00167: 本地化 API 端点

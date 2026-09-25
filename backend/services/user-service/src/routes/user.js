@@ -141,16 +141,18 @@ router.get('/me/quests', async (req, res, next) => {
 });
 
 // ── GET /users/me/achievements ────────────────────────────────
+// 兼容旧接口：数据来自统一成就表 achievements/user_achievements（REQ-00076；完整接口见 /v1/achievements）
 router.get('/me/achievements', async (req, res, next) => {
   try {
     const { rows } = await query(`
-      SELECT ad.id, ad.name_zh, ad.category, ad.tiers,
-             COALESCE(ua.current_value, 0) AS current_value,
-             COALESCE(ua.current_tier, 0) AS current_tier,
-             ua.unlocked_at
-      FROM achievement_definitions ad
-      LEFT JOIN user_achievements ua ON ua.achievement_id = ad.id AND ua.user_id = $1
-      ORDER BY ad.category, ad.id
+      SELECT a.achievement_id AS id, a.name->>'zh' AS name_zh, a.category, a.rarity, a.points,
+             (a.trigger_conditions->>'target')::int AS target,
+             COALESCE(ua.progress, 0) AS current_value, COALESCE(ua.completed, FALSE) AS completed,
+             ua.completed_at AS unlocked_at, COALESCE(ua.rewards_claimed, FALSE) AS rewards_claimed
+      FROM achievements a
+      LEFT JOIN user_achievements ua ON ua.achievement_id = a.achievement_id AND ua.user_id = $1
+      WHERE a.is_active AND (NOT a.is_hidden OR ua.completed)
+      ORDER BY a.category, a.display_order, a.achievement_id
     `, [req.user.sub]);
     res.json(successResp(rows));
   } catch (err) { next(err); }
