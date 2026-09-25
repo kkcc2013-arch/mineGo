@@ -559,6 +559,9 @@ app.get('/anticheat/users/:userId/evidence', requireAuth, requireAdmin, async (r
   } catch (err) { next(err); }
 });
 
+// REQ-00586 补全：申诉、地形区域管理、风控监控统计
+app.use('/', require('./routes/antiCheatAppeals'));
+
 // REQ-00586: 可信度每小时恢复 +1（多实例下用 Redis 锁保证只执行一次）
 setInterval(async () => {
   try {
