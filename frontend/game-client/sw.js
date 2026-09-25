@@ -2,7 +2,8 @@
 // Service Worker for PWA offline support and caching
 'use strict';
 
-const CACHE_VERSION = 'pmg-v1';
+// v2：E11 对战页/道馆卡片入口/RaidManager 改为服务端伤害，旧缓存的 index.html 与脚本需要失效
+const CACHE_VERSION = 'pmg-v2';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const API_CACHE = `${CACHE_VERSION}-api`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
@@ -221,7 +222,12 @@ function isStaticResource(pathname) {
          pathname === '/index.html';
 }
 
+// 实时对战类写操作（出招/团战攻击/开战/联赛匹配）离线时直接失败，不能排队到联网后补发：
+// 战斗状态以服务端为准、10 分钟过期，补发的旧操作会打到错误的回合上
+const NEVER_QUEUE_PATHS = ['/v1/gyms/', '/v1/raids/', '/v1/battle/'];
+
 function shouldQueueForSync(pathname) {
+  if (NEVER_QUEUE_PATHS.some(p => pathname.startsWith(p))) return false;
   return NO_CACHE_PATHS.some(p => pathname.startsWith(p));
 }
 
