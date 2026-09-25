@@ -1,357 +1,49 @@
 /**
- * REQ-00065: 精灵进化与成长系统
- * API 路由
+ * 精灵进化路由（挂载在 /pokemon，经网关 /v1/pokemon/*，均需 JWT）
+ *
+ *   GET  /pokemon/:id/evolution/check      所有进化路径、条件满足情况、进化预览与推荐
+ *   POST /pokemon/:id/evolution/execute    执行进化 { targetSpeciesId? }（多分支时必填）
+ *   GET  /pokemon/evolution/history        本人进化历史（原 /evolution/history/:userId 可查任意用户，已收回）
+ *   GET  /pokemon/evolution/items          进化道具及本人持有数量
+ *
+ * 实现见 ../evolutionService.js（唯一实现，index.js 的 /pokemon/my/:id/evolve 也委托它）。
+ * 原 POST /:id/experience（任意加经验）与 POST /:id/friendship（任意加亲密度）是可刷数值的调试接口，已删除；
+ * 经验改由 routes/growth.js 的道具/训练等正规来源发放。
  */
+'use strict';
 
 const express = require('express');
-const router = express.Router();
-const { EvolutionService } = require('../evolutionService');
-const { logger } = require('../../../../shared/logger');
 const { requireAuth } = require('../../../../shared/auth');
+const { query } = require('../../../../shared/db');
+const evolutionService = require('../evolutionService');
+const { route, ok } = require('../growth/common');
 
-// 用户身份只取自经校验的 JWT（原先回退到可伪造的 x-user-id 请求头，直连服务端口即可冒充任意用户）
-router.use(requireAuth);
+const router = express.Router();
 
-const evolutionService = new EvolutionService();
-// 精灵实例与用户的 ID 都是 UUID（原实现 parseInt 后查询，任何真实请求都会失败）
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+router.get('/evolution/history', requireAuth, route(async (req, res) => {
+  ok(res, await evolutionService.getHistory(req.user.sub, req.query));
+}));
 
-/**
- * GET /api/pokemon/:id/evolution/check
- * 检查精灵是否可以进化
- */
-router.get('/:id/evolution/check', async (req, res) => {
-    try {
-        const userId = req.user.sub;
-        if (!userId) {
-            return res.status(401).json({
-                success: false,
-                error: 'UNAUTHORIZED',
-                message: '需要登录才能检查进化状态'
-            });
-        }
-        
-        const pokemonId = req.params.id;
-        if (!UUID_RE.test(pokemonId)) {
-            return res.status(400).json({
-                success: false,
-                error: 'INVALID_POKEMON_ID',
-                message: '无效的精灵 ID'
-            });
-        }
-        
-        const result = await evolutionService.checkEvolutionEligibility(pokemonId, userId);
-        
-        res.json({
-            success: true,
-            data: result
-        });
-    } catch (error) {
-        logger.error('Evolution check failed', { error: error.message, pokemonId: req.params.id });
-        res.status(500).json({
-            success: false,
-            error: 'EVOLUTION_CHECK_FAILED',
-            message: error.message
-        });
-    }
-});
+router.get('/evolution/items', requireAuth, route(async (req, res) => {
+  const { rows } = await query(
+    `SELECT i.item_id AS "itemId", i.name_zh AS name, i.name_en AS "nameEn", i.description_zh AS description,
+            COALESCE(pi.qty, 0)::int AS owned
+       FROM items i
+       LEFT JOIN (SELECT item_id, SUM(quantity) AS qty FROM player_inventory WHERE user_id = $1 GROUP BY item_id) pi
+         ON pi.item_id = i.item_id
+      WHERE i.category = 'evolution'
+      ORDER BY i.item_id`, [req.user.sub]);
+  ok(res, rows);
+}));
 
-/**
- * POST /api/pokemon/:id/evolution/execute
- * 执行进化
- */
-router.post('/:id/evolution/execute', async (req, res) => {
-    try {
-        const userId = req.user.sub;
-        if (!userId) {
-            return res.status(401).json({
-                success: false,
-                error: 'UNAUTHORIZED',
-                message: '需要登录才能执行进化'
-            });
-        }
-        
-        const pokemonId = req.params.id;
-        const { targetSpeciesId, skipAnimation } = req.body;
-        
-        if (!UUID_RE.test(pokemonId)) {
-            return res.status(400).json({
-                success: false,
-                error: 'INVALID_POKEMON_ID',
-                message: '无效的精灵 ID'
-            });
-        }
-        
-        if (!targetSpeciesId) {
-            return res.status(400).json({
-                success: false,
-                error: 'TARGET_SPECIES_REQUIRED',
-                message: '需要指定目标进化物种'
-            });
-        }
-        
-        const result = await evolutionService.performEvolution(
-            pokemonId,
-            userId,
-            targetSpeciesId,
-            { skipAnimation }
-        );
-        
-        res.json({
-            success: true,
-            data: result
-        });
-    } catch (error) {
-        logger.error('Evolution execution failed', { 
-            error: error.message, 
-            pokemonId: req.params.id,
-            body: req.body
-        });
-        
-        const errorMap = {
-            'POKEMON_NOT_FOUND': { status: 404, message: '精灵不存在' },
-            'INVALID_EVOLUTION_PATH': { status: 400, message: '无效的进化路径' },
-            'EVOLUTION_CONDITIONS_NOT_MET': { status: 400, message: '未满足进化条件' },
-            'TARGET_SPECIES_NOT_FOUND': { status: 404, message: '目标物种不存在' },
-            'INSUFFICIENT_ITEMS': { status: 400, message: '道具不足' }
-        };
-        
-        const errorInfo = errorMap[error.message] || { status: 500, message: error.message };
-        
-        res.status(errorInfo.status).json({
-            success: false,
-            error: error.message,
-            message: errorInfo.message
-        });
-    }
-});
+router.get('/:id/evolution/check', requireAuth, route(async (req, res) => {
+  ok(res, await evolutionService.checkEvolution(req.params.id, req.user.sub));
+}));
 
-/**
- * POST /api/pokemon/:id/experience
- * 添加经验值
- */
-router.post('/:id/experience', async (req, res) => {
-    try {
-        const userId = req.user.sub;
-        if (!userId) {
-            return res.status(401).json({
-                success: false,
-                error: 'UNAUTHORIZED',
-                message: '需要登录才能添加经验值'
-            });
-        }
-        
-        const pokemonId = req.params.id;
-        const { amount, source, bonusMultiplier } = req.body;
-        
-        if (!UUID_RE.test(pokemonId)) {
-            return res.status(400).json({
-                success: false,
-                error: 'INVALID_POKEMON_ID',
-                message: '无效的精灵 ID'
-            });
-        }
-        
-        if (!amount || amount <= 0) {
-            return res.status(400).json({
-                success: false,
-                error: 'INVALID_AMOUNT',
-                message: '经验值必须大于 0'
-            });
-        }
-        
-        const result = await evolutionService.addExperience(
-            pokemonId,
-            userId,
-            amount,
-            source || 'unknown',
-            { bonusMultiplier }
-        );
-        
-        res.json({
-            success: true,
-            data: result
-        });
-    } catch (error) {
-        logger.error('Add experience failed', { 
-            error: error.message, 
-            pokemonId: req.params.id,
-            body: req.body
-        });
-        res.status(500).json({
-            success: false,
-            error: 'ADD_EXPERIENCE_FAILED',
-            message: error.message
-        });
-    }
-});
-
-/**
- * POST /api/pokemon/:id/friendship
- * 增加亲密度
- */
-router.post('/:id/friendship', async (req, res) => {
-    try {
-        const userId = req.user.sub;
-        if (!userId) {
-            return res.status(401).json({
-                success: false,
-                error: 'UNAUTHORIZED'
-            });
-        }
-        
-        const pokemonId = req.params.id;
-        const { changeType, amount } = req.body;
-        
-        if (!UUID_RE.test(pokemonId)) {
-            return res.status(400).json({
-                success: false,
-                error: 'INVALID_POKEMON_ID'
-            });
-        }
-        
-        const result = await evolutionService.addFriendship(
-            pokemonId,
-            userId,
-            changeType || 'walk',
-            amount || 1
-        );
-        
-        res.json({
-            success: true,
-            data: result
-        });
-    } catch (error) {
-        logger.error('Add friendship failed', { error: error.message });
-        res.status(500).json({
-            success: false,
-            error: 'ADD_FRIENDSHIP_FAILED',
-            message: error.message
-        });
-    }
-});
-
-/**
- * GET /api/pokemon/:id/stats
- * 获取精灵详细属性
- */
-router.get('/:id/stats', async (req, res) => {
-    try {
-        const userId = req.user.sub;
-        if (!userId) {
-            return res.status(401).json({
-                success: false,
-                error: 'UNAUTHORIZED'
-            });
-        }
-        
-        const pokemonId = req.params.id;
-        
-        const result = await evolutionService.db.query(`
-            SELECT pi.*, ps.name as species_name, ps.types, ps.image_url,
-                   ps.base_hp, ps.base_attack, ps.base_defense,
-                   ps.base_sp_attack, ps.base_sp_defense, ps.base_speed,
-                   ps.growth_rate
-            FROM pokemon_instances pi
-            JOIN pokemon_species ps ON pi.species_id = ps.id
-            WHERE pi.id = $1 AND pi.user_id = $2
-        `, [pokemonId, userId]);
-        
-        if (result.rows.length === 0) {
-            return res.status(404).json({
-                success: false,
-                error: 'POKEMON_NOT_FOUND'
-            });
-        }
-        
-        const pokemon = result.rows[0];
-        const growthRate = pokemon.growth_rate || 'medium_fast';
-        const expForNextLevel = evolutionService.getExpForLevel(
-            (pokemon.level || 1) + 1,
-            growthRate
-        );
-        
-        res.json({
-            success: true,
-            data: {
-                ...pokemon,
-                expForNextLevel,
-                expProgress: ((pokemon.experience || 0) / expForNextLevel * 100).toFixed(2)
-            }
-        });
-    } catch (error) {
-        logger.error('Get pokemon stats failed', { error: error.message });
-        res.status(500).json({
-            success: false,
-            error: 'GET_STATS_FAILED',
-            message: error.message
-        });
-    }
-});
-
-/**
- * GET /api/evolution/items
- * 获取所有进化道具
- */
-router.get('/evolution/items', async (req, res) => {
-    try {
-        const result = await evolutionService.db.query(`
-            SELECT * FROM evolution_items ORDER BY name
-        `);
-        
-        res.json({
-            success: true,
-            data: result.rows
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-});
-
-/**
- * GET /api/evolution/history/:userId
- * 获取用户进化历史
- */
-router.get('/evolution/history/:userId', async (req, res) => {
-    try {
-        const userId = req.params.userId;
-        const limit = parseInt(req.query.limit) || 20;
-        const offset = parseInt(req.query.offset) || 0;
-        
-        const result = await evolutionService.db.query(`
-            SELECT eh.*, 
-                   ps_from.name as from_species_name,
-                   ps_to.name as to_species_name
-            FROM evolution_history eh
-            JOIN pokemon_species ps_from ON eh.from_species_id = ps_from.id
-            JOIN pokemon_species ps_to ON eh.to_species_id = ps_to.id
-            WHERE eh.user_id = $1
-            ORDER BY eh.created_at DESC
-            LIMIT $2 OFFSET $3
-        `, [userId, limit, offset]);
-        
-        const countResult = await evolutionService.db.query(`
-            SELECT COUNT(*) as total FROM evolution_history WHERE user_id = $1
-        `, [userId]);
-        
-        res.json({
-            success: true,
-            data: {
-                history: result.rows,
-                total: parseInt(countResult.rows[0].total),
-                limit,
-                offset
-            }
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-});
+router.post('/:id/evolution/execute', requireAuth, route(async (req, res) => {
+  const body = req.body || {};
+  const result = await evolutionService.evolve(req.params.id, req.user.sub, { targetSpeciesId: body.targetSpeciesId });
+  ok(res, result, '进化成功！');
+}));
 
 module.exports = router;

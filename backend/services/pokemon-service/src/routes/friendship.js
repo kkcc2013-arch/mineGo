@@ -145,86 +145,28 @@ router.post('/:pokemonId/interact', authenticate, async (req, res) => {
 });
 
 /**
- * 检查亲密度进化
- * GET /api/pokemon/:pokemonId/evolution-check
+ * 亲密度进化检查 / 执行：委托唯一的进化服务（亲密度、昼夜等条件由 evolution_rules 配置）
+ * 原实现 parseInt(UUID) 后查询，任何真实精灵都 400/500，且与其他进化接口是两套扣糖逻辑
+ * GET  /pokemon/:pokemonId/evolution-check
+ * POST /pokemon/:pokemonId/evolve  { targetSpeciesId? }
  */
-router.get('/:pokemonId/evolution-check', authenticate, async (req, res) => {
+const evolutionService = require('../evolutionService');
+
+router.get('/:pokemonId/evolution-check', authenticate, async (req, res, next) => {
   try {
-    const pokemonId = parseInt(req.params.pokemonId, 10);
-    
-    if (isNaN(pokemonId)) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'invalid_pokemon_id' 
-      });
-    }
-    
-    const result = await friendshipService.checkFriendshipEvolution(pokemonId, req.user.id);
-    
-    res.json({ 
-      success: true, 
-      data: result 
-    });
-    
-  } catch (error) {
-    logger.error('Failed to check friendship evolution', { 
-      pokemonId: req.params.pokemonId, 
-      error: error.message 
-    });
-    
-    res.status(500).json({ 
-      success: false, 
-      error: 'internal_error',
-      message: '检查进化失败'
-    });
-  }
+    const result = await evolutionService.checkEvolution(req.params.pokemonId, req.user.id);
+    res.json({ success: true, data: result });
+  } catch (error) { next(error); }
 });
 
-/**
- * 执行亲密度进化
- * POST /api/pokemon/:pokemonId/evolve
- */
-router.post('/:pokemonId/evolve', authenticate, async (req, res) => {
+router.post('/:pokemonId/evolve', authenticate, async (req, res, next) => {
   try {
-    const pokemonId = parseInt(req.params.pokemonId, 10);
-    
-    if (isNaN(pokemonId)) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'invalid_pokemon_id' 
-      });
-    }
-    
-    const result = await friendshipService.performFriendshipEvolution(pokemonId, req.user.id);
-    
-    metrics.increment('friendship.evolution.performed');
-    
-    res.json({
-      success: true,
-      data: result
+    const result = await evolutionService.evolve(req.params.pokemonId, req.user.id, {
+      targetSpeciesId: req.body && req.body.targetSpeciesId,
     });
-    
-  } catch (error) {
-    logger.error('Failed to perform friendship evolution', { 
-      pokemonId: req.params.pokemonId, 
-      error: error.message 
-    });
-    
-    // 根据错误类型返回不同状态码
-    if (error.message.includes('Cannot evolve')) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'evolution_not_available',
-        message: error.message
-      });
-    }
-    
-    res.status(500).json({ 
-      success: false, 
-      error: 'internal_error',
-      message: '进化失败'
-    });
-  }
+    metrics.increment && metrics.increment('friendship.evolution.performed');
+    res.json({ success: true, data: result });
+  } catch (error) { next(error); }
 });
 
 /**

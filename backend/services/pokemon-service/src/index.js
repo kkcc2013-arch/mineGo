@@ -9,6 +9,7 @@ const { requireAuth, AppError, successResp } = require('../../../shared/auth');
 const { getRedis, getJSON } = require('../../../shared/redis');
 const { haversineDistance, requireTrustScore, TRUST_SCORE } = require('../../../shared/anti-cheat');
 const { createContentLocalizer, DEFAULT_LANGUAGE } = require('../../../shared/contentLocalizer');
+const evolutionService = require('./evolutionService');
 
 // Content Localizer instance
 let contentLocalizer = null;
@@ -185,7 +186,8 @@ async function main() {
           const sortCol    = validSorts[sort] || 'pi.cp';
           const sortDir    = order === 'asc' ? 'ASC' : 'DESC';
 
-          const conditions = ['pi.user_id=$1'];
+          // 放生/合并消耗的精灵为软删除（is_released），不再出现在背包里
+          const conditions = ['pi.user_id=$1', 'COALESCE(pi.is_released, false) = false'];
           const params = [userId];
           if (species_id) { params.push(species_id); conditions.push(`pi.species_id=$${params.length}`); }
           if (is_shiny === 'true') conditions.push('pi.is_shiny=true');
@@ -210,7 +212,7 @@ async function main() {
           `, params);
 
           const { rows: [total] } = await query(
-            `SELECT COUNT(*)::int FROM pokemon_instances WHERE user_id=$1 ${species_id ? 'AND species_id=$2':''}`,
+            `SELECT COUNT(*)::int FROM pokemon_instances WHERE user_id=$1 AND COALESCE(is_released, false) = false ${species_id ? 'AND species_id=$2':''}`,
             species_id ? [userId, species_id] : [userId]
           );
 
@@ -229,8 +231,8 @@ async function main() {
                    COALESCE(ci.amount,0) AS candy_count
             FROM pokemon_instances pi
             JOIN pokemon_species ps ON ps.id = pi.species_id
-            LEFT JOIN candy_inventory ci ON ci.user_id=pi.user_id AND ci.species_id=pi.species_id
-            WHERE pi.id=$1 AND pi.user_id=$2
+            LEFT JOIN candy_inventory ci ON ci.user_id=pi.user_id AND ci.species_id=pokemon_family_root(pi.species_id)
+            WHERE pi.id=$1 AND pi.user_id=$2 AND COALESCE(pi.is_released, false) = false
           `, [req.params.id, req.user.sub]);
 
           if (!pi) throw new AppError(3001, '精灵不存在', 404);
@@ -242,52 +244,21 @@ async function main() {
       // 进化与强化
       // ═══════════════════════════════════════════════════════════
 
-      // POST /pokemon/my/:id/evolve
+      // POST /pokemon/my/:id/evolve — 客户端旧接口，委托唯一的进化服务（evolutionService）
+      // 原实现无行锁、糖果扣减无条件、新 CP 公式丢失强化/等级加成，与 /pokemon/:id/evolution/execute 是两套逻辑
       app.post('/pokemon/my/:id/evolve', requireAuth, async (req, res, next) => {
         try {
-          const userId = req.user.sub;
-          const { rows: [pi] } = await query(`
-            SELECT pi.*, ps.candy_to_evolve, ps.evolves_to, ps.name_zh AS species_name,
-                   COALESCE(ci.amount,0) AS candy_count
-            FROM pokemon_instances pi
-            JOIN pokemon_species ps ON ps.id = pi.species_id
-            LEFT JOIN candy_inventory ci ON ci.user_id=pi.user_id AND ci.species_id=pi.species_id
-            WHERE pi.id=$1 AND pi.user_id=$2
-          `, [req.params.id, userId]);
-
-          if (!pi) throw new AppError(3001, '精灵不存在', 404);
-          if (!pi.evolves_to) throw new AppError(3006, '该精灵无法进化', 400);
-          if (!pi.candy_to_evolve) throw new AppError(3006, '该精灵无法进化', 400);
-          if (pi.candy_count < pi.candy_to_evolve) {
-            throw new AppError(3007, `糖果不足（需要 ${pi.candy_to_evolve} 个，当前 ${pi.candy_count} 个）`, 400);
-          }
-
-          const { rows: [newSpecies] } = await query(
-            'SELECT * FROM pokemon_species WHERE id=$1', [pi.evolves_to]
-          );
-
-          const newCp = Math.max(10, Math.floor(
-            ((newSpecies.base_attack + pi.iv_attack) *
-             Math.sqrt(newSpecies.base_defense + pi.iv_defense) *
-             Math.sqrt(newSpecies.base_hp + pi.iv_hp)) / 10
-          ));
-
-          const newInstance = await transaction(async (client) => {
-            await client.query(`
-              UPDATE pokemon_instances SET species_id=$1, cp=$2, hp_max=$3, hp_current=$3
-              WHERE id=$4
-            `, [pi.evolves_to, newCp, Math.floor(newCp * 0.8), pi.id]);
-
-            await client.query(`
-              UPDATE candy_inventory SET amount=amount-$1 WHERE user_id=$2 AND species_id=$3
-            `, [pi.candy_to_evolve, userId, pi.species_id]);
-
-            await client.query('UPDATE users SET xp=xp+500 WHERE id=$1', [userId]);
-
-            return { id: pi.id, newSpeciesId: pi.evolves_to, newSpeciesName: newSpecies.name_zh, newCp };
+          const result = await evolutionService.evolve(req.params.id, req.user.sub, {
+            targetSpeciesId: req.body && req.body.targetSpeciesId,
           });
-
-          res.json(successResp({ ...newInstance, xpEarned: 500 }, '进化成功！'));
+          res.json(successResp({
+            id: result.pokemonId,
+            newSpeciesId: result.toSpecies.id,
+            newSpeciesName: result.toSpecies.name,
+            newCp: result.after.cp,
+            xpEarned: result.trainerXp,
+            ...result,
+          }, '进化成功！'));
         } catch (err) { next(err); }
       });
 
@@ -301,7 +272,7 @@ async function main() {
                    u.stardust
             FROM pokemon_instances pi
             JOIN pokemon_species ps ON ps.id=pi.species_id
-            LEFT JOIN candy_inventory ci ON ci.user_id=pi.user_id AND ci.species_id=pi.species_id
+            LEFT JOIN candy_inventory ci ON ci.user_id=pi.user_id AND ci.species_id=pokemon_family_root(pi.species_id)
             JOIN users u ON u.id=pi.user_id
             WHERE pi.id=$1 AND pi.user_id=$2
           `, [req.params.id, userId]);
@@ -323,7 +294,7 @@ async function main() {
             `, [newCp, pi.id]);
             await client.query('UPDATE users SET stardust=stardust-$1 WHERE id=$2', [stardustCost, userId]);
             await client.query(`
-              UPDATE candy_inventory SET amount=amount-$1 WHERE user_id=$2 AND species_id=$3
+              UPDATE candy_inventory SET amount=amount-$1 WHERE user_id=$2 AND species_id=pokemon_family_root($3)
             `, [candyCost, userId, pi.species_id]);
           });
 
@@ -347,7 +318,7 @@ async function main() {
                    COALESCE(ci.amount, 0) AS candy_count
             FROM pokemon_species ps
             LEFT JOIN pokedex_entries pe ON pe.species_id=ps.id AND pe.user_id=$1
-            LEFT JOIN candy_inventory ci ON ci.species_id=ps.id AND ci.user_id=$1
+            LEFT JOIN candy_inventory ci ON ci.species_id=pokemon_family_root(ps.id) AND ci.user_id=$1
             ORDER BY ps.id
           `, [req.user.sub]);
 
