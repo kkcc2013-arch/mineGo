@@ -138,9 +138,9 @@
 ### Epic 进度
 
 <!-- EPICS:BEGIN（由 tools/render_plan.py 生成，请勿手改） -->
-**需求完成进度：3 / 442**（按需求文件计；同一编号多个文件分别计数）
+**需求进度：已验证完成 3，代码完成待验证 0，合计 3 / 442**（按需求文件计；同一编号多个文件分别计数；2026-09-25 起服务级验证由用户另行安排）
 
-| Epic | 波次 | 能力 | 完成 | 状态 / 说明 | 需求（✅=已完成 🟡=部分） |
+| Epic | 波次 | 能力 | 完成 | 状态 / 说明 | 需求（✅=已验证 🟢=代码完成待验证 🟡=部分） |
 |---|---|---|---|---|---|
 | E01 | W2 | 好友与社交互动 | 0/5 | ⬜  | [00048](https://github.com/kkcc2013-arch/mineGo/blob/dev/review-20260924/docs/requirements/REQ-00048-pokemon-friend-system-social-interaction.md) [00228](https://github.com/kkcc2013-arch/mineGo/blob/dev/review-20260924/docs/requirements/REQ-00228-social-privacy-settings-and-friend-permissions.md) [00326](https://github.com/kkcc2013-arch/mineGo/blob/dev/review-20260924/docs/requirements/REQ-00326-pokemon-friend-interaction-system.md) [00377](https://github.com/kkcc2013-arch/mineGo/blob/dev/review-20260924/docs/requirements/REQ-00377-pokemon-data-visibility-control-system.md) [00388](https://github.com/kkcc2013-arch/mineGo/blob/dev/review-20260924/docs/requirements/REQ-00388-friend-interaction-enhancement-system.md) |
 | E02 | W2 | 公会与团队 | 0/1 | ⬜  | [00058](https://github.com/kkcc2013-arch/mineGo/blob/dev/review-20260924/docs/requirements/REQ-00058-guild-system-and-team-social-features.md) |
@@ -208,3 +208,4 @@
 | 2026-09-25 07:40 | W1-A 完成：全新库迁移 194/194 成功；`migrate.js` 生产路径验证（195 个、幂等）；冒烟 37/37、单测通过。并行执行代理因环境多次重启中断未产出，改为前台小步提交 + 及时推送 |
 | 2026-09-25 08:00 | W1-B 完成（见 5.2）；并行启动 E25（API 规范）、E21（无障碍）、E11（战斗/道馆/团战）、E01（好友） |
 | 2026-09-25 08:40 | P0 补全：REQ-00565（Vault/加密密钥文件+审计、邮箱加密、性能实测）、REQ-00044（客户端隐私中心，浏览器 E2E 8/8）、REQ-00586（客户端信号、地形校验、申诉、监控面板）→ done；并行：E25/E21/E11/E01/E07/E05+E13 进行中 |
+| 2026-09-25 18:50 | 15:50 主机宕机：6 个并行任务中止，`mine` 容器停止（已恢复：dockerd 需改用 cgroupfs 驱动后重启）；E05+E13 分支检查点提交对象未落盘（55 个空对象），已修复并以保留的工作文件重新提交；6 个工作分支中 5 个已推送 GitHub 备份（E25 含 workflow 文件，待移出后合并）。**用户要求：之后不再启动服务验证，只改代码与文档；代码完成的需求标记 `implemented`（待用户验证），`done` 仅用于已验证** |
