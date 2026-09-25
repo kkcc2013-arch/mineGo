@@ -450,6 +450,9 @@ async function main() {
       // REQ-00076: 精灵成就系统与里程碑奖励路由
       app.use('/achievements', require('./routes/achievements'));
 
+      // REQ-00359/REQ-00403: 精灵收藏室与装饰
+      app.use('/collection-room', require('./routes/collectionRoom'));
+
       // REQ-00150: 背包容量扩展与购买系统路由
       app.use('/inventory', require('./routes/bagUpgrade'));
 

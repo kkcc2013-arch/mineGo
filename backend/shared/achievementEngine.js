@@ -150,6 +150,23 @@ async function unlockTitles(ctx, where, extra, sourceType, sourceId) {
   }
 }
 
+/** 发放装饰物品（成就/活动奖励）并通知；物品不存在时跳过 */
+async function grantDecoration(ctx, itemCode, source, dedupeKey, sourceRef) {
+  const client = ctx.client;
+  const { rows: [item] } = await client.query('SELECT id, name_i18n FROM decoration_items WHERE item_code = $1', [itemCode]);
+  if (!item) return false;
+  await client.query(
+    `INSERT INTO user_decorations (user_id, item_id, quantity, obtained_from) VALUES ($1, $2, 1, $3)
+     ON CONFLICT (user_id, item_id) DO UPDATE SET quantity = user_decorations.quantity + 1`, [ctx.userId, item.id, source]);
+  await notificationCenter.notify(client, ctx.userId, {
+    type: 'reward.decoration_unlock', templateKey: 'decoration_unlocked', category: 'reward', priority: 'low',
+    params: { item_name: rules.localize(item.name_i18n, 'zh-CN'), _i18n: {
+      'en-US': { item_name: rules.localize(item.name_i18n, 'en-US') }, 'ja-JP': { item_name: rules.localize(item.name_i18n, 'ja-JP') } } },
+    data: { itemCode, source, sourceRef }, actionUrl: '/collection-room', dedupeKey,
+  });
+  return true;
+}
+
 /** 完成后：自动解锁称号、装饰，生成成就/称号消息 */
 async function onCompleted(ctx, def) {
   const client = ctx.client;
@@ -160,22 +177,7 @@ async function onCompleted(ctx, def) {
   await unlockTitles(ctx, `(td.title_id = $4::text OR (td.unlock_type = 'achievement' AND td.unlock_criteria->>'achievement_id' = $3))`,
     [r.title], 'achievement', def.achievement_id);
 
-  if (r.decoration) {
-    const { rows: [item] } = await client.query(
-      'SELECT id, name_i18n FROM decoration_items WHERE item_code = $1', [r.decoration]);
-    if (item) {
-      await client.query(
-        `INSERT INTO user_decorations (user_id, item_id, quantity, obtained_from) VALUES ($1, $2, 1, 'achievement')
-         ON CONFLICT (user_id, item_id) DO UPDATE SET quantity = user_decorations.quantity + 1`, [ctx.userId, item.id]);
-      await notificationCenter.notify(client, ctx.userId, {
-        type: 'reward.decoration_unlock', templateKey: 'decoration_unlocked', category: 'reward', priority: 'low',
-        params: { item_name: rules.localize(item.name_i18n, 'zh-CN'), _i18n: {
-          'en-US': { item_name: rules.localize(item.name_i18n, 'en-US') }, 'ja-JP': { item_name: rules.localize(item.name_i18n, 'ja-JP') } } },
-        data: { itemCode: r.decoration, source: def.achievement_id }, actionUrl: '/collection-room',
-        dedupeKey: `deco:${def.achievement_id}`,
-      });
-    }
-  }
+  if (r.decoration) await grantDecoration(ctx, r.decoration, 'achievement', `deco:${def.achievement_id}`, def.achievement_id);
 
   const note = rules.achievementNotification(def);
   note.params._i18n = { 'en-US': { achievement_name: rules.localize(def.name, 'en-US') }, 'ja-JP': { achievement_name: rules.localize(def.name, 'ja-JP') } };
@@ -199,6 +201,21 @@ async function applyEvent(ctx, ev) {
   // 活动称号：活动完成（领奖）时解锁 unlock_type = 'event' 且 event_id 匹配的称号
   if (ev.event_type === 'event_completed' && data.eventKey) {
     await unlockTitles(ctx, `td.unlock_type = 'event' AND td.unlock_criteria->>'event_id' = $3`, [], 'event', String(data.eventKey));
+  }
+  // 活动装饰奖励：events.rewards 中 {"type": "decoration", "item": "<item_code>"}（奖励服务的 grantRewards 不认识该类型，这里补发）
+  if (ev.event_type === 'event_completed' && data.eventId) {
+    const { rows: [e] } = await ctx.client.query('SELECT rewards FROM events WHERE id = $1', [data.eventId]);
+    for (const r of Array.isArray(e && e.rewards) ? e.rewards : []) {
+      if (r && r.type === 'decoration' && (r.item || r.itemCode)) {
+        const code = String(r.item || r.itemCode);
+        // 同一活动同一物品只发一次（dedupe 在消息上；这里再用事件 dedupe 保证）
+        const { rowCount } = await ctx.client.query(
+          `INSERT INTO achievement_events (user_id, event_type, event_data, processed, processed_at, dedupe_key)
+           VALUES ($1, 'decoration_granted', $2, TRUE, NOW(), $3) ON CONFLICT (dedupe_key) WHERE dedupe_key IS NOT NULL DO NOTHING`,
+          [ctx.userId, JSON.stringify({ itemCode: code, eventId: data.eventId }), `deco:event:${data.eventId}:${code}:${ctx.userId}`]);
+        if (rowCount) await grantDecoration(ctx, code, 'event', `deco:event:${data.eventId}:${code}`, data.eventId);
+      }
+    }
   }
   const note = rules.eventNotification(ev.event_type, data, ctx.names, ev.id);
   if (note) await notificationCenter.notify(ctx.client, ctx.userId, note);

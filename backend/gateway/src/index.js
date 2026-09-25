@@ -478,6 +478,11 @@ app.use('/v1/achievements',
   authMiddleware,
   proxy(SERVICES.pokemon, { '^/': '/achievements/' })
 );
+// REQ-00359/00403 精灵收藏室（pokemon-service）
+app.use('/v1/collection-room',
+  authMiddleware,
+  proxy(SERVICES.pokemon, { '^/': '/collection-room/' })
+);
 // REQ-00099/00261/00425 消息中心（user-service）；实时推送见文末 /ws/notifications 升级代理
 app.use('/v1/notifications',
   authMiddleware,
