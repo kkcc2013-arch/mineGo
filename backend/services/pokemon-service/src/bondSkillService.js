@@ -1,490 +1,213 @@
 /**
- * 羁绊技能服务 - REQ-00151
- * 
- * 实现精灵羁绊技能解锁、学习、使用机制
+ * 羁绊技能服务（REQ-00151）
+ *
+ * 在原实现基础上修正：
+ *   - 解锁按羁绊等级（0~100，= 亲密度 ×100/255）1/2/3 槽 20/50/90，与需求一致（原阈值 26/76/151 为亲密度原值）
+ *   - 激活前校验精灵归属（原实现先把任意精灵的技能全部取消激活再校验）；最多激活 1 个
+ *   - 威力/效果用安全表达式求值（原正则解析对 "floor(friendship * 10)" 等公式返回错误结果）
+ *   - 新增战斗使用：校验已学习且激活、PP 充足，扣 PP、记录使用统计，返回按当前亲密度计算的效果
+ *   - "按任意亲密度计算效果"的调试接口改为只按精灵真实亲密度计算
+ * 规则见 growth/bondSkillRules.js。
  */
+'use strict';
 
-const { getRedis } = require('../../../shared/redis');
-const { getPool } = require('../../../shared/db');
-const { createLogger } = require('../../../shared/logger');
-const { EventEmitter } = require('events');
+const { query, transaction } = require('../../../shared/db');
+const { getJSON, setJSON, getRedis } = require('../../../shared/redis');
+const rules = require('./growth/bondSkillRules');
+const { GrowthError, lockOwnedPokemon, assertUuid } = require('./growth/common');
 
-const logger = createLogger('bond-skill-service');
+const SPECIES_CACHE_TTL = 3600;
 
-class BondSkillService extends EventEmitter {
-  constructor(config = {}) {
-    super();
-    this.db = config.db || getPool();
-    this.redis = config.redis || getRedis();
-    
-    // 亲密度等级阈值（对应羁绊技能槽位解锁）
-    this.UNLOCK_THRESHOLDS = {
-      slot1: 26,   // 认识等级
-      slot2: 76,   // 熟悉等级
-      slot3: 151   // 挚友等级
-    };
-    
-    // 最大激活羁绊技能数
-    this.MAX_ACTIVE_BOND_SKILLS = 1;
-  }
-
-  /**
-   * 获取精灵可用的羁绊技能列表
-   * @param {number} speciesId - 精灵种类ID
-   * @returns {Promise<Array>} 羁绊技能列表
-   */
-  async getAvailableBondSkills(speciesId) {
-    const cacheKey = `bond-skills:species:${speciesId}`;
-    
-    try {
-      const cached = await this.redis.get(cacheKey);
-      if (cached) {
-        return JSON.parse(cached);
-      }
-    } catch (e) {
-      logger.debug({ speciesId }, 'Cache miss for bond skills');
-    }
-    
-    const result = await this.db.query(`
-      SELECT 
-        id, pokemon_species_id, slot, skill_name, skill_name_en,
-        type, power, accuracy, pp, effect_description, effect_type,
-        unlock_friendship_level, friendship_bonus_formula,
-        energy_cost, cooldown_turns
-      FROM bond_skill_definitions
-      WHERE pokemon_species_id = $1 AND is_active = true
-      ORDER BY slot ASC
-    `, [speciesId]);
-    
-    const skills = result.rows;
-    
-    // 缓存1小时
-    await this.redis.setex(cacheKey, 3600, JSON.stringify(skills));
-    
-    return skills;
-  }
-
-  /**
-   * 获取精灵已学习的羁绊技能
-   * @param {string} pokemonInstanceId - 精灵实例ID
-   * @param {number} userId - 用户ID
-   * @returns {Promise<Object>} 包含已学习和可学习的技能
-   */
-  async getPokemonBondSkills(pokemonInstanceId, userId) {
-    // 获取精灵信息
-    const pokemonResult = await this.db.query(`
-      SELECT pi.id, pi.species_id, pi.user_id, pi.friendship
-      FROM pokemon_instances pi
-      WHERE pi.id = $1 AND pi.user_id = $2
-    `, [pokemonInstanceId, userId]);
-    
-    if (pokemonResult.rows.length === 0) {
-      throw new Error('Pokemon not found or not owned by user');
-    }
-    
-    const pokemon = pokemonResult.rows[0];
-    const friendship = pokemon.friendship || 0;
-    
-    // 获取该种类可用的羁绊技能
-    const availableSkills = await this.getAvailableBondSkills(pokemon.species_id);
-    
-    // 获取已学习的技能
-    const learnedResult = await this.db.query(`
-      SELECT 
-        pbs.id, pbs.bond_skill_id, pbs.learned_at, pbs.is_active,
-        pbs.current_pp, pbs.times_used,
-        bsd.skill_name, bsd.skill_name_en, bsd.type, bsd.power,
-        bsd.accuracy, bsd.pp as max_pp, bsd.effect_description,
-        bsd.effect_type, bsd.slot, bsd.energy_cost, bsd.cooldown_turns
-      FROM pokemon_bond_skills pbs
-      JOIN bond_skill_definitions bsd ON pbs.bond_skill_id = bsd.id
-      WHERE pbs.pokemon_instance_id = $1
-      ORDER BY bsd.slot ASC
-    `, [pokemonInstanceId]);
-    
-    const learnedSkills = learnedResult.rows;
-    
-    // 标记每个技能的解锁状态
-    const skillsWithStatus = availableSkills.map(skill => {
-      const learned = learnedSkills.find(l => l.bond_skill_id === skill.id);
-      const isUnlocked = friendship >= skill.unlock_friendship_level;
-      
-      return {
-        ...skill,
-        isUnlocked,
-        isLearned: !!learned,
-        learnedInfo: learned || null,
-        friendshipRequired: skill.unlock_friendship_level,
-        friendshipCurrent: friendship,
-        friendshipGap: Math.max(0, skill.unlock_friendship_level - friendship)
-      };
-    });
-    
-    return {
-      pokemonId: pokemonInstanceId,
-      speciesId: pokemon.species_id,
-      friendship,
-      skills: skillsWithStatus,
-      learnedCount: learnedSkills.length,
-      maxSlots: 3,
-      activeSkill: learnedSkills.find(s => s.is_active) || null
-    };
-  }
-
-  /**
-   * 学习羁绊技能
-   * @param {string} pokemonInstanceId - 精灵实例ID
-   * @param {number} bondSkillId - 羁绊技能ID
-   * @param {number} userId - 用户ID
-   * @returns {Promise<Object>} 学习结果
-   */
-  async learnBondSkill(pokemonInstanceId, bondSkillId, userId) {
-    const client = await this.db.connect();
-    
-    try {
-      await client.query('BEGIN');
-      
-      // 获取精灵信息
-      const pokemonResult = await client.query(`
-        SELECT pi.id, pi.species_id, pi.user_id, pi.friendship
-        FROM pokemon_instances pi
-        WHERE pi.id = $1 AND pi.user_id = $2
-        FOR UPDATE
-      `, [pokemonInstanceId, userId]);
-      
-      if (pokemonResult.rows.length === 0) {
-        throw new Error('Pokemon not found or not owned by user');
-      }
-      
-      const pokemon = pokemonResult.rows[0];
-      
-      // 获取羁绊技能定义
-      const skillResult = await client.query(`
-        SELECT * FROM bond_skill_definitions
-        WHERE id = $1 AND pokemon_species_id = $2 AND is_active = true
-      `, [bondSkillId, pokemon.species_id]);
-      
-      if (skillResult.rows.length === 0) {
-        throw new Error('Bond skill not found for this pokemon species');
-      }
-      
-      const skill = skillResult.rows[0];
-      
-      // 检查亲密度是否达标
-      if (pokemon.friendship < skill.unlock_friendship_level) {
-        throw new Error(`Friendship level not enough. Required: ${skill.unlock_friendship_level}, Current: ${pokemon.friendship}`);
-      }
-      
-      // 检查是否已学习
-      const existingResult = await client.query(`
-        SELECT id FROM pokemon_bond_skills
-        WHERE pokemon_instance_id = $1 AND bond_skill_id = $2
-      `, [pokemonInstanceId, bondSkillId]);
-      
-      if (existingResult.rows.length > 0) {
-        throw new Error('Bond skill already learned');
-      }
-      
-      // 学习技能
-      const learnResult = await client.query(`
-        INSERT INTO pokemon_bond_skills (
-          pokemon_instance_id, bond_skill_id, current_pp, is_active
-        ) VALUES ($1, $2, $3, false)
-        RETURNING id, learned_at
-      `, [pokemonInstanceId, bondSkillId, skill.pp]);
-      
-      await client.query('COMMIT');
-      
-      // 清除缓存
-      await this._invalidateCache(pokemonInstanceId);
-      
-      // 发送事件
-      this.emit('bondSkillLearned', {
-        userId,
-        pokemonInstanceId,
-        bondSkillId,
-        skillName: skill.skill_name
-      });
-      
-      logger.info({
-        userId,
-        pokemonInstanceId,
-        bondSkillId,
-        skillName: skill.skill_name
-      }, 'Bond skill learned');
-      
-      return {
-        success: true,
-        learnedAt: learnResult.rows[0].learned_at,
-        skill: {
-          id: skill.id,
-          name: skill.skill_name,
-          nameEn: skill.skill_name_en,
-          type: skill.type,
-          power: skill.power,
-          pp: skill.pp
-        }
-      };
-      
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * 遗忘羁绊技能
-   * @param {string} pokemonInstanceId - 精灵实例ID
-   * @param {number} bondSkillId - 羁绊技能ID
-   * @param {number} userId - 用户ID
-   * @returns {Promise<Object>} 遗忘结果
-   */
-  async forgetBondSkill(pokemonInstanceId, bondSkillId, userId) {
-    const result = await this.db.query(`
-      DELETE FROM pokemon_bond_skills
-      WHERE pokemon_instance_id = $1 
-        AND bond_skill_id = $2
-        AND EXISTS (
-          SELECT 1 FROM pokemon_instances 
-          WHERE id = $1 AND user_id = $3
-        )
-      RETURNING id
-    `, [pokemonInstanceId, bondSkillId, userId]);
-    
-    if (result.rows.length === 0) {
-      throw new Error('Bond skill not found or not owned by user');
-    }
-    
-    // 清除缓存
-    await this._invalidateCache(pokemonInstanceId);
-    
-    logger.info({
-      userId,
-      pokemonInstanceId,
-      bondSkillId
-    }, 'Bond skill forgotten');
-    
-    return {
-      success: true,
-      message: 'Bond skill forgotten successfully'
-    };
-  }
-
-  /**
-   * 激活羁绊技能（用于战斗）
-   * @param {string} pokemonInstanceId - 精灵实例ID
-   * @param {number} bondSkillId - 羁绊技能ID
-   * @param {number} userId - 用户ID
-   * @returns {Promise<Object>} 激活结果
-   */
-  async activateBondSkill(pokemonInstanceId, bondSkillId, userId) {
-    const client = await this.db.connect();
-    
-    try {
-      await client.query('BEGIN');
-      
-      // 先取消所有已激活的技能
-      await client.query(`
-        UPDATE pokemon_bond_skills
-        SET is_active = false
-        WHERE pokemon_instance_id = $1
-      `, [pokemonInstanceId]);
-      
-      // 激活指定技能
-      const result = await client.query(`
-        UPDATE pokemon_bond_skills
-        SET is_active = true
-        WHERE pokemon_instance_id = $1 
-          AND bond_skill_id = $2
-          AND EXISTS (
-            SELECT 1 FROM pokemon_instances 
-            WHERE id = $1 AND user_id = $3
-          )
-        RETURNING id
-      `, [pokemonInstanceId, bondSkillId, userId]);
-      
-      if (result.rows.length === 0) {
-        throw new Error('Bond skill not found or not learned');
-      }
-      
-      await client.query('COMMIT');
-      
-      // 清除缓存
-      await this._invalidateCache(pokemonInstanceId);
-      
-      return {
-        success: true,
-        message: 'Bond skill activated'
-      };
-      
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * 计算羁绊技能实际效果
-   * @param {string} pokemonInstanceId - 精灵实例ID
-   * @param {number} bondSkillId - 羁绊技能ID
-   * @param {number} friendship - 当前亲密度
-   * @returns {Promise<Object>} 技能效果
-   */
-  async calculateBondSkillEffect(pokemonInstanceId, bondSkillId, friendship) {
-    const skillResult = await this.db.query(`
-      SELECT * FROM bond_skill_definitions WHERE id = $1
-    `, [bondSkillId]);
-    
-    if (skillResult.rows.length === 0) {
-      throw new Error('Bond skill not found');
-    }
-    
-    const skill = skillResult.rows[0];
-    
-    // 解析羁绊加成公式
-    let calculatedPower = skill.power;
-    let additionalEffects = {};
-    
-    if (skill.friendship_bonus_formula) {
-      const formula = skill.friendship_bonus_formula;
-      
-      // 简单公式解析
-      if (formula.includes('friendship')) {
-        // 计算基础数值
-        const baseMatch = formula.match(/^(\d+)/);
-        const bonusMatch = formula.match(/friendship\s*\*\s*([\d.]+)/);
-        
-        if (baseMatch && bonusMatch) {
-          const base = parseInt(baseMatch[1]);
-          const multiplier = parseFloat(bonusMatch[1]);
-          calculatedPower = base + Math.floor(friendship * multiplier);
-        }
-      }
-      
-      // 解析额外效果
-      if (formula.includes('crit_bonus')) {
-        const critMatch = formula.match(/crit_bonus:\s*friendship\s*\/\s*(\d+)/);
-        if (critMatch) {
-          additionalEffects.critBonus = friendship / parseInt(critMatch[1]);
-        }
-      }
-      
-      if (formula.includes('ignore_resistance')) {
-        additionalEffects.ignoreResistance = true;
-      }
-      
-      if (formula.includes('shield_hp')) {
-        const shieldMatch = formula.match(/shield_hp:\s*floor\(friendship\s*\*\s*(\d+)\)/);
-        if (shieldMatch) {
-          additionalEffects.shieldHp = Math.floor(friendship * parseInt(shieldMatch[1]));
-        }
-      }
-    }
-    
-    return {
-      skillId: skill.id,
-      skillName: skill.skill_name,
-      type: skill.type,
-      effectType: skill.effect_type,
-      calculatedPower,
-      accuracy: skill.accuracy,
-      pp: skill.pp,
-      energyCost: skill.energy_cost,
-      cooldownTurns: skill.cooldown_turns,
-      additionalEffects,
-      friendship
-    };
-  }
-
-  /**
-   * 记录羁绊技能使用
-   * @param {Object} usageData - 使用数据
-   */
-  async recordSkillUsage(usageData) {
-    const { userId, pokemonInstanceId, bondSkillId, battleId, damageDealt, effectApplied } = usageData;
-    
-    await this.db.query(`
-      INSERT INTO bond_skill_usage_stats (
-        user_id, pokemon_instance_id, bond_skill_id, battle_id,
-        damage_dealt, effect_applied
-      ) VALUES ($1, $2, $3, $4, $5, $6)
-    `, [userId, pokemonInstanceId, bondSkillId, battleId, damageDealt || 0, effectApplied]);
-    
-    // 更新使用次数
-    await this.db.query(`
-      UPDATE pokemon_bond_skills
-      SET times_used = times_used + 1
-      WHERE pokemon_instance_id = $1 AND bond_skill_id = $2
-    `, [pokemonInstanceId, bondSkillId]);
-  }
-
-  /**
-   * 获取羁绊技能统计
-   * @param {number} userId - 用户ID
-   * @returns {Promise<Object>} 统计数据
-   */
-  async getBondSkillStats(userId) {
-    const result = await this.db.query(`
-      SELECT 
-        COUNT(DISTINCT pbs.pokemon_instance_id) as pokemon_with_bond_skills,
-        COUNT(pbs.id) as total_skills_learned,
-        SUM(pbs.times_used) as total_times_used
-      FROM pokemon_bond_skills pbs
-      JOIN pokemon_instances pi ON pbs.pokemon_instance_id = pi.id
-      WHERE pi.user_id = $1
-    `, [userId]);
-    
-    const usageResult = await this.db.query(`
-      SELECT 
-        bsd.skill_name,
-        bsd.type,
-        COUNT(bsus.id) as usage_count,
-        AVG(bsus.damage_dealt) as avg_damage
-      FROM bond_skill_usage_stats bsus
-      JOIN bond_skill_definitions bsd ON bsus.bond_skill_id = bsd.id
-      WHERE bsus.user_id = $1
-      GROUP BY bsd.id, bsd.skill_name, bsd.type
-      ORDER BY usage_count DESC
-      LIMIT 10
-    `, [userId]);
-    
-    return {
-      summary: result.rows[0],
-      topSkills: usageResult.rows
-    };
-  }
-
-  /**
-   * 清除缓存
-   */
-  async _invalidateCache(pokemonInstanceId) {
-    const pattern = `bond-skills:pokemon:${pokemonInstanceId}:*`;
-    try {
-      const keys = await this.redis.keys(pattern);
-      if (keys.length > 0) {
-        await this.redis.del(...keys);
-      }
-    } catch (e) {
-      logger.debug({ pokemonInstanceId }, 'Cache invalidation skipped');
-    }
-  }
+function parseId(v, field) {
+  const n = Number(v);
+  if (!Number.isInteger(n) || n <= 0) throw new GrowthError('INVALID_PARAM', `无效的 ${field}`, 400);
+  return n;
 }
 
-// 导出单例
-let instance = null;
-
-function getBondSkillService(config = {}) {
-  if (!instance) {
-    instance = new BondSkillService(config);
-  }
-  return instance;
+function present(def) {
+  return {
+    id: def.id,
+    slot: def.slot,
+    name: def.skill_name,
+    nameEn: def.skill_name_en,
+    type: def.type,
+    power: def.power,
+    accuracy: def.accuracy,
+    pp: def.pp,
+    effectDescription: def.effect_description,
+    effectType: def.effect_type,
+    unlockBondLevel: def.unlock_friendship_level,
+    formula: def.friendship_bonus_formula,
+    energyCost: def.energy_cost,
+    cooldownTurns: def.cooldown_turns,
+  };
 }
 
-module.exports = {
-  BondSkillService,
-  getBondSkillService
-};
+async function definitionsFor(speciesId) {
+  const key = `bond-skills:species:v2:${speciesId}`;
+  try { const hit = await getJSON(key); if (hit) return hit; } catch { /* ignore */ }
+  const { rows } = await query(
+    `SELECT * FROM bond_skill_definitions WHERE pokemon_species_id = $1 AND is_active = TRUE ORDER BY slot`, [speciesId]);
+  try { await setJSON(key, rows, SPECIES_CACHE_TTL); } catch { /* ignore */ }
+  return rows;
+}
+
+async function available(speciesId) {
+  const id = parseId(speciesId, 'speciesId');
+  const defs = await definitionsFor(id);
+  return { speciesId: id, totalSkills: defs.length, slotThresholds: rules.SLOT_THRESHOLDS, skills: defs.map(present) };
+}
+
+async function learnedFor(db, pokemonId) {
+  const { rows } = await db.query(
+    `SELECT pbs.bond_skill_id, pbs.is_active, pbs.current_pp, pbs.times_used, pbs.learned_at, d.*
+       FROM pokemon_bond_skills pbs JOIN bond_skill_definitions d ON d.id = pbs.bond_skill_id
+      WHERE pbs.pokemon_instance_id = $1 ORDER BY d.slot`, [pokemonId]);
+  return rows;
+}
+
+async function getPokemonBondSkills(pokemonId, userId) {
+  const p = await lockOwnedPokemon({ query }, pokemonId, userId, { lock: false });
+  const friendship = Number(p.friendship ?? 70);
+  const defs = await definitionsFor(p.species_id);
+  const learned = await learnedFor({ query }, pokemonId);
+  const byId = new Map(learned.map((l) => [l.bond_skill_id, l]));
+  const skills = defs.map((d) => {
+    const l = byId.get(d.id);
+    return {
+      ...present(d),
+      ...rules.skillStatus(d, friendship, l),
+      isActive: !!(l && l.is_active),
+      currentPp: l ? l.current_pp : null,
+      timesUsed: l ? l.times_used : 0,
+      effect: rules.computeEffect(d, friendship),
+    };
+  });
+  // 进化前学会、当前物种没有的技能也列出（仍可使用）
+  const extra = learned.filter((l) => !defs.some((d) => d.id === l.bond_skill_id)).map((l) => ({
+    ...present(l), isUnlocked: true, isLearned: true, inherited: true, isActive: l.is_active, currentPp: l.current_pp,
+    timesUsed: l.times_used, effect: rules.computeEffect(l, friendship),
+  }));
+  const active = [...skills, ...extra].find((s) => s.isActive) || null;
+  return {
+    pokemonId: p.id,
+    speciesId: Number(p.species_id),
+    friendship,
+    bondLevel: rules.bondLevel(friendship),
+    slotThresholds: rules.SLOT_THRESHOLDS,
+    maxSlots: 3,
+    learnedCount: learned.length,
+    activeSkill: active ? { id: active.id, name: active.name, power: active.effect.power } : null,
+    skills: [...skills, ...extra],
+  };
+}
+
+async function learn(pokemonId, skillId, userId) {
+  const sid = parseId(skillId, 'skillId');
+  return transaction(async (client) => {
+    const p = await lockOwnedPokemon(client, pokemonId, userId);
+    const { rows: [def] } = await client.query(
+      'SELECT * FROM bond_skill_definitions WHERE id = $1 AND pokemon_species_id = $2 AND is_active = TRUE', [sid, p.species_id]);
+    if (!def) throw new GrowthError('BOND_SKILL_NOT_FOUND', '该精灵没有这个羁绊技能', 404);
+    const friendship = Number(p.friendship ?? 70);
+    const st = rules.skillStatus(def, friendship, null);
+    if (!st.isUnlocked) {
+      throw new GrowthError('FRIENDSHIP_TOO_LOW', `羁绊等级不足（需要 ${st.bondLevelRequired}，当前 ${st.bondLevelCurrent}）`, 400, st);
+    }
+    const learned = await learnedFor(client, pokemonId);
+    if (learned.some((l) => l.bond_skill_id === sid)) throw new GrowthError('ALREADY_LEARNED', '已经学会该羁绊技能', 409);
+    if (learned.some((l) => l.slot === def.slot)) throw new GrowthError('SLOT_OCCUPIED', `第 ${def.slot} 槽已有羁绊技能，请先遗忘`, 409);
+    await client.query(
+      `INSERT INTO pokemon_bond_skills (pokemon_instance_id, bond_skill_id, current_pp, is_active) VALUES ($1, $2, $3, FALSE)`,
+      [pokemonId, sid, def.pp]);
+    return { learned: true, skill: present(def), effect: rules.computeEffect(def, friendship) };
+  });
+}
+
+async function forget(pokemonId, skillId, userId) {
+  const sid = parseId(skillId, 'skillId');
+  return transaction(async (client) => {
+    await lockOwnedPokemon(client, pokemonId, userId);
+    const { rowCount } = await client.query(
+      'DELETE FROM pokemon_bond_skills WHERE pokemon_instance_id = $1 AND bond_skill_id = $2', [pokemonId, sid]);
+    if (!rowCount) throw new GrowthError('NOT_LEARNED', '没有学会该羁绊技能', 404);
+    return { forgotten: true, skillId: sid };
+  });
+}
+
+async function activate(pokemonId, skillId, userId) {
+  const sid = parseId(skillId, 'skillId');
+  return transaction(async (client) => {
+    await lockOwnedPokemon(client, pokemonId, userId);
+    const { rows: [l] } = await client.query(
+      'SELECT id FROM pokemon_bond_skills WHERE pokemon_instance_id = $1 AND bond_skill_id = $2', [pokemonId, sid]);
+    if (!l) throw new GrowthError('NOT_LEARNED', '没有学会该羁绊技能', 404);
+    await client.query('UPDATE pokemon_bond_skills SET is_active = (bond_skill_id = $2) WHERE pokemon_instance_id = $1', [pokemonId, sid]);
+    return { activated: true, skillId: sid, maxActive: rules.MAX_ACTIVE };
+  });
+}
+
+/** 战斗中使用激活的羁绊技能：扣 PP、记录统计，返回按当前亲密度计算的效果 */
+async function use(pokemonId, skillId, userId, { battleId } = {}) {
+  const sid = parseId(skillId, 'skillId');
+  return transaction(async (client) => {
+    const p = await lockOwnedPokemon(client, pokemonId, userId);
+    const { rows: [l] } = await client.query(
+      `SELECT pbs.id, pbs.is_active, pbs.current_pp, d.* FROM pokemon_bond_skills pbs
+         JOIN bond_skill_definitions d ON d.id = pbs.bond_skill_id
+        WHERE pbs.pokemon_instance_id = $1 AND pbs.bond_skill_id = $2 FOR UPDATE OF pbs`, [pokemonId, sid]);
+    if (!l) throw new GrowthError('NOT_LEARNED', '没有学会该羁绊技能', 404);
+    if (!l.is_active) throw new GrowthError('NOT_ACTIVE', '羁绊技能未激活，战斗中只能使用已激活的羁绊技能', 400);
+    if (!(Number(l.current_pp) > 0)) throw new GrowthError('NO_PP', 'PP 已用完（在休息站休息可恢复）', 400);
+    const effect = rules.computeEffect(l, Number(p.friendship ?? 70));
+    const { rows: [u] } = await client.query(
+      `UPDATE pokemon_bond_skills SET current_pp = current_pp - 1, times_used = times_used + 1
+        WHERE pokemon_instance_id = $1 AND bond_skill_id = $2 RETURNING current_pp`, [pokemonId, sid]);
+    await client.query(
+      `INSERT INTO bond_skill_usage_stats (user_id, pokemon_instance_id, bond_skill_id, battle_id, damage_dealt, effect_applied)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [userId, pokemonId, sid, battleId ? String(battleId).slice(0, 50) : null, effect.power, effect.effectType]);
+    return { ...effect, remainingPp: u.current_pp, battleId: battleId || null };
+  });
+}
+
+/** 恢复精灵全部羁绊技能 PP（休息站休息结束时调用） */
+async function restorePp(client, pokemonId) {
+  await client.query(
+    `UPDATE pokemon_bond_skills pbs SET current_pp = d.pp FROM bond_skill_definitions d
+      WHERE d.id = pbs.bond_skill_id AND pbs.pokemon_instance_id = $1`, [pokemonId]);
+}
+
+async function effectOf(pokemonId, skillId, userId) {
+  const sid = parseId(skillId, 'skillId');
+  const p = await lockOwnedPokemon({ query }, pokemonId, userId, { lock: false });
+  const { rows: [def] } = await query('SELECT * FROM bond_skill_definitions WHERE id = $1', [sid]);
+  if (!def) throw new GrowthError('BOND_SKILL_NOT_FOUND', '羁绊技能不存在', 404);
+  return rules.computeEffect(def, Number(p.friendship ?? 70));
+}
+
+async function stats(userId) {
+  const { rows: [summary] } = await query(
+    `SELECT COUNT(DISTINCT pbs.pokemon_instance_id)::int AS "pokemonWithBondSkills", COUNT(pbs.id)::int AS "totalSkillsLearned",
+            COALESCE(SUM(pbs.times_used), 0)::int AS "totalTimesUsed"
+       FROM pokemon_bond_skills pbs JOIN pokemon_instances pi ON pi.id = pbs.pokemon_instance_id WHERE pi.user_id = $1`, [userId]);
+  const { rows: top } = await query(
+    `SELECT d.id, d.skill_name AS name, d.type, COUNT(s.id)::int AS "usageCount", ROUND(AVG(s.damage_dealt))::int AS "avgPower"
+       FROM bond_skill_usage_stats s JOIN bond_skill_definitions d ON d.id = s.bond_skill_id
+      WHERE s.user_id = $1 GROUP BY d.id, d.skill_name, d.type ORDER BY "usageCount" DESC LIMIT 10`, [userId]);
+  return { summary, topSkills: top };
+}
+
+/** 战斗档案用：精灵当前激活的羁绊技能效果 */
+async function activeEffect(db, pokemon) {
+  const { rows: [l] } = await db.query(
+    `SELECT pbs.current_pp, d.* FROM pokemon_bond_skills pbs JOIN bond_skill_definitions d ON d.id = pbs.bond_skill_id
+      WHERE pbs.pokemon_instance_id = $1 AND pbs.is_active`, [pokemon.id]);
+  return l ? { ...rules.computeEffect(l, Number(pokemon.friendship ?? 70)), currentPp: l.current_pp } : null;
+}
+
+function invalidateSpecies(speciesId) {
+  return getRedis().del(`bond-skills:species:v2:${speciesId}`).catch(() => {});
+}
+
+module.exports = { available, getPokemonBondSkills, learn, forget, activate, use, restorePp, effectOf, stats, activeEffect, invalidateSpecies, assertUuid };

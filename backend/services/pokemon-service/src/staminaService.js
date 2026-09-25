@@ -201,7 +201,9 @@ async function endRest(pokemonId, userId) {
     await release(client, pokemonId, 'resting');
     const r = await recoverStamina(client, { pokemonId, userId, amount: extra, source: 'rest_station', metadata: { restId: rest.id, minutes } });
     await client.query('UPDATE rest_records SET ended_at = NOW(), stamina_recovered = $2 WHERE id = $1', [rest.id, r.recovered]);
-    return { restId: rest.id, minutes, ...r };
+    // 休息结束同时恢复羁绊技能 PP（REQ-00151）
+    await require('./bondSkillService').restorePp(client, pokemonId);
+    return { restId: rest.id, minutes, ...r, bondSkillPpRestored: true };
   });
 }
 

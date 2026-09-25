@@ -435,7 +435,62 @@ async function testEvolutionTree() {
   record('进化树：POST /v1/pokemon/evolve 执行进化（同一实现）', ev.status === 200 && ev.data.toSpecies.id === 2 && (await candy(u.userId, 1)) === 0, `status=${ev.status}`);
 }
 
-const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina, tree: testEvolutionTree };
+// ───────────────────── 羁绊技能（REQ-00151） ─────────────────────
+async function testBondSkills() {
+  const u = await newUser('bnd');
+  const avail = await call('GET', '/v1/pokemon/species/25/bond-skills', { token: u.token });
+  record('羁绊：皮卡丘羁绊技能列表（3 槽，解锁 20/50/90）', avail.status === 200 && avail.data.skills.length === 3 && avail.data.skills.map((s) => s.unlockBondLevel).join() === '20,50,90',
+    `status=${avail.status} ${avail.data && avail.data.skills.map((s) => s.unlockBondLevel)}`);
+  const skillId = (slot) => avail.data.skills.find((s) => s.slot === slot).id;
+  const p = await givePokemon(u.userId, 25, { friendship: 50 });
+  const setF = (f) => db().query('UPDATE pokemon_instances SET friendship = $2 WHERE id = $1', [p.id, f]);
+  const learn = (slot) => call('POST', `/v1/pokemon/${p.id}/bond-skills/${skillId(slot)}/learn`, { token: u.token });
+
+  const low = await learn(1);
+  record('羁绊：羁绊等级 19 不能学 1 槽（400 FRIENDSHIP_TOO_LOW）', low.status === 400 && errName(low) === 'FRIENDSHIP_TOO_LOW', `status=${low.status} ${errName(low)}`);
+  await setF(51);
+  const l1 = await learn(1);
+  const l2early = await learn(2);
+  record('羁绊：羁绊等级 20 可学 1 槽，2 槽仍锁定', l1.status === 200 && l2early.status === 400, `l1=${l1.status} l2=${l2early.status}`);
+  await setF(128);
+  const l2 = await learn(2);
+  await setF(229);
+  const l3early = await learn(3);
+  await setF(230);
+  const l3 = await learn(3);
+  record('羁绊：羁绊等级 50 学 2 槽、90 学 3 槽', l2.status === 200 && l3early.status === 400 && l3.status === 200, `l2=${l2.status} l3(229)=${l3early.status} l3(230)=${l3.status}`);
+  const dup = await learn(1);
+  record('羁绊：重复学习被拒（409）', dup.status === 409, `status=${dup.status}`);
+
+  const notActive = await call('POST', `/v1/pokemon/${p.id}/bond-skills/${skillId(1)}/use`, { token: u.token, body: {} });
+  record('羁绊：未激活的技能不能在战斗中使用', notActive.status === 400 && errName(notActive) === 'NOT_ACTIVE', `status=${notActive.status} ${errName(notActive)}`);
+  await call('POST', `/v1/pokemon/${p.id}/bond-skills/${skillId(1)}/activate`, { token: u.token });
+  await call('POST', `/v1/pokemon/${p.id}/bond-skills/${skillId(3)}/activate`, { token: u.token });
+  const list = await call('GET', `/v1/pokemon/${p.id}/bond-skills`, { token: u.token });
+  record('羁绊：最多激活 1 个', list.status === 200 && list.data.skills.filter((s) => s.isActive).length === 1 && list.data.activeSkill.id === skillId(3),
+    `active=${list.data && list.data.skills.filter((s) => s.isActive).map((s) => s.slot)}`);
+  const used = await call('POST', `/v1/pokemon/${p.id}/bond-skills/${skillId(3)}/use`, { token: u.token, body: { battleId: 'smoke-battle' } });
+  record('羁绊：战斗中使用激活的技能（扣 PP、返回效果）', used.status === 200 && used.data.power === 120 && used.data.remainingPp === 4 && used.data.additionalEffects.crit_bonus > 0.9,
+    `status=${used.status} ${JSON.stringify(used.data && { p: used.data.power, pp: used.data.remainingPp, fx: used.data.additionalEffects })}`);
+  await setF(60);
+  const weak = await call('GET', `/v1/pokemon/${p.id}/bond-skills/${skillId(1)}/effect`, { token: u.token });
+  await setF(255);
+  const strong = await call('GET', `/v1/pokemon/${p.id}/bond-skills/${skillId(1)}/effect`, { token: u.token });
+  record('羁绊：威力按亲密度计算（65 + floor(亲密度×0.5)）', weak.data.power === 95 && strong.data.power === 192, `f60=${weak.data && weak.data.power} f255=${strong.data && strong.data.power}`);
+  await db().query('UPDATE pokemon_bond_skills SET current_pp = 0 WHERE pokemon_instance_id = $1', [p.id]);
+  const noPp = await call('POST', `/v1/pokemon/${p.id}/bond-skills/${skillId(3)}/use`, { token: u.token, body: {} });
+  record('羁绊：PP 用完不能使用', noPp.status === 400 && errName(noPp) === 'NO_PP', `status=${noPp.status}`);
+  const del = await call('DELETE', `/v1/pokemon/${p.id}/bond-skills/${skillId(1)}`, { token: u.token });
+  const re = await learn(1);
+  record('羁绊：遗忘后可重新学习', del.status === 200 && re.status === 200, `del=${del.status} relearn=${re.status}`);
+  const stats = await call('GET', '/v1/pokemon/bond-skills/stats', { token: u.token });
+  record('羁绊：统计', stats.status === 200 && stats.data.summary.totalSkillsLearned === 3 && stats.data.topSkills.length === 1, `status=${stats.status}`);
+  const other = await newUser('bnx');
+  const steal = await call('POST', `/v1/pokemon/${p.id}/bond-skills/${skillId(1)}/activate`, { token: other.token });
+  record('羁绊：不能操作别人的精灵（404）', steal.status === 404, `status=${steal.status}`);
+}
+
+const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina, tree: testEvolutionTree, bond: testBondSkills };
 
 (async () => {
   const want = process.argv.slice(2);
