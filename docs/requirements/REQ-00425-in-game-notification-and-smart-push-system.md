@@ -7,7 +7,7 @@
 | 标题 | 游戏内通知与智能消息推送系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | gateway、notification-service（新建）、user-service、social-service、reward-service、game-client、admin-dashboard |
 | 创建时间 | 2026-07-02 23:00 |
 
@@ -1778,3 +1778,56 @@ export const notificationTopicsSubscribed = new Gauge({
 - [通知设计模式](https://www.nngroup.com/articles/notifications-invasive/)
 - [GDPR 通知合规指南](https://gdpr.eu/what-is-gdpr/)
 - [多语言 i18n 最佳实践](https://www.w3.org/International/questions/qa-i18n)
+
+## 实现记录（2026-09-24）
+
+> E05「成就/称号/资料卡/收藏室」与 E13「消息中心与推送」统一实现：REQ-00076 / 00106 / 00327 / 00359 / 00387 / 00403 与 REQ-00099 / 00261 / 00425 共用同一套游戏事件 outbox、成就引擎与消息中心。
+> 状态 `implemented`：代码已全部完成，**未做服务级验证**（2026-09-25 18:30 起规则）。此前迁移 `20260925_130000`、`20260925_131000` 曾在隔离 CI 栈（栈 8）的存量库上执行无失败，user-service 启动后事件消费者、消息分发器、WebSocket 均正常监听；之后新增的迁移 `20260925_132000`、`20260925_133000`、全部接口、前端界面只做了静态检查（`node --check`、`scripts/check-deps.js`、宿主机纯逻辑/内存替身单测），**待验证**。
+
+**共用架构**
+
+- 事件来源：业务表上的触发器把"发生了什么"写入 outbox 表 `achievement_events`（与业务同事务，业务回滚事件也不存在；触发器内部异常只 `RAISE WARNING`，不影响业务）并 `pg_notify('pmg_game_events')`。接入的表：`catch_sessions`（捕捉成功）、`pokestop_spins`、`trainer_level_ups`（升级，覆盖所有加经验路径）、`friendships`/`friends`、`friend_requests`、`friend_gifts`、`pokemon_trades`、`gym_battles`、`raid_participants`、`pvp_battles`、`egg_hatching`、`event_participations`；收藏室的展示/装饰/被点赞由 JS 在同事务写事件。
+- 消费：`backend/shared/achievementEngine.js`，user-service 启动时 `LISTEN` 实时处理 + 10 秒兜底扫描 + 每小时清理；pokemon-service 查询成就前按需处理该玩家未处理事件。`FOR UPDATE SKIP LOCKED` 保证多消费者不重复处理；每个事件一个 SAVEPOINT，单事件失败不影响其他事件，失败 5 次后放弃并保留 `last_error`。
+- 规则：`backend/shared/achievementRules.js`（事件 → 指标、过滤条件、奖励拆分、事件 → 消息、多语言，纯函数）。
+- 消息：`backend/shared/notificationCenter.js`（生成/列表/未读/已读/删除/偏好/广播/分析/清理）、`notificationPolicy.js`（分类、偏好、免打扰、投递计划，纯函数）、`notificationRealtime.js`（`/ws/messages` 与 LISTEN 分发）、`pushProviders.js`（FCM/APNs）。
+- 迁移：`database/migrations/20260925_130000__e05_achievement_title_core.sql`（成就/称号收敛 + outbox 触发器）、`20260925_131000__e13_notification_center.sql`（消息中心）、`20260925_132000__e05_collection_room.sql`（收藏室）、`20260925_133000__e05_player_profile.sql`（资料卡）。均 `IF NOT EXISTS`/`ON CONFLICT` 幂等，外键均按 `users.id UUID`；依赖的表（`achievements`、`title_definitions`、`trainer_level_ups`、`notification_templates`、E01 的 `privacy_settings`/`blocked_users` 等）都在更早的迁移中创建（已逐条核对）。
+- 测试：单测 `cd backend && node --test tests/unit/achievementRules.test.js tests/unit/achievementEngine.test.js tests/unit/notificationPolicy.test.js tests/unit/notificationCenter.test.js tests/unit/profileRules.test.js tests/unit/collectionRoomRules.test.js tests/unit/securityNotifier.test.js`（53 例，已加入 `test:unit`，宿主机已运行通过；引擎与消息中心用 `tests/unit/helpers/fakeGameDb.js` 内存替身，不依赖数据库）；经网关冒烟 `BASE_URL=… node scripts/smoke-profile-notify.js`（约 97 项，**未运行**）；压测 `node scripts/bench-profile-notify.js`（**未运行**）；前端 `cd frontend/game-client && npx playwright test tests/e2e/profile-notify.spec.js`（Mock 接口，**未运行**）。
+- 前端：`frontend/game-client/src/features/profileNotify.js` + `src/features/profile-notify/*`（由 `src/bootstrap/features.js` 注册一行）：底部导航「消息」🔔、「我的」页「成长与收藏」卡片（成就、称号、资料卡、我的收藏室、热门收藏室、收藏家排行、消息与通知设置）。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 支持所有通知类型的发送和接收（系统、社交、活动、奖励、安全、精灵） | ✅ | 6 个分类：系统（管理员公告、广播）、社交（好友请求、礼物、交易、收藏室点赞/留言）、活动（活动开始广播、Raid、道馆）、奖励（升级、成就、称号、装饰、收藏室升级、任务）、安全（新设备登录：`shared/securityNotifier.js`，按设备指纹识别，IP 打码）、精灵（附近稀有精灵，EventBus 来源）；类型命名 `分类.事件`（如 `social.friend_request`） |
+| WebSocket 实时推送延迟 < 3 秒 | ✅ | 触发器 → `pg_notify` → user-service LISTEN 实时处理与分发，无轮询；冒烟断言好友请求到 WS 送达 < 3 秒（未运行）；指标 `minego_notification_delivery_seconds` + 告警（P95 > 3s） |
+| 通知中心 API 响应时间 < 500ms（P95） | ⚠️ | 未实测；`scripts/bench-profile-notify.js` 覆盖列表/未读数 P95 |
+| 支持批量发送通知（> 10000 条/秒） | ⚠️ | 未实测。全服通知用广播表（一行），玩家读取时按需物化，不需要逐条写入全体玩家；压测脚本含批量生成 5000 条消息的吞吐测量 |
+| 用户可配置通知偏好（渠道、时段、类型） | ✅ | `PATCH /v1/notifications/preferences`：分类/具体类型开关、渠道（websocket/fcm/apns/email）、免打扰时段（跨午夜、按玩家时区）、临时静音、推送开关、每小时推送上限；设备令牌 `POST /v1/notifications/device-token` |
+| 通知内容支持中/英/日三语自动切换 | ✅ | 模板三语；读取与 WS 推送按请求语言/玩家语言设置渲染 |
+| 离线通知存储和补推 | ✅ | 全部落库，上线连接 WS 时补推未读（支持 `since`），离线期间满足条件时走系统推送 |
+| 通知过期自动清理（默认 30 天） | ✅ | 默认 30 天过期，每小时清理（见 REQ-00261） |
+| 深度链接跳转功能正常 | ✅ | 消息带 `actionUrl` 与 `data`；`POST /v1/notifications/:id/click` 记录点击；客户端按 `actionUrl` 打开对应面板（见 REQ-00099） |
+| 通知送达率 > 99%（在线用户） | ⚠️ | 未实测；`minego_notifications_delivered_total{channel,result}` 统计，告警规则"在线送达率 < 99%" |
+| 并发推送吞吐量 > 10000 条/秒 | ⚠️ | 未实测（同上） |
+| 通知中心首屏加载时间 < 1 秒 | ⚠️ | 未实测；首屏只拉 20 条 + 未读数，虚拟滚动 |
+| 数据库查询优化（索引覆盖、查询计划） | ✅ | `notifications` 索引：`(user_id, created_at DESC)`、`(user_id, category, created_at DESC)`（均为未删除部分索引）、未读部分索引 `(user_id, category) WHERE NOT is_read AND NOT is_deleted`、`(user_id, dedupe_key)` 唯一、`expires_at`；`notification_events` 按消息/用户+时间/类型+时间；建议验证时对列表/未读 SQL 做 `EXPLAIN ANALYZE` |
+| 内存使用 < 500MB（10000 并发连接） | ⚠️ | 未实测；WS 每连接只保存 userId 与心跳标记 |
+| Prometheus 指标正确采集 | ✅ | `minego_notification_ws_connections`、`minego_notifications_delivered_total{channel,result}`、`minego_notification_delivery_seconds`，以及成就引擎指标；user-service `/metrics` |
+| Grafana 仪表板展示实时指标 | ⚠️ | 配置已交付 `monitoring/grafana/dashboards/achievements-notifications.json`（JSON 已校验），未在生产环境验证（生产未部署 Grafana） |
+| 告警规则配置（送达率下降、延迟过高） | ⚠️ | `infrastructure/monitoring/prometheus/profile_notify_alerts.yml`（送达率 < 99%、推送延迟 P95 > 3s、推送渠道失败、事件处理失败/积压，YAML 已校验），未在生产环境验证 |
+| 推送效果分析报告（日报、周报） | ⚠️ | 管理员 `GET /v1/notifications/admin/analytics?days=1|7`：按渠道的发送/实时送达/推送/打开/点击/延迟/抑制/失败，按类型的发送与打开率；暂无定时生成并投递日报/周报的任务 |
+| JWT 认证保护所有 API | ✅ | 网关 `/v1/notifications/*` 走 `authMiddleware`（含登出黑名单），服务内再 `requireAuth`；管理接口 `requireAdmin` |
+| 用户只能访问自己的通知 | ✅ | 所有查询/更新都带 `user_id = 当前用户`；他人消息 ID 返回 404（冒烟验证） |
+| 敏感通知内容不在日志中明文记录 | ✅ | 分发/引擎日志只记消息 ID、用户 ID、错误信息，不记标题正文；新设备登录消息中的 IP 打码 |
+| WebSocket 连接需要认证 | ✅ | 握手校验 token 签名与黑名单，失败返回 401 并断开（冒烟验证无效 token 被拒） |
+| 防止通知注入攻击 | ✅ | 模板参数与标题正文去除尖括号与控制字符、限制长度；客户端一律 `textContent` 渲染；偏好键名正则白名单 |
+| 支持 iOS Safari、Android Chrome | ⚠️ | 使用标准 WebSocket/IndexedDB/Pointer Events，未在真机验证 |
+| PWA 离线模式支持 | ✅ | IndexedDB 缓存消息，Service Worker 离线响应（code 9999）时展示缓存 |
+| 低带宽环境优化（消息压缩） | ✅ | `/ws/messages` 启用 permessage-deflate（> 1KB 压缩）；列表分页 20 条 |
+| 弱网环境重连机制 | ✅ | 客户端指数退避重连（1s→30s + 抖动），`online`/切回前台立即重连并增量同步；服务端 LISTEN 断开 5 秒重连，另有 10 秒兜底扫描 |
+
+**智能推送策略**（`backend/shared/notificationPolicy.planDelivery`）：在线 → WebSocket（免打扰时静默，紧急除外）；离线 → 满足"开启推送、有设备令牌、渠道已配置、不在免打扰（紧急除外）、优先级 ≥ normal、未超过每小时推送上限"时走 APNs/FCM（`backend/shared/pushProviders.js`：FCM HTTP v1、APNs HTTP/2 + JWT，凭据通过 `FCM_*`/`APNS_*` 环境变量配置）；否则**降级为仅站内消息**并在 `notification_events` 记录 `deferred` 与原因（`push_provider_unconfigured` / `no_device_token` / `quiet_hours` / `rate_limited` / `low_priority_in_app_only` / `push_disabled`）。**生产环境目前没有 APNs/FCM 凭据**，推送链路只做了静态检查，未在生产环境验证；冒烟验证"有设备令牌但未配置凭据 → 仅站内 + 原因 push_provider_unconfigured"。
+
+- 入口：user-service（消息中心路由、分发器、WS）；`backend/shared/notificationCenter.js`、`notificationPolicy.js`、`notificationRealtime.js`、`pushProviders.js`、`securityNotifier.js`（`routes/auth.js` 登录成功后调用）；网关 `/v1/notifications/*`、`/ws/messages`
+- 迁移：`database/migrations/20260925_131000__e13_notification_center.sql`
+- 测试：`notificationPolicy.test.js`（7，含投递计划各降级原因、跨午夜免打扰、偏好校验、模板注入）、`notificationCenter.test.js`（7）、`securityNotifier.test.js`（2）已通过；冒烟与压测未运行
+- 偏差：未新建独立 notification-service、未引入 Kafka 队列（PM2 单机部署，Kafka 未启用；用 PostgreSQL LISTEN/NOTIFY + outbox）；TypeScript 设计改为 CommonJS；未做管理后台 `NotificationsPage`（提供分析与公告 API）；邮件/短信渠道未实现（偏好中可保存开关）
+- 待验证：① 配置 FCM/APNs 凭据后的真实推送；② 压测吞吐与送达率；③ 告警规则与仪表盘在 Prometheus/Grafana 中加载
