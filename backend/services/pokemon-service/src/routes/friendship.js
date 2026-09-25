@@ -17,49 +17,8 @@ const authenticate = (req, res, next) => requireAuth(req, res, (err) => {
   next();
 });
 
-/**
- * 获取精灵好感度
- * GET /api/pokemon/:pokemonId/friendship
- */
-router.get('/:pokemonId/friendship', authenticate, async (req, res) => {
-  try {
-    const pokemonId = parseInt(req.params.pokemonId, 10);
-    
-    if (isNaN(pokemonId)) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'invalid_pokemon_id' 
-      });
-    }
-    
-    const friendship = await friendshipService.getFriendship(pokemonId);
-    
-    if (!friendship) {
-      return res.status(404).json({ 
-        success: false, 
-        error: 'friendship_not_found',
-        message: '未找到该精灵的好感度数据'
-      });
-    }
-    
-    res.json({
-      success: true,
-      data: friendship
-    });
-    
-  } catch (error) {
-    logger.error('Failed to get friendship', { 
-      pokemonId: req.params.pokemonId, 
-      error: error.message 
-    });
-    
-    res.status(500).json({ 
-      success: false, 
-      error: 'internal_error',
-      message: '获取好感度失败'
-    });
-  }
-});
+// REQ-00329（api-lint route/duplicate）：原 GET /:pokemonId/friendship 用 parseInt 解析 UUID（恒为 NaN/0，永远 400/404），
+// 且遮蔽了 friendshipEvolution.js 中按 UUID + 所有权校验的同名路由；已移除，由 friendshipEvolution.js 提供。
 
 /**
  * 与精灵互动

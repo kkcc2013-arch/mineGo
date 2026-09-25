@@ -1,0 +1,63 @@
+# Epic E25 API 规范告警规则（REQ-00407 弃用下线、REQ-00476 性能预算、REQ-00315/547 契约、REQ-00402 重试）
+# 交付配置 + 静态校验（promtool 未在本机运行）；未在生产环境验证
+
+groups:
+  - name: api_standards_alerts
+    interval: 1m
+    rules:
+      # 7 天内下线、过去 24 小时仍有调用的弃用接口
+      - alert: DeprecatedApiSunsetSoonStillCalled
+        expr: |
+          (api_deprecation_days_remaining <= 7)
+          and on (endpoint, method)
+          (sum by (endpoint, method) (increase(api_deprecated_calls_total[24h])) > 0)
+        for: 30m
+        labels:
+          severity: warning
+          category: api_lifecycle
+        annotations:
+          summary: "弃用接口 {{ $labels.method }} {{ $labels.endpoint }} 将在 {{ $value }} 天内下线，仍有调用"
+          description: "在管理面板 admin-dashboard/api-standards.html 的弃用接口页查看调用方并通知迁移。"
+
+      # 严格预算接口出现 MAX 违规（中间件已即时记录，这里做聚合告警）
+      - alert: ApiStrictBudgetViolations
+        expr: sum by (route) (increase(api_performance_budget_alerts_total[10m])) > 5
+        for: 5m
+        labels:
+          severity: critical
+          category: api_performance
+        annotations:
+          summary: "接口 {{ $labels.route }} 10 分钟内严格预算违规 {{ $value }} 次"
+          description: "查看 config/performance-budget.yaml 中的预算与管理面板热点榜单。"
+
+      # P95 持续超出预算（按直方图估算）
+      - alert: ApiP95AboveBudget
+        expr: sum by (route) (rate(api_performance_budget_violations_total{level="p95"}[15m])) > 0
+        for: 15m
+        labels:
+          severity: warning
+          category: api_performance
+        annotations:
+          summary: "接口 {{ $labels.route }} P95 持续超出性能预算"
+
+      # 响应契约校验失败率 > 1%
+      - alert: ApiSchemaViolationRateHigh
+        expr: |
+          sum by (contract) (rate(api_schema_validation_total{result="fail"}[10m]))
+            / sum by (contract) (rate(api_schema_validation_total[10m])) > 0.01
+        for: 10m
+        labels:
+          severity: warning
+          category: api_contract
+        annotations:
+          summary: "契约 {{ $labels.contract }} 响应校验失败率 {{ $value | humanizePercentage }}"
+
+      # 重试预算耗尽（下游故障导致重试风暴被截断）
+      - alert: RetryBudgetExhausted
+        expr: sum by (service) (increase(retry_budget_exhausted_total[5m])) > 0
+        for: 5m
+        labels:
+          severity: warning
+          category: api_retry
+        annotations:
+          summary: "服务 {{ $labels.service }} 重试预算耗尽，检查下游健康状况"

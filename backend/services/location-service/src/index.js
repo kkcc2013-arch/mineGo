@@ -262,7 +262,7 @@ async function runSpawnCycle(centerLat, centerLng) {
 // ============================================================
 // ROUTES
 // ============================================================
-app.get('/health', (_, res) => res.json({ status: 'ok', service: 'location-service' }));
+// （/health 已在上方注册；此处重复定义永远不会执行，已移除 —— REQ-00329 api-lint route/duplicate）
 
 // GET /map/weather — 获取当前天气
 app.get('/map/weather', requireAuth, async (req, res, next) => {

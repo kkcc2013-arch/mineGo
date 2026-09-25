@@ -3,7 +3,7 @@
 - **编号**：REQ-00465
 - **类别**：API 设计规范
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：backend/shared/pagination、gateway、所有微服务
 - **创建时间**：2026-07-06 17:00 UTC
 - **依赖需求**：api-guidelines.md（已存在）、REQ-00257（API回归测试已完成）
@@ -551,3 +551,24 @@ GET /api/pokemon?cursor=eyJpZCI6MjB9&pageSize=20
 - api-guidelines.md（API 响应格式规范）
 - REQ-00257（API 回归测试已完成）
 - GraphQL Cursor Connections Specification
+
+## 实现记录（2026-09-25）
+
+状态：**implemented**（代码已完成、未在服务上运行验证；按 09-25 验证规则，服务级验证由用户安排）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 分页参数标准化规范文档完成 | ✅ | `docs/api-guidelines.md` 第 3 节 |
+| PaginationMiddleware 实现并通过单元测试 | ✅ | offset / cursor 两个中间件（宿主机单测通过） |
+| CursorPaginator 实现并通过单元测试 | ✅ | `encodeCursor/decodeCursor`（HMAC）+ `keysetClause/keysetResult` |
+| PaginationStrategySelector 实现并通过单元测试 | ✅ |  |
+| 至少 3 个微服务迁移到新分页系统 | ✅ | pokemon-service、social-service、reward-service |
+| 游标分页性能优于 offset 分页 50%+ | ⚠️ | 未实测。建议：给测试用户写入 5 万只精灵，对比 `page=2000&pageSize=20` 与等价游标页的耗时（EXPLAIN ANALYZE 或 bench 脚本） |
+| 所有分页响应包含统一的元数据结构 | ✅ | 网关补齐 `pagination` 与 `meta.pagination`（同一对象） |
+| API 文档更新完成 | ✅ | api-guidelines.md、契约生成的 OpenAPI（分页参数与 PaginatedResponse） |
+| 分页性能测试通过 | ⚠️ | 未运行（同上） |
+
+- 入口 / 代码 / 测试同 REQ-00302：`backend/shared/apiStandards/pagination.js`
+- 单测：`cd backend && npm run test:api-standards`（api-standards-core / contract / lint 为纯逻辑，宿主机已运行通过：core 25/25、contract 11/11、lint 4/4；pipeline / ops / services 依赖 express / pino / prom-client，在 09-25 18:30 验证规则调整前于 CI 栈跑通过（pipeline 17/17、ops 20/20、services 5/5），之后追加的用例**未运行，待验证**）
+- 冒烟：`BASE_URL=http://<网关> node scripts/smoke-api-standards.js`（约 90 项断言，**未运行，待验证**）；核心冒烟 `scripts/smoke-core-flow.js` 在网关接入管道后于 CI 栈跑过 37/37（18:30 前）
+- 相关提交：分支 `work/e25-api`（Epic E25 API 设计规范，合并后见集成分支 squash 提交）

@@ -60,8 +60,15 @@ const timePeriodRoutes = require('./routes/timePeriod');
 const { initIpBanManager, ipBanMiddleware, ipAccessLogMiddleware } = require('./middleware/ipBan');
 const ipBanAdminRoutes = require('./routes/admin/ipBan');
 
-// REQ-00072: API 响应压缩
-const { createCompressionMiddleware } = require('@pmg/shared/compression');
+// REQ-00072 → REQ-00526: API 响应压缩（流式 Brotli/gzip，见 apiStandards/setup.js）
+
+// Epic E25 API 设计规范：转换管道（REQ-00542）/ 版本协商与生命周期（REQ-00201/520）/ 内容协商（REQ-00368/554）/
+// 分页（REQ-00302/465）/ HATEOAS（REQ-00518）/ 错误统一（REQ-00386）/ 弃用（REQ-00407）/ 字段投影（REQ-00532/251）/
+// 契约校验（REQ-00315/547）/ 批量（REQ-00308）/ 重试（REQ-00402）/ 性能预算（REQ-00476）
+const apiStdSetup = require('./apiStandards/setup');
+const apiStdRoutes = require('./routes/apiStandards');
+const { createRetryMiddleware } = require('@pmg/shared/middleware/retryMiddleware');
+const { buildErrorBody, statusDefault } = require('@pmg/shared/apiStandards/errorCatalog');
 
 // REQ-00111: API 安全响应头与 CSP 强化系统
 const { apiSecurityHeaders, cspHeaders, sensitiveSecurityHeaders } = require('@pmg/shared/securityHeaders');
@@ -128,7 +135,10 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization','X-Idempotency-Key','X-Request-ID','X-Trace-ID'],
+  allowedHeaders: ['Content-Type','Authorization','X-Idempotency-Key','X-Request-ID','X-Trace-ID',
+    'Accept-Version','X-API-Version','X-Client-Id','X-Client-Version','X-Field-Aliases','Idempotency-Key','X-Language'],
+  exposedHeaders: ['X-Trace-Id','X-API-Version','X-API-Supported-Versions','Deprecation','Sunset','Link','Retry-After',
+    'X-Total-Count','X-Pipeline','X-Pipeline-Time','Server-Timing','X-Field-Aliases','X-Schema-Validation','X-Content-Fallback'],
 }));
 
 // Global rate limit
@@ -165,6 +175,11 @@ app.use((req, res, next) => {
   next();
 });
 
+// REQ-00476: 性能预算（记录每个 API 请求耗时并与 config/performance-budget.yaml 比较）
+app.use(apiStdSetup.perfBudgetMiddleware());
+// REQ-00402: 把 RetryManager 注入请求上下文（req.retryManager / req.retryableFetch，出站调用幂等重试 + 重试预算）
+app.use(createRetryMiddleware({ serviceName: 'gateway-outbound', maxRetries: 2, initialDelay: 100, maxDelay: 2000, enableBudget: true, budgetConfig: { maxBudget: 50, refillRate: 10 } }));
+
 // REQ-00075: IP 封禁必须在所有业务路由之前执行（原先注册在路由之后，只对 404 生效）
 app.use((req, res, next) => ipBanMiddleware(req, res, next));
 app.use((req, res, next) => ipAccessLogMiddleware(req, res, next));
@@ -176,10 +191,13 @@ app.use(invalidateOnWrite());
 app.use(requestLogger(logger));
 app.use(metrics.httpMetricsMiddleware(SERVICE_NAME));
 
-// REQ-00072: API 响应压缩（在路由之前）
-app.use(createCompressionMiddleware());
+// REQ-00526: 流式响应压缩（Brotli 优先；在路由与转换管道之前注册 → 压缩的是管道输出）
+app.use(apiStdSetup.compressionMiddleware());
 
-// ── REQ-00044: API Version Middleware ────────────────────────────
+// REQ-00542: 请求/响应转换管道（内容协商 406/415、弃用 410、分页/字段参数、错误统一、HATEOAS、契约校验、序列化）
+app.use(apiStdSetup.apiStd.middleware());
+
+// ── REQ-00044 / REQ-00201: API Version Middleware（生命周期 + 410 + Deprecation/Sunset）────
 app.use(apiVersionMiddleware);
 
 // ── REQ-00045: Device Integrity Check ────────────────────────────
@@ -289,18 +307,38 @@ function proxyError(err, req, res) {
 }
 
 function proxy(target, pathRewrite) {
-  return createProxyMiddleware({
+  // REQ-00402: 幂等请求在上游连接失败（重启/发布瞬间）时退避重试
+  return apiStdSetup.withProxyRetry((onError) => createProxyMiddleware({
     target,
     changeOrigin: true,
     xfwd: true, // 透传 X-Forwarded-For，下游服务按真实客户端 IP 限流
     pathRewrite,
-    on: { error: proxyError },
-  });
+    on: { error: onError },
+  }), proxyError, { target });
 }
 
 // ── API Version Management (REQ-00044) ────────────────────────────
-// 版本信息 API
+// 版本信息 API（标记弃用端点需要管理员）
+app.use('/api/version/deprecation/mark', authMiddleware, requireAdmin, express.json());
 app.use('/api/version', apiVersionRoutes);
+
+// ── Epic E25: API 规范公开接口 / 批量 / 管理 ─────────────────────
+// 资源发现、错误码目录、媒体类型、字段集、弃用公告与迁移文档（公开只读）
+app.use('/api', apiStdRoutes.publicRouter);
+// REQ-00308: 批量请求（子请求回环经网关执行，完整复用鉴权/限流/管道）
+// （/api/batch 为需求文档中的无版本别名）
+app.use(['/api/v1/batch', '/api/batch'], authMiddleware, apiStdRoutes.batchRouter);
+// REQ-00350: 精灵详情批量查询（/v1/pokemon/batch/details 已由 /v1/pokemon 代理覆盖，这里提供 /api/v1 别名）
+app.use(['/api/v1/pokemon/batch', '/api/pokemon/batch'], authMiddleware, userLevelRateLimiter(), proxy(SERVICES.pokemon, { '^/': '/pokemon/batch/' }));
+// REQ-00542: 管道 / 转换器管理
+app.use('/api/v1/pipelines', authMiddleware, requireAdmin, apiStdRoutes.pipelineRouter);
+app.use('/api/v1/transformers', authMiddleware, requireAdmin, apiStdRoutes.transformerRouter);
+// REQ-00407: 弃用登记（两个路径等价）
+app.use(['/api/admin/deprecations', '/admin/api/deprecations'], authMiddleware, requireAdmin, apiStdRoutes.deprecationAdminRouter);
+// REQ-00201/520: 版本生命周期、转换规则、变更记录、使用统计
+app.use('/api/admin/api-versions', authMiddleware, requireAdmin, apiStdRoutes.versionAdminRouter);
+// REQ-00315/547/532/476/329/520/402: 契约、字段集、运行时配置、性能预算、lint、兼容性报告、重试统计
+app.use('/api/admin/api-standards', authMiddleware, requireAdmin, apiStdRoutes.adminRouter);
 
 // ── v1 API Routes (Legacy) ──────────────────────────────────────────
 // Public (no auth) - REQ-00040: 认证接口限流
@@ -600,7 +638,28 @@ app.use('/api/admin', authMiddleware, requireAdmin, ipBanAdminRoutes);
 // 404 fallback
 app.use((req, res) => res.status(404).json({ code: 1005, message: `路由不存在: ${req.method} ${req.path}`, data: null }));
 
-const server = app.listen(PORT, () => logger.info({ port: PORT }, 'API Gateway started'));
+// REQ-00386: 统一 JSON 错误处理（原先由 Express 默认处理器输出 HTML，如 requireAdmin 的 403）
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  if (res.headersSent) return next(err);
+  const status = Number(err.statusCode || err.status || err.httpStatus) || 500;
+  const safeStatus = status >= 400 && status < 600 ? status : 500;
+  if (safeStatus >= 500) logger.error({ err, path: req.path }, 'Unhandled gateway error');
+  const legacy = typeof err.toJSON === 'function' ? err.toJSON(req.headers['x-request-id']) : null;
+  if (legacy && typeof legacy === 'object') return res.status(safeStatus).json(legacy);
+  const { body } = buildErrorBody(statusDefault(safeStatus).name, {
+    status: safeStatus,
+    message: safeStatus >= 500 ? '网关内部错误' : err.message,
+    requestId: req.headers['x-request-id'],
+  });
+  return res.status(safeStatus).json(body);
+});
+
+
+const server = app.listen(PORT, () => {
+  logger.info({ port: PORT }, 'API Gateway started');
+  apiStdSetup.start().catch((err) => logger.error({ err }, 'API standards start failed'));
+});
 
 // ── WebSocket 升级转发 ─────────────────────────────────────────
 // /ws/raid → gym-service（团战实时同步，token 与参与资格由 gym-service 校验）

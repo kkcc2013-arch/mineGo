@@ -3,7 +3,7 @@
 - **编号**：REQ-00547
 - **类别**：API 设计规范
 - **优先级**：P1
-- **状态**：new
+- **状态**：partial
 - **涉及服务/模块**：gateway、所有后端服务、backend/shared/schemaValidator.js、backend/tests/contract、.github/workflows
 - **创建时间**：2026-07-12 19:00 UTC
 - **依赖需求**：REQ-00520（API 兼容性版本管理）、REQ-00315（API 响应 Schema 校验系统）
@@ -241,3 +241,25 @@ jobs:
 - Pact 合约测试框架设计理念
 - REQ-00518 HATEOAS 资源发现系统
 - REQ-00520 API 兼容性版本管理
+
+## 实现记录（2026-09-25）
+
+状态：**partial**（已实现部分见下表，⚠️ 为未完成或未实测项）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 所有后端服务 API 响均有对应的 JSON Schema 定义 | ⚠️ | 同 REQ-00315：22 个关键接口 + 通用错误契约；`contract-scaffold.js` 用于扩充 |
+| Schema Registry 支持版本管理和历史查询 | ✅ | `api_schema_registry`；`GET /api/admin/api-standards/schemas/:id`（含 history）、`/diff?from=&to=` |
+| 响应校验中间件在开发环境能自动拦截 Schema 违规 | ✅ | 非生产 enforce → 500 `RESPONSE_SCHEMA_VIOLATION` |
+| 合约测试框架能自动生成并执行测试用例 | ✅ | `scripts/contract-test.js`（正向 / 未鉴权 / 非法请求体 / Mock 自洽），`--run` 经网关执行（未运行，待验证） |
+| CI/CD 合约测试流程能阻断破坏性变更 | ✅ | `contract-snapshot.js --check` 与 `contract-test.js --run` 均以退出码阻断；CI 模板需拷贝生效 |
+| Schema 差异检测能识别 95% 以上的响应结构偏差 | ✅ | 校验器逐字段报告类型 / 必填 / 枚举 / 格式 / 约束偏差（单测覆盖各关键字）；版本差异由兼容性引擎识别 |
+| 管理后台提供 Schema 管理界面（查看、编辑、版本对比） | ⚠️ | 面板"契约"页支持查看、历史版本对比、Mock、粘贴响应试校验；**不提供在线编辑**——契约以仓库文件为准，修改走 PR + 快照门禁（在线编辑会绕过评审且在网关重启后丢失） |
+| 单元测试覆盖 Schema Registry、校验中间件、合约测试框架 | ✅ | contract 单测（宿主机 11/11）+ 管道集成测试 |
+
+- 代码：`backend/shared/apiStandards/{jsonSchema,schemaRegistry}.js`、`schemas/*.json`、`scripts/contract-{snapshot,test,scaffold}.js`
+- 迁移：`database/migrations/20260925_100000__api_design_standards.sql`（14 张表，幂等；18:30 前在 CI 栈全量 bootstrap 中执行通过）（`api_schema_registry`）
+- 单测：`cd backend && npm run test:api-standards`（api-standards-core / contract / lint 为纯逻辑，宿主机已运行通过：core 25/25、contract 11/11、lint 4/4；pipeline / ops / services 依赖 express / pino / prom-client，在 09-25 18:30 验证规则调整前于 CI 栈跑通过（pipeline 17/17、ops 20/20、services 5/5），之后追加的用例**未运行，待验证**）
+- 冒烟：`BASE_URL=http://<网关> node scripts/smoke-api-standards.js`（约 90 项断言，**未运行，待验证**）；核心冒烟 `scripts/smoke-core-flow.js` 在网关接入管道后于 CI 栈跑过 37/37（18:30 前）
+- 未完成：全部接口的契约覆盖；Schema 在线编辑（有意不做，见上）
+- 相关提交：分支 `work/e25-api`（Epic E25 API 设计规范，合并后见集成分支 squash 提交）

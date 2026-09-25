@@ -1,0 +1,81 @@
+# REQ-00542 网关请求/响应转换管道配置（DSL）
+#
+# 网关启动时先加载内置 default 管道（backend/shared/apiStandards/transformers.js DEFAULT_PIPELINES），
+# 再按文件名顺序加载本目录下的 *.yaml / *.json（同名覆盖），最后加载数据库 api_transform_pipelines（管理接口创建）。
+# 选择规则：按请求方法 + 路由匹配，路由越具体（字面段越多）优先；都不匹配时用 default。
+#
+# 字段：
+#   metadata.route   路由模式，支持 :param 与 *（如 /v1/pokemon/my/:id、/v1/gyms/*）
+#   metadata.method  GET/POST/...，* 表示任意
+#   streaming        true：成功响应不缓冲、直接流式透传给压缩层（大型响应），请求阶段照常执行；错误响应仍按 default 统一
+#   cacheEnabled / cacheTTL  纯转换阶段结果缓存（同一上游响应 + 同一变体命中）
+#   stages[]         { transformer, condition?, phase?, cacheable?, options? }；转换器列表见 GET /api/v1/transformers
+#   condition        isError / isSuccess / hasFieldQuery / hasSchema / wantsHal / wantsAliases / hasDeprecation
+# 注意：stages 中包含 compressor 才会启用流式压缩（Accept-Encoding: br/gzip）。
+
+pipelines:
+  # 精灵图鉴全量（~100KB+）：成功响应直接流式透传，只做请求阶段的协商/弃用/参数处理
+  large-response:
+    description: 大型响应流式透传（精灵图鉴全量）
+    metadata:
+      route: /v1/pokemon/pokedex
+      method: GET
+    streaming: true
+    stages:
+      - transformer: contentNegotiator
+      - transformer: contentTypeValidator
+      - transformer: deprecationGate
+      - transformer: paramNormalizer
+      - transformer: languageDetector
+      - transformer: compressor
+
+  # 图鉴 NDJSON 流（REQ-00526）：逐行透传，网关 Brotli 边压缩边转发
+  species-stream:
+    description: 图鉴 NDJSON 流
+    metadata:
+      route: /v1/pokemon/species/stream
+      method: GET
+    streaming: true
+    stages:
+      - transformer: contentTypeValidator
+      - transformer: deprecationGate
+      - transformer: compressor
+
+  # 精灵详情：与 default 相同的阶段，结果缓存更短（详情变化频繁）
+  pokemon-detail:
+    description: 精灵详情（HATEOAS 操作链接 + 契约校验）
+    metadata:
+      route: /v1/pokemon/my/:id
+      method: GET
+    cacheTTL: 15
+    stages:
+      - transformer: contentNegotiator
+      - transformer: contentTypeValidator
+      - transformer: deprecationGate
+      - transformer: paramNormalizer
+      - transformer: fieldValidator
+        condition: hasFieldQuery
+      - transformer: languageDetector
+      - transformer: errorNormalizer
+        condition: isError
+      - transformer: successNormalizer
+        condition: isSuccess
+      - transformer: versionTransformer
+      - transformer: hateoasLinker
+      - transformer: schemaValidator
+        condition: hasSchema
+      - transformer: fieldProjector
+        condition: hasFieldQuery
+      - transformer: halFormatter
+        condition: wantsHal
+      - transformer: aliasCompressor
+        condition: wantsAliases
+      - transformer: localizer
+        condition: isError
+      - transformer: metaInjector
+      - transformer: deprecationAnnotator
+        condition: hasDeprecation
+      - transformer: retryAdvisor
+        condition: isError
+      - transformer: compressor
+      - transformer: serializer

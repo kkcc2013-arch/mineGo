@@ -1,0 +1,5339 @@
+{
+  "total": 762,
+  "routes": [
+    {
+      "service": "catch",
+      "method": "POST",
+      "path": "/catch/session",
+      "description": "REQ-00586: 可信度低于 RESTRICTED(40) 的玩家禁止捕捉（位置功能降级）",
+      "source": "backend/services/catch-service/src/index.js"
+    },
+    {
+      "service": "catch",
+      "method": "POST",
+      "path": "/catch/throw",
+      "description": null,
+      "source": "backend/services/catch-service/src/index.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/admin/api/deprecations",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/admin/api/deprecations",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "DELETE",
+      "path": "/admin/api/deprecations/:id",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/admin/api/deprecations/:id",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "PATCH",
+      "path": "/admin/api/deprecations/:id",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/admin/api/deprecations/:id/clients/:clientId/migrated",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/admin/api/deprecations/notify",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/admin/cache/warmup/status",
+      "description": "── Cache Warmup Management API (REQ-00039) ──────────────────── 获取预热状态",
+      "source": "backend/gateway/src/index.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/admin/cache/warmup/trigger",
+      "description": "手动触发预热",
+      "source": "backend/gateway/src/index.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/admin/config",
+      "description": "GET /admin/config 获取所有服务的配置概览",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/admin/config/:serviceName",
+      "description": "GET /admin/config/:serviceName 获取指定服务的配置",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "DELETE",
+      "path": "/admin/config/:serviceName/:key",
+      "description": "DELETE /admin/config/:serviceName/:key 删除配置项",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/admin/config/:serviceName/:key",
+      "description": "GET /admin/config/:serviceName/:key 获取指定配置项",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "PUT",
+      "path": "/admin/config/:serviceName/:key",
+      "description": "PUT /admin/config/:serviceName/:key 更新单个配置项",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/admin/config/:serviceName/audit",
+      "description": "GET /admin/config/:serviceName/audit 获取配置审计日志",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/admin/config/:serviceName/batch",
+      "description": "POST /admin/config/:serviceName/batch 批量更新配置",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/admin/config/:serviceName/history",
+      "description": "GET /admin/config/:serviceName/history 获取配置变更历史",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/admin/config/:serviceName/rollback",
+      "description": "POST /admin/config/:serviceName/rollback 回滚到指定版本",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/admin/config/health",
+      "description": "GET /admin/config/health 配置中心健康检查",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/api-standards/compat-report",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/api-standards/config",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "PATCH",
+      "path": "/api/admin/api-standards/config",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/api-standards/field-usage/:resourceType",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/api-standards/fieldsets",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/api-standards/fieldsets",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/api-standards/lint",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/api-standards/performance",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/api-standards/performance/evaluate",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/api-standards/retry",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/api-standards/schemas",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/api-standards/schemas/:id",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/api-standards/schemas/:id/diff",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/api-standards/schemas/:id/mock",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/api-standards/schemas/:id/validate",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/api-standards/schemas/violations",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/api-standards/validate-body",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/api-versions",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "PATCH",
+      "path": "/api/admin/api-versions/:version",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/api-versions/:version/changes",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/api-versions/transforms",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/api-versions/transforms",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "DELETE",
+      "path": "/api/admin/api-versions/transforms/:id",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/cache/stats",
+      "description": "── REQ-00040: 网关缓存命中率 ───────────────────────────────",
+      "source": "backend/gateway/src/index.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/delay-queue/buckets",
+      "description": "GET /api/admin/delay-queue/buckets Get delay bucket information",
+      "source": "backend/gateway/src/routes/delayQueueAdmin.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/delay-queue/dlq/:taskId/retry",
+      "description": "POST /api/admin/delay-queue/dlq/:taskId/retry Retry a DLQ task manually",
+      "source": "backend/gateway/src/routes/delayQueueAdmin.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/delay-queue/health",
+      "description": "GET /api/admin/delay-queue/health Get queue health status",
+      "source": "backend/gateway/src/routes/delayQueueAdmin.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/delay-queue/monitor",
+      "description": "GET /api/admin/delay-queue/monitor Get monitor statistics",
+      "source": "backend/gateway/src/routes/delayQueueAdmin.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/delay-queue/monitor/clear-alerts",
+      "description": "POST /api/admin/delay-queue/monitor/clear-alerts Clear alert counts",
+      "source": "backend/gateway/src/routes/delayQueueAdmin.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/delay-queue/monitor/config",
+      "description": "POST /api/admin/delay-queue/monitor/config Update monitor configuration",
+      "source": "backend/gateway/src/routes/delayQueueAdmin.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/delay-queue/recurring",
+      "description": "POST /api/admin/delay-queue/recurring Schedule a recurring task",
+      "source": "backend/gateway/src/routes/delayQueueAdmin.js"
+    },
+    {
+      "service": "gateway",
+      "method": "DELETE",
+      "path": "/api/admin/delay-queue/recurring/:taskId",
+      "description": "DELETE /api/admin/delay-queue/recurring/:taskId Cancel a recurring task",
+      "source": "backend/gateway/src/routes/delayQueueAdmin.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/delay-queue/scheduler",
+      "description": "GET /api/admin/delay-queue/scheduler Get scheduler statistics",
+      "source": "backend/gateway/src/routes/delayQueueAdmin.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/delay-queue/stats",
+      "description": "GET /api/admin/delay-queue/stats Get queue statistics",
+      "source": "backend/gateway/src/routes/delayQueueAdmin.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/delay-queue/tasks",
+      "description": "POST /api/admin/delay-queue/tasks Manually schedule a task",
+      "source": "backend/gateway/src/routes/delayQueueAdmin.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/dependencies",
+      "description": "GET /api/admin/dependencies 获取完整依赖图",
+      "source": "backend/gateway/src/routes/dependencies.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/dependencies/:service",
+      "description": "GET /api/admin/dependencies/:service 获取单个服务的依赖详情",
+      "source": "backend/gateway/src/routes/dependencies.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/dependencies/cycles",
+      "description": "GET /api/admin/dependencies/cycles 检测循环依赖",
+      "source": "backend/gateway/src/routes/dependencies.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/dependencies/graph",
+      "description": "GET /api/admin/dependencies/graph 获取 Mermaid 格式依赖图",
+      "source": "backend/gateway/src/routes/dependencies.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/dependencies/impact/:service",
+      "description": "GET /api/admin/dependencies/impact/:service 分析服务故障影响范围",
+      "source": "backend/gateway/src/routes/dependencies.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/dependencies/refresh",
+      "description": "POST /api/admin/dependencies/refresh 强制刷新依赖分析缓存",
+      "source": "backend/gateway/src/routes/dependencies.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/dependencies/startup-order",
+      "description": "GET /api/admin/dependencies/startup-order 获取服务启动顺序",
+      "source": "backend/gateway/src/routes/dependencies.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/deprecations",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/deprecations",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "DELETE",
+      "path": "/api/admin/deprecations/:id",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/deprecations/:id",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "PATCH",
+      "path": "/api/admin/deprecations/:id",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/deprecations/:id/clients/:clientId/migrated",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/deprecations/notify",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/geo-ban",
+      "description": "GET /api/admin/geo-ban 查询地理位置封禁列表",
+      "source": "backend/gateway/src/routes/admin/ipBan.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/geo-ban",
+      "description": "POST /api/admin/geo-ban 添加地理位置封禁",
+      "source": "backend/gateway/src/routes/admin/ipBan.js"
+    },
+    {
+      "service": "gateway",
+      "method": "DELETE",
+      "path": "/api/admin/geo-ban/:country",
+      "description": "DELETE /api/admin/geo-ban/:country 解除地理位置封禁",
+      "source": "backend/gateway/src/routes/admin/ipBan.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/ip-appeals",
+      "description": "GET /api/admin/ip-appeals 查询申诉列表",
+      "source": "backend/gateway/src/routes/admin/ipBan.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/ip-appeals/:id/approve",
+      "description": "POST /api/admin/ip-appeals/:id/approve 批准申诉并解封 IP",
+      "source": "backend/gateway/src/routes/admin/ipBan.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/ip-appeals/:id/reject",
+      "description": "POST /api/admin/ip-appeals/:id/reject 拒绝申诉",
+      "source": "backend/gateway/src/routes/admin/ipBan.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/ip-blacklist",
+      "description": "GET /api/admin/ip-blacklist 查询黑名单列表",
+      "source": "backend/gateway/src/routes/admin/ipBan.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/ip-blacklist",
+      "description": "POST /api/admin/ip-blacklist 添加 IP 到黑名单",
+      "source": "backend/gateway/src/routes/admin/ipBan.js"
+    },
+    {
+      "service": "gateway",
+      "method": "DELETE",
+      "path": "/api/admin/ip-blacklist/:ip",
+      "description": "DELETE /api/admin/ip-blacklist/:ip 从黑名单移除 IP",
+      "source": "backend/gateway/src/routes/admin/ipBan.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/ip-blacklist/stats",
+      "description": "GET /api/admin/ip-blacklist/stats 黑名单统计",
+      "source": "backend/gateway/src/routes/admin/ipBan.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/ip-risk/:ip",
+      "description": "GET /api/admin/ip-risk/:ip 查询 IP 风险评分详情",
+      "source": "backend/gateway/src/routes/admin/ipBan.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/ip-risk/:ip/reset",
+      "description": "POST /api/admin/ip-risk/:ip/reset 重置 IP 风险评分",
+      "source": "backend/gateway/src/routes/admin/ipBan.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/admin/ip-whitelist",
+      "description": "GET /api/admin/ip-whitelist 查询白名单列表",
+      "source": "backend/gateway/src/routes/admin/ipBan.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/admin/ip-whitelist",
+      "description": "POST /api/admin/ip-whitelist 添加 IP 到白名单",
+      "source": "backend/gateway/src/routes/admin/ipBan.js"
+    },
+    {
+      "service": "gateway",
+      "method": "DELETE",
+      "path": "/api/admin/ip-whitelist/:ip",
+      "description": "DELETE /api/admin/ip-whitelist/:ip 从白名单移除 IP",
+      "source": "backend/gateway/src/routes/admin/ipBan.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/batch",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/batch/stats",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/batch/templates",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/batch/templates/:name",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/budgets/anomalies",
+      "description": "GET /api/costs/anomalies 获取成本异常",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/budgets/budgets",
+      "description": "GET /api/budgets 获取预算列表和状态",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/budgets/budgets",
+      "description": "POST /api/budgets 创建新预算",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "DELETE",
+      "path": "/api/budgets/budgets/:name",
+      "description": "DELETE /api/budgets/:name 删除预算",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/budgets/budgets/reset-alerts",
+      "description": "POST /api/budgets/reset-alerts 重置预算告警状态",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/budgets/by-service",
+      "description": "GET /api/costs/by-service 按服务获取成本",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/budgets/collect",
+      "description": "POST /api/costs/collect 手动触发成本采集",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/budgets/history",
+      "description": "GET /api/costs/history 获取成本历史",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/budgets/prediction",
+      "description": "GET /api/costs/prediction 获取成本预测",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/budgets/report",
+      "description": "GET /api/costs/report 生成成本报告",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/budgets/summary",
+      "description": "GET /api/costs/summary 获取成本概览",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/costs/anomalies",
+      "description": "GET /api/costs/anomalies 获取成本异常",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/costs/budgets",
+      "description": "GET /api/budgets 获取预算列表和状态",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/costs/budgets",
+      "description": "POST /api/budgets 创建新预算",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "DELETE",
+      "path": "/api/costs/budgets/:name",
+      "description": "DELETE /api/budgets/:name 删除预算",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/costs/budgets/reset-alerts",
+      "description": "POST /api/budgets/reset-alerts 重置预算告警状态",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/costs/by-service",
+      "description": "GET /api/costs/by-service 按服务获取成本",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/costs/collect",
+      "description": "POST /api/costs/collect 手动触发成本采集",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/costs/history",
+      "description": "GET /api/costs/history 获取成本历史",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/costs/prediction",
+      "description": "GET /api/costs/prediction 获取成本预测",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/costs/report",
+      "description": "GET /api/costs/report 生成成本报告",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/costs/summary",
+      "description": "GET /api/costs/summary 获取成本概览",
+      "source": "backend/gateway/src/routes/costReport.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/deprecations",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/deprecations/:id/migration-guide",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/device/:deviceId",
+      "description": "GET /api/device/:deviceId 获取设备信息",
+      "source": "backend/gateway/src/routes/deviceIntegrity.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/device/:deviceId/accounts",
+      "description": "GET /api/device/:deviceId/accounts 获取设备关联的账号列表",
+      "source": "backend/gateway/src/routes/deviceIntegrity.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/device/:deviceId/ban",
+      "description": "POST /api/device/:deviceId/ban 封禁设备",
+      "source": "backend/gateway/src/routes/deviceIntegrity.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/device/:deviceId/unban",
+      "description": "POST /api/device/:deviceId/unban 解封设备",
+      "source": "backend/gateway/src/routes/deviceIntegrity.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/device/logs/:deviceId",
+      "description": "GET /api/device/logs/:deviceId 获取设备检测日志",
+      "source": "backend/gateway/src/routes/deviceIntegrity.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/device/register",
+      "description": "POST /api/device/register 设备注册与完整性检测",
+      "source": "backend/gateway/src/routes/deviceIntegrity.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/device/rules",
+      "description": "GET /api/device/rules 获取设备风险规则列表",
+      "source": "backend/gateway/src/routes/deviceIntegrity.js"
+    },
+    {
+      "service": "gateway",
+      "method": "PUT",
+      "path": "/api/device/rules/:ruleId",
+      "description": "PUT /api/device/rules/:ruleId 更新设备风险规则",
+      "source": "backend/gateway/src/routes/deviceIntegrity.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/device/statistics/cluster",
+      "description": "GET /api/device/statistics/cluster 获取群控设备列表",
+      "source": "backend/gateway/src/routes/deviceIntegrity.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/device/statistics/emulators",
+      "description": "GET /api/device/statistics/emulators 获取模拟器设备列表",
+      "source": "backend/gateway/src/routes/deviceIntegrity.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/device/statistics/overview",
+      "description": "GET /api/device/statistics/overview 获取设备统计概览",
+      "source": "backend/gateway/src/routes/deviceIntegrity.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/device/statistics/risky",
+      "description": "GET /api/device/statistics/risky 获取高风险设备列表",
+      "source": "backend/gateway/src/routes/deviceIntegrity.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/discover",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/errors",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/errors/:name",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/events",
+      "description": "@route   GET /api/events @desc    查询业务事件 @query   type - 事件类型（可选） @query   category - 事件类别（可选） @query   userId - 用户 ID（可选） @query   startTime - 开始时间（ISO 8601） @query   endTime - 结束时间（ISO 8601） @query   limit - 返回数量（默认 100） @query   offset - 偏移量（默认 0） @access  Admin",
+      "source": "backend/gateway/src/routes/businessEvents.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/events/heatmap",
+      "description": "@route   GET /api/events/heatmap @desc    获取事件地理热力图数据 @query   eventType - 事件类型（可选） @query   startTime - 开始时间 @query   endTime - 结束时间 @query   precision - 经纬度精度（默认 2） @access  Admin",
+      "source": "backend/gateway/src/routes/businessEvents.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/events/realtime",
+      "description": "@route   GET /api/events/realtime @desc    获取实时业务指标 @access  Admin",
+      "source": "backend/gateway/src/routes/businessEvents.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/events/stats",
+      "description": "@route   GET /api/events/stats @desc    获取事件统计（按类别/类型分组） @query   interval - 时间间隔（hour/day） @query   startTime - 开始时间 @query   endTime - 结束时间 @query   category - 事件类别（可选） @access  Admin",
+      "source": "backend/gateway/src/routes/businessEvents.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/events/timeline",
+      "description": "@route   GET /api/events/timeline @desc    获取事件时间线（按时间分组） @query   eventType - 事件类型 @query   interval - 时间间隔（minute/hour/day） @query   startTime - 开始时间 @query   endTime - 结束时间 @access  Admin",
+      "source": "backend/gateway/src/routes/businessEvents.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/events/top",
+      "description": "@route   GET /api/events/top @desc    获取热门事件类型排行 @query   startTime - 开始时间 @query   endTime - 结束时间 @query   limit - 返回数量（默认 20） @access  Admin",
+      "source": "backend/gateway/src/routes/businessEvents.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/fieldsets",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/media-types",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/pokemon/:id/energy",
+      "description": "需求文档（REQ-00112 / REQ-00324）约定的接口路径",
+      "source": "backend/gateway/src/index.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/pokemon/:id/energy/regenerate",
+      "description": null,
+      "source": "backend/gateway/src/index.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/pokemon/:id/moves/check",
+      "description": null,
+      "source": "backend/gateway/src/index.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/time/activity-stats",
+      "description": "GET /api/time/activity-stats 获取玩家时段活动统计（需认证）",
+      "source": "backend/gateway/src/routes/timePeriod.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/time/current",
+      "description": "GET /api/time/current 获取当前时段信息",
+      "source": "backend/gateway/src/routes/timePeriod.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/time/periods",
+      "description": "GET /api/time/periods 获取所有时段配置",
+      "source": "backend/gateway/src/routes/timePeriod.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/time/preview/:hour",
+      "description": "GET /api/time/preview/:hour 预览指定小时的时段信息",
+      "source": "backend/gateway/src/routes/timePeriod.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/time/spawn-config",
+      "description": "POST /api/time/spawn-config 配置精灵时段刷新（管理员接口）",
+      "source": "backend/gateway/src/routes/timePeriod.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/time/special-pokemon",
+      "description": "GET /api/time/special-pokemon 获取当前时段特殊精灵列表",
+      "source": "backend/gateway/src/routes/timePeriod.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/time/type-bonus/:type",
+      "description": "GET /api/time/type-bonus/:type 获取特定属性在当前时段的加成",
+      "source": "backend/gateway/src/routes/timePeriod.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/time/type-bonuses",
+      "description": "GET /api/time/type-bonuses 获取当前时段所有属性加成",
+      "source": "backend/gateway/src/routes/timePeriod.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v1/autoscaling/efficiency",
+      "description": "GET /api/v1/autoscaling/efficiency 获取资源利用效率报告",
+      "source": "backend/gateway/src/routes/autoscaling.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/v1/autoscaling/execute",
+      "description": "POST /api/v1/autoscaling/execute 手动执行预测性扩容",
+      "source": "backend/gateway/src/routes/autoscaling.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v1/autoscaling/predictions",
+      "description": "GET /api/v1/autoscaling/predictions 获取预测性扩容建议",
+      "source": "backend/gateway/src/routes/autoscaling.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v1/autoscaling/services/:serviceName/prediction",
+      "description": "GET /api/v1/autoscaling/services/:serviceName/prediction 获取单个服务的预测结果",
+      "source": "backend/gateway/src/routes/autoscaling.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v1/autoscaling/status",
+      "description": "GET /api/v1/autoscaling/status 获取预测性扩容引擎状态",
+      "source": "backend/gateway/src/routes/autoscaling.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/v1/batch",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v1/batch/stats",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v1/batch/templates",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/v1/batch/templates/:name",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v1/pipelines",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/v1/pipelines",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "DELETE",
+      "path": "/api/v1/pipelines/:name",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v1/pipelines/:name",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "PUT",
+      "path": "/api/v1/pipelines/:name",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v1/pipelines/:name/metrics",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/v1/pipelines/:name/refresh-cache",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v1/pokemon/:speciesId/move-recommendations",
+      "description": null,
+      "source": "backend/gateway/src/index.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/v1/privacy/confirm",
+      "description": "POST /api/v1/privacy/confirm 确认政策",
+      "source": "backend/gateway/src/middleware/privacyCheck.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v1/privacy/current",
+      "description": "GET /api/v1/privacy/current 获取当前生效的政策",
+      "source": "backend/gateway/src/middleware/privacyCheck.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v1/privacy/history",
+      "description": "GET /api/v1/privacy/history 获取用户确认历史",
+      "source": "backend/gateway/src/middleware/privacyCheck.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v1/privacy/pending",
+      "description": "GET /api/v1/privacy/pending 获取待确认的政策列表",
+      "source": "backend/gateway/src/middleware/privacyCheck.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/v1/security/init-session",
+      "description": "POST /api/v1/security/init-session 初始化安全会话",
+      "source": "backend/gateway/src/routes/security.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/v1/security/refresh-key",
+      "description": "POST /api/v1/security/refresh-key 刷新会话密钥",
+      "source": "backend/gateway/src/routes/security.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/v1/security/report-scan",
+      "description": "POST /api/v1/security/report-scan 上报内存扫描结果",
+      "source": "backend/gateway/src/routes/security.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/v1/security/report-tamper",
+      "description": "POST /api/v1/security/report-tamper 上报篡改事件",
+      "source": "backend/gateway/src/routes/security.js"
+    },
+    {
+      "service": "gateway",
+      "method": "DELETE",
+      "path": "/api/v1/security/session",
+      "description": "DELETE /api/v1/security/session 销毁会话",
+      "source": "backend/gateway/src/routes/security.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v1/security/status",
+      "description": "GET /api/v1/security/status 查询会话安全状态",
+      "source": "backend/gateway/src/routes/security.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v1/transformers",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/v1/transformers",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "DELETE",
+      "path": "/api/v1/transformers/:name",
+      "description": null,
+      "source": "backend/gateway/src/routes/apiStandards.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v1/users",
+      "description": "用户列表",
+      "source": "backend/gateway/src/routes/v1/users.js"
+    },
+    {
+      "service": "gateway",
+      "method": "PATCH",
+      "path": "/api/v1/users/:id",
+      "description": "更新用户",
+      "source": "backend/gateway/src/routes/v1/users.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v1/users/:id/profile",
+      "description": "用户资料",
+      "source": "backend/gateway/src/routes/v1/users.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v2/pokemon",
+      "description": "用户精灵列表 - 增加技能信息",
+      "source": "backend/gateway/src/routes/v2/pokemon.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v2/pokemon/:id",
+      "description": "精灵详情 - 增加完整信息",
+      "source": "backend/gateway/src/routes/v2/pokemon.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/v2/pokemon/:id/learn-move",
+      "description": "学习技能 - 新端点",
+      "source": "backend/gateway/src/routes/v2/pokemon.js"
+    },
+    {
+      "service": "gateway",
+      "method": "DELETE",
+      "path": "/api/v2/pokemon/:id/moves/:moveId",
+      "description": "遗忘技能 - 新端点",
+      "source": "backend/gateway/src/routes/v2/pokemon.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v2/pokemon/pokedex",
+      "description": "精灵图鉴 - 增加技能池信息",
+      "source": "backend/gateway/src/routes/v2/pokemon.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v2/users",
+      "description": "用户列表",
+      "source": "backend/gateway/src/routes/v2/users.js"
+    },
+    {
+      "service": "gateway",
+      "method": "PATCH",
+      "path": "/api/v2/users/:id",
+      "description": "更新用户",
+      "source": "backend/gateway/src/routes/v2/users.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v2/users/:id/achievements",
+      "description": "用户成就 - 新端点",
+      "source": "backend/gateway/src/routes/v2/users.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v2/users/:id/profile",
+      "description": "用户资料 - 增强统计字段",
+      "source": "backend/gateway/src/routes/v2/users.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/v2/users/:id/stats",
+      "description": "用户统计 - 新端点",
+      "source": "backend/gateway/src/routes/v2/users.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/version",
+      "description": "GET /api/version 获取 API 版本信息（REQ-00201：状态为生命周期 development/testing/stable/deprecated/sunset）",
+      "source": "backend/gateway/src/routes/apiVersion.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/version/:version",
+      "description": "GET /api/version/:version 获取特定版本详情",
+      "source": "backend/gateway/src/routes/apiVersion.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/version/:version(\\\\d+)/breaking-changes",
+      "description": "GET /api/version/:version/breaking-changes 破坏性变更与变更记录（api_changes）",
+      "source": "backend/gateway/src/routes/apiVersion.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/version/:version(\\\\d+)/openapi.json",
+      "description": "GET /api/version/:version/openapi.json 按版本生成的 OpenAPI 文档：从 bundled.yaml 取出属于该版本的路径（/api/vN/、/vN/）",
+      "source": "backend/gateway/src/routes/apiVersion.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/version/:version/changelog",
+      "description": "GET /api/version/:version/changelog 获取特定版本的变更日志",
+      "source": "backend/gateway/src/routes/apiVersion.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/version/:version/compatibility",
+      "description": "GET /api/version/:version/compatibility 检查版本兼容性",
+      "source": "backend/gateway/src/routes/apiVersion.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/version/changelog/all",
+      "description": "GET /api/version/changelog 获取所有版本的变更日志",
+      "source": "backend/gateway/src/routes/apiVersion.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/version/deprecation/list",
+      "description": "GET /api/deprecation/list 获取所有废弃的端点",
+      "source": "backend/gateway/src/routes/apiVersion.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/api/version/deprecation/mark",
+      "description": "POST /api/deprecation/mark 标记端点为废弃（管理员操作）",
+      "source": "backend/gateway/src/routes/apiVersion.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/version/deprecation/upcoming",
+      "description": "GET /api/deprecation/upcoming 获取即将下线的端点",
+      "source": "backend/gateway/src/routes/apiVersion.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/api/version/deprecation/usage/:endpoint(*)",
+      "description": "GET /api/deprecation/usage/:endpoint 获取废弃端点的使用统计",
+      "source": "backend/gateway/src/routes/apiVersion.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/config/health",
+      "description": "GET /admin/config 获取所有服务的配置概览",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/config/health/:serviceName",
+      "description": "GET /admin/config/:serviceName 获取指定服务的配置",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "DELETE",
+      "path": "/config/health/:serviceName/:key",
+      "description": "DELETE /admin/config/:serviceName/:key 删除配置项",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/config/health/:serviceName/:key",
+      "description": "GET /admin/config/:serviceName/:key 获取指定配置项",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "PUT",
+      "path": "/config/health/:serviceName/:key",
+      "description": "PUT /admin/config/:serviceName/:key 更新单个配置项",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/config/health/:serviceName/audit",
+      "description": "GET /admin/config/:serviceName/audit 获取配置审计日志",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/config/health/:serviceName/batch",
+      "description": "POST /admin/config/:serviceName/batch 批量更新配置",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/config/health/:serviceName/history",
+      "description": "GET /admin/config/:serviceName/history 获取配置变更历史",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "POST",
+      "path": "/config/health/:serviceName/rollback",
+      "description": "POST /admin/config/:serviceName/rollback 回滚到指定版本",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/config/health/health",
+      "description": "GET /admin/config/health 配置中心健康检查",
+      "source": "backend/gateway/src/routes/configRoutes.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/health",
+      "description": "── Health ────────────────────────────────────────────────────",
+      "source": "backend/gateway/src/index.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/metrics",
+      "description": "── Metrics ────────────────────────────────────────────────────",
+      "source": "backend/gateway/src/index.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/v1/battle/replays/shared/:code",
+      "description": "── E11 战斗与技能（gym-service /battle/*）────────────────────── 回放分享链接：公开访问（无需登录），查看次数/密码/有效期由服务端校验",
+      "source": "backend/gateway/src/index.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/v1/gdpr/privacy-policy",
+      "description": "REQ-00044: GDPR 数据导出 / 删除。隐私政策公开；其余经网关鉴权（含 token 黑名单， 登出/吊销后的 token 不能再导出个人数据或发起删除）",
+      "source": "backend/gateway/src/index.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/v1/gyms/nearby",
+      "description": "道馆附近查询 - 缓存 1 分钟",
+      "source": "backend/gateway/src/index.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/v1/pokemon",
+      "description": "用户精灵列表 - 缓存 2 分钟",
+      "source": "backend/gateway/src/index.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/v1/pokemon/my",
+      "description": "背包 - 按用户缓存 60 秒，用户任一写操作（如捕捉成功）后立即失效（REQ-00040）",
+      "source": "backend/gateway/src/index.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/v1/pokemon/pokedex",
+      "description": "精灵图鉴 - 缓存 1 小时（静态数据）",
+      "source": "backend/gateway/src/index.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/v1/raids/nearby",
+      "description": "Raid 附近查询 - 缓存 30 秒",
+      "source": "backend/gateway/src/index.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/v1/users/:id/profile",
+      "description": "Protected with cache (REQ-00031) 用户资料 - 缓存 5 分钟",
+      "source": "backend/gateway/src/index.js"
+    },
+    {
+      "service": "gateway",
+      "method": "GET",
+      "path": "/v1/users/:id/stats",
+      "description": "用户统计 - 缓存 5 分钟",
+      "source": "backend/gateway/src/index.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/api/teams",
+      "description": "创建团队 POST /api/teams",
+      "source": "backend/services/gym-service/src/routes/teamBattle.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/api/teams/:id",
+      "description": "获取团队详情 GET /api/teams/:id",
+      "source": "backend/services/gym-service/src/routes/teamBattle.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/api/teams/:id/invite",
+      "description": "邀请玩家 POST /api/teams/:id/invite",
+      "source": "backend/services/gym-service/src/routes/teamBattle.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/api/teams/:id/join",
+      "description": "加入团队 POST /api/teams/:id/join",
+      "source": "backend/services/gym-service/src/routes/teamBattle.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/api/teams/:id/kick",
+      "description": "踢出成员 POST /api/teams/:id/kick",
+      "source": "backend/services/gym-service/src/routes/teamBattle.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/api/teams/:id/leave",
+      "description": "离开团队 POST /api/teams/:id/leave",
+      "source": "backend/services/gym-service/src/routes/teamBattle.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/api/teams/:id/ready",
+      "description": "标记准备状态 POST /api/teams/:id/ready",
+      "source": "backend/services/gym-service/src/routes/teamBattle.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/api/teams/:id/start-battle",
+      "description": "启动战斗 POST /api/teams/:id/start-battle",
+      "source": "backend/services/gym-service/src/routes/teamBattle.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/api/teams/battle/:battleId/action",
+      "description": "提交行动 POST /api/teams/battle/:battleId/action",
+      "source": "backend/services/gym-service/src/routes/teamBattle.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/api/teams/battle/:battleId/execute-turn",
+      "description": "执行回合 POST /api/teams/battle/:battleId/execute-turn",
+      "source": "backend/services/gym-service/src/routes/teamBattle.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/api/teams/battle/:battleId/rewards",
+      "description": "获取战斗奖励 GET /api/teams/battle/:battleId/rewards",
+      "source": "backend/services/gym-service/src/routes/teamBattle.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/api/teams/battle/stats",
+      "description": "获取战斗统计 GET /api/teams/battle/stats",
+      "source": "backend/services/gym-service/src/routes/teamBattle.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/api/teams/combo-skills",
+      "description": "获取连携技能列表 GET /api/teams/combo-skills",
+      "source": "backend/services/gym-service/src/routes/teamBattle.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/api/teams/open",
+      "description": "获取开放团队列表 GET /api/teams/open",
+      "source": "backend/services/gym-service/src/routes/teamBattle.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/api/teams/raids",
+      "description": "获取活跃 Raid Boss GET /api/teams/raids",
+      "source": "backend/services/gym-service/src/routes/teamBattle.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/api/teams/raids/:raidId/challenge",
+      "description": "挑战 Raid Boss POST /api/teams/raids/:raidId/challenge",
+      "source": "backend/services/gym-service/src/routes/teamBattle.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/api/v1/gym/damage/effectiveness",
+      "description": "GET /gym/damage/effectiveness - 查询特定属性克制关系 查询参数: - attackType: 攻击属性 - defenderType1: 防御者主属性 - defenderType2: 防御者副属性(可选)",
+      "source": "backend/services/gym-service/src/routes/damage.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/api/v1/gym/damage/simulate",
+      "description": "POST /gym/damage/simulate - 伤害模拟计算 请求体: { attacker: { species_id: number, attack: number, fast_move?: string, charged_move?: string }, defender: { species_id: number, defense: number }, weather?: string }",
+      "source": "backend/services/gym-service/src/routes/damage.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/api/v1/gym/damage/typechart",
+      "description": "GET /gym/damage/typechart - 获取属性克制表",
+      "source": "backend/services/gym-service/src/routes/damage.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/api/v1/gym/damage/weather",
+      "description": "GET /gym/damage/weather - 获取天气加成信息",
+      "source": "backend/services/gym-service/src/routes/damage.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/api/v1/gym/season/current",
+      "description": "获取当前赛季信息",
+      "source": "backend/services/gym-service/src/routes/season.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/api/v1/gym/season/history",
+      "description": "获取赛季历史",
+      "source": "backend/services/gym-service/src/routes/season.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/api/v1/gym/season/leaderboard",
+      "description": "获取段位排行榜",
+      "source": "backend/services/gym-service/src/routes/season.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/api/v1/gym/season/placement/match",
+      "description": "定位赛匹配",
+      "source": "backend/services/gym-service/src/routes/season.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/api/v1/gym/season/rank",
+      "description": "获取玩家段位信息",
+      "source": "backend/services/gym-service/src/routes/season.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/api/v1/gym/season/ranked/match",
+      "description": "排位赛匹配",
+      "source": "backend/services/gym-service/src/routes/season.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/api/v1/gym/season/ranked/result",
+      "description": "上报排位赛结果",
+      "source": "backend/services/gym-service/src/routes/season.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/api/v1/gym/season/rewards/:seasonId/claim",
+      "description": "领取赛季奖励",
+      "source": "backend/services/gym-service/src/routes/season.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/batch/details",
+      "description": "POST /batch/details 批量获取道馆详细信息 Body: { gymIds: ['gym1', 'gym2', 'gym3'] } Response: { code: 0, data: { gyms: [gym1, gym2, gym3] } }",
+      "source": "backend/services/gym-service/src/routes/batch.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/batch/nearby",
+      "description": "POST /batch/nearby 批量获取附近道馆简要信息（用于地图显示） Body: { lat, lng, radius = 1000, limit = 20 } Response: { code: 0, data: { gyms: [...] } }",
+      "source": "backend/services/gym-service/src/routes/batch.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/batch/raids",
+      "description": "POST /batch/raids 批量获取道馆 Raid 信息 Body: { gymIds: ['gym1', 'gym2'] }",
+      "source": "backend/services/gym-service/src/routes/batch.js"
+    },
+    {
+      "service": "gym",
+      "method": "PUT",
+      "path": "/battle/ai/experiment",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/ai/feedback",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/ai/lineup",
+      "description": "阵容优化：针对道馆（gymId）或联赛（target=league，按自己段位的典型对手）从自己精灵中选队",
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/ai/preferences",
+      "description": "── AI 策略助手 ──────────────────────────────────────────────",
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "PUT",
+      "path": "/battle/ai/preferences",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/ai/quota",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/ai/review/:battleId",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/ai/reviews",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/ai/stats",
+      "description": "运营看板：各实验组采纳率、满意度、预测准确率（胜率预测偏差）、时延、缓存命中",
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/combos",
+      "description": "── 连击 ─────────────────────────────────────────────────────",
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/combos/:chainId",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/combos/:chainId/practice",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/combos/leaderboard",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/combos/logs",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/combos/my/stats",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/combos/presets",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/combos/presets",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "DELETE",
+      "path": "/battle/combos/presets/:id",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "PUT",
+      "path": "/battle/combos/presets/:id",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/combos/recommend/:pokemonId",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/damage/cache/refresh",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/damage/cache/stats",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/damage/simulate",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/damage/typechart",
+      "description": "── 伤害 ─────────────────────────────────────────────────────",
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/equipment/:itemId/equip",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/equipment/:itemId/unequip",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/equipment/catalog",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/equipment/grant",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/equipment/mine",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/league/admin/end-season",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/league/defense-team",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "PUT",
+      "path": "/battle/league/defense-team",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/league/leaderboard",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/league/match",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/league/matches",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/league/me",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/league/rewards",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/league/rewards/:id/claim",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/league/season",
+      "description": "── 竞技联赛 ─────────────────────────────────────────────────",
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/league/tiers",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/moves/:moveId/energy-info",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/perf/config",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/perf/dashboard",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/perf/report",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/pokemon/:id/cooldowns",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/pokemon/:id/energy",
+      "description": "── 能量 / 冷却 / 熟练度 / 装备 ─────────────────────────────────",
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/pokemon/:id/energy/regenerate",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/pokemon/:id/mastery",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/pokemon/:id/moves/check",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/recommendations/:speciesId",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/recommendations/aggregate",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/recommendations/preferences",
+      "description": "── 技能推荐 ─────────────────────────────────────────────────",
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "PUT",
+      "path": "/battle/recommendations/preferences",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "DELETE",
+      "path": "/battle/replays/:id",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/replays/:id",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "PATCH",
+      "path": "/battle/replays/:id",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/replays/:id/comments",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/replays/:id/comments",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/replays/:id/like",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "POST",
+      "path": "/battle/replays/:id/share",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/replays/hot",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/replays/mine",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/replays/search",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/battle/replays/shared/:code",
+      "description": null,
+      "source": "backend/services/gym-service/src/routes/battleApi.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/health",
+      "description": null,
+      "source": "backend/services/gym-service/src/index.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/metrics",
+      "description": "Metrics endpoint",
+      "source": "backend/services/gym-service/src/index.js"
+    },
+    {
+      "service": "gym",
+      "method": "GET",
+      "path": "/metrics/battle",
+      "description": "暴露指标端点",
+      "source": "backend/services/gym-service/src/battleMetricsIntegration.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/anticheat/appeals",
+      "description": "── 管理员：申诉列表 ──────────────────────────────────────────",
+      "source": "backend/services/location-service/src/routes/antiCheatAppeals.js"
+    },
+    {
+      "service": "location",
+      "method": "POST",
+      "path": "/anticheat/appeals/:id/decision",
+      "description": "── 管理员：审核 ──────────────────────────────────────────────",
+      "source": "backend/services/location-service/src/routes/antiCheatAppeals.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/anticheat/stats",
+      "description": "── 管理员：监控面板数据 ──────────────────────────────────────",
+      "source": "backend/services/location-service/src/routes/antiCheatAppeals.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/anticheat/suspicious",
+      "description": "── REQ-00586: 反作弊管理（可疑玩家列表 / 证据），经网关 /api/admin/anticheat 访问 ──",
+      "source": "backend/services/location-service/src/index.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/anticheat/users/:userId/evidence",
+      "description": null,
+      "source": "backend/services/location-service/src/index.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/anticheat/zones",
+      "description": "── 管理员：地形/禁入区域 ─────────────────────────────────────",
+      "source": "backend/services/location-service/src/routes/antiCheatAppeals.js"
+    },
+    {
+      "service": "location",
+      "method": "POST",
+      "path": "/anticheat/zones",
+      "description": null,
+      "source": "backend/services/location-service/src/routes/antiCheatAppeals.js"
+    },
+    {
+      "service": "location",
+      "method": "DELETE",
+      "path": "/anticheat/zones/:id",
+      "description": null,
+      "source": "backend/services/location-service/src/routes/antiCheatAppeals.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/api/admin/spawn/biomes",
+      "description": "获取所有生物群系 GET /api/v1/spawn/biomes",
+      "source": "backend/services/location-service/src/routes/spawnConfig.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/api/admin/spawn/config/cell/:geohash",
+      "description": "获取区域配置 GET /api/v1/spawn/config/cell/:geohash",
+      "source": "backend/services/location-service/src/routes/spawnConfig.js"
+    },
+    {
+      "service": "location",
+      "method": "PUT",
+      "path": "/api/admin/spawn/config/cell/:geohash",
+      "description": "更新区域配置 PUT /api/v1/spawn/config/cell/:geohash",
+      "source": "backend/services/location-service/src/routes/spawnConfig.js"
+    },
+    {
+      "service": "location",
+      "method": "POST",
+      "path": "/api/admin/spawn/config/cells/batch",
+      "description": "批量更新区域配置 POST /api/v1/spawn/config/cells/batch",
+      "source": "backend/services/location-service/src/routes/spawnConfig.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/api/admin/spawn/events",
+      "description": "获取活动列表 GET /api/v1/spawn/events",
+      "source": "backend/services/location-service/src/routes/spawnConfig.js"
+    },
+    {
+      "service": "location",
+      "method": "POST",
+      "path": "/api/admin/spawn/events",
+      "description": "创建活动事件 POST /api/v1/spawn/events",
+      "source": "backend/services/location-service/src/routes/spawnConfig.js"
+    },
+    {
+      "service": "location",
+      "method": "DELETE",
+      "path": "/api/admin/spawn/events/:id",
+      "description": "删除活动事件 DELETE /api/v1/spawn/events/:id",
+      "source": "backend/services/location-service/src/routes/spawnConfig.js"
+    },
+    {
+      "service": "location",
+      "method": "PUT",
+      "path": "/api/admin/spawn/events/:id",
+      "description": "更新活动事件 PUT /api/v1/spawn/events/:id",
+      "source": "backend/services/location-service/src/routes/spawnConfig.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/api/admin/spawn/logs",
+      "description": "获取操作日志 GET /api/v1/spawn/logs",
+      "source": "backend/services/location-service/src/routes/spawnConfig.js"
+    },
+    {
+      "service": "location",
+      "method": "POST",
+      "path": "/api/admin/spawn/manual",
+      "description": "手动刷新精灵 POST /api/v1/spawn/manual",
+      "source": "backend/services/location-service/src/routes/spawnConfig.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/api/admin/spawn/pool/:biome",
+      "description": "获取精灵池配置 GET /api/v1/spawn/pool/:biome",
+      "source": "backend/services/location-service/src/routes/spawnConfig.js"
+    },
+    {
+      "service": "location",
+      "method": "PUT",
+      "path": "/api/admin/spawn/pool/:biome",
+      "description": "更新精灵池 PUT /api/v1/spawn/pool/:biome",
+      "source": "backend/services/location-service/src/routes/spawnConfig.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/api/admin/spawn/statistics",
+      "description": "获取刷新统计 GET /api/v1/spawn/statistics",
+      "source": "backend/services/location-service/src/routes/spawnConfig.js"
+    },
+    {
+      "service": "location",
+      "method": "POST",
+      "path": "/api/v1/location/check-action",
+      "description": "POST /api/v1/location/check-action 检查某动作是否允许（用于捕捉、道馆等）",
+      "source": "backend/services/location-service/src/routes/locationVerify.js"
+    },
+    {
+      "service": "location",
+      "method": "POST",
+      "path": "/api/v1/location/device-check",
+      "description": "POST /api/v1/location/device-check 设备风险检查",
+      "source": "backend/services/location-service/src/routes/locationVerify.js"
+    },
+    {
+      "service": "location",
+      "method": "POST",
+      "path": "/api/v1/location/report",
+      "description": "POST /api/v1/location/report 上报位置（客户端定期上报）",
+      "source": "backend/services/location-service/src/routes/locationVerify.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/api/v1/location/restrictions",
+      "description": "GET /api/v1/location/restrictions 获取用户当前限制",
+      "source": "backend/services/location-service/src/routes/locationVerify.js"
+    },
+    {
+      "service": "location",
+      "method": "POST",
+      "path": "/api/v1/location/verify",
+      "description": "POST /api/v1/location/verify 验证位置可信度",
+      "source": "backend/services/location-service/src/routes/locationVerify.js"
+    },
+    {
+      "service": "location",
+      "method": "DELETE",
+      "path": "/cache/wild/:id",
+      "description": "DELETE /cache/wild/:id — invalidate wild pokemon cache (called by catch-service)",
+      "source": "backend/services/location-service/src/index.js"
+    },
+    {
+      "service": "location",
+      "method": "POST",
+      "path": "/daynight/config",
+      "description": "POST /daynight/config 管理员配置时间段（需要管理员权限）",
+      "source": "backend/services/location-service/src/routes/dayNight.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/daynight/current",
+      "description": "GET /daynight/current 获取当前游戏时间和时间段信息",
+      "source": "backend/services/location-service/src/routes/dayNight.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/daynight/periods",
+      "description": "GET /daynight/periods 获取所有时间段配置列表",
+      "source": "backend/services/location-service/src/routes/dayNight.js"
+    },
+    {
+      "service": "location",
+      "method": "POST",
+      "path": "/daynight/pokemon-config",
+      "description": "POST /daynight/pokemon-config 配置精灵的时间段权重",
+      "source": "backend/services/location-service/src/routes/dayNight.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/daynight/pokemon/:period",
+      "description": "GET /daynight/pokemon/:period 获取指定时间段的可生成精灵列表",
+      "source": "backend/services/location-service/src/routes/dayNight.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/daynight/statistics",
+      "description": "GET /daynight/statistics 获取昼夜生成统计数据",
+      "source": "backend/services/location-service/src/routes/dayNight.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/daynight/tips",
+      "description": "GET /daynight/tips 获取当前时间段的捕捉提示",
+      "source": "backend/services/location-service/src/routes/dayNight.js"
+    },
+    {
+      "service": "location",
+      "method": "DELETE",
+      "path": "/habitat/area/:areaId",
+      "description": "DELETE /api/habitat/area/:areaId (Admin) 删除自定义栖息地区域",
+      "source": "backend/services/location-service/src/routes/habitat.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/habitat/current",
+      "description": "GET /api/habitat/current 获取当前位置的栖息地类型",
+      "source": "backend/services/location-service/src/routes/habitat.js"
+    },
+    {
+      "service": "location",
+      "method": "POST",
+      "path": "/habitat/define-area",
+      "description": "POST /api/habitat/define-area (Admin) 定义自定义栖息地区域",
+      "source": "backend/services/location-service/src/routes/habitat.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/habitat/recommended-pokemon",
+      "description": "GET /api/habitat/recommended-pokemon 获取当前栖息地推荐的精灵列表",
+      "source": "backend/services/location-service/src/routes/habitat.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/habitat/types",
+      "description": "GET /api/habitat/types 获取所有栖息地类型列表",
+      "source": "backend/services/location-service/src/routes/habitat.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/habitat/user/:userId",
+      "description": "GET /api/habitat/user/:userId 获取用户缓存的栖息地信息",
+      "source": "backend/services/location-service/src/routes/habitat.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/health",
+      "description": null,
+      "source": "backend/services/location-service/src/index.js"
+    },
+    {
+      "service": "location",
+      "method": "POST",
+      "path": "/location",
+      "description": "POST /location  — player GPS update",
+      "source": "backend/services/location-service/src/index.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/location/appeals",
+      "description": "── 玩家：我的申诉 ────────────────────────────────────────────",
+      "source": "backend/services/location-service/src/routes/antiCheatAppeals.js"
+    },
+    {
+      "service": "location",
+      "method": "POST",
+      "path": "/location/appeals",
+      "description": "── 玩家：提交申诉 ────────────────────────────────────────────",
+      "source": "backend/services/location-service/src/routes/antiCheatAppeals.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/map/nearby",
+      "description": "GET /map/nearby — get all game elements near player",
+      "source": "backend/services/location-service/src/index.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/map/weather",
+      "description": "GET /map/weather — 获取当前天气",
+      "source": "backend/services/location-service/src/index.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/metrics",
+      "description": "Metrics endpoint",
+      "source": "backend/services/location-service/src/index.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/metrics/cache",
+      "description": "GET /metrics/cache — cache performance metrics",
+      "source": "backend/services/location-service/src/index.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/recovery-stations/:id",
+      "description": "GET /recovery-stations/:id 获取恢复站详情",
+      "source": "backend/services/location-service/src/routes/recoveryStations.js"
+    },
+    {
+      "service": "location",
+      "method": "POST",
+      "path": "/recovery-stations/:id/check-in",
+      "description": "POST /recovery-stations/:id/check-in 恢复站签到",
+      "source": "backend/services/location-service/src/routes/recoveryStations.js"
+    },
+    {
+      "service": "location",
+      "method": "DELETE",
+      "path": "/recovery-stations/:id/favorite",
+      "description": "DELETE /recovery-stations/:id/favorite 取消收藏",
+      "source": "backend/services/location-service/src/routes/recoveryStations.js"
+    },
+    {
+      "service": "location",
+      "method": "POST",
+      "path": "/recovery-stations/:id/favorite",
+      "description": "POST /recovery-stations/:id/favorite 收藏恢复站",
+      "source": "backend/services/location-service/src/routes/recoveryStations.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/recovery-stations/:id/reviews",
+      "description": "GET /recovery-stations/:id/reviews 获取恢复站评论列表",
+      "source": "backend/services/location-service/src/routes/recoveryStations.js"
+    },
+    {
+      "service": "location",
+      "method": "POST",
+      "path": "/recovery-stations/:id/reviews",
+      "description": "POST /recovery-stations/:id/reviews 添加恢复站评论",
+      "source": "backend/services/location-service/src/routes/recoveryStations.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/recovery-stations/favorites",
+      "description": "GET /recovery-stations/favorites 获取收藏的恢复站列表",
+      "source": "backend/services/location-service/src/routes/recoveryStations.js"
+    },
+    {
+      "service": "location",
+      "method": "GET",
+      "path": "/recovery-stations/nearby",
+      "description": "GET /recovery-stations/nearby 查询附近恢复站",
+      "source": "backend/services/location-service/src/routes/recoveryStations.js"
+    },
+    {
+      "service": "payment",
+      "method": "GET",
+      "path": "/api/v1/currencies",
+      "description": "GET /api/v1/currencies Get list of supported currencies",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "POST",
+      "path": "/api/v1/currencies/admin/cleanup-locks",
+      "description": "POST /api/v1/currencies/admin/cleanup-locks Admin: Clean up expired rate locks",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "POST",
+      "path": "/api/v1/currencies/admin/refresh-rates",
+      "description": "POST /api/v1/currencies/admin/refresh-rates Admin: Refresh all exchange rates",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "POST",
+      "path": "/api/v1/currencies/admin/set-price",
+      "description": "POST /api/v1/currencies/admin/set-price Admin: Set product price in currency Body: { productId, currency, price, originalPrice }",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "POST",
+      "path": "/api/v1/currencies/convert",
+      "description": "POST /api/v1/currencies/convert Convert amount between currencies Body: { amount, from, to, lockRate?: boolean }",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "POST",
+      "path": "/api/v1/currencies/detect",
+      "description": "POST /api/v1/currencies/detect Detect currency by country Body: { country }",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "POST",
+      "path": "/api/v1/currencies/lock-rate",
+      "description": "POST /api/v1/currencies/lock-rate Lock exchange rate for payment Body: { from, to, durationMinutes }",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "GET",
+      "path": "/api/v1/currencies/preference",
+      "description": "GET /api/v1/currencies/preference Get user currency preference",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "POST",
+      "path": "/api/v1/currencies/preference",
+      "description": "POST /api/v1/currencies/preference Set user currency preference Body: { currency, autoDetect }",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "GET",
+      "path": "/api/v1/currencies/prices/:productId",
+      "description": "GET /api/v1/currencies/prices/:productId Get product price in specified currency Query: currency=JPY",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "GET",
+      "path": "/api/v1/currencies/rates",
+      "description": "GET /api/v1/currencies/rates Get exchange rates Query: from=USD&to=EUR,GBP,JPY",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "GET",
+      "path": "/currency",
+      "description": "GET /api/v1/currencies Get list of supported currencies",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "POST",
+      "path": "/currency/admin/cleanup-locks",
+      "description": "POST /api/v1/currencies/admin/cleanup-locks Admin: Clean up expired rate locks",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "POST",
+      "path": "/currency/admin/refresh-rates",
+      "description": "POST /api/v1/currencies/admin/refresh-rates Admin: Refresh all exchange rates",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "POST",
+      "path": "/currency/admin/set-price",
+      "description": "POST /api/v1/currencies/admin/set-price Admin: Set product price in currency Body: { productId, currency, price, originalPrice }",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "POST",
+      "path": "/currency/convert",
+      "description": "POST /api/v1/currencies/convert Convert amount between currencies Body: { amount, from, to, lockRate?: boolean }",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "POST",
+      "path": "/currency/detect",
+      "description": "POST /api/v1/currencies/detect Detect currency by country Body: { country }",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "POST",
+      "path": "/currency/lock-rate",
+      "description": "POST /api/v1/currencies/lock-rate Lock exchange rate for payment Body: { from, to, durationMinutes }",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "GET",
+      "path": "/currency/preference",
+      "description": "GET /api/v1/currencies/preference Get user currency preference",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "POST",
+      "path": "/currency/preference",
+      "description": "POST /api/v1/currencies/preference Set user currency preference Body: { currency, autoDetect }",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "GET",
+      "path": "/currency/prices/:productId",
+      "description": "GET /api/v1/currencies/prices/:productId Get product price in specified currency Query: currency=JPY",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "GET",
+      "path": "/currency/rates",
+      "description": "GET /api/v1/currencies/rates Get exchange rates Query: from=USD&to=EUR,GBP,JPY",
+      "source": "backend/services/payment-service/src/routes/currency.js"
+    },
+    {
+      "service": "payment",
+      "method": "GET",
+      "path": "/health",
+      "description": null,
+      "source": "backend/services/payment-service/src/index.js"
+    },
+    {
+      "service": "payment",
+      "method": "GET",
+      "path": "/metrics",
+      "description": "Metrics endpoint",
+      "source": "backend/services/payment-service/src/index.js"
+    },
+    {
+      "service": "payment",
+      "method": "GET",
+      "path": "/payment/orders",
+      "description": "── GET /payment/orders ────────────────────────────────────────────────",
+      "source": "backend/services/payment-service/src/index.js"
+    },
+    {
+      "service": "payment",
+      "method": "POST",
+      "path": "/payment/orders",
+      "description": "── POST /payment/orders ───────────────────────────────────────────────",
+      "source": "backend/services/payment-service/src/index.js"
+    },
+    {
+      "service": "payment",
+      "method": "POST",
+      "path": "/payment/orders/:id/verify",
+      "description": "── POST /payment/orders/:id/verify ─────────────────────────────────── Called by client after payment completes; server verifies with channel. FIX: verifyPaymentSign was a stub that always returned true (free coin exploit). Now performs real HMAC-SHA256 verification.",
+      "source": "backend/services/payment-service/src/index.js"
+    },
+    {
+      "service": "payment",
+      "method": "GET",
+      "path": "/payment/products",
+      "description": "── GET /payment/products ──────────────────────────────────────────────",
+      "source": "backend/services/payment-service/src/index.js"
+    },
+    {
+      "service": "payment",
+      "method": "POST",
+      "path": "/payment/webhook/:channel",
+      "description": "── POST /payment/webhook/:channel  (channel callback) ──────────────── FIX: was calling `transaction(...)` which was never imported/defined in this file. Replaced with the correctly imported `transactionSerializable`.",
+      "source": "backend/services/payment-service/src/index.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/abilities",
+      "description": "获取特性列表 GET /api/pokemon/abilities",
+      "source": "backend/services/pokemon-service/src/routes/abilities.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/abilities/:abilityId",
+      "description": "获取单个特性详情 GET /api/pokemon/abilities/:abilityId",
+      "source": "backend/services/pokemon-service/src/routes/abilities.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/abilities/apply-effect",
+      "description": "应用特性效果 POST /api/pokemon/abilities/apply-effect",
+      "source": "backend/services/pokemon-service/src/routes/abilities.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/abilities/check-trigger",
+      "description": "检查特性触发条件 POST /api/pokemon/abilities/check-trigger",
+      "source": "backend/services/pokemon-service/src/routes/abilities.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/abilities/items/list",
+      "description": "获取特性道具列表 GET /api/pokemon/abilities/items",
+      "source": "backend/services/pokemon-service/src/routes/abilities.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/abilities/pokemon/:pokemonId",
+      "description": "获取玩家精灵的特性列表 GET /api/pokemon/abilities/pokemon/:pokemonId",
+      "source": "backend/services/pokemon-service/src/routes/abilities.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/abilities/pokemon/:pokemonId/activate-hidden",
+      "description": "激活隐藏特性 POST /api/pokemon/abilities/pokemon/:pokemonId/activate-hidden",
+      "source": "backend/services/pokemon-service/src/routes/abilities.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/abilities/pokemon/:pokemonId/active",
+      "description": "获取玩家精灵的激活特性 GET /api/pokemon/abilities/pokemon/:pokemonId/active",
+      "source": "backend/services/pokemon-service/src/routes/abilities.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/abilities/pokemon/:pokemonId/switch",
+      "description": "切换精灵特性 POST /api/pokemon/abilities/pokemon/:pokemonId/switch",
+      "source": "backend/services/pokemon-service/src/routes/abilities.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/abilities/pokemon/:pokemonId/unlock-hidden",
+      "description": "解锁隐藏特性 POST /api/pokemon/abilities/pokemon/:pokemonId/unlock-hidden",
+      "source": "backend/services/pokemon-service/src/routes/abilities.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/abilities/pokemon/:pokemonId/use-item",
+      "description": "使用特性道具 POST /api/pokemon/abilities/pokemon/:pokemonId/use-item",
+      "source": "backend/services/pokemon-service/src/routes/abilities.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/abilities/species/:speciesId",
+      "description": "获取精灵种类的特性配置 GET /api/pokemon/abilities/species/:speciesId",
+      "source": "backend/services/pokemon-service/src/routes/abilities.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/abilities/stats/overview",
+      "description": "获取特性统计 GET /api/pokemon/abilities/stats",
+      "source": "backend/services/pokemon-service/src/routes/abilities.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/achievements/:achievementId",
+      "description": "GET /achievements/:achievementId - 获取成就详情",
+      "source": "backend/services/pokemon-service/src/routes/achievements.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/achievements/:achievementId/claim",
+      "description": "POST /achievements/:achievementId/claim - 领取成就奖励",
+      "source": "backend/services/pokemon-service/src/routes/achievements.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/achievements/categories",
+      "description": "GET /achievements/categories - 获取成就类别列表",
+      "source": "backend/services/pokemon-service/src/routes/achievements.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/achievements/leaderboard",
+      "description": "GET /achievements/leaderboard - 获取成就排行榜",
+      "source": "backend/services/pokemon-service/src/routes/achievements.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/achievements/my",
+      "description": "GET /achievements/my - 获取用户成就列表",
+      "source": "backend/services/pokemon-service/src/routes/achievements.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/achievements/my/progress",
+      "description": "GET /achievements/my/progress - 获取成就进度概览",
+      "source": "backend/services/pokemon-service/src/routes/achievements.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/achievements/titles",
+      "description": "GET /achievements/titles - 获取用户称号列表",
+      "source": "backend/services/pokemon-service/src/routes/achievements.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/achievements/titles/:titleId/activate",
+      "description": "POST /achievements/titles/:titleId/activate - 设置激活称号",
+      "source": "backend/services/pokemon-service/src/routes/achievements.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "DELETE",
+      "path": "/backup/:backupId",
+      "description": "DELETE /api/pokemon/backup/:backupId 删除备份",
+      "source": "backend/services/pokemon-service/src/routes/backup.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/backup/:backupId",
+      "description": "GET /api/pokemon/backup/:backupId 获取备份详情",
+      "source": "backend/services/pokemon-service/src/routes/backup.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "DELETE",
+      "path": "/backup/auto-backup",
+      "description": "DELETE /api/pokemon/backup/auto-backup 禁用自动备份",
+      "source": "backend/services/pokemon-service/src/routes/backup.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/backup/auto-backup",
+      "description": "GET /api/pokemon/backup/auto-backup 获取自动备份配置",
+      "source": "backend/services/pokemon-service/src/routes/backup.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/backup/auto-backup",
+      "description": "POST /api/pokemon/backup/auto-backup 设置自动备份",
+      "source": "backend/services/pokemon-service/src/routes/backup.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/backup/create",
+      "description": "POST /api/pokemon/backup/create 创建手动备份",
+      "source": "backend/services/pokemon-service/src/routes/backup.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/backup/export",
+      "description": "GET /api/pokemon/backup/export 导出用户数据（GDPR）",
+      "source": "backend/services/pokemon-service/src/routes/backup.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/backup/list",
+      "description": "GET /api/pokemon/backup/list 获取用户备份列表",
+      "source": "backend/services/pokemon-service/src/routes/backup.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/backup/quota",
+      "description": "GET /api/pokemon/backup/quota 获取用户备份配额信息",
+      "source": "backend/services/pokemon-service/src/routes/backup.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/backup/restore-history",
+      "description": "GET /api/pokemon/backup/restore-history 获取恢复历史",
+      "source": "backend/services/pokemon-service/src/routes/backup.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/backup/restore/:backupId",
+      "description": "POST /api/pokemon/backup/restore/:backupId 从备份恢复精灵数据",
+      "source": "backend/services/pokemon-service/src/routes/backup.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/bag/alert-config",
+      "description": "GET /bag/alert-config 获取预警配置",
+      "source": "backend/services/pokemon-service/src/routes/bag.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "PATCH",
+      "path": "/bag/alert-config",
+      "description": "PATCH /bag/alert-config 更新预警配置 Body: { enableAlert?, alertThresholds?, autoTransferToStorage?, notificationMethod? }",
+      "source": "backend/services/pokemon-service/src/routes/bag.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/bag/batch-action",
+      "description": "POST /bag/batch-action 批量操作精灵 Body: { pokemonIds: number[], action: 'release'|'transfer_to_storage' }",
+      "source": "backend/services/pokemon-service/src/routes/bag.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/bag/capacity",
+      "description": "GET /bag/capacity 获取背包容量信息",
+      "source": "backend/services/pokemon-service/src/routes/bag.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/bag/check-full",
+      "description": "GET /bag/check-full 检查背包是否已满 Query: additional - 额外需要的槽位",
+      "source": "backend/services/pokemon-service/src/routes/bag.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/bag/expand",
+      "description": "POST /bag/expand 扩展背包容量 Body: { method: 'gold'|'diamond', units: number }",
+      "source": "backend/services/pokemon-service/src/routes/bag.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/bag/expansion-cost",
+      "description": "GET /bag/expansion-cost 获取扩展成本预览 Query: units, method",
+      "source": "backend/services/pokemon-service/src/routes/bag.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/bag/expansion-history",
+      "description": "GET /bag/expansion-history 获取扩展历史 Query: limit",
+      "source": "backend/services/pokemon-service/src/routes/bag.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/bag/filter-options",
+      "description": "GET /bag/filter-options 获取筛选选项",
+      "source": "backend/services/pokemon-service/src/routes/bag.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/bag/pokemon",
+      "description": "GET /bag/pokemon 获取排序后的精灵列表 Query: sortBy, sortOrder, page, limit, storageStatus",
+      "source": "backend/services/pokemon-service/src/routes/bag.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "PATCH",
+      "path": "/bag/pokemon/:id/favorite",
+      "description": "PATCH /bag/pokemon/:id/favorite 设置收藏标记 Body: { isFavorited: boolean }",
+      "source": "backend/services/pokemon-service/src/routes/bag.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/bag/quick-sort",
+      "description": "POST /bag/quick-sort 快速排序（按规则重新排列） Body: { sortBy: string, sortOrder: string }",
+      "source": "backend/services/pokemon-service/src/routes/bag.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/bag/sort-order",
+      "description": "POST /bag/sort-order 更新排序顺序 Body: { pokemonIds: number[] }",
+      "source": "backend/services/pokemon-service/src/routes/bag.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/bag/transfer-from-storage",
+      "description": "POST /bag/transfer-from-storage 从仓库移回背包 Body: { pokemonIds: number[] }",
+      "source": "backend/services/pokemon-service/src/routes/bag.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/batch/details",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/batch.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/batch/metrics",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/batch.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/bond-skills/calculate-effect",
+      "description": "POST /api/bond-skills/calculate-effect 计算羁绊技能实际效果（用于战斗模拟）",
+      "source": "backend/services/pokemon-service/src/routes/bondSkills.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/bond-skills/stats",
+      "description": "GET /api/bond-skills/stats 获取用户羁绊技能统计",
+      "source": "backend/services/pokemon-service/src/routes/bondSkills.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/breeding/cancel/:pairId",
+      "description": "取消培育 POST /api/breeding/cancel/:pairId",
+      "source": "backend/services/pokemon-service/src/routes/breeding.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/breeding/center",
+      "description": "获取培育中心状态 GET /api/breeding/center",
+      "source": "backend/services/pokemon-service/src/routes/breeding.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/breeding/check",
+      "description": "检查两只精灵是否可以培育 POST /api/breeding/check",
+      "source": "backend/services/pokemon-service/src/routes/breeding.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/breeding/collect/:pairId",
+      "description": "收集培育完成的蛋 POST /api/breeding/collect/:pairId",
+      "source": "backend/services/pokemon-service/src/routes/breeding.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/breeding/hatch/update",
+      "description": "更新孵化进度 POST /api/breeding/hatch/update",
+      "source": "backend/services/pokemon-service/src/routes/breeding.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/breeding/lineage/:pokemonId",
+      "description": "获取精灵谱系 GET /api/breeding/lineage/:pokemonId",
+      "source": "backend/services/pokemon-service/src/routes/breeding.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/breeding/start",
+      "description": "开始培育 POST /api/breeding/start",
+      "source": "backend/services/pokemon-service/src/routes/breeding.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/breeding/stats",
+      "description": "获取培育统计 GET /api/breeding/stats",
+      "source": "backend/services/pokemon-service/src/routes/breeding.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/breeding/upgrade",
+      "description": "升级培育中心 POST /api/breeding/upgrade",
+      "source": "backend/services/pokemon-service/src/routes/breeding.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/equipment/:id",
+      "description": "GET /api/pokemon/equipment/:id 获取装备详情",
+      "source": "backend/services/pokemon-service/src/routes/equipment.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/equipment/equip",
+      "description": "POST /api/pokemon/equipment/equip 装备到精灵",
+      "source": "backend/services/pokemon-service/src/routes/equipment.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/equipment/inventory",
+      "description": "GET /api/pokemon/equipment/inventory 获取玩家装备背包",
+      "source": "backend/services/pokemon-service/src/routes/equipment.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/equipment/pokemon/:pokemonId",
+      "description": "GET /api/pokemon/equipment/pokemon/:pokemonId 获取精灵已装备列表",
+      "source": "backend/services/pokemon-service/src/routes/equipment.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/equipment/sell",
+      "description": "POST /api/pokemon/equipment/sell 出售装备",
+      "source": "backend/services/pokemon-service/src/routes/equipment.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/equipment/sets",
+      "description": "GET /api/pokemon/equipment/sets 获取套装列表",
+      "source": "backend/services/pokemon-service/src/routes/equipment.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/equipment/sets/:id",
+      "description": "GET /api/pokemon/equipment/sets/:id 获取套装详情",
+      "source": "backend/services/pokemon-service/src/routes/equipment.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/equipment/templates",
+      "description": "GET /api/pokemon/equipment/templates 获取装备模板列表",
+      "source": "backend/services/pokemon-service/src/routes/equipment.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/equipment/templates/:id",
+      "description": "GET /api/pokemon/equipment/templates/:id 获取装备模板详情",
+      "source": "backend/services/pokemon-service/src/routes/equipment.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/equipment/unequip",
+      "description": "POST /api/pokemon/equipment/unequip 从精灵卸下装备",
+      "source": "backend/services/pokemon-service/src/routes/equipment.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/equipment/upgrade",
+      "description": "POST /api/pokemon/equipment/upgrade 强化装备",
+      "source": "backend/services/pokemon-service/src/routes/equipment.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/equipment/upgrade-preview/:id",
+      "description": "GET /api/pokemon/equipment/upgrade-preview/:id 获取强化预览（消耗和成功率）",
+      "source": "backend/services/pokemon-service/src/routes/equipment.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/inventory",
+      "description": "GET /api/pokemon/inventory 获取用户精灵列表（支持排序、分组、过滤）",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/inventory/:pokemonId",
+      "description": "GET /api/pokemon/inventory/:pokemonId 获取单个精灵详情",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/inventory/admin/upgrades/stats",
+      "description": "GET /api/v1/admin/inventory/upgrades/stats 管理员获取全平台扩容统计",
+      "source": "backend/services/pokemon-service/src/routes/bagUpgrade.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/inventory/advice",
+      "description": "GET /api/pokemon/inventory/advice 获取智能整理建议",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/inventory/batch-favorite",
+      "description": "POST /api/pokemon/inventory/batch-favorite 批量设置收藏",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/inventory/batch-transfer",
+      "description": "POST /api/pokemon/inventory/batch-transfer 批量转移精灵",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/inventory/favorite",
+      "description": "POST /api/pokemon/inventory/favorite 设置/取消收藏",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/inventory/lock",
+      "description": "POST /api/pokemon/inventory/lock 锁定/解锁精灵",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/inventory/sort-options",
+      "description": "GET /api/pokemon/inventory/sort-options 获取可用的排序选项",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/inventory/sort-preference",
+      "description": "POST /api/pokemon/inventory/sort-preference 保存用户排序偏好",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/inventory/storage",
+      "description": "GET /api/pokemon/inventory/storage 获取背包存储状态",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/inventory/tags",
+      "description": "POST /api/pokemon/inventory/tags 更新精灵自定义标签",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/inventory/upgrades",
+      "description": "GET /api/v1/inventory/upgrades 获取背包扩容配置列表",
+      "source": "backend/services/pokemon-service/src/routes/bagUpgrade.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/inventory/upgrades/:upgradeId",
+      "description": "GET /api/v1/inventory/upgrades/:upgradeId 获取单个扩容配置详情",
+      "source": "backend/services/pokemon-service/src/routes/bagUpgrade.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/inventory/upgrades/:upgradeId/grant",
+      "description": "POST /api/v1/inventory/upgrades/:upgradeId/grant 赠送免费扩容（管理员） Body: { \"userId\": number, \"reason\": \"achievement\" | \"event\" | \"free\" | \"vip\" | \"admin\" }",
+      "source": "backend/services/pokemon-service/src/routes/bagUpgrade.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/inventory/upgrades/:upgradeId/purchase",
+      "description": "POST /api/v1/inventory/upgrades/:upgradeId/purchase 购买背包扩容 Body: { \"method\": \"gold\" | \"gem\" }",
+      "source": "backend/services/pokemon-service/src/routes/bagUpgrade.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/inventory/upgrades/batch-check",
+      "description": "POST /api/v1/inventory/upgrades/batch-check 批量检查用户是否可以购买多个配置 Body: { \"upgradeIds\": [\"base_50\", \"pokeball_20\", ...] }",
+      "source": "backend/services/pokemon-service/src/routes/bagUpgrade.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/inventory/upgrades/history",
+      "description": "GET /api/v1/inventory/upgrades/history 获取用户扩容购买历史",
+      "source": "backend/services/pokemon-service/src/routes/bagUpgrade.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/inventory/upgrades/stats",
+      "description": "GET /api/v1/inventory/upgrades/stats 获取用户扩容统计信息",
+      "source": "backend/services/pokemon-service/src/routes/bagUpgrade.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/localizations/items",
+      "description": "GET /localizations/items - Get all localized items",
+      "source": "backend/services/pokemon-service/src/index.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/localizations/moves",
+      "description": "GET /localizations/moves - Get all localized moves",
+      "source": "backend/services/pokemon-service/src/index.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/localizations/pokemon/:id",
+      "description": "GET /localizations/pokemon/:id - Get all localizations for a Pokemon",
+      "source": "backend/services/pokemon-service/src/index.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/localizations/supported-languages",
+      "description": "GET /localizations/supported-languages - Get supported languages",
+      "source": "backend/services/pokemon-service/src/index.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/moves",
+      "description": "GET /moves 获取技能列表 Query: type, category, limit, offset",
+      "source": "backend/services/pokemon-service/src/routes/moves.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/moves/:id",
+      "description": "GET /moves/:id 获取技能详情",
+      "source": "backend/services/pokemon-service/src/routes/moves.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokedex/achievements",
+      "description": "GET /api/pokedex/achievements 获取图鉴成就列表",
+      "source": "backend/services/pokemon-service/src/routes/pokedex.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokedex/catch-bonus",
+      "description": "GET /api/pokedex/catch-bonus 获取捕捉概率加成",
+      "source": "backend/services/pokemon-service/src/routes/pokedex.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokedex/detailed",
+      "description": "GET /api/pokedex/detailed 获取详细图鉴列表 Query params: region, type, caught, shiny, seen",
+      "source": "backend/services/pokemon-service/src/routes/pokedex.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokedex/generation-stats",
+      "description": "GET /api/pokedex/generation-stats 获取世代统计",
+      "source": "backend/services/pokemon-service/src/routes/pokedex.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokedex/leaderboard",
+      "description": "GET /api/pokedex/leaderboard 获取图鉴排行榜 Query params: limit, offset",
+      "source": "backend/services/pokemon-service/src/routes/pokedex.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokedex/milestones",
+      "description": "GET /api/pokedex/milestones 获取里程碑列表",
+      "source": "backend/services/pokemon-service/src/routes/pokedex.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokedex/milestones/:milestoneId/claim",
+      "description": "POST /api/pokedex/milestones/:milestoneId/claim 手动领取里程碑奖励",
+      "source": "backend/services/pokemon-service/src/routes/pokedex.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokedex/missing",
+      "description": "GET /api/pokedex/missing 获取未拥有的精灵列表 Query params: region, type",
+      "source": "backend/services/pokemon-service/src/routes/pokedex.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokedex/progress",
+      "description": "GET /api/pokedex/progress 获取图鉴完成度进度",
+      "source": "backend/services/pokemon-service/src/routes/pokedex.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokedex/rank",
+      "description": "GET /api/pokedex/rank 获取当前用户排名",
+      "source": "backend/services/pokemon-service/src/routes/pokedex.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokedex/record/caught",
+      "description": "POST /api/pokedex/record/caught 记录捕获精灵（内部调用）",
+      "source": "backend/services/pokemon-service/src/routes/pokedex.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokedex/record/seen",
+      "description": "POST /api/pokedex/record/seen 记录见过精灵（内部调用）",
+      "source": "backend/services/pokemon-service/src/routes/pokedex.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokedex/region-stats",
+      "description": "GET /api/pokedex/region-stats 获取地区统计",
+      "source": "backend/services/pokemon-service/src/routes/pokedex.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokedex/special-iv-stats",
+      "description": "GET /api/pokedex/special-iv-stats REQ-00160: 获取特殊 IV 统计",
+      "source": "backend/services/pokemon-service/src/routes/pokedex.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokedex/stats/:userId",
+      "description": "GET /api/pokedex/stats/:userId 获取指定用户的图鉴统计（公开信息）",
+      "source": "backend/services/pokemon-service/src/routes/pokedex.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokedex/type-stats",
+      "description": "GET /api/pokedex/type-stats 获取属性统计",
+      "source": "backend/services/pokemon-service/src/routes/pokedex.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon-species/:speciesId/bond-skills/available",
+      "description": "GET /api/pokemon-species/:speciesId/bond-skills/available 查询特定精灵种类可用的羁绊技能列表（公开API）",
+      "source": "backend/services/pokemon-service/src/routes/bondSkills.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/:id/bond-skills",
+      "description": "GET /api/pokemon/:id/bond-skills 查询精灵可学习和已学习的羁绊技能",
+      "source": "backend/services/pokemon-service/src/routes/bondSkills.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "DELETE",
+      "path": "/pokemon/:id/bond-skills/:skillId",
+      "description": "DELETE /api/pokemon/:id/bond-skills/:skillId 遗忘羁绊技能",
+      "source": "backend/services/pokemon-service/src/routes/bondSkills.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/:id/bond-skills/:skillId/activate",
+      "description": "POST /api/pokemon/:id/bond-skills/:skillId/activate 激活羁绊技能（用于战斗）",
+      "source": "backend/services/pokemon-service/src/routes/bondSkills.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/:id/bond-skills/:skillId/learn",
+      "description": "POST /api/pokemon/:id/bond-skills/:skillId/learn 学习羁绊技能",
+      "source": "backend/services/pokemon-service/src/routes/bondSkills.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/:id/evolution/check",
+      "description": "GET /api/pokemon/:id/evolution/check 检查精灵是否可以进化",
+      "source": "backend/services/pokemon-service/src/routes/evolution.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/:id/evolution/execute",
+      "description": "POST /api/pokemon/:id/evolution/execute 执行进化",
+      "source": "backend/services/pokemon-service/src/routes/evolution.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/:id/experience",
+      "description": "POST /api/pokemon/:id/experience 添加经验值",
+      "source": "backend/services/pokemon-service/src/routes/evolution.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/:id/friendship",
+      "description": "POST /api/pokemon/:id/friendship 增加亲密度",
+      "source": "backend/services/pokemon-service/src/routes/evolution.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/:id/stamina",
+      "description": "GET /pokemon/:id/stamina 获取精灵体力状态",
+      "source": "backend/services/pokemon-service/src/routes/stamina.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/:id/stamina/check",
+      "description": "POST /pokemon/:id/stamina/check 检查精灵是否有足够体力",
+      "source": "backend/services/pokemon-service/src/routes/stamina.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/:id/stamina/consume",
+      "description": "POST /pokemon/:id/stamina/consume 消耗体力",
+      "source": "backend/services/pokemon-service/src/routes/stamina.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/:id/stamina/recover",
+      "description": "POST /pokemon/:id/stamina/recover 恢复体力",
+      "source": "backend/services/pokemon-service/src/routes/stamina.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/:id/stamina/use-item",
+      "description": "POST /pokemon/:id/stamina/use-item 使用道具恢复体力",
+      "source": "backend/services/pokemon-service/src/routes/stamina.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/:id/stats",
+      "description": "GET /api/pokemon/:id/stats 获取精灵详细属性",
+      "source": "backend/services/pokemon-service/src/routes/evolution.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/:pokemonId/comments",
+      "description": "GET /api/pokemon/:pokemonId/comments 获取评语列表",
+      "source": "backend/services/pokemon-service/src/routes/showcase.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/:pokemonId/comments",
+      "description": "POST /api/pokemon/:pokemonId/comments 添加评语",
+      "source": "backend/services/pokemon-service/src/routes/showcase.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/:pokemonId/evolution-check",
+      "description": "检查亲密度进化 GET /api/pokemon/:pokemonId/evolution-check",
+      "source": "backend/services/pokemon-service/src/routes/friendship.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/:pokemonId/evolve",
+      "description": "执行亲密度进化 POST /api/pokemon/:pokemonId/evolve",
+      "source": "backend/services/pokemon-service/src/routes/friendship.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/:pokemonId/friend-request",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/pokemonSocial.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/:pokemonId/friends",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/pokemonSocial.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/:pokemonId/friendship",
+      "description": "获取精灵亲密度状态 GET /pokemon/:pokemonId/friendship",
+      "source": "backend/services/pokemon-service/src/routes/friendshipEvolution.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/:pokemonId/friendship-history",
+      "description": "获取互动历史 GET /api/pokemon/:pokemonId/friendship-history Query: limit, offset",
+      "source": "backend/services/pokemon-service/src/routes/friendship.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/:pokemonId/friendship/add",
+      "description": "增加亲密度（供其他服务调用） POST /pokemon/:pokemonId/friendship/add",
+      "source": "backend/services/pokemon-service/src/routes/friendshipEvolution.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/:pokemonId/friendship/evolution-preview",
+      "description": "预览进化结果 POST /pokemon/:pokemonId/friendship/evolution-preview",
+      "source": "backend/services/pokemon-service/src/routes/friendshipEvolution.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/:pokemonId/friendship/evolution-progress",
+      "description": "获取进化进度和建议 GET /pokemon/:pokemonId/friendship/evolution-progress",
+      "source": "backend/services/pokemon-service/src/routes/friendshipEvolution.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/:pokemonId/friendship/history",
+      "description": "获取亲密度历史 GET /pokemon/:pokemonId/friendship/history",
+      "source": "backend/services/pokemon-service/src/routes/friendshipEvolution.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/:pokemonId/interact",
+      "description": "与精灵互动 POST /api/pokemon/:pokemonId/interact Body: { type: 'massage'|'camping'|'feed_berry'|'feed_vitamin'|'spa'|'touch', itemId?: number }",
+      "source": "backend/services/pokemon-service/src/routes/friendship.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/:pokemonId/interaction-status",
+      "description": "获取互动状态 GET /api/pokemon/:pokemonId/interaction-status",
+      "source": "backend/services/pokemon-service/src/routes/friendship.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "DELETE",
+      "path": "/pokemon/:pokemonId/like",
+      "description": "DELETE /api/pokemon/:pokemonId/like 取消点赞",
+      "source": "backend/services/pokemon-service/src/routes/showcase.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/:pokemonId/like",
+      "description": "POST /api/pokemon/:pokemonId/like 点赞精灵",
+      "source": "backend/services/pokemon-service/src/routes/showcase.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/:pokemonId/liked",
+      "description": "GET /api/pokemon/:pokemonId/liked 检查是否已点赞",
+      "source": "backend/services/pokemon-service/src/routes/showcase.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/:pokemonId/privacy",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/pokemonSocial.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "PUT",
+      "path": "/pokemon/:pokemonId/privacy",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/pokemonSocial.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/:pokemonId/visibility",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/pokemonSocial.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/:pokemonId/walking-bonus",
+      "description": "处理行走步数奖励 POST /api/pokemon/:pokemonId/walking-bonus Body: { steps: number }",
+      "source": "backend/services/pokemon-service/src/routes/friendship.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/:speciesId/learnset",
+      "description": "GET /pokemon/:speciesId/learnset 获取种族可学习技能列表",
+      "source": "backend/services/pokemon-service/src/routes/moves.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/batch-evolution-chains",
+      "description": "POST /api/pokemon/batch-evolution-chains 批量获取多个物种的进化链",
+      "source": "backend/services/pokemon-service/src/routes/evolutionVisualization.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/batch-status",
+      "description": "POST /stamina/batch-status 批量获取精灵体力状态",
+      "source": "backend/services/pokemon-service/src/routes/stamina.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/batch/details",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/batch.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/batch/metrics",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/batch.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "DELETE",
+      "path": "/pokemon/comments/:commentId",
+      "description": "DELETE /api/pokemon/comments/:commentId 删除评语",
+      "source": "backend/services/pokemon-service/src/routes/showcase.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/config",
+      "description": "GET /stamina/config 获取体力消耗配置",
+      "source": "backend/services/pokemon-service/src/routes/stamina.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/evolution-stats/:speciesId",
+      "description": "GET /api/pokemon/evolution-stats/:speciesId 获取精灵进化统计数据（进化玩家数、成功率等）",
+      "source": "backend/services/pokemon-service/src/routes/evolutionVisualization.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/evolution-types",
+      "description": "GET /api/pokemon/evolution-types 获取所有进化类型枚举",
+      "source": "backend/services/pokemon-service/src/routes/evolutionVisualization.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/evolution/history/:userId",
+      "description": "GET /api/evolution/history/:userId 获取用户进化历史",
+      "source": "backend/services/pokemon-service/src/routes/evolution.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/evolution/items",
+      "description": "GET /api/evolution/items 获取所有进化道具",
+      "source": "backend/services/pokemon-service/src/routes/evolution.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/favorites",
+      "description": "GET /api/pokemon/favorites 获取当前用户的收藏列表",
+      "source": "backend/services/pokemon-service/src/routes/showcase.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/favorites",
+      "description": "POST /api/pokemon/favorites 添加收藏",
+      "source": "backend/services/pokemon-service/src/routes/showcase.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "DELETE",
+      "path": "/pokemon/favorites/:pokemonId",
+      "description": "DELETE /api/pokemon/favorites/:pokemonId 移除收藏",
+      "source": "backend/services/pokemon-service/src/routes/showcase.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "PUT",
+      "path": "/pokemon/favorites/reorder",
+      "description": "PUT /api/pokemon/favorites/reorder 重新排序收藏",
+      "source": "backend/services/pokemon-service/src/routes/showcase.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/friendship/batch",
+      "description": "批量获取精灵好感度 POST /api/pokemon/friendship/batch Body: { pokemonIds: number[] }",
+      "source": "backend/services/pokemon-service/src/routes/friendship.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/friendships/:friendshipId",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/pokemonSocial.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/friendships/:friendshipId/interact",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/pokemonSocial.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/friendships/:friendshipId/keepsakes",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/pokemonSocial.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "PUT",
+      "path": "/pokemon/friendships/:friendshipId/status",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/pokemonSocial.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/friendships/requests",
+      "description": "── 精灵好友（REQ-00326） ────────────────────────────────────────",
+      "source": "backend/services/pokemon-service/src/routes/pokemonSocial.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/inventory",
+      "description": "GET /api/pokemon/inventory 获取用户精灵列表（支持排序、分组、过滤）",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/inventory/:pokemonId",
+      "description": "GET /api/pokemon/inventory/:pokemonId 获取单个精灵详情",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/inventory/advice",
+      "description": "GET /api/pokemon/inventory/advice 获取智能整理建议",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/inventory/batch-favorite",
+      "description": "POST /api/pokemon/inventory/batch-favorite 批量设置收藏",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/inventory/batch-transfer",
+      "description": "POST /api/pokemon/inventory/batch-transfer 批量转移精灵",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/inventory/favorite",
+      "description": "POST /api/pokemon/inventory/favorite 设置/取消收藏",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/inventory/lock",
+      "description": "POST /api/pokemon/inventory/lock 锁定/解锁精灵",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/inventory/sort-options",
+      "description": "GET /api/pokemon/inventory/sort-options 获取可用的排序选项",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/inventory/sort-preference",
+      "description": "POST /api/pokemon/inventory/sort-preference 保存用户排序偏好",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/inventory/storage",
+      "description": "GET /api/pokemon/inventory/storage 获取背包存储状态",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/inventory/tags",
+      "description": "POST /api/pokemon/inventory/tags 更新精灵自定义标签",
+      "source": "backend/services/pokemon-service/src/routes/inventory.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/items",
+      "description": "GET /stamina/items 获取用户体力道具库存",
+      "source": "backend/services/pokemon-service/src/routes/stamina.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/my",
+      "description": "GET /pokemon/my — player's pokemon list REQ-00302/465：统一分页（page/pageSize 或 limit/offset；cursor 游标分页）+ pagination/meta.pagination/_links， 保留 data.{pokemon,total,limit,offset} 旧结构；REQ-00350：?ids=a,b,c 按 id 批量取（≤100）+ 预取前 10 个详情",
+      "source": "backend/services/pokemon-service/src/index.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/my/:id",
+      "description": "GET /pokemon/my/:id — 50ms 窗口内同一用户的详情请求合并为一次查询；命中预取/按用户版本隔离的缓存（REQ-00350）",
+      "source": "backend/services/pokemon-service/src/index.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/my/:id/evolve",
+      "description": "POST /pokemon/my/:id/evolve",
+      "source": "backend/services/pokemon-service/src/index.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/my/:id/moves",
+      "description": "GET /pokemon/my/:id/moves 获取精灵技能栏",
+      "source": "backend/services/pokemon-service/src/routes/moves.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/my/:id/moves/forget",
+      "description": "POST /pokemon/my/:id/moves/forget 遗忘技能 Body: { moveId }",
+      "source": "backend/services/pokemon-service/src/routes/moves.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/my/:id/moves/learn",
+      "description": "POST /pokemon/my/:id/moves/learn 学习新技能 Body: { tmId, forgetMoveId? }",
+      "source": "backend/services/pokemon-service/src/routes/moves.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/my/:id/moves/switch",
+      "description": "POST /pokemon/my/:id/moves/switch 切换技能 Body: { fastMoveId?, chargeMoveId? }",
+      "source": "backend/services/pokemon-service/src/routes/moves.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/my/:id/power-up",
+      "description": "POST /pokemon/my/:id/power-up",
+      "source": "backend/services/pokemon-service/src/index.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/my/:id/voice-description",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/voiceDescription.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/my/:instanceId/evolution-preview",
+      "description": "GET /api/pokemon/my/:instanceId/evolution-preview 获取用户精灵的进化预览",
+      "source": "backend/services/pokemon-service/src/routes/evolutionVisualization.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/pokedex",
+      "description": "GET /pokemon/pokedex",
+      "source": "backend/services/pokemon-service/src/index.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/privacy/batch",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/pokemonSocial.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/privacy/defaults",
+      "description": "── 精灵隐私（REQ-00377） ────────────────────────────────────────",
+      "source": "backend/services/pokemon-service/src/routes/pokemonSocial.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "PUT",
+      "path": "/pokemon/privacy/defaults",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/pokemonSocial.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/release/execute",
+      "description": "POST /api/pokemon/release/execute 执行放生",
+      "source": "backend/services/pokemon-service/src/routes/release.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/release/history",
+      "description": "GET /api/pokemon/release/history 查询放生历史",
+      "source": "backend/services/pokemon-service/src/routes/release.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/release/preview",
+      "description": "POST /api/pokemon/release/preview 预览放生资源",
+      "source": "backend/services/pokemon-service/src/routes/release.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/release/stats",
+      "description": "GET /api/pokemon/release/stats 放生统计",
+      "source": "backend/services/pokemon-service/src/routes/release.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/rest-station/:stationId/start",
+      "description": "POST /stamina/rest-station/:stationId/start 在休息站开始休息",
+      "source": "backend/services/pokemon-service/src/routes/stamina.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/rest-stations",
+      "description": "GET /stamina/rest-stations 获取附近的休息站",
+      "source": "backend/services/pokemon-service/src/routes/stamina.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokemon/rest/:recordId/end",
+      "description": "POST /stamina/rest/:recordId/end 结束休息",
+      "source": "backend/services/pokemon-service/src/routes/stamina.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/showcase/leaderboard",
+      "description": "GET /api/pokemon/showcase/leaderboard 获取排行榜",
+      "source": "backend/services/pokemon-service/src/routes/showcase.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/species",
+      "description": "GET /pokemon/species — master data list (with localization) REQ-00302/465：统一分页（page/pageSize，兼容 limit/offset；默认 50 条）+ total + 分页链接",
+      "source": "backend/services/pokemon-service/src/index.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/species/:id",
+      "description": "GET /pokemon/species/:id (with localization)",
+      "source": "backend/services/pokemon-service/src/index.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/species/:id/voice-description",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/voiceDescription.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/species/:speciesId/all-evolution-paths",
+      "description": "GET /api/pokemon/:speciesId/all-evolution-paths 获取精灵的所有进化路径（包括退化）",
+      "source": "backend/services/pokemon-service/src/routes/evolutionVisualization.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/species/:speciesId/evolution-chain",
+      "description": "GET /api/pokemon/:speciesId/evolution-chain 获取精灵进化链（树形结构）",
+      "source": "backend/services/pokemon-service/src/routes/evolutionVisualization.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/species/stream",
+      "description": "GET /pokemon/species/stream — REQ-00526：图鉴全量 NDJSON 流（按 200 行分批读取、逐行写出，网关边压缩边转发）",
+      "source": "backend/services/pokemon-service/src/index.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/users/:userId/collection",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/pokemonSocial.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/users/:userId/showcase",
+      "description": "GET /api/users/:userId/showcase 获取用户展示页",
+      "source": "backend/services/pokemon-service/src/routes/showcase.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/pokemon/voice-descriptions",
+      "description": null,
+      "source": "backend/services/pokemon-service/src/routes/voiceDescription.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/pokestops/:id/spin",
+      "description": "POST /pokestops/:id/spin",
+      "source": "backend/services/pokemon-service/src/index.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/tm/my",
+      "description": "GET /tm/my 获取玩家 TM 背包",
+      "source": "backend/services/pokemon-service/src/routes/moves.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/tm/use",
+      "description": "POST /tm/use 使用 TM（等同于 /pokemon/my/:id/moves/learn） Body: { pokemonId, tmId, forgetMoveId? }",
+      "source": "backend/services/pokemon-service/src/routes/moves.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/training/admin/process-completed",
+      "description": "管理员接口：处理已完成的训练 POST /api/pokemon/training/admin/process-completed",
+      "source": "backend/services/pokemon-service/src/routes/trainingCamp.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/training/boost/:slotId",
+      "description": "使用加速道具 POST /api/pokemon/training/boost/:slotId Body: { boostType: 'time_50' | 'time_75' | 'instant' | 'exp_double' }",
+      "source": "backend/services/pokemon-service/src/routes/trainingCamp.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/training/camps",
+      "description": "获取玩家所有训练营信息 GET /api/pokemon/training/camps",
+      "source": "backend/services/pokemon-service/src/routes/trainingCamp.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/training/camps/:campId/courses",
+      "description": "获取训练营可用课程 GET /api/pokemon/training/camps/:campId/courses",
+      "source": "backend/services/pokemon-service/src/routes/trainingCamp.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/training/camps/:campId/slots",
+      "description": "获取指定训练营的训练槽位 GET /api/pokemon/training/camps/:campId/slots",
+      "source": "backend/services/pokemon-service/src/routes/trainingCamp.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/training/camps/:campId/upgrade",
+      "description": "升级训练营 POST /api/pokemon/training/camps/:campId/upgrade",
+      "source": "backend/services/pokemon-service/src/routes/trainingCamp.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/training/cancel/:slotId",
+      "description": "取消训练 POST /api/pokemon/training/cancel/:slotId",
+      "source": "backend/services/pokemon-service/src/routes/trainingCamp.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/training/complete/:slotId",
+      "description": "完成训练并领取奖励 POST /api/pokemon/training/complete/:slotId",
+      "source": "backend/services/pokemon-service/src/routes/trainingCamp.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/training/history",
+      "description": "获取训练历史 GET /api/pokemon/training/history Query: limit, offset",
+      "source": "backend/services/pokemon-service/src/routes/trainingCamp.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "GET",
+      "path": "/training/slots/:slotId",
+      "description": "获取训练槽位详情 GET /api/pokemon/training/slots/:slotId",
+      "source": "backend/services/pokemon-service/src/routes/trainingCamp.js"
+    },
+    {
+      "service": "pokemon",
+      "method": "POST",
+      "path": "/training/start",
+      "description": "开始训练 POST /api/pokemon/training/start Body: { campId, slotIndex, pokemonId, courseId }",
+      "source": "backend/services/pokemon-service/src/routes/trainingCamp.js"
+    },
+    {
+      "service": "reward",
+      "method": "GET",
+      "path": "/events",
+      "description": "GET /api/events 获取所有活跃活动列表",
+      "source": "backend/services/reward-service/src/routes/events.js"
+    },
+    {
+      "service": "reward",
+      "method": "POST",
+      "path": "/events",
+      "description": "POST /api/events 创建新活动（管理员）",
+      "source": "backend/services/reward-service/src/routes/events.js"
+    },
+    {
+      "service": "reward",
+      "method": "GET",
+      "path": "/events/:eventId",
+      "description": "GET /api/events/:eventId 获取活动详情",
+      "source": "backend/services/reward-service/src/routes/events.js"
+    },
+    {
+      "service": "reward",
+      "method": "POST",
+      "path": "/events/:eventId/cancel",
+      "description": "POST /api/events/:eventId/cancel 取消活动（管理员）",
+      "source": "backend/services/reward-service/src/routes/events.js"
+    },
+    {
+      "service": "reward",
+      "method": "POST",
+      "path": "/events/:eventId/claim",
+      "description": "POST /api/events/:eventId/claim 领取活动奖励",
+      "source": "backend/services/reward-service/src/routes/events.js"
+    },
+    {
+      "service": "reward",
+      "method": "POST",
+      "path": "/events/:eventId/join",
+      "description": "POST /api/events/:eventId/join 用户参与活动",
+      "source": "backend/services/reward-service/src/routes/events.js"
+    },
+    {
+      "service": "reward",
+      "method": "GET",
+      "path": "/events/:eventId/leaderboard",
+      "description": "GET /api/events/:eventId/leaderboard 获取活动排行榜",
+      "source": "backend/services/reward-service/src/routes/events.js"
+    },
+    {
+      "service": "reward",
+      "method": "POST",
+      "path": "/events/:eventId/pause",
+      "description": "POST /api/events/:eventId/pause 暂停活动（管理员）",
+      "source": "backend/services/reward-service/src/routes/events.js"
+    },
+    {
+      "service": "reward",
+      "method": "POST",
+      "path": "/events/:eventId/resume",
+      "description": "POST /api/events/:eventId/resume 恢复活动（管理员）",
+      "source": "backend/services/reward-service/src/routes/events.js"
+    },
+    {
+      "service": "reward",
+      "method": "POST",
+      "path": "/events/:eventId/shop/:shopItemId/purchase",
+      "description": "POST /api/events/:eventId/shop/:shopItemId/purchase 活动商店购买",
+      "source": "backend/services/reward-service/src/routes/events.js"
+    },
+    {
+      "service": "reward",
+      "method": "POST",
+      "path": "/events/:eventId/tasks/:taskId/complete",
+      "description": "POST /api/events/:eventId/tasks/:taskId/complete 完成活动任务",
+      "source": "backend/services/reward-service/src/routes/events.js"
+    },
+    {
+      "service": "reward",
+      "method": "GET",
+      "path": "/health",
+      "description": null,
+      "source": "backend/services/reward-service/src/index.js"
+    },
+    {
+      "service": "reward",
+      "method": "GET",
+      "path": "/metrics",
+      "description": "Metrics endpoint",
+      "source": "backend/services/reward-service/src/index.js"
+    },
+    {
+      "service": "reward",
+      "method": "POST",
+      "path": "/rewards/achievements/check",
+      "description": "── POST /rewards/achievements/check  — check & unlock ─────── Called internally by other services after state changes",
+      "source": "backend/services/reward-service/src/index.js"
+    },
+    {
+      "service": "reward",
+      "method": "GET",
+      "path": "/rewards/daily",
+      "description": "── GET /rewards/daily  — check today's login reward status ──",
+      "source": "backend/services/reward-service/src/index.js"
+    },
+    {
+      "service": "reward",
+      "method": "POST",
+      "path": "/rewards/daily/claim",
+      "description": "── POST /rewards/daily/claim ─────────────────────────────────",
+      "source": "backend/services/reward-service/src/index.js"
+    },
+    {
+      "service": "reward",
+      "method": "GET",
+      "path": "/rewards/leaderboard",
+      "description": "── GET /rewards/leaderboard  — global rankings ────────────── REQ-00302/465：page/pageSize 分页（默认第 1 页 100 条，与旧行为一致）；offset > 1000 时走延迟关联（deferred join）， 总数在大表上用规划器估算（countWithStrategy），响应补 pagination/meta.pagination/_links",
+      "source": "backend/services/reward-service/src/index.js"
+    },
+    {
+      "service": "reward",
+      "method": "GET",
+      "path": "/rewards/level-ups",
+      "description": "── 训练师升级奖励 ─────────────────────────────────────────── 升级由数据库触发器根据经验自动完成并写入 trainer_level_ups（见 20260925_020000 迁移），这里负责查询与发放奖励",
+      "source": "backend/services/reward-service/src/index.js"
+    },
+    {
+      "service": "reward",
+      "method": "POST",
+      "path": "/rewards/level-ups/claim",
+      "description": null,
+      "source": "backend/services/reward-service/src/index.js"
+    },
+    {
+      "service": "reward",
+      "method": "GET",
+      "path": "/rewards/quests",
+      "description": "── GET /rewards/quests  — today's quest status ──────────────",
+      "source": "backend/services/reward-service/src/index.js"
+    },
+    {
+      "service": "reward",
+      "method": "POST",
+      "path": "/rewards/quests/claim",
+      "description": "── POST /rewards/quests/claim  — claim completed quest ──────",
+      "source": "backend/services/reward-service/src/index.js"
+    },
+    {
+      "service": "reward",
+      "method": "GET",
+      "path": "/rewards/season",
+      "description": "── GET /rewards/season  — current season info ───────────────",
+      "source": "backend/services/reward-service/src/index.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/batch/friends/status",
+      "description": "POST /batch/friends/status 批量获取好友在线状态和基本信息 Body: { friendIds: ['user1', 'user2', 'user3'] } Response: { code: 0, data: { friends: [status1, status2, status3] } }",
+      "source": "backend/services/social-service/src/routes/batch.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/batch/friends/summary",
+      "description": "POST /batch/friends/summary 批量获取好友摘要信息（精简版，用于列表展示） Body: { friendIds: ['user1', 'user2'] } Response: { code: 0, data: { friends: [summary1, summary2] } }",
+      "source": "backend/services/social-service/src/routes/batch.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/batch/guilds/members",
+      "description": "POST /batch/guilds/members 批量获取公会成员状态 Body: { memberIds: ['user1', 'user2'] }",
+      "source": "backend/services/social-service/src/routes/batch.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/friends",
+      "description": "── 列表 / 好友码 / 搜索 ────────────────────────────────────── REQ-00302/465：统一分页参数（page/pageSize，兼容 limit/offset；非法值 400），默认 50、上限 400 与原实现一致",
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "DELETE",
+      "path": "/friends/:friendId",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/friends/:friendId",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "PATCH",
+      "path": "/friends/:friendId",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/friends/:friendId/gift",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/friends/:friendId/invite",
+      "description": "邀请好友（道馆 / 联合任务）：写提醒并实时推送",
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/friends/:friendId/joint-missions",
+      "description": "── 单个好友 ───────────────────────────────────────────────────",
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/friends/:friendId/joint-missions",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/friends/activities",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/friends/activities/:activityId/like",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/friends/add",
+      "description": "旧接口兼容：POST /friends/add { friendCode }（好友码或用户 ID）",
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/friends/add-by-code",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/friends/code/:code",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/friends/gifts",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/friends/gifts/:giftId/claim",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/friends/gifts/:giftId/open",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/friends/gifts/claim-all",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/friends/gifts/pending",
+      "description": "── 礼物 ───────────────────────────────────────────────────────",
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/friends/gifts/sent",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/friends/gifts/types",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/friends/joint-missions/:progressId",
+      "description": "── 联合任务 ───────────────────────────────────────────────────",
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/friends/joint-missions/:progressId/claim",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/friends/leaderboard",
+      "description": "── 排行榜 / 在线状态 / 个人资料 ────────────────────────────────",
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/friends/levels",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "PUT",
+      "path": "/friends/me/profile",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/friends/my-code",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/friends/recommendations",
+      "description": "── 推荐 / 提醒 / 动态 ─────────────────────────────────────────",
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/friends/recommendations/:userId/dismiss",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/friends/reminders",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/friends/reminders/read",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/friends/request",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "DELETE",
+      "path": "/friends/request/:requestId",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/friends/request/:requestId/accept",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/friends/request/:requestId/ignore",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/friends/request/:requestId/reject",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/friends/requests/pending",
+      "description": "── 好友请求 ───────────────────────────────────────────────────",
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/friends/requests/sent",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/friends/search",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/friends/update-status",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/friends.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/guild",
+      "description": "搜索公会 GET /api/v1/guilds",
+      "source": "backend/services/social-service/src/routes/guild.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/guild",
+      "description": "创建公会 POST /api/v1/guilds",
+      "source": "backend/services/social-service/src/routes/guild.js"
+    },
+    {
+      "service": "social",
+      "method": "DELETE",
+      "path": "/guild/:guildId",
+      "description": "解散公会 DELETE /api/v1/guilds/:guildId",
+      "source": "backend/services/social-service/src/routes/guild.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/guild/:guildId",
+      "description": "获取公会详情 GET /api/v1/guilds/:guildId",
+      "source": "backend/services/social-service/src/routes/guild.js"
+    },
+    {
+      "service": "social",
+      "method": "PUT",
+      "path": "/guild/:guildId",
+      "description": "更新公会设置 PUT /api/v1/guilds/:guildId",
+      "source": "backend/services/social-service/src/routes/guild.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/guild/:guildId/applications",
+      "description": "申请加入公会 POST /api/v1/guilds/:guildId/applications",
+      "source": "backend/services/social-service/src/routes/guild.js"
+    },
+    {
+      "service": "social",
+      "method": "PUT",
+      "path": "/guild/:guildId/applications/:applicationId",
+      "description": "处理申请 PUT /api/v1/guilds/:guildId/applications/:applicationId",
+      "source": "backend/services/social-service/src/routes/guild.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/guild/:guildId/donate",
+      "description": "捐赠金币 POST /api/v1/guilds/:guildId/donate",
+      "source": "backend/services/social-service/src/routes/guild.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/guild/:guildId/kick/:memberId",
+      "description": "踢出成员 POST /api/v1/guilds/:guildId/kick/:memberId",
+      "source": "backend/services/social-service/src/routes/guild.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/guild/:guildId/leave",
+      "description": "退出公会 POST /api/v1/guilds/:guildId/leave",
+      "source": "backend/services/social-service/src/routes/guild.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/health",
+      "description": null,
+      "source": "backend/services/social-service/src/index.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/leaderboard/:type",
+      "description": "获取排行榜 GET /api/leaderboard/:type",
+      "source": "backend/services/social-service/src/routes/leaderboard.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/leaderboard/:type/rank",
+      "description": "获取玩家排名 GET /api/leaderboard/:type/rank",
+      "source": "backend/services/social-service/src/routes/leaderboard.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/leaderboard/:type/seasons",
+      "description": "获取赛季历史 GET /api/leaderboard/:type/seasons",
+      "source": "backend/services/social-service/src/routes/leaderboard.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/leaderboard/my-ranks",
+      "description": "获取玩家多个排行榜排名概览 GET /api/leaderboard/my-ranks",
+      "source": "backend/services/social-service/src/routes/leaderboard.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/leaderboard/season/:seasonId/claim",
+      "description": "领取赛季奖励 POST /api/leaderboard/season/:seasonId/claim",
+      "source": "backend/services/social-service/src/routes/leaderboard.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/marketplace/favorites",
+      "description": "GET /api/marketplace/favorites 获取用户收藏列表",
+      "source": "backend/services/social-service/src/routes/marketplace.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/marketplace/listings",
+      "description": "GET /api/marketplace/listings 搜索市场列表",
+      "source": "backend/services/social-service/src/routes/marketplace.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/marketplace/listings",
+      "description": "POST /api/marketplace/listings 创建市场列表",
+      "source": "backend/services/social-service/src/routes/marketplace.js"
+    },
+    {
+      "service": "social",
+      "method": "DELETE",
+      "path": "/marketplace/listings/:listingId",
+      "description": "DELETE /api/marketplace/listings/:listingId 取消列表",
+      "source": "backend/services/social-service/src/routes/marketplace.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/marketplace/listings/:listingId",
+      "description": "GET /api/marketplace/listings/:listingId 获取列表详情",
+      "source": "backend/services/social-service/src/routes/marketplace.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/marketplace/listings/:listingId/bid",
+      "description": "POST /api/marketplace/listings/:listingId/bid 出价（拍卖模式）",
+      "source": "backend/services/social-service/src/routes/marketplace.js"
+    },
+    {
+      "service": "social",
+      "method": "DELETE",
+      "path": "/marketplace/listings/:listingId/favorite",
+      "description": "DELETE /api/marketplace/listings/:listingId/favorite 取消收藏",
+      "source": "backend/services/social-service/src/routes/marketplace.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/marketplace/listings/:listingId/favorite",
+      "description": "POST /api/marketplace/listings/:listingId/favorite 收藏列表",
+      "source": "backend/services/social-service/src/routes/marketplace.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/marketplace/listings/:listingId/purchase",
+      "description": "POST /api/marketplace/listings/:listingId/purchase 固定价格购买",
+      "source": "backend/services/social-service/src/routes/marketplace.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/marketplace/my/listings",
+      "description": "GET /api/marketplace/my/listings 获取我的列表",
+      "source": "backend/services/social-service/src/routes/marketplace.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/marketplace/stats",
+      "description": "GET /api/marketplace/stats 获取市场统计信息",
+      "source": "backend/services/social-service/src/routes/marketplace.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/metrics",
+      "description": "Metrics endpoint",
+      "source": "backend/services/social-service/src/index.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/privacy/audit-log",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/privacy.js"
+    },
+    {
+      "service": "social",
+      "method": "DELETE",
+      "path": "/privacy/block/:userId",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/privacy.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/privacy/block/:userId",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/privacy.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/privacy/blocked",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/privacy.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/privacy/check/:targetId/:dataType",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/privacy.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/privacy/check/batch",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/privacy.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/privacy/friend-requests",
+      "description": "好友申请审批（与 /v1/friends/request* 等价，便于隐私中心统一处理）",
+      "source": "backend/services/social-service/src/routes/privacy.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/privacy/friend-requests",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/privacy.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/privacy/friend-requests/:requestId/:action",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/privacy.js"
+    },
+    {
+      "service": "social",
+      "method": "DELETE",
+      "path": "/privacy/friends/:friendId",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/privacy.js"
+    },
+    {
+      "service": "social",
+      "method": "PATCH",
+      "path": "/privacy/friends/:friendId/permissions",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/privacy.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/privacy/groups",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/privacy.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/privacy/groups",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/privacy.js"
+    },
+    {
+      "service": "social",
+      "method": "DELETE",
+      "path": "/privacy/groups/:groupId",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/privacy.js"
+    },
+    {
+      "service": "social",
+      "method": "PATCH",
+      "path": "/privacy/groups/:groupId",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/privacy.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/privacy/settings",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/privacy.js"
+    },
+    {
+      "service": "social",
+      "method": "PATCH",
+      "path": "/privacy/settings",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/privacy.js"
+    },
+    {
+      "service": "social",
+      "method": "PUT",
+      "path": "/privacy/settings",
+      "description": null,
+      "source": "backend/services/social-service/src/routes/privacy.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/pvp/battle/:battleId/action",
+      "description": "@route   POST /api/pvp/battle/:battleId/action @desc    提交回合行动 @access  Private",
+      "source": "backend/services/social-service/src/routes/pvp.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/pvp/battle/:battleId/ready",
+      "description": "@route   POST /api/pvp/battle/:battleId/ready @desc    标记准备就绪 @access  Private",
+      "source": "backend/services/social-service/src/routes/pvp.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/pvp/battle/:battleId/surrender",
+      "description": "@route   POST /api/pvp/battle/:battleId/surrender @desc    认输 @access  Private",
+      "source": "backend/services/social-service/src/routes/pvp.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/pvp/battle/start",
+      "description": "@route   POST /api/pvp/battle/start @desc    开始好友对战 @access  Private",
+      "source": "backend/services/social-service/src/routes/pvp.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/pvp/history",
+      "description": "@route   GET /api/pvp/history @desc    获取对战历史 @access  Private",
+      "source": "backend/services/social-service/src/routes/pvp.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/pvp/leaderboard",
+      "description": "@route   GET /api/pvp/leaderboard @desc    获取排行榜 @access  Public",
+      "source": "backend/services/social-service/src/routes/pvp.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/pvp/match/join",
+      "description": "@route   POST /api/pvp/match/join @desc    加入匹配队列 @access  Private",
+      "source": "backend/services/social-service/src/routes/pvp.js"
+    },
+    {
+      "service": "social",
+      "method": "DELETE",
+      "path": "/pvp/match/leave",
+      "description": "@route   DELETE /api/pvp/match/leave @desc    离开匹配队列 @access  Private",
+      "source": "backend/services/social-service/src/routes/pvp.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/pvp/ranking",
+      "description": "@route   GET /api/pvp/ranking @desc    获取用户排位信息 @access  Private",
+      "source": "backend/services/social-service/src/routes/pvp.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/pvp/replay/:battleId",
+      "description": "@route   GET /api/pvp/replay/:battleId @desc    获取战斗回放 @access  Public",
+      "source": "backend/services/social-service/src/routes/pvp.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/pvp/season",
+      "description": "@route   GET /api/pvp/season @desc    获取赛季信息 @access  Public",
+      "source": "backend/services/social-service/src/routes/pvp.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/pvp/team",
+      "description": "@route   GET /api/pvp/team @desc    获取 PVP 队伍 @access  Private",
+      "source": "backend/services/social-service/src/routes/pvp.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/pvp/team",
+      "description": "@route   POST /api/pvp/team @desc    保存 PVP 队伍 @access  Private",
+      "source": "backend/services/social-service/src/routes/pvp.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/trades/:id",
+      "description": "GET /trades/:id 查询交易详情",
+      "source": "backend/services/social-service/src/routes/trade.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/trades/:id/cancel",
+      "description": "POST /trades/:id/cancel 取消交易",
+      "source": "backend/services/social-service/src/routes/trade.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/trades/:id/confirm",
+      "description": "POST /trades/:id/confirm 确认交易",
+      "source": "backend/services/social-service/src/routes/trade.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/trades/:id/rollback",
+      "description": "POST /trades/:id/rollback 回滚交易（24小时内）",
+      "source": "backend/services/social-service/src/routes/trade.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/trades/analytics/report",
+      "description": "GET /trades/analytics/report 生成异常交易报表（管理员）",
+      "source": "backend/services/social-service/src/routes/trade.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/trades/fraud/rings",
+      "description": "GET /trades/fraud/rings 检测欺诈团伙（管理员）",
+      "source": "backend/services/social-service/src/routes/trade.js"
+    },
+    {
+      "service": "social",
+      "method": "GET",
+      "path": "/trades/history",
+      "description": "GET /trades/history 查询交易历史",
+      "source": "backend/services/social-service/src/routes/trade.js"
+    },
+    {
+      "service": "social",
+      "method": "POST",
+      "path": "/trades/request",
+      "description": "POST /trades/request 发起交易请求",
+      "source": "backend/services/social-service/src/routes/trade.js"
+    }
+  ]
+}
