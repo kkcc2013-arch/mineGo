@@ -1,707 +1,306 @@
-// backend/services/pokemon-service/src/trainingCampService.js
-// REQ-00370: 精灵训练营系统
+/**
+ * 精灵训练营服务（REQ-00370）
+ *
+ * 原实现查询不存在的 user_pokemon 表、扣 users.gold（不存在）且不校验扣费结果，训练营接口全部 500；
+ * 且 training_slots 的 (user, camp, slot_index) 唯一约束让同一槽位训练过一次后再也不能使用。重写为：
+ *   - 首次访问自动开通三类训练营；开始训练在事务内：锁精灵（空闲）→ 课程/等级/每日次数校验 → 原子扣费 →
+ *     消耗训练体力（体力系统）→ 按疲劳定评级 → 占用精灵 → 写槽位
+ *   - 进度读时计算（精确到分钟）；到点由定时任务标记 ready 并写站内通知（notification_history）
+ *   - 领取奖励：经验走统一经验入账（含活动/幸运蛋等倍率）、亲密度（上限 255）、技能营从可学技能中学会一个新招式
+ *   - 加速道具走 player_inventory；取消训练不退费；升级扩容；训练报告即训练历史
+ * 规则见 growth/trainingCampRules.js。
+ */
 'use strict';
 
-const { query, transaction, getPool } = require('../../../shared/db');
-const { createLogger } = require('../../../shared/logger');
-const { metrics } = require('../../../shared/metrics');
+const { query, transaction } = require('../../../shared/db');
+const { consumeItem } = require('../../../shared/inventory');
+const { gameDate } = require('../../../shared/gameTime');
+const { grantPokemonExperience } = require('../../../shared/pokemonExperience');
+const rules = require('./growth/trainingCampRules');
+const { consumeStamina } = require('./staminaService');
+const { GrowthError, lockOwnedPokemon, assertIdle, assertUuid, occupy, release, spendCurrency } = require('./growth/common');
 
-const logger = createLogger('training-camp-service');
+const OCCUPY = 'training_camp';
 
-/**
- * 精灵训练营服务
- */
-class TrainingCampService {
-  constructor() {
-    // 训练类型配置
-    this.campTypes = {
-      experience: { name: '经验训练营', maxLevel: 10, baseCapacity: 3 },
-      skill: { name: '技能训练营', maxLevel: 10, baseCapacity: 2 },
-      friendship: { name: '亲密度训练营', maxLevel: 10, baseCapacity: 3 }
-    };
-    
-    // 加速道具效果
-    this.boostEffects = {
-      time_50: { timeReduction: 0.5, name: '时间减半' },
-      time_75: { timeReduction: 0.75, name: '时间减少75%' },
-      instant: { timeReduction: 1.0, name: '立即完成' },
-      exp_double: { expMultiplier: 2.0, name: '经验翻倍' }
-    };
-  }
-
-  /**
-   * 初始化玩家训练营（首次访问时调用）
-   */
-  async initUserCamps(userId) {
-    const client = await getPool().connect();
-    
-    try {
-      await client.query('BEGIN');
-      
-      // 检查是否已初始化
-      const existing = await client.query(
-        'SELECT id FROM user_training_camps WHERE user_id = $1',
-        [userId]
-      );
-      
-      if (existing.rows.length > 0) {
-        await client.query('COMMIT');
-        return existing.rows;
-      }
-      
-      // 获取所有训练营类型
-      const camps = await client.query('SELECT id, base_capacity FROM training_camps');
-      
-      // 为玩家创建所有训练营
-      const results = [];
-      for (const camp of camps.rows) {
-        const result = await client.query(
-          `INSERT INTO user_training_camps (user_id, camp_id, level, capacity)
-           VALUES ($1, $2, 1, $3)
-           RETURNING *`,
-          [userId, camp.id, camp.base_capacity]
-        );
-        results.push(result.rows[0]);
-      }
-      
-      await client.query('COMMIT');
-      
-      logger.info('玩家训练营初始化完成', { userId, campCount: results.length });
-      return results;
-      
-    } catch (error) {
-      await client.query('ROLLBACK');
-      logger.error('初始化玩家训练营失败', { error, userId });
-      throw error;
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * 获取玩家所有训练营信息
-   */
-  async getUserCamps(userId) {
-    const result = await query(
-      `SELECT utc.*, tc.name, tc.type, tc.description, tc.icon_url, tc.max_level
-       FROM user_training_camps utc
-       JOIN training_camps tc ON utc.camp_id = tc.id
-       WHERE utc.user_id = $1
-       ORDER BY tc.id`,
-      [userId]
-    );
-    
-    // 获取每个训练营的训练中槽位
-    for (const camp of result.rows) {
-      camp.slots = await this.getCampSlots(userId, camp.camp_id);
-      camp.availableSlots = camp.capacity - camp.slots.filter(s => s.status === 'training').length;
-    }
-    
-    return result.rows;
-  }
-
-  /**
-   * 获取训练营的训练槽位
-   */
-  async getCampSlots(userId, campId) {
-    const result = await query(
-      `SELECT ts.*, tc.name as course_name, tc.duration_minutes,
-              up.species_id, up.nickname, up.level as pokemon_level,
-              ps.name as species_name
-       FROM training_slots ts
-       JOIN training_courses tc ON ts.course_id = tc.id
-       JOIN user_pokemon up ON ts.pokemon_id = up.id
-       LEFT JOIN pokemon_species ps ON up.species_id = ps.id
-       WHERE ts.user_id = $1 AND ts.camp_id = $2
-       ORDER BY ts.slot_index`,
-      [userId, campId]
-    );
-    
-    // 计算剩余时间
-    const now = new Date();
-    for (const slot of result.rows) {
-      if (slot.status === 'training' && slot.ends_at) {
-        const endsAt = new Date(slot.ends_at);
-        slot.remainingMinutes = Math.max(0, Math.ceil((endsAt - now) / 60000));
-        slot.progress = this.calculateProgress(slot.started_at, slot.ends_at, now);
-      }
-    }
-    
-    return result.rows;
-  }
-
-  /**
-   * 获取可用课程列表
-   */
-  async getAvailableCourses(userId, campId) {
-    const result = await query(
-      `SELECT tc.*, t.name as camp_name, t.type as camp_type
-       FROM training_courses tc
-       JOIN training_camps t ON tc.camp_id = t.id
-       WHERE tc.camp_id = $1
-       ORDER BY tc.required_camp_level, tc.id`,
-      [campId]
-    );
-    
-    // 获取玩家训练营等级
-    const userCamp = await query(
-      'SELECT level FROM user_training_camps WHERE user_id = $1 AND camp_id = $2',
-      [userId, campId]
-    );
-    
-    const userLevel = userCamp.rows[0]?.level || 1;
-    
-    // 标记课程是否可用
-    for (const course of result.rows) {
-      course.unlocked = userLevel >= course.required_camp_level;
-      course.lockedReason = course.unlocked ? null : `需要训练营等级 ${course.required_camp_level}`;
-      
-      // 计算实际奖励（基于训练营等级）
-      course.actualExp = course.exp_reward + (course.exp_reward_per_level || 0) * (userLevel - 1);
-      course.actualFriendship = course.friendship_reward + (course.friendship_reward_per_level || 0) * (userLevel - 1);
-    }
-    
-    return result.rows;
-  }
-
-  /**
-   * 开始训练
-   */
-  async startTraining(userId, campId, slotIndex, pokemonId, courseId) {
-    const client = await getPool().connect();
-    
-    try {
-      await client.query('BEGIN');
-      
-      // 验证训练营和槽位
-      const campResult = await client.query(
-        `SELECT utc.*, tc.type as camp_type
-         FROM user_training_camps utc
-         JOIN training_camps tc ON utc.camp_id = tc.id
-         WHERE utc.user_id = $1 AND utc.camp_id = $2`,
-        [userId, campId]
-      );
-      
-      if (campResult.rows.length === 0) {
-        throw new Error('训练营不存在');
-      }
-      
-      const camp = campResult.rows[0];
-      
-      if (slotIndex >= camp.capacity) {
-        throw new Error('槽位索引超出范围');
-      }
-      
-      // 检查槽位是否已被占用
-      const slotResult = await client.query(
-        `SELECT id FROM training_slots 
-         WHERE user_id = $1 AND camp_id = $2 AND slot_index = $3 AND status = 'training'`,
-        [userId, campId, slotIndex]
-      );
-      
-      if (slotResult.rows.length > 0) {
-        throw new Error('该槽位正在使用中');
-      }
-      
-      // 验证精灵
-      const pokemonResult = await client.query(
-        'SELECT * FROM user_pokemon WHERE id = $1 AND user_id = $2',
-        [pokemonId, userId]
-      );
-      
-      if (pokemonResult.rows.length === 0) {
-        throw new Error('精灵不存在或无权访问');
-      }
-      
-      const pokemon = pokemonResult.rows[0];
-      
-      // 验证课程
-      const courseResult = await client.query(
-        'SELECT * FROM training_courses WHERE id = $1 AND camp_id = $2',
-        [courseId, campId]
-      );
-      
-      if (courseResult.rows.length === 0) {
-        throw new Error('课程不存在');
-      }
-      
-      const course = courseResult.rows[0];
-      
-      // 检查训练营等级
-      if (camp.level < course.required_camp_level) {
-        throw new Error(`需要训练营等级 ${course.required_camp_level}`);
-      }
-      
-      // 检查精灵等级限制
-      if (course.max_pokemon_level && pokemon.level > course.max_pokemon_level) {
-        throw new Error(`精灵等级超出课程限制`);
-      }
-      
-      if (pokemon.level < course.min_pokemon_level) {
-        throw new Error(`精灵等级不足`);
-      }
-      
-      // 检查精灵是否已在训练中
-      const inTrainingResult = await client.query(
-        `SELECT id FROM training_slots 
-         WHERE pokemon_id = $1 AND status = 'training'`,
-        [pokemonId]
-      );
-      
-      if (inTrainingResult.rows.length > 0) {
-        throw new Error('该精灵正在其他训练营中');
-      }
-      
-      // 扣除资源
-      if (course.cost_type !== 'free' && course.cost_amount > 0) {
-        await this.deductCost(client, userId, course.cost_type, course.cost_amount);
-      }
-      
-      // 计算训练结束时间
-      const now = new Date();
-      const endsAt = new Date(now.getTime() + course.duration_minutes * 60000);
-      
-      // 计算预期奖励
-      const expectedExp = course.exp_reward + (course.exp_reward_per_level || 0) * (camp.level - 1);
-      const expectedFriendship = course.friendship_reward + (course.friendship_reward_per_level || 0) * (camp.level - 1);
-      
-      // 创建训练槽位
-      const insertResult = await client.query(
-        `INSERT INTO training_slots 
-         (user_id, camp_id, slot_index, pokemon_id, course_id, status, started_at, ends_at,
-          expected_exp, expected_friendship, expected_skill_id)
-         VALUES ($1, $2, $3, $4, $5, 'training', $6, $7, $8, $9, $10)
-         RETURNING *`,
-        [userId, campId, slotIndex, pokemonId, courseId, now, endsAt, 
-         expectedExp, expectedFriendship, course.skill_id]
-      );
-      
-      await client.query('COMMIT');
-      
-      // 记录指标
-      metrics.increment('training.started', 1, { camp_type: camp.camp_type });
-      
-      logger.info('训练开始', {
-        userId,
-        campId,
-        slotIndex,
-        pokemonId,
-        courseId,
-        endsAt
-      });
-      
-      return {
-        slot: insertResult.rows[0],
-        endsAt,
-        expectedExp,
-        expectedFriendship
-      };
-      
-    } catch (error) {
-      await client.query('ROLLBACK');
-      logger.error('开始训练失败', { error, userId, campId, pokemonId, courseId });
-      throw error;
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * 完成训练并领取奖励
-   */
-  async completeTraining(userId, slotId) {
-    const client = await getPool().connect();
-    
-    try {
-      await client.query('BEGIN');
-      
-      // 获取训练槽位
-      const slotResult = await client.query(
-        `SELECT ts.*, tc.type as camp_type, tc.name as course_name,
-                tc.exp_reward, tc.exp_reward_per_level,
-                tc.friendship_reward, tc.friendship_reward_per_level,
-                tc.skill_id as course_skill_id,
-                up.species_id, up.nickname, up.level as pokemon_level
-         FROM training_slots ts
-         JOIN training_courses tc ON ts.course_id = tc.id
-         JOIN user_pokemon up ON ts.pokemon_id = up.id
-         WHERE ts.id = $1 AND ts.user_id = $2`,
-        [slotId, userId]
-      );
-      
-      if (slotResult.rows.length === 0) {
-        throw new Error('训练槽位不存在');
-      }
-      
-      const slot = slotResult.rows[0];
-      
-      // 检查是否已到达结束时间
-      const now = new Date();
-      if (now < new Date(slot.ends_at)) {
-        throw new Error('训练尚未完成');
-      }
-      
-      // 计算实际奖励
-      const rating = this.calculateRating(slot);
-      const expGained = Math.floor(slot.expected_exp * this.getRatingMultiplier(rating));
-      const friendshipGained = Math.floor(slot.expected_friendship * this.getRatingMultiplier(rating));
-      
-      // 更新精灵属性
-      await client.query(
-        `UPDATE user_pokemon 
-         SET exp = exp + $1, 
-             friendship = LEAST(255, friendship + $2),
-             updated_at = NOW()
-         WHERE id = $3`,
-        [expGained, friendshipGained, slot.pokemon_id]
-      );
-      
-      // 如果是技能训练营且精灵学会了技能
-      let skillLearned = null;
-      if (slot.course_skill_id && Math.random() < 0.8) { // 80% 学习成功率
-        await client.query(
-          `INSERT INTO pokemon_moves (pokemon_id, move_id, learned_at)
-           VALUES ($1, $2, NOW())
-           ON CONFLICT DO NOTHING`,
-          [slot.pokemon_id, slot.course_skill_id]
-        );
-        skillLearned = slot.course_skill_id;
-      }
-      
-      // 更新训练槽位状态
-      await client.query(
-        `UPDATE training_slots 
-         SET status = 'completed', completed_at = NOW(),
-             actual_exp = $1, actual_friendship = $2, skill_learned = $3
-         WHERE id = $4`,
-        [expGained, friendshipGained, skillLearned ? true : false, slotId]
-      );
-      
-      // 创建训练报告
-      const reportResult = await client.query(
-        `INSERT INTO training_reports 
-         (user_id, slot_id, pokemon_id, camp_type, course_name, duration_minutes,
-          exp_gained, friendship_gained, skill_learned_id, cost_type, cost_amount, rating)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-         RETURNING *`,
-        [userId, slotId, slot.pokemon_id, slot.camp_type, slot.course_name, 
-         slot.duration_minutes || Math.ceil((slot.ends_at - slot.started_at) / 60000),
-         expGained, friendshipGained, skillLearned, 
-         'completed', 0, rating]
-      );
-      
-      await client.query('COMMIT');
-      
-      // 记录指标
-      metrics.increment('training.completed', 1, { camp_type: slot.camp_type });
-      metrics.histogram('training.exp_gained', expGained, { camp_type: slot.camp_type });
-      
-      logger.info('训练完成', {
-        userId,
-        slotId,
-        pokemonId: slot.pokemon_id,
-        expGained,
-        friendshipGained,
-        skillLearned
-      });
-      
-      return {
-        report: reportResult.rows[0],
-        rewards: {
-          exp: expGained,
-          friendship: friendshipGained,
-          skillLearned
-        }
-      };
-      
-    } catch (error) {
-      await client.query('ROLLBACK');
-      logger.error('完成训练失败', { error, userId, slotId });
-      throw error;
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * 使用加速道具
-   */
-  async useBoost(userId, slotId, boostType) {
-    const client = await getPool().connect();
-    
-    try {
-      await client.query('BEGIN');
-      
-      // 获取训练槽位
-      const slotResult = await client.query(
-        `SELECT * FROM training_slots WHERE id = $1 AND user_id = $2 AND status = 'training'`,
-        [slotId, userId]
-      );
-      
-      if (slotResult.rows.length === 0) {
-        throw new Error('训练槽位不存在或已完成');
-      }
-      
-      const slot = slotResult.rows[0];
-      
-      // 检查玩家是否有该加速道具
-      const boostResult = await client.query(
-        `SELECT * FROM training_boosts 
-         WHERE user_id = $1 AND boost_type = $2 AND remaining_uses > 0
-         AND (expires_at IS NULL OR expires_at > NOW())`,
-        [userId, boostType]
-      );
-      
-      if (boostResult.rows.length === 0) {
-        throw new Error('加速道具不足');
-      }
-      
-      const boost = boostResult.rows[0];
-      const effect = this.boostEffects[boostType];
-      
-      // 计算新的结束时间
-      let newEndsAt;
-      if (boostType === 'instant') {
-        newEndsAt = new Date(); // 立即完成
-      } else {
-        const remainingMs = new Date(slot.ends_at) - new Date();
-        const newRemainingMs = remainingMs * (1 - effect.timeReduction);
-        newEndsAt = new Date(Date.now() + newRemainingMs);
-      }
-      
-      // 更新训练槽位
-      await client.query(
-        `UPDATE training_slots 
-         SET ends_at = $1, boost_used = true, boost_type = $2, boost_ends_at = $3
-         WHERE id = $4`,
-        [newEndsAt, boostType, newEndsAt, slotId]
-      );
-      
-      // 扣除加速道具
-      await client.query(
-        `UPDATE training_boosts 
-         SET remaining_uses = remaining_uses - 1
-         WHERE id = $1`,
-        [boost.id]
-      );
-      
-      await client.query('COMMIT');
-      
-      metrics.increment('training.boost_used', 1, { boost_type: boostType });
-      
-      logger.info('使用加速道具', {
-        userId,
-        slotId,
-        boostType,
-        newEndsAt
-      });
-      
-      return {
-        success: true,
-        newEndsAt
-      };
-      
-    } catch (error) {
-      await client.query('ROLLBACK');
-      logger.error('使用加速道具失败', { error, userId, slotId, boostType });
-      throw error;
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * 取消训练
-   */
-  async cancelTraining(userId, slotId) {
-    const client = await getPool().connect();
-    
-    try {
-      await client.query('BEGIN');
-      
-      const result = await client.query(
-        `UPDATE training_slots 
-         SET status = 'cancelled', completed_at = NOW()
-         WHERE id = $1 AND user_id = $2 AND status = 'training'
-         RETURNING *`,
-        [slotId, userId]
-      );
-      
-      if (result.rows.length === 0) {
-        throw new Error('训练槽位不存在或已完成');
-      }
-      
-      await client.query('COMMIT');
-      
-      logger.info('取消训练', { userId, slotId });
-      
-      return { success: true };
-      
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * 升级训练营
-   */
-  async upgradeCamp(userId, campId) {
-    const client = await getPool().connect();
-    
-    try {
-      await client.query('BEGIN');
-      
-      // 获取当前训练营信息
-      const campResult = await client.query(
-        `SELECT utc.*, tc.max_level, tc.capacity_per_level
-         FROM user_training_camps utc
-         JOIN training_camps tc ON utc.camp_id = tc.id
-         WHERE utc.user_id = $1 AND utc.camp_id = $2`,
-        [userId, campId]
-      );
-      
-      if (campResult.rows.length === 0) {
-        throw new Error('训练营不存在');
-      }
-      
-      const camp = campResult.rows[0];
-      
-      if (camp.level >= camp.max_level) {
-        throw new Error('已达到最高等级');
-      }
-      
-      // 计算升级费用
-      const upgradeCost = this.calculateUpgradeCost(camp.level);
-      
-      // 扣除资源
-      await this.deductCost(client, userId, 'gold', upgradeCost);
-      
-      // 升级训练营
-      const newLevel = camp.level + 1;
-      const newCapacity = camp.capacity + camp.capacity_per_level;
-      
-      const result = await client.query(
-        `UPDATE user_training_camps 
-         SET level = $1, capacity = $2, upgraded_at = NOW(), updated_at = NOW()
-         WHERE id = $3
-         RETURNING *`,
-        [newLevel, newCapacity, camp.id]
-      );
-      
-      await client.query('COMMIT');
-      
-      metrics.increment('training.camp_upgraded', 1);
-      
-      logger.info('训练营升级', {
-        userId,
-        campId,
-        newLevel,
-        newCapacity
-      });
-      
-      return result.rows[0];
-      
-    } catch (error) {
-      await client.query('ROLLBACK');
-      throw error;
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * 获取训练历史
-   */
-  async getTrainingHistory(userId, limit = 20, offset = 0) {
-    const result = await query(
-      `SELECT tr.*, ps.name as species_name
-       FROM training_reports tr
-       JOIN user_pokemon up ON tr.pokemon_id = up.id
-       LEFT JOIN pokemon_species ps ON up.species_id = ps.id
-       WHERE tr.user_id = $1
-       ORDER BY tr.completed_at DESC
-       LIMIT $2 OFFSET $3`,
-      [userId, limit, offset]
-    );
-    
-    return result.rows;
-  }
-
-  /**
-   * 处理已完成的训练（定时任务调用）
-   */
-  async processCompletedTrainings() {
-    const result = await query(
-      `UPDATE training_slots 
-       SET status = 'ready'
-       WHERE status = 'training' AND ends_at <= NOW()
-       RETURNING id, user_id`
-    );
-    
-    logger.info('处理完成的训练', { count: result.rows.length });
-    
-    return result.rows;
-  }
-
-  // 辅助方法
-  
-  async deductCost(client, userId, costType, amount) {
-    switch (costType) {
-      case 'gold':
-        await client.query(
-          `UPDATE users SET gold = gold - $1 WHERE id = $2 AND gold >= $1`,
-          [amount, userId]
-        );
-        break;
-      case 'stardust':
-        await client.query(
-          `UPDATE users SET stardust = stardust - $1 WHERE id = $2 AND stardust >= $1`,
-          [amount, userId]
-        );
-        break;
-      case 'premium':
-        await client.query(
-          `UPDATE users SET premium_currency = premium_currency - $1 WHERE id = $2 AND premium_currency >= $1`,
-          [amount, userId]
-        );
-        break;
-    }
-  }
-
-  calculateProgress(startedAt, endsAt, now) {
-    const start = new Date(startedAt).getTime();
-    const end = new Date(endsAt).getTime();
-    const current = now.getTime();
-    
-    return Math.min(100, Math.max(0, ((current - start) / (end - start)) * 100));
-  }
-
-  calculateRating(slot) {
-    // 随机评级，但有更高的概率获得好评级
-    const rand = Math.random();
-    if (rand < 0.05) return 'poor';
-    if (rand < 0.40) return 'normal';
-    if (rand < 0.80) return 'good';
-    return 'excellent';
-  }
-
-  getRatingMultiplier(rating) {
-    const multipliers = {
-      poor: 0.5,
-      normal: 1.0,
-      good: 1.25,
-      excellent: 1.5
-    };
-    return multipliers[rating] || 1.0;
-  }
-
-  calculateUpgradeCost(currentLevel) {
-    // 每级升级费用递增
-    return 1000 * Math.pow(2, currentLevel);
-  }
+function parseId(v, field) {
+  const n = Number(v);
+  if (!Number.isInteger(n) || n <= 0) throw new GrowthError('INVALID_PARAM', `无效的 ${field}`, 400);
+  return n;
 }
 
-module.exports = new TrainingCampService();
+async function ensureCamps(db, userId) {
+  await db.query(
+    `INSERT INTO user_training_camps (user_id, camp_id, level, capacity)
+     SELECT $1, tc.id, 1, tc.base_capacity FROM training_camps tc
+     ON CONFLICT (user_id, camp_id) DO NOTHING`, [userId]);
+}
+
+function presentSlot(s, now = new Date()) {
+  const pr = rules.progress(s.started_at, s.ends_at, now);
+  return {
+    slotId: s.id,
+    campId: s.camp_id,
+    slotIndex: s.slot_index,
+    pokemonId: s.pokemon_id,
+    pokemonName: s.nickname || s.species_name || null,
+    courseId: s.course_id,
+    courseName: s.course_name || null,
+    status: s.status === 'training' && pr.ready ? 'ready' : s.status,
+    startedAt: s.started_at,
+    endsAt: s.ends_at,
+    progressPercent: s.status === 'completed' ? 100 : pr.percent,
+    remainingMinutes: s.status === 'training' || s.status === 'ready' ? pr.remainingMinutes : 0,
+    rating: s.rating,
+    expectedExp: s.expected_exp,
+    expectedFriendship: s.expected_friendship,
+    boostType: s.boost_type,
+  };
+}
+
+async function activeSlots(db, userId, campId) {
+  const { rows } = await db.query(
+    `SELECT ts.*, c.name AS course_name, pi.nickname, ps.name_zh AS species_name
+       FROM training_slots ts
+       JOIN training_courses c ON c.id = ts.course_id
+       JOIN pokemon_instances pi ON pi.id = ts.pokemon_id
+       JOIN pokemon_species ps ON ps.id = pi.species_id
+      WHERE ts.user_id = $1 AND ($2::int IS NULL OR ts.camp_id = $2) AND ts.status IN ('training', 'ready')
+      ORDER BY ts.camp_id, ts.slot_index`, [userId, campId == null ? null : campId]);
+  return rows;
+}
+
+async function getCamps(userId) {
+  await ensureCamps({ query }, userId);
+  const { rows } = await query(
+    `SELECT utc.camp_id, utc.level, utc.capacity, tc.name, tc.type, tc.description, tc.max_level, tc.capacity_per_level
+       FROM user_training_camps utc JOIN training_camps tc ON tc.id = utc.camp_id
+      WHERE utc.user_id = $1 ORDER BY tc.id`, [userId]);
+  const slots = await activeSlots({ query }, userId, null);
+  const now = new Date();
+  return rows.map((c) => {
+    const mine = slots.filter((s) => s.camp_id === c.camp_id).map((s) => presentSlot(s, now));
+    return {
+      campId: c.camp_id, name: c.name, type: c.type, description: c.description, level: c.level, maxLevel: c.max_level,
+      capacity: c.capacity, usedSlots: mine.length, availableSlots: Math.max(0, c.capacity - mine.length),
+      upgradeCost: c.level < c.max_level ? { currency: 'coins', amount: rules.upgradeCost(c.level) } : null,
+      slots: mine,
+    };
+  });
+}
+
+async function getCourses(userId, campId) {
+  const cid = parseId(campId, 'campId');
+  await ensureCamps({ query }, userId);
+  const { rows: [camp] } = await query('SELECT level FROM user_training_camps WHERE user_id = $1 AND camp_id = $2', [userId, cid]);
+  if (!camp) throw new GrowthError('CAMP_NOT_FOUND', '训练营不存在', 404);
+  const { rows } = await query('SELECT * FROM training_courses WHERE camp_id = $1 ORDER BY required_camp_level, id', [cid]);
+  return rows.map((c) => {
+    const exp = rules.expectedRewards(c, camp.level, 1);
+    return {
+      courseId: c.id, name: c.name, description: c.description, durationMinutes: c.duration_minutes,
+      cost: rules.costOf(c), requiredCampLevel: c.required_camp_level, unlocked: camp.level >= (c.required_camp_level || 1),
+      minPokemonLevel: c.min_pokemon_level, maxPokemonLevel: c.max_pokemon_level, dailyLimit: c.daily_limit || 0,
+      baseRewards: exp, isPremium: c.is_premium,
+    };
+  });
+}
+
+async function start(userId, body = {}) {
+  const campId = parseId(body.campId, 'campId');
+  const courseId = parseId(body.courseId, 'courseId');
+  const pokemonId = assertUuid(body.pokemonId);
+  return transaction(async (client) => {
+    await ensureCamps(client, userId);
+    const { rows: [camp] } = await client.query(
+      `SELECT utc.*, tc.type FROM user_training_camps utc JOIN training_camps tc ON tc.id = utc.camp_id
+        WHERE utc.user_id = $1 AND utc.camp_id = $2 FOR UPDATE OF utc`, [userId, campId]);
+    if (!camp) throw new GrowthError('CAMP_NOT_FOUND', '训练营不存在', 404);
+    const { rows: [course] } = await client.query('SELECT * FROM training_courses WHERE id = $1 AND camp_id = $2', [courseId, campId]);
+    if (!course) throw new GrowthError('COURSE_NOT_FOUND', '课程不存在', 404);
+
+    const p = await lockOwnedPokemon(client, pokemonId, userId);
+    assertIdle(p, '参加训练');
+    const bad = rules.courseCheck(course, { campLevel: camp.level, pokemonLevel: p.level || 1 });
+    if (bad) throw new GrowthError('COURSE_LOCKED', bad, 400);
+
+    const used = await activeSlots(client, userId, campId);
+    const taken = new Set(used.map((s) => s.slot_index));
+    let slotIndex = body.slotIndex != null ? Number(body.slotIndex) : [...Array(camp.capacity).keys()].find((i) => !taken.has(i));
+    if (slotIndex == null || !Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= camp.capacity) {
+      throw new GrowthError('NO_FREE_SLOT', `训练营槽位已满（${camp.capacity} 个）`, 409);
+    }
+    if (taken.has(slotIndex)) throw new GrowthError('SLOT_OCCUPIED', '该槽位正在使用中', 409);
+
+    if (course.daily_limit > 0) {
+      const { rows: [{ n }] } = await client.query(
+        `SELECT COUNT(*)::int AS n FROM training_slots WHERE user_id = $1 AND course_id = $2 AND started_at >= $3::date`,
+        [userId, courseId, gameDate()]);
+      if (n >= course.daily_limit) throw new GrowthError('DAILY_LIMIT', `该课程今日次数已用完（${course.daily_limit}）`, 409);
+    }
+
+    const cost = rules.costOf(course);
+    if (cost && !(await spendCurrency(client, userId, cost.currency, cost.amount))) {
+      throw new GrowthError('INSUFFICIENT_FUNDS', `${cost.currency} 不足（需要 ${cost.amount}）`, 400);
+    }
+    const stamina = await consumeStamina(client, { pokemonId, userId, activityType: 'training', metadata: { campId, courseId } });
+    const rating = rules.ratingFor(stamina.fatigueLevel);
+    const reward = rules.expectedRewards(course, camp.level, rating.multiplier);
+    const endsAt = new Date(Date.now() + Number(course.duration_minutes) * 60000);
+    await occupy(client, pokemonId, OCCUPY, endsAt);
+    const { rows: [slot] } = await client.query(
+      `INSERT INTO training_slots (user_id, camp_id, slot_index, pokemon_id, course_id, status, started_at, ends_at,
+                                   expected_exp, expected_friendship, rating)
+       VALUES ($1, $2, $3, $4, $5, 'training', NOW(), $6, $7, $8, $9) RETURNING *`,
+      [userId, campId, slotIndex, pokemonId, courseId, endsAt, reward.exp, reward.friendship, rating.rating]);
+    return { ...presentSlot({ ...slot, course_name: course.name }), campType: camp.type, cost, stamina, ratingMultiplier: rating.multiplier };
+  });
+}
+
+async function lockSlot(client, userId, slotId) {
+  assertUuid(slotId, 'slotId');
+  const { rows: [s] } = await client.query(
+    `SELECT ts.*, tc.type AS camp_type, c.name AS course_name, c.duration_minutes, c.cost_type, c.cost_amount
+       FROM training_slots ts JOIN training_camps tc ON tc.id = ts.camp_id JOIN training_courses c ON c.id = ts.course_id
+      WHERE ts.id = $1 AND ts.user_id = $2 FOR UPDATE OF ts`, [slotId, userId]);
+  if (!s) throw new GrowthError('SLOT_NOT_FOUND', '训练不存在', 404);
+  return s;
+}
+
+async function getSlot(userId, slotId) {
+  assertUuid(slotId, 'slotId');
+  const { rows: [s] } = await query(
+    `SELECT ts.*, c.name AS course_name FROM training_slots ts JOIN training_courses c ON c.id = ts.course_id
+      WHERE ts.id = $1 AND ts.user_id = $2`, [slotId, userId]);
+  if (!s) throw new GrowthError('SLOT_NOT_FOUND', '训练不存在', 404);
+  return presentSlot(s);
+}
+
+async function learnMove(client, pokemonId) {
+  const { rows: [p] } = await client.query(
+    'SELECT species_id, learned_fast_moves, learned_charge_moves FROM pokemon_instances WHERE id = $1', [pokemonId]);
+  const { rows: learnset } = await client.query(
+    `SELECT pm.move_id, m.category, m.name_zh FROM pokemon_moves pm JOIN moves m ON m.id = pm.move_id
+      WHERE pm.species_id = $1 AND pm.learn_method IN ('TM', 'LEVEL_UP', 'TUTOR')`, [p.species_id]);
+  const move = rules.pickNewMove(learnset, p.learned_fast_moves, p.learned_charge_moves);
+  if (!move) return null;
+  const col = move.category === 'FAST' ? 'learned_fast_moves' : 'learned_charge_moves';
+  await client.query(`UPDATE pokemon_instances SET ${col} = array_append(COALESCE(${col}, '{}'), $2::text) WHERE id = $1`, [pokemonId, move.move_id]);
+  return { moveId: move.move_id, name: move.name_zh, category: move.category };
+}
+
+async function complete(userId, slotId) {
+  return transaction(async (client) => {
+    const s = await lockSlot(client, userId, slotId);
+    if (s.status === 'completed' || s.status === 'cancelled') throw new GrowthError('ALREADY_FINISHED', '该训练已结束', 409);
+    const pr = rules.progress(s.started_at, s.ends_at);
+    if (!pr.ready) throw new GrowthError('NOT_READY', `训练尚未完成（还需 ${pr.remainingMinutes} 分钟）`, 400, { remainingMinutes: pr.remainingMinutes });
+
+    await release(client, s.pokemon_id, OCCUPY);
+    let growth = null;
+    if (s.expected_exp > 0) {
+      growth = await grantPokemonExperience(client, {
+        userId, pokemonId: s.pokemon_id, baseAmount: s.expected_exp * (s.boost_type === 'TRAINING_EXP_DOUBLE' ? 2 : 1),
+        sourceType: 'training_camp', sourceId: s.id, metadata: { campId: s.camp_id, courseId: s.course_id, rating: s.rating },
+      });
+    }
+    let friendship = null;
+    if (s.expected_friendship > 0) {
+      const { rows: [f] } = await client.query(
+        `UPDATE pokemon_instances SET friendship = LEAST(255, COALESCE(friendship, 70) + $2), friendship_updated_at = NOW()
+          WHERE id = $1 RETURNING friendship`, [s.pokemon_id, s.expected_friendship]);
+      friendship = { gained: s.expected_friendship, current: f.friendship };
+    }
+    const move = s.camp_type === 'skill' ? await learnMove(client, s.pokemon_id) : null;
+    const actualExp = growth ? growth.gainedExp : 0;
+    await client.query(
+      `UPDATE training_slots SET status = 'completed', completed_at = NOW(), actual_exp = $2, actual_friendship = $3,
+              skill_learned = $4, updated_at = NOW() WHERE id = $1`,
+      [s.id, actualExp, s.expected_friendship || 0, !!move]);
+    await client.query(
+      `INSERT INTO training_reports (user_id, slot_id, pokemon_id, camp_type, course_name, duration_minutes, exp_gained,
+                                     friendship_gained, skill_learned_name, cost_type, cost_amount, rating)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`,
+      [userId, s.id, s.pokemon_id, s.camp_type, s.course_name, Math.max(1, Math.round((new Date(s.ends_at) - new Date(s.started_at)) / 60000)),
+        actualExp, s.expected_friendship || 0, move ? move.name || move.moveId : null, s.cost_type, s.cost_amount || 0, s.rating || 'normal']);
+    return { slotId: s.id, pokemonId: s.pokemon_id, rating: s.rating, rewards: { exp: actualExp, friendship, skillLearned: move }, growth };
+  });
+}
+
+async function boost(userId, slotId, itemId) {
+  const b = rules.BOOSTS[itemId];
+  if (!b) throw new GrowthError('INVALID_ITEM', `不是训练加速道具：${itemId}`, 400);
+  return transaction(async (client) => {
+    const s = await lockSlot(client, userId, slotId);
+    if (s.status !== 'training' && s.status !== 'ready') throw new GrowthError('ALREADY_FINISHED', '该训练已结束', 409);
+    if (s.boost_type) throw new GrowthError('BOOST_ALREADY_USED', '该训练已使用过加速道具', 409);
+    if (b.kind === 'time' && rules.progress(s.started_at, s.ends_at).ready) throw new GrowthError('ALREADY_READY', '训练已完成，无需加速', 400);
+    if (!(await consumeItem(client, userId, itemId, 1))) throw new GrowthError('INSUFFICIENT_ITEMS', `${b.name}道具不足`, 400);
+    const endsAt = rules.boostedEnd(s.ends_at, b);
+    const { rows: [row] } = await client.query(
+      `UPDATE training_slots SET ends_at = $2, boost_used = TRUE, boost_type = $3, boost_ends_at = $2, updated_at = NOW()
+        WHERE id = $1 RETURNING *`, [s.id, endsAt, itemId]);
+    await client.query('UPDATE pokemon_instances SET occupied_until = $2 WHERE id = $1 AND occupied_by = $3', [s.pokemon_id, endsAt, OCCUPY]);
+    return { ...presentSlot({ ...row, course_name: s.course_name }), boost: { itemId, effect: b.name } };
+  });
+}
+
+async function cancel(userId, slotId) {
+  return transaction(async (client) => {
+    const s = await lockSlot(client, userId, slotId);
+    if (s.status !== 'training' && s.status !== 'ready') throw new GrowthError('ALREADY_FINISHED', '该训练已结束', 409);
+    await client.query("UPDATE training_slots SET status = 'cancelled', completed_at = NOW(), updated_at = NOW() WHERE id = $1", [s.id]);
+    await release(client, s.pokemon_id, OCCUPY);
+    return { slotId: s.id, cancelled: true, refunded: false };
+  });
+}
+
+async function upgrade(userId, campId) {
+  const cid = parseId(campId, 'campId');
+  return transaction(async (client) => {
+    await ensureCamps(client, userId);
+    const { rows: [c] } = await client.query(
+      `SELECT utc.*, tc.max_level, tc.capacity_per_level FROM user_training_camps utc JOIN training_camps tc ON tc.id = utc.camp_id
+        WHERE utc.user_id = $1 AND utc.camp_id = $2 FOR UPDATE OF utc`, [userId, cid]);
+    if (!c) throw new GrowthError('CAMP_NOT_FOUND', '训练营不存在', 404);
+    if (c.level >= c.max_level) throw new GrowthError('MAX_LEVEL', '训练营已满级', 400);
+    const cost = rules.upgradeCost(c.level);
+    if (!(await spendCurrency(client, userId, 'coins', cost))) throw new GrowthError('INSUFFICIENT_FUNDS', `金币不足（需要 ${cost}）`, 400);
+    const { rows: [u] } = await client.query(
+      `UPDATE user_training_camps SET level = level + 1, capacity = capacity + $2, upgraded_at = NOW(), updated_at = NOW()
+        WHERE id = $1 RETURNING level, capacity`, [c.id, c.capacity_per_level || 1]);
+    return { campId: cid, level: u.level, capacity: u.capacity, cost: { currency: 'coins', amount: cost } };
+  });
+}
+
+async function history(userId, { limit = 20, offset = 0 } = {}) {
+  const lim = Math.min(100, Math.max(1, Number(limit) || 20));
+  const off = Math.max(0, Number(offset) || 0);
+  const { rows } = await query(
+    `SELECT tr.id, tr.slot_id AS "slotId", tr.pokemon_id AS "pokemonId", tr.camp_type AS "campType", tr.course_name AS "courseName",
+            tr.duration_minutes AS "durationMinutes", tr.exp_gained AS "expGained", tr.friendship_gained AS "friendshipGained",
+            tr.skill_learned_name AS "skillLearned", tr.cost_type AS "costType", tr.cost_amount AS "costAmount", tr.rating,
+            tr.completed_at AS "completedAt"
+       FROM training_reports tr WHERE tr.user_id = $1 ORDER BY tr.completed_at DESC LIMIT $2 OFFSET $3`, [userId, lim, off]);
+  return { items: rows, limit: lim, offset: off };
+}
+
+/** 定时任务：到点的训练标记 ready 并发站内通知 */
+async function markReady() {
+  const { rows } = await query(
+    `UPDATE training_slots SET status = 'ready', updated_at = NOW()
+      WHERE status = 'training' AND ends_at <= NOW()
+      RETURNING id, user_id, pokemon_id, course_id`);
+  if (rows.length) {
+    try {
+      await query(
+        `INSERT INTO notification_history (user_id, type, data)
+         SELECT (x->>'user_id')::uuid, 'training_complete', x FROM jsonb_array_elements($1::jsonb) x`,
+        [JSON.stringify(rows.map((r) => ({ ...r, message: '训练已完成，快去领取奖励吧' })))]);
+    } catch (err) {
+      if (err.code !== '42P01') throw err; // 没有消息中心表时只更新状态
+    }
+  }
+  return rows.length;
+}
+
+module.exports = { getCamps, getCourses, start, getSlot, complete, boost, cancel, upgrade, history, markReady };

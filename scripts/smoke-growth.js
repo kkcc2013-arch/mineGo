@@ -490,7 +490,80 @@ async function testBondSkills() {
   record('羁绊：不能操作别人的精灵（404）', steal.status === 404, `status=${steal.status}`);
 }
 
-const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina, tree: testEvolutionTree, bond: testBondSkills };
+// ───────────────────── 训练营（REQ-00370） ─────────────────────
+async function testTrainingCamp() {
+  const u = await newUser('tcp');
+  const T = '/v1/pokemon/training-camp';
+  const camps = await call('GET', `${T}/camps`, { token: u.token });
+  record('训练营：三类训练营自动开通（经验/技能/亲密度）', camps.status === 200 && ['experience', 'skill', 'friendship'].every((t) => camps.data.some((c) => c.type === t)),
+    `status=${camps.status} ${camps.status !== 200 ? JSON.stringify(camps.body).slice(0, 160) : ''}`);
+  const campId = (type) => camps.data.find((c) => c.type === type).campId;
+  const courses = await call('GET', `${T}/camps/${campId('experience')}/courses`, { token: u.token });
+  const course = (name) => courses.data.find((c) => c.name === name);
+  record('训练营：课程列表（时长/费用/解锁等级/预期奖励）', courses.status === 200 && course('基础训练') && course('基础训练').cost === null && course('进阶训练').unlocked === false,
+    `status=${courses.status}`);
+
+  const p = await givePokemon(u.userId, 1);
+  const st = await call('POST', `${T}/start`, { token: u.token, body: { campId: campId('experience'), courseId: course('基础训练').courseId, pokemonId: p.id } });
+  record('训练营：开始训练（消耗 15 体力，满体力评级 excellent ×1.2）', st.status === 200 && st.data.rating === 'excellent' && st.data.expectedExp === 120 && st.data.stamina.staminaAfter === 85,
+    `status=${st.status} ${st.status !== 200 ? JSON.stringify(st.body).slice(0, 200) : JSON.stringify({ r: st.data.rating, e: st.data.expectedExp })}`);
+  const slotId = st.data && st.data.slotId;
+  const again = await call('POST', `${T}/start`, { token: u.token, body: { campId: campId('experience'), courseId: course('基础训练').courseId, pokemonId: p.id } });
+  const evo = await call('POST', `/v1/pokemon/${p.id}/evolution/execute`, { token: u.token, body: {} });
+  record('训练营：训练中的精灵不能再训练/进化（409）', again.status === 409 && evo.status === 409, `again=${again.status} evolve=${evo.status}`);
+  const early = await call('POST', `${T}/slots/${slotId}/complete`, { token: u.token });
+  const prog = await call('GET', `${T}/slots/${slotId}`, { token: u.token });
+  record('训练营：未到时间不能领取；进度精确到分钟', early.status === 400 && errName(early) === 'NOT_READY' && prog.data.remainingMinutes === 30,
+    `early=${early.status} remaining=${prog.data && prog.data.remainingMinutes}`);
+  const noItem = await call('POST', `${T}/slots/${slotId}/boost`, { token: u.token, body: { itemId: 'TRAINING_TIMER_INSTANT' } });
+  await giveItem(u.userId, 'TRAINING_TIMER_INSTANT', 1);
+  const boost = await call('POST', `${T}/slots/${slotId}/boost`, { token: u.token, body: { itemId: 'TRAINING_TIMER_INSTANT' } });
+  record('训练营：加速道具（无道具 400；立即完成券生效并扣除）', noItem.status === 400 && boost.status === 200 && boost.data.status === 'ready' && (await itemQty(u.userId, 'TRAINING_TIMER_INSTANT')) === 0,
+    `noItem=${noItem.status} boost=${boost.status} status=${boost.data && boost.data.status}`);
+  const done = await call('POST', `${T}/slots/${slotId}/complete`, { token: u.token });
+  const row = await pokemonRow(p.id);
+  record('训练营：领取奖励（经验入账、精灵解除占用）', done.status === 200 && done.data.rewards.exp === 120 && row.experience === 120 && row.occupied_by === null,
+    `status=${done.status} exp=${done.data && done.data.rewards.exp} pokemonExp=${row.experience}`);
+  const twice = await call('POST', `${T}/slots/${slotId}/complete`, { token: u.token });
+  record('训练营：重复领取被拒（409）', twice.status === 409, `status=${twice.status}`);
+
+  // 付费课程 / 升级 / 取消不退费
+  const locked = await call('POST', `${T}/start`, { token: u.token, body: { campId: campId('experience'), courseId: course('进阶训练').courseId, pokemonId: p.id } });
+  const poor = await call('POST', `${T}/camps/${campId('experience')}/upgrade`, { token: u.token });
+  await db().query('UPDATE users SET coins = 3000 WHERE id = $1', [u.userId]);
+  const up = await call('POST', `${T}/camps/${campId('experience')}/upgrade`, { token: u.token });
+  record('训练营：课程等级锁、金币不足不能升级、升级扣 2000 金币并扩容', locked.status === 400 && poor.status === 400 && up.status === 200 && up.data.level === 2 && up.data.capacity === 4,
+    `locked=${locked.status} poor=${poor.status} up=${up.status} ${JSON.stringify(up.data)}`);
+  const paid = await call('POST', `${T}/start`, { token: u.token, body: { campId: campId('experience'), courseId: course('进阶训练').courseId, pokemonId: p.id } });
+  const coins1 = (await db().query('SELECT coins FROM users WHERE id = $1', [u.userId])).rows[0].coins;
+  const cancel = await call('POST', `${T}/slots/${paid.data && paid.data.slotId}/cancel`, { token: u.token });
+  const coins2 = (await db().query('SELECT coins FROM users WHERE id = $1', [u.userId])).rows[0].coins;
+  record('训练营：付费课程扣 500 金币，取消训练不退费并释放精灵', paid.status === 200 && coins1 === 500 && cancel.status === 200 && coins2 === 500 && (await pokemonRow(p.id)).occupied_by === null,
+    `paid=${paid.status} coins=${coins1}->${coins2} cancel=${cancel.status}`);
+
+  // 亲密度营
+  const fc = await call('GET', `${T}/camps/${campId('friendship')}/courses`, { token: u.token });
+  const q = await givePokemon(u.userId, 25, { friendship: 70 });
+  const fs = await call('POST', `${T}/start`, { token: u.token, body: { campId: campId('friendship'), courseId: fc.data.find((c) => c.name === '互动训练').courseId, pokemonId: q.id } });
+  await db().query("UPDATE training_slots SET ends_at = NOW() - INTERVAL '1 second' WHERE id = $1", [fs.data && fs.data.slotId]);
+  const fdone = await call('POST', `${T}/slots/${fs.data && fs.data.slotId}/complete`, { token: u.token });
+  record('训练营：亲密度营提升亲密度（5 × 评级 1.2 = 6）', fdone.status === 200 && fdone.data.rewards.friendship.gained === 6 && (await pokemonRow(q.id)).friendship === 76,
+    `status=${fdone.status} ${JSON.stringify(fdone.data && fdone.data.rewards)}`);
+
+  // 槽位满
+  const full = [];
+  for (let i = 0; i < 3; i++) {
+    const x = await givePokemon(u.userId, 7);
+    full.push(await call('POST', `${T}/start`, { token: u.token, body: { campId: campId('friendship'), courseId: fc.data.find((c) => c.name === '互动训练').courseId, pokemonId: x.id } }));
+  }
+  const y = await givePokemon(u.userId, 7);
+  const over = await call('POST', `${T}/start`, { token: u.token, body: { campId: campId('friendship'), courseId: fc.data.find((c) => c.name === '互动训练').courseId, pokemonId: y.id } });
+  record('训练营：槽位满时不能开始（3 槽）', full.every((r) => r.status === 200) && over.status === 409 && errName(over) === 'NO_FREE_SLOT', `statuses=${full.map((r) => r.status)} over=${over.status}`);
+  const hist = await call('GET', `${T}/history`, { token: u.token });
+  record('训练营：训练报告（历史）', hist.status === 200 && hist.data.items.length === 2, `status=${hist.status} n=${hist.data && hist.data.items.length}`);
+}
+
+const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina, tree: testEvolutionTree, bond: testBondSkills, camp: testTrainingCamp };
 
 (async () => {
   const want = process.argv.slice(2);
