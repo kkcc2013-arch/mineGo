@@ -197,10 +197,8 @@ class DamageService {
         }
       }
     }
-    // 预热本身产生的未命中不计入命中率统计
+    // 预热本身产生的系数未命中不计入命中率统计（属性查询全部落在预计算矩阵上，保留计数）
     this.counters.coefMiss = 0;
-    this.counters.typeHit = 0;
-    this.counters.typeMiss = 0;
     if (loadL2 && this.redis) {
       try {
         let cursor = '0';
