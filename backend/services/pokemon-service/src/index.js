@@ -434,6 +434,9 @@ async function main() {
       // 子路由挂载
       // ═══════════════════════════════════════════════════════════
 
+      // REQ-00377 精灵数据可见性 / REQ-00326 精灵好友互动（先于其他 /pokemon 子路由挂载）
+      app.use('/pokemon', require('./routes/pokemonSocial'));
+
       // REQ-00019: 技能学习系统路由
       app.use('/', require('./routes/moves'));
 

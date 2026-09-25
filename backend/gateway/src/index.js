@@ -373,16 +373,16 @@ app.use('/v1/gdpr',
   proxy(SERVICES.user, { '^/': '/gdpr/' })
 );
 
-// 好友列表 - 缓存 3 分钟
-app.get('/v1/friends',
-  authMiddleware,
-  cachedProxy({ route: 'friends', target: SERVICES.social, pathRewrite: { '^/v1/': '/' }, ttl: 180, perUser: true, onError: proxyError })
-);
-
-// 其他好友路由（不缓存）
+// 好友路由（不缓存：好友列表含在线状态且受对方隐私设置实时影响，对方接受请求/修改隐私不会使我的缓存失效）
 app.use('/v1/friends',
   authMiddleware,
   proxy(SERVICES.social, { '^/': '/friends/' })
+);
+
+// REQ-00228：隐私设置与好友权限
+app.use('/v1/privacy',
+  authMiddleware,
+  proxy(SERVICES.social, { '^/': '/privacy/' })
 );
 
 // REQ-00040: 交易接口高风险限流
@@ -571,5 +571,18 @@ app.use('/api/admin', authMiddleware, requireAdmin, ipBanAdminRoutes);
 // 404 fallback
 app.use((req, res) => res.status(404).json({ code: 1005, message: `路由不存在: ${req.method} ${req.path}`, data: null }));
 
-app.listen(PORT, () => logger.info({ port: PORT }, 'API Gateway started'));
+const server = app.listen(PORT, () => logger.info({ port: PORT }, 'API Gateway started'));
+
+// 好友实时推送 WebSocket：/ws/friends?token=... 转发到 social-service（鉴权由 social-service 完成）
+const socialWsProxy = createProxyMiddleware({
+  target: SERVICES.social,
+  changeOrigin: true,
+  ws: true,
+  pathFilter: '/ws/friends',
+  on: { error: (err, req, socket) => { logger.warn({ err: err.message }, 'social ws proxy error'); if (socket && socket.destroy) socket.destroy(); } },
+});
+server.on('upgrade', (req, socket, head) => {
+  if ((req.url || '').startsWith('/ws/friends')) return socialWsProxy.upgrade(req, socket, head);
+  socket.destroy();
+});
 module.exports = app;

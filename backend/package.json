@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "concurrently \"npm run dev -w shared\" \"npm run dev -w services/user-service\" \"npm run dev -w services/location-service\" \"npm run dev -w services/pokemon-service\" \"npm run dev -w services/catch-service\" \"npm run dev -w services/gym-service\"",
     "test": "npm run test --workspaces --if-present",
-    "test:unit": "node ../scripts/check-deps.js && node tests/unit/catch.test.js && node tests/unit/auth.test.js && node tests/unit/spawn.test.js && node tests/unit/logger-metrics.test.js && node tests/unit/payment.test.js && node --test tests/unit/security-core.test.js tests/unit/gameTime.test.js tests/unit/fieldKeyProvider.test.js tests/unit/otel-tracing.test.js",
+    "test:unit": "node ../scripts/check-deps.js && node tests/unit/catch.test.js && node tests/unit/auth.test.js && node tests/unit/spawn.test.js && node tests/unit/logger-metrics.test.js && node tests/unit/payment.test.js && node --test tests/unit/security-core.test.js tests/unit/gameTime.test.js tests/unit/fieldKeyProvider.test.js tests/unit/otel-tracing.test.js tests/unit/friend-service.test.js tests/unit/friend-service-db.test.js",
     "test:integration": "jest --config tests/integration/jest.config.json",
     "test:e2e": "jest --config tests/integration/jest.config.json tests/e2e",
     "test:all": "npm run test:unit && npm run test:integration",

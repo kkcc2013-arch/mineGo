@@ -7,6 +7,8 @@ const { requireAuth, AppError, successResp } = require('../../../../shared/auth'
 const { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('../../../../shared/i18n');
 const { getStackableItems } = require('../../../../shared/inventory');
 const fieldCrypto = require('../../../../shared/fieldCrypto');
+const { isUuid, getRelationship, getPrivacySettings } = require('../../../../shared/social/relationship');
+const { visibilityMap } = require('../../../../shared/social/privacyRules');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -117,13 +119,34 @@ router.post('/team', async (req, res, next) => {
 // ── GET /users/:id (public profile) ──────────────────────────
 router.get('/:id', async (req, res, next) => {
   try {
+    if (!isUuid(req.params.id)) throw new AppError(2003, '用户不存在', 404);
     const { rows } = await query(`
       SELECT id, nickname, avatar_url, team, level,
-             (SELECT COUNT(*)::int FROM pokemon_instances WHERE user_id = u.id) AS pokemon_count
+             (SELECT COUNT(*)::int FROM pokemon_instances WHERE user_id = u.id) AS pokemon_count,
+             (SELECT COUNT(*)::int FROM pokemon_instances p
+                LEFT JOIN pokemon_privacy_settings pps ON pps.pokemon_id = p.id
+                LEFT JOIN user_privacy_defaults upd ON upd.user_id = p.user_id
+               WHERE p.user_id = u.id
+                 AND COALESCE(pps.overall_visibility, upd.default_pokemon_visibility, 'friends') <> 'hidden') AS visible_pokemon_count
       FROM users u WHERE id = $1
     `, [req.params.id]);
     if (!rows[0]) throw new AppError(2003, '用户不存在', 404);
-    res.json(successResp(rows[0]));
+    const { visible_pokemon_count: visibleCount, ...profile } = rows[0];
+    // REQ-00228：按对方隐私设置过滤（拉黑视为不存在；等级受 profile、精灵数受 pokemon_collection 可见性约束）
+    if (req.user.sub !== profile.id) {
+      const [settings, rel] = await Promise.all([
+        getPrivacySettings({ query }, profile.id),
+        getRelationship({ query }, req.user.sub, profile.id),
+      ]);
+      if (rel.blocked) throw new AppError(2003, '用户不存在', 404);
+      const vis = visibilityMap(settings, rel, ['profile', 'pokemon_collection', 'online_status']);
+      if (!vis.profile) profile.level = null;
+      // 他人只计入未“完全隐藏”的精灵（REQ-00377）
+      profile.pokemon_count = vis.pokemon_collection ? visibleCount : null;
+      profile.is_friend = rel.isFriend;
+      profile.visibility = vis;
+    }
+    res.json(successResp(profile));
   } catch (err) { next(err); }
 });
 
