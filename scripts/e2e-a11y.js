@@ -585,6 +585,43 @@ async function main() {
     });
     return { ok: r.during.catch === 1 && r.during.ui === 1 && !r.during.motor && r.during.aim === 0 && r.during.badge && r.after.motor && r.after.catch < 1, detail: JSON.stringify(r) };
   });
+  await check('战斗接入契约：pmg:battle 事件 → 播报/视觉提示/触觉，PVP 自动禁用辅助、结束后恢复', async () => {
+    const r = await A(page, async () => {
+      const x = window.PMG_A11Y;
+      x.store.set({ hearing: { visualCues: true }, motor: { enabled: true } });
+      const fire = (detail) => document.dispatchEvent(new CustomEvent('pmg:battle', { detail }));
+      fire({ type: 'start', mode: 'pvp', opponent: '道馆主' });
+      const during = { comp: x.pace.competitive, motor: x.motor.active(), badge: !!document.querySelector('[data-testid="a11y-competitive"]'), timing: x.battleTiming(1000) };
+      fire({ type: 'hit', target: '皮卡丘', damage: 35, hp: 65 });
+      const hit = { said: x.announcer.history.slice(-1)[0], cue: x.cues.log.slice(-1)[0].type, hap: x.haptics.history.slice(-1)[0].pattern };
+      fire({ type: 'win' });
+      return { during, hit, after: { comp: x.pace.competitive, motor: x.motor.active(), cue: x.cues.log.slice(-1)[0].type } };
+    });
+    return { ok: r.during.comp === 'pvp' && !r.during.motor && r.during.badge && r.during.timing === 1000 && /造成 35 点伤害，剩余 HP 65/.test(r.hit.said.message)
+      && r.hit.said.category === 'battle' && r.hit.cue === 'battle:hit' && r.hit.hap === 'battle_hit' && r.after.comp === null && r.after.motor && r.after.cue === 'battle:win', detail: JSON.stringify(r).slice(0, 300) };
+  });
+  await check('宏：Alt+1 按顺序执行步骤；语音说出宏名同样执行', async () => {
+    await A(page, () => { window.PMG_A11Y.store.set('motor.macros', [{ name: '去我的再回来', steps: ['goProfile', 'goMap'] }]); window.goScreen('map'); });
+    await page.keyboard.press('Alt+Digit1');
+    await sleep(150);
+    const mid = await A(page, () => document.getElementById('profile').classList.contains('active'));
+    await sleep(1200);
+    const end = await A(page, () => document.getElementById('map').classList.contains('active'));
+    return { ok: mid && end, detail: `中途在我的=${mid} 结束在地图=${end}` };
+  });
+  await check('播报类别：关闭"地图摘要"后 L 键不再播报（关键提示不受影响）', async () => {
+    const r = await A(page, () => {
+      const x = window.PMG_A11Y;
+      x.store.set('screenReader.categories.map', false);
+      const n = x.announcer.history.length;
+      x.runAction('readMap');
+      const skipped = x.announcer.history.slice(n).every((h) => h.skipped);
+      x.store.set('screenReader.categories.map', true);
+      return skipped;
+    });
+    await sleep(200);
+    return r;
+  });
   await check('快捷键：Ctrl+Shift+M 切换动作辅助', async () => {
     const a = await A(page, () => window.PMG_A11Y.store.prefs.motor.enabled);
     await page.keyboard.press('Control+Shift+M');
