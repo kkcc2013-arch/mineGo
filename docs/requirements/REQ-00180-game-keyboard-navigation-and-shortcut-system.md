@@ -3,7 +3,7 @@
 - **编号**：REQ-00180
 - **类别**：无障碍(a11y)
 - **优先级**：P2
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：game-client、frontend/game-client/src/accessibility、frontend/game-client/src/input、frontend/game-client/src/components
 - **创建时间**：2026-06-14 03:00
 - **依赖需求**：REQ-00017
@@ -308,3 +308,26 @@ P2 理由：
 2. **用户群体**：约 15% 人口有某种形式的残疾，键盘导航是核心需求
 3. **间接收益**：快捷键也提升普通用户的操作效率
 4. **依赖关系**：基于 REQ-00017 基础无障碍支持扩展
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| **WCAG 2.1.1 合规**：所有游戏功能可通过键盘访问，无键盘陷阱 | ✅ | 所有操作可键盘完成（带 onclick 的 div 补 Enter/Space，精灵球/底部导航方向键漫游），模态框外无陷阱 |
+| **焦点可视**：所有交互元素有明显的 focus-visible 样式（3px+ outline） | ✅ | `accessibility/a11y.css` `:focus-visible` 3px 轮廓 + 2px 偏移（手柄模式下 `:focus` 同样显示） |
+| **快捷键功能**：至少 15 个快捷键可正常工作 | ✅ | `shortcuts.DEFAULT_BINDINGS` 26 个：? , M P R J K W A S D L V 1 2 3 T Esc I Alt+S Alt+H - = Ctrl+Shift+M Alt+V Alt+R，另 Alt+1…9 执行宏 |
+| **快捷键帮助面板**：按 `?` 键显示所有快捷键列表 | ✅ | `?` 打开快捷键帮助对话框（表格，含 Tab/Enter/方向键/Esc Esc 说明） |
+| **焦点恢复**：关闭模态框后焦点返回之前元素 | ✅ | `accessibility/dialog.js` 关闭时焦点回到触发元素（设置、帮助、语言弹窗均适用） |
+| **快捷键自定义**：用户可在设置中重新映射快捷键 | ✅ | 设置 → 键盘：点"修改"后按新键录制，重复/浏览器保留键被拒绝并提示，持久化 `keyboard.bindings` |
+| **地图导航**：WASD 键可控制地图平移 | ✅ | WASD 平移地图区域。说明：当前客户端"地图"是列表视图，平移即滚动；另有 J/K 在精灵间移动焦点 |
+| **菜单导航**：Tab/Arrow 键可在菜单项间导航 | ✅ | Tab 顺序导航；方向键在精灵球 radiogroup 与底部导航间移动（RTL 下左右反向） |
+| **屏幕阅读器兼容**：快捷键操作触发正确的 ARIA 通知 | ✅ | 快捷键执行后 aria-live 播报动作名称 |
+| **无冲突**：快捷键不与浏览器/系统快捷键冲突（允许 preventDefault 覆盖） | ✅ | RESERVED（Ctrl+W/T/N/L/R/F…、F5、F11、F12、Alt+F4、Tab 等）禁止绑定；输入框内不触发单键快捷键 |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：`database/migrations/20260925_010000__user_preferences.sql`（`user_preferences`：user_id UUID → users(id) ON DELETE CASCADE、namespace、prefs JSONB，主键 (user_id, namespace)，全部 IF NOT EXISTS）；偏好云端同步：user-service `GET/PUT/DELETE /users/me/preferences/:namespace`（`src/routes/preferences.js` + `src/services/userPreferences.js` 校验），经网关 `/v1/users/me/preferences/a11y`（网关已有 `/v1/users` 鉴权代理，未改网关）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：在真实键盘 + 屏幕阅读器（NVDA 浏览模式下单键快捷键会被读屏拦截，需切换焦点模式）中试用；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`

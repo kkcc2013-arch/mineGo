@@ -7,7 +7,7 @@
 | 标题 | 游戏色盲模式与视觉辅助系统 |
 | 类别 | 无障碍(a11y) |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | game-client, pokemon-service, backend/shared |
 | 创建时间 | 2026-06-22 05:00 |
 
@@ -875,3 +875,28 @@ COMMENT ON COLUMN accessibility_settings.contrast_level IS '对比度级别：no
 - [WebAIM Contrast Checker](https://webaim.org/resources/contrastchecker/)
 - [Pokemon GO Accessibility Features](https://nianticlabs.com/accessibility)
 - [Microsoft Inclusive Design](https://www.microsoft.com/design/inclusive/)
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 支持四种色盲类型（红色盲、绿色盲、蓝黄色盲、全色盲） | ✅ | 红色盲/绿色盲/蓝黄色盲/全色盲 + 自定义调色板 |
+| 实现智能颜色替换系统，至少覆盖精灵属性、战斗状态、地图标记 | ✅ | 语义色变量整体替换（Okabe-Ito 色系，自动保证 ≥4.5:1）；精灵属性：捕捉页属性徽章（形状+文字，数据来自语音描述 API）；地图标记为文字 + emoji 卡片；战斗状态待战斗界面接入（⚠️） |
+| 图案辅助系统为关键颜色信息添加形状/图案识别 | ✅ | 18 种属性形状、准确度分区 ●▲■ + 圆点/条纹图案、提示 ✔/✖ + 实线/虚线边框 |
+| 文字标签增强为所有颜色编码信息添加文字描述 | ✅ | 提示类型文字前缀、准确度 aria-valuetext 与分区文字、选中精灵球 ✓、当前导航下划线 |
+| 对比度调整支持4个级别（普通/增强/高/最大） | ✅ | 普通/增强/高/最大 4 级（高与最大启用高对比度主题） |
+| 色盲模拟预览功能供开发者测试 | ✅ | 设置 → "开发者：色盲模拟预览"（Machado 2009 矩阵，SVG feColorMatrix 滤镜） |
+| 用户配置持久化到数据库 | ✅ | 持久化到 `user_preferences`（JSONB，namespace=a11y） |
+| 所有UI组件支持无障碍属性（aria-label、role等） | ✅ | 设置面板控件均有 label/role，对话框 role=dialog + aria-modal |
+| 满足WCAG 2.1 AA级标准 | ✅ | axe-core 扫描（含高对比度、色盲模式页面）无 critical/serious（调整前运行） |
+| 提供完整的单元测试覆盖 | ✅ | `tests/a11y/unit.test.mjs`：对比度、模拟/校正矩阵、调色板区分度与修正、属性形状 |
+| 提供用户使用文档和开发者集成指南 | ✅ | `docs/accessibility/a11y-guide.md`（使用手册 + 开发者接入指南） |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：`database/migrations/20260925_010000__user_preferences.sql`（`user_preferences`：user_id UUID → users(id) ON DELETE CASCADE、namespace、prefs JSONB，主键 (user_id, namespace)，全部 IF NOT EXISTS）；偏好云端同步：user-service `GET/PUT/DELETE /users/me/preferences/:namespace`（`src/routes/preferences.js` + `src/services/userPreferences.js` 校验），经网关 `/v1/users/me/preferences/a11y`（网关已有 `/v1/users` 鉴权代理，未改网关）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：色盲用户主观评估；各模式下捕捉页属性徽章显示；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 备注：偏差：未新建 user-service accessibility 路由/ColorMappingService，改用通用偏好接口；颜色映射在前端 `colorVision.js`。
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`

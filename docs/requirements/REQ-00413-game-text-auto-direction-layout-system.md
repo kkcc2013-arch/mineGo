@@ -3,7 +3,7 @@
 - **编号**：REQ-00413
 - **类别**：国际化/本地化
 - **优先级**：P2
-- **状态**：new
+- **状态**：partial
 - **涉及服务/模块**：game-client、shared/i18n、admin-dashboard
 - **创建时间**：2026-07-01 15:00 UTC
 - **依赖需求**：REQ-00101（后端 API 错误消息 i18n）
@@ -541,3 +541,27 @@ export default {
 - 体验一致性：确保所有语言版本体验一致
 - 技术债务预防：早期改造成本低于后期重构
 - 依赖已就绪：REQ-00101 i18n 基础已完成
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| **方向自动检测**：设置阿拉伯语后，页面方向自动变为 RTL | ✅ | 选择阿拉伯语/希伯来语后 dir=rtl（DirectionManager 监听 lang） |
+| **CSS 逻辑属性**：所有 UI 元素在 RTL 模式下正确镜像显示 | ✅ | 新增样式使用逻辑属性（inset-inline/padding-inline/text-align:start）；原有布局依赖 flex 随 dir 镜像 + 定点修正 |
+| **UI 镜像规则**：back-button、arrow-icon、progress-bar 在 RTL 下正确镜像 | ✅ | 返回按钮、方向箭头镜像；准确度进度条在 RTL 下从右侧开始（块方向随 dir） |
+| **数字不镜像**：数字、品牌 Logo 在 RTL 下保持原方向 | ✅ | 只镜像 `.a11y-dir-icon`/返回按钮，数字与 Logo 不变 |
+| **文本不溢出**：各语言文本在容器内完整显示，无截断 | ⚠️ | 保留原有省略/换行规则，需按语言人工检查 |
+| **混合文本正确**：RTL 文本中的数字和英文片段方向正确 | ✅ | dir=auto、unicode-bidi: plaintext、`isolate()`（FSI/PDI） |
+| **动态容器自适应**：长文本自动换行，容器高度自适应 | ✅ | 卡片与提示为自适应高度的 flex 容器 |
+| **管理后台预览**：翻译人员可切换方向预览，检测布局问题 | ⚠️ | 游戏客户端支持 `?dir=rtl\|ltr` URL 参数与设置"文字方向"强制切换供翻译预览；admin-dashboard 未实现预览 |
+| **实时切换**：运行时切换语言，布局立即更新 | ✅ | 运行时改 lang 立即切换 dir |
+| **性能影响小**：方向切换响应时间 < 100ms | ✅ | `DirectionManager.lastSwitchMs`（调整前 e2e 测得 0.1ms） |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：`database/migrations/20260925_010000__user_preferences.sql`（`user_preferences`：user_id UUID → users(id) ON DELETE CASCADE、namespace、prefs JSONB，主键 (user_id, namespace)，全部 IF NOT EXISTS）；偏好云端同步：user-service `GET/PUT/DELETE /users/me/preferences/:namespace`（`src/routes/preferences.js` + `src/services/userPreferences.js` 校验），经网关 `/v1/users/me/preferences/a11y`（网关已有 `/v1/users` 鉴权代理，未改网关）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：各语言长文本溢出人工检查；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 备注：未完成：管理后台（admin-dashboard）方向预览。
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`
