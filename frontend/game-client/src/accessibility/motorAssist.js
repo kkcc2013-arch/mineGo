@@ -154,6 +154,7 @@ export class MotorAssist {
           return;
         }
         this.stats.confirmed++;
+        if (this.haptics) this.haptics.vibrate('long_press');
       } else if (m.confirmMode === 'double') {
         const p = this._pendingConfirm;
         if (!p || p.target !== target || performance.now() - p.t > 1500) {

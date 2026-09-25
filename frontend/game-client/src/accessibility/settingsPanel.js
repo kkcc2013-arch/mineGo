@@ -70,6 +70,7 @@ export const SECTIONS = [
       onOff('subtitles.soundCaptions', '字幕包含音效描述，如 [精灵出现的声音]'),
       sel('subtitles.size', '字幕字号', [['small', '小'], ['medium', '中'], ['large', '大'], ['xlarge', '特大']]),
       sel('subtitles.position', '字幕位置', [['bottom', '底部'], ['top', '顶部']]),
+      sel('subtitles.font', '字幕字体', [['default', '默认'], ['sans', '无衬线'], ['serif', '衬线'], ['mono', '等宽'], ['dyslexic', '阅读障碍友好（OpenDyslexic）']]),
       { type: 'color', pref: 'subtitles.color', label: '字幕颜色' },
       { type: 'button', id: 'test-cue', label: '预览视觉提示' },
     ],

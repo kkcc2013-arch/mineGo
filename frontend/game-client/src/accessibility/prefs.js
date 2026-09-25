@@ -45,7 +45,7 @@ export const DEFAULT_PREFS = Object.freeze({
     categories: { spawn: true, catch: true, battle: true, ui: true, social: true, warning: true },
   },
   // REQ-00611 字幕
-  subtitles: { enabled: false, size: 'medium', color: '#ffffff', background: 'rgba(0,0,0,0.8)', position: 'bottom', soundCaptions: true },
+  subtitles: { enabled: false, size: 'medium', font: 'default', color: '#ffffff', background: 'rgba(0,0,0,0.8)', position: 'bottom', soundCaptions: true },
   // REQ-00536 语音控制
   voiceControl: { enabled: false, lang: 'auto', minConfidence: 0.5, feedback: true, customCommands: [] },
 });
@@ -68,6 +68,7 @@ const ENUMS = {
   'hearing.intensity': ['low', 'medium', 'high'],
   'subtitles.size': ['small', 'medium', 'large', 'xlarge'],
   'subtitles.position': ['top', 'bottom'],
+  'subtitles.font': ['default', 'sans', 'serif', 'mono', 'dyslexic'],
   'voiceControl.lang': ['auto', 'zh-CN', 'en-US', 'ja-JP'],
 };
 const RANGES = {

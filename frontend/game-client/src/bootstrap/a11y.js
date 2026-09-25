@@ -413,6 +413,12 @@ export async function initAccessibility(ctx = {}) {
       state.lastMove = Date.now();
       announcer.announce(t('spawn_new', L, { name: spawns[0].name, dir: spawns[0].direction, dist: spawns[0].distance }).replace(/^[^：:]+[：:]\s*/, ''), { level: 'info', category: 'navigation' });
     }
+    // 到达目标附近（最近的精灵进入 30 米）：导航场景触觉 + 播报（REQ-00316 到达目的地）
+    const nd = spawns[0] && spawns[0].distance;
+    if (nd !== null && nd !== undefined && nd <= 30 && !(state.nearest && state.nearest.id === spawns[0].id && state.nearest.distance <= 30)) {
+      hapticManager.vibrate('destination_arrived');
+      announcer.announce(`已到达${spawns[0].name}附近，可以开始捕捉`, { level: 'important', category: 'navigation' });
+    }
     state.nearest = spawns[0] || null;
     if (sr.spatialAudio && spawns[0] && spawns[0].distance !== null) announcer.tone(toneForDistance(spawns[0].distance), { pan: spawns[0].pan, ms: 180 });
     requestAnimationFrame(() => semantics.enhanceMap());
@@ -568,7 +574,9 @@ export async function initAccessibility(ctx = {}) {
 
   // 休息 / 疲劳提醒
   const restDialog = (msg) => {
-    const d = openDialog({ id: 'a11y-rest', title: '休息提醒', content: `<p>${msg}</p><div class="a11y-row"><button type="button" class="a11y-btn a11y-btn-primary" data-rest="ok">继续游戏</button></div>` });
+    // 自动暂停：弹窗期间捕捉圆环几乎静止（关闭后按当前节奏恢复）
+    if (catchEng) catchEng.timeScale = 1e-6;
+    const d = openDialog({ id: 'a11y-rest', title: '休息提醒', content: `<p>${msg}</p><div class="a11y-row"><button type="button" class="a11y-btn a11y-btn-primary" data-rest="ok">继续游戏</button></div>`, onClose: () => pace.apply() });
     d.body.querySelector('[data-rest="ok"]').addEventListener('click', d.close);
     announcer.announce(msg, { level: 'critical' });
   };

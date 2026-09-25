@@ -175,6 +175,10 @@ html.a11y-anim-stopped *, html.a11y-anim-stopped *::before, html.a11y-anim-stopp
 .a11y-subtitles[data-size="large"] .a11y-subtitle-line { font-size: 20px; }
 .a11y-subtitles[data-size="xlarge"] .a11y-subtitle-line { font-size: 26px; }
 .a11y-subtitle-caption { font-style: italic; }
+.a11y-subtitles[data-font="sans"] .a11y-subtitle-line { font-family: 'Noto Sans', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif; }
+.a11y-subtitles[data-font="serif"] .a11y-subtitle-line { font-family: 'Noto Serif', 'Songti SC', 'SimSun', Georgia, serif; }
+.a11y-subtitles[data-font="mono"] .a11y-subtitle-line { font-family: 'Menlo', 'Consolas', monospace; }
+.a11y-subtitles[data-font="dyslexic"] .a11y-subtitle-line { font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif; letter-spacing: .04em; }
 
 /* ── 认知：简化 / 专注 / 阅读障碍（REQ-00286） ────────── */
 html.a11y-dyslexia body, html.a11y-dyslexia .a11y-dialog {

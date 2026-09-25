@@ -55,6 +55,7 @@ export class SubtitleManager {
     const s = this.getPrefs().subtitles;
     this._el.dataset.size = s.size;
     this._el.dataset.position = s.position;
+    this._el.dataset.font = s.font;
     this._el.style.setProperty('--a11y-sub-color', s.color);
     this._el.style.setProperty('--a11y-sub-bg', s.background);
   }

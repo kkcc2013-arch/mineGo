@@ -30,6 +30,7 @@ export class HapticManager {
     'dialog_close': [20],
     'scroll': [5],
     'zoom': [10],
+    'long_press': [40, 30, 40],
     
     // ── 捕捉场景 ──
     'catch_throw': [25, 30, 10],
@@ -76,6 +77,7 @@ export class HapticManager {
     'map_zoom': [10],
     'direction_change': [15],
     'location_update': [8],
+    'destination_arrived': [80, 40, 80, 40, 120],
     
     // ── 社交 ──
     'friend_request': [50, 50, 50],
@@ -94,7 +96,7 @@ export class HapticManager {
     const n = String(patternName || '');
     if (/^(catch_|throw_)/.test(n)) return 'catch';
     if (/^battle_/.test(n)) return 'battle';
-    if (/^(map_|direction_|location_|pokemon_spawn)/.test(n)) return 'navigation';
+    if (/^(map_|direction_|location_|destination_|pokemon_spawn)/.test(n)) return 'navigation';
     if (/^(level_up|achievement|reward|daily_bonus|item_|friend_|gift_|trade_|inventory_|bag_)/.test(n)) return 'special';
     return 'ui';
   }
