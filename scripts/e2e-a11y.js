@@ -61,6 +61,18 @@ const INIT = () => {
   window.webkitSpeechRecognition = FakeRecognition;
   window.__pads = [null, null, null, null];
   try { Object.defineProperty(Navigator.prototype, 'getGamepads', { configurable: true, value() { return window.__pads; } }); } catch (e) { /* ignore */ }
+  // 可控定位（Chrome 无头模式的定位模拟在容器中不稳定，偶发 POSITION_UNAVAILABLE）
+  window.__geo = { latitude: 31.2304, longitude: 121.4737, accuracy: 10 };
+  try { const g = JSON.parse(localStorage.getItem('__e2e_geo') || 'null'); if (g) window.__geo = { ...g, accuracy: 10 }; } catch (e) { /* ignore */ }
+  window.__geoW = [];
+  const pos = () => ({ coords: { ...window.__geo }, timestamp: Date.now() });
+  const fakeGeo = {
+    getCurrentPosition(ok) { setTimeout(() => ok(pos()), 5); },
+    watchPosition(ok) { window.__geoW.push(ok); setTimeout(() => ok(pos()), 5); return window.__geoW.length; },
+    clearWatch(id) { window.__geoW[id - 1] = null; },
+  };
+  try { Object.defineProperty(Navigator.prototype, 'geolocation', { configurable: true, get() { return fakeGeo; } }); } catch (e) { /* ignore */ }
+  window.__setGeo = (lat, lng) => { window.__geo = { latitude: lat, longitude: lng, accuracy: 10 }; window.__geoW.forEach((f) => f && f(pos())); };
 };
 
 async function axeScan(page, label) {
@@ -116,7 +128,7 @@ async function main() {
   // --disable-dev-shm-usage：容器 /dev/shm 仅 64MB，多个 Chrome 并发时渲染进程会崩溃
   const browser = await chromium.launch({ executablePath: CHROME, args: ['--no-sandbox', '--disable-dev-shm-usage', '--autoplay-policy=no-user-gesture-required'] });
   // serviceWorkers: 'block' —— sw.js 首次 claim 会触发 controllerchange → 整页刷新，干扰测试
-  const ctx = await browser.newContext({ geolocation: CENTER, permissions: ['geolocation'], locale: 'zh-CN', viewport: { width: 420, height: 860 }, serviceWorkers: 'block' });
+  const ctx = await browser.newContext({ locale: 'zh-CN', viewport: { width: 420, height: 860 }, serviceWorkers: 'block' });
   await ctx.addInitScript(INIT);
   const page = await ctx.newPage();
   const errors = [];
@@ -402,11 +414,17 @@ async function main() {
   const target = near.data && [...(near.data.wildPokemons || [])].sort((a, b) => d2(a) - d2(b))[0];
   if (target) {
     const tp = { latitude: Number(target.lat) + 0.00004, longitude: Number(target.lng) };
-    await ctx.setGeolocation(tp);
+    // 服务端先收到目标附近的位置，再以该位置作为首个定位重新加载（客户端 LocationManager 会丢弃 >100km/h 的跳变）
     await call('POST', '/v1/location', { token: user.token, body: { lat: tp.latitude, lng: tp.longitude, accuracy: 10 } });
-    await sleep(1500);
-    await A(page, () => window.goScreen('map'));
+    await A(page, (g) => localStorage.setItem('__e2e_geo', JSON.stringify(g)), tp);
+    await page.reload({ waitUntil: 'load' });
+    await page.waitForSelector('#map.active', { timeout: 15000 });
+    await page.waitForFunction(([la, ln]) => {
+      const p = window.PMG_A11Y.locMgr && window.PMG_A11Y.locMgr.currentPosition;
+      return p && Math.abs(p.lat - la) < 0.00002 && Math.abs(p.lng - ln) < 0.00002;
+    }, [tp.latitude, tp.longitude], { timeout: 15000 }).catch(() => console.log('  (定位未更新)'));
     await page.waitForSelector('#map-body .a11y-spawn-card', { timeout: 15000 });
+    await A(page, () => window.PMG_A11Y.store.set({ motor: { enabled: true, preset: 'heavy', aimAssist: 'high', windowMultiplier: 1, oneTapThrow: true, trajectory: true } }));
   }
   const toasts = () => A(page, () => [...document.querySelectorAll('.toast')].map((t) => t.textContent).join(' / '));
   await A(page, (id) => {
@@ -532,6 +550,60 @@ async function main() {
     await A(page, () => { window.__pads[0] = null; const ev = new Event('gamepaddisconnected'); ev.gamepad = window.__pad; window.dispatchEvent(ev); });
     await page.waitForFunction(() => [...document.querySelectorAll('.toast')].some((t) => /手柄已断开/.test(t.textContent)), null, { timeout: 2000 });
     return A(page, () => window.PMG_A11Y.gamepad.pads.size === 0 && document.getElementById('map').classList.contains('active'));
+  });
+
+  // ── 6b. 播报级别、空间音频、竞技模式、快捷键切换、性能 ─────────────
+  await check('读屏：播报级别 minimal 只播重要事件，critical 只播关键提示', () => A(page, () => {
+    const a = window.PMG_A11Y.announcer;
+    window.PMG_A11Y.store.set('screenReader.verbosity', 'minimal');
+    const r1 = [a.announce('普通信息', { level: 'info' }), a.announce('重要信息', { level: 'important' })];
+    window.PMG_A11Y.store.set('screenReader.verbosity', 'critical');
+    const r2 = [a.announce('重要信息2', { level: 'important' }), a.announce('关键信息', { level: 'critical' })];
+    window.PMG_A11Y.store.set('screenReader.verbosity', 'full');
+    return JSON.stringify([r1, r2]) === JSON.stringify([[false, true], [false, true]]);
+  }));
+  await check('空间音频：聚焦精灵卡片播放距离音调，声像随方位（-1 左 … 1 右）', async () => {
+    await A(page, () => window.PMG_A11Y.store.set('screenReader.spatialAudio', true));
+    await A(page, () => { document.activeElement && document.activeElement.blur(); });
+    const before = await A(page, () => window.PMG_A11Y.announcer.toneLog.length);
+    await page.keyboard.press('j');
+    await sleep(100);
+    const r = await A(page, () => ({ n: window.PMG_A11Y.announcer.toneLog.length, last: window.PMG_A11Y.announcer.toneLog.slice(-1)[0],
+      focus: document.activeElement && document.activeElement.className, screen: (document.querySelector('.screen.active') || {}).id,
+      dialog: !!document.querySelector('.a11y-dialog-backdrop, #lang-modal'), nearby: !!window.PMG_A11Y.state.nearby }));
+    await A(page, () => window.PMG_A11Y.store.set('screenReader.spatialAudio', false));
+    return { ok: r.n > before && r.last && r.last.freq >= 220 && r.last.freq <= 880 && Math.abs(r.last.pan) <= 1, detail: JSON.stringify(r) };
+  });
+  await check('公平性：竞技模式（PVP/团战/排行榜）下节奏与动作辅助自动禁用并显示标识', async () => {
+    const r = await A(page, () => {
+      const x = window.PMG_A11Y;
+      x.store.set({ pace: { catch: 0.5, ui: 0.5 }, motor: { enabled: true } });
+      x.setCompetitive('pvp');
+      const during = { catch: x.pace.catchScale(), ui: x.pace.uiScale(), motor: x.motor.active(), aim: x.pace.catchEng.aimAssist, badge: !!document.querySelector('[data-testid="a11y-competitive"]') };
+      x.setCompetitive(null);
+      return { during, after: { catch: x.pace.catchScale(), motor: x.motor.active() } };
+    });
+    return { ok: r.during.catch === 1 && r.during.ui === 1 && !r.during.motor && r.during.aim === 0 && r.during.badge && r.after.motor && r.after.catch < 1, detail: JSON.stringify(r) };
+  });
+  await check('快捷键：Ctrl+Shift+M 切换动作辅助', async () => {
+    const a = await A(page, () => window.PMG_A11Y.store.prefs.motor.enabled);
+    await page.keyboard.press('Control+Shift+M');
+    const b = await A(page, () => window.PMG_A11Y.store.prefs.motor.enabled);
+    await page.keyboard.press('Control+Shift+M');
+    const c = await A(page, () => window.PMG_A11Y.store.prefs.motor.enabled);
+    return { ok: a !== b && a === c, detail: `${a}→${b}→${c}` };
+  });
+  await check('性能：辅助计算 P95 < 50ms、视觉提示渲染 < 5ms、偏好保存 < 100ms（附帧率/初始化耗时）', async () => {
+    const r = await A(page, async () => {
+      const x = window.PMG_A11Y;
+      const t0 = performance.now();
+      for (let i = 0; i < 20; i++) x.store.set('screenReader.rate', 1 + (i % 5) / 10, { sync: false });
+      const saveMs = (performance.now() - t0) / 20;
+      const renders = x.cues.log.map((c) => c.renderMs);
+      const fps = await new Promise((res) => { let n = 0; const s = performance.now(); const f = () => { n++; if (performance.now() - s < 1000) requestAnimationFrame(f); else res(n); }; requestAnimationFrame(f); });
+      return { p95: x.motor.p95(), maxRender: Math.max(0, ...renders), saveMs: Number(saveMs.toFixed(2)), fps, initMs: x.initMs };
+    });
+    return { ok: r.p95 < 50 && r.maxRender < 5 && r.saveMs < 100, detail: JSON.stringify(r) };
   });
 
   // ── 7. 语音控制（模拟 SpeechRecognition）与 TTS ────────────────

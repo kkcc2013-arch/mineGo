@@ -53,9 +53,19 @@ function ensureFilters() {
 }
 
 export async function initAccessibility(ctx = {}) {
-  const { api, toast = window.toast, catchEng = null, locMgr = null } = ctx;
+  const t0 = performance.now();
+  const { api, toast = window.toast, catchEng = null, locMgr = null, store: gameStore = null } = ctx;
   injectCss();
   const store = new A11yPrefsStore({ api });
+  // 设备能力报告（随偏好同步到服务端，REQ-00316 设备能力收集）
+  store.deviceInfo = () => ({
+    haptics: hapticManager.getCapability(),
+    speechSynthesis: 'speechSynthesis' in window,
+    speechRecognition: !!(window.SpeechRecognition || window.webkitSpeechRecognition),
+    gamepad: typeof navigator.getGamepads === 'function',
+    reducedMotion: !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches),
+    hapticStats: { total: hapticManager.stats.total, delivered: hapticManager.stats.delivered },
+  });
   const P = () => store.prefs;
   const lang = () => currentLang();
   const enabled = [];
@@ -460,7 +470,35 @@ export async function initAccessibility(ctx = {}) {
     if (s && s.distance !== null) announcer.tone(toneForDistance(s.distance), { pan: s.pan, ms: 150 });
   });
 
-  window.addEventListener('pmg:logout', () => { state.seen.clear(); state.firstNearby = true; state.nearby = null; });
+  window.addEventListener('pmg:logout', () => { state.seen.clear(); state.firstNearby = true; state.nearby = null; state.level = null; });
+
+  // 升级（REQ-00316 特殊事件）：GameStore 的 currentUser 等级变化
+  if (gameStore && typeof gameStore.addEventListener === 'function') {
+    gameStore.addEventListener('change:currentUser', (e) => {
+      const lv = e.detail && e.detail.value && Number(e.detail.value.level);
+      if (!lv) return;
+      if (state.level && lv > state.level) {
+        hapticManager.vibrate('level_up');
+        announcer.announce(`升级了！当前等级 ${lv}`, { level: 'important' });
+        cues.show('notice', { text: `Lv.${lv}`, lang: lang() });
+      }
+      state.level = lv;
+    });
+  }
+
+  // 地图列表滚动到边界时的触觉提示（无障碍增强模式）
+  const mapBody = document.getElementById('map-body');
+  if (mapBody) {
+    let edge = null;
+    mapBody.addEventListener('scroll', () => {
+      if (!P().haptics.enhanced) return;
+      const atTop = mapBody.scrollTop <= 0;
+      const atEnd = mapBody.scrollTop + mapBody.clientHeight >= mapBody.scrollHeight - 1;
+      const now = atTop ? 'top' : atEnd ? 'end' : null;
+      if (now && now !== edge) hapticManager.vibrate('scroll', { scene: 'ui' });
+      edge = now;
+    }, { passive: true });
+  }
 
   // 休息 / 疲劳提醒
   const restDialog = (msg) => {
@@ -571,10 +609,11 @@ export async function initAccessibility(ctx = {}) {
 
   window.PMG_A11Y = {
     store, announcer, subtitles, pace, flashGuard, cues, direction, cognitive, motor, shortcuts, gamepad, voice, panel, semantics,
-    haptics: hapticManager, actions, runAction, state, emit, describe, toggleEmergency,
+    haptics: hapticManager, actions, runAction, state, emit, describe, toggleEmergency, locMgr,
     holdScale: () => pace.holdScale(),
     setCompetitive: (kind) => { pace.setCompetitive(kind); motor.apply(); renderStatus(); if (kind) announcer.announce(t('pace_competitive', lang()), { level: 'important' }); },
   };
   enabled.push('announcer', 'subtitles', 'visualCues', 'haptics', 'voiceControl');
+  window.PMG_A11Y.initMs = Number((performance.now() - t0).toFixed(2));
   return { enabled, voiceSupported: voice.supported, speechSupported: announcer.speechSupported };
 }

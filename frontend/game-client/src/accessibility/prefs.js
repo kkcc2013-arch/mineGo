@@ -266,8 +266,10 @@ export class A11yPrefsStore extends EventTarget {
     if (!this.api || !this._hasToken()) return null;
     clearTimeout(this._pushTimer);
     try {
+      const doc = toCloudDoc(this.prefs);
+      if (typeof this.deviceInfo === 'function') { try { doc.device = this.deviceInfo(); } catch { /* ignore */ } }
       const res = await this.api.request('PUT', `/users/me/preferences/${NAMESPACE}`, {
-        prefs: toCloudDoc(this.prefs),
+        prefs: doc,
         clientUpdatedAt: new Date(this.updatedAt || Date.now()).toISOString(),
       });
       this.syncState = { ...this.syncState, lastPush: Date.now(), error: null, pending: false, version: res && res.version };
