@@ -409,6 +409,7 @@ export class BattleView {
       ${r.xp ? `<div style="margin:8px 0">✨ 经验 +${r.xp}</div>` : ''}
       ${lg ? `<div style="margin:8px 0">🏅 联赛积分 ${lg.pointsChange >= 0 ? '+' : ''}${lg.pointsChange}（${lg.points}）· 评分 ${lg.ratingChange >= 0 ? '+' : ''}${lg.ratingChange} · ${esc(lg.levelName)} ${esc(lg.group)}${lg.change === 'promote' ? ' · 晋级！' : lg.change === 'demote' ? ' · 降级' : ''}</div>` : ''}
       ${(r.rewards && Array.isArray(r.rewards) ? r.rewards : []).map((x) => `<span class="bt-chip">🎁 ${esc(x.type)}</span>`).join('')}
+      ${[...((r.rewards && r.rewards.items) || []), ...(r.items || [])].map((x) => `<span class="bt-chip">🎁 连击奖励 ${esc(ITEM_NAME[x.type] || x.type)} ×${x.qty}</span>`).join('')}
       ${hl.length ? `<div class="bt-h" style="margin-top:10px">精彩时刻</div>${hl.map((h) => `<div class="bt-muted">第 ${h.turn} 回合 · ${esc(h.title)}</div>`).join('')}` : ''}
       ${rv ? `<div class="bt-h" style="margin-top:10px">AI 复盘：${esc(rv.grade)}（${rv.score} 分）</div>${(rv.suggestions || []).slice(0, 4).map((x) => `<div class="bt-muted">· ${esc(x)}</div>`).join('')}` : ''}
       <div class="bt-row" style="margin-top:12px;flex-wrap:wrap">
@@ -446,3 +447,4 @@ export function renderShare(sh) {
 }
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const ITEM_NAME = { POKE_BALL: '精灵球', GREAT_BALL: '超级球', ULTRA_BALL: '高级球', MASTER_BALL: '大师球' };

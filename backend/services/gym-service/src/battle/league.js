@@ -236,8 +236,8 @@ async function settleLeague(state) {
     if (opp) await applyMember(client, opp, theirs, seasonId, state.id);
     const xp = won ? 200 : 50;
     await client.query('UPDATE users SET xp = xp + $2, updated_at = NOW() WHERE id = $1', [state.userId, xp + (sum.comboXp || 0)]);
-    await persistBattleStats(client, state, sum);
-    return { duplicate: false, mine, theirs, rewards, xp: xp + (sum.comboXp || 0) };
+    const extra = await persistBattleStats(client, state, sum);
+    return { duplicate: false, mine, theirs, rewards, xp: xp + (sum.comboXp || 0), comboItems: extra.comboItems };
   });
   battleMetrics.leagueMatches.inc({ result: sum.result, opponent: state.meta.opponentType });
   const m = outcome.mine;
@@ -251,7 +251,7 @@ async function settleLeague(state) {
       } : null,
       opponent: { type: state.meta.opponentType, name: state.meta.opponentName, pointsChange: outcome.theirs ? outcome.theirs.pointsChange : 0 },
       rewards: outcome.rewards ? outcome.rewards.map((r) => ({ id: r.id, type: r.reward_type, data: r.reward_data })) : [],
-      xp: outcome.xp || 0, combos: sum.combos.length,
+      xp: outcome.xp || 0, combos: sum.combos.length, items: outcome.comboItems || [],
     },
     replayOpts: { opponentUserId: state.meta.opponentUserId, labels: { opponentName: state.meta.opponentName, attackerNickname: state.meta.nickname, seasonNumber: state.meta.seasonNumber } },
   };

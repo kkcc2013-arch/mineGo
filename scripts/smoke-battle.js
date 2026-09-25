@@ -197,6 +197,7 @@ async function main() {
 
   const { rows: [gb] } = await db.query('SELECT result::text AS result, defenders_defeated, experience_gained, combos_triggered FROM gym_battles WHERE id = $1', [battleId]);
   record('结算：gym_battles 记录胜利', gb && gb.result === 'WIN' && gb.defenders_defeated === 1 && gb.combos_triggered >= 1, JSON.stringify(gb));
+  record('结算：完美连击道具奖励入账（超级球）', ((result.rewards || {}).items || []).some((x) => x.type === 'GREAT_BALL'), JSON.stringify((result.rewards || {}).items));
   const { rows: [gs] } = await db.query('SELECT controlling_team::text AS team, (SELECT COUNT(*)::int FROM gym_defenders WHERE gym_id = $1) AS n FROM gyms WHERE id = $1', [gymId]);
   record('结算：驻守精灵离开、道馆变为中立', gs.team === null && gs.n === 0, JSON.stringify(gs));
   const { rows: [bp] } = await db.query('SELECT defending_gym_id FROM pokemon_instances WHERE id = $1', [bulba]);

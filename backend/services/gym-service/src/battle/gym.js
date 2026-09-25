@@ -120,8 +120,8 @@ async function settleGym(state) {
     }
 
     await client.query('UPDATE users SET xp = xp + $2, stardust = stardust + $3, updated_at = NOW() WHERE id = $1', [state.userId, xp, stardust]);
-    await persistBattleStats(client, state, sum);
-    return { duplicate: false, removedDefenders: removed.length, remainingDefenders: n, gymNeutral, ownerCoins: Object.fromEntries(coinsByOwner) };
+    const extra = await persistBattleStats(client, state, sum);
+    return { duplicate: false, removedDefenders: removed.length, remainingDefenders: n, gymNeutral, ownerCoins: Object.fromEntries(coinsByOwner), comboItems: extra.comboItems };
   });
 
   return {
@@ -129,7 +129,7 @@ async function settleGym(state) {
     settlement: {
       result: sum.result, turns: sum.turns, defendersDefeated: defeated, defendersTotal: state.defender.team.length,
       gymNeutral: !!outcome.gymNeutral, remainingDefenders: outcome.remainingDefenders,
-      rewards: outcome.duplicate ? null : { xp, stardust, comboXp: sum.comboXp || 0 },
+      rewards: outcome.duplicate ? null : { xp, stardust, comboXp: sum.comboXp || 0, items: outcome.comboItems || [] },
       combos: sum.combos.length, comboPoints: sum.comboPoints, duplicate: !!outcome.duplicate,
     },
     replayOpts: { gymId, labels: { gymName: state.meta.gymName, attackerNickname: state.meta.nickname } },

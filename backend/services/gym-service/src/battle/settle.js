@@ -2,6 +2,7 @@
 'use strict';
 
 const { query } = require('../../../../shared/db');
+const { addItems } = require('../../../../shared/inventory');
 const { createLogger } = require('../../../../shared/logger');
 const replay = require('./replay');
 const ai = require('./ai');
@@ -70,6 +71,13 @@ async function persistBattleStats(client, state, sum) {
         updated_at = NOW()`, [state.userId, chainId, a.n, a.perfect, a.maxDmg, a.points]);
   }
 
+  // 连击道具奖励（REQ-00288）：每次完美连击 1 个超级球（每场最多 3 个），单场连击 ≥3 次额外 1 个高级球
+  const perfect = sum.combos.filter((x) => x.quality === 'perfect').length;
+  const comboItems = [];
+  if (perfect) comboItems.push({ type: 'GREAT_BALL', qty: Math.min(3, perfect) });
+  if (sum.combos.length >= 3) comboItems.push({ type: 'ULTRA_BALL', qty: 1 });
+  const credited = comboItems.length ? (await addItems(client, state.userId, comboItems)).credited : [];
+
   // 技能使用日志（技能推荐的数据来源）
   if (sum.attacks.length) {
     const team = new Map(state.attacker.team.map((c) => [c.pokemonId, c]));
@@ -87,6 +95,7 @@ async function persistBattleStats(client, state, sum) {
     await client.query(`INSERT INTO battle_move_logs (battle_id, battle_type, user_id, pokemon_id, species_id, fast_move, charge_move, move_id, damage, effectiveness, is_crit, combo_chain, result)
       VALUES ${vals.join(',')}`, params);
   }
+  return { comboItems: credited };
 }
 
 /**
