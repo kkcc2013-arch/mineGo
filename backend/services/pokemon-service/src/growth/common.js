@@ -14,6 +14,7 @@ const OCCUPY_LABELS = {
   training_camp: '训练营训练',
   special_training: '特训',
   breeding: '培育',
+  resting: '休息站休息',
 };
 
 /** 业务错误：errorHandler 对 4xx 保留 httpStatus / message，error.name 为 code 字符串 */

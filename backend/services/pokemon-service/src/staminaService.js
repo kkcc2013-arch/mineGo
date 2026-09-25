@@ -1,691 +1,269 @@
-// backend/services/pokemon-service/src/staminaService.js
-// 精灵体力系统服务 - REQ-00172
-
+/**
+ * 精灵体力系统服务（REQ-00172）
+ *
+ * 原实现使用不存在的 knex 风格 db('pokemon') 与 pokemon 表，所有体力接口 500。重写为：
+ *   - 体力存于 pokemon_instances（max_stamina/current_stamina/last_stamina_update/fatigue_level），读时惰性换算自然恢复
+ *   - 消耗/恢复在事务内锁行、条件扣减，写 stamina_history（训练营/特训在各自事务里调用 consumeStamina）
+ *   - 恢复道具走 player_inventory（stamina_recovery_items.item_code 映射恢复量与冷却）
+ *   - 休息站复用 recovery_stations（需在站点 100 米内，休息中精灵被占用，结束时按时长额外恢复）
+ *   - 定时任务把自然恢复落库并刷新 fatigue_level
+ * 数值规则见 growth/staminaRules.js。
+ */
 'use strict';
 
-const { db } = require('../../../shared/db');
-const { createLogger } = require('../../../shared/logger');
-const { cache, CacheKeys } = require('../../../shared/cache');
-const { promClient } = require('../../../shared/metrics');
+const { query, transaction } = require('../../../shared/db');
+const { getJSON } = require('../../../shared/redis');
+const { consumeItem } = require('../../../shared/inventory');
+const { haversineDistance } = require('../../../shared/anti-cheat');
+const rules = require('./growth/staminaRules');
+const { GrowthError, lockOwnedPokemon, assertIdle, assertUuid, occupy, release } = require('./growth/common');
 
-const logger = createLogger('stamina-service');
+const REST_MAX_DISTANCE_M = 100;
+const CONFIG_TTL_MS = 5 * 60 * 1000;
+let configCache = { at: 0, costs: new Map() };
 
-// ============================================================
-// Prometheus Metrics
-// ============================================================
-
-const metrics = {
-  staminaConsumed: new promClient.Counter({
-    name: 'minego_stamina_consumed_total',
-    help: 'Total stamina consumed',
-    labelNames: ['activity_type', 'service']
-  }),
-  staminaRecovered: new promClient.Counter({
-    name: 'minego_stamina_recovered_total',
-    help: 'Total stamina recovered',
-    labelNames: ['source', 'service']
-  }),
-  restStationUsage: new promClient.Gauge({
-    name: 'minego_rest_station_usage',
-    help: 'Current usage of rest stations',
-    labelNames: ['station_id', 'station_name']
-  }),
-  fatigueDistribution: new promClient.Gauge({
-    name: 'minego_pokemon_fatigue_level',
-    help: 'Pokemon fatigue level distribution',
-    labelNames: ['fatigue_level']
-  })
-};
-
-// ============================================================
-// 疲劳等级配置
-// ============================================================
-
-const FATIGUE_LEVELS = {
-  fresh: { 
-    min: 80, 
-    battleBonus: 1.0, 
-    catchBonus: 1.0, 
-    expBonus: 1.0,
-    label: '精力充沛',
-    color: '#4CAF50'
-  },
-  normal: { 
-    min: 50, 
-    battleBonus: 1.0, 
-    catchBonus: 1.0, 
-    expBonus: 1.0,
-    label: '状态正常',
-    color: '#8BC34A'
-  },
-  tired: { 
-    min: 20, 
-    battleBonus: 0.85, 
-    catchBonus: 0.9, 
-    expBonus: 0.95,
-    label: '有些疲惫',
-    color: '#FF9800'
-  },
-  exhausted: { 
-    min: 0, 
-    battleBonus: 0.6, 
-    catchBonus: 0.7, 
-    expBonus: 0.8,
-    label: '精疲力竭',
-    color: '#F44336'
+async function activityCost(db, activityType) {
+  if (Date.now() - configCache.at > CONFIG_TTL_MS) {
+    const { rows } = await db.query('SELECT activity_type, stamina_cost FROM stamina_config');
+    configCache = { at: Date.now(), costs: new Map(rows.map((r) => [r.activity_type, Number(r.stamina_cost)])) };
   }
-};
-
-// 自然恢复速率（每分钟）
-const NATURAL_RECOVERY_RATE = 1;
-const CACHE_TTL_SECONDS = 30;
-
-// ============================================================
-// StaminaService Class
-// ============================================================
-
-class StaminaService {
-  
-  /**
-   * 获取精灵当前体力状态
-   */
-  async getStaminaStatus(pokemonId, userId) {
-    const cacheKey = CacheKeys.stamina(pokemonId);
-    const cached = await cache.get(cacheKey);
-    if (cached) return cached;
-
-    const pokemon = await db('pokemon')
-      .where({ id: pokemonId, user_id: userId })
-      .select('id', 'max_stamina', 'current_stamina', 'last_stamina_update', 'fatigue_level')
-      .first();
-
-    if (!pokemon) {
-      throw new Error('Pokemon not found');
-    }
-
-    // 计算自然恢复
-    const now = new Date();
-    const lastUpdate = new Date(pokemon.last_stamina_update);
-    const minutesPassed = Math.floor((now - lastUpdate) / 60000);
-    
-    let recoveredStamina = 0;
-    if (minutesPassed > 0 && pokemon.current_stamina < pokemon.max_stamina) {
-      recoveredStamina = Math.min(
-        minutesPassed * NATURAL_RECOVERY_RATE,
-        pokemon.max_stamina - pokemon.current_stamina
-      );
-      
-      // 异步更新数据库（不阻塞请求）
-      this._updateStaminaAsync(pokemonId, recoveredStamina);
-    }
-
-    const currentStamina = pokemon.current_stamina + recoveredStamina;
-    const fatigueLevel = this.calculateFatigueLevel(currentStamina, pokemon.max_stamina);
-    const fatigueEffects = FATIGUE_LEVELS[fatigueLevel];
-
-    const status = {
-      pokemonId: pokemon.id,
-      maxStamina: pokemon.max_stamina,
-      currentStamina,
-      staminaPercentage: Math.round((currentStamina / pokemon.max_stamina) * 100),
-      fatigueLevel,
-      fatigueLabel: fatigueEffects.label,
-      fatigueColor: fatigueEffects.color,
-      battleBonus: fatigueEffects.battleBonus,
-      catchBonus: fatigueEffects.catchBonus,
-      expBonus: fatigueEffects.expBonus,
-      lastUpdate: now.toISOString(),
-      naturalRecoveryRate: NATURAL_RECOVERY_RATE,
-      isLowStamina: currentStamina < pokemon.max_stamina * 0.3
-    };
-
-    await cache.set(cacheKey, status, CACHE_TTL_SECONDS);
-    return status;
-  }
-
-  /**
-   * 批量获取精灵体力状态
-   */
-  async getBatchStaminaStatus(pokemonIds, userId) {
-    if (!Array.isArray(pokemonIds) || pokemonIds.length === 0) {
-      return [];
-    }
-
-    const pokemons = await db('pokemon')
-      .whereIn('id', pokemonIds)
-      .andWhere({ user_id: userId })
-      .select('id', 'max_stamina', 'current_stamina', 'last_stamina_update', 'fatigue_level');
-
-    const now = new Date();
-    
-    return pokemons.map(pokemon => {
-      const lastUpdate = new Date(pokemon.last_stamina_update);
-      const minutesPassed = Math.floor((now - lastUpdate) / 60000);
-      
-      let recoveredStamina = 0;
-      if (minutesPassed > 0 && pokemon.current_stamina < pokemon.max_stamina) {
-        recoveredStamina = Math.min(
-          minutesPassed * NATURAL_RECOVERY_RATE,
-          pokemon.max_stamina - pokemon.current_stamina
-        );
-      }
-
-      const currentStamina = pokemon.current_stamina + recoveredStamina;
-      const fatigueLevel = this.calculateFatigueLevel(currentStamina, pokemon.max_stamina);
-      const fatigueEffects = FATIGUE_LEVELS[fatigueLevel];
-
-      return {
-        pokemonId: pokemon.id,
-        maxStamina: pokemon.max_stamina,
-        currentStamina,
-        staminaPercentage: Math.round((currentStamina / pokemon.max_stamina) * 100),
-        fatigueLevel,
-        fatigueLabel: fatigueEffects.label,
-        battleBonus: fatigueEffects.battleBonus,
-        catchBonus: fatigueEffects.catchBonus
-      };
-    });
-  }
-
-  /**
-   * 消耗体力
-   */
-  async consumeStamina(pokemonId, activityType, userId, options = {}) {
-    const { skipCheck = false, metadata = {} } = options;
-
-    // 获取活动消耗配置
-    const config = await db('stamina_config')
-      .where({ activity_type: activityType })
-      .first();
-
-    if (!config) {
-      logger.warn({ activityType }, 'Unknown activity type for stamina consumption');
-      return { success: true, staminaConsumed: 0, message: 'Activity does not consume stamina' };
-    }
-
-    const status = await this.getStaminaStatus(pokemonId, userId);
-    
-    if (status.currentStamina < config.stamina_cost && !skipCheck) {
-      return { 
-        success: false, 
-        error: 'Insufficient stamina',
-        currentStamina: status.currentStamina,
-        required: config.stamina_cost
-      };
-    }
-
-    const staminaBefore = status.currentStamina;
-    const newStamina = Math.max(0, status.currentStamina - config.stamina_cost);
-    const newFatigueLevel = this.calculateFatigueLevel(newStamina, status.maxStamina);
-
-    await db('pokemon')
-      .where({ id: pokemonId })
-      .update({
-        current_stamina: newStamina,
-        fatigue_level: newFatigueLevel,
-        last_stamina_update: new Date()
-      });
-
-    // 记录历史
-    await db('stamina_history').insert({
-      user_id: userId,
-      pokemon_id: pokemonId,
-      activity_type: activityType,
-      stamina_change: -config.stamina_cost,
-      stamina_before: staminaBefore,
-      stamina_after: newStamina,
-      source: 'activity',
-      metadata: JSON.stringify(metadata)
-    });
-
-    // 清除缓存
-    await cache.del(CacheKeys.stamina(pokemonId));
-
-    // 记录指标
-    metrics.staminaConsumed.inc({ activity_type: activityType, service: 'pokemon-service' });
-
-    logger.info({
-      pokemonId,
-      activityType,
-      staminaConsumed: config.stamina_cost,
-      remainingStamina: newStamina,
-      fatigueLevel: newFatigueLevel
-    }, 'Stamina consumed');
-
-    return {
-      success: true,
-      staminaConsumed: config.stamina_cost,
-      remainingStamina: newStamina,
-      maxStamina: status.maxStamina,
-      fatigueLevel: newFatigueLevel,
-      fatigueEffects: FATIGUE_LEVELS[newFatigueLevel]
-    };
-  }
-
-  /**
-   * 恢复体力（道具/设施）
-   */
-  async recoverStamina(pokemonId, amount, source, userId, metadata = {}) {
-    if (amount <= 0) {
-      throw new Error('Recovery amount must be positive');
-    }
-
-    const pokemon = await db('pokemon')
-      .where({ id: pokemonId, user_id: userId })
-      .select('id', 'max_stamina', 'current_stamina', 'fatigue_level')
-      .first();
-
-    if (!pokemon) {
-      throw new Error('Pokemon not found');
-    }
-
-    const staminaBefore = pokemon.current_stamina;
-    const newStamina = Math.min(pokemon.current_stamina + amount, pokemon.max_stamina);
-    const actualRecovered = newStamina - staminaBefore;
-    const newFatigueLevel = this.calculateFatigueLevel(newStamina, pokemon.max_stamina);
-
-    await db('pokemon')
-      .where({ id: pokemonId })
-      .update({
-        current_stamina: newStamina,
-        fatigue_level: newFatigueLevel,
-        last_stamina_update: new Date()
-      });
-
-    // 记录历史
-    await db('stamina_history').insert({
-      user_id: userId,
-      pokemon_id: pokemonId,
-      activity_type: 'recovery',
-      stamina_change: actualRecovered,
-      stamina_before: staminaBefore,
-      stamina_after: newStamina,
-      source: source,
-      metadata: JSON.stringify(metadata)
-    });
-
-    // 清除缓存
-    await cache.del(CacheKeys.stamina(pokemonId));
-
-    // 记录指标
-    metrics.staminaRecovered.inc({ source, service: 'pokemon-service' }, actualRecovered);
-
-    logger.info({
-      pokemonId,
-      amount: actualRecovered,
-      source,
-      newStamina,
-      fatigueLevel: newFatigueLevel
-    }, 'Stamina recovered');
-
-    return {
-      success: true,
-      staminaRecovered: actualRecovered,
-      currentStamina: newStamina,
-      maxStamina: pokemon.max_stamina,
-      staminaBefore,
-      fatigueLevel: newFatigueLevel,
-      fatigueEffects: FATIGUE_LEVELS[newFatigueLevel]
-    };
-  }
-
-  /**
-   * 使用道具恢复体力
-   */
-  async useRecoveryItem(pokemonId, itemId, userId) {
-    const item = await db('stamina_recovery_items')
-      .where({ id: itemId })
-      .first();
-
-    if (!item) {
-      throw new Error('Item not found');
-    }
-
-    // 检查用户是否有该道具
-    const userItem = await db('user_stamina_items')
-      .where({ user_id: userId, item_id: itemId })
-      .first();
-
-    if (!userItem || userItem.quantity <= 0) {
-      return { success: false, error: 'Insufficient item quantity' };
-    }
-
-    // 检查冷却时间
-    if (item.cooldown_seconds > 0 && userItem.last_used_at) {
-      const lastUsed = new Date(userItem.last_used_at);
-      const cooldownEnd = new Date(lastUsed.getTime() + item.cooldown_seconds * 1000);
-      
-      if (new Date() < cooldownEnd) {
-        return { 
-          success: false, 
-          error: 'Item is on cooldown',
-          cooldownRemaining: Math.ceil((cooldownEnd - new Date()) / 1000)
-        };
-      }
-    }
-
-    // 使用道具
-    await db('user_stamina_items')
-      .where({ user_id: userId, item_id: itemId })
-      .update({
-        quantity: db.raw('quantity - 1'),
-        last_used_at: new Date()
-      });
-
-    // 恢复体力
-    const result = await this.recoverStamina(pokemonId, item.stamina_amount, 'item', userId, {
-      itemId,
-      itemName: item.item_name
-    });
-
-    return {
-      ...result,
-      itemName: item.item_name
-    };
-  }
-
-  /**
-   * 在休息站开始休息
-   */
-  async startRestAtStation(pokemonId, stationId, userId) {
-    const station = await db('rest_stations')
-      .where({ id: stationId, is_active: true })
-      .first();
-
-    if (!station) {
-      throw new Error('Rest station not found or inactive');
-    }
-
-    if (station.current_users >= station.capacity) {
-      return { 
-        success: false, 
-        error: 'Rest station is at full capacity',
-        capacity: station.capacity,
-        currentUsers: station.current_users
-      };
-    }
-
-    // 检查精灵是否已经在休息
-    const existingRest = await db('rest_records')
-      .where({ pokemon_id: pokemonId, status: 'active' })
-      .first();
-
-    if (existingRest) {
-      return { 
-        success: false, 
-        error: 'Pokemon is already resting',
-        existingRecordId: existingRest.id
-      };
-    }
-
-    // 增加当前使用人数
-    await db('rest_stations')
-      .where({ id: stationId })
-      .update({
-        current_users: db.raw('current_users + 1'),
-        updated_at: new Date()
-      });
-
-    // 创建休息记录
-    const [record] = await db('rest_records')
-      .insert({
-        user_id: userId,
-        pokemon_id: pokemonId,
-        station_id: stationId,
-        started_at: new Date(),
-        status: 'active'
-      })
-      .returning('*');
-
-    // 更新指标
-    metrics.restStationUsage.set(
-      { station_id: stationId, station_name: station.name },
-      station.current_users + 1
-    );
-
-    logger.info({
-      pokemonId,
-      stationId,
-      stationName: station.name,
-      recordId: record.id
-    }, 'Pokemon started resting at station');
-
-    return {
-      success: true,
-      recordId: record.id,
-      stationName: station.name,
-      recoveryRate: station.recovery_rate,
-      message: `精灵开始在 ${station.name} 休息，每分钟恢复 ${station.recovery_rate} 点体力`
-    };
-  }
-
-  /**
-   * 结束休息
-   */
-  async endRest(recordId, userId) {
-    const record = await db('rest_records')
-      .where({ id: recordId, user_id: userId })
-      .first();
-
-    if (!record) {
-      throw new Error('Rest record not found');
-    }
-
-    if (record.status !== 'active') {
-      throw new Error('Rest already ended');
-    }
-
-    const station = await db('rest_stations')
-      .where({ id: record.station_id })
-      .first();
-
-    const now = new Date();
-    const startedAt = new Date(record.started_at);
-    const minutesRested = Math.floor((now - startedAt) / 60000);
-    
-    const staminaRecovered = minutesRested * station.recovery_rate;
-
-    // 更新记录
-    await db('rest_records')
-      .where({ id: recordId })
-      .update({
-        ended_at: now,
-        stamina_recovered: staminaRecovered,
-        status: 'completed'
-      });
-
-    // 恢复体力
-    const recoveryResult = await this.recoverStamina(
-      record.pokemon_id, 
-      staminaRecovered, 
-      'rest_station', 
-      userId,
-      { stationId: station.id, stationName: station.name, minutesRested }
-    );
-
-    // 减少当前使用人数
-    await db('rest_stations')
-      .where({ id: record.station_id })
-      .update({
-        current_users: Math.max(0, db.raw('current_users - 1')),
-        updated_at: new Date()
-      });
-
-    // 更新指标
-    metrics.restStationUsage.set(
-      { station_id: station.id, station_name: station.name },
-      Math.max(0, station.current_users - 1)
-    );
-
-    logger.info({
-      recordId,
-      pokemonId: record.pokemon_id,
-      stationName: station.name,
-      minutesRested,
-      staminaRecovered
-    }, 'Rest ended');
-
-    return {
-      success: true,
-      minutesRested,
-      staminaRecovered,
-      stationName: station.name,
-      ...recoveryResult
-    };
-  }
-
-  /**
-   * 获取附近的休息站
-   */
-  async getNearbyRestStations(lat, lng, radius = 2000) {
-    const stations = await db('rest_stations')
-      .where({ is_active: true })
-      .whereRaw(`
-        ST_DWithin(
-          ST_MakePoint(location_lng, location_lat)::geography,
-          ST_MakePoint(?, ?)::geography,
-          ?
-        )
-      `, [lng, lat, radius])
-      .select('*');
-
-    return stations.map(station => ({
-      id: station.id,
-      name: station.name,
-      description: station.description,
-      lat: station.location_lat,
-      lng: station.location_lng,
-      recoveryRate: station.recovery_rate,
-      capacity: station.capacity,
-      availableSlots: station.capacity - station.current_users,
-      stationType: station.station_type,
-      isAvailable: station.current_users < station.capacity
-    }));
-  }
-
-  /**
-   * 计算疲劳等级
-   */
-  calculateFatigueLevel(currentStamina, maxStamina) {
-    const percentage = (currentStamina / maxStamina) * 100;
-    
-    if (percentage >= FATIGUE_LEVELS.fresh.min) return 'fresh';
-    if (percentage >= FATIGUE_LEVELS.normal.min) return 'normal';
-    if (percentage >= FATIGUE_LEVELS.tired.min) return 'tired';
-    return 'exhausted';
-  }
-
-  /**
-   * 获取疲劳状态效果
-   */
-  getFatigueEffects(fatigueLevel) {
-    return FATIGUE_LEVELS[fatigueLevel] || FATIGUE_LEVELS.normal;
-  }
-
-  /**
-   * 获取体力消耗配置
-   */
-  async getActivityConfigs() {
-    return db('stamina_config').select('*');
-  }
-
-  /**
-   * 获取恢复道具列表
-   */
-  async getRecoveryItems() {
-    return db('stamina_recovery_items').select('*').orderBy('stamina_amount');
-  }
-
-  /**
-   * 获取用户道具库存
-   */
-  async getUserStaminaItems(userId) {
-    return db('user_stamina_items as usi')
-      .join('stamina_recovery_items as sri', 'usi.item_id', 'sri.id')
-      .where('usi.user_id', userId)
-      .select(
-        'usi.id',
-        'usi.quantity',
-        'usi.last_used_at',
-        'sri.id as item_id',
-        'sri.item_name',
-        'sri.stamina_amount',
-        'sri.cooldown_seconds',
-        'sri.rarity',
-        'sri.description'
-      );
-  }
-
-  /**
-   * 给用户添加体力道具
-   */
-  async giveStaminaItem(userId, itemId, quantity = 1) {
-    const existing = await db('user_stamina_items')
-      .where({ user_id: userId, item_id: itemId })
-      .first();
-
-    if (existing) {
-      await db('user_stamina_items')
-        .where({ user_id: userId, item_id: itemId })
-        .update({
-          quantity: db.raw('quantity + ?', [quantity]),
-          updated_at: new Date()
-        });
-    } else {
-      await db('user_stamina_items')
-        .insert({
-          user_id: userId,
-          item_id: itemId,
-          quantity
-        });
-    }
-
-    return { success: true, itemId, quantityAdded: quantity };
-  }
-
-  /**
-   * 异步更新体力（内部方法）
-   */
-  async _updateStaminaAsync(pokemonId, amount) {
-    try {
-      await db('pokemon')
-        .where({ id: pokemonId })
-        .update({
-          current_stamina: db.raw(`LEAST(current_stamina + ?, max_stamina)`, [amount]),
-          last_stamina_update: new Date()
-        });
-    } catch (error) {
-      logger.error({ pokemonId, error: error.message }, 'Failed to update stamina async');
-    }
-  }
-
-  /**
-   * 检查精灵是否有足够体力
-   */
-  async checkStamina(pokemonId, activityType, userId) {
-    const config = await db('stamina_config')
-      .where({ activity_type: activityType })
-      .first();
-
-    if (!config) return { hasEnough: true };
-
-    const status = await this.getStaminaStatus(pokemonId, userId);
-    
-    return {
-      hasEnough: status.currentStamina >= config.stamina_cost,
-      currentStamina: status.currentStamina,
-      required: config.stamina_cost,
-      fatigueLevel: status.fatigueLevel
-    };
-  }
+  return configCache.costs.get(activityType);
 }
 
-// ============================================================
-// Export
-// ============================================================
+async function lockStaminaRow(client, pokemonId, userId) {
+  const { rows: [row] } = await client.query(
+    `SELECT id, max_stamina, current_stamina, last_stamina_update FROM pokemon_instances
+      WHERE id = $1 AND user_id = $2 AND COALESCE(is_released, FALSE) = FALSE FOR UPDATE`, [pokemonId, userId]);
+  if (!row) throw new GrowthError('POKEMON_NOT_FOUND', '精灵不存在', 404);
+  return row;
+}
+
+/** 新的 last_stamina_update：满体力时从现在起算，否则保留不足一分钟的零头 */
+function nextAnchor(row, eff, now) {
+  if (eff.current >= eff.max || !row.last_stamina_update) return now;
+  return new Date(new Date(row.last_stamina_update).getTime() + eff.wholeMinutes * 60000);
+}
+
+async function writeStamina(client, row, eff, newCurrent, anchor, { userId, activityType, source, metadata }) {
+  const level = rules.fatigueLevel(newCurrent, eff.max);
+  await client.query(
+    `UPDATE pokemon_instances SET current_stamina = $2, last_stamina_update = $3, fatigue_level = $4, updated_at = NOW()
+      WHERE id = $1`, [row.id, newCurrent, anchor, level]);
+  await client.query(
+    `INSERT INTO stamina_history (user_id, pokemon_id, activity_type, stamina_change, stamina_before, stamina_after, source, metadata)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+    [userId, row.id, activityType, newCurrent - eff.current, eff.current, newCurrent, source, JSON.stringify(metadata || {})]);
+  return level;
+}
+
+/**
+ * 消耗体力（在调用方事务中）；不足抛 400 INSUFFICIENT_STAMINA
+ * @param {object} a { pokemonId, userId, activityType, amount?, metadata? }
+ */
+async function consumeStamina(client, a) {
+  const cost = a.amount != null ? Math.trunc(Number(a.amount)) : await activityCost(client, a.activityType);
+  if (cost == null) throw new GrowthError('INVALID_ACTIVITY', `未知的活动类型 ${a.activityType}`, 400);
+  const row = await lockStaminaRow(client, a.pokemonId, a.userId);
+  const now = new Date();
+  const eff = rules.effectiveStamina(row, now);
+  if (eff.current < cost) {
+    throw new GrowthError('INSUFFICIENT_STAMINA', `体力不足（需要 ${cost}，当前 ${eff.current}）`, 400,
+      { currentStamina: eff.current, required: cost });
+  }
+  const after = eff.current - cost;
+  const level = await writeStamina(client, row, eff, after, nextAnchor(row, eff, now),
+    { userId: a.userId, activityType: a.activityType, source: 'activity', metadata: a.metadata });
+  return { activityType: a.activityType, consumed: cost, staminaBefore: eff.current, staminaAfter: after, maxStamina: eff.max, fatigueLevel: level, effects: rules.FATIGUE_LEVELS[level] };
+}
+
+/** 恢复体力（在调用方事务中），返回实际恢复量 */
+async function recoverStamina(client, a) {
+  const row = await lockStaminaRow(client, a.pokemonId, a.userId);
+  const now = new Date();
+  const eff = rules.effectiveStamina(row, now);
+  const after = Math.min(eff.max, eff.current + Math.max(0, Math.trunc(Number(a.amount) || 0)));
+  const anchor = nextAnchor(row, { ...eff, current: after }, now);
+  const level = await writeStamina(client, row, eff, after, anchor,
+    { userId: a.userId, activityType: 'recovery', source: a.source, metadata: a.metadata });
+  return { recovered: after - eff.current, staminaBefore: eff.current, staminaAfter: after, maxStamina: eff.max, fatigueLevel: level };
+}
+
+async function restingInfo(db, pokemonId) {
+  const { rows: [r] } = await db.query(
+    `SELECT rr.id, rr.station_id AS "stationId", rr.rate_multiplier::float AS "rateMultiplier", rr.started_at AS "startedAt"
+       FROM rest_records rr WHERE rr.pokemon_id = $1 AND rr.ended_at IS NULL`, [pokemonId]);
+  return r || null;
+}
+
+async function getStatus(pokemonId, userId) {
+  const p = await lockOwnedPokemon({ query }, pokemonId, userId, { lock: false });
+  const s = rules.status(p);
+  const rest = await restingInfo({ query }, pokemonId);
+  if (rest) {
+    const minutes = (Date.now() - new Date(rest.startedAt).getTime()) / 60000;
+    rest.projectedRecovery = rules.restRecovery(minutes, rest.rateMultiplier);
+  }
+  return { pokemonId: p.id, ...s, resting: rest };
+}
+
+async function getBatch(ids, userId) {
+  if (!Array.isArray(ids) || !ids.length) throw new GrowthError('INVALID_PARAM', 'pokemonIds 必须是非空数组', 400);
+  if (ids.length > 200) throw new GrowthError('INVALID_PARAM', '一次最多查询 200 只精灵', 400);
+  ids.forEach((id) => assertUuid(id));
+  const { rows } = await query(
+    `SELECT id, max_stamina, current_stamina, last_stamina_update FROM pokemon_instances
+      WHERE id = ANY($1::uuid[]) AND user_id = $2 AND COALESCE(is_released, FALSE) = FALSE`, [ids, userId]);
+  const now = new Date();
+  return rows.map((r) => ({ pokemonId: r.id, ...rules.status(r, now) }));
+}
+
+async function consume(pokemonId, userId, activityType) {
+  assertUuid(pokemonId);
+  if (!activityType || typeof activityType !== 'string') throw new GrowthError('INVALID_ACTIVITY', 'activityType 必填', 400);
+  return transaction((client) => consumeStamina(client, { pokemonId, userId, activityType }));
+}
+
+async function useItem(pokemonId, userId, itemId) {
+  assertUuid(pokemonId);
+  const { rows: [item] } = await query(
+    `SELECT item_code, item_name, stamina_amount, cooldown_seconds FROM stamina_recovery_items WHERE item_code = $1`, [itemId]);
+  if (!item) throw new GrowthError('INVALID_ITEM', `不是体力恢复道具：${itemId}`, 400);
+  return transaction(async (client) => {
+    const row = await lockStaminaRow(client, pokemonId, userId);
+    const eff = rules.effectiveStamina(row);
+    if (eff.current >= eff.max) throw new GrowthError('STAMINA_FULL', '体力已满，无需使用道具', 400);
+    if (item.cooldown_seconds > 0) {
+      const { rows: [last] } = await client.query(
+        `SELECT created_at FROM stamina_history WHERE pokemon_id = $1 AND source = $2
+            AND created_at > NOW() - make_interval(secs => $3) ORDER BY created_at DESC LIMIT 1`,
+        [pokemonId, `item:${item.item_code}`, item.cooldown_seconds]);
+      if (last) {
+        const remain = Math.ceil(item.cooldown_seconds - (Date.now() - new Date(last.created_at).getTime()) / 1000);
+        throw new GrowthError('ITEM_COOLDOWN', `${item.item_name} 冷却中，还需 ${Math.max(1, remain)} 秒`, 409, { remainingSeconds: remain });
+      }
+    }
+    if (!(await consumeItem(client, userId, item.item_code, 1))) throw new GrowthError('INSUFFICIENT_ITEMS', `${item.item_name} 数量不足`, 400);
+    const r = await recoverStamina(client, { pokemonId, userId, amount: item.stamina_amount, source: `item:${item.item_code}`, metadata: { itemId: item.item_code } });
+    return { ...r, itemId: item.item_code, itemName: item.item_name, cooldownSeconds: item.cooldown_seconds };
+  });
+}
+
+async function nearbyStations(lat, lng, radius = 2000) {
+  const la = Number(lat);
+  const ln = Number(lng);
+  if (!Number.isFinite(la) || !Number.isFinite(ln) || Math.abs(la) > 90 || Math.abs(ln) > 180) {
+    throw new GrowthError('INVALID_PARAM', 'lat/lng 无效', 400);
+  }
+  const r = Math.min(10000, Math.max(50, Number(radius) || 2000));
+  const { rows } = await query(
+    `SELECT id, name, type, level, recovery_speed_multiplier::float AS "rateMultiplier",
+            ST_Y(location::geometry) AS lat, ST_X(location::geometry) AS lng,
+            ROUND(ST_Distance(location, ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography))::int AS "distanceM"
+       FROM recovery_stations
+      WHERE status = 'active' AND ST_DWithin(location, ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography, $3)
+      ORDER BY "distanceM" LIMIT 20`, [la, ln, r]);
+  return rows.map((s) => ({ ...s, recoveryPerMinute: rules.REST_BASE_PER_MIN * s.rateMultiplier }));
+}
+
+async function startRest(pokemonId, userId, stationId) {
+  assertUuid(pokemonId);
+  const sid = Number(stationId);
+  if (!Number.isInteger(sid) || sid <= 0) throw new GrowthError('INVALID_PARAM', 'stationId 无效', 400);
+  const { rows: [st] } = await query(
+    `SELECT id, name, recovery_speed_multiplier::float AS m, ST_Y(location::geometry) AS lat, ST_X(location::geometry) AS lng
+       FROM recovery_stations WHERE id = $1 AND status = 'active'`, [sid]);
+  if (!st) throw new GrowthError('STATION_NOT_FOUND', '休息站不存在或未开放', 404);
+  const pos = await getJSON(`player:pos:${userId}`);
+  if (!pos) throw new GrowthError('LOCATION_REQUIRED', '请先上报当前位置', 400);
+  const dist = haversineDistance(Number(pos.lat), Number(pos.lng), Number(st.lat), Number(st.lng));
+  if (!(dist <= REST_MAX_DISTANCE_M)) throw new GrowthError('TOO_FAR', `距离休息站太远（需在 ${REST_MAX_DISTANCE_M} 米内，当前 ${Math.round(dist)} 米）`, 400);
+  return transaction(async (client) => {
+    const p = await lockOwnedPokemon(client, pokemonId, userId);
+    assertIdle(p, '休息');
+    await occupy(client, pokemonId, 'resting');
+    const { rows: [rec] } = await client.query(
+      `INSERT INTO rest_records (user_id, pokemon_id, station_id, rate_multiplier) VALUES ($1, $2, $3, $4)
+       RETURNING id, started_at AS "startedAt"`, [userId, pokemonId, sid, st.m]);
+    return { restId: rec.id, stationId: sid, stationName: st.name, startedAt: rec.startedAt, recoveryPerMinute: rules.REST_BASE_PER_MIN * st.m, maxMinutes: rules.MAX_REST_MINUTES };
+  });
+}
+
+async function endRest(pokemonId, userId) {
+  assertUuid(pokemonId);
+  return transaction(async (client) => {
+    await lockOwnedPokemon(client, pokemonId, userId);
+    const { rows: [rest] } = await client.query(
+      `SELECT id, rate_multiplier::float AS m, started_at FROM rest_records
+        WHERE pokemon_id = $1 AND user_id = $2 AND ended_at IS NULL FOR UPDATE`, [pokemonId, userId]);
+    if (!rest) throw new GrowthError('NOT_RESTING', '精灵没有在休息', 400);
+    const minutes = Math.floor((Date.now() - new Date(rest.started_at).getTime()) / 60000);
+    const extra = rules.restRecovery(minutes, rest.m);
+    await release(client, pokemonId, 'resting');
+    const r = await recoverStamina(client, { pokemonId, userId, amount: extra, source: 'rest_station', metadata: { restId: rest.id, minutes } });
+    await client.query('UPDATE rest_records SET ended_at = NOW(), stamina_recovered = $2 WHERE id = $1', [rest.id, r.recovered]);
+    return { restId: rest.id, minutes, ...r };
+  });
+}
+
+async function history(pokemonId, userId, { limit = 20 } = {}) {
+  await lockOwnedPokemon({ query }, pokemonId, userId, { lock: false });
+  const lim = Math.min(100, Math.max(1, Number(limit) || 20));
+  const { rows } = await query(
+    `SELECT activity_type AS "activityType", stamina_change AS change, stamina_before AS before, stamina_after AS after,
+            source, metadata, created_at AS "createdAt"
+       FROM stamina_history WHERE pokemon_id = $1 ORDER BY created_at DESC, id DESC LIMIT $2`, [pokemonId, lim]);
+  return rows;
+}
+
+async function config() {
+  const { rows: costs } = await query('SELECT activity_type AS "activityType", stamina_cost AS cost, description FROM stamina_config ORDER BY id');
+  const { rows: items } = await query(
+    `SELECT item_code AS "itemId", item_name AS name, stamina_amount AS amount, cooldown_seconds AS "cooldownSeconds", rarity
+       FROM stamina_recovery_items WHERE item_code IS NOT NULL ORDER BY stamina_amount`);
+  return {
+    activityCosts: costs,
+    recoveryItems: items,
+    fatigueLevels: rules.FATIGUE_LEVELS,
+    naturalRecoveryPerMinute: rules.NATURAL_RECOVERY_PER_MIN,
+    restRecoveryPerMinute: rules.REST_BASE_PER_MIN,
+  };
+}
+
+/** 自然恢复落库（定时任务）：保留不足一分钟的零头，只处理未满的精灵 */
+async function naturalRecoveryTick() {
+  const { rowCount } = await query(
+    `WITH due AS (
+       SELECT id, max_stamina,
+              LEAST(max_stamina, current_stamina + FLOOR(EXTRACT(EPOCH FROM (NOW() - last_stamina_update)) / 60)::int * $1) AS cur,
+              FLOOR(EXTRACT(EPOCH FROM (NOW() - last_stamina_update)) / 60)::int AS mins
+         FROM pokemon_instances
+        WHERE current_stamina < max_stamina AND last_stamina_update < NOW() - INTERVAL '1 minute'
+          AND COALESCE(is_released, FALSE) = FALSE
+        LIMIT 5000
+     )
+     UPDATE pokemon_instances pi
+        SET current_stamina = due.cur,
+            last_stamina_update = CASE WHEN due.cur >= due.max_stamina THEN NOW()
+                                       ELSE pi.last_stamina_update + make_interval(mins => due.mins) END,
+            fatigue_level = CASE WHEN due.cur * 100 >= due.max_stamina * 80 THEN 'fresh'
+                                 WHEN due.cur * 100 >= due.max_stamina * 50 THEN 'normal'
+                                 WHEN due.cur * 100 >= due.max_stamina * 20 THEN 'tired'
+                                 ELSE 'exhausted' END
+       FROM due WHERE pi.id = due.id`, [rules.NATURAL_RECOVERY_PER_MIN]);
+  return rowCount;
+}
 
 module.exports = {
-  StaminaService,
-  staminaService: new StaminaService(),
-  FATIGUE_LEVELS
+  consumeStamina,
+  recoverStamina,
+  getStatus,
+  getBatch,
+  consume,
+  useItem,
+  nearbyStations,
+  startRest,
+  endRest,
+  history,
+  config,
+  naturalRecoveryTick,
 };

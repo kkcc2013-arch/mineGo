@@ -304,7 +304,102 @@ async function testExperience() {
   record('成长轨迹：经验历史按月分区（DEFAULT + 当月起 3 个分区）', parts[0].n >= 4, `partitions=${parts[0].n}`);
 }
 
-const SECTIONS = { evolution: testEvolution, experience: testExperience };
+// ───────────────────── 体力 / 疲劳（REQ-00172） ─────────────────────
+async function staminaOf(id) {
+  const { rows: [r] } = await db().query('SELECT current_stamina, last_stamina_update FROM pokemon_instances WHERE id = $1', [id]);
+  return r;
+}
+
+async function testStamina() {
+  const u = await newUser('stm');
+  const p = await givePokemon(u.userId, 7);
+  const s0 = await call('GET', `/v1/pokemon/${p.id}/stamina`, { token: u.token });
+  record('体力：查询 /v1/pokemon/:id/stamina（原 500）', s0.status === 200 && s0.data.currentStamina === 100 && s0.data.fatigueLevel === 'fresh',
+    `status=${s0.status} ${JSON.stringify(s0.data && { c: s0.data.currentStamina, f: s0.data.fatigueLevel })}`);
+  const cfg = await call('GET', '/v1/pokemon/stamina/config', { token: u.token });
+  record('体力：配置（活动消耗/恢复道具/疲劳等级）', cfg.status === 200 && cfg.data.activityCosts.some((c) => c.activityType === 'gym_battle') && cfg.data.recoveryItems.length >= 6,
+    `status=${cfg.status}`);
+
+  for (let i = 0; i < 4; i++) await call('POST', `/v1/pokemon/${p.id}/stamina/consume`, { token: u.token, body: { activityType: 'gym_battle' } });
+  const tired = await call('GET', `/v1/pokemon/${p.id}/stamina`, { token: u.token });
+  record('体力：道馆战斗 4 次（-80）→ 20 体力、疲惫（战斗 ×0.85）', tired.data.currentStamina === 20 && tired.data.fatigueLevel === 'tired' && tired.data.effects.battleBonus === 0.85,
+    `stamina=${tired.data.currentStamina} fatigue=${tired.data.fatigueLevel}`);
+  await call('POST', `/v1/pokemon/${p.id}/stamina/consume`, { token: u.token, body: { activityType: 'battle_turn' } });
+  const ex = await call('GET', `/v1/pokemon/${p.id}/stamina`, { token: u.token });
+  record('体力：低于 20% 为精疲力竭（战斗 ×0.6、经验 ×0.8）', ex.data.fatigueLevel === 'exhausted' && ex.data.effects.battleBonus === 0.6 && ex.data.effects.expBonus === 0.8,
+    `stamina=${ex.data.currentStamina} fatigue=${ex.data.fatigueLevel}`);
+  const over = await call('POST', `/v1/pokemon/${p.id}/stamina/consume`, { token: u.token, body: { activityType: 'gym_battle' } });
+  record('体力：不足时拒绝消耗（400 INSUFFICIENT_STAMINA）', over.status === 400 && errName(over) === 'INSUFFICIENT_STAMINA', `status=${over.status} ${errName(over)}`);
+  const badAct = await call('POST', `/v1/pokemon/${p.id}/stamina/consume`, { token: u.token, body: { activityType: 'nope' } });
+  record('体力：未知活动类型 400', badAct.status === 400, `status=${badAct.status}`);
+
+  // 自然恢复：把上次更新时间拨回 10 分钟 → +10
+  await db().query("UPDATE pokemon_instances SET last_stamina_update = NOW() - INTERVAL '10 minutes 20 seconds' WHERE id = $1", [p.id]);
+  const nat = await call('GET', `/v1/pokemon/${p.id}/stamina`, { token: u.token });
+  record('体力：自然恢复每分钟 1 点（惰性换算）', nat.data.currentStamina === 25, `stamina=${nat.data.currentStamina}`);
+
+  // 恢复道具与冷却
+  await giveItem(u.userId, 'STAMINA_POTION_M', 1);
+  const potion = await call('POST', `/v1/pokemon/${p.id}/stamina/use-item`, { token: u.token, body: { itemId: 'STAMINA_POTION_M' } });
+  record('体力：体力药水(中) +50 并消耗道具', potion.status === 200 && potion.data.staminaAfter === 75 && (await itemQty(u.userId, 'STAMINA_POTION_M')) === 0,
+    `status=${potion.status} after=${potion.data && potion.data.staminaAfter}`);
+  await giveItem(u.userId, 'STAMINA_ENERGY_DRINK', 2);
+  const d1 = await call('POST', `/v1/pokemon/${p.id}/stamina/use-item`, { token: u.token, body: { itemId: 'STAMINA_ENERGY_DRINK' } });
+  const d2 = await call('POST', `/v1/pokemon/${p.id}/stamina/use-item`, { token: u.token, body: { itemId: 'STAMINA_ENERGY_DRINK' } });
+  record('体力：能量饮料冷却中再次使用被拒（409 ITEM_COOLDOWN，道具不扣）', d1.status === 200 && d2.status === 409 && errName(d2) === 'ITEM_COOLDOWN' && (await itemQty(u.userId, 'STAMINA_ENERGY_DRINK')) === 1,
+    `d1=${d1.status} d2=${d2.status} ${errName(d2)}`);
+  await giveItem(u.userId, 'STAMINA_POTION_L', 1);
+  await call('POST', `/v1/pokemon/${p.id}/stamina/use-item`, { token: u.token, body: { itemId: 'STAMINA_POTION_L' } });
+  const full = await call('POST', `/v1/pokemon/${p.id}/stamina/use-item`, { token: u.token, body: { itemId: 'STAMINA_POTION_S' } });
+  record('体力：满体力时不允许使用恢复道具', full.status === 400 && errName(full) === 'STAMINA_FULL', `status=${full.status} ${errName(full)}`);
+
+  // 并发消耗不超扣：50 体力，5 个并发道馆战斗（每次 20）→ 只成功 2 次
+  const q = await givePokemon(u.userId, 7);
+  await db().query('UPDATE pokemon_instances SET current_stamina = 50, last_stamina_update = NOW() WHERE id = $1', [q.id]);
+  const conc = await Promise.all([1, 2, 3, 4, 5].map(() => call('POST', `/v1/pokemon/${q.id}/stamina/consume`, { token: u.token, body: { activityType: 'gym_battle' } })));
+  const left = (await staminaOf(q.id)).current_stamina;
+  record('体力：并发消耗只成功到体力用尽（2 次，余 10）', conc.filter((r) => r.status === 200).length === 2 && left === 10, `statuses=${conc.map((r) => r.status)} left=${left}`);
+
+  // 批量查询性能：100 只精灵
+  await db().query(
+    `INSERT INTO pokemon_instances (user_id, species_id, cp, hp_current, hp_max, iv_attack, iv_defense, iv_hp, current_stamina)
+     SELECT $1, 1, 500, 80, 80, 5, 5, 5, (g % 100) FROM generate_series(1, 98) g`, [u.userId]);
+  const { rows: ids } = await db().query('SELECT id FROM pokemon_instances WHERE user_id = $1 LIMIT 100', [u.userId]);
+  const times = [];
+  let batch;
+  for (let i = 0; i < 5; i++) {
+    const t0 = Date.now();
+    batch = await call('POST', '/v1/pokemon/stamina/batch', { token: u.token, body: { pokemonIds: ids.map((r) => r.id) } });
+    times.push(Date.now() - t0);
+  }
+  times.sort((a, b) => a - b);
+  record('体力：批量查询 100 只精灵（经网关，中位数 < 100ms）', batch.status === 200 && batch.data.length === 100 && times[2] < 100, `median=${times[2]}ms all=${times}`);
+
+  // 休息站：站点 100 米内开始休息，休息中不能进化，结束后按时长额外恢复
+  const lat = 31.2001 + Math.random() * 0.01;
+  const lng = 121.4001 + Math.random() * 0.01;
+  const { rows: [st] } = await db().query(
+    `INSERT INTO recovery_stations (name, description, location, type, level, recovery_speed_multiplier, status)
+     VALUES ('冒烟测试休息站', 'smoke', ST_SetSRID(ST_MakePoint($2, $1), 4326)::geography, 'normal', 1, 1.0, 'active') RETURNING id`, [lat, lng]);
+  const near = await call('GET', `/v1/pokemon/stamina/rest-stations?lat=${lat}&lng=${lng}&radius=500`, { token: u.token });
+  record('体力：附近休息站', near.status === 200 && near.data.some((s) => s.id === st.id), `status=${near.status} count=${near.data && near.data.length}`);
+  const noPos = await call('POST', `/v1/pokemon/${q.id}/stamina/rest`, { token: u.token, body: { stationId: st.id } });
+  record('体力：未上报位置不能休息', noPos.status === 400, `status=${noPos.status} ${errName(noPos)}`);
+  await call('POST', '/v1/location', { token: u.token, body: { lat: lat + 0.0002, lng, accuracy: 10 } });
+  const rest = await call('POST', `/v1/pokemon/${q.id}/stamina/rest`, { token: u.token, body: { stationId: st.id } });
+  record('体力：在休息站开始休息', rest.status === 200 && rest.data.recoveryPerMinute === 5, `status=${rest.status} ${rest.status !== 200 ? JSON.stringify(rest.body).slice(0, 160) : ''}`);
+  const busy = await call('POST', `/v1/pokemon/${q.id}/evolution/execute`, { token: u.token, body: {} });
+  record('体力：休息中的精灵不能进化（409）', busy.status === 409, `status=${busy.status}`);
+  await db().query("UPDATE rest_records SET started_at = NOW() - INTERVAL '10 minutes' WHERE pokemon_id = $1 AND ended_at IS NULL", [q.id]);
+  const end = await call('POST', `/v1/pokemon/${q.id}/stamina/rest/end`, { token: u.token });
+  record('体力：结束休息，10 分钟额外恢复 50', end.status === 200 && end.data.minutes === 10 && end.data.recovered === 50 && (await pokemonRow(q.id)).occupied_by === null,
+    `status=${end.status} ${JSON.stringify(end.data && { m: end.data.minutes, r: end.data.recovered })}`);
+  const hist = await call('GET', `/v1/pokemon/${p.id}/stamina/history`, { token: u.token });
+  record('体力：变化记录（消耗/道具）', hist.status === 200 && hist.data.some((h) => h.source === 'item:STAMINA_POTION_M') && hist.data.some((h) => h.activityType === 'gym_battle'), `status=${hist.status}`);
+  await db().query('DELETE FROM recovery_stations WHERE id = $1', [st.id]);
+}
+
+const SECTIONS = { evolution: testEvolution, experience: testExperience, stamina: testStamina };
 
 (async () => {
   const want = process.argv.slice(2);

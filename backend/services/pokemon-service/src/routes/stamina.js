@@ -1,317 +1,41 @@
-// backend/services/pokemon-service/src/routes/stamina.js
-// 精灵体力系统路由 - REQ-00172
-
+/**
+ * 精灵体力路由（REQ-00172，挂载在 /pokemon，经网关 /v1/pokemon/*，均需 JWT）
+ *
+ *   GET  /pokemon/stamina/config                 活动消耗、恢复道具、疲劳等级
+ *   POST /pokemon/stamina/batch                  批量查询 { pokemonIds: [...] }（≤200）
+ *   GET  /pokemon/stamina/rest-stations?lat&lng&radius   附近休息站
+ *   GET  /pokemon/:id/stamina                    当前体力（惰性换算自然恢复）、疲劳等级与效果、休息状态
+ *   GET  /pokemon/:id/stamina/history            体力变化记录
+ *   POST /pokemon/:id/stamina/consume            消耗体力 { activityType }（战斗等活动由对应服务调用）
+ *   POST /pokemon/:id/stamina/use-item           使用恢复道具 { itemId }（有冷却）
+ *   POST /pokemon/:id/stamina/rest               在休息站休息 { stationId }（需在 100 米内）
+ *   POST /pokemon/:id/stamina/rest/end           结束休息并结算额外恢复
+ * 原路由挂 /pokemon/config、/pokemon/items 等过于宽泛的路径且服务层 500，已整体替换。
+ */
 'use strict';
 
 const express = require('express');
+const { requireAuth } = require('../../../../shared/auth');
+const stamina = require('../staminaService');
+const { route, ok, ID } = require('../growth/common');
+
 const router = express.Router();
-const { staminaService } = require('../staminaService');
-const { createLogger } = require('../../../../shared/logger');
-const { db } = require('../../../../shared/db');
+const uid = (req) => req.user.sub;
 
-const logger = createLogger('stamina-routes');
+router.get('/stamina/config', requireAuth, route(async (req, res) => ok(res, await stamina.config())));
+router.post('/stamina/batch', requireAuth, route(async (req, res) => ok(res, await stamina.getBatch((req.body || {}).pokemonIds, uid(req)))));
+router.get('/stamina/rest-stations', requireAuth, route(async (req, res) =>
+  ok(res, await stamina.nearbyStations(req.query.lat, req.query.lng, req.query.radius))));
 
-// ============================================================
-// 中间件：验证精灵所有权
-// ============================================================
-
-async function validatePokemonOwnership(req, res, next) {
-  try {
-    const pokemonId = parseInt(req.params.id, 10);
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    const pokemon = await db('pokemon')
-      .where({ id: pokemonId, user_id: userId })
-      .select('id')
-      .first();
-
-    if (!pokemon) {
-      return res.status(404).json({ error: 'Pokemon not found' });
-    }
-
-    req.pokemonId = pokemonId;
-    req.userId = userId;
-    next();
-  } catch (error) {
-    logger.error({ error: error.message }, 'Pokemon ownership validation failed');
-    res.status(500).json({ error: 'Internal server error' });
-  }
-}
-
-// ============================================================
-// 路由定义
-// ============================================================
-
-/**
- * GET /pokemon/:id/stamina
- * 获取精灵体力状态
- */
-router.get('/:id/stamina', validatePokemonOwnership, async (req, res) => {
-  try {
-    const status = await staminaService.getStaminaStatus(req.pokemonId, req.userId);
-    res.json({ success: true, data: status });
-  } catch (error) {
-    logger.error({ error: error.message, pokemonId: req.pokemonId }, 'Failed to get stamina status');
-    res.status(400).json({ error: error.message });
-  }
-});
-
-/**
- * POST /pokemon/:id/stamina/consume
- * 消耗体力
- */
-router.post('/:id/stamina/consume', validatePokemonOwnership, async (req, res) => {
-  try {
-    const { activityType, metadata } = req.body;
-    
-    if (!activityType) {
-      return res.status(400).json({ error: 'activityType is required' });
-    }
-
-    const result = await staminaService.consumeStamina(
-      req.pokemonId,
-      activityType,
-      req.userId,
-      { metadata: metadata || {} }
-    );
-    
-    res.json({ success: result.success, data: result });
-  } catch (error) {
-    logger.error({ error: error.message, pokemonId: req.pokemonId }, 'Failed to consume stamina');
-    res.status(400).json({ error: error.message });
-  }
-});
-
-/**
- * POST /pokemon/:id/stamina/recover
- * 恢复体力
- */
-router.post('/:id/stamina/recover', validatePokemonOwnership, async (req, res) => {
-  try {
-    const { amount, source } = req.body;
-    
-    if (!amount || amount <= 0) {
-      return res.status(400).json({ error: 'amount must be positive' });
-    }
-
-    if (!source) {
-      return res.status(400).json({ error: 'source is required' });
-    }
-
-    const result = await staminaService.recoverStamina(
-      req.pokemonId,
-      amount,
-      source,
-      req.userId
-    );
-    
-    res.json({ success: true, data: result });
-  } catch (error) {
-    logger.error({ error: error.message, pokemonId: req.pokemonId }, 'Failed to recover stamina');
-    res.status(400).json({ error: error.message });
-  }
-});
-
-/**
- * POST /pokemon/:id/stamina/use-item
- * 使用道具恢复体力
- */
-router.post('/:id/stamina/use-item', validatePokemonOwnership, async (req, res) => {
-  try {
-    const { itemId } = req.body;
-    
-    if (!itemId) {
-      return res.status(400).json({ error: 'itemId is required' });
-    }
-
-    const result = await staminaService.useRecoveryItem(
-      req.pokemonId,
-      itemId,
-      req.userId
-    );
-    
-    res.json({ success: result.success, data: result });
-  } catch (error) {
-    logger.error({ error: error.message, pokemonId: req.pokemonId }, 'Failed to use recovery item');
-    res.status(400).json({ error: error.message });
-  }
-});
-
-/**
- * POST /pokemon/:id/stamina/check
- * 检查精灵是否有足够体力
- */
-router.post('/:id/stamina/check', validatePokemonOwnership, async (req, res) => {
-  try {
-    const { activityType } = req.body;
-    
-    if (!activityType) {
-      return res.status(400).json({ error: 'activityType is required' });
-    }
-
-    const result = await staminaService.checkStamina(
-      req.pokemonId,
-      activityType,
-      req.userId
-    );
-    
-    res.json({ success: true, data: result });
-  } catch (error) {
-    logger.error({ error: error.message, pokemonId: req.pokemonId }, 'Failed to check stamina');
-    res.status(400).json({ error: error.message });
-  }
-});
-
-/**
- * POST /stamina/rest-station/:stationId/start
- * 在休息站开始休息
- */
-router.post('/rest-station/:stationId/start', async (req, res) => {
-  try {
-    const stationId = parseInt(req.params.stationId, 10);
-    const { pokemonId } = req.body;
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    if (!pokemonId) {
-      return res.status(400).json({ error: 'pokemonId is required' });
-    }
-
-    const result = await staminaService.startRestAtStation(
-      pokemonId,
-      stationId,
-      userId
-    );
-    
-    res.json({ success: result.success, data: result });
-  } catch (error) {
-    logger.error({ error: error.message }, 'Failed to start rest at station');
-    res.status(400).json({ error: error.message });
-  }
-});
-
-/**
- * POST /stamina/rest/:recordId/end
- * 结束休息
- */
-router.post('/rest/:recordId/end', async (req, res) => {
-  try {
-    const recordId = parseInt(req.params.recordId, 10);
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    const result = await staminaService.endRest(recordId, userId);
-    res.json({ success: true, data: result });
-  } catch (error) {
-    logger.error({ error: error.message }, 'Failed to end rest');
-    res.status(400).json({ error: error.message });
-  }
-});
-
-/**
- * GET /stamina/rest-stations
- * 获取附近的休息站
- */
-router.get('/rest-stations', async (req, res) => {
-  try {
-    const { lat, lng, radius } = req.query;
-    
-    if (!lat || !lng) {
-      return res.status(400).json({ error: 'lat and lng are required' });
-    }
-
-    const stations = await staminaService.getNearbyRestStations(
-      parseFloat(lat),
-      parseFloat(lng),
-      parseInt(radius, 10) || 2000
-    );
-    
-    res.json({ success: true, data: stations });
-  } catch (error) {
-    logger.error({ error: error.message }, 'Failed to get nearby rest stations');
-    res.status(400).json({ error: error.message });
-  }
-});
-
-/**
- * GET /stamina/config
- * 获取体力消耗配置
- */
-router.get('/config', async (req, res) => {
-  try {
-    const configs = await staminaService.getActivityConfigs();
-    const items = await staminaService.getRecoveryItems();
-    
-    res.json({ 
-      success: true, 
-      data: { 
-        activities: configs,
-        recoveryItems: items,
-        fatigueLevels: require('../staminaService').FATIGUE_LEVELS
-      } 
-    });
-  } catch (error) {
-    logger.error({ error: error.message }, 'Failed to get stamina config');
-    res.status(400).json({ error: error.message });
-  }
-});
-
-/**
- * GET /stamina/items
- * 获取用户体力道具库存
- */
-router.get('/items', async (req, res) => {
-  try {
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    const items = await staminaService.getUserStaminaItems(userId);
-    res.json({ success: true, data: items });
-  } catch (error) {
-    logger.error({ error: error.message }, 'Failed to get user stamina items');
-    res.status(400).json({ error: error.message });
-  }
-});
-
-/**
- * POST /stamina/batch-status
- * 批量获取精灵体力状态
- */
-router.post('/batch-status', async (req, res) => {
-  try {
-    const { pokemonIds } = req.body;
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
-    }
-
-    if (!Array.isArray(pokemonIds) || pokemonIds.length === 0) {
-      return res.status(400).json({ error: 'pokemonIds must be a non-empty array' });
-    }
-
-    if (pokemonIds.length > 50) {
-      return res.status(400).json({ error: 'Maximum 50 pokemon per batch' });
-    }
-
-    const statuses = await staminaService.getBatchStaminaStatus(pokemonIds, userId);
-    res.json({ success: true, data: statuses });
-  } catch (error) {
-    logger.error({ error: error.message }, 'Failed to get batch stamina status');
-    res.status(400).json({ error: error.message });
-  }
-});
+router.get(`/${ID}/stamina`, requireAuth, route(async (req, res) => ok(res, await stamina.getStatus(req.params.id, uid(req)))));
+router.get(`/${ID}/stamina/history`, requireAuth, route(async (req, res) => ok(res, await stamina.history(req.params.id, uid(req), req.query))));
+router.post(`/${ID}/stamina/consume`, requireAuth, route(async (req, res) =>
+  ok(res, await stamina.consume(req.params.id, uid(req), (req.body || {}).activityType))));
+router.post(`/${ID}/stamina/use-item`, requireAuth, route(async (req, res) =>
+  ok(res, await stamina.useItem(req.params.id, uid(req), (req.body || {}).itemId), '体力已恢复')));
+router.post(`/${ID}/stamina/rest`, requireAuth, route(async (req, res) =>
+  ok(res, await stamina.startRest(req.params.id, uid(req), (req.body || {}).stationId), '开始休息')));
+router.post(`/${ID}/stamina/rest/end`, requireAuth, route(async (req, res) =>
+  ok(res, await stamina.endRest(req.params.id, uid(req)), '休息结束')));
 
 module.exports = router;

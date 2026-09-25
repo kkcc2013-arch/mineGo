@@ -11,6 +11,7 @@ const { query } = require('../../../../shared/db');
 const { getRedis } = require('../../../../shared/redis');
 const evolutionService = require('../evolutionService');
 const tracker = require('./growthTracker');
+const staminaRules = require('./staminaRules');
 
 const timers = [];
 
@@ -38,6 +39,13 @@ function mountGrowth(app, logger) {
 
   every('exp-history-partitions', 24 * 3600 * 1000, async () => {
     await query('SELECT ensure_pokemon_exp_history_partitions(2)');
+  }, logger);
+
+  // 体力：疲劳影响经验倍率；自然恢复每 5 分钟落库一次（读接口本身按时间惰性换算，不依赖此任务）
+  require('../../../../shared/pokemonExperience').setFatigueResolver((p) => staminaRules.expMultiplier(p));
+  every('stamina-natural-recovery', 5 * 60 * 1000, async () => {
+    const n = await require('../staminaService').naturalRecoveryTick();
+    if (n) logger.info({ updated: n }, 'stamina natural recovery');
   }, logger);
 }
 
