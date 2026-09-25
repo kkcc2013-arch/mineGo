@@ -24,8 +24,8 @@ ALTER TABLE raid_participants ADD COLUMN IF NOT EXISTS last_attack_at    TIMESTA
 ALTER TABLE raid_participants ADD COLUMN IF NOT EXISTS xp_reward         INTEGER;
 ALTER TABLE raid_participants ADD COLUMN IF NOT EXISTS stardust_reward   INTEGER;
 ALTER TABLE raid_participants ADD COLUMN IF NOT EXISTS rewarded_at       TIMESTAMPTZ;
-ALTER TABLE raids ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP;
-ALTER TABLE raids ADD COLUMN IF NOT EXISTS settled_at   TIMESTAMP;
+ALTER TABLE raids ADD COLUMN IF NOT EXISTS completed_at TIMESTAMPTZ;
+ALTER TABLE raids ADD COLUMN IF NOT EXISTS settled_at   TIMESTAMPTZ;
 CREATE INDEX IF NOT EXISTS idx_raids_active_window ON raids (status, ends_at);
 CREATE INDEX IF NOT EXISTS idx_raid_participants_user ON raid_participants (user_id, joined_at DESC);
 
@@ -288,3 +288,35 @@ CREATE TABLE IF NOT EXISTS client_battle_perf_reports (
 );
 CREATE INDEX IF NOT EXISTS idx_client_perf_time ON client_battle_perf_reports (created_at);
 CREATE INDEX IF NOT EXISTS idx_client_perf_tier ON client_battle_perf_reports (device_tier, created_at);
+
+-- ============================================================
+-- 11. 战斗相关表的时间列统一为 TIMESTAMPTZ
+--     （与 20260925_050000__core_timestamps_to_timestamptz 一致：服务端按时间做能量回复、分享过期、
+--      赛季起止判断，TIMESTAMP 在数据库与 Node 时区不一致时会偏移）
+-- ============================================================
+DO $e11tz$
+DECLARE
+  tbls TEXT[] := ARRAY[
+    'raids', 'league_seasons', 'league_members', 'league_matches', 'league_history', 'league_rewards',
+    'battle_replay_records', 'replay_highlights', 'replay_shares', 'replay_likes', 'replay_comments',
+    'combo_chains', 'combo_records', 'user_combo_stats', 'pokemon_energy', 'battle_energy_state', 'energy_regen_rules'];
+  tz TEXT := current_setting('TimeZone');
+  c RECORD;
+BEGIN
+  FOR c IN
+    SELECT col.table_name, col.column_name
+      FROM information_schema.columns col
+      JOIN information_schema.tables t USING (table_schema, table_name)
+     WHERE col.table_schema = 'public' AND t.table_type = 'BASE TABLE'
+       AND col.table_name = ANY(tbls)
+       AND col.data_type = 'timestamp without time zone'
+     ORDER BY col.table_name, col.column_name
+  LOOP
+    BEGIN
+      EXECUTE format('ALTER TABLE %I ALTER COLUMN %I TYPE TIMESTAMPTZ USING %I AT TIME ZONE %L',
+                     c.table_name, c.column_name, c.column_name, tz);
+    EXCEPTION WHEN OTHERS THEN
+      RAISE NOTICE '跳过 %.%：%', c.table_name, c.column_name, SQLERRM;
+    END;
+  END LOOP;
+END $e11tz$;
