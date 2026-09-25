@@ -7,7 +7,7 @@
 | 标题 | 玩家好友互动增强系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | social-service、user-service、pokemon-service、reward-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-30 13:00 UTC |
 
@@ -1772,3 +1772,28 @@ const GiftPanel = ({ gifts, onSend, friendId }) => {
 - 原版 Pokémon GO 好友系统设计
 - 社交游戏好友互动最佳实践
 - Redis 推荐系统缓存策略
+
+## 实现记录（2026-09-24）
+
+> 与 REQ-00048/00228/00326/00377 共用 E01 好友实现。状态 `implemented`：规则调整前已在隔离 CI 栈实测 `smoke-friends`
+> （推荐/动态/提醒/联合任务/礼物 30 余项）与单元测试通过；前端对应页面只做了静态检查，**待验证**。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 好友推荐功能：支持位置、等级、共同好友、类型偏好四维度推荐 | ✅ | `GET /v1/friends/recommendations?limit&refresh`：候选来自好友的好友、5km 内近期活跃且开启位置共享的玩家、等级 ±2 的近期活跃玩家；四维加权打分（共同好友 0.35、位置 0.3、精灵类型偏好 0.2、等级 0.15）并给出理由；排除自己/好友/待处理申请/拉黑/关闭搜索/已忽略；距离按 0.5km 模糊、不返回坐标；`POST /v1/friends/recommendations/:userId/dismiss` |
+| 礼物赠送功能：支持道具、精灵蛋、货币等多种礼物类型 | ✅ | `gift_types` 配置：系统礼物包、道具、糖果、星尘、精灵蛋（`EGG_7KM` 道具）、金币；包装、祝福语（≤200 字）、匿名；按亲密度等级解锁（糖果/星尘 2 级、精灵蛋 3 级、金币 4 级）；`GET /v1/friends/gifts/types`、`/gifts/sent` |
+| 亲密度系统：10级亲密度体系，互动增加积分，等级解锁特权 | ✅ | `intimacy_levels` 10 级（陌生人…生死之交）与友情点共用积分；特权：解锁礼物类型、联合任务（3 级起按任务要求）、奖励倍率（5 级起 1.1–1.5，用于联合任务奖励）；`GET /v1/friends/levels` |
+| 联合任务功能：好友组队完成专属任务，获得额外奖励 | ✅ | `GET/POST /v1/friends/:friendId/joint-missions`、`GET /v1/friends/joint-missions/:id`、`POST …/:id/claim`：5 个任务（礼尚往来、一起捕捉、火焰猎人、捕捉马拉松、传说搭档），进度由服务端按真实数据计算（双方捕捉记录、按属性捕捉、互送礼物），完成时双方加友情点、各自领取一次星尘/道具奖励（行锁防重复领取）；到期由定时任务判定完成或过期 |
+| 好友动态流：查看好友游戏动态、成就、捕捉记录 | ✅ | `GET /v1/friends/activities?before&limit`：合并 `friend_activities`（加好友/收礼/友情升级/联合任务）、好友近 7 天捕捉（逐只按精灵可见性过滤）、近 7 天成就；逐个好友按其动态/收藏/成就可见性过滤；`POST /v1/friends/activities/:id/like`（每人一次，计 like_post 互动） |
+| 互动提醒：好友上线、生日、成就等实时提醒 | ✅ | `interaction_reminders`（dedupe 去重）+ `GET /v1/friends/reminders`、`POST /v1/friends/reminders/read`：好友上线（离线→在线时，受在线状态可见性与“上线提醒”开关约束，每小时一次）、生日（`PUT /v1/friends/me/profile {birthday}`，资料可见时每年一次）、成就解锁、道馆邀请（`POST /v1/friends/:id/invite`）、收礼、联合任务邀请、亲密度升级、久未互动（14 天，每周最多 3 位）、好友申请/通过、精灵好友 |
+| WebSocket 实时通知：礼物接收、亲密度升级等实时推送 | ✅ | `/ws/friends`：`gift_received`、`gift_claimed`、`intimacy_level_up`、`friendship_level_up`、`friend_online`、`gym_invite`、`joint_mission_invite/completed`、`reminder` 等（Redis 频道 `social:events`，多服务发布） |
+| 缓存优化：推荐列表、等级配置等数据缓存 | ✅ | 推荐结果 Redis 缓存 10 分钟（忽略/删好友/拉黑时失效）；好友排行榜 Redis 60 秒（版本号失效）；好友系统配置与礼物类型进程内缓存 60 秒；全服社交榜物化视图每小时刷新 |
+| 数据库索引：所有查询性能 < 100ms | ⚠️ | 所有查询均有对应索引（`friends` 按用户部分索引、`friend_activities(user_id, created_at)`、`interaction_reminders(user_id, is_read, created_at)`、`friend_recommendations(user_id, is_dismissed, score)`、`joint_mission_progress` 活跃唯一索引、`users(last_lat,last_lng)`、`pokemon_instances(user_id, caught_at)` 等）；功能冒烟中均为数十毫秒，未做压测。`scripts/bench-friends.js`（阈值 100ms）与 `bench-friends-scale.js`（50 万用户 EXPLAIN ANALYZE）待运行 |
+| 单元测试覆盖率 > 80% | ✅ | `node --experimental-test-coverage`（`friend-service*.test.js`）：`recommendationService.js` 100%、`activityService.js` 98.7%、`jointMissionService.js` 95.3%、`friendService.js` 95.1%、`privacyService.js` 94.9%、`ws.js` 93.6%、`jobs.js` 77.2% 行，`shared/social/*` 全部 100% 行 |
+
+- 入口：social-service `src/social/{recommendationService,activityService,jointMissionService,jobs,ws}.js`、`src/routes/friends.js`；网关 `/v1/friends/*`、`/ws/friends`
+- 前端：`FriendsScreen.js` 的「动态」「发现」「提醒」页与好友详情中的送礼（类型/祝福语/匿名）、联合任务
+- 迁移：`database/migrations/20260925_100600__e01_friends_social.sql`（`intimacy_levels`、`gift_types`、`joint_missions`、`joint_mission_progress`、`friend_activities`、`friend_activity_likes`、`friend_recommendations`、`interaction_reminders`；`users.birthday`）
+- 测试：`cd backend && node --test tests/unit/friend-service.test.js tests/unit/friend-service-db.test.js`；`node scripts/smoke-friends.js`；`node scripts/bench-friends.js`（未运行）
+- 偏差：文档的 `friend_relationships` 并入 `friends`（亲密度与友情点共用积分）、`gift_transactions` 并入 `friend_gifts`；分区表未采用（沿用已存在的非分区 `friend_interactions`，其余表按用户+时间索引，数据量大时再按月分区）；`friend_interactions` 未加类型 CHECK（沿用 REQ-00048 的互动类型）
+- 待验证：① 前端动态/发现/提醒/联合任务页面；② 推荐在真实位置数据下的效果；③ 定时任务（生日/久未互动/成就提醒、过期礼物退还）在长时间运行下的表现；④ 查询 P95

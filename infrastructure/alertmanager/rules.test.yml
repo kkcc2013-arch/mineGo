@@ -1,0 +1,83 @@
+# rules.yml 的告警"模拟测试"（REQ-00042 验收："错误率超过阈值时，AlertManager 触发告警（模拟测试）"）
+# 运行：docker run --rm -v "$PWD/infrastructure/alertmanager:/w" -w /w --entrypoint promtool prom/prometheus:v3.15.0 test rules rules.test.yml
+rule_files:
+  - rules.yml
+
+evaluation_interval: 1m
+
+tests:
+  # 1) catch-service 5xx 占比 20%（1 次/秒错误、4 次/秒成功）→ 触发 MinegoHighErrorRate；user-service 正常 → 不触发
+  - interval: 1m
+    input_series:
+      - series: 'minego_http_requests_total{service="catch-service",method="POST",path="/catch/throw",status="500"}'
+        values: '0+60x15'
+      - series: 'minego_http_requests_total{service="catch-service",method="POST",path="/catch/throw",status="200"}'
+        values: '0+240x15'
+      - series: 'minego_http_requests_total{service="user-service",method="GET",path="/users/me",status="200"}'
+        values: '0+300x15'
+    alert_rule_test:
+      - eval_time: 1m
+        alertname: MinegoHighErrorRate
+        exp_alerts: []                 # 尚未持续 2 分钟：pending，不触发
+      - eval_time: 10m
+        alertname: MinegoHighErrorRate
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              service: catch-service
+            exp_annotations:
+              summary: "服务 catch-service 错误率过高"
+              description: "catch-service 近 5 分钟 5xx 占比超过 5%，请在 Grafana「错误率」面板和 Jaeger 中定位。"
+
+  # 2) 低流量（0.05 次/秒）即使全是 5xx 也不触发
+  - interval: 1m
+    input_series:
+      - series: 'minego_http_requests_total{service="payment-service",method="POST",path="/payments",status="500"}'
+        values: '0+3x15'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: MinegoHighErrorRate
+        exp_alerts: []
+
+  # 3) gym-service 请求全部落在 (2500ms, 5000ms] → P99 ≈ 4975ms，持续 5 分钟后触发 MinegoHighLatencyP99
+  - interval: 1m
+    input_series:
+      - series: 'minego_http_request_duration_ms_bucket{service="gym-service",method="POST",path="/gyms/battle",le="1000"}'
+        values: '0+0x15'
+      - series: 'minego_http_request_duration_ms_bucket{service="gym-service",method="POST",path="/gyms/battle",le="2500"}'
+        values: '0+0x15'
+      - series: 'minego_http_request_duration_ms_bucket{service="gym-service",method="POST",path="/gyms/battle",le="5000"}'
+        values: '0+60x15'
+      - series: 'minego_http_request_duration_ms_bucket{service="gym-service",method="POST",path="/gyms/battle",le="+Inf"}'
+        values: '0+60x15'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: MinegoHighLatencyP99
+        exp_alerts: []
+      - eval_time: 12m
+        alertname: MinegoHighLatencyP99
+        exp_alerts:
+          - exp_labels:
+              severity: warning
+              service: gym-service
+            exp_annotations:
+              summary: "gym-service P99 延迟超过 2 秒"
+              description: "gym-service 近 5 分钟 P99 延迟超过 2000ms，请在 Grafana「P99 延迟」面板和 Jaeger 中定位慢调用。"
+
+  # 4) 抓取失败 → MinegoServiceDown
+  - interval: 1m
+    input_series:
+      - series: 'up{job="minego-social-service",instance="social-service:8086"}'
+        values: '1 1 0 0 0 0'
+    alert_rule_test:
+      - eval_time: 5m
+        alertname: MinegoServiceDown
+        exp_alerts:
+          - exp_labels:
+              severity: critical
+              job: minego-social-service
+              instance: social-service:8086
+              service: social-service
+            exp_annotations:
+              summary: "minego-social-service 无法抓取指标"
+              description: "minego-social-service（social-service:8086）超过 1 分钟不可达。"

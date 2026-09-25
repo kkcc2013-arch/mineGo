@@ -1,5 +1,6 @@
 // user-service/src/index.js - 重构版（使用 ServiceLauncher）
 'use strict';
+require('../../../shared/tracing').initTracing('user-service'); // REQ-00042：须先于 express/http/pg/redis 加载，自动埋点才生效（未配置 OTEL_EXPORTER_OTLP_ENDPOINT 时不启用）
 
 const { ServiceLauncher } = require('../../../shared/ServiceLauncher');
 const db = require('../../../shared/db');
@@ -33,6 +34,7 @@ const deviceManagementRouter = require('./routes/deviceManagement'); // REQ-0025
 const sessionManagementRouter = require('./routes/sessionManagement'); // REQ-00219: 会话异常检测与自动防护
 const languageRouter = require('./routes/language'); // REQ-00393: 动态语言切换无需重新登录
 const minorProtectionRouter = require('./routes/minorProtection'); // REQ-00578: 未成年人保护路由
+const preferencesRouter = require('./routes/preferences'); // Epic E21: 通用偏好（无障碍设置云端同步）
 const { initNotificationHandlers } = require('./handlers/notificationHandler');
 
 // Create service launcher
@@ -68,6 +70,10 @@ const service = new ServiceLauncher({
       path: '/users',
       router: userRouter,
       rateLimit: { windowMs: 60_000, max: 100 }
+    },
+    {
+      path: '/users', // Epic E21: GET/PUT/DELETE /users/me/preferences/:namespace（user_preferences JSONB）
+      router: preferencesRouter
     },
     {
       path: '/users',
@@ -203,7 +209,7 @@ const service = new ServiceLauncher({
     // REQ-00076/00106/00261: 游戏事件消费者（成就进度、称号、事件消息）；LISTEN 实时 + 10 秒兜底扫描
     require('../../../shared/achievementEngine').startConsumer();
 
-    // REQ-00261/00425: 消息实时推送（/ws/notifications，网关代理升级请求）+ 投递分发（WS / APNs / FCM，未配置时降级站内）
+    // REQ-00261/00425: 消息实时推送（/ws/messages，网关代理升级请求）+ 投递分发（WS / APNs / FCM，未配置时降级站内）
     const realtime = require('../../../shared/notificationRealtime');
     realtime.attach(service.server);
     realtime.startDispatcher();
@@ -216,8 +222,14 @@ const service = new ServiceLauncher({
   }
 });
 
-// Start service
-service.start().catch(err => {
+// Start service：先加载字段加密密钥（Vault / 加密密钥文件 / 环境变量，REQ-00565），再开始接收请求
+(async () => {
+  const { initFieldKeys } = require('../../../shared/fieldKeyProvider');
+  const { query } = require('../../../shared/db');
+  const { createLogger } = require('../../../shared/logger');
+  await initFieldKeys({ auditQuery: query, logger: createLogger('field-keys') });
+  await service.start();
+})().catch(err => {
   console.error('Failed to start user-service:', err);
   process.exit(1);
 });

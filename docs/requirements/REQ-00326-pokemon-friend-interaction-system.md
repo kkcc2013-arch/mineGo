@@ -7,7 +7,7 @@
 | 标题 | 精灵好友互动系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | pokemon-service、social-service、user-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-25 02:05 UTC |
 
@@ -402,3 +402,30 @@ class FriendshipWSHandler {
 - Pokemon GO Buddy System
 - Animal Crossing Friendship Mechanics
 - 类似需求：REQ-00048 精灵好友系统与社交互动增强
+
+## 实现记录（2026-09-24）
+
+> 与 REQ-00048/00228/00377/00388 共用 E01 好友实现。状态 `implemented`：规则调整前已在隔离 CI 栈实测 `smoke-friends`（精灵好友 12 项）
+> 与单元测试通过；前端精灵好友界面只做了静态检查，**待验证**。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 精灵可以发送好友申请，对方精灵的主人可接受/拒绝 | ✅ | `POST /v1/pokemon/:pokemonId/friend-request {friendPokemonId, message}`（只能向玩家好友的精灵申请；对方精灵隐藏/拉黑时 404；对方已先申请则直接成为朋友）；`GET /v1/pokemon/friendships/requests`；`PUT /v1/pokemon/friendships/:id/status {action: accept|reject|block}`（仅对方主人可接受/拒绝，任一方可屏蔽） |
+| 好友列表正确显示，支持排序和分页 | ✅ | `GET /v1/pokemon/:pokemonId/friends?page&limit&sortBy=intimacy|level|recent`：对方精灵按可见性规则（REQ-00377）展示，含等级、亲密度、下一级阈值、互动次数；主人还能看到五种互动的剩余冷却 |
+| 五种互动类型（拜访、送礼、探险、合影、训练）正常工作 | ✅ | `POST /v1/pokemon/friendships/:id/interact {type}`，基础值 10/20/50/5/30 |
+| 亲密度计算正确，等级提升准确触发奖励 | ✅ | `shared/social/intimacyCalculator.js`：基础值 × 等级倍率（1.0–4.0）× 加成（同种 ×1.5、属性相合 ×1.2、跨区域捕获地相距 ≥100km ×1.3、3/9 级奖励加成 ×1.1/×1.3）；阈值 0/100/300/600/1000/1500/2100/2800/3600/4500/5500，一次跨多级逐级发奖 |
+| 冷却时间正确执行，防止滥用 | ✅ | 拜访 1h、送礼 24h、探险 7 天、合影 2h、训练 12h，按“主人 × 互动类型”独立计时；事务内对好友关系行 `FOR UPDATE`，并发重复点击只成功一次（429 并提示剩余秒数） |
+| 好友等级奖励正确发放 | ✅ | 1–10 级奖励（徽章/丝带/亲密度加成/高级礼物/奖章/探险加成/联合训练/王冠/全面加成/灵魂羁绊）为双方精灵各记一条 `pokemon_friendship_rewards`（唯一约束保证幂等），加成类奖励带 7 天有效期并在计算亲密度时生效；详情接口 `GET /v1/pokemon/friendships/:id` 返回已获奖励 |
+| 纪念品系统正常工作 | ✅ | 合影必得纪念照（5 级以上稀有）、探险 30% 概率得纪念品、2/5/8 级奖励的丝带/奖章/王冠；`GET /v1/pokemon/friendships/:id/keepsakes` |
+| WebSocket 实时通知好友申请和等级提升 | ✅ | pokemon-service 经 Redis 频道 `social:events` 发布 `pokemon_friend_request`、`pokemon_friend_accepted`、`pokemon_friendship_level_up`，由 social-service 的 `/ws/friends` 推送给双方主人，并写提醒中心 |
+| 前端UI显示好友关系、互动按钮、亲密度进度条 | ✅ | `FriendsScreen.js`「精灵」页：精灵好友申请审批、每位精灵好友的亲密度进度条与等级、五个互动按钮（冷却中显示剩余时间并禁用）、纪念品、从好友的公开精灵中选择发起申请（未在浏览器中验证） |
+| 数据库索引优化查询性能 | ✅ | 精灵对唯一索引 `(LEAST, GREATEST)`、`(pokemon_id,status)`、`(friend_pokemon_id,status)`、`(addressee_user_id,status)`、冷却查询 `(friendship_id, interaction_type, actor_user_id, created_at DESC)`、纪念品 `(friendship_id, created_at DESC)` |
+| 单元测试覆盖率 > 80% | ✅ | `node --experimental-test-coverage`：`intimacyCalculator.js` 100% 行、`pokemonPrivacyStore.js` 100%、`pokemonFriendService.js` 79.8% 行（其余为只读列表/申请分支，由冒烟覆盖）；E01 模块合计行覆盖约 90% |
+| 集成测试覆盖主流程 | ✅ | `scripts/smoke-friends.js` 经网关：申请 → WebSocket 通知 → 非好友拒绝 → 申请方不能自接 → 接受发奖 → 五种互动 → 冷却 429 → 冷却按主人独立 → 并发互动只成功一次 → 跨阈值升级发奖与推送 → 纪念品 → 列表排序 |
+
+- 入口：pokemon-service `src/routes/pokemonSocial.js`（先于其他 `/pokemon` 子路由挂载）、`src/services/pokemonFriendService.js`；网关沿用 `/v1/pokemon/*`（鉴权）
+- 共用模块：`backend/shared/social/intimacyCalculator.js`（亲密度引擎与奖励表）、`socialEvents.js`（实时推送/提醒）
+- 迁移：`database/migrations/20260925_100600__e01_friends_social.sql`（`pokemon_friendships`、`pokemon_interactions`、`pokemon_keepsakes`、`pokemon_friendship_rewards`；精灵外键指向 `pokemon_instances(id)` UUID）
+- 测试：`cd backend && node --test tests/unit/friend-service.test.js tests/unit/friend-service-db.test.js`；`node scripts/smoke-friends.js`
+- 偏差：文档中的 `pokemons` 表实际为 `pokemon_instances`；奖励表（`pokemon_badges/pokemon_inventory/pokemon_boosts/pokemon_unlocks/pokemon_special_abilities`）合并为 `pokemon_friendship_rewards` 一张表，丝带/奖章/王冠落到纪念品；精灵好友以“双方主人为玩家好友”为前提（防止陌生人骚扰）
+- 待验证：① 前端精灵页的互动与冷却显示；② 升级推送在两个在线账号间的到达

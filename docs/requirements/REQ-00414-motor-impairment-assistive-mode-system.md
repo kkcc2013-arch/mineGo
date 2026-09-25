@@ -7,7 +7,7 @@
 | 标题 | 动作障碍辅助模式系统 |
 | 类别 | 无障碍(a11y) |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | game-client、shared/config、admin-dashboard |
 | 创建时间 | 2026-07-01 16:00 |
 
@@ -1095,3 +1095,32 @@ export default {
 - Xbox Adaptive Controller 设计理念
 - REQ-00356 光敏性癫痫防护系统（已完成）
 - REQ-00382 音效可视化系统（已完成）
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 单手操作布局支持左/右手切换，UI自动重新排列 | ✅ | 单手布局 左/右：捕捉区按钮与精灵球靠一侧、按钮宽 70% |
+| 震颤过滤能有效平滑手部震颤，可配置过滤强度（低/中/高） | ✅ | 震颤过滤 低/中/高：同一目标 250/500/800ms 内重复点击丢弃 + 按下/抬起位移阈值（单测覆盖） |
+| 目标锁定功能在100px范围内自动吸附目标 | ✅ | 目标吸附：点击空白处时吸附 100px 内最近的可交互元素（`nearestTarget`，单测覆盖） |
+| 自动瞄准辅助提供三级强度（轻微/中等/强力） | ✅ | 自动瞄准 轻微/中等/强力（0.3/0.6/0.85） |
+| 按键持续时间可调节（100ms-3000ms范围） | ✅ | 长按激活时长 100–3000ms |
+| 游戏速度可在50%-100%范围内调整，不影响其他玩家PVP体验 | ✅ | 0.5–1.0x（另含 0.25x）；只影响本机表现，竞技模式强制 1.0x |
+| 误触防护支持双击确认和长按激活两种模式 | ✅ | 误触防护：双击确认 / 长按激活（作用于投球、逃跑、退出、精灵卡片） |
+| 简化手势系统支持双击代替画圈捕捉等手势简化 | ⚠️ | 客户端没有画圈等复杂手势（投球为单击），一键投掷即可完成 |
+| 宏手势功能允许玩家自定义手势序列 | ✅ | 宏：自定义动作序列（最多 9 个 × 8 步），`Alt+1…9` 或语音说出宏名执行，竞技模式禁用（按钮/按键动作序列，非触摸轨迹） |
+| 设置界面提供实时测试区域，玩家可立即验证配置效果 | ✅ | 实时测试区：按当前过滤/确认设置点击计数 |
+| 所有辅助功能在设置界面有清晰开关，可独立启用/禁用 | ✅ | 每项独立开关 |
+| 配置自动保存，下次启动自动应用 | ✅ | 修改即保存，启动时应用 |
+| 预设配置（单手/震颤/慢速/有限范围）一键切换 | ✅ | 单手 / 震颤 / 反应较慢 / 活动范围受限 预设 |
+| 辅助模式状态在游戏界面有明确指示器 | ✅ | "✋ 动作辅助"徽章 |
+| 符合WCAG 2.1 AA级无障碍标准 | ✅ | axe 无严重问题（调整前运行） |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：无（动作辅助设置默认仅存本机；开启"同步到云端"时使用 user_preferences）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：真机手感；宏执行节奏；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 备注：偏差：预设放在前端 `motorAssist.MOTOR_PRESETS`，未新建 shared/config/accessibility-presets.json；admin-dashboard 使用统计未实现（非验收项）。
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`

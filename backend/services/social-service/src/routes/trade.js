@@ -379,6 +379,10 @@ router.post('/:id/confirm', requireAuth, async (req, res, next) => {
       isLucky
     }, '交易完成');
 
+    // 交易完成计入好友友情点（REQ-00048：trade +100），失败不影响交易结果
+    require('../friendService').recordInteraction(trade.initiator_id, userId, 'trade', { tradeId })
+      .catch((err) => logger.warn({ err: err.message, tradeId }, '交易友情点记录失败'));
+
     res.json(successResp({
       isLucky,
       message: isLucky ? '幸运交易！精灵个体值提升！' : '交易完成',

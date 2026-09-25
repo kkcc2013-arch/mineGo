@@ -1,6 +1,7 @@
 // pokemon-service/src/index.js
 // REQ-00211: 微服务样板代码统一初始化器 - 重构版本
 'use strict';
+require('../../../shared/tracing').initTracing('pokemon-service'); // REQ-00042：须先于 express/http/pg/redis 加载，自动埋点才生效（未配置 OTEL_EXPORTER_OTLP_ENDPOINT 时不启用）
 
 const { addItems } = require('../../../shared/inventory');
 const { ServiceFactory } = require('../../../shared/ServiceFactory');
@@ -427,6 +428,11 @@ async function main() {
       // ═══════════════════════════════════════════════════════════
       // 子路由挂载
       // ═══════════════════════════════════════════════════════════
+
+      // REQ-00377 精灵数据可见性 / REQ-00326 精灵好友互动（先于其他 /pokemon 子路由挂载）
+      app.use('/pokemon', require('./routes/pokemonSocial'));
+      // REQ-00337: 精灵语音描述（盲人友好信息）
+      app.use('/pokemon', require('./routes/voiceDescription'));
 
       // REQ-00019: 技能学习系统路由
       app.use('/', require('./routes/moves'));

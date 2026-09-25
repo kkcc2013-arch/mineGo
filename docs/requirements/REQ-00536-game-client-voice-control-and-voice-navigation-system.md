@@ -3,7 +3,7 @@
 - **编号**：REQ-00536
 - **类别**：无障碍(a11y)
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：game-client、frontend/game-client/src/accessibility/VoiceController.js、frontend/game-client/src/accessibility/VoiceCommandProcessor.js、frontend/game-client/src/accessibility/VoiceFeedback.js
 - **创建时间**：2026-07-11 08:00
 - **依赖需求**：REQ-00503（游戏客户端屏幕阅读器与 ARIA 无障碍支持）
@@ -307,3 +307,27 @@ P1 级别：
 - 对于肢体障碍用户，语音控制是必不可少的无障碍功能
 - 与已实现的键盘导航形成互补，完善无障碍操作体系
 - 对项目"生产可用"的无障碍合规性贡献显著
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 语音识别准确率 ≥ 85%（标准命令） | ⚠️ | 依赖浏览器/云端识别引擎，未实测 |
+| 响应延迟 < 500ms（从识别到执行） | ✅ | 识别结果 → 解析 → 执行 <1ms（单测记录 latencyMs；调整前 e2e 模拟测得 0.4ms），不含识别引擎本身延迟 |
+| 支持至少 3 种语言（中文、英文、日语） | ✅ | 中文 / English / 日本語 同义词表，界面语言之外的语言也可识别 |
+| 噪音环境下识别准确率 ≥ 70%（噪音抑制） | ⚠️ | 置信度阈值（可调）+ 多候选择优作为噪音过滤；Web Speech API 不支持音频流降噪，未实测 |
+| 支持自定义命令注册（至少 10 条） | ✅ | 自定义命令最多 30 条（设置面板增删），宏名称也可作为命令 |
+| 语音反馈播报正确执行结果 | ✅ | "已执行：…"/"没有听懂：…" 语音反馈（可关闭） |
+| 无障碍设置面板集成语音控制选项 | ✅ | 设置 → 键盘、手柄与语音控制：开关、识别语言、置信度、反馈、自定义命令 |
+| 单元测试覆盖：VoiceController、VoiceCommandProcessor、VoiceFeedback 各 10+ 用例 | ✅ | `tests/a11y/voice.test.mjs`：VoiceCommandProcessor 11、VoiceController 12、VoiceFeedback 12 个用例（宿主机已运行通过） |
+| 集成测试：语音命令执行完整流程 | ✅ | `scripts/e2e-a11y.js` 模拟 SpeechRecognition：中/英/日/自定义命令、低置信度过滤、TTS 参数 |
+| WCAG 2.1 Level AAA 合规验证 | ⚠️ | AAA 需人工评估 |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：`database/migrations/20260925_010000__user_preferences.sql`（`user_preferences`：user_id UUID → users(id) ON DELETE CASCADE、namespace、prefs JSONB，主键 (user_id, namespace)，全部 IF NOT EXISTS）；偏好云端同步：user-service `GET/PUT/DELETE /users/me/preferences/:namespace`（`src/routes/preferences.js` + `src/services/userPreferences.js` 校验），经网关 `/v1/users/me/preferences/a11y`（网关已有 `/v1/users` 鉴权代理，未改网关）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：真实麦克风 + Chrome 语音识别在安静/嘈杂环境下的命令识别率；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 备注：偏差：VoiceController/CommandProcessor/Feedback 合并在 `accessibility/voiceControl.js` 与 `liveAnnouncer.js`；NoiseSuppressor 以置信度过滤代替；CustomVoiceCommandTrainer 以自定义命令编辑代替。
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`

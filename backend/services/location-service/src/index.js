@@ -1,5 +1,6 @@
 // location-service/src/index.js  +  routes/map.js  (combined)
 'use strict';
+require('../../../shared/tracing').initTracing('location-service'); // REQ-00042：须先于 express/http/pg/redis 加载，自动埋点才生效（未配置 OTEL_EXPORTER_OTLP_ENDPOINT 时不启用）
 const express  = require('express');
 const cors     = require('cors');
 const helmet   = require('helmet');
@@ -558,6 +559,9 @@ app.get('/anticheat/users/:userId/evidence', requireAuth, requireAdmin, async (r
     res.json(successResp({ userId, trustScore, riskLevel: getRiskLevel(trustScore), records, locations }));
   } catch (err) { next(err); }
 });
+
+// REQ-00586 补全：申诉、地形区域管理、风控监控统计
+app.use('/', require('./routes/antiCheatAppeals'));
 
 // REQ-00586: 可信度每小时恢复 +1（多实例下用 Redis 锁保证只执行一次）
 setInterval(async () => {

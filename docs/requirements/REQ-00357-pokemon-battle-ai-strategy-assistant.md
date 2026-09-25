@@ -7,7 +7,7 @@
 | 标题 | 精灵团队战斗AI策略助手系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | gym-service、pokemon-service、user-service、social-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-29 07:00 UTC |
 
@@ -605,3 +605,21 @@ module.exports = ModelTrainer;
 - Pokemon Battle AI研究论文
 - WCAG 2.1 无障碍指南
 - OpenAI Gym 强化学习框架
+
+## 实现记录（2026-09-25）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 实时战术建议API响应时间 < 500ms（P95） | ✅ | 进程内：技能建议 P95 0.057ms、胜率预测（24 次模拟）P95 10.9ms；规则变更前经网关 6ms。并发 P95 待 bench |
+| AI建议准确率 > 70%（胜率预测偏差 < 10%） | ⚠️ | 已实现度量：开战预测写入 battle_ai_advice_logs，结算回填实际结果，`/v1/battle/ai/stats` 计算命中率、Brier、校准偏差；需线上数据 |
+| 阵容优化建议在3秒内完成 | ✅ | 40 只候选 × 6 只守方进程内 3.2ms；规则变更前经网关 17ms |
+| 战后复盘分析覆盖率 100%（所有已结束战斗） | ✅ | 道馆与联赛每场结算后自动生成 battle_ai_reviews（评分、克制命中率、能量浪费、错失击倒、建议）；看板显示覆盖率 |
+| 用户AI助手满意度 > 80%（问卷调查） | ⚠️ | 已提供建议 👍/👎 反馈接口与满意度统计；问卷与结果需运营收集 |
+| 每日AI建议请求配额限制功能正常 | ✅ | 显式建议/阵容优化计入每日配额（默认 200，AI_DAILY_QUOTA），超出 429；自动建议不计 |
+| AI模型支持A/B测试与灰度发布 | ✅ | 用户哈希稳定分组 A（均衡）/B（蓄力优先），B 组比例可在看板调整（Redis 配置，新战斗生效）；按组统计采纳率/满意度/耗时 |
+| 战斗数据分析仪表板（运营后台） | ✅ | `admin-dashboard/battle.html` |
+
+- 入口：gym-service `src/battle/*`（纯逻辑：damage/cooldown/energy/combo/engine/ai/stats/leagueRules/recommendScore/replayFormat/presetRules；持久化与编排：repo/store/session/gym/raid/league/replay/recommend/comboPresets/pokemonEnergy/settle/deps）；路由 `routes/gyms.js`、`routes/gymBattle.js`、`routes/raids.js`、`routes/battleApi.js`（挂 `/battle`）；网关 `backend/gateway/src/index.js`：`/v1/gyms/*`、`/v1/raids/*`、`/v1/battle/*`（鉴权）、公开 `/v1/battle/replays/shared/:code`、WebSocket 升级转发 `/ws/raid`、`/ws/notifications`、`/ws/battle`；`battle/ai.js`（规则 + 蒙特卡洛，不依赖外部模型服务）、`battle/session.js`；表 battle_ai_advice_logs / battle_ai_preferences / battle_ai_reviews
+- 迁移：`database/migrations/20260925_110000__e11_battle_core.sql`（补列/新表/连击链种子/时间列 TIMESTAMPTZ，全部 IF NOT EXISTS）、`20260925_110100__e11_restore_fast_move_power.sql`；复用既有表见各行说明
+- 测试：宿主机已运行（纯逻辑，不连服务）：`cd backend && node --test tests/unit/battle-core.test.js tests/unit/battle-features.test.js` → 29/29 通过；`node --test frontend/game-client/tests/unit/battle-client.test.mjs` → 11/11 通过；`node --expose-gc scripts/bench-battle.js --local`（数字见表）。验证方式调整前（2026-09-25 08:39，提交 e022c97）曾在隔离 CI 栈实测：`scripts/smoke-battle.js` 101/101、核心冒烟 37/37、battle-core 16/16。之后的改动（连击熟练度接入、实时天气、连击道具奖励、大师联赛分组、AI 对位口径、迁移时间列段、前端全部）**未运行，待验证**。待运行：`BASE_URL=… DATABASE_URL=… REDIS_URL=… node scripts/smoke-battle.js`（102 项）、`node scripts/bench-battle.js --battles 20 --concurrency 5`；迁移在全新库上执行 `reset-db` 后检查 bootstrap-report 无 20260925_1100xx 失败
+- 待验证：线上一周后看板的预测命中率与校准偏差、采纳率与满意度

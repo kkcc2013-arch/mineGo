@@ -1,10 +1,10 @@
 /**
  * 站内消息实时投递（REQ-00261 / REQ-00425）：WebSocket 推送 + LISTEN pmg_notifications 分发 + 系统推送降级
  *
- * - attach(server)：在服务的 HTTP server 上处理 /ws/notifications 升级（noServer 模式，不影响同进程其他 WS 路径）；
+ * - attach(server)：在服务的 HTTP server 上处理 /ws/messages 升级（noServer 模式，不影响同进程其他 WS 路径）；
  *   鉴权：?token=<access token>（或 Sec-WebSocket-Protocol: bearer,<token>），校验签名与登出黑名单；
  *   连接建立后下发 hello（未读数）并补推离线期间的未读消息（最多 20 条，since 参数可增量）；
- *   客户端可发 PING / READ {id}；30 秒心跳清理死连接。网关把 /ws/notifications 的升级请求代理到 user-service。
+ *   客户端可发 PING / READ {id}；30 秒心跳清理死连接。网关把 /ws/messages 的升级请求代理到 user-service（gym-service 的 /ws/notifications 是团战通知，与此无关）。
  * - startDispatcher()：notifications 表每插入一行都会 pg_notify；按投递计划（shared/notificationPolicy.planDelivery）
  *   在线则 WS 实时推送（免打扰时段 silent），离线且满足条件则走 APNs/FCM，未配置凭据时降级为仅站内并记录原因。
  */
@@ -92,7 +92,7 @@ async function userLang(q, userId) {
 /**
  * @param {import('http').Server} server
  */
-function attach(server, { path = '/ws/notifications', db = defaultDb() } = {}) {
+function attach(server, { path = '/ws/messages', db = defaultDb() } = {}) {
   const wss = new WebSocket.Server({ noServer: true, maxPayload: 16 * 1024 });
 
   server.on('upgrade', (req, socket, head) => {

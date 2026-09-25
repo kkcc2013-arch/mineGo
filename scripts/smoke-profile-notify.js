@@ -305,7 +305,7 @@ async function testMessageCenter(ctx) {
   // WebSocket 实时推送：鉴权 + 新消息实时到达
   const wsBase = BASE.replace(/^http/, 'ws');
   const rejected = await new Promise((resolve) => {
-    const ws = new WebSocket(`${wsBase}/ws/notifications?token=bad`);
+    const ws = new WebSocket(`${wsBase}/ws/messages?token=bad`);
     ws.onopen = () => { ws.close(); resolve(false); };
     ws.onerror = () => resolve(true);
     setTimeout(() => resolve(false), 5000);
@@ -313,7 +313,7 @@ async function testMessageCenter(ctx) {
   record('实时推送：无效 token 的 WebSocket 连接被拒绝', rejected);
   const d = await newUser('wsd');
   const messages = [];
-  const ws = new WebSocket(`${wsBase}/ws/notifications?token=${d.token}`);
+  const ws = new WebSocket(`${wsBase}/ws/messages?token=${d.token}`);
   const opened = await new Promise((resolve) => { ws.onopen = () => resolve(true); ws.onerror = () => resolve(false); setTimeout(() => resolve(false), 5000); });
   ws.onmessage = (m) => { try { messages.push({ at: Date.now(), msg: JSON.parse(m.data) }); } catch { /* ignore */ } };
   await sleep(500);

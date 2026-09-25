@@ -3,7 +3,7 @@
 - **编号**：REQ-00352
 - **类别**：无障碍(a11y)
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：game-client、frontend/game-client/src/accessibility/AudioVisualizer.js、frontend/game-client/src/accessibility/VisualCueManager.js、frontend/game-client/src/audio/AudioManager.js、gateway、catch-service、gym-service
 - **创建时间**：2026-06-29 01:05 UTC
 - **依赖需求**：REQ-00017（基础无障碍支持）、REQ-00162（屏幕阅读器增强）
@@ -747,3 +747,26 @@ function getAudioVisualHint(event) {
 2. **用户群体大**：全球约 5% 人口有不同程度的听力损失
 3. **竞争优势**：主流手游中此功能尚不普及，可提升品牌形象
 4. **依赖基础已就绪**：REQ-00017 和 REQ-00162 已实现基础无障碍框架
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 音效可视化可通过设置面板启用/禁用 | ✅ | 设置 → 听觉 → 音效可视化开关 |
+| P0 关键音效（精灵出现、捕捉成功/失败、战斗开始、警告）必须提供至少 2 种视觉提示 | ✅ | P0（精灵出现、捕捉成功/逃跑、战斗开始、警告）= 图标文字标签 + 边框提示 + 震动（`soundCues.planCue`，单测验证 ≥2 视觉通道） |
+| 边框闪烁效果在 500ms 内可被用户感知，颜色按优先级区分 | ✅ | 边框在事件当帧出现；闪烁为 500ms × 3 次（2Hz，低于光敏上限）；P0 红 / P1 橙 / P2 蓝 |
+| 震动反馈在支持的移动设备上正常工作（iOS/Android） | ⚠️ | navigator.vibrate，真机未验证（iOS Safari 不支持） |
+| 图标+文字标签显示持续时间 ≥ 2s，支持自定义位置 | ✅ | 显示时长 2–10s 可调；左上/右上/左下/右下/中央 |
+| 配置可持久化到 localStorage，下次访问自动恢复 | ✅ | localStorage 自动恢复（另云端同步） |
+| 与现有 AnimationSettings（减少动画模式）兼容，不会在 reduce-motion 模式下过度动画 | ✅ | 减少动画/光敏模式/系统 prefers-reduced-motion 时边框改静态 |
+| 不影响正常音频播放，仅作为补充 | ✅ | 不修改任何音频播放逻辑 |
+| ARIA 实时区域正确标记，屏幕阅读器可读出提示内容 | ✅ | `#a11y-cues` role=log aria-live=polite |
+| 移动端和桌面端均能正常显示视觉提示 | ⚠️ | 响应式定位，移动端真机未验证 |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：`database/migrations/20260925_010000__user_preferences.sql`（`user_preferences`：user_id UUID → users(id) ON DELETE CASCADE、namespace、prefs JSONB，主键 (user_id, namespace)，全部 IF NOT EXISTS）；偏好云端同步：user-service `GET/PUT/DELETE /users/me/preferences/:namespace`（`src/routes/preferences.js` + `src/services/userPreferences.js` 校验），经网关 `/v1/users/me/preferences/a11y`（网关已有 `/v1/users` 鉴权代理，未改网关）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：移动端真机上提示位置与可读性；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`

@@ -143,7 +143,7 @@ class ILogOutputAdapter {
    */
   formatEntry(logEntry) {
     return {
-      timestamp: logEntry.time || new Date().toISOString(),
+      timestamp: logEntry.timestamp || logEntry.time || new Date().toISOString(),
       level: logEntry.level,
       message: logEntry.msg || logEntry.message || '',
       service: logEntry.service || logEntry.bindings?.service || 'unknown',

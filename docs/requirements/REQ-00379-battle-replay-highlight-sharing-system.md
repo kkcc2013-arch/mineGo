@@ -3,7 +3,7 @@
 - **编号**：REQ-00379
 - **类别**：功能增强
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：gym-service、social-service、user-service、gateway、game-client、database/migrations、backend/jobs、cdn
 - **创建时间**：2026-06-30 04:00 UTC
 - **依赖需求**：REQ-00269（精灵锦标赛与竞技场赛季系统）、REQ-00262（实时对战 WebSocket 连接系统）
@@ -525,3 +525,24 @@ Response: { replays: [...] }
 - **VR 回放**：支持 VR 设备观看回放
 - **AI 解说**：自动生成战斗解说语音
 - **回放挑战**：允许玩家挑战他人回放中的操作
+
+## 实现记录（2026-09-25）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| **回放录制**：所有 PVP 对战自动录制，数据完整性验证通过 | ✅ | 道馆与竞技联赛每场结算后录制完整事件流（每回合动作/伤害/连击/状态/换人、双方阵容、随机种子），gzip 存 battle_replay_records.compressed_data；同一战斗只录一次 |
+| **回放播放**：播放器支持播放、暂停、快进、速度控制 | ✅ | `ReplayPlayer.js`：播放/暂停、0.5/1/2/4 倍速、上一回合/下一回合、时间轴拖动、精彩时刻跳转（帧构建单测） |
+| **精彩时刻识别**：AI 自动识别至少 6 种精彩时刻类型，准确率 ≥ 80% | ⚠️ | 9 种：会心一击、效果拔群、击倒、连击、控制、绝境逆转、残血取胜、一穿多、无伤通关（规则识别，单测覆盖）；准确率需人工标注评估 |
+| **社交分享**：支持分享到微信、QQ、Twitter，生成短链接和二维码 | ✅ | 8 位分享码短链接（可设密码/有效期/最大查看次数）、SVG 二维码、QQ/Twitter 分享链接、微信扫码提示；落地页 `frontend/game-client/replay.html`（无需登录） |
+| **热门榜单**：热门回放榜单按观看数、点赞数排序正确 | ✅ | `GET /v1/battle/replays/hot?sort=views/likes` |
+| **回放搜索**：按玩家、精灵、战斗类型搜索功能正常 | ✅ | `GET /v1/battle/replays/search`（userId/nickname/speciesId/type/result，GIN 索引） |
+| **性能要求**：回放加载时间 < 2 秒，播放流畅度 ≥ 30 FPS | ⚠️ | 单次查询 + 解压；播放用帧率控制器补间；未实测 |
+| **存储优化**：压缩后回放大小 < 500KB | ✅ | gzip level 9：7 回合道馆战 1.4KB（规则变更前实测），150 回合估算 < 40KB |
+| **数据持久化**：回放数据在 PostgreSQL 和对象存储正确存储 | ⚠️ | 存 PostgreSQL（BYTEA）；生产环境没有对象存储，未接入 |
+| **单元测试**：核心模块单元测试覆盖率 ≥ 85% | ✅ | replayFormat.js 92%（精彩时刻、载荷、分享码、密码） |
+| **集成测试**：回放录制-存储-播放-分享全链路测试通过 | ✅ | smoke-battle 回放段 8 项（规则变更前通过） |
+
+- 入口：gym-service `src/battle/*`（纯逻辑：damage/cooldown/energy/combo/engine/ai/stats/leagueRules/recommendScore/replayFormat/presetRules；持久化与编排：repo/store/session/gym/raid/league/replay/recommend/comboPresets/pokemonEnergy/settle/deps）；路由 `routes/gyms.js`、`routes/gymBattle.js`、`routes/raids.js`、`routes/battleApi.js`（挂 `/battle`）；网关 `backend/gateway/src/index.js`：`/v1/gyms/*`、`/v1/raids/*`、`/v1/battle/*`（鉴权）、公开 `/v1/battle/replays/shared/:code`、WebSocket 升级转发 `/ws/raid`、`/ws/notifications`、`/ws/battle`；`battle/replay.js`、`battle/replayFormat.js`；客户端 `ReplayPlayer.js`、`replay.html`、对战页 → 回放（我的/热门/搜索/点赞/评论/分享）；表 battle_replay_records（补列）、replay_highlights、replay_shares、replay_likes、replay_comments
+- 迁移：`database/migrations/20260925_110000__e11_battle_core.sql`（补列/新表/连击链种子/时间列 TIMESTAMPTZ，全部 IF NOT EXISTS）、`20260925_110100__e11_restore_fast_move_power.sql`；复用既有表见各行说明
+- 测试：宿主机已运行（纯逻辑，不连服务）：`cd backend && node --test tests/unit/battle-core.test.js tests/unit/battle-features.test.js` → 29/29 通过；`node --test frontend/game-client/tests/unit/battle-client.test.mjs` → 11/11 通过；`node --expose-gc scripts/bench-battle.js --local`（数字见表）。验证方式调整前（2026-09-25 08:39，提交 e022c97）曾在隔离 CI 栈实测：`scripts/smoke-battle.js` 101/101、核心冒烟 37/37、battle-core 16/16。之后的改动（连击熟练度接入、实时天气、连击道具奖励、大师联赛分组、AI 对位口径、迁移时间列段、前端全部）**未运行，待验证**。待运行：`BASE_URL=… DATABASE_URL=… REDIS_URL=… node scripts/smoke-battle.js`（102 项）、`node scripts/bench-battle.js --battles 20 --concurrency 5`；迁移在全新库上执行 `reset-db` 后检查 bootstrap-report 无 20260925_1100xx 失败
+- 待验证：分享链接在手机浏览器打开并自动播放；密码/次数限制

@@ -136,7 +136,7 @@ class ApiClient {
 
   // ── Map ──────────────────────────────────────────────────
   getNearby(lat, lng, radius = 500)    { return this.get(`/map/nearby?lat=${lat}&lng=${lng}&radius=${radius}`); }
-  updateLocation(lat, lng, accuracy)   { return this.post('/location', { lat, lng, accuracy, timestamp: Date.now() }); }
+  updateLocation(lat, lng, accuracy, extra = {}) { return this.post('/location', { lat, lng, accuracy, timestamp: Date.now(), ...extra }); }
 
   // ── Catch ────────────────────────────────────────────────
   startCatch(spawnId, lat, lng)        { return this.post('/catch/session', { spawnId, playerLat: lat, playerLng: lng }); }
@@ -158,7 +158,7 @@ class ApiClient {
   // ── Gym / Raid ────────────────────────────────────────────
   getGym(id)                           { return this.get(`/gyms/${id}`); }
   defendGym(gymId, pokemonId)          { return this.post(`/gyms/${gymId}/defend`, { pokemonId }); }
-  battleGym(gymId, pokemonIds)         { return this.post(`/gyms/${gymId}/battle`, { attackerPokemons: pokemonIds }); }
+  battleGym(gymId, pokemonIds)         { return this.post(`/gyms/${gymId}/battle/start`, { pokemonIds }); }
   getRaid(id)                          { return this.get(`/raids/${id}`); }
   joinRaid(id)                         { return this.post(`/raids/${id}/join`); }
 

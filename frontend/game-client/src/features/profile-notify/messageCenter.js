@@ -5,7 +5,7 @@
 // - 分类标签页（全部/社交/奖励/活动/精灵/系统/安全）、未读筛选、分页加载 + 虚拟滚动（固定行高，只渲染可见行）
 // - 点击消息：标记已读并展开详情，"前往"按钮按 actionUrl 深度链接跳转；全部已读、删除、清空已读（二次确认）
 // - 偏好设置：分类开关（系统/安全强制）、免打扰时段、临时静音、推送开关
-// - WebSocket 实时推送（/ws/notifications，断线指数退避重连，前台切回时增量同步），新消息 toast（免打扰时静默）
+// - WebSocket 实时推送（/ws/messages，断线指数退避重连，前台切回时增量同步），新消息 toast（免打扰时静默）
 // - IndexedDB 本地缓存（PMG_Messages：notifications / metadata），离线时展示缓存，上线后增量同步
 import { http, h, openSheet, timeAgo, wsBase, lang, navigate, emptyState } from './core.js';
 
@@ -92,7 +92,7 @@ export function createMessageCenter({ api, toast }) {
   async function connect() {
     if (!api._accessToken || (state.ws && state.ws.readyState <= 1)) return;
     const since = await idb.meta('lastSyncTime');
-    const url = `${wsBase()}/ws/notifications?token=${encodeURIComponent(api._accessToken)}&lang=${encodeURIComponent(lang())}${since ? `&since=${encodeURIComponent(since)}` : ''}`;
+    const url = `${wsBase()}/ws/messages?token=${encodeURIComponent(api._accessToken)}&lang=${encodeURIComponent(lang())}${since ? `&since=${encodeURIComponent(since)}` : ''}`;
     let ws;
     try { ws = new WebSocket(url); } catch { return scheduleReconnect(); }
     state.ws = ws;

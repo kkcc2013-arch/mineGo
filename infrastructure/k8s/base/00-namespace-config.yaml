@@ -29,6 +29,9 @@ data:
   RAID_MAX_PARTICIPANTS:  "20"
   JWT_ACCESS_TTL:         "24h"
   JWT_REFRESH_TTL:        "30d"
+  # REQ-00042：链路追踪上报到 Jaeger v2（OTLP/HTTP，infrastructure/k8s/monitoring/jaeger.yaml），生产采样 10%
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger-collector.monitoring:4318"
+  OTEL_TRACES_SAMPLER_ARG:     "0.1"
 
 ---
 # ── Secret template (fill with real values via CI/CD) ────────

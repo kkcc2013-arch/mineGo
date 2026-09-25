@@ -1,5 +1,6 @@
 // gateway/src/index.js  — lightweight API Gateway
 'use strict';
+require('@pmg/shared/tracing').initTracing('api-gateway'); // REQ-00042：须先于 express/http/pg/redis 加载，自动埋点才生效（未配置 OTEL_EXPORTER_OTLP_ENDPOINT 时不启用）
 const express      = require('express');
 const cors         = require('cors');
 const helmet       = require('helmet');
@@ -150,7 +151,8 @@ app.use((req, _res, next) => {
 // Request ID & Trace ID injection
 // REQ-00042: 统一 trace id（W3C 兼容 32 位 hex），透传给下游服务（x-trace-id + traceparent）
 app.use((req, res, next) => {
-  const traceId = traceContext.traceIdFromHeaders(req.headers) || traceContext.newTraceId();
+  // 启用 OpenTelemetry 时以活动 span 的 trace id 为准（与出站 traceparent、Jaeger 一致）
+  const traceId = traceContext.activeTraceId() || traceContext.traceIdFromHeaders(req.headers) || traceContext.newTraceId();
   const spanId = traceContext.newSpanId();
   const rid = req.headers['x-request-id'];
   req.headers['x-request-id'] = (typeof rid === 'string' && /^[A-Za-z0-9._-]{1,64}$/.test(rid))
@@ -364,16 +366,16 @@ app.use('/v1/gdpr',
   proxy(SERVICES.user, { '^/': '/gdpr/' })
 );
 
-// 好友列表 - 缓存 3 分钟
-app.get('/v1/friends',
-  authMiddleware,
-  cachedProxy({ route: 'friends', target: SERVICES.social, pathRewrite: { '^/v1/': '/' }, ttl: 180, perUser: true, onError: proxyError })
-);
-
-// 其他好友路由（不缓存）
+// 好友路由（不缓存：好友列表含在线状态且受对方隐私设置实时影响，对方接受请求/修改隐私不会使我的缓存失效）
 app.use('/v1/friends',
   authMiddleware,
   proxy(SERVICES.social, { '^/': '/friends/' })
+);
+
+// REQ-00228：隐私设置与好友权限
+app.use('/v1/privacy',
+  authMiddleware,
+  proxy(SERVICES.social, { '^/': '/privacy/' })
 );
 
 // REQ-00040: 交易接口高风险限流
@@ -451,6 +453,25 @@ app.get('/v1/raids/nearby',
 app.use('/v1/raids',
   authMiddleware,
   proxy(SERVICES.gym, { '^/': '/raids/' })
+);
+
+// ── E11 战斗与技能（gym-service /battle/*）──────────────────────
+// 回放分享链接：公开访问（无需登录），查看次数/密码/有效期由服务端校验
+app.get('/v1/battle/replays/shared/:code',
+  proxy(SERVICES.gym, { '^/v1/': '/' })
+);
+// 能量/冷却/装备、连击、伤害、技能推荐、AI 助手、回放、竞技联赛、客户端帧率上报；
+// 回合接口 /v1/battle/sessions/:id/* 与 /v1/gyms/battles/:id/* 等价
+app.use('/v1/battle',
+  authMiddleware,
+  proxy(SERVICES.gym, { '^/': '/battle/' })
+);
+// 需求文档（REQ-00112 / REQ-00324）约定的接口路径
+app.get('/api/pokemon/:id/energy', authMiddleware, proxy(SERVICES.gym, { '^/api/pokemon/': '/battle/pokemon/' }));
+app.post('/api/pokemon/:id/energy/regenerate', authMiddleware, proxy(SERVICES.gym, { '^/api/pokemon/': '/battle/pokemon/' }));
+app.post('/api/pokemon/:id/moves/check', authMiddleware, proxy(SERVICES.gym, { '^/api/pokemon/': '/battle/pokemon/' }));
+app.get('/api/v1/pokemon/:speciesId/move-recommendations', authMiddleware,
+  proxy(SERVICES.gym, { '^/api/v1/pokemon/([^/]+)/move-recommendations': '/battle/recommendations/$1' })
 );
 
 // 奖励服务（每日奖励/任务/排行榜/赛季/活动）— 原网关缺少该路由，reward-service 无法从外部访问
@@ -581,13 +602,28 @@ app.use((req, res) => res.status(404).json({ code: 1005, message: `路由不存�
 
 const server = app.listen(PORT, () => logger.info({ port: PORT }, 'API Gateway started'));
 
-// REQ-00261/00425: 消息实时推送 WebSocket（/ws/notifications?token=…）升级请求代理到 user-service，
-// 鉴权（签名 + 登出黑名单）由 user-service 在握手时完成；其他路径的升级请求直接拒绝
-const notificationWsProxy = createProxyMiddleware({
-  target: SERVICES.user, changeOrigin: true, ws: true, pathFilter: '/ws/notifications', on: { error: proxyError },
-});
+// ── WebSocket 升级转发 ─────────────────────────────────────────
+// /ws/raid → gym-service（团战实时同步，token 与参与资格由 gym-service 校验）
+// /ws/battle → gym-service 实时对战 WebSocket（独立端口 WS_BATTLE_PORT，JWT 鉴权）
+// /ws/friends → social-service 好友实时推送（E01，token 由 social-service 校验）
+// /ws/messages → user-service 消息中心实时推送（E13 REQ-00261/00425，token 与登出黑名单由 user-service 握手时校验）
+const WS_TARGETS = {
+  '/ws/friends': SERVICES.social,
+  '/ws/raid': SERVICES.gym,
+  '/ws/notifications': SERVICES.gym,
+  '/ws/messages': SERVICES.user,
+  '/ws/battle': process.env.GYM_BATTLE_WS_URL || 'http://localhost:8089',
+};
+const wsProxies = Object.fromEntries(Object.entries(WS_TARGETS).map(([p, target]) => [p, createProxyMiddleware({
+  target, ws: true, changeOrigin: true, pathFilter: p,
+  // /ws/battle 在对战服务上监听根路径
+  pathRewrite: p === '/ws/battle' ? { '^/ws/battle': '/' } : undefined,
+  on: { error: (err, req, socket) => { logger.warn({ err, path: req && req.url }, 'WS proxy error'); if (socket && socket.destroy) socket.destroy(); } },
+})]));
 server.on('upgrade', (req, socket, head) => {
-  if ((req.url || '').split('?')[0] === '/ws/notifications') return notificationWsProxy.upgrade(req, socket, head);
-  socket.destroy();
+  const pathname = (req.url || '').split('?')[0];
+  const p = wsProxies[pathname];
+  if (!p) { socket.destroy(); return; }
+  p.upgrade(req, socket, head);
 });
 module.exports = app;
