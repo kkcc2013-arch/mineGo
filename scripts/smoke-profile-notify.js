@@ -5,7 +5,7 @@
  *   成就：升级（任意加经验路径 → trainer_level_ups 触发器）与捕捉、补给站触发成就进度与站内消息；隐藏成就不出现；
  *         成就奖励并发领取只成功一次且入账；排行榜；管理员定义管理
  *   称号：成就完成自动解锁、佩戴/取下、并发佩戴只有一个激活、经验加成作用于捕捉经验、玩家不能自行解锁
- *   资料卡：聚合统计、收藏家等级、隐私（公开/好友/私密）、徽章/精选精灵、分享链接与卡片图片、访问日志、缓存随变更失效
+ *   资料卡：聚合统计、收藏家等级、隐私（公开/好友/私密）、徽章/精选精灵、分享链接/二维码/卡片图片、访问日志、缓存随变更失效
  *   收藏室：创建/主题/展示精灵/装饰/访问/点赞/评论/排行、成就联动
  *   消息中心：未读数、列表/分类、已读/全部已读、删除/清空已读、偏好（关闭分类后不再生成）、免打扰、好友请求消息、
  *             活动开始广播、WebSocket 实时推送与鉴权、推送渠道未配置时降级站内、多语言
@@ -328,11 +328,210 @@ async function testMessageCenter(ctx) {
   record('消息：管理员送达/打开率分析', analytics.status === 200 && analytics.data.totals.sent > 0, `sent=${analytics.data && analytics.data.totals.sent} openRate=${analytics.data && analytics.data.openRate}`);
 }
 
+// ── 资料卡 / 数据统计 / 隐私 ──────────────────────────────────
+async function testProfile(ctx) {
+  const u = ctx.user;       // 10 级、已解锁 trainer_level_5/10 与称号 rising_star
+  const v = await newUser('pv');
+  const me = await call('GET', '/v1/users/me/profile', { token: u.token });
+  const d = me.data || {};
+  record('资料：本人资料含统计/收藏家等级/称号/图鉴/访客', me.status === 200 && d.stats && d.stats.pokemon && d.player.collector
+    && d.player.collector.level >= 1 && d.player.title && d.player.title.titleId === 'rising_star' && d.pokedex && d.views,
+  `status=${me.status} collector=${d.player && JSON.stringify(d.player.collector && { level: d.player.collector.level, score: d.player.collector.score })}`);
+
+  const locked = await call('PUT', '/v1/users/me/profile', { token: u.token, body: { avatarFrameId: 'legend' } });
+  record('资料卡：未解锁的头像框不能使用', locked.status === 403, `status=${locked.status}`);
+  const badBadge = await call('PUT', '/v1/users/me/profile', { token: u.token, body: { selectedBadges: ['pokedex_151'] } });
+  record('资料卡：只能展示已解锁的成就徽章', badBadge.status === 400, `status=${badBadge.status}`);
+  const tooMany = await call('PUT', '/v1/users/me/profile', { token: u.token, body: { selectedBadges: ['a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7'] } });
+  record('资料卡：徽章最多 6 个', tooMany.status === 400, `status=${tooMany.status}`);
+  const pid = (await db().query(
+    `INSERT INTO pokemon_instances (user_id, species_id, cp, hp_current, hp_max, iv_attack, iv_defense, iv_hp, is_shiny)
+     VALUES ($1, 25, 888, 60, 60, 15, 15, 15, TRUE) RETURNING id`, [u.userId])).rows[0].id;
+  const upd = await call('PUT', '/v1/users/me/profile', { token: u.token, body: {
+    signature: '冒烟签名 v1', avatarFrameId: 'leaf', backgroundThemeId: 'sunset', visibility: 'public',
+    selectedBadges: ['trainer_level_10', 'trainer_level_5'], selectedPokemon: [pid], statsLayout: { order: ['battle', 'pokemon'] } } });
+  record('资料卡：自定义头像框/背景/签名/徽章/精选精灵', upd.status === 200 && upd.data.signature === '冒烟签名 v1'
+    && upd.data.player.frame.id === 'leaf' && upd.data.badges.length === 2 && upd.data.badges[0].id === 'trainer_level_10'
+    && upd.data.featuredPokemon.length === 1, `status=${upd.status} ${upd.status !== 200 ? JSON.stringify(upd.body).slice(0, 150) : ''}`);
+  const custom = await call('GET', '/v1/users/me/profile/customization', { token: u.token });
+  record('资料卡：头像框/背景主题列表含解锁状态', custom.status === 200 && custom.data.frames.some((f) => f.id === 'leaf' && f.unlocked && f.selected)
+    && custom.data.frames.some((f) => f.id === 'legend' && !f.unlocked), `frames=${custom.data && custom.data.frames.length}`);
+  const badges = await call('GET', '/v1/users/me/profile/badges/available', { token: u.token });
+  record('资料卡：可展示徽章列表', badges.status === 200 && badges.data.some((b) => b.id === 'trainer_level_10' && b.selected), `count=${badges.data && badges.data.length}`);
+
+  // 陌生人查看：公开资料，隐藏社交明细/位置统计/访客记录
+  const t0 = Date.now();
+  const pub = await call('GET', `/v1/users/${u.userId}/profile`, { token: v.token });
+  const pubMs = Date.now() - t0;
+  const pd = pub.data || {};
+  record('隐私：非好友查看公开资料（隐藏社交明细与位置统计）', pub.status === 200 && pd.audience === 'public' && pd.stats
+    && pd.stats.social && pd.stats.social.giftsSent === undefined && pd.stats.exploration.kmWalked === undefined && !pd.views && pd.badges.length === 2,
+  `audience=${pd.audience} ${pubMs}ms`);
+  const pub2 = await call('GET', `/v1/users/${u.userId}/profile`, { token: v.token });
+  record('资料：重复查看命中缓存', pub2.data && pub2.data.cache && pub2.data.cache.hit === true, `cache=${JSON.stringify(pub2.data && pub2.data.cache)}`);
+  await call('PUT', '/v1/users/me/profile', { token: u.token, body: { signature: '冒烟签名 v2' } });
+  const pub3 = await call('GET', `/v1/users/${u.userId}/profile`, { token: v.token });
+  record('资料：被查看者修改资料后缓存立即失效', pub3.data && pub3.data.signature === '冒烟签名 v2', `signature=${pub3.data && pub3.data.signature}`);
+
+  await call('PUT', '/v1/users/me/profile', { token: u.token, body: { visibility: 'friends' } });
+  const fr = await call('GET', `/v1/users/${u.userId}/profile`, { token: v.token });
+  record('隐私：仅好友可见时陌生人只看到基本信息', fr.status === 200 && fr.data.restricted === true && !fr.data.stats, `audience=${fr.data && fr.data.audience}`);
+  const req = await call('POST', '/v1/friends/request', { token: v.token, body: { toUserId: u.userId } });
+  const reqId = req.body && (req.body.requestId || (req.body.data && req.body.data.requestId));
+  const acc = await call('POST', `/v1/friends/request/${reqId}/accept`, { token: u.token });
+  const fr2 = await call('GET', `/v1/users/${u.userId}/profile`, { token: v.token });
+  record('隐私：成为好友后可见完整统计', acc.status === 200 && fr2.data && fr2.data.audience === 'full' && fr2.data.stats.social.giftsSent !== undefined,
+    `accept=${acc.status} audience=${fr2.data && fr2.data.audience}`);
+  await call('PUT', '/v1/users/me/profile', { token: u.token, body: { visibility: 'private' } });
+  const pr = await call('GET', `/v1/users/${u.userId}/profile`, { token: v.token });
+  record('隐私：私密资料好友也只看到基本信息', pr.data && pr.data.restricted === true, `audience=${pr.data && pr.data.audience}`);
+  const prCard = await call('GET', `/v1/users/${u.userId}/profile/card`, { token: v.token });
+  record('隐私：私密资料不能生成资料卡', prCard.status === 403, `status=${prCard.status}`);
+  await call('PUT', '/v1/users/me/profile', { token: u.token, body: { visibility: 'public' } });
+
+  const mine = await call('GET', '/v1/users/me/profile', { token: u.token });
+  record('资料：访问日志记录他人查看', mine.data && mine.data.views && mine.data.views.total >= 1, `views=${JSON.stringify(mine.data && mine.data.views)}`);
+
+  const card = await rawCall('GET', `/v1/users/${u.userId}/profile/card`, { token: v.token, raw: true });
+  const svg = await card.text();
+  record('资料卡：生成图片（SVG，含昵称）', card.status === 200 && /image\/svg\+xml/.test(card.headers.get('content-type') || '') && svg.includes('<svg') && svg.includes(u.nickname),
+    `status=${card.status} bytes=${svg.length}`);
+  const share = await call('POST', '/v1/users/me/profile/share', { token: u.token });
+  const sd = share.data || {};
+  record('资料卡：分享链接与二维码', share.status === 200 && /\/p\/[A-Za-z0-9]{8,}/.test(sd.shareUrl || '') && String(sd.qrCode || '').startsWith('data:image/png'),
+    `url=${sd.shareUrl} qr=${sd.qrCode ? 'yes' : 'no'}`);
+  const anonCard = await rawCall('GET', `/v1/profile-cards/${sd.shareCode}.svg`, { raw: true });
+  record('资料卡：分享卡片无需登录即可打开（公开资料）', anonCard.status === 200 && (await anonCard.text()).includes('<svg'), `status=${anonCard.status}`);
+  const shareLog = await q1(`SELECT COUNT(*)::int AS n FROM profile_view_logs WHERE profile_user_id = $1 AND view_source = 'share_link'`, [u.userId]);
+  record('资料卡：分享链接访问计入访问日志', shareLog.n >= 1, `share_views=${shareLog.n}`);
+
+  const sum = await call('GET', '/v1/users/me/stats/summary', { token: u.token });
+  record('统计：统计摘要', sum.status === 200 && sum.data.stats && sum.data.collector, `status=${sum.status}`);
+  const lb = await call('GET', '/v1/users/leaderboard/collectors?limit=50', { token: u.token });
+  const sorted = (lb.data && lb.data.leaderboard || []).every((r, i, a) => i === 0 || a[i - 1].score >= r.score);
+  record('收藏家：积分排行榜按分数排序并返回本人名次', lb.status === 200 && sorted && lb.data.me && lb.data.me.rank >= 1,
+    `size=${lb.data && lb.data.leaderboard.length} me=${JSON.stringify(lb.data && lb.data.me && { rank: lb.data.me.rank, score: lb.data.me.score })}`);
+  return { viewer: v, featuredPokemon: pid };
+}
+
+// ── 收藏室 ────────────────────────────────────────────────────
+async function testCollectionRoom(ctx, prof) {
+  const owner = await newUser('room');
+  const visitor = prof.viewer;
+  const mk = async (uid, shiny) => (await db().query(
+    `INSERT INTO pokemon_instances (user_id, species_id, cp, hp_current, hp_max, iv_attack, iv_defense, iv_hp, is_shiny)
+     VALUES ($1, $2, 500, 50, 50, 10, 11, 12, $3) RETURNING id`, [uid, shiny ? 6 : 1, shiny])).rows[0].id;
+  const p1 = await mk(owner.userId, false); const p2 = await mk(owner.userId, true); const other = await mk(visitor.userId, false);
+
+  const room = await call('GET', '/v1/collection-room', { token: owner.token });
+  const rd = room.data || {};
+  record('收藏室：首次访问自动创建（1 级，展示位 20）', room.status === 200 && rd.room && rd.room.level === 1 && rd.room.capacity.pokemon === 20
+    && rd.isOwner && rd.unlockedThemes.includes('default') && !rd.unlockedThemes.includes('forest'), `status=${room.status}`);
+  const roomId = rd.room && rd.room.id;
+
+  const disp = await call('POST', '/v1/collection-room/pokemon', { token: owner.token, body: { pokemonId: p1, x: 0, y: 0 } });
+  const dup = await call('POST', '/v1/collection-room/pokemon', { token: owner.token, body: { pokemonId: p1, x: 1, y: 0 } });
+  const notMine = await call('POST', '/v1/collection-room/pokemon', { token: owner.token, body: { pokemonId: other, x: 1, y: 0 } });
+  const overlap = await call('POST', '/v1/collection-room/pokemon', { token: owner.token, body: { pokemonId: p2, x: 0, y: 0 } });
+  const badMode = await call('POST', '/v1/collection-room/pokemon', { token: owner.token, body: { pokemonId: p1, displayMode: 'shiny' } });
+  const pedestal = await call('POST', '/v1/collection-room/pokemon', { token: owner.token, body: { pokemonId: p2, x: 1, y: 0, pedestalType: 'gold' } });
+  record('收藏室：展示精灵（重复/他人精灵/位置重叠/高级展示台被拒绝）', disp.status === 201 && dup.status === 409 && notMine.status === 404
+    && overlap.status === 409 && pedestal.status === 403, `display=${disp.status} dup=${dup.status} notMine=${notMine.status} overlap=${overlap.status} pedestal=${pedestal.status} mode=${badMode.status}`);
+  const shinyDisp = await call('POST', '/v1/collection-room/pokemon', { token: owner.token, body: { pokemonId: p2, x: 1, y: 0, displayMode: 'shiny' } });
+  record('收藏室：闪光精灵使用闪光展示模式', shinyDisp.status === 201, `status=${shinyDisp.status}`);
+
+  const fern = await waitFor(async () => {
+    const inv = await call('GET', '/v1/collection-room/decorations/inventory', { token: owner.token });
+    return (inv.data || []).find((i) => i.itemCode === 'plant_potted_fern');
+  });
+  record('收藏室：展示第一只精灵完成成就并获得装饰奖励（蕨类盆栽）', !!fern, fern ? `available=${fern.available}` : 'timeout');
+  const place = await call('POST', '/v1/collection-room/decorations', { token: owner.token, body: { itemCode: 'plant_potted_fern', x: 5, y: 5 } });
+  const again = await call('POST', '/v1/collection-room/decorations', { token: owner.token, body: { itemCode: 'plant_potted_fern', x: 6, y: 6 } });
+  record('收藏室：摆放装饰（库存不足时拒绝）', place.status === 201 && again.status === 400, `place=${place.status} again=${again.status}`);
+
+  await db().query('UPDATE users SET coins = 5000 WHERE id = $1', [owner.userId]);
+  const buy = await call('POST', '/v1/collection-room/decorations/chair_wood/purchase', { token: owner.token, body: { quantity: 2 } });
+  const coins = await q1('SELECT coins FROM users WHERE id = $1', [owner.userId]);
+  const buyLocked = await call('POST', '/v1/collection-room/decorations/chair_silver/purchase', { token: owner.token, body: { quantity: 1 } });
+  record('收藏室：商店购买装饰扣金币（高等级装饰被拒绝）', buy.status === 200 && coins.coins === 4800 && buyLocked.status === 403,
+    `buy=${buy.status} coins=${coins.coins} locked=${buyLocked.status}`);
+  const onPlant = await call('POST', '/v1/collection-room/decorations', { token: owner.token, body: { itemCode: 'chair_wood', x: 5, y: 5 } });
+  const chair = await call('POST', '/v1/collection-room/decorations', { token: owner.token, body: { itemCode: 'chair_wood', x: 6, y: 5, rotation: 90 } });
+  const move = chair.data ? await call('PUT', `/v1/collection-room/decorations/${chair.data.id}`, { token: owner.token, body: { x: 7, y: 5 } }) : { status: 0 };
+  record('收藏室：装饰占格冲突检测、旋转与拖拽移动', onPlant.status === 409 && chair.status === 201 && move.status === 200,
+    `overlap=${onPlant.status} place=${chair.status} move=${move.status}`);
+  const layout = await call('PUT', '/v1/collection-room/layout', { token: owner.token, body: { pokemon: [{ pokemonId: p1, x: 1, y: 0 }, { pokemonId: p2, x: 0, y: 0 }] } });
+  record('收藏室：拖拽编辑器批量保存布局（交换两只精灵位置）', layout.status === 200, `status=${layout.status} ${layout.status !== 200 ? JSON.stringify(layout.body).slice(0, 120) : ''}`);
+
+  const themeLocked = await call('PUT', '/v1/collection-room', { token: owner.token, body: { themeId: 'forest' } });
+  const custBg = await call('PUT', '/v1/collection-room', { token: owner.token, body: { backgroundImageUrl: 'https://example.com/bg.png' } });
+  const set = await call('PUT', '/v1/collection-room', { token: owner.token, body: { roomName: '冒烟展馆', themeId: 'classic', backgroundId: 'meadow' } });
+  record('收藏室：设置主题/背景（未解锁主题、低等级自定义背景被拒绝）', themeLocked.status === 403 && custBg.status === 400 && set.status === 200
+    && set.data.room.roomName === '冒烟展馆' && set.data.room.theme.id === 'classic', `locked=${themeLocked.status} bg=${custBg.status} set=${set.status}`);
+  const themes = await call('GET', '/v1/collection-room/themes?lang=en', { token: owner.token });
+  const buyTheme = await call('POST', '/v1/collection-room/themes/sakura/purchase', { token: owner.token });
+  const buyTheme2 = await call('POST', '/v1/collection-room/themes/sakura/purchase', { token: owner.token });
+  const useTheme = await call('PUT', '/v1/collection-room', { token: owner.token, body: { themeId: 'sakura' } });
+  record('收藏室：至少 5 种主题（英文名），付费主题购买一次后可用', themes.status === 200 && themes.data.length >= 5 && themes.data.some((t) => t.name === 'Forest')
+    && buyTheme.status === 200 && buyTheme2.status === 409 && useTheme.status === 200, `themes=${themes.data && themes.data.length} buy=${buyTheme.status}/${buyTheme2.status} use=${useTheme.status}`);
+  const catalog = await call('GET', '/v1/collection-room/decorations/catalog?lang=ja', { token: owner.token });
+  const rarities = new Set((catalog.data || []).map((i) => i.rarity));
+  record('收藏室：装饰物品 ≥ 50 种、五档稀有度、三语名称', catalog.data && catalog.data.length >= 50 && rarities.size === 5
+    && catalog.data.some((i) => i.itemCode === 'chair_wood' && i.name === '木のイス'), `count=${catalog.data && catalog.data.length} rarities=${[...rarities]}`);
+
+  // 访问、点赞、留言
+  const v1 = await call('GET', `/v1/collection-room/users/${owner.userId}`, { token: visitor.token });
+  const v2 = await call('GET', `/v1/collection-room/${roomId}/visit`, { token: visitor.token });
+  const end = await call('POST', `/v1/collection-room/${roomId}/visit/end`, { token: visitor.token, body: { durationSeconds: 42 } });
+  const visitRow = await q1('SELECT visit_count, duration_seconds FROM room_visits WHERE room_id = $1 AND visitor_id = $2', [roomId, visitor.userId]);
+  record('收藏室：访问他人公开收藏室，记录访客数（每人每天 1 次）、次数与时长', v1.status === 200 && v1.data.isOwner === false
+    && v1.data.pokemon.length === 2 && v2.data.room.visitorCount === 1 && end.status === 200 && visitRow.visit_count === 2 && visitRow.duration_seconds === 42,
+  `visitors=${v2.data && v2.data.room.visitorCount} row=${JSON.stringify(visitRow)}`);
+  const likes = await Promise.all([1, 2, 3].map(() => call('POST', `/v1/collection-room/${roomId}/like`, { token: visitor.token })));
+  const selfLike = await call('POST', `/v1/collection-room/${roomId}/like`, { token: owner.token });
+  const lc = await q1('SELECT like_count FROM collection_rooms WHERE id = $1', [roomId]);
+  record('收藏室：点赞持久化，并发重复点赞只计一次，不能给自己点赞', likes.every((l) => l.status === 200) && lc.like_count === 1 && selfLike.status === 400,
+    `likes=${likes.map((l) => l.status)} count=${lc.like_count} self=${selfLike.status}`);
+  const liked = await waitFor(async () => (await notificationsOf(owner, '&category=social')).find((n) => n.type === 'social.collection_liked'));
+  record('收藏室：被点赞后房主收到消息', !!liked, liked ? liked.body : 'timeout');
+  await call('DELETE', `/v1/collection-room/${roomId}/like`, { token: visitor.token });
+  await call('POST', `/v1/collection-room/${roomId}/like`, { token: visitor.token });
+  const likeExp = await q1(`SELECT COUNT(*)::int AS n FROM room_exp_log WHERE room_id = $1 AND reason = 'visitor_liked'`, [roomId]);
+  const lc2 = await q1('SELECT like_count FROM collection_rooms WHERE id = $1', [roomId]);
+  record('收藏室：取消后再点赞不重复发经验', likeExp.n === 1 && lc2.like_count === 1, `expRows=${likeExp.n} count=${lc2.like_count}`);
+  const cm = await call('POST', `/v1/collection-room/${roomId}/comments`, { token: visitor.token, body: { content: '<b>好看！</b>' } });
+  const cms = await call('GET', `/v1/collection-room/${roomId}/comments`, { token: owner.token });
+  const cmNote = await waitFor(async () => (await notificationsOf(owner, '&category=social')).find((n) => n.type === 'social.collection_comment'));
+  const del = cm.data ? await call('DELETE', `/v1/collection-room/${roomId}/comments/${cm.data.id}`, { token: owner.token }) : { status: 0 };
+  record('收藏室：留言（内容清理）、房主收到留言消息、房主可删除留言', cm.status === 201 && cm.data.content === 'b好看！/b'
+    && cms.data.comments.length === 1 && !!cmNote && del.status === 200, `comment=${cm.status} note=${!!cmNote} del=${del.status}`);
+
+  const mineRoom = await call('GET', '/v1/collection-room', { token: owner.token });
+  const exp = mineRoom.data && mineRoom.data.room.experience;
+  record('收藏室：活动累积经验（展示 10×2 + 装饰 5×2 + 到访 3 + 点赞 15 + 留言 10 = 58）', exp === 58, `experience=${exp} level=${mineRoom.data && mineRoom.data.room.level}`);
+  const stats = await call('GET', '/v1/collection-room/stats', { token: owner.token });
+  record('收藏室：收藏统计（数量/稀有度分布/闪光/图鉴完成度）', stats.status === 200 && stats.data.displayed === 2 && stats.data.shiny === 1
+    && stats.data.rarityDistribution && stats.data.pokedex, `displayed=${stats.data && stats.data.displayed}`);
+  const pop = await call('GET', '/v1/collection-room/popular?sort=likes', { token: visitor.token });
+  record('收藏室：热门排行', pop.status === 200 && Array.isArray(pop.data), `size=${pop.data && pop.data.length}`);
+
+  await call('PUT', '/v1/collection-room', { token: owner.token, body: { isPublic: false } });
+  const priv = await call('GET', `/v1/collection-room/${roomId}/visit`, { token: visitor.token });
+  const privLike = await call('POST', `/v1/collection-room/${roomId}/like`, { token: visitor.token });
+  record('收藏室：未公开的收藏室他人不能访问/点赞', priv.status === 403 && privLike.status === 403, `visit=${priv.status} like=${privLike.status}`);
+  const ownerAch = await waitFor(async () => {
+    const r = await call('GET', '/v1/achievements/room_first_pokemon', { token: owner.token });
+    return r.data && r.data.completed ? r.data : null;
+  });
+  record('收藏室：收藏成就（开馆大吉）已完成', !!ownerAch);
+}
+
 async function main() {
   const ctx = await testLevelAchievementsAndTitles();
   await testCatchAndPokestop(ctx.user);
   await testMessageCenter(ctx);
-  if (typeof global.extraTests === 'function') await global.extraTests(ctx);
+  const prof = await testProfile(ctx);
+  await testCollectionRoom(ctx, prof);
 }
 
 main().catch((err) => { record('冒烟脚本异常', false, err.stack); }).finally(finish);
