@@ -13,7 +13,7 @@
 const express = require('express');
 const { requireAuth } = require('../../../../shared/auth');
 const inh = require('../inheritanceService');
-const { route, ok, ID } = require('../growth/common');
+const { route, ok, uuidOnly } = require('../growth/common');
 
 const router = express.Router();
 const uid = (req) => req.user.sub;
@@ -23,7 +23,7 @@ router.get('/inheritance/pool/:speciesId', requireAuth, route(async (req, res) =
 router.get('/inheritance/records', requireAuth, route(async (req, res) => ok(res, await inh.records(uid(req), req.query))));
 router.get('/inheritance/stats', requireAuth, route(async (req, res) => ok(res, await inh.stats(uid(req)))));
 router.post('/inheritance/use-item', requireAuth, route(async (req, res) => ok(res, await inh.useItem(uid(req), req.body || {}), '传承石已使用')));
-router.post(`/${ID}/release-with-inheritance`, requireAuth, route(async (req, res) =>
+router.post('/:id/release-with-inheritance', uuidOnly, requireAuth, route(async (req, res) =>
   ok(res, await inh.releaseWithInheritance(req.params.id, uid(req), req.body || {}), '放生成功')));
 
 module.exports = router;

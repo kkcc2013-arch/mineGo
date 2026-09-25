@@ -3,7 +3,7 @@
 - **编号**：REQ-00476
 - **类别**：API 设计规范
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：gateway/shared/performance-budget、backend/tests/benchmark、backend/shared/middleware/perBudgetMiddleware
 - **创建时间**：2026-07-07 07:00 UTC
 - **依赖需求**：REQ-00033-api-stress-test-performance-benchmark（已创建）、REQ-00301-full-chain-load-testing-and-performance-benchmark-system（已创建）
@@ -564,3 +564,29 @@ alertConfig:
 4. **生产级需求**：成熟项目必须有性能预算机制，这是生产可用的必要条件
 
 该需求实现后，可显著提升 mineGo 的性能可控性，避免性能退化影响用户。
+
+## 实现记录（2026-09-25）
+
+状态：**implemented**（代码已完成、未在服务上运行验证；按 09-25 验证规则，服务级验证由用户安排）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 性能预算定义模块完成，支持 P50/P95/P99/MAX 预算配置 | ✅ | `config/performance-budget.yaml` + `performanceBudget.js`（budgetType / priority / 路由模式，具体优先） |
+| 性能预算中间件完成，实时检查每个 API 响应时间 | ✅ | 网关 `perfBudgetMiddleware`（所有 API 请求） |
+| 预算违规时自动记录到 Redis 和 Prometheus | ✅ | Redis 小时汇总 `perf:budget:<hour>` + `api_performance_budget_*` 指标 |
+| 严格预算违规立即触发告警 | ✅ | strict 接口 MAX 违规即时告警（日志 + `api_performance_alerts` 表 + 指标），窗口评估百分位违规 |
+| 自动化基准测试调度器完成，每日凌晨执行 | ⚠️ | CI 模板 `schedule: 0 18 * * *`（北京时间 02:00）运行 `bench-api-performance.js --record-db`；模板需拷贝到 `.github/workflows/` 才生效 |
+| 基准测试覆盖所有 P0 优先级 API（至少 5 个） | ✅ | `scripts/bench-api-performance.js` 覆盖 9 个接口（预算文件中的 P0 接口全部包含） |
+| 性能退化检测完成，P99 增长超 20% 自动告警 | ✅ | `detectRegression`（阈值来自 YAML `regressionThresholds`），基准 `--gate` 失败；运行时告警规则 ApiP95AboveBudget / ApiStrictBudgetViolations |
+| CI 性能门禁完成，PR 合并前运行基准测试 | ⚠️ | CI 模板 performance-gate 作业（需拷贝后生效，未在 GitHub Actions 运行过） |
+| 性能退化超阈值时 CI 阻断合并 | ⚠️ | 同上（`--gate` 退出码 1） |
+| 性能热点分析器完成，输出热点 API 接榜单 | ✅ | `report().hotspots`（P95/预算 热度排序） |
+| 管理仪表板展示：各 API 预算达标率、热点榜单、趋势图表 | ✅ | 管理面板"性能预算"页 + Grafana 面板 |
+| 单元测试覆盖核心模块（BudgetDefinition、Middleware、Analyzer） | ✅ | ops 单测（YAML 解析、路由匹配、即时告警、窗口评估、热点、趋势、回归、门禁、仓库预算文件） |
+
+- 入口：网关中间件；`GET /api/admin/api-standards/performance`、`POST …/performance/evaluate`；管理面板
+- 基准：`BASE_URL=… node scripts/bench-api-performance.js [--gate] [--update-baseline] [--record-db]`（**未运行**；基线文件 `config/performance-baseline.json` 需首次运行 `--update-baseline` 生成）
+- 单测：`cd backend && npm run test:api-standards`（api-standards-core / contract / lint 为纯逻辑，宿主机已运行通过：core 25/25、contract 11/11、lint 4/4；pipeline / ops / services 依赖 express / pino / prom-client，在 09-25 18:30 验证规则调整前于 CI 栈跑通过（pipeline 17/17、ops 20/20、services 5/5），之后追加的用例**未运行，待验证**）
+- 冒烟：`BASE_URL=http://<网关> node scripts/smoke-api-standards.js`（约 90 项断言，**未运行，待验证**）；核心冒烟 `scripts/smoke-core-flow.js` 在网关接入管道后于 CI 栈跑过 37/37（18:30 前）
+- 未在生产环境验证：Grafana 面板与告警规则
+- 相关提交：分支 `work/e25-api`（Epic E25 API 设计规范，合并后见集成分支 squash 提交）

@@ -1,0 +1,10 @@
+[
+  {
+    "contract": "social.friends",
+    "type": "FIELD_TYPE_CHANGED",
+    "path": "$.data",
+    "reason": "E01 好友系统重写（集成分支已上线）：GET /v1/friends 的 data 由数组改为 { friends, pagination, limits }；game-client 当前未调用 getFriends()",
+    "approvedBy": "E25 合并集成分支时登记",
+    "date": "2026-09-25"
+  }
+]

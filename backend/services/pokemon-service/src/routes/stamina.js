@@ -17,7 +17,7 @@
 const express = require('express');
 const { requireAuth } = require('../../../../shared/auth');
 const stamina = require('../staminaService');
-const { route, ok, ID } = require('../growth/common');
+const { route, ok, uuidOnly } = require('../growth/common');
 
 const router = express.Router();
 const uid = (req) => req.user.sub;
@@ -27,15 +27,15 @@ router.post('/stamina/batch', requireAuth, route(async (req, res) => ok(res, awa
 router.get('/stamina/rest-stations', requireAuth, route(async (req, res) =>
   ok(res, await stamina.nearbyStations(req.query.lat, req.query.lng, req.query.radius))));
 
-router.get(`/${ID}/stamina`, requireAuth, route(async (req, res) => ok(res, await stamina.getStatus(req.params.id, uid(req)))));
-router.get(`/${ID}/stamina/history`, requireAuth, route(async (req, res) => ok(res, await stamina.history(req.params.id, uid(req), req.query))));
-router.post(`/${ID}/stamina/consume`, requireAuth, route(async (req, res) =>
+router.get('/:id/stamina', uuidOnly, requireAuth, route(async (req, res) => ok(res, await stamina.getStatus(req.params.id, uid(req)))));
+router.get('/:id/stamina/history', uuidOnly, requireAuth, route(async (req, res) => ok(res, await stamina.history(req.params.id, uid(req), req.query))));
+router.post('/:id/stamina/consume', uuidOnly, requireAuth, route(async (req, res) =>
   ok(res, await stamina.consume(req.params.id, uid(req), (req.body || {}).activityType))));
-router.post(`/${ID}/stamina/use-item`, requireAuth, route(async (req, res) =>
+router.post('/:id/stamina/use-item', uuidOnly, requireAuth, route(async (req, res) =>
   ok(res, await stamina.useItem(req.params.id, uid(req), (req.body || {}).itemId), '体力已恢复')));
-router.post(`/${ID}/stamina/rest`, requireAuth, route(async (req, res) =>
+router.post('/:id/stamina/rest', uuidOnly, requireAuth, route(async (req, res) =>
   ok(res, await stamina.startRest(req.params.id, uid(req), (req.body || {}).stationId), '开始休息')));
-router.post(`/${ID}/stamina/rest/end`, requireAuth, route(async (req, res) =>
+router.post('/:id/stamina/rest/end', uuidOnly, requireAuth, route(async (req, res) =>
   ok(res, await stamina.endRest(req.params.id, uid(req)), '休息结束')));
 
 module.exports = router;

@@ -11,6 +11,7 @@ const {
   API_VERSIONS,
   CURRENT_VERSION,
   SUPPORTED_VERSIONS,
+  getVersionRegistry,
 } = require('../middleware/apiVersion');
 const { getDeprecationTracker } = require('@pmg/shared/deprecationTracker');
 
@@ -19,23 +20,74 @@ const router = express.Router();
 
 /**
  * GET /api/version
- * 获取 API 版本信息
+ * 获取 API 版本信息（REQ-00201：状态为生命周期 development/testing/stable/deprecated/sunset）
  */
 router.get('/', (req, res) => {
+  const registry = getVersionRegistry();
   res.json({
     success: true,
+    code: 0,
+    message: 'ok',
     data: {
-      currentVersion: CURRENT_VERSION,
-      supportedVersions: SUPPORTED_VERSIONS,
-      versions: Object.keys(API_VERSIONS).map(v => ({
-        version: parseInt(v, 10),
-        status: API_VERSIONS[v].status,
-        released: API_VERSIONS[v].released,
-        deprecated: API_VERSIONS[v].deprecated,
-        sunset: API_VERSIONS[v].sunset,
+      currentVersion: registry.current(),
+      supportedVersions: registry.supported(),
+      negotiation: {
+        path: '/api/vN/...（旧前缀 /vN/... 等价）',
+        headers: ['Accept-Version: N', 'X-API-Version: N', 'Accept: application/vnd.minego.vN+json'],
+        precedence: 'URL > 媒体类型 > Accept-Version > X-API-Version > 默认（当前稳定版）',
+      },
+      versions: registry.list().map((v) => ({
+        ...v,
+        released: v.released || (API_VERSIONS[v.version] || {}).released || null,
+        deprecated: v.deprecatedAt,
+        sunset: v.sunsetAt,
+        legacyStatus: (API_VERSIONS[v.version] || {}).status || null,
       })),
     },
   });
+});
+
+/**
+ * GET /api/version/:version/breaking-changes
+ * 破坏性变更与变更记录（api_changes）
+ */
+router.get('/:version(\\d+)/breaking-changes', async (req, res) => {
+  const version = parseInt(req.params.version, 10);
+  try {
+    const rows = await getVersionRegistry().breakingChanges(version);
+    const fallback = (API_VERSIONS[version] || {}).changes || [];
+    const changes = rows.length ? rows : fallback.map((c) => ({ version, change_type: c.type, path: c.path || null, description: c.description, breaking_change: false }));
+    res.json({ success: true, code: 0, message: 'ok', data: { version, total: changes.length, breaking: changes.filter((c) => c.breaking_change).length, changes } });
+  } catch (err) {
+    logger.error({ err }, 'Failed to load api_changes');
+    res.status(500).json({ success: false, code: 9001, message: 'Failed to load changes' });
+  }
+});
+
+/**
+ * GET /api/version/:version/openapi.json
+ * 按版本生成的 OpenAPI 文档：从 bundled.yaml 取出属于该版本的路径（/api/vN/、/vN/）
+ */
+router.get('/:version(\\d+)/openapi.json', (req, res) => {
+  const version = parseInt(req.params.version, 10);
+  try {
+    const YAML = require('yamljs');
+    const path = require('path');
+    const doc = YAML.load(path.join(__dirname, '../../../../docs/api-spec/openapi/bundled.yaml'));
+    const re = new RegExp(`^/(?:api/)?v${version}(/|$)`);
+    const servers = (doc.servers || []).map((s) => ({ ...s }));
+    const paths = {};
+    for (const [p, item] of Object.entries(doc.paths || {})) {
+      const full = servers.length && /\/v\d+\/?$/.test(servers[0].url || '') ? `${(servers[0].url.match(/\/v\d+/) || [''])[0]}${p}` : p;
+      if (re.test(p) || re.test(full)) paths[p] = item;
+    }
+    const d = getVersionRegistry().describe(version);
+    if (!d) return res.status(404).json({ success: false, code: 1005, message: `Version ${version} not found` });
+    res.json({ ...doc, info: { ...(doc.info || {}), version: `${version}.0.0`, 'x-lifecycle': d.status, 'x-sunset': d.sunsetAt }, paths });
+  } catch (err) {
+    logger.error({ err }, 'Failed to build versioned OpenAPI');
+    res.status(500).json({ success: false, code: 9001, message: 'OpenAPI 文档不可用' });
+  }
 });
 
 /**

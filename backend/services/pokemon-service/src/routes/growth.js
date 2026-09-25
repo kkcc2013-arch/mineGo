@@ -22,7 +22,7 @@
 const express = require('express');
 const { requireAuth } = require('../../../../shared/auth');
 const tracker = require('../growth/growthTracker');
-const { route, ok, ID } = require('../growth/common');
+const { route, ok, uuidOnly } = require('../growth/common');
 
 const router = express.Router();
 const uid = (req) => req.user.sub;
@@ -31,16 +31,16 @@ router.get('/experience/boosts', requireAuth, route(async (req, res) => ok(res, 
 router.post('/experience/boosts', requireAuth, route(async (req, res) => ok(res, await tracker.activateBoost(uid(req), req.body || {}), '经验加成已生效')));
 router.get('/experience/stats', requireAuth, route(async (req, res) => ok(res, await tracker.userStats(uid(req), req.query))));
 
-router.post(`/${ID}/experience/use-item`, requireAuth, route(async (req, res) => ok(res, await tracker.useExpItem(req.params.id, uid(req), req.body || {}))));
-router.post(`/${ID}/experience/transfer`, requireAuth, route(async (req, res) => ok(res, await tracker.transfer(req.params.id, uid(req), req.body || {}))));
+router.post('/:id/experience/use-item', uuidOnly, requireAuth, route(async (req, res) => ok(res, await tracker.useExpItem(req.params.id, uid(req), req.body || {}))));
+router.post('/:id/experience/transfer', uuidOnly, requireAuth, route(async (req, res) => ok(res, await tracker.transfer(req.params.id, uid(req), req.body || {}))));
 
-router.get(`/${ID}/growth`, requireAuth, route(async (req, res) => ok(res, await tracker.summary(req.params.id, uid(req)))));
-router.get(`/${ID}/stats`, requireAuth, route(async (req, res) => ok(res, await tracker.summary(req.params.id, uid(req)))));
-router.get(`/${ID}/exp-history`, requireAuth, route(async (req, res) => ok(res, await tracker.history(req.params.id, uid(req), req.query))));
-router.get(`/${ID}/growth/trajectory`, requireAuth, route(async (req, res) => ok(res, await tracker.trajectory(req.params.id, uid(req), req.query))));
-router.get(`/${ID}/growth/sources`, requireAuth, route(async (req, res) => ok(res, await tracker.sources(req.params.id, uid(req), req.query))));
-router.get(`/${ID}/growth/milestones`, requireAuth, route(async (req, res) => ok(res, await tracker.milestones(req.params.id, uid(req)))));
-router.get(`/${ID}/growth/prediction`, requireAuth, route(async (req, res) => ok(res, await tracker.prediction(req.params.id, uid(req)))));
-router.get(`/${ID}/growth/report`, requireAuth, route(async (req, res) => ok(res, await tracker.report(req.params.id, uid(req), req.query))));
+router.get('/:id/growth', uuidOnly, requireAuth, route(async (req, res) => ok(res, await tracker.summary(req.params.id, uid(req)))));
+router.get('/:id/stats', uuidOnly, requireAuth, route(async (req, res) => ok(res, await tracker.summary(req.params.id, uid(req)))));
+router.get('/:id/exp-history', uuidOnly, requireAuth, route(async (req, res) => ok(res, await tracker.history(req.params.id, uid(req), req.query))));
+router.get('/:id/growth/trajectory', uuidOnly, requireAuth, route(async (req, res) => ok(res, await tracker.trajectory(req.params.id, uid(req), req.query))));
+router.get('/:id/growth/sources', uuidOnly, requireAuth, route(async (req, res) => ok(res, await tracker.sources(req.params.id, uid(req), req.query))));
+router.get('/:id/growth/milestones', uuidOnly, requireAuth, route(async (req, res) => ok(res, await tracker.milestones(req.params.id, uid(req)))));
+router.get('/:id/growth/prediction', uuidOnly, requireAuth, route(async (req, res) => ok(res, await tracker.prediction(req.params.id, uid(req)))));
+router.get('/:id/growth/report', uuidOnly, requireAuth, route(async (req, res) => ok(res, await tracker.report(req.params.id, uid(req), req.query))));
 
 module.exports = router;

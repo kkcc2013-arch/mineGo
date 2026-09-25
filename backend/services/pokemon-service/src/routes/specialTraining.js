@@ -18,7 +18,7 @@
 const express = require('express');
 const { requireAuth } = require('../../../../shared/auth');
 const st = require('../specialTrainingService');
-const { route, ok, ID } = require('../growth/common');
+const { route, ok, uuidOnly } = require('../growth/common');
 
 const router = express.Router();
 const uid = (req) => req.user.sub;
@@ -30,13 +30,13 @@ router.post('/special-training/items/buy', requireAuth, route(async (req, res) =
 router.post('/special-training/items/use', requireAuth, route(async (req, res) => ok(res, await st.useItem(uid(req), req.body || {}))));
 router.get('/special-training/achievements', requireAuth, route(async (req, res) => ok(res, await st.achievements(uid(req)))));
 
-router.get(`/${ID}/training`, requireAuth, route(async (req, res) => ok(res, await st.status(req.params.id, uid(req)))));
-router.post(`/${ID}/training/start`, requireAuth, route(async (req, res) => ok(res, await st.start(req.params.id, uid(req), req.body || {}), '开始特训')));
-router.post(`/${ID}/training/:trainingId/complete`, requireAuth, route(async (req, res) =>
+router.get('/:id/training', uuidOnly, requireAuth, route(async (req, res) => ok(res, await st.status(req.params.id, uid(req)))));
+router.post('/:id/training/start', uuidOnly, requireAuth, route(async (req, res) => ok(res, await st.start(req.params.id, uid(req), req.body || {}), '开始特训')));
+router.post('/:id/training/:trainingId/complete', uuidOnly, requireAuth, route(async (req, res) =>
   ok(res, await st.complete(req.params.id, req.params.trainingId, uid(req)), '特训完成')));
-router.post(`/${ID}/training/:trainingId/cancel`, requireAuth, route(async (req, res) =>
+router.post('/:id/training/:trainingId/cancel', uuidOnly, requireAuth, route(async (req, res) =>
   ok(res, await st.cancel(req.params.id, req.params.trainingId, uid(req)), '已取消特训')));
-router.post(`/${ID}/skill/:skillId/train`, requireAuth, route(async (req, res) =>
+router.post('/:id/skill/:skillId/train', uuidOnly, requireAuth, route(async (req, res) =>
   ok(res, await st.trainSkill(req.params.id, req.params.skillId, uid(req), req.body || {}))));
 
 module.exports = router;

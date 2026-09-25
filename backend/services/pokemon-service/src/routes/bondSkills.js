@@ -16,7 +16,7 @@
 const express = require('express');
 const { requireAuth } = require('../../../../shared/auth');
 const bond = require('../bondSkillService');
-const { route, ok, ID } = require('../growth/common');
+const { route, ok, uuidOnly } = require('../growth/common');
 
 const router = express.Router();
 const uid = (req) => req.user.sub;
@@ -26,16 +26,16 @@ router.get('/pokemon/species/:speciesId/bond-skills', requireAuth, route(async (
 router.get('/pokemon/bond-skills/stats', requireAuth, route(async (req, res) => ok(res, await bond.stats(uid(req)))));
 router.get('/bond-skills/stats', requireAuth, route(async (req, res) => ok(res, await bond.stats(uid(req)))));
 
-router.get(`/pokemon/${ID}/bond-skills`, requireAuth, route(async (req, res) => ok(res, await bond.getPokemonBondSkills(req.params.id, uid(req)))));
-router.post(`/pokemon/${ID}/bond-skills/:skillId/learn`, requireAuth, route(async (req, res) =>
+router.get('/pokemon/:id/bond-skills', uuidOnly, requireAuth, route(async (req, res) => ok(res, await bond.getPokemonBondSkills(req.params.id, uid(req)))));
+router.post('/pokemon/:id/bond-skills/:skillId/learn', uuidOnly, requireAuth, route(async (req, res) =>
   ok(res, await bond.learn(req.params.id, req.params.skillId, uid(req)), '学会了羁绊技能')));
-router.delete(`/pokemon/${ID}/bond-skills/:skillId`, requireAuth, route(async (req, res) =>
+router.delete('/pokemon/:id/bond-skills/:skillId', uuidOnly, requireAuth, route(async (req, res) =>
   ok(res, await bond.forget(req.params.id, req.params.skillId, uid(req)), '已遗忘羁绊技能')));
-router.post(`/pokemon/${ID}/bond-skills/:skillId/activate`, requireAuth, route(async (req, res) =>
+router.post('/pokemon/:id/bond-skills/:skillId/activate', uuidOnly, requireAuth, route(async (req, res) =>
   ok(res, await bond.activate(req.params.id, req.params.skillId, uid(req)), '羁绊技能已激活')));
-router.post(`/pokemon/${ID}/bond-skills/:skillId/use`, requireAuth, route(async (req, res) =>
+router.post('/pokemon/:id/bond-skills/:skillId/use', uuidOnly, requireAuth, route(async (req, res) =>
   ok(res, await bond.use(req.params.id, req.params.skillId, uid(req), req.body || {}))));
-router.get(`/pokemon/${ID}/bond-skills/:skillId/effect`, requireAuth, route(async (req, res) =>
+router.get('/pokemon/:id/bond-skills/:skillId/effect', uuidOnly, requireAuth, route(async (req, res) =>
   ok(res, await bond.effectOf(req.params.id, req.params.skillId, uid(req)))));
 
 module.exports = router;

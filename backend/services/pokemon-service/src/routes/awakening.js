@@ -19,7 +19,7 @@ const { requireAuth } = require('../../../../shared/auth');
 const awakening = require('../awakeningService');
 const battleProfile = require('../growth/battleProfile');
 const shop = require('../growth/shop');
-const { route, ok, ID } = require('../growth/common');
+const { route, ok, uuidOnly } = require('../growth/common');
 
 const router = express.Router();
 const uid = (req) => req.user.sub;
@@ -29,11 +29,11 @@ router.get('/awakening/potentials', requireAuth, route(async (req, res) => ok(re
 router.get('/growth-shop/items', requireAuth, route(async (req, res) => ok(res, await shop.list(uid(req), req.query))));
 router.post('/growth-shop/buy', requireAuth, route(async (req, res) => ok(res, await shop.buy(uid(req), req.body || {}), '购买成功')));
 
-router.get(`/${ID}/awakening`, requireAuth, route(async (req, res) => ok(res, await awakening.getStatus(req.params.id, uid(req), { lang: langOf(req) }))));
-router.post(`/${ID}/awakening/awaken`, requireAuth, route(async (req, res) =>
+router.get('/:id/awakening', uuidOnly, requireAuth, route(async (req, res) => ok(res, await awakening.getStatus(req.params.id, uid(req), { lang: langOf(req) }))));
+router.post('/:id/awakening/awaken', uuidOnly, requireAuth, route(async (req, res) =>
   ok(res, await awakening.awaken(req.params.id, uid(req), { lang: langOf(req) }), '觉醒成功！')));
-router.post(`/${ID}/awakening/reroll`, requireAuth, route(async (req, res) =>
+router.post('/:id/awakening/reroll', uuidOnly, requireAuth, route(async (req, res) =>
   ok(res, await awakening.reroll(req.params.id, uid(req), (req.body || {}).stage, { lang: langOf(req) }), '潜能已重洗')));
-router.get(`/${ID}/battle-profile`, requireAuth, route(async (req, res) => ok(res, await battleProfile.profile(req.params.id, uid(req)))));
+router.get('/:id/battle-profile', uuidOnly, requireAuth, route(async (req, res) => ok(res, await battleProfile.profile(req.params.id, uid(req)))));
 
 module.exports = router;

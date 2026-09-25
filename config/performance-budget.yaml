@@ -1,0 +1,143 @@
+# REQ-00476: API 性能预算（网关对外路径）
+# 时间单位 ms；budgetType: strict（违规立即告警）| moderate | relaxed；priority: P0-P3
+# 被 backend/shared/apiStandards/performanceBudget.js（网关中间件）与 scripts/perf-benchmark.js（CI 门禁）共同读取
+version: 1
+
+defaults:
+  p50: 200ms
+  p95: 500ms
+  p99: 1000ms
+  max: 3000ms
+  budgetType: relaxed
+  priority: P2
+
+evaluation:
+  windowSize: 1000
+  minSamples: 20
+
+budgets:
+  catch:
+    "POST /v1/catch/throw":
+      p50: 100ms
+      p95: 200ms
+      p99: 500ms
+      max: 1000ms
+      budgetType: strict
+      priority: P0
+    "POST /v1/catch/session":
+      p50: 100ms
+      p95: 250ms
+      p99: 500ms
+      max: 1000ms
+      budgetType: strict
+      priority: P0
+  auth:
+    "POST /v1/auth/login":
+      p50: 150ms
+      p95: 300ms
+      p99: 600ms
+      max: 2000ms
+      budgetType: moderate
+      priority: P0
+    "POST /v1/auth/register":
+      p50: 200ms
+      p95: 400ms
+      p99: 800ms
+      max: 2500ms
+      budgetType: moderate
+      priority: P1
+  user:
+    "GET /v1/users/me":
+      p50: 50ms
+      p95: 150ms
+      p99: 300ms
+      max: 1000ms
+      budgetType: strict
+      priority: P0
+  location:
+    "POST /v1/location":
+      p50: 80ms
+      p95: 200ms
+      p99: 400ms
+      max: 1000ms
+      budgetType: strict
+      priority: P0
+    "GET /v1/map/nearby":
+      p50: 100ms
+      p95: 300ms
+      p99: 600ms
+      max: 2000ms
+      budgetType: moderate
+      priority: P0
+  pokemon:
+    "GET /v1/pokemon/my":
+      p50: 100ms
+      p95: 400ms
+      p99: 800ms
+      max: 2000ms
+      budgetType: relaxed
+      priority: P1
+    "GET /v1/pokemon/my/:id":
+      p50: 50ms
+      p95: 100ms
+      p99: 200ms
+      max: 500ms
+      budgetType: strict
+      priority: P0
+    "GET /v1/pokemon/species":
+      p50: 80ms
+      p95: 200ms
+      p99: 400ms
+      max: 1000ms
+      budgetType: relaxed
+      priority: P1
+    "POST /v1/pokemon/batch/details":
+      p50: 150ms
+      p95: 500ms
+      p99: 800ms
+      max: 2000ms
+      budgetType: moderate
+      priority: P1
+  gateway:
+    "POST /api/v1/batch":
+      p50: 150ms
+      p95: 500ms
+      p99: 800ms
+      max: 3000ms
+      budgetType: moderate
+      priority: P1
+  reward:
+    "GET /v1/rewards/daily":
+      p50: 50ms
+      p95: 150ms
+      p99: 300ms
+      max: 1000ms
+      budgetType: moderate
+      priority: P1
+  payment:
+    "POST /v1/payment/orders":
+      p50: 100ms
+      p95: 250ms
+      p99: 500ms
+      max: 1000ms
+      budgetType: strict
+      priority: P0
+
+regressionThresholds:
+  p99: 20%
+  p95: 15%
+  p50: 10%
+
+alertConfig:
+  channels:
+    - log: gateway
+    - prometheus: api_performance_budget_alerts_total
+  severityLevels:
+    critical:
+      budgetType: strict
+      percentile: p99
+      violationsPerHour: 10
+    warning:
+      budgetType: moderate
+      percentile: p95
+      violationsPerHour: 5

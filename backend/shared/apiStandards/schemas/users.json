@@ -1,0 +1,57 @@
+{
+  "$id": "users",
+  "service": "user",
+  "definitions": {
+    "User": {
+      "type": "object",
+      "required": ["id", "nickname", "level"],
+      "properties": {
+        "id": { "type": "string", "format": "uuid" },
+        "nickname": { "type": "string" },
+        "avatar_url": { "type": ["string", "null"] },
+        "team": { "type": ["string", "null"] },
+        "level": { "type": "integer", "minimum": 1 },
+        "xp": { "type": ["string", "integer"] },
+        "stardust": { "type": "integer" },
+        "coins": { "type": "integer" },
+        "pokemon_count": { "type": "integer" },
+        "created_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "Tokens": {
+      "type": "object",
+      "required": ["accessToken", "refreshToken"],
+      "properties": {
+        "accessToken": { "type": "string", "minLength": 20 },
+        "refreshToken": { "type": "string", "minLength": 20 },
+        "tokenExpireAt": { "type": "integer" },
+        "userId": { "type": "string", "format": "uuid" },
+        "nickname": { "type": "string" }
+      }
+    },
+    "Inventory": {
+      "type": "object",
+      "required": ["pokeball_count", "stardust"],
+      "properties": {
+        "pokeball_count": { "type": "integer", "minimum": 0 },
+        "greatball_count": { "type": "integer", "minimum": 0 },
+        "ultraball_count": { "type": "integer", "minimum": 0 },
+        "masterball_count": { "type": "integer", "minimum": 0 },
+        "stardust": { "type": "integer" },
+        "coins": { "type": "integer" }
+      }
+    }
+  },
+  "contracts": [
+    { "id": "users.me", "method": "GET", "route": "/v1/users/me", "auth": "bearer", "description": "当前用户资料",
+      "schema": { "allOf": [{ "$ref": "common#/definitions/SuccessEnvelope" }, { "type": "object", "properties": { "data": { "$ref": "#/definitions/User" } } }] } },
+    { "id": "users.inventory", "method": "GET", "route": "/v1/users/me/inventory", "auth": "bearer", "description": "背包道具",
+      "schema": { "allOf": [{ "$ref": "common#/definitions/SuccessEnvelope" }, { "type": "object", "properties": { "data": { "$ref": "#/definitions/Inventory" } } }] } },
+    { "id": "auth.login", "method": "POST", "route": "/v1/auth/login", "description": "短信验证码登录",
+      "requestSchema": { "type": "object", "required": ["phone", "smsCode"], "properties": { "phone": { "type": "string" }, "smsCode": { "type": "string" } } },
+      "schema": { "allOf": [{ "$ref": "common#/definitions/SuccessEnvelope" }, { "type": "object", "properties": { "data": { "$ref": "#/definitions/Tokens" } } }] } },
+    { "id": "auth.refresh", "method": "POST", "route": "/v1/auth/refresh", "description": "刷新令牌",
+      "requestSchema": { "type": "object", "required": ["refreshToken"], "properties": { "refreshToken": { "type": "string" } } },
+      "schema": { "allOf": [{ "$ref": "common#/definitions/SuccessEnvelope" }, { "type": "object", "properties": { "data": { "type": "object", "required": ["accessToken"], "properties": { "accessToken": { "type": "string" } } } } }] } }
+  ]
+}

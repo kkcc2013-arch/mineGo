@@ -17,7 +17,7 @@ const express = require('express');
 const { requireAuth, optionalAuth } = require('../../../../shared/auth');
 const viz = require('../evolutionVisualizationService');
 const evolutionService = require('../evolutionService');
-const { route, ok, ID } = require('../growth/common');
+const { route, ok, uuidOnly } = require('../growth/common');
 
 const router = express.Router();
 const langOf = (req) => req.query.lang || req.headers['x-language'] || req.headers['accept-language'];
@@ -29,11 +29,11 @@ router.post('/batch-evolution-chains', optionalAuth, route(async (req, res) =>
   ok(res, await viz.getChains((req.body || {}).speciesIds, { userId: req.user && req.user.sub, lang: langOf(req) }))));
 router.get('/evolution-types', route(async (req, res) => ok(res, viz.evolutionTypes(langOf(req)))));
 
-router.get(`/${ID}/evolution-preview/:targetSpeciesId`, requireAuth, route(async (req, res) =>
+router.get('/:id/evolution-preview/:targetSpeciesId', uuidOnly, requireAuth, route(async (req, res) =>
   ok(res, await viz.getPreview(req.params.id, req.user.sub, req.params.targetSpeciesId))));
-router.get(`/my/${ID}/evolution-preview`, requireAuth, route(async (req, res) =>
+router.get('/my/:id/evolution-preview', uuidOnly, requireAuth, route(async (req, res) =>
   ok(res, await viz.getPreview(req.params.id, req.user.sub, req.query.targetSpeciesId))));
-router.get(`/${ID}/recommended-evolution`, requireAuth, route(async (req, res) =>
+router.get('/:id/recommended-evolution', uuidOnly, requireAuth, route(async (req, res) =>
   ok(res, await viz.getRecommended(req.params.id, req.user.sub))));
 router.post('/evolve', requireAuth, route(async (req, res) => {
   const body = req.body || {};

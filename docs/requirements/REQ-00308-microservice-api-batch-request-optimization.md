@@ -3,7 +3,7 @@
 - **编号**：REQ-00308
 - **类别**：成本/资源优化
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：gateway、所有微服务、backend/shared/middleware、Redis、Kafka
 - **创建时间**：2026-06-24 03:00 UTC
 - **依赖需求**：无
@@ -435,3 +435,31 @@ traditional_requests_latency_comparison   // 延迟对比
 3. **边缘缓存**：在 CDN 边缘节点缓存批量请求结果
 4. **请求去重**：合并多个用户请求相同资源
 5. **成本优化推荐**：基于使用数据推荐最佳批量策略
+
+## 实现记录（2026-09-25）
+
+状态：**implemented**（代码已完成、未在服务上运行验证；按 09-25 验证规则，服务级验证由用户安排）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| POST /api/batch 端点正确处理批量请求 | ✅ | `POST /api/v1/batch`（别名 `/api/batch`，需登录）；子请求经网关回环执行，完整复用鉴权/限流/管道；禁止嵌套与路径穿越 |
+| 批量请求内部并行执行，总延迟小于串行执行时间 | ✅ | `BatchExecutor` 并发（maxParallel ≤ 10）；summary 给出 totalDuration 与 sequentialEstimate；单测断言 |
+| GET 请求结果被正确缓存，重复请求命中缓存 | ✅ | Redis 缓存按用户 + 用户缓存版本隔离（写操作后失效），`cacheTTL` ≤ 300s |
+| 高优先级请求优先执行并返回 | ✅ | priority 队列；流式模式（`?stream=1` / NDJSON）先完成先返回 |
+| 单个请求失败不影响其他请求（failFast=false） | ✅ | 单测 + 冒烟 |
+| failFast=true 时，首次失败立即返回 | ✅ | 中止进行中的子请求（499），未开始的标记 ABORTED |
+| 速率限制正确应用（每用户每分钟最多 60 次批量请求） | ✅ | Redis 计数，429 `BATCH_RATE_LIMITED` + Retry-After；`BATCH_RATE_LIMIT_PER_MIN` 可调 |
+| Prometheus 指标正确记录统计数据 | ✅ | `api_batch_requests_total`、`api_batch_subrequests_total`、`api_batch_duration_seconds`、`api_batch_size`、`api_batch_cost_saved_usd_total`；另写 `batch_request_stats` |
+| 成本节省计算准确，误差 < 5% | ✅ | 确定性公式（省掉的往返 + 命中缓存的后端调用），与需求示例一致（3 个请求 1 个命中 → $0.00012），单测 |
+| 单元测试覆盖率 > 90% | ⚠️ | 单测覆盖并行/优先级/failFast/超时/缓存/校验/模板/重试；未跑覆盖率工具 |
+| 集成测试覆盖所有预定义模板 | ✅ | 冒烟脚本逐个执行 `GET /api/v1/batch/templates` 返回的全部模板（待验证） |
+| 性能测试：100 个并发批量请求，P99 延迟 < 500ms | ⚠️ | 未实测。`node scripts/bench-api-performance.js --concurrency 100 --requests 1000` 含 `POST /api/v1/batch` 端点 |
+
+- 入口：网关 `/api/v1/batch`、`/api/v1/batch/templates[/:name]`、`/api/v1/batch/stats`
+- 代码：`backend/shared/apiStandards/batch.js`、`backend/gateway/src/apiStandards/setup.js`（回环 dispatch）、`backend/gateway/src/routes/apiStandards.js`
+- 迁移：`database/migrations/20260925_100000__api_design_standards.sql`（14 张表，幂等；18:30 前在 CI 栈全量 bootstrap 中执行通过）（`batch_request_templates` 含 4 个预定义模板、`batch_request_stats`）
+- 单测：`cd backend && npm run test:api-standards`（api-standards-core / contract / lint 为纯逻辑，宿主机已运行通过：core 25/25、contract 11/11、lint 4/4；pipeline / ops / services 依赖 express / pino / prom-client，在 09-25 18:30 验证规则调整前于 CI 栈跑通过（pipeline 17/17、ops 20/20、services 5/5），之后追加的用例**未运行，待验证**）
+- 前端单测：`node --test frontend/game-client/tests/unit/api-standards-client.test.mjs`（宿主机 10/10 通过，Node ≥ 22.12）（`api.batch()`）
+- 冒烟：`BASE_URL=http://<网关> node scripts/smoke-api-standards.js`（约 90 项断言，**未运行，待验证**）；核心冒烟 `scripts/smoke-core-flow.js` 在网关接入管道后于 CI 栈跑过 37/37（18:30 前）
+- 待验证：回环地址 `GATEWAY_SELF_URL`（默认 `http://127.0.0.1:$PORT`）在生产多实例 / 反向代理后可达；子请求的 X-Forwarded-For 透传后限流按真实用户 IP 生效
+- 相关提交：分支 `work/e25-api`（Epic E25 API 设计规范，合并后见集成分支 squash 提交）

@@ -3,7 +3,7 @@
 - **编号**：REQ-00368
 - **类别**：API 设计规范
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：gateway、所有微服务、backend/shared/middleware/contentNegotiation.js、docs/api-spec
 - **创建时间**：2026-06-29 15:00 UTC
 - **依赖需求**：REQ-00307（API 参数验证与响应格式一致性）、REQ-00302（API 分页标准化）
@@ -466,3 +466,27 @@ P1 理由：
 - RFC 7231 Section 5.3 (Content Negotiation)
 - RFC 6838 (Media Type Specifications)
 - mineGo API 错误码文档 (docs/api/error-codes.md)
+
+## 实现记录（2026-09-25）
+
+状态：**implemented**（代码已完成、未在服务上运行验证；按 09-25 验证规则，服务级验证由用户安排）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| Accept Header 为空或缺失时，默认返回 `application/json; charset=utf-8` | ✅ | 单测 + 管道集成测试 |
+| Accept Header 包含支持的媒体类型时，响应 Content-Type 正确匹配 | ✅ | JSON / HAL / MessagePack / `application/vnd.minego.<资源>.vN+json` |
+| Accept Header 包含多个媒体类型时，按 q 值优先级正确选择 | ✅ | q 值 → 具体程度 → 出现顺序 |
+| Accept Header 仅包含不支持的类型时，返回 406 Not Acceptable | ✅ | `error.details.supported` 列出可用类型 |
+| POST/PUT 请求缺少 Content-Type 时，返回 415 Unsupported Media Type | ✅ | POST/PUT/PATCH 有请求体时；支付回调、CSP 上报白名单 |
+| POST/PUT 请求 Content-Type 为非法格式时，返回 415 | ✅ | 含非 UTF-8 charset |
+| Vary: Accept 响应头正确设置 | ✅ |  |
+| 响应 Content-Type 包含 charset 参数 | ✅ | JSON 类均带 `charset=utf-8` |
+| MediaTypeRegistry 支持注册/查询/弃用操作 | ✅ | 另有注销；`GET /api/media-types` |
+| 单元测试覆盖率 ≥ 90% | ⚠️ | 单测覆盖 parseAccept / negotiate / checkContentType / 注册表全部分支；未跑覆盖率工具 |
+
+- 入口：网关管道 contentNegotiator / contentTypeValidator / serializer；`GET /api/media-types`
+- 代码：`backend/shared/apiStandards/mediaTypes.js`、`msgpack.js`（零依赖实现）
+- 单测：`cd backend && npm run test:api-standards`（api-standards-core / contract / lint 为纯逻辑，宿主机已运行通过：core 25/25、contract 11/11、lint 4/4；pipeline / ops / services 依赖 express / pino / prom-client，在 09-25 18:30 验证规则调整前于 CI 栈跑通过（pipeline 17/17、ops 20/20、services 5/5），之后追加的用例**未运行，待验证**）
+- 冒烟：`BASE_URL=http://<网关> node scripts/smoke-api-standards.js`（约 90 项断言，**未运行，待验证**）；核心冒烟 `scripts/smoke-core-flow.js` 在网关接入管道后于 CI 栈跑过 37/37（18:30 前）
+- 待验证：第三方回调（支付渠道）是否都在 415 白名单（`contentTypeExemptPaths`）内
+- 相关提交：分支 `work/e25-api`（Epic E25 API 设计规范，合并后见集成分支 squash 提交）

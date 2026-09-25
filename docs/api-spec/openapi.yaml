@@ -1,0 +1,1630 @@
+# 自动生成，请勿手改：node scripts/generate-openapi-standards.js
+openapi: "3.1.0"
+info:
+  title: "mineGo API（契约生成）"
+  version: "2.0.0"
+  description: "由 scripts/generate-openapi-standards.js 从 backend/shared/apiStandards/schemas 生成，请勿手改。\n版本协商：/api/vN/ 或 Accept-Version；内容协商：application/json | application/x-msgpack | application/hal+json；字段投影：?fields= / ?fieldset=；分页：page/pageSize 或 cursor；错误码目录：GET /api/errors。"
+servers:
+  - url: "/"
+paths:
+  "/api/discover":
+    get:
+      operationId: "gateway.discover"
+      summary: "资源发现（REQ-00518）"
+      tags:
+        - "gateway"
+      security: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/GatewayDiscoverResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/GatewayDiscoverResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/api/v1/batch":
+    post:
+      operationId: "gateway.batch"
+      summary: "批量请求（REQ-00308）"
+      tags:
+        - "gateway"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/GatewayBatchRequest"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/GatewayBatchResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/GatewayBatchResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/api/version":
+    get:
+      operationId: "gateway.version"
+      summary: "版本信息（REQ-00201）"
+      tags:
+        - "gateway"
+      security: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/GatewayVersionResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/GatewayVersionResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/v1/auth/login":
+    post:
+      operationId: "auth.login"
+      summary: "短信验证码登录"
+      tags:
+        - "user"
+      security: []
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/AuthLoginRequest"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/AuthLoginResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/AuthLoginResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/v1/auth/refresh":
+    post:
+      operationId: "auth.refresh"
+      summary: "刷新令牌"
+      tags:
+        - "user"
+      security: []
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/AuthRefreshRequest"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/AuthRefreshResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/AuthRefreshResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/v1/catch/session":
+    post:
+      operationId: "catch.session"
+      summary: "创建捕捉会话"
+      tags:
+        - "catch"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/CatchSessionResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/CatchSessionResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/v1/catch/throw":
+    post:
+      operationId: "catch.throw"
+      summary: "投掷精灵球"
+      tags:
+        - "catch"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/CatchThrowResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/CatchThrowResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/v1/friends":
+    get:
+      operationId: "social.friends"
+      summary: "好友列表（E01：data.friends + data.pagination，按对方隐私设置过滤）"
+      tags:
+        - "social"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SocialFriendsResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/SocialFriendsResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/v1/location":
+    post:
+      operationId: "location.update"
+      summary: "上报位置"
+      tags:
+        - "location"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/LocationUpdateRequest"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/LocationUpdateResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/LocationUpdateResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/v1/map/nearby":
+    get:
+      operationId: "map.nearby"
+      summary: "附近的野生精灵 / 补给站 / 道馆"
+      tags:
+        - "location"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/MapNearbyResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/MapNearbyResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/v1/payment/products":
+    get:
+      operationId: "payment.products"
+      summary: "商品列表"
+      tags:
+        - "payment"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PaymentProductsResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/PaymentProductsResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/v1/pokemon/batch/details":
+    post:
+      operationId: "pokemon.batch.details"
+      summary: "精灵详情批量查询（REQ-00350）"
+      tags:
+        - "pokemon"
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/PokemonBatchDetailsRequest"
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PokemonBatchDetailsResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/PokemonBatchDetailsResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/v1/pokemon/my":
+    get:
+      operationId: "pokemon.my.list"
+      summary: "我的精灵列表（分页）"
+      tags:
+        - "pokemon"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PokemonMyListResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/PokemonMyListResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/v1/pokemon/my/{id}":
+    get:
+      operationId: "pokemon.my.detail"
+      summary: "我的精灵详情"
+      tags:
+        - "pokemon"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PokemonMyDetailResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/PokemonMyDetailResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/v1/pokemon/pokedex":
+    get:
+      operationId: "pokemon.pokedex"
+      summary: "个人图鉴"
+      tags:
+        - "pokemon"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PokemonPokedexResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/PokemonPokedexResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/v1/pokemon/species":
+    get:
+      operationId: "pokemon.species.list"
+      summary: "图鉴种类列表"
+      tags:
+        - "pokemon"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PokemonSpeciesListResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/PokemonSpeciesListResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/v1/pokemon/species/{id}":
+    get:
+      operationId: "pokemon.species.detail"
+      summary: "图鉴种类详情"
+      tags:
+        - "pokemon"
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PokemonSpeciesDetailResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/PokemonSpeciesDetailResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/v1/rewards/daily":
+    get:
+      operationId: "rewards.daily"
+      summary: "每日签到状态"
+      tags:
+        - "reward"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/RewardsDailyResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/RewardsDailyResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/v1/rewards/leaderboard":
+    get:
+      operationId: "rewards.leaderboard"
+      summary: "排行榜"
+      tags:
+        - "reward"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/RewardsLeaderboardResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/RewardsLeaderboardResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/v1/users/me":
+    get:
+      operationId: "users.me"
+      summary: "当前用户资料"
+      tags:
+        - "user"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/UsersMeResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/UsersMeResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  "/v1/users/me/inventory":
+    get:
+      operationId: "users.inventory"
+      summary: "背包道具"
+      tags:
+        - "user"
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: "OK"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/UsersInventoryResponse"
+            "application/x-msgpack":
+              schema:
+                $ref: "#/components/schemas/UsersInventoryResponse"
+        default:
+          description: "错误（统一错误格式）"
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: "http"
+      scheme: "bearer"
+      bearerFormat: "JWT"
+  parameters:
+    Fields:
+      name: "fields"
+      in: "query"
+      schema:
+        type: "string"
+      description: "字段投影，如 id,cp,moves[].name（最多 50 个）"
+    Fieldset:
+      name: "fieldset"
+      in: "query"
+      schema:
+        type: "string"
+      description: "预定义字段集（list/detail/battle/social…）"
+    Page:
+      name: "page"
+      in: "query"
+      schema:
+        type: "integer"
+        minimum: 1
+        default: 1
+    PageSize:
+      name: "pageSize"
+      in: "query"
+      schema:
+        type: "integer"
+        minimum: 1
+        maximum: 100
+        default: 20
+    Cursor:
+      name: "cursor"
+      in: "query"
+      schema:
+        type: "string"
+    AcceptVersion:
+      name: "Accept-Version"
+      in: "header"
+      schema:
+        type: "integer"
+  schemas:
+    Deprecation:
+      type: "object"
+      required:
+        - "deprecated"
+        - "migrationGuide"
+      properties:
+        deprecated:
+          const: true
+        deprecatedAt:
+          type: "string"
+          format: "date-time"
+        sunsetAt:
+          type:
+            - "string"
+            - "null"
+        daysRemaining:
+          type:
+            - "integer"
+            - "null"
+        successorApi:
+          type:
+            - "string"
+            - "null"
+        migrationGuide:
+          type: "string"
+        breakingChanges:
+          type: "array"
+    ErrorObject:
+      type: "object"
+      required:
+        - "code"
+        - "name"
+        - "message"
+      properties:
+        code:
+          type:
+            - "integer"
+            - "string"
+        name:
+          type: "string"
+          pattern: "^[A-Z][A-Z0-9_]+$"
+        message:
+          type: "string"
+        httpStatus:
+          type: "integer"
+        i18nKey:
+          type: "string"
+        docUrl:
+          type: "string"
+        retryable:
+          type: "boolean"
+        retryAfter:
+          type: "number"
+        details: {}
+    ErrorResponse:
+      type: "object"
+      description: "统一错误响应（error 为旧格式字符串时标准对象在 errorInfo）"
+      required:
+        - "success"
+        - "code"
+        - "message"
+        - "error"
+      properties:
+        success:
+          const: false
+        code:
+          type:
+            - "integer"
+            - "string"
+        message:
+          type: "string"
+        error:
+          anyOf:
+            - $ref: "#/components/schemas/ErrorObject"
+            - type: "string"
+        errorInfo:
+          $ref: "#/components/schemas/ErrorObject"
+        meta:
+          $ref: "#/components/schemas/Meta"
+    Link:
+      type: "object"
+      required:
+        - "href"
+      properties:
+        href:
+          type: "string"
+        method:
+          type: "string"
+          enum:
+            - "GET"
+            - "POST"
+            - "PUT"
+            - "PATCH"
+            - "DELETE"
+        title:
+          type: "string"
+        templated:
+          type: "boolean"
+    Links:
+      type: "object"
+      description: "HAL 链接集合"
+      additionalProperties:
+        $ref: "#/components/schemas/Link"
+    Meta:
+      type: "object"
+      description: "响应元信息"
+      properties:
+        requestId:
+          type: "string"
+        timestamp:
+          type: "string"
+          format: "date-time"
+        apiVersion:
+          type: "integer"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+    Pagination:
+      type: "object"
+      description: "分页元数据（offset 与 cursor 两种分页的并集）"
+      required:
+        - "type"
+        - "pageSize"
+        - "hasNext"
+        - "hasPrev"
+      properties:
+        type:
+          type: "string"
+          enum:
+            - "offset"
+            - "cursor"
+        page:
+          type:
+            - "integer"
+            - "null"
+        pageSize:
+          type: "integer"
+          minimum: 1
+        limit:
+          type: "integer"
+          minimum: 1
+        offset:
+          type:
+            - "integer"
+            - "null"
+          minimum: 0
+        total:
+          type:
+            - "integer"
+            - "null"
+        totalPages:
+          type:
+            - "integer"
+            - "null"
+        hasMore:
+          type: "boolean"
+        hasNext:
+          type: "boolean"
+        hasPrev:
+          type: "boolean"
+        nextCursor:
+          type:
+            - "string"
+            - "null"
+        prevCursor:
+          type:
+            - "string"
+            - "null"
+    SuccessEnvelope:
+      type: "object"
+      description: "成功响应信封：旧客户端依赖 code=0 与 data"
+      required:
+        - "success"
+        - "code"
+        - "data"
+      properties:
+        success:
+          const: true
+        code:
+          const: 0
+        message:
+          type: "string"
+        data: {}
+        meta:
+          $ref: "#/components/schemas/Meta"
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        _links:
+          $ref: "#/components/schemas/Links"
+        deprecation:
+          $ref: "#/components/schemas/Deprecation"
+        timestamp:
+          type: "string"
+    WildPokemon:
+      type: "object"
+      required:
+        - "id"
+        - "species_id"
+        - "lat"
+        - "lng"
+      properties:
+        id:
+          type: "string"
+        species_id:
+          type: "integer"
+        lat:
+          type:
+            - "string"
+            - "number"
+        lng:
+          type:
+            - "string"
+            - "number"
+        cp:
+          type: "integer"
+        is_shiny:
+          type: "boolean"
+        expires_at:
+          type: "string"
+        rarity:
+          type:
+            - "string"
+            - "null"
+    BatchResponse:
+      type: "object"
+      required:
+        - "responses"
+        - "summary"
+      properties:
+        responses:
+          type: "array"
+          items:
+            type: "object"
+            required:
+              - "id"
+              - "status"
+              - "duration"
+            properties:
+              id:
+                type: "string"
+              status:
+                type: "integer"
+              data: {}
+              error: {}
+              cached:
+                type: "boolean"
+              duration:
+                type: "integer"
+              priority:
+                type: "string"
+        summary:
+          type: "object"
+          required:
+            - "total"
+            - "success"
+            - "failed"
+            - "cached"
+            - "totalDuration"
+            - "costSaved"
+          properties:
+            total:
+              type: "integer"
+            success:
+              type: "integer"
+            failed:
+              type: "integer"
+            cached:
+              type: "integer"
+            totalDuration:
+              type: "integer"
+            costSaved:
+              type: "number"
+            failedFast:
+              type: "boolean"
+    BatchDetails:
+      type: "object"
+      required:
+        - "results"
+        - "errors"
+        - "metadata"
+      properties:
+        results:
+          type: "object"
+          additionalProperties:
+            $ref: "#/components/schemas/PokemonDetail"
+        errors:
+          type: "object"
+          additionalProperties:
+            type: "object"
+            required:
+              - "code"
+              - "message"
+        metadata:
+          type: "object"
+          required:
+            - "requested"
+            - "found"
+            - "failed"
+            - "cached"
+            - "queryTime"
+          properties:
+            requested:
+              type: "integer"
+            found:
+              type: "integer"
+            failed:
+              type: "integer"
+            cached:
+              type: "integer"
+            queryTime:
+              type: "integer"
+            dbQueries:
+              type: "integer"
+            partial:
+              type: "boolean"
+    PokemonDetail:
+      allOf:
+        - $ref: "#/components/schemas/PokemonSummary"
+        - type: "object"
+          required:
+            - "user_id"
+          properties:
+            user_id:
+              type: "string"
+              format: "uuid"
+            candy_count:
+              type: "integer"
+              minimum: 0
+            candy_to_evolve:
+              type:
+                - "integer"
+                - "null"
+            evolves_to:
+              type:
+                - "integer"
+                - "null"
+            base_attack:
+              type:
+                - "integer"
+                - "null"
+            base_defense:
+              type:
+                - "integer"
+                - "null"
+            base_hp:
+              type:
+                - "integer"
+                - "null"
+    PokemonSummary:
+      type: "object"
+      required:
+        - "id"
+        - "species_id"
+        - "cp"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        species_id:
+          type: "integer"
+        nickname:
+          type:
+            - "string"
+            - "null"
+        cp:
+          type: "integer"
+          minimum: 0
+        hp_current:
+          type:
+            - "integer"
+            - "null"
+        hp_max:
+          type:
+            - "integer"
+            - "null"
+        iv_attack:
+          type: "integer"
+          minimum: 0
+          maximum: 15
+        iv_defense:
+          type: "integer"
+          minimum: 0
+          maximum: 15
+        iv_hp:
+          type: "integer"
+          minimum: 0
+          maximum: 15
+        iv_pct:
+          type:
+            - "string"
+            - "number"
+        is_shiny:
+          type: "boolean"
+        is_lucky:
+          type:
+            - "boolean"
+            - "null"
+        is_favorite:
+          type:
+            - "boolean"
+            - "null"
+        fast_move:
+          type:
+            - "string"
+            - "null"
+        charge_move:
+          type:
+            - "string"
+            - "null"
+        caught_at:
+          type:
+            - "string"
+            - "null"
+        name_zh:
+          type:
+            - "string"
+            - "null"
+        name_en:
+          type:
+            - "string"
+            - "null"
+        type1:
+          type:
+            - "string"
+            - "null"
+        type2:
+          type:
+            - "string"
+            - "null"
+        sprite_url:
+          type:
+            - "string"
+            - "null"
+        rarity:
+          type:
+            - "string"
+            - "null"
+        _links:
+          $ref: "#/components/schemas/Links"
+        power_up_count:
+          type:
+            - "integer"
+            - "null"
+        sprite_shiny_url:
+          type:
+            - "string"
+            - "null"
+        defending_gym_id:
+          type:
+            - "string"
+            - "null"
+    Species:
+      type: "object"
+      required:
+        - "id"
+        - "name"
+        - "type1"
+        - "rarity"
+      properties:
+        id:
+          type: "integer"
+          minimum: 1
+        name:
+          type:
+            - "string"
+            - "null"
+        description:
+          type:
+            - "string"
+            - "null"
+        type1:
+          type: "string"
+        type2:
+          type:
+            - "string"
+            - "null"
+        rarity:
+          type: "string"
+          enum:
+            - "COMMON"
+            - "UNCOMMON"
+            - "RARE"
+            - "EPIC"
+            - "LEGENDARY"
+            - "MYTHICAL"
+        base_attack:
+          type: "integer"
+        base_defense:
+          type: "integer"
+        base_hp:
+          type: "integer"
+        candy_to_evolve:
+          type:
+            - "integer"
+            - "null"
+        evolves_to:
+          type:
+            - "integer"
+            - "null"
+        sprite_url:
+          type:
+            - "string"
+            - "null"
+        sprite_shiny_url:
+          type:
+            - "string"
+            - "null"
+        _links:
+          $ref: "#/components/schemas/Links"
+        _locale:
+          type: "string"
+    Inventory:
+      type: "object"
+      required:
+        - "pokeball_count"
+        - "stardust"
+      properties:
+        pokeball_count:
+          type: "integer"
+          minimum: 0
+        greatball_count:
+          type: "integer"
+          minimum: 0
+        ultraball_count:
+          type: "integer"
+          minimum: 0
+        masterball_count:
+          type: "integer"
+          minimum: 0
+        stardust:
+          type: "integer"
+        coins:
+          type: "integer"
+    Tokens:
+      type: "object"
+      required:
+        - "accessToken"
+        - "refreshToken"
+      properties:
+        accessToken:
+          type: "string"
+          minLength: 20
+        refreshToken:
+          type: "string"
+          minLength: 20
+        tokenExpireAt:
+          type: "integer"
+        userId:
+          type: "string"
+          format: "uuid"
+        nickname:
+          type: "string"
+    User:
+      type: "object"
+      required:
+        - "id"
+        - "nickname"
+        - "level"
+      properties:
+        id:
+          type: "string"
+          format: "uuid"
+        nickname:
+          type: "string"
+        avatar_url:
+          type:
+            - "string"
+            - "null"
+        team:
+          type:
+            - "string"
+            - "null"
+        level:
+          type: "integer"
+          minimum: 1
+        xp:
+          type:
+            - "string"
+            - "integer"
+        stardust:
+          type: "integer"
+        coins:
+          type: "integer"
+        pokemon_count:
+          type: "integer"
+        created_at:
+          type: "string"
+          format: "date-time"
+    SuccessResponse:
+      description: "统一成功响应（REQ-00386）"
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+    PaginatedResponse:
+      description: "统一分页响应：pagination 与 meta.pagination 同一对象，_links 含 first/prev/next/last（REQ-00302/465/518）"
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          required:
+            - "pagination"
+          properties:
+            pagination:
+              $ref: "#/components/schemas/Pagination"
+    GatewayDiscoverResponse:
+      type: "object"
+      required:
+        - "_links"
+        - "_meta"
+      properties:
+        _links:
+          $ref: "#/components/schemas/Links"
+        _meta:
+          type: "object"
+          required:
+            - "api_version"
+    GatewayBatchResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          properties:
+            data:
+              $ref: "#/components/schemas/BatchResponse"
+    GatewayBatchRequest:
+      type: "object"
+      required:
+        - "requests"
+      properties:
+        requests:
+          type: "array"
+          minItems: 1
+          maxItems: 20
+        options:
+          type: "object"
+    GatewayVersionResponse:
+      type: "object"
+      required:
+        - "success"
+        - "data"
+      properties:
+        data:
+          type: "object"
+          required:
+            - "currentVersion"
+            - "supportedVersions"
+            - "versions"
+          properties:
+            currentVersion:
+              type: "integer"
+            supportedVersions:
+              type: "array"
+              items:
+                type: "integer"
+            versions:
+              type: "array"
+              items:
+                type: "object"
+                required:
+                  - "version"
+                  - "status"
+                properties:
+                  version:
+                    type: "integer"
+                  status:
+                    type: "string"
+    AuthLoginResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          properties:
+            data:
+              $ref: "#/components/schemas/Tokens"
+    AuthLoginRequest:
+      type: "object"
+      required:
+        - "phone"
+        - "smsCode"
+      properties:
+        phone:
+          type: "string"
+        smsCode:
+          type: "string"
+    AuthRefreshResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          properties:
+            data:
+              type: "object"
+              required:
+                - "accessToken"
+              properties:
+                accessToken:
+                  type: "string"
+    AuthRefreshRequest:
+      type: "object"
+      required:
+        - "refreshToken"
+      properties:
+        refreshToken:
+          type: "string"
+    CatchSessionResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          properties:
+            data:
+              type: "object"
+              required:
+                - "sessionId"
+              properties:
+                sessionId:
+                  type: "string"
+                pokemon:
+                  type: "object"
+    CatchThrowResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          properties:
+            data:
+              type: "object"
+              required:
+                - "result"
+              properties:
+                result:
+                  type: "string"
+                  enum:
+                    - "CAUGHT"
+                    - "FLED"
+                    - "MISS"
+                    - "BALL_USED"
+                catchProb:
+                  type: "number"
+    SocialFriendsResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          properties:
+            data:
+              type: "object"
+              required:
+                - "friends"
+                - "pagination"
+              properties:
+                friends:
+                  type: "array"
+                  items:
+                    type: "object"
+                    required:
+                      - "id"
+                      - "nickname"
+                    properties:
+                      id:
+                        type: "string"
+                        format: "uuid"
+                      nickname:
+                        type:
+                          - "string"
+                          - "null"
+                      level:
+                        type:
+                          - "integer"
+                          - "null"
+                      friendship_level:
+                        type:
+                          - "integer"
+                          - "string"
+                          - "null"
+                      friendship_points:
+                        type:
+                          - "integer"
+                          - "null"
+                      online_status:
+                        type: "string"
+                      favorite:
+                        type:
+                          - "boolean"
+                          - "null"
+                      pending_gifts:
+                        type:
+                          - "integer"
+                          - "null"
+                pagination:
+                  type: "object"
+                  required:
+                    - "page"
+                    - "limit"
+                    - "total"
+                  properties:
+                    page:
+                      type: "integer"
+                    limit:
+                      type: "integer"
+                    total:
+                      type: "integer"
+                    totalPages:
+                      type: "integer"
+                limits:
+                  type: "object"
+    LocationUpdateResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          properties:
+            data:
+              type: "object"
+              required:
+                - "nearbyAlert"
+              properties:
+                nearbyAlert:
+                  type: "boolean"
+                riskLevel:
+                  type: "string"
+                  enum:
+                    - "LOW"
+                    - "MEDIUM"
+                    - "HIGH"
+                    - "CRITICAL"
+                warning:
+                  type: "string"
+    LocationUpdateRequest:
+      type: "object"
+      required:
+        - "lat"
+        - "lng"
+      properties:
+        lat:
+          type: "number"
+          minimum: -90
+          maximum: 90
+        lng:
+          type: "number"
+          minimum: -180
+          maximum: 180
+        accuracy:
+          type: "number"
+    MapNearbyResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          properties:
+            data:
+              type: "object"
+              required:
+                - "wildPokemons"
+                - "pokestops"
+              properties:
+                wildPokemons:
+                  type: "array"
+                  items:
+                    $ref: "#/components/schemas/WildPokemon"
+                pokestops:
+                  type: "array"
+                  items:
+                    type: "object"
+                    required:
+                      - "id"
+                      - "lat"
+                      - "lng"
+                gyms:
+                  type: "array"
+    PaymentProductsResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          properties:
+            data:
+              type: "array"
+              items:
+                type: "object"
+                required:
+                  - "id"
+                  - "name"
+                  - "amountFen"
+                properties:
+                  id:
+                    type: "string"
+                  name:
+                    type: "string"
+                  amountFen:
+                    type: "integer"
+                    minimum: 0
+                  coinsGrant:
+                    type: "integer"
+    PokemonBatchDetailsResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          properties:
+            data:
+              $ref: "#/components/schemas/BatchDetails"
+    PokemonBatchDetailsRequest:
+      type: "object"
+      required:
+        - "ids"
+      properties:
+        ids:
+          type: "array"
+          minItems: 1
+          maxItems: 100
+          items:
+            type: "string"
+            format: "uuid"
+        include:
+          type: "array"
+          items:
+            type: "string"
+            enum:
+              - "skills"
+              - "equipment"
+              - "effects"
+              - "battle"
+              - "history"
+    PokemonMyListResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          required:
+            - "pagination"
+          properties:
+            pagination:
+              $ref: "#/components/schemas/Pagination"
+            data:
+              type: "object"
+              required:
+                - "pokemon"
+                - "total"
+              properties:
+                pokemon:
+                  type: "array"
+                  items:
+                    $ref: "#/components/schemas/PokemonSummary"
+                total:
+                  type: "integer"
+                  minimum: 0
+                limit:
+                  type: "integer"
+                offset:
+                  type:
+                    - "integer"
+                    - "null"
+    PokemonMyDetailResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          properties:
+            data:
+              $ref: "#/components/schemas/PokemonDetail"
+    PokemonPokedexResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          properties:
+            data:
+              type: "object"
+              required:
+                - "entries"
+              properties:
+                entries:
+                  type: "array"
+                  items:
+                    type: "object"
+                    required:
+                      - "id"
+                      - "caught_count"
+                    properties:
+                      id:
+                        type: "integer"
+                      caught_count:
+                        type: "integer"
+                      seen_count:
+                        type: "integer"
+    PokemonSpeciesListResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          properties:
+            data:
+              type: "array"
+              items:
+                $ref: "#/components/schemas/Species"
+    PokemonSpeciesDetailResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          properties:
+            data:
+              $ref: "#/components/schemas/Species"
+    RewardsDailyResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          properties:
+            data:
+              type: "object"
+              required:
+                - "claimed"
+                - "streak"
+              properties:
+                claimed:
+                  type: "boolean"
+                streak:
+                  type: "integer"
+                  minimum: 0
+                reward:
+                  type: "object"
+    RewardsLeaderboardResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          properties:
+            data:
+              type: "object"
+              required:
+                - "leaderboard"
+              properties:
+                leaderboard:
+                  type: "array"
+                myRank:
+                  type:
+                    - "integer"
+                    - "null"
+    UsersMeResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          properties:
+            data:
+              $ref: "#/components/schemas/User"
+    UsersInventoryResponse:
+      allOf:
+        - $ref: "#/components/schemas/SuccessEnvelope"
+        - type: "object"
+          properties:
+            data:
+              $ref: "#/components/schemas/Inventory"

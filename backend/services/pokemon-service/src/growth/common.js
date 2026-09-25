@@ -7,8 +7,10 @@
 'use strict';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-// 路由参数只匹配 UUID：成长路由挂在 /pokemon 下，/:id/stats 之类的模式否则会吞掉 /pokemon/release/stats 等其他模块的路径
-const ID = ':id([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})';
+// 成长路由挂在 /pokemon 下：/:id/stats 之类的模式会吞掉 /pokemon/release/stats 等其他模块的路径。
+// 路径写成字面量 :id（符合 API 规范门禁 scripts/api-lint.js），第一个处理器 uuidOnly 在 :id 不是 UUID 时
+// next('route') 跳过本路由，让后面挂载的其他模块继续匹配。
+const uuidOnly = (req, res, next) => (UUID_RE.test(String(req.params.id || '')) ? next() : next('route'));
 
 const OCCUPY_LABELS = {
   training_camp: '训练营训练',
@@ -163,7 +165,7 @@ async function candyOf(db, userId, speciesId, { lock = false } = {}) {
 
 module.exports = {
   UUID_RE,
-  ID,
+  uuidOnly,
   candyOf,
   GrowthError,
   assertUuid,
