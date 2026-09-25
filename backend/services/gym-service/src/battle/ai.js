@@ -146,9 +146,11 @@ function adviseMove(state, deps, { variant = 'A', style = 'balanced' } = {}) {
 
   // 换人建议：当前精灵会被下一击击倒且有更好的克制队友
   let switchSuggestion = null;
-  const incoming = Math.max(...def.moves.map((m) => deps.damage.expected(def, att, m, state.weather)));
+  // 下一击威胁：守方当前可用技能中的最大单次伤害；对位评分：双方「每回合」期望输出占对方 HP 的比例之差
+  const incoming = Math.max(...def.moves.filter((m) => energyMod.checkMove(def, m.id, { turn }).ok)
+    .map((m) => deps.damage.expected(def, att, m, state.weather)), 0);
   const matchup = (c) => bestExpected(c, def, deps.damage, state.weather).dmg / Math.max(1, def.hp)
-    - Math.max(...def.moves.map((m) => deps.damage.expected(def, c, m, state.weather))) / Math.max(1, c.hp);
+    - bestExpected(def, c, deps.damage, state.weather).dmg / Math.max(1, c.hp);
   const current = matchup(att);
   if (incoming >= att.hp || current < -0.5) {
     let best = null;
@@ -229,7 +231,7 @@ function optimizeLineup(candidates, defenders, deps, { size = 6, weather = null 
   const scored = candidates.map((c) => {
     const perDef = defenders.map((d) => {
       const out = bestExpected(c, d, deps.damage, weather);
-      const inc = Math.max(...d.moves.map((m) => deps.damage.expected(d, c, m, weather)));
+      const inc = bestExpected(d, c, deps.damage, weather).dmg; // 与输出同口径：每回合期望伤害
       const turnsToKo = out.dmg > 0 ? d.hp / out.dmg : 99;
       const turnsToDie = inc > 0 ? c.hp / inc : 99;
       return { defender: d.name, defenderId: d.pokemonId, bestMove: out.move && out.move.name, advantage: Number((turnsToDie / Math.max(0.5, turnsToKo)).toFixed(3)), typeMultiplier: out.move ? deps.damage.typeMultiplier(out.move.type, d.types) : 1 };

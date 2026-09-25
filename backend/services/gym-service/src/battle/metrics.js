@@ -1,16 +1,25 @@
 // 战斗相关 Prometheus 指标（注册到 shared/metrics 的独立 registry，/metrics 端点可见）。
 // 取已注册同名指标，避免模块被多次 require（测试 / 热加载）时重复注册抛错。
+// prom-client 不可用时（如宿主机直接跑纯逻辑单测、未安装依赖）退化为空操作指标，不影响战斗逻辑。
 'use strict';
 
-const shared = require('../../../../shared/metrics');
+let shared = null;
+try {
+  shared = require('../../../../shared/metrics');
+} catch {
+  shared = null;
+}
+
+const NOOP = { inc() {}, dec() {}, set() {}, observe() {}, startTimer() { return () => 0; } };
 
 function once(Type, name, help, labelNames = [], extra = {}) {
+  if (!shared) return NOOP;
   const existing = shared.register.getSingleMetric(name);
   if (existing) return existing;
   return new Type({ name, help, labelNames, registers: [shared.register], ...extra });
 }
 
-const { Counter, Gauge, Histogram } = shared.promClient;
+const { Counter, Gauge, Histogram } = shared ? shared.promClient : {};
 
 module.exports = {
   battlesStarted: once(Counter, 'minego_battle_started_total', '开始的战斗数', ['type']),
