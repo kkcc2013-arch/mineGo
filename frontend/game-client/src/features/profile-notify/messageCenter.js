@@ -57,7 +57,7 @@ const idb = {
 
 export function createMessageCenter({ api, toast }) {
   const state = { unread: 0, byCategory: {}, items: [], tab: 'all', unreadOnly: false, page: 0, total: 0, loading: false,
-    offline: false, ws: null, wsRetry: 0, wsTimer: null, poll: null, sheet: null, expanded: null, started: false };
+    offline: false, ws: null, wsRetry: 0, wsTimer: null, poll: null, sheet: null, expanded: null, started: false, scrollByTab: {} };
 
   // ── 导航栏图标 ──────────────────────────────────────────────
   const badge = h('span', { class: 'pn-badge', hidden: true, 'data-testid': 'message-badge', 'aria-hidden': 'true' });
@@ -166,9 +166,23 @@ export function createMessageCenter({ api, toast }) {
     tabsEl.replaceChildren(...TABS.map((t) => {
       const n = t.key === 'all' ? state.unread : (state.byCategory[t.key] || 0);
       return h('button', { type: 'button', role: 'tab', class: `pn-tab${state.tab === t.key ? ' on' : ''}`, 'aria-selected': String(state.tab === t.key),
-        'data-testid': `msg-tab-${t.key}`, onclick: () => { state.tab = t.key; renderTabs(); loadPage(true); } },
+        'data-testid': `msg-tab-${t.key}`, onclick: () => switchTab(t.key) },
       `${t.icon} ${t.label}`, n ? h('span', { class: 'pn-tab-count' }, String(n)) : null);
     }));
+  }
+
+  // 切换标签页时记住各标签的滚动位置，切回时恢复
+  async function switchTab(key) {
+    if (listEl) state.scrollByTab[state.tab] = listEl.scrollTop;
+    state.tab = key;
+    renderTabs();
+    await loadPage(true);
+    const want = state.scrollByTab[key] || 0;
+    for (let i = 0; i < 10 && listEl && want > 0 && state.items.length * ROW_H < want + listEl.clientHeight
+      && state.items.length < state.total && !state.loading; i++) {
+      await loadPage(false); // 需要的话多加载几页再恢复位置（最多 10 页）
+    }
+    if (listEl) { listEl.scrollTop = want; renderList(); }
   }
 
   function row(n, index) {

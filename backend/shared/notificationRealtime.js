@@ -93,7 +93,8 @@ async function userLang(q, userId) {
  * @param {import('http').Server} server
  */
 function attach(server, { path = '/ws/messages', db = defaultDb() } = {}) {
-  const wss = new WebSocket.Server({ noServer: true, maxPayload: 16 * 1024 });
+  // 消息压缩（弱网/低带宽，REQ-00425 兼容性）：只压缩 >1KB 的消息
+  const wss = new WebSocket.Server({ noServer: true, maxPayload: 16 * 1024, perMessageDeflate: { threshold: 1024 } });
 
   server.on('upgrade', (req, socket, head) => {
     let url;
