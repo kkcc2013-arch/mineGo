@@ -3,10 +3,12 @@
 // 任一模块初始化失败不影响主流程（登录/地图/捕捉）。
 import { initAccessibility } from './a11y.js';
 import { initExperience } from './experience.js';
+import { initProfileNotify } from '../features/profileNotify.js';
 
 const initializers = [
   ['a11y', initAccessibility],
   ['experience', initExperience],
+  ['profileNotify', initProfileNotify], // E05 成就/称号/资料卡/收藏室 + E13 消息中心
 ];
 
 export async function initFeatures(ctx = {}) {
