@@ -5,8 +5,9 @@
 //   require('../../../shared/tracing').initTracing('user-service');
 // 必须早于 express / http / pg / ioredis / redis / kafkajs 被 require，自动埋点才能生效。
 //
-// 启用条件：设置了 OTEL_EXPORTER_OTLP_ENDPOINT（如 http://127.0.0.1:4318；Jaeger v2 原生接收 OTLP/HTTP），
-//           或兼容旧变量 JAEGER_ENDPOINT；OTEL_ENABLED=false 强制关闭。
+// 启用条件：设置了 OTEL_EXPORTER_OTLP_ENDPOINT（如 http://127.0.0.1:4318；Jaeger v2 原生接收 OTLP/HTTP）
+//           或 OTEL_EXPORTER_OTLP_TRACES_ENDPOINT；OTEL_ENABLED=false 强制关闭。
+//           不读 JAEGER_ENDPOINT：该变量在 plugins/builtins/TracingPlugin.js 中是 Jaeger v1 的 :14268/api/traces 地址，语义不同。
 // 采样：OTEL_TRACES_SAMPLER_ARG（0~1），默认开发 1.0、生产 0.1；ParentBased——上游已决定采样则跟随，保证整条链路完整。
 // 依赖缺失或初始化失败只告警，不影响服务启动（追踪是可观测性增强，不能成为可用性风险）。
 //
@@ -23,9 +24,7 @@ function warn(msg, extra = {}) {
 }
 
 function otlpTracesUrl() {
-  const base = process.env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
-    || process.env.OTEL_EXPORTER_OTLP_ENDPOINT
-    || process.env.JAEGER_ENDPOINT;
+  const base = process.env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT || process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
   if (!base) return null;
   // OTEL_EXPORTER_OTLP_TRACES_ENDPOINT 按规范是完整地址；其余为基础地址，需拼 /v1/traces
   if (process.env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT) return base;
@@ -33,7 +32,8 @@ function otlpTracesUrl() {
 }
 
 function samplingRatio() {
-  const raw = Number(process.env.OTEL_TRACES_SAMPLER_ARG);
+  const str = (process.env.OTEL_TRACES_SAMPLER_ARG || '').trim(); // 空字符串视为未设置（Number('') 为 0，会关闭采样）
+  const raw = str === '' ? NaN : Number(str);
   if (Number.isFinite(raw) && raw >= 0 && raw <= 1) return raw;
   return process.env.NODE_ENV === 'production' ? 0.1 : 1.0;
 }

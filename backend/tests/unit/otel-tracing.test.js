@@ -33,13 +33,13 @@ test('OTEL_ENABLED=false 优先于导出地址', () => {
   } finally { restore(); }
 });
 
-test('导出地址：基础地址拼 /v1/traces，TRACES_ENDPOINT 按原样，兼容 JAEGER_ENDPOINT', () => {
+test('导出地址：基础地址拼 /v1/traces，TRACES_ENDPOINT 按原样，不读 Jaeger v1 的 JAEGER_ENDPOINT', () => {
   let r = fresh({ OTEL_EXPORTER_OTLP_ENDPOINT: 'http://jaeger:4318/' });
   try { assert.strictEqual(r.mod._internal.otlpTracesUrl(), 'http://jaeger:4318/v1/traces'); } finally { r.restore(); }
   r = fresh({ OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: 'http://c:4318/custom/traces', OTEL_EXPORTER_OTLP_ENDPOINT: 'http://ignored:4318' });
   try { assert.strictEqual(r.mod._internal.otlpTracesUrl(), 'http://c:4318/custom/traces'); } finally { r.restore(); }
-  r = fresh({ JAEGER_ENDPOINT: 'http://jaeger:4318' });
-  try { assert.strictEqual(r.mod._internal.otlpTracesUrl(), 'http://jaeger:4318/v1/traces'); } finally { r.restore(); }
+  r = fresh({ JAEGER_ENDPOINT: 'http://jaeger:14268/api/traces' });
+  try { assert.strictEqual(r.mod._internal.otlpTracesUrl(), null); } finally { r.restore(); }
 });
 
 test('采样率：开发 100%、生产 10%，可用 OTEL_TRACES_SAMPLER_ARG 覆盖，非法值回退默认', () => {
@@ -51,6 +51,10 @@ test('采样率：开发 100%、生产 10%，可用 OTEL_TRACES_SAMPLER_ARG 覆�
   try { assert.strictEqual(r.mod._internal.samplingRatio(), 0.25); } finally { r.restore(); }
   r = fresh({ OTEL_TRACES_SAMPLER_ARG: '7' });
   try { assert.strictEqual(r.mod._internal.samplingRatio(), 1); } finally { r.restore(); }
+  r = fresh({ NODE_ENV: 'production', OTEL_TRACES_SAMPLER_ARG: '' }); // ecosystem.config.js 未配置时传空字符串
+  try { assert.strictEqual(r.mod._internal.samplingRatio(), 0.1); } finally { r.restore(); }
+  r = fresh({ OTEL_TRACES_SAMPLER_ARG: '0' });
+  try { assert.strictEqual(r.mod._internal.samplingRatio(), 0); } finally { r.restore(); }
 });
 
 test('traceContext.activeTraceId：无活动 span 时为 null（网关回退到请求头/新生成）', () => {

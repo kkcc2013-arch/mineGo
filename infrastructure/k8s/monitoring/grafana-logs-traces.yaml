@@ -1,0 +1,684 @@
+# Grafana 数据源与仪表盘（REQ-00042），供 kube-prometheus-stack 的 Grafana sidecar 自动加载
+# 由 infrastructure/monitoring/grafana/provisioning/datasources/datasources.yml 与 infrastructure/dashboards/*.json 生成，
+# 修改那些文件后重新生成本文件（见 infrastructure/monitoring/README.md）。
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources-logs-traces
+  namespace: monitoring
+  labels:
+    grafana_datasource: "1"
+data:
+  datasources-logs-traces.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Loki
+        uid: loki
+        type: loki
+        access: proxy
+        url: http://loki.monitoring:3100
+        jsonData:
+          maxLines: 1000
+          derivedFields:
+            - name: TraceID
+              matcherType: regex
+              matcherRegex: '"trace_id":"([0-9a-f]{32})"'
+              datasourceUid: jaeger
+              url: '$${__value.raw}'
+              urlDisplayLabel: 在 Jaeger 中查看链路
+
+      - name: Jaeger
+        uid: jaeger
+        type: jaeger
+        access: proxy
+        url: http://jaeger-query.monitoring:16686
+        jsonData:
+          nodeGraph:
+            enabled: true
+          tracesToLogsV2:
+            datasourceUid: loki
+            spanStartTimeShift: '-5m'
+            spanEndTimeShift: '5m'
+            customQuery: true
+            query: '{job="minego"} | trace_id="$${__trace.traceId}"'
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards-observability
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana_folder: mineGo
+data:
+  service-topology.json: |
+    {
+      "uid": "minego-service-topology",
+      "title": "mineGo 服务调用拓扑",
+      "description": "基于 Jaeger 链路数据的服务依赖图（REQ-00042）",
+      "tags": [
+        "minego",
+        "REQ-00042"
+      ],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "editable": true,
+      "graphTooltip": 1,
+      "time": {
+        "from": "now-1h",
+        "to": "now"
+      },
+      "refresh": "30s",
+      "templating": {
+        "list": []
+      },
+      "annotations": {
+        "list": []
+      },
+      "panels": [
+        {
+          "id": 1,
+          "type": "nodeGraph",
+          "title": "服务调用拓扑（Jaeger 依赖图）",
+          "datasource": {
+            "type": "jaeger",
+            "uid": "jaeger"
+          },
+          "gridPos": {
+            "h": 18,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "jaeger",
+                "uid": "jaeger"
+              },
+              "queryType": "dependencyGraph"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "options": {},
+          "description": "节点为服务，边为调用关系与调用次数；数据来自 Jaeger（服务需配置 OTEL_EXPORTER_OTLP_ENDPOINT 上报链路）"
+        },
+        {
+          "id": 2,
+          "type": "timeseries",
+          "title": "各服务请求量（次/秒）",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 18
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "sum by (service) (rate(minego_http_requests_total[5m]))",
+              "legendFormat": "{{service}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "options": {}
+        },
+        {
+          "id": 3,
+          "type": "table",
+          "title": "网关最近链路",
+          "datasource": {
+            "type": "jaeger",
+            "uid": "jaeger"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 18
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "jaeger",
+                "uid": "jaeger"
+              },
+              "queryType": "search",
+              "service": "api-gateway",
+              "limit": 20
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "options": {},
+          "description": "点击 Trace ID 查看完整跨服务调用链"
+        }
+      ]
+    }
+  error-rate.json: |
+    {
+      "uid": "minego-error-rate",
+      "title": "mineGo 服务错误率",
+      "description": "各服务 5xx 占比与 error 日志速率（REQ-00042）",
+      "tags": [
+        "minego",
+        "REQ-00042"
+      ],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "editable": true,
+      "graphTooltip": 1,
+      "time": {
+        "from": "now-1h",
+        "to": "now"
+      },
+      "refresh": "30s",
+      "templating": {
+        "list": [
+          {
+            "name": "service",
+            "label": "服务",
+            "type": "query",
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "query": {
+              "query": "label_values(minego_http_requests_total, service)",
+              "refId": "ServiceVar"
+            },
+            "definition": "label_values(minego_http_requests_total, service)",
+            "includeAll": true,
+            "multi": true,
+            "allValue": ".*",
+            "current": {
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "refresh": 2,
+            "sort": 1
+          }
+        ]
+      },
+      "annotations": {
+        "list": []
+      },
+      "panels": [
+        {
+          "id": 1,
+          "type": "timeseries",
+          "title": "5xx 占比（告警阈值 5%）",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 0
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "sum by (service) (rate(minego_http_requests_total{service=~\"$service\",status=~\"5..\"}[5m]))\n/\nsum by (service) (rate(minego_http_requests_total{service=~\"$service\"}[5m]))",
+              "legendFormat": "{{service}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percentunit",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 0.05
+                  }
+                ]
+              },
+              "custom": {
+                "thresholdsStyle": {
+                  "mode": "line+area"
+                }
+              }
+            },
+            "overrides": []
+          },
+          "options": {}
+        },
+        {
+          "id": 2,
+          "type": "timeseries",
+          "title": "error 日志速率（条/秒，来自 Loki）",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 0
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "sum by (service) (rate({job=\"minego\", level=\"error\", service=~\"$service\"}[5m]))",
+              "queryType": "range"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "short",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              },
+              "custom": {
+                "thresholdsStyle": {
+                  "mode": "line+area"
+                }
+              }
+            },
+            "overrides": []
+          },
+          "options": {}
+        },
+        {
+          "id": 3,
+          "type": "timeseries",
+          "title": "各状态码请求量（次/秒）",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 8
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "sum by (service, status) (rate(minego_http_requests_total{service=~\"$service\"}[5m]))",
+              "legendFormat": "{{service}} {{status}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps"
+            },
+            "overrides": []
+          },
+          "options": {}
+        },
+        {
+          "id": 4,
+          "type": "table",
+          "title": "5xx 最多的接口（近 1 小时）",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 8
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "topk(10, sum by (service, method, path) (increase(minego_http_requests_total{service=~\"$service\",status=~\"5..\"}[1h])))",
+              "legendFormat": "",
+              "instant": true,
+              "format": "table"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "options": {}
+        },
+        {
+          "id": 5,
+          "type": "logs",
+          "title": "最近的 error 日志（点 trace_id 跳转 Jaeger）",
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "gridPos": {
+            "h": 12,
+            "w": 24,
+            "x": 0,
+            "y": 16
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "loki",
+                "uid": "loki"
+              },
+              "expr": "{job=\"minego\", level=\"error\", service=~\"$service\"}",
+              "queryType": "range"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "options": {
+            "showTime": true,
+            "wrapLogMessage": true,
+            "sortOrder": "Descending",
+            "enableLogDetails": true,
+            "prettifyLogMessage": false
+          }
+        }
+      ]
+    }
+  latency-p99.json: |
+    {
+      "uid": "minego-latency-p99",
+      "title": "mineGo P99 延迟",
+      "description": "请求耗时分布热力图与 P50/P95/P99（REQ-00042）",
+      "tags": [
+        "minego",
+        "REQ-00042"
+      ],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "editable": true,
+      "graphTooltip": 1,
+      "time": {
+        "from": "now-1h",
+        "to": "now"
+      },
+      "refresh": "30s",
+      "templating": {
+        "list": [
+          {
+            "name": "service",
+            "label": "服务",
+            "type": "query",
+            "datasource": {
+              "type": "prometheus",
+              "uid": "prometheus"
+            },
+            "query": {
+              "query": "label_values(minego_http_requests_total, service)",
+              "refId": "ServiceVar"
+            },
+            "definition": "label_values(minego_http_requests_total, service)",
+            "includeAll": true,
+            "multi": true,
+            "allValue": ".*",
+            "current": {
+              "text": [
+                "All"
+              ],
+              "value": [
+                "$__all"
+              ]
+            },
+            "refresh": 2,
+            "sort": 1
+          }
+        ]
+      },
+      "annotations": {
+        "list": []
+      },
+      "panels": [
+        {
+          "id": 1,
+          "type": "heatmap",
+          "title": "请求耗时分布（ms）",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 10,
+            "w": 24,
+            "x": 0,
+            "y": 0
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "sum by (le) (increase(minego_http_request_duration_ms_bucket{service=~\"$service\"}[$__rate_interval]))",
+              "legendFormat": "{{le}}",
+              "format": "heatmap"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "options": {
+            "calculate": false,
+            "yAxis": {
+              "unit": "ms",
+              "axisPlacement": "left"
+            },
+            "color": {
+              "mode": "scheme",
+              "scheme": "Oranges",
+              "steps": 64
+            },
+            "cellGap": 1,
+            "tooltip": {
+              "mode": "single",
+              "yHistogram": true
+            },
+            "legend": {
+              "show": true
+            }
+          }
+        },
+        {
+          "id": 2,
+          "type": "timeseries",
+          "title": "P99 延迟（告警阈值 2000ms）",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 10
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "histogram_quantile(0.99, sum by (le, service) (rate(minego_http_request_duration_ms_bucket{service=~\"$service\"}[5m])))",
+              "legendFormat": "{{service}}"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms",
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 2000
+                  }
+                ]
+              },
+              "custom": {
+                "thresholdsStyle": {
+                  "mode": "line+area"
+                }
+              }
+            },
+            "overrides": []
+          },
+          "options": {}
+        },
+        {
+          "id": 3,
+          "type": "timeseries",
+          "title": "P50 / P95 / P99（所选服务合计）",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 10
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "histogram_quantile(0.50, sum by (le) (rate(minego_http_request_duration_ms_bucket{service=~\"$service\"}[5m])))",
+              "legendFormat": "P50"
+            },
+            {
+              "refId": "B",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "histogram_quantile(0.95, sum by (le) (rate(minego_http_request_duration_ms_bucket{service=~\"$service\"}[5m])))",
+              "legendFormat": "P95"
+            },
+            {
+              "refId": "C",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "histogram_quantile(0.99, sum by (le) (rate(minego_http_request_duration_ms_bucket{service=~\"$service\"}[5m])))",
+              "legendFormat": "P99"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms"
+            },
+            "overrides": []
+          },
+          "options": {}
+        },
+        {
+          "id": 4,
+          "type": "table",
+          "title": "P99 最慢的接口（近 15 分钟）",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 18
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "datasource": {
+                "type": "prometheus",
+                "uid": "prometheus"
+              },
+              "expr": "topk(10, histogram_quantile(0.99, sum by (le, service, method, path) (rate(minego_http_request_duration_ms_bucket{service=~\"$service\"}[15m]))))",
+              "legendFormat": "",
+              "instant": true,
+              "format": "table"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ms"
+            },
+            "overrides": []
+          },
+          "options": {}
+        }
+      ]
+    }
