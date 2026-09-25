@@ -181,6 +181,9 @@ function view(row, templates, lang) {
 const LIVE = 'NOT is_deleted AND expires_at > NOW()';
 
 async function list(userId, opts = {}, q = defaultDb()) {
+  if (opts.category && opts.category !== 'all' && !policy.CATEGORIES.includes(opts.category)) {
+    const e = new Error('category 无效'); e.statusCode = 400; throw e;
+  }
   await materializeBroadcasts(userId, q);
   const page = Math.max(1, parseInt(opts.page, 10) || 1);
   const limit = Math.min(Math.max(parseInt(opts.limit, 10) || 20, 1), 100);
