@@ -8,11 +8,12 @@ const { ServiceFactory } = require('../../../shared/ServiceFactory');
 const { query, preparedQuery, transaction } = require('../../../shared/db');
 const { transactionSerializable } = require('../../../shared/transactionManager');
 const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
-const { requireAuth, AppError, successResp } = require('../../../shared/auth');
+const { requireAuth, requireAdmin, AppError, successResp } = require('../../../shared/auth');
 const { validateLocation, checkRateLimit, requireTrustScore, TRUST_SCORE } = require('../../../shared/anti-cheat');
 const { publishCatchSuccess, publishCatchFailed } = require('./eventProducers');
 const { getComboService } = require('./combo/CatchComboService'); // REQ-00369: 捕捉连击
 const { createComboRouter, createMilestoneNotifier } = require('./combo/routes');
+const { startCatchPersistence, stopCatchPersistence, getPersistenceStatus, retryDeadLetters, isBatchMode, recordThrow, handleCatchBatched } = require('./persistence/catchPersistence'); // REQ-00383
 const { habitatService } = require('../../../shared/habitatService');
 
 // ============================================================
@@ -427,11 +428,8 @@ async function executeCatchThrow(req, res, next) {
       session.ballsThrown++;
       await setJSON(`catch:session:${sessionId}`, session, 120);
 
-      await query(
-        `INSERT INTO catch_throws (session_id,ball_type,throw_rating,is_curve,berry_used,catch_prob,success)
-         VALUES ($1,$2,$3,$4,$5,$6,false)`,
-        [sessionId, ballType, throwRating, isCurve||false, berryUsed||'NONE', catchProb]
-      );
+      // REQ-00383: sync 模式同原 INSERT；batch 模式预写 Redis Stream 批量落库
+      await recordThrow({ sessionId, ballType, throwRating, isCurve: isCurve||false, berryUsed: berryUsed||'NONE', catchProb, success: false });
 
       return res.json(successResp({ result: 'MISS', catchProb }));
     }
@@ -442,14 +440,12 @@ async function executeCatchThrow(req, res, next) {
     session.ballsThrown++;
 
     // Record throw
-    await query(
-      `INSERT INTO catch_throws (session_id,ball_type,throw_rating,is_curve,berry_used,catch_prob,success)
-       VALUES ($1,$2,$3,$4,$5,$6,$7)`,
-      [sessionId, ballType, throwRating, isCurve||false, berryUsed||'NONE', catchProb, caught]
-    );
+    await recordThrow({ sessionId, ballType, throwRating, isCurve: isCurve||false, berryUsed: berryUsed||'NONE', catchProb, success: caught });
 
     if (caught) {
-      const rewards = await handleCatch(userId, session, throwRating, isCurve, sessionId, logger);
+      const rewards = isBatchMode() // REQ-00383: batch 模式奖励走 outbox 批量落库（抢占/实例/会话仍同步）
+        ? await handleCatchBatched({ userId, session, throwRating, isCurve, sessionId, logger })
+        : await handleCatch(userId, session, throwRating, isCurve, sessionId, logger);
       await getRedis().del(`catch:session:${sessionId}`);
       metrics.catchAttemptsTotal.inc({ result: 'success' });
       logger.info({
@@ -508,6 +504,7 @@ async function main() {
       checkRedis: true,
       trustProxy: true
     },
+    onShutdown: () => stopCatchPersistence(),
     postInit: async (app, logger) => {
       app.locals.logger  = logger;
       app.locals.metrics = require('../../../shared/metrics');
@@ -519,6 +516,17 @@ async function main() {
       // REQ-00369: 捕捉连击（状态/历史/排行榜/保护道具/重置/奖励配置），经网关 /v1/catch/combo/* 访问
       getComboService({ onMilestone: createMilestoneNotifier(logger), logger });
       app.use('/catch/combo', createComboRouter(() => getComboService()));
+
+      // REQ-00383: 批处理持久化（CATCH_PERSISTENCE_MODE=sync|batch，默认 sync）；关停时 drain
+      startCatchPersistence({ logger });
+      // GET /v1/catch/persistence/status — 批处理积压/死信/刷写统计（管理员）
+      app.get('/catch/persistence/status', requireAuth, requireAdmin, async (req, res, next) => {
+        try { res.json(successResp(await getPersistenceStatus())); } catch (err) { next(err); }
+      });
+      // POST /v1/catch/persistence/dead-letters/retry — 死信补偿重放（管理员）
+      app.post('/catch/persistence/dead-letters/retry', requireAuth, requireAdmin, async (req, res, next) => {
+        try { res.json(successResp(await retryDeadLetters({ limit: req.body && req.body.limit }))); } catch (err) { next(err); }
+      });
 
       logger.info('Catch service routes initialized');
     }
