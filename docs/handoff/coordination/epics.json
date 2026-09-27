@@ -1,0 +1,2892 @@
+[
+ {
+  "id": "E01",
+  "name": "好友与社交互动",
+  "wave": 2,
+  "reqs": [
+   {
+    "id": "REQ-00048",
+    "file": "REQ-00048-pokemon-friend-system-social-interaction.md",
+    "title": "精灵好友系统与社交互动增强",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00228",
+    "file": "REQ-00228-social-privacy-settings-and-friend-permissions.md",
+    "title": "游戏社交隐私设置与好友权限管理系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00326",
+    "file": "REQ-00326-pokemon-friend-interaction-system.md",
+    "title": "精灵好友互动系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00377",
+    "file": "REQ-00377-pokemon-data-visibility-control-system.md",
+    "title": "精灵数据可见性控制与隐私分级系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00388",
+    "file": "REQ-00388-friend-interaction-enhancement-system.md",
+    "title": "玩家好友互动增强系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E02",
+  "name": "公会与团队",
+  "wave": 2,
+  "reqs": [
+   {
+    "id": "REQ-00058",
+    "file": "REQ-00058-guild-system-and-team-social-features.md",
+    "title": "公会系统与团队社交功能",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E03",
+  "name": "新手引导与教程",
+  "wave": 2,
+  "reqs": [
+   {
+    "id": "REQ-00059",
+    "file": "REQ-00059-beginner-tutorial-and-guidance-system.md",
+    "title": "新手引导与教程系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00173",
+    "file": "REQ-00173-game-tutorial-localization-system.md",
+    "title": "游戏教程本地化与动态提示系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E04",
+  "name": "刷怪/栖息地/生态",
+  "wave": 2,
+  "reqs": [
+   {
+    "id": "REQ-00069",
+    "file": "REQ-00069-pokemon-spawn-management-dynamic-refresh-control.md",
+    "title": "精灵资源管理系统与动态刷新控制",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00291",
+    "file": "REQ-00291-pokemon-ecological-food-web-system.md",
+    "title": "精灵生态链与食物网系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00396",
+    "file": "REQ-00396-pokemon-ecosystem-food-web-system.md",
+    "title": "精灵生态链与食物网系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00419",
+    "file": "REQ-00419-spirit-habitat-ecosystem-system.md",
+    "title": "精灵栖息地系统与生态环境影响机制",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E05",
+  "name": "成就/称号/资料卡/收藏室",
+  "wave": 2,
+  "reqs": [
+   {
+    "id": "REQ-00076",
+    "file": "REQ-00076-pokemon-achievement-and-milestone-reward-system.md",
+    "title": "精灵成就系统与里程碑奖励",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00106",
+    "file": "REQ-00106-player-title-system-and-personalization.md",
+    "title": "玩家称号系统与个性化展示",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00327",
+    "file": "REQ-00327-player-profile-stats-dashboard.md",
+    "title": "玩家个人资料与数据统计展示系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00359",
+    "file": "REQ-00359-pokemon-collection-room-decoration-system.md",
+    "title": "精灵收藏室与个性化装饰系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00387",
+    "file": "REQ-00387-player-profile-card-system.md",
+    "title": "玩家资料卡与档案展示系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00403",
+    "file": "REQ-00403-collection-room-system.md",
+    "title": "精灵收藏室与个性化展示系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E06",
+  "name": "精灵属性养成（好感/性格/天赋/心情/状态/变异）",
+  "wave": 2,
+  "reqs": [
+   {
+    "id": "REQ-00079",
+    "file": "REQ-00079-pokemon-friendship-and-affinity-system.md",
+    "title": "精灵好感度系统与亲密度进化机制",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00195",
+    "file": "REQ-00195-pokemon-status-resistance-system.md",
+    "title": "精灵异常状态抗性与免疫计算系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00197",
+    "file": "REQ-00197-pokemon-talent-and-hidden-attribute-system.md",
+    "title": "精灵天赋系统与隐藏属性机制",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00235",
+    "file": "REQ-00235-pokemon-mutation-and-rare-variants.md",
+    "title": "精灵变异系统与稀有形态",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00236",
+    "file": "REQ-00236-pokemon-mutation-and-rare-variants.md",
+    "title": "精灵变异系统与稀有形态",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00243",
+    "file": "REQ-00243-pokemon-mood-and-emotion-system.md",
+    "title": "精灵心情系统与情绪表现",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00278",
+    "file": "REQ-00278-pokemon-nature-system.md",
+    "title": "精灵性格系统与战斗风格塑造",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00283",
+    "file": "REQ-00283-pokemon-talent-and-hidden-attributes-system.md",
+    "title": "精灵天赋系统与隐藏属性机制",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E07",
+  "name": "精灵成长（经验/训练/觉醒/传承/合并/培育/进化路径）",
+  "wave": 2,
+  "reqs": [
+   {
+    "id": "REQ-00151",
+    "file": "REQ-00151-pokemon-bond-skill-unlock-mechanism.md",
+    "title": "精灵羁绊技能解锁机制",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00172",
+    "file": "REQ-00172-pokemon-stamina-fatigue-system.md",
+    "title": "精灵体力系统与疲劳度管理",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00216",
+    "file": "REQ-00216-pokemon-experience-dynamic-adjustment-system.md",
+    "title": "精灵经验值动态调整与智能加速系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00230",
+    "file": "REQ-00230-pokemon-exp-history-growth-tracking.md",
+    "title": "精灵经验值获取历史与成长轨迹追踪系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00245",
+    "file": "REQ-00245-pokemon-awakening-system.md",
+    "title": "精灵觉醒系统与潜能激活",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00276",
+    "file": "REQ-00276-pokemon-breeding-system.md",
+    "title": "精灵培育系统与基因遗传机制",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00355",
+    "file": "REQ-00355-pokemon-evolution-path-visualization-system.md",
+    "title": "精灵进化路径可视化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00361",
+    "file": "REQ-00361-pokemon-inheritance-and-legacy-system.md",
+    "title": "精灵传承系统与属性遗产机制",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00370",
+    "file": "REQ-00370-pokemon-training-camp-system.md",
+    "title": "精灵训练营系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00390",
+    "file": "REQ-00390-pokemon-merge-evolution-system.md",
+    "title": "精灵合并进化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00612",
+    "file": "REQ-00612-pokemon-training-and-specialization-system.md",
+    "title": "精灵训练特训系统与专项能力提升机制",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E08",
+  "name": "装备/附魔/外观/昵称",
+  "wave": 2,
+  "reqs": [
+   {
+    "id": "REQ-00091",
+    "file": "REQ-00091-pokemon-equipment-system-and-stat-bonus-mechanism.md",
+    "title": "精灵装备系统与属性加成机制",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00125",
+    "file": "REQ-00125-pokemon-cosmetic-customization-system.md",
+    "title": "精灵外观定制系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00265",
+    "file": "REQ-00265-pokemon-enchantment-and-attribute-enhancement-system.md",
+    "title": "精灵附魔系统与属性强化",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00271",
+    "file": "REQ-00271-pokemon-nickname-and-custom-name-tag-system.md",
+    "title": "精灵昵称与自定义名牌系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00313",
+    "file": "REQ-00313-pokemon-equipment-enhancement-and-evolution-system.md",
+    "title": "精灵装备强化与进化系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E09",
+  "name": "道具经济（背包/合成/交易税/租赁/放生）",
+  "wave": 2,
+  "reqs": [
+   {
+    "id": "REQ-00150",
+    "file": "REQ-00150-bag-capacity-upgrade-system.md",
+    "title": "背包容量扩展与购买系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00183",
+    "file": "REQ-00183-pokemon-item-crafting-and-recipe-system.md",
+    "title": "精灵道具合成与配方系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00206",
+    "file": "REQ-00206-pokemon-trade-tax-fee-system.md",
+    "title": "精灵交易税务与手续费系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00240",
+    "file": "REQ-00240-pokemon-release-and-resource-recycle.md",
+    "title": "精灵放生与资源回收系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00342",
+    "file": "REQ-00342-pokemon-rental-market-system.md",
+    "title": "精灵租赁市场与短期使用系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E10",
+  "name": "探索（远征/恢复站/图鉴/传说）",
+  "wave": 2,
+  "reqs": [
+   {
+    "id": "REQ-00156",
+    "file": "REQ-00156-pokemon-recovery-station-system.md",
+    "title": "精灵恢复站系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00253",
+    "file": "REQ-00253-pokemon-expedition-system.md",
+    "title": "精灵远征探险系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00253",
+    "file": "REQ-00253-精灵远征探险系统.md",
+    "title": "精灵远征探险系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00256",
+    "file": "REQ-00256-pokemon-legend-lore-collection-system.md",
+    "title": "精灵传说系统与图鉴收集故事",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00260",
+    "file": "REQ-00260-exploration-region-collection-system.md",
+    "title": "精灵图鉴探索系统与区域收集奖励",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E11",
+  "name": "战斗与技能（冷却/连招/推荐/AI/回放/联赛/伤害预计算）",
+  "wave": 2,
+  "reqs": [
+   {
+    "id": "REQ-00112",
+    "file": "REQ-00112-pokemon-skill-cooldown-and-energy-system.md",
+    "title": "精灵技能冷却与能量系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00143",
+    "file": "REQ-00143-pokemon-skill-combo-system.md",
+    "title": "精灵自定义技能组合与连招系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00192",
+    "file": "REQ-00192-pokemon-battle-damage-precompute-and-cache-system.md",
+    "title": "精灵战斗伤害预计算与结果缓存系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00288",
+    "file": "REQ-00288-pokemon-skill-combo-system.md",
+    "title": "精灵技能连击系统与组合技效果",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00299",
+    "file": "REQ-00299-pokemon-skill-cooldown-optimization.md",
+    "title": "精灵技能冷却时间智能优化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00311",
+    "file": "REQ-00311-skill-cooldown-smart-acceleration-and-chain-system.md",
+    "title": "精灵技能冷却智能加速与连击链系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00324",
+    "file": "REQ-00324-pokemon-move-combo-recommendation-system.md",
+    "title": "精灵技能组合推荐系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00325",
+    "file": "REQ-00325-battle-animation-frame-rate-optimization-system.md",
+    "title": "战斗动画帧率优化与流畅度提升系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00357",
+    "file": "REQ-00357-pokemon-battle-ai-strategy-assistant.md",
+    "title": "精灵团队战斗AI策略助手系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00362",
+    "file": "REQ-00362-pokemon-skill-damage-precompute-cache-system.md",
+    "title": "精灵技能伤害预计算与智能缓存系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00364",
+    "file": "REQ-00364-pokemon-skill-chain-combo-system.md",
+    "title": "精灵技能连击系统与组合技效果",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00365",
+    "file": "REQ-00365-battle-ai-strategy-assistant.md",
+    "title": "精灵团队战斗AI策略助手系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00379",
+    "file": "REQ-00379-battle-replay-highlight-sharing-system.md",
+    "title": "精灵战斗回放与精彩时刻分享系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00469",
+    "file": "REQ-00469-game-battle-replay-sharing-system.md",
+    "title": "游戏实时对战回放录制与分享系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00487",
+    "file": "REQ-00487-pokemon-competitive-league-system.md",
+    "title": "精灵竞技联赛系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E12",
+  "name": "捕捉增强（连击奖励/批处理）",
+  "wave": 2,
+  "reqs": [
+   {
+    "id": "REQ-00369",
+    "file": "REQ-00369-pokemon-catch-combo-reward-system.md",
+    "title": "精灵捕捉连击奖励系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00383",
+    "file": "REQ-00383-catch-result-batch-persistence-optimization.md",
+    "title": "精灵捕捉结果批处理与异步持久化优化系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E13",
+  "name": "通知与消息中心",
+  "wave": 2,
+  "reqs": [
+   {
+    "id": "REQ-00099",
+    "file": "REQ-00099-game-message-center-and-notification-management-system.md",
+    "title": "游戏消息中心与通知管理系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00261",
+    "file": "REQ-00261-notification-center-push-system.md",
+    "title": "游戏内实时通知中心与消息推送系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00425",
+    "file": "REQ-00425-in-game-notification-and-smart-push-system.md",
+    "title": "游戏内通知与智能消息推送系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E14",
+  "name": "用户反馈与 Bug 报告",
+  "wave": 3,
+  "reqs": [
+   {
+    "id": "REQ-00235",
+    "file": "REQ-00235-user-feedback-and-bug-report-system.md",
+    "title": "用户反馈与 Bug 报告收集系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E15",
+  "name": "动态配置中心与 A/B 实验",
+  "wave": 3,
+  "reqs": [
+   {
+    "id": "REQ-00085",
+    "file": "REQ-00085-config-center-and-hot-reload-system.md",
+    "title": "配置中心与动态配置热更新系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00122",
+    "file": "REQ-00122-microservice-config-center-and-hot-reload.md",
+    "title": "微服务配置中心与动态配置热更新系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00409",
+    "file": "REQ-00409-microservice-config-center-hot-reload.md",
+    "title": "微服务配置中心与动态配置热更新系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00431",
+    "file": "REQ-00431-config-hot-update.md",
+    "title": "微服务分布式配置热更新与版本控制系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00531",
+    "file": "REQ-00531-dynamic-config-ab-testing-platform.md",
+    "title": "游戏内动态配置与 A/B 测试实验管理平台",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E16",
+  "name": "反作弊（服务端）",
+  "wave": 3,
+  "reqs": [
+   {
+    "id": "REQ-00082",
+    "file": "REQ-00082-catch-success-anomaly-detection-system.md",
+    "title": "精灵捕捉成功率异常检测系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00163",
+    "file": "REQ-00163-game-client-memory-tamper-detection.md",
+    "title": "游戏客户端内存篡改检测与防护系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00175",
+    "file": "REQ-00175-realtime-trade-anomaly-detection.md",
+    "title": "实时交易异常检测与风控系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00181",
+    "file": "REQ-00181-game-client-memory-integrity-protection.md",
+    "title": "游戏客户端内存完整性保护与篡改检测系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00247",
+    "file": "REQ-00247-catch-location-forgery-detection.md",
+    "title": "精灵捕捉地点伪造检测系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00279",
+    "file": "REQ-00279-anti-cheat-ml-detection-system.md",
+    "title": "反作弊行为模式机器学习检测系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00298",
+    "file": "REQ-00298-websocket-communication-anomaly-detection-and-realtime-blocking.md",
+    "title": "WebSocket 通信异常检测与实时阻断系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00412",
+    "file": "REQ-00412-automated-script-detection-and-behavior-fingerprint.md",
+    "title": "游戏自动化脚本检测与行为指纹识别系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00418",
+    "file": "REQ-00418-ar-mode-cheat-detection-system.md",
+    "title": "AR 模式作弊检测与照片验证系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00427",
+    "file": "REQ-00427-game-economy-ml-anti-fraud-system.md",
+    "title": "游戏经济系统反欺诈机器学习模型自动训练与部署系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00475",
+    "file": "REQ-00475-real-time-behavior-risk-control.md",
+    "title": "游戏内实时行为风控与异常操作拦截系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00503",
+    "file": "REQ-00503-game-client-injection-tool-detection-protection-system.md",
+    "title": "游戏客户端注入工具检测与防护系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00556",
+    "file": "REQ-00556-machine-learning-behavior-anomaly-detection.md",
+    "title": "基于机器学习的实时行为异常检测系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00570",
+    "file": "REQ-00570-trade-fraud-refactoring.md",
+    "title": "贸易反作弊引擎模块化重构",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00571",
+    "file": "REQ-00571-trade-fraud-detection-refactoring.md",
+    "title": "tradeFraudDetection.js 服务代码拆分与模块化重构",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00572",
+    "file": "REQ-00572-device-integrity-refactoring.md",
+    "title": "deviceIntegrity.js 模块拆分与重构",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00586",
+    "file": "REQ-00586-gps-location-spoofing-detection-system.md",
+    "title": "GPS 位置欺骗检测与虚拟定位防护系统",
+    "priority": "P0"
+   },
+   {
+    "id": "REQ-00604",
+    "file": "REQ-00604-game-client-memory-scanning-detection-prevention-system.md",
+    "title": "游戏客户端内存扫描检测与防护系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00608",
+    "file": "REQ-00608-anti-cheat-rule-dynamic-update-abtest-system.md",
+    "title": "反作弊规则动态更新与灰度测试系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E17",
+  "name": "安全加固（二次验证/签名/会话/威胁/脱敏/基线）",
+  "wave": 3,
+  "reqs": [
+   {
+    "id": "REQ-00200",
+    "file": "REQ-00200-sensitive-operation-risk-verification-system.md",
+    "title": "敏感操作二次验证与风险分级验证系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00214",
+    "file": "REQ-00214-sensitive-operation-verification.md",
+    "title": "敏感操作二次验证与风险分级验证系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00215",
+    "file": "REQ-00215-api-request-signature-and-replay-attack-prevention.md",
+    "title": "API 请求签名验证与重放攻击防护系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00218",
+    "file": "REQ-00218-screenshot-content-safety-audit.md",
+    "title": "游戏客户端截图内容安全审核系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00219",
+    "file": "REQ-00219-session-anomaly-detection-auto-protection.md",
+    "title": "会话异常检测与自动防护系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00221",
+    "file": "REQ-00221-container-image-vulnerability-scanning.md",
+    "title": "容器镜像安全扫描与漏洞预警系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00270",
+    "file": "REQ-00270-attack-pattern-detection-system.md",
+    "title": "攻击模式检测与实时威胁识别系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00327",
+    "file": "REQ-00327-session-security-hijacking-protection-system.md",
+    "title": "会话劫持防护与安全会话管理系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00328",
+    "file": "REQ-00328-api-key-leakage-detection-system.md",
+    "title": "API 密钥泄露检测与实时告警系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00328",
+    "file": "REQ-00328-websocket-security-message-integrity-system.md",
+    "title": "WebSocket 通信安全加固与消息完整性验证系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00344",
+    "file": "REQ-00344-anomaly-login-detection-geofence-protection.md",
+    "title": "玩家账号异常登录检测与地理围栏防护系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00363",
+    "file": "REQ-00363-api-request-signature-verification-and-anti-replay-attack-system.md",
+    "title": "API 请求签名验证与防重放攻击系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00380",
+    "file": "REQ-00380-api-security-baseline-automated-check-system.md",
+    "title": "API 安全配置基线自动化检查系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00389",
+    "file": "REQ-00389-api-rate-limit-by-pass-detection-protection-system.md",
+    "title": "API 请求速率限制绕过检测与防护系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00394",
+    "file": "REQ-00394-api-sensitive-parameter-masking-and-log-security-protection-system.md",
+    "title": "API 敏感参数自动脱敏与日志安全防护系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00399",
+    "file": "REQ-00399-security-event-correlation-and-auto-response-system.md",
+    "title": "安全事件关联分析与自动化响应系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00406",
+    "file": "REQ-00406-player-account-anomaly-login-detection-and-geofencing-system.md",
+    "title": "玩家账号异常登录检测与地理围栏防护系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00507",
+    "file": "REQ-00507-password-strength-policy-and-breach-detection-system.md",
+    "title": "密码强度策略与泄露检测系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00513",
+    "file": "REQ-00513-automated-security-compliance-scanning-system.md",
+    "title": "自动化安全合规扫描与配置加固系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00548",
+    "file": "REQ-00548-api-request-signature-verification-and-anti-tampering-protection-system.md",
+    "title": "API 请求签名验证与防篡改保护系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00561",
+    "file": "REQ-00561-sensitive-api-secondary-auth-and-risk-behavior-grading-system.md",
+    "title": "敏感API二次认证与风险行为分级控制系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00565",
+    "file": "REQ-00565-database-sensitive-field-encryption-system.md",
+    "title": "数据库敏感字段透明加密系统",
+    "priority": "P0"
+   },
+   {
+    "id": "REQ-00576",
+    "file": "REQ-00576-automated-api-security-stress-test-framework.md",
+    "title": "自动化 API 安全压力测试框架",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00597",
+    "file": "REQ-00597-api-gateway-intelligent-threat-detection-auto-response.md",
+    "title": "API 网关智能威胁检测与自动响应系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00622",
+    "file": "REQ-00622-api-request-parameter-validation-injection-protection-system.md",
+    "title": "API 请求参数统一验证与注入防护中间件系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E18",
+  "name": "限流与配额",
+  "wave": 3,
+  "reqs": [
+   {
+    "id": "REQ-00098",
+    "file": "REQ-00098-adaptive-api-rate-limiting-and-user-quota-management.md",
+    "title": "自适应 API 限流与用户配额管理系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00234",
+    "file": "REQ-00234-api-rate-limit-intelligent-adaptation.md",
+    "title": "API 请求速率限制智能适配与动态配额系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00367",
+    "file": "REQ-00367-api-rate-limit-dynamic-quota-system.md",
+    "title": "API 请求限流智能优化与动态配额分配系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E19",
+  "name": "合规与隐私（DSAR/DPIA/同意/保留/跨境/审计）",
+  "wave": 3,
+  "reqs": [
+   {
+    "id": "REQ-00044",
+    "file": "REQ-00044-implement-gdpr-data-compliance.md",
+    "title": "实现 GDPR 兼容的数据删除与导出接口",
+    "priority": "P0"
+   },
+   {
+    "id": "REQ-00089",
+    "file": "REQ-00089-data-cross-border-transfer-compliance.md",
+    "title": "数据跨境传输合规与本地化存储策略",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00107",
+    "file": "REQ-00107-data-lifecycle-management-auto-cleanup.md",
+    "title": "数据生命周期管理与自动清理策略",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00127",
+    "file": "REQ-00127-user-data-deletion-requests-management.md",
+    "title": "用户数据删除请求管理系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00184",
+    "file": "REQ-00184-data-protection-impact-assessment-system.md",
+    "title": "数据隐私影响评估（DPIA）自动化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00213",
+    "file": "REQ-00213-gdpr-data-subject-request-management-system.md",
+    "title": "GDPR 数据主体权利请求管理系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00238",
+    "file": "REQ-00238-biometric-data-protection-system.md",
+    "title": "用户生物特征数据保护与存储合规系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00246",
+    "file": "REQ-00246-data-leak-emergency-response-notification-system.md",
+    "title": "数据泄露应急响应与通知系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00303",
+    "file": "REQ-00303-sensitive-operation-audit-log.md",
+    "title": "敏感操作审计日志与操作追溯系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00305",
+    "file": "REQ-00305-gdpr-dsr-automation-system.md",
+    "title": "GDPR 数据主体权利请求自动化管理系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00309",
+    "file": "REQ-00309-dpia-automation-system.md",
+    "title": "数据隐私影响评估（DPIA）自动化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00322",
+    "file": "REQ-00322-cookie-consent-management-and-privacy-preferences-center.md",
+    "title": "Cookie 同意管理与隐私偏好中心",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00338",
+    "file": "REQ-00338-gdpr-data-subject-rights-automation.md",
+    "title": "GDPR 数据主体权利请求自动化管理系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00341",
+    "file": "REQ-00341-privacy-policy-version-management-notification-system.md",
+    "title": "隐私政策版本管理与变更通知系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00384",
+    "file": "REQ-00384-gdpr-data-subject-rights-request-management-system.md",
+    "title": "GDPR 数据主体权利请求管理系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00404",
+    "file": "REQ-00404-secure-device-data-wipe-and-compliance-system.md",
+    "title": "退役设备数据安全擦除与合规报告系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00410",
+    "file": "REQ-00410-data-protection-impact-assessment-automation.md",
+    "title": "数据隐私影响评估（DPIA）自动化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00477",
+    "file": "REQ-00477-unified-user-consent-management-platform.md",
+    "title": "统一用户同意管理平台",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00522",
+    "file": "REQ-00522-data-retention-policy-transparency-notification-system.md",
+    "title": "数据保留政策透明化与用户通知系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00529",
+    "file": "REQ-00529-跨境数据传输合规性自动检测与审计系统.md",
+    "title": "跨境数据传输合规性自动检测与审计系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00562",
+    "file": "REQ-00562-international-compliance-audit-system.md",
+    "title": "国际化内容合规性审计与隐私合规自动扫描系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00583",
+    "file": "REQ-00583-game-voice-chat-security-audit.md",
+    "title": "游戏内实时语音聊天安全合规审计系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00621",
+    "file": "REQ-00621-dsar-automation-service.md",
+    "title": "GDPR/CCPA 自动化数据主体请求处理系统 (DSAR)",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E20",
+  "name": "服务端国际化（错误消息/翻译工作流/格式/时区）",
+  "wave": 4,
+  "reqs": [
+   {
+    "id": "REQ-00101",
+    "file": "REQ-00101-backend-api-error-message-i18n.md",
+    "title": "后端 API 错误消息国际化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00137",
+    "file": "REQ-00137-translation-management-and-workflow-system.md",
+    "title": "游戏内容本地化内容管理与翻译工作流系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00155",
+    "file": "REQ-00155-openapi-documentation-i18n-support.md",
+    "title": "OpenAPI 文档多语言描述与国际化支持",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00167",
+    "file": "REQ-00167-game-content-localization-database-layer.md",
+    "title": "游戏内容本地化数据层与动态翻译系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00188",
+    "file": "REQ-00188-user-language-preference-persistence-sync.md",
+    "title": "用户语言偏好持久化与跨设备同步系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00224",
+    "file": "REQ-00224-currency-formatting-and-regional-payment-localization.md",
+    "title": "国际化货币格式化与区域支付本地化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00229",
+    "file": "REQ-00229-plural-forms-and-gender-grammar-localization.md",
+    "title": "游戏界面复数形式与性别语法本地化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00252",
+    "file": "REQ-00252-game-datetime-format-localization.md",
+    "title": "游戏内日期时间格式本地化系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00268",
+    "file": "REQ-00268-game-content-i18n-database.md",
+    "title": "游戏内容数据库多语言支持与本地化表结构设计",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00280",
+    "file": "REQ-00280-game-number-localization-display-system.md",
+    "title": "游戏数值本地化显示系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00345",
+    "file": "REQ-00345-dynamic-localization-and-language-recommendation-system.md",
+    "title": "游戏内容动态本地化与多语言智能推荐系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00346",
+    "file": "REQ-00346-game-timezone-smart-conversion-cross-timezone-event-sync.md",
+    "title": "游戏时区智能转换与跨时区活动同步系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00351",
+    "file": "REQ-00351-game-number-format-localization-system.md",
+    "title": "游戏数字格式本地化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00353",
+    "file": "REQ-00353-game-content-translation-management-system.md",
+    "title": "游戏内容翻译管理与翻译工作流自动化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00370",
+    "file": "REQ-00370-translation-missing-detection-and-intelligent-fallback-system.md",
+    "title": "翻译缺失检测与智能回退机制系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00411",
+    "file": "REQ-00411-audio-localization-management-system.md",
+    "title": "游戏语音内容本地化与音频翻译管理系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00473",
+    "file": "REQ-00473-global-timezone-scheduler.md",
+    "title": "全球化环境下多时区动态调度补偿系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00488",
+    "file": "REQ-00488-game-text-localization-cache-system.md",
+    "title": "游戏内文本本地化与智能缓存系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00500",
+    "file": "REQ-00500-server-side-number-formatting-localization.md",
+    "title": "服务端数字格式化本地化与多语言统一系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00515",
+    "file": "REQ-00515-game-server-plural-rules-engine.md",
+    "title": "游戏服务端多语言智能复数与语法规则引擎",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00591",
+    "file": "REQ-00591-localization-collaboration-approval-workflow.md",
+    "title": "本地化内容协作审批工作流系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00612",
+    "file": "REQ-00612-global-timezone-scheduler.md",
+    "title": "全球化业务实时时区调度与跨区协作支持系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00624",
+    "file": "REQ-00624-game-rich-content-i18n-version-management-system.md",
+    "title": "游戏内富文本内容本地化与版本管理系统",
+    "priority": "P2"
+   }
+  ]
+ },
+ {
+  "id": "E21",
+  "name": "客户端无障碍",
+  "wave": 4,
+  "reqs": [
+   {
+    "id": "REQ-00108",
+    "file": "REQ-00108-game-client-photosensitive-epilepsy-safe-mode.md",
+    "title": "游戏客户端光敏性癫痫安全模式",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00162",
+    "file": "REQ-00162-in-game-screen-reader-voice-navigation-enhancement.md",
+    "title": "游戏内屏幕阅读器语音导航增强系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00180",
+    "file": "REQ-00180-game-keyboard-navigation-and-shortcut-system.md",
+    "title": "游戏键盘导航与快捷键系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00198",
+    "file": "REQ-00198-game-pace-control-and-slow-motion-system.md",
+    "title": "游戏节奏控制与慢速模式系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00233",
+    "file": "REQ-00233-game-controller-gamepad-input-support-system.md",
+    "title": "游戏控制器与手柄输入支持系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00244",
+    "file": "REQ-00244-rtl-language-layout-auto-adaptation.md",
+    "title": "RTL 语言布局自动适配系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00263",
+    "file": "REQ-00263-game-pace-control-and-slow-mode.md",
+    "title": "游戏节奏控制与慢速模式系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00281",
+    "file": "REQ-00281-game-colorblind-mode-and-visual-assistance-system.md",
+    "title": "游戏色盲模式与视觉辅助系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00286",
+    "file": "REQ-00286-game-cognitive-accessibility-system.md",
+    "title": "游戏认知障碍支持与简化模式系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00316",
+    "file": "REQ-00316-game-haptics-feedback-system.md",
+    "title": "游戏触觉反馈增强与震动优化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00337",
+    "file": "REQ-00337-pokemon-voice-description-and-blind-friendly-information-system.md",
+    "title": "精灵详情语音描述与盲人友好信息系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00352",
+    "file": "REQ-00352-audio-visual-accessibility-system.md",
+    "title": "游戏音效可视化与听障玩家视觉提示系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00360",
+    "file": "REQ-00360-motor-impairment-assist-system.md",
+    "title": "精灵捕捉动作障碍玩家辅助模式系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00382",
+    "file": "REQ-00382-audio-visual-feedback-for-deaf-players.md",
+    "title": "游戏音效可视化与听障玩家视觉提示系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00413",
+    "file": "REQ-00413-game-text-auto-direction-layout-system.md",
+    "title": "游戏文本自动方向布局系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00414",
+    "file": "REQ-00414-motor-impairment-assistive-mode-system.md",
+    "title": "动作障碍辅助模式系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00426",
+    "file": "REQ-00426-screen-reader-enhancement-semantic-labeling.md",
+    "title": "游戏界面屏幕阅读器智能增强与语义化标注系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00435",
+    "file": "REQ-00435-game-haptics-feedback-enhancement.md",
+    "title": "游戏触觉反馈增强与自定义系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00474",
+    "file": "REQ-00474-color-blind-accessibility-system.md",
+    "title": "游戏色彩感知障碍辅助与自定义调色板系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00503",
+    "file": "REQ-00503-screen-reader-aria-support.md",
+    "title": "游戏客户端屏幕阅读器与 ARIA 无障碍支持",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00536",
+    "file": "REQ-00536-game-client-voice-control-and-voice-navigation-system.md",
+    "title": "游戏客户端语音控制与语音导航系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00566",
+    "file": "REQ-00566-high-contrast-visual-accessibility.md",
+    "title": "高对比度模式与视觉辅助增强系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00611",
+    "file": "REQ-00611-game-realtime-subtitles-hearing-impairment-support.md",
+    "title": "游戏实时字幕与听觉障碍支持系统",
+    "priority": "P2"
+   }
+  ]
+ },
+ {
+  "id": "E22",
+  "name": "客户端体验与性能（PWA/离线/弱网/预加载/增量更新/动画）",
+  "wave": 4,
+  "reqs": [
+   {
+    "id": "REQ-00040",
+    "file": "REQ-00040-high-performance-pwa-offline-sync.md",
+    "title": "高性能PWA离线持久化同步系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00040",
+    "file": "REQ-00040-offline-cache-consistency-system.md",
+    "title": "Offline Cache Data Consistency & Synchronization System",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00117",
+    "file": "REQ-00117-map-gesture-interaction-optimization.md",
+    "title": "地图手势交互优化与缩放流畅度提升",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00164",
+    "file": "REQ-00164-pokemon-image-lazy-loading-and-progressive-loading.md",
+    "title": "精灵详情页图片懒加载与渐进式加载系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00170",
+    "file": "REQ-00170-game-client-offline-reconnect.md",
+    "title": "游戏客户端离线模式与断线重连系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00182",
+    "file": "REQ-00182-client-side-pokemon-data-prefetch-and-cache-system.md",
+    "title": "客户端精灵数据预取与智能缓存系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00189",
+    "file": "REQ-00189-in-game-stats-dashboard-visualization.md",
+    "title": "游戏内实时数据可视化与统计仪表板",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00204",
+    "file": "REQ-00204-pokemon-action-queue-animation-preload.md",
+    "title": "精灵动作队列与动画预加载系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00207",
+    "file": "REQ-00207-pokemon-compare-tool-and-attribute-analysis.md",
+    "title": "精灵对比工具与属性分析系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00209",
+    "file": "REQ-00209-game-map-marker-cluster-optimization.md",
+    "title": "游戏地图标记聚合与渲染优化",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00258",
+    "file": "REQ-00258-catch-animation-effects-and-particle-optimization.md",
+    "title": "精灵捕捉动画特效系统增强与粒子效果优化",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00295",
+    "file": "REQ-00295-game-resource-preload-intelligent-system.md",
+    "title": "游戏资源预热与智能预加载系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00304",
+    "file": "REQ-00304-network-adaptive-optimization-system.md",
+    "title": "游戏客户端网络自适应与弱网优化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00317",
+    "file": "REQ-00317-offline-resource-pack-incremental-update-system.md",
+    "title": "游戏客户端离线资源包与增量更新系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00320",
+    "file": "REQ-00320-game-client-rendering-optimization.md",
+    "title": "游戏客户端渲染性能优化与帧率稳定系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00336",
+    "file": "REQ-00336-hotupdate-resource-management-system.md",
+    "title": "精灵资源动态更新与热修复系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00401",
+    "file": "REQ-00401-ar-catch-mode-enhancement.md",
+    "title": "精灵 AR 捕捉模式增强系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00429",
+    "file": "REQ-00429-game-client-resumable-resource-update-system.md",
+    "title": "游戏客户端断点续传资源更新系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00433",
+    "file": "REQ-00433-screen-transition-animation-and-microinteraction-system.md",
+    "title": "游戏界面转场动画与微交互体验优化系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00470",
+    "file": "REQ-00470-dynamic-audio-adjustment-system.md",
+    "title": "游戏内动态音效与背景音乐智能调节系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00489",
+    "file": "REQ-00489-game-data-local-persistence-and-sync-manager.md",
+    "title": "游戏内数据本地持久化与状态同步管理器",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00538",
+    "file": "REQ-00538-game-client-high-performance-cache-sync-and-consistency-check-system.md",
+    "title": "游戏客户端高性能缓存同步与一致性检查系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00557",
+    "file": "REQ-00557-game-asset-delta-update.md",
+    "title": "游戏环境资源包差异化增量更新系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00567",
+    "file": "REQ-00567-smart-skeleton-screen-loading-system.md",
+    "title": "智能骨架屏加载占位系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00595",
+    "file": "REQ-00595-game-assets-preload-cache-invalidation.md",
+    "title": "游戏资源预加载与高效缓存失效策略",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00596",
+    "file": "REQ-00596-game-resource-smart-priority-loading.md",
+    "title": "游戏资源动态加载智能优先级调度系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00602",
+    "file": "REQ-00602-skeleton-loading-and-progress-indicator-system.md",
+    "title": "游戏内加载骨架屏与智能进度指示系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00603",
+    "file": "REQ-00603-game-client-touch-gesture-smart-recognition-system.md",
+    "title": "游戏客户端触摸手势智能识别与优化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00605",
+    "file": "REQ-00605-resource-diff-incremental-update.md",
+    "title": "游戏资源包差分更新与增量同步系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00620",
+    "file": "REQ-00620-game-offline-experience-service-worker-cache-system.md",
+    "title": "游戏离线体验与 Service Worker 智能缓存管理系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E23",
+  "name": "可观测性（追踪/SLO/日志异常/告警/RUM/业务事件流）",
+  "wave": 5,
+  "reqs": [
+   {
+    "id": "REQ-00042",
+    "file": "REQ-00042-distributed-tracing-log-aggregation.md",
+    "title": "分布式追踪与日志聚合平台集成",
+    "priority": "P0"
+   },
+   {
+    "id": "REQ-00113",
+    "file": "REQ-00113-realtime-business-event-stream-monitoring.md",
+    "title": "实时业务事件流监控与分析系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00130",
+    "file": "REQ-00130-realtime-business-event-stream-monitoring.md",
+    "title": "实时业务事件流监控与分析系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00158",
+    "file": "REQ-00158-business-event-anomaly-detection.md",
+    "title": "业务事件异常检测与智能告警系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00166",
+    "file": "REQ-00166-realtime-event-stream-monitoring-system.md",
+    "title": "实时业务事件流监控与分析系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00168",
+    "file": "REQ-00168-distributed-tracing-link-visualization.md",
+    "title": "分布式追踪与请求链路可视化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00179",
+    "file": "REQ-00179-distributed-tracing-request-chain-visualization.md",
+    "title": "分布式追踪与请求链路可视化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00185",
+    "file": "REQ-00185-slo-budget-burn-rate-prediction-system.md",
+    "title": "SLO 预算燃尽与合规性预测系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00191",
+    "file": "REQ-00191-realtime-business-event-stream-monitoring.md",
+    "title": "实时业务事件流监控与分析系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00203",
+    "file": "REQ-00203-distributed-tracing-opentelemetry-integration.md",
+    "title": "分布式追踪与 OpenTelemetry 集成系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00225",
+    "file": "REQ-00225-monitoring-data-downsampling-long-term-storage.md",
+    "title": "监控数据降采样与长期存储系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00239",
+    "file": "REQ-00239-slo-error-budget-alerting-system.md",
+    "title": "SLO 错误预算燃尽告警与服务健康评分系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00275",
+    "file": "REQ-00275-alert-intelligent-correlation-and-root-cause-analysis-system.md",
+    "title": "告警智能关联与根因分析系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00293",
+    "file": "REQ-00293-distributed-tracing-opentelemetry-integration.md",
+    "title": "分布式追踪与 OpenTelemetry 集成系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00296",
+    "file": "REQ-00296-slo-error-budget-management-auto-degradation-system.md",
+    "title": "SLO 错误预算管理与自动降级系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00321",
+    "file": "REQ-00321-api-circuit-breaker-dashboard-visualization.md",
+    "title": "API 熔断器仪表板可视化与实时状态监控",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00332",
+    "file": "REQ-00332-api-response-time-anomaly-detection-and-intelligent-alerting-system.md",
+    "title": "API 响应时间异常检测与智能告警系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00347",
+    "file": "REQ-00347-service-call-anomaly-prediction-dependency-health-propagation.md",
+    "title": "服务调用异常预测与依赖健康传播追踪系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00358",
+    "file": "REQ-00358-realtime-service-health-aggregation-dashboard.md",
+    "title": "实时服务健康聚合仪表板与异常预测系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00371",
+    "file": "REQ-00371-realtime-log-anomaly-detection-and-early-warning-system.md",
+    "title": "实时日志异常检测与预警系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00472",
+    "file": "REQ-00472-distributed-tracing-performance-anomaly-detection-system.md",
+    "title": "分布式链路追踪性能异常检测系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00480",
+    "file": "REQ-00480-log-anomaly-detection-and-alert-aggregation-system.md",
+    "title": "日志异常检测与智能告警聚合系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00491",
+    "file": "REQ-00491-metric-lifecycle-management-system.md",
+    "title": "监控指标生命周期管理与废弃治理系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00518",
+    "file": "REQ-00518-monitoring-data-intelligent-summary-and-automated-reporting-system.md",
+    "title": "监控数据智能摘要与自动化报告系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00528",
+    "file": "REQ-00528-distributed-tracing-intelligent-sampling-performance-bottleneck-diagnostics.md",
+    "title": "分布式追踪智能采样与性能瓶颈自动诊断系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00529",
+    "file": "REQ-00529-api-request-chain-tracing-and-full-chain-latency-analysis-system.md",
+    "title": "API 请求链路追踪与全链路延迟分析系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00533",
+    "file": "REQ-00533-game-server-error-log-tracking-and-alert-aggregation-system.md",
+    "title": "游戏服务端异常日志追踪与告警聚合系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00535",
+    "file": "REQ-00535-game-server-realtime-performance-dashboard-and-auto-diagnosis.md",
+    "title": "游戏服务端实时性能看板与自动诊断系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00540",
+    "file": "REQ-00540-distributed-tracing-context-propagation-enhancement.md",
+    "title": "游戏服务全链路分布式追踪链路上下文传递增强",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00541",
+    "file": "REQ-00541-api-request-performance-trace-system.md",
+    "title": "API 请求响应链路的可观测性与性能溯源系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00544",
+    "file": "REQ-00544-performance-auto-diagnosis-engine.md",
+    "title": "游戏性能数据分析与自动诊断引擎",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00546",
+    "file": "REQ-00546-api-response-latency-jitter-monitoring.md",
+    "title": "微服务间API响应时间抖动监控与智能告警系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00549",
+    "file": "REQ-00549-real-time-api-latency-and-jitter-monitoring-system.md",
+    "title": "Real-time API Latency and Jitter Monitoring System",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00555",
+    "file": "REQ-00555-game-server-log-anomaly-clustering-system.md",
+    "title": "游戏服务端异常日志追踪与智能聚类告警系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00563",
+    "file": "REQ-00563-slo-compliance-monitoring-and-alert-system.md",
+    "title": "SLO 合规性监控与违规预警系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00573",
+    "file": "REQ-00573-implement-distributed-tracing-root-cause-analysis-engine.md",
+    "title": "实现分布式链路异常根因分析引擎",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00594",
+    "file": "REQ-00594-game-realtime-performance-diagnosis-engine.md",
+    "title": "游戏内实时性能瓶颈自诊断引擎",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00599",
+    "file": "REQ-00599-api-latency-anomaly-detection-system.md",
+    "title": "API 响应延迟异常检测与智能告警系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00606",
+    "file": "REQ-00606-game-client-rendering-performance-monitor.md",
+    "title": "游戏客户端渲染性能智能监控与告警系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00610",
+    "file": "REQ-00610-api-tracing-visualization.md",
+    "title": "API 请求响应链路分布式追踪数据可视化增强",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00617",
+    "file": "REQ-00617-user-experience-realtime-monitoring-rum-system.md",
+    "title": "用户体验实时监控与性能追踪系统（RUM/APM）",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E24",
+  "name": "数据库（连接池/事务/死锁/备份/血缘/归档/分区/读写分离/慢查询）",
+  "wave": 5,
+  "reqs": [
+   {
+    "id": "REQ-00096",
+    "file": "REQ-00096-database-transaction-isolation-and-deadlock-detection.md",
+    "title": "数据库事务隔离级别控制与死锁检测机制",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00115",
+    "file": "REQ-00115-database-connection-pool-adaptive-scheduling.md",
+    "title": "数据库连接池自适应调度与负载均衡系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00129",
+    "file": "REQ-00129-pokemon-data-backup-and-restore-system.md",
+    "title": "精灵数据备份与恢复系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00174",
+    "file": "REQ-00174-database-materialized-views-query-optimization.md",
+    "title": "数据库物化视图与复杂查询优化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00186",
+    "file": "REQ-00186-data-lineage-and-change-tracking-system.md",
+    "title": "数据血缘追踪与变更历史溯源系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00186",
+    "file": "REQ-00186-pokemon-historical-data-archiving-system.md",
+    "title": "精灵历史数据归档与冷热分离系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00187",
+    "file": "REQ-00187-data-lineage-and-change-tracking-system.md",
+    "title": "数据血缘追踪与变更历史溯源系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00199",
+    "file": "REQ-00199-data-lineage-tracking-and-impact-analysis.md",
+    "title": "数据血缘追踪与影响分析系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00217",
+    "file": "REQ-00217-database-query-deduplication-middleware.md",
+    "title": "数据库查询请求合并与去重中间件",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00223",
+    "file": "REQ-00223-database-schema-change-impact-analysis.md",
+    "title": "数据库表结构变更影响分析与自动化迁移验证系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00232",
+    "file": "REQ-00232-database-connection-health-monitoring-system.md",
+    "title": "数据库连接池健康检测与自动恢复系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00254",
+    "file": "REQ-00254-database-query-plan-cache-optimizer.md",
+    "title": "数据库查询执行计划缓存与智能优化器系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00259",
+    "file": "REQ-00259-database-read-write-split-and-replication-monitoring.md",
+    "title": "数据库读写分离与主从同步监控系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00267",
+    "file": "REQ-00267-data-lineage-visualization-impact-analysis.md",
+    "title": "数据血缘可视化与影响分析系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00306",
+    "file": "REQ-00306-database-migration-rollback-system.md",
+    "title": "数据库迁移回滚自动化与版本控制系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00312",
+    "file": "REQ-00312-database-capacity-planning-and-intelligent-alerting-system.md",
+    "title": "数据库容量规划与智能预警系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00318",
+    "file": "REQ-00318-database-backup-verification-system.md",
+    "title": "数据库备份自动验证与灾难恢复演练系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00323",
+    "file": "REQ-00323-database-partitioning-strategy.md",
+    "title": "数据库分区表与大数据量表分区策略",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00331",
+    "file": "REQ-00331-database-index-intelligent-analysis-optimization-system.md",
+    "title": "数据库索引智能分析与自动优化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00334",
+    "file": "REQ-00334-database-read-write-split-replication-monitoring.md",
+    "title": "数据库读写分离与主从同步监控系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00346",
+    "file": "REQ-00346-data-lineage-tracking-and-impact-analysis-system.md",
+    "title": "数据血缘追踪与影响分析系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00373",
+    "file": "REQ-00373-database-schema-conflict-detection-and-multi-env-consistency-system.md",
+    "title": "数据库Schema版本冲突检测与多环境一致性验证系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00420",
+    "file": "REQ-00420-database-backup-automated-verification-and-rehearsal-system.md",
+    "title": "数据库备份自动验证与演练系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00428",
+    "file": "REQ-00428-database-read-write-split-replication-monitoring.md",
+    "title": "数据库读写分离监控与延迟告警系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00430",
+    "file": "REQ-00430-database-slow-query-analysis-auto-optimization.md",
+    "title": "游戏数据库查询慢查询分析与自动调优系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00432",
+    "file": "REQ-00432-database-schema-change-impact-analysis.md",
+    "title": "数据库模式变更影响分析系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00464",
+    "file": "REQ-00464-implement-dynamic-database-index-maintenance-system.md",
+    "title": "实现动态数据库索引维护系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00471",
+    "file": "REQ-00471-database-tiered-storage-system.md",
+    "title": "数据库热数据自动分层存储系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00478",
+    "file": "REQ-00478-game-data-archiving-and-lifecycle-management-system.md",
+    "title": "游戏数据归档与生命周期管理系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00484",
+    "file": "REQ-00484-db-connection-pool-auto-scaling.md",
+    "title": "数据库连接池自动弹性伸缩与健康巡检系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00498",
+    "file": "REQ-00498-pokemon-search-and-sort-query-optimization.md",
+    "title": "精灵搜索与排序查询性能优化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00523",
+    "file": "REQ-00523-database-query-result-cache-invalidation-system.md",
+    "title": "数据库查询结果缓存失效智能同步系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00537",
+    "file": "REQ-00537-database-performance-tuning-advisor.md",
+    "title": "数据库性能查询调优自动化建议系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00539",
+    "file": "REQ-00539-database-slow-query-auto-optimization-and-index-recommendation-system.md",
+    "title": "数据库慢查询自动调优建议与索引推荐系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00548",
+    "file": "REQ-00548-database-query-performance-baseline-and-drift-detection.md",
+    "title": "数据库查询性能基线与漂移检测系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00552",
+    "file": "REQ-00552-database-query-plan-cache-optimizer.md",
+    "title": "数据库执行计划智能缓存与优化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00559",
+    "file": "REQ-00559-database-connection-pool-intelligent-preheat-and-adaptive-management.md",
+    "title": "数据库连接池智能预热与自适应管理系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00574",
+    "file": "REQ-00574-database-connection-pool-dynamic-scaling.md",
+    "title": "实现数据库连接池动态伸缩与自适应调度",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00575",
+    "file": "REQ-00575-postgresql-prepared-statement-optimization.md",
+    "title": "PostgreSQL 预编译语句优化",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00581",
+    "file": "REQ-00581-database-pool-intelligent-adaptive-management.md",
+    "title": "数据库连接池智能预热与动态自适应管理系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00585",
+    "file": "REQ-00585-database-deadlock-monitoring.md",
+    "title": "数据库死锁检测与自动化记录分析系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00601",
+    "file": "REQ-00601-database-schema-change-impact-analysis-and-risk-assessment-system.md",
+    "title": "数据库 Schema 变更智能影响分析与风险评估系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00601",
+    "file": "REQ-00601-high-concurrency-api-cache-update-optimization.md",
+    "title": "高并发下接口响应式缓存更新优化",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00623",
+    "file": "REQ-00623-database-connection-pool-intelligent-preheat-and-adaptive-management.md",
+    "title": "数据库连接池智能预热与动态自适应管理系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E25",
+  "name": "API 设计规范（分页/格式/版本/协商/投影/HATEOAS/重试/弃用）",
+  "wave": 5,
+  "reqs": [
+   {
+    "id": "REQ-00201",
+    "file": "REQ-00201-api-contract-version-negotiation-system.md",
+    "title": "API 契约版本协商与灰度兼容系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00251",
+    "file": "REQ-00251-api-response-serialization-optimization.md",
+    "title": "API 响应序列化优化与 JSON 压缩系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00302",
+    "file": "REQ-00302-api-pagination-standardization-system.md",
+    "title": "API 分页与列表响应标准化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00308",
+    "file": "REQ-00308-microservice-api-batch-request-optimization.md",
+    "title": "微服务 API 请求合并与批量处理优化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00315",
+    "file": "REQ-00315-api-response-schema-validation-and-data-contract-system.md",
+    "title": "API 响应 Schema 验证与数据契约系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00329",
+    "file": "REQ-00329-api-endpoint-naming-convention-linter-and-doc-sync.md",
+    "title": "API 端点命名规范自动校验与文档同步系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00350",
+    "file": "REQ-00350-pokemon-batch-query-and-data-aggregation-optimization.md",
+    "title": "精灵详情批量查询与数据聚合优化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00368",
+    "file": "REQ-00368-api-content-negotiation-and-media-type-management.md",
+    "title": "API 内容协商与媒体类型管理系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00386",
+    "file": "REQ-00386-api-response-format-standardization-and-error-code-unification-system.md",
+    "title": "API 响应格式标准化与错误码统一系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00402",
+    "file": "REQ-00402-api-error-retry-intelligent-backoff-system.md",
+    "title": "API 错误重试与智能退避系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00407",
+    "file": "REQ-00407-api-deprecation-notice-and-migration-guide-system.md",
+    "title": "API 弃用通知与迁移引导系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00465",
+    "file": "REQ-00465-api-response-pagination-standardization.md",
+    "title": "API 响应分页标准化与性能优化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00476",
+    "file": "REQ-00476-api-performance-budget-and-benchmark-automation-system.md",
+    "title": "API性能预算与基准测试自动化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00518",
+    "file": "REQ-00518-api-hateoas-links-and-resource-discovery-system.md",
+    "title": "API 超媒体链接（HATEOAS）与资源发现系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00518",
+    "file": "REQ-00518-api-hypermedia-links-hateoas-and-resource-discovery-system.md",
+    "title": "API 超媒体链接（HATEOAS）与资源发现系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00520",
+    "file": "REQ-00520-backend-service-api-compatibility-versioning-system.md",
+    "title": "后端服务 API 兼容性版本管理与自动化测试系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00526",
+    "file": "REQ-00526-api-streaming-compression.md",
+    "title": "实现 API 响应数据流式压缩与流处理系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00532",
+    "file": "REQ-00532-api-response-field-projection-and-dynamic-fieldsets.md",
+    "title": "API 响应字段投影与动态字段集系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00542",
+    "file": "REQ-00542-api-gateway-request-response-transformer-pipeline.md",
+    "title": "API Gateway 请求响应转换器管道系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00547",
+    "file": "REQ-00547-api-response-schema-enforcement-and-contract-testing-system.md",
+    "title": "API 响应 Schema 强制执行与合约测试自动化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00554",
+    "file": "REQ-00554-api-content-negotiation-and-smart-media-conversion.md",
+    "title": "API响应协议内容协商与媒体类型智能转换",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E26",
+  "name": "性能与运行时（排行榜/预编译缓存/WebSocket/压测/内存/登录）",
+  "wave": 5,
+  "reqs": [
+   {
+    "id": "REQ-00165",
+    "file": "REQ-00165-realtime-competitive-leaderboard-optimization.md",
+    "title": "实时竞技排行榜优化与热度预测系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00227",
+    "file": "REQ-00227-pokemon-precompile-cache-incremental-sync.md",
+    "title": "精灵数据预编译缓存与增量同步系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00290",
+    "file": "REQ-00290-websocket-connection-pool-message-batch-optimization.md",
+    "title": "WebSocket 连接池与消息批处理性能优化",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00301",
+    "file": "REQ-00301-full-chain-load-testing-and-performance-benchmark-system.md",
+    "title": "全链路压测系统与生产环境性能基准",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00340",
+    "file": "REQ-00340-pokemon-data-precompiled-cache-and-incremental-sync.md",
+    "title": "精灵数据预编译缓存与增量同步系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00417",
+    "file": "REQ-00417-smart-session-timeout-management.md",
+    "title": "玩家会话超时智能管理与渐进式断开系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00421",
+    "file": "REQ-00421-player-login-performance-optimization.md",
+    "title": "玩家登录性能优化与快速恢复系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00422",
+    "file": "REQ-00422-sprite-precompiled-cache-system.md",
+    "title": "精灵数据预编译缓存系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00502",
+    "file": "REQ-00502-performance-analysis-framework.md",
+    "title": "性能分析与深度优化框架设计",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00545",
+    "file": "REQ-00545-api-performance-sampling-intelligent-analysis-and-auto-tuning-recommendation-system.md",
+    "title": "API 性能采样数据智能分析与自动调优建议系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00552",
+    "file": "REQ-00552-websocket-connection-pool-adaptive-scaling-and-resource-optimization.md",
+    "title": "WebSocket 连接池自适应伸缩与资源优化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00577",
+    "file": "REQ-00577-nodejs-heap-memory-gc-optimization.md",
+    "title": "Node.js 堆内存智能管理与 GC 优化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00580",
+    "file": "REQ-00580-websocket-message-batch-queue-memory-optimization.md",
+    "title": "WebSocket 消息批处理队列内存优化",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00586",
+    "file": "REQ-00586-nodejs-memory-leak-diagnosis-toolchain.md",
+    "title": "Node.js 内存泄露自动诊断工具链",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E27",
+  "name": "运维与 CI/CD（流水线/SBOM/变更日志/部署窗口/优雅停机/DR 演练）",
+  "wave": 6,
+  "reqs": [
+   {
+    "id": "REQ-00176",
+    "file": "REQ-00176-deployment-pipeline-state-tracking-and-rollback-management.md",
+    "title": "部署流水线状态跟踪与回滚管理系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00190",
+    "file": "REQ-00190-automated-disaster-recovery-drill-system.md",
+    "title": "自动化灾难恢复演练与验证系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00222",
+    "file": "REQ-00222-cicd-build-cache-and-supply-chain-security.md",
+    "title": "CI/CD 构建缓存优化与依赖供应链安全验证系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00241",
+    "file": "REQ-00241-sbom-generation-supply-chain-security.md",
+    "title": "软件物料清单（SBOM）生成与供应链安全验证系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00258",
+    "file": "REQ-00258-deployment-changelog-auto-generation-system.md",
+    "title": "部署变更日志自动生成与发布说明系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00260",
+    "file": "REQ-00260-cicd-pipeline-visualization-dashboard.md",
+    "title": "CI/CD 管道执行可视化与实时监控仪表板系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00264",
+    "file": "REQ-00264-cicd-pipeline-history-and-performance-analytics.md",
+    "title": "CI/CD 流水线运行历史与性能分析系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00266",
+    "file": "REQ-00266-deployment-window-smart-scheduling-system.md",
+    "title": "部署窗口智能调度系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00285",
+    "file": "REQ-00285-service-graceful-shutdown-and-connection-draining-system.md",
+    "title": "服务实例优雅停机与连接排空系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00287",
+    "file": "REQ-00287-cicd-pipeline-dependency-analysis-and-parallel-optimization.md",
+    "title": "CI/CD 管道执行依赖分析与并行优化系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00314",
+    "file": "REQ-00314-service-graceful-shutdown-and-connection-draining-system.md",
+    "title": "服务实例优雅停机与连接排空系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00423",
+    "file": "REQ-00423-deployment-changelog-auto-generation.md",
+    "title": "部署变更日志自动生成系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00437",
+    "file": "REQ-00437-deployment-window-smart-scheduling-system.md",
+    "title": "部署窗口智能调度系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00486",
+    "file": "REQ-00486-cicd-pipeline-realtime-visualization-and-smart-diagnosis.md",
+    "title": "CI/CD流水线实时可视化与智能诊断系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00493",
+    "file": "REQ-00493-automated-disaster-recovery-drill-system.md",
+    "title": "自动化灾难恢复演练系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00509",
+    "file": "REQ-00509-cicd-cache-intelligent-management-system.md",
+    "title": "CI/CD 缓存智能管理与优化系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00510",
+    "file": "REQ-00510-production-deployment-health-verification-and-auto-rollback-system.md",
+    "title": "生产环境部署后健康检查自动化验证与回滚触发系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00568",
+    "file": "REQ-00568-server-resource-lifecycle-management-system.md",
+    "title": "游戏服务器资源生命周期自动管理与资源回收系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00590",
+    "file": "REQ-00590-ci-cd-pipeline-efficiency-analysis-and-bottleneck-detection-system.md",
+    "title": "CI/CD 流水线执行效率分析与瓶颈定位系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00615",
+    "file": "REQ-00615-automated-disaster-recovery-drill-system.md",
+    "title": "自动化灾难恢复演练系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E28",
+  "name": "容灾与混沌（混沌测试/RPO/RTO/一致性）",
+  "wave": 6,
+  "reqs": [
+   {
+    "id": "REQ-00087",
+    "file": "REQ-00087-chaos-engineering-fault-injection-testing-system.md",
+    "title": "混沌工程与故障注入测试系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00292",
+    "file": "REQ-00292-microservice-chaos-testing-framework.md",
+    "title": "微服务混沌测试框架与故障注入系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00516",
+    "file": "REQ-00516-chaos-testing-framework.md",
+    "title": "微服务混沌测试框架自动化执行与报告系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00530",
+    "file": "REQ-00530-data-recovery-integrity-verification-and-consistency-repair-system.md",
+    "title": "数据恢复完整性校验与一致性自动修复系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00569",
+    "file": "REQ-00569-cross-region-disaster-recovery-drill-automation-system.md",
+    "title": "跨区域容灾演练自动化与灾备切换决策引擎",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00590",
+    "file": "REQ-00590-cross-region-data-consistency-verification.md",
+    "title": "跨区域数据同步一致性校验系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00593",
+    "file": "REQ-00593-fault-scenario-discovery-chaos-verification.md",
+    "title": "灾备故障场景自动发现与混沌验证覆盖系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00609",
+    "file": "REQ-00609-rpo-rto-realtime-monitoring-early-warning-system.md",
+    "title": "RPO/RTO 实时监控与预警告警系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E29",
+  "name": "成本与资源（K8s 扩缩容/休眠/成本归因/预测）",
+  "wave": 6,
+  "reqs": [
+   {
+    "id": "REQ-00071",
+    "file": "REQ-00071-k8s-pod-autoscaling-optimization.md",
+    "title": "K8s Pod 资源自动扩缩容优化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00088",
+    "file": "REQ-00088-redis-connection-pool-management-and-health-monitoring.md",
+    "title": "Redis 连接池管理与健康监控系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00140",
+    "file": "REQ-00140-low-traffic-service-auto-sleep-and-smart-wake-up-system.md",
+    "title": "低峰期服务自动休眠与智能唤醒系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00161",
+    "file": "REQ-00161-low-peak-service-auto-sleep-and-smart-wake.md",
+    "title": "低峰期服务自动休眠与智能唤醒系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00178",
+    "file": "REQ-00178-container-image-lifecycle-management-and-storage-optimization.md",
+    "title": "容器镜像生命周期管理与存储优化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00212",
+    "file": "REQ-00212-cloud-resource-utilization-cost-attribution-system.md",
+    "title": "云资源利用率分析与成本归因系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00248",
+    "file": "REQ-00248-kubernetes-pvc-lifecycle-management-and-auto-scaling.md",
+    "title": "Kubernetes 存储卷生命周期管理与自动扩缩容系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00249",
+    "file": "REQ-00249-infrastructure-cost-prediction-and-budget-planning-system.md",
+    "title": "基础设施成本预测与预算智能规划系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00273",
+    "file": "REQ-00273-kubernetes-resource-optimization-and-cost-monitoring.md",
+    "title": "Kubernetes 资源限制优化与成本监控",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00297",
+    "file": "REQ-00297-cloud-cost-anomaly-detection-budget-alert-system.md",
+    "title": "云成本异常检测与预算超支预警系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00374",
+    "file": "REQ-00374-cloud-cost-anomaly-detection-budget-alert-system.md",
+    "title": "云成本异常检测与预算预警系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00375",
+    "file": "REQ-00375-multi-cloud-cost-allocation-and-resource-attribution-system.md",
+    "title": "多云成本分摊与资源归因优化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00424",
+    "file": "REQ-00424-kubernetes-resource-cost-optimization.md",
+    "title": "Kubernetes 资源成本优化与智能扩缩容系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00466",
+    "file": "REQ-00466-cost-anomaly-detection-and-auto-alert-response-system.md",
+    "title": "成本异常检测与自动告警响应系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00482",
+    "file": "REQ-00482-dynamic-container-load-prediction-autoscaling.md",
+    "title": "动态容器资源负载预测与主动扩缩容系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00506",
+    "file": "REQ-00506-container-resource-optimization.md",
+    "title": "游戏服务端容器资源智能利用率分析与自动裁剪系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00538",
+    "file": "REQ-00538-preview-test-environment-auto-reclamation.md",
+    "title": "预览与测试环境智能资源回收与成本优化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00613",
+    "file": "REQ-00613-cloud-resource-cost-attribution-allocation-system.md",
+    "title": "云资源成本归因与分摊精细化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00625",
+    "file": "REQ-00625-game-server-cloud-resource-cost-prediction-and-optimization.md",
+    "title": "游戏服务端云资源成本动态预测与智能优化系统",
+    "priority": "P2"
+   }
+  ]
+ },
+ {
+  "id": "E30",
+  "name": "架构与重构（插件/启动器/日志/事件总线/服务发现/Saga/DI/状态机）",
+  "wave": 6,
+  "reqs": [
+   {
+    "id": "REQ-00050",
+    "file": "REQ-00050-plugin-middleware-system-lifecycle-management.md",
+    "title": "插件化中间件系统与生命周期管理",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00103",
+    "file": "REQ-00103-microservice-dependency-graph-and-cycle-detection.md",
+    "title": "微服务依赖图与循环依赖检测系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00169",
+    "file": "REQ-00169-service-launcher-unification.md",
+    "title": "微服务启动器统一化与服务样板代码消除",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00193",
+    "file": "REQ-00193-console-logging-elimination.md",
+    "title": "消除 console.log 与统一结构化日志使用",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00194",
+    "file": "REQ-00194-event-bus-adapter-abstraction-layer.md",
+    "title": "事件总线适配器抽象层",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00211",
+    "file": "REQ-00211-microservice-boilerplate-unified-initializer.md",
+    "title": "微服务样板代码统一初始化器",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00242",
+    "file": "REQ-00242-microservice-config-unification-and-env-validation.md",
+    "title": "微服务启动配置统一化与环境变量校验系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00277",
+    "file": "REQ-00277-service-discovery-and-dynamic-routing-system.md",
+    "title": "服务发现与动态路由系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00284",
+    "file": "REQ-00284-distributed-transaction-saga-orchestration-system.md",
+    "title": "分布式事务编排与 Saga 补偿机制系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00300",
+    "file": "REQ-00300-dynamic-service-discovery-and-registry.md",
+    "title": "动态服务注册发现与健康感知路由系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00319",
+    "file": "REQ-00319-microservice-dependency-injection-container-and-auto-binding-system.md",
+    "title": "微服务依赖注入容器与自动服务发现绑定系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00330",
+    "file": "REQ-00330-code-quality-metrics-and-refactoring-advisor-system.md",
+    "title": "代码质量度量系统与自动化重构建议引擎",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00349",
+    "file": "REQ-00349-error-handling-module-consolidation.md",
+    "title": "错误处理模块重构与统一化",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00415",
+    "file": "REQ-00415-code-quality-metrics-and-refactoring-suggestions.md",
+    "title": "代码质量度量与重构建议系统",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00499",
+    "file": "REQ-00499-事件驱动服务编排与分布式状态机引擎.md",
+    "title": "事件驱动服务编排与分布式状态机引擎",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00517",
+    "file": "REQ-00517-error-intelligence-analysis-and-root-cause-localization-system.md",
+    "title": "错误智能分析与根因定位系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00534",
+    "file": "REQ-00534-code-duplication-detection-and-intelligent-merge-recommendation.md",
+    "title": "代码重复检测与智能合并建议系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00549",
+    "file": "REQ-00549-service-lifecycle-state-machine-and-graceful-transition-system.md",
+    "title": "服务生命周期状态机与优雅转换系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00553",
+    "file": "REQ-00553-shared-module-refactoring.md",
+    "title": "微服务共享模块拆分与职责边界重构",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00600",
+    "file": "REQ-00600-dynamic-module-loader-di-container.md",
+    "title": "动态模块加载器与依赖注入容器系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00607",
+    "file": "REQ-00607-microservice-cross-service-dependency-decoupling.md",
+    "title": "微服务跨服务依赖解耦与统一服务发现机制",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00619",
+    "file": "REQ-00619-service-dependency-consolidation-and-initialization-refactoring.md",
+    "title": "服务依赖配置统一与初始化模块重构",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00624",
+    "file": "REQ-00624-console-logging-migration-to-structured-logger.md",
+    "title": "Console 调用全面迁移至结构化日志系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E31",
+  "name": "测试体系（集成/契约/Mock/变异/流量镜像/战斗引擎）",
+  "wave": 6,
+  "reqs": [
+   {
+    "id": "REQ-00166",
+    "file": "REQ-00166-api-integration-test-coverage-improvement.md",
+    "title": "API 集成测试覆盖率提升与自动化回归测试系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00177",
+    "file": "REQ-00177-service-mesh-traffic-mirroring-test.md",
+    "title": "服务网格流量镜像测试系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00196",
+    "file": "REQ-00196-route-integration-test-coverage.md",
+    "title": "微服务路由层集成测试覆盖率提升计划",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00226",
+    "file": "REQ-00226-api-contract-test-mock-service.md",
+    "title": "API 请求契约测试自动化与 Mock 服务生成系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00237",
+    "file": "REQ-00237-microservice-e2e-integration-test-contract-validation.md",
+    "title": "微服务端到端集成测试与契约验证自动化系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00272",
+    "file": "REQ-00272-api-contract-testing-system-and-mock-service-generation.md",
+    "title": "API 契约测试系统与自动化 Mock 服务生成",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00274",
+    "file": "REQ-00274-event-service-comprehensive-unit-test-coverage.md",
+    "title": "游戏活动服务单元测试覆盖",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00310",
+    "file": "REQ-00310-microservice-integration-testing-framework-and-e2e-scenarios.md",
+    "title": "微服务集成测试框架与端到端场景验证系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00352",
+    "file": "REQ-00352-microservice-integration-test-framework.md",
+    "title": "微服务集成测试框架与端到端场景验证系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00366",
+    "file": "REQ-00366-microservice-core-business-unit-test-coverage.md",
+    "title": "微服务核心业务逻辑单元测试覆盖率提升与自动化测试守卫系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00381",
+    "file": "REQ-00381-websocket-realtime-communication-load-testing-system.md",
+    "title": "WebSocket 实时通信压力测试与并发安全验证系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00512",
+    "file": "REQ-00512-test-mock-data-management-system.md",
+    "title": "测试 Mock 数据集中管理与智能生成系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00544",
+    "file": "REQ-00544-test-data-factory-pattern-system.md",
+    "title": "微服务测试数据工厂模式与智能 Fixture 生成系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00560",
+    "file": "REQ-00560-automated-mutation-testing-system.md",
+    "title": "自动化变异测试系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00564",
+    "file": "REQ-00564-contract-test-mock-server-auto-generation.md",
+    "title": "API契约测试Mock服务自动生成系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00564",
+    "file": "REQ-00564-microservice-contract-test-mock-generator.md",
+    "title": "微服务契约测试Mock服务自动生成系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00598",
+    "file": "REQ-00598-gym-battle-combo-engine-test-coverage.md",
+    "title": "道馆战斗引擎与连击系统单元测试覆盖",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00619",
+    "file": "REQ-00619-core-battle-engine-test-coverage-framework.md",
+    "title": "核心战斗引擎业务测试覆盖框架",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E32",
+  "name": "文档与开发者体验",
+  "wave": 6,
+  "reqs": [
+   {
+    "id": "REQ-00205",
+    "file": "REQ-00205-developer-environment-auto-setup-tool.md",
+    "title": "开发者环境自动化配置工具",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00378",
+    "file": "REQ-00378-architecture-decision-records-and-knowledge-base.md",
+    "title": "微服务架构决策记录（ADR）系统与知识库管理",
+    "priority": "P2"
+   },
+   {
+    "id": "REQ-00438",
+    "file": "REQ-00438-api-call-examples-library-and-best-practices-documentation-system.md",
+    "title": "API 调用示例库与最佳实践文档系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00551",
+    "file": "REQ-00551-api-error-code-playground-interactive-docs.md",
+    "title": "API 错误码交互式文档与在线调试沙盒系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00589",
+    "file": "REQ-00589-microservice-architecture-visualization.md",
+    "title": "微服务架构可视化与 API 依赖关系图谱系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E33",
+  "name": "运营分析（画像/漏斗/流失）",
+  "wave": 6,
+  "reqs": [
+   {
+    "id": "REQ-00208",
+    "file": "REQ-00208-player-behavior-analysis-user-profile-system.md",
+    "title": "玩家行为数据分析与用户画像系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00354",
+    "file": "REQ-00354-player-behavior-funnel-analysis-and-churn-prediction-system.md",
+    "title": "玩家行为漏斗分析与流失预警系统",
+    "priority": "P1"
+   },
+   {
+    "id": "REQ-00405",
+    "file": "REQ-00405-player-churn-prediction-and-retention-system.md",
+    "title": "玩家流失预测与智能挽留系统",
+    "priority": "P1"
+   }
+  ]
+ },
+ {
+  "id": "E34",
+  "name": "实时语音与客户端内存防护",
+  "wave": 7,
+  "reqs": [
+   {
+    "id": "REQ-00041",
+    "file": "REQ-00041-game-client-memory-scanning-protection.md",
+    "title": "Game Client Dynamic Memory Scanning and Protection System",
+    "priority": "P0"
+   },
+   {
+    "id": "REQ-00558",
+    "file": "REQ-00558-team-realtime-collaboration-voice-chat.md",
+    "title": "游戏客户端团队实时协作与语音通信系统",
+    "priority": "P0"
+   }
+  ]
+ }
+]
