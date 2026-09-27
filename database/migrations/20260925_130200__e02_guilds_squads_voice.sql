@@ -169,6 +169,8 @@ ALTER TABLE guild_members ADD COLUMN IF NOT EXISTS contribution_week DATE;   -- 
 ALTER TABLE guild_members ADD COLUMN IF NOT EXISTS battles_participated INTEGER DEFAULT 0;
 ALTER TABLE guild_members ADD COLUMN IF NOT EXISTS raids_participated INTEGER DEFAULT 0;
 ALTER TABLE guild_members ADD COLUMN IF NOT EXISTS last_contribution_at TIMESTAMP;
+-- 成员自己的开关：在公会成员列表中向公会成员显示在线状态（关闭后按个人隐私设置 online_status_visibility 判断）
+ALTER TABLE guild_members ADD COLUMN IF NOT EXISTS show_online BOOLEAN NOT NULL DEFAULT TRUE;
 -- 一人只能在一个公会：pending 迁移只对非 novice 角色建了排他约束，这里补全表唯一（旧数据冲突时跳过并提示）
 DO $$ BEGIN
   CREATE UNIQUE INDEX IF NOT EXISTS uq_guild_members_one_guild ON guild_members(user_id);
