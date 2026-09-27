@@ -34,6 +34,36 @@ CREATE TABLE IF NOT EXISTS drill_records (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS id VARCHAR(100);
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS scenario_id VARCHAR(100);
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS scenario_name VARCHAR(200);
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS type VARCHAR(50);
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS status VARCHAR(50);
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS start_time TIMESTAMP;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS end_time TIMESTAMP;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS duration INTEGER;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS chaos_experiments JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS metrics JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS results JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS rto INTEGER;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS rpo INTEGER;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS created_by VARCHAR(100);
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS auto_rollback BOOLEAN DEFAULT true;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS manual_stop BOOLEAN DEFAULT false;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS error_message TEXT;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE drill_records ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.drill_records') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'scenario_id', 'scenario_name', 'type', 'status', 'start_time', 'end_time', 'duration', 'chaos_experiments', 'metrics', 'results', 'rto', 'rpo', 'created_by', 'auto_rollback', 'manual_stop', 'error_message', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE drill_records ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 演练场景配置表
 CREATE TABLE IF NOT EXISTS drill_scenarios (
@@ -64,6 +94,34 @@ CREATE TABLE IF NOT EXISTS drill_scenarios (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS id VARCHAR(100);
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS name VARCHAR(200);
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS type VARCHAR(50);
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS chaos_experiments JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS duration INTEGER DEFAULT 1800000;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS target_services TEXT[] DEFAULT '{}';
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS target_region VARCHAR(100);
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS rto_target INTEGER DEFAULT 300000;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS rpo_target INTEGER DEFAULT 60000;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS auto_rollback BOOLEAN DEFAULT true;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS enabled BOOLEAN DEFAULT true;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS schedule_cron VARCHAR(100);
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS last_run TIMESTAMP;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS next_run TIMESTAMP;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE drill_scenarios ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.drill_scenarios') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'name', 'description', 'type', 'chaos_experiments', 'duration', 'target_services', 'target_region', 'rto_target', 'rpo_target', 'auto_rollback', 'enabled', 'schedule_cron', 'last_run', 'next_run', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE drill_scenarios ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 混沌实验记录表
 CREATE TABLE IF NOT EXISTS chaos_experiments (
@@ -86,6 +144,27 @@ CREATE TABLE IF NOT EXISTS chaos_experiments (
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS id VARCHAR(100);
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS drill_id VARCHAR(100);
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS kind VARCHAR(100);
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS status VARCHAR(50);
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS namespace VARCHAR(100);
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS resource_name VARCHAR(200);
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS injected_at TIMESTAMP;
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS rolled_back_at TIMESTAMP;
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS target_services TEXT[] DEFAULT '{}';
+ALTER TABLE chaos_experiments ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.chaos_experiments') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'drill_id', 'kind', 'status', 'namespace', 'resource_name', 'injected_at', 'rolled_back_at', 'target_services', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE chaos_experiments ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- SLO 监控快照表
 CREATE TABLE IF NOT EXISTS slo_snapshots (
@@ -108,6 +187,27 @@ CREATE TABLE IF NOT EXISTS slo_snapshots (
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS drill_id VARCHAR(100);
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS captured_at TIMESTAMP;
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS availability NUMERIC(5, 4);
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS latency_p50 NUMERIC(10, 3);
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS latency_p95 NUMERIC(10, 3);
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS latency_p99 NUMERIC(10, 3);
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS error_rate NUMERIC(5, 4);
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS throughput INTEGER;
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS extra_metrics JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE slo_snapshots ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.slo_snapshots') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('drill_id', 'captured_at', 'availability', 'latency_p50', 'latency_p95', 'latency_p99', 'error_rate', 'throughput', 'extra_metrics', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE slo_snapshots ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 演练报告表
 CREATE TABLE IF NOT EXISTS drill_reports (
@@ -126,6 +226,23 @@ CREATE TABLE IF NOT EXISTS drill_reports (
     -- 导出路径（如果导出为文件）
     export_path TEXT
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE drill_reports ADD COLUMN IF NOT EXISTS id VARCHAR(100);
+ALTER TABLE drill_reports ADD COLUMN IF NOT EXISTS drill_id VARCHAR(100);
+ALTER TABLE drill_reports ADD COLUMN IF NOT EXISTS format VARCHAR(50) DEFAULT 'standard';
+ALTER TABLE drill_reports ADD COLUMN IF NOT EXISTS content JSONB;
+ALTER TABLE drill_reports ADD COLUMN IF NOT EXISTS generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE drill_reports ADD COLUMN IF NOT EXISTS export_path TEXT;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.drill_reports') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'drill_id', 'format', 'content', 'generated_at', 'export_path', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE drill_reports ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 演练建议表
 CREATE TABLE IF NOT EXISTS drill_recommendations (
@@ -149,6 +266,28 @@ CREATE TABLE IF NOT EXISTS drill_recommendations (
     
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS drill_id VARCHAR(100);
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS category VARCHAR(100);
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS severity VARCHAR(50);
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS message TEXT;
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS metric_name VARCHAR(100);
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS current_value NUMERIC;
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS target_value NUMERIC;
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'open';
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMP;
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS resolved_by VARCHAR(100);
+ALTER TABLE drill_recommendations ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.drill_recommendations') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('drill_id', 'category', 'severity', 'message', 'metric_name', 'current_value', 'target_value', 'status', 'resolved_at', 'resolved_by', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE drill_recommendations ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 演练统计视图
 CREATE OR REPLACE VIEW drill_statistics AS
@@ -162,7 +301,7 @@ SELECT
     AVG(rto) AS avg_rto,
     AVG(rpo) AS avg_rpo,
     
-    AVG((results->'sloCompliance'->'availability'->>'passed')::boolean) AS avg_availability_compliance,
+    AVG(((results->'sloCompliance'->'availability'->>'passed')::boolean)::int) AS avg_availability_compliance,
     
     MAX(start_time) AS last_drill_time,
     MIN(start_time) AS first_drill_time
@@ -202,12 +341,12 @@ FROM drill_records
 WHERE status = 'running';
 
 -- 索引
-CREATE INDEX idx_drill_records_status ON drill_records(status);
-CREATE INDEX idx_drill_records_scenario ON drill_records(scenario_id);
-CREATE INDEX idx_drill_records_start_time ON drill_records(start_time DESC);
-CREATE INDEX idx_chaos_experiments_drill ON chaos_experiments(drill_id);
-CREATE INDEX idx_slo_snapshots_drill ON slo_snapshots(drill_id);
-CREATE INDEX idx_drill_recommendations_status ON drill_recommendations(status);
+CREATE INDEX IF NOT EXISTS idx_drill_records_status ON drill_records(status);
+CREATE INDEX IF NOT EXISTS idx_drill_records_scenario ON drill_records(scenario_id);
+CREATE INDEX IF NOT EXISTS idx_drill_records_start_time ON drill_records(start_time DESC);
+CREATE INDEX IF NOT EXISTS idx_chaos_experiments_drill ON chaos_experiments(drill_id);
+CREATE INDEX IF NOT EXISTS idx_slo_snapshots_drill ON slo_snapshots(drill_id);
+CREATE INDEX IF NOT EXISTS idx_drill_recommendations_status ON drill_recommendations(status);
 
 -- 触发器：自动更新 updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -218,11 +357,13 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS update_drill_records_updated_at ON drill_records;
 CREATE TRIGGER update_drill_records_updated_at
     BEFORE UPDATE ON drill_records
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_drill_scenarios_updated_at ON drill_scenarios;
 CREATE TRIGGER update_drill_scenarios_updated_at
     BEFORE UPDATE ON drill_scenarios
     FOR EACH ROW

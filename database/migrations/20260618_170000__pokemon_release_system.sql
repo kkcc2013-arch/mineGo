@@ -12,7 +12,7 @@ CREATE TABLE pokemon_releases (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     pokemon_instance_id UUID NOT NULL,
-    pokemon_species_id UUID NOT NULL REFERENCES pokemon_species(id),
+    pokemon_species_id SMALLINT NOT NULL REFERENCES pokemon_species(id),
     level INTEGER NOT NULL,
     iv_total INTEGER NOT NULL,
     is_shiny BOOLEAN DEFAULT FALSE,

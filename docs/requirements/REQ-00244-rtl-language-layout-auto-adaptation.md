@@ -3,7 +3,7 @@
 - **编号**：REQ-00244
 - **类别**：国际化/本地化
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：game-client、frontend/game-client/src/i18n、frontend/game-client/src/styles、gateway、backend/shared/i18n.js
 - **创建时间**：2026-06-16 04:00
 - **依赖需求**：REQ-00011（多语言国际化支持）
@@ -219,3 +219,27 @@ Response:
 5. **合规风险**：部分地区可能对本地化有法规要求
 
 虽然不影响核心功能，但对国际化和市场拓展至关重要，应尽快完成。
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| **RTL 检测准确**：RTLDetector 正确识别 ar、he、fa、ur 等 RTL 语言，返回 `direction: 'rtl'` | ✅ | `accessibility/textDirection.js` isRtlLang/detectLangDirection：ar/he/iw/fa/ur/ps/sd/ug/yi/dv/ku/ckb → rtl（单测覆盖） |
+| **HTML dir 属性正确**：切换到 RTL 语言时，`<html dir="rtl">` 已设置 | ✅ | DirectionManager 监听 `<html lang>` 变化即时设置 `dir`；语言选择新增 العربية（ar-SA）、עברית（he-IL） |
+| **UI 布局镜像**：主界面、捕捉界面、背包界面等关键页面的 UI 元素布局正确镜像 | ✅ | 主界面/捕捉/我的（背包）依赖 flex 随 dir 自动镜像 + `a11y.css` `[dir=rtl]` 修正（验证码输入组圆角与边框、语言弹窗对齐）；道馆界面客户端不存在 |
+| **文本对齐正确**：RTL 文本右对齐显示，阅读方向正确 | ✅ | dir=rtl 下默认起始对齐；动态文本（用户名/精灵名/提示/字幕）dir=auto、unicode-bidi: plaintext |
+| **图标自动翻转**：arrow-right、chevron-right 等方向性图标自动水平翻转 | ✅ | 返回箭头、卡片"›"（`.a11y-dir-icon`）在 RTL 下 scaleX(-1) |
+| **图标不误翻转**：logo、avatar、pokemon-sprite 等图标保持原方向 | ✅ | Logo/头像/精灵 emoji、距离数字不翻转（e2e 校验 transform） |
+| **语言切换流畅**：在 LTR 和 RTL 语言间切换，布局无闪烁或错位 | ✅ | 切换语言时 dir 同步切换（e2e 测得 0.1ms）；原有 changeLanguage 随后 1 秒刷新页面，刷新后保持 RTL |
+| **E2E 测试通过**：Playwright 测试覆盖阿拉伯语界面关键操作流程 | ✅ | `scripts/e2e-a11y.js`：阿拉伯语下 dir、镜像规则、axe 扫描 |
+| **无性能退化**：首屏加载时间增加不超过 5% | ⚠️ | `scripts/bench-a11y-client.js` 对比 LTR/RTL（及去掉 a11y 模块）的首屏加载中位数，未运行 |
+| **用户验收通过**：邀请 3 名以上 RTL 语言母语用户测试，反馈正面 | ⚠️ | 需 3 名以上 RTL 母语用户验收；界面文案尚无阿拉伯语/希伯来语翻译（属 REQ-00137 翻译工作流） |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：`database/migrations/20260925_010000__user_preferences.sql`（`user_preferences`：user_id UUID → users(id) ON DELETE CASCADE、namespace、prefs JSONB，主键 (user_id, namespace)，全部 IF NOT EXISTS）；偏好云端同步：user-service `GET/PUT/DELETE /users/me/preferences/:namespace`（`src/routes/preferences.js` + `src/services/userPreferences.js` 校验），经网关 `/v1/users/me/preferences/a11y`（网关已有 `/v1/users` 鉴权代理，未改网关）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：阿拉伯语下各页面布局人工检查；运行 bench 看首屏开销；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 备注：偏差：index.html 原有样式未整体重构为 CSS 逻辑属性，采用"flex 自动镜像 + [dir=rtl] 定点修正"，新增样式均用逻辑属性。
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`

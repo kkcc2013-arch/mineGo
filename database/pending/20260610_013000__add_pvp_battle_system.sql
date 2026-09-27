@@ -25,7 +25,7 @@ CREATE INDEX IF NOT EXISTS idx_pvp_battles_created ON pvp_battles(created_at DES
 
 -- PVP 排位积分表
 CREATE TABLE IF NOT EXISTS pvp_rankings (
-  user_id INTEGER PRIMARY KEY REFERENCES users(id),
+  user_id UUID PRIMARY KEY REFERENCES users(id),
   elo_rating INTEGER NOT NULL DEFAULT 1000,
   tier VARCHAR(20) NOT NULL DEFAULT 'bronze' CHECK (tier IN ('bronze', 'silver', 'gold', 'platinum', 'diamond', 'master', 'grandmaster')),
   tier_points INTEGER DEFAULT 0,

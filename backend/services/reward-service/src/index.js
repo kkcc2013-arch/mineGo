@@ -1,13 +1,18 @@
 // reward-service/src/index.js
 'use strict';
+require('../../../shared/tracing').initTracing('reward-service'); // REQ-00042：须先于 express/http/pg/redis 加载，自动埋点才生效（未配置 OTEL_EXPORTER_OTLP_ENDPOINT 时不启用）
 const express = require('express');
 const cors    = require('cors');
 const helmet  = require('helmet');
 const { query, transaction } = require('../../../shared/db');
+const { grantRewards } = require('./rewardGrant');
+const { gameDate, previousGameDate } = require('../../../shared/gameTime');
 const { getRedis } = require('../../../shared/redis');
-const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
+const { requireAuth, requireAdmin, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
 const metrics = require('../../../shared/metrics');
+// REQ-00302/465：统一分页 + 延迟关联 + count 估算
+const { offsetPaginationMiddleware, buildLinks, deferredJoinSql, shouldUseDeferredJoin, countWithStrategy } = require('../../../shared/apiStandards/pagination');
 
 // Import event routes (REQ-00141)
 const eventsRouter = require('./routes/events');
@@ -56,7 +61,7 @@ app.get('/rewards/daily', requireAuth, async (req, res, next) => {
     const data   = await redis.get(key);
 
     const existing = data ? JSON.parse(data) : null;
-    const today    = new Date().toISOString().slice(0, 10);
+    const today    = gameDate();
 
     if (existing && existing.date === today) {
       return res.json(successResp({ claimed: true, streak: existing.streak, reward: existing.reward }));
@@ -65,7 +70,7 @@ app.get('/rewards/daily', requireAuth, async (req, res, next) => {
     // Calculate streak
     let streak = 1;
     if (existing) {
-      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      const yesterday = previousGameDate();
       streak = existing.date === yesterday ? (existing.streak % 7) + 1 : 1;
     }
 
@@ -80,7 +85,7 @@ app.post('/rewards/daily/claim', requireAuth, async (req, res, next) => {
     const userId = req.user.sub;
     const redis  = getRedis();
     const key    = `daily:login:${userId}`;
-    const today  = new Date().toISOString().slice(0, 10);
+    const today  = gameDate();
     const data   = await redis.get(key);
     const existing = data ? JSON.parse(data) : null;
 
@@ -91,12 +96,18 @@ app.post('/rewards/daily/claim', requireAuth, async (req, res, next) => {
     // Calculate streak
     let streak = 1;
     if (existing) {
-      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      const yesterday = previousGameDate();
       streak = existing.date === yesterday ? (existing.streak % 7) + 1 : 1;
     }
 
     const reward = DAILY_LOGIN_REWARDS[(streak - 1) % 7];
 
+    // 先原子占位再发奖：原实现 GET → 发奖 → SETEX，并发请求会重复发奖
+    const claimKey = `daily:login:claim:${userId}:${today}`;
+    const claimed = await redis.set(claimKey, '1', 'EX', 172800, 'NX');
+    if (!claimed) throw new AppError(2020, '今日签到奖励已领取', 400);
+
+    try {
     await transaction(async (client) => {
       // Award items
       await client.query(`
@@ -114,11 +125,61 @@ app.post('/rewards/daily/claim', requireAuth, async (req, res, next) => {
           reward.stardust   || 0,
           reward.xp         || 0]);
     });
+    } catch (e) {
+      await redis.del(claimKey); // 发奖失败释放占位，允许重试
+      throw e;
+    }
 
     // Persist streak in Redis (48h TTL gives 1-day leeway)
     await redis.setex(key, 172800, JSON.stringify({ date: today, streak, reward }));
 
     res.json(successResp({ streak, reward }, `第 ${streak} 天签到成功！`));
+  } catch (err) { next(err); }
+});
+
+// ── 训练师升级奖励 ───────────────────────────────────────────
+// 升级由数据库触发器根据经验自动完成并写入 trainer_level_ups（见 20260925_020000 迁移），这里负责查询与发放奖励
+app.get('/rewards/level-ups', requireAuth, async (req, res, next) => {
+  try {
+    const userId = req.user.sub;
+    const [ups, me] = await Promise.all([
+      query(`SELECT id, from_level, to_level, rewards, claimed_at, created_at
+               FROM trainer_level_ups WHERE user_id = $1 ORDER BY created_at DESC LIMIT 50`, [userId]),
+      query(`SELECT u.level, u.xp,
+                    (SELECT total_xp FROM trainer_levels WHERE level = u.level) AS level_xp,
+                    (SELECT total_xp FROM trainer_levels WHERE level = u.level + 1) AS next_level_xp
+               FROM users u WHERE u.id = $1`, [userId]),
+    ]);
+    const u = me.rows[0] || {};
+    res.json(successResp({
+      level: u.level,
+      xp: Number(u.xp || 0),
+      currentLevelXp: u.level_xp == null ? null : Number(u.level_xp),
+      nextLevelXp: u.next_level_xp == null ? null : Number(u.next_level_xp),
+      unclaimed: ups.rows.filter((r) => !r.claimed_at),
+      history: ups.rows,
+    }));
+  } catch (err) { next(err); }
+});
+
+app.post('/rewards/level-ups/claim', requireAuth, async (req, res, next) => {
+  try {
+    const userId = req.user.sub;
+    const result = await transaction(async (client) => {
+      // 条件更新抢占：并发领取只有一个请求能拿到未领取记录
+      const { rows } = await client.query(
+        `UPDATE trainer_level_ups SET claimed_at = NOW()
+          WHERE user_id = $1 AND claimed_at IS NULL
+          RETURNING id, to_level, rewards`, [userId]);
+      if (!rows.length) throw new AppError(2024, '没有待领取的升级奖励', 400);
+      const merged = {};
+      for (const r of rows) {
+        for (const [k, v] of Object.entries(r.rewards || {})) merged[k] = (merged[k] || 0) + Number(v);
+      }
+      const grant = await grantRewards(client, userId, merged);
+      return { levels: rows.map((r) => r.to_level), rewards: merged, level: grant.level };
+    });
+    res.json(successResp(result, '升级奖励已发放'));
   } catch (err) { next(err); }
 });
 
@@ -130,13 +191,13 @@ app.get('/rewards/quests', requireAuth, async (req, res, next) => {
     // Upsert today's quest
     await query(`
       INSERT INTO daily_quests (user_id, quest_date)
-      VALUES ($1, CURRENT_DATE)
+      VALUES ($1, $2::date)
       ON CONFLICT (user_id, quest_date) DO NOTHING
-    `, [userId]);
+    `, [userId, gameDate()]);
 
     const { rows: [quest] } = await query(`
-      SELECT * FROM daily_quests WHERE user_id=$1 AND quest_date=CURRENT_DATE
-    `, [userId]);
+      SELECT * FROM daily_quests WHERE user_id=$1 AND quest_date=$2::date
+    `, [userId, gameDate()]);
 
     // Enrich with progress %
     const progress = {
@@ -157,8 +218,8 @@ app.post('/rewards/quests/claim', requireAuth, async (req, res, next) => {
   try {
     const userId = req.user.sub;
     const { rows: [quest] } = await query(`
-      SELECT * FROM daily_quests WHERE user_id=$1 AND quest_date=CURRENT_DATE
-    `, [userId]);
+      SELECT * FROM daily_quests WHERE user_id=$1 AND quest_date=$2::date
+    `, [userId, gameDate()]);
 
     if (!quest) throw new AppError(2021, '今日任务不存在', 404);
     if (quest.reward_claimed) throw new AppError(2022, '今日任务奖励已领取', 400);
@@ -173,6 +234,13 @@ app.post('/rewards/quests/claim', requireAuth, async (req, res, next) => {
     const reward = { pokeballs: 10, stardust: 1000, xp: 500, coins: 5 };
 
     await transaction(async (client) => {
+      // 条件更新抢占领奖资格：原实现在事务外检查 reward_claimed，并发请求可重复领取
+      const gate = await client.query(`
+        UPDATE daily_quests SET reward_claimed=true, completed_at=NOW()
+        WHERE user_id=$1 AND quest_date=$2::date AND reward_claimed=false
+      `, [userId, gameDate()]);
+      if (gate.rowCount === 0) throw new AppError(2022, '今日任务奖励已领取', 400);
+
       await client.query(`
         UPDATE users SET
           pokeball_count = pokeball_count + $2,
@@ -181,11 +249,6 @@ app.post('/rewards/quests/claim', requireAuth, async (req, res, next) => {
           coins          = coins          + $5
         WHERE id=$1
       `, [userId, reward.pokeballs, reward.stardust, reward.xp, reward.coins]);
-
-      await client.query(`
-        UPDATE daily_quests SET reward_claimed=true, completed_at=NOW()
-        WHERE user_id=$1 AND quest_date=CURRENT_DATE
-      `, [userId]);
     });
 
     res.json(successResp({ reward }, '任务奖励已领取！'));
@@ -193,77 +256,63 @@ app.post('/rewards/quests/claim', requireAuth, async (req, res, next) => {
 });
 
 // ── GET /rewards/leaderboard  — global rankings ──────────────
-app.get('/rewards/leaderboard', requireAuth, async (req, res, next) => {
+// REQ-00302/465：page/pageSize 分页（默认第 1 页 100 条，与旧行为一致）；offset > 1000 时走延迟关联（deferred join），
+//   总数在大表上用规划器估算（countWithStrategy），响应补 pagination/meta.pagination/_links
+app.get('/rewards/leaderboard', requireAuth, offsetPaginationMiddleware({ defaultPageSize: 100, maxPageSize: 100 }), async (req, res, next) => {
   try {
     const { type = 'xp', team } = req.query;
 
     const validTypes = { xp: 'u.xp', level: 'u.level', catches: 'u.xp' }; // simplified
     const orderCol   = validTypes[type] || 'u.xp';
-    const teamFilter = team ? `AND u.team = '${team.toUpperCase()}'` : '';
-
-    const { rows } = await query(`
-      SELECT
-        ROW_NUMBER() OVER (ORDER BY ${orderCol} DESC) AS rank,
-        u.id, u.nickname, u.avatar_url, u.level, u.team,
-        u.xp,
-        (SELECT COUNT(*)::int FROM pokemon_instances WHERE user_id=u.id) AS pokemon_count
-      FROM users u
-      WHERE u.is_banned = false ${teamFilter}
-      ORDER BY ${orderCol} DESC
-      LIMIT 100
-    `);
+    // team 走白名单 + 参数化（原实现把查询串直接拼进 SQL，存在注入）
+    const VALID_TEAMS = ['VALOR', 'MYSTIC', 'INSTINCT']; // team_enum
+    const teamValue = team ? String(team).toUpperCase() : null;
+    if (teamValue && !VALID_TEAMS.includes(teamValue)) throw new AppError(1001, 'team 参数无效', 400);
+    const teamFilter = teamValue ? 'AND u.team = $1' : '';
+    const baseParams = teamValue ? [teamValue] : [];
+    const { limit, offset } = req.pagination;
+    const params = [...baseParams, limit, offset];
+    const lp = `$${params.length - 1}`, op = `$${params.length}`;
+    const select = `u.id, u.nickname, u.avatar_url, u.level, u.team, u.xp,
+        (SELECT COUNT(*)::int FROM pokemon_instances WHERE user_id=u.id) AS pokemon_count`;
+    const deferred = shouldUseDeferredJoin(offset);
+    const sql = deferred
+      ? deferredJoinSql({ table: 'users', alias: 'u', select, where: `u.is_banned = false ${teamFilter}`, orderBy: `${orderCol} DESC, u.id`, limitParam: lp, offsetParam: op })
+      : `SELECT ${select} FROM users u WHERE u.is_banned = false ${teamFilter} ORDER BY ${orderCol} DESC, u.id LIMIT ${lp} OFFSET ${op}`;
+    const { rows: ranked } = await query(sql, params);
+    const rows = ranked.map((r, i) => ({ rank: String(offset + i + 1), ...r }));
+    const { total, estimated } = await countWithStrategy(query, `SELECT COUNT(*)::int FROM users u WHERE u.is_banned = false ${teamFilter}`, baseParams, { mode: 'estimate', exactBelow: 10000 });
+    res.setHeader('X-Pagination-Strategy', deferred ? 'deferred-join' : 'offset');
+    if (estimated) res.setHeader('X-Total-Count-Estimated', 'true');
 
     // Find current user's rank
     const { rows: [myRank] } = await query(`
       SELECT COUNT(*)::int + 1 AS rank
-      FROM users WHERE ${orderCol} > (SELECT ${orderCol} FROM users WHERE id=$1)
-        AND is_banned=false
+      FROM users u WHERE ${orderCol} > (SELECT ${orderCol} FROM users u WHERE u.id=$1)
+        AND u.is_banned=false
     `, [req.user.sub]);
 
-    res.json(successResp({ leaderboard: rows, myRank: myRank?.rank || null }));
+    const meta = res.addPaginationMeta({ count: rows.length, total });
+    const links = buildLinks((req.originalUrl || req.url).split('?')[0], req.query, meta);
+    res.addLinks(links);
+    res.json({ ...successResp({ leaderboard: rows, myRank: myRank?.rank || null }), pagination: meta, meta: { pagination: meta }, _links: links });
   } catch (err) { next(err); }
 });
 
-// ── POST /rewards/achievements/check  — check & unlock ───────
-// Called internally by other services after state changes
-app.post('/rewards/achievements/check', requireAuth, async (req, res, next) => {
+// ── POST /rewards/achievements/check  — 管理员给成就加进度 ─────────
+// 成就进度正常由业务表触发器 + shared/achievementEngine 推进；此接口仅供运维/管理员补发（REQ-00076）
+app.post('/rewards/achievements/check', requireAuth, requireAdmin, async (req, res, next) => {
   try {
-    const { achievementId, increment = 1 } = req.body;
-    const userId = req.user.sub;
-
-    const { rows: [def] } = await query(
-      'SELECT * FROM achievement_definitions WHERE id=$1', [achievementId]
-    );
-    if (!def) return res.json(successResp({ updated: false }));
-
-    const { rows: [ua] } = await query(`
-      INSERT INTO user_achievements (user_id, achievement_id, current_value)
-      VALUES ($1,$2,$3)
-      ON CONFLICT (user_id, achievement_id)
-      DO UPDATE SET current_value=user_achievements.current_value+$3, updated_at=NOW()
-      RETURNING current_value, current_tier
-    `, [userId, achievementId, increment]);
-
-    // Check if new tier unlocked
-    const tiers  = Array.isArray(def.tiers) ? def.tiers : JSON.parse(def.tiers);
-    const curVal  = ua.current_value;
-    const curTier = ua.current_tier || 0;
-    let newTier   = curTier;
-
-    for (const t of tiers) {
-      if (curVal >= t.target && t.tier > curTier) newTier = t.tier;
+    const { achievementId } = req.body;
+    const increment = Number(req.body.increment ?? 1);
+    if (!Number.isInteger(increment) || increment < 1 || increment > 100) {
+      throw new AppError(1001, 'increment 无效', 400);
     }
-
-    if (newTier > curTier) {
-      await query(`
-        UPDATE user_achievements
-        SET current_tier=$1, unlocked_at=COALESCE(unlocked_at, NOW())
-        WHERE user_id=$2 AND achievement_id=$3
-      `, [newTier, userId, achievementId]);
-      res.json(successResp({ updated: true, newTier, achievement: def.name_zh }));
-    } else {
-      res.json(successResp({ updated: false }));
-    }
+    const userId = req.body.userId || req.user.sub;
+    if (!/^[0-9a-f-]{36}$/i.test(String(userId))) throw new AppError(1001, 'userId 无效', 400);
+    const r = await require('../../../shared/achievementEngine').grantProgress(userId, String(achievementId || ''), increment);
+    if (!r) return res.json(successResp({ updated: false }));
+    res.json(successResp({ updated: true, progress: r.progress, target: r.target, completed: r.completed, completedNow: r.completedNow }));
   } catch (err) { next(err); }
 });
 

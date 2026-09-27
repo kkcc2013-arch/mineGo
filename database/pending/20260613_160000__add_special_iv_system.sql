@@ -85,14 +85,14 @@ END $$;
 -- 7. 添加 Prometheus 指标相关的物化视图
 CREATE MATERIALIZED VIEW IF NOT EXISTS special_iv_spawn_stats AS
 SELECT 
-  DATE(created_at) as spawn_date,
+  DATE(spawned_at) as spawn_date,
   COUNT(*) FILTER (WHERE is_zero_iv = TRUE) as zero_iv_count,
   COUNT(*) FILTER (WHERE is_perfect_iv = TRUE) as perfect_iv_count,
   COUNT(*) as total_spawns,
   ROUND(100.0 * COUNT(*) FILTER (WHERE is_zero_iv = TRUE) / NULLIF(COUNT(*), 0), 4) as zero_iv_rate,
   ROUND(100.0 * COUNT(*) FILTER (WHERE is_perfect_iv = TRUE) / NULLIF(COUNT(*), 0), 4) as perfect_iv_rate
 FROM wild_pokemon
-GROUP BY DATE(created_at)
+GROUP BY DATE(spawned_at)
 ORDER BY spawn_date DESC;
 
 CREATE UNIQUE INDEX IF NOT EXISTS idx_special_iv_spawn_stats_date 
@@ -100,14 +100,21 @@ ON special_iv_spawn_stats(spawn_date);
 
 COMMENT ON MATERIALIZED VIEW special_iv_spawn_stats IS '特殊 IV 精灵生成统计（每日汇总）';
 
--- 8. 插入默认的幸运精灵配置
+-- 8. 插入默认的幸运精灵配置（game_configs 表不一定存在）
+DO $$
+BEGIN
+  IF to_regclass('public.game_configs') IS NOT NULL THEN
+    EXECUTE $q$
 INSERT INTO game_configs (key, value, description, updated_at)
 VALUES 
   ('lucky_pokemon_chance', '0.05', '幸运精灵出现概率（交换时）', NOW()),
   ('lucky_pokemon_iv_floor', '12', '幸运精灵 IV 下限值', NOW()),
   ('zero_iv_chance', '0.0001', '零 IV 精灵出现概率', NOW()),
   ('perfect_iv_chance', '0.001', '完美 IV 精灵出现概率（包含零 IV）', NOW())
-ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW();
+ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()
+    $q$;
+  END IF;
+END $$;
 
 -- 9. 添加索引优化图鉴查询
 CREATE INDEX IF NOT EXISTS idx_pokemon_instances_user_special 

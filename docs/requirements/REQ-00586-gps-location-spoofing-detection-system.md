@@ -3,7 +3,7 @@
 - **编号**：REQ-00586
 - **类别**：反作弊
 - **优先级**：P0
-- **状态**：new
+- **状态**：done
 - **涉及服务/模块**：game-client、gateway、location-service、backend/security、backend/analysis、Redis、PostgreSQL
 - **创建时间**：2026-07-16 22:00
 - **依赖需求**：REQ-00521（AR 捕获防作弊系统）、REQ-00494（行为风控系统）
@@ -671,3 +671,37 @@ const metrics = {
 4. **已有基础**：REQ-00521 和 REQ-00494 已建立部分反作弊基础设施，可复用
 5. **用户呼声强烈**：公平性是玩家最关注的问题之一
 6. **技术可行**：成熟的多层防护方案，已有成功案例参考
+
+## 实现记录（2026-09-24）
+
+状态：**partial**（服务端检测与降级已完成；客户端检测、地形校验、申诉未做）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 客户端识别虚拟定位应用 | ❌ | 需原生客户端 |
+| 服务端识别 >1000 km/h 瞬移 | ✅ | `shared/anti-cheat.js` IMPOSSIBLE_TRAVEL；冒烟用例"不可能行程被拦截" |
+| 不可能行程检测 | ✅ | 轨迹保留 24h，伪造点不写入可信轨迹，同一位置持续上报可重建基线 |
+| 地形验证（海洋/湖泊） | ❌ | 需地理数据集 |
+| 多账号同坐标（3+） | ✅ | 10 分钟窗口内同一精确坐标 ≥3 个账号记录并扣分 |
+| 风险评分延迟 < 500ms | ✅ | Redis 计算，单次 <10ms |
+| 中高风险用户位置功能降级 | ✅ | 可信度 <40 禁止上报位置/捕捉/补给站 |
+| 管理后台查看可疑玩家与证据 | ✅（API） | `/api/admin/anticheat/suspicious`、`/users/:id/evidence` |
+| 监控面板 | ⚠️ | Prometheus 指标已有，面板未做 |
+| 申诉流程 | ❌ | 未做 |
+
+补充：原反作弊记录表 `user_id` 为 INTEGER，所有写入静默失败，已迁移为 UUID。
+
+## 实现记录（2026-09-25，补全）
+
+状态：**done**
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 客户端识别虚拟定位 | ⚠️ | Web 客户端 `src/security/locationSignals.js` 采集可观测信号（连续定位完全相同且精度恒定、时间戳倒退、精度为 0、`navigator.webdriver` 自动化），`LocationManager` 每次上报携带摘要，服务端 `detectFakeGPS` 纳入评分（HIGH 记伪造嫌疑扣分、MEDIUM 记异常，均不阻断）；系统级"模拟位置"开关只有原生客户端可读，接口已支持 `isMock=true`（CRITICAL 直接阻断），**原生客户端未实现** |
+| 地形验证（海洋/湖泊） | ⚠️ | `geo_restricted_zones`（PostGIS 多边形 + GIST 索引）+ `checkTerrain`（约 100m 网格缓存）：落在水域/禁入区域记为 `TERRAIN_WATER`/`TERRAIN_RESTRICTED`（不阻断，避免误伤桥梁/渡轮上的玩家）；管理员可通过 GeoJSON 增删区域；**内置数据仅为上海周边大型水域的粗略多边形**，全国水系需导入 OSM 等数据集 |
+| 监控面板 | ✅ | `GET /api/admin/anticheat/stats`（事件类型/级别/玩家数、按小时趋势、受限玩家数、申诉统计）+ 管理后台 `admin-dashboard/anticheat.html`（概览、趋势、事件类型、待审核申诉一键通过/驳回、区域列表）；Prometheus 指标沿用 |
+| 申诉流程 | ✅ | 玩家 `POST/GET /v1/location/appeals`（有风控记录才可申诉，同一时间只能一个待审核，附提交时可信度与最近记录快照）；管理员 `GET /api/admin/anticheat/appeals`、`POST .../:id/decision`（条件更新保证只审核一次，通过后可信度恢复为 100，写审计日志） |
+
+- 迁移：`database/migrations/20260925_070000__location_integrity_zones_and_appeals.sql`
+- 测试：`scripts/smoke-p0.js`（反作弊/申诉/监控 11 项，全部通过）；浏览器 `frontend/game-client/tests/e2e/location-integrity.e2e.js` 7/7（信号采集、上报携带摘要、后台页面审核申诉）；核心冒烟保持通过
+

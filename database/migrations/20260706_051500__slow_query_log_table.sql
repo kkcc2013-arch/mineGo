@@ -2,7 +2,7 @@
 -- 创建慢查询日志表和相关索引
 
 -- 启用 pg_stat_statements 扩展（如果未启用）
-CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+DO $ext$ BEGIN CREATE EXTENSION IF NOT EXISTS pg_stat_statements; EXCEPTION WHEN OTHERS THEN RAISE NOTICE '扩展 pg_stat_statements 不可用，跳过：%', SQLERRM; END $ext$;
 
 -- 慢查询日志表
 CREATE TABLE IF NOT EXISTS slow_query_log (
@@ -21,12 +21,36 @@ CREATE TABLE IF NOT EXISTS slow_query_log (
     collected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS query_id VARCHAR(64);
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS query_text TEXT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS calls BIGINT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS total_time_ms FLOAT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS mean_time_ms FLOAT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS min_time_ms FLOAT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS max_time_ms FLOAT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS rows_affected BIGINT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS shared_blks_hit BIGINT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS shared_blks_read BIGINT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS cache_hit_ratio FLOAT;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS collected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE slow_query_log ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.slow_query_log') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('query_id', 'query_text', 'calls', 'total_time_ms', 'mean_time_ms', 'min_time_ms', 'max_time_ms', 'rows_affected', 'shared_blks_hit', 'shared_blks_read', 'cache_hit_ratio', 'collected_at', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE slow_query_log ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_slow_query_log_query_id ON slow_query_log(query_id);
 CREATE INDEX IF NOT EXISTS idx_slow_query_log_collected_at ON slow_query_log(collected_at);
 CREATE INDEX IF NOT EXISTS idx_slow_query_log_mean_time ON slow_query_log(mean_time_ms DESC);
-CREATE INDEX IF NOT EXISTS idx_slow_query_log_collected_date ON slow_query_log((collected_at::date));
+-- 按日期查询直接用 idx_slow_query_log_collected_at 做范围扫描（collected_at 在不同迁移中分别为 TIMESTAMP/TIMESTAMPTZ，::date 表达式索引对后者不是 IMMUTABLE）
 
 -- 索引建议表
 CREATE TABLE IF NOT EXISTS index_suggestions (
@@ -41,6 +65,26 @@ CREATE TABLE IF NOT EXISTS index_suggestions (
     applied BOOLEAN DEFAULT FALSE,
     applied_at TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS table_name VARCHAR(255);
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS column_name VARCHAR(255);
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS suggestion_type VARCHAR(50);
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS reason TEXT;
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS priority VARCHAR(20);
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS estimated_impact TEXT;
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS applied BOOLEAN DEFAULT FALSE;
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS applied_at TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.index_suggestions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('table_name', 'column_name', 'suggestion_type', 'reason', 'priority', 'estimated_impact', 'created_at', 'applied', 'applied_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE index_suggestions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_index_suggestions_table ON index_suggestions(table_name);
 CREATE INDEX IF NOT EXISTS idx_index_suggestions_applied ON index_suggestions(applied);
@@ -56,6 +100,24 @@ CREATE TABLE IF NOT EXISTS query_performance_baseline (
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS query_signature VARCHAR(64);
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS avg_execution_time_ms FLOAT;
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS p95_execution_time_ms FLOAT;
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS p99_execution_time_ms FLOAT;
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS calls_per_hour FLOAT;
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.query_performance_baseline') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('query_signature', 'avg_execution_time_ms', 'p95_execution_time_ms', 'p99_execution_time_ms', 'calls_per_hour', 'last_updated', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE query_performance_baseline ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_query_performance_signature ON query_performance_baseline(query_signature);
 
@@ -76,6 +138,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- 创建分析结果汇总视图
+-- 与 pending/20260611_030000 中的同名视图列不同：先删除再按本迁移（新版）定义重建
+DROP VIEW IF EXISTS slow_query_summary;
 CREATE OR REPLACE VIEW slow_query_summary AS
 SELECT 
     query_id,

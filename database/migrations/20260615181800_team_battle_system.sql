@@ -5,7 +5,7 @@
 CREATE TABLE IF NOT EXISTS teams (
   id SERIAL PRIMARY KEY,
   name VARCHAR(50) NOT NULL,
-  leader_id INTEGER NOT NULL REFERENCES users(id),
+  leader_id UUID NOT NULL REFERENCES users(id),
   max_size INTEGER DEFAULT 5 CHECK (max_size BETWEEN 2 AND 5),
   battle_type VARCHAR(20) NOT NULL, -- 'raid', 'pvp_team', 'gym_assault'
   status VARCHAR(20) DEFAULT 'open', -- 'open', 'in_battle', 'closed'
@@ -21,7 +21,7 @@ CREATE INDEX idx_teams_battle_type ON teams(battle_type);
 CREATE TABLE IF NOT EXISTS team_members (
   id SERIAL PRIMARY KEY,
   team_id INTEGER NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
-  user_id INTEGER NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES users(id),
   pokemon_ids INTEGER[] NOT NULL DEFAULT '{}', -- 选择的精灵 ID 列表（最多 6 只）
   ready BOOLEAN DEFAULT false,
   joined_at TIMESTAMP DEFAULT NOW(),
@@ -35,8 +35,8 @@ CREATE INDEX idx_team_members_user ON team_members(user_id);
 CREATE TABLE IF NOT EXISTS team_invitations (
   id SERIAL PRIMARY KEY,
   team_id INTEGER NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
-  inviter_id INTEGER NOT NULL REFERENCES users(id),
-  invitee_id INTEGER NOT NULL REFERENCES users(id),
+  inviter_id UUID NOT NULL REFERENCES users(id),
+  invitee_id UUID NOT NULL REFERENCES users(id),
   status VARCHAR(20) DEFAULT 'pending', -- 'pending', 'accepted', 'rejected', 'expired'
   expires_at TIMESTAMP DEFAULT NOW() + INTERVAL '5 minutes',
   created_at TIMESTAMP DEFAULT NOW()
@@ -87,7 +87,7 @@ CREATE INDEX idx_raid_battles_status ON raid_battles(status);
 -- 团队战斗统计表
 CREATE TABLE IF NOT EXISTS team_battle_stats (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) UNIQUE,
+  user_id UUID NOT NULL REFERENCES users(id) UNIQUE,
   total_battles INTEGER DEFAULT 0,
   wins INTEGER DEFAULT 0,
   losses INTEGER DEFAULT 0,
@@ -106,7 +106,7 @@ CREATE TABLE IF NOT EXISTS team_battle_logs (
   battle_id VARCHAR(36) NOT NULL,
   team_id INTEGER NOT NULL REFERENCES teams(id),
   turn INTEGER NOT NULL,
-  user_id INTEGER REFERENCES users(id),
+  user_id UUID REFERENCES users(id),
   action_type VARCHAR(20) NOT NULL,
   action_data JSONB NOT NULL,
   result_data JSONB,

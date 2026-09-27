@@ -5,11 +5,11 @@
 CREATE TABLE IF NOT EXISTS battle_replay_records (
   id SERIAL PRIMARY KEY,
   battle_id UUID UNIQUE NOT NULL,
-  gym_id INTEGER REFERENCES gyms(id),
+  gym_id UUID REFERENCES gyms(id),
   battle_type VARCHAR(20) DEFAULT 'gym', -- gym/pvp/raid
   
   -- 参与者信息
-  attacker_user_id INTEGER NOT NULL REFERENCES users(id),
+  attacker_user_id UUID NOT NULL REFERENCES users(id),
   attacker_team JSONB NOT NULL, -- [{pokemon_id, species, level, moves, hp_stats}]
   defender_info JSONB NOT NULL, -- {type: 'gym/pvp', user_id?, team: [...]}
   
@@ -33,12 +33,11 @@ CREATE TABLE IF NOT EXISTS battle_replay_records (
   
   -- 时间戳
   created_at TIMESTAMP DEFAULT NOW(),
-  expires_at TIMESTAMP DEFAULT (NOW() + INTERVAL '30 days'),
-  
-  INDEX idx_battle_replay_user (attacker_user_id, created_at DESC),
-  INDEX idx_battle_replay_gym (gym_id, created_at DESC),
-  INDEX idx_battle_replay_result (result, created_at DESC)
+  expires_at TIMESTAMP DEFAULT (NOW() + INTERVAL '30 days')
 );
+CREATE INDEX IF NOT EXISTS idx_battle_replay_records_battle_replay_user ON battle_replay_records (attacker_user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_battle_replay_records_battle_replay_gym ON battle_replay_records (gym_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_battle_replay_records_battle_replay_result ON battle_replay_records (result, created_at DESC);
 
 -- 2. 回放分享链接表
 CREATE TABLE IF NOT EXISTS replay_shares (
@@ -47,7 +46,7 @@ CREATE TABLE IF NOT EXISTS replay_shares (
   share_code VARCHAR(12) UNIQUE NOT NULL, -- 短链接码
   
   -- 分享者信息
-  shared_by_user_id INTEGER NOT NULL REFERENCES users(id),
+  shared_by_user_id UUID NOT NULL REFERENCES users(id),
   
   -- 分享设置
   is_public BOOLEAN DEFAULT true,
@@ -65,11 +64,10 @@ CREATE TABLE IF NOT EXISTS replay_shares (
   
   -- 时间戳
   created_at TIMESTAMP DEFAULT NOW(),
-  last_viewed_at TIMESTAMP,
-  
-  INDEX idx_replay_share_code (share_code),
-  INDEX idx_replay_share_user (shared_by_user_id, created_at DESC)
+  last_viewed_at TIMESTAMP
 );
+CREATE INDEX IF NOT EXISTS idx_replay_shares_replay_share_code ON replay_shares (share_code);
+CREATE INDEX IF NOT EXISTS idx_replay_shares_replay_share_user ON replay_shares (shared_by_user_id, created_at DESC);
 
 -- 3. 回放精彩片段表（高光时刻）
 CREATE TABLE IF NOT EXISTS replay_highlights (
@@ -91,10 +89,9 @@ CREATE TABLE IF NOT EXISTS replay_highlights (
   -- 社交统计
   share_count INTEGER DEFAULT 0,
   
-  created_at TIMESTAMP DEFAULT NOW(),
-  
-  INDEX idx_replay_highlights_replay (replay_id)
+  created_at TIMESTAMP DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS idx_replay_highlights_replay ON replay_highlights (replay_id);
 
 -- 4. 回放标签表
 CREATE TABLE IF NOT EXISTS replay_tags (
@@ -102,15 +99,15 @@ CREATE TABLE IF NOT EXISTS replay_tags (
   replay_id INTEGER NOT NULL REFERENCES battle_replay_records(id) ON DELETE CASCADE,
   tag VARCHAR(50) NOT NULL,
   
-  UNIQUE(replay_id, tag),
-  INDEX idx_replay_tags_tag (tag)
+  UNIQUE(replay_id, tag)
 );
+CREATE INDEX IF NOT EXISTS idx_replay_tags_tag ON replay_tags (tag);
 
 -- 5. 回放评论表
 CREATE TABLE IF NOT EXISTS replay_comments (
   id SERIAL PRIMARY KEY,
   replay_id INTEGER NOT NULL REFERENCES battle_replay_records(id) ON DELETE CASCADE,
-  user_id INTEGER NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES users(id),
   
   comment TEXT NOT NULL,
   parent_comment_id INTEGER REFERENCES replay_comments(id),
@@ -118,22 +115,21 @@ CREATE TABLE IF NOT EXISTS replay_comments (
   -- 统计
   like_count INTEGER DEFAULT 0,
   
-  created_at TIMESTAMP DEFAULT NOW(),
-  
-  INDEX idx_replay_comments_replay (replay_id, created_at DESC)
+  created_at TIMESTAMP DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS idx_replay_comments_replay ON replay_comments (replay_id, created_at DESC);
 
 -- 6. 回放点赞表
 CREATE TABLE IF NOT EXISTS replay_likes (
   id SERIAL PRIMARY KEY,
   replay_id INTEGER NOT NULL REFERENCES battle_replay_records(id) ON DELETE CASCADE,
-  user_id INTEGER NOT NULL REFERENCES users(id),
+  user_id UUID NOT NULL REFERENCES users(id),
   
   created_at TIMESTAMP DEFAULT NOW(),
   
-  UNIQUE(replay_id, user_id),
-  INDEX idx_replay_likes_user (user_id, created_at DESC)
+  UNIQUE(replay_id, user_id)
 );
+CREATE INDEX IF NOT EXISTS idx_replay_likes_user ON replay_likes (user_id, created_at DESC);
 
 -- 插入触发器：自动生成分享码
 CREATE OR REPLACE FUNCTION generate_replay_share_code()

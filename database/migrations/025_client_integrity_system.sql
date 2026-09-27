@@ -11,12 +11,12 @@ CREATE TABLE IF NOT EXISTS client_integrity_reports (
   risk_score INTEGER DEFAULT 0,
   risk_level VARCHAR(20) DEFAULT 'LOW',
   function_hashes JSONB,
-  created_at TIMESTAMP DEFAULT NOW(),
-  INDEX idx_user_id (user_id),
-  INDEX idx_device_id (device_id),
-  INDEX idx_created_at (created_at),
-  INDEX idx_risk_level (risk_level)
+  created_at TIMESTAMP DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS idx_client_integrity_reports_user_id ON client_integrity_reports (user_id);
+CREATE INDEX IF NOT EXISTS idx_client_integrity_reports_device_id ON client_integrity_reports (device_id);
+CREATE INDEX IF NOT EXISTS idx_client_integrity_reports_created_at ON client_integrity_reports (created_at);
+CREATE INDEX IF NOT EXISTS idx_client_integrity_reports_risk_level ON client_integrity_reports (risk_level);
 
 -- 2. 完整性验证记录表
 CREATE TABLE IF NOT EXISTS integrity_verifications (
@@ -27,12 +27,12 @@ CREATE TABLE IF NOT EXISTS integrity_verifications (
   failure_reason VARCHAR(255),
   verified_at TIMESTAMP,
   attempted_at TIMESTAMP,
-  created_at TIMESTAMP DEFAULT NOW(),
-  INDEX idx_user_id (user_id),
-  INDEX idx_challenge_id (challenge_id),
-  INDEX idx_status (status),
-  INDEX idx_created_at (created_at)
+  created_at TIMESTAMP DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS idx_integrity_verifications_user_id ON integrity_verifications (user_id);
+CREATE INDEX IF NOT EXISTS idx_integrity_verifications_challenge_id ON integrity_verifications (challenge_id);
+CREATE INDEX IF NOT EXISTS idx_integrity_verifications_status ON integrity_verifications (status);
+CREATE INDEX IF NOT EXISTS idx_integrity_verifications_created_at ON integrity_verifications (created_at);
 
 -- 3. 白名单申诉表
 CREATE TABLE IF NOT EXISTS whitelist_requests (
@@ -44,11 +44,11 @@ CREATE TABLE IF NOT EXISTS whitelist_requests (
   reviewer_id VARCHAR(255),
   review_notes TEXT,
   reviewed_at TIMESTAMP,
-  created_at TIMESTAMP DEFAULT NOW(),
-  INDEX idx_user_id (user_id),
-  INDEX idx_status (status),
-  INDEX idx_created_at (created_at)
+  created_at TIMESTAMP DEFAULT NOW()
 );
+CREATE INDEX IF NOT EXISTS idx_whitelist_requests_user_id ON whitelist_requests (user_id);
+CREATE INDEX IF NOT EXISTS idx_whitelist_requests_status ON whitelist_requests (status);
+CREATE INDEX IF NOT EXISTS idx_whitelist_requests_created_at ON whitelist_requests (created_at);
 
 -- 4. 添加用户表字段
 ALTER TABLE users ADD COLUMN IF NOT EXISTS integrity_verified BOOLEAN DEFAULT false;
@@ -119,10 +119,10 @@ FOR EACH ROW
 EXECUTE FUNCTION update_risk_level();
 
 -- 9. 授权
-GRANT SELECT, INSERT, UPDATE ON client_integrity_reports TO minego_user;
-GRANT SELECT, INSERT, UPDATE ON integrity_verifications TO minego_user;
-GRANT SELECT, INSERT, UPDATE ON whitelist_requests TO minego_user;
-GRANT SELECT ON high_risk_users TO minego_user;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE ON client_integrity_reports TO minego_user'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE ON integrity_verifications TO minego_user'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT, INSERT, UPDATE ON whitelist_requests TO minego_user'; END IF; END $grant$;
+DO $grant$ BEGIN IF EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'minego_user') THEN EXECUTE 'GRANT SELECT ON high_risk_users TO minego_user'; END IF; END $grant$;
 
 -- 10. 注释
 COMMENT ON TABLE client_integrity_reports IS '客户端完整性检测报告';

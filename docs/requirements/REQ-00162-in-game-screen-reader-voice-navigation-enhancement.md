@@ -3,7 +3,7 @@
 - **编号**：REQ-00162
 - **类别**：无障碍(a11y)
 - **优先级**：P2
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：game-client、frontend/game-client/src/accessibility、frontend/game-client/src/components
 - **创建时间**：2026-06-13 17:05
 - **依赖需求**：REQ-00017
@@ -480,3 +480,26 @@ export const spatialAudio = new SpatialAudio();
 3. P0/P1 需求大多已完成，应开始推进 P2 需求
 4. 有助于满足 WCAG 2.1 AA 级别标准，符合合规要求
 5. 体现企业社会责任，提升品牌形象
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 语音导航开关可正常开启/关闭，设置持久化到 localStorage | ✅ | 设置"语音播报（Web Speech 朗读）"开关，持久化到 localStorage（并云端同步） |
+| 地图语音描述能正确播报精灵数量、方向、距离 | ✅ | `accessibility/mapSpeech.js` summarizeNearby：精灵数量、最近精灵的八方位与距离、补给站/道馆数；地图加载自动播报（可关），`L` 键重播；精灵卡片 aria-label 含名称/CP/方位/距离 |
+| 语速、音调、音量滑块实时生效，范围符合规范 | ✅ | 语速 0.5–2、音调 0.5–2、音量 0–1 滑块，input 事件实时写入，下一句播报即生效 |
+| 播报级别设置生效：full 播报所有事件，minimal 仅重要事件，critical-only 仅关键提示 | ✅ | `liveAnnouncer.shouldAnnounce`：full（全部）/ minimal（important 及以上）/ critical（仅关键）；另有 6 个播报类别开关 |
+| VoiceOver（iOS Safari）能正确朗读地图区域和精灵信息 | ⚠️ | 真机未验证（iOS Safari + VoiceOver） |
+| TalkBack（Android Chrome）能正确朗读地图区域和精灵信息 | ⚠️ | 真机未验证（Android Chrome + TalkBack） |
+| 空间音频能根据精灵位置播放定位音效 | ✅ | WebAudio StereoPanner：方位 → 声像（东=右），距离 → 音调（近高远低）；聚焦精灵卡片、进入捕捉、地图刷新时播放（⚠️ 真机听感未验证） |
+| 所有交互元素有正确的 aria-label 和 tabindex | ✅ | `accessibility/semantics.js`：卡片 role=button + tabindex + aria-label，带 onclick 的 div 自动补 role/tabindex/Enter/Space，装饰 emoji aria-hidden |
+| 无键盘陷阱，Tab 键可在所有可交互元素间循环 | ✅ | 只有模态对话框做焦点陷阱且可 Esc 退出；e2e 用例 Tab 30 次不逃逸对话框、关闭后焦点恢复 |
+| 单元测试覆盖率 ≥ 70% | ⚠️ | 单测覆盖 mapSpeech/liveAnnouncer 纯逻辑，未统计覆盖率 |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：`database/migrations/20260925_010000__user_preferences.sql`（`user_preferences`：user_id UUID → users(id) ON DELETE CASCADE、namespace、prefs JSONB，主键 (user_id, namespace)，全部 IF NOT EXISTS）；偏好云端同步：user-service `GET/PUT/DELETE /users/me/preferences/:namespace`（`src/routes/preferences.js` + `src/services/userPreferences.js` 校验），经网关 `/v1/users/me/preferences/a11y`（网关已有 `/v1/users` 鉴权代理，未改网关）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：VoiceOver/TalkBack 真机朗读地图区域与精灵卡片；空间音频左右声道方向是否正确；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`

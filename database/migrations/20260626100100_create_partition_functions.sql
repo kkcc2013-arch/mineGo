@@ -23,10 +23,16 @@ BEGIN
         partition_end := partition_date + INTERVAL '1 month';
         partition_name := table_name || '_y' || to_char(partition_date, 'YYYY') || '_m' || to_char(partition_date, 'MM');
         
+        BEGIN  -- 同一范围可能已由其他迁移以不同命名建过分区（如 catch_records_2026_09），重叠时跳过
         EXECUTE format(
             'CREATE TABLE IF NOT EXISTS %I PARTITION OF %I FOR VALUES FROM (%L) TO (%L)',
             partition_name, table_name, partition_start, partition_end
         );
+        EXCEPTION WHEN invalid_object_definition THEN
+            RAISE NOTICE '分区 % 与已有分区范围重叠，跳过', partition_name;
+            CONTINUE;
+        END;
+        BEGIN  -- 各分区表列不完全相同（不一定有 user_id/created_at），缺列时跳过对应索引
         
         -- 为分区创建本地索引
         EXECUTE format(
@@ -37,6 +43,9 @@ BEGIN
             'CREATE INDEX IF NOT EXISTS idx_%s_created ON %I (created_at)',
             partition_name, partition_name
         );
+        EXCEPTION WHEN undefined_column THEN
+            RAISE NOTICE '分区 % 缺少索引列，跳过部分索引', partition_name;
+        END;
     END LOOP;
     
     -- 创建未来的分区
@@ -46,10 +55,16 @@ BEGIN
         partition_end := partition_date + INTERVAL '1 month';
         partition_name := table_name || '_y' || to_char(partition_date, 'YYYY') || '_m' || to_char(partition_date, 'MM');
         
+        BEGIN  -- 同一范围可能已由其他迁移以不同命名建过分区（如 catch_records_2026_09），重叠时跳过
         EXECUTE format(
             'CREATE TABLE IF NOT EXISTS %I PARTITION OF %I FOR VALUES FROM (%L) TO (%L)',
             partition_name, table_name, partition_start, partition_end
         );
+        EXCEPTION WHEN invalid_object_definition THEN
+            RAISE NOTICE '分区 % 与已有分区范围重叠，跳过', partition_name;
+            CONTINUE;
+        END;
+        BEGIN  -- 各分区表列不完全相同（不一定有 user_id/created_at），缺列时跳过对应索引
         
         EXECUTE format(
             'CREATE INDEX IF NOT EXISTS idx_%s_user_id ON %I (user_id)',
@@ -59,6 +74,9 @@ BEGIN
             'CREATE INDEX IF NOT EXISTS idx_%s_created ON %I (created_at)',
             partition_name, partition_name
         );
+        EXCEPTION WHEN undefined_column THEN
+            RAISE NOTICE '分区 % 缺少索引列，跳过部分索引', partition_name;
+        END;
     END LOOP;
 END;
 $$ LANGUAGE plpgsql;

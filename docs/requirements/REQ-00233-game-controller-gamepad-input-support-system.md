@@ -3,7 +3,7 @@
 - **编号**：REQ-00233
 - **类别**：无障碍(a11y)
 - **优先级**：P2
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：game-client、frontend/game-client/src/input、frontend/game-client/src/accessibility、frontend/game-client/src/game
 - **创建时间**：2026-06-15 21:05
 - **依赖需求**：REQ-00017（基础无障碍支持）
@@ -182,3 +182,25 @@ P2 优先级：
 - 可显著提升特定用户群体的游戏体验
 - 与现有键盘导航系统协同，扩展性强
 - 实现成本可控，不影响主线开发进度
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 连接 Xbox/PlayStation/Nintendo Pro 控制器后，游戏在 2 秒内显示连接提示 | ✅ | `accessibility/gamepad.js`：gamepadconnected 事件即时 toast + 播报（e2e 模拟测得 4ms）；按 id/厂商号识别 Xbox / PlayStation / Nintendo Switch Pro / 通用 |
+| 使用 D-Pad 可在菜单项之间导航，焦点顺序与 Tab 键一致 | ✅ | D-Pad 上/左 = 上一个、下/右 = 下一个，顺序与 Tab 一致（对话框打开时限定在对话框内），按住连发 |
+| 按下 A/Confirm 按钮可激活当前焦点元素 | ✅ | A/确认 = 点击当前焦点元素 |
+| 按下 B/Cancel 按钮可关闭弹窗或返回上一级 | ✅ | B/取消：关闭弹窗 → 捕捉页逃跑 → 我的页返回地图 |
+| 左摇杆可平滑移动地图视图 | ✅ | 左摇杆：死区 0.2 + 平方曲线平滑滚动地图区域 |
+| 设置界面可显示当前连接的控制器名称和类型 | ✅ | 设置 → 手柄：显示已连接控制器名称、类型与 id |
+| 用户可自定义按键映射，重启后保持设置 | ✅ | 按键映射录制（按下手柄任意键分配），持久化 `gamepad.mapping`，按控制器类型显示按键名 |
+| 断开控制器后显示断开提示，游戏不会卡死或崩溃 | ✅ | gamepaddisconnected 提示；轮询异常被捕获不中断 |
+| 振动功能在支持的设备上正常工作，可关闭 | ⚠️ | `vibrationActuator.playEffect("dual-rumble")` 镜像 HapticManager 的每次震动，设置可关闭；真机未验证 |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：`database/migrations/20260925_010000__user_preferences.sql`（`user_preferences`：user_id UUID → users(id) ON DELETE CASCADE、namespace、prefs JSONB，主键 (user_id, namespace)，全部 IF NOT EXISTS）；偏好云端同步：user-service `GET/PUT/DELETE /users/me/preferences/:namespace`（`src/routes/preferences.js` + `src/services/userPreferences.js` 校验），经网关 `/v1/users/me/preferences/a11y`（网关已有 `/v1/users` 鉴权代理，未改网关）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：用真实 Xbox/PS/Switch Pro 手柄在 Chrome 中验证连接提示、导航、映射与振动（CI 中以模拟 Gamepad 对象测试）；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`

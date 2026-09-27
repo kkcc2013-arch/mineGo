@@ -98,6 +98,7 @@ class ServiceLauncher {
    */
   createApp() {
     const app = express();
+    app.set('trust proxy', require('./trustProxy').parseTrustProxy(process.env.TRUST_PROXY));
 
     // ── 安全中间件 ─────────────────────────────────────────────
     app.use(helmet(this.helmetConfig));
@@ -133,11 +134,22 @@ class ServiceLauncher {
       }
     });
 
-    // ── 错误处理 ───────────────────────────────────────────────
-    app.use(errorHandler);
+    // 错误处理与 404 在 onReady 之后由 finalizeApp() 注册：
+    // 原实现在这里就注册了 404，onReady 里挂载的 /gdpr、健康检查等路由全部被 404 拦截
+    return app;
+  }
+
+  /**
+   * 注册错误处理与 404（必须在所有路由之后）
+   */
+  finalizeApp() {
+    if (this._finalized) return;
+    this._finalized = true;
+    const app = this.app;
 
     // ── 404 处理 ───────────────────────────────────────────────
-    app.use((req, res) => {
+    app.use((req, res, next) => {
+      if (res.headersSent) return next();
       res.status(404).json({
         success: false,
         error: {
@@ -147,7 +159,8 @@ class ServiceLauncher {
       });
     });
 
-    return app;
+    // ── 错误处理 ───────────────────────────────────────────────
+    app.use(errorHandler);
   }
 
   /**
@@ -179,8 +192,10 @@ class ServiceLauncher {
 
         try {
           await this.onReady(this.app);
+          this.finalizeApp();
           resolve(this.app);
         } catch (err) {
+          this.finalizeApp();
           this.logger.error({ err }, 'onReady callback failed');
           reject(err);
         }

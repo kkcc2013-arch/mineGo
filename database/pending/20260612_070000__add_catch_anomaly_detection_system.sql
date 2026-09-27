@@ -19,6 +19,29 @@ CREATE TABLE IF NOT EXISTS catch_success_stats (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS user_id VARCHAR(64);
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS pokemon_id VARCHAR(64);
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS pokemon_rarity VARCHAR(32);
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS ball_type VARCHAR(32);
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS attempt_count INT DEFAULT 0;
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS success_count INT DEFAULT 0;
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS expected_success_rate DECIMAL(5,4);
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS actual_success_rate DECIMAL(5,4);
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS anomaly_score DECIMAL(5,2);
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS hour_timestamp TIMESTAMPTZ;
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE catch_success_stats ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.catch_success_stats') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'pokemon_id', 'pokemon_rarity', 'ball_type', 'attempt_count', 'success_count', 'expected_success_rate', 'actual_success_rate', 'anomaly_score', 'hour_timestamp', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE catch_success_stats ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_catch_stats_user_pokemon ON catch_success_stats(user_id, pokemon_id);
@@ -52,6 +75,38 @@ CREATE TABLE IF NOT EXISTS catch_sessions (
   action_taken VARCHAR(32), -- allowed/warned/blocked
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS session_id VARCHAR(128);
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS user_id VARCHAR(64);
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS pokemon_id VARCHAR(64);
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS pokemon_rarity VARCHAR(32);
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS ball_type VARCHAR(32);
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS ball_count_used INT;
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS berries_used INT DEFAULT 0;
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS throw_type VARCHAR(32);
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS curveball BOOLEAN DEFAULT FALSE;
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS expected_success_rate DECIMAL(5,4);
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS actual_result VARCHAR(16);
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS catch_timestamp TIMESTAMPTZ;
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS location_lat DECIMAL(10, 7);
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS location_lng DECIMAL(10, 7);
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS device_fingerprint VARCHAR(256);
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS request_signature VARCHAR(512);
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS data_integrity_score DECIMAL(5,2);
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS risk_score DECIMAL(5,2);
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS risk_level VARCHAR(16);
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS action_taken VARCHAR(32);
+ALTER TABLE catch_sessions ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.catch_sessions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('session_id', 'user_id', 'pokemon_id', 'pokemon_rarity', 'ball_type', 'ball_count_used', 'berries_used', 'throw_type', 'curveball', 'expected_success_rate', 'actual_result', 'catch_timestamp', 'location_lat', 'location_lng', 'device_fingerprint', 'request_signature', 'data_integrity_score', 'risk_score', 'risk_level', 'action_taken', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE catch_sessions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_catch_sessions_user_time ON catch_sessions(user_id, catch_timestamp);
@@ -77,6 +132,29 @@ CREATE TABLE IF NOT EXISTS catch_risk_decisions (
   details JSONB,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE catch_risk_decisions ADD COLUMN IF NOT EXISTS user_id VARCHAR(64);
+ALTER TABLE catch_risk_decisions ADD COLUMN IF NOT EXISTS session_id VARCHAR(128);
+ALTER TABLE catch_risk_decisions ADD COLUMN IF NOT EXISTS total_risk_score DECIMAL(5,2);
+ALTER TABLE catch_risk_decisions ADD COLUMN IF NOT EXISTS risk_level VARCHAR(16);
+ALTER TABLE catch_risk_decisions ADD COLUMN IF NOT EXISTS action VARCHAR(32);
+ALTER TABLE catch_risk_decisions ADD COLUMN IF NOT EXISTS success_rate_score DECIMAL(5,2);
+ALTER TABLE catch_risk_decisions ADD COLUMN IF NOT EXISTS batch_score DECIMAL(5,2);
+ALTER TABLE catch_risk_decisions ADD COLUMN IF NOT EXISTS integrity_score DECIMAL(5,2);
+ALTER TABLE catch_risk_decisions ADD COLUMN IF NOT EXISTS item_score DECIMAL(5,2);
+ALTER TABLE catch_risk_decisions ADD COLUMN IF NOT EXISTS device_score DECIMAL(5,2);
+ALTER TABLE catch_risk_decisions ADD COLUMN IF NOT EXISTS details JSONB;
+ALTER TABLE catch_risk_decisions ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.catch_risk_decisions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'session_id', 'total_risk_score', 'risk_level', 'action', 'success_rate_score', 'batch_score', 'integrity_score', 'item_score', 'device_score', 'details', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE catch_risk_decisions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_risk_decisions_user ON catch_risk_decisions(user_id);
 CREATE INDEX IF NOT EXISTS idx_risk_decisions_time ON catch_risk_decisions(created_at);
@@ -99,6 +177,30 @@ CREATE TABLE IF NOT EXISTS user_catch_stats (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_catch_stats ADD COLUMN IF NOT EXISTS user_id VARCHAR(64);
+ALTER TABLE user_catch_stats ADD COLUMN IF NOT EXISTS total_catches INT DEFAULT 0;
+ALTER TABLE user_catch_stats ADD COLUMN IF NOT EXISTS total_attempts INT DEFAULT 0;
+ALTER TABLE user_catch_stats ADD COLUMN IF NOT EXISTS success_rate_7d DECIMAL(5,4);
+ALTER TABLE user_catch_stats ADD COLUMN IF NOT EXISTS success_rate_30d DECIMAL(5,4);
+ALTER TABLE user_catch_stats ADD COLUMN IF NOT EXISTS anomaly_count INT DEFAULT 0;
+ALTER TABLE user_catch_stats ADD COLUMN IF NOT EXISTS last_anomaly_at TIMESTAMPTZ;
+ALTER TABLE user_catch_stats ADD COLUMN IF NOT EXISTS trust_score INT DEFAULT 100;
+ALTER TABLE user_catch_stats ADD COLUMN IF NOT EXISTS warning_count INT DEFAULT 0;
+ALTER TABLE user_catch_stats ADD COLUMN IF NOT EXISTS blocked_count INT DEFAULT 0;
+ALTER TABLE user_catch_stats ADD COLUMN IF NOT EXISTS last_catch_at TIMESTAMPTZ;
+ALTER TABLE user_catch_stats ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE user_catch_stats ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_catch_stats') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'total_catches', 'total_attempts', 'success_rate_7d', 'success_rate_30d', 'anomaly_count', 'last_anomaly_at', 'trust_score', 'warning_count', 'blocked_count', 'last_catch_at', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_catch_stats ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- ============================================================
 -- 5. 插入初始配置数据

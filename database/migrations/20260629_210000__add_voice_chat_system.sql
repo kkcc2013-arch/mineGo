@@ -32,6 +32,37 @@ CREATE TABLE IF NOT EXISTS voice_rooms (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   closed_at TIMESTAMPTZ
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS creator_id VARCHAR(50);
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS guild_id VARCHAR(50);
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS max_members INTEGER DEFAULT 10;
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255);
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS persistent BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS room_type VARCHAR(20) DEFAULT 'temporary';
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS config JSONB DEFAULT '{
+    "bitrate": 64000,
+    "codec": "opus",
+    "noiseSuppression": true,
+    "echoCancellation": true,
+    "autoGainControl": true
+  }'::jsonb;
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS total_joins INTEGER DEFAULT 0;
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS peak_members INTEGER DEFAULT 0;
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS closed_at TIMESTAMPTZ;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.voice_rooms') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'name', 'creator_id', 'guild_id', 'max_members', 'password_hash', 'persistent', 'room_type', 'config', 'status', 'total_joins', 'peak_members', 'created_at', 'closed_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE voice_rooms ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 语音房间成员表
 CREATE TABLE IF NOT EXISTS voice_room_members (
@@ -48,10 +79,30 @@ CREATE TABLE IF NOT EXISTS voice_room_members (
   
   -- 时间
   joined_at TIMESTAMPTZ DEFAULT NOW(),
-  left_at TIMESTAMPTZ,
-  
-  UNIQUE (room_id, user_id) WHERE left_at IS NULL
+  left_at TIMESTAMPTZ
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS room_id UUID;
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS user_id VARCHAR(50);
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'member';
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS socket_id VARCHAR(100);
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS muted BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS deafened BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS speaking BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS joined_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS left_at TIMESTAMPTZ;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.voice_room_members') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'room_id', 'user_id', 'role', 'socket_id', 'muted', 'deafened', 'speaking', 'joined_at', 'left_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE voice_room_members ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
+CREATE UNIQUE INDEX IF NOT EXISTS voice_room_members_room_id_user_id_uniq ON voice_room_members (room_id, user_id) WHERE left_at IS NULL;
 
 -- 语音聊天统计表
 CREATE TABLE IF NOT EXISTS voice_chat_statistics (
@@ -76,6 +127,31 @@ CREATE TABLE IF NOT EXISTS voice_chat_statistics (
   started_at TIMESTAMPTZ DEFAULT NOW(),
   ended_at TIMESTAMPTZ
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS user_id VARCHAR(50);
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS room_id UUID;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS room_type VARCHAR(20);
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS duration_seconds INTEGER DEFAULT 0;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS bytes_sent BIGINT DEFAULT 0;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS bytes_received BIGINT DEFAULT 0;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS codec VARCHAR(20) DEFAULT 'opus';
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS average_bitrate INTEGER DEFAULT 0;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS packet_loss REAL DEFAULT 0.0;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS jitter_ms INTEGER DEFAULT 0;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS connection_type VARCHAR(20);
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS started_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS ended_at TIMESTAMPTZ;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.voice_chat_statistics') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'user_id', 'room_id', 'room_type', 'duration_seconds', 'bytes_sent', 'bytes_received', 'codec', 'average_bitrate', 'packet_loss', 'jitter_ms', 'connection_type', 'started_at', 'ended_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE voice_chat_statistics ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- TURN 凭证表（用于记录和审计）
 CREATE TABLE IF NOT EXISTS turn_credentials (
@@ -88,6 +164,25 @@ CREATE TABLE IF NOT EXISTS turn_credentials (
   last_used_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS user_id VARCHAR(50);
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS username VARCHAR(100);
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS credential_hash VARCHAR(255);
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ;
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS used_count INTEGER DEFAULT 0;
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS last_used_at TIMESTAMPTZ;
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.turn_credentials') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'user_id', 'username', 'credential_hash', 'expires_at', 'used_count', 'last_used_at', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE turn_credentials ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 语音房间权限配置表
 CREATE TABLE IF NOT EXISTS voice_room_permissions (
@@ -108,6 +203,28 @@ CREATE TABLE IF NOT EXISTS voice_room_permissions (
   
   UNIQUE (room_id, role)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS room_id UUID;
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS role VARCHAR(20);
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS can_speak BOOLEAN DEFAULT TRUE;
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS can_hear BOOLEAN DEFAULT TRUE;
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS can_kick BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS can_ban BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS can_change_config BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS can_invite BOOLEAN DEFAULT TRUE;
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS can_change_role BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_room_permissions ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.voice_room_permissions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'room_id', 'role', 'can_speak', 'can_hear', 'can_kick', 'can_ban', 'can_change_config', 'can_invite', 'can_change_role', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE voice_room_permissions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_voice_rooms_creator ON voice_rooms(creator_id);
@@ -136,10 +253,4 @@ COMMENT ON TABLE turn_credentials IS 'REQ-00116: TURN服务器凭证表 - 用于
 COMMENT ON TABLE voice_room_permissions IS 'REQ-00116: 语音房间权限配置表 - 定义各角色权限';
 
 -- 插入默认权限配置
-INSERT INTO voice_room_permissions (role, can_speak, can_hear, can_kick, can_ban, can_change_config, can_invite, can_change_role)
-VALUES 
-  ('host', TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE),
-  ('admin', TRUE, TRUE, TRUE, FALSE, TRUE, TRUE, FALSE),
-  ('member', TRUE, TRUE, FALSE, FALSE, FALSE, TRUE, FALSE),
-  ('observer', FALSE, TRUE, FALSE, FALSE, FALSE, FALSE, FALSE)
-ON CONFLICT DO NOTHING;
+-- 已移除：voice_room_permissions 按房间存储（room_id NOT NULL），角色默认权限由服务端在建房时写入

@@ -23,6 +23,35 @@ CREATE TABLE IF NOT EXISTS cosmetic_items (
     max_equipped INT DEFAULT 1,             -- 同类最多装备数量
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS id VARCHAR(50);
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS name JSONB;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS description JSONB;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS category VARCHAR(30);
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS rarity VARCHAR(20);
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS icon_url VARCHAR(500);
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS model_url VARCHAR(500);
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS position_data JSONB;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS animation_data JSONB;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS available_from TIMESTAMPTZ;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS available_until TIMESTAMPTZ;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS source_type VARCHAR(30);
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS source_id VARCHAR(100);
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS price_coins INT DEFAULT 0;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS price_gems INT DEFAULT 0;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS is_stackable BOOLEAN DEFAULT FALSE;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS max_equipped INT DEFAULT 1;
+ALTER TABLE cosmetic_items ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.cosmetic_items') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'name', 'description', 'category', 'rarity', 'icon_url', 'model_url', 'position_data', 'animation_data', 'available_from', 'available_until', 'source_type', 'source_id', 'price_coins', 'price_gems', 'is_stackable', 'max_equipped', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE cosmetic_items ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_cosmetic_items_category ON cosmetic_items(category);
 CREATE INDEX IF NOT EXISTS idx_cosmetic_items_rarity ON cosmetic_items(rarity);
@@ -36,7 +65,7 @@ COMMENT ON COLUMN cosmetic_items.rarity IS '稀有度: common/uncommon/rare/epic
 -- 2. 用户装饰物库存表
 CREATE TABLE IF NOT EXISTS user_cosmetics (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     cosmetic_id VARCHAR(50) NOT NULL REFERENCES cosmetic_items(id) ON DELETE CASCADE,
     quantity INT DEFAULT 1,                 -- 数量（可叠加装饰物）
     obtained_at TIMESTAMPTZ DEFAULT NOW(),
@@ -44,6 +73,23 @@ CREATE TABLE IF NOT EXISTS user_cosmetics (
     expires_at TIMESTAMPTZ,                 -- 过期时间（限时装饰物）
     UNIQUE(user_id, cosmetic_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_cosmetics ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_cosmetics ADD COLUMN IF NOT EXISTS cosmetic_id VARCHAR(50);
+ALTER TABLE user_cosmetics ADD COLUMN IF NOT EXISTS quantity INT DEFAULT 1;
+ALTER TABLE user_cosmetics ADD COLUMN IF NOT EXISTS obtained_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE user_cosmetics ADD COLUMN IF NOT EXISTS obtained_from VARCHAR(30);
+ALTER TABLE user_cosmetics ADD COLUMN IF NOT EXISTS expires_at TIMESTAMPTZ;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_cosmetics') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'cosmetic_id', 'quantity', 'obtained_at', 'obtained_from', 'expires_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_cosmetics ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_user_cosmetics_user ON user_cosmetics(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_cosmetics_expires ON user_cosmetics(expires_at) WHERE expires_at IS NOT NULL;
@@ -53,13 +99,29 @@ COMMENT ON TABLE user_cosmetics IS 'REQ-00125: 用户装饰物库存表';
 -- 3. 精灵装备装饰物表
 CREATE TABLE IF NOT EXISTS pokemon_cosmetics (
     id SERIAL PRIMARY KEY,
-    pokemon_instance_id VARCHAR(50) NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
+    pokemon_instance_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     cosmetic_id VARCHAR(50) NOT NULL REFERENCES cosmetic_items(id) ON DELETE CASCADE,
     slot_position INT DEFAULT 0,            -- 装饰物槽位
     equipped_at TIMESTAMPTZ DEFAULT NOW(),
-    equipped_by INTEGER REFERENCES users(id),
+    equipped_by UUID REFERENCES users(id),
     UNIQUE(pokemon_instance_id, cosmetic_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE pokemon_cosmetics ADD COLUMN IF NOT EXISTS pokemon_instance_id VARCHAR(50);
+ALTER TABLE pokemon_cosmetics ADD COLUMN IF NOT EXISTS cosmetic_id VARCHAR(50);
+ALTER TABLE pokemon_cosmetics ADD COLUMN IF NOT EXISTS slot_position INT DEFAULT 0;
+ALTER TABLE pokemon_cosmetics ADD COLUMN IF NOT EXISTS equipped_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE pokemon_cosmetics ADD COLUMN IF NOT EXISTS equipped_by UUID;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.pokemon_cosmetics') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('pokemon_instance_id', 'cosmetic_id', 'slot_position', 'equipped_at', 'equipped_by', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE pokemon_cosmetics ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_pokemon_cosmetics_pokemon ON pokemon_cosmetics(pokemon_instance_id);
 CREATE INDEX IF NOT EXISTS idx_pokemon_cosmetics_cosmetic ON pokemon_cosmetics(cosmetic_id);
@@ -69,12 +131,28 @@ COMMENT ON TABLE pokemon_cosmetics IS 'REQ-00125: 精灵装备装饰物表';
 -- 4. 装饰物组合方案表（预设搭配）
 CREATE TABLE IF NOT EXISTS cosmetic_presets (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     preset_data JSONB NOT NULL,             -- {"cosmetic_id": slot_position, ...}
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE cosmetic_presets ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE cosmetic_presets ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+ALTER TABLE cosmetic_presets ADD COLUMN IF NOT EXISTS preset_data JSONB;
+ALTER TABLE cosmetic_presets ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT NOW();
+ALTER TABLE cosmetic_presets ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.cosmetic_presets') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'name', 'preset_data', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE cosmetic_presets ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 CREATE INDEX IF NOT EXISTS idx_cosmetic_presets_user ON cosmetic_presets(user_id);
 
@@ -90,6 +168,24 @@ CREATE TABLE IF NOT EXISTS cosmetic_statistics (
     total_revenue_gems BIGINT DEFAULT 0,    -- 宝石收入
     last_updated TIMESTAMPTZ DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE cosmetic_statistics ADD COLUMN IF NOT EXISTS cosmetic_id VARCHAR(50);
+ALTER TABLE cosmetic_statistics ADD COLUMN IF NOT EXISTS total_owned INT DEFAULT 0;
+ALTER TABLE cosmetic_statistics ADD COLUMN IF NOT EXISTS total_equipped INT DEFAULT 0;
+ALTER TABLE cosmetic_statistics ADD COLUMN IF NOT EXISTS total_purchased INT DEFAULT 0;
+ALTER TABLE cosmetic_statistics ADD COLUMN IF NOT EXISTS total_revenue_coins BIGINT DEFAULT 0;
+ALTER TABLE cosmetic_statistics ADD COLUMN IF NOT EXISTS total_revenue_gems BIGINT DEFAULT 0;
+ALTER TABLE cosmetic_statistics ADD COLUMN IF NOT EXISTS last_updated TIMESTAMPTZ DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.cosmetic_statistics') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('cosmetic_id', 'total_owned', 'total_equipped', 'total_purchased', 'total_revenue_coins', 'total_revenue_gems', 'last_updated', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE cosmetic_statistics ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 COMMENT ON TABLE cosmetic_statistics IS 'REQ-00125: 装饰物统计表';
 

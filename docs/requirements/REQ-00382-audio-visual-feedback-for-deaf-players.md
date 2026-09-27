@@ -7,7 +7,7 @@
 | 标题 | 游戏音效可视化与听障玩家视觉提示系统 |
 | 类别 | 无障碍(a11y) |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | game-client、frontend/game-client/src/accessibility、gateway、catch-service、gym-service、user-service、backend/shared |
 | 创建时间 | 2026-06-30 07:00 UTC |
 
@@ -1139,3 +1139,30 @@ module.exports = router;
 - [Game Accessibility Guidelines](http://gameaccessibilityguidelines.com/)
 - [WebAIM Screen Reader User Survey](https://webaim.org/projects/screenreadersurvey/)
 - [Phaser 3 Accessibility Plugin](https://phaser.io/examples/v3/category/accessibility)
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 所有游戏内音频事件均能被捕获并转换为视觉反馈 | ✅ | 客户端全部有声事件：精灵出现、投掷、捕捉成功/挣脱/逃跑、道具、警告/错误、升级；战斗事件通过 `pmg:battle` 契约 |
+| 视觉反馈支持多种位置选项（四角、中央） | ✅ | 四角 + 中央 |
+| 支持自定义显示时长、动画样式 | ✅ | 显示时长 2–10s；动画样式：闪烁/静态、强度 低/中/高 |
+| 重要事件（精灵出现、捕捉结果、战斗关键事件）有醒目的视觉提示 | ✅ | P0 事件最醒目（红色边框 + 大图标 + 震动） |
+| 屏幕闪烁功能对高优先级事件生效 | ✅ | P0/P1 边框闪烁（光敏/减少动画下为静态高亮） |
+| 设置界面完整，支持启用/禁用、事件过滤、预览测试 | ✅ | 启用开关、6 类事件过滤、"预览视觉提示"按钮 |
+| 设置持久化存储（本地 + 云端同步） | ✅ | localStorage + user_preferences |
+| 符合 WCAG 2.1 AA 级别标准 | ✅ | axe 无严重问题（调整前运行） |
+| 支持 prefers-reduced-motion 媒体查询 | ✅ | `@media (prefers-reduced-motion)` + 减少动画选项 |
+| 支持高对比度模式 | ✅ | 高对比度下提示仍为黑底白字粗边框 |
+| 战斗场景有独立的视觉覆盖层（技能指示、伤害数字、状态效果） | ⚠️ | 战斗事件（技能/伤害/HP/状态/倒下/胜负）以文字提示 + 字幕呈现；客户端无战斗界面，未做独立战斗覆盖层 |
+| 屏幕阅读器可读（ARIA 属性完整） | ✅ | role=log、aria-live |
+| 移动端适配良好 | ⚠️ | 响应式，移动端真机未验证 |
+| 性能影响 < 5ms 每帧 | ⚠️ | 每次提示记录 renderMs；bench 统计 P95，未运行 |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：`database/migrations/20260925_010000__user_preferences.sql`（`user_preferences`：user_id UUID → users(id) ON DELETE CASCADE、namespace、prefs JSONB，主键 (user_id, namespace)，全部 IF NOT EXISTS）；偏好云端同步：user-service `GET/PUT/DELETE /users/me/preferences/:namespace`（`src/routes/preferences.js` + `src/services/userPreferences.js` 校验），经网关 `/v1/users/me/preferences/a11y`（网关已有 `/v1/users` 鉴权代理，未改网关）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：移动端显示效果；运行 bench 的提示渲染耗时；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`

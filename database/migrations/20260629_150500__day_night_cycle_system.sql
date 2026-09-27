@@ -27,7 +27,7 @@ INSERT INTO day_night_config (name, start_hour, end_hour, display_name_zh, displ
 ('AFTERNOON', 12, 17, '下午', 'Afternoon', '温暖的午后时光', 1.0, '#FFA500'),
 ('EVENING', 17, 19, '黄昏', 'Evening', '夕阳西下，光线变化明显', 1.2, '#FF6347'),
 ('DUSK', 19, 21, '暮色', 'Dusk', '天色渐暗，夜行精灵开始出现', 1.3, '#9370DB'),
-('NIGHT', 21, 24, '深夜', 'Night', '漆黑的夜晚，夜行精灵活跃高峰', 1.5, '#191970'),
+('NIGHT', 21, 0, '深夜', 'Night', '漆黑的夜晚，夜行精灵活跃高峰', 1.5, '#191970'),
 ('MIDNIGHT', 0, 5, '午夜', 'Midnight', '午夜时分，稀有夜行精灵出没', 1.4, '#0D0D2B')
 ON CONFLICT (name) DO UPDATE SET
     start_hour = EXCLUDED.start_hour,
@@ -75,7 +75,9 @@ COMMENT ON COLUMN pokemon_species.is_diurnal IS '是否为昼行精灵（白天�
 -- ============================================================
 
 -- 夜行精灵（夜间专属或高权重）
-INSERT INTO pokemon_day_night_spawn (pokemon_id, time_period, spawn_weight_multiplier, is_exclusive, special_iv_bonus) VALUES
+-- 只为已存在的精灵写入（种子数据只含部分图鉴，直接 VALUES 会触发外键错误）
+INSERT INTO pokemon_day_night_spawn (pokemon_id, time_period, spawn_weight_multiplier, is_exclusive, special_iv_bonus)
+SELECT v.* FROM (VALUES
 -- 幽灵系精灵（夜间专属）
 (92, 'NIGHT', 3.0, false, 0.1),  -- 鬼斯
 (93, 'NIGHT', 3.0, false, 0.1),  -- 鬼斯通
@@ -109,6 +111,8 @@ INSERT INTO pokemon_day_night_spawn (pokemon_id, time_period, spawn_weight_multi
 (184, 'DUSK', 2.2, false, 0.12), -- 玛力露丽
 (283, 'DUSK', 2.5, false, 0.15), -- 溜溜糖球（黄昏水面）
 (284, 'DUSK', 2.5, false, 0.15)  -- 雨翅蛾
+) AS v(pokemon_id, time_period, spawn_weight_multiplier, is_exclusive, special_iv_bonus)
+WHERE EXISTS (SELECT 1 FROM pokemon_species ps WHERE ps.id = v.pokemon_id)
 ON CONFLICT (pokemon_id, time_period) DO UPDATE SET
     spawn_weight_multiplier = EXCLUDED.spawn_weight_multiplier,
     is_exclusive = EXCLUDED.is_exclusive,

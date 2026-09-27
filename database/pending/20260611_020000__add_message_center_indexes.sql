@@ -11,7 +11,7 @@ ON notification_history(user_id, read, created_at DESC);
 
 -- 通知列表查询优化（按用户+类型+时间）
 CREATE INDEX IF NOT EXISTS idx_notification_history_user_type_time 
-ON notification_history(user_id, notification_type, created_at DESC);
+ON notification_history(user_id, type, created_at DESC);
 
 -- 未读数量统计优化（部分索引）
 CREATE INDEX IF NOT EXISTS idx_notification_history_user_unread 
@@ -45,11 +45,11 @@ SELECT
   COUNT(*) AS total_count,
   COUNT(*) FILTER (WHERE read = false) AS unread_count,
   COUNT(*) FILTER (WHERE read = true) AS read_count,
-  COUNT(*) FILTER (WHERE notification_type = 'RARE_SPAWN') AS rare_spawn_count,
-  COUNT(*) FILTER (WHERE notification_type = 'RAID_STARTED') AS raid_count,
-  COUNT(*) FILTER (WHERE notification_type = 'FRIEND_REQUEST') AS friend_request_count,
-  COUNT(*) FILTER (WHERE notification_type = 'QUEST_COMPLETE') AS quest_count,
-  COUNT(*) FILTER (WHERE notification_type = 'SYSTEM') AS system_count,
+  COUNT(*) FILTER (WHERE type = 'RARE_SPAWN') AS rare_spawn_count,
+  COUNT(*) FILTER (WHERE type = 'RAID_STARTED') AS raid_count,
+  COUNT(*) FILTER (WHERE type = 'FRIEND_REQUEST') AS friend_request_count,
+  COUNT(*) FILTER (WHERE type = 'QUEST_COMPLETE') AS quest_count,
+  COUNT(*) FILTER (WHERE type = 'SYSTEM') AS system_count,
   MAX(created_at) AS last_notification_at
 FROM notification_history
 GROUP BY user_id;

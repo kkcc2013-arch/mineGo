@@ -1,0 +1,25 @@
+# 基于日志 level=error 的告警（REQ-00042 4.5 "HighErrorRate"），由 Loki ruler 评估并发往 Alertmanager
+# 标签 level / service 由 Alloy 从 pino JSON 日志中提取（infrastructure/monitoring/alloy/config.alloy）
+groups:
+  - name: minego-log-errors
+    rules:
+      - alert: MinegoHighErrorLogRate
+        # 某服务 error 日志持续超过 1 条/秒（5 分钟窗口）
+        expr: sum by (service) (rate({job="minego", level="error"}[5m])) > 1
+        for: 2m
+        labels:
+          severity: critical
+          source: loki
+        annotations:
+          summary: "服务 {{ $labels.service }} 错误日志过多"
+          description: "{{ $labels.service }} 近 5 分钟 error 日志超过 1 条/秒，按 trace_id 在 Grafana Explore 中查看链路。"
+      - alert: MinegoErrorLogBurst
+        # 突发：1 分钟内 error 日志超过 100 条
+        expr: sum by (service) (count_over_time({job="minego", level="error"}[1m])) > 100
+        for: 0m
+        labels:
+          severity: warning
+          source: loki
+        annotations:
+          summary: "服务 {{ $labels.service }} 错误日志突增"
+          description: "{{ $labels.service }} 1 分钟内 error 日志超过 100 条。"

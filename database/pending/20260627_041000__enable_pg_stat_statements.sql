@@ -2,7 +2,7 @@
 -- 启用 pg_stat_statements 扩展并创建相关表
 
 -- 启用 pg_stat_statements 扩展（需要超级用户权限）
-CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
+DO $ext$ BEGIN CREATE EXTENSION IF NOT EXISTS pg_stat_statements; EXCEPTION WHEN OTHERS THEN RAISE NOTICE '扩展 pg_stat_statements 不可用，跳过：%', SQLERRM; END $ext$;
 
 -- 创建慢查询分析历史表
 CREATE TABLE IF NOT EXISTS slow_query_history (
@@ -17,6 +17,26 @@ CREATE TABLE IF NOT EXISTS slow_query_history (
     shared_blks_read BIGINT,
     recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE slow_query_history ADD COLUMN IF NOT EXISTS query_id BIGINT;
+ALTER TABLE slow_query_history ADD COLUMN IF NOT EXISTS query_text TEXT;
+ALTER TABLE slow_query_history ADD COLUMN IF NOT EXISTS mean_time_ms FLOAT;
+ALTER TABLE slow_query_history ADD COLUMN IF NOT EXISTS total_time_ms FLOAT;
+ALTER TABLE slow_query_history ADD COLUMN IF NOT EXISTS calls BIGINT;
+ALTER TABLE slow_query_history ADD COLUMN IF NOT EXISTS rows_returned BIGINT;
+ALTER TABLE slow_query_history ADD COLUMN IF NOT EXISTS shared_blks_hit BIGINT;
+ALTER TABLE slow_query_history ADD COLUMN IF NOT EXISTS shared_blks_read BIGINT;
+ALTER TABLE slow_query_history ADD COLUMN IF NOT EXISTS recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.slow_query_history') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('query_id', 'query_text', 'mean_time_ms', 'total_time_ms', 'calls', 'rows_returned', 'shared_blks_hit', 'shared_blks_read', 'recorded_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE slow_query_history ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_slow_query_history_query_id ON slow_query_history(query_id);
@@ -35,6 +55,26 @@ CREATE TABLE IF NOT EXISTS index_suggestions (
     applied BOOLEAN DEFAULT FALSE,
     applied_at TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS table_name VARCHAR(255);
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS column_name VARCHAR(255);
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS suggestion_type VARCHAR(50);
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS reason TEXT;
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS priority VARCHAR(20);
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS estimated_impact TEXT;
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS applied BOOLEAN DEFAULT FALSE;
+ALTER TABLE index_suggestions ADD COLUMN IF NOT EXISTS applied_at TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.index_suggestions') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('table_name', 'column_name', 'suggestion_type', 'reason', 'priority', 'estimated_impact', 'created_at', 'applied', 'applied_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE index_suggestions ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_index_suggestions_table ON index_suggestions(table_name);
@@ -49,6 +89,22 @@ CREATE TABLE IF NOT EXISTS query_performance_baseline (
     calls_per_hour FLOAT,
     last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS query_signature VARCHAR(64);
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS avg_execution_time_ms FLOAT;
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS p95_execution_time_ms FLOAT;
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS calls_per_hour FLOAT;
+ALTER TABLE query_performance_baseline ADD COLUMN IF NOT EXISTS last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.query_performance_baseline') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('query_signature', 'avg_execution_time_ms', 'p95_execution_time_ms', 'calls_per_hour', 'last_updated', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE query_performance_baseline ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 创建索引
 CREATE INDEX IF NOT EXISTS idx_query_performance_signature ON query_performance_baseline(query_signature);
@@ -98,7 +154,7 @@ SELECT
     COUNT(*) as total_indexes,
     COUNT(*) FILTER (WHERE idx_scan > 0) as used_indexes,
     COUNT(*) FILTER (WHERE idx_scan = 0) as unused_indexes,
-    ROUND(COUNT(*) FILTER (WHERE idx_scan > 0)::FLOAT / COUNT(*) * 100, 2) as usage_ratio
+    ROUND((COUNT(*) FILTER (WHERE idx_scan > 0))::NUMERIC / NULLIF(COUNT(*), 0) * 100, 2) as usage_ratio
 FROM pg_stat_user_indexes
 GROUP BY schemaname, relname
 ORDER BY unused_indexes DESC;

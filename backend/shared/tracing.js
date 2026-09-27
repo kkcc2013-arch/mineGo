@@ -1,119 +1,135 @@
 // backend/shared/tracing.js
-// REQ-00148: 分布式追踪与请求链路可视化系统 - OpenTelemetry SDK 初始化
+// REQ-00042（重构 REQ-00148 的初始化代码）：OpenTelemetry 链路追踪
+//
+// 用法：服务入口文件的第一条语句
+//   require('../../../shared/tracing').initTracing('user-service');
+// 必须早于 express / http / pg / ioredis / redis / kafkajs 被 require，自动埋点才能生效。
+//
+// 启用条件：设置了 OTEL_EXPORTER_OTLP_ENDPOINT（如 http://127.0.0.1:4318；Jaeger v2 原生接收 OTLP/HTTP）
+//           或 OTEL_EXPORTER_OTLP_TRACES_ENDPOINT；OTEL_ENABLED=false 强制关闭。
+//           不读 JAEGER_ENDPOINT：该变量在 plugins/builtins/TracingPlugin.js 中是 Jaeger v1 的 :14268/api/traces 地址，语义不同。
+// 采样：OTEL_TRACES_SAMPLER_ARG（0~1），默认开发 1.0、生产 0.1；ParentBased——上游已决定采样则跟随，保证整条链路完整。
+// 依赖缺失或初始化失败只告警，不影响服务启动（追踪是可观测性增强，不能成为可用性风险）。
+//
+// 原实现用 @opentelemetry/sdk-node + Resource 类 + JaegerExporter：前两者在 OTel JS 2.x 中已移除/改名，
+// Jaeger 专用导出器已废弃（Jaeger 直接接收 OTLP），且原文件从未被任何服务加载。
 'use strict';
-const { createLogger } = require('./logger');
-const logger = createLogger('tracing');
 
-let sdk = null;
-let isInitialized = false;
+let provider = null;
+let status = { enabled: false, reason: 'not initialized' };
+
+function warn(msg, extra = {}) {
+  // 这里不用 shared/logger：logger 依赖 pino 等模块，初始化阶段尽量少 require
+  process.stderr.write(`${JSON.stringify({ level: 'warn', time: new Date().toISOString(), module: 'tracing', msg, ...extra })}\n`);
+}
+
+function otlpTracesUrl() {
+  const base = process.env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT || process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
+  if (!base) return null;
+  // OTEL_EXPORTER_OTLP_TRACES_ENDPOINT 按规范是完整地址；其余为基础地址，需拼 /v1/traces
+  if (process.env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT) return base;
+  return `${base.replace(/\/+$/, '')}/v1/traces`;
+}
+
+function samplingRatio() {
+  const str = (process.env.OTEL_TRACES_SAMPLER_ARG || '').trim(); // 空字符串视为未设置（Number('') 为 0，会关闭采样）
+  const raw = str === '' ? NaN : Number(str);
+  if (Number.isFinite(raw) && raw >= 0 && raw <= 1) return raw;
+  return process.env.NODE_ENV === 'production' ? 0.1 : 1.0;
+}
 
 /**
- * 初始化 OpenTelemetry SDK
- * @param {string} serviceName - 服务名称
- * @param {string} serviceVersion - 服务版本
- * @returns {Promise<Object>} SDK 实例
+ * 初始化追踪。重复调用无副作用。
+ * @param {string} serviceName
+ * @param {string} [serviceVersion]
+ * @returns {object|null} TracerProvider（未启用时为 null）
  */
-async function initTracing(serviceName, serviceVersion = '1.0.0') {
-  if (isInitialized) {
-    logger.info({ module: 'Tracing] Already initialized, skipping for ${serviceName}' }, 'Tracing] Already initialized, skipping for ${serviceName} message');;
-    return sdk;
+function initTracing(serviceName, serviceVersion = process.env.APP_VERSION || '1.0.0') {
+  if (provider) return provider;
+  if (process.env.OTEL_ENABLED === 'false') {
+    status = { enabled: false, reason: 'OTEL_ENABLED=false' };
+    return null;
   }
-
-  // 检查是否启用追踪
-  const tracingEnabled = process.env.OTEL_ENABLED !== 'false';
-  if (!tracingEnabled) {
-    logger.info({ module: 'Tracing] Tracing disabled for ${serviceName}' }, 'Tracing] Tracing disabled for ${serviceName} message');;
+  const url = otlpTracesUrl();
+  if (!url) {
+    status = { enabled: false, reason: 'OTEL_EXPORTER_OTLP_ENDPOINT not set' };
     return null;
   }
 
   try {
-    // 动态导入 OpenTelemetry 模块（可选依赖）
-    const { NodeSDK } = await import('@opentelemetry/sdk-node');
-    const { OTLPTraceExporter } = await import('@opentelemetry/exporter-trace-otlp-grpc');
-    const { OTLPMetricExporter } = await import('@opentelemetry/exporter-metrics-otlp-grpc');
-    const { Resource } = await import('@opentelemetry/resources');
-    const { SemanticResourceAttributes } = await import('@opentelemetry/semantic-conventions');
-    const { BatchSpanProcessor } = await import('@opentelemetry/sdk-trace-base');
+    const { NodeTracerProvider } = require('@opentelemetry/sdk-trace-node');
+    const { BatchSpanProcessor, ParentBasedSampler, TraceIdRatioBasedSampler } = require('@opentelemetry/sdk-trace-base');
+    const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-http');
+    const { resourceFromAttributes } = require('@opentelemetry/resources');
+    const { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } = require('@opentelemetry/semantic-conventions');
+    const { registerInstrumentations } = require('@opentelemetry/instrumentation');
+    const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http');
+    const { ExpressInstrumentation } = require('@opentelemetry/instrumentation-express');
+    const { PgInstrumentation } = require('@opentelemetry/instrumentation-pg');
+    const { IORedisInstrumentation } = require('@opentelemetry/instrumentation-ioredis');
+    const { RedisInstrumentation } = require('@opentelemetry/instrumentation-redis');
+    const { KafkaJsInstrumentation } = require('@opentelemetry/instrumentation-kafkajs');
 
-    const otlpEndpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://localhost:4317';
-    
-    // Trace 导出器
-    const traceExporter = new OTLPTraceExporter({
-      url: otlpEndpoint,
-    });
-
-    // Metric 导出器
-    const metricExporter = new OTLPMetricExporter({
-      url: otlpEndpoint,
-    });
-
-    // 创建 SDK
-    sdk = new NodeSDK({
-      resource: new Resource({
-        [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
-        [SemanticResourceAttributes.SERVICE_VERSION]: serviceVersion,
-        [SemanticResourceAttributes.DEPLOYMENT_ENVIRONMENT]: process.env.NODE_ENV || 'development',
-        'service.namespace': 'mineGo',
+    const ratio = samplingRatio();
+    provider = new NodeTracerProvider({
+      resource: resourceFromAttributes({
+        [ATTR_SERVICE_NAME]: serviceName,
+        [ATTR_SERVICE_VERSION]: serviceVersion,
+        'deployment.environment.name': process.env.NODE_ENV || 'development',
+        'service.instance.id': `${require('os').hostname()}:${process.pid}`,
       }),
-      traceExporter,
-      metricExporter,
-      spanProcessors: [
-        new BatchSpanProcessor(traceExporter, {
-          maxQueueSize: 2048,
-          maxExportBatchSize: 512,
-          scheduledDelayMillis: 5000,
+      sampler: new ParentBasedSampler({ root: new TraceIdRatioBasedSampler(ratio) }),
+      spanProcessors: [new BatchSpanProcessor(new OTLPTraceExporter({ url }))],
+    });
+    // 注册全局 TracerProvider、AsyncLocalStorage 上下文管理器与 W3C traceparent 传播器
+    provider.register();
+
+    registerInstrumentations({
+      tracerProvider: provider,
+      instrumentations: [
+        new HttpInstrumentation({
+          // 健康检查与指标抓取不产生 trace（量大且无诊断价值）
+          ignoreIncomingRequestHook: (req) => /^\/(health|metrics|ready|live)(\/|\?|$)/.test(req.url || ''),
         }),
+        new ExpressInstrumentation(),
+        new PgInstrumentation({ enhancedDatabaseReporting: false }), // 不记录 SQL 参数（可能含个人信息）
+        new IORedisInstrumentation(),
+        new RedisInstrumentation(),
+        new KafkaJsInstrumentation(),
       ],
     });
 
-    // 启动 SDK
-    await sdk.start();
-    isInitialized = true;
-    
-    logger.info({ module: 'Tracing] OpenTelemetry initialized for ${serviceName}@${serviceVersion}' }, 'Tracing] OpenTelemetry initialized for ${serviceName}@${serviceVersion} message');;
-    logger.info({ module: 'Tracing] OTLP Endpoint: ${otlpEndpoint}' }, 'Tracing] OTLP Endpoint: ${otlpEndpoint} message');;
-    
-    return sdk;
-  } catch (error) {
-    // OpenTelemetry 模块未安装时降级处理
-    logger.warn({ module: 'Tracing] OpenTelemetry not available, tracing disabled: ${error.message}' }, 'Tracing] OpenTelemetry not available, tracing disabled: ${error.message} warning');;
+    status = { enabled: true, serviceName, endpoint: url, samplingRatio: ratio };
+    return provider;
+  } catch (err) {
+    provider = null;
+    status = { enabled: false, reason: `init failed: ${err.message}` };
+    warn('OpenTelemetry init failed; tracing disabled', { service: serviceName, err: err.message });
     return null;
   }
 }
 
-/**
- * 关闭 SDK
- */
+/** 刷新并关闭导出器（优雅退出时调用；BatchSpanProcessor 平时每 5 秒自动导出） */
 async function shutdownTracing() {
-  if (sdk) {
-    try {
-      await sdk.shutdown();
-      logger.info({ module: 'Tracing] OpenTelemetry SDK shutdown complete' }, 'Tracing] OpenTelemetry SDK shutdown complete message');;
-    } catch (error) {
-      logger.error({ module: 'Tracing] Error during shutdown', error: error.message.message }, 'Tracing] Error during shutdown error');;
-    }
-    sdk = null;
-    isInitialized = false;
+  if (!provider) return;
+  try {
+    await provider.shutdown();
+  } catch (err) {
+    warn('OpenTelemetry shutdown failed', { err: err.message });
+  } finally {
+    provider = null;
+    status = { enabled: false, reason: 'shut down' };
   }
 }
 
-/**
- * 获取追踪状态
- */
+/** 兼容 REQ-00148 的返回结构（initialized / enabled / endpoint），另附 reason、samplingRatio 等 */
 function getTracingStatus() {
-  return {
-    initialized: isInitialized,
-    enabled: process.env.OTEL_ENABLED !== 'false',
-    endpoint: process.env.OTEL_EXPORTER_OTLP_ENDPOINT || 'http://localhost:4317',
-  };
+  return { ...status, initialized: !!provider, enabled: status.enabled, endpoint: otlpTracesUrl() || '' };
 }
-
-// 进程信号处理
-process.on('SIGTERM', shutdownTracing);
-process.on('SIGINT', shutdownTracing);
 
 module.exports = {
   initTracing,
   shutdownTracing,
   getTracingStatus,
+  _internal: { otlpTracesUrl, samplingRatio },
 };

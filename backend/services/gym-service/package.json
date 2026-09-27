@@ -8,12 +8,14 @@
   },
   "dependencies": {
     "@pmg/shared": "*",
-    "express": "^4.18.2",
     "cors": "^2.8.5",
+    "express": "^4.18.2",
     "helmet": "^7.1.0",
-    "zod": "^3.22.4",
+    "jsonwebtoken": "^9.0.3",
+    "node-cron": "^3.0.3",
+    "prom-client": "^15.1.3",
     "uuid": "^9.0.0",
     "ws": "^8.16.0",
-    "node-cron": "^3.0.3"
+    "zod": "^3.22.4"
   }
 }

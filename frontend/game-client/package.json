@@ -11,11 +11,15 @@
     "test:e2e:webkit": "playwright test --project=webkit",
     "test:e2e:mobile": "playwright test --project=mobile-chrome --project=mobile-safari",
     "test:e2e:report": "playwright show-report",
-    "serve": "npx serve . -l 3000"
+    "serve": "npx serve . -l 3000",
+    "test:a11y": "node --test tests/a11y/unit.test.mjs tests/a11y/voice.test.mjs",
+    "test:e2e:a11y": "node ../../scripts/e2e-a11y.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.44.0",
-    "serve": "^14.2.0"
+    "serve": "^14.2.0",
+    "axe-core": "^4.10.2",
+    "playwright-core": "^1.49.1"
   },
   "engines": {
     "node": ">=18.0.0"

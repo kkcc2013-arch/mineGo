@@ -1,0 +1,360 @@
+{
+  "dashboard": {
+    "uid": "minego-api-standards",
+    "title": "mineGo · API 规范治理（Epic E25）",
+    "tags": [
+      "api",
+      "e25"
+    ],
+    "timezone": "browser",
+    "schemaVersion": 38,
+    "refresh": "1m",
+    "time": {
+      "from": "now-24h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 100,
+        "type": "row",
+        "title": "弃用接口与迁移进度（REQ-00407）",
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 0
+        },
+        "collapsed": false
+      },
+      {
+        "id": 1,
+        "title": "弃用接口调用量（按接口）",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 1
+        },
+        "targets": [
+          {
+            "expr": "sum by (method, endpoint) (rate(api_deprecated_calls_total[5m]))",
+            "legendFormat": "{{method}} {{endpoint}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "仍在调用弃用接口的客户端数（24h）",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 1
+        },
+        "targets": [
+          {
+            "expr": "count by (endpoint) (sum by (endpoint, client_id) (increase(api_deprecated_calls_total[24h])) > 0)",
+            "legendFormat": "{{endpoint}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "即将下线的 API（剩余天数）",
+        "type": "table",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 9
+        },
+        "targets": [
+          {
+            "expr": "sort(api_deprecation_days_remaining)",
+            "legendFormat": "",
+            "refId": "A",
+            "format": "table",
+            "instant": true
+          }
+        ],
+        "options": {
+          "sortBy": [
+            {
+              "displayName": "Value",
+              "desc": false
+            }
+          ]
+        }
+      },
+      {
+        "id": 4,
+        "title": "调用弃用接口最多的客户端（24h）",
+        "type": "table",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 9
+        },
+        "targets": [
+          {
+            "expr": "topk(20, sum by (endpoint, client_id, client_version) (increase(api_deprecated_calls_total[24h])))",
+            "legendFormat": "",
+            "refId": "A",
+            "format": "table",
+            "instant": true
+          }
+        ]
+      },
+      {
+        "id": 101,
+        "type": "row",
+        "title": "性能预算（REQ-00476）",
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 17
+        },
+        "collapsed": false
+      },
+      {
+        "id": 5,
+        "title": "各接口 P95（秒）",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 18
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum by (le, route) (rate(api_performance_budget_duration_seconds_bucket[5m])))",
+            "legendFormat": "{{route}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "预算违规（每分钟）",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 18
+        },
+        "targets": [
+          {
+            "expr": "sum by (route, level) (rate(api_performance_budget_violations_total[5m])) * 60",
+            "legendFormat": "{{route}} {{level}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "严格预算告警（1h）",
+        "type": "stat",
+        "gridPos": {
+          "h": 4,
+          "w": 6,
+          "x": 0,
+          "y": 26
+        },
+        "targets": [
+          {
+            "expr": "sum(increase(api_performance_budget_alerts_total[1h]))",
+            "legendFormat": "",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 102,
+        "type": "row",
+        "title": "网关转换管道 / 契约 / 批量 / 重试（REQ-00542/00315/00308/00402）",
+        "gridPos": {
+          "h": 1,
+          "w": 24,
+          "x": 0,
+          "y": 30
+        },
+        "collapsed": false
+      },
+      {
+        "id": 8,
+        "title": "管道阶段耗时 P95（秒）",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 31
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum by (le, stage) (rate(api_pipeline_stage_duration_seconds_bucket[5m])))",
+            "legendFormat": "{{stage}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "管道缓存命中率",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 12,
+          "y": 31
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(api_pipeline_cache_total{result=\"hit\"}[5m])) / sum(rate(api_pipeline_cache_total[5m]))",
+            "legendFormat": "hit rate",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "契约校验失败率",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 18,
+          "y": 31
+        },
+        "targets": [
+          {
+            "expr": "sum by (contract) (rate(api_schema_validation_total{result=\"fail\"}[5m])) / sum by (contract) (rate(api_schema_validation_total[5m]))",
+            "legendFormat": "{{contract}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "批量请求（按结果）",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 8,
+          "x": 0,
+          "y": 39
+        },
+        "targets": [
+          {
+            "expr": "sum by (result) (rate(api_batch_requests_total[5m]))",
+            "legendFormat": "{{result}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "批量节省成本（USD/天）",
+        "type": "stat",
+        "gridPos": {
+          "h": 8,
+          "w": 4,
+          "x": 8,
+          "y": 39
+        },
+        "targets": [
+          {
+            "expr": "sum(increase(api_batch_cost_saved_usd_total[24h]))",
+            "legendFormat": "",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 13,
+        "title": "精灵批量详情缓存命中率",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 12,
+          "y": 39
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(pokemon_batch_cache_total{result=\"hit\"}[5m])) / sum(rate(pokemon_batch_cache_total[5m]))",
+            "legendFormat": "hit rate",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 14,
+        "title": "重试次数 / 耗尽（按服务）",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 6,
+          "x": 18,
+          "y": 39
+        },
+        "targets": [
+          {
+            "expr": "sum by (service) (rate(retry_total[5m]))",
+            "legendFormat": "retry {{service}}",
+            "refId": "A"
+          },
+          {
+            "expr": "sum by (service) (rate(retry_exhausted_total[5m]))",
+            "legendFormat": "exhausted {{service}}",
+            "refId": "B"
+          }
+        ]
+      },
+      {
+        "id": 15,
+        "title": "流式压缩率",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 0,
+          "y": 47
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.5, sum by (le, encoding) (rate(gateway_stream_compression_ratio_bucket[5m])))",
+            "legendFormat": "p50 {{encoding}}",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "id": 16,
+        "title": "字段投影使用",
+        "type": "timeseries",
+        "gridPos": {
+          "h": 8,
+          "w": 12,
+          "x": 12,
+          "y": 47
+        },
+        "targets": [
+          {
+            "expr": "sum by (resource, mode) (rate(api_field_projection_total[5m]))",
+            "legendFormat": "{{resource}} {{mode}}",
+            "refId": "A"
+          }
+        ]
+      }
+    ]
+  }
+}

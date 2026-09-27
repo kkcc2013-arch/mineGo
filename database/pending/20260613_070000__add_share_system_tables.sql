@@ -74,7 +74,7 @@ ON CONFLICT (template_id) DO NOTHING;
 
 -- 用户分享偏好表
 CREATE TABLE IF NOT EXISTS user_share_preferences (
-  user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
   default_platform VARCHAR(32) DEFAULT 'system',
   show_watermark BOOLEAN DEFAULT true,
   show_player_info BOOLEAN DEFAULT true,

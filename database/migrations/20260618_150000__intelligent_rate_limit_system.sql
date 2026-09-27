@@ -4,14 +4,14 @@
 -- 用户违规记录表
 CREATE TABLE IF NOT EXISTS user_violations (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   type VARCHAR(50) NOT NULL,
   severity VARCHAR(20) NOT NULL CHECK (severity IN ('low', 'medium', 'high')),
   description TEXT,
   metadata JSONB,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   expires_at TIMESTAMPTZ,
-  created_by INTEGER REFERENCES users(id)
+  created_by UUID REFERENCES users(id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_user_violations_user_id ON user_violations(user_id);
@@ -21,7 +21,7 @@ CREATE INDEX IF NOT EXISTS idx_user_violations_severity ON user_violations(sever
 -- 用户游戏行为统计表
 CREATE TABLE IF NOT EXISTS user_gameplay_stats (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   catch_rate DECIMAL(5,4),
   battle_win_rate DECIMAL(5,4),
   is_suspicious BOOLEAN DEFAULT FALSE,
@@ -36,13 +36,13 @@ CREATE INDEX IF NOT EXISTS idx_user_gameplay_stats_suspicious ON user_gameplay_s
 -- 临时配额提升记录表
 CREATE TABLE IF NOT EXISTS rate_limit_boosts (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   multiplier DECIMAL(3,2) NOT NULL,
   duration_seconds INTEGER NOT NULL,
   reason TEXT,
   granted_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   expires_at TIMESTAMPTZ NOT NULL,
-  granted_by INTEGER REFERENCES users(id)
+  granted_by UUID REFERENCES users(id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_rate_limit_boosts_user_id ON rate_limit_boosts(user_id);
@@ -65,12 +65,12 @@ EXECUTE FUNCTION cleanup_expired_boosts();
 -- 用户举报记录表（用于社交信任度计算）
 CREATE TABLE IF NOT EXISTS user_reports (
   id SERIAL PRIMARY KEY,
-  reporter_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  reported_user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  reporter_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  reported_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   type VARCHAR(50) NOT NULL,
   description TEXT,
   status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'valid', 'invalid', 'dismissed')),
-  reviewed_by INTEGER REFERENCES users(id),
+  reviewed_by UUID REFERENCES users(id),
   reviewed_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -82,7 +82,7 @@ CREATE INDEX IF NOT EXISTS idx_user_reports_status ON user_reports(status);
 -- API 访问日志表（用于活跃一致性计算）
 CREATE TABLE IF NOT EXISTS api_access_logs (
   id BIGSERIAL PRIMARY KEY,
-  user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
   endpoint VARCHAR(255) NOT NULL,
   method VARCHAR(10) NOT NULL,
   ip VARCHAR(45),

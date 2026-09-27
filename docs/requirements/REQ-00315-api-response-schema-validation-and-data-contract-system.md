@@ -7,7 +7,7 @@
 | 标题 | API 响应 Schema 验证与数据契约系统 |
 | 类别 | API 设计规范 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | partial |
 | 涉及服务 | gateway、所有微服务、backend/shared、docs/api-spec |
 | 创建时间 | 2026-06-24 09:00 UTC |
 
@@ -775,3 +775,29 @@ module.exports = OpenAPIGenerator;
 - [Ajv JSON Schema Validator](https://ajv.js.org/)
 - [Pact Contract Testing](https://docs.pact.io/)
 - [TypeScript Declaration Files](https://www.typescriptlang.org/docs/handbook/declaration-files/)
+
+## 实现记录（2026-09-25）
+
+状态：**partial**（已实现部分见下表，⚠️ 为未完成或未实测项）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 所有 API 响应有对应的 JSON Schema 定义 | ⚠️ | 22 个关键接口契约（8 个服务）+ 所有错误响应的通用契约 `error.any`；其余接口未覆盖。提供 `scripts/contract-scaffold.js` 从真实响应推断契约草稿以扩大覆盖（需运行中的服务，人工审阅后入库） |
+| 开发环境下响应验证失败抛出错误 | ✅ | 非生产默认 `enforce`：违规替换为 500 `RESPONSE_SCHEMA_VIOLATION` 并记录 |
+| 生产环境响应验证失败记录日志但不阻塞请求 | ✅ | 生产默认 `sample`（10%）：记录日志、指标与违规列表，不改响应 |
+| Schema 版本化管理，支持多版本共存 | ✅ | 网关启动时按内容哈希同步到 `api_schema_registry`（版本递增，历史可查可对比）；版本间差异由兼容性引擎计算 |
+| 契约快照测试自动检测 Breaking Change | ✅ | `scripts/contract-snapshot.js --check`（未审批的破坏性变更退出码 1），快照 `docs/api-spec/contracts/schema-snapshot.json` |
+| TypeScript 类型自动生成并保持同步 | ✅ | `scripts/generate-api-types.js [--check]` → `frontend/game-client/src/types/api.generated.d.ts`（tsc --strict 编译通过） |
+| OpenAPI 文档自动生成 | ✅ | `scripts/generate-openapi-standards.js [--check]` → `docs/api-spec/openapi.yaml` |
+| Schema 验证性能开销 < 5ms | ✅ | 单测：100 条精灵列表校验中位数 < 5ms（宿主机约 1ms） |
+| IDE 自动补全和类型提示正常工作 | ✅ | 生成的 d.ts 含 `ApiContracts` 路由索引；`frontend/shared/types/api.ts` 信封类型 |
+| Mock 数据可从 Schema 自动生成 | ✅ | `mockFromSchema`（单测：全部契约的 Mock 通过自身校验）；`GET /api/admin/api-standards/schemas/:id/mock` |
+
+- 入口：网关管道 schemaValidator；管理接口 `/api/admin/api-standards/schemas[...]`、`/config`；管理面板"契约"页
+- 代码：`backend/shared/apiStandards/jsonSchema.js`（零依赖 JSON Schema 子集校验 / Mock / TS 生成）、`schemaRegistry.js`、`schemas/*.json`
+- 迁移：`database/migrations/20260925_100000__api_design_standards.sql`（14 张表，幂等；18:30 前在 CI 栈全量 bootstrap 中执行通过）（`api_schema_registry`）
+- 单测：`cd backend && npm run test:api-standards`（api-standards-core / contract / lint 为纯逻辑，宿主机已运行通过：core 25/25、contract 11/11、lint 4/4；pipeline / ops / services 依赖 express / pino / prom-client，在 09-25 18:30 验证规则调整前于 CI 栈跑通过（pipeline 17/17、ops 20/20、services 5/5），之后追加的用例**未运行，待验证**）
+- 冒烟：`BASE_URL=http://<网关> node scripts/smoke-api-standards.js`（约 90 项断言，**未运行，待验证**）；核心冒烟 `scripts/smoke-core-flow.js` 在网关接入管道后于 CI 栈跑过 37/37（18:30 前）
+- 未完成：契约覆盖全部接口——需要在服务运行时用 contract-scaffold 采样生成草稿后逐个审阅入库（不能在未验证的情况下批量加入：非生产环境是强制校验，错误契约会让接口 500）
+- 待验证：开发环境强制模式下已登记的 22 个接口在各种业务状态（空列表、null 字段）下都通过校验
+- 相关提交：分支 `work/e25-api`（Epic E25 API 设计规范，合并后见集成分支 squash 提交）

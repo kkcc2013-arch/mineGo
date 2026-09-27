@@ -4,19 +4,31 @@
  * 
  * Usage:
  *   node migrate.js up              - Run all pending migrations
+ *   node migrate.js up --from 20260924_000000 - Run only pending migrations with version >= given
+ *   node migrate.js baseline --until 20260924   - 已有库：把该日期之前的迁移记为已执行（不运行）
+ *   node migrate.js baseline --all              - 同上，全部迁移（含无日期前缀的历史文件）
+ *   node migrate.js baseline <version> [...]    - 只标记指定版本（up 报"已存在"且确认对象已在库中时使用）
  *   node migrate.js down [version]  - Rollback to version (or last migration)
  *   node migrate.js status          - Show migration status
  *   node migrate.js create <desc>   - Create new migration file
  *   node migrate.js verify          - Verify checksums of executed migrations
  */
 
-const { Pool } = require('pg');
+// pg 安装在 backend/node_modules（database/ 目录下没有 node_modules，原实现从任何位置运行都会 MODULE_NOT_FOUND）
+let Pool;
+try { ({ Pool } = require('pg')); }
+catch { ({ Pool } = require(require('path').join(__dirname, '..', 'backend', 'node_modules', 'pg'))); }
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
 // Configuration
+// 新迁移写入 pending/；历史迁移分散在 pending/ 与 migrations/ 两个目录，两处都读取
 const MIGRATIONS_DIR = path.join(__dirname, 'pending');
+const LEGACY_DIR = path.join(__dirname, 'migrations');
+// V1 基线由初始化脚本（docker-entrypoint / bootstrap-dev）建立，不作为增量迁移执行
+const BASELINE_FILES = new Set(['V1__initial_schema.sql']);
+const MAX_PASSES = parseInt(process.env.MIGRATION_MAX_PASSES || '6', 10);
 const LOCK_TIMEOUT_MS = parseInt(process.env.MIGRATION_LOCK_TIMEOUT_MS || '30000', 10);
 const AUTO_MIGRATE = process.env.AUTO_MIGRATE === 'true';
 
@@ -79,15 +91,25 @@ function parseMigrationFile(content) {
 /**
  * Parse migration filename to extract version and description
  */
-function parseMigrationFilename(filename) {
+function parseMigrationFilename(filename, dir = MIGRATIONS_DIR) {
+  const stem = filename.replace(/\.(sql|js)$/, '');
   const match = filename.match(/^(\d{8}_\d{6})__(.+)\.sql$/);
-  if (!match) {
-    return null;
+  // 执行顺序与 bootstrap-dev 一致：先 pending/ 再 migrations/，目录内按文件名（migrations/ 里有
+  // 00521-、015_ 这类非日期前缀，按日期交错排序反而会先于其依赖执行）
+  const sortKey = `${dir === MIGRATIONS_DIR ? 0 : 1}|${filename}`;
+  // --from 按文件名开头的日期数字过滤
+  const digits = (stem.match(/^\d[\d_]*/) || [''])[0].replace(/_/g, '');
+  const dateKey = digits.length >= 8 ? digits.padEnd(14, '0').slice(0, 14) : '';
+  if (match && dir === MIGRATIONS_DIR) {
+    return { version: match[1], description: match[2].replace(/_/g, ' '), filename, sortKey, dateKey };
   }
+  const prefix = dir === MIGRATIONS_DIR ? 'pending' : 'migrations';
   return {
-    version: match[1],
-    description: match[2].replace(/_/g, ' '),
+    version: `${prefix}/${stem}`.slice(0, 200),
+    description: stem.replace(/^[\d_-]+/, '').replace(/[_-]+/g, ' ').trim() || stem,
     filename,
+    sortKey,
+    dateKey,
   };
 }
 
@@ -105,6 +127,9 @@ async function ensureMigrationsTable(client) {
       executed_by   VARCHAR(100)
     )
   `);
+  // 历史目录的迁移以"目录/文件名"作版本号，超过原来的 20 字符
+  await client.query(`ALTER TABLE schema_migrations ALTER COLUMN version TYPE VARCHAR(200)`);
+  await client.query(`ALTER TABLE schema_migrations ALTER COLUMN description TYPE VARCHAR(500)`);
 }
 
 /**
@@ -165,29 +190,26 @@ async function getExecutedMigrations(client) {
 async function getPendingMigrationFiles() {
   if (!fs.existsSync(MIGRATIONS_DIR)) {
     fs.mkdirSync(MIGRATIONS_DIR, { recursive: true });
-    return [];
   }
-  
-  const files = fs.readdirSync(MIGRATIONS_DIR)
-    .filter(f => f.endsWith('.sql'))
-    .sort();
-  
-  return files.map(f => {
-    const parsed = parseMigrationFilename(f);
-    if (!parsed) {
-      console.warn(`Warning: Invalid migration filename format: ${f}`);
-      return null;
+  const list = [];
+  for (const dir of [MIGRATIONS_DIR, LEGACY_DIR]) {
+    if (!fs.existsSync(dir)) continue;
+    for (const f of fs.readdirSync(dir)) {
+      if (!(f.endsWith('.sql') || f.endsWith('.js')) || BASELINE_FILES.has(f)) continue;
+      const parsed = parseMigrationFilename(f, dir);
+      const filePath = path.join(dir, f);
+      const content = fs.readFileSync(filePath, 'utf8');
+      list.push({
+        ...parsed,
+        filePath,
+        content,
+        isJs: f.endsWith('.js'),
+        checksum: calculateChecksum(content),
+        ...(f.endsWith('.js') ? { up: true, down: true } : parseMigrationFile(content)),
+      });
     }
-    const filePath = path.join(MIGRATIONS_DIR, f);
-    const content = fs.readFileSync(filePath, 'utf8');
-    return {
-      ...parsed,
-      filePath,
-      content,
-      checksum: calculateChecksum(content),
-      ...parseMigrationFile(content),
-    };
-  }).filter(Boolean);
+  }
+  return list.sort((a, b) => (a.sortKey < b.sortKey ? -1 : a.sortKey > b.sortKey ? 1 : 0));
 }
 
 /**
@@ -315,11 +337,19 @@ async function runMigration(client, migration, direction = 'up') {
   
   const start = Date.now();
   
-  // Execute migration SQL statements sequentially
-  const statements = splitStatements(sql);
-  for (const statement of statements) {
-    if (statement.trim()) {
-      await client.query(statement);
+  if (migration.isJs) {
+    // JS 迁移：导出 up(client) / down(client)
+    const mod = require(migration.filePath);
+    const fn = mod[direction] || (mod.default && mod.default[direction]);
+    if (typeof fn !== 'function') throw new Error(`${migration.filename} 没有导出 ${direction}(client)`);
+    await fn(client, client);
+  } else {
+    // Execute migration SQL statements sequentially
+    const statements = splitStatements(sql);
+    for (const statement of statements) {
+      if (statement.trim()) {
+        await client.query(statement);
+      }
     }
   }
   
@@ -332,7 +362,7 @@ async function runMigration(client, migration, direction = 'up') {
       VALUES ($1, $2, $3, $4, $5)
     `, [
       migration.version,
-      migration.description,
+      String(migration.description).slice(0, 500),
       migration.checksum,
       executionMs,
       process.env.HOSTNAME || require('os').hostname(),
@@ -348,70 +378,69 @@ async function runMigration(client, migration, direction = 'up') {
 /**
  * Run all pending migrations
  */
-async function runPendingMigrations() {
+async function runPendingMigrations({ fromVersion = null } = {}) {
   const client = await getPool().connect();
-  
+  const LOCK_KEY = 727001; // pg_advisory_lock 键（全库唯一即可）
+  let locked = false;
   try {
-    await client.query('BEGIN');
-    
-    // Ensure migrations table exists
     await ensureMigrationsTable(client);
-    
-    // Acquire lock
-    const lockId = await acquireLock(client);
-    console.log(`Migration lock acquired by: ${lockId}`);
-    
-    let committed = false;
-    try {
-      // Get executed and pending migrations
-      const executed = await getExecutedMigrations(client);
-      const pending = await getPendingMigrationFiles();
-      
-      // Filter out already executed
-      const toRun = pending.filter(p => !executed.find(e => e.version === p.version));
-      
-      if (toRun.length === 0) {
-        console.log('No pending migrations to run.');
-        await client.query('COMMIT');
-        committed = true;
-        return { ran: 0, migrations: [] };
-      }
-      
-      console.log(`Found ${toRun.length} pending migration(s) to run.`);
-      
-      const results = [];
-      
-      for (const migration of toRun) {
-        console.log(`Running migration: ${migration.version} - ${migration.description}`);
-        const executionMs = await runMigration(client, migration, 'up');
-        console.log(`  ✓ Completed in ${executionMs}ms`);
-        results.push({ version: migration.version, executionMs });
-      }
-      
-      await client.query('COMMIT');
-      committed = true;
-      console.log(`Successfully ran ${toRun.length} migration(s).`);
-      
-      return { ran: toRun.length, migrations: results };
-      
-    } catch (err) {
-      if (!committed) {
-        await client.query('ROLLBACK');
-        committed = true; // prevent double rollback
-      }
-      throw err;
-    } finally {
-      try {
-        await releaseLock(client);
-        console.log('Migration lock released.');
-      } catch (lockErr) {
-        console.error('Failed to release migration lock:', lockErr.message);
-      }
+    const got = await client.query('SELECT pg_try_advisory_lock($1) AS ok', [LOCK_KEY]);
+    if (!got.rows[0].ok) {
+      throw new Error('Migration is already running (advisory lock held). Wait for it to complete.');
     }
-    
-  } catch (err) {
-    throw err;
+    locked = true;
+
+    const executed = new Set((await getExecutedMigrations(client)).map((e) => e.version));
+    // --from：只运行排序键（文件名日期）>= fromVersion 的迁移
+    const fromKey = fromVersion ? fromVersion.replace(/_/g, '').padEnd(14, '0').slice(0, 14) : null;
+    let toRun = (await getPendingMigrationFiles())
+      .filter((m) => !executed.has(m.version))
+      .filter((m) => !fromKey || m.dateKey >= fromKey);
+
+    if (toRun.length === 0) {
+      console.log('No pending migrations to run.');
+      return { ran: 0, migrations: [], failed: [] };
+    }
+    console.log(`Found ${toRun.length} pending migration(s) to run.`);
+
+    // 每个迁移独立事务：成功的立即提交并记录；失败的回滚后在下一轮重试
+    // （历史迁移之间存在未声明的依赖，按文件名顺序一次跑不完，多轮收敛与 bootstrap-dev 一致）
+    const results = [];
+    let failures = new Map();
+    for (let pass = 1; pass <= MAX_PASSES && toRun.length; pass++) {
+      const next = [];
+      failures = new Map();
+      for (const migration of toRun) {
+        try {
+          await client.query('BEGIN');
+          await client.query("SET LOCAL lock_timeout = '10s'");
+          const executionMs = await runMigration(client, migration, 'up');
+          await client.query('COMMIT');
+          console.log(`  ✓ ${migration.version} (${executionMs}ms)`);
+          results.push({ version: migration.version, executionMs });
+        } catch (err) {
+          await client.query('ROLLBACK').catch(() => {});
+          next.push(migration);
+          failures.set(migration.version, err.message.split('\n')[0]);
+        }
+      }
+      console.log(`pass ${pass}: applied ${toRun.length - next.length}, remaining ${next.length}`);
+      if (next.length === toRun.length) break;
+      toRun = next;
+    }
+
+    const failed = [...failures].map(([version, error]) => ({ version, error }));
+    console.log(`Successfully ran ${results.length} migration(s).`);
+    if (failed.length) {
+      for (const f of failed) console.error(`  ✗ ${f.version}: ${f.error}`);
+      const err = new Error(`${failed.length} migration(s) failed (see above); successful ones were committed.`);
+      err.failed = failed;
+      err.ran = results;
+      throw err;
+    }
+    return { ran: results.length, migrations: results, failed };
   } finally {
+    if (locked) await client.query('SELECT pg_advisory_unlock($1)', [LOCK_KEY]).catch(() => {});
     client.release();
   }
 }
@@ -572,6 +601,37 @@ function createMigration(description) {
 }
 
 /**
+ * 把迁移标记为已执行而不实际运行（用于已有库：对象早已存在但 schema_migrations 没有记录）
+ * --until <YYYYMMDD[_HHMMSS]>：只标记文件名日期早于该值的迁移（不含无日期前缀的文件时需显式 --all）
+ */
+async function baseline({ until = null, all = false, versions = [] } = {}) {
+  const client = await getPool().connect();
+  try {
+    await ensureMigrationsTable(client);
+    const executed = new Set((await getExecutedMigrations(client)).map((e) => e.version));
+    const untilKey = until ? until.replace(/_/g, '').padEnd(14, '0').slice(0, 14) : null;
+    const files = (await getPendingMigrationFiles()).filter((m) => !executed.has(m.version)).filter((m) => {
+      if (all) return true;
+      if (versions.length) return versions.includes(m.version);
+      if (!untilKey) return false;
+      return m.dateKey && m.dateKey < untilKey;
+    });
+    for (const m of files) {
+      await client.query(
+        `INSERT INTO schema_migrations (version, description, checksum, execution_ms, executed_by)
+         VALUES ($1, $2, $3, 0, $4) ON CONFLICT (version) DO NOTHING`,
+        [m.version, `[baseline] ${String(m.description).slice(0, 480)}`, m.checksum, 'baseline'],
+      );
+      console.log(`  ⊙ ${m.version}`);
+    }
+    console.log(`Baselined ${files.length} migration(s).`);
+    return { baselined: files.length };
+  } finally {
+    client.release();
+  }
+}
+
+/**
  * CLI entry point
  */
 async function main() {
@@ -580,9 +640,11 @@ async function main() {
   
   try {
     switch (command) {
-      case 'up':
-        await runPendingMigrations();
+      case 'up': {
+        const fromIdx = args.indexOf('--from');
+        await runPendingMigrations({ fromVersion: fromIdx > 0 ? args[fromIdx + 1] : null });
         break;
+      }
         
       case 'down':
         const targetVersion = args[1];
@@ -592,6 +654,13 @@ async function main() {
       case 'status':
         await status();
         break;
+
+      case 'baseline': {
+        const untilIdx = args.indexOf('--until');
+        const versions = args.slice(1).filter((a, i, arr) => !a.startsWith('--') && arr[i - 1] !== '--until');
+        await baseline({ until: untilIdx > 0 ? args[untilIdx + 1] : null, all: args.includes('--all'), versions });
+        break;
+      }
         
       case 'create':
         const description = args.slice(1).join(' ');
@@ -616,8 +685,10 @@ async function main() {
         console.error('Usage: node migrate.js [up|down|status|create|verify]');
         process.exit(1);
     }
+  } catch (err) {
+    // 原实现缺少 catch，成功执行后也会因引用未定义的 err 而崩溃
     console.error('Migration failed:', err);
-    process.exit(1);
+    process.exitCode = 1;
   } finally {
     if (pool) {
       await pool.end();
@@ -632,11 +703,13 @@ module.exports = {
   status,
   createMigration,
   verifyChecksums,
+  baseline,
   getExecutedMigrations,
   getPendingMigrationFiles,
 };
 
 // Run CLI if executed directly
 if (require.main === module) {
-  main();
+  // 个别 JS 迁移会 require 共享模块（连接池/定时器），完成后显式退出，避免进程挂起阻塞部署脚本
+  main().then(() => process.exit(process.exitCode || 0));
 }

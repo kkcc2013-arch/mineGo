@@ -1,0 +1,177 @@
+# Loki 日志聚合（REQ-00042）：单实例 + 本地卷，日志保留 7 天
+# 生产规模需改为对象存储（S3/OSS）+ 分布式部署（官方 Helm chart grafana/loki）。
+# 日志由 Alloy DaemonSet 采集（alloy-daemonset.yaml）；基于日志的告警由 ruler 评估，发往 kube-prometheus-stack 的 Alertmanager。
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loki-config
+  namespace: monitoring
+  labels:
+    app: loki
+data:
+  loki-config.yml: |
+    auth_enabled: false
+    server:
+      http_listen_port: 3100
+      log_level: info
+    common:
+      instance_addr: 127.0.0.1
+      path_prefix: /loki
+      storage:
+        filesystem:
+          chunks_directory: /loki/chunks
+          rules_directory: /loki/rules
+      replication_factor: 1
+      ring:
+        kvstore:
+          store: inmemory
+    schema_config:
+      configs:
+        - from: 2024-01-01
+          store: tsdb
+          object_store: filesystem
+          schema: v13
+          index:
+            prefix: index_
+            period: 24h
+    limits_config:
+      retention_period: 168h
+      allow_structured_metadata: true
+      volume_enabled: true
+    compactor:
+      working_directory: /loki/compactor
+      retention_enabled: true
+      delete_request_store: filesystem
+    ruler:
+      storage:
+        type: local
+        local:
+          directory: /etc/loki/rules
+      rule_path: /loki/rules-temp
+      alertmanager_url: http://alertmanager-operated.monitoring:9093
+      enable_api: true
+      enable_alertmanager_v2: true
+      ring:
+        kvstore:
+          store: inmemory
+---
+# 与 infrastructure/monitoring/loki/rules/fake/minego-logs.yml 保持一致
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loki-rules
+  namespace: monitoring
+  labels:
+    app: loki
+data:
+  minego-logs.yml: |
+    groups:
+      - name: minego-log-errors
+        rules:
+          - alert: MinegoHighErrorLogRate
+            expr: sum by (service) (rate({job="minego", level="error"}[5m])) > 1
+            for: 2m
+            labels:
+              severity: critical
+              source: loki
+            annotations:
+              summary: "服务 {{ $labels.service }} 错误日志过多"
+              description: "{{ $labels.service }} 近 5 分钟 error 日志超过 1 条/秒，按 trace_id 在 Grafana Explore 中查看链路。"
+          - alert: MinegoErrorLogBurst
+            expr: sum by (service) (count_over_time({job="minego", level="error"}[1m])) > 100
+            for: 0m
+            labels:
+              severity: warning
+              source: loki
+            annotations:
+              summary: "服务 {{ $labels.service }} 错误日志突增"
+              description: "{{ $labels.service }} 1 分钟内 error 日志超过 100 条。"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: loki
+  namespace: monitoring
+  labels:
+    app: loki
+spec:
+  serviceName: loki
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loki
+  template:
+    metadata:
+      labels:
+        app: loki
+    spec:
+      securityContext:
+        fsGroup: 10001
+        runAsUser: 10001
+        runAsGroup: 10001
+        runAsNonRoot: true
+      containers:
+      - name: loki
+        image: grafana/loki:3.7.8
+        args: ["-config.file=/etc/loki/loki-config.yml"]
+        ports:
+        - containerPort: 3100
+          name: http
+        volumeMounts:
+        - name: config
+          mountPath: /etc/loki/loki-config.yml
+          subPath: loki-config.yml
+        - name: rules
+          mountPath: /etc/loki/rules/fake      # auth_enabled=false 时租户 ID 为 fake
+        - name: data
+          mountPath: /loki
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: "1"
+            memory: 1Gi
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3100
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /ready
+            port: 3100
+          initialDelaySeconds: 45
+          periodSeconds: 30
+      volumes:
+      - name: config
+        configMap:
+          name: loki-config
+      - name: rules
+        configMap:
+          name: loki-rules
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 20Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loki
+  namespace: monitoring
+  labels:
+    app: loki
+spec:
+  type: ClusterIP
+  selector:
+    app: loki
+  ports:
+  - name: http
+    port: 3100
+    targetPort: 3100

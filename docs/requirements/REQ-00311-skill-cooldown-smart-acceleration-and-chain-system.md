@@ -8,7 +8,7 @@
 | 标题 | 精灵技能冷却智能加速与连击链系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | pokemon-service、gym-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-24 05:00 UTC |
 
@@ -822,3 +822,25 @@ const styles = StyleSheet.create({
 - [战斗系统设计文档](../architecture/battle-system.md)
 - [REQ-00288 精灵技能连击系统](./REQ-00288-skill-combo-system.md)
 - [REQ-00112 精灵技能冷却与能量系统](./REQ-00112-skill-cooldown-energy-system.md)
+
+## 实现记录（2026-09-25）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 技能冷却智能加速系统正确计算各项加成 | ✅ | 有效冷却 = 基础 × 模式倍率 × 天气系数 × (1 - 合成缩减)，合成缩减 = 1 - Π(1 - 各项)，按模式上限截断；返回 breakdown |
+| 速度属性冷却缩减效果符合预期（每 10 点速度减少 2% 冷却） | ✅ | `cooldown.speedReduction`，上限 20%（单测）。注意：现有种族值 base_speed 全为 100，所有精灵都会达到 20% 上限 |
+| 装备冷却加成上限为 30% | ✅ | `equipmentReduction` 按适用范围（ALL/FAST/CHARGE、属性）累加后封顶 30%（单测） |
+| 天气环境对特定属性技能冷却有正确影响 | ✅ | 受天气加成的属性冷却 ×0.9、伤害 ×1.2；道馆/团战取道馆坐标的实时天气（shared/weatherService，Redis 缓存，1.5s 超时降级为无天气），BATTLE_WEATHER 可覆盖 |
+| 连击链触发条件检测准确 | ✅ | 顺序/连续/窗口/属性/训练师等级/连击冷却（单测） |
+| 连击链序列执行动画流畅 | ⚠️ | 客户端按回合事件逐个播放（本地节奏、补间），未在真机验证 |
+| 连击熟练度更新正常 | ✅ | user_combo_stats 累计完成次数 → 每次 +1% 倍率（上限 +20%），开战时载入（单测「连击熟练度计入倍率」） |
+| API 接口返回正确的连击链数据 | ✅ | `GET /v1/battle/combos`、`/combos/:chainId`（含我的熟练度加成） |
+| 前端连击链 UI 显示正确 | ✅ | 对战页 → 连击：图鉴、练习、预设；战斗中连击提示 |
+| 时机窗口动画流畅无卡顿 | ⚠️ | 窗口倒计时 100ms 刷新、特效受帧率控制器降级；未在真机验证 |
+| 连击链冷却机制正常工作 | ✅ | chain_cooldown_turns（单测） |
+| 连击链推荐功能正确返回建议 | ✅ | `GET /v1/battle/combos/recommend/:pokemonId`：可用连击链 + 差一个技能即可使用的建议 |
+
+- 入口：gym-service `src/battle/*`（纯逻辑：damage/cooldown/energy/combo/engine/ai/stats/leagueRules/recommendScore/replayFormat/presetRules；持久化与编排：repo/store/session/gym/raid/league/replay/recommend/comboPresets/pokemonEnergy/settle/deps）；路由 `routes/gyms.js`、`routes/gymBattle.js`、`routes/raids.js`、`routes/battleApi.js`（挂 `/battle`）；网关 `backend/gateway/src/index.js`：`/v1/gyms/*`、`/v1/raids/*`、`/v1/battle/*`（鉴权）、公开 `/v1/battle/replays/shared/:code`、WebSocket 升级转发 `/ws/raid`、`/ws/notifications`、`/ws/battle`
+- 迁移：`database/migrations/20260925_110000__e11_battle_core.sql`（补列/新表/连击链种子/时间列 TIMESTAMPTZ，全部 IF NOT EXISTS）、`20260925_110100__e11_restore_fast_move_power.sql`；复用既有表见各行说明
+- 测试：宿主机已运行（纯逻辑，不连服务）：`cd backend && node --test tests/unit/battle-core.test.js tests/unit/battle-features.test.js` → 29/29 通过；`node --test frontend/game-client/tests/unit/battle-client.test.mjs` → 11/11 通过；`node --expose-gc scripts/bench-battle.js --local`（数字见表）。验证方式调整前（2026-09-25 08:39，提交 e022c97）曾在隔离 CI 栈实测：`scripts/smoke-battle.js` 101/101、核心冒烟 37/37、battle-core 16/16。之后的改动（连击熟练度接入、实时天气、连击道具奖励、大师联赛分组、AI 对位口径、迁移时间列段、前端全部）**未运行，待验证**。待运行：`BASE_URL=… DATABASE_URL=… REDIS_URL=… node scripts/smoke-battle.js`（102 项）、`node scripts/bench-battle.js --battles 20 --concurrency 5`；迁移在全新库上执行 `reset-db` 后检查 bootstrap-report 无 20260925_1100xx 失败
+- 待验证：晴天/雨天道馆中火/水系技能冷却与伤害变化；连击动画在低端机的流畅度

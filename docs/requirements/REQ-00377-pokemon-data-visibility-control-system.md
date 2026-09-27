@@ -7,7 +7,7 @@
 | 标题 | 精灵数据可见性控制与隐私分级系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | pokemon-service、social-service、user-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-30 00:00 UTC |
 
@@ -284,3 +284,27 @@ router.post('/pokemon/privacy/batch', auth, async (req, res) => {
 - GDPR 数据最小化原则
 - Pokemon GO 隐私设计参考
 - REQ-00228 游戏社交隐私设置与好友权限管理系统（已有基础）
+## 实现记录（2026-09-24）
+
+> 与 REQ-00048/00228/00326/00388 共用 E01 好友实现。状态 `implemented`：规则调整前已在隔离 CI 栈实测 `smoke-friends`（精灵可见性 15 项、
+> 道馆战斗匿名 2 项）与单元测试通过；前端精灵隐私界面只做了静态检查，**待验证**。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 精灵隐私设置表创建完成，支持整体可见性和属性级控制 | ✅ | `pokemon_privacy_settings`（整体可见性 + CP/等级/技能/IV/性格/招式开关 + 好友等级阈值 + 战斗匿名）、`user_privacy_defaults` |
+| 可见性规则引擎实现，支持 4 种隐私等级 | ✅ | `shared/social/visibilityEngine.js`：public / friends / private / hidden → 访问层级 owner（全量）/ detailed（按开关逐项放行）/ basic（仅种类、昵称、外观）/ none（不可见，接口 404 不泄露存在）；再叠加用户级 `pokemon_stats_visibility`（数值）与 `pokemon_shinies_visibility`（闪光）；拉黑一律不可见 |
+| 前端隐私设置 UI 完成设计，包含属性切换控件 | ✅ | `FriendsScreen.js`「精灵」页：整体可见性下拉、6 个属性开关、好友等级阈值、战斗匿名、应用到全部精灵、默认配置（未在浏览器中验证） |
+| 好友等级阈值配置生效，差异化数据访问正确 | ✅ | `friends` 可见性下，好友友情等级 ≥ `friend_level_threshold` 才见详细属性，否则只见基础外观（冒烟：阈值 3、好友 2 级 → basic） |
+| 战斗匿名模式支持，隐藏详细属性但保持战斗公平 | ✅ | `battleView`：非主人只见种类与外观；已接入道馆详情 `GET /v1/gyms/:id`（守护精灵 CP/昵称/HP 置空并标 `anonymous`）与好友对战开战响应（`opponent.team`），战斗计算仍使用服务端完整数据 |
+| 批量隐私设置 API 可用，支持一键设置多个精灵 | ✅ | `POST /v1/pokemon/privacy/batch {pokemon_ids, settings}`（最多 500 只，含他人精灵时整体 400，事务内一次 upsert） |
+| 用户默认隐私配置可持久化，新精灵继承默认设置 | ✅ | `GET/PUT /v1/pokemon/privacy/defaults`（`applyToExisting: true` 同时覆盖已有精灵）；`pokemon_instances` 插入触发器把主人默认配置复制给新精灵；未设置默认的用户回落到系统默认 |
+| API 响应不泄露用户未授权查看的数据 | ✅ | `GET /v1/pokemon/:id/visibility`、`GET /v1/pokemon/users/:userId/collection`（需对方收藏可见，逐只过滤，隐藏的精灵只计数不返回）、好友动态中的捕捉记录、精灵好友列表、`GET /v1/users/:id` 的精灵数（不含隐藏精灵）均走同一引擎；未授权字段返回 null 并列在 `restricted` 中 |
+| 集成测试覆盖隐私边界场景（好友/陌生人/自己） | ✅ | `smoke-friends.js`：好友/陌生人/主人三方视图、阈值、public+数值可见性组合、private、hidden 404、他人不能改、批量含他人精灵 400、默认继承、收藏 403/过滤、道馆匿名；`friend-service-db.test.js` 同类场景 |
+| 性能测试验证可见性计算不影响响应时间（<50ms） | ⚠️ | 规则引擎为纯内存计算；每次请求固定 3–4 条主键/索引查询。未做并发压测，`scripts/bench-friends.js` 含 `GET /v1/pokemon/:id/visibility`（阈值 50ms），待运行 |
+
+- 入口：pokemon-service `src/routes/pokemonSocial.js`、`src/services/pokemonPrivacyService.js`；gym-service `GET /gyms/:id`；social-service `routes/pvp.js`（顺带修复：好友校验原先查询 `friendships` 不存在的 `user_id/friend_id` 列，恒报 500）
+- 共用模块：`backend/shared/social/visibilityEngine.js`（纯规则）、`pokemonPrivacyStore.js`（批量读取配置并计算视图）
+- 迁移：`database/migrations/20260925_100600__e01_friends_social.sql`（两张表 + 继承触发器；`pokemon_id` 引用 `pokemon_instances(id)` UUID、`user_id` UUID）
+- 测试：`cd backend && node --test tests/unit/friend-service.test.js tests/unit/friend-service-db.test.js`；`node scripts/smoke-friends.js`
+- 偏差：`pokemon_instances` 没有性格/等级列：等级按 `1 + 强化次数×0.5` 计算，性格按精灵 ID 稳定派生（未入库）；“技能”对应已学会的招式列表、“招式”对应当前快速/蓄力招式；好友对战（`/pvp`）当前未在网关暴露，匿名视图已接入其开战响应
+- 待验证：① 前端精灵隐私页；② 道馆页面对匿名守护精灵的展示；③ 可见性接口 P95

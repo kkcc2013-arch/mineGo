@@ -7,7 +7,7 @@
 | 标题 | 精灵收藏室与个性化装饰系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-29 08:00 UTC |
 
@@ -1098,3 +1098,41 @@ export default new RoomLevelService();
 - 收藏室截图分享到社交媒体
 - AI 自动装饰建议
 - 收藏室 3D 视角切换
+
+## 实现记录（2026-09-24）
+
+> E05「成就/称号/资料卡/收藏室」与 E13「消息中心与推送」统一实现：REQ-00076 / 00106 / 00327 / 00359 / 00387 / 00403 与 REQ-00099 / 00261 / 00425 共用同一套游戏事件 outbox、成就引擎与消息中心。
+> 状态 `implemented`：代码已全部完成，**未做服务级验证**（2026-09-25 18:30 起规则）。此前迁移 `20260925_130000`、`20260925_131000` 曾在隔离 CI 栈（栈 8）的存量库上执行无失败，user-service 启动后事件消费者、消息分发器、WebSocket 均正常监听；之后新增的迁移 `20260925_132000`、`20260925_133000`、全部接口、前端界面只做了静态检查（`node --check`、`scripts/check-deps.js`、宿主机纯逻辑/内存替身单测），**待验证**。
+
+**共用架构**
+
+- 事件来源：业务表上的触发器把"发生了什么"写入 outbox 表 `achievement_events`（与业务同事务，业务回滚事件也不存在；触发器内部异常只 `RAISE WARNING`，不影响业务）并 `pg_notify('pmg_game_events')`。接入的表：`catch_sessions`（捕捉成功）、`pokestop_spins`、`trainer_level_ups`（升级，覆盖所有加经验路径）、`friendships`/`friends`、`friend_requests`、`friend_gifts`、`pokemon_trades`、`gym_battles`、`raid_participants`、`pvp_battles`、`egg_hatching`、`event_participations`；收藏室的展示/装饰/被点赞由 JS 在同事务写事件。
+- 消费：`backend/shared/achievementEngine.js`，user-service 启动时 `LISTEN` 实时处理 + 10 秒兜底扫描 + 每小时清理；pokemon-service 查询成就前按需处理该玩家未处理事件。`FOR UPDATE SKIP LOCKED` 保证多消费者不重复处理；每个事件一个 SAVEPOINT，单事件失败不影响其他事件，失败 5 次后放弃并保留 `last_error`。
+- 规则：`backend/shared/achievementRules.js`（事件 → 指标、过滤条件、奖励拆分、事件 → 消息、多语言，纯函数）。
+- 消息：`backend/shared/notificationCenter.js`（生成/列表/未读/已读/删除/偏好/广播/分析/清理）、`notificationPolicy.js`（分类、偏好、免打扰、投递计划，纯函数）、`notificationRealtime.js`（`/ws/messages` 与 LISTEN 分发）、`pushProviders.js`（FCM/APNs）。
+- 迁移：`database/migrations/20260925_130000__e05_achievement_title_core.sql`（成就/称号收敛 + outbox 触发器）、`20260925_131000__e13_notification_center.sql`（消息中心）、`20260925_132000__e05_collection_room.sql`（收藏室）、`20260925_133000__e05_player_profile.sql`（资料卡）。均 `IF NOT EXISTS`/`ON CONFLICT` 幂等，外键均按 `users.id UUID`；依赖的表（`achievements`、`title_definitions`、`trainer_level_ups`、`notification_templates`、E01 的 `privacy_settings`/`blocked_users` 等）都在更早的迁移中创建（已逐条核对）。
+- 测试：单测 `cd backend && node --test tests/unit/achievementRules.test.js tests/unit/achievementEngine.test.js tests/unit/notificationPolicy.test.js tests/unit/notificationCenter.test.js tests/unit/profileRules.test.js tests/unit/collectionRoomRules.test.js tests/unit/securityNotifier.test.js`（53 例，已加入 `test:unit`，宿主机已运行通过；引擎与消息中心用 `tests/unit/helpers/fakeGameDb.js` 内存替身，不依赖数据库）；经网关冒烟 `BASE_URL=… node scripts/smoke-profile-notify.js`（约 97 项，**未运行**）；压测 `node scripts/bench-profile-notify.js`（**未运行**）；前端 `cd frontend/game-client && npx playwright test tests/e2e/profile-notify.spec.js`（Mock 接口，**未运行**）。
+- 前端：`frontend/game-client/src/features/profileNotify.js` + `src/features/profile-notify/*`（由 `src/bootstrap/features.js` 注册一行）：底部导航「消息」🔔、「我的」页「成长与收藏」卡片（成就、称号、资料卡、我的收藏室、热门收藏室、收藏家排行、消息与通知设置）。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 玩家可以创建和管理个人收藏室 | ✅ | `GET /v1/collection-room` 首次访问自动创建（一人一个），返回房间、展示精灵、装饰、等级/经验/容量、可用主题与背景；`PUT /v1/collection-room {roomName, themeId, backgroundId, backgroundImageUrl, isPublic, layoutConfig}`（缩小网格时检查已有摆放） |
+| 收藏室支持至少 5 种主题和自定义背景 | ✅ | 主题 8 个（默认/经典/森林/海洋/火山/赛博/传说殿堂/樱花庭院），背景 6 个；按收藏室等级解锁或金币购买（`POST /v1/collection-room/themes/:id/purchase`、`/backgrounds/:id/purchase`，只扣一次）；收藏室 5 级起可设置自定义背景图（只允许 https 地址） |
+| 玩家可以放置至少 50 种不同稀有度的装饰物品 | ✅ | `decoration_items` 68 种：18 种基础款 × 木质/银色/金色（普通/稀有/史诗）+ 14 种成就/活动/升级奖励（少见/传说），7 个类别，带占格宽高与交互类型；摆放 `POST /v1/collection-room/decorations`，移动/旋转 `PUT …/:id`，收回 `DELETE …/:id`。服务端校验：拥有数量 > 已摆放数、等级要求、装饰位容量、越界、同层占格重叠（地面类单独一层，可铺在精灵/家具下面）、旋转 90/270 宽高互换；修改在锁住收藏室行的事务内完成，并发摆放不会重叠或超额 |
+| 装饰物品可通过成就、商店、活动等多种途径获取 | ✅ | 商店：`POST /v1/collection-room/decorations/:itemCode/purchase {quantity}`（金币原子扣减、等级要求）；成就：成就奖励 `decoration`（开馆大吉/铜银金收藏家/闪光收藏家/小有名气/布置达人/精英训练师）由成就引擎完成时发放并通知；活动：活动奖励中 `{"type": "decoration", "item": "<item_code>"}` 在活动完成（领奖）时由成就引擎发放（每个活动每人一次）；升级：收藏室 3/5/7/10 级奖励物品 |
+| 精灵展示台支持动态展示模式（idle、walk、pose） | ✅ | `display_mode` idle/walk/pose/battle/shiny/card/3d（闪光模式只对闪光精灵开放），展示台 basic/bronze/silver/gold/diamond（2/4/6/8 级解锁），动画速度、标签、缩放、旋转；前端按模式播放 CSS 动画（尊重"减少动态效果"设置） |
+| 玩家可以访问其他玩家的公开收藏室 | ✅ | `GET /v1/collection-room/:roomId/visit`、`GET /v1/collection-room/users/:userId`；未公开的收藏室他人访问 403；被房主拉黑（E01 `blocked_users`）的玩家不能参观/点赞/留言 |
+| 访问系统记录访问次数和时长 | ✅ | `room_visits` 每人每天一行（`visit_count` 累加、首次/最近访问时间），访客数每人每天只加一次；`POST /v1/collection-room/:roomId/visit/end {durationSeconds}` 累加时长（单次上限 1 小时），前端关闭参观面板时自动上报；`GET /v1/collection-room/stats` 返回近 7 天访客与时长 |
+| 点赞功能正常工作，数据持久化 | ✅ | `POST/DELETE /v1/collection-room/:roomId/like`：`room_likes` 取消只置 inactive，`like_count` 与点赞行在同一事务更新，并发重复点赞只计一次；不能给自己点赞；被点赞生成房主站内消息（去重）、推进"人气"成就 |
+| 收藏室等级系统根据活动提供经验值 | ✅ | 阈值 0/100/250/500/1000/2000/4000/8000/15000/30000；经验：摆放装饰 5（每种物品一次）、展示精灵 10（每只一次）、访客到访 3（每人每天一次）、被点赞 15（每人一次）、被留言 10（每人每天一次）。经验流水 `room_exp_log` 以"原因+对象"为主键，反复摆放/取消点赞不能刷经验 |
+| 升级解锁新主题、装饰槽位和奖励 | ✅ | 升级时发放等级奖励装饰、发"收藏室升级"消息；容量随等级：展示精灵 20 + 5×(等级-1)（上限 50，兼顾 REQ-00403）、装饰 10 + 5×(等级-1)（上限 60）；主题/背景/装饰/展示台按等级解锁 |
+| 前端编辑器支持拖拽放置装饰物品 | ✅ | `src/features/profile-notify/collectionRoom.js`：网格编辑器（Pointer Events 拖动已摆放物、HTML5 拖放从库存放入，触屏可双击/回车放入）、选中后方向键移动、R 旋转、+/- 缩放、Delete 收回、展示模式/展示台/标签编辑、商店与主题页；服务端拒绝时回滚显示 |
+| 前端访问界面显示完整房间内容和互动按钮 | ✅ | 参观界面：房间网格（主题配色/背景/精灵/装饰）、点赞/取消、访客数、留言列表与发表；热门收藏室列表 |
+| API 响应时间 < 500ms（P95） | ⚠️ | 未实测；房间详情走 Redis 缓存（带房主版本号，变更即失效）；`scripts/bench-profile-notify.js` 含 `GET /v1/collection-room/users/:id` 的 P95 |
+| 支持国际化（至少 3 种语言） | ✅ | 装饰、主题、背景名称均为中/英/日（`?lang=` / `X-Language`），收藏室相关消息模板三语 |
+
+- 入口：pokemon-service `src/routes/collectionRoom.js`（挂载 `/collection-room`）、`src/collectionRoom/roomService.js`、`src/collectionRoom/roomRules.js`（纯规则）；网关 `/v1/collection-room/*`（鉴权）
+- 迁移：`database/migrations/20260925_132000__e05_collection_room.sql`：`collection_themes`、`collection_backgrounds`、`user_room_unlocks`、`collection_rooms`、`collection_room_pokemon`（展示台）、`decoration_items`（68 种）、`user_decorations`、`room_decorations`、`room_visits`、`room_likes`、`room_comments`、`room_exp_log`
+- 测试：`tests/unit/collectionRoomRules.test.js`（8 例，已通过）；冒烟收藏室 21 项（未运行）
+- 偏差：REQ-00359 与 REQ-00403 合并为一套表（`pokemon_display_pedestals` 与 `collection_items` 合并为 `collection_room_pokemon`）；装饰商店在 pokemon-service 的收藏室路由下（原方案放 payment-service）；图片地址为占位路径，前端以图标渲染
+- 待验证：① 全新库执行迁移 `20260925_132000`（本批次未上库试跑）；② 冒烟收藏室 21 项；③ 编辑器拖拽在触屏设备上的体验

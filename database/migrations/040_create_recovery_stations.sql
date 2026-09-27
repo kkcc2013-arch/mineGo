@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS recovery_stations (
 -- 恢复站签到记录表
 CREATE TABLE IF NOT EXISTS recovery_check_ins (
     id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES users(id),
     station_id INT NOT NULL REFERENCES recovery_stations(id),
     
     -- 恢复详情
@@ -52,13 +52,13 @@ CREATE TABLE IF NOT EXISTS recovery_check_ins (
 CREATE TABLE IF NOT EXISTS recovery_station_photos (
     id SERIAL PRIMARY KEY,
     station_id INT NOT NULL REFERENCES recovery_stations(id),
-    user_id INT NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES users(id),
     photo_url VARCHAR(500) NOT NULL,
     description TEXT,
     
     -- 审核状态
     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
-    reviewed_by INT REFERENCES users(id),
+    reviewed_by UUID REFERENCES users(id),
     reviewed_at TIMESTAMPTZ,
     rejection_reason TEXT,
     
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS recovery_station_photos (
 CREATE TABLE IF NOT EXISTS recovery_station_reviews (
     id SERIAL PRIMARY KEY,
     station_id INT NOT NULL REFERENCES recovery_stations(id),
-    user_id INT NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES users(id),
     rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
     content TEXT,
     
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS recovery_station_reviews (
 -- 用户恢复站收藏表
 CREATE TABLE IF NOT EXISTS user_favorites_recovery_stations (
     id SERIAL PRIMARY KEY,
-    user_id INT NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES users(id),
     station_id INT NOT NULL REFERENCES recovery_stations(id),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     

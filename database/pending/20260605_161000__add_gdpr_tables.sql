@@ -50,8 +50,8 @@ CREATE INDEX IF NOT EXISTS idx_audit_logs_service ON audit_logs(service);
 
 -- 4. 数据删除请求表
 CREATE TABLE IF NOT EXISTS data_deletion_requests (
-  id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),  -- 原为 SERIAL/INTEGER：users.id 是 UUID，且后续迁移以 UUID 引用本表
+  user_id UUID NOT NULL,
   status VARCHAR(20) DEFAULT 'pending', -- pending, processing, completed, failed
   requested_at TIMESTAMP DEFAULT NOW(),
   completed_at TIMESTAMP,

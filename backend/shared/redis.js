@@ -47,9 +47,10 @@ function getRedis() {
         password: process.env.REDIS_PASSWORD,
         lazyConnect: true,
         maxRetriesPerRequest: 3,
+        // 永远重连（带上限的退避）。原实现重试 10 次后返回 null，
+        // Redis 重启超过十几秒后所有服务将永久失去 Redis 连接，直到进程重启。
         retryStrategy: (times) => {
-          if (times > 10) return null;
-          const delay = Math.min(times * 100, 3000);
+          const delay = Math.min(times * 100, 5000);
           const jitter = Math.random() * 100;
           return delay + jitter;
         },

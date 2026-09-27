@@ -3,7 +3,7 @@
 - **编号**：REQ-00108
 - **类别**：无障碍(a11y)
 - **优先级**：P2
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：game-client、frontend/effects、frontend/game-client/src/accessibility、catch-service、gym-service
 - **创建时间**：2026-06-11 07:05
 - **依赖需求**：REQ-00017（无障碍访问支持）、REQ-00081（捕捉动画特效系统）
@@ -192,3 +192,27 @@ CREATE TABLE animation_effect_audit (
 3. **已有基础**：REQ-00017 已实现基础无障碍框架，可在其上扩展
 4. **依赖关系**：依赖 REQ-00081（捕捉动画）完成后才能完整降级
 5. **不影响核心功能**：用户可正常游戏，此为增强性安全功能
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 闪烁频率检测器能正确识别超过 3 Hz 的闪烁模式 | ✅ | `accessibility/photosensitive.js` detectFlashes/maxFlashesPerSecond：1 秒滑动窗口内一对相反方向、幅度 ≥10% 的亮度变化计 1 次（WCAG 2.3.1）；单测 2Hz 安全 / 5Hz 危险 |
+| 启用安全模式后，所有动画效果符合 WCAG 2.3.1 标准 | ✅ | FlashGuard 监视全部 CSS/WAAPI 动画（animationstart + 400ms 扫描），闪烁类（opacity/filter/颜色/阴影）且 >上限的循环动画自动降速到 ≤3Hz（减少动画时直接取消）；安全模式下视觉提示边框改静态 |
+| 敏感度测试流程完整运行，用户可随时停止 | ✅ | runSensitivityTest：低对比度色块按 1/2/3Hz 渐进（不超过上限），"停止测试"按钮与 Esc 随时停止 |
+| 测试结果能正确映射到安全模式配置参数 | ✅ | mapSensitivity → photosensitive.enabled/reduceMotion/maxFlashHz/sensitivity，并关闭视觉提示闪烁 |
+| 捕捉动画在安全模式下无高频闪烁，仍保持视觉反馈 | ✅ | 捕捉界面本身无闪烁动画；结果反馈为图标/文字/静态边框/震动；首次进入捕捉场景提示做敏感度测试（可"不再提示"） |
+| 战斗技能特效在安全模式下降级为静态高亮 | ⚠️ | 客户端当前没有战斗界面（`components/BattleScene.js` 为未加载的 React 组件）；FlashGuard 对任意动画全局生效，战斗界面按 `pmg:battle` 契约接入后提示为静态高亮 |
+| 紧急停止按钮能立即停止所有动画 | ✅ | 状态栏"⏹ 停止动画"按钮：暂停 `document.getAnimations()` 全部动画并加 `a11y-anim-stopped` 样式，再次点击恢复 |
+| 双击 Esc 键触发紧急停止 | ✅ | `accessibility/shortcuts.js`：500ms 内连按两次 Esc 触发（任何页面、含弹窗） |
+| 用户偏好持久化存储，刷新页面后保持设置 | ✅ | localStorage `pmg_a11y_prefs_v1` + 云端 user_preferences |
+| 单元测试覆盖率 ≥ 80% | ⚠️ | 纯逻辑函数均有单测，前端未配置覆盖率工具，未统计 |
+| 通过 WCAG 2.1 Level AAA 自动化检测工具验证 | ⚠️ | e2e 中 axe-core 扫描登录/地图/捕捉/设置/高对比度/RTL 页面（调整前运行：无 critical/serious）；AAA 级别没有可完整覆盖的自动化工具，需人工评估 |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：`database/migrations/20260925_010000__user_preferences.sql`（`user_preferences`：user_id UUID → users(id) ON DELETE CASCADE、namespace、prefs JSONB，主键 (user_id, namespace)，全部 IF NOT EXISTS）；偏好云端同步：user-service `GET/PUT/DELETE /users/me/preferences/:namespace`（`src/routes/preferences.js` + `src/services/userPreferences.js` 校验），经网关 `/v1/users/me/preferences/a11y`（网关已有 `/v1/users` 鉴权代理，未改网关）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：在真机上走一遍敏感度测试与紧急停止；确认安全模式下所有动画主观无闪烁感；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`

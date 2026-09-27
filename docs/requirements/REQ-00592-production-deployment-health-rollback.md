@@ -7,7 +7,7 @@
 | 标题 | 生产环境部署健康检查与自动回滚系统 |
 | 类别 | 运维/CICD |
 | 优先级 | P0 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | k8s-operator, cicd-pipeline, monitoring |
 | 创建时间 | 2026-07-17 08:00 |
 
@@ -39,3 +39,13 @@
 ## 参考
 
 - [Kubernetes Rollout Documentation](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
+
+## 实现记录（2026-09-24）
+
+状态：**done**（按实际部署方式 PM2 实现；K8s 方案不适用于当前生产机）
+
+| 验收标准 | 结果 | 证据 |
+|---|---|---|
+| 部署后自动健康检查（前 5 分钟） | ✅ | `scripts/deploy-pm2.sh` + `scripts/deploy-health-check.js`（`WATCH_SECONDS`，默认 300） |
+| 错误率 > 1% 自动回滚 | ✅ | 观察期网关 5xx 比例、`/health`、PM2 进程状态与重启次数，任一异常即回滚 |
+| 回滚恢复旧版本 | ✅ | 实测：故意发布启动即崩溃的版本 → 检测失败 → 回滚上一提交 → 再次验证健康；结果写入 `.deploy-history/` |

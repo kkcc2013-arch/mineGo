@@ -19,13 +19,38 @@ CREATE TABLE IF NOT EXISTS privacy_policies (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   published_at TIMESTAMP WITH TIME ZONE,
   deprecated_at TIMESTAMP WITH TIME ZONE,
-  created_by INTEGER REFERENCES users(id),
+  created_by UUID REFERENCES users(id),
   metadata JSONB DEFAULT '{}'
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS version VARCHAR(20);
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS policy_type VARCHAR(30) DEFAULT 'privacy_policy';
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS title VARCHAR(200);
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS content_url TEXT;
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS content_hash VARCHAR(64);
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS summary TEXT;
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS effective_date TIMESTAMP WITH TIME ZONE;
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS mandatory_confirm BOOLEAN DEFAULT TRUE;
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'draft';
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS published_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS deprecated_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS created_by UUID;
+ALTER TABLE privacy_policies ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}';
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.privacy_policies') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('version', 'policy_type', 'title', 'content_url', 'content_hash', 'summary', 'effective_date', 'mandatory_confirm', 'status', 'created_at', 'published_at', 'deprecated_at', 'created_by', 'metadata', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE privacy_policies ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
-CREATE INDEX idx_privacy_policies_version ON privacy_policies(version);
-CREATE INDEX idx_privacy_policies_status ON privacy_policies(status);
-CREATE INDEX idx_privacy_policies_effective_date ON privacy_policies(effective_date);
+CREATE INDEX IF NOT EXISTS idx_privacy_policies_version ON privacy_policies(version);
+CREATE INDEX IF NOT EXISTS idx_privacy_policies_status ON privacy_policies(status);
+CREATE INDEX IF NOT EXISTS idx_privacy_policies_effective_date ON privacy_policies(effective_date);
 
 COMMENT ON TABLE privacy_policies IS '隐私政策和服务条款版本管理表';
 
@@ -35,7 +60,7 @@ COMMENT ON TABLE privacy_policies IS '隐私政策和服务条款版本管理表
 
 CREATE TABLE IF NOT EXISTS user_privacy_confirmations (
   id SERIAL PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   policy_id INTEGER NOT NULL REFERENCES privacy_policies(id),
   policy_version VARCHAR(20) NOT NULL,
   confirmed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -48,11 +73,33 @@ CREATE TABLE IF NOT EXISTS user_privacy_confirmations (
   revoke_reason VARCHAR(100),
   UNIQUE(user_id, policy_id)
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS policy_id INTEGER;
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS policy_version VARCHAR(20);
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS confirmed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS ip_address VARCHAR(45);
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS user_agent TEXT;
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS device_id VARCHAR(100);
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS confirmation_type VARCHAR(20) DEFAULT 'explicit';
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS content_snapshot TEXT;
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS revoked_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE user_privacy_confirmations ADD COLUMN IF NOT EXISTS revoke_reason VARCHAR(100);
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.user_privacy_confirmations') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('user_id', 'policy_id', 'policy_version', 'confirmed_at', 'ip_address', 'user_agent', 'device_id', 'confirmation_type', 'content_snapshot', 'revoked_at', 'revoke_reason', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE user_privacy_confirmations ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
-CREATE INDEX idx_user_confirmations_user ON user_privacy_confirmations(user_id);
-CREATE INDEX idx_user_confirmations_policy ON user_privacy_confirmations(policy_id);
-CREATE INDEX idx_user_confirmations_version ON user_privacy_confirmations(policy_version);
-CREATE INDEX idx_user_confirmations_date ON user_privacy_confirmations(confirmed_at);
+CREATE INDEX IF NOT EXISTS idx_user_confirmations_user ON user_privacy_confirmations(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_confirmations_policy ON user_privacy_confirmations(policy_id);
+CREATE INDEX IF NOT EXISTS idx_user_confirmations_version ON user_privacy_confirmations(policy_version);
+CREATE INDEX IF NOT EXISTS idx_user_confirmations_date ON user_privacy_confirmations(confirmed_at);
 
 COMMENT ON TABLE user_privacy_confirmations IS '用户隐私政策确认记录表';
 
@@ -63,7 +110,7 @@ COMMENT ON TABLE user_privacy_confirmations IS '用户隐私政策确认记录�
 CREATE TABLE IF NOT EXISTS privacy_update_notifications (
   id SERIAL PRIMARY KEY,
   policy_id INTEGER NOT NULL REFERENCES privacy_policies(id),
-  user_id INTEGER REFERENCES users(id),
+  user_id UUID REFERENCES users(id),
   notification_type VARCHAR(30) NOT NULL CHECK (notification_type IN ('email', 'push', 'in_app', 'sms')),
   status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'sent', 'failed', 'read', 'confirmed')),
   scheduled_at TIMESTAMP WITH TIME ZONE,
@@ -73,11 +120,32 @@ CREATE TABLE IF NOT EXISTS privacy_update_notifications (
   retry_count INTEGER DEFAULT 0,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS policy_id INTEGER;
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS notification_type VARCHAR(30);
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending';
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS scheduled_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS sent_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS read_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS error_message TEXT;
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS retry_count INTEGER DEFAULT 0;
+ALTER TABLE privacy_update_notifications ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.privacy_update_notifications') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('policy_id', 'user_id', 'notification_type', 'status', 'scheduled_at', 'sent_at', 'read_at', 'error_message', 'retry_count', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE privacy_update_notifications ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
-CREATE INDEX idx_policy_notifications_policy ON privacy_update_notifications(policy_id);
-CREATE INDEX idx_policy_notifications_user ON privacy_update_notifications(user_id);
-CREATE INDEX idx_policy_notifications_status ON privacy_update_notifications(status);
-CREATE INDEX idx_policy_notifications_scheduled ON privacy_update_notifications(scheduled_at);
+CREATE INDEX IF NOT EXISTS idx_policy_notifications_policy ON privacy_update_notifications(policy_id);
+CREATE INDEX IF NOT EXISTS idx_policy_notifications_user ON privacy_update_notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_policy_notifications_status ON privacy_update_notifications(status);
+CREATE INDEX IF NOT EXISTS idx_policy_notifications_scheduled ON privacy_update_notifications(scheduled_at);
 
 -- ============================================================
 -- 4. 用户政策状态视图
@@ -87,7 +155,7 @@ CREATE OR REPLACE VIEW user_policy_status AS
 SELECT 
   u.id AS user_id,
   u.phone,
-  u.email,
+  NULL::text AS email,  -- users 表无 email 列（仅手机号）
   u.created_at AS user_created_at,
   pp.id AS latest_policy_id,
   pp.version AS latest_policy_version,

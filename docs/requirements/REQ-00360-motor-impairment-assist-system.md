@@ -3,7 +3,7 @@
 - **编号**：REQ-00360
 - **类别**：无障碍(a11y)
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：game-client、frontend/game-client/src/accessibility、frontend/game-client/src/game/CatchEngine.js、gateway、user-service、backend/shared、database/migrations
 - **创建时间**：2026-06-29 08:00 UTC
 - **依赖需求**：REQ-00356 (光敏性癫痫防护系统)
@@ -936,3 +936,43 @@ CREATE INDEX idx_motor_assist_user_type ON motor_assist_usage_stats(user_id, ass
 - [Apple Accessibility Guidelines](https://developer.apple.com/accessibility/)
 - [Android Accessibility Developer Guide](https://developer.android.com/guide/topics/ui/accessibility)
 - [Pokémon GO Accessibility Features](https://niantic.helpshift.com/a/pokemon-go/?s=getting-started&f=accessibility-features)
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 自动瞄准辅助在低/中/高强度下按预期工作，辅助系数分别为 0.3/0.6/0.85 | ✅ | `motorAssist.AIM_COEFFICIENTS` 0.3/0.6/0.85 → `CatchEngine.aimAssist`（判定用圆环缩放向最佳值拉近，单测覆盖） |
+| 点击时间延长功能可将捕捉窗口延长至 ×1.5/×2/×3 | ✅ | 捕捉窗口 ×1.5/×2/×3（CatchEngine.timeScale ÷ 倍数，与节奏倍率合成） |
+| 投掷轨迹预览线正确显示贝塞尔曲线和预计落点标记 | ✅ | SVG 二次贝塞尔轨迹（投球按钮 → 精灵）+ 落点圆圈 |
+| 一键投掷模式在确认后成功执行投掷动作 | ✅ | 一键投掷：点"投球"后等待圆环进入最佳区（<0.3）或 4 秒后自动投出（e2e 调整前运行通过） |
+| 手势简化功能：单指双击触发缩放，长按替代双击 | ⚠️ | 客户端没有缩放/双击手势（地图为列表），无需替代；误触防护提供"长按激活/双击确认" |
+| 音频提示在捕捉窗口进入和最佳投掷点时播放正确音调 | ✅ | 最佳时机 1046Hz 提示音；进入捕捉时距离音调 |
+| 震动提示按预期模式震动 | ✅ | 最佳时机 throw_excellent 震动 |
+| 疲劳管理在达到阈值时显示休息提醒和自动暂停 | ✅ | 连续投球 N 次弹出休息提醒，弹窗期间圆环暂停（自动暂停） |
+| 预设方案（轻度/中度/重度）正确应用所有配置项 | ✅ | 轻度/中度/重度（及单手/震颤/反应较慢/活动范围受限）一次写入全部配置 |
+| 自定义设置保存至 localStorage 并正确加载 | ✅ | localStorage |
+| 所有设置可通过键盘导航操作（Tab 键切换，Enter/Space 选择） | ✅ | 原生控件，Tab 切换、Enter/Space 选择 |
+| 配置界面支持屏幕阅读器朗读（ARIA 标签完整） | ✅ | label + aria-describedby |
+| 辅助模式开关可通过快捷键 Ctrl+Shift+M 切换 | ✅ | `Ctrl+Shift+M` |
+| 高对比度模式下配置界面元素清晰可辨 | ✅ | 对话框颜色取主题变量，高对比度下同样生效；axe（高对比度页面） |
+| 焦点顺序符合逻辑，无焦点陷阱 | ✅ | 对话框内循环、关闭恢复焦点 |
+| 辅助模式启用后帧率不低于 55fps（目标 60fps） | ⚠️ | 未实测；`scripts/bench-a11y-client.js` 所有模式开启下测 3 秒帧率 |
+| 辅助计算延迟 <50ms（P95） | ⚠️ | `MotorAssist.stats.calcMs` 记录每次点击处理耗时，`p95()`；bench 未运行 |
+| 配置保存/加载时间 <100ms | ⚠️ | localStorage 同步读写，未实测（bench 含平均保存耗时） |
+| 无内存泄漏（长时间使用后内存稳定） | ⚠️ | 未做长时间内存测试（监听器一次性注册，日志数组均有上限） |
+| 辅助设置仅存储在 localStorage，不上传服务器 | ✅ | `prefs.toCloudDoc` 默认剔除 motor，仅在用户开启"同步到云端"时上传 |
+| 无后台数据收集代码 | ✅ | 无后台收集代码 |
+| 使用统计仅在用户明确同意后启用 | ✅ | 无使用统计上报；云同步需用户显式开启 |
+| GDPR 合规：用户可随时删除所有本地数据 | ✅ | "恢复默认"覆盖本地设置、"清除"位置记忆、`DELETE /v1/users/me/preferences/a11y` 删除云端副本 |
+| 辅助模式在 PVP 对战中自动禁用 | ⚠️ | `setCompetitive("pvp")` / `pmg:battle` mode=pvp 自动禁用；客户端无 PVP 界面 |
+| 辅助模式在团队道馆战中自动禁用 | ⚠️ | 同上（mode=raid） |
+| 辅助模式在排行榜竞技中自动禁用 | ⚠️ | 同上（mode=leaderboard） |
+| 辅助模式启用时显示明显标识，避免混淆 | ✅ | "✋ 动作辅助"徽章 |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：无（动作辅助设置默认仅存本机；开启"同步到云端"时使用 user_preferences）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：真机上震颤过滤、目标吸附、一键投掷的手感；帧率与延迟（运行 bench）；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`

@@ -5,6 +5,10 @@ const { z }   = require('zod');
 const { query } = require('../../../../shared/db');
 const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
 const { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('../../../../shared/i18n');
+const { getStackableItems } = require('../../../../shared/inventory');
+const fieldCrypto = require('../../../../shared/fieldCrypto');
+const { isUuid, getRelationship, getPrivacySettings } = require('../../../../shared/social/relationship');
+const { visibilityMap } = require('../../../../shared/social/privacyRules');
 
 const router = express.Router();
 router.use(requireAuth);
@@ -17,7 +21,7 @@ router.get('/me', async (req, res, next) => {
         u.id, u.nickname, u.avatar_url, u.team, u.level, u.xp,
         u.stardust, u.coins, u.premium_coins,
         u.pokeball_count, u.greatball_count, u.ultraball_count, u.masterball_count,
-        u.total_distance_km, u.last_login_at, u.created_at,
+        u.total_distance_km, u.last_login_at, u.created_at, u.email,
         (SELECT COUNT(*)::int FROM pokemon_instances WHERE user_id = u.id) AS pokemon_count,
         (SELECT COUNT(*)::int FROM pokedex_entries WHERE user_id = u.id AND caught_count > 0) AS pokedex_caught,
         (SELECT COUNT(*)::int FROM friendships WHERE user_a = u.id OR user_b = u.id) AS friend_count
@@ -25,7 +29,26 @@ router.get('/me', async (req, res, next) => {
     `, [req.user.sub]);
 
     if (!rows[0]) throw new AppError(2003, '用户不存在', 404);
+    rows[0].email = rows[0].email ? fieldCrypto.decrypt(rows[0].email, 'users.email') : null; // REQ-00565
     res.json(successResp(rows[0]));
+  } catch (err) { next(err); }
+});
+
+// ── GET /users/me/items ── 道具背包：精灵球（users 计数列）+ 可堆叠道具（浆果等，player_inventory）
+router.get('/me/items', async (req, res, next) => {
+  try {
+    const userId = req.user.sub;
+    const { rows: [u] } = await query(
+      'SELECT pokeball_count, greatball_count, ultraball_count, masterball_count FROM users WHERE id = $1', [userId]);
+    if (!u) throw new AppError(2003, '用户不存在', 404);
+    const items = await getStackableItems({ query }, userId);
+    res.json(successResp({
+      balls: {
+        POKE_BALL: u.pokeball_count, GREAT_BALL: u.greatball_count,
+        ULTRA_BALL: u.ultraball_count, MASTER_BALL: u.masterball_count,
+      },
+      items,
+    }));
   } catch (err) { next(err); }
 });
 
@@ -35,12 +58,27 @@ router.patch('/me', async (req, res, next) => {
     const schema = z.object({
       nickname:   z.string().min(2).max(30).optional(),
       avatar_url: z.string().url().optional(),
+      email:      z.string().email().max(254).nullable().optional(),
     });
     const data = schema.parse(req.body);
 
     if (data.nickname) {
       const dup = await query('SELECT id FROM users WHERE nickname=$1 AND id<>$2', [data.nickname, req.user.sub]);
       if (dup.rows.length > 0) throw new AppError(2002, '昵称已被使用', 409);
+    }
+
+    // REQ-00565：邮箱加密存储 + 盲索引（小写规范化），唯一性按盲索引判断
+    if (data.email !== undefined) {
+      const email = data.email === null ? null : data.email.trim().toLowerCase();
+      if (email && fieldCrypto.isEnabled()) {
+        data.email_hash = fieldCrypto.blindIndex(email, 'users.email');
+        const dup = await query('SELECT id FROM users WHERE email_hash=$1 AND id<>$2', [data.email_hash, req.user.sub]);
+        if (dup.rows.length > 0) throw new AppError(2007, '邮箱已被使用', 409);
+        data.email = fieldCrypto.encrypt(email, 'users.email');
+      } else {
+        data.email = email;
+        data.email_hash = null;
+      }
     }
 
     const fields = Object.keys(data);
@@ -81,13 +119,34 @@ router.post('/team', async (req, res, next) => {
 // ── GET /users/:id (public profile) ──────────────────────────
 router.get('/:id', async (req, res, next) => {
   try {
+    if (!isUuid(req.params.id)) throw new AppError(2003, '用户不存在', 404);
     const { rows } = await query(`
       SELECT id, nickname, avatar_url, team, level,
-             (SELECT COUNT(*)::int FROM pokemon_instances WHERE user_id = u.id) AS pokemon_count
+             (SELECT COUNT(*)::int FROM pokemon_instances WHERE user_id = u.id) AS pokemon_count,
+             (SELECT COUNT(*)::int FROM pokemon_instances p
+                LEFT JOIN pokemon_privacy_settings pps ON pps.pokemon_id = p.id
+                LEFT JOIN user_privacy_defaults upd ON upd.user_id = p.user_id
+               WHERE p.user_id = u.id
+                 AND COALESCE(pps.overall_visibility, upd.default_pokemon_visibility, 'friends') <> 'hidden') AS visible_pokemon_count
       FROM users u WHERE id = $1
     `, [req.params.id]);
     if (!rows[0]) throw new AppError(2003, '用户不存在', 404);
-    res.json(successResp(rows[0]));
+    const { visible_pokemon_count: visibleCount, ...profile } = rows[0];
+    // REQ-00228：按对方隐私设置过滤（拉黑视为不存在；等级受 profile、精灵数受 pokemon_collection 可见性约束）
+    if (req.user.sub !== profile.id) {
+      const [settings, rel] = await Promise.all([
+        getPrivacySettings({ query }, profile.id),
+        getRelationship({ query }, req.user.sub, profile.id),
+      ]);
+      if (rel.blocked) throw new AppError(2003, '用户不存在', 404);
+      const vis = visibilityMap(settings, rel, ['profile', 'pokemon_collection', 'online_status']);
+      if (!vis.profile) profile.level = null;
+      // 他人只计入未“完全隐藏”的精灵（REQ-00377）
+      profile.pokemon_count = vis.pokemon_collection ? visibleCount : null;
+      profile.is_friend = rel.isFriend;
+      profile.visibility = vis;
+    }
+    res.json(successResp(profile));
   } catch (err) { next(err); }
 });
 
@@ -122,16 +181,18 @@ router.get('/me/quests', async (req, res, next) => {
 });
 
 // ── GET /users/me/achievements ────────────────────────────────
+// 兼容旧接口：数据来自统一成就表 achievements/user_achievements（REQ-00076；完整接口见 /v1/achievements）
 router.get('/me/achievements', async (req, res, next) => {
   try {
     const { rows } = await query(`
-      SELECT ad.id, ad.name_zh, ad.category, ad.tiers,
-             COALESCE(ua.current_value, 0) AS current_value,
-             COALESCE(ua.current_tier, 0) AS current_tier,
-             ua.unlocked_at
-      FROM achievement_definitions ad
-      LEFT JOIN user_achievements ua ON ua.achievement_id = ad.id AND ua.user_id = $1
-      ORDER BY ad.category, ad.id
+      SELECT a.achievement_id AS id, a.name->>'zh' AS name_zh, a.category, a.rarity, a.points,
+             (a.trigger_conditions->>'target')::int AS target,
+             COALESCE(ua.progress, 0) AS current_value, COALESCE(ua.completed, FALSE) AS completed,
+             ua.completed_at AS unlocked_at, COALESCE(ua.rewards_claimed, FALSE) AS rewards_claimed
+      FROM achievements a
+      LEFT JOIN user_achievements ua ON ua.achievement_id = a.achievement_id AND ua.user_id = $1
+      WHERE a.is_active AND (NOT a.is_hidden OR ua.completed)
+      ORDER BY a.category, a.display_order, a.achievement_id
     `, [req.user.sub]);
     res.json(successResp(rows));
   } catch (err) { next(err); }

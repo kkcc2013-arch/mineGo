@@ -11,7 +11,7 @@ ADD COLUMN IF NOT EXISTS energy_type VARCHAR(20) DEFAULT 'standard';
 -- 精灵能量池表
 CREATE TABLE IF NOT EXISTS pokemon_energy (
     id SERIAL PRIMARY KEY,
-    pokemon_instance_id INTEGER NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
+    pokemon_instance_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     current_energy INTEGER DEFAULT 100,
     max_energy INTEGER DEFAULT 100,
     energy_regen_rate INTEGER DEFAULT 10,
@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS pokemon_energy (
 CREATE TABLE IF NOT EXISTS battle_energy_state (
     id SERIAL PRIMARY KEY,
     battle_id VARCHAR(100) NOT NULL,
-    pokemon_instance_id INTEGER NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
+    pokemon_instance_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     current_energy INTEGER DEFAULT 100,
     cooldowns JSONB DEFAULT '{}',
     turn_number INTEGER DEFAULT 0,

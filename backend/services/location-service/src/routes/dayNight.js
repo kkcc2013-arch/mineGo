@@ -6,7 +6,7 @@
 
 const express = require('express');
 const { query } = require('../../../../shared/db');
-const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
+const { requireAuth, requireAdmin, AppError, successResp } = require('../../../../shared/auth');
 const { createLogger } = require('../../../../shared/logger');
 const { 
   dayNightService, 
@@ -167,9 +167,8 @@ router.get('/statistics', async (req, res, next) => {
  * POST /daynight/config
  * 管理员配置时间段（需要管理员权限）
  */
-router.post('/config', requireAuth, async (req, res, next) => {
+router.post('/config', requireAuth, requireAdmin, async (req, res, next) => {
   try {
-    // TODO: 添加管理员权限检查
     const { name, start_hour, end_hour, spawn_bonus_multiplier, color_theme, description } = req.body;
     
     if (!name || start_hour === undefined || end_hour === undefined) {
@@ -207,7 +206,7 @@ router.post('/config', requireAuth, async (req, res, next) => {
  * POST /daynight/pokemon-config
  * 配置精灵的时间段权重
  */
-router.post('/pokemon-config', requireAuth, async (req, res, next) => {
+router.post('/pokemon-config', requireAuth, requireAdmin, async (req, res, next) => {
   try {
     const { pokemon_id, time_period, spawn_weight_multiplier, is_exclusive, special_iv_bonus, notes } = req.body;
     

@@ -52,91 +52,123 @@ const DEPRECATION_PERIOD_DAYS = 180;
  * @returns {number|null} 版本号
  */
 function extractVersionFromPath(path) {
-  const match = path.match(/^\/api\/v(\d+)(\/|$)/);
+  // /api/vN/... 与旧前缀 /vN/...
+  const match = path.match(/^\/(?:api\/)?v(\d+)(\/|$)/);
   return match ? parseInt(match[1], 10) : null;
+}
+
+// REQ-00201: 版本注册表（生命周期 development → testing → stable → deprecated → sunset），
+// 初始值来自 API_VERSIONS，网关启动后由 api_versions 表覆盖并定期刷新（见 index.js）
+const { VersionRegistry } = require('@pmg/shared/apiStandards/versioning');
+let versionRegistry = null;
+function getVersionRegistry(opts = {}) {
+  if (!versionRegistry) {
+    const seed = {};
+    for (const [v, info] of Object.entries(API_VERSIONS)) {
+      seed[v] = { status: info.status === 'active' ? 'stable' : info.status, released: info.released, deprecated: info.deprecated, sunset: info.sunset, successor: Number(v) < MAX_SUPPORTED_VERSION ? Number(v) + 1 : null, description: (info.changes[0] || {}).description, changes: info.changes };
+    }
+    versionRegistry = new VersionRegistry({ versions: seed, currentVersion: CURRENT_VERSION, ...opts });
+  } else if (opts.query && !versionRegistry.query) {
+    versionRegistry.query = opts.query;
+    versionRegistry.logger = opts.logger || versionRegistry.logger;
+  }
+  return versionRegistry;
+}
+
+function versionError(res, status, code, message, data, extraHeaders = {}) {
+  for (const [k, v] of Object.entries(extraHeaders)) res.setHeader(k, v);
+  const name = status === 410 ? 'API_SUNSET' : 'API_VERSION_UNSUPPORTED';
+  return res.status(status).json({
+    success: false,
+    code,
+    message,
+    data,
+    error: { code, name, message, details: data },
+  });
 }
 
 /**
  * API 版本中间件
- * 
+ *
  * 支持：
- * - URL 路径版本控制: /api/v1/users, /api/v2/users
- * - Header 版本协商: Accept-Version: 2
- * - 默认版本回退
- * - 废弃告警
+ * - URL 路径版本控制: /api/v1/users, /api/v2/users（旧前缀 /v1/... 视为 v1）
+ * - Header 版本协商: Accept-Version: 2 / X-API-Version: 2 / Accept: application/vnd.minego.v2+json
+ * - 默认版本回退（当前稳定版）
+ * - 生命周期：deprecated → Deprecation/Sunset/Link(successor-version) 响应头；sunset → 410 Gone
  */
 function apiVersionMiddleware(req, res, next) {
-  const startTime = Date.now();
-  
-  // 1. 从 URL 路径提取版本
-  const pathVersion = extractVersionFromPath(req.path);
-  
-  // 2. 检查 Header 版本协商
-  const headerVersion = parseInt(req.headers['accept-version'] || 0, 10);
-  
-  // 3. 确定有效版本（优先级：URL > Header > 当前版本）
-  let requestedVersion = pathVersion || headerVersion || CURRENT_VERSION;
-  
-  // 4. 验证版本是否支持
-  if (requestedVersion < MIN_SUPPORTED_VERSION || requestedVersion > MAX_SUPPORTED_VERSION) {
-    // 记录不支持的版本请求
-    metrics.apiVersionUnsupportedRequests?.inc({ version: requestedVersion });
-    
-    return res.status(400).json({
-      code: 1010,
-      message: '不支持的 API 版本',
-      data: {
-        requestedVersion,
-        supportedVersions: SUPPORTED_VERSIONS,
-        currentVersion: CURRENT_VERSION,
-        hint: `使用 /api/v${CURRENT_VERSION}/ 前缀或设置 Accept-Version: ${CURRENT_VERSION} Header`,
-      },
+  const registry = getVersionRegistry();
+  const r = registry.resolve(req);
+  const requestedVersion = r.version;
+  const entry = registry.get(requestedVersion);
+  const supported = registry.supported();
+  const current = registry.current();
+
+  // 1. 未知版本 / development 版本（未公开）
+  const effective = entry ? registry.effectiveStatus(entry) : null;
+  if (!entry || effective === 'development' || r.invalidHeader) {
+    metrics.apiVersionUnsupportedRequests?.inc({ version: String(requestedVersion) });
+    return versionError(res, 400, 1010, '不支持的 API 版本', {
+      requestedVersion: r.invalidHeader ? (req.headers['accept-version'] || req.headers['x-api-version']) : requestedVersion,
+      supportedVersions: supported,
+      currentVersion: current,
+      hint: `使用 /api/v${current}/ 前缀或设置 Accept-Version: ${current} Header`,
     });
   }
-  
-  // 5. 检查版本是否已废弃
-  const versionInfo = API_VERSIONS[requestedVersion];
-  
-  if (versionInfo.status === 'deprecated' || versionInfo.deprecated) {
-    // 设置废弃响应头
+
+  // 2. 已下线版本 → 410 Gone
+  if (effective === 'sunset') {
+    metrics.apiVersionUnsupportedRequests?.inc({ version: String(requestedVersion) });
+    const d = registry.describe(entry);
+    return versionError(res, 410, 1014, `API v${requestedVersion} 已于 ${d.sunsetAt || '-'} 下线`, {
+      requestedVersion,
+      sunsetAt: d.sunsetAt,
+      successorVersion: d.successor,
+      migrationGuide: d.migrationGuide || `/api/version/${requestedVersion}/breaking-changes`,
+      supportedVersions: supported,
+    }, registry.deprecationHeaders(requestedVersion));
+  }
+
+  // 3. 已弃用版本：标准响应头 + 旧的 X-API-* 头（兼容）
+  const legacyInfo = API_VERSIONS[requestedVersion] || { version: requestedVersion, status: effective, changes: [] };
+  if (effective === 'deprecated') {
+    const headers = registry.deprecationHeaders(requestedVersion);
+    for (const [k, v] of Object.entries(headers)) {
+      if (k === 'Link') {
+        const prev = res.getHeader('Link');
+        res.setHeader('Link', prev ? `${prev}, ${v}` : v);
+      } else res.setHeader(k, v);
+    }
+    const d = registry.describe(entry);
     res.setHeader('X-API-Deprecated', 'true');
-    res.setHeader('X-API-Deprecated-At', versionInfo.deprecated);
-    res.setHeader('X-API-Sunset', versionInfo.sunset);
-    res.setHeader('X-API-Replacement', `/api/v${requestedVersion + 1}/`);
-    res.setHeader('X-API-Migration-Guide', `https://docs.minego.com/api/migration/v${requestedVersion}-to-v${requestedVersion + 1}`);
-    
-    // 记录废弃版本使用
-    metrics.apiDeprecatedVersionUsage?.inc({ version: requestedVersion });
-    logger.warn({
-      version: requestedVersion,
-      path: req.path,
-      clientId: req.headers['x-client-id'],
-      deprecatedAt: versionInfo.deprecated,
-      sunsetAt: versionInfo.sunset,
-    }, 'Deprecated API version used');
+    if (d.deprecatedAt) res.setHeader('X-API-Deprecated-At', d.deprecatedAt);
+    if (d.sunsetAt) res.setHeader('X-API-Sunset', d.sunsetAt);
+    if (d.successor) res.setHeader('X-API-Replacement', `/api/v${d.successor}/`);
+    res.setHeader('X-API-Migration-Guide', d.migrationGuide || `/api/version/${requestedVersion}/breaking-changes`);
+    metrics.apiDeprecatedVersionUsage?.inc({ version: String(requestedVersion) });
   }
-  
-  // 6. 设置版本上下文
+
+  // 4. 设置版本上下文
   req.apiVersion = requestedVersion;
-  req.versionInfo = versionInfo;
-  
-  // 7. 设置响应头
+  req.versionInfo = { ...legacyInfo, lifecycle: registry.describe(entry) };
+  req.apiVersionSource = r.source;
+
+  // 5. 响应头
   res.setHeader('X-API-Version', requestedVersion);
-  res.setHeader('X-API-Supported-Versions', SUPPORTED_VERSIONS.join(', '));
-  
-  // 8. 记录版本使用指标
-  metrics.apiVersionRequests?.inc({ version: requestedVersion, method: req.method });
-  
-  // 9. 如果请求的是旧版本但路径没有版本前缀，添加警告
-  if (!pathVersion && headerVersion && headerVersion < CURRENT_VERSION) {
-    res.setHeader('X-API-Warning', `Using older version ${headerVersion} via header. Consider upgrading to v${CURRENT_VERSION}`);
+  res.setHeader('X-API-Supported-Versions', supported.join(', '));
+  res.setHeader('X-API-Version-Source', r.source);
+  if (r.conflict) {
+    res.setHeader('X-API-Warning', `URL 版本 v${r.pathVersion} 与协商版本 v${r.mediaVersion || r.headerVersion} 不一致，以 URL 为准`);
+  } else if (r.source !== 'path' && r.source !== 'default' && requestedVersion < current) {
+    res.setHeader('X-API-Warning', `Using older version ${requestedVersion} via ${r.source}. Consider upgrading to v${current}`);
   }
-  
-  const elapsed = Date.now() - startTime;
-  if (elapsed > 5) {
-    logger.debug({ elapsed, version: requestedVersion }, 'API version resolution');
-  }
-  
+  const vary = String(res.getHeader('Vary') || '');
+  if (!/accept-version/i.test(vary)) res.setHeader('Vary', vary ? `${vary}, Accept-Version` : 'Accept-Version');
+
+  // 6. 使用统计（Prometheus + api_version_usage 按天聚合）
+  metrics.apiVersionRequests?.inc({ version: String(requestedVersion), method: req.method });
+  registry.recordUsage(requestedVersion, `${req.method} ${req.path.replace(/\/[0-9a-f-]{16,}(?=\/|$)/gi, '/:id').replace(/\/\d+(?=\/|$)/g, '/:id')}`);
+
   next();
 }
 
@@ -179,7 +211,7 @@ function registerVersionedRoute(app, routes) {
       }
       
       logger.debug({
-        method: methodUpper = method.toUpperCase(),
+        method: method.toUpperCase(),
         path: apiPath,
         version: versionNum,
         registered: versionedPath,
@@ -314,6 +346,7 @@ try {
 
 module.exports = {
   apiVersionMiddleware,
+  getVersionRegistry,
   registerVersionedRoute,
   requireVersion,
   getVersionInfo,

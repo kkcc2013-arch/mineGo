@@ -21,6 +21,32 @@ CREATE TABLE IF NOT EXISTS voice_rooms (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   closed_at TIMESTAMP WITH TIME ZONE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS name VARCHAR(100);
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS creator_id VARCHAR(50);
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS guild_id VARCHAR(50);
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS max_members INTEGER DEFAULT 10;
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255);
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS persistent BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS config JSONB DEFAULT '{
+    "bitrate": 64000,
+    "codec": "opus",
+    "noiseSuppression": true,
+    "echoCancellation": true
+  }'::jsonb;
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE voice_rooms ADD COLUMN IF NOT EXISTS closed_at TIMESTAMP WITH TIME ZONE;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.voice_rooms') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'name', 'creator_id', 'guild_id', 'max_members', 'password_hash', 'persistent', 'config', 'created_at', 'closed_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE voice_rooms ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_voice_rooms_creator ON voice_rooms(creator_id);
@@ -38,9 +64,29 @@ CREATE TABLE IF NOT EXISTS voice_room_members (
   muted BOOLEAN DEFAULT FALSE,
   deafened BOOLEAN DEFAULT FALSE,
   joined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  left_at TIMESTAMP WITH TIME ZONE,
-  UNIQUE(room_id, user_id) WHERE left_at IS NULL
+  left_at TIMESTAMP WITH TIME ZONE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS room_id UUID;
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS user_id VARCHAR(50);
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS role VARCHAR(20) DEFAULT 'member';
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS socket_id VARCHAR(100);
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS muted BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS deafened BOOLEAN DEFAULT FALSE;
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS joined_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE voice_room_members ADD COLUMN IF NOT EXISTS left_at TIMESTAMP WITH TIME ZONE;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.voice_room_members') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'room_id', 'user_id', 'role', 'socket_id', 'muted', 'deafened', 'joined_at', 'left_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE voice_room_members ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
+CREATE UNIQUE INDEX IF NOT EXISTS voice_room_members_room_id_user_id_uniq ON voice_room_members (room_id, user_id) WHERE left_at IS NULL;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_voice_room_members_room ON voice_room_members(room_id);
@@ -64,6 +110,31 @@ CREATE TABLE IF NOT EXISTS voice_chat_statistics (
   started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   ended_at TIMESTAMP WITH TIME ZONE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS user_id VARCHAR(50);
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS room_id UUID;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS duration_seconds INTEGER;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS bytes_sent BIGINT;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS bytes_received BIGINT;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS codec VARCHAR(20);
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS average_bitrate INTEGER;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS packet_loss REAL;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS jitter REAL;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS latency_ms INTEGER;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS quality_score INTEGER;
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS started_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE voice_chat_statistics ADD COLUMN IF NOT EXISTS ended_at TIMESTAMP WITH TIME ZONE;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.voice_chat_statistics') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'user_id', 'room_id', 'duration_seconds', 'bytes_sent', 'bytes_received', 'codec', 'average_bitrate', 'packet_loss', 'jitter', 'latency_ms', 'quality_score', 'started_at', 'ended_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE voice_chat_statistics ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_voice_stats_user ON voice_chat_statistics(user_id);
@@ -82,12 +153,32 @@ CREATE TABLE IF NOT EXISTS turn_credentials (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   revoked_at TIMESTAMP WITH TIME ZONE
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS user_id VARCHAR(50);
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS username VARCHAR(100);
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS credential_hash VARCHAR(255);
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS ip_address INET;
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS user_agent TEXT;
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE turn_credentials ADD COLUMN IF NOT EXISTS revoked_at TIMESTAMP WITH TIME ZONE;
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.turn_credentials') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'user_id', 'username', 'credential_hash', 'ip_address', 'user_agent', 'expires_at', 'created_at', 'revoked_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE turn_credentials ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_turn_creds_user ON turn_credentials(user_id);
 CREATE INDEX IF NOT EXISTS idx_turn_creds_expires ON turn_credentials(expires_at);
-CREATE INDEX IF NOT EXISTS idx_turn_creds_active ON turn_credentials(user_id) 
-  WHERE revoked_at IS NULL AND expires_at > NOW();
+CREATE INDEX IF NOT EXISTS idx_turn_creds_active ON turn_credentials(user_id)
+  WHERE revoked_at IS NULL;  -- 谓词不能用 NOW()（非 IMMUTABLE），过期过滤放到查询里
 
 -- 语音房间事件日志表
 CREATE TABLE IF NOT EXISTS voice_room_events (
@@ -99,6 +190,24 @@ CREATE TABLE IF NOT EXISTS voice_room_events (
   metadata JSONB,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE voice_room_events ADD COLUMN IF NOT EXISTS id UUID DEFAULT gen_random_uuid();
+ALTER TABLE voice_room_events ADD COLUMN IF NOT EXISTS room_id UUID;
+ALTER TABLE voice_room_events ADD COLUMN IF NOT EXISTS event_type VARCHAR(50);
+ALTER TABLE voice_room_events ADD COLUMN IF NOT EXISTS user_id VARCHAR(50);
+ALTER TABLE voice_room_events ADD COLUMN IF NOT EXISTS target_user_id VARCHAR(50);
+ALTER TABLE voice_room_events ADD COLUMN IF NOT EXISTS metadata JSONB;
+ALTER TABLE voice_room_events ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.voice_room_events') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('id', 'room_id', 'event_type', 'user_id', 'target_user_id', 'metadata', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE voice_room_events ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_voice_events_room ON voice_room_events(room_id);

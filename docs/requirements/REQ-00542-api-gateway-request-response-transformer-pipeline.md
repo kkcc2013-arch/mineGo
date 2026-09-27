@@ -3,7 +3,7 @@
 - **编号**：REQ-00542
 - **类别**：性能优化
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：gateway、backend/shared/transformPipeline、backend/shared/middleware
 - **创建时间**：2026-07-11 13:00 UTC
 - **依赖需求**：无
@@ -965,3 +965,28 @@ Response:
 6. **技术债清理**：统一分散的转换逻辑，提高代码可维护性
 
 该需求是 Gateway 性能优化的核心基础设施，完成后将显著提升系统吞吐量和稳定性。
+
+## 实现记录（2026-09-25）
+
+状态：**implemented**（代码已完成、未在服务上运行验证；按 09-25 验证规则，服务级验证由用户安排）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 管道引擎能正确执行请求和响应管道 | ✅ | `pipeline.js` PipelineEngine：条件阶段、fail-open、结果缓存、指标 |
+| 内置转换器全部正常工作（验证、标准化、本地化、序列化、压缩） | ✅ | 21 个内置转换器（进程内集成测试覆盖主要链路） |
+| 流式处理器能处理大型响应（>100KB），内存占用降低 60% | ⚠️ | 超过缓冲上限或流式管道时透传不缓冲（集成测试：100KB 响应透传）；内存降幅未实测，方法同 REQ-00526 |
+| 缓存命中率达到 50% 以上（重复请求场景） | ⚠️ | 纯阶段结果缓存（上游响应哈希 + 请求变体），集成测试验证第二次命中；命中率由冒烟输出（待验证） |
+| 管道配置 DSL 能正确解析和加载 YAML/JSON 配置 | ✅ | `config/pipelines/*.yaml\|json` + 数据库 + 管理接口；非法配置拒绝 |
+| 动态管道选择器能根据路由正确匹配管道 | ✅ | 方法 + 路由模式，具体优先 |
+| 性能监控指标全部正常收集和展示 | ✅ | Prometheus `api_pipeline_*`、`GET /api/v1/pipelines/:name/metrics`、管理面板、Grafana |
+| Gateway 响应延迟降低 20% 以上（对比基准测试） | ⚠️ | 未实测。方法：`API_STANDARDS_ENABLED=false` 与开启各跑一次 bench 对比；注意管道新增了格式统一与校验，主要收益来自结果缓存与流式透传 |
+| 管道错误能正确捕获和记录，不影响请求流程 | ✅ | fail-open 集成测试 |
+| 所有功能编写单元测试，覆盖率 ≥ 70% | ⚠️ | 单测覆盖引擎 / DSL / 选择 / 声明式转换器 / 缓存 / 集成链路；未跑覆盖率工具 |
+| 文档齐全：管道配置指南、转换器开发指南、性能调优指南 | ✅ | `docs/api-standards/gateway-pipeline.md` |
+
+- 入口：网关全局中间件 `apiStd.middleware()`；管理接口 `/api/v1/pipelines`、`/api/v1/transformers`（管理员）
+- 代码：`backend/shared/apiStandards/{index,pipeline,transformers}.js`、`config/pipelines/api-pipelines.yaml`
+- 迁移：`database/migrations/20260925_100000__api_design_standards.sql`（14 张表，幂等；18:30 前在 CI 栈全量 bootstrap 中执行通过）（`api_transform_pipelines`、`api_transformers`）
+- 单测：`cd backend && npm run test:api-standards`（api-standards-core / contract / lint 为纯逻辑，宿主机已运行通过：core 25/25、contract 11/11、lint 4/4；pipeline / ops / services 依赖 express / pino / prom-client，在 09-25 18:30 验证规则调整前于 CI 栈跑通过（pipeline 17/17、ops 20/20、services 5/5），之后追加的用例**未运行，待验证**）
+- 冒烟：`BASE_URL=http://<网关> node scripts/smoke-api-standards.js`（约 90 项断言，**未运行，待验证**）；核心冒烟 `scripts/smoke-core-flow.js` 在网关接入管道后于 CI 栈跑过 37/37（18:30 前）
+- 相关提交：分支 `work/e25-api`（Epic E25 API 设计规范，合并后见集成分支 squash 提交）

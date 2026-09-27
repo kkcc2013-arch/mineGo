@@ -7,7 +7,7 @@
 | 标题 | 玩家资料卡与档案展示系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | user-service、social-service、pokemon-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-30 12:00 |
 
@@ -947,3 +947,40 @@ spec:
 - [社交系统设计文档](./REQ-00048-friend-social-system.md)
 - [成就系统设计文档](./REQ-00076-achievement-system.md)
 - [Canvas API 文档](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
+
+## 实现记录（2026-09-24）
+
+> E05「成就/称号/资料卡/收藏室」与 E13「消息中心与推送」统一实现：REQ-00076 / 00106 / 00327 / 00359 / 00387 / 00403 与 REQ-00099 / 00261 / 00425 共用同一套游戏事件 outbox、成就引擎与消息中心。
+> 状态 `implemented`：代码已全部完成，**未做服务级验证**（2026-09-25 18:30 起规则）。此前迁移 `20260925_130000`、`20260925_131000` 曾在隔离 CI 栈（栈 8）的存量库上执行无失败，user-service 启动后事件消费者、消息分发器、WebSocket 均正常监听；之后新增的迁移 `20260925_132000`、`20260925_133000`、全部接口、前端界面只做了静态检查（`node --check`、`scripts/check-deps.js`、宿主机纯逻辑/内存替身单测），**待验证**。
+
+**共用架构**
+
+- 事件来源：业务表上的触发器把"发生了什么"写入 outbox 表 `achievement_events`（与业务同事务，业务回滚事件也不存在；触发器内部异常只 `RAISE WARNING`，不影响业务）并 `pg_notify('pmg_game_events')`。接入的表：`catch_sessions`（捕捉成功）、`pokestop_spins`、`trainer_level_ups`（升级，覆盖所有加经验路径）、`friendships`/`friends`、`friend_requests`、`friend_gifts`、`pokemon_trades`、`gym_battles`、`raid_participants`、`pvp_battles`、`egg_hatching`、`event_participations`；收藏室的展示/装饰/被点赞由 JS 在同事务写事件。
+- 消费：`backend/shared/achievementEngine.js`，user-service 启动时 `LISTEN` 实时处理 + 10 秒兜底扫描 + 每小时清理；pokemon-service 查询成就前按需处理该玩家未处理事件。`FOR UPDATE SKIP LOCKED` 保证多消费者不重复处理；每个事件一个 SAVEPOINT，单事件失败不影响其他事件，失败 5 次后放弃并保留 `last_error`。
+- 规则：`backend/shared/achievementRules.js`（事件 → 指标、过滤条件、奖励拆分、事件 → 消息、多语言，纯函数）。
+- 消息：`backend/shared/notificationCenter.js`（生成/列表/未读/已读/删除/偏好/广播/分析/清理）、`notificationPolicy.js`（分类、偏好、免打扰、投递计划，纯函数）、`notificationRealtime.js`（`/ws/messages` 与 LISTEN 分发）、`pushProviders.js`（FCM/APNs）。
+- 迁移：`database/migrations/20260925_130000__e05_achievement_title_core.sql`（成就/称号收敛 + outbox 触发器）、`20260925_131000__e13_notification_center.sql`（消息中心）、`20260925_132000__e05_collection_room.sql`（收藏室）、`20260925_133000__e05_player_profile.sql`（资料卡）。均 `IF NOT EXISTS`/`ON CONFLICT` 幂等，外键均按 `users.id UUID`；依赖的表（`achievements`、`title_definitions`、`trainer_level_ups`、`notification_templates`、E01 的 `privacy_settings`/`blocked_users` 等）都在更早的迁移中创建（已逐条核对）。
+- 测试：单测 `cd backend && node --test tests/unit/achievementRules.test.js tests/unit/achievementEngine.test.js tests/unit/notificationPolicy.test.js tests/unit/notificationCenter.test.js tests/unit/profileRules.test.js tests/unit/collectionRoomRules.test.js tests/unit/securityNotifier.test.js`（53 例，已加入 `test:unit`，宿主机已运行通过；引擎与消息中心用 `tests/unit/helpers/fakeGameDb.js` 内存替身，不依赖数据库）；经网关冒烟 `BASE_URL=… node scripts/smoke-profile-notify.js`（约 97 项，**未运行**）；压测 `node scripts/bench-profile-notify.js`（**未运行**）；前端 `cd frontend/game-client && npx playwright test tests/e2e/profile-notify.spec.js`（Mock 接口，**未运行**）。
+- 前端：`frontend/game-client/src/features/profileNotify.js` + `src/features/profile-notify/*`（由 `src/bootstrap/features.js` 注册一行）：底部导航「消息」🔔、「我的」页「成长与收藏」卡片（成就、称号、资料卡、我的收藏室、热门收藏室、收藏家排行、消息与通知设置）。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 玩家可以自定义头像框、背景主题和签名档 | ✅ | `PUT /v1/users/me/profile {avatarFrameId, backgroundThemeId, signature, visibility, selectedBadges, selectedPokemon, statsLayout}`；`GET /v1/users/me/profile/customization` 返回头像框 8 个、资料背景 6 个及解锁状态（条件：训练师等级 / 收藏家等级 / 指定成就），未解锁的返回 403。签名 ≤ 100 字、去除尖括号与控制字符 |
+| 成就徽章可选择展示（最多6个） | ✅ | `GET /v1/users/me/profile/badges/available`；只能选已完成的成就（否则 400），最多 6 个（接口与表 CHECK 双重限制），按选择顺序展示 |
+| 精选精灵可选择展示（最多3只） | ✅ | 必须是自己拥有且未放生的精灵；最多 3 只，收藏家 2 级起 5 只（REQ-00327 特权；表 CHECK ≤ 5） |
+| 统计数据实时更新并正确显示 | ✅ | 统计实时聚合；缓存随被查看者的资料/称号/成就/收藏室变化即时失效（捕捉等事件经成就引擎处理后 bump 版本号） |
+| 隐私设置生效（公开/好友/私密） | ✅ | `visibility` public/friends/private，与 E01 `privacy_settings.profile_visibility` 取更严格者；被对方拉黑视同受限；私密/受限资料不能生成资料卡（403）；分享链接只对公开资料有效 |
+| 资料卡分享功能正常，生成分享链接和二维码 | ✅ | `POST /v1/users/me/profile/share`：分享码（`player_profile_configs.share_code`，唯一）、分享链接 `${PUBLIC_WEB_BASE}/p/<code>`、二维码（`qrcode` 生成 PNG data URL，扫码来源记 `qr_code`）、卡片图片地址；匿名访问 `GET /v1/profile-cards/:code`（数据）/ `:code.svg`（图片）。前端：复制链接、二维码、保存 PNG、系统分享 |
+| 资料卡图片生成正确，包含所有信息 | ✅ | SVG 600×340：背景主题渐变、头像框颜色、昵称、等级、队伍色、称号、收藏家等级与积分、最多 6 个徽章、已捕捉/种类/闪光/成就四项统计、签名、分享链接；所有用户输入 XML 转义、颜色白名单（单测覆盖注入） |
+| 访问日志正确记录 | ✅ | 他人查看写 `profile_view_logs`（查看者、来源 in_app/share_link/qr_code、IP 哈希），同一查看者 10 分钟内只记一次（Redis NX）；本人资料返回总查看数、近 7 天独立访客、分享打开次数；日志随账号删除级联 |
+| 缓存策略生效，避免频繁数据库查询 | ✅ | 资料按"被查看者+可见范围+语言"缓存 120 秒（带版本号，变更即失效）；响应带 `cache.hit` 便于观察 |
+| 移动端资料卡样式适配 | ✅ | `profileNotify.css` 移动优先（全屏面板、44px 触控目标、统计网格 3 列、图片自适应宽度）；待真机验证 |
+| API响应时间 < 200ms (缓存命中) | ⚠️ | 未实测；`scripts/bench-profile-notify.js` 含 `GET /v1/users/:id/profile`（缓存命中）的 P95（阈值 200ms） |
+| 图片生成时间 < 3s | ⚠️ | 未实测；服务端只是拼接 SVG 字符串（无 canvas/无头浏览器依赖），开销为资料查询本身；PNG 在客户端转换 |
+
+- 入口：user-service `src/routes/profile.js`（`/users/me/profile*`、`/users/:id/profile`、`/users/:id/profile/card(.svg)`、`/users/:id/stats`；公开路由 `/profile-cards`）、`src/profile/profileService.js`、`backend/shared/profileRules.js`（配置校验、隐私过滤、SVG 渲染）、`backend/shared/profileStats.js`；网关 `/v1/users/*`（鉴权）与 `/v1/profile-cards/*`（公开）
+- 前端：`src/features/profile-notify/profileCard.js`（资料卡、编辑器、分享、查看他人资料、收藏家排行）
+- 迁移：`database/migrations/20260925_133000__e05_player_profile.sql`：`player_profile_configs`、`avatar_frames`、`profile_themes`、`profile_view_logs`、`collector_scores`
+- 测试：`tests/unit/profileRules.test.js`（9 例，已通过）；冒烟资料卡/隐私相关约 15 项（未运行）
+- 偏差：头像框/主题主键用字符串代码（与称号/成就一致、便于解锁条件引用），`user_id` 为 UUID；访问日志用普通表 + 索引（原方案按月分区，当前量级不需要）；图片为 SVG（原方案 Canvas 渲染 PNG，服务端无 canvas 依赖），客户端转 PNG；K8s gateway-routes 未改（生产用 PM2 + 网关代码路由）
+- 待验证：① 分享链接在未登录浏览器中打开卡片；② 二维码可被扫描；③ 前端编辑器保存与解锁提示

@@ -4,7 +4,7 @@
 -- 反馈主表
 CREATE TABLE IF NOT EXISTS player_feedbacks (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id),
+    user_id UUID NOT NULL REFERENCES users(id),
     feedback_type VARCHAR(20) NOT NULL CHECK (feedback_type IN ('bug', 'suggestion', 'complaint', 'other')),
     title VARCHAR(200),
     content TEXT NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS player_feedbacks (
     attachments JSONB DEFAULT '[]',
     
     -- 处理信息
-    assigned_to INTEGER REFERENCES users(id),
+    assigned_to UUID REFERENCES users(id),
     resolved_at TIMESTAMP,
     resolution TEXT,
     
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS feedback_workflow_logs (
     action VARCHAR(50) NOT NULL,
     from_status VARCHAR(20),
     to_status VARCHAR(20),
-    operator_id INTEGER REFERENCES users(id),
+    operator_id UUID REFERENCES users(id),
     comment TEXT,
     created_at TIMESTAMP DEFAULT NOW()
 );

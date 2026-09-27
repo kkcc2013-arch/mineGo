@@ -4,7 +4,7 @@
 -- Cookie 同意记录表
 CREATE TABLE IF NOT EXISTS cookie_consents (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     device_id VARCHAR(255),  -- 匿名用户设备标识
     consent_version VARCHAR(20) NOT NULL DEFAULT '1.0',
     
@@ -76,7 +76,7 @@ COMMENT ON TABLE cookie_definitions IS 'Cookie 定义表 - 用于管理后台展
 -- 隐私偏好表
 CREATE TABLE IF NOT EXISTS privacy_preferences (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID UNIQUE REFERENCES users(id) ON DELETE CASCADE,
     allow_personalization BOOLEAN DEFAULT true,
     allow_third_party_sharing BOOLEAN DEFAULT false,
     allow_analytics BOOLEAN DEFAULT true,

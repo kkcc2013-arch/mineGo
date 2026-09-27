@@ -2,6 +2,7 @@
 'use strict';
 const pino = require('pino');
 const { context, trace } = require('@opentelemetry/api');
+const traceContext = require('./traceContext');
 
 /**
  * 创建结构化日志实例
@@ -17,7 +18,15 @@ function createLogger(serviceName) {
       service: serviceName,
       pid: process.pid,
     },
-    timestamp: pino.stdTimeFunctions.isoTime,
+    // REQ-00042：JSON Lines 字段 level / service / timestamp / trace_id
+    timestamp: () => `,"timestamp":"${new Date().toISOString()}"`,
+    // 请求内的每条日志自动带上 trace_id / request_id；请求之外（定时任务、消费者）有活动 span 时取 span 的 trace id
+    mixin() {
+      const ctx = traceContext.current();
+      if (ctx) return { trace_id: ctx.traceId, request_id: ctx.requestId };
+      const traceId = traceContext.activeTraceId();
+      return traceId ? { trace_id: traceId } : {};
+    },
     formatters: {
       level: (label) => ({ level: label }),
       bindings: (bindings) => {
@@ -32,6 +41,7 @@ function createLogger(serviceName) {
       options: {
         colorize: true,
         translateTime: 'SYS:standard',
+        timestampKey: 'timestamp',
         ignore: 'pid',
       }
     },
@@ -62,7 +72,8 @@ function childLogger(logger, context) {
 function requestLogger(logger) {
   return (req, res, next) => {
     const startTime = Date.now();
-    const reqId = req.headers['x-request-id'] || req.headers['x-trace-id'] || `req-${Date.now()}`;
+    const rawReqId = req.headers['x-request-id'];
+    const reqId = (typeof rawReqId === 'string' && /^[A-Za-z0-9._-]{1,64}$/.test(rawReqId)) ? rawReqId : `req-${Date.now()}`;
     
     // 将 reqId 注入到 request 对象
     req.reqId = reqId;
@@ -70,6 +81,11 @@ function requestLogger(logger) {
     // 获取当前追踪上下文
     const span = trace.getSpan(context.active());
     const spanContext = span ? span.spanContext() : null;
+
+    // REQ-00042: trace id 优先取上游（网关）传入的值，其次 OTel span，最后本地生成
+    const traceId = traceContext.traceIdFromHeaders(req.headers) || (spanContext && spanContext.traceId) || traceContext.newTraceId();
+    req.traceId = traceId;
+    if (!res.headersSent) res.setHeader('X-Trace-Id', traceId);
     
     // 构建基础日志信息
     const logData = {
@@ -87,6 +103,8 @@ function requestLogger(logger) {
       logData.spanId = spanContext.spanId;
     }
     
+    logData.trace_id = traceId;
+
     // 记录请求开始
     logger.info(logData, 'Request started');
     
@@ -110,10 +128,12 @@ function requestLogger(logger) {
         finishLogData.spanId = spanContext.spanId;
       }
       
+      finishLogData.trace_id = traceId;
       logger[level](finishLogData, 'Request completed');
     });
     
-    next();
+    // 后续中间件与业务处理在该追踪上下文内执行
+    traceContext.als.run({ traceId, requestId: reqId }, next);
   };
 }
 
@@ -123,6 +143,8 @@ module.exports = {
   createLogger,
   childLogger,
   requestLogger,
+  logger: defaultLogger, // 兼容 `const { logger } = require('shared/logger')` 的写法
+  child: defaultLogger.child.bind(defaultLogger),
   info: defaultLogger.info.bind(defaultLogger),
   error: defaultLogger.error.bind(defaultLogger),
   warn: defaultLogger.warn.bind(defaultLogger),

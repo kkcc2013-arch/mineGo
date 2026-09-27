@@ -7,7 +7,7 @@
 | 标题 | 精灵好友系统与社交互动增强 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | social-service、user-service、gateway、game-client、pokemon-service、reward-service |
 | 创建时间 | 2026-06-09 10:00 |
 
@@ -1223,3 +1223,37 @@ module.exports = {
 - REQ-00018 精灵交易系统
 - REQ-00026 游戏内实时推送通知系统
 - [Social Gaming Best Practices](https://www.gamasutra.com/blogs/)
+
+## 实现记录（2026-09-24）
+
+> E01「好友与社交互动」统一实现（REQ-00048 / 00228 / 00326 / 00377 / 00388 共用同一套表与服务）。
+> 状态 `implemented`：代码已全部完成。18:30 验证规则调整前，已在隔离 CI 栈实测 `smoke-friends` 130/130、核心冒烟 37/37、
+> `test:unit` 全部通过；此后新增的前端界面、`GET /v1/users/:id` 隐私过滤、压测脚本仅做了静态检查，**待验证**。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 用户可以搜索并添加好友（用户名搜索、好友码） | ✅ | `GET /v1/friends/search?q=`（昵称模糊 / 12 位好友码精确；排除自己、拉黑关系、关闭搜索的用户）；`GET /v1/friends/my-code`（12 位数字，展示为 `1234 5678 9012`）、`GET /v1/friends/code/:code`、`POST /v1/friends/add-by-code`、`POST /v1/friends/request {toUserId}`。好友码由 `users` 插入触发器生成、旧用户迁移回填（原先恒为 null） |
+| 好友请求可以通过/拒绝，7天后自动过期 | ✅ | `POST /v1/friends/request/:id/accept|reject|ignore`、`DELETE /v1/friends/request/:id`（撤回）；`expires_at = NOW()+7 天`，列表与上限只统计未过期请求，接受过期请求返回 410 并记 `expired`；定时任务每 10 分钟批量标记过期。同一对用户只允许一条 pending（部分唯一索引），对方已申请时再申请直接互加 |
+| 好友列表正确显示在线状态（在线/离开/离线） | ✅ | `users.last_active_at` 由 `/ws/friends` 连接与心跳、`POST /v1/friends/update-status` 刷新（30 秒节流）；5 分钟内在线、60 分钟内离开，否则离线；对方在线状态不可见时返回 `hidden`（REQ-00228）。网关去掉了 `GET /v1/friends` 的 3 分钟缓存（否则在线状态与对方接受请求后的列表都是陈旧的） |
+| 好友关系存储为双向关系 | ✅ | 权威表 `friends` 每对好友两行（A→B、B→A），行上保存各自对对方的备注/分组/权限；旧表 `friendships(user_a,user_b)` 由触发器同步，交易星尘折扣、对战、GDPR 等旧读者继续可用 |
+| 用户可以赠送道具、糖果给好友 | ✅ | `POST /v1/friends/:friendId/gift {giftType, giftId, quantity, message, wrapping, anonymous}`：`standard`（系统礼物包，每位好友每天 1 个）、`item`（背包道具/精灵球，原子扣减）、`candy`（`candy_inventory`）、`stardust`、`coins`、`pokemon_egg`（`EGG_7KM` 道具）；`POST /v1/friends/gifts/:id/claim`（`UPDATE … WHERE status='pending'` 原子抢占，并发开礼只成功一次）、`/gifts/claim-all` |
+| 每日礼物限制为50个 | ✅ | 按发送方咨询锁串行检查当天已送数量（`friend_system_config.max_daily_gifts`，默认 50），超出 429/2009；金币、精灵蛋另有单类型每日上限 |
+| 礼物有30天过期时间 | ✅ | `expires_at = sent_at + 30 天`；过期礼物不可领取（410），定时任务标记 `expired` 并把非系统礼物退还赠送方 |
+| 友情点数系统正常工作（互动增加点数） | ✅ | 开礼（按礼物类型 10–25 点）、交易完成 +100（`routes/trade.js` 完成后调用）、联合任务完成、查看好友资料 +2 / 点赞动态 +3（每天每对好友一次）；双方两行同时累加，写 `friend_interactions` 流水 |
+| 友情等级正确计算（1-5级） | ✅ | 阈值 0/100/500/1000/2000（与 `friendship_level_thresholds` 表一致）：新朋友/好朋友/超级朋友/最佳朋友/幸运朋友；同一份友情点同时驱动 REQ-00388 的亲密度 1-10 级 |
+| 友情等级提升时发送通知 | ✅ | WebSocket `friendship_level_up` / `intimacy_level_up` 推送双方，写提醒中心 `interaction_reminders` 与好友动态 |
+| 好友排行榜正确排序 | ✅ | `GET /v1/friends/leaderboard?type=friendship|level|xp|catches|global`：好友按与我的友情点；等级/经验/本周捕捉含自己并按对方隐私过滤；`global` 读物化视图 `friend_leaderboard`（每小时 `REFRESH CONCURRENTLY`）。Redis 缓存 60 秒，好友关系或友情点变化时按用户版本号失效 |
+| 好友事件通过WebSocket实时推送 | ✅ | `/ws/friends?token=`（网关 upgrade 代理到 social-service，校验 access token 与 JWT 黑名单）；各服务经 Redis 频道 `social:events` 发布，支持多实例。事件：请求/接受/拒绝/撤回、加好友/删好友、收礼/礼物被打开、升级、好友上线、隐私变化、提醒、联合任务、精灵好友 |
+| 最大好友数量限制为400 | ✅ | 发请求时检查双方、接受时再次检查；事务内按双方用户咨询锁串行，并发接受不会超过 400（单测覆盖“只差 1 个名额时并发接受只成功一个”） |
+| 最大待处理请求限制为50 | ✅ | 发送方未过期 outgoing ≤ 50、接收方 incoming ≤ 50（同样串行检查），过期请求不计入 |
+| 单元测试覆盖核心逻辑（好友请求、礼物、友情点数） | ✅ | `backend/tests/unit/friend-service.test.js`（纯逻辑）+ `friend-service-db.test.js`（直接调用业务模块、真实 PostgreSQL，无库时跳过）；共 38 项，已加入 `test:unit` |
+| API响应时间 < 200ms (P95) | ⚠️ | 未做并发压测。功能冒烟中单次请求均在数十毫秒内（批量可见性 100 目标 7ms）；压测脚本 `scripts/bench-friends.js`（13 个接口、并发可调，输出 P50/P95/P99 与阈值对照），待在 CI 栈运行 |
+| 支持50万用户的好友关系存储 | ⚠️ | 未实测。存储设计：`friends` 主键 + `(user_id, friend_user_id)` 唯一索引、按用户的部分索引（友情点/最近互动），单用户查询全部走索引、与总行数无关；每用户 20 位好友约 1000 万行。容量脚本 `scripts/bench-friends-scale.js` 在隔离库造 50 万用户/约 1000 万行关系并输出表体积与核心 SQL 的 EXPLAIN ANALYZE、物化视图刷新耗时，待运行 |
+
+- 入口：social-service `src/friendService.js`、`src/routes/friends.js`（挂载 `/friends`）、`src/social/{ws,jobs,metrics}.js`；网关 `/v1/friends/*`（鉴权，去掉列表缓存）、`/ws/friends`（upgrade 代理）。删除了 `social-service/src/index.js` 中读写 V1 旧表、并遮挡路由器同名接口的内联 `/friends` 路由（`GET /v1/friends/gifts/pending` 的 `fg.created_at` 报错即源于新旧两套结构混用）；旧路径 `/friends/add`、`/friends/gifts`、`/friends/gifts/:id/open` 保留兼容实现
+- 前端：`frontend/game-client/src/social/FriendsScreen.js`，底部导航「好友」（`index.html`，按需 import）：好友列表（在线状态、友情等级进度、排行榜）、请求、礼物、动态、发现、提醒；WebSocket 断线指数退避重连
+- 迁移：`database/migrations/20260925_100600__e01_friends_social.sql`（收敛好友表：`friends`/`friend_requests`/`friend_gifts`/`friend_interactions` 权威结构、旧 `friendships` 回填与同步触发器、`friend_gifts` 新旧列同步触发器、好友码、`friend_leaderboard` 物化视图等；幂等，已在全新库 `reset-db` 199/0 与存量库重跑验证）
+- 指标：`minego_friend_requests_total`、`minego_friend_gifts_total`、`minego_friendship_points_total`、`minego_friendship_level_ups_total`、`minego_social_operation_duration_seconds`、`minego_social_ws_connections`（social-service `/metrics`）
+- 测试：`cd backend && node --test tests/unit/friend-service.test.js tests/unit/friend-service-db.test.js`；`BASE_URL=… node scripts/smoke-friends.js`（经网关 131 项；新增的 `GET /v1/users/:id` 隐私检查 1 项未运行）；`node scripts/bench-friends.js`、`node scripts/bench-friends-scale.js`（未运行，待验证）
+- 偏差：文档中的 knex 风格 `db('friends')` 改为 `pg` 参数化 SQL；`user_id` 等均为 UUID；排行榜物化视图只含好友数与友情点总和（等级/经验按好友实时计算）
+- 待验证：① 前端「好友」页在浏览器中加载与各操作；② 两个账号同时在线时 WebSocket 推送（经 nginx `/ws/` → 网关 → social-service）；③ `bench-friends.js` 的 P95；④ `bench-friends-scale.js` 的 50 万用户容量；⑤ 生产库执行迁移时旧 `friendships` 数据回填到 `friends` 的结果

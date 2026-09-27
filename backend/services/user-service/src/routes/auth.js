@@ -1,7 +1,6 @@
 // user-service/src/routes/auth.js
 'use strict';
 const express  = require('express');
-const bcrypt   = require('bcryptjs');
 const { z }    = require('zod');
 const { v4: uuidv4 } = require('uuid');
 const { query, transaction } = require('../../../../shared/db');
@@ -11,7 +10,25 @@ const {
   AppError, successResp, errorResp
 } = require('../../../../shared/auth');
 
+const fieldCrypto = require('../../../../shared/fieldCrypto');
+
 const router = express.Router();
+
+// ── REQ-00565: 手机号加密存储 + 盲索引查询 ─────────────────────
+const PHONE_CTX = 'users.phone';
+/** 写入用：{ phone: 密文, phoneHash: 盲索引 }；未配置密钥时退化为明文 */
+function protectPhone(phone) {
+  if (!fieldCrypto.isEnabled()) return { phone, phoneHash: null };
+  return { phone: fieldCrypto.encrypt(phone, PHONE_CTX), phoneHash: fieldCrypto.blindIndex(phone, PHONE_CTX) };
+}
+/** 查询条件：优先盲索引，同时兼容尚未回填的明文历史行 */
+function phoneLookup(phone) {
+  if (!fieldCrypto.isEnabled()) return { where: 'phone = $1', params: [phone] };
+  return {
+    where: '(phone_hash = $1 OR (phone_hash IS NULL AND phone = $2))',
+    params: [fieldCrypto.blindIndex(phone, PHONE_CTX), phone],
+  };
+}
 
 // ── Schemas ───────────────────────────────────────────────────
 const RegisterSchema = z.object({
@@ -58,14 +75,16 @@ router.post('/sms-code', async (req, res, next) => {
 
     // Generate code (in prod: call SMS provider API)
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(`[SMS] To ${phone}: ${code} (scene: ${scene})`);
+    // 生产环境不得把验证码写入日志或返回给客户端（SMS_DEV_MODE 在 production 下强制失效）
+    const smsDevMode = process.env.SMS_DEV_MODE === 'true' && process.env.NODE_ENV !== 'production';
+    if (smsDevMode) console.log(`[SMS] To ${phone}: ${code} (scene: ${scene})`);
 
     // Store with 5min TTL
     await redis.setex(`sms:code:${phone}:${scene}`, 300, code);
     await redis.setex(lockKey, 60, '1');
     await redis.setex(dailyKey, 86400, (dailyCount + 1).toString());
 
-    const devPayload = process.env.SMS_DEV_MODE === 'true' ? { expireIn: 300, dev_code: code } : { expireIn: 300 };
+    const devPayload = smsDevMode ? { expireIn: 300, dev_code: code } : { expireIn: 300 };
     res.json(successResp(devPayload, '验证码已发送'));
   } catch (err) { next(err); }
 });
@@ -104,10 +123,10 @@ router.post('/register', async (req, res, next) => {
     });
 
     const result = await transaction(async (client) => {
-      // Check phone uniqueness
-      const phoneHash = await bcrypt.hash(phone, 4); // light hash for lookup — real impl uses separate index
+      // Check phone uniqueness（盲索引 + 历史明文）
+      const lookup = phoneLookup(phone);
       const existing  = await client.query(
-        'SELECT id FROM users WHERE phone = $1', [phone]
+        `SELECT id FROM users WHERE ${lookup.where}`, lookup.params
       );
       if (existing.rows.length > 0) throw new AppError(2001, '该手机号已注册', 409);
 
@@ -117,12 +136,13 @@ router.post('/register', async (req, res, next) => {
       );
       if (nickExists.rows.length > 0) throw new AppError(2002, '昵称已被使用', 409);
 
-      // Create user
+      // Create user（手机号密文 + 盲索引）
+      const protectedPhone = protectPhone(phone);
       const { rows: [user] } = await client.query(`
-        INSERT INTO users (phone, nickname)
-        VALUES ($1, $2)
-        RETURNING id, nickname, level, xp, stardust, coins, created_at
-      `, [phone, nickname]);
+        INSERT INTO users (phone, phone_hash, nickname)
+        VALUES ($1, $2, $3)
+        RETURNING id, nickname, level, xp, stardust, coins, roles, created_at
+      `, [protectedPhone.phone, protectedPhone.phoneHash, nickname]);
 
       // Create initial daily quest
       await client.query(`
@@ -198,9 +218,10 @@ router.post('/login', async (req, res, next) => {
     const { phone, smsCode } = LoginSchema.parse(req.body);
 
     // Check user exists BEFORE consuming the one-time code
+    const lookup = phoneLookup(phone);
     const { rows } = await query(
-      'SELECT id, nickname, level, xp, team, is_banned, ban_reason FROM users WHERE phone = $1',
-      [phone]
+      `SELECT id, nickname, level, xp, team, roles, is_banned, ban_reason, phone_hash FROM users WHERE ${lookup.where}`,
+      lookup.params
     );
     if (rows.length === 0) throw new AppError(2003, '账号不存在，请先注册', 404);
     const user = rows[0];
@@ -208,8 +229,14 @@ router.post('/login', async (req, res, next) => {
 
     await verifySmsCode(phone, smsCode, 'login');
 
-    // Update last login
-    await query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [user.id]);
+    // Update last login；历史明文手机号在登录时顺带加密（REQ-00565 渐进迁移）
+    if (!user.phone_hash && fieldCrypto.isEnabled()) {
+      const p = protectPhone(phone);
+      await query('UPDATE users SET last_login_at = NOW(), phone = $2, phone_hash = $3 WHERE id = $1 AND phone_hash IS NULL',
+        [user.id, p.phone, p.phoneHash]);
+    } else {
+      await query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [user.id]);
+    }
 
     const tokens = issueTokens(user, {
       deviceName: req.headers['x-device-name'] || 'Unknown',
@@ -217,6 +244,10 @@ router.post('/login', async (req, res, next) => {
       ip: req.ip || req.connection.remoteAddress,
       userAgent: req.headers['user-agent']
     });
+    // REQ-00425：新设备登录生成安全类站内消息（异步，不影响登录）
+    require('../../../../shared/securityNotifier').onLogin(user.id, {
+      userAgent: req.headers['user-agent'], deviceType: req.headers['x-device-type'], deviceName: req.headers['x-device-name'], ip: req.ip,
+    }).catch(() => {});
     res.json(successResp({ ...tokens, userId: user.id, nickname: user.nickname, level: user.level, team: user.team }));
   } catch (err) { next(err); }
 });
@@ -231,12 +262,14 @@ router.post('/refresh', async (req, res, next) => {
     try { payload = verifyRefresh(refreshToken); }
     catch { throw new AppError(1003, 'Refresh Token 无效或已过期', 401); }
 
-    // Check blacklist
-    const blacklisted = await getRedis().get(`token:blacklist:${payload.jti}`);
+    // Check blacklist（与 /logout 使用同一个 JwtBlacklist，旧实现读的 key 与写入的 key 不一致）
+    const { getJwtBlacklist } = require('../../../../shared/JwtBlacklist');
+    const blacklisted = payload.jti && await getJwtBlacklist().isBlacklisted(payload.jti);
     if (blacklisted) throw new AppError(1003, 'Token 已失效', 401);
 
-    const { rows } = await query('SELECT id, nickname, level FROM users WHERE id = $1', [payload.sub]);
+    const { rows } = await query('SELECT id, nickname, level, roles, is_banned FROM users WHERE id = $1', [payload.sub]);
     if (!rows[0]) throw new AppError(2003, '用户不存在', 404);
+    if (rows[0].is_banned) throw new AppError(2004, '账号已被封禁', 403);
 
     const tokens = issueTokens(rows[0]);
     res.json(successResp(tokens));
@@ -280,16 +313,24 @@ router.post('/logout', async (req, res, next) => {
 // ── Helpers ───────────────────────────────────────────────────
 async function verifySmsCode(phone, code, scene) {
   const redis  = getRedis();
-  const stored = await redis.get(`sms:code:${phone}:${scene}`);
+  const codeKey = `sms:code:${phone}:${scene}`;
+  const failKey = `sms:fail:${phone}:${scene}`;
+  const stored = await redis.get(codeKey);
   if (!stored)  throw new AppError(1008, '验证码已过期，请重新获取', 400);
-  if (stored !== code) throw new AppError(1009, '验证码错误', 400);
-  await redis.del(`sms:code:${phone}:${scene}`);  // one-time use
+  if (stored !== String(code)) {
+    // 防暴力枚举：同一验证码最多错 5 次，超过即作废
+    const fails = await redis.incr(failKey);
+    if (fails === 1) await redis.expire(failKey, 300);
+    if (fails >= 5) await redis.del(codeKey, failKey);
+    throw new AppError(1009, '验证码错误', 400);
+  }
+  await redis.del(codeKey, failKey);  // one-time use
 }
 
 function issueTokens(user, deviceInfo = {}) {
   const jti = uuidv4();
   const now = Math.floor(Date.now() / 1000);
-  const accessToken  = signAccess({ sub: user.id, nickname: user.nickname, level: user.level, jti, iat: now, exp: now + 86400 });
+  const accessToken  = signAccess({ sub: user.id, nickname: user.nickname, level: user.level, roles: Array.isArray(user.roles) ? user.roles : [], jti });
   const refreshToken = signRefresh({ sub: user.id, jti });
 
   // Register session in blacklist (async, don't wait)

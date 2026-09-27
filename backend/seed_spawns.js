@@ -1,11 +1,12 @@
 // Generate spawn points around Shanghai pokestop clusters
 const { Client } = require('pg');
 
-const client = new Client({
-  host: '127.0.0.1', port: 5432,
-  database: 'pmg', user: 'pmg_user',
-  password: 'pmg1779688057bea7559741c5306f'
-});
+// 连接串从环境变量读取（原先硬编码了生产库密码）
+if (!process.env.DATABASE_URL) {
+  console.error('DATABASE_URL is required, e.g. postgres://pmg_user:***@127.0.0.1:5432/pmg');
+  process.exit(1);
+}
+const client = new Client({ connectionString: process.env.DATABASE_URL });
 
 // Core locations in Shanghai (from pokestop data)
 const centers = [
@@ -40,8 +41,8 @@ async function seed() {
 
       await client.query(`
         INSERT INTO spawn_points (lat, lng, location, biome, is_active)
-        VALUES ($1, $2, ST_SetSRID(ST_MakePoint($2, $1), 4326), $3, true)
-      `, [lat, lng, biome]);
+        VALUES ($1, $2, ST_SetSRID(ST_MakePoint($4, $3), 4326), $5, true)
+      `, [lat, lng, lat, lng, biome]);
       count++;
     }
   }

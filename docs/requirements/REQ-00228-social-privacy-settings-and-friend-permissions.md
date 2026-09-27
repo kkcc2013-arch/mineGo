@@ -7,7 +7,7 @@
 | 标题 | 游戏社交隐私设置与好友权限管理系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | social-service、user-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-15 19:00 |
 
@@ -1188,3 +1188,27 @@ class PrivacyMiddleware {
 - [GDPR 数据最小化原则](https://gdpr.eu/article-5-principles/)
 - [社交平台隐私设计最佳实践](https://www.nngroup.com/articles/privacy-design-patterns/)
 - [微信好友权限系统设计](https://www.uxdesign.cc/privacy-design-patterns)
+## 实现记录（2026-09-24）
+
+> 与 REQ-00048/00326/00377/00388 共用 E01 好友实现。状态 `implemented`：规则调整前已在隔离 CI 栈实测 `smoke-friends`（隐私/分组/权限/黑名单/审计 19 项；新增的公开资料过滤 1 项未运行）与
+> `test:unit` 通过；之后新增的 `GET /v1/users/:id` 隐私过滤与前端隐私页只做了静态检查，**待验证**。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 用户可以设置 6 种数据类型的可见性（公开/好友/密友/私密） | ✅ | `GET/PATCH /v1/privacy/settings`：10 类数据（资料、在线状态、位置、精灵收藏、精灵数值、闪光精灵、好友列表、对战记录、成就、动态），取值 public/friends/close_friends/family/custom/private；另有接受好友申请/礼物/交易/对战、位置共享、可被搜索、上线提醒开关。规则在 `shared/social/privacyRules.js`（位置还需开启位置共享才对他人可见） |
+| 好友分组功能可用，支持自定义分组名称、颜色、图标 | ✅ | `GET/POST /v1/privacy/groups`、`PATCH/DELETE /v1/privacy/groups/:id`（名称唯一、`#RRGGBB` 颜色、图标、排序、权限级别，每人最多 20 个）；可见性取 `custom` 时按 `custom_groups` 指定分组放行 |
+| 好友权限分级管理功能正常（普通好友/密友/家人） | ✅ | `PATCH /v1/privacy/friends/:friendId/permissions`（或 `PATCH /v1/friends/:friendId`）设置 `permissionLevel`/分组/单项权限覆盖 `overrides`/备注/标签/收藏；加入分组即继承分组权限，分组权限变更同步到成员。权限保存在数据所有者自己的 `friends` 行上 |
+| 黑名单功能正常，屏蔽用户后自动解除好友关系 | ✅ | `POST/DELETE /v1/privacy/block/:userId`、`GET /v1/privacy/blocked`：拉黑时删除双向好友关系、撤销双方待处理申请、屏蔽双方精灵好友关系、终止联合任务；被拉黑方搜索不到、无法申请/送礼，公开资料接口返回 404 |
+| 好友申请流程完整（发送/接受/拒绝/忽略） | ✅ | `/v1/friends/request*` 与 `/v1/privacy/friend-requests[/:id/accept|reject|ignore]`；另有撤回、7 天过期、`allow_friend_requests=false` 时拒收（403） |
+| 隐私设置实时生效，无需刷新页面 | ✅ | 设置不缓存（主键查询），网关去掉好友列表缓存；更新后经 WebSocket 向本人其他设备推 `privacy_updated`、向好友推 `friend_privacy_changed`，前端收到后自动刷新当前页 |
+| 批量可见性检查接口响应时间 < 100ms（100 个目标用户） | ✅ | `POST /v1/privacy/check/batch {targetIds, dataTypes}`：固定 3 条查询（关系、黑名单、隐私设置）+ 内存计算；CI 栈单次实测 100 目标 7ms。并发 P95 由 `scripts/bench-friends.js` 测量（待运行） |
+| 前端隐私设置界面直观易用 | ✅ | `FriendsScreen.js` 的「隐私」页：逐项下拉选择可见范围、自定义分组勾选、互动开关、分组新建/删除、黑名单解除、生日；好友详情里可设权限级别/分组/备注/收藏（未在浏览器中验证） |
+| 所有 API 接口有完整的单元测试覆盖 | ✅ | `friend-service.test.js`（规则全分支）+ `friend-service-db.test.js`（设置、分组、权限、批量检查、拉黑/解除、审计，真实库）；每个 `/v1/privacy/*` 接口在 `smoke-friends.js` 中经网关调用 |
+| 敏感操作有审计日志记录 | ✅ | 写入 `audit_logs`（entity_type=`social`）：隐私设置变更（含前后值）、好友权限变更、分组增删改、拉黑/解除、删除好友；`GET /v1/privacy/audit-log` 查询本人记录 |
+
+- 入口：social-service `src/social/privacyService.js`、`src/routes/privacy.js`（挂载 `/privacy`，更新接口每用户每分钟 10 次）；网关新增 `/v1/privacy/*`（鉴权）；user-service `GET /v1/users/:id` 按隐私过滤（等级受资料可见性、精灵数受收藏可见性约束，拉黑视为不存在）
+- 共用模块：`backend/shared/social/privacyRules.js`（纯规则）、`relationship.js`（关系/隐私批量读取）
+- 迁移：`database/migrations/20260925_100600__e01_friends_social.sql`（`privacy_settings`、`friend_groups`、`blocked_users`，`friends` 增加权限列；外键均为 UUID）
+- 测试：`cd backend && node --test tests/unit/friend-service.test.js tests/unit/friend-service-db.test.js`；`node scripts/smoke-friends.js`
+- 偏差：文档的 `friend_permissions` 表合并到 `friends` 行（双向两行天然区分“我对 TA 的设置”）；`friend_requests` 与 REQ-00048 共用；未在网关加“隐私检查中间件”——隐私在各服务读取数据处强制执行（好友列表/详情/动态/推荐/精灵可见性/公开资料），避免网关解析业务响应
+- 待验证：① 前端隐私页交互；② 两个账号在线时修改隐私后对方页面自动刷新；③ `GET /v1/users/:id` 的过滤结果

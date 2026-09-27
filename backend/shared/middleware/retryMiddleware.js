@@ -42,9 +42,11 @@ function createRetryMiddleware(options = {}) {
   const retryManager = getOrCreateRetryManager(serviceName, options);
 
   // 将 RetryManager 挂载到请求上下文
+  // retryableFetch 只对幂等请求（GET/HEAD/OPTIONS/PUT/DELETE 或带 Idempotency-Key）重试，返回最后一次响应（不因 4xx/5xx 抛错）
+  const retryableFetch = (url, fetchOptions = {}) => retryManager.fetch(url, fetchOptions);
   return (req, res, next) => {
     req.retryManager = retryManager;
-    req.retryableFetch = createRetryableFetch(retryManager);
+    req.retryableFetch = retryableFetch;
     next();
   };
 }

@@ -4,7 +4,7 @@
 -- 教程进度表
 CREATE TABLE IF NOT EXISTS tutorial_progress (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     
     -- 教程步骤完成状态
     completed_steps JSONB DEFAULT '[]',
@@ -124,7 +124,7 @@ CREATE TABLE IF NOT EXISTS smart_hints (
 -- 教程分析表
 CREATE TABLE IF NOT EXISTS tutorial_analytics (
     id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     
     -- 步骤信息
     step_key VARCHAR(50) NOT NULL,

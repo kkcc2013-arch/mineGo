@@ -3,7 +3,8 @@
  * 支持多种活动类型、自动触发、实时奖励发放和活动数据分析
  */
 
-const { db } = require('../../../shared/db');
+const { db, transaction } = require('../../../shared/db');
+const { grantRewards } = require('./rewardGrant');
 const { createLogger } = require('../../../shared/logger');
 const { publishEvent, EVENTS } = require('../../../shared/EventBus');
 const cron = require('node-cron');
@@ -370,20 +371,21 @@ class EventService {
       throw new Error('Event not active');
     }
 
-    const existing = await db.query(
-      'SELECT * FROM event_participations WHERE event_id = $1 AND user_id = $2',
-      [eventId, userId]
-    );
-
-    if (existing.rows.length > 0) {
-      return existing.rows[0];
-    }
-
+    // 原子插入：并发重复参与时只有一个请求插入成功（唯一约束 event_id + user_id）
     const result = await db.query(`
       INSERT INTO event_participations (event_id, user_id)
       VALUES ($1, $2)
+      ON CONFLICT (event_id, user_id) DO NOTHING
       RETURNING *
     `, [eventId, userId]);
+
+    if (result.rows.length === 0) {
+      const existing = await db.query(
+        'SELECT * FROM event_participations WHERE event_id = $1 AND user_id = $2',
+        [eventId, userId]
+      );
+      return existing.rows[0];
+    }
 
     await db.query(
       'UPDATE events SET participant_count = participant_count + 1 WHERE id = $1',
@@ -548,43 +550,46 @@ class EventService {
    * 领取活动奖励
    */
   async claimEventRewards(eventId, userId) {
-    const participation = await db.query(`
-      SELECT * FROM event_participations
-      WHERE event_id = $1 AND user_id = $2
-    `, [eventId, userId]);
+    // 同一事务内：条件更新抢占领取资格（并发只成功一次）+ 奖励实际入账（原实现只发事件，没有任何消费者，奖励从未到账）
+    const result = await transaction(async (client) => {
+      const claimed = await client.query(`
+        UPDATE event_participations
+        SET rewards_claimed = TRUE, rewards_claimed_at = CURRENT_TIMESTAMP, status = 'completed'
+        WHERE event_id = $1 AND user_id = $2 AND COALESCE(rewards_claimed, FALSE) = FALSE
+        RETURNING id
+      `, [eventId, userId]);
 
-    if (participation.rows.length === 0) {
-      throw new Error('User not participating in event');
+      if (claimed.rowCount === 0) {
+        const participation = await client.query(
+          'SELECT rewards_claimed FROM event_participations WHERE event_id = $1 AND user_id = $2',
+          [eventId, userId]
+        );
+        throw new Error(participation.rows.length === 0 ? 'User not participating in event' : 'Rewards already claimed');
+      }
+
+      const { rows } = await client.query('SELECT rewards FROM events WHERE id = $1', [eventId]);
+      const rewards = rows[0] && rows[0].rewards;
+      return { rewards, grant: await grantRewards(client, userId, rewards || []) };
+    });
+
+    if (result.grant.unsupported.length) {
+      logger.warn({ eventId, unsupported: result.grant.unsupported }, 'Event rewards contain unsupported types (not granted)');
     }
-
-    const userParticipation = participation.rows[0];
-
-    if (userParticipation.rewards_claimed) {
-      throw new Error('Rewards already claimed');
-    }
-
-    const event = await this.getEvent(eventId);
 
     await publishEvent(EVENTS.REWARD_GRANT, {
       userId,
       source: 'event_completion',
       sourceId: eventId,
       eventId,
-      rewards: event.rewards
+      rewards: result.rewards
     });
-
-    await db.query(`
-      UPDATE event_participations
-      SET rewards_claimed = TRUE, rewards_claimed_at = CURRENT_TIMESTAMP, status = 'completed'
-      WHERE event_id = $1 AND user_id = $2
-    `, [eventId, userId]);
 
     await db.query(
       'UPDATE events SET completion_count = completion_count + 1 WHERE id = $1',
       [eventId]
     );
 
-    return { success: true };
+    return { success: true, granted: result.grant.granted, level: result.grant.level };
   }
 
   /**

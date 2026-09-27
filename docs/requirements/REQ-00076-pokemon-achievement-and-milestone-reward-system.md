@@ -7,7 +7,7 @@
 | 标题 | 精灵成就系统与里程碑奖励 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-10 02:15 |
 
@@ -999,3 +999,42 @@ module.exports = [
 - [Xbox Live Achievements](https://docs.microsoft.com/en-us/gaming/xbox-live/features/achievements/)
 - [Pokemon GO Achievements](https://pokemongohub.net/guide/achievements/)
 - 游戏成就系统设计最佳实践
+
+## 实现记录（2026-09-24）
+
+> E05「成就/称号/资料卡/收藏室」与 E13「消息中心与推送」统一实现：REQ-00076 / 00106 / 00327 / 00359 / 00387 / 00403 与 REQ-00099 / 00261 / 00425 共用同一套游戏事件 outbox、成就引擎与消息中心。
+> 状态 `implemented`：代码已全部完成，**未做服务级验证**（2026-09-25 18:30 起规则）。此前迁移 `20260925_130000`、`20260925_131000` 曾在隔离 CI 栈（栈 8）的存量库上执行无失败，user-service 启动后事件消费者、消息分发器、WebSocket 均正常监听；之后新增的迁移 `20260925_132000`、`20260925_133000`、全部接口、前端界面只做了静态检查（`node --check`、`scripts/check-deps.js`、宿主机纯逻辑/内存替身单测），**待验证**。
+
+**共用架构**
+
+- 事件来源：业务表上的触发器把"发生了什么"写入 outbox 表 `achievement_events`（与业务同事务，业务回滚事件也不存在；触发器内部异常只 `RAISE WARNING`，不影响业务）并 `pg_notify('pmg_game_events')`。接入的表：`catch_sessions`（捕捉成功）、`pokestop_spins`、`trainer_level_ups`（升级，覆盖所有加经验路径）、`friendships`/`friends`、`friend_requests`、`friend_gifts`、`pokemon_trades`、`gym_battles`、`raid_participants`、`pvp_battles`、`egg_hatching`、`event_participations`；收藏室的展示/装饰/被点赞由 JS 在同事务写事件。
+- 消费：`backend/shared/achievementEngine.js`，user-service 启动时 `LISTEN` 实时处理 + 10 秒兜底扫描 + 每小时清理；pokemon-service 查询成就前按需处理该玩家未处理事件。`FOR UPDATE SKIP LOCKED` 保证多消费者不重复处理；每个事件一个 SAVEPOINT，单事件失败不影响其他事件，失败 5 次后放弃并保留 `last_error`。
+- 规则：`backend/shared/achievementRules.js`（事件 → 指标、过滤条件、奖励拆分、事件 → 消息、多语言，纯函数）。
+- 消息：`backend/shared/notificationCenter.js`（生成/列表/未读/已读/删除/偏好/广播/分析/清理）、`notificationPolicy.js`（分类、偏好、免打扰、投递计划，纯函数）、`notificationRealtime.js`（`/ws/messages` 与 LISTEN 分发）、`pushProviders.js`（FCM/APNs）。
+- 迁移：`database/migrations/20260925_130000__e05_achievement_title_core.sql`（成就/称号收敛 + outbox 触发器）、`20260925_131000__e13_notification_center.sql`（消息中心）、`20260925_132000__e05_collection_room.sql`（收藏室）、`20260925_133000__e05_player_profile.sql`（资料卡）。均 `IF NOT EXISTS`/`ON CONFLICT` 幂等，外键均按 `users.id UUID`；依赖的表（`achievements`、`title_definitions`、`trainer_level_ups`、`notification_templates`、E01 的 `privacy_settings`/`blocked_users` 等）都在更早的迁移中创建（已逐条核对）。
+- 测试：单测 `cd backend && node --test tests/unit/achievementRules.test.js tests/unit/achievementEngine.test.js tests/unit/notificationPolicy.test.js tests/unit/notificationCenter.test.js tests/unit/profileRules.test.js tests/unit/collectionRoomRules.test.js tests/unit/securityNotifier.test.js`（53 例，已加入 `test:unit`，宿主机已运行通过；引擎与消息中心用 `tests/unit/helpers/fakeGameDb.js` 内存替身，不依赖数据库）；经网关冒烟 `BASE_URL=… node scripts/smoke-profile-notify.js`（约 97 项，**未运行**）；压测 `node scripts/bench-profile-notify.js`（**未运行**）；前端 `cd frontend/game-client && npx playwright test tests/e2e/profile-notify.spec.js`（Mock 接口，**未运行**）。
+- 前端：`frontend/game-client/src/features/profileNotify.js` + `src/features/profile-notify/*`（由 `src/bootstrap/features.js` 注册一行）：底部导航「消息」🔔、「我的」页「成长与收藏」卡片（成就、称号、资料卡、我的收藏室、热门收藏室、收藏家排行、消息与通知设置）。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 数据库迁移成功，包含 5 个新表（achievements、user_achievements、achievement_progress_snapshots、achievement_events、user_titles） | ✅ | 5 张表已由早期迁移创建但互相冲突：V1 的 `user_achievements` 先建表，后续 `CREATE TABLE IF NOT EXISTS` 被跳过，外键仍指向旧表 `achievement_definitions`，新成就根本写不进去。迁移 `20260925_130000` 收敛：`achievements` 为唯一定义表（新增 `is_active`/`display_order`、分类扩展为 8 类），`user_achievements` 外键改指 `achievements(achievement_id)`，旧 V1 计数行按源数据（捕捉/图鉴/闪光/补给站/等级/行走/好友/团战/活动）回填新成就进度后删除；`achievement_events` 改造为 outbox（`processed_at/attempts/last_error/dedupe_key`、待处理部分索引）；快照表加排行索引 |
+| 成就定义管理功能可用，支持增删改查 | ✅ | 管理员接口 `GET/POST /v1/achievements/admin/definitions`、`PUT/DELETE /v1/achievements/admin/definitions/:id`（删除 = 下线，保留玩家记录；校验分类/稀有度/触发类型必须是引擎认识的指标/目标值/三语名称），修改后引擎定义缓存立即失效；`POST /v1/achievements/admin/grant` 与 reward-service `POST /v1/rewards/achievements/check`（仅管理员）补发进度 |
+| 成就触发器正确集成到现有事件系统（捕捉、战斗、交易、培育、探索） | ✅ | 由数据库触发器接入（见上"共用架构"），不依赖各服务记得调用：捕捉（含闪光/完美个体/新种类/夜间）、补给站（含 7 天连击）、升级、道馆战（胜利=攻克）、PvP 胜利、团战、交易（亮晶晶）、培育出蛋/孵化（完美个体）、好友、送礼、活动参与/完成、收藏室。catch-service / pokemon-service 补给站 / reward-service 中写旧计数 `catch_total`/`pokestop_spins` 的代码已删除。种子 62 个成就（5 大类 + 成长/收藏/活动） |
+| 用户成就列表 API 正常工作，支持分类过滤和进度查询 | ✅ | `GET /v1/achievements/my?category=&status=completed|in_progress|claimable|locked`（进度、目标、百分比、奖励、是否可领取）、`GET /v1/achievements/:id`（含全服完成率）、`GET /v1/achievements/categories`；支持 `?lang=` / `X-Language`（中/英/日） |
+| 成就进度实时更新，进度条显示正确 | ✅ | 触发器 `pg_notify` → user-service 消费者实时处理；查询接口先处理该玩家未处理事件，保证读到最新进度。进度 = 单条 upsert（累加类只升不降、绝对值类取最大，封顶 target）；前端进度条 `role=progressbar` |
+| 成就完成时自动触发奖励发放 | ✅ | 完成即自动：解锁称号（`rewards.title` 或称号定义 `unlock_criteria.achievement_id`）、发放收藏室装饰（`rewards.decoration`）、生成"成就解锁/称号解锁/获得装饰"站内消息（实时推送）、刷新快照与收藏家积分；货币/道具/精灵球按需求第 7 条走"领取"（见下） |
+| 奖励领取功能正常，防止重复领取 | ✅ | `POST /v1/achievements/:id/claim`、`POST /v1/achievements/claim-all`：`user_achievements` 行锁 + `rewards_claimed` 标记，同一事务内经 reward-service `rewardGrant.grantRewards`（货币/经验/精灵球）与 `shared/inventory.addItems`（道具）入账；未完成 400、已领 409。原种子里不存在的道具（孵化器、护符…）已换成已定义道具。冒烟用例 5 个并发领取只成功 1 个且只入账一次 |
+| 成就排行榜 API 返回正确的排名数据 | ✅ | `GET /v1/achievements/leaderboard?limit=&offset=`：按点数、完成数排序，排除封禁用户，带玩家佩戴的称号与本人名次；Redis 缓存 60 秒 |
+| 称号系统可用，支持激活/取消激活 | ✅ | 见 REQ-00106：`PUT /v1/users/me/titles/:id/activate`、`DELETE /v1/users/me/titles/active`；每人最多一个激活称号（部分唯一索引 + 行锁），并发佩戴只有一个生效 |
+| 隐藏成就不显示在列表中，直到被解锁 | ✅ | 列表只返回 `hiddenLocked` 数量；未解锁的隐藏成就详情返回 404、不计入分类总数；新增 4 个隐藏成就（夜猫子、持之以恒、精灵大师、幸运邂逅/完美主义者的说明已改为可达成的条件） |
+| 前端成就面板渲染正确，支持分类切换 | ✅ | `src/features/profile-notify/achievements.js`：总览（点数/完成度/排名/待领取）、分类标签页、状态筛选、进度条、领奖/一键领取、隐藏成就计数、排行榜入口 |
+| 成就点数和完成数量统计准确 | ✅ | `GET /v1/achievements/my/progress`：实时按 `user_achievements` 统计点数、完成数、各分类进度、可领取数；`achievement_progress_snapshots` 由 SQL 函数 `achievement_refresh_snapshot` 在解锁后重算（排行榜读取） |
+| 单元测试覆盖核心逻辑（30+ 测试用例） | ✅ | `tests/unit/achievementRules.test.js`（11）+ `tests/unit/achievementEngine.test.js`（9，内存替身覆盖完成只判定一次、前置成就、元成就、称号、消息、偏好过滤、SAVEPOINT 失败隔离与重试上限）共 20 个单测；冒烟 `smoke-profile-notify.js` 中成就相关约 20 项（升级/捕捉/补给站触发、并发领奖、隐藏、排行、多语言）。单测已在宿主机通过，冒烟未运行 |
+| 性能测试：成就查询 < 100ms，进度更新 < 50ms | ⚠️ | 未实测。`scripts/bench-profile-notify.js` 输出 `/v1/achievements/my`、`/my/progress` 的 P50/P95/P99 与"事件 → 成就完成"延迟；Prometheus `minego_achievement_processing_seconds`（单次处理耗时）可直接观察进度更新耗时，并配置了 P95 > 50ms 的告警 |
+| Prometheus 指标正确暴露（成就解锁数、处理延迟等） | ✅ | `minego_game_events_processed_total{type,status}`、`minego_achievements_unlocked_total{category,rarity}`、`minego_titles_unlocked_total`、`minego_achievement_processing_seconds`、`minego_game_event_lag_seconds`（注册到共享 registry，user-service / pokemon-service 的 `/metrics` 暴露）；告警 `infrastructure/monitoring/prometheus/profile_notify_alerts.yml`、仪表盘 `monitoring/grafana/dashboards/achievements-notifications.json`（未在生产环境验证） |
+
+- 入口：pokemon-service `src/achievementService.js`、`src/routes/achievements.js`（挂载 `/achievements`，删除了重复挂载）；网关 `/v1/achievements/*`（鉴权）；引擎 `backend/shared/achievementEngine.js`（user-service `onReady` 启动消费者）
+- 迁移：`database/migrations/20260925_130000__e05_achievement_title_core.sql`
+- 测试：见上；`BASE_URL=… node scripts/smoke-profile-notify.js`（未运行，待验证）
+- 偏差：文档中的 `achievementTriggers.js`（需要每个服务手工调用、从未被调用）改为数据库触发器 + outbox，已删除；原 `achievementService.js`（无法写入 `user_achievements`、测试是 knex 风格桩）与失效的 `tests/unit/achievement.test.js` 已替换；`user_id` 为 UUID
+- 待验证：① 全新库 `reset-db` 后 `bootstrap-report.json` 无本批迁移失败；② 存量库上回填旧 V1 成就计数的结果；③ `smoke-profile-notify.js` 中升级/捕捉/补给站触发成就与消息、并发领奖；④ `bench-profile-notify.js` 的 P95

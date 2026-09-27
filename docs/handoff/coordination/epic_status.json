@@ -1,0 +1,74 @@
+{
+  "E01": {
+    "state": "implemented",
+    "note": "已合并（work/e01-friends）"
+  },
+  "E21": {
+    "state": "implemented",
+    "note": "已合并：18 implemented / 5 partial"
+  },
+  "E25": {
+    "state": "implemented",
+    "note": "已合并（squash）：18 implemented / 3 partial；工作流在 ci/github-workflows/ 待拷贝"
+  },
+  "E11": {
+    "state": "implemented",
+    "note": "已合并：15 implemented；道馆对战/团战/战斗 WS 鉴权已修复"
+  },
+  "E07": {
+    "state": "doing",
+    "note": "⏸ 已暂停 · work/e07-growth：代码全部完成（15 提交），只差 11 个需求文档实现记录（步骤 14）"
+  },
+  "E05": {
+    "state": "implemented",
+    "note": "已合并（work/e05-e13-profile-notify）"
+  },
+  "E13": {
+    "state": "implemented",
+    "note": "已合并（work/e05-e13-profile-notify）"
+  },
+  "E02": {
+    "state": "doing",
+    "note": "⏸ 已暂停 · work/e02-e34-teams-voice：已提交 3 个 + WIP；公会迁移/服务进行中"
+  },
+  "E34": {
+    "state": "doing",
+    "note": "⏸ 已暂停 · work/e02-e34-teams-voice：未开始语音/内存防护实现"
+  },
+  "E03": {
+    "state": "doing",
+    "note": "⏸ 已暂停 · work/e03-e04-e12：设计已定，代码未开始"
+  },
+  "E04": {
+    "state": "doing",
+    "note": "⏸ 已暂停 · work/e03-e04-e12：设计已定，代码未开始"
+  },
+  "E12": {
+    "state": "doing",
+    "note": "⏸ 已暂停 · work/e03-e04-e12：连击规则已提交；批处理持久化 WIP"
+  },
+  "E23": {
+    "state": "doing",
+    "note": "REQ-00042 由协调者完成（implemented）"
+  },
+  "E14": {
+    "state": "doing",
+    "note": "⏸ 已暂停 · work/e14-e15-e18：未开始"
+  },
+  "E15": {
+    "state": "doing",
+    "note": "⏸ 已暂停 · work/e14-e15-e18：配置中心 schema/definitions/ConfigStore WIP"
+  },
+  "E18": {
+    "state": "doing",
+    "note": "⏸ 已暂停 · work/e14-e15-e18：未开始"
+  },
+  "E17": {
+    "state": "doing",
+    "note": "⏸ 已暂停 · work/e17-security：已完成调研（docs/handoff/security-module-survey-20260925.md），代码 WIP"
+  },
+  "E19": {
+    "state": "doing",
+    "note": "⏸ 已暂停 · work/e19-compliance：未开始（分支无改动）"
+  }
+}

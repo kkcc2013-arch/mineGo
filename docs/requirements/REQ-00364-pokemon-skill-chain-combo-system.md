@@ -7,7 +7,7 @@
 | 标题 | 精灵技能连击系统与组合技效果 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | pokemon-service、gym-service、social-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-29 13:00 |
 
@@ -419,3 +419,25 @@ POST /api/v1/battles/:battleId/skill
 - [Pokemon Battle Mechanics Wiki](https://bulbapedia.bulbagarden.net/wiki/Battle)
 - [Fighting Game Combo System Design](https://www.gamedeveloper.com/design/designing-fighting-game-combos)
 - 相关需求：REQ-00019 精灵技能学习系统、REQ-00090 精灵状态效果系统
+
+## 实现记录（2026-09-25）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 连击链配置表已创建，支持至少20种连击组合 | ✅ | combo_chains 有效 26 条（新增 23 条基于现有技能表，停用 7 条引用不存在技能的旧种子） |
+| 连击检测引擎实现完成，5秒时间窗口内可正确检测连击 | ✅ | `battle/combo.js`（按最后一个技能建索引；顺序/连续/窗口/属性/等级/连击冷却，单测） |
+| 组合技伤害计算正确，包含熟练度加成 | ✅ | 倍率 = 链倍率 × 质量 × (1 + 熟练度加成，每次 +1% 上限 20%) × (1 + 伤害加成)，上限 3.0；熟练度开战时从 user_combo_stats 载入（单测） |
+| 状态效果应用正确，支持眩晕、持续伤害、增益buff等 | ✅ | 眩晕（STUN 跳过行动）、冰冻、灼伤/中毒持续伤害、混乱；增益：能量返还、回复、暴击率、无视防御、冷却缩减 |
+| 前端连击提示系统显示正确，引导玩家完成连击 | ✅ | 战斗中显示进行中的连击链、下一步技能高亮与剩余窗口；连击图鉴与练习模式 |
+| 组合技动画效果播放流畅，支持震动反馈 | ⚠️ | 连击特效 + navigator.vibrate，受帧率控制器分级；未真机验证 |
+| 道馆战斗中连击机制工作正常 | ✅ | smoke「一键连招触发冲撞三连」（规则变更前通过） |
+| PVP 对战中连击机制工作正常，包含冷却限制 | ✅ | 竞技联赛（异步 PvP）同一引擎与连击冷却；团战也支持连击判定 |
+| 连击熟练度系统工作正常，使用次数统计准确 | ✅ | user_combo_stats.times_executed / perfect_executions / total_points |
+| 连击使用日志记录完整，支持数据分析 | ✅ | combo_records（战斗类型/质量/伤害/点数/对手）、battle_move_logs；`GET /v1/battle/combos/logs` |
+| 性能测试：单次连击检测延迟 < 50ms | ✅ | 进程内 2 万次 P99 0.007ms（bench-battle --local） |
+| 单元测试覆盖率 > 80% | ✅ | combo.js 98.98% |
+
+- 入口：gym-service `src/battle/*`（纯逻辑：damage/cooldown/energy/combo/engine/ai/stats/leagueRules/recommendScore/replayFormat/presetRules；持久化与编排：repo/store/session/gym/raid/league/replay/recommend/comboPresets/pokemonEnergy/settle/deps）；路由 `routes/gyms.js`、`routes/gymBattle.js`、`routes/raids.js`、`routes/battleApi.js`（挂 `/battle`）；网关 `backend/gateway/src/index.js`：`/v1/gyms/*`、`/v1/raids/*`、`/v1/battle/*`（鉴权）、公开 `/v1/battle/replays/shared/:code`、WebSocket 升级转发 `/ws/raid`、`/ws/notifications`、`/ws/battle`
+- 迁移：`database/migrations/20260925_110000__e11_battle_core.sql`（补列/新表/连击链种子/时间列 TIMESTAMPTZ，全部 IF NOT EXISTS）、`20260925_110100__e11_restore_fast_move_power.sql`；复用既有表见各行说明
+- 测试：宿主机已运行（纯逻辑，不连服务）：`cd backend && node --test tests/unit/battle-core.test.js tests/unit/battle-features.test.js` → 29/29 通过；`node --test frontend/game-client/tests/unit/battle-client.test.mjs` → 11/11 通过；`node --expose-gc scripts/bench-battle.js --local`（数字见表）。验证方式调整前（2026-09-25 08:39，提交 e022c97）曾在隔离 CI 栈实测：`scripts/smoke-battle.js` 101/101、核心冒烟 37/37、battle-core 16/16。之后的改动（连击熟练度接入、实时天气、连击道具奖励、大师联赛分组、AI 对位口径、迁移时间列段、前端全部）**未运行，待验证**。待运行：`BASE_URL=… DATABASE_URL=… REDIS_URL=… node scripts/smoke-battle.js`（102 项）、`node scripts/bench-battle.js --battles 20 --concurrency 5`；迁移在全新库上执行 `reset-db` 后检查 bootstrap-report 无 20260925_1100xx 失败
+- 待验证：连击在道馆/联赛/团战中的倍率与熟练度加成；真机震动

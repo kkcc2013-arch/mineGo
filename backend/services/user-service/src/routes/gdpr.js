@@ -6,9 +6,10 @@
 const express = require('express');
 const router = express.Router();
 const GDPRService = require('./gdprService');
-const { requireAuth } = require('../../../../shared/auth');
+const { requireAuth, requireAdmin } = require('../../../../shared/auth');
+const accountData = require('../gdpr/accountData');
 const { auditLog, AuditActions } = require('../../../../shared/auditLog');
-const logger = require('../../../../shared/logger');
+const { logger } = require('../../../../shared/logger');
 
 // 初始化服务
 let gdprService = null;
@@ -39,134 +40,116 @@ router.get('/privacy-policy', async (req, res) => {
 });
 
 /**
- * GET /api/gdpr/export
- * 导出用户数据（GDPR 第 20 条：数据可携带权）
+ * GET /gdpr/export
+ * 导出用户数据（GDPR 第 20 条：数据可携带权）—— REQ-00044
+ * 覆盖所有引用 users 的业务表（运行时从外键元数据发现），JSON 附件下载
  */
 router.get('/export', requireAuth, async (req, res) => {
+  const userId = req.user.sub;
   try {
-    const userId = req.user.id;
-    
-    // 记录审计日志
-    await auditLog({
+    // 导出会扫描大量表：每用户每小时最多 3 次
+    const redis = require('../../../../shared/redis').getRedis();
+    const rlKey = `gdpr:export:rl:${userId}`;
+    const n = await redis.incr(rlKey);
+    if (n === 1) await redis.expire(rlKey, 3600);
+    if (n > 3) return res.status(429).json({ error: 'Too many export requests, please try again later' });
+
+    const userData = await accountData.exportUserData(userId);
+    if (!userData) return res.status(404).json({ error: 'User not found' });
+
+    // 记录审计日志（失败不影响导出）
+    auditLog({
       userId,
       action: AuditActions.DATA_EXPORTED,
-      details: { format: 'json' },
+      details: { format: 'json', tables: Object.keys(userData.data).length },
       req,
       service: 'user-service',
       db: req.app.locals.db
-    });
-    
-    // 导出数据
-    const userData = await gdprService.exportUserData(userId);
-    
-    // 设置下载头
+    }).catch(() => {});
+
     const filename = `minego-data-${userId}-${Date.now()}.json`;
-    res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-    
     res.json(userData);
   } catch (err) {
-    logger.error({ err, userId: req.user?.id }, 'Data export failed');
+    logger.error({ err, userId }, 'Data export failed');
     res.status(500).json({ error: 'Failed to export data' });
   }
 });
 
 /**
- * DELETE /api/gdpr/delete
- * 删除用户数据（GDPR 第 17 条：被遗忘权）
+ * DELETE /gdpr/delete
+ * 申请删除账号（GDPR 第 17 条：被遗忘权）—— REQ-00044
+ * 进入冷却期（默认 30 天，GDPR_DELETION_COOLDOWN_DAYS），期间可撤销；到期后自动清理所有关联数据
  */
 router.delete('/delete', requireAuth, async (req, res) => {
+  const userId = req.user.sub;
   try {
-    const userId = req.user.id;
-    const { confirmation } = req.body;
-    
-    // 验证确认
+    const { confirmation, reason } = req.body || {};
     if (confirmation !== 'DELETE MY ACCOUNT') {
-      return res.status(400).json({
-        error: 'Please type "DELETE MY ACCOUNT" to confirm'
-      });
+      return res.status(400).json({ error: 'Please type "DELETE MY ACCOUNT" to confirm' });
     }
-    
-    // 请求删除
-    const result = await gdprService.requestDataDeletion(userId, {
-      reason: 'user_request',
-      req
+    const { request, created } = await accountData.requestDeletion(userId, reason);
+    auditLog({
+      userId, action: AuditActions.DATA_DELETION_REQUESTED || 'DATA_DELETION_REQUESTED',
+      details: { requestId: request.id, scheduledFor: request.scheduled_for }, req, service: 'user-service',
+      db: req.app.locals.db
+    }).catch(() => {});
+    res.status(created ? 202 : 200).json({
+      success: true,
+      requestId: request.id,
+      status: request.status,
+      scheduledFor: request.scheduled_for,
+      cooldownDays: accountData.COOLDOWN_DAYS,
+      message: `账号将在 ${accountData.COOLDOWN_DAYS} 天冷却期后删除，期间可随时撤销`,
     });
-    
-    res.json(result);
   } catch (err) {
-    logger.error({ err, userId: req.user?.id }, 'Data deletion request failed');
+    logger.error({ err, userId }, 'Data deletion request failed');
     res.status(500).json({ error: 'Failed to request data deletion' });
   }
 });
 
 /**
- * POST /api/gdpr/delete/confirm
- * 确认数据删除（通过邮件链接）
+ * POST /gdpr/delete/cancel
+ * 冷却期内撤销删除申请
  */
-router.post('/delete/confirm', async (req, res) => {
+router.post('/delete/cancel', requireAuth, async (req, res) => {
+  const userId = req.user.sub;
   try {
-    const { token } = req.body;
-    
-    // 查找删除请求
-    const result = await gdprService.db.query(`
-      SELECT id, user_id, status
-      FROM data_deletion_requests
-      WHERE confirmation_token = $1
-    `, [token]);
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Invalid confirmation token' });
-    }
-    
-    const request = result.rows[0];
-    
-    if (request.status !== 'pending') {
-      return res.status(400).json({ 
-        error: `Deletion already ${request.status}` 
-      });
-    }
-    
-    // 执行删除
-    await gdprService.executeDataDeletion(request.user_id, request.id);
-    
-    res.json({ 
-      success: true, 
-      message: 'Your data has been deleted.' 
-    });
+    const cancelled = await accountData.cancelDeletion(userId);
+    if (!cancelled) return res.status(404).json({ error: 'No pending deletion request' });
+    res.json({ success: true, requestId: cancelled.id, status: cancelled.status });
   } catch (err) {
-    logger.error({ err }, 'Data deletion confirmation failed');
-    res.status(500).json({ error: 'Failed to confirm data deletion' });
+    logger.error({ err, userId }, 'Cancel deletion failed');
+    res.status(500).json({ error: 'Failed to cancel deletion' });
   }
 });
 
 /**
- * GET /api/gdpr/status
- * 获取删除请求状态
+ * GET /gdpr/status
+ * 删除申请状态
  */
 router.get('/status', requireAuth, async (req, res) => {
   try {
-    const userId = req.user.id;
-    
-    const result = await gdprService.db.query(`
-      SELECT id, status, requested_at, completed_at
-      FROM data_deletion_requests
-      WHERE user_id = $1
-      ORDER BY requested_at DESC
-      LIMIT 1
-    `, [userId]);
-    
-    if (result.rows.length === 0) {
-      return res.json({ hasRequest: false });
-    }
-    
-    res.json({
-      hasRequest: true,
-      ...result.rows[0]
-    });
+    const requests = await accountData.getDeletionStatus(req.user.sub);
+    res.json({ hasRequest: requests.length > 0, latest: requests[0] || null, history: requests });
   } catch (err) {
     logger.error({ err }, 'Failed to get deletion status');
     res.status(500).json({ error: 'Failed to get status' });
+  }
+});
+
+/**
+ * POST /gdpr/admin/deletions/:id/execute
+ * 管理员立即执行删除（如监管/法务要求跳过冷却期）
+ */
+router.post('/admin/deletions/:id/execute', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const results = await accountData.processDueDeletions({ requestId: req.params.id });
+    if (!results.length) return res.status(404).json({ error: 'No pending request with this id' });
+    res.json({ success: true, result: results[0] });
+  } catch (err) {
+    logger.error({ err }, 'Admin deletion execute failed');
+    res.status(500).json({ error: 'Failed to execute deletion' });
   }
 });
 

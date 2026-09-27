@@ -123,7 +123,7 @@ VALUES
 ('catch-service', 'hourly', '20:00', 50, 130, 0.5),
 -- location-service 模式
 ('location-service', 'hourly', '18:00', 30, 80, 0.5),
-('location-service', 'hourly', '19:00', 35, 90, 0.5),
+('location-service', 'hourly', '19:00', 35, 90, 0.5)
 ON CONFLICT (service_name, pattern_type, pattern_key) DO NOTHING;
 
 -- 触发器：自动更新 updated_at

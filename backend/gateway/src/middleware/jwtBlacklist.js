@@ -72,6 +72,7 @@ function authWithBlacklistMiddleware(req, res, next) {
     // Verify JWT
     const { verifyAccess } = require('../../../shared/auth');
     const payload = verifyAccess(token);
+    if (payload && payload.id === undefined) payload.id = payload.sub; // 下游代码/缓存键使用 req.user.id
     req.user = payload;
     
     // Set user headers for downstream services

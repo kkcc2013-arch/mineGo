@@ -3,7 +3,7 @@
 - **编号**：REQ-00611
 - **类别**：无障碍(a11y)
 - **优先级**：P2
-- **状态**：new
+- **状态**：partial
 - **涉及服务/模块**：game-client、backend/shared/subtitles、user-service、所有音频播放模块
 - **创建时间**：2026-07-20 15:00
 - **依赖需求**：无
@@ -1167,3 +1167,42 @@ module.exports = router;
   - [ ] 屏幕阅读器兼容
 
 - [ ] **测试覆盖
+
+## 实现记录（2026-09-25）
+
+> 按 2026-09-25 起的验证方式：只写代码与测试，未启动服务做验证；✅ = 代码已实现、待验证。
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| **实时字幕** | ✅ | 见下列子项 |
+| └ 字幕生成延迟 < 200ms | ✅ | 字幕与语音播报同步渲染（调整前 e2e 测得 0.3ms） |
+| └ 支持中英日韩多语言 | ✅ | 语音字幕随播报语言（zh/en/ja）；音效描述字幕 zh/en/ja/ko |
+| └ 字幕自动分段和显示时长合理 | ✅ | 按标点分段（≤36 字）、按字数计算 1.5–7s 显示时长并随节奏倍率延长（单测覆盖） |
+| └ 字幕样式可自定义（字体、颜色、位置） | ✅ | 字体（5 种）/字号（4 档）/颜色/背景/位置（顶部/底部） |
+| **音效视觉化** | ✅ | 见下列子项 |
+| └ 所有游戏音效都有对应的视觉提示 | ✅ | 客户端全部有声事件映射到视觉提示（`soundCues.CUE_DEFS`） |
+| └ 视觉提示包含图标、动画、颜色、闪光 | ✅ | 图标 + 边框动画 + 优先级颜色 + 闪烁 |
+| └ 支持震动反馈（移动设备） | ⚠️ | navigator.vibrate，真机未验证 |
+| └ 屏幕闪光效果可开关 | ✅ | "高优先级事件边框闪烁"开关 |
+| **语音消息转文字** | ❌ | 见下列子项 |
+| └ 语音转文字准确率 ≥ 90% | ❌ | 网页客户端没有语音消息功能，需云端 ASR，未实现 |
+| └ 支持自动翻译 | ❌ | 未实现 |
+| └ 处理时间 < 2s（10秒语音） | ❌ | 未实现 |
+| └ 情感检测功能正常 | ❌ | 未实现 |
+| **用户偏好** | ✅ | 见下列子项 |
+| └ 字幕样式可自定义 | ✅ | 字体/字号/颜色/背景/位置均可配置 |
+| └ 视觉提示强度可调节 | ✅ | 提示强度 低/中/高 |
+| └ 震动和闪光可单独开关 | ✅ | 震动（触觉分组）与闪光分别开关 |
+| └ 配置持久化保存 | ✅ | localStorage + 云端 |
+| **无障碍合规** | ⚠️ | 见下列子项 |
+| └ WCAG 2.1 AAA 级听觉标准合规 | ⚠️ | AAA 需人工评估 |
+| └ 所有功能可通过键盘访问 | ✅ | 设置与字幕均可键盘操作 |
+| └ 屏幕阅读器兼容 | ✅ | 字幕是语音的可视化副本（aria-hidden），内容已通过 aria-live 播报，避免重复朗读 |
+| **测试覆盖 | ⚠️ | 原文此处截断；前端单测覆盖分段/时长/视觉提示规划，未统计覆盖率 |
+
+- 入口：`frontend/game-client/index.html` → `src/bootstrap/features.js` → `src/bootstrap/a11y.js` 的 `initAccessibility(ctx)`；设置入口「我的 → 无障碍设置」（`window.showAccessibilitySettings`，或按 `,`），模块在 `src/accessibility/`
+- 迁移：`database/migrations/20260925_010000__user_preferences.sql`（`user_preferences`：user_id UUID → users(id) ON DELETE CASCADE、namespace、prefs JSONB，主键 (user_id, namespace)，全部 IF NOT EXISTS）；偏好云端同步：user-service `GET/PUT/DELETE /users/me/preferences/:namespace`（`src/routes/preferences.js` + `src/services/userPreferences.js` 校验），经网关 `/v1/users/me/preferences/a11y`（网关已有 `/v1/users` 鉴权代理，未改网关）
+- 测试：前端纯逻辑单测 `node --test frontend/game-client/tests/a11y/unit.test.mjs frontend/game-client/tests/a11y/voice.test.mjs`（宿主机已运行 63/63 通过）；后端单测 `cd backend && node --test tests/unit/a11y-backend.test.js`（宿主机已运行 9/9，已加入 `npm run test:unit`）；服务冒烟 `BASE_URL=<网关> node scripts/smoke-a11y.js`；浏览器 e2e `BASE_URL=<网关> APP_URL=<客户端> NODE_PATH=<playwright-core+axe-core> node scripts/e2e-a11y.js`；性能 `scripts/bench-a11y-client.js`。验证方式调整前曾在 CI 栈跑过一次：smoke-a11y 17/17、e2e 60/60（之后新增的用例未运行，**待验证**）
+- 待验证：字幕样式与时长的主观可读性；硬件相关（振动/手柄/Web Speech）以模拟对象测试，⚠️ 真机未验证
+- 备注：未完成：语音消息转文字（识别、翻译、情感检测）——客户端无语音消息功能，需要云端语音服务。
+- 使用与接入文档：`docs/accessibility/a11y-guide.md`

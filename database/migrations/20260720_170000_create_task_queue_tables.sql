@@ -20,12 +20,38 @@ CREATE TABLE IF NOT EXISTS dead_letter_queue (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS task_id VARCHAR(100);
+ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS task_type VARCHAR(50);
+ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS task_data JSONB;
+ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS error_message TEXT;
+ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS error_stack TEXT;
+ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS error_code VARCHAR(50);
+ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS retry_count INTEGER DEFAULT 0;
+ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS failed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS original_created_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS resolved_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS resolved_by VARCHAR(100);
+ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS resolution_action VARCHAR(20);
+ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE dead_letter_queue ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.dead_letter_queue') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('task_id', 'task_type', 'task_data', 'error_message', 'error_stack', 'error_code', 'retry_count', 'failed_at', 'original_created_at', 'resolved_at', 'resolved_by', 'resolution_action', 'metadata', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE dead_letter_queue ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
-CREATE INDEX idx_dlq_task_type ON dead_letter_queue(task_type);
-CREATE INDEX idx_dlq_failed_at ON dead_letter_queue(failed_at DESC);
-CREATE INDEX idx_dlq_resolved ON dead_letter_queue(resolved_at) WHERE resolved_at IS NOT NULL;
-CREATE INDEX idx_dlq_unresolved ON dead_letter_queue(task_type, failed_at) WHERE resolved_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_dlq_task_type ON dead_letter_queue(task_type);
+CREATE INDEX IF NOT EXISTS idx_dlq_failed_at ON dead_letter_queue(failed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_dlq_resolved ON dead_letter_queue(resolved_at) WHERE resolved_at IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_dlq_unresolved ON dead_letter_queue(task_type, failed_at) WHERE resolved_at IS NULL;
 
 -- 任务执行历史表
 CREATE TABLE IF NOT EXISTS task_execution_history (
@@ -43,11 +69,34 @@ CREATE TABLE IF NOT EXISTS task_execution_history (
     metadata JSONB DEFAULT '{}'::jsonb,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE task_execution_history ADD COLUMN IF NOT EXISTS task_id VARCHAR(100);
+ALTER TABLE task_execution_history ADD COLUMN IF NOT EXISTS task_type VARCHAR(50);
+ALTER TABLE task_execution_history ADD COLUMN IF NOT EXISTS status VARCHAR(20);
+ALTER TABLE task_execution_history ADD COLUMN IF NOT EXISTS attempt_number INTEGER DEFAULT 1;
+ALTER TABLE task_execution_history ADD COLUMN IF NOT EXISTS started_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE task_execution_history ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE task_execution_history ADD COLUMN IF NOT EXISTS duration_ms INTEGER;
+ALTER TABLE task_execution_history ADD COLUMN IF NOT EXISTS error_message TEXT;
+ALTER TABLE task_execution_history ADD COLUMN IF NOT EXISTS error_stack TEXT;
+ALTER TABLE task_execution_history ADD COLUMN IF NOT EXISTS worker_id VARCHAR(100);
+ALTER TABLE task_execution_history ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE task_execution_history ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.task_execution_history') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('task_id', 'task_type', 'status', 'attempt_number', 'started_at', 'completed_at', 'duration_ms', 'error_message', 'error_stack', 'worker_id', 'metadata', 'created_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE task_execution_history ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引
-CREATE INDEX idx_task_history_task_id ON task_execution_history(task_id);
-CREATE INDEX idx_task_history_task_type ON task_execution_history(task_type, created_at DESC);
-CREATE INDEX idx_task_history_status ON task_execution_history(status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_task_history_task_id ON task_execution_history(task_id);
+CREATE INDEX IF NOT EXISTS idx_task_history_task_type ON task_execution_history(task_type, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_task_history_status ON task_execution_history(status, created_at DESC);
 
 -- 任务队列指标表（用于 Prometheus 查询和历史趋势）
 CREATE TABLE IF NOT EXISTS task_queue_metrics (
@@ -58,24 +107,28 @@ CREATE TABLE IF NOT EXISTS task_queue_metrics (
     labels JSONB DEFAULT '{}'::jsonb,
     recorded_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE task_queue_metrics ADD COLUMN IF NOT EXISTS task_type VARCHAR(50);
+ALTER TABLE task_queue_metrics ADD COLUMN IF NOT EXISTS metric_name VARCHAR(100);
+ALTER TABLE task_queue_metrics ADD COLUMN IF NOT EXISTS metric_value DOUBLE PRECISION;
+ALTER TABLE task_queue_metrics ADD COLUMN IF NOT EXISTS labels JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE task_queue_metrics ADD COLUMN IF NOT EXISTS recorded_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.task_queue_metrics') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('task_type', 'metric_name', 'metric_value', 'labels', 'recorded_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE task_queue_metrics ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 索引（用于快速查询最近指标）
-CREATE INDEX idx_metrics_task_type_time ON task_queue_metrics(task_type, recorded_at DESC);
-CREATE INDEX idx_metrics_name_time ON task_queue_metrics(metric_name, recorded_at DESC);
+CREATE INDEX IF NOT EXISTS idx_metrics_task_type_time ON task_queue_metrics(task_type, recorded_at DESC);
+CREATE INDEX IF NOT EXISTS idx_metrics_name_time ON task_queue_metrics(metric_name, recorded_at DESC);
 
--- 分区（按月分区，保留 6 个月数据）
-CREATE TABLE IF NOT EXISTS task_queue_metrics_202607 PARTITION OF task_queue_metrics
-    FOR VALUES FROM ('2026-07-01') TO ('2026-08-01');
-CREATE TABLE IF NOT EXISTS task_queue_metrics_202608 PARTITION OF task_queue_metrics
-    FOR VALUES FROM ('2026-08-01') TO ('2026-09-01');
-CREATE TABLE IF NOT EXISTS task_queue_metrics_202609 PARTITION OF task_queue_metrics
-    FOR VALUES FROM ('2026-09-01') TO ('2026-10-01');
-CREATE TABLE IF NOT EXISTS task_queue_metrics_202610 PARTITION OF task_queue_metrics
-    FOR VALUES FROM ('2026-10-01') TO ('2026-11-01');
-CREATE TABLE IF NOT EXISTS task_queue_metrics_202611 PARTITION OF task_queue_metrics
-    FOR VALUES FROM ('2026-11-01') TO ('2026-12-01');
-CREATE TABLE IF NOT EXISTS task_queue_metrics_202612 PARTITION OF task_queue_metrics
-    FOR VALUES FROM ('2026-12-01') TO ('2027-01-01');
+-- 原计划按月分区，但 task_queue_metrics 未声明 PARTITION BY（且写死了 2026 年日期）；保持普通表，过期数据由清理任务按 recorded_at 删除
 
 -- 任务重试策略配置表
 CREATE TABLE IF NOT EXISTS task_retry_configs (
@@ -90,6 +143,26 @@ CREATE TABLE IF NOT EXISTS task_retry_configs (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE task_retry_configs ADD COLUMN IF NOT EXISTS task_type VARCHAR(50);
+ALTER TABLE task_retry_configs ADD COLUMN IF NOT EXISTS max_retries INTEGER DEFAULT 5;
+ALTER TABLE task_retry_configs ADD COLUMN IF NOT EXISTS initial_delay_ms INTEGER DEFAULT 1000;
+ALTER TABLE task_retry_configs ADD COLUMN IF NOT EXISTS max_delay_ms INTEGER DEFAULT 300000;
+ALTER TABLE task_retry_configs ADD COLUMN IF NOT EXISTS backoff_multiplier DOUBLE PRECISION DEFAULT 2.0;
+ALTER TABLE task_retry_configs ADD COLUMN IF NOT EXISTS jitter_ms INTEGER DEFAULT 500;
+ALTER TABLE task_retry_configs ADD COLUMN IF NOT EXISTS enabled BOOLEAN DEFAULT TRUE;
+ALTER TABLE task_retry_configs ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE task_retry_configs ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.task_retry_configs') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('task_type', 'max_retries', 'initial_delay_ms', 'max_delay_ms', 'backoff_multiplier', 'jitter_ms', 'enabled', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE task_retry_configs ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 插入默认配置
 INSERT INTO task_retry_configs (task_type, max_retries, initial_delay_ms, max_delay_ms) VALUES
@@ -117,6 +190,29 @@ CREATE TABLE IF NOT EXISTS dlq_alert_rules (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
+-- [fix_sql_dialect] 补齐已存在旧表缺少的列
+ALTER TABLE dlq_alert_rules ADD COLUMN IF NOT EXISTS rule_name VARCHAR(100);
+ALTER TABLE dlq_alert_rules ADD COLUMN IF NOT EXISTS task_type VARCHAR(50);
+ALTER TABLE dlq_alert_rules ADD COLUMN IF NOT EXISTS metric_type VARCHAR(50);
+ALTER TABLE dlq_alert_rules ADD COLUMN IF NOT EXISTS threshold_value DOUBLE PRECISION;
+ALTER TABLE dlq_alert_rules ADD COLUMN IF NOT EXISTS comparison_operator VARCHAR(10) DEFAULT '>';
+ALTER TABLE dlq_alert_rules ADD COLUMN IF NOT EXISTS severity VARCHAR(20) DEFAULT 'warning';
+ALTER TABLE dlq_alert_rules ADD COLUMN IF NOT EXISTS duration_seconds INTEGER DEFAULT 300;
+ALTER TABLE dlq_alert_rules ADD COLUMN IF NOT EXISTS enabled BOOLEAN DEFAULT TRUE;
+ALTER TABLE dlq_alert_rules ADD COLUMN IF NOT EXISTS cooldown_seconds INTEGER DEFAULT 600;
+ALTER TABLE dlq_alert_rules ADD COLUMN IF NOT EXISTS last_triggered_at TIMESTAMP WITH TIME ZONE;
+ALTER TABLE dlq_alert_rules ADD COLUMN IF NOT EXISTS created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+ALTER TABLE dlq_alert_rules ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW();
+-- [fix_sql_dialect] 放开旧表中新定义没有的非主键列的 NOT NULL
+DO $relax$ DECLARE c RECORD; BEGIN
+  FOR c IN SELECT a.attname FROM pg_attribute a
+           WHERE a.attrelid = to_regclass('public.dlq_alert_rules') AND a.attnum > 0 AND NOT a.attisdropped AND a.attnotnull
+             AND a.attname NOT IN ('rule_name', 'task_type', 'metric_type', 'threshold_value', 'comparison_operator', 'severity', 'duration_seconds', 'enabled', 'cooldown_seconds', 'last_triggered_at', 'created_at', 'updated_at', 'id')
+             AND NOT EXISTS (SELECT 1 FROM pg_index i WHERE i.indrelid = a.attrelid AND i.indisprimary AND a.attnum = ANY(i.indkey))
+  LOOP
+    EXECUTE format('ALTER TABLE dlq_alert_rules ALTER COLUMN %I DROP NOT NULL', c.attname);
+  END LOOP;
+END $relax$;
 
 -- 插入默认告警规则
 INSERT INTO dlq_alert_rules (rule_name, task_type, metric_type, threshold_value, severity) VALUES
@@ -199,7 +295,7 @@ SELECT
     COUNT(*) FILTER (WHERE status = 'failed') as failed_count,
     COUNT(*) FILTER (WHERE status = 'retrying') as retrying_count,
     ROUND(
-        COUNT(*) FILTER (WHERE status = 'completed)::NUMERIC / NULLIF(COUNT(*), 0) * 100,
+        COUNT(*) FILTER (WHERE status = 'completed')::NUMERIC / NULLIF(COUNT(*), 0) * 100,
         2
     ) as success_rate,
     AVG(duration_ms) FILTER (WHERE status = 'completed') as avg_duration_ms,
