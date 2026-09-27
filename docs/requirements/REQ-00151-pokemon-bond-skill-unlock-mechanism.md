@@ -3,7 +3,7 @@
 - **编号**：REQ-00151
 - **类别**：功能增强
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：pokemon-service、backend/services/pokemon-service/src/friendshipService.js、backend/services/pokemon-service/src/routes/friendship.js、game-client、database/migrations
 - **创建时间**：2026-06-12 09:00
 - **依赖需求**：REQ-00067（精灵羁绊与互动养成系统）、REQ-00112（精灵技能冷却与能量系统）
@@ -267,3 +267,25 @@ class PokemonBondSkills {
 3. **战斗策略深度**：羁绊技能提供新的战斗选项，增加策略性
 4. **长期留存**：技能解锁目标明确，延长玩家游戏周期
 5. **商业化潜力**：可通过道具加速羁绊提升，增加变现点
+
+## 实现记录（2026-09-24）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| `node --check backend/services/pokemon-service/src/friendshipService.js` 通过 | ✅ | 该文件及本需求改动的 bondSkillService.js / routes/bondSkills.js 均通过 node --check |
+| `curl -sf http://localhost:8083/pokemon/:id/bond-skills` 返回 200 | ✅ | `GET /pokemon/:id/bond-skills`（网关 `/v1/pokemon/:id/bond-skills`），返回解锁/学习/激活状态与当前威力 |
+| `curl -sf http://localhost:8083/pokemon-species/25/bond-skills/available` 返回皮卡丘羁绊技能列表 | ✅ | 服务直连路径保留（公开）；网关可达的等价路径 `/v1/pokemon/species/25/bond-skills`（需登录，网关未对外开放无鉴权的 /v1/pokemon-species） |
+| 亲密度 20 的精灵可学习第 1 槽羁绊技能 | ✅ | 按"羁绊等级"（0~100 = 亲密度原值×100/255，与进化用的 0~255 亲密度同源）判定，1/2/3 槽 20/50/90；迁移把原数据的 26/76/151 原值阈值改为需求口径 |
+| 亲密度 50 的精灵可学习第 2 槽羁绊技能 | ✅ | 同上；槽位被占用时拒绝（409 SLOT_OCCUPIED） |
+| 亲密度 90 的精灵可学习第 3 槽羁绊技能 | ✅ | 同上 |
+| 学习羁绊技能后可在战斗中使用 | ✅ | E11 战斗引擎接入：`shared/growthBattle.js` 把激活的羁绊技能作为额外蓄力技（`BOND_<id>`）加入战斗单位招式；另有 `POST /pokemon/:id/bond-skills/:skillId/use`（扣 PP、记录使用统计），休息站休息结束恢复 PP |
+| 羁绊技能威力根据亲密度正确计算 | ✅ | `shared/growth/bondSkillRules.js` 安全表达式求值（不用 eval）：`65 + floor(friendship * 0.5)` 等公式、键值附加效果（crit_bonus/shield_hp…）；单测覆盖 |
+| 可遗忘并重新学习羁绊技能 | ✅ | `DELETE /pokemon/:id/bond-skills/:skillId` 后可再学 |
+| 前端正确展示羁绊技能列表和解锁状态 | ✅ | 精灵页「羁绊」页签（`frontend/game-client/src/growth/GrowthCenter.js`）：羁绊等级、各槽解锁/还差亲密度、学习/激活/遗忘 |
+| 单元测试覆盖率 ≥ 75% | ⚠️ | 规则模块单测 `tests/unit/growth-bond-skills.test.js`（解锁阈值、公式求值安全性、威力计算）；覆盖率未统计 |
+
+- 入口：pokemon-service `routes/bondSkills.js`（挂 `/`）→ `bondSkillService.js`；战斗接入 `backend/shared/growthBattle.js` ← gym-service `battle/repo.js`
+- 迁移：`database/migrations/20260925_130000__bond_skill_thresholds.sql`（阈值改 20/50/90，补妙蛙种子/小火龙/雷丘的羁绊技能）；表由 `pending/20260613_064500` 创建
+- 测试：单测 `cd backend && node --test tests/unit/growth-*.test.js`（宿主机已运行：96 项含 E11 战斗单测全部通过）；冒烟 `BASE_URL=<网关> node scripts/smoke-growth.js bond battle`（经网关的集成冒烟，本批未运行，待验证）
+- 待验证：学习/激活/遗忘全流程；联赛对局中激活的羁绊技能出现在招式列表（冒烟 battle 段）；原 `/bond-skills/calculate-effect`（按请求体任意亲密度计算）已删除
+- 说明：所有接口挂在 pokemon-service `/pokemon/*` 下，经网关 `/v1/pokemon/*`（authMiddleware JWT + 用户级限流）访问；`scripts/api-lint.js` 0 error、`scripts/contract-snapshot.js --check` 未审批 0。

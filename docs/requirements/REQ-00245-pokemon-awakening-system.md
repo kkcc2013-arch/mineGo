@@ -7,7 +7,7 @@
 | 标题 | 精灵觉醒系统与潜能激活 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-16 05:00 |
 
@@ -842,3 +842,27 @@ export class AwakeningEffect {
 - Fate/Grand Order: 灵基再临系统
 - 原神: 角色突破机制
 - ICU MessageFormat: https://unicode-org.github.io/icu/userguide/format_parse/messages/
+
+## 实现记录（2026-09-24）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 数据库迁移脚本成功执行，所有表创建完成 | ✅ | awakening_configs（按物种覆盖默认配置）、potentials（12 个潜能，中英日名称）、pokemon_awakenings；材料作为 items（觉醒碎片/觉醒石/觉醒精华）走 player_inventory，不另建 user_awakening_materials；精灵上 awakening_stage/awakening_bonuses 列（核心迁移） |
+| 觉醒条件检查 API 正确返回各项条件的满足状态 | ✅ | `GET /pokemon/:id/awakening`：等级/亲密度/各材料/糖果/星尘逐项 current/required/met |
+| 觉醒执行 API 正确扣除材料并记录觉醒结果 | ✅ | `POST /pokemon/:id/awakening/awaken`：事务内锁行复核、原子扣材料/家族糖果/星尘、写 pokemon_awakenings 与里程碑 |
+| 潜能随机抽取系统按权重正确工作 | ✅ | 按权重不重复抽取（单测含 3000 次统计） |
+| 保底机制确保最低潜能数量 | ✅ | guaranteed 个保底，之后每个额外名额 30%，不超过 max |
+| 属性加成正确应用到精灵战斗属性 | ✅ | 攻/防/HP 加成按 CP 公式比例同步到 CP（E11 战斗引擎按 CP 推算攻防，自动体现）；暴击/闪避/技能威力加成由 `shared/growthBattle.js` 作用到战斗单位；`GET /pokemon/:id/battle-profile` 展示合成后的战斗属性 |
+| 觉醒技能解锁功能正常工作 | ✅ | 第 3 阶段起"觉醒爆发"（威力随阶段），在觉醒状态与战斗档案中返回；⚠️ 未写入 E11 的招式表（战斗中未作为可选招式） |
+| 重洗潜能功能正常，消耗递增 | ✅ | `POST /pokemon/:id/awakening/reroll`：第 n 次消耗 n 个精华 + 1000n 星尘 |
+| 前端觉醒面板正确显示所有条件和材料 | ✅ | 精灵页「觉醒」页签 |
+| 觉醒动画效果流畅，无卡顿 | ⚠️ | CSS 动画（尊重 prefers-reduced-motion）；未在真机测流畅度 |
+| 觉醒后光环特效持续显示 | ✅ | 精灵详情头部按阶段显示光环（绿/蓝/紫/金/彩虹） |
+| 国际化支持所有觉醒相关文本 | ⚠️ | 潜能名称/描述中英日（`?lang=`）；界面标签仅中文 |
+| 单元测试覆盖核心逻辑，覆盖率 ≥ 80% | ⚠️ | `tests/unit/growth-awakening.test.js`（条件、抽取、保底、加成、CP 倍率、重洗费用、战斗属性合成）；覆盖率未统计 |
+
+- 入口：`routes/awakening.js` → `awakeningService.js`、`growth/awakeningRules.js`；战斗档案 `growth/battleProfile.js`；成长商店 `/pokemon/growth-shop/*`（觉醒碎片/石/精华可用金币购买）；训练营每次完成掉落 1 个觉醒碎片
+- 迁移：`database/migrations/20260925_160000__pokemon_awakening.sql`
+- 测试：单测 `cd backend && node --test tests/unit/growth-*.test.js`（宿主机已运行：96 项含 E11 战斗单测全部通过）；冒烟 `BASE_URL=<网关> node scripts/smoke-growth.js awakening`（经网关的集成冒烟，本批未运行，待验证）
+- 待验证：觉醒后 CP 同步、重洗后加成与 CP 重新计算；Kafka 事件 `pokemon.awakened` 未实现（影响范围中的可选项）
+- 说明：所有接口挂在 pokemon-service `/pokemon/*` 下，经网关 `/v1/pokemon/*`（authMiddleware JWT + 用户级限流）访问；`scripts/api-lint.js` 0 error、`scripts/contract-snapshot.js --check` 未审批 0。

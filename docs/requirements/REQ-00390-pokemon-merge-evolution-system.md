@@ -7,7 +7,7 @@
 | 标题 | 精灵合并进化系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-30 17:00 |
 
@@ -1236,3 +1236,26 @@ describe('MergeService', () => {
 - [宝可梦融合机制设计](https://bulbapedia.bulbagarden.net/wiki/Pokémon_fusion)
 - [游戏概率系统设计模式](https://www.gamasutra.com/blogs/TylerGlaiel/20180417/316384/Probability_and_game_design.php)
 - [React 粒子效果实现](https://pixijs.io/examples/#/demos-basic/container.js)
+
+## 实现记录（2026-09-24）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 用户可以查看所有可用的合并配方 | ✅ | `GET /pokemon/merge/recipes?lang=`：多语言名称、解锁条件、玩家是否凑得齐（8 个配方，只引用已存在物种） |
+| 用户可以选择精灵进行合并预览 | ✅ | `POST /pokemon/merge/preview`：校验、成功率构成（基础/品质/等级/幸运符）、消耗清单、失败警告 |
+| 合并操作正确验证精灵等级、数量要求 | ✅ | 恰好满足配方（多选/少选/物种不符/等级不足/重复都拒绝），单测覆盖 |
+| 合并成功时正确创建新精灵并删除参与精灵 | ✅ | 参与精灵软删除（is_released，背包计数同步）；产出 origin=merged 的精灵（IV = 输入平均 +1，等级受训练师等级上限约束），更新图鉴与家族糖果 |
+| 合并失败时参与精灵被正确消耗 | ✅ | 成败都消耗参与精灵与道具 |
+| 变异机制按配置概率触发 | ✅ | 成功后按 variant_rate 产出变异物种 |
+| 合并历史记录完整保存 | ✅ | merge_records（输入、道具、产出、是否变异、成功率） |
+| 合并统计数据准确展示 | ✅ | `GET /pokemon/merge/stats`：总数、成功率、变异数、消耗精灵数、按配方 |
+| 收藏的精灵无法参与合并 | ✅ | 另外训练/培育/驻守/锁定中的精灵也不能参与 |
+| 前端显示合并成功/失败动画效果 | ⚠️ | 精灵页「合并」页签：预览、二次确认、成功动画与失败提示（CSS），未做粒子特效 |
+| 单元测试覆盖率 ≥ 80% | ⚠️ | `tests/unit/growth-merge.test.js`；覆盖率未统计 |
+| API 响应时间 < 500ms | ⚠️ | 未实测；压测 `scripts/bench-growth.js`（合并预览） |
+
+- 入口：`routes/merge.js`（挂 `/pokemon/merge`）→ `mergeService.js`、`growth/mergeRules.js`
+- 迁移：`database/migrations/20260925_190000__pokemon_merge_evolution.sql`（merge_queue 建表预留：本实现合并即时完成，配方 duration_seconds 为 0）
+- 测试：单测 `cd backend && node --test tests/unit/growth-*.test.js`（宿主机已运行：96 项含 E11 战斗单测全部通过）；冒烟 `BASE_URL=<网关> node scripts/smoke-growth.js merge`（经网关的集成冒烟，本批未运行，待验证）
+- 待验证：并发合并同一批精灵（事务内按 ID 顺序锁定全部参与精灵）
+- 说明：所有接口挂在 pokemon-service `/pokemon/*` 下，经网关 `/v1/pokemon/*`（authMiddleware JWT + 用户级限流）访问；`scripts/api-lint.js` 0 error、`scripts/contract-snapshot.js --check` 未审批 0。

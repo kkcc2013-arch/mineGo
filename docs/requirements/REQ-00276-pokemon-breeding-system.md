@@ -7,7 +7,7 @@
 | 标题 | 精灵培育系统与基因遗传机制 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | pokemon-service, reward-service, user-service |
 | 创建时间 | 2026-06-22 02:00 |
 
@@ -764,3 +764,26 @@ CREATE TABLE breeding_records (
 - 宝可梦培育机制：https://bulbapedia.bulbagarden.net/wiki/Pokémon_breeding
 - 基因遗传算法：Mendelian inheritance patterns
 - 精灵个体值（IV）系统：https://www.serebii.net/games/ivs.shtml
+
+## 实现记录（2026-09-24）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 玩家可以放置两只精灵进入培育屋 | ✅ | `POST /pokemon/breeding/start {motherId, fatherId}`：自动开通培育屋、分配空槽，父母培育期间被占用（不能进化/出战/训练） |
+| 培育完成后生成精灵蛋 | ✅ | 到时 `POST /pokemon/breeding/pairs/:pairId/collect` 得到 pokemon_eggs |
+| 精灵蛋通过步数累积完成孵化 | ✅ | 放入孵化器时记录服务端累计行走距离（users.total_distance_km，位置上报带速度反作弊），走够 2~12 km（按稀有度）孵化；超级/究极孵化器 1.5/2 倍；原"客户端上报步数"接口已删除 |
+| 后代精灵继承父母基因特征（属性、技能、特性） | ⚠️ | IV（属性）与招式（技能）按基因遗传，闪光特征随父母提升；"特性"（ability）未遗传（特性系统属其他需求） |
+| 基因遗传遵循概率规则（显性/隐性） | ✅ | IV 以 50%（命运红线 80%）遗传，显性 60% 取较高值、否则随机一方；单测含统计检验 |
+| 支持基因变异机制（小概率发生） | ✅ | 5% 随机一项 +3 |
+| 培育记录可追溯（血统追踪） | ✅ | pokemon_lineage + `GET /pokemon/breeding/lineage/:pokemonId`（最多 5 代），后代 generation = 父母最大世代 + 1 |
+| 支持培育道具（基因增强、孵化加速） | ✅ | 命运红线（遗传率 80%）、超级/究极孵化器 |
+| 培育时间根据精灵品质动态计算 | ✅ | 30 分钟 × 稀有度系数 × (1 + 父母平均 IV/45 × 0.5) |
+| API 响应时间 < 200ms | ⚠️ | 未实测；压测 `scripts/bench-growth.js` |
+| 单元测试覆盖率 > 80% | ⚠️ | `tests/unit/growth-breeding.test.js`；覆盖率未统计 |
+| 压测：支持 1000 并发培育请求 | ⚠️ | 未实测；`BREED_C=1000 node scripts/bench-growth.js`（配对检查 1000 并发；注意网关全局限流 200/分钟/IP，压测需放宽限流或直连服务端口） |
+
+- 入口：`routes/breeding.js`（挂 `/pokemon/breeding`，原挂在网关未代理的 `/breeding`）→ `breedingService.js`、`growth/breedingRules.js`
+- 迁移：`database/migrations/20260925_170000__pokemon_breeding.sql`（pokemon_eggs、全物种蛋组、培育表 TIMESTAMPTZ、道具）；其余表由 `pending/20260609_080000` 创建
+- 测试：单测 `cd backend && node --test tests/unit/growth-*.test.js`（宿主机已运行：96 项含 E11 战斗单测全部通过）；冒烟 `BASE_URL=<网关> node scripts/smoke-growth.js breeding`（经网关的集成冒烟，本批未运行，待验证）
+- 待验证：配对规则（蛋组/百变怪/未发现组）、孵化距离、后代 IV 来源记录
+- 说明：所有接口挂在 pokemon-service `/pokemon/*` 下，经网关 `/v1/pokemon/*`（authMiddleware JWT + 用户级限流）访问；`scripts/api-lint.js` 0 error、`scripts/contract-snapshot.js --check` 未审批 0。

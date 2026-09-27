@@ -7,7 +7,7 @@
 | 标题 | 精灵体力系统与疲劳度管理 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | pokemon-service、gym-service、catch-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-13 22:30 |
 
@@ -661,3 +661,23 @@ module.exports = new StaminaRecoveryJob();
 
 - 类似游戏：Pokemon GO 的 CP 系统、精灵宝可梦原作中的 PP 系统
 - 设计模式：状态机模式处理疲劳状态转换
+
+## 实现记录（2026-09-24）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 数据库迁移成功，包含所有体力相关表和字段 | ✅ | 体力列在 pokemon_instances（兜底 ADD COLUMN IF NOT EXISTS）；stamina_config 唯一化并补活动；恢复道具入 items 并由 stamina_recovery_items.item_code 映射；休息记录 rest_records；休息站复用已有 recovery_stations（未另建 rest_stations，避免两套休息站） |
+| 体力服务核心功能：查询、消耗、恢复、休息站功能正常 | ✅ | 重写 `staminaService.js`（原实现用不存在的 knex 风格 `db('pokemon')`，接口全部 500）：读时按整分钟惰性换算自然恢复；消耗/恢复事务内锁行条件扣减（并发不超扣）；道具按精灵+道具冷却；休息站 100 米内开始、结束按时长额外恢复 5/分钟×站点倍率 |
+| 疲劳等级正确计算（fresh/normal/tired/exhausted） | ✅ | ≥80% / ≥50% / ≥20% / <20%，效果 battle/catch/exp 倍率；单测覆盖 |
+| 战斗系统集成体力消耗，疲劳状态影响战斗性能 | ✅ | E11 战斗接入：结算时参战精灵按战斗类型扣体力（道馆 20、PVP 25、团战 30，不足扣到 0 不影响结算）；组队时攻/防乘疲劳战斗倍率（`shared/growthBattle.js`）；训练营/特训开始时消耗体力，评级随疲劳 |
+| 自然恢复定时任务正常执行 | ✅ | pokemon-service 每 5 分钟（Redis 互斥）批量落库并刷新 fatigue_level，保留不足一分钟的零头；读接口本身惰性换算，不依赖任务及时性 |
+| 前端 UI 正确显示体力条和疲劳状态 | ✅ | 精灵详情头部体力条（疲劳色）+「体力」页签（效果、回满时间、恢复道具、最近变化） |
+| API 接口有适当的权限验证 | ✅ | 全部 requireAuth，只能操作自己的精灵；经网关鉴权 |
+| 单元测试覆盖核心业务逻辑 | ✅ | `tests/unit/growth-stamina.test.js`、`growth-battle.test.js` |
+| 性能：批量查询精灵体力时响应时间 < 100ms | ⚠️ | `POST /pokemon/stamina/batch` 单条 SQL + 内存换算；未实测。压测：`node scripts/bench-growth.js`（体力批量查询 100 只）；冒烟 stamina 段记录中位数 |
+
+- 入口：`routes/stamina.js`（`/pokemon/stamina/*`、`/pokemon/:id/stamina*`，替换原来过宽的 `/pokemon/config`、`/pokemon/items`）；定时任务 `growth/mount.js`；战斗 `shared/growthBattle.js`
+- 迁移：`database/migrations/20260925_120000__pokemon_stamina.sql`
+- 测试：单测 `cd backend && node --test tests/unit/growth-*.test.js`（宿主机已运行：96 项含 E11 战斗单测全部通过）；冒烟 `BASE_URL=<网关> node scripts/smoke-growth.js stamina battle`（经网关的集成冒烟，本批未运行，待验证）；压测 `scripts/bench-growth.js`（未运行）
+- 待验证：并发消耗不超扣、道具冷却、休息站距离校验与额外恢复、定时任务落库；捕捉尝试不消耗精灵体力（捕捉不涉及玩家的精灵，stamina_config 的 catch_attempt 保留未用）
+- 说明：所有接口挂在 pokemon-service `/pokemon/*` 下，经网关 `/v1/pokemon/*`（authMiddleware JWT + 用户级限流）访问；`scripts/api-lint.js` 0 error、`scripts/contract-snapshot.js --check` 未审批 0。

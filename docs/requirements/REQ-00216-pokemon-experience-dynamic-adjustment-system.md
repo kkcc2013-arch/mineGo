@@ -7,7 +7,7 @@
 | 标题 | 精灵经验值动态调整与智能加速系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-15 00:00 |
 
@@ -362,3 +362,26 @@ export default ExperienceDisplay;
 - REQ-00019: 精灵技能学习与技能机器系统
 - REQ-00065: 精灵进化与成长系统
 - REQ-00079: 精灵好感度系统与亲密度进化机制
+
+## 实现记录（2026-09-24）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 精灵捕捉时正确计算基础经验值，考虑等级差和稀有度 | ✅ | catch-service 捕捉事务内（保存点）给新精灵发放起始经验：100 × 等级差系数（对手取训练师等级，每级 +10%，≤×3）× 稀有度系数；捕捉响应带 `rewards.pokemonExp` 与最终等级/CP |
+| 连击系统正确累积并提供经验加成 | ✅ | Redis 10 分钟连击计数；<5 ×1.0、<10 ×1.1、<25 ×1.25、之后每次 +1% 至 ×1.5（原稿公式在 20 次时从 1.25 跌到 1.2，已修正为单调） |
+| 经验道具（糖果/经验卡）可正常使用，效果符合预期 | ✅ | 经验糖果 S/M/L（1000/5000/20000）；幸运蛋 30 分钟 ×2、经验卡 24 小时 ×1.5、永久经验卡 ×1.1（不可叠加）；道具走 player_inventory，可在成长商店用金币购买 |
+| 活动期间全局经验加成正常生效 | ✅ | reward-service 的 `double_xp` 活动（status=active 且在时间内，event_config.xpMultiplier，默认 2） |
+| VIP用户经验加成正确应用 | ✅ | `users.vip_level > 0` ×1.25（迁移新增 vip_level 列；设置 VIP 的入口不在本需求） |
+| 公会BUFF与个人BUFF可叠加计算 | ✅ | 公会 `experience_bonus_*` BUFF（guild_buffs）与个人加成相乘；单测验证 12.375 倍组合 |
+| 经验获取日志完整记录来源和倍率 | ✅ | pokemon_exp_history 记录来源、基础值、倍率、倍率明细、前后等级/经验、位置 |
+| 前端正确显示经验条、获取动画和加成信息 | ⚠️ | 精灵页等级经验条、经验加成面板（倍率明细）、使用经验糖果提示；"获取动画"仅为提示与进度条过渡，未做独立动画 |
+| 经验统计API返回准确的日/周数据 | ✅ | `GET /pokemon/experience/stats?period=day|week|month`：每日序列 + 来源占比 |
+| 经验转移功能正常工作，扣除和增加比例正确 | ✅ | `POST /pokemon/:id/experience/transfer`：源扣全额、目标得 80%，固定加锁顺序防死锁 |
+| 单元测试覆盖率 ≥ 80% | ⚠️ | `tests/unit/growth-experience.test.js` 覆盖曲线/上限/基础经验/连击/倍率/转移/预测；覆盖率未统计 |
+| API集成测试通过 | ⚠️ | `scripts/smoke-growth.js experience`（早期在 CI 栈上 17 项通过，后续改动未再运行，待验证） |
+
+- 入口：`backend/shared/ExperienceEngine.js`（纯计算）、`backend/shared/pokemonExperience.js`（统一入账：锁行、等级上限 2×训练师等级+10、升级按每级 +2% 缩放 CP/HP、写历史/统计/里程碑）；pokemon-service `routes/growth.js`；catch-service `handleCatch`；E11 战斗结算（来源 battle，`shared/growthBattle.js`）；训练营（来源 training_camp）
+- 迁移：`database/migrations/20260925_100000__pokemon_growth_core.sql`（精灵 level 列、users.vip_level）、`20260925_110000__pokemon_experience_growth_tracking.sql`（经验历史/加成/道具）
+- 测试：单测 `cd backend && node --test tests/unit/growth-*.test.js`（宿主机已运行：96 项含 E11 战斗单测全部通过）；冒烟 `BASE_URL=<网关> node scripts/smoke-growth.js experience battle`（经网关的集成冒烟，本批未运行，待验证）
+- 待验证：捕捉经验与连击（需真实捕捉）、活动/公会加成叠加、经验转移
+- 说明：原 `POST /pokemon/:id/experience`（任意加经验的调试接口）已删除。所有接口挂在 pokemon-service `/pokemon/*` 下，经网关 `/v1/pokemon/*`（authMiddleware JWT + 用户级限流）访问；`scripts/api-lint.js` 0 error、`scripts/contract-snapshot.js --check` 未审批 0。

@@ -7,7 +7,7 @@
 | 标题 | 精灵训练营系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-29 17:30 UTC |
 
@@ -1449,3 +1449,26 @@ module.exports = trainingCompletionChecker;
 - REQ-00253 精灵远征探险系统（异步外出探险）
 - REQ-00156 精灵恢复站系统（原地恢复体力）
 - REQ-00046 精灵培育系统与遗传机制
+
+## 实现记录（2026-09-24）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 训练营系统支持三种类型（经验/技能/亲密度） | ✅ | 首次访问自动开通三类训练营 |
+| 每个训练营有独立的等级和槽位容量 | ✅ | user_training_camps；升级扣金币 1000×2^等级、扩容 |
+| 训练课程可配置不同时长和奖励 | ✅ | training_courses（14 门课程） |
+| 训练开始时正确扣除资源 | ✅ | 事务内原子扣费（gold→coins、stardust、premium→premium_coins，不足拒绝；原实现扣不存在的 users.gold 且不校验结果）；同时消耗训练体力 |
+| 训练进度实时更新，精确到分钟 | ✅ | 读时计算进度百分比与剩余分钟 |
+| 训练完成后可正确领取奖励 | ✅ | 经验走统一经验入账（含活动/幸运蛋等倍率）、亲密度（上限 255）、技能营学会一个新招式、掉落觉醒碎片；评级由开训时疲劳决定（×0.8~×1.2） |
+| 支持使用加速道具缩短训练时间 | ✅ | 剩余时间减半 / 立即完成 / 双倍经验（player_inventory） |
+| 取消训练功能正常（资源不退还） | ✅ | 取消释放精灵，费用不退 |
+| 训练历史记录完整保存 | ✅ | training_reports + `GET /pokemon/training-camp/history` |
+| 推送通知在训练完成时及时发送 | ⚠️ | 每分钟定时任务把到点训练标记 ready 并写站内消息 notification_history；移动推送（APNs/FCM）未接入 |
+| 前端界面流畅，支持多语言 | ⚠️ | 精灵页「训练营」页签；界面文案仅中文 |
+| 单元测试覆盖核心逻辑 | ✅ | `tests/unit/growth-training-camp.test.js` |
+
+- 入口：`routes/trainingCamp.js`（挂 `/pokemon/training-camp`，原挂网关未代理的 `/training`，且 `/training/admin/process-completed` 任何登录用户可触发，已改为服务内定时任务）→ `trainingCampService.js`、`growth/trainingCampRules.js`
+- 迁移：`database/migrations/20260925_140000__training_camp_fixes.sql`（槽位唯一约束改为只约束进行中训练——原约束使槽位训练过一次后再也不能用；同一精灵一个进行中训练；时间列 TIMESTAMPTZ；加速道具）
+- 测试：单测 `cd backend && node --test tests/unit/growth-*.test.js`（宿主机已运行：96 项含 E11 战斗单测全部通过）；冒烟 `BASE_URL=<网关> node scripts/smoke-growth.js camp`（经网关的集成冒烟，本批未运行，待验证）
+- 待验证：训练中精灵不能进化/出战/再训练；到点通知
+- 说明：所有接口挂在 pokemon-service `/pokemon/*` 下，经网关 `/v1/pokemon/*`（authMiddleware JWT + 用户级限流）访问；`scripts/api-lint.js` 0 error、`scripts/contract-snapshot.js --check` 未审批 0。

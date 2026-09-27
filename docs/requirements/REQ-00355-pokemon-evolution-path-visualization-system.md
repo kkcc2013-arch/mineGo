@@ -7,7 +7,7 @@
 | 标题 | 精灵进化路径可视化系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | pokemon-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-29 04:00 UTC |
 
@@ -1155,3 +1155,25 @@ module.exports = router;
 - [Pokémon Evolution Mechanics](https://bulbapedia.bulbagarden.net/wiki/Evolution)
 - [D3.js Tree Visualization](https://github.com/d3/d3-hierarchy/blob/main/README.md#tree)
 - [React Flow - Interactive Node Graphs](https://reactflow.dev/)
+
+## 实现记录（2026-09-24）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 数据库表结构创建完成，包含进化链、节点、路径表 | ⚠️ | 表已由 20260629_060000 创建；进化树改为直接由 pokemon_species + evolution_rules 计算（与进化服务同一套规则，单一真相），不再依赖空的 evolution_paths；隐藏路径/多语言提示放在 evolution_rules 新增列 |
+| 后端 API 支持获取进化链、进化预览、执行进化操作 | ✅ | `GET /pokemon/species/:id/evolution-chain`、`/pokemon/species/:id/pre-evolutions`、`POST /pokemon/batch-evolution-chains`、`GET /pokemon/:id/evolution-preview/:target`、`GET /pokemon/:id/recommended-evolution`、`POST /pokemon/evolve`（委托进化服务） |
+| 前端可视化组件能正确展示进化树结构 | ✅ | 精灵页「进化」页签 SVG 进化树（节点按阶段布局、隐藏路径虚线、当前物种高亮），单测验证渲染 |
+| 进化预览功能正常，属性对比清晰 | ✅ | CP/HP/种族值变化、属性增减 |
+| 支持多种进化类型（等级、道具、亲密度、时间、地点、交换、特殊） | ⚠️ | 条件模型支持等级/道具/亲密度/昼夜/交换，类型标签含地点与特殊；现有数据未配置地点进化；交换进化只展示不可执行 |
+| 进化条件验证逻辑正确 | ✅ | 与执行进化共用 `growth/evolutionRules.evaluateRequirements`（糖果/道具/等级/亲密度/昼夜/占用），单测覆盖 |
+| 进化动画效果流畅 | ⚠️ | CSS 动画；未在真机测 |
+| 支持隐藏进化路径的发现提示 | ✅ | 伊布→太阳/月亮伊布为隐藏路径：未发现（图鉴未捕获）时目标打码，显示多语言提示 |
+| 支持多语言进化条件描述 | ✅ | 条件描述中/英/日（道具名本地化），`?lang=` |
+| 单元测试覆盖率 ≥ 80% | ⚠️ | `tests/unit/growth-evolution-tree.test.js`、`growth-evolution.test.js`、前端 `growth-center.test.mjs`；覆盖率未统计 |
+| API 文档完整 | ✅ | 路由文件头部注释；`node scripts/api-lint.js --docs` 已重新生成 `docs/api-spec/generated/` |
+
+- 入口：`routes/evolutionVisualization.js` → `evolutionVisualizationService.js`、`growth/evolutionTree.js`
+- 迁移：`database/migrations/20260925_100000__pokemon_growth_core.sql`（补伊布 5 个进化形态、隐藏路径与提示列）
+- 测试：单测 `cd backend && node --test tests/unit/growth-*.test.js`（宿主机已运行：96 项含 E11 战斗单测全部通过）；冒烟 `BASE_URL=<网关> node scripts/smoke-growth.js tree`（经网关的集成冒烟，本批未运行，待验证）；前端 `node --test frontend/game-client/tests/unit/growth-center.test.mjs`（已运行通过）
+- 待验证：进化树接口在真实物种数据上的布局；图鉴捕获后隐藏路径显形
+- 说明：所有接口挂在 pokemon-service `/pokemon/*` 下，经网关 `/v1/pokemon/*`（authMiddleware JWT + 用户级限流）访问；`scripts/api-lint.js` 0 error、`scripts/contract-snapshot.js --check` 未审批 0。

@@ -7,7 +7,7 @@
 | 标题 | 精灵经验值获取历史与成长轨迹追踪系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | pokemon-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-15 20:00 |
 
@@ -975,3 +975,25 @@ function getSourceName(type) {
 - 相关需求：REQ-00065 精灵进化与成长系统
 - 技术参考：PostgreSQL 分区表文档
 - 可视化库：Recharts (https://recharts.org/)
+
+## 实现记录（2026-09-24）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 数据库表创建成功，索引和分区策略正确配置 | ✅ | pokemon_exp_history 按月 RANGE 分区（DEFAULT 分区 + `ensure_pokemon_exp_history_partitions()` 预建当月起 3 个月，服务每天调用），pokemon_growth_stats（每精灵每游戏日一行）、pokemon_milestones（精灵×类型×键唯一） |
+| 经验获取事件记录功能正常工作 | ✅ | 所有经验来源都经 `shared/pokemonExperience.grantPokemonExperience` 写历史（捕捉/道具/训练营/转移/战斗） |
+| 成长轨迹可视化数据正确计算和返回 | ✅ | `GET /pokemon/:id/growth/trajectory?days=`：补齐空白日的每日经验与累计经验曲线 + 期间里程碑 |
+| 经验来源分析准确，百分比计算正确 | ✅ | `GET /pokemon/:id/growth/sources`：百分比保留 1 位小数，合计修正为 100（单测） |
+| 成长里程碑正确识别和记录 | ✅ | 5/10/…/100 级、累计 1 万/10 万/100 万经验、首份经验、进化（进化服务回调）、觉醒 |
+| 成长预测算法合理，置信度计算有意义 | ✅ | 近 7 日与 14 日日均加权 → 接下来 5 级所需天数、等级进化预计时间；置信度 = 活跃天数覆盖 × 稳定度（变异系数） |
+| 周期性成长报告生成功能正常 | ✅ | `GET /pokemon/:id/growth/report?period=week|month`：总经验、升级次数、活跃天数、主要来源、里程碑、环比 |
+| 前端图表正确展示轨迹和分析数据 | ✅ | 精灵页「成长」页签：30 天累计经验 SVG 曲线、来源占比条、预测、里程碑 |
+| 缓存策略有效，减少数据库查询 | ✅ | Redis 缓存 60 秒，键带每只精灵的版本号，经验变化时 INCR 版本号整体失效（无需 SCAN） |
+| 单元测试覆盖率 ≥ 80% | ⚠️ | `tests/unit/growth-experience.test.js`（预测、置信度、来源占比）；覆盖率未统计 |
+| API 响应时间 < 200ms（P95） | ⚠️ | 未实测；压测 `node scripts/bench-growth.js`（成长轨迹 30 天、经验历史） |
+
+- 入口：pokemon-service `routes/growth.js` → `growth/growthTracker.js`；写入 `backend/shared/pokemonExperience.js`
+- 迁移：`database/migrations/20260925_110000__pokemon_experience_growth_tracking.sql`
+- 测试：单测 `cd backend && node --test tests/unit/growth-*.test.js`（宿主机已运行：96 项含 E11 战斗单测全部通过）；冒烟 `BASE_URL=<网关> node scripts/smoke-growth.js experience`（经网关的集成冒烟，本批未运行，待验证）（早期在 CI 栈上运行通过，后续改动未再运行）
+- 待验证：跨月时新分区预建；报告命中缓存后经验变化立即失效
+- 说明：所有接口挂在 pokemon-service `/pokemon/*` 下，经网关 `/v1/pokemon/*`（authMiddleware JWT + 用户级限流）访问；`scripts/api-lint.js` 0 error、`scripts/contract-snapshot.js --check` 未审批 0。

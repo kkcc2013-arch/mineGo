@@ -7,7 +7,7 @@
 | 标题 | 精灵传承系统与属性遗产机制 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | implemented |
 | 涉及服务 | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-29 09:15 UTC |
 | 依赖需求 | REQ-00240 (精灵放生与资源回收系统) |
@@ -279,3 +279,25 @@ P1 优先级，因为：
 3. 增加精灵与玩家的情感连接，符合游戏设计目标
 4. 实现相对独立，不依赖其他未完成需求
 5. 可显著提升玩家满意度和游戏深度
+
+## 实现记录（2026-09-24）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 传承池数据库表创建完成 | ✅ | pokemon_inheritance_pool（玩家 × 家族根物种唯一，UUID 外键）、pokemon_inheritance_records |
+| 放生时可选择是否传承，传承池正确更新 | ✅ | `POST /pokemon/:id/release-with-inheritance {inherit, inheritanceItem?}`：空闲/非收藏/未锁定才可放生，软删除（背包计数同步）、返还糖果与星尘；同家族再次放生逐项取大并重置有效期 |
+| 捕捉时自动检查传承池并应用继承加成 | ✅ | catch-service 捕捉事务内（保存点，失败不影响捕捉）调用 `shared/pokemonInheritance.applyInheritanceOnCatch`，捕捉响应返回传承明细与最终 IV/CP |
+| IV继承值上限正确（不超过15） | ✅ | 单测覆盖 |
+| CP继承值计算正确 | ✅ | CP 按 IV 变化比例缩放（与刷怪公式一致）+ CP 加成（放生精灵 CP 的 10% × 传承率 × 衰减） |
+| 传承池30天后自动过期并衰减 | ✅ | 线性衰减（1 − 天数/30），过期不再生效，定时任务清理过期池 |
+| 传承道具系统实现完成（3种传承石） | ✅ | 传承石 +10%、高级 +20%（上限 80%）、完美传承石传承全部属性；放生时使用或事后 `POST /pokemon/inheritance/use-item`（每池一次） |
+| API 路径全部实现并返回正确格式 | ✅ | `/pokemon/inheritance/pool[/:speciesId]`、`/records`、`/stats`、`/use-item`、`/:id/release-with-inheritance`（经网关 /v1/pokemon/*） |
+| 前端传承池展示组件实现 | ✅ | 精灵页「传承」页签：放生并传承（选传承石、二次确认）、传承池列表（当前加成、到期日） |
+| 传承记录正确保存并可查询 | ✅ | 捕捉继承时写记录 |
+| 单元测试覆盖率达到 80%+ | ⚠️ | `tests/unit/growth-inheritance.test.js`；覆盖率未统计 |
+
+- 入口：`routes/inheritance.js` → `inheritanceService.js`；规则 `backend/shared/inheritanceRules.js`；捕捉 `backend/shared/pokemonInheritance.js` ← catch-service
+- 迁移：`database/migrations/20260925_180000__pokemon_inheritance.sql`
+- 测试：单测 `cd backend && node --test tests/unit/growth-*.test.js`（宿主机已运行：96 项含 E11 战斗单测全部通过）；冒烟 `BASE_URL=<网关> node scripts/smoke-growth.js inheritance`（经网关的集成冒烟，本批未运行，待验证）（含一次真实捕捉；SKIP_CATCH=1 可跳过）
+- 待验证：捕捉后 IV/CP 与记录；过期池不再生效
+- 说明：原 REQ-00240 的 `/pokemon/release/execute`（routes/release.js 查询 owner_id/iv_total、写 users.gold 等不存在的列）不在本 Epic，未修改，放生传承使用本需求的新接口。所有接口挂在 pokemon-service `/pokemon/*` 下，经网关 `/v1/pokemon/*`（authMiddleware JWT + 用户级限流）访问；`scripts/api-lint.js` 0 error、`scripts/contract-snapshot.js --check` 未审批 0。

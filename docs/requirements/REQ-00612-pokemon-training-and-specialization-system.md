@@ -3,7 +3,7 @@
 - **编号**：REQ-00612
 - **类别**：功能增强
 - **优先级**：P1
-- **状态**：new
+- **状态**：implemented
 - **涉及服务/模块**：pokemon-service、gateway、game-client、backend/shared/trainingService.js、database/migrations
 - **创建时间**：2026-07-20 18:00
 - **依赖需求**：REQ-00019（技能学习系统）、REQ-00067（精灵亲密度系统）
@@ -518,3 +518,26 @@ Body: { itemId: 'training_accelerator_1h', trainingId: 123 }
 5. **资源消耗出口**：提供糖果、道具的多样化使用途径，提升经济系统深度
 
 对"项目可用"的贡献：训练系统补全了精灵养成的核心玩法闭环，使玩家可以长期投入精灵培养，显著提升游戏粘性和生命周期，是项目达到生产可用标准的必要功能。
+
+## 实现记录（2026-09-24）
+
+| 验收标准 | 结果 | 说明 |
+|---|---|---|
+| 玩家可以为精灵选择任意一种属性进行训练（攻击/防御/速度/暴击/闪避/能量） | ✅ | `POST /pokemon/:id/training/start {trainingType, facilityId?}` |
+| 训练消耗正确的道具、糖果和金币，训练期间精灵显示"训练中"状态 | ✅ | 训练道具 + 家族糖果 + 场地金币 + 体力；精灵 occupied_by=special_training（不能出战/进化/再训练），状态接口返回 currentTraining |
+| 训练完成后精灵属性正确提升，对应等级和效果符合设计 | ✅ | 10 训练点 = 1 级；成功率 80%（金苹果 +20%），失败得一半；效果按设计（攻防速 +2%/级、暴击 +0.5%、闪避 +0.3%、能量 +5） |
+| 技能熟练度系统支持威力、命中、暴击、特效四个维度的训练 | ✅ | `POST /pokemon/:id/skill/:skillId/train {dimension | useManual}`；特效在熟练度 10/25/50/75/100 解锁 |
+| 技能在战斗中使用后获得熟练度经验，熟练度等级影响技能表现 | ✅ | 熟练度经验统一使用 E11 的 pokemon_move_mastery（战斗中使用技能即增长，熟练度手册与特训也写入这里）；威力/命中/暴击维度由 `shared/growthBattle.js` 作用到战斗中的对应招式 |
+| 训练场地系统提供特定属性训练效率加成，需要解锁条件 | ✅ | 5 个场地按训练师等级解锁，对口属性 ×1.3~×2.0、综合中心全属性 ×1.2 |
+| 训练队列支持同时训练多只精灵，队列满时无法新增训练 | ✅ | 默认 3（VIP +2/+3/+5），满时 409；每日 10 次（VIP +5）；完成后冷却 60 分钟 |
+| 训练道具系统正常工作，商店可购买道具，道具正确消耗 | ✅ | 11 种训练道具入 items，金币商店购买（付费道具不出售），加速器 1h/8h |
+| 训练成就系统记录玩家训练里程碑，达成条件后发放奖励 | ✅ | 5 个成就，达成即发放糖果/道具/金币 |
+| 前端界面显示精灵训练状态、训练进度、训练队列、道具库存 | ⚠️ | 精灵页「特训」页签（属性等级、队列/每日次数、训练中剩余时间、开始/加速/完成/取消）；道具库存在成长商店面板 |
+| 单元测试覆盖训练逻辑、属性计算、熟练度计算的 80% 以上 | ⚠️ | `tests/unit/growth-special-training.test.js`、`growth-battle.test.js`；覆盖率未统计 |
+| 性能测试：训练队列查询 < 100ms，训练开始/完成 < 200ms | ⚠️ | 未实测；压测 `scripts/bench-growth.js`（特训队列） |
+
+- 入口：`routes/specialTraining.js`（`/pokemon/special-training/*`、`/pokemon/:id/training*`、`/pokemon/:id/skill/:skillId/train`）→ `specialTrainingService.js`；规则 `backend/shared/growth/specialTrainingRules.js`
+- 迁移：`database/migrations/20260925_150000__special_training.sql`
+- 测试：单测 `cd backend && node --test tests/unit/growth-*.test.js`（宿主机已运行：96 项含 E11 战斗单测全部通过）；冒烟 `BASE_URL=<网关> node scripts/smoke-growth.js special battle`（经网关的集成冒烟，本批未运行，待验证）
+- 待验证：队列满/冷却/每日次数；熟练度经验与 E11 战斗熟练度一致
+- 说明：所有接口挂在 pokemon-service `/pokemon/*` 下，经网关 `/v1/pokemon/*`（authMiddleware JWT + 用户级限流）访问；`scripts/api-lint.js` 0 error、`scripts/contract-snapshot.js --check` 未审批 0。
