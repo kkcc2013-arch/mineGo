@@ -8,12 +8,12 @@
 
 const express = require('express');
 const router = express.Router();
-const { SlowQueryCollector, getCollector } = require('../../shared/slowQueryCollector');
-const QueryAnalyzer = require('../../shared/queryAnalyzer');
-const OptimizationAdvisor = require('../../shared/optimizationAdvisor');
+const { SlowQueryCollector, getCollector } = require('../../../shared/slowQueryCollector');
+const QueryAnalyzer = require('../../../shared/queryAnalyzer');
+const OptimizationAdvisor = require('../../../shared/optimizationAdvisor');
 const { Client } = require('pg');
-const logger = require('../../shared/logger');
-const { incrementCounter, observeHistogram } = require('../../shared/metrics');
+const logger = require('../../../shared/logger');
+const { incrementCounter, observeHistogram } = require('../../../shared/metrics');
 
 // 数据库配置
 const getDbConfig = () => ({

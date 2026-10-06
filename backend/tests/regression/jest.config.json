@@ -1,0 +1,14 @@
+{
+  "rootDir": "../..",
+  "testEnvironment": "node",
+  "testMatch": [
+    "<rootDir>/tests/unit/health-registration.test.js",
+    "<rootDir>/tests/unit/gateway-proxy.test.js",
+    "<rootDir>/tests/unit/auth-routing.test.js",
+    "<rootDir>/tests/unit/gym-battle.test.js",
+    "<rootDir>/tests/unit/requestSignature.test.js",
+    "<rootDir>/tests/unit/client-integrity.test.js",
+    "<rootDir>/tests/textTruncator.test.js",
+    "<rootDir>/tests/monitorReport.test.js"
+  ]
+}

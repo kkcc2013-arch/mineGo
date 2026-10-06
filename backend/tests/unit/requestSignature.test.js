@@ -1,5 +1,42 @@
-      };
-      
+const crypto = require('crypto');
+const { RequestSignatureService } = require('../../shared/requestSignatureService');
+
+describe('RequestSignatureService', () => {
+  let service;
+  beforeEach(() => {
+    service = new RequestSignatureService({ defaultKey: crypto.randomBytes(32).toString('hex') });
+  });
+  afterEach(() => service.destroy());
+
+  function signedRequest(body = { pokemonId: '12345' }) {
+    const signed = service.generateSignature('POST', '/v1/pokemon/catch', body);
+    return { method: 'POST', path: '/v1/pokemon/catch', body, headers: {
+      'x-signature': signed.signature, 'x-timestamp': String(signed.timestamp),
+      'x-nonce': signed.nonce, 'x-key-version': signed.keyVersion
+    } };
+  }
+
+  describe('verifySignature', () => {
+    test('valid requests pass and repeated nonces are rejected', async () => {
+      const request = signedRequest();
+      expect(await service.verifySignature(request)).toEqual({ valid: true });
+      expect((await service.verifySignature(request)).reason).toBe('NONCE_REUSED');
+    });
+    test('tampered bodies are rejected', async () => {
+      const request = signedRequest();
+      request.body.pokemonId = 'tampered';
+      expect((await service.verifySignature(request)).reason).toBe('INVALID_SIGNATURE');
+    });
+    test('malformed signatures are rejected without throwing', async () => {
+      for (const signature of ['short', 'g'.repeat(64), ['array']]) {
+        const request = signedRequest();
+        request.headers['x-signature'] = signature;
+        expect((await service.verifySignature(request)).reason).toBe('INVALID_SIGNATURE');
+      }
+    });
+    test('unknown key versions are rejected', async () => {
+      const request = signedRequest();
+      request.headers['x-key-version'] = 'unknown';
       const result = await service.verifySignature(request);
       
       expect(result.valid).toBe(false);
@@ -99,26 +136,22 @@
   });
 
   describe('cleanupExpiredNonces', () => {
-    test('should clean up expired nonces', (done) => {
-      const method = 'POST';
-      const path = '/v1/pokemon/catch';
-      const body = { pokemonId: '12345' };
-      
-      // 添加一个 nonce
-      service.generateSignature(method, path, body);
-      
-      const initialSize = service.nonceCache.size;
-      expect(initialSize).toBeGreaterThan(0);
-      
-      // 手动清理过期 nonce（设置过期时间为 1ms）
+    test('should clean up expired accepted nonces', async () => {
+      const request = signedRequest();
+      await service.verifySignature(request);
+      expect(service.nonceCache.size).toBe(1);
+      service.nonceCache.set(request.headers['x-nonce'], Date.now() - 1000);
       service.nonceExpiry = 1;
-      setTimeout(() => {
-        service.cleanupExpiredNonces();
-        const finalSize = service.nonceCache.size;
-        
-        expect(finalSize).toBeLessThan(initialSize);
-        done();
-      }, 10);
+      service.cleanupExpiredNonces();
+      expect(service.nonceCache.size).toBe(0);
     });
+  });
+  test('parameterized sensitive routes retain the parameter name', () => {
+    service.addSensitiveEndpoint('POST', '/v1/custom/:id/action');
+    expect(service.requiresSignature('POST', '/v1/custom/123/action')).toBe(true);
+    expect(service.requiresSignature('POST', '/v1/custom/123/other')).toBe(false);
+  });
+  test('signing with an unknown key does not fall back to the current key', () => {
+    expect(() => service.generateSignature('POST', '/v1/test', {}, 'unknown')).toThrow(/Invalid key version/);
   });
 });

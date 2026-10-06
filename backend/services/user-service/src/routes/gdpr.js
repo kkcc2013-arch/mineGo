@@ -221,7 +221,7 @@ router.get('/audit-logs', requireAuth, async (req, res) => {
     const userId = req.user.id;
     const { limit = 100, action } = req.query;
     
-    const { getUserAuditLogs } = require('../../shared/auditLog');
+    const { getUserAuditLogs } = require('../../../../shared/auditLog');
     const logs = await getUserAuditLogs(
       userId,
       { limit: parseInt(limit), action },

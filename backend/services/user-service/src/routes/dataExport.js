@@ -8,7 +8,7 @@ const authMiddleware = require('../middleware/auth');
 const rateLimitMiddleware = require('../middleware/exportRateLimiter');
 const DataExportJob = require('../../jobs/dataExportJob');
 const fs = require('fs').promises;
-const logger = require('../../shared/logger');
+const logger = require('../../../../shared/logger');
 
 // 导出任务实例
 let exportJob = null;

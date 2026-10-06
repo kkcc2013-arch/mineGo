@@ -23,6 +23,20 @@ concurrency:
 
 jobs:
 
+  battle-regression:
+    name: Battle regression and formula coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # Node 24 provides native coverage thresholds; battle tests also run
+          # on the application's Node 20 runtime in the main test job.
+          node-version: '24'
+      - name: Run battle scenarios and enforce greater than 90% formula coverage
+        working-directory: backend
+        run: npm run test:battle:coverage
+
   # ── Job 1: Lint & Unit Tests ─────────────────────────────
   test:
     name: 🧪 Lint + Unit Tests
@@ -37,44 +51,35 @@ jobs:
 
 
 
-      # 全仓语法检查：任何无法解析的 JS 文件直接阻断
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      # 全仓语法检查：CommonJS、ESM、JSX 使用正确的解析模式
       # （曾发生语法错误代码合入 main：evolutionService.js / auditLogEncrypted.js）
       - name: Syntax check all JS files
+        run: node scripts/check-js-syntax.js
+
+      - name: Verify requirement inventory and audit tools
         run: |
-          fail=0
-          while IFS= read -r f; do
-            if ! node --check "$f" >/dev/null 2>&1; then
-              echo "::error file=$f::SyntaxError"
-              node --check "$f" || true
-              fail=1
-            fi
-          done < <(find backend frontend scripts -name "*.js" -not -path "*/node_modules/*")
-          [ $fail -eq 0 ] && echo "✅ All JS files parse cleanly"
+          node --test scripts/tests/*.test.js
+          npm run requirements:audit:check
 
       # 需求编号唯一性检查：新增重复编号直接阻断
       - name: Check requirement numbering
         run: node scripts/check-req-numbering.js
-
-      - name: Install dependencies
-        working-directory: backend
-        run: npm install --workspaces --if-present
 
       - name: Run unit tests
         working-directory: backend
         run: npm run test:unit
 
       - name: Verify all services have health route
-        working-directory: backend
-        run: |
-          for svc in services/*/src/index.js; do
-            grep -q "app.get('/health'" "$svc" || (echo "MISSING health route: $svc" && exit 1)
-          done
-          echo "✅ All services have health routes"
+        run: node scripts/check-health-routes.js
 
   # ── Job 2: Security Scan ───────────────────────────────
   security-scan:
     name: 🔒 Security Scan
-    needs: test
+    needs: [test, battle-regression]
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:

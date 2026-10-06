@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "基于真实 GPS 的 AR 精灵捕捉手游",
   "scripts": {
+    "check:syntax": "node scripts/check-js-syntax.js",
+    "requirements:audit": "node scripts/requirements-audit.js",
+    "requirements:audit:check": "node scripts/requirements-audit.js --check",
     "setup": "node scripts/dev-setup.js",
     "doctor": "node scripts/dev-doctor.js",
     "reset": "node scripts/dev-reset.js",

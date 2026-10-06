@@ -7,7 +7,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { GangDetectionEngine, GangActionEngine } = require('../../shared/gangDetection');
+const { GangDetectionEngine, GangActionEngine } = require('../../../shared/gangDetection');
 
 const detectionEngine = new GangDetectionEngine();
 const actionEngine = new GangActionEngine();

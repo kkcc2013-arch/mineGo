@@ -10,8 +10,11 @@
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev -w shared\" \"npm run dev -w services/user-service\" \"npm run dev -w services/location-service\" \"npm run dev -w services/pokemon-service\" \"npm run dev -w services/catch-service\" \"npm run dev -w services/gym-service\"",
-    "test": "npm run test --workspaces --if-present",
-    "test:unit": "node tests/unit/catch.test.js && node tests/unit/auth.test.js && node tests/unit/spawn.test.js && node tests/unit/logger-metrics.test.js && node tests/unit/payment.test.js",
+    "test": "npm run test:unit && npm run test --workspaces --if-present",
+    "test:unit": "node tests/unit/catch.test.js && node tests/unit/auth.test.js && node tests/unit/spawn.test.js && node tests/unit/logger-metrics.test.js && node tests/unit/payment.test.js && npm run test:battle && npm run test:regression",
+    "test:battle": "node --test tests/battle/*.test.js",
+    "test:regression": "jest --runInBand --config tests/regression/jest.config.json",
+    "test:battle:coverage": "node --test --experimental-test-coverage --test-coverage-include=**/battleFormulas.js --test-coverage-lines=91 --test-coverage-functions=91 --test-coverage-branches=91 tests/battle/*.test.js",
     "test:integration": "jest --config tests/integration/jest.config.json",
     "test:e2e": "jest --config tests/integration/jest.config.json tests/e2e",
     "test:all": "npm run test:unit && npm run test:integration",
@@ -31,6 +34,7 @@
     "migrate:verify": "node ../database/migrate.js verify"
   },
   "devDependencies": {
+    "@babel/parser": "7.29.7",
     "@testcontainers/postgresql": "^12.0.1",
     "@testcontainers/redis": "^12.0.1",
     "chai": "^4.5.0",

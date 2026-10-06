@@ -20,7 +20,7 @@ const logger = createLogger('monitor-summary-generator');
  * - 智能洞察生成
  */
 class MonitorSummaryGenerator {
-  constructor(config) {
+  constructor(config = {}) {
     this.thresholds = {
       // 错误率阈值
       errorRateWarning: 0.02,    // 2%

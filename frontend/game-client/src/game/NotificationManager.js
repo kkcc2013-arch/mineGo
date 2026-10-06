@@ -3,7 +3,7 @@
 // Updated: REQ-00335 - Distance unit localization
 'use strict';
 
-import { i18n } from '../i18n/index.js';
+import { i18n as importedI18n } from '../i18n/index.js';
 import { formatDistance } from '../utils/unitSystem.js';
 
 const WS_BASE = window.PMG_CONFIG?.wsBase || 'wss://api.pocketmonstergo.com';
@@ -800,7 +800,7 @@ if (typeof document !== 'undefined' && !document.getElementById('notification-ma
 }
 
 // Global i18n fallback
-const i18n = window.i18n || {
+const i18n = window.i18n || importedI18n || {
   t: (key, params = {}) => {
     // Fallback translations
     const fallbacks = {

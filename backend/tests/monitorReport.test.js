@@ -6,7 +6,6 @@
 
 'use strict';
 
-const { describe, it, beforeEach } = require('mocha');
 const { expect } = require('chai');
 const MonitorDataCollector = require('../shared/monitorReport/MonitorDataCollector');
 const MonitorSummaryGenerator = require('../shared/monitorReport/MonitorSummaryGenerator');

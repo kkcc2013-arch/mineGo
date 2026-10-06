@@ -53,7 +53,7 @@ app.listen(3000, () => {
 
 // ===== 新方式（推荐）=====
 
-const { bootstrapService } = require('../shared/serviceBootstrap');
+const { bootstrapService } = require('../../shared/serviceBootstrap');
 const express = require('express');
 
 async function startGateway() {

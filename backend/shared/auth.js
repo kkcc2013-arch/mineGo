@@ -158,6 +158,17 @@ function verifyRefresh(token) {
   return jwt.verify(token, REFRESH_SECRET);
 }
 
+function attachIdentity(req, payload) {
+  const id = payload.sub ?? payload.id;
+  if ((typeof id !== 'string' && typeof id !== 'number') || id === '' || (typeof id === 'number' && !Number.isFinite(id))) {
+    throw AuthenticationError.invalidToken({ reason: 'missing_subject' });
+  }
+  // Access tokens issued by user-service use sub; service routes use id and
+  // some older handlers use userId. All three refer to the verified subject.
+  req.user = { ...payload, id };
+  req.userId = id;
+}
+
 /**
  * 认证中间件
  *
@@ -174,7 +185,7 @@ function requireAuth(req, res, next) {
 
   try {
     const payload = verifyAccess(token);
-    req.user = payload;
+    attachIdentity(req, payload);
     next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
@@ -203,7 +214,7 @@ function optionalAuth(req, res, next) {
 
   try {
     const payload = verifyAccess(token);
-    req.user = payload;
+    attachIdentity(req, payload);
   } catch (err) {
     // 忽略错误，继续执行
   }

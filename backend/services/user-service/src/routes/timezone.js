@@ -7,8 +7,8 @@
 
 const express = require('express');
 const router = express.Router();
-const { createLogger } = require('../../../shared/logger');
-const db = require('../../../shared/db');
+const { createLogger } = require('../../../../shared/logger');
+const db = require('../../../../shared/db');
 const { TimezoneUtils } = require('../../gateway/src/middleware/timezone');
 
 const logger = createLogger('user-timezone');
