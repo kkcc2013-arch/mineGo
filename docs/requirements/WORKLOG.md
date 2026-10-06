@@ -88,3 +88,13 @@ Completion limits and next work:
 The [verification ledger](VERIFICATION.json) records the exact requirement and
 source hashes associated with REQ-00619's local evidence. Editing those sources
 invalidates that evidence in the next audit.
+
+## Publication access
+
+Publishing the prepared branch was attempted after local verification. HTTPS Git
+push cannot authenticate in this workspace. The connected GitHub integration also
+rejected branch creation with HTTP 403, `Resource not accessible by integration`.
+Installation discovery returned no manageable installations. No remote branch or
+pull request was created. Repository write access must be granted to the GitHub
+integration before publishing and running remote CI. The local commits and clean
+working branch are preserved.
