@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "requirements": {
+    "REQ-00619-core-battle-engine-test-coverage-framework.md": {
+      "date": "2026-10-06",
+      "status": "local_verified_ci_pending",
+      "documentSha256": "fbc3f80d23d111035712af263dfcb2b34f697804712e188d207b3f2f73b4c885",
+      "sourceSha256": {
+        "backend/services/gym-service/src/battleEngine.js": "bad55c38a438bcc5a28f4a2b3f45e04a53416eb74548d310e2f44529fe056c93",
+        "backend/services/gym-service/src/battleFormulas.js": "a08da8b0fa486d3524895739365a3c7a3f615e31f8ad78dea3e99fcc7bc0e109",
+        "backend/tests/battle/context.js": "4e815529a4ba1ba8d02657bc1e8798af1c481cd277e9f64e04a2ea2be595f7c3",
+        "backend/tests/battle/formulas.test.js": "40300e85e1cba36f1e9994e9cc5aa2a9af4f256b4a45b83c6fa1bb2d05b745ad",
+        "backend/tests/battle/scenarios.test.js": "82ee33f17c3b2eaca95592d20d75763a2f527ae5bb238a9b6e788955fb584aad",
+        "backend/package.json": "73642fd279320b27702148b7bd54457ccd0670a6420da960d8791d4ed5ffd622",
+        ".github/workflows/ci-cd.yml": "b5ce1487fb5c81d2d8201f5b7cb4ab21445c81464480ad3ca93abb35c4719fc8"
+      },
+      "evidence": [
+        {
+          "command": "cd backend && npm run test:battle",
+          "runtime": "Node.js 20.20.2",
+          "result": "passed",
+          "tests": 133,
+          "businessScenarios": 76
+        },
+        {
+          "command": "cd backend && npm run test:battle:coverage",
+          "runtime": "Node.js 24.19.0",
+          "result": "passed",
+          "coverage": {
+            "lines": 100,
+            "branches": 100,
+            "functions": 100
+          }
+        },
+        {
+          "file": ".github/workflows/ci-cd.yml",
+          "result": "battle-regression job integrated; remote CI not yet executed"
+        }
+      ]
+    }
+  }
+}
