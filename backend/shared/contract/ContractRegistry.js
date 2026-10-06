@@ -97,6 +97,9 @@ class ContractRegistry {
       throw new Error(`No contract found for provider: ${providerName}`);
     }
 
+    if (typeof testRunner !== 'function') throw new Error('A real provider test runner is required');
+    if (contract.getAllEndpoints().length === 0) throw new Error('Provider contract contains no endpoints');
+
     const results = {
       provider: providerName,
       version: contract.version,

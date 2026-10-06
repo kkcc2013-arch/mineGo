@@ -31,7 +31,9 @@
     "migrate:down": "node ../database/migrate.js down",
     "migrate:status": "node ../database/migrate.js status",
     "migrate:create": "node ../database/migrate.js create",
-    "migrate:verify": "node ../database/migrate.js verify"
+    "migrate:verify": "node ../database/migrate.js verify",
+    "test:performance:unit": "jest --runInBand --config tests/regression/performance.jest.config.json --coverage",
+    "test:performance:storage": "node --test tests/regression/performance-storage.test.js"
   },
   "devDependencies": {
     "@babel/parser": "7.29.7",
@@ -53,6 +55,8 @@
     "@opentelemetry/sdk-trace-base": "^2.7.1",
     "@opentelemetry/sdk-trace-node": "^2.7.1",
     "@opentelemetry/semantic-conventions": "^1.41.1",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
     "axios": "^1.17.0",
     "express-validator": "^7.3.2",
     "kafkajs": "^2.2.4",

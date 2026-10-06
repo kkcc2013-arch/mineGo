@@ -11,7 +11,7 @@
         "backend/tests/battle/context.js": "4e815529a4ba1ba8d02657bc1e8798af1c481cd277e9f64e04a2ea2be595f7c3",
         "backend/tests/battle/formulas.test.js": "40300e85e1cba36f1e9994e9cc5aa2a9af4f256b4a45b83c6fa1bb2d05b745ad",
         "backend/tests/battle/scenarios.test.js": "82ee33f17c3b2eaca95592d20d75763a2f527ae5bb238a9b6e788955fb584aad",
-        "backend/package.json": "73642fd279320b27702148b7bd54457ccd0670a6420da960d8791d4ed5ffd622",
+        "backend/package.json": "25d2660b552587619b5be8feaa9389cfece1e58ccce18c045126764976c5d090",
         ".github/workflows/ci-cd.yml": "b5ce1487fb5c81d2d8201f5b7cb4ab21445c81464480ad3ca93abb35c4719fc8"
       },
       "evidence": [
@@ -34,7 +34,8 @@
         },
         {
           "file": ".github/workflows/ci-cd.yml",
-          "result": "battle-regression job integrated; remote CI not yet executed"
+          "result": "Remote main CI/CD and battle-regression jobs passed at 05e159922af8d818ede4ca0596e53bd6b3ddd173; current dependency follow-up awaits CI",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37471947782"
         }
       ]
     }

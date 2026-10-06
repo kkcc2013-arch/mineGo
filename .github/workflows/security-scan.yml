@@ -44,7 +44,7 @@ jobs:
 
       - name: Upload SARIF report
         if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: gitleaks-report.sarif
           category: secret-leaks
@@ -63,7 +63,7 @@ jobs:
 
       - name: Install backend dependencies
         working-directory: backend
-        run: npm install --workspaces --if-present
+        run: npm ci
 
       - name: Run npm audit
         working-directory: backend
@@ -97,7 +97,7 @@ jobs:
 
       - name: Upload dependency scan reports
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: dependency-scan-reports
           path: |
@@ -122,11 +122,15 @@ jobs:
       - name: Validate K8s manifests
         run: |
           echo "🔍 Validating K8s YAML files..."
-          kubeconform \
-            -summary \
-            -skip-missing-schemas \
-            -ignore-missing-values \
-            infrastructure/k8s/**/*.yaml || exit 1
+          # Native Prometheus/Alertmanager configs and Grafana dashboards are
+          # mounted data, not Kubernetes resource documents.
+          find infrastructure/k8s -type f \( -name '*.yaml' -o -name '*.yml' \) -print0 |
+            while IFS= read -r -d '' file; do
+              if grep -Eq '^apiVersion:' "$file"; then printf '%s\0' "$file"; fi
+            done > /tmp/k8s-manifests
+          mapfile -d '' manifests < /tmp/k8s-manifests
+          test "${#manifests[@]}" -gt 0
+          kubeconform -summary -ignore-missing-schemas "${manifests[@]}"
           echo "✅ All K8s YAML files valid"
 
       - name: Security policy check (kubesec)
@@ -154,7 +158,7 @@ jobs:
           # Check if security policy file exists
           if [ -f infrastructure/k8s/security-policy.yaml ]; then
             echo "✅ Security policy file present"
-            kubeconform -skip-missing-schemas infrastructure/k8s/security-policy.yaml
+            kubeconform -ignore-missing-schemas infrastructure/k8s/security-policy.yaml
           else
             echo "::warning::Security policy file not found"
           fi
@@ -206,7 +210,7 @@ jobs:
 
       - name: Upload Trivy scan results to GitHub Security Tab
         if: always()
-        uses: github/codeql-action/upload-sarif@v2
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: trivy-${{ matrix.service }}-results.sarif
           category: trivy-${{ matrix.service }}
@@ -223,7 +227,7 @@ jobs:
 
       - name: Upload Trivy reports
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: trivy-scan-reports-${{ matrix.service }}
           path: |

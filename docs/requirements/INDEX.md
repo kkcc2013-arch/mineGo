@@ -98,7 +98,7 @@
 | [REQ-00090](REQ-00090-pokemon-status-effects-battle-buff-debuff-system.md) | 精灵状态效果系统与战斗Buff/Debuff管理 | 功能增强 | P1 | done | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
 | [REQ-00091](REQ-00091-pokemon-equipment-system-and-stat-bonus-mechanism.md) | 精灵装备系统与属性加成机制 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
 | [REQ-00092](REQ-00092-api-request-batching-and-deduplication.md) | API 请求合并与批量查询优化 | 性能优化 | P1 | done | game-client、gateway、pokemon-service、social-service、gym-service | 2026-06-10 15:00 |
-| [REQ-00093](REQ-00093-api-contract-testing-system.md) | API 契约测试系统 | 测试覆盖 | P1 | done | gateway、所有微服务、backend/tests/contract | 2026-06-10 16:00 |
+| [REQ-00093](REQ-00093-api-contract-testing-system.md) | API 契约测试系统 | 测试覆盖 | P1 | in_progress | gateway、所有微服务、backend/tests/contract | 2026-06-10 16:00 |
 | [REQ-00094](REQ-00094-realtime-business-metrics-dashboard-and-operations-monitoring.md) | 实时业务指标仪表板与运营监控系统 | 可观测性/监控 | P1 | done | gateway、所有微服务、infrastructure/k8s/monitoring、admin-dashboard、backend/shared/businessMetrics.js | 2026-06-10 16:05 |
 | [REQ-00095](REQ-00095-game-state-persistence-offline-recovery.md) | 游戏状态持久化与离线状态恢复系统 | 前端体验 | P1 | done | game-client、frontend/storage、backend/shared、user-service | 2026-06-10 22:50 |
 | [REQ-00096](REQ-00096-database-transaction-isolation-deadlock-detection.md) | 数据库事务隔离级别控制与死锁检测机制 | 数据库/数据治理 | P1 | done | backend/shared/db.js、catch-service、gym-service、payment-service、social-service | 2026-06-11 00:20 |
@@ -470,7 +470,7 @@
 | [REQ-00487](REQ-00487-pokemon-competitive-league-system.md) | 精灵竞技联赛系统 | 功能增强 | P1 | new | pokemon-service、social-service、reward-service、battle-service、frontend/game-client、database/migrations | 2026-07-07 15:00 |
 | [REQ-00488](REQ-00488-game-text-localization-cache-system.md) | 游戏内文本本地化与智能缓存系统 | 国际化/本地化 | P1 | new | pokemon-service/game-client/shared/i18n/localization-service | 2026-07-07 16:46 |
 | [REQ-00489](REQ-00489-game-data-local-persistence-and-sync-manager.md) | 游戏内数据本地持久化与状态同步管理器 | 性能优化 | P1 | new | game-client/storage/network-manager | 2026-07-08 10:00 |
-| [REQ-00490](REQ-00490-api-performance-regression-test-automation.md) | API性能回归测试自动化与基准线管理系统 | 测试覆盖 | P1 | done | backend/tests/regression/shared/performance-baseline | 2026-07-08 00:09 UTC |
+| [REQ-00490](REQ-00490-api-performance-regression-test-automation.md) | API性能回归测试自动化与基准线管理系统 | 测试覆盖 | P1 | in_progress | backend/tests/regression/shared/performance-baseline | 2026-07-08 00:09 UTC |
 | [REQ-00491](REQ-00491-metric-lifecycle-management-system.md) | 监控指标生命周期管理与废弃治理系统 | 可观测性/监控 | P2 | new | backend/shared/metrics、gateway/middleware、k8s/monitoring | 2026-07-08 01:17 UTC |
 | [REQ-00492](REQ-00492-deployment-pipeline-visualization-dashboard.md) | 部署流水线可视化看板与状态追踪系统 | 运维/CICD | P1 | done | .github/workflows、backend/admin-dashboard、k8s/monitoring | 2026-07-08 02:00 UTC |
 | [REQ-00493](REQ-00493-automated-disaster-recovery-drill-system.md) | 自动化灾难恢复演练系统 | 运维/CICD | P1 | new | infrastructure/k8s/dr, backend/jobs | 2026-07-08 03:00 |
@@ -527,7 +527,7 @@
 | [REQ-00544](REQ-00544-test-data-factory-pattern-system.md) | 微服务测试数据工厂模式与智能 Fixture 生成系统 | 测试覆盖 | P1 | new | backend/tests、backend/shared/testUtils、catch-service、gym-service、pokemon-service、user-service | 2026-07-12 16:03 UTC |
 | [REQ-00545](REQ-00545-api-performance-sampling-intelligent-analysis-and-auto-tuning-recommendation-system.md) | API 性能采样数据智能分析与自动调优建议系统 | 性能优化 | P1 | new | backend/shared/performanceSamplingAnalysis、gateway/src/middleware/perfSamplingAnalysis、backend/jobs/performanceAnalysisJob.js、infrastructure/monitoring、admin-dashboard | 2026-07-12 17:00 UTC |
 | [REQ-00546](REQ-00546-api-response-latency-jitter-monitoring.md) | 微服务间API响应时间抖动监控与智能告警系统 | 可观测性 | P1 | new | api-gateway, observability-service, metrics-collector | 2026-07-13 10:00 |
-| [REQ-00547](REQ-00547-api-response-schema-enforcement-and-contract-testing-system.md) | API 响应 Schema 强制执行与合约测试自动化系统 | API 设计规范 | P1 | new | gateway、所有后端服务、backend/shared/schemaValidator.js、backend/tests/contract、.github/workflows | 2026-07-12 19:00 UTC |
+| [REQ-00547](REQ-00547-api-response-schema-enforcement-and-contract-testing-system.md) | API 响应 Schema 强制执行与合约测试自动化系统 | API 设计规范 | P1 | in_progress | gateway、所有后端服务、backend/shared/schemaValidator.js、backend/tests/contract、.github/workflows | 2026-07-12 19:00 UTC |
 | [REQ-00548](REQ-00548-database-query-performance-baseline-and-drift-detection.md) | 数据库查询性能基线与漂移检测系统 | 数据库/数据治理 | P1 | new | database, backend/shared, infrastructure/monitoring | 2026-07-14 07:51 |
 | [REQ-00549](REQ-00549-real-time-api-latency-and-jitter-monitoring-system.md) | Real-time API Latency and Jitter Monitoring System | 可观测性 | P1 | new | API Gateway, Monitoring Service, Dashboard | 2026-07-11 10:00 |
 | [REQ-00550](REQ-00550-collaborative-cheating-gang-detection-system.md) | 协同作弊团伙检测系统 | 反作弊 | P0 | done | gateway、user-service、social-service、backend/shared/gangDetection.js、Redis、PostgreSQL、Kafka | 2026-07-15 01:00 |

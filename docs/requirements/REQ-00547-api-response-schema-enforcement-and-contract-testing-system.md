@@ -3,7 +3,7 @@
 - **编号**：REQ-00547
 - **类别**：API 设计规范
 - **优先级**：P1
-- **状态**：new
+- **状态**：in_progress
 - **涉及服务/模块**：gateway、所有后端服务、backend/shared/schemaValidator.js、backend/tests/contract、.github/workflows
 - **创建时间**：2026-07-12 19:00 UTC
 - **依赖需求**：REQ-00520（API 兼容性版本管理）、REQ-00315（API 响应 Schema 校验系统）
@@ -241,3 +241,10 @@ jobs:
 - Pact 合约测试框架设计理念
 - REQ-00518 HATEOAS 资源发现系统
 - REQ-00520 API 兼容性版本管理
+
+## 2026-10-06 开始验收
+
+- 补齐 AJV 8 与 ajv-formats 运行时依赖；修复 SchemaValidator 单元测试导入，并实际执行通过。
+- 合约 CI 不再吞掉失败，不再依靠写 PR 评论判断测试结果；报告写入工作流 summary/artifacts。
+- 旧 Joi 提供方契约运行器与本需求的 Registry 运行器分离，避免不同接口相互覆盖。
+- 所有服务 Schema 覆盖、真实路由挂载、Registry 版本数据、差异准确率及管理界面仍未完成；保持 `in_progress`。

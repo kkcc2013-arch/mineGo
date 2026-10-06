@@ -98,3 +98,62 @@ Installation discovery returned no manageable installations. No remote branch or
 pull request was created. Repository write access must be granted to the GitHub
 integration before publishing and running remote CI. The local commits and clean
 working branch are preserved.
+
+## Publication and CI follow-up (2026-10-06)
+
+The branch was published after the user confirmed repository/workflow access.
+Draft PR: https://github.com/kkcc2013-arch/mineGo/pull/6 . The main CI/CD Pipeline
+and battle regression job passed at commit 05e159922af8d818ede4ca0596e53bd6b3ddd173
+(run 37471947782). This supersedes the earlier publication blocker above. No merge
+or deployment was performed. Other workflows were not all green.
+
+The subsequent batch repairs unavailable/retired actions, adds the frontend npm
+lockfile, and records genuine contract/performance failures instead of suppressing
+them. Contract reports use job summaries and artifacts. The provider Joi contracts
+have their own working HTTP runner; the registry-based runner remains separate.
+Mutating requests require explicit fixtures, and missing/empty/failed verification
+cannot pass. Configure CONTRACT_BASE_URL and CONTRACT_FIXTURES_PATH for the real
+test environment. Existing game contract paths and payloads still require alignment.
+
+Performance measurements now require a real app or API URL, use measured wall time
+for concurrent throughput, detect throughput decreases correctly, and propagate
+storage errors. The baseline migration no longer fabricates demonstration values.
+The baseline manager preserves explicit zero values, parameterizes intervals,
+correctly counts deleted rows, and enforces at least 90 days of retention.
+A new isolated PostgreSQL/Redis storage test verifies these changes against actual
+services; it never modifies an existing application's schema. Unit coverage is
+measured by Jest rather than method-presence assertions. Configure PERF_BASE_URL
+and measured baselines before treating the live game benchmark as verified.
+
+Validation of this batch:
+
+- Node 20 full unit command: 95 standalone + 133 battle + 268 selected Jest tests
+  (496 checks) passed. The selected suites now include real HTTP contract tests,
+  performance tests and schema validation, plus existing contract compatibility tests.
+- Performance suite: 44 tests, 98.31% lines, 91.71% branches, 100% functions; its
+  actual 80% coverage gate passed.
+- PostgreSQL 15 / Redis 7: isolated baseline storage, caching, trend, retention,
+  migration and interval-parameter checks passed.
+- Battle formula coverage on Node 24: 100% lines/branches/functions, 133 checks pass.
+- All workflow YAML parses, 1375 JavaScript files parse, tooling tests pass,
+  numbering has zero duplicates, and npm audit reports zero high/critical findings
+  (25 moderate findings remain).
+- Frontend npm ci succeeds and Playwright discovers 320 tests. Browser download
+  failed mid-transfer; no browser runtime pass is claimed. Generated local browser
+  reports are ignored.
+- kubeconform 0.6.4 validates 142 Kubernetes resources in 27 files: 101 valid,
+  zero invalid/errors, 41 skipped because their custom resource schemas are not
+  available. Native Prometheus/Alertmanager configs and Grafana dashboard data are
+  excluded from Kubernetes resource validation. No cluster is contacted.
+- The legacy integration suite fails under Node 20 in testcontainers/undici startup;
+  it runs under Node 24 but exposes missing imports/dependencies, PostGIS setup,
+  and mock test schema drift. It is NOT declared passed. Its workflow now uses
+  Node 24, consistent with the installed undici runtime requirement. The test-defined
+  routes do not establish production route acceptance.
+
+REQ-00093 and REQ-00490 were reopened from legacy `done` declarations to
+`in_progress`; REQ-00547 started. The audit now reports 212 legacy done declarations,
+442 new requirements and four in progress. The all-requirements objective remains
+unfinished; none of these partial results establishes product-wide completion.
+The user was asked for a live test/staging API and Kubernetes context. Pending
+those details, no external benchmark, recovery drill or production rollout was run.

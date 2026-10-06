@@ -4,9 +4,9 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 214,
-      "new": 443,
-      "in_progress": 1
+      "done": 212,
+      "new": 442,
+      "in_progress": 4
     },
     "priorityCounts": {
       "P0": 52,
@@ -2831,11 +2831,11 @@
       "id": "REQ-00093",
       "title": "REQ-00093: API 契约测试系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "测试覆盖",
       "modules": "gateway、所有微服务、backend/tests/contract",
       "createdAt": "2026-06-10 16:00",
-      "sha256": "32bda554c3624ebd0f2a9f8156809df6713d3ed66856c4b460b9e2be8d29155f",
+      "sha256": "bb08428ef8f5f315c9714e674d841e55503cb053cb47fcebf8b1e9acf03e5546",
       "acceptance": [
         "- [ ] 契约 Schema 定义机制实现完成，支持 Joi Schema",
         "- [ ] 提供方契约测试执行器实现完成",
@@ -2849,7 +2849,9 @@
         "- [ ] 契约测试执行时间 < 60 秒"
       ],
       "verificationStatus": "not-audited",
-      "implementationReferences": [],
+      "implementationReferences": [
+        "backend/tests/contract/ProviderContractTestRunner.js"
+      ],
       "legacyId": null
     },
     {
@@ -13158,11 +13160,11 @@
       "id": "REQ-00490",
       "title": "REQ-00490：API性能回归测试自动化与基准线管理系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "测试覆盖",
       "modules": "backend/tests/regression/shared/performance-baseline",
       "createdAt": "2026-07-08 00:09 UTC",
-      "sha256": "c7b78e062e0cbc3838adf24badcc458945eede9a57e2bfc845402c66b51ec276",
+      "sha256": "f86522efab5ee11ae7ca9e661478cd7f5fee0d23f8776184868b67637d10ff36",
       "acceptance": [
         "- [x] CI/CD 流水线能够自动执行性能回归测试",
         "- [x] 历史基准线数据存储在 PostgreSQL 中且可查询",
@@ -14720,11 +14722,11 @@
       "id": "REQ-00547",
       "title": "REQ-00547：API 响应 Schema 强制执行与合约测试自动化系统",
       "priority": "P1",
-      "declaredStatus": "new",
+      "declaredStatus": "in_progress",
       "category": "API 设计规范",
       "modules": "gateway、所有后端服务、backend/shared/schemaValidator.js、backend/tests/contract、.github/workflows",
       "createdAt": "2026-07-12 19:00 UTC",
-      "sha256": "d9857a568d9347545922a4f3dd208ad26d1be5fea23fdc505ad9b451b4eef05e",
+      "sha256": "09d3e437fe17e497b08b39fae1be972c1b5133448a31e035f685e66a93c7ac2c",
       "acceptance": [
         "- [ ] 所有后端服务 API 响均有对应的 JSON Schema 定义",
         "- [ ] Schema Registry 支持版本管理和历史查询",
@@ -14740,6 +14742,7 @@
         "backend/shared/schemaRegistry/SchemaDiffDetector.js",
         "backend/shared/schemaRegistry/SchemaRegistry.js",
         "backend/tests/contract/ContractTestRunner.js",
+        "backend/tests/contract/ProviderContractTestRunner.js",
         "backend/tests/schemaRegistry.test.js"
       ],
       "legacyId": null
