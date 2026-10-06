@@ -108,7 +108,7 @@
 | [REQ-00100](REQ-00100-automation-script-and-macro-detection-system.md) | 自动化脚本与宏检测系统 | 反作弊 | P1 | done | gateway、catch-service、gym-service、game-client、backend/shared | 2026-06-11 02:00 |
 | [REQ-00101](REQ-00101-backend-api-error-message-i18n.md) | 后端 API 错误消息国际化系统 | 国际化/本地化 | P1 | new | gateway、所有微服务、backend/shared、frontend/game-client | 2026-06-11 03:00 |
 | [REQ-00102](REQ-00102-pokemon-day-night-cycle-system.md) | 精灵昼夜循环系统 | 功能增强 | P1 | done | location-service、catch-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-11 04:00 |
-| [REQ-00103](REQ-00103-microservice-dependency-graph-and-cycle-detection.md) | 微服务依赖图与循环依赖检测系统 | 技术债/重构 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s、docs/architecture | 2026-06-11 04:00 |
+| [REQ-00103](REQ-00103-microservice-dependency-graph-and-cycle-detection.md) | 微服务依赖图与循环依赖检测系统 | 技术债/重构 | P1 | in_progress | gateway、所有微服务、backend/shared、infrastructure/k8s、docs/architecture | 2026-06-11 04:00 |
 | [REQ-00104](REQ-00104-marketplace-auction-system.md) | 精灵交换市场与竞价拍卖系统 | 功能增强 | P1 | done | social-service、pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 04:30 |
 | [REQ-00105](REQ-00105-distributed-lock-service-redis-redlock.md) | 分布式锁服务与 Redis Redlock 实现 | 容灾/高可用 | P1 | done | backend/shared/distributedLock.js、所有微服务、Redis | 2026-06-11 05:15 |
 | [REQ-00106](REQ-00106-player-title-system-and-personalization.md) | 玩家称号系统与个性化展示 | 功能增强 | P1 | new | user-service、pokemon-service、social-service、gateway、game-client、database/migrations | 2026-06-11 05:30 |

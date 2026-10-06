@@ -157,3 +157,23 @@ REQ-00093 and REQ-00490 were reopened from legacy `done` declarations to
 unfinished; none of these partial results establishes product-wide completion.
 The user was asked for a live test/staging API and Kubernetes context. Pending
 those details, no external benchmark, recovery drill or production rollout was run.
+
+
+## Dependency analyzer follow-up
+
+At ae68592 the main CI pipeline passed again, and the performance unit/coverage
+and actual PostgreSQL/Redis storage job passed remotely. Live benchmark and
+contract jobs failed because no test API/fixtures were configured; their failure
+is now visible. The broader integration job also remains red.
+
+The dependency workflow now reaches its analyzer and exposed an actual runtime
+error: the logger declaration was inside a comment. Its discovery also pointed
+outside backend/services and omitted backend/gateway. Both are repaired; missing
+source trees now fail explicitly. Repeated analysis clears previous state, JSON
+contains health scores and event topics, and cycle detection clears its traversal
+stack correctly. A real-source scan discovers all nine services and nine static
+synchronous dependencies with no detected cycles. This does not establish 99%
+accuracy or complete Kafka/dynamic call coverage. REQ-00103 is in progress.
+The expanded regression suite passes 295 tests across 13 suites (27 analyzer tests
+added); the earlier standalone and battle checks remain applicable. Requirement
+inventory now has 441 new, five in progress and 212 legacy done declarations.

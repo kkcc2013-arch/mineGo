@@ -5,8 +5,8 @@
     "uniqueIds": 658,
     "declaredStatusCounts": {
       "done": 212,
-      "new": 442,
-      "in_progress": 4
+      "new": 441,
+      "in_progress": 5
     },
     "priorityCounts": {
       "P0": 52,
@@ -3131,11 +3131,11 @@
       "id": "REQ-00103",
       "title": "REQ-00103：微服务依赖图与循环依赖检测系统",
       "priority": "P1",
-      "declaredStatus": "new",
+      "declaredStatus": "in_progress",
       "category": "技术债/重构",
       "modules": "gateway、所有微服务、backend/shared、infrastructure/k8s、docs/architecture",
       "createdAt": "2026-06-11 04:00",
-      "sha256": "f87aa63efc7efa8049b5a305e397e9516b17a5850a3ca2044b0033cc266be81e",
+      "sha256": "257f0943177cb05b48906a660692e452eacd281654ead608d9a0c82ee05f0095",
       "acceptance": [
         "- [ ] 能够准确识别 9 个微服务之间的所有 HTTP 调用依赖（通过单元测试验证）",
         "- [ ] 能够准确识别所有 Kafka Topic 发布/订阅关系（通过单元测试验证）",

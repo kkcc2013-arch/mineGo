@@ -13,6 +13,7 @@
     "<rootDir>/tests/unit/performanceRegressionTester.test.js",
     "<rootDir>/tests/unit/schema-validator.test.js",
     "<rootDir>/tests/unit/provider-contract.test.js",
-    "<rootDir>/tests/unit/contract.test.js"
+    "<rootDir>/tests/unit/contract.test.js",
+    "<rootDir>/tests/unit/dependencyAnalyzer.test.js"
   ]
 }
