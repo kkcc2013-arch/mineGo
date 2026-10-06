@@ -2,6 +2,9 @@
 // REQ-00578: 未成年人保护中间件（宵禁 + 时长限制）
 
 'use strict';
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("gateway/src/middleware/minorProtection"), "gateway/src/middleware/minorProtection");
+
 
 const {
   checkUserCanPlay,
@@ -122,7 +125,7 @@ function playTimeTrackingMiddleware() {
           }
         }
       } catch (err) {
-        console.error('[MinorProtection] Failed to track play time:', err);
+        _consoleLogger.error('[MinorProtection] Failed to track play time:', err);
       }
     });
     
@@ -182,7 +185,7 @@ async function minorLogoutCleanupMiddleware(req, res, next) {
     }
     next();
   } catch (err) {
-    console.error('[MinorProtection] Failed to cleanup on logout:', err);
+    _consoleLogger.error('[MinorProtection] Failed to cleanup on logout:', err);
     next();
   }
 }

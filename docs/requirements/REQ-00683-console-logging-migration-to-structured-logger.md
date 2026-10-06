@@ -3,7 +3,7 @@
 - **编号**：REQ-00683
 - **类别**：技术债/重构
 - **优先级**：P1
-- **状态**：new
+- **状态**：in_progress
 - **涉及服务/模块**：所有后端服务、backend/shared/logger.js、backend/shared/loggingUtils.js
 - **创建时间**：2026-07-21 11:00 UTC
 - **依赖需求**：REQ-00501（日志输出适配器抽象层已完成）
@@ -242,3 +242,16 @@ app.get('/api/pokemon/:id', async (req, res) => {
 
 
 > 编号迁移（2026-10-06）：本需求原编号为 REQ-00624。该编号被多个文档使用，现改为 REQ-00683；历史映射见 [编号迁移记录](NUMBER-MIGRATIONS.md)。
+
+
+## 2026-10-06 本地验收记录
+
+- 已实现 ConsoleMigrationHelper、显式可恢复的全局替换选项、AST 扫描/迁移工具与 CI 新调用阻断。
+- 本次 AST 扫描范围的直接全局 console 调用为零；gateway、user-service、pokemon-service、catch-service、其余服务及 shared 已迁移。测试、CLI/script 输出不属于本次运行时扫描。
+- requestLogger 使用 AsyncLocalStorage，真实并发 HTTP 请求的日志带各自 requestId/userId；共享开发输出 transport，避免为每个迁移模块新建 pretty worker。
+- 对象中已知凭据键会遮盖，不触发 getter，不修改原始数据，保留错误、日期、Buffer、Map、Set 及常见格式化参数。
+- helper 单元覆盖门禁为 85% 行/语句/函数；当前 13 项迁移功能测试通过。全仓 JS 语法与受支持单测命令通过。
+- 新旧日志的同步内存输出微基准已运行，未达到 <=5% 相对开销目标；因此性能验收未勾选，保持 in_progress。该微基准不能代替生产日志输出/磁盘/网络负载验收。
+- REQ-00501 的多输出适配器与故障恢复未由本次 Pino 包装器验证；完整旧集成/E2E 与生产日志链路仍需验收。
+
+验收命令：npm run check:logging；cd backend && npm run test:logging:unit；NODE_ENV=production npm run benchmark:logging。

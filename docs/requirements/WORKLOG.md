@@ -226,3 +226,49 @@ No product-wide completion or legal-compliance claim is made.
 The inventory remains 658 unique requirements, with 211 legacy done declarations,
 441 new requirements and six in progress. The source-hashed ledger records privacy
 results as partial evidence, separately from complete acceptance.
+
+## Logging migration and runtime repair (2026-10-06)
+
+Privacy CI, the main CI pipeline and dependency checks passed at 739c8ee. The local
+continuation replaces the unsafe regex console converter with Babel AST/scope
+analysis and a default read-only report. Writes require an explicit CommonJS file,
+keep comments/directives/argument expressions, avoid nested name collisions and
+parse the result before writing. ES module rewrites and unsupported console methods
+require review. The runtime scanner finds zero direct global console calls across
+shared, gateway and all service source trees; test and CLI/script output is excluded.
+The empty baseline and CI gate reject newly detected calls. CLI output is preserved.
+
+The migration helper preserves common formatting, structured errors/objects and
+known credential-field redaction without invoking getters or modifying input data.
+Date, Buffer, Map and Set values are covered. Shared loggers now use AsyncLocalStorage
+for actual request identity/trace context; concurrent HTTP tests prove context
+separation. Development loggers share one pretty transport instead of creating a
+worker for each converted module. Disabled log levels avoid object normalization.
+The helper is never installed globally on import; explicit replacement can be undone.
+
+Repaired logger declarations hidden inside comments and genuinely unbound references
+in business/spawn metrics, ImageProcessor, age verification, WebSocket shutdown and
+ServiceLauncher startup failure handling. Removed consent-token/approval-URL log
+output; the parent-consent message now says request prepared because delivery was
+never implemented. This does not validate the email-delivery requirement.
+
+Validation:
+
+- Full unit command on Node20: 95 standalone + 133 battle + 351 Jest = 579 checks.
+- Logging helper/migration suite: 13 tests; 100% lines/functions, 98.57% statements,
+  94.54% branches; the actual 85% coverage gate passes.
+- Actual PostgreSQL/privacy/gateway suite still passes all11 Node checks after the
+  logger changes. Battle formula coverage remains100% on Node24.
+- 1380 JavaScript files parse, logging scan is zero, tool checks and numbering pass.
+  ServiceLauncher loads directly. Full service startup is not claimed.
+- The reproducible production-mode logging microbenchmark FAILED its5% target:
+  median message overhead211.20%, printf196.21%, object167.65% for20000 calls per
+  case. New absolute batch times were21.54ms/26.20ms/59.62ms respectively. The test
+  writes to synchronous in-memory discard streams and does not establish production
+  disk/network throughput. The failure is recorded in VERIFICATION.json; no threshold
+  was weakened and no performance acceptance was checked off.
+
+REQ-00391 is reopened and REQ-00683 is in progress. The inventory now has210 legacy
+done declarations,440 new requirements and8 in progress. The documented logging
+functionality and scanner progress do not imply all requirements or all logging
+performance/adapter conditions are complete. See docs/LOGGING-MIGRATION.md.

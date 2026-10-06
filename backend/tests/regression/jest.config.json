@@ -15,6 +15,8 @@
     "<rootDir>/tests/unit/provider-contract.test.js",
     "<rootDir>/tests/unit/contract.test.js",
     "<rootDir>/tests/unit/dependencyAnalyzer.test.js",
-    "<rootDir>/tests/unit/privacy-preferences.test.js"
+    "<rootDir>/tests/unit/privacy-preferences.test.js",
+    "<rootDir>/tests/unit/logging-migration.test.js",
+    "<rootDir>/tests/unit/console-replacement.test.js"
   ]
 }

@@ -239,7 +239,7 @@ function createService(options) {
   const launcher = new ServiceLauncher(options);
   
   launcher.start().catch(err => {
-    logger.error({ serviceName: options.serviceName, error: err.message, stack: err.stack }, 'Failed to start service');
+    launcher.logger.error({ serviceName: options.serviceName, error: err.message, stack: err.stack }, 'Failed to start service');
     process.exit(1);
   });
 

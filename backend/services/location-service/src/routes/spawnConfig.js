@@ -5,6 +5,9 @@
  * @module spawnConfig
  */
 
+
+const _consoleLogger = new (require("../../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../../shared/logger").createLogger("services/location-service/src/routes/spawnConfig"), "services/location-service/src/routes/spawnConfig");
 const express = require('express');
 const router = express.Router();
 
@@ -45,7 +48,7 @@ router.get('/config/cell/:geohash', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error fetching cell config:', error);
+    _consoleLogger.error('Error fetching cell config:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch cell config'
@@ -100,7 +103,7 @@ router.put('/config/cell/:geohash', adminOnly, async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error('Error updating cell config:', error);
+    _consoleLogger.error('Error updating cell config:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to update cell config'
@@ -144,7 +147,7 @@ router.post('/config/cells/batch', adminOnly, async (req, res) => {
     });
   } catch (error) {
     await req.db.query('ROLLBACK');
-    console.error('Error batch updating cell configs:', error);
+    _consoleLogger.error('Error batch updating cell configs:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to batch update cell configs'
@@ -196,7 +199,7 @@ router.post('/events', adminOnly, async (req, res) => {
       eventId
     });
   } catch (error) {
-    console.error('Error creating event:', error);
+    _consoleLogger.error('Error creating event:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to create event'
@@ -235,7 +238,7 @@ router.get('/events', async (req, res) => {
       data: result.rows
     });
   } catch (error) {
-    console.error('Error fetching events:', error);
+    _consoleLogger.error('Error fetching events:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch events'
@@ -288,7 +291,7 @@ router.put('/events/:id', adminOnly, async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error('Error updating event:', error);
+    _consoleLogger.error('Error updating event:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to update event'
@@ -318,7 +321,7 @@ router.delete('/events/:id', adminOnly, async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error('Error deleting event:', error);
+    _consoleLogger.error('Error deleting event:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to delete event'
@@ -348,7 +351,7 @@ router.get('/pool/:biome', async (req, res) => {
       data: result.rows
     });
   } catch (error) {
-    console.error('Error fetching spawn pool:', error);
+    _consoleLogger.error('Error fetching spawn pool:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch spawn pool'
@@ -394,7 +397,7 @@ router.put('/pool/:biome', adminOnly, async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     await req.db.query('ROLLBACK');
-    console.error('Error updating spawn pool:', error);
+    _consoleLogger.error('Error updating spawn pool:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to update spawn pool'
@@ -421,7 +424,7 @@ router.get('/biomes', async (req, res) => {
       data: result.rows
     });
   } catch (error) {
-    console.error('Error fetching biomes:', error);
+    _consoleLogger.error('Error fetching biomes:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch biomes'
@@ -468,7 +471,7 @@ router.get('/statistics', async (req, res) => {
       data: result.rows
     });
   } catch (error) {
-    console.error('Error fetching statistics:', error);
+    _consoleLogger.error('Error fetching statistics:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch statistics'
@@ -510,7 +513,7 @@ router.get('/logs', adminOnly, async (req, res) => {
       data: result.rows
     });
   } catch (error) {
-    console.error('Error fetching logs:', error);
+    _consoleLogger.error('Error fetching logs:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch logs'
@@ -549,7 +552,7 @@ router.post('/manual', adminOnly, async (req, res) => {
       data: spawned
     });
   } catch (error) {
-    console.error('Error manual spawning:', error);
+    _consoleLogger.error('Error manual spawning:', error);
     res.status(500).json({
       success: false,
       error: error.message || 'Failed to spawn pokemon'

@@ -20,7 +20,8 @@
     "test": "cd backend && npm test",
     "lint": "cd backend && npm run lint",
     "clean": "rm -rf node_modules backend/node_modules frontend/node_modules coverage .nyc_output",
-    "reinstall": "npm run clean && npm install && cd backend && npm install"
+    "reinstall": "npm run clean && npm install && cd backend && npm install",
+    "check:logging": "node scripts/replace-console-with-logger.js --check"
   },
   "devDependencies": {
     "chai": "^4.5.0",

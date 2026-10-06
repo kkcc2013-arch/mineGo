@@ -4,9 +4,9 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 211,
-      "new": 441,
-      "in_progress": 6
+      "done": 210,
+      "new": 440,
+      "in_progress": 8
     },
     "priorityCounts": {
       "P0": 52,
@@ -11129,11 +11129,11 @@
       "id": "REQ-00391",
       "title": "REQ-00391：console.log 替换与结构化日志强制使用系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "技术债/重构",
       "modules": "backend/shared（190 个模块）、所有微服务、gateway、CI/CD 检查规则",
       "createdAt": "2026-06-30 17:00 UTC",
-      "sha256": "8f6f4c26531d4a15834206664d584ffe592dacc0a9b444d1e81c819cb59f7e42",
+      "sha256": "41150e21b753a53672a8c858b18d080d29201ef42847429d7ba545cfccc99523",
       "acceptance": [
         "- [ ] backend/shared 目录所有 .js 文件无 console.log/console.error 调用（检测脚本输出 0）",
         "- [ ] ESLint 配置添加 no-console 规则且 CI 通过",
@@ -11144,8 +11144,7 @@
       ],
       "verificationStatus": "not-audited",
       "implementationReferences": [
-        "backend/tests/unit/console-replacement.test.js",
-        "scripts/replace-console-with-logger.js"
+        "backend/tests/unit/console-replacement.test.js"
       ],
       "legacyId": null
     },
@@ -18312,11 +18311,11 @@
       "id": "REQ-00683",
       "title": "REQ-00683: Console 调用全面迁移至结构化日志系统",
       "priority": "P1",
-      "declaredStatus": "new",
+      "declaredStatus": "in_progress",
       "category": "技术债/重构",
       "modules": "所有后端服务、backend/shared/logger.js、backend/shared/loggingUtils.js",
       "createdAt": "2026-07-21 11:00 UTC",
-      "sha256": "29daf8f96eac7242fe86a2a6bbed2ccf77fa1a80795cb85791abd286d11a85a6",
+      "sha256": "d725714839a4dcd1b92df697d7f9f2c4ff526b8b3890528511472252b3ef104a",
       "acceptance": [
         "- [ ] 创建 ConsoleMigrationHelper 工具类，支持渐进迁移",
         "- [ ] 创建自动化扫描脚本，生成 console 使用报告",
@@ -18329,7 +18328,7 @@
         "- [ ] 文档：提供迁移指南和最佳实践示例",
         "- [ ] CI/CD 集成：CI 中运行扫描脚本，发现新 console 调用则失败"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [],
       "legacyId": "REQ-00624"
     }

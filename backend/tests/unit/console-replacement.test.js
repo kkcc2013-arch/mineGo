@@ -59,7 +59,7 @@ describe('Console Replacement (REQ-00391)', () => {
       const hasLogger = content.includes("require('./logger')") || 
                         content.includes('createLogger');
       
-      expect(hasLogger).toBe(true);
+      expect({file, hasLogger}).toEqual({file, hasLogger:true});
     }
   });
   

@@ -1,9 +1,11 @@
 /**
-const { createLogger } = require('./logger');
-const logger = createLogger('businessMetrics');
  * 业务指标定义与采集模块
  * REQ-00094: 实时业务指标仪表板与运营监控系统
  */
+
+const { createLogger } = require('./logger');
+const logger = createLogger('businessMetrics');
+
 
 const { Gauge, Counter, Histogram, Registry } = require('prom-client');
 

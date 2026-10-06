@@ -1,5 +1,8 @@
 // location-service/src/index.js  +  routes/map.js  (combined)
 'use strict';
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("services/location-service/src/index"), "services/location-service/src/index");
+
 const express  = require('express');
 const cors     = require('cors');
 const helmet   = require('helmet');
@@ -223,10 +226,10 @@ async function runSpawnCycle() {
         spawned++;
       }
     } catch (err) {
-      console.error('[Spawn] Error for point', pt.id, err.message);
+      _consoleLogger.error('[Spawn] Error for point', pt.id, err.message);
     }
   }
-  console.log(`[Spawn] Cycle complete: ${spawned} new spawns`);
+  _consoleLogger.log(`[Spawn] Cycle complete: ${spawned} new spawns`);
 }
 
 // ============================================================
@@ -274,7 +277,7 @@ app.post('/location', requireAuth, async (req, res, next) => {
       const timeSec = (Date.now() - prevData.ts) / 1000;
       const speedKmh = distKm / (timeSec / 3600);
       if (speedKmh > 100) {
-        console.warn('[AntiCheat] Possible GPS spoof: userId=%s speed=%.1f km/h', userId, speedKmh);
+        _consoleLogger.warn('[AntiCheat] Possible GPS spoof: userId=%s speed=%.1f km/h', userId, speedKmh);
         return res.json(successResp({ nearbyAlert: false, warning: 'speed_anomaly' }));
       }
       // Update distance
@@ -388,7 +391,7 @@ async function getNearbyWild(lat, lng, radius) {
     
   } catch (err) {
     // Cache error - fallback to DB
-    console.error('[Cache] Redis error, fallback to DB:', err.message);
+    _consoleLogger.error('[Cache] Redis error, fallback to DB:', err.message);
     cacheMisses++;
     return await getNearbyWildFromDB(lat, lng, radius);
   }

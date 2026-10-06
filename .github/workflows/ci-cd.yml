@@ -66,6 +66,9 @@ jobs:
           npm run requirements:audit:check
 
       # 需求编号唯一性检查：新增重复编号直接阻断
+      - name: Reject direct runtime console calls
+        run: npm run check:logging
+
       - name: Check requirement numbering
         run: node scripts/check-req-numbering.js
 

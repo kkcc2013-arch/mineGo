@@ -10,6 +10,9 @@
  * @module serviceBootstrap
  */
 
+
+const _consoleLogger = new (require("./loggingUtils")).ConsoleMigrationHelper(
+  require("./logger").createLogger("shared/serviceBootstrap"), "shared/serviceBootstrap");
 const { getContainer, resetContainer } = require('./dependencyContainer');
 const { getConfigManager } = require('./configManager');
 
@@ -122,7 +125,7 @@ async function bootstrapService(serviceName, options = {}) {
     shutdownTimeout = 30000
   } = options;
 
-  console.log(`[Bootstrap] Starting ${serviceName}...`);
+  _consoleLogger.log(`[Bootstrap] Starting ${serviceName}...`);
 
   // 1. 获取容器
   const container = getContainer();
@@ -226,31 +229,31 @@ async function bootstrapService(serviceName, options = {}) {
   }
 
   // 5. 初始化所有依赖
-  console.log(`[Bootstrap] Initializing dependencies...`);
+  _consoleLogger.log(`[Bootstrap] Initializing dependencies...`);
   const initResults = await container.initialize();
 
   if (initResults.failed.length > 0) {
-    console.error(`[Bootstrap] Failed to initialize:`, initResults.failed);
+    _consoleLogger.error(`[Bootstrap] Failed to initialize:`, initResults.failed);
     throw new Error(`Failed to initialize dependencies: ${initResults.failed.map(f => f.name).join(', ')}`);
   }
 
-  console.log(`[Bootstrap] Dependencies initialized: ${initResults.success.length} success, ${initResults.skipped.length} skipped`);
+  _consoleLogger.log(`[Bootstrap] Dependencies initialized: ${initResults.success.length} success, ${initResults.skipped.length} skipped`);
 
   // 6. 执行健康检查
-  console.log(`[Bootstrap] Running health checks...`);
+  _consoleLogger.log(`[Bootstrap] Running health checks...`);
   const healthResults = await container.healthCheck();
 
-  console.log(`[Bootstrap] Health status: ${healthResults.status}`);
+  _consoleLogger.log(`[Bootstrap] Health status: ${healthResults.status}`);
   if (healthResults.status !== 'healthy') {
-    console.warn(`[Bootstrap] Health check warnings:`, healthResults.dependencies);
+    _consoleLogger.warn(`[Bootstrap] Health check warnings:`, healthResults.dependencies);
   }
 
   // 7. 注册关闭钩子
   const shutdownHandler = async (signal) => {
-    console.log(`[Bootstrap] Received ${signal}, shutting down...`);
+    _consoleLogger.log(`[Bootstrap] Received ${signal}, shutting down...`);
     
     const timeout = setTimeout(() => {
-      console.error(`[Bootstrap] Shutdown timeout, forcing exit`);
+      _consoleLogger.error(`[Bootstrap] Shutdown timeout, forcing exit`);
       process.exit(1);
     }, shutdownTimeout);
 
@@ -258,10 +261,10 @@ async function bootstrapService(serviceName, options = {}) {
       const shutdownResults = await container.shutdown();
       clearTimeout(timeout);
       
-      console.log(`[Bootstrap] Shutdown complete:`, shutdownResults);
+      _consoleLogger.log(`[Bootstrap] Shutdown complete:`, shutdownResults);
       process.exit(0);
     } catch (error) {
-      console.error(`[Bootstrap] Shutdown error:`, error);
+      _consoleLogger.error(`[Bootstrap] Shutdown error:`, error);
       process.exit(1);
     }
   };
@@ -270,7 +273,7 @@ async function bootstrapService(serviceName, options = {}) {
   process.on('SIGINT', () => shutdownHandler('SIGINT'));
 
   // 8. 返回容器
-  console.log(`[Bootstrap] ${serviceName} started successfully`);
+  _consoleLogger.log(`[Bootstrap] ${serviceName} started successfully`);
   
   return {
     container,

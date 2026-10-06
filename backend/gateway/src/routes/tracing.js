@@ -1,6 +1,9 @@
 // backend/gateway/src/routes/tracing.js
 // REQ-00148: 分布式追踪与请求链路可视化系统 - 追踪查询 API
 'use strict';
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("gateway/src/routes/tracing"), "gateway/src/routes/tracing");
+
 
 const express = require('express');
 const router = express.Router();
@@ -54,7 +57,7 @@ router.get('/traces/:traceId', async (req, res) => {
       traceId,
     });
   } catch (error) {
-    console.error('[TracingAPI] Error fetching trace:', error.message);
+    _consoleLogger.error('[TracingAPI] Error fetching trace:', error.message);
     return res.status(503).json({ 
       error: 'Tracing service unavailable',
       message: error.message,
@@ -108,7 +111,7 @@ router.get('/traces', async (req, res) => {
       results,
     });
   } catch (error) {
-    console.error('[TracingAPI] Error searching traces:', error.message);
+    _consoleLogger.error('[TracingAPI] Error searching traces:', error.message);
     res.status(503).json({ 
       error: 'Tracing search failed',
       message: error.message,
@@ -146,7 +149,7 @@ router.get('/dependencies', async (req, res) => {
       dependencies: staticDeps,
     });
   } catch (error) {
-    console.error('[TracingAPI] Error fetching dependencies:', error.message);
+    _consoleLogger.error('[TracingAPI] Error fetching dependencies:', error.message);
     
     // 返回静态依赖图
     const staticDeps = getStaticDependencies();

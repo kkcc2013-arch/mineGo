@@ -3,6 +3,9 @@
  * REQ-00538: 任务执行状态实时监控与智能告警系统
  */
 
+
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/jobMonitor/jobHealthChecker"), "shared/jobMonitor/jobHealthChecker");
 const { EventEmitter } = require('events');
 
 class JobHealthChecker extends EventEmitter {
@@ -245,7 +248,7 @@ class JobHealthChecker extends EventEmitter {
         const score = await this.calculateHealthScore(job.id);
         scores.push(score);
       } catch (error) {
-        console.error(`[JobHealthChecker] Failed to calculate score for ${job.id}:`, error);
+        _consoleLogger.error(`[JobHealthChecker] Failed to calculate score for ${job.id}:`, error);
       }
     }
 

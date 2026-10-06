@@ -11,6 +11,9 @@
  */
 
 'use strict';
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/middleware/responseValidator"), "shared/middleware/responseValidator");
+
 
 const { getSchemaValidator } = require('../schemaValidator');
 const { createLogger } = require('../logger');
@@ -107,15 +110,15 @@ function validateResponse(validator, version, operationId, statusCode, data, req
 
       // 开发环境输出详细错误
       if (process.env.NODE_ENV === 'development') {
-        console.error('\n❌ API 响应验证失败:');
-        console.error(`   Operation: ${operationId}`);
-        console.error(`   Status: ${statusCode}`);
-        console.error('   Errors:');
+        _consoleLogger.error('\n❌ API 响应验证失败:');
+        _consoleLogger.error(`   Operation: ${operationId}`);
+        _consoleLogger.error(`   Status: ${statusCode}`);
+        _consoleLogger.error('   Errors:');
         result.errors.forEach((err, i) => {
-          console.error(`   ${i + 1}. ${err.path}: ${err.message}`);
+          _consoleLogger.error(`   ${i + 1}. ${err.path}: ${err.message}`);
         });
-        console.error('   Expected Schema: 检查 OpenAPI 文档');
-        console.error('');
+        _consoleLogger.error('   Expected Schema: 检查 OpenAPI 文档');
+        _consoleLogger.error('');
       }
 
       // 测试环境抛出错误

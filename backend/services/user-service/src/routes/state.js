@@ -1,6 +1,9 @@
 // backend/services/user-service/src/routes/state.js
 // User state API for game state persistence and sync
 'use strict';
+const _consoleLogger = new (require("../../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../../shared/logger").createLogger("services/user-service/src/routes/state"), "services/user-service/src/routes/state");
+
 
 const express = require('express');
 const router = express.Router();
@@ -66,7 +69,7 @@ router.get('/me/state', async (req, res) => {
       data: state
     });
   } catch (error) {
-    console.error('[StateAPI] Get state error:', error);
+    _consoleLogger.error('[StateAPI] Get state error:', error);
     res.status(500).json({ code: 1500, message: '获取状态失败' });
   }
 });
@@ -125,7 +128,7 @@ router.get('/me/state/checksum', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('[StateAPI] Get checksum error:', error);
+    _consoleLogger.error('[StateAPI] Get checksum error:', error);
     res.status(500).json({ code: 1500, message: '获取校验和失败' });
   }
 });
@@ -193,7 +196,7 @@ router.get('/me/storage/stats', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('[StateAPI] Get storage stats error:', error);
+    _consoleLogger.error('[StateAPI] Get storage stats error:', error);
     res.status(500).json({ code: 1500, message: '获取存储统计失败' });
   }
 });

@@ -35,10 +35,13 @@
     "test:performance:unit": "jest --runInBand --config tests/regression/performance.jest.config.json --coverage",
     "test:performance:storage": "node --test tests/regression/performance-storage.test.js",
     "test:privacy:storage": "node --test tests/regression/privacy-storage.test.js",
-    "test:privacy:unit": "jest --runInBand --config tests/regression/privacy.jest.config.json --coverage"
+    "test:privacy:unit": "jest --runInBand --config tests/regression/privacy.jest.config.json --coverage",
+    "test:logging:unit": "jest --runInBand --config tests/regression/logging.jest.config.json --coverage",
+    "benchmark:logging": "node tests/performance/logging-benchmark.js"
   },
   "devDependencies": {
     "@babel/parser": "7.29.7",
+    "@babel/traverse": "^7.29.7",
     "@testcontainers/postgresql": "^12.0.1",
     "@testcontainers/redis": "^12.0.1",
     "chai": "^4.5.0",

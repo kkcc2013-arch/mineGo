@@ -1,5 +1,8 @@
 // user-service/src/routes/auth.js
 'use strict';
+const _consoleLogger = new (require("../../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../../shared/logger").createLogger("services/user-service/src/routes/auth"), "services/user-service/src/routes/auth");
+
 const express  = require('express');
 const bcrypt   = require('bcryptjs');
 const { z }    = require('zod');
@@ -58,7 +61,7 @@ router.post('/sms-code', async (req, res, next) => {
 
     // Generate code (in prod: call SMS provider API)
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(`[SMS] To ${phone}: ${code} (scene: ${scene})`);
+    _consoleLogger.log(`[SMS] To ${phone}: ${code} (scene: ${scene})`);
 
     // Store with 5min TTL
     await redis.setex(`sms:code:${phone}:${scene}`, 300, code);
@@ -168,7 +171,7 @@ router.post('/register', async (req, res, next) => {
       try {
         await sendParentConsentEmail(result.id, parentEmail, result.nickname);
       } catch (emailError) {
-        console.error('[COPPA] Failed to send parent consent email:', emailError);
+        _consoleLogger.error('[COPPA] Failed to send parent consent email:', emailError);
         // 不中断注册流程，但记录错误
       }
 

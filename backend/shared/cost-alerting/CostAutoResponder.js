@@ -3,6 +3,9 @@
  * 当成本异常时自动触发防护措施
  */
 
+
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/cost-alerting/CostAutoResponder"), "shared/cost-alerting/CostAutoResponder");
 class CostAutoResponder {
   constructor(options = {}) {
     this.rateLimiter = options.rateLimiter;
@@ -46,7 +49,7 @@ class CostAutoResponder {
   async respond(anomaly, context) {
     const strategy = this.strategies[anomaly.severity];
     if (!strategy) {
-      console.warn(`[CostAutoResponder] Unknown severity: ${anomaly.severity}`);
+      _consoleLogger.warn(`[CostAutoResponder] Unknown severity: ${anomaly.severity}`);
       return { executed: false, reason: 'Unknown severity' };
     }
 
@@ -58,7 +61,7 @@ class CostAutoResponder {
         const result = await this.executeAction(action, strategy, anomaly, context);
         results.push({ action, success: true, result });
       } catch (error) {
-        console.error(`[CostAutoResponder] Action ${action} failed:`, error.message);
+        _consoleLogger.error(`[CostAutoResponder] Action ${action} failed:`, error.message);
         results.push({ action, success: false, error: error.message });
       }
     }
@@ -112,7 +115,7 @@ class CostAutoResponder {
     if (typeof this.rateLimiter.setGlobalThrottle === 'function') {
       await this.rateLimiter.setGlobalThrottle(percent);
     } else {
-      console.log(`[CostAutoResponder] Would apply ${percent}% global throttle`);
+      _consoleLogger.log(`[CostAutoResponder] Would apply ${percent}% global throttle`);
     }
 
     return {
@@ -138,7 +141,7 @@ class CostAutoResponder {
     if (typeof this.degradationManager.activateDegradation === 'function') {
       await this.degradationManager.activateDegradation(level);
     } else {
-      console.log(`[CostAutoResponder] Would activate degradation level: ${level}`);
+      _consoleLogger.log(`[CostAutoResponder] Would activate degradation level: ${level}`);
     }
 
     return {
@@ -165,7 +168,7 @@ class CostAutoResponder {
         context
       });
     } else {
-      console.log(`[CostAutoResponder] Would notify admins about cost anomaly`);
+      _consoleLogger.log(`[CostAutoResponder] Would notify admins about cost anomaly`);
     }
 
     return { notified: true, channel: 'admin' };
@@ -186,7 +189,7 @@ class CostAutoResponder {
         message: `Cost anomaly detected. Please review usage.`
       });
     } else {
-      console.log(`[CostAutoResponder] Would notify team about cost anomaly`);
+      _consoleLogger.log(`[CostAutoResponder] Would notify team about cost anomaly`);
     }
 
     return { notified: true, channel: 'team' };
@@ -196,7 +199,7 @@ class CostAutoResponder {
    * 记录异常日志
    */
   async logAnomaly(anomaly, context) {
-    console.log('[CostAutoResponder] Cost anomaly logged:', {
+    _consoleLogger.log('[CostAutoResponder] Cost anomaly logged:', {
       severity: anomaly.severity,
       type: anomaly.anomalyType,
       currentCost: anomaly.currentCost,

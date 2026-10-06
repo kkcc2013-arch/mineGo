@@ -3,6 +3,9 @@
  * REQ-00538: 任务执行状态实时监控与智能告警系统
  */
 
+
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/jobMonitor/jobStatusAggregator"), "shared/jobMonitor/jobStatusAggregator");
 const Redis = require('ioredis');
 const { EventEmitter } = require('events');
 
@@ -34,7 +37,7 @@ class JobStatusAggregator extends EventEmitter {
     await this.aggregate();
     
     this.emit('started');
-    console.log('[JobStatusAggregator] Started with interval', this.aggregateInterval, 'ms');
+    _consoleLogger.log('[JobStatusAggregator] Started with interval', this.aggregateInterval, 'ms');
   }
 
   /**
@@ -51,7 +54,7 @@ class JobStatusAggregator extends EventEmitter {
 
     await this.redis.quit();
     this.emit('stopped');
-    console.log('[JobStatusAggregator] Stopped');
+    _consoleLogger.log('[JobStatusAggregator] Stopped');
   }
 
   /**
@@ -82,7 +85,7 @@ class JobStatusAggregator extends EventEmitter {
     await this.redis.hset(this.metadataKey, jobId, JSON.stringify(jobMetadata));
 
     this.emit('registered', { jobId, jobName, category });
-    console.log(`[JobStatusAggregator] Registered job: ${jobId} (${jobName})`);
+    _consoleLogger.log(`[JobStatusAggregator] Registered job: ${jobId} (${jobName})`);
   }
 
   /**
@@ -94,7 +97,7 @@ class JobStatusAggregator extends EventEmitter {
     await this.redis.hdel(this.metadataKey, jobId);
     await this.redis.hdel(this.statusKey, jobId);
     this.emit('unregistered', { jobId });
-    console.log(`[JobStatusAggregator] Unregistered job: ${jobId}`);
+    _consoleLogger.log(`[JobStatusAggregator] Unregistered job: ${jobId}`);
   }
 
   /**

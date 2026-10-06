@@ -11,8 +11,8 @@
         "backend/tests/battle/context.js": "4e815529a4ba1ba8d02657bc1e8798af1c481cd277e9f64e04a2ea2be595f7c3",
         "backend/tests/battle/formulas.test.js": "40300e85e1cba36f1e9994e9cc5aa2a9af4f256b4a45b83c6fa1bb2d05b745ad",
         "backend/tests/battle/scenarios.test.js": "82ee33f17c3b2eaca95592d20d75763a2f527ae5bb238a9b6e788955fb584aad",
-        "backend/package.json": "dfc3bf72dc4734c548d04a887696f6f07f11c0c6d862e03634b18eec548d5bea",
-        ".github/workflows/ci-cd.yml": "b5ce1487fb5c81d2d8201f5b7cb4ab21445c81464480ad3ca93abb35c4719fc8"
+        "backend/package.json": "9d73527530c48d70d5c4720de2e7aee01edf5f17cdba379e84291db9061b0899",
+        ".github/workflows/ci-cd.yml": "1572b966bb2c9c4ee3f8d2de41334552e4a63878cf604113f316e5088ce75b3a"
       },
       "evidence": [
         {
@@ -34,8 +34,8 @@
         },
         {
           "file": ".github/workflows/ci-cd.yml",
-          "result": "Main CI/CD and battle-regression jobs passed at ddbf00e33e226b8af03762f48b4aad0f953badbf; subsequent privacy dependency/script changes await CI",
-          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37476809198"
+          "result": "Main CI/CD and battle-regression jobs passed at 739c8eee5ec37a62e1cee80fb28eaeab0b6759ba; logging follow-up awaits CI",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37485232585"
         }
       ]
     },
@@ -47,15 +47,16 @@
         "backend/shared/privacyPreferences.js": "28f8aebc2d5cf55c827ef1e5c597f79caaca688a88749a058dfd3afc2819311b",
         "backend/shared/auditLog.js": "5f460a3ffb941b1737ff6561d90e96a2d3aa5bca3f0bc8c5351293e2d9227112",
         "backend/services/user-service/src/routes/privacy.js": "b85dbeb358a76c6b8bcd163f86f4ab9bb8f576f0fd6008615b2022e4ddb9e487",
-        "backend/services/user-service/src/index.js": "96de2f87458b29f45919c680bbcd5b2adec1f96bc1da5537eef83917bd1e14ba",
+        "backend/services/user-service/src/index.js": "de5483c0debf66f1ef487dd1e3e46f8ef17ce975357297520a7af7e288fc62ed",
         "backend/gateway/src/routes/privacyProxy.js": "b692098d7858fc7069cd5a557f941f164ec9f2d00667623a1b51ee665a19a483",
         "backend/gateway/src/index.js": "97e9f6bdbebf3faf12a5adfd2c9b29cbacf8195e7155f31176a602ba34978074",
         "backend/tests/unit/privacy-preferences.test.js": "71a1470f27d923319bfbb73ba9f7b6d77c7f2544085de0d1f28614eca5b9d0b0",
         "backend/tests/regression/privacy-storage.test.js": "ef3cbe968d1bcd6dc22e08622565427f1531f92ece53188881b0614dd3ad4603",
         "backend/tests/regression/privacy.jest.config.json": "cd80c47f4be46595f151bdf850571e7e0bd599d5bd2e9897550999b031b7e490",
-        "backend/package.json": "dfc3bf72dc4734c548d04a887696f6f07f11c0c6d862e03634b18eec548d5bea",
+        "backend/package.json": "9d73527530c48d70d5c4720de2e7aee01edf5f17cdba379e84291db9061b0899",
         ".github/workflows/privacy-regression.yml": "b730aa2c9c5c6d6379f7047ed8c86f9f5a6781c1d0c619989482478e9031b79a",
-        "database/pending/20261006_150000__privacy_preference_defaults_and_policy_fields.sql": "3d21e729219b771c0b94f8474e11e6adcc222b0fbfc064beeddaed3d08849c78"
+        "database/pending/20261006_150000__privacy_preference_defaults_and_policy_fields.sql": "3d21e729219b771c0b94f8474e11e6adcc222b0fbfc064beeddaed3d08849c78",
+        "backend/shared/logger.js": "4fd8f577c9db1860aa011216eadd9523a46a2214a80de1e0c44ff9310fb5e457"
       },
       "evidence": [
         {
@@ -75,9 +76,83 @@
           "result": "passed",
           "tests": 11,
           "scope": "actual PostgreSQL plus actual privacy and gateway proxy routers; user table identity fixture follows production UUID type, not full-service startup"
+        },
+        {
+          "result": "Dedicated privacy route/storage CI passed at 739c8eee5ec37a62e1cee80fb28eaeab0b6759ba; same PostgreSQL/gateway suite passed locally after logging changes",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37485232854",
+          "tests": 11
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
+    },
+    "REQ-00683-console-logging-migration-to-structured-logger.md": {
+      "date": "2026-10-06",
+      "status": "partial_local_verified_ci_pending",
+      "documentSha256": "d725714839a4dcd1b92df697d7f9f2c4ff526b8b3890528511472252b3ef104a",
+      "sourceSha256": {
+        "backend/shared/logger.js": "4fd8f577c9db1860aa011216eadd9523a46a2214a80de1e0c44ff9310fb5e457",
+        "backend/shared/loggingUtils.js": "c602c15f9f164c663b6c71aef3d6fba8e14334c35d3fbba3a4dd20e07a2359c9",
+        "scripts/replace-console-with-logger.js": "53e507e591c736609fd779cb58e502650cb8fe862040ade9fda1a4d016e6d75c",
+        "backend/logging-console-baseline.json": "f809d03897d23aa477fa5e9bae3add50e7acd6a7c0407bb6b50b405ed0d098ca",
+        "backend/tests/unit/logging-migration.test.js": "880a3f2ce8660e66a951cf8ac73b617e1396ce765fb92e2d135e5bdce711dde3",
+        "backend/tests/performance/logging-benchmark.js": "a9fb82d16c779c4331e6aa2e8b5b08ee081def225de421e0e67ec3c660fef255",
+        "backend/tests/regression/logging.jest.config.json": "45932a32192ebfadc2c131a9b8ba6877d8b4fbae7616fe9d98958a63a57d60b2",
+        "backend/package.json": "9d73527530c48d70d5c4720de2e7aee01edf5f17cdba379e84291db9061b0899",
+        ".github/workflows/ci-cd.yml": "1572b966bb2c9c4ee3f8d2de41334552e4a63878cf604113f316e5088ce75b3a"
+      },
+      "evidence": [
+        {
+          "command": "npm run check:logging",
+          "result": "passed",
+          "runtimeConsoleCalls": 0,
+          "scope": "shared, services and gateway; CLI/scripts/tests excluded"
+        },
+        {
+          "command": "cd backend && npm run test:logging:unit",
+          "result": "passed",
+          "tests": 13,
+          "coverage": {
+            "lines": 100,
+            "statements": 98.57,
+            "branches": 94.54,
+            "functions": 100
+          }
+        },
+        {
+          "command": "NODE_ENV=production npm run benchmark:logging",
+          "result": "failed",
+          "measurements": {
+            "passed": false,
+            "thresholdPercent": 5,
+            "runtime": "v20.20.2",
+            "scope": "formatting plus writes into synchronous in-memory discard streams; not production disk/network throughput",
+            "results": [
+              {
+                "name": "message",
+                "iterations": 20000,
+                "beforeMs": 6.922528999999997,
+                "afterMs": 21.542982999999992,
+                "overheadPercent": 211.20105094539872
+              },
+              {
+                "name": "printf",
+                "iterations": 20000,
+                "beforeMs": 8.844548000000032,
+                "afterMs": 26.198285,
+                "overheadPercent": 196.20829690787934
+              },
+              {
+                "name": "object",
+                "iterations": 20000,
+                "beforeMs": 22.275565000000142,
+                "afterMs": 59.62141200000019,
+                "overheadPercent": 167.65387095680765
+              }
+            ]
+          }
+        }
+      ],
+      "remaining": "The 5% overhead target, production output/adapters and complete legacy integration/E2E acceptance are not verified"
     }
   }
 }

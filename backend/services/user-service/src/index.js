@@ -1,5 +1,8 @@
 // user-service/src/index.js - 重构版（使用 ServiceLauncher）
 'use strict';
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("services/user-service/src/index"), "services/user-service/src/index");
+
 
 const { ServiceLauncher } = require('../../../shared/ServiceLauncher');
 const db = require('../../../shared/db');
@@ -186,15 +189,15 @@ const service = new ServiceLauncher({
     // Initialize title service - REQ-00106
     const { TitleService } = require('./titleService');
     await TitleService.initialize();
-    console.log('Title service initialized');
+    _consoleLogger.log('Title service initialized');
     
-    console.log('User service ready with health checks enabled');
+    _consoleLogger.log('User service ready with health checks enabled');
   }
 });
 
 // Start service
 service.start().catch(err => {
-  console.error('Failed to start user-service:', err);
+  _consoleLogger.error('Failed to start user-service:', err);
   process.exit(1);
 });
 
