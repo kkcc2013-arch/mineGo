@@ -34,6 +34,9 @@ const languageRouter = require('./routes/language'); // REQ-00393: 动态语言�
 const minorProtectionRouter = require('./routes/minorProtection'); // REQ-00578: 未成年人保护路由
 const { initNotificationHandlers } = require('./handlers/notificationHandler');
 
+// Initialize the privacy router before it can receive requests.
+initPrivacyRoutes(db);
+
 // Create service launcher
 const service = new ServiceLauncher({
   serviceName: 'user-service',
@@ -170,9 +173,6 @@ const service = new ServiceLauncher({
     const eventBus = EventBus.getEventBus();
     initGDPRRoutes(db, eventBus);
     app.use('/gdpr', gdprRouter);
-    
-    // Initialize privacy preference routes - REQ-00053
-    initPrivacyRoutes(db);
     
     // Initialize data transfer compliance routes - REQ-00089
     initDataTransferRoutes(db);

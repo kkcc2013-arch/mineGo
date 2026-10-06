@@ -4,6 +4,7 @@
  */
 
 const logger = require('./logger');
+const metrics = require('./metrics');
 const { auditLog, AuditActions } = require('./auditLog');
 
 // 数据收集分类定义
@@ -30,7 +31,7 @@ const DATA_CATEGORIES = {
     descriptionJa: '捕獲記録、ジムバトル、ソーシャル交流',
     required: false,
     retentionDays: 365,
-    collectable: true
+    collectable: false
   },
   MARKETING: {
     id: 'marketing',
@@ -42,7 +43,7 @@ const DATA_CATEGORIES = {
     descriptionJa: 'プッシュ通知、イベント通知、パーソナライズ推奨',
     required: false,
     retentionDays: 180,
-    collectable: true
+    collectable: false
   },
   ANALYTICS: {
     id: 'analytics',
@@ -54,7 +55,7 @@ const DATA_CATEGORIES = {
     descriptionJa: 'ゲーム使用統計、パフォーマンス指標、クラッシュレポート',
     required: false,
     retentionDays: 365,
-    collectable: true
+    collectable: false
   },
   SOCIAL: {
     id: 'social',
@@ -66,7 +67,7 @@ const DATA_CATEGORIES = {
     descriptionJa: 'フレンドリスト、チャット記録、ポケモン交換',
     required: false,
     retentionDays: 365,
-    collectable: true
+    collectable: false
   },
   PAYMENT: {
     id: 'payment',
@@ -78,7 +79,7 @@ const DATA_CATEGORIES = {
     descriptionJa: '注文記録、支払い方法、コイン残高',
     required: false,
     retentionDays: 365,
-    collectable: true
+    collectable: false
   },
   DEVICE: {
     id: 'device',
@@ -102,7 +103,7 @@ const DATA_CATEGORIES = {
     descriptionJa: 'ユーザー名、アバター、言語設定、タイムゾーン',
     required: false,
     retentionDays: null, // Permanent
-    collectable: true
+    collectable: false
   }
 };
 
@@ -135,26 +136,26 @@ class PrivacyPreferencesService {
   /**
    * 初始化用户默认隐私偏好
    */
-  async initializeUserPreferences(userId) {
-    const client = await this.db.pool.connect();
+  async initializeUserPreferences(userId, transactionClient = null) {
+    const client = transactionClient || await (this.db.getClient ? this.db.getClient() : this.db.pool.connect());
     try {
-      await client.query('BEGIN');
+      if (!transactionClient) await client.query('BEGIN');
       
       for (const cat of Object.values(DATA_CATEGORIES)) {
         await client.query(`
           INSERT INTO user_privacy_preferences (user_id, category, collectable, consented_at)
-          VALUES ($1, $2, $3, NOW())
+          VALUES ($1, $2, $3, NULL)
           ON CONFLICT (user_id, category) DO NOTHING
-        `, [userId, cat.id, true]);
+        `, [userId, cat.id, cat.required]);
       }
       
-      await client.query('COMMIT');
+      if (!transactionClient) await client.query('COMMIT');
       logger.info({ userId }, 'Privacy preferences initialized');
     } catch (error) {
-      await client.query('ROLLBACK');
+      if (!transactionClient) await client.query('ROLLBACK');
       throw error;
     } finally {
-      client.release();
+      if (!transactionClient) client.release();
     }
   }
 
@@ -170,6 +171,7 @@ class PrivacyPreferencesService {
     
     const preferences = {};
     for (const row of result.rows) {
+      if (!Object.values(DATA_CATEGORIES).some(category => category.id === row.category)) continue;
       preferences[row.category] = {
         collectable: row.collectable,
         consentedAt: row.consented_at,
@@ -181,7 +183,7 @@ class PrivacyPreferencesService {
     for (const cat of Object.values(DATA_CATEGORIES)) {
       if (!preferences[cat.id]) {
         preferences[cat.id] = {
-          collectable: true,
+          collectable: cat.required,
           consentedAt: null,
           updatedAt: null
         };
@@ -195,7 +197,7 @@ class PrivacyPreferencesService {
    * 更新用户隐私偏好
    */
   async updateUserPreferences(userId, preferences) {
-    const client = await this.db.pool.connect();
+    const client = await (this.db.getClient ? this.db.getClient() : this.db.pool.connect());
     const updatedCategories = [];
     const errors = [];
     
@@ -210,6 +212,10 @@ class PrivacyPreferencesService {
           continue;
         }
         
+        if (typeof collectable !== 'boolean') {
+          errors.push({category, error: '数据收集开关必须为布尔值'});
+          continue;
+        }
         if (catDef.required && !collectable) {
           errors.push({ category, error: '该类别为必需数据，不可关闭' });
           continue;
@@ -218,22 +224,22 @@ class PrivacyPreferencesService {
         // 更新偏好
         await client.query(`
           INSERT INTO user_privacy_preferences (user_id, category, collectable, consented_at, updated_at)
-          VALUES ($1, $2, $3, NOW(), NOW())
+          VALUES ($1, $2, $3, CASE WHEN $3 THEN NOW() ELSE NULL END, NOW())
           ON CONFLICT (user_id, category) 
-          DO UPDATE SET collectable = $3, updated_at = NOW()
+          DO UPDATE SET collectable = $3, consented_at = EXCLUDED.consented_at, updated_at = NOW()
         `, [userId, category, collectable]);
         
         updatedCategories.push({ category, collectable });
         
         // 记录审计日志
-        await auditLog(userId, 'privacy_preference_change', 'privacy', category, {
-          collectable,
-          timestamp: new Date().toISOString()
-        });
+        const audited = await auditLog({userId, action: AuditActions.PRIVACY_PREFERENCE_CHANGE,
+          details: {category, collectable}, service: 'user-service', db: client});
+        if (!audited) throw new Error('Privacy preference audit could not be persisted');
       }
       
       await client.query('COMMIT');
       
+      for (const update of updatedCategories) metrics.privacyPreferenceChanges.inc({category: update.category, action: update.collectable ? 'enable' : 'disable'});
       logger.info({ userId, updatedCategories: updatedCategories.length }, 'Privacy preferences updated');
       
       return {
@@ -253,17 +259,18 @@ class PrivacyPreferencesService {
    * 检查用户是否允许收集某类数据
    */
   async canCollectData(userId, category) {
+    const definition = Object.values(DATA_CATEGORIES).find(item => item.id === category);
+    if (!definition) return false;
     const result = await this.db.query(`
       SELECT collectable FROM user_privacy_preferences
       WHERE user_id = $1 AND category = $2
     `, [userId, category]);
     
     if (result.rows.length === 0) {
-      // 默认允许收集
-      return true;
+      return definition.required;
     }
     
-    return result.rows[0].collectable;
+    return result.rows[0].collectable === true;
   }
 
   /**
@@ -276,10 +283,19 @@ class PrivacyPreferencesService {
     `, [userId, category, action, purpose, details]);
   }
 
+  validateMonth(month) {
+    if (typeof month !== 'string' || !/^[1-9]\d{3}-(0[1-9]|1[0-2])$/.test(month)) {
+      const error = new Error('Month must use YYYY-MM format');
+      error.statusCode = 400;
+      throw error;
+    }
+  }
+
   /**
    * 生成月度数据透明度报告
    */
   async generateMonthlyReport(userId, month) {
+    this.validateMonth(month);
     // month 格式: 2026-06
     const startDate = `${month}-01`;
     const [year, m] = month.split('-');
@@ -341,6 +357,7 @@ class PrivacyPreferencesService {
       DO UPDATE SET report_json = $3, generated_at = NOW()
     `, [userId, month, JSON.stringify(report)]);
     
+    metrics.transparencyReportsGenerated.inc();
     return report;
   }
 
@@ -348,6 +365,9 @@ class PrivacyPreferencesService {
    * 获取历史报告
    */
   async getReportHistory(userId, limit = 12) {
+    if (!Number.isInteger(limit) || limit < 1 || limit > 1000) {
+      const error = new Error('History limit must be between 1 and 1000'); error.statusCode = 400; throw error;
+    }
     const result = await this.db.query(`
       SELECT month, report_json, generated_at
       FROM data_transparency_reports
@@ -367,6 +387,7 @@ class PrivacyPreferencesService {
    * 获取完整报告
    */
   async getFullReport(userId, month) {
+    this.validateMonth(month);
     const result = await this.db.query(`
       SELECT report_json, generated_at
       FROM data_transparency_reports
@@ -401,6 +422,7 @@ class PrivacyPolicyService {
       SELECT version, effective_date, changes, 
         content_zh_cn, content_en_us, content_ja_jp, created_at
       FROM privacy_policy_versions
+      WHERE effective_date <= NOW() AND COALESCE(is_active, true)
       ORDER BY effective_date DESC
       LIMIT 1
     `);
@@ -438,6 +460,7 @@ class PrivacyPolicyService {
     const result = await this.db.query(`
       SELECT version, effective_date, changes, created_at
       FROM privacy_policy_versions
+      WHERE effective_date <= NOW()
       ORDER BY effective_date DESC
       LIMIT $1
     `, [limit]);
@@ -492,8 +515,9 @@ class PrivacyPolicyService {
    */
   async createPolicyVersion(version, effectiveDate, changes, contentZh, contentEn, contentJa) {
     const result = await this.db.query(`
-      INSERT INTO privacy_policy_versions (version, effective_date, changes, content_zh_cn, content_en_us, content_ja_jp)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO privacy_policy_versions (version, effective_date, changes, content_zh_cn, content_en_us, content_ja_jp,
+        title, content, published_at)
+      VALUES ($1, $2::date, $3, $4, $5, $6, $1, $4, $2::date::timestamp)
       RETURNING *
     `, [version, effectiveDate, changes, contentZh, contentEn, contentJa]);
     
@@ -504,12 +528,19 @@ class PrivacyPolicyService {
   /**
    * 记录用户接受政策
    */
-  async recordAcceptance(userId, version) {
-    await this.db.query(`
+  async recordAcceptance(userId, version, transactionClient = this.db) {
+    const result = await transactionClient.query(`
       INSERT INTO privacy_policy_acceptance (user_id, policy_version)
-      VALUES ($1, $2)
-      ON CONFLICT (user_id, policy_version) DO NOTHING
+      SELECT $1, version FROM privacy_policy_versions
+      WHERE version = $2 AND effective_date <= NOW() AND COALESCE(is_active, true)
+      ON CONFLICT (user_id, policy_version) DO UPDATE SET accepted_at = NOW()
+      RETURNING policy_version
     `, [userId, version]);
+    if (result.rows.length === 0) {
+      const error = new Error('Policy version does not exist or is not effective');
+      error.statusCode = 400;
+      throw error;
+    }
     
     logger.info({ userId, version }, 'User accepted privacy policy');
   }
@@ -535,17 +566,20 @@ class PrivacyPolicyService {
    * 获取未接受最新政策的用户列表
    */
   async getUsersNotAcceptedLatestPolicy(limit = 1000) {
+    if (!Number.isInteger(limit) || limit < 1 || limit > 1000) {
+      const error = new Error('User limit must be between 1 and 1000'); error.statusCode = 400; throw error;
+    }
     const currentPolicy = await this.getCurrentPolicy();
     if (!currentPolicy) {
       return [];
     }
     
     const result = await this.db.query(`
-      SELECT u.id, u.email, u.username
+      SELECT u.id, u.nickname AS username
       FROM users u
       WHERE NOT EXISTS (
         SELECT 1 FROM privacy_policy_acceptance pa
-        WHERE pa.user_id = u.id AND pa.policy_version = $1
+        WHERE pa.user_id = u.id::text AND pa.policy_version = $1
       )
       LIMIT $2
     `, [currentPolicy.version, limit]);

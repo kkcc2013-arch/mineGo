@@ -177,3 +177,52 @@ accuracy or complete Kafka/dynamic call coverage. REQ-00103 is in progress.
 The expanded regression suite passes 295 tests across 13 suites (27 analyzer tests
 added); the earlier standalone and battle checks remain applicable. Requirement
 inventory now has 441 new, five in progress and 212 legacy done declarations.
+
+## Privacy route and preference repair (2026-10-06)
+
+Resumed the all-requirements task after the user asked whether work was continuing.
+The previous final reply did not leave a background worker running. Continued local
+work without waiting for staging access.
+
+REQ-00053's legacy done declaration was reopened. Missing optional preferences and
+new defaults now start disabled, unknown categories cannot acquire permission,
+and default initialization does not manufacture consent timestamps. Explicit
+changes update consent timestamps and persist a real audit record in the same
+transaction. Audit failures roll back both preference changes and policy acceptance.
+Private routes verify JWT locally; admin routes require signed admin roles. Policies
+must exist, be active and effective before acceptance. Current-policy selection and
+public history exclude future effective dates. Gateway proxy mounts and user-service
+initialization are now wired, including the requirement's documented API aliases.
+
+The additive migration preserves existing values, supports both policy table shapes
+found in the repository, and adds compatible audit columns to the initial UUID audit
+schema. It does not overwrite historical choices, invent translations or change
+checksums of existing migrations. Existing consent provenance still requires review.
+The full migration history and every legacy audit/user schema variant have not been
+accepted by these tests.
+
+Checks passed:
+
+- Node 20 full unit command: 95 standalone + 133 battle + 335 Jest = 563 checks.
+- Privacy unit suite: 40 tests; measured 91.78% lines, 89.57% statements, 100%
+  functions and 78.72% branches. The actual 80% line/statement/function gate passes.
+- Privacy PostgreSQL/gateway suite: 11 Node test checks, including upgrades of both
+  real policy schema definitions, preserving existing consent, JWT and admin access,
+  all proxy prefixes, current/future policies, explicit opt-in/withdrawal, invalid
+  updates, stored reports, exported metrics and deliberate audit failure rollback.
+  Production privacy routers and the gateway proxy module are executed; the UUID
+  user identity table is a fixture and this is not a full user-service startup test.
+- Formula coverage remains 100% on Node 24. Workflow YAML and JavaScript syntax pass.
+- A dedicated privacy-regression workflow runs coverage and real PostgreSQL route
+  tests on pull requests. Remote results are pending publication/CI at this point.
+
+Remaining REQ-00053 acceptance includes the complete client interface, applying
+preferences at every data collector, original consent evidence for legacy rows,
+7-day retention, scheduled reports, third-party sharing records, policy-change
+popups and data export. Three existing privacy metric families are connected to
+real successful actions; the data-export metric remains unwired with its workflow.
+No product-wide completion or legal-compliance claim is made.
+
+The inventory remains 658 unique requirements, with 211 legacy done declarations,
+441 new requirements and six in progress. The source-hashed ledger records privacy
+results as partial evidence, separately from complete acceptance.

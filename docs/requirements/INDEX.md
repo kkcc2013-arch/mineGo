@@ -58,7 +58,7 @@
 | [REQ-00050](REQ-00050-plugin-middleware-system-lifecycle-management.md) | 插件化中间件系统与生命周期管理 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-09 13:00 |
 | [REQ-00051](REQ-00051-multi-currency-support-exchange-rate-system.md) | 多货币支持与汇率转换系统 | 国际化/本地化 | P1 | done | payment-service、user-service、gateway、backend/shared | 2026-06-09 15:00 |
 | [REQ-00052](REQ-00052-static-resource-cdn-image-optimization.md) | 静态资源 CDN 集成与图片优化系统 | 性能优化 | P1 | done | game-client、gateway、infrastructure/k8s、backend/shared | 2026-06-09 14:05 |
-| [REQ-00053](REQ-00053-user-privacy-preference-center-data-transparency.md) | 用户隐私偏好管理中心与数据透明度报告 | 合规/隐私 | P2 | done | user-service、gateway、game-client、backend/shared、database/migrations | 2026-06-09 15:00 |
+| [REQ-00053](REQ-00053-user-privacy-preference-center-data-transparency.md) | 用户隐私偏好管理中心与数据透明度报告 | 合规/隐私 | P2 | in_progress | user-service、gateway、game-client、backend/shared、database/migrations | 2026-06-09 15:00 |
 | [REQ-00054](REQ-00054-gym-battle-system.md) | 道馆战斗系统 | 功能增强 | P0 | done | gym-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-09 16:00 |
 | [REQ-00055](REQ-00055-pokemon-collection-showcase-system.md) | 精灵收藏展示系统 | 功能增强 | P1 | done | pokemon-service、social-service、user-service、gateway、game-client、database/migrations | 2026-06-09 16:35 |
 | [REQ-00056](REQ-00056-pokedex-completion-reward-system.md) | 精灵图鉴完成度奖励系统 | 功能增强 | P1 | done | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-09 17:00 |

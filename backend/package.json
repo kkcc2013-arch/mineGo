@@ -33,7 +33,9 @@
     "migrate:create": "node ../database/migrate.js create",
     "migrate:verify": "node ../database/migrate.js verify",
     "test:performance:unit": "jest --runInBand --config tests/regression/performance.jest.config.json --coverage",
-    "test:performance:storage": "node --test tests/regression/performance-storage.test.js"
+    "test:performance:storage": "node --test tests/regression/performance-storage.test.js",
+    "test:privacy:storage": "node --test tests/regression/privacy-storage.test.js",
+    "test:privacy:unit": "jest --runInBand --config tests/regression/privacy.jest.config.json --coverage"
   },
   "devDependencies": {
     "@babel/parser": "7.29.7",

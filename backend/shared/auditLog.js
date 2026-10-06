@@ -37,6 +37,8 @@ const AuditActions = {
   
   // 隐私设置
   PRIVACY_SETTINGS_CHANGED: 'privacy_settings_changed',
+  PRIVACY_PREFERENCE_CHANGE: 'privacy_preference_change',
+  PRIVACY_POLICY_ACCEPT: 'privacy_policy_accept',
   
   // 数据跨境传输 - REQ-00089
   DATA_REGION_CHANGED: 'data_region_changed',

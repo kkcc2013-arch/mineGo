@@ -6,7 +6,7 @@ const {
   PrivacyPreferencesService, 
   PrivacyPolicyService,
   DATA_CATEGORIES 
-} = require('../shared/privacyPreferences');
+} = require('../../shared/privacyPreferences');
 
 // Mock database
 const mockDb = {
@@ -25,9 +25,51 @@ describe('PrivacyPreferencesService', () => {
   let service;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
     service = new PrivacyPreferencesService(mockDb);
     mockDb.pool.connect.mockResolvedValue(mockClient);
+  });
+
+  test('does not invent category consent during initialization', async () => {
+    mockClient.query.mockResolvedValue({rows: []});
+    await service.initializeUserPreferences('user-123');
+    const inserts = mockClient.query.mock.calls.filter(([sql]) => sql.includes('INSERT INTO user_privacy_preferences'));
+    for (const [sql, args] of inserts) {
+      const definition = Object.values(DATA_CATEGORIES).find(category => category.id === args[1]);
+      expect(args[2]).toBe(definition.required);
+      expect(sql).toContain('NULL');
+    }
+  });
+
+  test('uses the shared database client API', async () => {
+    mockClient.query.mockResolvedValue({rows: []});
+    const shared = new PrivacyPreferencesService({getClient: async () => mockClient});
+    await shared.initializeUserPreferences('user-123');
+    expect(mockClient.release).toHaveBeenCalled();
+  });
+
+  test('denies unknown categories and rejects non-boolean switches', async () => {
+    expect(await service.canCollectData('user-123', 'constructor')).toBe(false);
+    expect(mockDb.query).not.toHaveBeenCalled();
+    mockClient.query.mockResolvedValue({rows: []});
+    const result = await service.updateUserPreferences('user-123', {marketing: 'false'});
+    expect(result.updated).toHaveLength(0);
+    expect(result.errors).toHaveLength(1);
+  });
+
+  test('required category defaults stay enabled', async () => {
+    mockDb.query.mockResolvedValue({rows: []});
+    expect(await service.canCollectData('user-123', 'location')).toBe(true);
+  });
+
+  test('rolls back privacy changes when audit persistence fails', async () => {
+    mockClient.query.mockImplementation(async sql => {
+      if (sql.includes('INSERT INTO audit_logs')) throw new Error('Audit storage failed');
+      return {rows: []};
+    });
+    await expect(service.updateUserPreferences('user-123', {marketing: true})).rejects.toThrow('audit could not be persisted');
+    expect(mockClient.query).toHaveBeenCalledWith('ROLLBACK');
+    expect(mockClient.query).not.toHaveBeenCalledWith('COMMIT');
   });
 
   describe('getDataCategories', () => {
@@ -99,8 +141,9 @@ describe('PrivacyPreferencesService', () => {
       const preferences = await service.getUserPreferences('user-123');
       
       expect(Object.keys(preferences).length).toBe(8);
-      for (const cat of Object.values(preferences)) {
-        expect(cat.collectable).toBe(true);
+      for (const category of Object.values(DATA_CATEGORIES)) {
+        expect(preferences[category.id].collectable).toBe(category.required);
+        expect(preferences[category.id].consentedAt).toBeNull();
       }
     });
   });
@@ -160,11 +203,11 @@ describe('PrivacyPreferencesService', () => {
       expect(canCollect).toBe(false);
     });
 
-    test('should return true by default when no preference', async () => {
+    test('should deny optional data when no preference', async () => {
       mockDb.query.mockResolvedValue({ rows: [] });
       
       const canCollect = await service.canCollectData('user-123', 'marketing');
-      expect(canCollect).toBe(true);
+      expect(canCollect).toBe(false);
     });
   });
 
@@ -212,6 +255,23 @@ describe('PrivacyPreferencesService', () => {
     });
   });
 
+  test('rejects invalid report months before querying storage', async () => {
+    for (const month of ['2026-13','2026-00','2026-1',null,'invalid']) {
+      await expect(service.getFullReport('user-123', month)).rejects.toThrow('YYYY-MM');
+      await expect(service.generateMonthlyReport('user-123', month)).rejects.toThrow('YYYY-MM');
+    }
+    expect(mockDb.query).not.toHaveBeenCalled();
+  });
+
+  test('returns a persisted report and generates a missing December report', async () => {
+    mockDb.query.mockResolvedValueOnce({rows: [{report_json: {month: '2026-12'}, generated_at: '2027-01-01'}]});
+    expect((await service.getFullReport('user-123','2026-12')).month).toBe('2026-12');
+    mockDb.query.mockResolvedValue({rows: []});
+    const report = await service.getFullReport('user-123', '2026-12');
+    expect(report.month).toBe('2026-12');
+    expect(mockDb.query).toHaveBeenCalledWith(expect.stringContaining('FROM data_access_logs'), ['user-123','2026-12-01','2027-01-01']);
+  });
+
   describe('getReportHistory', () => {
     test('should return report history', async () => {
       mockDb.query.mockResolvedValue({
@@ -233,7 +293,7 @@ describe('PrivacyPolicyService', () => {
   let service;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
     service = new PrivacyPolicyService(mockDb);
   });
 
@@ -358,6 +418,7 @@ describe('PrivacyPolicyService', () => {
     test('should record user acceptance', async () => {
       mockDb.query.mockResolvedValue({ rows: [] });
       
+      mockDb.query.mockResolvedValue({rows: [{policy_version: 'v1.0'}]});
       await service.recordAcceptance('user-123', 'v1.0');
       
       expect(mockDb.query).toHaveBeenCalledWith(

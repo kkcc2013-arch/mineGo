@@ -11,7 +11,7 @@
         "backend/tests/battle/context.js": "4e815529a4ba1ba8d02657bc1e8798af1c481cd277e9f64e04a2ea2be595f7c3",
         "backend/tests/battle/formulas.test.js": "40300e85e1cba36f1e9994e9cc5aa2a9af4f256b4a45b83c6fa1bb2d05b745ad",
         "backend/tests/battle/scenarios.test.js": "82ee33f17c3b2eaca95592d20d75763a2f527ae5bb238a9b6e788955fb584aad",
-        "backend/package.json": "25d2660b552587619b5be8feaa9389cfece1e58ccce18c045126764976c5d090",
+        "backend/package.json": "dfc3bf72dc4734c548d04a887696f6f07f11c0c6d862e03634b18eec548d5bea",
         ".github/workflows/ci-cd.yml": "b5ce1487fb5c81d2d8201f5b7cb4ab21445c81464480ad3ca93abb35c4719fc8"
       },
       "evidence": [
@@ -34,10 +34,50 @@
         },
         {
           "file": ".github/workflows/ci-cd.yml",
-          "result": "Remote main CI/CD and battle-regression jobs passed at 05e159922af8d818ede4ca0596e53bd6b3ddd173; current dependency follow-up awaits CI",
-          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37471947782"
+          "result": "Main CI/CD and battle-regression jobs passed at ddbf00e33e226b8af03762f48b4aad0f953badbf; subsequent privacy dependency/script changes await CI",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37476809198"
         }
       ]
+    },
+    "REQ-00053-user-privacy-preference-center-data-transparency.md": {
+      "date": "2026-10-06",
+      "status": "partial_local_verified_ci_pending",
+      "documentSha256": "9015d8979ec52a2d3f6b298b9c318db1954f2f5221106901a8823514546a7dd5",
+      "sourceSha256": {
+        "backend/shared/privacyPreferences.js": "28f8aebc2d5cf55c827ef1e5c597f79caaca688a88749a058dfd3afc2819311b",
+        "backend/shared/auditLog.js": "5f460a3ffb941b1737ff6561d90e96a2d3aa5bca3f0bc8c5351293e2d9227112",
+        "backend/services/user-service/src/routes/privacy.js": "b85dbeb358a76c6b8bcd163f86f4ab9bb8f576f0fd6008615b2022e4ddb9e487",
+        "backend/services/user-service/src/index.js": "96de2f87458b29f45919c680bbcd5b2adec1f96bc1da5537eef83917bd1e14ba",
+        "backend/gateway/src/routes/privacyProxy.js": "b692098d7858fc7069cd5a557f941f164ec9f2d00667623a1b51ee665a19a483",
+        "backend/gateway/src/index.js": "97e9f6bdbebf3faf12a5adfd2c9b29cbacf8195e7155f31176a602ba34978074",
+        "backend/tests/unit/privacy-preferences.test.js": "71a1470f27d923319bfbb73ba9f7b6d77c7f2544085de0d1f28614eca5b9d0b0",
+        "backend/tests/regression/privacy-storage.test.js": "ef3cbe968d1bcd6dc22e08622565427f1531f92ece53188881b0614dd3ad4603",
+        "backend/tests/regression/privacy.jest.config.json": "cd80c47f4be46595f151bdf850571e7e0bd599d5bd2e9897550999b031b7e490",
+        "backend/package.json": "dfc3bf72dc4734c548d04a887696f6f07f11c0c6d862e03634b18eec548d5bea",
+        ".github/workflows/privacy-regression.yml": "b730aa2c9c5c6d6379f7047ed8c86f9f5a6781c1d0c619989482478e9031b79a",
+        "database/pending/20261006_150000__privacy_preference_defaults_and_policy_fields.sql": "3d21e729219b771c0b94f8474e11e6adcc222b0fbfc064beeddaed3d08849c78"
+      },
+      "evidence": [
+        {
+          "command": "cd backend && npm run test:privacy:unit",
+          "runtime": "Node.js 20.20.2",
+          "result": "passed",
+          "tests": 40,
+          "coverage": {
+            "lines": 91.78,
+            "statements": 89.57,
+            "functions": 100,
+            "branches": 78.72
+          }
+        },
+        {
+          "command": "cd backend && TEST_DATABASE_URL=<isolated> npm run test:privacy:storage",
+          "result": "passed",
+          "tests": 11,
+          "scope": "actual PostgreSQL plus actual privacy and gateway proxy routers; user table identity fixture follows production UUID type, not full-service startup"
+        }
+      ],
+      "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
     }
   }
 }

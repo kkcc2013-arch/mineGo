@@ -4,9 +4,9 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 212,
+      "done": 211,
       "new": 441,
-      "in_progress": 5
+      "in_progress": 6
     },
     "priorityCounts": {
       "P0": 52,
@@ -1553,11 +1553,11 @@
       "id": "REQ-00053",
       "title": "REQ-00053：用户隐私偏好管理中心与数据透明度报告",
       "priority": "P2",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "合规/隐私",
       "modules": "user-service、gateway、game-client、backend/shared、database/migrations",
       "createdAt": "2026-06-09 15:00",
-      "sha256": "3c4b5c315ff1786c256c652933650a900beb745bc2fc2c0b6058060a31452073",
+      "sha256": "9015d8979ec52a2d3f6b298b9c318db1954f2f5221106901a8823514546a7dd5",
       "acceptance": [
         "- [ ] 用户可在前端隐私中心查看所有 8 类数据收集状态",
         "- [ ] 用户可切换非必需类别的数据收集开关（必需类别不可切换）",
@@ -1573,7 +1573,7 @@
         "- [ ] 4 个 Prometheus 指标正常暴露",
         "- [ ] 单元测试覆盖率 ≥ 80%"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/services/user-service/src/routes/privacy.js",
@@ -1581,6 +1581,7 @@
         "backend/shared/privacyPreferences.js",
         "backend/tests/unit/privacy-preferences.test.js",
         "database/pending/20260611_152900__add_privacy_preference_center.sql",
+        "database/pending/20261006_150000__privacy_preference_defaults_and_policy_fields.sql",
         "frontend/game-client/src/components/PrivacyCenter.js"
       ],
       "legacyId": null

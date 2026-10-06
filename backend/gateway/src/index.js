@@ -290,6 +290,9 @@ app.use('/api/v1/users',
   usersV1Routes
 );
 
+// Privacy routes authenticate private requests inside user-service.
+require('./routes/privacyProxy').mountPrivacyProxy(app, SERVICES.user);
+
 // ── v2 API Routes (Current) ──────────────────────────────────────────
 // Public (no auth) - REQ-00040: 认证接口限流
 app.use('/api/v2/auth', authRateLimiter(), proxy(SERVICES.user, { '^/api/v2/': '/' }));

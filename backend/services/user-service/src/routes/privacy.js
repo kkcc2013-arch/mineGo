@@ -5,12 +5,20 @@
 const express = require('express');
 const router = express.Router();
 const logger = require('../../../../shared/logger');
+const metrics = require('../../../../shared/metrics');
 const { auditLog, AuditActions } = require('../../../../shared/auditLog');
 const { 
   PrivacyPreferencesService, 
   PrivacyPolicyService,
   DATA_CATEGORIES 
 } = require('../../../../shared/privacyPreferences');
+
+function languageFor(req) {
+  const tag = String(req.headers['accept-language'] || 'zh-CN').split(',')[0].split(';')[0].trim().toLowerCase();
+  if (tag === 'en' || tag === 'en-us') return 'en-US';
+  if (tag === 'ja' || tag === 'ja-jp') return 'ja-JP';
+  return 'zh-CN';
+}
 
 let privacyService;
 let policyService;
@@ -25,25 +33,9 @@ function initPrivacyRoutes(database) {
   policyService = new PrivacyPolicyService(db);
 }
 
-/**
- * 管理员权限检查中间件
- * 兼容 req.user.role === 'admin'（deviceIntegrity 风格）与 req.user.isAdmin（tutorial/captcha 风格）
- */
-function requireAdmin(req, res, next) {
-  if (!req.user) {
-    return res.status(401).json({
-      success: false,
-      error: '未授权'
-    });
-  }
-  if (req.user.role !== 'admin' && !req.user.isAdmin) {
-    return res.status(403).json({
-      success: false,
-      error: '需要管理员权限'
-    });
-  }
-  next();
-}
+const {requireAuth, requireAdmin} = require('../../../../shared/auth');
+// Private endpoints verify their own JWT even when called without the gateway.
+router.use(['/preferences', '/policy/check', '/policy/accept', '/report', '/admin'], requireAuth);
 
 /**
  * 获取数据类别列表
@@ -51,7 +43,7 @@ function requireAdmin(req, res, next) {
  */
 router.get('/categories', async (req, res) => {
   try {
-    const language = req.headers['accept-language'] || 'zh-CN';
+    const language = languageFor(req);
     const categories = privacyService.getDataCategories(language);
     
     res.json({
@@ -94,7 +86,7 @@ router.get('/preferences', async (req, res) => {
         preferences,
         currentPolicyVersion: currentPolicy?.version || null,
         policyAccepted: hasAccepted,
-        categories: privacyService.getDataCategories(req.headers['accept-language'] || 'zh-CN')
+        categories: privacyService.getDataCategories(languageFor(req))
       }
     });
   } catch (error) {
@@ -121,6 +113,9 @@ router.patch('/preferences', async (req, res) => {
     }
     
     const updates = req.body;
+    if (!updates || typeof updates !== 'object' || Array.isArray(updates)) {
+      return res.status(400).json({success: false, error: '隐私偏好必须为对象'});
+    }
     
     // 验证输入
     const validCategories = Object.values(DATA_CATEGORIES).map(c => c.id);
@@ -131,6 +126,9 @@ router.patch('/preferences', async (req, res) => {
           error: `无效的数据类别: ${category}`
         });
       }
+      if (Object.values(DATA_CATEGORIES).some(item => item.id === category && item.required) && collectable === false) {
+        return res.status(400).json({success: false, error: '必需数据类别不可关闭'});
+      }
       if (typeof collectable !== 'boolean') {
         return res.status(400).json({
           success: false,
@@ -140,12 +138,6 @@ router.patch('/preferences', async (req, res) => {
     }
     
     const result = await privacyService.updateUserPreferences(userId, updates);
-    
-    // 记录审计日志
-    await auditLog(userId, AuditActions.PRIVACY_PREFERENCE_CHANGE, 'privacy', 'preferences', {
-      updates,
-      timestamp: new Date().toISOString()
-    });
     
     res.json({
       success: result.success,
@@ -169,7 +161,7 @@ router.patch('/preferences', async (req, res) => {
  */
 router.get('/policy', async (req, res) => {
   try {
-    const language = req.headers['accept-language'] || 'zh-CN';
+    const language = languageFor(req);
     const policy = await policyService.getCurrentPolicy(language);
     
     if (!policy) {
@@ -181,12 +173,13 @@ router.get('/policy', async (req, res) => {
     
     // 获取历史版本列表
     const history = await policyService.getVersionHistory(10);
+    metrics.policyViews.inc({version: policy.version, language});
     
     res.json({
       success: true,
       data: {
         current: policy,
-        previousVersions: history.slice(1) // 排除当前版本
+        previousVersions: history.filter(item => item.version !== policy.version) // 排除当前版本
       }
     });
   } catch (error) {
@@ -251,7 +244,7 @@ router.get('/policy/check', async (req, res) => {
 router.get('/policy/:version', async (req, res) => {
   try {
     const { version } = req.params;
-    const language = req.headers['accept-language'] || 'zh-CN';
+    const language = languageFor(req);
     
     const policy = await policyService.getPolicyByVersion(version, language);
     
@@ -262,6 +255,7 @@ router.get('/policy/:version', async (req, res) => {
       });
     }
     
+    metrics.policyViews.inc({version: policy.version, language});
     res.json({
       success: true,
       data: policy
@@ -289,7 +283,10 @@ router.post('/policy/accept', async (req, res) => {
       });
     }
     
-    const { version } = req.body;
+    const { version } = req.body || {};
+    if (version !== undefined && (typeof version !== 'string' || !version.trim() || version.length > 16)) {
+      return res.status(400).json({success: false, error: '政策版本无效'});
+    }
     const currentPolicy = await policyService.getCurrentPolicy();
     
     if (!currentPolicy) {
@@ -302,17 +299,23 @@ router.post('/policy/accept', async (req, res) => {
     // 如果未指定版本，使用当前版本
     const acceptVersion = version || currentPolicy.version;
     
-    await policyService.recordAcceptance(userId, acceptVersion);
-    
-    // 初始化用户隐私偏好（如果是首次接受）
-    await privacyService.initializeUserPreferences(userId);
-    
-    // 记录审计日志
-    await auditLog(userId, AuditActions.PRIVACY_POLICY_ACCEPT, 'privacy', 'policy', {
-      version: acceptVersion,
-      timestamp: new Date().toISOString()
-    });
-    
+    const client = await (db.getClient ? db.getClient() : db.pool.connect());
+    try {
+      await client.query('BEGIN');
+      await policyService.recordAcceptance(userId, acceptVersion, client);
+      await privacyService.initializeUserPreferences(userId, client);
+      const audited = await auditLog({userId, action: AuditActions.PRIVACY_POLICY_ACCEPT,
+        details: {version: acceptVersion}, req, service: 'user-service', db: client});
+      if (!audited) throw new Error('Policy acceptance audit could not be persisted');
+      await client.query('COMMIT');
+      metrics.privacyPolicyAcceptances.inc({version: acceptVersion});
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+
     res.json({
       success: true,
       data: {
@@ -322,7 +325,7 @@ router.post('/policy/accept', async (req, res) => {
     });
   } catch (error) {
     logger.error({ error: error.message, userId: req.user?.id }, 'Failed to accept privacy policy');
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       error: '接受隐私政策失败'
     });
@@ -361,7 +364,7 @@ router.get('/report', async (req, res) => {
     });
   } catch (error) {
     logger.error({ error: error.message, userId: req.user?.id }, 'Failed to get transparency report');
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       error: '获取透明度报告失败'
     });
@@ -383,7 +386,7 @@ router.get('/report/history', async (req, res) => {
     }
     
     const { limit = 12 } = req.query;
-    const history = await privacyService.getReportHistory(userId, parseInt(limit));
+    const history = await privacyService.getReportHistory(userId, Number(limit));
     
     res.json({
       success: true,
@@ -391,7 +394,7 @@ router.get('/report/history', async (req, res) => {
     });
   } catch (error) {
     logger.error({ error: error.message, userId: req.user?.id }, 'Failed to get report history');
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       error: '获取报告历史失败'
     });
@@ -430,7 +433,7 @@ router.post('/report/generate', async (req, res) => {
     });
   } catch (error) {
     logger.error({ error: error.message, userId: req.user?.id }, 'Failed to generate report');
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       error: '生成报告失败'
     });
@@ -445,7 +448,11 @@ router.post('/admin/policy', requireAdmin, async (req, res) => {
   try {
     const { version, effectiveDate, changes, contentZh, contentEn, contentJa } = req.body;
     
-    if (!version || !effectiveDate || !contentZh || !contentEn || !contentJa) {
+    const date = new Date(effectiveDate);
+    if (![version, contentZh, contentEn, contentJa].every(value => typeof value === 'string' && value.trim()) ||
+        version.length > 16 || typeof effectiveDate !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(effectiveDate) ||
+        !Number.isFinite(date.getTime()) || date.toISOString().slice(0, 10) !== effectiveDate ||
+        (changes !== undefined && (!Array.isArray(changes) || changes.some(change => typeof change !== 'string')))) {
       return res.status(400).json({
         success: false,
         error: '缺少必要字段'
@@ -481,7 +488,7 @@ router.post('/admin/policy', requireAdmin, async (req, res) => {
 router.get('/admin/pending-users', requireAdmin, async (req, res) => {
   try {
     const { limit = 1000 } = req.query;
-    const users = await policyService.getUsersNotAcceptedLatestPolicy(parseInt(limit));
+    const users = await policyService.getUsersNotAcceptedLatestPolicy(Number(limit));
     
     res.json({
       success: true,
@@ -489,7 +496,7 @@ router.get('/admin/pending-users', requireAdmin, async (req, res) => {
     });
   } catch (error) {
     logger.error({ error: error.message }, 'Failed to get pending users');
-    res.status(500).json({
+    res.status(error.statusCode || 500).json({
       success: false,
       error: '获取待通知用户失败'
     });
