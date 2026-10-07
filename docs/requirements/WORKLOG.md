@@ -417,3 +417,10 @@ aggregate failures. KafkaJS emitted a Node24 negative-timeout warning in one ear
 successful run; this library warning has not been diagnosed or suppressed. The final
 Node24 run passed and emitted no such warning. No runtime-support or production-SLO
 claim is inferred from these isolated checks.
+
+Published first-plan implementation as c52d5de to draft PR #6. Main CI/CD432,
+dependency236 and privacy4 passed. The first title workflow failed before tests:
+GitHub runner passed the single-quoted health command as separate Docker flags
+(`unknown shorthand flag: U`). Corrected both health commands to runner-compatible
+double quotes and made cleanup conditional on the Kafka container actually existing.
+This fixes test setup; it does not hide any test failure. Follow-up remote run pending.

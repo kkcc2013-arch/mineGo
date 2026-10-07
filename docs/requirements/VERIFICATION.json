@@ -356,7 +356,7 @@
         "backend/tests/regression/jest.config.json": "19912f1090271550a723710e5a2cc6512b85d83f6049cbc1f263537f6568b51e",
         "backend/package.json": "9a7146e94460373aaf06d99168beb1b8cb40162861dea5b58dfbc5221113bb8d",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
-        ".github/workflows/title-regression.yml": "7ad6145ab74bc3e753339d5b4f98a0025299a58f81ce8a8caaaa96cbcb5111c4"
+        ".github/workflows/title-regression.yml": "dc7a82791a3e646448490e714e0830054189737b4cfbf31f6add78e0fc2bf5d8"
       },
       "evidence": [
         {
@@ -407,6 +407,12 @@
           "result": "passed",
           "tests": 1,
           "scope": "Current user-service source starts with actual PostgreSQL/Redis/Kafka and exits naturally. Cleanup attempts all resources even if one reports failure. Local warm HTTP p95 3.363ms and shutdown 5402.016ms; not production acceptance."
+        },
+        {
+          "date": "2026-10-07",
+          "result": "ci_setup_failed_corrected_pending_rerun",
+          "scope": "Initial title CI failed before tests due to single-quote argument parsing in service health commands. Changed to double quotes; no test gate or application assertion was weakened.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37622998685"
         }
       ]
     },
@@ -430,7 +436,7 @@
         "backend/tests/regression/jest.config.json": "19912f1090271550a723710e5a2cc6512b85d83f6049cbc1f263537f6568b51e",
         "backend/package.json": "9a7146e94460373aaf06d99168beb1b8cb40162861dea5b58dfbc5221113bb8d",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
-        ".github/workflows/title-regression.yml": "7ad6145ab74bc3e753339d5b4f98a0025299a58f81ce8a8caaaa96cbcb5111c4"
+        ".github/workflows/title-regression.yml": "dc7a82791a3e646448490e714e0830054189737b4cfbf31f6add78e0fc2bf5d8"
       },
       "evidence": [
         {
@@ -481,6 +487,12 @@
           "result": "passed",
           "tests": 1,
           "scope": "Current user-service source starts with actual PostgreSQL/Redis/Kafka and exits naturally. Cleanup attempts all resources even if one reports failure. Local warm HTTP p95 3.363ms and shutdown 5402.016ms; not production acceptance."
+        },
+        {
+          "date": "2026-10-07",
+          "result": "ci_setup_failed_corrected_pending_rerun",
+          "scope": "Initial title CI failed before tests due to single-quote argument parsing in service health commands. Changed to double quotes; no test gate or application assertion was weakened.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37622998685"
         }
       ]
     },
@@ -504,7 +516,7 @@
         "backend/tests/regression/jest.config.json": "19912f1090271550a723710e5a2cc6512b85d83f6049cbc1f263537f6568b51e",
         "backend/package.json": "9a7146e94460373aaf06d99168beb1b8cb40162861dea5b58dfbc5221113bb8d",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
-        ".github/workflows/title-regression.yml": "7ad6145ab74bc3e753339d5b4f98a0025299a58f81ce8a8caaaa96cbcb5111c4"
+        ".github/workflows/title-regression.yml": "dc7a82791a3e646448490e714e0830054189737b4cfbf31f6add78e0fc2bf5d8"
       },
       "evidence": [
         {
@@ -555,6 +567,12 @@
           "result": "passed",
           "tests": 1,
           "scope": "Current user-service source starts with actual PostgreSQL/Redis/Kafka and exits naturally. Cleanup attempts all resources even if one reports failure. Local warm HTTP p95 3.363ms and shutdown 5402.016ms; not production acceptance."
+        },
+        {
+          "date": "2026-10-07",
+          "result": "ci_setup_failed_corrected_pending_rerun",
+          "scope": "Initial title CI failed before tests due to single-quote argument parsing in service health commands. Changed to double quotes; no test gate or application assertion was weakened.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37622998685"
         }
       ]
     }
