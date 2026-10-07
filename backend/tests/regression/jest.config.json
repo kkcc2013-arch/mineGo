@@ -18,6 +18,10 @@
     "<rootDir>/tests/unit/privacy-preferences.test.js",
     "<rootDir>/tests/unit/logging-migration.test.js",
     "<rootDir>/tests/unit/console-replacement.test.js",
-    "<rootDir>/tests/unit/service-launcher-lifecycle.test.js"
+    "<rootDir>/tests/unit/service-launcher-lifecycle.test.js",
+    "<rootDir>/tests/unit/title-service.test.js",
+    "<rootDir>/tests/unit/timezone-route.test.js",
+    "<rootDir>/tests/unit/eventbus-lifecycle.test.js",
+    "<rootDir>/tests/unit/notification-initialization.test.js"
   ]
 }

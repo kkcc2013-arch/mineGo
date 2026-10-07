@@ -4,9 +4,9 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 209,
-      "new": 439,
-      "in_progress": 10
+      "done": 208,
+      "in_progress": 13,
+      "new": 437
     },
     "priorityCounts": {
       "P0": 52,
@@ -696,11 +696,11 @@
       "id": "REQ-00026",
       "title": "REQ-00026：游戏内实时推送通知系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "前端体验",
       "modules": "game-client、gateway、reward-service、gym-service、social-service",
       "createdAt": "2026-06-05 18:00",
-      "sha256": "d371f01bb2579e10fa4c2b9cc552a4d2c633245ec623f4fab15eb3bb35628509",
+      "sha256": "4769b4d31a9e97a21db229e0a8f358894622067fdc2b4ba9558933d9e107306a",
       "acceptance": [
         "- [ ] 前端 NotificationManager 模块实现，支持所有 7 种通知类型",
         "- [ ] 游戏内通知 Banner/Toast UI 组件，点击可跳转到对应功能",
@@ -711,7 +711,7 @@
         "- [ ] 单元测试覆盖 NotificationManager 核心逻辑",
         "- [ ] 前端测试验证通知显示和交互"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/gym-service/src/index.js",
         "backend/services/user-service/src/handlers/notificationHandler.js",
@@ -3226,11 +3226,11 @@
       "id": "REQ-00106",
       "title": "REQ-00106: 玩家称号系统与个性化展示",
       "priority": "P1",
-      "declaredStatus": "new",
+      "declaredStatus": "in_progress",
       "category": "功能增强",
       "modules": "user-service、pokemon-service、social-service、gateway、game-client、database/migrations",
       "createdAt": "2026-06-11 05:30",
-      "sha256": "90ad0ccdb801d32682c934636c3b087c39507cd225d1eb7e2d53f41c8eda61a3",
+      "sha256": "69570b98ac34ddcd7089a56badf3d1c8dbb5ed91d4437062f8293984734bd7af",
       "acceptance": [
         "- [ ] 数据库表创建成功，包含完整的索引和约束",
         "- [ ] 称号服务核心模块实现，支持解锁/激活/查询",
@@ -3245,13 +3245,12 @@
         "- [ ] 单元测试覆盖率 > 80%",
         "- [ ] 性能测试：称号查询 < 50ms"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/services/user-service/src/routes/titles.js",
-        "backend/services/user-service/src/titleService.js",
-        "backend/tests/unit/title-service.test.js",
         "database/pending/20260615_170500__add_title_system.sql",
+        "database/pending/20261007_120000__title_identity_compatibility.sql",
         "frontend/game-client/src/components/TitleManager.js"
       ],
       "legacyId": null
@@ -16320,18 +16319,18 @@
       "id": "REQ-00612",
       "title": "REQ-00612: 全球化业务实时时区调度与跨区协作支持系统",
       "priority": "P1",
-      "declaredStatus": "new",
+      "declaredStatus": "in_progress",
       "category": "国际化/本地化",
       "modules": "gateway, user-service, game-event-service, pokemon-service",
       "createdAt": "2026-07-20 16:00",
-      "sha256": "678bef629d50ecef3307f4aa4b2a8b199ab67b7a3aac0226241debf5d5efc723",
+      "sha256": "acb67d84c7ef83a0335a5874fbf4809ff95c8239c95cbac5f00a409a48223dd2",
       "acceptance": [
         "- [ ] 确保 API 接口统一返回 UTC 时间戳，不依赖服务端时区。",
         "- [ ] 验证限时活动（如：北京时间 20:00 开启）在不同时区玩家客户端的准确显示。",
         "- [ ] 系统时区配置支持热更新，无需重启服务。",
         "- [ ] 完成跨时区业务场景的单元测试，覆盖 DST（夏令时）切换场景。"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/gateway/src/middleware/timezone.js",
         "backend/gateway/tests/middleware/timezone.test.js",

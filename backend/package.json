@@ -37,7 +37,10 @@
     "test:privacy:storage": "node --test tests/regression/privacy-storage.test.js",
     "test:privacy:unit": "jest --runInBand --config tests/regression/privacy.jest.config.json --coverage",
     "test:logging:unit": "jest --runInBand --config tests/regression/logging.jest.config.json --coverage",
-    "benchmark:logging": "node tests/performance/logging-benchmark.js"
+    "benchmark:logging": "node tests/performance/logging-benchmark.js",
+    "test:titles:storage": "node --test tests/regression/title-storage.test.js",
+    "test:titles:unit": "jest --runInBand --config tests/regression/jest.config.json --runTestsByPath tests/unit/title-service.test.js",
+    "test:user:startup": "node --test tests/regression/user-startup.test.js"
   },
   "devDependencies": {
     "@babel/parser": "7.29.7",

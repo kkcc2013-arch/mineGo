@@ -6,6 +6,7 @@ const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigr
 
 const { ServiceLauncher } = require('../../../shared/ServiceLauncher');
 const db = require('../../../shared/db');
+const redis = require('../../../shared/redis');
 const EventBus = require('../../../shared/EventBus');
 
 // REQ-00159: 健康检查与自愈系统
@@ -41,14 +42,25 @@ const { initNotificationHandlers } = require('./handlers/notificationHandler');
 initPrivacyRoutes(db);
 
 let healthChecker;
+let eventBus;
 
 // Create service launcher
 const service = new ServiceLauncher({
   serviceName: 'user-service',
   version: '1.0.0',
-  port: 8081,
+  port: process.env.PORT === undefined ? 8081 : Number(process.env.PORT),
   
   routes: [
+    // These routers own their authentication and expose explicit public paths.
+    {
+      path: '/users', // REQ-00106: 称号系统路由
+      router: titlesRouter
+    },
+    {
+      path: '/users',
+      router: timezoneRouter
+    },
+
     {
       path: '/auth',
       router: authRouter,
@@ -78,10 +90,6 @@ const service = new ServiceLauncher({
     {
       path: '/users', // REQ-00057: MFA 路由
       router: mfaRouter
-    },
-    {
-      path: '/users',
-      router: timezoneRouter
     },
     {
       path: '/age', // REQ-00034: 年龄验证路由
@@ -119,10 +127,6 @@ const service = new ServiceLauncher({
       rateLimit: { windowMs: 60_000, max: 20 }
     },
     {
-      path: '/users', // REQ-00106: 称号系统路由
-      router: titlesRouter
-    },
-    {
       path: '/devices', // REQ-00250: 设备管理路由
       router: deviceManagementRouter
     },
@@ -142,6 +146,7 @@ const service = new ServiceLauncher({
   
   // Service initialization
   onInitialize: async (app) => {
+    app.locals.db = db;
     // REQ-00159: 初始化健康检查系统
     healthChecker = new HealthChecker({
       serviceName: 'user-service',
@@ -158,6 +163,11 @@ const service = new ServiceLauncher({
       return { status: 'healthy', latency_ms: latency };
     }, { critical: true });
     
+    healthChecker.register('redis', async () => {
+      await redis.getRedis().ping();
+      return { status: 'healthy' };
+    }, { critical: true });
+
     // 注册资源健康检查
     healthChecker.register('resources', async () => {
       return await healthChecker.checkResources();
@@ -175,7 +185,13 @@ const service = new ServiceLauncher({
     app.use(healthRoutes);
     
     // Initialize GDPR routes with db and eventBus
-    const eventBus = EventBus.getEventBus();
+    eventBus = EventBus.getEventBus();
+    await eventBus.connect();
+    healthChecker.register('kafka', async () => {
+      const health = await eventBus.healthCheck();
+      if (!health.healthy) throw new Error('Kafka is unavailable');
+      return { status: 'healthy' };
+    }, { critical: false });
     initGDPRRoutes(db, eventBus);
     app.use('/gdpr', gdprRouter);
     
@@ -186,17 +202,24 @@ const service = new ServiceLauncher({
     initDataDeletionRoutes(db, eventBus);
     
     // Initialize notification event handlers - REQ-00026
-    initNotificationHandlers(eventBus);
+    await initNotificationHandlers(eventBus);
     
     // Initialize title service - REQ-00106
     const { TitleService } = require('./titleService');
+    TitleService.eventBus = eventBus;
     await TitleService.initialize();
     _consoleLogger.log('Title service initialized');
     
+    await healthChecker.runAllChecks();
     _consoleLogger.log('User service initialized with health checks enabled');
   },
   onShutdown: async () => {
     healthChecker?.stopPeriodicCheck();
+    const results = await Promise.allSettled([
+      eventBus ? eventBus.disconnect() : Promise.resolve(), db.closePools(), redis.closeRedis()
+    ]);
+    const failures = results.filter(result => result.status === 'rejected').map(result => result.reason);
+    if (failures.length) throw new AggregateError(failures, 'User service cleanup failed');
   }
 });
 

@@ -11,7 +11,7 @@
         "backend/tests/battle/context.js": "4e815529a4ba1ba8d02657bc1e8798af1c481cd277e9f64e04a2ea2be595f7c3",
         "backend/tests/battle/formulas.test.js": "40300e85e1cba36f1e9994e9cc5aa2a9af4f256b4a45b83c6fa1bb2d05b745ad",
         "backend/tests/battle/scenarios.test.js": "82ee33f17c3b2eaca95592d20d75763a2f527ae5bb238a9b6e788955fb584aad",
-        "backend/package.json": "9d73527530c48d70d5c4720de2e7aee01edf5f17cdba379e84291db9061b0899",
+        "backend/package.json": "9a7146e94460373aaf06d99168beb1b8cb40162861dea5b58dfbc5221113bb8d",
         ".github/workflows/ci-cd.yml": "1572b966bb2c9c4ee3f8d2de41334552e4a63878cf604113f316e5088ce75b3a"
       },
       "evidence": [
@@ -36,6 +36,15 @@
           "file": ".github/workflows/ci-cd.yml",
           "result": "Main CI/CD and battle-regression jobs passed at 739c8eee5ec37a62e1cee80fb28eaeab0b6759ba; logging follow-up awaits CI",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37485232585"
+        },
+        {
+          "date": "2026-10-07",
+          "command": "npm test; npm run test:privacy:storage; node --test backend/tests/regression/user-startup.test.js",
+          "result": "passed",
+          "scope": "608 unit checks, 11 actual privacy/PostgreSQL checks and real user-service process startup/shutdown. Refresh limited to tested integration references; full requirement completion is not claimed.",
+          "changedReferences": [
+            "backend/package.json"
+          ]
         }
       ]
     },
@@ -47,13 +56,13 @@
         "backend/shared/privacyPreferences.js": "28f8aebc2d5cf55c827ef1e5c597f79caaca688a88749a058dfd3afc2819311b",
         "backend/shared/auditLog.js": "5f460a3ffb941b1737ff6561d90e96a2d3aa5bca3f0bc8c5351293e2d9227112",
         "backend/services/user-service/src/routes/privacy.js": "b85dbeb358a76c6b8bcd163f86f4ab9bb8f576f0fd6008615b2022e4ddb9e487",
-        "backend/services/user-service/src/index.js": "6018290ce304ea721fb3e8481237bfdc2af3fb8c155b9dad32e98167a1705ab7",
+        "backend/services/user-service/src/index.js": "9f0a7fbcf690a91d6444f0afc3e593a8b89bc0cca06ec52b2f21e3201cb6de3a",
         "backend/gateway/src/routes/privacyProxy.js": "b692098d7858fc7069cd5a557f941f164ec9f2d00667623a1b51ee665a19a483",
         "backend/gateway/src/index.js": "97e9f6bdbebf3faf12a5adfd2c9b29cbacf8195e7155f31176a602ba34978074",
         "backend/tests/unit/privacy-preferences.test.js": "71a1470f27d923319bfbb73ba9f7b6d77c7f2544085de0d1f28614eca5b9d0b0",
         "backend/tests/regression/privacy-storage.test.js": "ef3cbe968d1bcd6dc22e08622565427f1531f92ece53188881b0614dd3ad4603",
         "backend/tests/regression/privacy.jest.config.json": "cd80c47f4be46595f151bdf850571e7e0bd599d5bd2e9897550999b031b7e490",
-        "backend/package.json": "9d73527530c48d70d5c4720de2e7aee01edf5f17cdba379e84291db9061b0899",
+        "backend/package.json": "9a7146e94460373aaf06d99168beb1b8cb40162861dea5b58dfbc5221113bb8d",
         ".github/workflows/privacy-regression.yml": "b730aa2c9c5c6d6379f7047ed8c86f9f5a6781c1d0c619989482478e9031b79a",
         "database/pending/20261006_150000__privacy_preference_defaults_and_policy_fields.sql": "3d21e729219b771c0b94f8474e11e6adcc222b0fbfc064beeddaed3d08849c78",
         "backend/shared/logger.js": "4fd8f577c9db1860aa011216eadd9523a46a2214a80de1e0c44ff9310fb5e457"
@@ -89,6 +98,24 @@
           "result": "passed",
           "tests": 11,
           "scope": "Reran actual PostgreSQL/router/proxy tests after lifecycle repair. Full user-service startup is not covered."
+        },
+        {
+          "date": "2026-10-07",
+          "command": "npm test; npm run test:privacy:storage; node --test backend/tests/regression/user-startup.test.js",
+          "result": "passed",
+          "scope": "608 unit checks, 11 actual privacy/PostgreSQL checks and real user-service process startup/shutdown. Refresh limited to tested integration references; full requirement completion is not claimed.",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/package.json"
+          ]
+        },
+        {
+          "date": "2026-10-07",
+          "command": "cd backend && npm run test:user:startup",
+          "runtime": "Node.js 24.19.0",
+          "result": "passed",
+          "tests": 1,
+          "scope": "Current user-service source starts with actual PostgreSQL/Redis/Kafka and exits naturally. Cleanup attempts all resources even if one reports failure. Local warm HTTP p95 3.363ms and shutdown 5402.016ms; not production acceptance."
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
@@ -105,7 +132,7 @@
         "backend/tests/unit/logging-migration.test.js": "880a3f2ce8660e66a951cf8ac73b617e1396ce765fb92e2d135e5bdce711dde3",
         "backend/tests/performance/logging-benchmark.js": "a9fb82d16c779c4331e6aa2e8b5b08ee081def225de421e0e67ec3c660fef255",
         "backend/tests/regression/logging.jest.config.json": "45932a32192ebfadc2c131a9b8ba6877d8b4fbae7616fe9d98958a63a57d60b2",
-        "backend/package.json": "9d73527530c48d70d5c4720de2e7aee01edf5f17cdba379e84291db9061b0899",
+        "backend/package.json": "9a7146e94460373aaf06d99168beb1b8cb40162861dea5b58dfbc5221113bb8d",
         ".github/workflows/ci-cd.yml": "1572b966bb2c9c4ee3f8d2de41334552e4a63878cf604113f316e5088ce75b3a"
       },
       "evidence": [
@@ -158,6 +185,15 @@
               }
             ]
           }
+        },
+        {
+          "date": "2026-10-07",
+          "command": "npm test; npm run test:privacy:storage; node --test backend/tests/regression/user-startup.test.js",
+          "result": "passed",
+          "scope": "608 unit checks, 11 actual privacy/PostgreSQL checks and real user-service process startup/shutdown. Refresh limited to tested integration references; full requirement completion is not claimed.",
+          "changedReferences": [
+            "backend/package.json"
+          ]
         }
       ],
       "remaining": "The 5% overhead target, production output/adapters and complete legacy integration/E2E acceptance are not verified"
@@ -169,9 +205,12 @@
       "sourceSha256": {
         "backend/shared/ServiceLauncher.js": "7beaabc6f1ed2f164e4925c25156fd2c358a492516fa8ed1d742d235f9d048b7",
         "backend/shared/HealthChecker.js": "34983df1a723fc4bb4608f96e4fd98b75f4daca8158d075a78c4261f3860fbef",
-        "backend/services/user-service/src/index.js": "6018290ce304ea721fb3e8481237bfdc2af3fb8c155b9dad32e98167a1705ab7",
+        "backend/services/user-service/src/index.js": "9f0a7fbcf690a91d6444f0afc3e593a8b89bc0cca06ec52b2f21e3201cb6de3a",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "0da04981dd8bb4325ba1cb31ff5ced39b94a305fb777c4566782bbc50b01e12a",
-        "backend/tests/regression/jest.config.json": "6852b00b58282546f03d64ca97079de0bf1fbe9f7032d165b327c31862229a4c"
+        "backend/tests/regression/jest.config.json": "19912f1090271550a723710e5a2cc6512b85d83f6049cbc1f263537f6568b51e",
+        "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
+        "backend/services/user-service/src/handlers/notificationHandler.js": "3622084204873ea50632c7bbf957f14e2da7f3a905b7304fe8ba8e08f1e3f7d0",
+        "backend/tests/regression/user-startup.test.js": "6d65a167ee6fb86f66ad870c7c30e7f717be304cc6ec706a54e4c92b2956f238"
       },
       "evidence": [
         {
@@ -201,6 +240,30 @@
         {
           "result": "incomplete",
           "scope": "Full user-service startup and production deployment, all dependency types, self-healing/isolation/recovery, dependency container and performance targets remain unaccepted. No complete acceptance boxes checked."
+        },
+        {
+          "date": "2026-10-07",
+          "command": "npm test; npm run test:privacy:storage; node --test backend/tests/regression/user-startup.test.js",
+          "result": "passed",
+          "scope": "608 unit checks, 11 actual privacy/PostgreSQL checks and real user-service process startup/shutdown. Refresh limited to tested integration references; full requirement completion is not claimed.",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/jest.config.json"
+          ]
+        },
+        {
+          "date": "2026-10-07",
+          "result": "passed",
+          "command": "node --test backend/tests/regression/user-startup.test.js",
+          "scope": "Actual user-service startup checks PostgreSQL, Redis and Kafka; static title/GDPR/deletion routes reachable, signed title requests work, process exits after cleanup. Remaining complete self-healing/container criteria stay open."
+        },
+        {
+          "date": "2026-10-07",
+          "command": "cd backend && npm run test:user:startup",
+          "runtime": "Node.js 24.19.0",
+          "result": "passed",
+          "tests": 1,
+          "scope": "Current user-service source starts with actual PostgreSQL/Redis/Kafka and exits naturally. Cleanup attempts all resources even if one reports failure. Local warm HTTP p95 3.363ms and shutdown 5402.016ms; not production acceptance."
         }
       ]
     },
@@ -211,9 +274,12 @@
       "sourceSha256": {
         "backend/shared/ServiceLauncher.js": "7beaabc6f1ed2f164e4925c25156fd2c358a492516fa8ed1d742d235f9d048b7",
         "backend/shared/HealthChecker.js": "34983df1a723fc4bb4608f96e4fd98b75f4daca8158d075a78c4261f3860fbef",
-        "backend/services/user-service/src/index.js": "6018290ce304ea721fb3e8481237bfdc2af3fb8c155b9dad32e98167a1705ab7",
+        "backend/services/user-service/src/index.js": "9f0a7fbcf690a91d6444f0afc3e593a8b89bc0cca06ec52b2f21e3201cb6de3a",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "0da04981dd8bb4325ba1cb31ff5ced39b94a305fb777c4566782bbc50b01e12a",
-        "backend/tests/regression/jest.config.json": "6852b00b58282546f03d64ca97079de0bf1fbe9f7032d165b327c31862229a4c"
+        "backend/tests/regression/jest.config.json": "19912f1090271550a723710e5a2cc6512b85d83f6049cbc1f263537f6568b51e",
+        "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
+        "backend/services/user-service/src/handlers/notificationHandler.js": "3622084204873ea50632c7bbf957f14e2da7f3a905b7304fe8ba8e08f1e3f7d0",
+        "backend/tests/regression/user-startup.test.js": "6d65a167ee6fb86f66ad870c7c30e7f717be304cc6ec706a54e4c92b2956f238"
       },
       "evidence": [
         {
@@ -243,6 +309,252 @@
         {
           "result": "incomplete",
           "scope": "Full user-service startup and production deployment, all dependency types, self-healing/isolation/recovery, dependency container and performance targets remain unaccepted. No complete acceptance boxes checked."
+        },
+        {
+          "date": "2026-10-07",
+          "command": "npm test; npm run test:privacy:storage; node --test backend/tests/regression/user-startup.test.js",
+          "result": "passed",
+          "scope": "608 unit checks, 11 actual privacy/PostgreSQL checks and real user-service process startup/shutdown. Refresh limited to tested integration references; full requirement completion is not claimed.",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/jest.config.json"
+          ]
+        },
+        {
+          "date": "2026-10-07",
+          "result": "passed",
+          "command": "node --test backend/tests/regression/user-startup.test.js",
+          "scope": "Actual user-service startup checks PostgreSQL, Redis and Kafka; static title/GDPR/deletion routes reachable, signed title requests work, process exits after cleanup. Remaining complete self-healing/container criteria stay open."
+        },
+        {
+          "date": "2026-10-07",
+          "command": "cd backend && npm run test:user:startup",
+          "runtime": "Node.js 24.19.0",
+          "result": "passed",
+          "tests": 1,
+          "scope": "Current user-service source starts with actual PostgreSQL/Redis/Kafka and exits naturally. Cleanup attempts all resources even if one reports failure. Local warm HTTP p95 3.363ms and shutdown 5402.016ms; not production acceptance."
+        }
+      ]
+    },
+    "REQ-00106-player-title-system-and-personalization.md": {
+      "date": "2026-10-07",
+      "status": "partial_local_verified_ci_pending",
+      "documentSha256": "69570b98ac34ddcd7089a56badf3d1c8dbb5ed91d4437062f8293984734bd7af",
+      "sourceSha256": {
+        "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
+        "backend/services/user-service/src/routes/titles.js": "8e7bede513639c93b07ff315cdd19ac259982e7f195fb32f69ac7910d970eb41",
+        "backend/services/user-service/src/routes/timezone.js": "7a8f7bc0710190390ca75f478bad637d0aa550e60170f4276b12565bfd648f77",
+        "backend/services/user-service/src/index.js": "9f0a7fbcf690a91d6444f0afc3e593a8b89bc0cca06ec52b2f21e3201cb6de3a",
+        "backend/services/user-service/src/handlers/notificationHandler.js": "3622084204873ea50632c7bbf957f14e2da7f3a905b7304fe8ba8e08f1e3f7d0",
+        "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
+        "backend/tests/unit/title-service.test.js": "dac59417c7f2932704d8d2c4e4b76d867a95a8cc3a6306a8544092c44420faed",
+        "backend/tests/unit/timezone-route.test.js": "d52e86a88fba59443c2cc1aa01e6700fe9dca6a8e9b9cac26b21eeae76bce848",
+        "backend/tests/unit/eventbus-lifecycle.test.js": "354b2745759db7ce844959957d1b863410f08d68f1265183e55891d3e3fd6736",
+        "backend/tests/unit/notification-initialization.test.js": "84b5d4ce41afbf9b531d95fa84fbceef57e00c14cd9597f42de6799009a46b3c",
+        "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
+        "backend/tests/regression/user-startup.test.js": "6d65a167ee6fb86f66ad870c7c30e7f717be304cc6ec706a54e4c92b2956f238",
+        "backend/tests/regression/jest.config.json": "19912f1090271550a723710e5a2cc6512b85d83f6049cbc1f263537f6568b51e",
+        "backend/package.json": "9a7146e94460373aaf06d99168beb1b8cb40162861dea5b58dfbc5221113bb8d",
+        "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
+        ".github/workflows/title-regression.yml": "7ad6145ab74bc3e753339d5b4f98a0025299a58f81ce8a8caaaa96cbcb5111c4"
+      },
+      "evidence": [
+        {
+          "command": "npm test",
+          "runtime": "Node.js 20.20.2",
+          "result": "passed",
+          "tests": 608,
+          "suiteBreakdown": {
+            "standalone": 95,
+            "battle": 133,
+            "jest": 380
+          }
+        },
+        {
+          "command": "node --test backend/tests/regression/title-storage.test.js",
+          "runtime": "Node.js 24.19.0",
+          "result": "passed",
+          "tests": 13,
+          "coverage": {
+            "lines": 96.67,
+            "branches": 81.48,
+            "functions": 92.86
+          },
+          "scope": "Actual PostgreSQL and Redis plus title routes, concurrent awards/switches, rollback, authorization, expired benefits, numeric/boolean validation and UUID/BIGINT compatible schema."
+        },
+        {
+          "command": "node --test backend/tests/regression/user-startup.test.js",
+          "runtime": "Node.js 20.20.2",
+          "result": "passed",
+          "tests": 1,
+          "titleHttpLatencyMs": {
+            "samples": 50,
+            "median": 1.8639250000001084,
+            "p95": 3.3594239999997626,
+            "maximum": 4.0843660000000455
+          },
+          "shutdownElapsedMs": 5677.894498,
+          "scope": "Actual user-service process with production users identity DDL in an isolated schema, title bootstrap, local Redis and Kafka topics. Warm sequential HTTP reads over an empty title list; not a full production migration history or capacity benchmark."
+        },
+        {
+          "result": "incomplete",
+          "scope": "End-to-end title UI/profile/game-stat integration and automatic achievement/event integration, unit-only coverage target, production load, notification UI/history/preferences/<1s latency, and global UTC/DST/event scheduling remain unaccepted."
+        },
+        {
+          "date": "2026-10-07",
+          "command": "cd backend && npm run test:user:startup",
+          "runtime": "Node.js 24.19.0",
+          "result": "passed",
+          "tests": 1,
+          "scope": "Current user-service source starts with actual PostgreSQL/Redis/Kafka and exits naturally. Cleanup attempts all resources even if one reports failure. Local warm HTTP p95 3.363ms and shutdown 5402.016ms; not production acceptance."
+        }
+      ]
+    },
+    "REQ-00612-global-timezone-scheduler.md": {
+      "date": "2026-10-07",
+      "status": "partial_local_verified_ci_pending",
+      "documentSha256": "acb67d84c7ef83a0335a5874fbf4809ff95c8239c95cbac5f00a409a48223dd2",
+      "sourceSha256": {
+        "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
+        "backend/services/user-service/src/routes/titles.js": "8e7bede513639c93b07ff315cdd19ac259982e7f195fb32f69ac7910d970eb41",
+        "backend/services/user-service/src/routes/timezone.js": "7a8f7bc0710190390ca75f478bad637d0aa550e60170f4276b12565bfd648f77",
+        "backend/services/user-service/src/index.js": "9f0a7fbcf690a91d6444f0afc3e593a8b89bc0cca06ec52b2f21e3201cb6de3a",
+        "backend/services/user-service/src/handlers/notificationHandler.js": "3622084204873ea50632c7bbf957f14e2da7f3a905b7304fe8ba8e08f1e3f7d0",
+        "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
+        "backend/tests/unit/title-service.test.js": "dac59417c7f2932704d8d2c4e4b76d867a95a8cc3a6306a8544092c44420faed",
+        "backend/tests/unit/timezone-route.test.js": "d52e86a88fba59443c2cc1aa01e6700fe9dca6a8e9b9cac26b21eeae76bce848",
+        "backend/tests/unit/eventbus-lifecycle.test.js": "354b2745759db7ce844959957d1b863410f08d68f1265183e55891d3e3fd6736",
+        "backend/tests/unit/notification-initialization.test.js": "84b5d4ce41afbf9b531d95fa84fbceef57e00c14cd9597f42de6799009a46b3c",
+        "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
+        "backend/tests/regression/user-startup.test.js": "6d65a167ee6fb86f66ad870c7c30e7f717be304cc6ec706a54e4c92b2956f238",
+        "backend/tests/regression/jest.config.json": "19912f1090271550a723710e5a2cc6512b85d83f6049cbc1f263537f6568b51e",
+        "backend/package.json": "9a7146e94460373aaf06d99168beb1b8cb40162861dea5b58dfbc5221113bb8d",
+        "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
+        ".github/workflows/title-regression.yml": "7ad6145ab74bc3e753339d5b4f98a0025299a58f81ce8a8caaaa96cbcb5111c4"
+      },
+      "evidence": [
+        {
+          "command": "npm test",
+          "runtime": "Node.js 20.20.2",
+          "result": "passed",
+          "tests": 608,
+          "suiteBreakdown": {
+            "standalone": 95,
+            "battle": 133,
+            "jest": 380
+          }
+        },
+        {
+          "command": "node --test backend/tests/regression/title-storage.test.js",
+          "runtime": "Node.js 24.19.0",
+          "result": "passed",
+          "tests": 13,
+          "coverage": {
+            "lines": 96.67,
+            "branches": 81.48,
+            "functions": 92.86
+          },
+          "scope": "Actual PostgreSQL and Redis plus title routes, concurrent awards/switches, rollback, authorization, expired benefits, numeric/boolean validation and UUID/BIGINT compatible schema."
+        },
+        {
+          "command": "node --test backend/tests/regression/user-startup.test.js",
+          "runtime": "Node.js 20.20.2",
+          "result": "passed",
+          "tests": 1,
+          "titleHttpLatencyMs": {
+            "samples": 50,
+            "median": 1.8639250000001084,
+            "p95": 3.3594239999997626,
+            "maximum": 4.0843660000000455
+          },
+          "shutdownElapsedMs": 5677.894498,
+          "scope": "Actual user-service process with production users identity DDL in an isolated schema, title bootstrap, local Redis and Kafka topics. Warm sequential HTTP reads over an empty title list; not a full production migration history or capacity benchmark."
+        },
+        {
+          "result": "incomplete",
+          "scope": "End-to-end title UI/profile/game-stat integration and automatic achievement/event integration, unit-only coverage target, production load, notification UI/history/preferences/<1s latency, and global UTC/DST/event scheduling remain unaccepted."
+        },
+        {
+          "date": "2026-10-07",
+          "command": "cd backend && npm run test:user:startup",
+          "runtime": "Node.js 24.19.0",
+          "result": "passed",
+          "tests": 1,
+          "scope": "Current user-service source starts with actual PostgreSQL/Redis/Kafka and exits naturally. Cleanup attempts all resources even if one reports failure. Local warm HTTP p95 3.363ms and shutdown 5402.016ms; not production acceptance."
+        }
+      ]
+    },
+    "REQ-00026-in-game-push-notification-system.md": {
+      "date": "2026-10-07",
+      "status": "partial_local_verified_ci_pending",
+      "documentSha256": "4769b4d31a9e97a21db229e0a8f358894622067fdc2b4ba9558933d9e107306a",
+      "sourceSha256": {
+        "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
+        "backend/services/user-service/src/routes/titles.js": "8e7bede513639c93b07ff315cdd19ac259982e7f195fb32f69ac7910d970eb41",
+        "backend/services/user-service/src/routes/timezone.js": "7a8f7bc0710190390ca75f478bad637d0aa550e60170f4276b12565bfd648f77",
+        "backend/services/user-service/src/index.js": "9f0a7fbcf690a91d6444f0afc3e593a8b89bc0cca06ec52b2f21e3201cb6de3a",
+        "backend/services/user-service/src/handlers/notificationHandler.js": "3622084204873ea50632c7bbf957f14e2da7f3a905b7304fe8ba8e08f1e3f7d0",
+        "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
+        "backend/tests/unit/title-service.test.js": "dac59417c7f2932704d8d2c4e4b76d867a95a8cc3a6306a8544092c44420faed",
+        "backend/tests/unit/timezone-route.test.js": "d52e86a88fba59443c2cc1aa01e6700fe9dca6a8e9b9cac26b21eeae76bce848",
+        "backend/tests/unit/eventbus-lifecycle.test.js": "354b2745759db7ce844959957d1b863410f08d68f1265183e55891d3e3fd6736",
+        "backend/tests/unit/notification-initialization.test.js": "84b5d4ce41afbf9b531d95fa84fbceef57e00c14cd9597f42de6799009a46b3c",
+        "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
+        "backend/tests/regression/user-startup.test.js": "6d65a167ee6fb86f66ad870c7c30e7f717be304cc6ec706a54e4c92b2956f238",
+        "backend/tests/regression/jest.config.json": "19912f1090271550a723710e5a2cc6512b85d83f6049cbc1f263537f6568b51e",
+        "backend/package.json": "9a7146e94460373aaf06d99168beb1b8cb40162861dea5b58dfbc5221113bb8d",
+        "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
+        ".github/workflows/title-regression.yml": "7ad6145ab74bc3e753339d5b4f98a0025299a58f81ce8a8caaaa96cbcb5111c4"
+      },
+      "evidence": [
+        {
+          "command": "npm test",
+          "runtime": "Node.js 20.20.2",
+          "result": "passed",
+          "tests": 608,
+          "suiteBreakdown": {
+            "standalone": 95,
+            "battle": 133,
+            "jest": 380
+          }
+        },
+        {
+          "command": "node --test backend/tests/regression/title-storage.test.js",
+          "runtime": "Node.js 24.19.0",
+          "result": "passed",
+          "tests": 13,
+          "coverage": {
+            "lines": 96.67,
+            "branches": 81.48,
+            "functions": 92.86
+          },
+          "scope": "Actual PostgreSQL and Redis plus title routes, concurrent awards/switches, rollback, authorization, expired benefits, numeric/boolean validation and UUID/BIGINT compatible schema."
+        },
+        {
+          "command": "node --test backend/tests/regression/user-startup.test.js",
+          "runtime": "Node.js 20.20.2",
+          "result": "passed",
+          "tests": 1,
+          "titleHttpLatencyMs": {
+            "samples": 50,
+            "median": 1.8639250000001084,
+            "p95": 3.3594239999997626,
+            "maximum": 4.0843660000000455
+          },
+          "shutdownElapsedMs": 5677.894498,
+          "scope": "Actual user-service process with production users identity DDL in an isolated schema, title bootstrap, local Redis and Kafka topics. Warm sequential HTTP reads over an empty title list; not a full production migration history or capacity benchmark."
+        },
+        {
+          "result": "incomplete",
+          "scope": "End-to-end title UI/profile/game-stat integration and automatic achievement/event integration, unit-only coverage target, production load, notification UI/history/preferences/<1s latency, and global UTC/DST/event scheduling remain unaccepted."
+        },
+        {
+          "date": "2026-10-07",
+          "command": "cd backend && npm run test:user:startup",
+          "runtime": "Node.js 24.19.0",
+          "result": "passed",
+          "tests": 1,
+          "scope": "Current user-service source starts with actual PostgreSQL/Redis/Kafka and exits naturally. Cleanup attempts all resources even if one reports failure. Local warm HTTP p95 3.363ms and shutdown 5402.016ms; not production acceptance."
         }
       ]
     }

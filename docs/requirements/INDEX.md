@@ -31,7 +31,7 @@
 | [REQ-00023](REQ-00023-distributed-tracing-jaeger.md) | 分布式链路追踪与 Jaeger 集成 | 可观测性/监控 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-05 15:00 |
 | [REQ-00024](REQ-00024-blue-green-deployment.md) | 蓝绿部署策略实现 | 运维/CICD | P1 | done | gateway、所有微服务、infrastructure/k8s、.github/workflows、scripts | 2026-06-05 16:05 |
 | [REQ-00025](REQ-00025-database-backup-disaster-recovery.md) | 数据库自动化备份与灾难恢复系统 | 数据库/数据治理 | P1 | done | PostgreSQL、database/backup、infrastructure/k8s、.github/workflows | 2026-06-05 17:00 |
-| [REQ-00026](REQ-00026-in-game-push-notification-system.md) | 游戏内实时推送通知系统 | 前端体验 | P1 | done | game-client、gateway、reward-service、gym-service、social-service | 2026-06-05 18:00 |
+| [REQ-00026](REQ-00026-in-game-push-notification-system.md) | 游戏内实时推送通知系统 | 前端体验 | P1 | in_progress | game-client、gateway、reward-service、gym-service、social-service | 2026-06-05 18:00 |
 | [REQ-00027](REQ-00027-pokemon-3d-model-viewer.md) | 精灵详情页 3D 模型展示与交互 | 前端体验 | P2 | done | game-client、frontend/3d、pokemon-service | 2026-06-05 19:00 |
 | [REQ-00028](REQ-00028-behavior-anomaly-detection-system.md) | 玩家行为异常模式智能检测系统 | 反作弊 | P1 | done | gateway、catch-service、gym-service、social-service、backend/shared/anti-cheat.js、database/migrations | 2026-06-05 20:00 |
 | [REQ-00029](REQ-00029-timezone-localization-for-game-events.md) | 游戏事件时区本地化与多时区支持 | 国际化/本地化 | P1 | done | gateway、user-service、gym-service、reward-service、game-client、frontend | 2026-06-05 21:15 |
@@ -111,7 +111,7 @@
 | [REQ-00103](REQ-00103-microservice-dependency-graph-and-cycle-detection.md) | 微服务依赖图与循环依赖检测系统 | 技术债/重构 | P1 | in_progress | gateway、所有微服务、backend/shared、infrastructure/k8s、docs/architecture | 2026-06-11 04:00 |
 | [REQ-00104](REQ-00104-marketplace-auction-system.md) | 精灵交换市场与竞价拍卖系统 | 功能增强 | P1 | done | social-service、pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 04:30 |
 | [REQ-00105](REQ-00105-distributed-lock-service-redis-redlock.md) | 分布式锁服务与 Redis Redlock 实现 | 容灾/高可用 | P1 | done | backend/shared/distributedLock.js、所有微服务、Redis | 2026-06-11 05:15 |
-| [REQ-00106](REQ-00106-player-title-system-and-personalization.md) | 玩家称号系统与个性化展示 | 功能增强 | P1 | new | user-service、pokemon-service、social-service、gateway、game-client、database/migrations | 2026-06-11 05:30 |
+| [REQ-00106](REQ-00106-player-title-system-and-personalization.md) | 玩家称号系统与个性化展示 | 功能增强 | P1 | in_progress | user-service、pokemon-service、social-service、gateway、game-client、database/migrations | 2026-06-11 05:30 |
 | [REQ-00107](REQ-00107-data-lifecycle-management-auto-cleanup.md) | 数据生命周期管理与自动清理策略 | 合规/隐私 | P1 | new | user-service、pokemon-service、social-service、payment-service、backend/shared、database/migrations、backend/jobs | 2026-06-11 06:00 |
 | [REQ-00108](REQ-00108-game-client-photosensitive-epilepsy-safe-mode.md) | 游戏客户端光敏性癫痫安全模式 | 无障碍(a11y) | P2 | new | game-client、frontend/effects、frontend/game-client/src/accessibility、catch-service、gym-service | 2026-06-11 07:05 |
 | [REQ-00109](REQ-00109-pokemon-team-battle-system.md) | 精灵团队战斗系统（Team Battle） | 功能增强 | P1 | done | gym-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-11 10:25 |
@@ -592,7 +592,7 @@
 | [REQ-00609](REQ-00609-rpo-rto-realtime-monitoring-early-warning-system.md) | RPO/RTO 实时监控与预警告警系统 | 容灾/高可用 | P1 | new | backend/shared/disasterRecovery, gateway, monitoring, alerting | 2026-07-20 14:00 |
 | [REQ-00610](REQ-00610-api-tracing-visualization.md) | API 请求响应链路分布式追踪数据可视化增强 | 可观测性 | P1 | new | gateway, backend/shared/tracing, observability-dashboard | 2026-07-20 15:00 |
 | [REQ-00611](REQ-00611-game-realtime-subtitles-hearing-impairment-support.md) | 游戏实时字幕与听觉障碍支持系统 | 无障碍(a11y) | P2 | new | game-client、backend/shared/subtitles、user-service、所有音频播放模块 | 2026-07-20 15:00 |
-| [REQ-00612](REQ-00612-global-timezone-scheduler.md) | 全球化业务实时时区调度与跨区协作支持系统 | 国际化/本地化 | P1 | new | gateway, user-service, game-event-service, pokemon-service | 2026-07-20 16:00 |
+| [REQ-00612](REQ-00612-global-timezone-scheduler.md) | 全球化业务实时时区调度与跨区协作支持系统 | 国际化/本地化 | P1 | in_progress | gateway, user-service, game-event-service, pokemon-service | 2026-07-20 16:00 |
 | [REQ-00613](REQ-00613-cloud-resource-cost-attribution-allocation-system.md) | 云资源成本归因与分摊精细化系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared/costAttribution、admin-dashboard、Kubernetes | 2026-07-20 16:00 |
 | [REQ-00614](REQ-00614-core-battle-metrics-monitoring.md) | 核心战斗逻辑业务指标监控系统 | 可观测性 | P1 | done | gym-service, gateway | 2026-07-20 17:00 |
 | [REQ-00615](REQ-00615-automated-disaster-recovery-drill-system.md) | 自动化灾难恢复演练系统 | 运维/CICD | P1 | new | infrastructure, gateway, monitoring | 2026-07-20 17:00 |

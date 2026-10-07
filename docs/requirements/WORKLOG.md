@@ -328,3 +328,92 @@ with terminal prompts disabled and failed because no GitHub username/sign-in
 credentials are available to this checkout. No token was placed in command text,
 configuration, files or logs. Draft PR #6 still contains earlier published commits;
 this new lifecycle commit has not reached remote CI. The full backlog remains open.
+
+## Completion plan and first implementation batch (2026-10-07)
+
+The user requested a plan and continuation to finish the existing backlog. Created
+COMPLETION-PLAN.md covering all 658 documents, prerequisites/P0 ordering, service,
+security, game/client, measured quality, operations, tooling and final acceptance.
+The plan is open in the app. Requested explicit persistent-goal authorization to
+continue across replies; no Goal has been created without that request.
+
+At 890b779, main, dependency and privacy GitHub workflows passed. Contract/API contract,
+performance and legacy integration workflows still fail. Integration job logs confirm
+production-schema mismatches, missing tables and invalid legacy imports rather than
+accepted production behavior. Publication credentials are available from the
+user-authorized external file; no credential content is copied into repository files.
+
+Correction to earlier startup notes: shared/db DOES export a .db query builder.
+The title service's failing assumptions concern unsupported grouped where callbacks,
+db.fn.now and treating a transaction client as a Knex function. Its initialization
+query can work when the table exists. Actual startup also exposed a bad timezone
+import, title/public path shadowing and asynchronous notification initialization.
+
+Implemented:
+
+- Title service now uses parameterized PostgreSQL operations with injectable database,
+  cache, metrics and event bus. Concurrent duplicate grants are idempotent; concurrent
+  title switching locks the user and leaves one active title. Failed switching rolls
+  back. Expired titles cannot provide bonuses or appear in active/statistics views.
+  Redis invalidation failures do not change authoritative ownership or convert a
+  committed update into an apparent failed mutation. Snapshot caches are not trusted.
+- Title routes restrict manual grants and expiration jobs to signed admin roles,
+  enforce numeric/boolean inputs and typed errors, and register leaderboard/shop
+  before title-ID parameters. The explicit public title/timezone routers are mounted
+  before broad user/session authentication and profile parameters; private title
+  paths still authenticate locally.
+- New additive title bootstrap preserves the old migration and existing definitions,
+  provisions 20 titles, matches users.id's UUID/BIGINT/INTEGER type, enforces one active
+  title, and can rerun its trigger setup. A mismatched existing identity type fails
+  with a request for an explicit mapping; no user-ID conversion is guessed. UUID
+  databases need this bootstrap before the incompatible legacy title migration.
+  This is not acceptance of the full migration history or all legacy title shapes.
+- Timezone import fixed; preference routes verify identity and ownership before reads/
+  writes, validate boolean flags, and use a real Time-Zone header instead of returning
+  a fabricated IP-detection result. Global timezone/DST/event behavior remains open.
+- user-service now awaits all seven notification subscriptions and initializes its
+  configured Kafka producer. Startup health checks exercise PostgreSQL/Redis/Kafka,
+  app.locals.db is initialized, and an explicit PORT (including 0) is honored.
+  Shutdown closes owned database/Redis pools and Kafka resources. EventBus closes
+  consumers concurrently, releases failed subscriptions and admin health connections,
+  and reports cleanup errors. Serial Kafka disconnection caused the measured shutdown
+  failure; concurrent closure resolves it without extending the 15-second test limit.
+
+Validation:
+
+- Full Node20 unit run: 95 standalone + 133 battle + 380 Jest = 608 passed (21 Jest
+  suites). Replaced the old non-executed/broken title mock suite with 8 meaningful
+  failure/validation tests; added 4 timezone, 4 EventBus and 2 subscription regressions.
+- Actual PostgreSQL/Redis/title HTTP suite: 13 checks passed, including UUID/BIGINT
+  migration, input/authentication, concurrent grants and activation, deliberate
+  rollback, expired benefits, public views, limits, cache outage and metric export.
+- Core title storage regression coverage on Node24: 96.67% lines, 81.48% branches,
+  92.86% functions; real 80% line/function gate passes. Unit-only coverage remains
+  a separate outstanding acceptance target.
+- Real user-service process starts on an ephemeral port against an isolated schema
+  using the production users identity DDL, title bootstrap, local Redis and local
+  Apache Kafka 3.9.1 with provisioned topics. Dependency health, signed/unsigned
+  title endpoints, GDPR/deletion route reachability and natural process termination
+  after shutdown are exercised. Final Node20 warm sequential empty-list HTTP sample
+  (50 reads): median 1.864ms, p95 3.359ms, max 4.084ms; shutdown 5677.894ms. This is
+  local evidence, not a production-capacity or representative-population benchmark.
+- Actual privacy/PostgreSQL/router tests still pass all 11 checks. Syntax 1386 files,
+  logging scan zero, health registrations 9, tooling tests 12 and numbering pass.
+- Dedicated title workflow runs unit, real storage/coverage and actual process startup
+  on Node24 with PostgreSQL, Redis and an isolated Kafka container. Remote result
+  remains pending publication and CI at this entry.
+
+REQ-00106 and REQ-00612 are in progress; REQ-00026's old done declaration is reopened.
+Current inventory: 208 legacy done declarations, 437 new, 13 in progress. All 658 IDs
+remain unique. Full UI/profile/game-stat application, automatic achievement cross-
+service schema integration, notification history/preferences/client latency, global
+UTC/DST scheduling and full legacy integration/contracts/production criteria remain
+open. Next batch follows COMPLETION-PLAN.md; no all-requirements completion is claimed.
+
+The workflow's Node24 runtime was checked locally too: title unit8 and actual service
+startup/shutdown1 pass. Current Node24 actual process warm HTTP p95 3.363ms and shutdown
+5402.016ms. Cleanup attempts Kafka/database/Redis closures independently and reports
+aggregate failures. KafkaJS emitted a Node24 negative-timeout warning in one earlier
+successful run; this library warning has not been diagnosed or suppressed. The final
+Node24 run passed and emitted no such warning. No runtime-support or production-SLO
+claim is inferred from these isolated checks.

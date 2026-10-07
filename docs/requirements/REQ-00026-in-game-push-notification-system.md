@@ -3,7 +3,7 @@
 - **编号**：REQ-00026
 - **类别**：前端体验
 - **优先级**：P1
-- **状态**：done
+- **状态**：in_progress
 - **涉及服务/模块**：game-client、gateway、reward-service、gym-service、social-service
 - **创建时间**：2026-06-05 18:00
 - **依赖需求**：无
@@ -195,3 +195,12 @@ CREATE INDEX idx_notification_history_user ON notification_history(user_id, crea
 ## 7. 优先级理由
 
 **P1** - 实时通知是提升玩家参与度的关键功能，直接影响日活和留存。稀有精灵通知可带动玩家即时互动，Raid 通知促进社交协作。相比 P2 功能，这是"可用"产品的核心体验要素。
+
+
+## 验收复核（2026-10-07）
+
+旧完成声明重新打开。notificationHandler 的 7 个 Kafka 订阅现在全部完成后才返回
+初始化成功，失败等待其余订阅结束并传递给启动过程。EventBus 在订阅失败时释放
+未注册消费者，健康检查释放管理连接，关闭并行处理所有消费者以避免累加长轮询。
+实际用户服务启动/关闭已在隔离 PostgreSQL、Redis 和 Kafka 下测试。客户端交互、
+50 条历史、真实通知效果、偏好及 <1 秒端到端延迟尚未完整验收。
