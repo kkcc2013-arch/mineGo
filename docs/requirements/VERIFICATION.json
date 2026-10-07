@@ -50,7 +50,7 @@
     },
     "REQ-00053-user-privacy-preference-center-data-transparency.md": {
       "date": "2026-10-07",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "9015d8979ec52a2d3f6b298b9c318db1954f2f5221106901a8823514546a7dd5",
       "sourceSha256": {
         "backend/shared/privacyPreferences.js": "28f8aebc2d5cf55c827ef1e5c597f79caaca688a88749a058dfd3afc2819311b",
@@ -116,13 +116,20 @@
           "result": "passed",
           "tests": 1,
           "scope": "Current user-service source starts with actual PostgreSQL/Redis/Kafka and exits naturally. Cleanup attempts all resources even if one reports failure. Local warm HTTP p95 3.363ms and shutdown 5402.016ms; not production acceptance."
+        },
+        {
+          "date": "2026-10-07",
+          "result": "related_ci_passed",
+          "commit": "4afcce9048927727095dcadfd47ec2e3d25a9dc3",
+          "scope": "Main, dependency, privacy and title/storage/process regression workflows pass; partial evidence only. Contract/performance/legacy integration and complete requirement acceptance remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37623349256"
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
     },
     "REQ-00683-console-logging-migration-to-structured-logger.md": {
       "date": "2026-10-06",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "d725714839a4dcd1b92df697d7f9f2c4ff526b8b3890528511472252b3ef104a",
       "sourceSha256": {
         "backend/shared/logger.js": "4fd8f577c9db1860aa011216eadd9523a46a2214a80de1e0c44ff9310fb5e457",
@@ -194,13 +201,20 @@
           "changedReferences": [
             "backend/package.json"
           ]
+        },
+        {
+          "date": "2026-10-07",
+          "result": "related_ci_passed",
+          "commit": "4afcce9048927727095dcadfd47ec2e3d25a9dc3",
+          "scope": "Main, dependency, privacy and title/storage/process regression workflows pass; partial evidence only. Contract/performance/legacy integration and complete requirement acceptance remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37623349256"
         }
       ],
       "remaining": "The 5% overhead target, production output/adapters and complete legacy integration/E2E acceptance are not verified"
     },
     "REQ-00159-service-health-self-healing-and-auto-recovery-system.md": {
       "date": "2026-10-07",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "6c4d7d1d6417e684d9fd2f7ce506ba17bd5958228c41495d7b5490413f8211cd",
       "sourceSha256": {
         "backend/shared/ServiceLauncher.js": "7beaabc6f1ed2f164e4925c25156fd2c358a492516fa8ed1d742d235f9d048b7",
@@ -264,12 +278,19 @@
           "result": "passed",
           "tests": 1,
           "scope": "Current user-service source starts with actual PostgreSQL/Redis/Kafka and exits naturally. Cleanup attempts all resources even if one reports failure. Local warm HTTP p95 3.363ms and shutdown 5402.016ms; not production acceptance."
+        },
+        {
+          "date": "2026-10-07",
+          "result": "related_ci_passed",
+          "commit": "4afcce9048927727095dcadfd47ec2e3d25a9dc3",
+          "scope": "Main, dependency, privacy and title/storage/process regression workflows pass; partial evidence only. Contract/performance/legacy integration and complete requirement acceptance remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37623349256"
         }
       ]
     },
     "REQ-00682-service-dependency-consolidation-and-initialization-refactoring.md": {
       "date": "2026-10-07",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "b0d70073391231edcf5ddfd293b97515807a5f98ae2b2d635accce7c90deddc9",
       "sourceSha256": {
         "backend/shared/ServiceLauncher.js": "7beaabc6f1ed2f164e4925c25156fd2c358a492516fa8ed1d742d235f9d048b7",
@@ -333,12 +354,19 @@
           "result": "passed",
           "tests": 1,
           "scope": "Current user-service source starts with actual PostgreSQL/Redis/Kafka and exits naturally. Cleanup attempts all resources even if one reports failure. Local warm HTTP p95 3.363ms and shutdown 5402.016ms; not production acceptance."
+        },
+        {
+          "date": "2026-10-07",
+          "result": "related_ci_passed",
+          "commit": "4afcce9048927727095dcadfd47ec2e3d25a9dc3",
+          "scope": "Main, dependency, privacy and title/storage/process regression workflows pass; partial evidence only. Contract/performance/legacy integration and complete requirement acceptance remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37623349256"
         }
       ]
     },
     "REQ-00106-player-title-system-and-personalization.md": {
       "date": "2026-10-07",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "69570b98ac34ddcd7089a56badf3d1c8dbb5ed91d4437062f8293984734bd7af",
       "sourceSha256": {
         "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
@@ -413,12 +441,19 @@
           "result": "ci_setup_failed_corrected_pending_rerun",
           "scope": "Initial title CI failed before tests due to single-quote argument parsing in service health commands. Changed to double quotes; no test gate or application assertion was weakened.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37622998685"
+        },
+        {
+          "date": "2026-10-07",
+          "result": "related_ci_passed",
+          "commit": "4afcce9048927727095dcadfd47ec2e3d25a9dc3",
+          "scope": "Main, dependency, privacy and title/storage/process regression workflows pass; partial evidence only. Contract/performance/legacy integration and complete requirement acceptance remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37623349256"
         }
       ]
     },
     "REQ-00612-global-timezone-scheduler.md": {
       "date": "2026-10-07",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "acb67d84c7ef83a0335a5874fbf4809ff95c8239c95cbac5f00a409a48223dd2",
       "sourceSha256": {
         "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
@@ -493,12 +528,19 @@
           "result": "ci_setup_failed_corrected_pending_rerun",
           "scope": "Initial title CI failed before tests due to single-quote argument parsing in service health commands. Changed to double quotes; no test gate or application assertion was weakened.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37622998685"
+        },
+        {
+          "date": "2026-10-07",
+          "result": "related_ci_passed",
+          "commit": "4afcce9048927727095dcadfd47ec2e3d25a9dc3",
+          "scope": "Main, dependency, privacy and title/storage/process regression workflows pass; partial evidence only. Contract/performance/legacy integration and complete requirement acceptance remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37623349256"
         }
       ]
     },
     "REQ-00026-in-game-push-notification-system.md": {
       "date": "2026-10-07",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "4769b4d31a9e97a21db229e0a8f358894622067fdc2b4ba9558933d9e107306a",
       "sourceSha256": {
         "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
@@ -573,6 +615,13 @@
           "result": "ci_setup_failed_corrected_pending_rerun",
           "scope": "Initial title CI failed before tests due to single-quote argument parsing in service health commands. Changed to double quotes; no test gate or application assertion was weakened.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37622998685"
+        },
+        {
+          "date": "2026-10-07",
+          "result": "related_ci_passed",
+          "commit": "4afcce9048927727095dcadfd47ec2e3d25a9dc3",
+          "scope": "Main, dependency, privacy and title/storage/process regression workflows pass; partial evidence only. Contract/performance/legacy integration and complete requirement acceptance remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37623349256"
         }
       ]
     }

@@ -424,3 +424,10 @@ GitHub runner passed the single-quoted health command as separate Docker flags
 (`unknown shorthand flag: U`). Corrected both health commands to runner-compatible
 double quotes and made cleanup conditional on the Kafka container actually existing.
 This fixes test setup; it does not hide any test failure. Follow-up remote run pending.
+
+Follow-up 4afcce9 published. Related remote checks PASS: main CI/CD433
+(run37623349227), dependency237 (37623349416), privacy5 (37623349225), and title
+regression2 (37623349256), including actual Node24 service/storage/Kafka startup and
+shutdown. Contract, API contract, performance and legacy integration still fail;
+security/E2E were still running at the snapshot. Related partial evidence now records
+CI verification; this does not mark any complete requirement done or all 658 finished.
