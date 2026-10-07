@@ -164,7 +164,7 @@
 | [REQ-00156](REQ-00156-pokemon-recovery-station-system.md) | 精灵恢复站系统 | 功能增强 | P1 | new | location-service、pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-13 09:00 |
 | [REQ-00157](REQ-00157-unified-error-handling-and-api-response.md) | 统一错误处理与 API 响应格式标准化 | 技术债/重构 | P1 | done | 所有微服务、backend/shared、gateway、game-client | 2026-06-13 09:05 |
 | [REQ-00158](REQ-00158-business-event-anomaly-detection.md) | 业务事件异常检测与智能告警系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-13 10:00 |
-| [REQ-00159](REQ-00159-service-health-self-healing-and-auto-recovery-system.md) | 服务健康自愈与自动恢复系统 | 容灾/高可用 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-13 10:05 |
+| [REQ-00159](REQ-00159-service-health-self-healing-and-auto-recovery-system.md) | 服务健康自愈与自动恢复系统 | 容灾/高可用 | P1 | in_progress | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-13 10:05 |
 | [REQ-00160](REQ-00160-special-iv-system.md) | 精灵特殊个体值（彩蛋）系统 | 功能增强 | P1 | done | pokemon-service、catch-service、location-service、gateway、game-client、database/migrations | 2026-06-13 15:00 |
 | [REQ-00161](REQ-00161-low-peak-service-auto-sleep-and-smart-wake.md) | 低峰期服务自动休眠与智能唤醒系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared/sleepManager.js、backend/shared/trafficAnalyzer.js、infrastructure/k8s、backend/jobs | 2026-06-13 10:30 |
 | [REQ-00162](REQ-00162-in-game-screen-reader-voice-navigation-enhancement.md) | 游戏内屏幕阅读器语音导航增强系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/accessibility、frontend/game-client/src/components | 2026-06-13 17:05 |
@@ -662,5 +662,5 @@
 | [REQ-00679](REQ-00679-ci-cd-pipeline-efficiency-analysis-and-bottleneck-detection-system.md) | CI/CD 流水线执行效率分析与瓶颈定位系统 | 运维/CICD | P1 | new | .github/workflows、backend/jobs/pipelineAnalyzer.js、admin-dashboard、infrastructure/monitoring | 2026-07-19 04:00 |
 | [REQ-00680](REQ-00680-database-schema-change-impact-analysis-and-risk-assessment-system.md) | 数据库 Schema 变更智能影响分析与风险评估系统 | 数据库/数据治理 | P1 | new | database/migrate.js、backend/shared/schemaChangeAnalyzer.js、backend/shared/schemaImpactAnalyzer.js、gateway、所有后端服务、admin-dashboard | 2026-07-20 02:00 |
 | [REQ-00681](REQ-00681-pokemon-training-and-specialization-system.md) | 精灵训练特训系统与专项能力提升机制 | 功能增强 | P1 | new | pokemon-service、gateway、game-client、backend/shared/trainingService.js、database/migrations | 2026-07-20 18:00 |
-| [REQ-00682](REQ-00682-service-dependency-consolidation-and-initialization-refactoring.md) | 服务依赖配置统一与初始化模块重构 | 技术债/重构 | P1 | new | backend/shared/config、backend/shared/dependencies、所有后端服务、gateway | 2026-07-20 20:05 |
+| [REQ-00682](REQ-00682-service-dependency-consolidation-and-initialization-refactoring.md) | 服务依赖配置统一与初始化模块重构 | 技术债/重构 | P1 | in_progress | backend/shared/config、backend/shared/dependencies、所有后端服务、gateway | 2026-07-20 20:05 |
 | [REQ-00683](REQ-00683-console-logging-migration-to-structured-logger.md) | Console 调用全面迁移至结构化日志系统 | 技术债/重构 | P1 | in_progress | 所有后端服务、backend/shared/logger.js、backend/shared/loggingUtils.js | 2026-07-21 11:00 UTC |

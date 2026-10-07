@@ -60,11 +60,14 @@ class HealthChecker extends EventEmitter {
    */
   async runCheck(name, config) {
     const startTime = Date.now();
-    
+    let timeoutTimer;
+
     try {
       const result = await Promise.race([
         config.checkFn(),
-        this.createTimeout(config.timeout)
+        new Promise((_, reject) => {
+          timeoutTimer = setTimeout(() => reject(new Error(`Health check timeout after ${config.timeout}ms`)), config.timeout);
+        })
       ]);
       
       const latency = Date.now() - startTime;
@@ -91,6 +94,8 @@ class HealthChecker extends EventEmitter {
         timestamp: new Date().toISOString(),
         error: error.message
       };
+    } finally {
+      clearTimeout(timeoutTimer);
     }
   }
   
@@ -123,7 +128,11 @@ class HealthChecker extends EventEmitter {
    */
   calculateOverallStatus(results) {
     // 检查关键服务
-    for (const name of this.criticalChecks) {
+    const criticalNames = new Set([
+      ...this.criticalChecks,
+      ...[...this.checks].filter(([, config]) => config.critical).map(([name]) => name)
+    ]);
+    for (const name of criticalNames) {
       if (results[name] && results[name].status === 'unhealthy') {
         return {
           status: 'unhealthy',

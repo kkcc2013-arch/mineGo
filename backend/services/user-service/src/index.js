@@ -40,6 +40,8 @@ const { initNotificationHandlers } = require('./handlers/notificationHandler');
 // Initialize the privacy router before it can receive requests.
 initPrivacyRoutes(db);
 
+let healthChecker;
+
 // Create service launcher
 const service = new ServiceLauncher({
   serviceName: 'user-service',
@@ -139,9 +141,9 @@ const service = new ServiceLauncher({
   ],
   
   // Service initialization
-  onReady: async (app) => {
+  onInitialize: async (app) => {
     // REQ-00159: 初始化健康检查系统
-    const healthChecker = new HealthChecker({
+    healthChecker = new HealthChecker({
       serviceName: 'user-service',
       checkInterval: 30000,
       cpuThreshold: 80,
@@ -191,7 +193,10 @@ const service = new ServiceLauncher({
     await TitleService.initialize();
     _consoleLogger.log('Title service initialized');
     
-    _consoleLogger.log('User service ready with health checks enabled');
+    _consoleLogger.log('User service initialized with health checks enabled');
+  },
+  onShutdown: async () => {
+    healthChecker?.stopPeriodicCheck();
   }
 });
 

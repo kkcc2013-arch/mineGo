@@ -4,9 +4,9 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 210,
-      "new": 440,
-      "in_progress": 8
+      "done": 209,
+      "new": 439,
+      "in_progress": 10
     },
     "priorityCounts": {
       "P0": 52,
@@ -4685,11 +4685,11 @@
       "id": "REQ-00159",
       "title": "REQ-00159：服务健康自愈与自动恢复系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "容灾/高可用",
       "modules": "gateway、所有微服务、backend/shared、infrastructure/k8s",
       "createdAt": "2026-06-13 10:05",
-      "sha256": "cce520b0e1981b6ec20b8feea852668b67750ab5e1654354181cb711f3c10b4b",
+      "sha256": "6c4d7d1d6417e684d9fd2f7ce506ba17bd5958228c41495d7b5490413f8211cd",
       "acceptance": [
         "- [ ] **健康检查覆盖**",
         "- [ ] **自愈能力**",
@@ -4698,7 +4698,7 @@
         "- [ ] **根因分析**",
         "- [ ] **监控集成**"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/shared/ServiceHealthSelfHealing.js",
@@ -18287,11 +18287,11 @@
       "id": "REQ-00682",
       "title": "REQ-00682: 服务依赖配置统一与初始化模块重构",
       "priority": "P1",
-      "declaredStatus": "new",
+      "declaredStatus": "in_progress",
       "category": "技术债/重构",
       "modules": "backend/shared/config、backend/shared/dependencies、所有后端服务、gateway",
       "createdAt": "2026-07-20 20:05",
-      "sha256": "c2f1da88124b7e06f88b7aa87808dfe73b6dc2eb8ef1563b467f7f88bb9e1a65",
+      "sha256": "b0d70073391231edcf5ddfd293b97515807a5f98ae2b2d635accce7c90deddc9",
       "acceptance": [
         "- [ ] 创建 DependencyContainer 类，支持单例和工厂模式依赖注册",
         "- [ ] 实现至少 7 种核心依赖的统一初始化（logger/db/redis/kafka/cache/metrics/config）",
@@ -18302,7 +18302,7 @@
         "- [ ] 代码重复行数减少至少 200 行（通过代码统计验证）",
         "- [ ] 支持测试环境下依赖 mock 和替换"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [],
       "legacyId": "REQ-00619"
     },

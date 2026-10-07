@@ -40,14 +40,14 @@
       ]
     },
     "REQ-00053-user-privacy-preference-center-data-transparency.md": {
-      "date": "2026-10-06",
+      "date": "2026-10-07",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "9015d8979ec52a2d3f6b298b9c318db1954f2f5221106901a8823514546a7dd5",
       "sourceSha256": {
         "backend/shared/privacyPreferences.js": "28f8aebc2d5cf55c827ef1e5c597f79caaca688a88749a058dfd3afc2819311b",
         "backend/shared/auditLog.js": "5f460a3ffb941b1737ff6561d90e96a2d3aa5bca3f0bc8c5351293e2d9227112",
         "backend/services/user-service/src/routes/privacy.js": "b85dbeb358a76c6b8bcd163f86f4ab9bb8f576f0fd6008615b2022e4ddb9e487",
-        "backend/services/user-service/src/index.js": "de5483c0debf66f1ef487dd1e3e46f8ef17ce975357297520a7af7e288fc62ed",
+        "backend/services/user-service/src/index.js": "6018290ce304ea721fb3e8481237bfdc2af3fb8c155b9dad32e98167a1705ab7",
         "backend/gateway/src/routes/privacyProxy.js": "b692098d7858fc7069cd5a557f941f164ec9f2d00667623a1b51ee665a19a483",
         "backend/gateway/src/index.js": "97e9f6bdbebf3faf12a5adfd2c9b29cbacf8195e7155f31176a602ba34978074",
         "backend/tests/unit/privacy-preferences.test.js": "71a1470f27d923319bfbb73ba9f7b6d77c7f2544085de0d1f28614eca5b9d0b0",
@@ -81,6 +81,14 @@
           "result": "Dedicated privacy route/storage CI passed at 739c8eee5ec37a62e1cee80fb28eaeab0b6759ba; same PostgreSQL/gateway suite passed locally after logging changes",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37485232854",
           "tests": 11
+        },
+        {
+          "command": "cd backend && npm run test:privacy:storage",
+          "runtime": "Node.js 20.20.2",
+          "date": "2026-10-07",
+          "result": "passed",
+          "tests": 11,
+          "scope": "Reran actual PostgreSQL/router/proxy tests after lifecycle repair. Full user-service startup is not covered."
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
@@ -153,6 +161,90 @@
         }
       ],
       "remaining": "The 5% overhead target, production output/adapters and complete legacy integration/E2E acceptance are not verified"
+    },
+    "REQ-00159-service-health-self-healing-and-auto-recovery-system.md": {
+      "date": "2026-10-07",
+      "status": "partial_local_verified_ci_pending",
+      "documentSha256": "6c4d7d1d6417e684d9fd2f7ce506ba17bd5958228c41495d7b5490413f8211cd",
+      "sourceSha256": {
+        "backend/shared/ServiceLauncher.js": "7beaabc6f1ed2f164e4925c25156fd2c358a492516fa8ed1d742d235f9d048b7",
+        "backend/shared/HealthChecker.js": "34983df1a723fc4bb4608f96e4fd98b75f4daca8158d075a78c4261f3860fbef",
+        "backend/services/user-service/src/index.js": "6018290ce304ea721fb3e8481237bfdc2af3fb8c155b9dad32e98167a1705ab7",
+        "backend/tests/unit/service-launcher-lifecycle.test.js": "0da04981dd8bb4325ba1cb31ff5ced39b94a305fb777c4566782bbc50b01e12a",
+        "backend/tests/regression/jest.config.json": "6852b00b58282546f03d64ca97079de0bf1fbe9f7032d165b327c31862229a4c"
+      },
+      "evidence": [
+        {
+          "command": "cd backend && npm run test:regression -- --runTestsByPath tests/unit/service-launcher-lifecycle.test.js",
+          "runtime": "Node.js 20.20.2",
+          "result": "passed",
+          "tests": 11,
+          "scope": "Actual HTTP listener lifecycle, initialized health router failures, fallback/error routing, bind/start failures, concurrent starts, draining/forced close, restart, critical checks and timeout cleanup."
+        },
+        {
+          "command": "npm test",
+          "runtime": "Node.js 20.20.2",
+          "result": "passed",
+          "tests": 590,
+          "suiteBreakdown": {
+            "standalone": 95,
+            "battle": 133,
+            "jest": 362
+          }
+        },
+        {
+          "command": "cd backend && node tests/unit/ServiceLauncher.test.js",
+          "runtime": "Node.js 20.20.2",
+          "result": "passed",
+          "tests": 26
+        },
+        {
+          "result": "incomplete",
+          "scope": "Full user-service startup and production deployment, all dependency types, self-healing/isolation/recovery, dependency container and performance targets remain unaccepted. No complete acceptance boxes checked."
+        }
+      ]
+    },
+    "REQ-00682-service-dependency-consolidation-and-initialization-refactoring.md": {
+      "date": "2026-10-07",
+      "status": "partial_local_verified_ci_pending",
+      "documentSha256": "b0d70073391231edcf5ddfd293b97515807a5f98ae2b2d635accce7c90deddc9",
+      "sourceSha256": {
+        "backend/shared/ServiceLauncher.js": "7beaabc6f1ed2f164e4925c25156fd2c358a492516fa8ed1d742d235f9d048b7",
+        "backend/shared/HealthChecker.js": "34983df1a723fc4bb4608f96e4fd98b75f4daca8158d075a78c4261f3860fbef",
+        "backend/services/user-service/src/index.js": "6018290ce304ea721fb3e8481237bfdc2af3fb8c155b9dad32e98167a1705ab7",
+        "backend/tests/unit/service-launcher-lifecycle.test.js": "0da04981dd8bb4325ba1cb31ff5ced39b94a305fb777c4566782bbc50b01e12a",
+        "backend/tests/regression/jest.config.json": "6852b00b58282546f03d64ca97079de0bf1fbe9f7032d165b327c31862229a4c"
+      },
+      "evidence": [
+        {
+          "command": "cd backend && npm run test:regression -- --runTestsByPath tests/unit/service-launcher-lifecycle.test.js",
+          "runtime": "Node.js 20.20.2",
+          "result": "passed",
+          "tests": 11,
+          "scope": "Actual HTTP listener lifecycle, initialized health router failures, fallback/error routing, bind/start failures, concurrent starts, draining/forced close, restart, critical checks and timeout cleanup."
+        },
+        {
+          "command": "npm test",
+          "runtime": "Node.js 20.20.2",
+          "result": "passed",
+          "tests": 590,
+          "suiteBreakdown": {
+            "standalone": 95,
+            "battle": 133,
+            "jest": 362
+          }
+        },
+        {
+          "command": "cd backend && node tests/unit/ServiceLauncher.test.js",
+          "runtime": "Node.js 20.20.2",
+          "result": "passed",
+          "tests": 26
+        },
+        {
+          "result": "incomplete",
+          "scope": "Full user-service startup and production deployment, all dependency types, self-healing/isolation/recovery, dependency container and performance targets remain unaccepted. No complete acceptance boxes checked."
+        }
+      ]
     }
   }
 }

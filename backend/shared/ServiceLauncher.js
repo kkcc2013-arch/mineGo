@@ -24,18 +24,35 @@ class ServiceLauncher {
    * @param {Array} [options.routes] - 路由配置数组
    * @param {Array} [options.middleware] - 自定义中间件数组
    * @param {Function} [options.healthCheck] - 自定义健康检查函数
-   * @param {Function} [options.onReady] - 服务启动后的回调函数
+   * @param {Function} [options.onInitialize] - Register routes and initialize dependencies before listening
+   * @param {Function} [options.onReady] - Callback after the listener is bound (do not register routes here)
+   * @param {Function} [options.onShutdown] - Release service-owned resources, also on startup failure
    * @param {Object} [options.helmetConfig] - Helmet 自定义配置
    * @param {Object} [options.corsConfig] - CORS 自定义配置
    */
   constructor(options) {
     this.serviceName = options.serviceName;
     this.version = options.version || '1.0.0';
-    this.port = options.port || process.env.PORT || this.getDefaultPort(options.serviceName);
+    this.port = options.port ?? process.env.PORT ?? this.getDefaultPort(options.serviceName);
     this.routes = options.routes || [];
     this.customMiddleware = options.middleware || [];
     this.healthCheck = options.healthCheck || this.defaultHealthCheck.bind(this);
+    this.onInitialize = options.onInitialize || (() => {});
     this.onReady = options.onReady || (() => {});
+    this.onShutdown = options.onShutdown || (() => {});
+    this.shutdownTimeout = options.shutdownTimeout ?? 10000;
+    if (!Number.isFinite(this.shutdownTimeout) || this.shutdownTimeout <= 0) {
+      throw new Error("shutdownTimeout must be a positive number");
+    }
+    this.startPromise = null;
+    this.shutdownPromise = null;
+    this.cleanupRequired = false;
+    this.signalHandler = () => {
+      this.shutdown().catch(err => {
+        this.logger.error({ err }, "Service shutdown failed");
+        process.exitCode = 1;
+      });
+    };
     this.helmetConfig = options.helmetConfig || this.getDefaultHelmetConfig();
     this.corsConfig = options.corsConfig || this.getDefaultCorsConfig();
     
@@ -96,7 +113,7 @@ class ServiceLauncher {
   /**
    * 创建 Express 应用
    */
-  createApp() {
+  createApp({ finalize = true } = {}) {
     const app = express();
 
     // ── 安全中间件 ─────────────────────────────────────────────
@@ -116,7 +133,6 @@ class ServiceLauncher {
     });
 
     // ── 标准端点 ───────────────────────────────────────────────
-    app.get('/health', this.healthCheck);
     app.get('/metrics', this.metricsEndpoint.bind(this));
 
     // ── 业务路由 ───────────────────────────────────────────────
@@ -132,6 +148,14 @@ class ServiceLauncher {
         app.use(route.path, route.router);
       }
     });
+
+    if (finalize) this.finalizeApp(app);
+    return app;
+  }
+
+  finalizeApp(app) {
+    // An initialized health router takes precedence over this basic fallback.
+    app.get('/health', this.healthCheck);
 
     // ── 错误处理 ───────────────────────────────────────────────
     app.use(errorHandler);
@@ -166,59 +190,89 @@ class ServiceLauncher {
   /**
    * 启动服务
    */
-  async start() {
-    this.app = this.createApp();
+  start() {
+    if (this.shutdownPromise) return Promise.reject(new Error('Service is shutting down'));
+    if (this.startPromise) return this.startPromise;
+    this.startPromise = this.startService().catch(err => {
+      this.startPromise = null;
+      throw err;
+    });
+    return this.startPromise;
+  }
 
-    return new Promise((resolve, reject) => {
-      this.server = this.app.listen(this.port, async () => {
-        this.logger.info({
-          port: this.port,
-          version: this.version,
-          pid: process.pid
-        }, `${this.serviceName} started`);
-
-        try {
-          await this.onReady(this.app);
-          resolve(this.app);
-        } catch (err) {
-          this.logger.error({ err }, 'onReady callback failed');
-          reject(err);
-        }
+  async startService() {
+    this.cleanupRequired = true;
+    try {
+      this.app = this.createApp({ finalize: false });
+      // No HTTP listener exists until dependencies and dynamic routes are ready.
+      await this.onInitialize(this.app);
+      this.finalizeApp(this.app);
+      await new Promise((resolve, reject) => {
+        this.server = this.app.listen(this.port);
+        this.server.once('error', reject);
+        this.server.once('listening', () => {
+          this.server.removeListener('error', reject);
+          resolve();
+        });
       });
+      await this.onReady(this.app);
+      process.on('SIGTERM', this.signalHandler);
+      process.on('SIGINT', this.signalHandler);
+      this.logger.info({ port: this.server.address().port, version: this.version, pid: process.pid },
+        `${this.serviceName} started`);
+      return this.app;
+    } catch (err) {
+      try {
+        await this.cleanup();
+      } catch (cleanupError) {
+        this.logger.error({ err: cleanupError }, 'Startup cleanup failed');
+      }
+      throw err;
+    }
+  }
 
-      this.server.on('error', (err) => {
-        if (err.code === 'EADDRINUSE') {
-          this.logger.error({ port: this.port }, `Port ${this.port} is already in use`);
-        }
-        reject(err);
+  async closeServer() {
+    const server = this.server;
+    if (!server?.listening) return;
+    await new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.logger.warn({ service: this.serviceName }, 'Closing remaining HTTP connections');
+        server.closeAllConnections();
+      }, this.shutdownTimeout);
+      timer.unref();
+      server.close(err => {
+        clearTimeout(timer);
+        if (err) reject(err);
+        else resolve();
       });
-
-      // 优雅关闭
-      process.on('SIGTERM', () => this.shutdown());
-      process.on('SIGINT', () => this.shutdown());
     });
   }
 
-  /**
-   * 优雅关闭
-   */
-  async shutdown() {
-    this.logger.info({ service: this.serviceName }, 'Shutting down gracefully...');
-    
-    if (this.server) {
-      return new Promise((resolve) => {
-        this.server.close(() => {
-          this.logger.info({ service: this.serviceName }, 'Server closed');
-          resolve();
-        });
-        
-        // 强制关闭超时
-        setTimeout(() => {
-          this.logger.warn({ service: this.serviceName }, 'Forced shutdown after timeout');
-          process.exit(1);
-        }, 10000);
-      });
+  async cleanup() {
+    process.removeListener('SIGTERM', this.signalHandler);
+    process.removeListener('SIGINT', this.signalHandler);
+    try {
+      await this.closeServer();
+    } finally {
+      this.server = null;
+      if (this.cleanupRequired) {
+        this.cleanupRequired = false;
+        await this.onShutdown(this.app);
+      }
     }
+  }
+
+  shutdown() {
+    if (this.shutdownPromise) return this.shutdownPromise;
+    this.shutdownPromise = (async () => {
+      // A shutdown requested during initialization waits for its outcome.
+      if (this.startPromise) await this.startPromise.catch(() => {});
+      await this.cleanup();
+    })().finally(() => {
+      this.startPromise = null;
+      this.shutdownPromise = null;
+    });
+    return this.shutdownPromise;
   }
 
   /**

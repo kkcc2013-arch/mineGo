@@ -272,3 +272,59 @@ REQ-00391 is reopened and REQ-00683 is in progress. The inventory now has210 leg
 done declarations,440 new requirements and8 in progress. The documented logging
 functionality and scanner progress do not imply all requirements or all logging
 performance/adapter conditions are complete. See docs/LOGGING-MIGRATION.md.
+
+## Service initialization and shutdown repair (2026-10-07)
+
+The user asked whether work was still running. No persistent goal or automation was
+active; ordinary prior replies ended their runs. Requested explicit authorization
+for a persistent goal and continued authorized local repository work while waiting.
+
+GitHub checks at 1ad7793: main CI/CD, dependency and privacy workflows passed.
+Contract, API contract, performance, integration and security workflows failed;
+E2E was cancelled. The repository as a whole is not accepted or fully green.
+
+ServiceLauncher previously opened its listener before user-service initialization;
+its 404/error handlers also preceded routes mounted in onReady, and its basic
+/health masked the dependency-aware health router. The new onInitialize hook runs
+before listening and terminal fallbacks. user-service now initializes health/GDPR/
+compliance/deletion/title dependencies there. Its onShutdown hook stops the health
+check interval, including failed startup. onReady remains a post-listen callback
+and is documented as unsuitable for registering routes.
+
+Concurrent starts share initialization, startup/bind/post-listen failures close the
+owned listener and invoke cleanup, and shutdown removes signal listeners, drains
+requests, bounds stalled HTTP connections and permits restart. Explicit port 0
+selects an ephemeral listener. Library shutdown does not exit the host process.
+HealthChecker clears deadlines after completed checks and honors custom critical
+registrations when calculating health. This does not make unknown dependencies
+healthy or implement all recovery requirements.
+
+Validation:
+
+- Full Node20 unit command: 95 standalone + 133 battle + 362 Jest = 590 passed.
+- Added 11 lifecycle/health regressions use actual HTTP listeners and cover deferred
+  initialization, 503/live probes, business/error/404 paths, bind collisions, startup
+  cleanup failures, concurrent starts, in-flight draining, stalled socket closure,
+  shutdown during startup, restart, custom critical checks and cancelled deadlines.
+- Existing standalone ServiceLauncher checks: 26 passed separately.
+- Actual PostgreSQL privacy/router/gateway tests: all 11 Node checks passed again.
+- 1381 JavaScript files parse, runtime logging scan remains zero, 12 tool tests pass,
+  health registration checks find all 9 entry points, and numbering has no duplicates.
+- An initial unit invocation with LOG_LEVEL=silent disabled intentional test logging;
+  a later fake-clock check counted a logger microtask. Corrected invocation and clock
+  isolation (real nextTick/setImmediate) passed the full suite without weakening any
+  production assertion. Completed health deadlines are still explicitly checked.
+
+REQ-00159's old done declaration is reopened; REQ-00682 is in progress. Existing title
+service uses a Knex-style db function although shared/db exports PostgreSQL operations;
+full user-service startup remains unverified and this repair does not claim it works.
+Self-healing, Kafka/Redis/resource coverage, isolation/recovery/diagnostics, seven-dependency
+container, three-service migration, measured startup improvement and coverage target
+remain outstanding. Inventory: 658 unique requirements, 209 legacy done declarations,
+439 new and 10 in progress. Partial evidence is source-hashed in VERIFICATION.json.
+
+Publication: the lifecycle change is committed locally. A normal push was attempted
+with terminal prompts disabled and failed because no GitHub username/sign-in
+credentials are available to this checkout. No token was placed in command text,
+configuration, files or logs. Draft PR #6 still contains earlier published commits;
+this new lifecycle commit has not reached remote CI. The full backlog remains open.
