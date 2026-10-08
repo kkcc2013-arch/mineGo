@@ -747,3 +747,9 @@ matching runner/storage/native tests above; old evidence retained and current fu
 history failure explicit. Req47/56 current status partial_verified_full_history_failed,
 not complete. Owned local test services stopped after terminal probes; no background
 fixture process left running or production data touched.
+
+Final staged review found whitespace inherited in the three new whole SQL repair
+copies. Cleaned those copies before publication, keeping original files unchanged.
+Matching actual SQL tests repeated: audit23/fullV1V2pass, full82history still red at
+achievementcompleted (combined24pass/1fail). Only changed repair execution hashes
+refreshed. Full change diff check now passes.

@@ -35,13 +35,13 @@ CREATE TABLE IF NOT EXISTS catch_records (
 ) PARTITION BY RANGE (created_at);
 
 -- 创建索引
-CREATE INDEX IF NOT EXISTS idx_catch_records_user 
+CREATE INDEX IF NOT EXISTS idx_catch_records_user
     ON catch_records (user_id, created_at);
-CREATE INDEX IF NOT EXISTS idx_catch_records_pokemon 
+CREATE INDEX IF NOT EXISTS idx_catch_records_pokemon
     ON catch_records (pokemon_id, created_at);
-CREATE INDEX IF NOT EXISTS idx_catch_records_location 
+CREATE INDEX IF NOT EXISTS idx_catch_records_location
     ON catch_records USING GIST (location);
-CREATE INDEX IF NOT EXISTS idx_catch_records_created 
+CREATE INDEX IF NOT EXISTS idx_catch_records_created
     ON catch_records (created_at);
 
 -- 创建初始分区（当前月和未来3个月）
@@ -90,11 +90,11 @@ CREATE TABLE IF NOT EXISTS location_updates (
     PRIMARY KEY (id, created_at)
 ) PARTITION BY RANGE (created_at);
 
-CREATE INDEX IF NOT EXISTS idx_location_updates_user 
+CREATE INDEX IF NOT EXISTS idx_location_updates_user
     ON location_updates (user_id, created_at);
-CREATE INDEX IF NOT EXISTS idx_location_updates_location 
+CREATE INDEX IF NOT EXISTS idx_location_updates_location
     ON location_updates USING GIST (location);
-CREATE INDEX IF NOT EXISTS idx_location_updates_created 
+CREATE INDEX IF NOT EXISTS idx_location_updates_created
     ON location_updates (created_at);
 
 -- 创建初始日分区（今天和未来7天）
@@ -138,13 +138,13 @@ CREATE TABLE IF NOT EXISTS audit_logs (
     PRIMARY KEY (id, created_at)
 ) PARTITION BY RANGE (created_at);
 
-CREATE INDEX IF NOT EXISTS idx_audit_logs_user 
+CREATE INDEX IF NOT EXISTS idx_audit_logs_user
     ON audit_logs (user_id, created_at);
-CREATE INDEX IF NOT EXISTS idx_audit_logs_action 
+CREATE INDEX IF NOT EXISTS idx_audit_logs_action
     ON audit_logs (action, created_at);
-CREATE INDEX IF NOT EXISTS idx_audit_logs_resource 
+CREATE INDEX IF NOT EXISTS idx_audit_logs_resource
     ON audit_logs (resource_type, resource_id, created_at);
-CREATE INDEX IF NOT EXISTS idx_audit_logs_created 
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created
     ON audit_logs (created_at);
 
 -- 创建初始月分区
@@ -184,13 +184,13 @@ CREATE TABLE IF NOT EXISTS event_logs (
     PRIMARY KEY (id, created_at)
 ) PARTITION BY RANGE (created_at);
 
-CREATE INDEX IF NOT EXISTS idx_event_logs_type 
+CREATE INDEX IF NOT EXISTS idx_event_logs_type
     ON event_logs (event_type, created_at);
-CREATE INDEX IF NOT EXISTS idx_event_logs_user 
+CREATE INDEX IF NOT EXISTS idx_event_logs_user
     ON event_logs (user_id, created_at);
-CREATE INDEX IF NOT EXISTS idx_event_logs_session 
+CREATE INDEX IF NOT EXISTS idx_event_logs_session
     ON event_logs (session_id, created_at);
-CREATE INDEX IF NOT EXISTS idx_event_logs_created 
+CREATE INDEX IF NOT EXISTS idx_event_logs_created
     ON event_logs (created_at);
 
 -- 创建初始周分区
@@ -235,13 +235,13 @@ CREATE TABLE IF NOT EXISTS payment_transactions (
     PRIMARY KEY (id, created_at)
 ) PARTITION BY RANGE (created_at);
 
-CREATE INDEX IF NOT EXISTS idx_payment_transactions_user 
+CREATE INDEX IF NOT EXISTS idx_payment_transactions_user
     ON payment_transactions (user_id, created_at);
-CREATE INDEX IF NOT EXISTS idx_payment_transactions_order 
+CREATE INDEX IF NOT EXISTS idx_payment_transactions_order
     ON payment_transactions (order_id, created_at);
-CREATE INDEX IF NOT EXISTS idx_payment_transactions_status 
+CREATE INDEX IF NOT EXISTS idx_payment_transactions_status
     ON payment_transactions (status, created_at);
-CREATE INDEX IF NOT EXISTS idx_payment_transactions_created 
+CREATE INDEX IF NOT EXISTS idx_payment_transactions_created
     ON payment_transactions (created_at);
 
 -- 创建初始月分区
@@ -271,7 +271,7 @@ SELECT create_partition_if_not_exists(
 -- =====================================================
 
 CREATE OR REPLACE VIEW partition_stats AS
-SELECT 
+SELECT
     pc.relname AS parent_table,
     pt.relname AS partition_name,
     pg_relation_size(pt.oid) AS size_bytes,
@@ -302,14 +302,14 @@ DECLARE
     partition_name_str TEXT;
 BEGIN
     -- 遍历需要维护的表
-    FOR tbl IN 
+    FOR tbl IN
         SELECT unnest(ARRAY['catch_records', 'location_updates', 'audit_logs', 'event_logs', 'payment_transactions']) AS table_name
     LOOP
         -- 创建下个月的分区（示例：月分区）
         partition_start := date_trunc('month', CURRENT_TIMESTAMP + INTERVAL '1 month');
         partition_end := date_trunc('month', CURRENT_TIMESTAMP + INTERVAL '2 months');
         partition_name_str := tbl.table_name || '_' || to_char(partition_start, 'YYYY_MM');
-        
+
         BEGIN
             PERFORM create_partition_if_not_exists(
                 tbl.table_name,
@@ -317,14 +317,14 @@ BEGIN
                 partition_start,
                 partition_end
             );
-            
+
             RETURN QUERY SELECT tbl.table_name::TEXT, 'created'::TEXT, partition_name_str::TEXT, TRUE::BOOLEAN;
         EXCEPTION WHEN OTHERS THEN
             -- 分区已存在，忽略
             NULL;
         END;
     END LOOP;
-    
+
     RETURN;
 END;
 $$ LANGUAGE plpgsql;

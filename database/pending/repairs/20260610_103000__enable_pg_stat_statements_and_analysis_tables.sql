@@ -147,7 +147,7 @@ CREATE TABLE IF NOT EXISTS slow_query_cleanup_config (
 
 -- 插入默认配置
 INSERT INTO slow_query_cleanup_config (table_name, retention_days)
-VALUES 
+VALUES
     ('slow_query_log', 30),
     ('slow_query_history', 90),
     ('query_analysis_results', 60)
@@ -177,19 +177,19 @@ RETURNS void AS $$
 DECLARE
     config_record RECORD;
 BEGIN
-    FOR config_record IN 
+    FOR config_record IN
         SELECT * FROM slow_query_cleanup_config WHERE is_active = TRUE
     LOOP
         EXECUTE format('DELETE FROM %I WHERE recorded_at < NOW() - INTERVAL %L DAY',
             config_record.table_name,
             config_record.retention_days);
-        
-        UPDATE slow_query_cleanup_config 
-        SET last_cleanup_at = NOW() 
+
+        UPDATE slow_query_cleanup_config
+        SET last_cleanup_at = NOW()
         WHERE table_name = config_record.table_name;
-        
-        RAISE NOTICE 'Cleaned up table % with retention % days', 
-            config_record.table_name, 
+
+        RAISE NOTICE 'Cleaned up table % with retention % days',
+            config_record.table_name,
             config_record.retention_days;
     END LOOP;
 END;
@@ -200,7 +200,7 @@ $$ LANGUAGE plpgsql;
 -- =====================================================
 
 CREATE OR REPLACE VIEW v_slow_query_summary AS
-SELECT 
+SELECT
     query_id,
     LEFT(query_text, 100) as query_preview,
     COUNT(*) as log_count,
@@ -214,13 +214,13 @@ GROUP BY query_id, LEFT(query_text, 100)
 ORDER BY avg_mean_time DESC;
 
 CREATE OR REPLACE VIEW v_index_health AS
-SELECT 
+SELECT
     schema_name,
     table_name,
     index_name,
     index_scans,
     index_size_bytes,
-    CASE 
+    CASE
         WHEN index_scans = 0 THEN 'UNUSED'
         WHEN index_scans < 10 THEN 'RARELY_USED'
         WHEN index_scans < 100 THEN 'MODERATELY_USED'

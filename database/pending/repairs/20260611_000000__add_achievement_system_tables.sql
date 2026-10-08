@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS achievements (
     rewards JSONB NOT NULL,
     prerequisite_achievement_id VARCHAR(50),
     created_at TIMESTAMP DEFAULT NOW(),
-    
+
     FOREIGN KEY (prerequisite_achievement_id) REFERENCES achievements(achievement_id)
 );
 
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS user_achievements (
     rewards_claimed_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW(),
-    
+
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (achievement_id) REFERENCES achievements(achievement_id) ON DELETE CASCADE,
     UNIQUE(user_id, achievement_id)
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS achievement_progress_snapshots (
     total_points INTEGER DEFAULT 0,
     achievements_completed INTEGER DEFAULT 0,
     last_updated TIMESTAMP DEFAULT NOW(),
-    
+
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS achievement_events (
     event_data JSONB,
     processed BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT NOW(),
-    
+
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
@@ -71,7 +71,7 @@ CREATE TABLE IF NOT EXISTS user_titles (
     source_achievement_id VARCHAR(50),
     is_active BOOLEAN DEFAULT FALSE,
     unlocked_at TIMESTAMP DEFAULT NOW(),
-    
+
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (source_achievement_id) REFERENCES achievements(achievement_id) ON DELETE SET NULL,
     UNIQUE(user_id, title_id)

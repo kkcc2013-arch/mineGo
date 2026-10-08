@@ -1374,9 +1374,9 @@
         "database/pending/repairs/20260610_080000__add_ip_ban_system.sql": "2e5811df9812c7e3533fec115665884b00fa6e2f4abb6c9da5a74e07dd3f3104",
         "database/pending/repairs/20260609_124500__add_item_inventory_system.sql": "692f2f44415956fb836bcbfc2d999f0363b2c28dd2415a8f91e4158e986be8cc",
         "database/pending/20261008_140000__audit_partition_conversion.sql": "6341c87821de38f68340cbb952b0b393496b52793ddd1c225cb27c221f6b6eaf",
-        "database/pending/repairs/20260610_100000__add_table_partitioning_system.sql": "5e63737f951f64f9b505911a98ce9c645631fa02ff54405b2f579ed00b462451",
-        "database/pending/repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "491d8e25d371c1294e85f9700835abf394096b2575d815db76013e93cc149bba",
-        "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "1de7f3607f968aa7efa22893706ef373d95687165f6c11413622d72b45ea9aaa",
+        "database/pending/repairs/20260610_100000__add_table_partitioning_system.sql": "b4d42d6e9ce79b30d9bb65530e82f8a28fc10879ecfd8799b56aef959f98b87d",
+        "database/pending/repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "660c62531f86d2f8981163afbe85b50ec68bbe27269b840d7b7ea4dba64f0df4",
+        "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "6f9c323240e28aa67a4d54fccd7141b72f7d58f91607ae53568631b90cd0a2d9",
         "backend/tests/regression/audit-partition-storage.test.js": "ca14ed2db385322a889ad88b7d79c69410dbddf80b037a23ef4404e482cbed39"
       },
       "evidence": [
@@ -1495,6 +1495,19 @@
           "result": "partial_ci_passed",
           "scope": "Prior source confirmed terminal: main440/dependency248/privacy12/title-storage-native9 pass; migration2/contract365/API69/integration415/performance108/security398 fail; E2E102 cancelled. Current audit conversion batch CI pending. No full requirement accepted.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37721852002"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "node --test backend/tests/regression/audit-partition-storage.test.js backend/tests/regression/database-bootstrap.test.js",
+          "result": "partial_passed",
+          "passed": 24,
+          "failed": 1,
+          "scope": "After removing inherited trailing whitespace in three new repair copies, audit storage23 and fullV1/V2case pass. Full82history still fails only the achievement completed-column case. Original pending source files unchanged; refreshed only the tested repair-copy execution hashes.",
+          "changedReferences": [
+            "database/pending/repairs/20260610_100000__add_table_partitioning_system.sql",
+            "database/pending/repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql",
+            "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql"
+          ]
         }
       ],
       "remaining": "Full pending/history catalog reconciliation, achievement contracts, later duplicate partition migrations, whole-history upgrade/rollback, all-service startup and complete required CI acceptance remain unproven."
@@ -1650,9 +1663,9 @@
         "database/pending/20260610_100000__add_table_partitioning_system.sql": "9a7e7ae9946cdc45a2dbfb4c27e981cffba48d7699971902f88213f49dd80bac",
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20261008_140000__audit_partition_conversion.sql": "6341c87821de38f68340cbb952b0b393496b52793ddd1c225cb27c221f6b6eaf",
-        "database/pending/repairs/20260610_100000__add_table_partitioning_system.sql": "5e63737f951f64f9b505911a98ce9c645631fa02ff54405b2f579ed00b462451",
-        "database/pending/repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "491d8e25d371c1294e85f9700835abf394096b2575d815db76013e93cc149bba",
-        "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "1de7f3607f968aa7efa22893706ef373d95687165f6c11413622d72b45ea9aaa",
+        "database/pending/repairs/20260610_100000__add_table_partitioning_system.sql": "b4d42d6e9ce79b30d9bb65530e82f8a28fc10879ecfd8799b56aef959f98b87d",
+        "database/pending/repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "660c62531f86d2f8981163afbe85b50ec68bbe27269b840d7b7ea4dba64f0df4",
+        "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "6f9c323240e28aa67a4d54fccd7141b72f7d58f91607ae53568631b90cd0a2d9",
         "backend/tests/regression/audit-partition-storage.test.js": "ca14ed2db385322a889ad88b7d79c69410dbddf80b037a23ef4404e482cbed39"
       },
       "evidence": [
@@ -1696,6 +1709,19 @@
           "result": "partial_ci_passed",
           "scope": "Prior source confirmed terminal: main440/dependency248/privacy12/title-storage-native9 pass; migration2/contract365/API69/integration415/performance108/security398 fail; E2E102 cancelled. Current audit conversion batch CI pending. No full requirement accepted.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37721852002"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "node --test backend/tests/regression/audit-partition-storage.test.js backend/tests/regression/database-bootstrap.test.js",
+          "result": "partial_passed",
+          "passed": 24,
+          "failed": 1,
+          "scope": "After removing inherited trailing whitespace in three new repair copies, audit storage23 and fullV1/V2case pass. Full82history still fails only the achievement completed-column case. Original pending source files unchanged; refreshed only the tested repair-copy execution hashes.",
+          "changedReferences": [
+            "database/pending/repairs/20260610_100000__add_table_partitioning_system.sql",
+            "database/pending/repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql",
+            "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql"
+          ]
         }
       ],
       "remaining": "Full achievement and later pending-schema reconciliation, full-history upgrade/rollback, five real service data contracts, future partition scheduling, archive/restore/retention, Prometheus/statistics API, >=80% coverage, >=50% query improvement and remaining requirement-specific/all-service CI acceptance remain unproven."
@@ -1707,7 +1733,7 @@
       "sourceSha256": {
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260611_000000__add_achievement_system_tables.sql": "31e3714195d83afba17bafd85f3590ad51e30011831a5d0a1f5b4e8e5a00e302",
-        "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "1de7f3607f968aa7efa22893706ef373d95687165f6c11413622d72b45ea9aaa",
+        "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "6f9c323240e28aa67a4d54fccd7141b72f7d58f91607ae53568631b90cd0a2d9",
         "database/pending/repairs.json": "ec5f4dadac940a58daa78489c563e49cf90c8521cfb4a66c3b5be0097ba96d6c",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513"
       },
@@ -1716,6 +1742,17 @@
           "command": "node --test backend/tests/regression/database-bootstrap.test.js",
           "result": "failed",
           "scope": "Actual full production V1+V2/82pending run. Four achievement owner fields corrected from INTEGER to UUID by original-SHA-bound whole SQL repair. Execution advances to statement7 missing completed: existing V1 user_achievements has a different progress/definition contract. No HTTP/event/reward/client/performance acceptance."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "node --test backend/tests/regression/audit-partition-storage.test.js backend/tests/regression/database-bootstrap.test.js",
+          "result": "partial_passed",
+          "passed": 24,
+          "failed": 1,
+          "scope": "After removing inherited trailing whitespace in three new repair copies, audit storage23 and fullV1/V2case pass. Full82history still fails only the achievement completed-column case. Original pending source files unchanged; refreshed only the tested repair-copy execution hashes.",
+          "changedReferences": [
+            "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql"
+          ]
         }
       ],
       "remaining": "Unify existing achievement_definitions/current_value/current_tier and newer achievements/progress/target contracts while preserving users/progress/reward records and checking both old/new real service paths. Complete HTTP/event/reward concurrency/client/performance and every requirement acceptance item."
