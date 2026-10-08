@@ -505,3 +505,54 @@ No production deployment or user-data operation occurred. Next goal continuation
 fix gateway dependency configuration and lifecycle and run against a fully prepared
 production-compatible schema, then verify actual gateway/user route contracts. Progress
 was made; there is no blocked audit condition and the full goal remains active.
+
+
+## Persistent-goal continuation: native gateway lifecycle (2026-10-08)
+
+Confirmed 343ec57 pushed and working tree clean before implementation. Goal active;
+this turn makes substantive progress. Replaced detached gateway initialization and
+unowned HTTP listen with the existing ServiceLauncher lifecycle, preserving streaming
+proxy middleware order. Before listening: actual PG connectivity, configured Redis,
+then awaited IP manager initialization. Failure cleanup releases subscriptions, cache
+and PG/Redis resources; signal handlers drain HTTP before dependency cleanup. Removed
+a caller-supplied duplicate subscriber so the manager owns and closes its subscription.
+Cache cleanup interval now has a stored handle and is cleared on close. Warmup remains
+nonblocking and shutdown awaits its outcome before removing refresh timers.
+
+Business-events routes use the shared service-owned Redis client instead of a new
+default connection. REDIS_URL is honored before host/port defaults in the singleton
+and independent cache client. Global IP limiting uses the trusted resolved address;
+IP enforcement is now before every business/operational route, including routes that
+previously preceded the business proxy block. Warmup admin operations verify JWT/admin
+roles and parse their own body without consuming all proxy request streams.
+
+Gateway /health/live and /health/ready added; readiness rechecks actual PG, Redis, IP
+table accessibility and all named registry targets; preserves /health services shape.
+Unavailable services remain named, not '?'. No nonexistent Kafka check is claimed for
+a gateway that currently does not initialize/use Kafka itself. Other service/gateway
+admin authentication gaps and JWT revocation fail-open paths remain to be repaired.
+
+Evidence: Node20 npm test613 passes (95 standalone,133 battle,385 Jest/22 suites).
+Node24 actual storage/proxy/title/privacy tests33 pass (IP9,title13,privacy11).
+Native gateway CLI plus real user CLI scenario passes: absent IP schema prevents listen
+and naturally exits1; populated actual UUID users/title/IP DDL permits dependency-first
+listen; public check, invalid status token401, signed POST/status and stored canonical
+IP/user ownership work through production gateway. CIDR blocks business and operational
+routes, but appeals/health remain reachable; forged XFF/X-Real-IP cannot override identity.
+Warmup admin401/403/200 verifies actual role authentication. Renaming the IP table makes
+readiness/business503 while liveness200; stopping the actual user process makes named
+upstream checks unavailable. Gateway SIGTERM ~937ms, user SIGINT~5148ms including an
+outage probe, both natural code0 exit. Conflicting host/port with correct REDIS_URL
+works, including independent cache. Changing forged XFF each request still reaches
+global429. There are no unhandled ioredis/default-endpoint errors.
+
+Fixture contains only actual user/title/IP production DDL and explicit bootstrap;
+missing game warmup data remains reported as failedCount. Seven other registry targets
+point to the actual user fixture to test registry mechanics; their services are not
+accepted. REQ-00039 legacy done reopened: missing description_en in V1 species, full
+game data contracts, refresh correctness, coverage, <2s startup impact and cold-five-
+minute latency remain unverified. Req149/159/682 progress appended; full scopes remain
+open. Syntax1391 files zero errors, workflow YAML parses, diff whitespace clean.
+Targeted title/storage/process workflow now includes native gateway regression.
+No acceptance thresholds lowered, no full requirement promoted, no merge/deployment.
+Publication and new remote CI results pending. Goal stays active.

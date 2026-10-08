@@ -10,6 +10,9 @@ on:
       - 'backend/gateway/src/routes/ipAppealProxy.js'
       - 'backend/gateway/src/middleware/ipBan.js'
       - 'backend/tests/regression/user-startup.test.js'
+      - 'backend/tests/regression/gateway-startup.test.js'
+      - 'backend/gateway/src/index.js'
+      - 'backend/gateway/src/routes/businessEvents.js'
       - 'backend/package*.json'
       - 'database/pending/*title*.sql'
       - 'database/pending/*ip_ban*.sql'
@@ -72,6 +75,13 @@ jobs:
       - name: Verify actual user-service startup, health dependencies, HTTP and shutdown
         working-directory: backend
         run: npm run test:user:startup
+        env:
+          TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
+          TEST_REDIS_URL: redis://localhost:6379
+          TEST_KAFKA_BROKERS: localhost:9092
+      - name: Verify native gateway startup failure, readiness, IP appeals and signal shutdown
+        working-directory: backend
+        run: node --test tests/regression/gateway-startup.test.js
         env:
           TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
           TEST_REDIS_URL: redis://localhost:6379

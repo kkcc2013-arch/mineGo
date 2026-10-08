@@ -1,9 +1,9 @@
 # mineGo requirement completion plan
 
 Updated: 2026-10-08. Scope: all 658 existing requirement documents in INDEX.md,
-including the 206 legacy done declarations that still need independent acceptance.
+including the 205 legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 437 new, 15 in progress. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 437 new, 16 in progress. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -87,3 +87,24 @@ checks, 11 privacy checks and actual user-service process startup/appeal/shutdow
 Req-00075/00149 are reopened in progress. Full native gateway startup and remaining
 IP automatic-ban/admin/GeoIP/sync/UI acceptance stay open. Next: start and validate
 the real gateway, then continue the remaining route and production-schema contracts.
+
+
+## Native gateway batch result (2026-10-08)
+
+Actual gateway CLI now uses the shared lifecycle, waits for database/Redis/IP controls
+before binding, cleans up failed initialization and naturally exits on SIGTERM.
+Nonblocking warmup is tracked through shutdown; its cache cleanup timer is released.
+Shared Redis URL and host/port configurations work; business-event routes reuse the
+owned client. Global limiting uses the resolved client IP, and IP enforcement now
+precedes even operational/device/security routes. Warmup management verifies admin JWT.
+Readiness checks actual local dependencies and preserves names for unavailable peers;
+liveness stays up during dependency failure. Native tests include a real user process
+and actual UUID user/title/IP schema, Redis/Kafka, forwarded appeals and stored ownership.
+Other registry targets alias that actual user fixture, not seven completed services.
+
+613 unit checks, 33 actual storage/route checks and the native gateway/user process
+scenario pass locally. Gateway signal shutdown ~937ms; user ~5148ms includes the local
+subsequent outage probe, not a production SLO. REQ-00039 reopened in progress: game-table
+warmup, full production migration history, quantification and coverage remain open.
+Next: production-compatible game schema/warmup contracts and remaining user gateway
+routes/admin authorization, then other service startup. Related CI pending this batch.

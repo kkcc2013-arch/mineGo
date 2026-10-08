@@ -161,3 +161,12 @@ P1 优先级，理由如下：
 user-service 已使用这些钩子。当前是基础启动顺序修复；七种依赖容器、配置优先级、
 三服务迁移、health:check、85% 覆盖率、20% 启动时间和代码减少目标仍需实测验收。
 未将普通 CommonJS require 次数视为重复初始化次数，未声明性能目标达成。
+
+
+## 网关进程实施进展（2026-10-08）
+
+gateway 生命周期改用已有 ServiceLauncher，并保持网关流式代理和路由顺序。
+修复 businessEvents 私建默认 Redis 连接，使用服务持有的客户端；单节点 REDIS_URL
+优先于 host/port 默认值，缓存保留独立 DB 选择且正确释放定时器。真实 gateway
+CLI 测试验证 host/port 和冲突 host/port 下 URL 配置、初始化失败自然退出、
+依赖就绪顺序及信号关闭。未替代七种依赖容器/三服务迁移与量化性能验收。

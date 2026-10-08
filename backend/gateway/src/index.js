@@ -9,7 +9,12 @@ const { createProxyMiddleware } = require('./proxy');
 const swaggerUi    = require('swagger-ui-express');
 const YAML         = require('yamljs');
 const path         = require('path');
-const { verifyAccess } = require('@pmg/shared/auth');
+const { requireAuth, requireAdmin, errorHandler } = require('@pmg/shared/auth');
+const { ServiceLauncher } = require('@pmg/shared/ServiceLauncher');
+const HealthChecker = require('@pmg/shared/HealthChecker');
+const db = require('@pmg/shared/db');
+const redis = require('@pmg/shared/redis');
+const { getClientIp } = require('@pmg/shared/clientIp');
 const { createLogger, requestLogger } = require('@pmg/shared/logger');
 const metrics = require('@pmg/shared/metrics');
 const { authWithBlacklistMiddleware } = require('./middleware/jwtBlacklist');
@@ -97,7 +102,10 @@ const SERVICE_NAME = 'gateway';
 
 const app  = express();
 app.set('trust proxy', process.env.GATEWAY_TRUST_PROXY ? process.env.GATEWAY_TRUST_PROXY.split(',').map(value => value.trim()) : false);
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT === undefined ? 8080 : Number(process.env.PORT);
+const healthChecker = new HealthChecker({ serviceName: SERVICE_NAME });
+let ipManager;
+let warmupPromise;
 
 // ── Service registry ─────────────────────────────────────────
 const SERVICES = {
@@ -132,7 +140,7 @@ app.use(rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { code: 1007, message: '请求过于频繁，请稍后重试' },
-  keyGenerator: (req) => req.headers['x-forwarded-for'] || req.ip,
+  keyGenerator: getClientIp,
 }));
 
 // Request ID & Trace ID injection
@@ -152,6 +160,10 @@ app.use(metrics.httpMetricsMiddleware(SERVICE_NAME));
 
 // REQ-00072: API 响应压缩（在路由之前）
 app.use(createCompressionMiddleware());
+
+// Access control precedes every business and operational route.
+app.use(ipBanMiddleware);
+app.use(ipAccessLogMiddleware);
 
 // ── REQ-00044: API Version Middleware ────────────────────────────
 app.use(apiVersionMiddleware);
@@ -177,17 +189,29 @@ app.use('/api/events', businessEventsRoutes);
 app.use('/api/v1/autoscaling', autoscalingRoutes);
 
 // ── Health ────────────────────────────────────────────────────
-app.get('/health', async (_req, res) => {
-  const checks = await Promise.allSettled(
-    Object.entries(SERVICES).map(async ([name, url]) => {
-      const r = await fetch(`${url}/health`, { signal: AbortSignal.timeout(2000) });
-      return { name, status: r.ok ? 'up' : 'down' };
-    })
-  );
-  const services = checks.map(r => r.status === 'fulfilled' ? r.value : { name: '?', status: 'down' });
-  const allUp = services.every(s => s.status === 'up');
-  res.status(allUp ? 200 : 503).json({ gateway: 'ok', services });
-});
+healthChecker.register('database', () => db.query('SELECT 1').then(() => ({})), { critical: true, timeout: 2000 });
+healthChecker.register('redis', () => redis.getRedis().ping().then(() => ({})), { critical: true, timeout: 2000 });
+healthChecker.register('ipAccessControl', async () => {
+  if (!ipManager?.initialized) throw new Error('IP access control is not initialized');
+  // Connectivity alone cannot prove the access-control schema remains usable.
+  await db.query('SELECT ip_address FROM ip_blacklist LIMIT 0');
+  await db.query('SELECT ip_address FROM ip_whitelist LIMIT 0');
+}, { critical: true, timeout: 2000 });
+for (const [name, url] of Object.entries(SERVICES)) {
+  healthChecker.register(name, async () => {
+    const response = await fetch(`${url}/health`, { signal: AbortSignal.timeout(2000) });
+    if (!response.ok) throw new Error('Downstream service is unavailable');
+  }, { critical: true, timeout: 2500 });
+}
+app.get('/health/live', async (_req, res) => res.json(await healthChecker.livenessCheck()));
+async function healthReport(_req, res) {
+  const report = await healthChecker.runAllChecks();
+  const ready = report.status === 'healthy';
+  res.status(ready ? 200 : 503).json({ ...report, gateway: 'ok', status: ready ? 'ready' : 'not_ready',
+    services: Object.keys(SERVICES).map(name => ({ name, status: report.checks[name].status === 'healthy' ? 'up' : 'down' })) });
+}
+app.get('/health', healthReport);
+app.get('/health/ready', healthReport);
 
 // ── Metrics ────────────────────────────────────────────────────
 app.get('/metrics', async (req, res) => {
@@ -227,32 +251,7 @@ try {
 
 // ── Initialize Cache System (REQ-00031) ───────────────────────
 // ── Initialize Cache Warmup (REQ-00039) ───────────────────────
-const getRedis = require('@pmg/shared/redis').getRedis;
-
-(async () => {
-  try {
-    // 初始化缓存模块
-    cache.init({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: process.env.REDIS_PORT || 6379,
-      password: process.env.REDIS_PASSWORD
-    });
-    
-    logger.info('Cache system initialized');
-    
-    // 初始化缓存预热系统（非阻塞）
-    const redisClient = getRedis();
-    cacheWarmup.initialize({ redis: redisClient })
-      .then(result => {
-        logger.info({ itemsLoaded: result.itemsLoaded }, 'Cache warmup completed');
-      })
-      .catch(err => {
-        logger.error({ err }, 'Cache warmup failed, continuing without warm cache');
-      });
-  } catch (err) {
-    logger.error({ err }, 'Failed to initialize cache system');
-  }
-})();
+// Dependencies are initialized by the service lifecycle before listening.
 
 // ── Proxy factory ─────────────────────────────────────────────
 function proxy(target, pathRewrite) {
@@ -270,10 +269,6 @@ function proxy(target, pathRewrite) {
     },
   });
 }
-
-// IP access control must run before any business proxy can terminate the request.
-app.use(ipBanMiddleware);
-app.use(ipAccessLogMiddleware);
 
 // ── API Version Management (REQ-00044) ────────────────────────────
 // 版本信息 API
@@ -450,7 +445,7 @@ app.use('/v1/payment/webhook',
 
 // ── Cache Warmup Management API (REQ-00039) ────────────────────
 // 获取预热状态
-app.get('/admin/cache/warmup/status', async (req, res) => {
+app.get('/admin/cache/warmup/status', requireAuth, requireAdmin, async (req, res) => {
   try {
     const status = cacheWarmup.getStatus();
     res.json({ success: true, data: status });
@@ -461,7 +456,7 @@ app.get('/admin/cache/warmup/status', async (req, res) => {
 });
 
 // 手动触发预热
-app.post('/admin/cache/warmup/trigger', async (req, res) => {
+app.post('/admin/cache/warmup/trigger', requireAuth, requireAdmin, express.json({ limit: '1mb' }), async (req, res) => {
   try {
     const { name } = req.body;
     await cacheWarmup.triggerWarmup(name);
@@ -500,28 +495,50 @@ app.use('/api/time', timePeriodRoutes);
 
 // ── IP Ban System (REQ-00075) ────────────────────────────
 // 初始化 IP 封禁管理器
-(async () => {
-  try {
-    const redisClient = getRedis();
-    const ipManager = initIpBanManager({
-      db: require('@pmg/shared/db'),
-      redis: redisClient,
-      publisher: redisClient,
-      subscriber: redisClient.duplicate()
-    });
-    await ipManager.ready;
-    logger.info('IP Ban Manager initialized');
-  } catch (err) {
-    logger.error({ err }, 'Failed to initialize IP Ban Manager');
-  }
-})();
 
 
 // IP 封禁管理 API（管理员）
 app.use('/api/admin', ipBanAdminRoutes);
 
 // 404 fallback
+app.use(errorHandler);
 app.use((req, res) => res.status(404).json({ code: 1005, message: `路由不存在: ${req.method} ${req.path}`, data: null }));
 
-app.listen(PORT, () => logger.info({ port: PORT }, 'API Gateway started'));
-module.exports = app;
+// Preserve the gateway's streaming middleware and route order while sharing the
+// same initialization, listener draining and signal handling as other services.
+class GatewayLauncher extends ServiceLauncher {
+  createApp() { return app; }
+  finalizeApp() { return app; }
+}
+const service = new GatewayLauncher({
+  serviceName: SERVICE_NAME,
+  port: PORT,
+  onInitialize: async () => {
+    await db.query('SELECT 1');
+    const redisClient = redis.getRedis();
+    await redisClient.ping();
+    ipManager = initIpBanManager({ db, redis: redisClient, autoInitialize: false });
+    await ipManager.init();
+    cache.init();
+    // Warmup is optional and does not delay the listener. Shutdown awaits its
+    // outcome before removing refresh timers and releasing storage resources.
+    warmupPromise = cacheWarmup.initialize({ redis: redisClient }).catch(err => {
+      logger.error({ err }, 'Cache warmup failed, continuing without warm cache');
+    });
+  },
+  onShutdown: async () => {
+    await warmupPromise;
+    cacheWarmup.shutdown();
+    healthChecker.stopPeriodicCheck();
+    const results = await Promise.allSettled([
+      ipManager ? ipManager.close() : Promise.resolve(), cache.close(), db.closePools(), redis.closeRedis()
+    ]);
+    const failures = results.filter(result => result.status === 'rejected').map(result => result.reason);
+    if (failures.length) throw new AggregateError(failures, 'Gateway cleanup failed');
+  }
+});
+if (require.main === module) service.start().catch(err => {
+  logger.error({ err }, 'Failed to start gateway');
+  process.exitCode = 1;
+});
+module.exports = service;

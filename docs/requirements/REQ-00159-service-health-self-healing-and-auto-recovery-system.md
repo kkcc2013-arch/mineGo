@@ -754,3 +754,14 @@ spec:
 并发启动、请求排空、超时关闭、初始化期间关闭及重新启动。证据详见 WORKLOG.md。
 这不代表所有服务完整启动、Redis/Kafka/资源检查覆盖、自愈/隔离/渐进恢复、根因分析
 或线上指标已验收；原验收复选框保持未完成。
+
+
+## 网关进程实施进展（2026-10-08）
+
+gateway 使用共享 ServiceLauncher，启动按 database → Redis → IP 控制就绪 →
+HTTP 监听执行；提供 /health/live、/health/ready。就绪实际检查数据库、Redis、
+IP 表和具名的所有注册下游，保留原 /health services 字段；下游不可达不再丢失
+名字或误报 ready。初始化失败清理资源；信号关闭排空 HTTP、停止缓存定时器并
+释放订阅及连接池。真实 CLI 测试覆盖缺表、IP 表故障、实际下游退出、SIGTERM/
+SIGINT。fixture 中其它注册地址指向实际 user-service，仅验证注册/健康管线，
+不证明另外七个服务已完成。自愈率、故障隔离、渐进恢复及诊断时间目标仍开放。

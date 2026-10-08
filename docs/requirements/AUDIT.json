@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 206,
-      "in_progress": 15,
+      "done": 205,
+      "in_progress": 16,
       "new": 437
     },
     "priorityCounts": {
@@ -711,7 +711,7 @@
         "- [ ] 单元测试覆盖 NotificationManager 核心逻辑",
         "- [ ] 前端测试验证通知显示和交互"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/gym-service/src/index.js",
         "backend/services/user-service/src/handlers/notificationHandler.js",
@@ -1085,11 +1085,11 @@
       "id": "REQ-00039",
       "title": "REQ-00039：热点数据缓存预热系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "性能优化",
       "modules": "gateway、pokemon-service、location-service、backend/shared、Redis",
       "createdAt": "2026-06-08 23:05",
-      "sha256": "6eeb190b4b7470cf69b48e8f25e0921d426c177af9afe02facad3e0321b5374d",
+      "sha256": "b6be313ab0b1611e495be4a8a86eee54210caaa359f0b2dd978c097f556fa696",
       "acceptance": [
         "- [ ] 服务启动时自动预热热点数据（精灵图鉴、活动配置、稀有刷新点）",
         "- [ ] 冷启动后前 5 分钟平均延迟 < 100ms（相比之前 280ms 降低 65%+）",
@@ -1100,7 +1100,7 @@
         "- [ ] Prometheus 指标正确暴露：cache_warmup_total、cache_warmup_items_loaded",
         "- [ ] 单元测试覆盖预热核心逻辑（≥ 80% 覆盖率）"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/gateway/src/index.js",
         "backend/gateway/src/routes/cacheWarmup.js",
@@ -1573,7 +1573,7 @@
         "- [ ] 4 个 Prometheus 指标正常暴露",
         "- [ ] 单元测试覆盖率 ≥ 80%"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/services/user-service/src/routes/privacy.js",
@@ -2279,7 +2279,7 @@
         "- [ ] 单元测试覆盖率 >= 80%",
         "- [ ] 集成测试覆盖核心流程"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/gateway/src/index.js",
         "backend/gateway/src/middleware/ipBan.js",
@@ -3245,7 +3245,7 @@
         "- [ ] 单元测试覆盖率 > 80%",
         "- [ ] 性能测试：称号查询 < 50ms"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/services/user-service/src/routes/titles.js",
@@ -4387,7 +4387,7 @@
       "category": "集成与修复",
       "modules": "user-service、backend/services/user-service/src/index.js、backend/services/user-service/src/routes/ipAppeal.js",
       "createdAt": "2026-06-12 08:10",
-      "sha256": "30638e9d7a8afb460c10c302569b0feada0495dc770219a86efa272a77768fde",
+      "sha256": "1908c2353ef4f102148e015a49a26726f793d9b6daf1371ec6fb018f3f5f0bfb",
       "acceptance": [
         "- [ ] `node --check backend/services/user-service/src/index.js` 通过",
         "- [ ] `grep -n \"ipAppealRouter\" backend/services/user-service/src/index.js` 返回至少 1 行",
@@ -4396,7 +4396,7 @@
         "- [ ] 启动 user-service 后，`curl -sf http://localhost:8081/ip-appeal/status -H \"Authorization: Bearer invalid\"` 返回 401（认证端点）",
         "- [ ] `npm test --prefix backend/services/user-service` 通过（如有相关测试）"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js"
       ],
@@ -4688,7 +4688,7 @@
       "category": "容灾/高可用",
       "modules": "gateway、所有微服务、backend/shared、infrastructure/k8s",
       "createdAt": "2026-06-13 10:05",
-      "sha256": "6c4d7d1d6417e684d9fd2f7ce506ba17bd5958228c41495d7b5490413f8211cd",
+      "sha256": "702f723e90c498db5a6d23b2e986b96c749e92229580af3542fc6972344f5f4d",
       "acceptance": [
         "- [ ] **健康检查覆盖**",
         "- [ ] **自愈能力**",
@@ -4697,7 +4697,7 @@
         "- [ ] **根因分析**",
         "- [ ] **监控集成**"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/shared/ServiceHealthSelfHealing.js",
@@ -16330,7 +16330,7 @@
         "- [ ] 系统时区配置支持热更新，无需重启服务。",
         "- [ ] 完成跨时区业务场景的单元测试，覆盖 DST（夏令时）切换场景。"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/gateway/src/middleware/timezone.js",
         "backend/gateway/tests/middleware/timezone.test.js",
@@ -18290,7 +18290,7 @@
       "category": "技术债/重构",
       "modules": "backend/shared/config、backend/shared/dependencies、所有后端服务、gateway",
       "createdAt": "2026-07-20 20:05",
-      "sha256": "b0d70073391231edcf5ddfd293b97515807a5f98ae2b2d635accce7c90deddc9",
+      "sha256": "47013c4163012c1b6ea9d55b496c004b1e900b1b980e4192514dc78ee8b87490",
       "acceptance": [
         "- [ ] 创建 DependencyContainer 类，支持单例和工厂模式依赖注册",
         "- [ ] 实现至少 7 种核心依赖的统一初始化（logger/db/redis/kafka/cache/metrics/config）",
@@ -18301,7 +18301,7 @@
         "- [ ] 代码重复行数减少至少 200 行（通过代码统计验证）",
         "- [ ] 支持测试环境下依赖 mock 和替换"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [],
       "legacyId": "REQ-00619"
     },
