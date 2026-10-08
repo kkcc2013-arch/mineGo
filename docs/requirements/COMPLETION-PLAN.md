@@ -3,7 +3,7 @@
 Updated: 2026-10-08. Scope: all 658 existing requirement documents in INDEX.md,
 including the 198 legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 434 new, 26 in progress. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 433 new, 27 in progress. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -38,11 +38,12 @@ independent authorized work.
    checks; current published notification workflow passes. Provider/outbox/all publishers/
    full game/performance/UI acceptance remains open. Friendship UUID identity/history now
    passes20 real storage checks, and privacy consumer ordering passes actual CLI probes.
-4. Complete85-file history now reaches a catch_sessions/catch_timestamp conflict. Preserve
-   actual catch data/identity and service contracts, then continue later partitions/catalogs,
-   full history/rollback and all-service startup. Full migration/parser8 and combined actual
-   storage147 checks pass locally; complete history remains red. Continue original P0
-   service/security/game/client/quality/operations stages and audit all658 requirements.
+4. Actual catch-risk storage/recorder now passes34 real cases, preserving gameplay UUIDs
+   and binding outcomes to real owned throws. Complete85-file history reaches special-IV
+   created_at missing. Preserve canonical spawn/catch data, then continue later conflicts,
+   full history/rollback and all-service startup. Unit623/storage181/syntax1422 pass locally.
+   Complete risk APIs/security/classification/metrics/coverage and numerical targets remain
+   open. Continue all original P0/service/game/client/quality/operations stages.
 
 ## Definition of finished
 
@@ -230,3 +231,18 @@ resources/events/client/battle/evolution/coverage/numerical boundaries remain op
 Next: catch-session schema/history and later conflicts, full rollback/native services,
 then P0 authorization and all original plan stages. Persistent goal is active; progress,
 not a blocking condition. No production migration, merge or deployment.
+
+
+## Catch risk storage batch (2026-10-08)
+
+Gameplay UUID sessions/throws unchanged; distinctrisk telemetry uses actual owned throw
+outcomes and commits counters/observations atomically. Missingdata staysunknown; failures
+propagate; durable replay/unique evidence/concurrency and safe reversals pass34 realcases.
+Hourly upsert/weightednumericmean/eventtimebucket/nondecreasinglatesttime fixed. Old
+review's unevidencedsecurity/qualityapproval corrected; exactrequiredreview nowprovided.
+Finalunit623/storage181/syntax1422pass. InitialunchangedHTTP5stimeout recorded; isolated44
+and full623rerunpass withoutchanginglimits. Full85history nowfails special-IVcreated_at;
+V1/V2stillpasses. Req82started:198done27progress433new, independentlyverified0. Realcatch
+flow/APIs/security/classification/metrics/coverage/client/retention/numeric targets remain
+open in CATCH-RISK.md. Next special-IV/latermigration contracts thenfullhistory/rollback/
+allservice/P0security andeveryoriginalstage. Full658goalactive; genuineprogress.

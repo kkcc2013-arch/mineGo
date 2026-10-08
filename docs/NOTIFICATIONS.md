@@ -65,8 +65,9 @@ Use Node24 and an isolated PostGIS database through TEST_DATABASE_URL. Run:
 
 Combined migration/CLI/prerequisite/audit/achievement/notification storage:114 pass.
 Privacy/title/IP/native business:35 pass. Syntax1420 files passes. Full V1/V2 loads;
-all85 pending migrations still fail at 20260612_070000 statement6, because the actual
-catch_sessions table lacks catch_timestamp. Friendship identity/history and privacy
+all85 pending migrations still fail at 20260613_160000 statement17: the special-IV
+consumer references missing created_at. Catch-risk storage now passes its actual checks;
+see CATCH-RISK.md. Friendship identity/history and privacy
 consumer ordering now pass their storage checks; see FRIENDSHIP.md. All pending SQL rolls back. Canonical
 species key lookups and canary partial-index syntax are repaired, but the sample catalog
 lacks some intended evolution targets; zero seed rows is not evolution acceptance.

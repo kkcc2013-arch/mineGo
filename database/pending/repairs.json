@@ -105,6 +105,11 @@
       "sourceSha256": "fed6b42590f4829f4b474b9ddf840a08d7b8cce7b53bd502a0b9fe7417ec63d8",
       "file": "repairs/20260611_152900__add_privacy_preference_center.sql",
       "reason": "Run the existing additive policy/default prerequisite before the consumer; new optional preferences remain opt-in. Seed all legacy required fields from the original multilingual content/effective date and preserve existing policy versions on conflict."
+    },
+    "20260612_070000": {
+      "sourceSha256": "071c812b16b0f3bd90eb912c88d98d01c334d709a619ae0c5e7b26280869b926",
+      "file": "repairs/20260612_070000__add_catch_anomaly_detection_system.sql",
+      "reason": "Keep canonical UUID gameplay catch sessions/throws unchanged; use distinct owned risk-attempt records, real throw evidence and atomic hourly observations. Store original base-rate seeds as configuration rather than fabricated user statistics; refuse lossy rollback and unsupported preexisting risk schemas."
     }
   }
 }

@@ -79,9 +79,9 @@
         "database/pending/20260611_152900__add_privacy_preference_center.sql": "fed6b42590f4829f4b474b9ddf840a08d7b8cce7b53bd502a0b9fe7417ec63d8",
         "database/pending/repairs/20260611_152900__add_privacy_preference_center.sql": "ac250e1ee3e789b017f7a1c54ebee3488345068aca38ea6e93df70e64483c896",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
-        "docs/FRIENDSHIP.md": "1bcbb71bda74398e6e4b2e4c9bf87aa6372ffdb2c22f1603f5235d7cadab060d"
+        "docs/FRIENDSHIP.md": "7ace44fc7b3439ec404f0f7d1bbe4ca7c0e493cc81c0f453d458e6b4054e4e7a"
       },
       "evidence": [
         {
@@ -202,6 +202,23 @@
           "result": "passed",
           "tests": 15,
           "scope": "4actual prerequisite/CLI cases including2 new policy/order/new-default/preserved-choice checks;11 production privacy/storage/authorization cases. All85history fails later catch_sessions catch_timestamp; full privacy acceptance still open."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            "docs/FRIENDSHIP.md"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "9298ab58dca69c2eea94d196efe84d2e05fbff04",
+          "result": "partial_CI_passed_full_history_failed",
+          "scope": "All terminal: main445/dependency257/privacy17/title-native14/notification-browser2 pass. Migration7 parser8/CLI13/prerequisite4/audit23/achievement41/notification35/friendship20 steps pass, full85 fails catch_timestamp (job113273037341 logs inspected). Contract370/API74/performance113/integration420/security403 fail; E2E107 cancelled. Current catch source CI awaits publication.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37765798530"
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
@@ -321,7 +338,7 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27"
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052"
       },
       "evidence": [
         {
@@ -481,6 +498,15 @@
           "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
           "changedReferences": [
             "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
             "database/pending/repairs.json"
           ]
         }
@@ -507,7 +533,7 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27"
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052"
       },
       "evidence": [
         {
@@ -667,6 +693,15 @@
           "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
           "changedReferences": [
             "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
             "database/pending/repairs.json"
           ]
         }
@@ -696,7 +731,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27"
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052"
       },
       "evidence": [
         {
@@ -859,6 +894,15 @@
           "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
           "changedReferences": [
             "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
             "database/pending/repairs.json"
           ]
         }
@@ -888,7 +932,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27"
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052"
       },
       "evidence": [
         {
@@ -1053,6 +1097,15 @@
             "database/pending/dependencies.json",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1080,8 +1133,8 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
-        "docs/NOTIFICATIONS.md": "784069b7365014190fc6ab29fccd17f1da7fb425d0c0c380507cf64da10e5d0e",
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052",
+        "docs/NOTIFICATIONS.md": "067cc6f9d30b608585b2a9391e1ebc73a4b0ba407927e705fc2be89060900b40",
         "backend/services/user-service/src/notificationService.js": "9b1809ee37dcef1cc4794db12b5a0fc2f4df876ade8dab918b378eca07d75194",
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
         "backend/services/user-service/src/routes/notifications.js": "4118c13aa025d4fcfee1beb6ae7fe98f06568f62c99b0ff6bf464ec17fe28968",
@@ -1099,7 +1152,7 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
+        ".github/workflows/migration-regression.yml": "be2055122e65dd0ab4bddbabe9b8e6d0e5599d8fc166655df666e7d2ce77aef6",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
         "frontend/game-client/src/i18n/index.js": "37dd930d9f30e6f6b088ad74f669c7cecbd91f7937ccb84e685d1dbfe4fa2690",
@@ -1311,6 +1364,24 @@
           "result": "partial_CI_passed_full_history_failed",
           "scope": "Main444/dependency255/privacy16/title-native13/notification-browser1 pass. Migration6 parser8/CLI13/prerequisite2/audit23/achievement41/notification35 steps pass, full84history fails friendship pokemon_instance_id (job113264600706 actual logs inspected). Contract369/API73/performance112/integration419 fail; security402/E2E106 were still live at this snapshot. Current source CI pending publication.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37763259826"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            "docs/NOTIFICATIONS.md",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "9298ab58dca69c2eea94d196efe84d2e05fbff04",
+          "result": "partial_CI_passed_full_history_failed",
+          "scope": "All terminal: main445/dependency257/privacy17/title-native14/notification-browser2 pass. Migration7 parser8/CLI13/prerequisite4/audit23/achievement41/notification35/friendship20 steps pass, full85 fails catch_timestamp (job113273037341 logs inspected). Contract370/API74/performance113/integration420/security403 fail; E2E107 cancelled. Current catch source CI awaits publication.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37765798530"
         }
       ],
       "remainingAcceptance": [
@@ -1343,7 +1414,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27"
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052"
       },
       "evidence": [
         {
@@ -1463,6 +1534,15 @@
           "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
           "changedReferences": [
             "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
             "database/pending/repairs.json"
           ]
         }
@@ -1489,7 +1569,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27"
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052"
       },
       "evidence": [
         {
@@ -1611,6 +1691,15 @@
             "database/pending/dependencies.json",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1628,7 +1717,7 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27"
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052"
       },
       "evidence": [
         {
@@ -1707,6 +1796,15 @@
             "database/pending/dependencies.json",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1729,11 +1827,11 @@
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/regression/storageSetup.js": "1a67a27f674d7ef022e266da1ebbd5146870cdc290ebd64a51a799f5843ceaee",
-        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
-        "docs/DATABASE-MIGRATIONS.md": "3bba2407334d0de1cbc04872846ef45dd87b7e0c3e68500e6192ed894676fba3",
+        ".github/workflows/migration-regression.yml": "be2055122e65dd0ab4bddbabe9b8e6d0e5599d8fc166655df666e7d2ce77aef6",
+        "docs/DATABASE-MIGRATIONS.md": "2a94dd22b524f425f5186965d7364f152ffd65c03859f31a25c5244a985b75ea",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
@@ -1765,10 +1863,13 @@
         "docs/ACHIEVEMENTS.md": "09711c5508a55e25daaa1d2735281a7c35bae20e885c998d93bb3a5d17e8a08d",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
-        "docs/NOTIFICATIONS.md": "784069b7365014190fc6ab29fccd17f1da7fb425d0c0c380507cf64da10e5d0e",
+        "docs/NOTIFICATIONS.md": "067cc6f9d30b608585b2a9391e1ebc73a4b0ba407927e705fc2be89060900b40",
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
-        "docs/FRIENDSHIP.md": "1bcbb71bda74398e6e4b2e4c9bf87aa6372ffdb2c22f1603f5235d7cadab060d"
+        "docs/FRIENDSHIP.md": "7ace44fc7b3439ec404f0f7d1bbe4ca7c0e493cc81c0f453d458e6b4054e4e7a",
+        "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
+        "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
+        "docs/CATCH-RISK.md": "d6941be11f604ae59353b61665858f342d1a2130f1410a35f306d250b5716e90"
       },
       "evidence": [
         {
@@ -1968,6 +2069,32 @@
           "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
           "result": "partial_passed_full_history_failed",
           "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "database/pending/repairs.json",
+            "docs/NOTIFICATIONS.md",
+            "docs/FRIENDSHIP.md"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open."
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "9298ab58dca69c2eea94d196efe84d2e05fbff04",
+          "result": "partial_CI_passed_full_history_failed",
+          "scope": "All terminal: main445/dependency257/privacy17/title-native14/notification-browser2 pass. Migration7 parser8/CLI13/prerequisite4/audit23/achievement41/notification35/friendship20 steps pass, full85 fails catch_timestamp (job113273037341 logs inspected). Contract370/API74/performance113/integration420/security403 fail; E2E107 cancelled. Current catch source CI awaits publication.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37765798530"
         }
       ],
       "remaining": "Reconcile notification_history/message-center and later full catalog/partition dependencies, all pending/history upgrade and data-preserving rollback, all-service startup and complete required CI acceptance."
@@ -1980,15 +2107,15 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
-        "docs/DATABASE-MIGRATIONS.md": "3bba2407334d0de1cbc04872846ef45dd87b7e0c3e68500e6192ed894676fba3",
+        ".github/workflows/migration-regression.yml": "be2055122e65dd0ab4bddbabe9b8e6d0e5599d8fc166655df666e7d2ce77aef6",
+        "docs/DATABASE-MIGRATIONS.md": "2a94dd22b524f425f5186965d7364f152ffd65c03859f31a25c5244a985b75ea",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -2005,10 +2132,13 @@
         "database/pending/20260609_124500__add_item_inventory_system.sql": "99c96061defc0b502f87147c491889266f53b9e5c8ae8cfbdcdda6892c09969e",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
-        "docs/NOTIFICATIONS.md": "784069b7365014190fc6ab29fccd17f1da7fb425d0c0c380507cf64da10e5d0e",
+        "docs/NOTIFICATIONS.md": "067cc6f9d30b608585b2a9391e1ebc73a4b0ba407927e705fc2be89060900b40",
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
-        "docs/FRIENDSHIP.md": "1bcbb71bda74398e6e4b2e4c9bf87aa6372ffdb2c22f1603f5235d7cadab060d"
+        "docs/FRIENDSHIP.md": "7ace44fc7b3439ec404f0f7d1bbe4ca7c0e493cc81c0f453d458e6b4054e4e7a",
+        "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
+        "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
+        "docs/CATCH-RISK.md": "d6941be11f604ae59353b61665858f342d1a2130f1410a35f306d250b5716e90"
       },
       "evidence": [
         {
@@ -2083,6 +2213,25 @@
           "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
           "result": "partial_passed_full_history_failed",
           "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "docs/NOTIFICATIONS.md",
+            "docs/FRIENDSHIP.md"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open."
         }
       ]
     },
@@ -2094,15 +2243,15 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
-        "docs/DATABASE-MIGRATIONS.md": "3bba2407334d0de1cbc04872846ef45dd87b7e0c3e68500e6192ed894676fba3",
+        ".github/workflows/migration-regression.yml": "be2055122e65dd0ab4bddbabe9b8e6d0e5599d8fc166655df666e7d2ce77aef6",
+        "docs/DATABASE-MIGRATIONS.md": "2a94dd22b524f425f5186965d7364f152ffd65c03859f31a25c5244a985b75ea",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -2119,10 +2268,13 @@
         "database/pending/20260609_230000__add_pokedex_completion_reward_system.sql": "748e9a8a28b86517ec5a521008e2e4e66713f14cd252c497cd3cecae310f1bd3",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
-        "docs/NOTIFICATIONS.md": "784069b7365014190fc6ab29fccd17f1da7fb425d0c0c380507cf64da10e5d0e",
+        "docs/NOTIFICATIONS.md": "067cc6f9d30b608585b2a9391e1ebc73a4b0ba407927e705fc2be89060900b40",
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
-        "docs/FRIENDSHIP.md": "1bcbb71bda74398e6e4b2e4c9bf87aa6372ffdb2c22f1603f5235d7cadab060d"
+        "docs/FRIENDSHIP.md": "7ace44fc7b3439ec404f0f7d1bbe4ca7c0e493cc81c0f453d458e6b4054e4e7a",
+        "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
+        "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
+        "docs/CATCH-RISK.md": "d6941be11f604ae59353b61665858f342d1a2130f1410a35f306d250b5716e90"
       },
       "evidence": [
         {
@@ -2197,6 +2349,25 @@
           "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
           "result": "partial_passed_full_history_failed",
           "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "docs/NOTIFICATIONS.md",
+            "docs/FRIENDSHIP.md"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open."
         }
       ]
     },
@@ -2208,15 +2379,15 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
-        "docs/DATABASE-MIGRATIONS.md": "3bba2407334d0de1cbc04872846ef45dd87b7e0c3e68500e6192ed894676fba3",
+        ".github/workflows/migration-regression.yml": "be2055122e65dd0ab4bddbabe9b8e6d0e5599d8fc166655df666e7d2ce77aef6",
+        "docs/DATABASE-MIGRATIONS.md": "2a94dd22b524f425f5186965d7364f152ffd65c03859f31a25c5244a985b75ea",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -2247,10 +2418,13 @@
         "docs/ACHIEVEMENTS.md": "09711c5508a55e25daaa1d2735281a7c35bae20e885c998d93bb3a5d17e8a08d",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
-        "docs/NOTIFICATIONS.md": "784069b7365014190fc6ab29fccd17f1da7fb425d0c0c380507cf64da10e5d0e",
+        "docs/NOTIFICATIONS.md": "067cc6f9d30b608585b2a9391e1ebc73a4b0ba407927e705fc2be89060900b40",
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
-        "docs/FRIENDSHIP.md": "1bcbb71bda74398e6e4b2e4c9bf87aa6372ffdb2c22f1603f5235d7cadab060d"
+        "docs/FRIENDSHIP.md": "7ace44fc7b3439ec404f0f7d1bbe4ca7c0e493cc81c0f453d458e6b4054e4e7a",
+        "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
+        "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
+        "docs/CATCH-RISK.md": "d6941be11f604ae59353b61665858f342d1a2130f1410a35f306d250b5716e90"
       },
       "evidence": [
         {
@@ -2373,6 +2547,25 @@
           "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
           "result": "partial_passed_full_history_failed",
           "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "docs/NOTIFICATIONS.md",
+            "docs/FRIENDSHIP.md"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open."
         }
       ],
       "remaining": "Later duplicate partition/history conflicts and whole-history data-preserving upgrade/rollback, all five actual service contracts, dynamic future scheduling, archive/restore/retention/metrics/statistics API, >=80% coverage and >=50% query improvement remain open."
@@ -2385,7 +2578,7 @@
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260611_000000__add_achievement_system_tables.sql": "31e3714195d83afba17bafd85f3590ad51e30011831a5d0a1f5b4e8e5a00e302",
         "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "6f9c323240e28aa67a4d54fccd7141b72f7d58f91607ae53568631b90cd0a2d9",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "database/pending/20261008_150000__achievement_catalog_bridge.sql": "432a090e79626102f6cff413f6bc844c7617bd0c2cc1346899f95fa1b801e04f",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
@@ -2395,15 +2588,18 @@
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "backend/services/user-service/src/routes/user.js": "7d24fb40cd0662c428a6b42c2bf6636a2a3ac05fdcdc5e8717d1df5a1dbf04df",
         "backend/tests/regression/achievement-storage.test.js": "4983c1a41d7e40fd86bcb29cd59765555c2ff0f10030044ca5b75ee435a4b90b",
-        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
+        ".github/workflows/migration-regression.yml": "be2055122e65dd0ab4bddbabe9b8e6d0e5599d8fc166655df666e7d2ce77aef6",
         "docs/ACHIEVEMENTS.md": "09711c5508a55e25daaa1d2735281a7c35bae20e885c998d93bb3a5d17e8a08d",
-        "docs/DATABASE-MIGRATIONS.md": "3bba2407334d0de1cbc04872846ef45dd87b7e0c3e68500e6192ed894676fba3",
+        "docs/DATABASE-MIGRATIONS.md": "2a94dd22b524f425f5186965d7364f152ffd65c03859f31a25c5244a985b75ea",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
-        "docs/NOTIFICATIONS.md": "784069b7365014190fc6ab29fccd17f1da7fb425d0c0c380507cf64da10e5d0e",
+        "docs/NOTIFICATIONS.md": "067cc6f9d30b608585b2a9391e1ebc73a4b0ba407927e705fc2be89060900b40",
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
-        "docs/FRIENDSHIP.md": "1bcbb71bda74398e6e4b2e4c9bf87aa6372ffdb2c22f1603f5235d7cadab060d"
+        "docs/FRIENDSHIP.md": "7ace44fc7b3439ec404f0f7d1bbe4ca7c0e493cc81c0f453d458e6b4054e4e7a",
+        "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
+        "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
+        "docs/CATCH-RISK.md": "d6941be11f604ae59353b61665858f342d1a2130f1410a35f306d250b5716e90"
       },
       "evidence": [
         {
@@ -2487,6 +2683,25 @@
           "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
           "result": "partial_passed_full_history_failed",
           "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "docs/NOTIFICATIONS.md",
+            "docs/FRIENDSHIP.md"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open."
         }
       ],
       "remaining": "Replay/idempotency/durable events/automatic grant/all triggers; complete seed item/title contract and exclusive Pokemon grant; management CRUD/admin and edited-definition snapshot policy; old unit fixture; native pokemon process/gateway/client/localization; <100ms query/<50ms update performance; full83 history and data-preserving reversal with modern records remain unproven."
@@ -2542,10 +2757,28 @@
           "result": "partial_CI_passed_full_history_failed",
           "scope": "Main444/dependency255/privacy16/title-native13/notification-browser1 pass. Migration6 parser8/CLI13/prerequisite2/audit23/achievement41/notification35 steps pass, full84history fails friendship pokemon_instance_id (job113264600706 actual logs inspected). Contract369/API73/performance112/integration419 fail; security402/E2E106 were still live at this snapshot. Current source CI pending publication.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37763259826"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
+            "docs/NOTIFICATIONS.md",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "9298ab58dca69c2eea94d196efe84d2e05fbff04",
+          "result": "partial_CI_passed_full_history_failed",
+          "scope": "All terminal: main445/dependency257/privacy17/title-native14/notification-browser2 pass. Migration7 parser8/CLI13/prerequisite4/audit23/achievement41/notification35/friendship20 steps pass, full85 fails catch_timestamp (job113273037341 logs inspected). Contract370/API74/performance113/integration420/security403 fail; E2E107 cancelled. Current catch source CI awaits publication.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37765798530"
         }
       ],
       "sourceSha256": {
-        "docs/NOTIFICATIONS.md": "784069b7365014190fc6ab29fccd17f1da7fb425d0c0c380507cf64da10e5d0e",
+        "docs/NOTIFICATIONS.md": "067cc6f9d30b608585b2a9391e1ebc73a4b0ba407927e705fc2be89060900b40",
         "backend/services/user-service/src/notificationService.js": "9b1809ee37dcef1cc4794db12b5a0fc2f4df876ade8dab918b378eca07d75194",
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
         "backend/services/user-service/src/routes/notifications.js": "4118c13aa025d4fcfee1beb6ae7fe98f06568f62c99b0ff6bf464ec17fe28968",
@@ -2567,9 +2800,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
+        ".github/workflows/migration-regression.yml": "be2055122e65dd0ab4bddbabe9b8e6d0e5599d8fc166655df666e7d2ce77aef6",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -2642,10 +2875,28 @@
           "result": "partial_CI_passed_full_history_failed",
           "scope": "Main444/dependency255/privacy16/title-native13/notification-browser1 pass. Migration6 parser8/CLI13/prerequisite2/audit23/achievement41/notification35 steps pass, full84history fails friendship pokemon_instance_id (job113264600706 actual logs inspected). Contract369/API73/performance112/integration419 fail; security402/E2E106 were still live at this snapshot. Current source CI pending publication.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37763259826"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
+            "docs/NOTIFICATIONS.md",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "9298ab58dca69c2eea94d196efe84d2e05fbff04",
+          "result": "partial_CI_passed_full_history_failed",
+          "scope": "All terminal: main445/dependency257/privacy17/title-native14/notification-browser2 pass. Migration7 parser8/CLI13/prerequisite4/audit23/achievement41/notification35/friendship20 steps pass, full85 fails catch_timestamp (job113273037341 logs inspected). Contract370/API74/performance113/integration420/security403 fail; E2E107 cancelled. Current catch source CI awaits publication.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37765798530"
         }
       ],
       "sourceSha256": {
-        "docs/NOTIFICATIONS.md": "784069b7365014190fc6ab29fccd17f1da7fb425d0c0c380507cf64da10e5d0e",
+        "docs/NOTIFICATIONS.md": "067cc6f9d30b608585b2a9391e1ebc73a4b0ba407927e705fc2be89060900b40",
         "backend/services/user-service/src/notificationService.js": "9b1809ee37dcef1cc4794db12b5a0fc2f4df876ade8dab918b378eca07d75194",
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
         "backend/services/user-service/src/routes/notifications.js": "4118c13aa025d4fcfee1beb6ae7fe98f06568f62c99b0ff6bf464ec17fe28968",
@@ -2667,9 +2918,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
+        ".github/workflows/migration-regression.yml": "be2055122e65dd0ab4bddbabe9b8e6d0e5599d8fc166655df666e7d2ce77aef6",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -2742,10 +2993,28 @@
           "result": "partial_CI_passed_full_history_failed",
           "scope": "Main444/dependency255/privacy16/title-native13/notification-browser1 pass. Migration6 parser8/CLI13/prerequisite2/audit23/achievement41/notification35 steps pass, full84history fails friendship pokemon_instance_id (job113264600706 actual logs inspected). Contract369/API73/performance112/integration419 fail; security402/E2E106 were still live at this snapshot. Current source CI pending publication.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37763259826"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
+            "docs/NOTIFICATIONS.md",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "9298ab58dca69c2eea94d196efe84d2e05fbff04",
+          "result": "partial_CI_passed_full_history_failed",
+          "scope": "All terminal: main445/dependency257/privacy17/title-native14/notification-browser2 pass. Migration7 parser8/CLI13/prerequisite4/audit23/achievement41/notification35/friendship20 steps pass, full85 fails catch_timestamp (job113273037341 logs inspected). Contract370/API74/performance113/integration420/security403 fail; E2E107 cancelled. Current catch source CI awaits publication.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37765798530"
         }
       ],
       "sourceSha256": {
-        "docs/NOTIFICATIONS.md": "784069b7365014190fc6ab29fccd17f1da7fb425d0c0c380507cf64da10e5d0e",
+        "docs/NOTIFICATIONS.md": "067cc6f9d30b608585b2a9391e1ebc73a4b0ba407927e705fc2be89060900b40",
         "backend/services/user-service/src/notificationService.js": "9b1809ee37dcef1cc4794db12b5a0fc2f4df876ade8dab918b378eca07d75194",
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
         "backend/services/user-service/src/routes/notifications.js": "4118c13aa025d4fcfee1beb6ae7fe98f06568f62c99b0ff6bf464ec17fe28968",
@@ -2767,9 +3036,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
+        ".github/workflows/migration-regression.yml": "be2055122e65dd0ab4bddbabe9b8e6d0e5599d8fc166655df666e7d2ce77aef6",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -2798,12 +3067,15 @@
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
-        "docs/FRIENDSHIP.md": "1bcbb71bda74398e6e4b2e4c9bf87aa6372ffdb2c22f1603f5235d7cadab060d"
+        ".github/workflows/migration-regression.yml": "be2055122e65dd0ab4bddbabe9b8e6d0e5599d8fc166655df666e7d2ce77aef6",
+        "docs/FRIENDSHIP.md": "7ace44fc7b3439ec404f0f7d1bbe4ca7c0e493cc81c0f453d458e6b4054e4e7a",
+        "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
+        "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
+        "docs/CATCH-RISK.md": "d6941be11f604ae59353b61665858f342d1a2130f1410a35f306d250b5716e90"
       },
       "evidence": [
         {
@@ -2820,6 +3092,30 @@
           "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
           "passed": 1,
           "failed": 1
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/FRIENDSHIP.md"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open."
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "9298ab58dca69c2eea94d196efe84d2e05fbff04",
+          "result": "partial_CI_passed_full_history_failed",
+          "scope": "All terminal: main445/dependency257/privacy17/title-native14/notification-browser2 pass. Migration7 parser8/CLI13/prerequisite4/audit23/achievement41/notification35/friendship20 steps pass, full85 fails catch_timestamp (job113273037341 logs inspected). Contract370/API74/performance113/integration420/security403 fail; E2E107 cancelled. Current catch source CI awaits publication.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37765798530"
         }
       ],
       "date": "2026-10-08",
@@ -2841,12 +3137,15 @@
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
         "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
-        "docs/FRIENDSHIP.md": "1bcbb71bda74398e6e4b2e4c9bf87aa6372ffdb2c22f1603f5235d7cadab060d"
+        ".github/workflows/migration-regression.yml": "be2055122e65dd0ab4bddbabe9b8e6d0e5599d8fc166655df666e7d2ce77aef6",
+        "docs/FRIENDSHIP.md": "7ace44fc7b3439ec404f0f7d1bbe4ca7c0e493cc81c0f453d458e6b4054e4e7a",
+        "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
+        "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
+        "docs/CATCH-RISK.md": "d6941be11f604ae59353b61665858f342d1a2130f1410a35f306d250b5716e90"
       },
       "evidence": [
         {
@@ -2863,6 +3162,30 @@
           "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
           "passed": 1,
           "failed": 1
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/FRIENDSHIP.md"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Complete unit rerun; actual CLI/prerequisite/audit/achievement/notification/friendship/privacy/catch-risk storage; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open."
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "9298ab58dca69c2eea94d196efe84d2e05fbff04",
+          "result": "partial_CI_passed_full_history_failed",
+          "scope": "All terminal: main445/dependency257/privacy17/title-native14/notification-browser2 pass. Migration7 parser8/CLI13/prerequisite4/audit23/achievement41/notification35/friendship20 steps pass, full85 fails catch_timestamp (job113273037341 logs inspected). Contract370/API74/performance113/integration420/security403 fail; E2E107 cancelled. Current catch source CI awaits publication.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37765798530"
         }
       ],
       "date": "2026-10-08",
@@ -2875,6 +3198,77 @@
         "At least8 real evolution rules and atomic execution; actual gym bonuses",
         "Both client contracts, actual metrics/coverage80/85% and all numeric user targets",
         "Complete85migration history/upgrades/data-preserving rollback and relevant CI"
+      ]
+    },
+    "REQ-00082-catch-success-anomaly-detection-system.md": {
+      "date": "2026-10-08",
+      "status": "partial_verified_full_history_failed",
+      "documentSha256": "1b8f5000c786f9446e14bdc65febc7965f4ee516e6d46af2d8663e8989f32608",
+      "sourceSha256": {
+        "backend/shared/catchAnomalyDetector.js": "6aeee5e229cd3595ed314da01e4c4614d1bbfc0603e3d078e298129317d0d600",
+        "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
+        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
+        "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
+        "database/pending/20260612_070000__add_catch_anomaly_detection_system.sql": "071c812b16b0f3bd90eb912c88d98d01c334d709a619ae0c5e7b26280869b926",
+        "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
+        "database/pending/repairs.json": "c34bf64a091057abf3dd98b9aa73fa92d6327d6667016cb605e95be763126052",
+        ".github/workflows/migration-regression.yml": "be2055122e65dd0ab4bddbabe9b8e6d0e5599d8fc166655df666e7d2ce77aef6",
+        "docs/CATCH-RISK.md": "d6941be11f604ae59353b61665858f342d1a2130f1410a35f306d250b5716e90",
+        "docs/review/REQ-00082-catch-success-anomaly-detection-review.md": "76b74356f1d4b2745e8d4029639e2cb0ac5101d789d6c6c699b35fb2b3aa11a9",
+        "docs/review/REQ-00082-catch-success-anomaly-detection-system-review.md": "91b9a7a16ae6203eac69695669ad3eed471d75d13259a44cd7b98a59f044e19c"
+      },
+      "evidence": [
+        {
+          "date": "2026-10-08",
+          "command": "node --test backend/tests/regression/catch-risk-storage.test.js",
+          "result": "passed",
+          "tests": 34,
+          "scope": "Actual V1/PostGIS and production CatchRiskEngine/Analyzer storage; gameplay UUID rows/keys/FKs/OIDs/views preserved, real owned throw evidence, immutable updates, durable replay/concurrency, rollback of telemetry/counters/hourly stats, weighted numeric observations, late-event hours/latest-time monotonicity and guarded reversal. Fixtures provide risk decisions; classifier accuracy/security/API coverage are not accepted."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test --prefix backend (initial full run)",
+          "result": "failed",
+          "scope": "622pass/1fail: unchanged performanceRegressionTester actual HTTP fixture exceeded original5s test limit. No threshold/timeout change made."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "jest --runInBand --config backend/tests/regression/jest.config.json --runTestsByPath backend/tests/unit/performanceRegressionTester.test.js",
+          "result": "passed",
+          "tests": 44,
+          "scope": "Same unchanged HTTP test suite and original5s limit after the initial failure; no performance-SLO acceptance inferred."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test --prefix backend (final full rerun)",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "tests": 623
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Combined actual storage suites",
+          "result": "partial_passed_full_history_failed",
+          "scope": "Final623 unit and181 actual storage checks pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy+34catch-risk). Initial unchanged HTTP5s test timed out; isolated44 and full623 reruns pass without relaxed limits. V1/V2 passes; complete85history fails special-IV created_at. Shared repair/workflow/documentation hashes refreshed only for matching storage/runner slices; full features/service/quality acceptance remains open.",
+          "tests": 181
+        },
+        {
+          "date": "2026-10-08",
+          "command": "node --test backend/tests/regression/database-bootstrap.test.js",
+          "result": "failed",
+          "passed": 1,
+          "failed": 1,
+          "scope": "FullV1/V2 passes. All85pending source/repaired history reaches20260613_160000 statement17 created_at missing; entire pending batch rolls back. No migration is skipped."
+        }
+      ],
+      "remainingAcceptance": [
+        "Native catch-service/gateway flow integration and all six authenticated/owned/admin APIs",
+        "Secure mandatory signing/nonces, real location/inventory/item/device validation and replay prevention",
+        "True sliding windows, scoring/Bayesian/stratification policy and failure-closed admission",
+        "Shared metrics registry/five real metrics, original unit fixtures and80% full coverage",
+        "Client/audit/reporting, deletion/retention/GDPR and historical timezone reconciliation",
+        "Measured <50ms/99.9%/90%blocking/0.5%false-positive original targets with real datasets",
+        "Complete85history/data-preserving upgrades/rollback and current relevant CI"
       ]
     }
   }

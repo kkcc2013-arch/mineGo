@@ -15,6 +15,8 @@ on:
       - 'backend/tests/regression/achievement-storage.test.js'
       - 'backend/tests/regression/notification-storage.test.js'
       - 'backend/tests/regression/friendship-storage.test.js'
+      - 'backend/tests/regression/catch-risk-storage.test.js'
+      - 'backend/shared/catchAnomalyDetector.js'
       - 'backend/services/user-service/src/notificationService.js'
       - 'backend/services/user-service/src/routes/messageCenter.js'
       - 'backend/services/user-service/src/routes/notifications.js'
@@ -85,6 +87,11 @@ jobs:
       - name: Verify UUID trainer bonds, affinity projections, positive/negative history and guarded rollback
         working-directory: backend
         run: node --test tests/regression/friendship-storage.test.js
+        env:
+          TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
+      - name: Verify gameplay catch identity, actual throw evidence and durable risk statistics
+        working-directory: backend
+        run: node --test tests/regression/catch-risk-storage.test.js
         env:
           TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
       - name: Verify complete fresh production schema, seeding and pending migration history

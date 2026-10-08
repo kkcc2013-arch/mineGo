@@ -5,8 +5,8 @@
     "uniqueIds": 658,
     "declaredStatusCounts": {
       "done": 198,
-      "in_progress": 26,
-      "new": 434
+      "in_progress": 27,
+      "new": 433
     },
     "priorityCounts": {
       "P0": 52,
@@ -2511,11 +2511,11 @@
       "id": "REQ-00082",
       "title": "REQ-00082：精灵捕捉成功率异常检测系统",
       "priority": "P1",
-      "declaredStatus": "new",
+      "declaredStatus": "in_progress",
       "category": "反作弊",
       "modules": "catch-service、gateway、backend/shared/anti-cheat.js、Redis、PostgreSQL",
       "createdAt": "2026-06-10 07:00",
-      "sha256": "3c86affe0eb8fa28125ad06b6d341a0499814a916b6375d6173aebc43d545cd9",
+      "sha256": "1b8f5000c786f9446e14bdc65febc7965f4ee516e6d46af2d8663e8989f32608",
       "acceptance": [
         "- [ ] 捕捉成功率异常检测模块已实现，支持按稀有度、道具、玩家分级统计",
         "- [ ] 数据完整性验证系统已实现，请求签名验证成功率 99.9%+",
@@ -2530,12 +2530,14 @@
         "- [ ] 已集成到 catch-service，捕捉流程已接入风控检查",
         "- [ ] 异常捕捉阻止率 ≥ 90%，误判率 ≤ 0.5%"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_verified_full_history_failed",
       "implementationReferences": [
         "backend/shared/catchAnomalyDetector.js",
+        "backend/tests/regression/catch-risk-storage.test.js",
         "backend/tests/unit/catch-anomaly-detector.test.js",
         "database/migrations/20260630140000__catch_success_anomaly_detection_system.sql",
-        "database/pending/20260612_070000__add_catch_anomaly_detection_system.sql"
+        "database/pending/20260612_070000__add_catch_anomaly_detection_system.sql",
+        "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql"
       ],
       "legacyId": null
     },

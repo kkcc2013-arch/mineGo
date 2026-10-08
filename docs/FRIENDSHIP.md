@@ -55,8 +55,9 @@ Set TEST_DATABASE_URL to an isolated PostGIS database and use Node24:
   including privacy CLI ordering and preservation described below.
 - npm run test:migrations:unit --prefix backend:8 parser/graph checks.
 - node --test backend/tests/regression/database-bootstrap.test.js:V1/V2 passes;
-  complete85 pending history fails at20260612_070000 statement6, because the existing
-  catch_sessions contract lacks catch_timestamp. The pending batch rolls back.
+  complete85 pending history fails at20260613_160000 statement17: the special-IV
+  consumer references missing created_at. Catch-risk storage now passes34 actual checks;
+  see CATCH-RISK.md. The pending batch rolls back.
 
 Combined actual CLI/prerequisite/audit/achievement/notification/friendship/privacy
 storage checks:147 pass. The final friendship subset is repeated after preserving the

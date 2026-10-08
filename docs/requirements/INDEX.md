@@ -87,7 +87,7 @@
 | [REQ-00079](REQ-00079-pokemon-friendship-and-affinity-system.md) | 精灵好感度系统与亲密度进化机制 | 功能增强 | P1 | in_progress | pokemon-service、user-service、catch-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 11:00 |
 | [REQ-00080](REQ-00080-api-request-response-schema-validation-system.md) | API 请求响应 Schema 验证系统 | API 设计规范 | P1 | done | gateway、backend/shared、所有微服务、docs/api-spec/openapi | 2026-06-10 05:00 |
 | [REQ-00081](REQ-00081-catch-animation-effects-system.md) | 捕捉动画特效系统 | 前端体验 | P1 | done | game-client、frontend/effects、catch-service | 2026-06-10 06:00 |
-| [REQ-00082](REQ-00082-catch-success-anomaly-detection-system.md) | 精灵捕捉成功率异常检测系统 | 反作弊 | P1 | new | catch-service、gateway、backend/shared/anti-cheat.js、Redis、PostgreSQL | 2026-06-10 07:00 |
+| [REQ-00082](REQ-00082-catch-success-anomaly-detection-system.md) | 精灵捕捉成功率异常检测系统 | 反作弊 | P1 | in_progress | catch-service、gateway、backend/shared/anti-cheat.js、Redis、PostgreSQL | 2026-06-10 07:00 |
 | [REQ-00083](REQ-00083-region-based-content-delivery-system.md) | 区域化内容分发与地区专属活动管理系统 | 国际化/本地化 | P1 | done | location-service、reward-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-10 08:15 |
 | [REQ-00084](REQ-00084-database-connection-pool-monitoring-adaptive-scaling.md) | 数据库连接池监控与自适应扩缩容系统 | 成本/资源优化 | P1 | done | gateway、所有微服务、backend/shared、PostgreSQL、infrastructure/k8s | 2026-06-10 09:00 |
 | [REQ-00085](REQ-00085-config-center-and-hot-reload-system.md) | 配置中心与动态配置热更新系统 | 技术债/重构 | P1 | new | gateway、所有微服务、backend/shared、Redis、infrastructure/k8s | 2026-06-10 09:00 |
