@@ -50,15 +50,15 @@
     },
     "REQ-00053-user-privacy-preference-center-data-transparency.md": {
       "date": "2026-10-07",
-      "status": "partial_ci_verified",
+      "status": "partial_local_verified_ci_pending",
       "documentSha256": "9015d8979ec52a2d3f6b298b9c318db1954f2f5221106901a8823514546a7dd5",
       "sourceSha256": {
         "backend/shared/privacyPreferences.js": "28f8aebc2d5cf55c827ef1e5c597f79caaca688a88749a058dfd3afc2819311b",
         "backend/shared/auditLog.js": "5f460a3ffb941b1737ff6561d90e96a2d3aa5bca3f0bc8c5351293e2d9227112",
         "backend/services/user-service/src/routes/privacy.js": "b85dbeb358a76c6b8bcd163f86f4ab9bb8f576f0fd6008615b2022e4ddb9e487",
-        "backend/services/user-service/src/index.js": "9f0a7fbcf690a91d6444f0afc3e593a8b89bc0cca06ec52b2f21e3201cb6de3a",
+        "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
         "backend/gateway/src/routes/privacyProxy.js": "b692098d7858fc7069cd5a557f941f164ec9f2d00667623a1b51ee665a19a483",
-        "backend/gateway/src/index.js": "97e9f6bdbebf3faf12a5adfd2c9b29cbacf8195e7155f31176a602ba34978074",
+        "backend/gateway/src/index.js": "74c6d315044decb11629b77bb325b885e74486403f21143bc170dae80217cb1b",
         "backend/tests/unit/privacy-preferences.test.js": "71a1470f27d923319bfbb73ba9f7b6d77c7f2544085de0d1f28614eca5b9d0b0",
         "backend/tests/regression/privacy-storage.test.js": "ef3cbe968d1bcd6dc22e08622565427f1531f92ece53188881b0614dd3ad4603",
         "backend/tests/regression/privacy.jest.config.json": "cd80c47f4be46595f151bdf850571e7e0bd599d5bd2e9897550999b031b7e490",
@@ -123,6 +123,16 @@
           "commit": "4afcce9048927727095dcadfd47ec2e3d25a9dc3",
           "scope": "Main, dependency, privacy and title/storage/process regression workflows pass; partial evidence only. Contract/performance/legacy integration and complete requirement acceptance remain open.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37623349256"
+        },
+        {
+          "date": "2026-10-08",
+          "result": "passed",
+          "command": "npm test; privacy storage; actual user-service process with IP appeals",
+          "scope": "613 unit checks, 11 privacy checks, and current user-service real PostgreSQL/Redis/Kafka process passed after IP integration changes. Full requirement acceptance remains separate.",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/gateway/src/index.js"
+          ]
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
@@ -214,17 +224,17 @@
     },
     "REQ-00159-service-health-self-healing-and-auto-recovery-system.md": {
       "date": "2026-10-07",
-      "status": "partial_ci_verified",
+      "status": "partial_local_verified_ci_pending",
       "documentSha256": "6c4d7d1d6417e684d9fd2f7ce506ba17bd5958228c41495d7b5490413f8211cd",
       "sourceSha256": {
         "backend/shared/ServiceLauncher.js": "7beaabc6f1ed2f164e4925c25156fd2c358a492516fa8ed1d742d235f9d048b7",
         "backend/shared/HealthChecker.js": "34983df1a723fc4bb4608f96e4fd98b75f4daca8158d075a78c4261f3860fbef",
-        "backend/services/user-service/src/index.js": "9f0a7fbcf690a91d6444f0afc3e593a8b89bc0cca06ec52b2f21e3201cb6de3a",
+        "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "0da04981dd8bb4325ba1cb31ff5ced39b94a305fb777c4566782bbc50b01e12a",
-        "backend/tests/regression/jest.config.json": "19912f1090271550a723710e5a2cc6512b85d83f6049cbc1f263537f6568b51e",
+        "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/services/user-service/src/handlers/notificationHandler.js": "3622084204873ea50632c7bbf957f14e2da7f3a905b7304fe8ba8e08f1e3f7d0",
-        "backend/tests/regression/user-startup.test.js": "6d65a167ee6fb86f66ad870c7c30e7f717be304cc6ec706a54e4c92b2956f238"
+        "backend/tests/regression/user-startup.test.js": "f33606ee3dce75efb28c6092c36f30dddf2e1dcaf282bcb936899bc19b98e3cd"
       },
       "evidence": [
         {
@@ -285,22 +295,33 @@
           "commit": "4afcce9048927727095dcadfd47ec2e3d25a9dc3",
           "scope": "Main, dependency, privacy and title/storage/process regression workflows pass; partial evidence only. Contract/performance/legacy integration and complete requirement acceptance remain open.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37623349256"
+        },
+        {
+          "date": "2026-10-08",
+          "result": "passed",
+          "command": "npm test; privacy storage; actual user-service process with IP appeals",
+          "scope": "613 unit checks, 11 privacy checks, and current user-service real PostgreSQL/Redis/Kafka process passed after IP integration changes. Full requirement acceptance remains separate.",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/jest.config.json",
+            "backend/tests/regression/user-startup.test.js"
+          ]
         }
       ]
     },
     "REQ-00682-service-dependency-consolidation-and-initialization-refactoring.md": {
       "date": "2026-10-07",
-      "status": "partial_ci_verified",
+      "status": "partial_local_verified_ci_pending",
       "documentSha256": "b0d70073391231edcf5ddfd293b97515807a5f98ae2b2d635accce7c90deddc9",
       "sourceSha256": {
         "backend/shared/ServiceLauncher.js": "7beaabc6f1ed2f164e4925c25156fd2c358a492516fa8ed1d742d235f9d048b7",
         "backend/shared/HealthChecker.js": "34983df1a723fc4bb4608f96e4fd98b75f4daca8158d075a78c4261f3860fbef",
-        "backend/services/user-service/src/index.js": "9f0a7fbcf690a91d6444f0afc3e593a8b89bc0cca06ec52b2f21e3201cb6de3a",
+        "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "0da04981dd8bb4325ba1cb31ff5ced39b94a305fb777c4566782bbc50b01e12a",
-        "backend/tests/regression/jest.config.json": "19912f1090271550a723710e5a2cc6512b85d83f6049cbc1f263537f6568b51e",
+        "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/services/user-service/src/handlers/notificationHandler.js": "3622084204873ea50632c7bbf957f14e2da7f3a905b7304fe8ba8e08f1e3f7d0",
-        "backend/tests/regression/user-startup.test.js": "6d65a167ee6fb86f66ad870c7c30e7f717be304cc6ec706a54e4c92b2956f238"
+        "backend/tests/regression/user-startup.test.js": "f33606ee3dce75efb28c6092c36f30dddf2e1dcaf282bcb936899bc19b98e3cd"
       },
       "evidence": [
         {
@@ -361,18 +382,29 @@
           "commit": "4afcce9048927727095dcadfd47ec2e3d25a9dc3",
           "scope": "Main, dependency, privacy and title/storage/process regression workflows pass; partial evidence only. Contract/performance/legacy integration and complete requirement acceptance remain open.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37623349256"
+        },
+        {
+          "date": "2026-10-08",
+          "result": "passed",
+          "command": "npm test; privacy storage; actual user-service process with IP appeals",
+          "scope": "613 unit checks, 11 privacy checks, and current user-service real PostgreSQL/Redis/Kafka process passed after IP integration changes. Full requirement acceptance remains separate.",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/jest.config.json",
+            "backend/tests/regression/user-startup.test.js"
+          ]
         }
       ]
     },
     "REQ-00106-player-title-system-and-personalization.md": {
       "date": "2026-10-07",
-      "status": "partial_ci_verified",
+      "status": "partial_local_verified_ci_pending",
       "documentSha256": "69570b98ac34ddcd7089a56badf3d1c8dbb5ed91d4437062f8293984734bd7af",
       "sourceSha256": {
         "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
         "backend/services/user-service/src/routes/titles.js": "8e7bede513639c93b07ff315cdd19ac259982e7f195fb32f69ac7910d970eb41",
         "backend/services/user-service/src/routes/timezone.js": "7a8f7bc0710190390ca75f478bad637d0aa550e60170f4276b12565bfd648f77",
-        "backend/services/user-service/src/index.js": "9f0a7fbcf690a91d6444f0afc3e593a8b89bc0cca06ec52b2f21e3201cb6de3a",
+        "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
         "backend/services/user-service/src/handlers/notificationHandler.js": "3622084204873ea50632c7bbf957f14e2da7f3a905b7304fe8ba8e08f1e3f7d0",
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/tests/unit/title-service.test.js": "dac59417c7f2932704d8d2c4e4b76d867a95a8cc3a6306a8544092c44420faed",
@@ -380,11 +412,11 @@
         "backend/tests/unit/eventbus-lifecycle.test.js": "354b2745759db7ce844959957d1b863410f08d68f1265183e55891d3e3fd6736",
         "backend/tests/unit/notification-initialization.test.js": "84b5d4ce41afbf9b531d95fa84fbceef57e00c14cd9597f42de6799009a46b3c",
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
-        "backend/tests/regression/user-startup.test.js": "6d65a167ee6fb86f66ad870c7c30e7f717be304cc6ec706a54e4c92b2956f238",
-        "backend/tests/regression/jest.config.json": "19912f1090271550a723710e5a2cc6512b85d83f6049cbc1f263537f6568b51e",
+        "backend/tests/regression/user-startup.test.js": "f33606ee3dce75efb28c6092c36f30dddf2e1dcaf282bcb936899bc19b98e3cd",
+        "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
         "backend/package.json": "9a7146e94460373aaf06d99168beb1b8cb40162861dea5b58dfbc5221113bb8d",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
-        ".github/workflows/title-regression.yml": "dc7a82791a3e646448490e714e0830054189737b4cfbf31f6add78e0fc2bf5d8"
+        ".github/workflows/title-regression.yml": "255e7fa80b6395e80a7fbbbce252d725b033b429bf5089846887c3e67ef38410"
       },
       "evidence": [
         {
@@ -448,18 +480,30 @@
           "commit": "4afcce9048927727095dcadfd47ec2e3d25a9dc3",
           "scope": "Main, dependency, privacy and title/storage/process regression workflows pass; partial evidence only. Contract/performance/legacy integration and complete requirement acceptance remain open.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37623349256"
+        },
+        {
+          "date": "2026-10-08",
+          "result": "passed",
+          "command": "npm test; privacy storage; actual user-service process with IP appeals",
+          "scope": "613 unit checks, 11 privacy checks, and current user-service real PostgreSQL/Redis/Kafka process passed after IP integration changes. Full requirement acceptance remains separate.",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/tests/regression/jest.config.json",
+            ".github/workflows/title-regression.yml"
+          ]
         }
       ]
     },
     "REQ-00612-global-timezone-scheduler.md": {
       "date": "2026-10-07",
-      "status": "partial_ci_verified",
+      "status": "partial_local_verified_ci_pending",
       "documentSha256": "acb67d84c7ef83a0335a5874fbf4809ff95c8239c95cbac5f00a409a48223dd2",
       "sourceSha256": {
         "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
         "backend/services/user-service/src/routes/titles.js": "8e7bede513639c93b07ff315cdd19ac259982e7f195fb32f69ac7910d970eb41",
         "backend/services/user-service/src/routes/timezone.js": "7a8f7bc0710190390ca75f478bad637d0aa550e60170f4276b12565bfd648f77",
-        "backend/services/user-service/src/index.js": "9f0a7fbcf690a91d6444f0afc3e593a8b89bc0cca06ec52b2f21e3201cb6de3a",
+        "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
         "backend/services/user-service/src/handlers/notificationHandler.js": "3622084204873ea50632c7bbf957f14e2da7f3a905b7304fe8ba8e08f1e3f7d0",
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/tests/unit/title-service.test.js": "dac59417c7f2932704d8d2c4e4b76d867a95a8cc3a6306a8544092c44420faed",
@@ -467,11 +511,11 @@
         "backend/tests/unit/eventbus-lifecycle.test.js": "354b2745759db7ce844959957d1b863410f08d68f1265183e55891d3e3fd6736",
         "backend/tests/unit/notification-initialization.test.js": "84b5d4ce41afbf9b531d95fa84fbceef57e00c14cd9597f42de6799009a46b3c",
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
-        "backend/tests/regression/user-startup.test.js": "6d65a167ee6fb86f66ad870c7c30e7f717be304cc6ec706a54e4c92b2956f238",
-        "backend/tests/regression/jest.config.json": "19912f1090271550a723710e5a2cc6512b85d83f6049cbc1f263537f6568b51e",
+        "backend/tests/regression/user-startup.test.js": "f33606ee3dce75efb28c6092c36f30dddf2e1dcaf282bcb936899bc19b98e3cd",
+        "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
         "backend/package.json": "9a7146e94460373aaf06d99168beb1b8cb40162861dea5b58dfbc5221113bb8d",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
-        ".github/workflows/title-regression.yml": "dc7a82791a3e646448490e714e0830054189737b4cfbf31f6add78e0fc2bf5d8"
+        ".github/workflows/title-regression.yml": "255e7fa80b6395e80a7fbbbce252d725b033b429bf5089846887c3e67ef38410"
       },
       "evidence": [
         {
@@ -535,18 +579,30 @@
           "commit": "4afcce9048927727095dcadfd47ec2e3d25a9dc3",
           "scope": "Main, dependency, privacy and title/storage/process regression workflows pass; partial evidence only. Contract/performance/legacy integration and complete requirement acceptance remain open.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37623349256"
+        },
+        {
+          "date": "2026-10-08",
+          "result": "passed",
+          "command": "npm test; privacy storage; actual user-service process with IP appeals",
+          "scope": "613 unit checks, 11 privacy checks, and current user-service real PostgreSQL/Redis/Kafka process passed after IP integration changes. Full requirement acceptance remains separate.",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/tests/regression/jest.config.json",
+            ".github/workflows/title-regression.yml"
+          ]
         }
       ]
     },
     "REQ-00026-in-game-push-notification-system.md": {
       "date": "2026-10-07",
-      "status": "partial_ci_verified",
+      "status": "partial_local_verified_ci_pending",
       "documentSha256": "4769b4d31a9e97a21db229e0a8f358894622067fdc2b4ba9558933d9e107306a",
       "sourceSha256": {
         "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
         "backend/services/user-service/src/routes/titles.js": "8e7bede513639c93b07ff315cdd19ac259982e7f195fb32f69ac7910d970eb41",
         "backend/services/user-service/src/routes/timezone.js": "7a8f7bc0710190390ca75f478bad637d0aa550e60170f4276b12565bfd648f77",
-        "backend/services/user-service/src/index.js": "9f0a7fbcf690a91d6444f0afc3e593a8b89bc0cca06ec52b2f21e3201cb6de3a",
+        "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
         "backend/services/user-service/src/handlers/notificationHandler.js": "3622084204873ea50632c7bbf957f14e2da7f3a905b7304fe8ba8e08f1e3f7d0",
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/tests/unit/title-service.test.js": "dac59417c7f2932704d8d2c4e4b76d867a95a8cc3a6306a8544092c44420faed",
@@ -554,11 +610,11 @@
         "backend/tests/unit/eventbus-lifecycle.test.js": "354b2745759db7ce844959957d1b863410f08d68f1265183e55891d3e3fd6736",
         "backend/tests/unit/notification-initialization.test.js": "84b5d4ce41afbf9b531d95fa84fbceef57e00c14cd9597f42de6799009a46b3c",
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
-        "backend/tests/regression/user-startup.test.js": "6d65a167ee6fb86f66ad870c7c30e7f717be304cc6ec706a54e4c92b2956f238",
-        "backend/tests/regression/jest.config.json": "19912f1090271550a723710e5a2cc6512b85d83f6049cbc1f263537f6568b51e",
+        "backend/tests/regression/user-startup.test.js": "f33606ee3dce75efb28c6092c36f30dddf2e1dcaf282bcb936899bc19b98e3cd",
+        "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
         "backend/package.json": "9a7146e94460373aaf06d99168beb1b8cb40162861dea5b58dfbc5221113bb8d",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
-        ".github/workflows/title-regression.yml": "dc7a82791a3e646448490e714e0830054189737b4cfbf31f6add78e0fc2bf5d8"
+        ".github/workflows/title-regression.yml": "255e7fa80b6395e80a7fbbbce252d725b033b429bf5089846887c3e67ef38410"
       },
       "evidence": [
         {
@@ -622,6 +678,120 @@
           "commit": "4afcce9048927727095dcadfd47ec2e3d25a9dc3",
           "scope": "Main, dependency, privacy and title/storage/process regression workflows pass; partial evidence only. Contract/performance/legacy integration and complete requirement acceptance remain open.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37623349256"
+        },
+        {
+          "date": "2026-10-08",
+          "result": "passed",
+          "command": "npm test; privacy storage; actual user-service process with IP appeals",
+          "scope": "613 unit checks, 11 privacy checks, and current user-service real PostgreSQL/Redis/Kafka process passed after IP integration changes. Full requirement acceptance remains separate.",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/tests/regression/jest.config.json",
+            ".github/workflows/title-regression.yml"
+          ]
+        }
+      ]
+    },
+    "REQ-00075-ip-blacklist-and-auto-ban-system.md": {
+      "date": "2026-10-08",
+      "status": "partial_local_verified_ci_pending",
+      "documentSha256": "5f0f24eee768a901be3d6cb06e4e2907e72dca7e4db43398fe8da7e695677a8e",
+      "sourceSha256": {
+        "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
+        "backend/services/user-service/src/routes/ipAppeal.js": "32bc089a25a51e5ef015eebdd4440534365b93873a53c5fcd06ad13d13c718c4",
+        "backend/shared/IpBanManager.js": "8baf542bcfc6d35106433e07dd0eee25e005ad48550ca04e92ec674af043ce34",
+        "backend/shared/clientIp.js": "5dc3dfaddec04d912179b0bfa8c782d405f386a23c72373add3988b873153700",
+        "backend/gateway/src/index.js": "74c6d315044decb11629b77bb325b885e74486403f21143bc170dae80217cb1b",
+        "backend/gateway/src/middleware/ipBan.js": "be628522d3b171b9dae46aa8862e985ea9681b5ba381e6f9f28f7c01462ac6b9",
+        "backend/gateway/src/routes/ipAppealProxy.js": "4fa6f1dc2f23739aa4274dc9a0fa9ec9f21958e289cbbe322168481105001a3d",
+        "backend/tests/unit/ip-appeal.test.js": "7aa02dc701586d2922d4ba958d72e3a806e8c8b60c9c98db14246f225b101c18",
+        "backend/tests/regression/ip-appeal-storage.test.js": "36e48b65328b864138743ea61aa7b124c99bc608e7316d7baf8ba6603cc292fe",
+        "backend/tests/regression/user-startup.test.js": "f33606ee3dce75efb28c6092c36f30dddf2e1dcaf282bcb936899bc19b98e3cd",
+        "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
+        "database/pending/20261008_100000__ip_ban_index_compatibility.sql": "574d3f082b2265bfe5b93d6066b6d62dad4ca1da00bd91e34dc7a4f964f548ae",
+        ".github/workflows/title-regression.yml": "255e7fa80b6395e80a7fbbbce252d725b033b429bf5089846887c3e67ef38410"
+      },
+      "evidence": [
+        {
+          "runtime": "Node.js 20.20.2",
+          "command": "npm test",
+          "result": "passed",
+          "tests": 613,
+          "suiteBreakdown": {
+            "standalone": 95,
+            "battle": 133,
+            "jest": 385
+          }
+        },
+        {
+          "runtime": "Node.js 24.19.0",
+          "command": "node --test backend/tests/regression/ip-appeal-storage.test.js",
+          "result": "passed",
+          "tests": 9,
+          "scope": "Actual PostgreSQL/Redis and production ban/appeal/proxy modules; eight aliases, CIDR/white/expiry, ownership, spoofing, validation, cache corruption and failure release/enforcement."
+        },
+        {
+          "runtime": "Node.js 24.19.0",
+          "command": "node --test backend/tests/regression/user-startup.test.js",
+          "result": "passed",
+          "tests": 1,
+          "scope": "Actual user-service process with production UUID identity DDL, configured PG/Redis/Kafka, current IP bootstrap, public check/invalid-JWT status, and an appeal persisted/read through production proxy helper. Full native monolithic gateway remains unverified."
+        },
+        {
+          "result": "incomplete",
+          "scope": "Full gateway process/deployment trust; remaining automatic-ban windows/transaction/admin-CIDR-unban consistency; GeoIP; complete distributed-sync/retention/metrics/UI and overall requirement acceptance. Current tests do not prove all those conditions."
+        }
+      ]
+    },
+    "REQ-00149-user-service-ipAppeal-route-mounting.md": {
+      "date": "2026-10-08",
+      "status": "partial_local_verified_ci_pending",
+      "documentSha256": "30638e9d7a8afb460c10c302569b0feada0495dc770219a86efa272a77768fde",
+      "sourceSha256": {
+        "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
+        "backend/services/user-service/src/routes/ipAppeal.js": "32bc089a25a51e5ef015eebdd4440534365b93873a53c5fcd06ad13d13c718c4",
+        "backend/shared/IpBanManager.js": "8baf542bcfc6d35106433e07dd0eee25e005ad48550ca04e92ec674af043ce34",
+        "backend/shared/clientIp.js": "5dc3dfaddec04d912179b0bfa8c782d405f386a23c72373add3988b873153700",
+        "backend/gateway/src/index.js": "74c6d315044decb11629b77bb325b885e74486403f21143bc170dae80217cb1b",
+        "backend/gateway/src/middleware/ipBan.js": "be628522d3b171b9dae46aa8862e985ea9681b5ba381e6f9f28f7c01462ac6b9",
+        "backend/gateway/src/routes/ipAppealProxy.js": "4fa6f1dc2f23739aa4274dc9a0fa9ec9f21958e289cbbe322168481105001a3d",
+        "backend/tests/unit/ip-appeal.test.js": "7aa02dc701586d2922d4ba958d72e3a806e8c8b60c9c98db14246f225b101c18",
+        "backend/tests/regression/ip-appeal-storage.test.js": "36e48b65328b864138743ea61aa7b124c99bc608e7316d7baf8ba6603cc292fe",
+        "backend/tests/regression/user-startup.test.js": "f33606ee3dce75efb28c6092c36f30dddf2e1dcaf282bcb936899bc19b98e3cd",
+        "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
+        "database/pending/20261008_100000__ip_ban_index_compatibility.sql": "574d3f082b2265bfe5b93d6066b6d62dad4ca1da00bd91e34dc7a4f964f548ae",
+        ".github/workflows/title-regression.yml": "255e7fa80b6395e80a7fbbbce252d725b033b429bf5089846887c3e67ef38410"
+      },
+      "evidence": [
+        {
+          "runtime": "Node.js 20.20.2",
+          "command": "npm test",
+          "result": "passed",
+          "tests": 613,
+          "suiteBreakdown": {
+            "standalone": 95,
+            "battle": 133,
+            "jest": 385
+          }
+        },
+        {
+          "runtime": "Node.js 24.19.0",
+          "command": "node --test backend/tests/regression/ip-appeal-storage.test.js",
+          "result": "passed",
+          "tests": 9,
+          "scope": "Actual PostgreSQL/Redis and production ban/appeal/proxy modules; eight aliases, CIDR/white/expiry, ownership, spoofing, validation, cache corruption and failure release/enforcement."
+        },
+        {
+          "runtime": "Node.js 24.19.0",
+          "command": "node --test backend/tests/regression/user-startup.test.js",
+          "result": "passed",
+          "tests": 1,
+          "scope": "Actual user-service process with production UUID identity DDL, configured PG/Redis/Kafka, current IP bootstrap, public check/invalid-JWT status, and an appeal persisted/read through production proxy helper. Full native monolithic gateway remains unverified."
+        },
+        {
+          "result": "incomplete",
+          "scope": "Full gateway process/deployment trust; remaining automatic-ban windows/transaction/admin-CIDR-unban consistency; GeoIP; complete distributed-sync/retention/metrics/UI and overall requirement acceptance. Current tests do not prove all those conditions."
         }
       ]
     }

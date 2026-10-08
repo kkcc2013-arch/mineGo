@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 208,
-      "in_progress": 13,
+      "done": 206,
+      "in_progress": 15,
       "new": 437
     },
     "priorityCounts": {
@@ -711,7 +711,7 @@
         "- [ ] 单元测试覆盖 NotificationManager 核心逻辑",
         "- [ ] 前端测试验证通知显示和交互"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/gym-service/src/index.js",
         "backend/services/user-service/src/handlers/notificationHandler.js",
@@ -1573,7 +1573,7 @@
         "- [ ] 4 个 Prometheus 指标正常暴露",
         "- [ ] 单元测试覆盖率 ≥ 80%"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/services/user-service/src/routes/privacy.js",
@@ -2260,11 +2260,11 @@
       "id": "REQ-00075",
       "title": "REQ-00075：IP 黑名单与恶意 IP 自动封禁系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "安全加固",
       "modules": "gateway、user-service、backend/shared、Redis、database/migrations",
       "createdAt": "2026-06-10 02:00",
-      "sha256": "c587c1aa371256a0596c9276133af968fd079dc5e0e3d1c82c3557e1928cde15",
+      "sha256": "5f0f24eee768a901be3d6cb06e4e2907e72dca7e4db43398fe8da7e695677a8e",
       "acceptance": [
         "- [ ] IP 黑名单 CRUD API 全部可用，支持 CIDR 网段封禁",
         "- [ ] IP 白名单优先级高于黑名单，白名单 IP 可绕过所有封禁",
@@ -2279,18 +2279,18 @@
         "- [ ] 单元测试覆盖率 >= 80%",
         "- [ ] 集成测试覆盖核心流程"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/gateway/src/index.js",
         "backend/gateway/src/middleware/ipBan.js",
         "backend/gateway/src/routes/admin/ipBan.js",
         "backend/gateway/src/routes/ipBanAdmin.js",
         "backend/services/user-service/src/index.js",
-        "backend/services/user-service/src/routes/ipAppeal.js",
         "backend/shared/IpBanManager.js",
         "backend/tests/unit/ip-ban.test.js",
         "database/migrations/20260629_200100__add_ip_ban_system.sql",
-        "database/pending/20260610_080000__add_ip_ban_system.sql"
+        "database/pending/20260610_080000__add_ip_ban_system.sql",
+        "database/pending/20261008_100000__ip_ban_index_compatibility.sql"
       ],
       "legacyId": null
     },
@@ -3245,7 +3245,7 @@
         "- [ ] 单元测试覆盖率 > 80%",
         "- [ ] 性能测试：称号查询 < 50ms"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/services/user-service/src/routes/titles.js",
@@ -4383,11 +4383,11 @@
       "id": "REQ-00149",
       "title": "REQ-00149: user-service ipAppeal 路由挂载与集成",
       "priority": "P0",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "集成与修复",
       "modules": "user-service、backend/services/user-service/src/index.js、backend/services/user-service/src/routes/ipAppeal.js",
       "createdAt": "2026-06-12 08:10",
-      "sha256": "81babce618b7e5e77bf8c7c0ee581abecc3163ca0ee6a93b5668170274e947de",
+      "sha256": "30638e9d7a8afb460c10c302569b0feada0495dc770219a86efa272a77768fde",
       "acceptance": [
         "- [ ] `node --check backend/services/user-service/src/index.js` 通过",
         "- [ ] `grep -n \"ipAppealRouter\" backend/services/user-service/src/index.js` 返回至少 1 行",
@@ -4396,7 +4396,7 @@
         "- [ ] 启动 user-service 后，`curl -sf http://localhost:8081/ip-appeal/status -H \"Authorization: Bearer invalid\"` 返回 401（认证端点）",
         "- [ ] `npm test --prefix backend/services/user-service` 通过（如有相关测试）"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js"
       ],
@@ -4697,7 +4697,7 @@
         "- [ ] **根因分析**",
         "- [ ] **监控集成**"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/shared/ServiceHealthSelfHealing.js",
@@ -16330,7 +16330,7 @@
         "- [ ] 系统时区配置支持热更新，无需重启服务。",
         "- [ ] 完成跨时区业务场景的单元测试，覆盖 DST（夏令时）切换场景。"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/gateway/src/middleware/timezone.js",
         "backend/gateway/tests/middleware/timezone.test.js",
@@ -18301,7 +18301,7 @@
         "- [ ] 代码重复行数减少至少 200 行（通过代码统计验证）",
         "- [ ] 支持测试环境下依赖 mock 和替换"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [],
       "legacyId": "REQ-00619"
     },

@@ -43,6 +43,7 @@ initPrivacyRoutes(db);
 
 let healthChecker;
 let eventBus;
+let ipBanManager;
 
 // Create service launcher
 const service = new ServiceLauncher({
@@ -147,6 +148,11 @@ const service = new ServiceLauncher({
   // Service initialization
   onInitialize: async (app) => {
     app.locals.db = db;
+    app.set('trust proxy', process.env.USER_SERVICE_TRUST_PROXY ? process.env.USER_SERVICE_TRUST_PROXY.split(',').map(value => value.trim()) : false);
+    const IpBanManager = require('../../../shared/IpBanManager');
+    ipBanManager = new IpBanManager({ db, redis: redis.getRedis(), autoInitialize: false });
+    ipAppealRouter.initIpAppealRoutes(ipBanManager);
+    await ipBanManager.init();
     // REQ-00159: 初始化健康检查系统
     healthChecker = new HealthChecker({
       serviceName: 'user-service',
@@ -216,7 +222,8 @@ const service = new ServiceLauncher({
   onShutdown: async () => {
     healthChecker?.stopPeriodicCheck();
     const results = await Promise.allSettled([
-      eventBus ? eventBus.disconnect() : Promise.resolve(), db.closePools(), redis.closeRedis()
+      eventBus ? eventBus.disconnect() : Promise.resolve(),
+      ipBanManager ? ipBanManager.close() : Promise.resolve(), db.closePools(), redis.closeRedis()
     ]);
     const failures = results.filter(result => result.status === 'rejected').map(result => result.reason);
     if (failures.length) throw new AggregateError(failures, 'User service cleanup failed');

@@ -96,6 +96,7 @@ const logger = createLogger('gateway');
 const SERVICE_NAME = 'gateway';
 
 const app  = express();
+app.set('trust proxy', process.env.GATEWAY_TRUST_PROXY ? process.env.GATEWAY_TRUST_PROXY.split(',').map(value => value.trim()) : false);
 const PORT = process.env.PORT || 8080;
 
 // ── Service registry ─────────────────────────────────────────
@@ -270,9 +271,16 @@ function proxy(target, pathRewrite) {
   });
 }
 
+// IP access control must run before any business proxy can terminate the request.
+app.use(ipBanMiddleware);
+app.use(ipAccessLogMiddleware);
+
 // ── API Version Management (REQ-00044) ────────────────────────────
 // 版本信息 API
 app.use('/api/version', apiVersionRoutes);
+
+// IP appeal endpoints authenticate private operations inside user-service.
+require('./routes/ipAppealProxy').mountIpAppealProxy(app, SERVICES.user);
 
 // ── v1 API Routes (Legacy) ──────────────────────────────────────────
 // Public (no auth) - REQ-00040: 认证接口限流
@@ -495,23 +503,19 @@ app.use('/api/time', timePeriodRoutes);
 (async () => {
   try {
     const redisClient = getRedis();
-    initIpBanManager({
+    const ipManager = initIpBanManager({
       db: require('@pmg/shared/db'),
       redis: redisClient,
       publisher: redisClient,
       subscriber: redisClient.duplicate()
     });
+    await ipManager.ready;
     logger.info('IP Ban Manager initialized');
   } catch (err) {
     logger.error({ err }, 'Failed to initialize IP Ban Manager');
   }
 })();
 
-// IP 封禁中间件（全局应用，在认证之前）
-app.use(ipBanMiddleware);
-
-// IP 访问日志中间件
-app.use(ipAccessLogMiddleware);
 
 // IP 封禁管理 API（管理员）
 app.use('/api/admin', ipBanAdminRoutes);

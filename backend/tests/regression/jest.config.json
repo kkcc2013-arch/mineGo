@@ -22,6 +22,7 @@
     "<rootDir>/tests/unit/title-service.test.js",
     "<rootDir>/tests/unit/timezone-route.test.js",
     "<rootDir>/tests/unit/eventbus-lifecycle.test.js",
-    "<rootDir>/tests/unit/notification-initialization.test.js"
+    "<rootDir>/tests/unit/notification-initialization.test.js",
+    "<rootDir>/tests/unit/ip-appeal.test.js"
   ]
 }

@@ -8,6 +8,9 @@ const {spawn} = require('node:child_process');
 const {Pool} = require('pg');
 const {Kafka} = require('kafkajs');
 const {performance} = require('node:perf_hooks');
+const http = require('node:http');
+const express = require('express');
+const {mountIpAppealProxy} = require('../../gateway/src/routes/ipAppealProxy');
 
 test('real user-service entry point starts against isolated PostgreSQL, Redis and Kafka and shuts down', {timeout:90000}, async () => {
   for(const variable of ['TEST_DATABASE_URL','TEST_REDIS_URL','TEST_KAFKA_BROKERS'])assert.ok(process.env[variable],`${variable} is required`);
@@ -25,6 +28,7 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
   await admin.query(`CREATE SCHEMA ${schema}`);
   const fixture=new Pool({connectionString:process.env.TEST_DATABASE_URL,options:`-c search_path=${schema},public`});
   let child;
+  let appealGateway, appealProxy;
   let logs='';
   const userId=crypto.randomUUID();
   try{
@@ -34,6 +38,7 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
     await fixture.query(initial.match(/CREATE TABLE users \([\s\S]*?\n\);/)[0]);
     await fixture.query('INSERT INTO users(id,nickname) VALUES ($1,$2)',[userId,'startup-player']);
     await fixture.query(await fs.readFile(path.resolve(__dirname,'../../../database/pending/20261007_120000__title_identity_compatibility.sql'),'utf8'));
+    await fixture.query(await fs.readFile(path.resolve(__dirname,'../../../database/pending/20261008_100000__ip_ban_index_compatibility.sql'),'utf8'));
     const redis=new URL(process.env.TEST_REDIS_URL);
     const database=new URL(process.env.TEST_DATABASE_URL);database.searchParams.set('options',`-c search_path=${schema},public`);
     const runner=`const service=require('./services/user-service/src/index');
@@ -56,6 +61,8 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
     assert.ok([200,503].includes(health.status));assert.equal(report.checks.database.status,'healthy');
     assert.equal(report.checks.redis.status,'healthy');assert.equal(report.checks.kafka.status,'healthy');
     assert.equal((await fetch(base+'/health/live')).status,200);
+    assert.equal((await fetch(base+'/ip-appeal/check')).status,200);
+    assert.equal((await fetch(base+'/ip-appeal/status',{headers:{Authorization:'Bearer invalid'}})).status,401);
     assert.equal((await fetch(base+'/gdpr/export')).status,401);
     assert.equal((await fetch(base+'/data-deletion/requests',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})).status,401);
     assert.equal((await fetch(base+'/users/titles')).status,200);
@@ -65,6 +72,17 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
     const token=require('jsonwebtoken').sign({sub:userId},'user-startup-test-access');
     const headers={Authorization:`Bearer ${token}`};
     assert.equal((await fetch(base+'/users/me/titles',{headers})).status,200);
+    await fixture.query("INSERT INTO ip_blacklist(ip_address,reason,severity) VALUES('127.0.0.0/8','startup appeal test','critical')");
+    const gatewayApp=express();gatewayApp.use(express.json());appealProxy=mountIpAppealProxy(gatewayApp,base);
+    appealGateway=http.createServer(gatewayApp);await new Promise(resolve=>appealGateway.listen(0,'127.0.0.1',resolve));
+    const appealBase=`http://127.0.0.1:${appealGateway.address().port}`;
+    const appeal=await fetch(appealBase+'/api/v1/users/ip-appeal',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({appealReason:'Please review this startup fixture ban.'})});
+    assert.equal(appeal.status,200);
+    const appealBody=await appeal.json();
+    const ownStatus=await fetch(appealBase+'/api/ip-appeal/status',{headers});assert.equal(ownStatus.status,200);
+    assert.equal((await ownStatus.json()).appeal.id,appealBody.appealId);
+    assert.equal((await fixture.query('SELECT user_id FROM ip_ban_appeals WHERE id=$1',[appealBody.appealId])).rows[0].user_id,userId);
+
     const durations=[];
     for(let i=0;i<50;i++){const start=performance.now();const response=await fetch(base+'/users/me/titles',{headers});await response.json();assert.equal(response.status,200);durations.push(performance.now()-start);}
     durations.sort((a,b)=>a-b);
@@ -75,6 +93,7 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
     console.log(JSON.stringify({shutdownElapsedMs:performance.now()-shutdownStart}));
     await assert.rejects(fetch(base+'/health/live'));
   }finally{
+    appealProxy?.close();if(appealGateway)await new Promise(resolve=>appealGateway.close(resolve));
     if(child&&child.exitCode===null){const exited=new Promise(resolve=>child.once('exit',resolve));child.kill('SIGKILL');await exited;}
     await fixture.end();await admin.query(`DROP SCHEMA ${schema} CASCADE`);await admin.end();
   }

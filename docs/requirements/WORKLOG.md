@@ -431,3 +431,62 @@ regression2 (37623349256), including actual Node24 service/storage/Kafka startup
 shutdown. Contract, API contract, performance and legacy integration still fail;
 security/E2E were still running at the snapshot. Related partial evidence now records
 CI verification; this does not mark any complete requirement done or all 658 finished.
+
+## Persistent-goal continuation: IP appeal runtime (2026-10-08)
+
+The human explicitly started the persistent goal; it is active for all 658 existing
+requirements. The previous goal turn created authoritative goal state (progress).
+Revalidated clean c58888f and current CI: main/dependency/privacy/title workflows pass;
+contracts, performance, integration and security fail, E2E cancelled. No no-progress
+or blocked condition applies: this turn repaired actual P0 user-route dependencies.
+
+REQ-00149 was mounted but depended on a gateway process-local IpBanManager, so user-
+service could not resolve it. Private handlers inspected req.user without verifying
+JWT. REQ-00075 also had a Map used as a Set, unsupported metrics calls, permanent/CIDR
+ban bugs, shared-cache expiry hazards, and gateway enforcement mounted after business
+proxies. Reopened both legacy done declarations and repaired those concrete defects.
+
+User-service now owns/initializes/closes its manager with actual shared database and
+Redis clients. The manager exposes an awaited initialization result, owns only its
+created resources, handles malformed subscription messages, and performs ban/white-
+list/CIDR/expiry authorization reads against PostgreSQL. It no longer wipes shared
+Redis ban maps or treats advisory cached state as permission. Risk cache values must
+be canonical integers0..100 or are read again from authoritative storage. Geo lookup
+uses one connection instead of holding a connection while acquiring another.
+
+Private appeal handlers verify JWT before checking dependency availability, use the
+verified user ID, validate string/length inputs, use production nickname fields and
+release status-query clients on failure. Public check works without authentication.
+Removed an unsupported 24-hour processing promise. Production proxy helpers support
+8 documented/client aliases, overwrite caller forwarding headers with the gateway's
+resolved address, and remove X-Real-IP. Express trust-proxy ranges are explicit and
+disabled by default; docs/IP-APPEALS.md describes network-boundary requirements.
+
+Gateway IP enforcement moved before terminating business proxies. Appeal/health
+paths remain reachable for blocked users. Missing/failed access-control dependencies
+return503 instead of silently granting access. This does not claim the complete
+monolithic gateway process or every admin/ban workflow has been accepted.
+
+Evidence:
+- Node20 fullunit:95 standalone+133 battle+385 Jest=613 passed (22 Jest suites), including
+  5 new tests for proxy-boundary matching, identity verification and trusted addresses.
+- Node24 real PostgreSQL/Redis/ban-middleware/appeal/proxy suite:9 checks passed, including
+  all aliases, permanent/CIDR/expired bans, whitelist precedence, forged forwarding
+  headers, input validation, stored authenticated ownership, reviewer display, corrupt
+  risk cache, failed status-query release and storage outage enforcement.
+- Node24 actual user-service process:1 pass. Uses production UUID users identity DDL,
+  existing title bootstrap, new IP bootstrap, real PostgreSQL/Redis/Kafka; posts and reads
+  an appeal through the production proxy module and checks the persisted verified UUID.
+  Public/check200 and invalid-token/status401 are exercised. Natural shutdown succeeds;
+  local warm title HTTP p95~3.264ms and shutdown~5485.511ms are not production SLO proof.
+- Existing real privacy storage/proxy tests11 and tool tests12 pass; nine health
+  registrations, syntax and logging-zero checks pass. Workflow YAML parses. Targeted
+  title/storage/process workflow now also executes IP appeal regression and includes
+  IP migration/proxy changes in its trigger paths. Publication/remote results pending.
+
+Known remaining scope: full native gateway startup; true caller IPs in an authorized
+multi-hop deployment; automatic-ban time windows and transaction consistency; complete
+admin approval/rejection and CIDR unban semantics; real GeoIP; full Pub/Sub/retention/
+metrics coverage and admin UI. Existing legacy migration checksum is preserved with
+an additive UUID-compatible GiST bootstrap; non-UUID legacy identities and the complete
+migration history still require explicit validation. Both requirements stay in progress.

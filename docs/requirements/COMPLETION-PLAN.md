@@ -1,9 +1,9 @@
 # mineGo requirement completion plan
 
-Updated: 2026-10-07. Scope: all 658 existing requirement documents in INDEX.md,
-including the 208 legacy done declarations that still need independent acceptance.
+Updated: 2026-10-08. Scope: all 658 existing requirement documents in INDEX.md,
+including the 206 legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 437 new, 13 in progress. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 437 new, 15 in progress. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -76,3 +76,14 @@ separate. Local warm title HTTP p95 is under 50ms. Full acceptance remains open.
 Next: align gateway public/private aliases and all user-service route contracts,
 then repair production-schema integration fixtures and title/achievement cross-service
 storage conflicts. Carry the remaining stages forward from this file and WORKLOG.md.
+
+
+## Persistent goal and IP appeal batch (2026-10-08)
+
+The human explicitly activated the persistent goal for this full plan. Completed
+local IP-appeal dependency, JWT/ownership, client-IP trust/forwarding, CIDR/white/expiry
+read paths and proxy alias repairs. 613 unit checks, 9 real IP appeal/storage/ban/proxy
+checks, 11 privacy checks and actual user-service process startup/appeal/shutdown pass.
+Req-00075/00149 are reopened in progress. Full native gateway startup and remaining
+IP automatic-ban/admin/GeoIP/sync/UI acceptance stay open. Next: start and validate
+the real gateway, then continue the remaining route and production-schema contracts.

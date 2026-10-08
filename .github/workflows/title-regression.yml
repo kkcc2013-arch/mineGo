@@ -6,9 +6,13 @@ on:
       - 'backend/shared/**'
       - 'backend/tests/unit/title-service.test.js'
       - 'backend/tests/regression/title-storage.test.js'
+      - 'backend/tests/regression/ip-appeal-storage.test.js'
+      - 'backend/gateway/src/routes/ipAppealProxy.js'
+      - 'backend/gateway/src/middleware/ipBan.js'
       - 'backend/tests/regression/user-startup.test.js'
       - 'backend/package*.json'
       - 'database/pending/*title*.sql'
+      - 'database/pending/*ip_ban*.sql'
       - '.github/workflows/title-regression.yml'
   workflow_dispatch:
 permissions:
@@ -45,6 +49,12 @@ jobs:
       - name: Verify actual routes, PostgreSQL concurrency, Redis and measured core coverage
         working-directory: backend
         run: node --test --experimental-test-coverage --test-coverage-include='**/titleService.js' --test-coverage-lines=80 --test-coverage-functions=80 tests/regression/title-storage.test.js
+        env:
+          TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
+          TEST_REDIS_URL: redis://localhost:6379
+      - name: Verify actual IP appeals, CIDR access control and gateway aliases
+        working-directory: backend
+        run: node --test tests/regression/ip-appeal-storage.test.js
         env:
           TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
           TEST_REDIS_URL: redis://localhost:6379
