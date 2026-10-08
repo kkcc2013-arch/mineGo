@@ -13,51 +13,51 @@ CREATE TABLE IF NOT EXISTS equipment_templates (
   name_zh VARCHAR(100) NOT NULL,
   name_en VARCHAR(100) NOT NULL,
   name_ja VARCHAR(100),
-  
-  -- 装备类型：weapon(武器), armor(护甲), accessory(饰品), 
+
+  -- 装备类型：weapon(武器), armor(护甲), accessory(饰品),
   -- skill_disc(技能盘), evolution_stone(进化石), held_item(携带道具)
   type VARCHAR(50) NOT NULL CHECK (type IN (
     'weapon', 'armor', 'accessory', 'skill_disc', 'evolution_stone', 'held_item'
   )),
-  
+
   -- 稀有度：common(普通), uncommon(优秀), rare(稀有), epic(史诗), legendary(传说)
   rarity VARCHAR(20) NOT NULL CHECK (rarity IN (
     'common', 'uncommon', 'rare', 'epic', 'legendary'
   )),
-  
+
   -- 基础属性：{"attack": 10, "defense": 5, "speed": 3, "hp": 20, "critical_rate": 0.05}
   base_stats JSONB NOT NULL DEFAULT '{}',
-  
+
   -- 套装ID（可选）
   set_id INTEGER,
-  
+
   -- 元素亲和：water, fire, grass, electric, psychic, ice, dragon, dark, fairy, null(通用)
   element_affinity VARCHAR(20) CHECK (element_affinity IN (
-    'normal', 'fire', 'water', 'electric', 'grass', 'ice', 'fighting', 
-    'poison', 'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost', 
+    'normal', 'fire', 'water', 'electric', 'grass', 'ice', 'fighting',
+    'poison', 'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost',
     'dragon', 'dark', 'steel', 'fairy'
   )),
-  
+
   -- 强化上限
   max_level SMALLINT DEFAULT 10,
-  
+
   -- 描述
   description_zh TEXT,
   description_en TEXT,
   description_ja TEXT,
-  
+
   -- 图标URL
   icon_url VARCHAR(255),
-  
+
   -- 商店价格（精币）
   shop_price INTEGER,
-  
+
   -- 是否可出售
   sellable BOOLEAN DEFAULT TRUE,
-  
+
   -- 出售价格（精币）
   sell_price INTEGER,
-  
+
   created_at TIMESTAMP NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
@@ -83,23 +83,23 @@ CREATE TABLE IF NOT EXISTS equipment_sets (
   name_zh VARCHAR(100) NOT NULL,
   name_en VARCHAR(100) NOT NULL,
   name_ja VARCHAR(100),
-  
+
   -- 激活套装效果所需件数
   pieces_required SMALLINT DEFAULT 2 CHECK (pieces_required BETWEEN 2 AND 6),
-  
+
   -- 2件效果
   bonus_2_pieces JSONB,
-  
+
   -- 4件效果（可选）
   bonus_4_pieces JSONB,
-  
+
   -- 6件效果（可选）
   bonus_6_pieces JSONB,
-  
+
   description_zh TEXT,
   description_en TEXT,
   description_ja TEXT,
-  
+
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
@@ -114,34 +114,34 @@ CREATE TABLE IF NOT EXISTS player_equipment (
   id BIGSERIAL PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   template_id INTEGER NOT NULL REFERENCES equipment_templates(id),
-  
+
   -- 当前强化等级
   current_level SMALLINT NOT NULL DEFAULT 1,
-  
+
   -- 当前属性（基础属性 × 等级系数）
   current_stats JSONB NOT NULL DEFAULT '{}',
-  
+
   -- 是否已装备
   is_equipped BOOLEAN NOT NULL DEFAULT FALSE,
-  
+
   -- 装备到的精灵ID
   equipped_to_pokemon_id UUID REFERENCES pokemon_instances(id) ON DELETE SET NULL,
-  
+
   -- 获取时间
   acquired_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  
+
   -- 获取来源：raid, quest, shop, event, drop, gift
   acquired_from VARCHAR(50) DEFAULT 'drop',
-  
+
   -- 来源ID（如raid_id, quest_id等）
   source_id VARCHAR(100),
-  
-  updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
-  
-  -- 约束：同一精灵同一类型只能装备一件
-  CONSTRAINT uq_pokemon_equipment_type UNIQUE (equipped_to_pokemon_id, template_id) 
-    WHERE is_equipped = TRUE
+
+  updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+-- Preserve the exact original partial rule as a valid PostgreSQL index.
+-- This excludes duplicate active templates; full one-per-type slot policy is separate.
+CREATE UNIQUE INDEX IF NOT EXISTS uq_pokemon_equipment_type
+  ON player_equipment(equipped_to_pokemon_id,template_id) WHERE is_equipped=TRUE;
 
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_player_equipment_user ON player_equipment(user_id);
@@ -159,19 +159,19 @@ CREATE TABLE IF NOT EXISTS equipment_upgrades (
   id BIGSERIAL PRIMARY KEY,
   equipment_id BIGINT NOT NULL REFERENCES player_equipment(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  
+
   from_level SMALLINT NOT NULL,
   to_level SMALLINT NOT NULL,
-  
+
   -- 消耗资源：{"stardust": 1000, "coins": 500}
   cost_resources JSONB NOT NULL,
-  
+
   -- 是否成功
   success BOOLEAN NOT NULL,
-  
+
   -- 失败原因（如果失败）
   failure_reason VARCHAR(100),
-  
+
   upgraded_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
@@ -185,11 +185,11 @@ COMMENT ON TABLE equipment_upgrades IS '装备强化记录表：记录每次强�
 -- ============================================================
 
 INSERT INTO equipment_sets (id, name_zh, name_en, name_ja, pieces_required, bonus_2_pieces, bonus_4_pieces, description_zh, description_en) VALUES
-(1, '水之守护者', 'Water Guardian', '水の守護者', 2, 
- '{"water_damage_boost": 0.15, "water_resistance": 0.10}', 
+(1, '水之守护者', 'Water Guardian', '水の守護者', 2,
+ '{"water_damage_boost": 0.15, "water_resistance": 0.10}',
  '{"water_damage_boost": 0.25, "water_resistance": 0.20, "hp": 50}',
  '水系精灵专属套装，提升水系技能伤害和抗性', 'Water-type set boosting water move damage and resistance'),
- 
+
 (2, '烈焰战神', 'Flame Warlord', '炎の戦神', 2,
  '{"fire_damage_boost": 0.15, "burn_chance": 0.05}',
  '{"fire_damage_boost": 0.30, "burn_chance": 0.10, "attack": 30}',
@@ -306,14 +306,14 @@ BEGIN
   SELECT base_stats INTO v_base_stats
   FROM equipment_templates
   WHERE id = p_template_id;
-  
+
   IF v_base_stats IS NULL THEN
     RETURN '{}'::JSONB;
   END IF;
-  
+
   -- 计算等级系数：1 + (level - 1) * 0.1
   v_level_multiplier := 1 + (p_level - 1) * 0.1;
-  
+
   -- 计算每个属性
   v_result := '{}'::JSONB;
   FOR v_key, v_value IN SELECT * FROM jsonb_each_text(v_base_stats)
@@ -324,7 +324,7 @@ BEGIN
       to_jsonb(FLOOR(v_value::FLOAT * v_level_multiplier))
     );
   END LOOP;
-  
+
   RETURN v_result;
 END;
 $$ LANGUAGE plpgsql;
@@ -333,7 +333,7 @@ COMMENT ON FUNCTION calculate_equipment_stats IS '计算装备在指定等级的
 
 -- 获取精灵已装备的所有装备
 CREATE OR REPLACE FUNCTION get_pokemon_equipment(
-  p_pokemon_id BIGINT
+  p_pokemon_id UUID
 ) RETURNS TABLE (
   equipment_id BIGINT,
   template_id INTEGER,
@@ -346,7 +346,7 @@ CREATE OR REPLACE FUNCTION get_pokemon_equipment(
 ) AS $$
 BEGIN
   RETURN QUERY
-  SELECT 
+  SELECT
     pe.id,
     pe.template_id,
     et.type,

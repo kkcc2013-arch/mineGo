@@ -73,8 +73,7 @@ Use Node24 and an isolated PostGIS database through TEST_DATABASE_URL:
 - node scripts/check-js-syntax.js:1422 files pass. Module loading and workflow YAML/
   inventory/hash/diff checks also pass.
 - node --test backend/tests/regression/database-bootstrap.test.js:V1/V2 passes; all85
-  pending history fails20260613_160000 statement17 missing created_at in the special-IV
-  consumer. The entire pending batch rolls back. No scripts are skipped.
+  pending history fails20260614_090500 statement2, invalid daily-quest :: syntax. The entire pending batch rolls back. No scripts are skipped.
 
 The initial broad unit run hit an unchanged HTTP fixture's5-second timeout. Isolated44
 and subsequent complete623 reruns pass with the original limit. Initial evidence is

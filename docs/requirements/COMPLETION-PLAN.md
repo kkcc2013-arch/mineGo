@@ -1,9 +1,9 @@
 # mineGo requirement completion plan
 
 Updated: 2026-10-08. Scope: all 658 existing requirement documents in INDEX.md,
-including the 198 legacy done declarations that still need independent acceptance.
+including the 197 legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 433 new, 27 in progress. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 432 new, 29 in progress. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -38,12 +38,12 @@ independent authorized work.
    checks; current published notification workflow passes. Provider/outbox/all publishers/
    full game/performance/UI acceptance remains open. Friendship UUID identity/history now
    passes20 real storage checks, and privacy consumer ordering passes actual CLI probes.
-4. Actual catch-risk storage/recorder now passes34 real cases, preserving gameplay UUIDs
-   and binding outcomes to real owned throws. Complete85-file history reaches special-IV
-   created_at missing. Preserve canonical spawn/catch data, then continue later conflicts,
-   full history/rollback and all-service startup. Unit623/storage181/syntax1422 pass locally.
-   Complete risk APIs/security/classification/metrics/coverage and numerical targets remain
-   open. Continue all original P0/service/game/client/quality/operations stages.
+4. Catch-risk storage/recorder passes34 actual cases. Special-IV/current ownership/
+   generator and equipment prerequisite contracts now pass36. Complete85-file history
+   reaches daily-quest :: syntax. Continue that consumer and later conflicts, complete
+   upgrade/rollback/all-service startup, then all original P0/security/game/client/
+   performance/operations stages. Unit623/storage215 pass; final IV36/source checks
+   follow the latest fix. Full feature/numerical acceptance remains open.
 
 ## Definition of finished
 
@@ -246,3 +246,17 @@ V1/V2stillpasses. Req82started:198done27progress433new, independentlyverified0. 
 flow/APIs/security/classification/metrics/coverage/client/retention/numeric targets remain
 open in CATCH-RISK.md. Next special-IV/latermigration contracts thenfullhistory/rollback/
 allservice/P0security andeveryoriginalstage. Full658goalactive; genuineprogress.
+
+
+## Special IV/equipment prerequisite batch (2026-10-08)
+
+Truegenotypeflags and currentownercounts nowderivedfrompreservedV1UUID/IV/lucky/date data;
+backfilldoesn'treplayoldtriggers. Safeusedreverse keepsprimarydata, customconfig/cache/
+functionsrefuse. Realproducerhelper exclusivecategories and INSERT/return/cache flags
+fixed;100000 realhelpersamples7/101/99892 observed, notnativeprobabilitycertification.
+Equipment partialindex/UUIDhelper runs;actualcatalog33<required50.34initial/36finalreal
+slicechecks pass, combined215storage/unit623/syntax1424pass. Load-onlyrequire passes,
+nativeruntime/lifecycle remainsopen. Full85history nowfailsdailyquest::syntax. Req160
+reopened/91started:197done29progress432new, verified0. Completeflow/UI/numeric/equipment
+criteria remainin SPECIAL-IV.md. Next dailyquests/laterfullhistory/rollback/services,
+thenalloriginalP0security/game/client/quality/ops. All658 goal remainsactive.

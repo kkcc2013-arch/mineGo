@@ -4,9 +4,9 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 198,
-      "in_progress": 27,
-      "new": 433
+      "done": 197,
+      "in_progress": 29,
+      "new": 432
     },
     "priorityCounts": {
       "P0": 52,
@@ -2786,11 +2786,11 @@
       "id": "REQ-00091",
       "title": "REQ-00091：精灵装备系统与属性加成机制",
       "priority": "P1",
-      "declaredStatus": "new",
+      "declaredStatus": "in_progress",
       "category": "功能增强",
       "modules": "pokemon-service、user-service、reward-service、gateway、game-client、database/migrations",
       "createdAt": "2026-06-10 14:00",
-      "sha256": "92eff0711cfdc1a79741d1e4789c7a73f857fcf3db7b78e7b9be6201b1208605",
+      "sha256": "5d4285d83cf374d1fc35fef7c9e10a18a3eb5e53dd1626990c1d8995ac8c1401",
       "acceptance": [
         "- [ ] 数据库迁移成功执行，创建 4 个装备相关表",
         "- [ ] 装备模板数据成功导入，至少包含 50 种装备模板",
@@ -2809,7 +2809,7 @@
         "- [ ] Prometheus 指标正确记录装备获取、强化、装备等事件",
         "- [ ] 单元测试覆盖率 ≥ 80%，至少 40 个测试用例"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_verified_full_history_failed",
       "implementationReferences": [
         "backend/services/pokemon-service/src/index.js",
         "backend/services/pokemon-service/src/routes/equipment.js",
@@ -4749,11 +4749,11 @@
       "id": "REQ-00160",
       "title": "REQ-00160：精灵特殊个体值（彩蛋）系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "功能增强",
       "modules": "pokemon-service、catch-service、location-service、gateway、game-client、database/migrations",
       "createdAt": "2026-06-13 15:00",
-      "sha256": "3cfb4b684bec78e2fc440b08d0af53b4daccafffb6a4531bb5de4d8c50a095a5",
+      "sha256": "8c055ccc9664dbdf2a7045cb4929ed1e6333de36746a1245fb4a494c4b73524c",
       "acceptance": [
         "- [ ] 零 IV 精灵出现概率约为 0.01%（统计 100000 次生成）",
         "- [ ] 完美 IV 精灵出现概率约为 0.09%（统计 100000 次生成）",
@@ -4765,14 +4765,17 @@
         "- [ ] 单元测试覆盖特殊 IV 生成逻辑",
         "- [ ] 集成测试覆盖幸运精灵交换流程"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_verified_full_history_failed",
       "implementationReferences": [
         "backend/services/location-service/src/index.js",
         "backend/services/pokemon-service/src/routes/pokedex.js",
         "backend/services/social-service/src/routes/trade.js",
+        "backend/shared/specialIv.js",
+        "backend/tests/regression/special-iv-storage.test.js",
         "backend/tests/unit/SpecialIVSystem.test.js",
         "database/migrations/20260616_170000__add_special_iv_system.sql",
         "database/pending/20260613_160000__add_special_iv_system.sql",
+        "database/pending/repairs/20260613_160000__add_special_iv_system.sql",
         "frontend/game-client/src/components/SpecialIVBadge.js"
       ],
       "legacyId": null

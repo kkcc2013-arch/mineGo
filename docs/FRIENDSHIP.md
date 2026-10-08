@@ -55,8 +55,8 @@ Set TEST_DATABASE_URL to an isolated PostGIS database and use Node24:
   including privacy CLI ordering and preservation described below.
 - npm run test:migrations:unit --prefix backend:8 parser/graph checks.
 - node --test backend/tests/regression/database-bootstrap.test.js:V1/V2 passes;
-  complete85 pending history fails at20260613_160000 statement17: the special-IV
-  consumer references missing created_at. Catch-risk storage now passes34 actual checks;
+  complete85 pending history fails at20260614_090500 statement2: daily-quest
+  inline :: syntax is invalid. Catch-risk storage now passes34 actual checks;
   see CATCH-RISK.md. The pending batch rolls back.
 
 Combined actual CLI/prerequisite/audit/achievement/notification/friendship/privacy

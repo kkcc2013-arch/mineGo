@@ -96,7 +96,7 @@
 | [REQ-00088](REQ-00088-redis-connection-pool-management-and-health-monitoring.md) | Redis 连接池管理与健康监控系统 | 成本/资源优化 | P1 | new | backend/shared/redis.js、所有微服务、infrastructure/k8s、backend/shared/metrics.js | 2026-06-10 12:38 |
 | [REQ-00089](REQ-00089-data-cross-border-transfer-compliance.md) | 数据跨境传输合规与本地化存储策略 | 合规/隐私 | P1 | new | user-service、gateway、database、backend/shared、infrastructure/k8s | 2026-06-10 13:00 |
 | [REQ-00090](REQ-00090-pokemon-status-effects-battle-buff-debuff-system.md) | 精灵状态效果系统与战斗Buff/Debuff管理 | 功能增强 | P1 | done | pokemon-service、gym-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
-| [REQ-00091](REQ-00091-pokemon-equipment-system-and-stat-bonus-mechanism.md) | 精灵装备系统与属性加成机制 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
+| [REQ-00091](REQ-00091-pokemon-equipment-system-and-stat-bonus-mechanism.md) | 精灵装备系统与属性加成机制 | 功能增强 | P1 | in_progress | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 14:00 |
 | [REQ-00092](REQ-00092-api-request-batching-and-deduplication.md) | API 请求合并与批量查询优化 | 性能优化 | P1 | done | game-client、gateway、pokemon-service、social-service、gym-service | 2026-06-10 15:00 |
 | [REQ-00093](REQ-00093-api-contract-testing-system.md) | API 契约测试系统 | 测试覆盖 | P1 | in_progress | gateway、所有微服务、backend/tests/contract | 2026-06-10 16:00 |
 | [REQ-00094](REQ-00094-realtime-business-metrics-dashboard-and-operations-monitoring.md) | 实时业务指标仪表板与运营监控系统 | 可观测性/监控 | P1 | done | gateway、所有微服务、infrastructure/k8s/monitoring、admin-dashboard、backend/shared/businessMetrics.js | 2026-06-10 16:05 |
@@ -165,7 +165,7 @@
 | [REQ-00157](REQ-00157-unified-error-handling-and-api-response.md) | 统一错误处理与 API 响应格式标准化 | 技术债/重构 | P1 | done | 所有微服务、backend/shared、gateway、game-client | 2026-06-13 09:05 |
 | [REQ-00158](REQ-00158-business-event-anomaly-detection.md) | 业务事件异常检测与智能告警系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-13 10:00 |
 | [REQ-00159](REQ-00159-service-health-self-healing-and-auto-recovery-system.md) | 服务健康自愈与自动恢复系统 | 容灾/高可用 | P1 | in_progress | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-13 10:05 |
-| [REQ-00160](REQ-00160-special-iv-system.md) | 精灵特殊个体值（彩蛋）系统 | 功能增强 | P1 | done | pokemon-service、catch-service、location-service、gateway、game-client、database/migrations | 2026-06-13 15:00 |
+| [REQ-00160](REQ-00160-special-iv-system.md) | 精灵特殊个体值（彩蛋）系统 | 功能增强 | P1 | in_progress | pokemon-service、catch-service、location-service、gateway、game-client、database/migrations | 2026-06-13 15:00 |
 | [REQ-00161](REQ-00161-low-peak-service-auto-sleep-and-smart-wake.md) | 低峰期服务自动休眠与智能唤醒系统 | 成本/资源优化 | P1 | new | gateway、所有微服务、backend/shared/sleepManager.js、backend/shared/trafficAnalyzer.js、infrastructure/k8s、backend/jobs | 2026-06-13 10:30 |
 | [REQ-00162](REQ-00162-in-game-screen-reader-voice-navigation-enhancement.md) | 游戏内屏幕阅读器语音导航增强系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/accessibility、frontend/game-client/src/components | 2026-06-13 17:05 |
 | [REQ-00163](REQ-00163-game-client-memory-tamper-detection.md) | 游戏客户端内存篡改检测与防护系统 | 反作弊 | P1 | new | game-client、gateway、catch-service、gym-service、backend/shared | 2026-06-13 16:00 |

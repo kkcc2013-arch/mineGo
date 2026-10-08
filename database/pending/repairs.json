@@ -24,7 +24,7 @@
     "20260614_081000": {
       "sourceSha256": "69e4f234792528a5ead888f79654614acd482e94d1da86fe62d7968c5973b6f4",
       "file": "repairs/20260614_081000__add_equipment_system.sql",
-      "reason": "Align 1 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+      "reason": "Use canonical UUID user/Pokemon references and helper argument; express the exact existing active-template partial uniqueness rule as a PostgreSQL unique index. Keep all seed values and other SQL. This does not implement full per-type slot/API/game acceptance."
     },
     "20260615_170500": {
       "sourceSha256": "09a757e3a770f1549494900bc876f32c3a8d027561900d3f8c15816a1ba65611",
@@ -110,6 +110,11 @@
       "sourceSha256": "071c812b16b0f3bd90eb912c88d98d01c334d709a619ae0c5e7b26280869b926",
       "file": "repairs/20260612_070000__add_catch_anomaly_detection_system.sql",
       "reason": "Keep canonical UUID gameplay catch sessions/throws unchanged; use distinct owned risk-attempt records, real throw evidence and atomic hourly observations. Store original base-rate seeds as configuration rather than fabricated user statistics; refuse lossy rollback and unsupported preexisting risk schemas."
+    },
+    "20260613_160000": {
+      "sourceSha256": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
+      "file": "repairs/20260613_160000__add_special_iv_system.sql",
+      "reason": "Use actual spawned_at; derive flags from preserved IV tuples, backfill without replaying user triggers, maintain current-owner stats on insert/update/delete, create missing config contract without overwriting existing settings, and reverse only owned derived objects/configuration safely."
     }
   }
 }
