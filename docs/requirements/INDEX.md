@@ -81,7 +81,7 @@
 | [REQ-00073](REQ-00073-pvp-player-vs-player-battle-system.md) | 玩家对战系统（PVP Duel） | 功能增强 | P0 | done | social-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-10 01:25 |
 | [REQ-00074](REQ-00074-player-leaderboard-system.md) | 玩家排行榜系统 | 功能增强 | P1 | done | social-service、user-service、pokemon-service、gym-service、gateway、game-client、Redis、database/migrations | 2026-06-10 10:00 |
 | [REQ-00075](REQ-00075-ip-blacklist-and-auto-ban-system.md) | IP 黑名单与恶意 IP 自动封禁系统 | 安全加固 | P1 | in_progress | gateway、user-service、backend/shared、Redis、database/migrations | 2026-06-10 02:00 |
-| [REQ-00076](REQ-00076-pokemon-achievement-and-milestone-reward-system.md) | 精灵成就系统与里程碑奖励 | 功能增强 | P1 | new | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-10 02:15 |
+| [REQ-00076](REQ-00076-pokemon-achievement-and-milestone-reward-system.md) | 精灵成就系统与里程碑奖励 | 功能增强 | P1 | in_progress | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-10 02:15 |
 | [REQ-00077](REQ-00077-database-slow-query-analysis-system.md) | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | done | database/migrations、所有微服务、backend/shared、infrastructure/k8s | 2026-06-10 10:30 |
 | [REQ-00078](REQ-00078-canary-deployment-and-traffic-splitting.md) | 金丝雀发布与流量分割系统 | 运维/CICD | P1 | done | gateway、所有微服务、infrastructure/k8s、.github/workflows、backend/shared | 2026-06-10 04:00 |
 | [REQ-00079](REQ-00079-pokemon-friendship-and-affinity-system.md) | 精灵好感度系统与亲密度进化机制 | 功能增强 | P1 | new | pokemon-service、user-service、catch-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 11:00 |

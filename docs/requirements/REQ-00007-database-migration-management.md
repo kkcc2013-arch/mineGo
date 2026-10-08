@@ -263,3 +263,17 @@ hash，拒绝修复文件/路径或原始内容失配。当前修复包括 V1 UU
 核心unit8、真实CLI13、实际prerequisite/库存2、业务storage33、native进程2
 通过；全unit621。原79脚本加2prerequisite共81仍全部纳入 gate；失败已推进到
 audit_logs普通表与分区脚本冲突，未降低原始验收。完整历史及回滚仍需继续。
+
+
+## 审计转换后的全历史边界（2026-10-08）
+
+新增 audit prerequisite，按依赖先于20260610_100000执行，原81个已发布源文件
+全部字节不变；当前82个 pending 均纳入 gate。完整绑定修复包含分区函数的实际
+父表/边界验证与 DEFAULT 行移动，以及 slow_query_history 中两处 MySQL 风格
+内嵌 INDEX 改为 PostgreSQL CREATE INDEX。原始语句/字段均保留。
+
+真实审计转换/五父表存储23、runner/prerequisite15、全unit621及业务storage/
+native35通过。V1+V2通过，全部82历史 gate 越过审计阶段，但成就迁移因既有
+user_achievements 缺少 completed 字段失败；四个用户外键已按 V1 UUID 修复。
+全历史事务回滚，不记录假成功。完整目录、成就跨服务合同、后续分区重复迁移、
+全历史回滚及其它服务初始化仍待完成；本需求保持 in_progress。

@@ -62,24 +62,37 @@ and shared AUTO_MIGRATE startup. Full V1/PostGIS schema plus V2 sample data now 
 the sample's other game-balance settings remain unchanged. New target base stats were
 checked against the [game-master snapshot](https://github.com/PokeMiners/game_masters/blob/8e227be44f288d34463e23bf04e9b564d3c16f79/latest/latest.json).
 
-The complete current81-file pending history (original79 plus2 explicit prerequisites)
-is still failing at the audit-table partition conversion. The original V1 audit_logs is
-an ordinary table with different columns; IF NOT EXISTS neither reconciles it nor turns
-it into a partition parent. The item/Pokedex prerequisites and guarded SQL repairs now
-permit earlier stages to execute. Original legacy files retain their exact hashes.
-The full-history test remains a failing CI gate until conversion and later dependencies
-are actually repaired. Whole-history upgrades/rollback, all-service startup, operational
-backups and REQ-00306 remain open; this does not mark REQ-00007 complete.
+The current82-file pending history (original79 plus3 explicit prerequisites) remains
+gated. The audit conversion now executes successfully: V1 storage is attached as a
+default partition with its original ID/sequence/columns/data retained. Views, indexes,
+triggers and grants are preserved; rollback retains rows written after conversion.
+Partition creation validates schema/parent/bounds, moves matching default rows atomically
+and rechecks a concurrent creator after acquiring the lock. Unsupported incoming foreign
+keys, additional uniqueness, forced RLS, materialized views and target-name collisions
+fail atomically; these custom upgrade cases still need explicit plans.
+
+23 actual PostGIS storage checks cover audit conversion/rollback, logical ID concurrency,
+failed attachments, and historical/current writes to all five actual parents. This is
+SQL storage evidence, not acceptance of all service/client paths or retention/performance.
+Guarded repairs also replace two invalid inline INDEX declarations and four achievement
+owner types with canonical UUIDs. All81 previously published pending sources remain
+byte-identical. The complete history now fails at20260611_000000 statement7: the existing
+V1 user_achievements lacks completed. Its old definition/progress contract must be
+reconciled with the newer achievement service before the gate can pass. Later duplicate
+partition migrations and complete rollback remain unproven.
 
 Run `npm run test:migrations:unit --prefix backend` for the actual parser/unit suite.
-For an isolated database, set TEST_DATABASE_URL and run
-`npm run test:migrations:storage --prefix backend`. With the PostGIS image specified in
-docker-compose.yml, run `node --test backend/tests/regression/database-bootstrap.test.js`
-for the full schema/seed/history gate. The final history case is currently red for the
-audit partition conflict above. GitHub runs these checks in .github/workflows/migration-regression.yml.
+Set TEST_DATABASE_URL to an isolated PostGIS database and run
+`npm run test:migrations:storage --prefix backend`,
+`node --test backend/tests/regression/migration-prerequisites.test.js`,
+`node --test backend/tests/regression/audit-partition-storage.test.js` and
+`node --test backend/tests/regression/database-bootstrap.test.js`. The final history case
+remains red at the achievement conflict. GitHub runs all these gates in
+.github/workflows/migration-regression.yml. Whole-history upgrades/rollback, all-service
+startup, operational backups and REQ-00306 remain open; REQ-00007 is not complete.
 
 
-## Dependency/catalog follow-up (2026-10-08)
+## Earlier dependency/catalog probe (2026-10-08, source f79d55f)
 
 Runner unit8 and actual CLI13 cases pass, including repair/dependency tampering,
 actual order rollback and legacy journal adoption preserving application data and
@@ -88,7 +101,7 @@ survives rollback, newly owned catalog is removed safely, valid UUID cache owner
 and invalid owners/zero quantities are rejected. Actual inventory helpers now handle
 UUID capacity, default fields and expiry without violating quantity constraints.
 
-Current pending set is81: original79 plus2 declared prerequisites. The full gate remains
+At that source, the pending set was81: original79 plus2 declared prerequisites. The full gate remains
 red at20260610_100000: the preexisting V1 audit_logs is a regular table and lacks the
 partition script's resource columns. Ignoring partition work cannot satisfy REQ-00060.
 The next batch must reconcile IDs/all columns/data/constraints/defaults/dependencies,

@@ -65,6 +65,21 @@
       "sourceSha256": "99c96061defc0b502f87147c491889266f53b9e5c8ae8cfbdcdda6892c09969e",
       "file": "repairs/20260609_124500__add_item_inventory_system.sql",
       "reason": "Use UUID owner in capacity function, named default capacity fields, positive additions and typed remaining capacity; delete expired rows instead of violating positive-quantity constraint."
+    },
+    "20260610_100000": {
+      "sourceSha256": "9a7e7ae9946cdc45a2dbfb4c27e981cffba48d7699971902f88213f49dd80bac",
+      "file": "repairs/20260610_100000__add_table_partitioning_system.sql",
+      "reason": "Use audited audit-parent conversion and schema-scoped partition creation that moves matching default rows atomically, verifies existing bounds and retains out-of-window data."
+    },
+    "20260610_103000": {
+      "sourceSha256": "bcfa7904149404b6677ab0e33591670d12746845e590849ee822dca2966071ab",
+      "file": "repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql",
+      "reason": "Replace two invalid inline INDEX declarations with PostgreSQL CREATE INDEX, retaining table fields and all other SQL."
+    },
+    "20260611_000000": {
+      "sourceSha256": "31e3714195d83afba17bafd85f3590ad51e30011831a5d0a1f5b4e8e5a00e302",
+      "file": "repairs/20260611_000000__add_achievement_system_tables.sql",
+      "reason": "Align all four achievement/title owner columns with authoritative V1 UUID users; retain all other SQL and seeds."
     }
   }
 }

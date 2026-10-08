@@ -3,7 +3,7 @@
 Updated: 2026-10-08. Scope: all 658 existing requirement documents in INDEX.md,
 including the 201 legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 437 new, 20 in progress. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 436 new, 21 in progress. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -28,20 +28,17 @@ independent authorized work.
 
 ## Current batch
 
-1. REQ-00106 title service: replace unsupported Knex-style query/transaction calls with
-   parameterized shared PostgreSQL operations; repair its actual routes, identity
-   migration, concurrent activation, expiration and cache behavior.
-2. REQ-00159/00682: use the repaired title initialization to continue actual
-   user-service startup verification; resolve each newly exposed startup defect.
-3. REQ-00120/00126/00149 and the other user-route integration documents: verify
-   real mounted paths and JWT/admin behavior through user-service and the gateway.
-4. Repair integration tests to use real production user identities and routes,
-   then supply actual running targets to contract and performance checks.
-
-The previous lifecycle batch passed 590 unit checks, 26 standalone launcher checks
-and 11 PostgreSQL/privacy checks. Main/dependency/privacy CI passed at 890b779;
-contract/performance/integration acceptance is still failing. New source changes
-must receive their own validation and remote checks.
+1. Preserve actual V1 audit data/IDs and business contracts while converting the real
+   table to a partition parent; prove writes, logical-ID concurrency, views and rollback.
+   This storage slice now passes23 real PostGIS checks; full REQ-00060 remains open.
+2. Reconcile V1 user_achievements/achievement_definitions with the newer achievement
+   service, preserving existing progress and preventing duplicate rewards. Full pending
+   history now fails at the missing completed column; identity repairs alone are partial.
+3. Continue later full-history conflicts, including duplicate partition parents, then
+   validate fresh upgrades/rollback and real service initialization/schema/warmup.
+4. Resume the P0 service/security route work and all remaining stages. Unit621, actual
+   migration/prerequisite15 and business storage/native35 pass locally for this batch;
+   complete history, legacy contract/API/performance/integration/security/E2E stay open.
 
 ## Definition of finished
 
@@ -155,3 +152,24 @@ requirement accepted. Next: preserve V1 audit IDs/columns/history and live write
 contracts while implementing actual partition conversion and rollback, then continue
 remaining migration conflicts and service/schema/warmup acceptance. Full658 scope stays
 active. There is concrete progress; no blocked audit applies.
+
+
+## Audit partition batch (2026-10-08)
+
+Preserved V1 audit ID/sequence, all columns and rows, original storage OID, views,
+indexes, grants and trigger state during actual conversion. Global logical-ID checks
+handle cross-partition concurrency/date/ID updates. Bound/schema validation and atomic
+default-row movement preserve data on failed attachment; concurrent creation is checked
+after locking. Rollback retains post-conversion rows and additive fields.23 actual
+PostGIS checks pass, including all five actual parent SQL writes/routing and guarded
+unsupported upgrade cases. No full service or operational acceptance inferred.
+
+Current82-file gate advances past audit conversion and pg_stat SQL to the achievement
+completed-column conflict. Full V1+V2passes, pending batch rolls back. UUID owner repair
+is partial; unify old/new catalogs/progress/rewards before accepting achievement APIs.
+Req76 now in_progress:201legacydone/21inprogress/436new, all658 scope maintained.
+Unit621, runner/prerequisite15, business/native35 and1414-file syntax pass. Prior source
+f79 remote main/dependency/privacy/title-process pass; migration/contract/API/integration/
+performance/security fail andE2E102 cancelled. No requirement promoted to verified.
+Next: achievement/schema reconciliation, remaining partition/history/runtime contracts,
+then continue all planned stages. This is progress; no blocked audit condition applies.

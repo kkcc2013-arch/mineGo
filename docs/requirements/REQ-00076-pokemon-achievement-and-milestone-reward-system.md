@@ -7,7 +7,7 @@
 | 标题 | 精灵成就系统与里程碑奖励 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | in_progress |
 | 涉及服务 | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-10 02:15 |
 
@@ -999,3 +999,18 @@ module.exports = [
 - [Xbox Live Achievements](https://docs.microsoft.com/en-us/gaming/xbox-live/features/achievements/)
 - [Pokemon GO Achievements](https://pokemongohub.net/guide/achievements/)
 - 游戏成就系统设计最佳实践
+
+
+## 实际生产 schema 复核（2026-10-08）
+
+完整 V1+V2 和82个 pending 的实际 gate 已推进到本需求。旧脚本中四个 user_id
+INTEGER 与规范 users.id UUID 不兼容；通过绑定原始 SHA 的完整修复 SQL 改为
+UUID，保留原文件、所有其它语句和种子。随后仍失败：V1 user_achievements 已经
+存在，CREATE TABLE IF NOT EXISTS 不会新增 completed/progress/target 等字段。
+原表还引用 achievement_definitions，新服务引用 achievements；不能删除原数据/
+外键或只补字段来宣称兼容。
+
+下一步明确统一成就定义和进度合同，保留原 current_value/current_tier、既有用户
+进度及奖励记录，并验证旧 reward/catch/user 读写与新 achievement 服务同时可用，
+防止重复发奖。本次只是迁移身份修复和失败定位；HTTP/事件/奖励事务、客户端、
+性能及全部验收仍未完成。

@@ -296,8 +296,8 @@
         "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
         ".github/workflows/title-regression.yml": "326c0e08f39b24deb2838ec2f3f1c0917f435ebde214f39ea9a20c24c3641905",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
-        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca"
+        "database/pending/dependencies.json": "66144c1d3ee9f4e858de7d21bc2a76f675f8753868cb5a1af156165db66db7b8",
+        "database/pending/repairs.json": "ec5f4dadac940a58daa78489c563e49cf90c8521cfb4a66c3b5be0097ba96d6c"
       },
       "evidence": [
         {
@@ -411,6 +411,16 @@
           "scope": "621 unit,13actual CLI,2actual prerequisites/inventory,33business storage and2native process cases pass. All81 pending files remain gated; full-history failure moved to audit partition conflict. Complete acceptance not claimed.",
           "changedReferences": [
             ".github/workflows/title-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisites; actual business storage and native process suites; full production bootstrap/history",
+          "result": "partial_passed",
+          "scope": "621unit,13CLI,2prerequisites,33storage+2native pass. Current metadata is exercised by production runner/default initialization and full82history (still fails achievement completed column after audit phase). Only changed shared metadata/workflow/guide references refreshed. This does not verify every requirement-specific route/client/event/performance acceptance item. Current CI pending.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
           ]
         }
       ]
@@ -435,8 +445,8 @@
         "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
         ".github/workflows/title-regression.yml": "326c0e08f39b24deb2838ec2f3f1c0917f435ebde214f39ea9a20c24c3641905",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
-        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca"
+        "database/pending/dependencies.json": "66144c1d3ee9f4e858de7d21bc2a76f675f8753868cb5a1af156165db66db7b8",
+        "database/pending/repairs.json": "ec5f4dadac940a58daa78489c563e49cf90c8521cfb4a66c3b5be0097ba96d6c"
       },
       "evidence": [
         {
@@ -550,6 +560,16 @@
           "scope": "621 unit,13actual CLI,2actual prerequisites/inventory,33business storage and2native process cases pass. All81 pending files remain gated; full-history failure moved to audit partition conflict. Complete acceptance not claimed.",
           "changedReferences": [
             ".github/workflows/title-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisites; actual business storage and native process suites; full production bootstrap/history",
+          "result": "partial_passed",
+          "scope": "621unit,13CLI,2prerequisites,33storage+2native pass. Current metadata is exercised by production runner/default initialization and full82history (still fails achievement completed column after audit phase). Only changed shared metadata/workflow/guide references refreshed. This does not verify every requirement-specific route/client/event/performance acceptance item. Current CI pending.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
           ]
         }
       ]
@@ -577,8 +597,8 @@
         ".github/workflows/title-regression.yml": "326c0e08f39b24deb2838ec2f3f1c0917f435ebde214f39ea9a20c24c3641905",
         "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
-        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca"
+        "database/pending/dependencies.json": "66144c1d3ee9f4e858de7d21bc2a76f675f8753868cb5a1af156165db66db7b8",
+        "database/pending/repairs.json": "ec5f4dadac940a58daa78489c563e49cf90c8521cfb4a66c3b5be0097ba96d6c"
       },
       "evidence": [
         {
@@ -698,6 +718,16 @@
           "scope": "621 unit,13actual CLI,2actual prerequisites/inventory,33business storage and2native process cases pass. All81 pending files remain gated; full-history failure moved to audit partition conflict. Complete acceptance not claimed.",
           "changedReferences": [
             ".github/workflows/title-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisites; actual business storage and native process suites; full production bootstrap/history",
+          "result": "partial_passed",
+          "scope": "621unit,13CLI,2prerequisites,33storage+2native pass. Current metadata is exercised by production runner/default initialization and full82history (still fails achievement completed column after audit phase). Only changed shared metadata/workflow/guide references refreshed. This does not verify every requirement-specific route/client/event/performance acceptance item. Current CI pending.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
           ]
         }
       ]
@@ -725,8 +755,8 @@
         ".github/workflows/title-regression.yml": "326c0e08f39b24deb2838ec2f3f1c0917f435ebde214f39ea9a20c24c3641905",
         "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
-        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca"
+        "database/pending/dependencies.json": "66144c1d3ee9f4e858de7d21bc2a76f675f8753868cb5a1af156165db66db7b8",
+        "database/pending/repairs.json": "ec5f4dadac940a58daa78489c563e49cf90c8521cfb4a66c3b5be0097ba96d6c"
       },
       "evidence": [
         {
@@ -846,6 +876,16 @@
           "scope": "621 unit,13actual CLI,2actual prerequisites/inventory,33business storage and2native process cases pass. All81 pending files remain gated; full-history failure moved to audit partition conflict. Complete acceptance not claimed.",
           "changedReferences": [
             ".github/workflows/title-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisites; actual business storage and native process suites; full production bootstrap/history",
+          "result": "partial_passed",
+          "scope": "621unit,13CLI,2prerequisites,33storage+2native pass. Current metadata is exercised by production runner/default initialization and full82history (still fails achievement completed column after audit phase). Only changed shared metadata/workflow/guide references refreshed. This does not verify every requirement-specific route/client/event/performance acceptance item. Current CI pending.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
           ]
         }
       ]
@@ -873,8 +913,8 @@
         ".github/workflows/title-regression.yml": "326c0e08f39b24deb2838ec2f3f1c0917f435ebde214f39ea9a20c24c3641905",
         "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
-        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca"
+        "database/pending/dependencies.json": "66144c1d3ee9f4e858de7d21bc2a76f675f8753868cb5a1af156165db66db7b8",
+        "database/pending/repairs.json": "ec5f4dadac940a58daa78489c563e49cf90c8521cfb4a66c3b5be0097ba96d6c"
       },
       "evidence": [
         {
@@ -995,6 +1035,16 @@
           "changedReferences": [
             ".github/workflows/title-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisites; actual business storage and native process suites; full production bootstrap/history",
+          "result": "partial_passed",
+          "scope": "621unit,13CLI,2prerequisites,33storage+2native pass. Current metadata is exercised by production runner/default initialization and full82history (still fails achievement completed column after audit phase). Only changed shared metadata/workflow/guide references refreshed. This does not verify every requirement-specific route/client/event/performance acceptance item. Current CI pending.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1018,8 +1068,8 @@
         ".github/workflows/title-regression.yml": "326c0e08f39b24deb2838ec2f3f1c0917f435ebde214f39ea9a20c24c3641905",
         "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
-        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca"
+        "database/pending/dependencies.json": "66144c1d3ee9f4e858de7d21bc2a76f675f8753868cb5a1af156165db66db7b8",
+        "database/pending/repairs.json": "ec5f4dadac940a58daa78489c563e49cf90c8521cfb4a66c3b5be0097ba96d6c"
       },
       "evidence": [
         {
@@ -1095,6 +1145,16 @@
           "scope": "621 unit,13actual CLI,2actual prerequisites/inventory,33business storage and2native process cases pass. All81 pending files remain gated; full-history failure moved to audit partition conflict. Complete acceptance not claimed.",
           "changedReferences": [
             ".github/workflows/title-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisites; actual business storage and native process suites; full production bootstrap/history",
+          "result": "partial_passed",
+          "scope": "621unit,13CLI,2prerequisites,33storage+2native pass. Current metadata is exercised by production runner/default initialization and full82history (still fails achievement completed column after audit phase). Only changed shared metadata/workflow/guide references refreshed. This does not verify every requirement-specific route/client/event/performance acceptance item. Current CI pending.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
           ]
         }
       ]
@@ -1119,8 +1179,8 @@
         ".github/workflows/title-regression.yml": "326c0e08f39b24deb2838ec2f3f1c0917f435ebde214f39ea9a20c24c3641905",
         "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
-        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca"
+        "database/pending/dependencies.json": "66144c1d3ee9f4e858de7d21bc2a76f675f8753868cb5a1af156165db66db7b8",
+        "database/pending/repairs.json": "ec5f4dadac940a58daa78489c563e49cf90c8521cfb4a66c3b5be0097ba96d6c"
       },
       "evidence": [
         {
@@ -1197,6 +1257,16 @@
           "changedReferences": [
             ".github/workflows/title-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisites; actual business storage and native process suites; full production bootstrap/history",
+          "result": "partial_passed",
+          "scope": "621unit,13CLI,2prerequisites,33storage+2native pass. Current metadata is exercised by production runner/default initialization and full82history (still fails achievement completed column after audit phase). Only changed shared metadata/workflow/guide references refreshed. This does not verify every requirement-specific route/client/event/performance acceptance item. Current CI pending.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1213,8 +1283,8 @@
         "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
         ".github/workflows/title-regression.yml": "326c0e08f39b24deb2838ec2f3f1c0917f435ebde214f39ea9a20c24c3641905",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
-        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca"
+        "database/pending/dependencies.json": "66144c1d3ee9f4e858de7d21bc2a76f675f8753868cb5a1af156165db66db7b8",
+        "database/pending/repairs.json": "ec5f4dadac940a58daa78489c563e49cf90c8521cfb4a66c3b5be0097ba96d6c"
       },
       "evidence": [
         {
@@ -1250,13 +1320,23 @@
           "changedReferences": [
             ".github/workflows/title-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisites; actual business storage and native process suites; full production bootstrap/history",
+          "result": "partial_passed",
+          "scope": "621unit,13CLI,2prerequisites,33storage+2native pass. Current metadata is exercised by production runner/default initialization and full82history (still fails achievement completed column after audit phase). Only changed shared metadata/workflow/guide references refreshed. This does not verify every requirement-specific route/client/event/performance acceptance item. Current CI pending.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
     "REQ-00007-database-migration-management.md": {
       "date": "2026-10-08",
       "status": "partial_verified_full_history_failed",
-      "documentSha256": "09759b1f7acecfa9422ec0c584660a8fc4974458ab2150b4f90836b329b2a863",
+      "documentSha256": "4d47f4996b64dea9fcf2fd2b53ebcc6cecc70f46249c4b4cab626fb3e282cdea",
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
@@ -1272,11 +1352,11 @@
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/regression/storageSetup.js": "1a67a27f674d7ef022e266da1ebbd5146870cdc290ebd64a51a799f5843ceaee",
-        ".github/workflows/migration-regression.yml": "04e0d774fa2e83378d729f0b826e4e9a0911c1d0c01e40245dde4fe89a33dcd3",
-        "docs/DATABASE-MIGRATIONS.md": "e068c4bbc5f81ca66401cc2d72bf7f5bd9803b518b868c484a69838543ce9edf",
+        ".github/workflows/migration-regression.yml": "466d8178f0ec6aadf11d4029ac63e46a069b1ec9f2029c511128f4593603bf1a",
+        "docs/DATABASE-MIGRATIONS.md": "453266ca23030622798436188f0c66c2173fcdbb3d644af1c13c5f48301f4cf5",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
-        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca",
+        "database/pending/dependencies.json": "66144c1d3ee9f4e858de7d21bc2a76f675f8753868cb5a1af156165db66db7b8",
+        "database/pending/repairs.json": "ec5f4dadac940a58daa78489c563e49cf90c8521cfb4a66c3b5be0097ba96d6c",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-prerequisites.test.js": "779edeb45b83d981d361cba79cab518a53def7f881ee44b0956f75ff6b0a7766",
@@ -1292,7 +1372,12 @@
         "database/pending/repairs/20260610_040000__add_guild_system_tables.sql": "2a29339687184077880c8dd956ba0baa6ba5dce18d49fba3183099f11d7aaaf3",
         "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "15e34fb1f56090ccef456b544b74bc0f518c8bc288d44dd6b1a51bcc0541bd1e",
         "database/pending/repairs/20260610_080000__add_ip_ban_system.sql": "2e5811df9812c7e3533fec115665884b00fa6e2f4abb6c9da5a74e07dd3f3104",
-        "database/pending/repairs/20260609_124500__add_item_inventory_system.sql": "692f2f44415956fb836bcbfc2d999f0363b2c28dd2415a8f91e4158e986be8cc"
+        "database/pending/repairs/20260609_124500__add_item_inventory_system.sql": "692f2f44415956fb836bcbfc2d999f0363b2c28dd2415a8f91e4158e986be8cc",
+        "database/pending/20261008_140000__audit_partition_conversion.sql": "6341c87821de38f68340cbb952b0b393496b52793ddd1c225cb27c221f6b6eaf",
+        "database/pending/repairs/20260610_100000__add_table_partitioning_system.sql": "5e63737f951f64f9b505911a98ce9c645631fa02ff54405b2f579ed00b462451",
+        "database/pending/repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "491d8e25d371c1294e85f9700835abf394096b2575d815db76013e93cc149bba",
+        "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "1de7f3607f968aa7efa22893706ef373d95687165f6c11413622d72b45ea9aaa",
+        "backend/tests/regression/audit-partition-storage.test.js": "ca14ed2db385322a889ad88b7d79c69410dbddf80b037a23ef4404e482cbed39"
       },
       "evidence": [
         {
@@ -1381,27 +1466,56 @@
           "result": "partial_ci_passed_full_history_failed",
           "scope": "Migration regression2: parser8, actual CLI13 and prerequisite/inventory2 pass. FullV1+V2pass, but all81 history fails20260610_100000 statement21 resource_type. Main440/dependency248/privacy12 pass; this does not accept complete requirement scope.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37721852054"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "node --test backend/tests/regression/audit-partition-storage.test.js",
+          "runtime": "Node.js24",
+          "result": "passed",
+          "tests": 23,
+          "scope": "Actual isolated PostGIS15/V1: audit conversion retaining every original field/value/storage/serial, ordinary views/indexes/grants/user trigger states, concurrent logical IDs and partition creators, bulk/failure rollback, UTC bounds, actual SQL historical/current writes to all five parents, existing partitioned-table preservation and explicit unsupported dependency rejection. Not complete service/history/performance/operational acceptance."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; migration-storage/prerequisites; privacy/title/IP storage; user/gateway process checks; repository JS syntax",
+          "result": "passed",
+          "scope": "621unit,13actual CLI,2prerequisites,33business storage+2native process and1414JS files. Changed migration metadata/workflow/reference refresh limited to these matching tests and the failing full-history probe. All81 previously published top-level pending SQL verified byte-identical againstHEAD."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "node --test backend/tests/regression/database-bootstrap.test.js",
+          "result": "failed",
+          "passed": 1,
+          "failed": 1,
+          "scope": "Full production V1+V2 sample seed passes. All82 pending files remain gated; run crosses audit conversion and analysis-table SQL, then fails20260611_000000 statement7: existing V1 user_achievements lacks completed. UUID owner repair is partial. Whole pending transaction rolls back; no full-history acceptance."
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "f79d55fbe2da69247d7335114a66bff49e4c6e5f",
+          "result": "partial_ci_passed",
+          "scope": "Prior source confirmed terminal: main440/dependency248/privacy12/title-storage-native9 pass; migration2/contract365/API69/integration415/performance108/security398 fail; E2E102 cancelled. Current audit conversion batch CI pending. No full requirement accepted.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37721852002"
         }
       ],
-      "remaining": "Full pending/external migration catalog and dependencies, whole-history upgrades/rollback, all-service startup integration and complete CI acceptance remain unproven."
+      "remaining": "Full pending/history catalog reconciliation, achievement contracts, later duplicate partition migrations, whole-history upgrade/rollback, all-service startup and complete required CI acceptance remain unproven."
     },
     "REQ-00047-pokemon-items-inventory-management-system.md": {
       "date": "2026-10-08",
-      "status": "partial_ci_verified",
+      "status": "partial_verified_full_history_failed",
       "documentSha256": "1e4b09e980841206306e6d778caa7f0fe0eeaef677852331fca1346756fc3592",
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
-        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca",
+        "database/pending/dependencies.json": "66144c1d3ee9f4e858de7d21bc2a76f675f8753868cb5a1af156165db66db7b8",
+        "database/pending/repairs.json": "ec5f4dadac940a58daa78489c563e49cf90c8521cfb4a66c3b5be0097ba96d6c",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "779edeb45b83d981d361cba79cab518a53def7f881ee44b0956f75ff6b0a7766",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "04e0d774fa2e83378d729f0b826e4e9a0911c1d0c01e40245dde4fe89a33dcd3",
-        "docs/DATABASE-MIGRATIONS.md": "e068c4bbc5f81ca66401cc2d72bf7f5bd9803b518b868c484a69838543ce9edf",
+        ".github/workflows/migration-regression.yml": "466d8178f0ec6aadf11d4029ac63e46a069b1ec9f2029c511128f4593603bf1a",
+        "docs/DATABASE-MIGRATIONS.md": "453266ca23030622798436188f0c66c2173fcdbb3d644af1c13c5f48301f4cf5",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -1429,26 +1543,38 @@
           "result": "partial_ci_passed_full_history_failed",
           "scope": "Migration regression2: parser8, actual CLI13 and prerequisite/inventory2 pass. FullV1+V2pass, but all81 history fails20260610_100000 statement21 resource_type. Main440/dependency248/privacy12 pass; this does not accept complete requirement scope.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37721852054"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisites; actual business storage and native process suites; full production bootstrap/history",
+          "result": "partial_passed",
+          "scope": "621unit,13CLI,2prerequisites,33storage+2native pass. Current metadata is exercised by production runner/default initialization and full82history (still fails achievement completed column after audit phase). Only changed shared metadata/workflow/guide references refreshed. This does not verify every requirement-specific route/client/event/performance acceptance item. Current CI pending.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ]
     },
     "REQ-00056-pokedex-completion-reward-system.md": {
       "date": "2026-10-08",
-      "status": "partial_ci_verified",
+      "status": "partial_verified_full_history_failed",
       "documentSha256": "f58d1055fc702bef6e3a6cf4f9ed5156499e4241c8c57d078c7a73efcb7c6212",
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
-        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca",
+        "database/pending/dependencies.json": "66144c1d3ee9f4e858de7d21bc2a76f675f8753868cb5a1af156165db66db7b8",
+        "database/pending/repairs.json": "ec5f4dadac940a58daa78489c563e49cf90c8521cfb4a66c3b5be0097ba96d6c",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "779edeb45b83d981d361cba79cab518a53def7f881ee44b0956f75ff6b0a7766",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "04e0d774fa2e83378d729f0b826e4e9a0911c1d0c01e40245dde4fe89a33dcd3",
-        "docs/DATABASE-MIGRATIONS.md": "e068c4bbc5f81ca66401cc2d72bf7f5bd9803b518b868c484a69838543ce9edf",
+        ".github/workflows/migration-regression.yml": "466d8178f0ec6aadf11d4029ac63e46a069b1ec9f2029c511128f4593603bf1a",
+        "docs/DATABASE-MIGRATIONS.md": "453266ca23030622798436188f0c66c2173fcdbb3d644af1c13c5f48301f4cf5",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -1476,26 +1602,38 @@
           "result": "partial_ci_passed_full_history_failed",
           "scope": "Migration regression2: parser8, actual CLI13 and prerequisite/inventory2 pass. FullV1+V2pass, but all81 history fails20260610_100000 statement21 resource_type. Main440/dependency248/privacy12 pass; this does not accept complete requirement scope.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37721852054"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisites; actual business storage and native process suites; full production bootstrap/history",
+          "result": "partial_passed",
+          "scope": "621unit,13CLI,2prerequisites,33storage+2native pass. Current metadata is exercised by production runner/default initialization and full82history (still fails achievement completed column after audit phase). Only changed shared metadata/workflow/guide references refreshed. This does not verify every requirement-specific route/client/event/performance acceptance item. Current CI pending.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ]
     },
     "REQ-00060-database-partitioning-for-large-tables.md": {
       "date": "2026-10-08",
-      "status": "failed_verification",
-      "documentSha256": "d3dd718aa8a8376f11f2ecaf51885c73ba8a0eb8e54063ce6ce810542f4f37d0",
+      "status": "partial_verified_full_history_failed",
+      "documentSha256": "e8d117a28f72707b585817599a7828033cee4baf8479869c8a5f3f0cde6b0b3e",
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
-        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca",
+        "database/pending/dependencies.json": "66144c1d3ee9f4e858de7d21bc2a76f675f8753868cb5a1af156165db66db7b8",
+        "database/pending/repairs.json": "ec5f4dadac940a58daa78489c563e49cf90c8521cfb4a66c3b5be0097ba96d6c",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "779edeb45b83d981d361cba79cab518a53def7f881ee44b0956f75ff6b0a7766",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "04e0d774fa2e83378d729f0b826e4e9a0911c1d0c01e40245dde4fe89a33dcd3",
-        "docs/DATABASE-MIGRATIONS.md": "e068c4bbc5f81ca66401cc2d72bf7f5bd9803b518b868c484a69838543ce9edf",
+        ".github/workflows/migration-regression.yml": "466d8178f0ec6aadf11d4029ac63e46a069b1ec9f2029c511128f4593603bf1a",
+        "docs/DATABASE-MIGRATIONS.md": "453266ca23030622798436188f0c66c2173fcdbb3d644af1c13c5f48301f4cf5",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -1510,7 +1648,12 @@
         "database/pending/repairs/20260610_080000__add_ip_ban_system.sql": "2e5811df9812c7e3533fec115665884b00fa6e2f4abb6c9da5a74e07dd3f3104",
         "database/pending/repairs/20260609_124500__add_item_inventory_system.sql": "692f2f44415956fb836bcbfc2d999f0363b2c28dd2415a8f91e4158e986be8cc",
         "database/pending/20260610_100000__add_table_partitioning_system.sql": "9a7e7ae9946cdc45a2dbfb4c27e981cffba48d7699971902f88213f49dd80bac",
-        "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08"
+        "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
+        "database/pending/20261008_140000__audit_partition_conversion.sql": "6341c87821de38f68340cbb952b0b393496b52793ddd1c225cb27c221f6b6eaf",
+        "database/pending/repairs/20260610_100000__add_table_partitioning_system.sql": "5e63737f951f64f9b505911a98ce9c645631fa02ff54405b2f579ed00b462451",
+        "database/pending/repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "491d8e25d371c1294e85f9700835abf394096b2575d815db76013e93cc149bba",
+        "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "1de7f3607f968aa7efa22893706ef373d95687165f6c11413622d72b45ea9aaa",
+        "backend/tests/regression/audit-partition-storage.test.js": "ca14ed2db385322a889ad88b7d79c69410dbddf80b037a23ef4404e482cbed39"
       },
       "evidence": [
         {
@@ -1524,8 +1667,58 @@
           "result": "partial_ci_passed_full_history_failed",
           "scope": "Migration regression2: parser8, actual CLI13 and prerequisite/inventory2 pass. FullV1+V2pass, but all81 history fails20260610_100000 statement21 resource_type. Main440/dependency248/privacy12 pass; this does not accept complete requirement scope.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37721852054"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "node --test backend/tests/regression/audit-partition-storage.test.js",
+          "runtime": "Node.js24",
+          "result": "passed",
+          "tests": 23,
+          "scope": "Actual isolated PostGIS15/V1: audit conversion retaining every original field/value/storage/serial, ordinary views/indexes/grants/user trigger states, concurrent logical IDs and partition creators, bulk/failure rollback, UTC bounds, actual SQL historical/current writes to all five parents, existing partitioned-table preservation and explicit unsupported dependency rejection. Not complete service/history/performance/operational acceptance."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; migration-storage/prerequisites; privacy/title/IP storage; user/gateway process checks; repository JS syntax",
+          "result": "passed",
+          "scope": "621unit,13actual CLI,2prerequisites,33business storage+2native process and1414JS files. Changed migration metadata/workflow/reference refresh limited to these matching tests and the failing full-history probe. All81 previously published top-level pending SQL verified byte-identical againstHEAD."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "node --test backend/tests/regression/database-bootstrap.test.js",
+          "result": "failed",
+          "passed": 1,
+          "failed": 1,
+          "scope": "Full production V1+V2 sample seed passes. All82 pending files remain gated; run crosses audit conversion and analysis-table SQL, then fails20260611_000000 statement7: existing V1 user_achievements lacks completed. UUID owner repair is partial. Whole pending transaction rolls back; no full-history acceptance."
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "f79d55fbe2da69247d7335114a66bff49e4c6e5f",
+          "result": "partial_ci_passed",
+          "scope": "Prior source confirmed terminal: main440/dependency248/privacy12/title-storage-native9 pass; migration2/contract365/API69/integration415/performance108/security398 fail; E2E102 cancelled. Current audit conversion batch CI pending. No full requirement accepted.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37721852002"
         }
-      ]
+      ],
+      "remaining": "Full achievement and later pending-schema reconciliation, full-history upgrade/rollback, five real service data contracts, future partition scheduling, archive/restore/retention, Prometheus/statistics API, >=80% coverage, >=50% query improvement and remaining requirement-specific/all-service CI acceptance remain unproven."
+    },
+    "REQ-00076-pokemon-achievement-and-milestone-reward-system.md": {
+      "date": "2026-10-08",
+      "status": "partial_verified_full_history_failed",
+      "documentSha256": "2879f851f1707e278217da661058707b534de5b25354a99b091474d221a45806",
+      "sourceSha256": {
+        "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
+        "database/pending/20260611_000000__add_achievement_system_tables.sql": "31e3714195d83afba17bafd85f3590ad51e30011831a5d0a1f5b4e8e5a00e302",
+        "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "1de7f3607f968aa7efa22893706ef373d95687165f6c11413622d72b45ea9aaa",
+        "database/pending/repairs.json": "ec5f4dadac940a58daa78489c563e49cf90c8521cfb4a66c3b5be0097ba96d6c",
+        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513"
+      },
+      "evidence": [
+        {
+          "command": "node --test backend/tests/regression/database-bootstrap.test.js",
+          "result": "failed",
+          "scope": "Actual full production V1+V2/82pending run. Four achievement owner fields corrected from INTEGER to UUID by original-SHA-bound whole SQL repair. Execution advances to statement7 missing completed: existing V1 user_achievements has a different progress/definition contract. No HTTP/event/reward/client/performance acceptance."
+        }
+      ],
+      "remaining": "Unify existing achievement_definitions/current_value/current_tier and newer achievements/progress/target contracts while preserving users/progress/reward records and checking both old/new real service paths. Complete HTTP/event/reward concurrency/client/performance and every requirement acceptance item."
     }
   }
 }

@@ -697,3 +697,53 @@ confirmed via job113131064031 logs. Native title/process9 was still active at th
 snapshot. Partial evidence recorded, no full requirement promoted. Own PG/Redis/Kafka/
 PostGIS containers stopped after tests; no live owned local process remains. Goal
 continues next with actual audit partition conversion, all658 scope unchanged.
+
+
+## 2026-10-08 — Audit partition conversion and full-history advancement
+
+Previous goal turn: progress (actual dependency/catalog SQL, runner history tests,
+published reviewable source and authoritative CI failures). This turn: progress.
+No missing input or repeated blocker prevents continued implementation. Full658
+requirements remain the goal; no new numbered scope or requirement is accepted done.
+
+Added transactional audit prerequisite ahead of the legacy partition consumer. V1
+BIGSERIAL/UUID owner/types/rows/ciphertext/sequence survive; original storage becomes
+DEFAULT. Copies outbound FKs, expression/include/predicate indexes, ordinary views,
+triggers+enabled states and original grants. Registry/AFTER triggers enforce logical
+ID uniqueness across partitions while allowing date/ID movement and deletion.
+Rollback restores original relation OID/idPK and retains old+new rows/additivefields.
+Prototype exposed inherited composite PK on DETACH; actual rollback fixed and verified.
+
+Schema-scoped time helper validates parent/bounds/owned names, moves matching default
+rows transactionally before attachment and restores trigger states without duplicate
+side effects. Concurrent creators recheck target after parent locking. Invalid bounds/
+overlaps/name collisions preserve rows/triggers, and unsupported forcedRLS/incomingFK/
+extrauniqueness/materializedview/customidentity cases fail explicitly. Existing range
+audit parent is preserved through up/down. Full original81 pending sources byte-identical;
+third prerequisite yields82 total. Guarded whole-source repairs also fix partition
+function, two invalid inline MySQL INDEX declarations and four UUID achievement owners.
+
+Evidence: actual PostGIS partition23pass (including five real parent SQL writes/row
+routing, not five complete service workflows); fullunit621pass; migration CLI13 and
+prerequisite2pass; actual businessstorage33/nativeprocess2pass; syntax1414files zero
+errors. Full V1+V2 passes, but complete82history fails20260611_000000 statement7 completed
+missing after successfully traversing audit/analysis SQL. V1 user_achievements has
+current_value/current_tier and FK to achievement_definitions; newer service expects
+progress/target/completed and achievements. UUID repair is partial. Do not drop old
+progress/FKs or add columns and infer unified rewards. Full-history gate remains red.
+
+Migration CI now runs audit storage checks before full history. Req76 moves new->
+in_progress, all201legacydone/21inprogress/436new kept distinct from0 independently
+verified requirements. Req7/60 records append partial source-hashed evidence. Future
+three-month runtime partitioning, subsequent duplicate parents, all service contracts,
+archive/restore/retention/metrics/API/coverage/performance remain open. Prior f79 CI
+main440/dependency248/privacy12/titleprocess9pass, migration/contract/API/integration/
+performance/securityfail, E2E102cancelled; new source CI pending. Next: achievement
+catalog/progress/reward reconciliation and remaining full-history/schema service work,
+then all original stages. No production migration, merge or deployment performed.
+
+Shared migration metadata hashes in other partial records refreshed only after
+matching runner/storage/native tests above; old evidence retained and current full
+history failure explicit. Req47/56 current status partial_verified_full_history_failed,
+not complete. Owned local test services stopped after terminal probes; no background
+fixture process left running or production data touched.

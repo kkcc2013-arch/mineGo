@@ -5,8 +5,8 @@
     "uniqueIds": 658,
     "declaredStatusCounts": {
       "done": 201,
-      "in_progress": 20,
-      "new": 437
+      "in_progress": 21,
+      "new": 436
     },
     "priorityCounts": {
       "P0": 52,
@@ -177,7 +177,7 @@
       "category": "数据库/数据治理",
       "modules": "database/migrations、backend/shared/db.js、所有微服务、CI/CD",
       "createdAt": "2026-06-05 03:00",
-      "sha256": "09759b1f7acecfa9422ec0c584660a8fc4974458ab2150b4f90836b329b2a863",
+      "sha256": "4d47f4996b64dea9fcf2fd2b53ebcc6cecc70f46249c4b4cab626fb3e282cdea",
       "acceptance": [
         "- [ ] 迁移工具 `migrate.js` 实现，支持 up/down/status/create/verify 命令",
         "- [ ] `schema_migrations` 表创建成功，能正确记录迁移历史",
@@ -1387,7 +1387,7 @@
         "- [ ] 前端背包界面显示正常",
         "- [ ] 容量限制和提示正常"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_verified_full_history_failed",
       "implementationReferences": [
         "backend/services/pokemon-service/src/inventoryService.js",
         "backend/tests/unit/inventory.test.js",
@@ -1689,7 +1689,7 @@
         "- [ ] Prometheus 指标正确暴露",
         "- [ ] 单元测试覆盖率 ≥ 80%"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_verified_full_history_failed",
       "implementationReferences": [
         "backend/services/pokemon-service/src/pokedexService.js",
         "backend/services/pokemon-service/src/routes/pokedex.js",
@@ -1798,7 +1798,7 @@
       "category": "数据库/数据治理",
       "modules": "database/migrations、所有微服务、backend/shared、PostgreSQL",
       "createdAt": "2026-06-09 18:05",
-      "sha256": "d3dd718aa8a8376f11f2ecaf51885c73ba8a0eb8e54063ce6ce810542f4f37d0",
+      "sha256": "e8d117a28f72707b585817599a7828033cee4baf8479869c8a5f3f0cde6b0b3e",
       "acceptance": [
         "- [ ] 5 个高增长表成功转换为分区表，数据完整性验证通过",
         "- [ ] 分区表查询性能提升 50%+（时间范围查询对比测试）",
@@ -1810,11 +1810,13 @@
         "- [ ] 迁移脚本可回滚，不影响服务可用性",
         "- [ ] 分区统计 API 可查询各分区大小和行数"
       ],
-      "verificationStatus": "failed_verification",
+      "verificationStatus": "partial_verified_full_history_failed",
       "implementationReferences": [
         "backend/gateway/src/routes/partitions.js",
         "database/pending/20260610_100000__add_table_partitioning_system.sql",
-        "database/pending/20260619_000000__add_table_partitioning.sql"
+        "database/pending/20260619_000000__add_table_partitioning.sql",
+        "database/pending/20261008_140000__audit_partition_conversion.sql",
+        "database/pending/repairs/20260610_100000__add_table_partitioning_system.sql"
       ],
       "legacyId": null
     },
@@ -2309,11 +2311,11 @@
       "id": "REQ-00076",
       "title": "REQ-00076: 精灵成就系统与里程碑奖励",
       "priority": "P1",
-      "declaredStatus": "new",
+      "declaredStatus": "in_progress",
       "category": "功能增强",
       "modules": "pokemon-service、reward-service、user-service、gateway、game-client、database/migrations",
       "createdAt": "2026-06-10 02:15",
-      "sha256": "8da214932ac1cfedc7379aaf90828375ceababecc3e41bbc838df49be6f69dc4",
+      "sha256": "2879f851f1707e278217da661058707b534de5b25354a99b091474d221a45806",
       "acceptance": [
         "- [ ] 数据库迁移成功，包含 5 个新表（achievements、user_achievements、achievement_progress_snapshots、achievement_events、user_titles）",
         "- [ ] 成就定义管理功能可用，支持增删改查",
@@ -2331,7 +2333,7 @@
         "- [ ] 性能测试：成就查询 < 100ms，进度更新 < 50ms",
         "- [ ] Prometheus 指标正确暴露（成就解锁数、处理延迟等）"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_verified_full_history_failed",
       "implementationReferences": [
         "backend/services/pokemon-service/src/achievementService.js",
         "backend/services/pokemon-service/src/index.js",
@@ -2340,6 +2342,7 @@
         "backend/tests/unit/achievement.test.js",
         "database/migrations/20260627050000_create_achievement_system.sql",
         "database/pending/20260611_000000__add_achievement_system_tables.sql",
+        "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql",
         "database/seeds/achievements.js",
         "frontend/game-client/src/components/AchievementPanel.js"
       ],
@@ -2376,6 +2379,7 @@
         "database/migrations/20260706_051500__slow_query_log_table.sql",
         "database/pending/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql",
         "database/pending/20260627_041000__enable_pg_stat_statements.sql",
+        "database/pending/repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql",
         "infrastructure/k8s/monitoring/slow-query-alerts.yaml"
       ],
       "legacyId": null
