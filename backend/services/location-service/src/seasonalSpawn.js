@@ -3,6 +3,9 @@
  * 负责季节性精灵刷新和热点位置管理
  */
 
+
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("services/location-service/src/seasonalSpawn"), "services/location-service/src/seasonalSpawn");
 const { SeasonalEngine, SEASONS } = require('../../../shared/seasonalEngine');
 
 class SeasonalSpawnManager {
@@ -21,7 +24,7 @@ class SeasonalSpawnManager {
     await this.engine.loadSeasonConfig(this.engine.currentSeason);
     this.scheduleSeasonalRefresh();
     this.scheduleSeasonalRareSpawn();
-    console.log(`[SeasonalSpawnManager] Initialized for season: ${this.engine.currentSeason}`);
+    _consoleLogger.log(`[SeasonalSpawnManager] Initialized for season: ${this.engine.currentSeason}`);
   }
 
   /**
@@ -64,7 +67,7 @@ class SeasonalSpawnManager {
 
       return result.rows;
     } catch (error) {
-      console.error('[SeasonalSpawnManager] Error getting hotspots:', error);
+      _consoleLogger.error('[SeasonalSpawnManager] Error getting hotspots:', error);
       return [];
     }
   }
@@ -97,7 +100,7 @@ class SeasonalSpawnManager {
         });
         spawns.push(spawn);
       } catch (error) {
-        console.error('[SeasonalSpawnManager] Error creating spawn:', error);
+        _consoleLogger.error('[SeasonalSpawnManager] Error creating spawn:', error);
       }
     }
 
@@ -185,11 +188,11 @@ class SeasonalSpawnManager {
 
       const spawns = await this.spawnSeasonalRare(hotspots);
 
-      console.log(`[SeasonalSpawnManager] Spawned ${spawns.length} seasonal rare Pokemon`);
+      _consoleLogger.log(`[SeasonalSpawnManager] Spawned ${spawns.length} seasonal rare Pokemon`);
 
       return spawns;
     } catch (error) {
-      console.error('[SeasonalSpawnManager] Error in rare spawn trigger:', error);
+      _consoleLogger.error('[SeasonalSpawnManager] Error in rare spawn trigger:', error);
       return [];
     }
   }
@@ -209,7 +212,7 @@ class SeasonalSpawnManager {
       `);
       return result.rows;
     } catch (error) {
-      console.error('[SeasonalSpawnManager] Error getting popular areas:', error);
+      _consoleLogger.error('[SeasonalSpawnManager] Error getting popular areas:', error);
       return [];
     }
   }
@@ -232,7 +235,7 @@ class SeasonalSpawnManager {
       });
     }
 
-    console.log(`[SeasonalSpawnManager] Season changed: ${oldSeason} -> ${newSeason}`);
+    _consoleLogger.log(`[SeasonalSpawnManager] Season changed: ${oldSeason} -> ${newSeason}`);
   }
 
   /**
@@ -252,7 +255,7 @@ class SeasonalSpawnManager {
 
       return result.rows[0];
     } catch (error) {
-      console.error('[SeasonalSpawnManager] Error getting stats:', error);
+      _consoleLogger.error('[SeasonalSpawnManager] Error getting stats:', error);
       return null;
     }
   }

@@ -197,6 +197,9 @@ class EventBus {
       logger.info({ topic, groupId }, 'Subscribed to topic');
       
     } catch (err) {
+      try { await consumer.disconnect(); } catch (cleanupError) {
+        logger.error({ err: cleanupError, topic }, 'Failed to disconnect unsuccessful subscription');
+      }
       logger.error({ err, topic, groupId }, 'Failed to subscribe to topic');
       throw err;
     }
@@ -243,21 +246,17 @@ class EventBus {
    * Disconnect from Kafka
    */
   async disconnect() {
-    try {
-      if (this.producer) {
-        await this.producer.disconnect();
-      }
-      
-      for (const [topic, consumer] of this.consumers) {
-        await consumer.disconnect();
-        logger.info({ topic }, 'Consumer disconnected');
-      }
-      
-      this.isConnected = false;
-      logger.info('EventBus disconnected from Kafka');
-    } catch (err) {
-      logger.error({ err }, 'Error during disconnect');
-    }
+    // Consumers long-poll independently; close them concurrently instead of
+    // accumulating one poll timeout per topic during service shutdown.
+    const connections = [...this.consumers.values()];
+    if (this.producer) connections.push(this.producer);
+    const results = await Promise.allSettled(connections.map(async connection => connection.disconnect()));
+    this.consumers.clear();
+    this.producer = null;
+    this.isConnected = false;
+    const failures = results.filter(result => result.status === 'rejected').map(result => result.reason);
+    if (failures.length) throw new AggregateError(failures, 'EventBus disconnection failed');
+    logger.info('EventBus disconnected from Kafka');
   }
 
   /**
@@ -268,13 +267,11 @@ class EventBus {
       return { status: 'disconnected', healthy: false };
     }
     
+    const admin = this.kafka.admin();
     try {
       // Try to get metadata to verify connection
-      const admin = this.kafka.admin();
       await admin.connect();
       const topics = await admin.listTopics();
-      await admin.disconnect();
-      
       return {
         status: 'connected',
         healthy: true,
@@ -287,6 +284,8 @@ class EventBus {
         healthy: false,
         error: err.message,
       };
+    } finally {
+      await admin.disconnect();
     }
   }
 }

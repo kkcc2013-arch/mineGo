@@ -3,7 +3,7 @@
 'use strict';
 
 const { createLogger } = require('../../../../shared/logger');
-const { createNotification, NOTIFICATION_TYPES } = require('../routes/notifications');
+const { NOTIFICATION_TYPES } = require('../routes/notifications');
 
 const logger = createLogger('notification-handler');
 
@@ -11,41 +11,49 @@ const logger = createLogger('notification-handler');
  * Initialize notification event handlers
  * @param {EventBus} eventBus - EventBus instance
  */
-function initNotificationHandlers(eventBus) {
+async function initNotificationHandlers(eventBus, options = {}) {
+  const createNotification = options.createNotification || require('../routes/notifications').createNotification;
   if (!eventBus) {
     logger.warn('EventBus not available, notification handlers not initialized');
     return;
   }
 
+  const subscriptions = [];
+
   // ── Rare Spawn Notification ────────────────────────────────
-  eventBus.subscribe('pokemon.rare_spawn', async (event) => {
+  subscriptions.push(eventBus.subscribe('pokemon.rare_spawn', async (event) => {
     try {
       const { speciesId, speciesName, lat, lng, rarity, nearbyUsers, expiresAt } = event.data;
       
       logger.info({ speciesId, speciesName, nearbyUsersCount: nearbyUsers?.length }, 
         'Processing rare spawn notification');
       
-      // Send notification to all nearby users
+      const score=typeof rarity==='number'?rarity:({COMMON:1,UNCOMMON:2,RARE:3,EPIC:4,LEGENDARY:5}[String(rarity).toUpperCase()]);
+      if(!Number.isFinite(score)||score<4)return;
+      // Send only to recipients with a real distance in the required radius.
       if (nearbyUsers && Array.isArray(nearbyUsers)) {
         for (const userId of nearbyUsers) {
+          const distance=event.data.distances?.[userId];
+          if(!Number.isFinite(distance)||distance<0||distance>500)continue;
           await createNotification(userId, NOTIFICATION_TYPES.RARE_SPAWN, {
             speciesId,
             speciesName,
-            distance: event.data.distances?.[userId] || 0,
+            distance,
             lat,
             lng,
             rarity,
             expireAt: expiresAt,
-          });
+          }, {eventId:event.id || event.eventId});
         }
       }
     } catch (err) {
-      logger.error({ err, event }, 'Failed to handle rare spawn event');
+      logger.error({ err, eventId:event?.id }, 'Failed to handle rare spawn event');
+      throw err;
     }
-  });
+  }));
 
   // ── Raid Started Notification ──────────────────────────────
-  eventBus.subscribe('raid.started', async (event) => {
+  subscriptions.push(eventBus.subscribe('raid.started', async (event) => {
     try {
       const { raidId, gymId, gymName, bossSpeciesId, bossName, tier, lat, lng, expiresAt, nearbyUsers } = event.data;
       
@@ -65,16 +73,17 @@ function initNotificationHandlers(eventBus) {
             lat,
             lng,
             expiresAt,
-          });
+          }, {eventId:event.id || event.eventId});
         }
       }
     } catch (err) {
-      logger.error({ err, event }, 'Failed to handle raid started event');
+      logger.error({ err, eventId:event?.id }, 'Failed to handle raid started event');
+      throw err;
     }
-  });
+  }));
 
   // ── Friend Request Notification ────────────────────────────
-  eventBus.subscribe('friend.request_created', async (event) => {
+  subscriptions.push(eventBus.subscribe('friend.request_created', async (event) => {
     try {
       const { toUserId, fromUserId, fromUserName } = event.data;
       
@@ -83,14 +92,15 @@ function initNotificationHandlers(eventBus) {
       await createNotification(toUserId, NOTIFICATION_TYPES.FRIEND_REQUEST, {
         fromUserId,
         fromUserName,
-      });
+      }, {eventId:event.id || event.eventId});
     } catch (err) {
-      logger.error({ err, event }, 'Failed to handle friend request event');
+      logger.error({ err, eventId:event?.id }, 'Failed to handle friend request event');
+      throw err;
     }
-  });
+  }));
 
   // ── Gift Received Notification ─────────────────────────────
-  eventBus.subscribe('social.gift_sent', async (event) => {
+  subscriptions.push(eventBus.subscribe('social.gift_sent', async (event) => {
     try {
       const { toUserId, fromUserId, fromUserName, giftId } = event.data;
       
@@ -100,14 +110,15 @@ function initNotificationHandlers(eventBus) {
         fromUserId,
         fromUserName,
         giftId,
-      });
+      }, {eventId:event.id || event.eventId});
     } catch (err) {
-      logger.error({ err, event }, 'Failed to handle gift sent event');
+      logger.error({ err, eventId:event?.id }, 'Failed to handle gift sent event');
+      throw err;
     }
-  });
+  }));
 
   // ── Quest Complete Notification ────────────────────────────
-  eventBus.subscribe('reward.quest_completed', async (event) => {
+  subscriptions.push(eventBus.subscribe('reward.quest_completed', async (event) => {
     try {
       const { userId, questId, questName, rewards } = event.data;
       
@@ -117,14 +128,15 @@ function initNotificationHandlers(eventBus) {
         questId,
         questName,
         rewards,
-      });
+      }, {eventId:event.id || event.eventId});
     } catch (err) {
-      logger.error({ err, event }, 'Failed to handle quest complete event');
+      logger.error({ err, eventId:event?.id }, 'Failed to handle quest complete event');
+      throw err;
     }
-  });
+  }));
 
   // ── Gym Under Attack Notification ──────────────────────────
-  eventBus.subscribe('gym.under_attack', async (event) => {
+  subscriptions.push(eventBus.subscribe('gym.under_attack', async (event) => {
     try {
       const { gymId, gymName, attackerTeam, defenderUserIds } = event.data;
       
@@ -138,16 +150,17 @@ function initNotificationHandlers(eventBus) {
             gymId,
             gymName,
             attackerTeam,
-          });
+          }, {eventId:event.id || event.eventId});
         }
       }
     } catch (err) {
-      logger.error({ err, event }, 'Failed to handle gym under attack event');
+      logger.error({ err, eventId:event?.id }, 'Failed to handle gym under attack event');
+      throw err;
     }
-  });
+  }));
 
   // ── Gym Lost Notification ──────────────────────────────────
-  eventBus.subscribe('gym.lost', async (event) => {
+  subscriptions.push(eventBus.subscribe('gym.lost', async (event) => {
     try {
       const { gymId, gymName, newTeam, previousDefenderUserIds } = event.data;
       
@@ -161,14 +174,19 @@ function initNotificationHandlers(eventBus) {
             gymId,
             gymName,
             newTeam,
-          });
+          }, {eventId:event.id || event.eventId});
         }
       }
     } catch (err) {
-      logger.error({ err, event }, 'Failed to handle gym lost event');
+      logger.error({ err, eventId:event?.id }, 'Failed to handle gym lost event');
+      throw err;
     }
-  });
+  }));
 
+  // Wait for all subscriptions, including sibling failures, before startup can complete.
+  const results = await Promise.allSettled(subscriptions);
+  const failed = results.find(result => result.status === 'rejected');
+  if (failed) throw failed.reason;
   logger.info('Notification event handlers initialized');
 }
 

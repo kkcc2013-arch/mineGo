@@ -7,7 +7,7 @@
 | 标题 | 精灵图鉴完成度奖励系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | done |
+| 状态 | in_progress |
 | 涉及服务 | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-09 17:00 |
 
@@ -1160,3 +1160,12 @@ module.exports = pokedexMetrics;
 - [进度追踪系统 UX 设计](https://www.nngroup.com/articles/progress-trackers/)
 - REQ-00026: 游戏内实时推送通知系统（奖励通知）
 - REQ-00019: 精灵技能学习与技能机器系统（精灵数据结构）
+
+
+## 真实迁移验收复核（2026-10-08）
+
+旧 done 声明重开：缓存表把 user_id 设为 INTEGER，无法引用真实 V1 UUID users。
+新增显式依赖的 UUID 缓存 prerequisite，保留所有原字段并验证真实 users 键类型，
+不强制转换既有不兼容数据。新建/既有表所有权被记录以支持保持数据的 rollback。
+真实测试能写入有效 UUID，并拒绝不存在用户的引用。完整原始迁移继续执行，
+其它奖励领取、进度、成就、数值性能和界面验收仍开放。

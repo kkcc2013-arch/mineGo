@@ -2,6 +2,9 @@
  * 季节系统 API 路由
  */
 
+
+const _consoleLogger = new (require("../../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../../shared/logger").createLogger("services/reward-service/src/routes/seasonal"), "services/reward-service/src/routes/seasonal");
 const express = require('express');
 const router = express.Router();
 const { SeasonalRewardManager } = require('../seasonalRewards');
@@ -50,7 +53,7 @@ router.get('/current', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('[SeasonalAPI] Error getting current season:', error);
+    _consoleLogger.error('[SeasonalAPI] Error getting current season:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -80,7 +83,7 @@ router.get('/quests', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('[SeasonalAPI] Error getting quests:', error);
+    _consoleLogger.error('[SeasonalAPI] Error getting quests:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -105,7 +108,7 @@ router.post('/quests/:questId/progress', async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error('[SeasonalAPI] Error updating quest progress:', error);
+    _consoleLogger.error('[SeasonalAPI] Error updating quest progress:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -129,7 +132,7 @@ router.post('/quests/:questId/claim', async (req, res) => {
 
     res.json(result);
   } catch (error) {
-    console.error('[SeasonalAPI] Error claiming reward:', error);
+    _consoleLogger.error('[SeasonalAPI] Error claiming reward:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -153,7 +156,7 @@ router.get('/shop', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('[SeasonalAPI] Error getting shop:', error);
+    _consoleLogger.error('[SeasonalAPI] Error getting shop:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -177,7 +180,7 @@ router.post('/shop/:itemId/purchase', async (req, res) => {
 
     res.json(result);
   } catch (error) {
-    console.error('[SeasonalAPI] Error purchasing item:', error);
+    _consoleLogger.error('[SeasonalAPI] Error purchasing item:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -200,7 +203,7 @@ router.get('/achievements', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('[SeasonalAPI] Error getting achievements:', error);
+    _consoleLogger.error('[SeasonalAPI] Error getting achievements:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -226,7 +229,7 @@ router.get('/progress', async (req, res) => {
       data: progress
     });
   } catch (error) {
-    console.error('[SeasonalAPI] Error getting progress:', error);
+    _consoleLogger.error('[SeasonalAPI] Error getting progress:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -250,7 +253,7 @@ router.post('/track', async (req, res) => {
 
     res.json({ success: true });
   } catch (error) {
-    console.error('[SeasonalAPI] Error tracking progress:', error);
+    _consoleLogger.error('[SeasonalAPI] Error tracking progress:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -281,7 +284,7 @@ router.get('/report/:season/:year', async (req, res) => {
       data: report
     });
   } catch (error) {
-    console.error('[SeasonalAPI] Error generating report:', error);
+    _consoleLogger.error('[SeasonalAPI] Error generating report:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -302,7 +305,7 @@ router.get('/bonuses', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('[SeasonalAPI] Error getting bonuses:', error);
+    _consoleLogger.error('[SeasonalAPI] Error getting bonuses:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -334,7 +337,7 @@ router.post('/calculate-weight', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('[SeasonalAPI] Error calculating weight:', error);
+    _consoleLogger.error('[SeasonalAPI] Error calculating weight:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

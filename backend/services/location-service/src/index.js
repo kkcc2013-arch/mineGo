@@ -1,9 +1,13 @@
 // location-service/src/index.js  +  routes/map.js  (combined)
 'use strict';
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("services/location-service/src/index"), "services/location-service/src/index");
+
 const express  = require('express');
 const cors     = require('cors');
 const helmet   = require('helmet');
 const { query, preparedQuery }  = require('../../../shared/db');
+const {generateWildIVs}=require('../../../shared/specialIv');
 const { getRedis, geoAdd, geoRadius, setJSON, getJSON } = require('../../../shared/redis');
 const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
@@ -125,31 +129,10 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
   const weatherData = await getWeather(lat, lng);
   const weatherBoosted = (WEATHER_BONUS[weatherData.weather] || []).some(t => chosen.type1 === t);
 
-  // Generate IVs with special IV system (REQ-00160) + REQ-00102 day/night bonus
-  const specialRoll = Math.random();
-  let iv_attack, iv_defense, iv_hp;
-  let is_zero_iv = false;
-  let is_perfect_iv = false;
-  const ivBonus = chosen.ivBonus || 0;
-
-  if (specialRoll < 0.0001) { // 0.01% 零 IV
-    iv_attack = iv_defense = iv_hp = 0;
-    is_zero_iv = true;
-    logger.info({ spawnPointId, speciesId: chosen.id, type: 'zero_iv', period: currentPeriod }, 'Special IV spawned: Zero IV');
-  } else if (specialRoll < 0.001) { // 0.09% 完美 IV (0.001 - 0.0001)
-    iv_attack = iv_defense = iv_hp = 15;
-    is_perfect_iv = true;
-    logger.info({ spawnPointId, speciesId: chosen.id, type: 'perfect_iv', period: currentPeriod }, 'Special IV spawned: Perfect IV');
-  } else { // 普通生成，应用昼夜IV加成
-    const ivBoost = Math.floor(ivBonus * 15); // 将百分比转换为IV点数
-    iv_attack  = Math.min(15, Math.floor(Math.random() * 16) + ivBoost);
-    iv_defense = Math.min(15, Math.floor(Math.random() * 16) + ivBoost);
-    iv_hp      = Math.min(15, Math.floor(Math.random() * 16) + ivBoost);
-    
-    if (ivBonus > 0) {
-      logger.debug({ spawnPointId, speciesId: chosen.id, ivBonus, period: currentPeriod }, 'Applied day/night IV bonus');
-    }
-  }
+  // REQ-00160: ordinary bonuses cannot create unclassified zero/perfect tuples.
+  const {iv_attack,iv_defense,iv_hp,is_zero_iv,is_perfect_iv}=generateWildIVs({ivBonus:chosen.ivBonus??0});
+  if(is_zero_iv||is_perfect_iv)logger.info({spawnPointId,speciesId:chosen.id,
+    type:is_zero_iv?'zero_iv':'perfect_iv',period:currentPeriod},'Special IV spawned');
 
   // Calculate CP (simplified formula)
   const { rows: [spec] } = await query(
@@ -166,10 +149,10 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
   const { rows: [wild] } = await query(`
     INSERT INTO wild_pokemon
       (spawn_point_id, species_id, lat, lng, location, cp, iv_attack, iv_defense, iv_hp,
-       is_shiny, weather_boosted, expires_at)
-    VALUES ($1,$2,$3,$4, ST_GeographyFromText('SRID=4326;POINT(${lng} ${lat})'), $5,$6,$7,$8,$9,$10,$11)
-    RETURNING id, species_id, lat, lng, cp, is_shiny, weather_boosted, expires_at
-  `, [spawnPointId, chosen.id, lat, lng, cp, iv_attack, iv_defense, iv_hp, isShiny, weatherBoosted, expiresAt]);
+       is_shiny, weather_boosted, expires_at, is_zero_iv, is_perfect_iv)
+    VALUES ($1,$2,$3,$4, ST_GeographyFromText('SRID=4326;POINT(${lng} ${lat})'), $5,$6,$7,$8,$9,$10,$11,$12,$13)
+    RETURNING id, species_id, lat, lng, cp, iv_attack, iv_defense, iv_hp, is_zero_iv, is_perfect_iv, is_shiny, weather_boosted, expires_at
+  `, [spawnPointId, chosen.id, lat, lng, cp, iv_attack, iv_defense, iv_hp, isShiny, weatherBoosted, expiresAt,is_zero_iv,is_perfect_iv]);
 
   const payload = { 
     ...wild, 
@@ -192,6 +175,8 @@ async function spawnPokemonForPoint(spawnPointId, lat, lng, biome) {
     lat: wild.lat,
     lng: wild.lng,
     cp: wild.cp,
+    iv_attack:wild.iv_attack,iv_defense:wild.iv_defense,iv_hp:wild.iv_hp,
+    is_zero_iv:wild.is_zero_iv,is_perfect_iv:wild.is_perfect_iv,
     is_shiny: wild.is_shiny,
     weather_boosted: wild.weather_boosted,
     expires_at: wild.expires_at,
@@ -223,10 +208,10 @@ async function runSpawnCycle() {
         spawned++;
       }
     } catch (err) {
-      console.error('[Spawn] Error for point', pt.id, err.message);
+      _consoleLogger.error('[Spawn] Error for point', pt.id, err.message);
     }
   }
-  console.log(`[Spawn] Cycle complete: ${spawned} new spawns`);
+  _consoleLogger.log(`[Spawn] Cycle complete: ${spawned} new spawns`);
 }
 
 // ============================================================
@@ -274,7 +259,7 @@ app.post('/location', requireAuth, async (req, res, next) => {
       const timeSec = (Date.now() - prevData.ts) / 1000;
       const speedKmh = distKm / (timeSec / 3600);
       if (speedKmh > 100) {
-        console.warn('[AntiCheat] Possible GPS spoof: userId=%s speed=%.1f km/h', userId, speedKmh);
+        _consoleLogger.warn('[AntiCheat] Possible GPS spoof: userId=%s speed=%.1f km/h', userId, speedKmh);
         return res.json(successResp({ nearbyAlert: false, warning: 'speed_anomaly' }));
       }
       // Update distance
@@ -388,7 +373,7 @@ async function getNearbyWild(lat, lng, radius) {
     
   } catch (err) {
     // Cache error - fallback to DB
-    console.error('[Cache] Redis error, fallback to DB:', err.message);
+    _consoleLogger.error('[Cache] Redis error, fallback to DB:', err.message);
     cacheMisses++;
     return await getNearbyWildFromDB(lat, lng, radius);
   }

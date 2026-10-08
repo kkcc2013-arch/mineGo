@@ -7,11 +7,17 @@
 
 const express = require('express');
 const router = express.Router();
-const { createLogger } = require('../../../shared/logger');
-const db = require('../../../shared/db');
-const { TimezoneUtils } = require('../../gateway/src/middleware/timezone');
+const { createLogger } = require('../../../../shared/logger');
+const db = require('../../../../shared/db');
+const { requireAuth } = require('../../../../shared/auth');
+const { TimezoneUtils } = require('../../../../gateway/src/middleware/timezone');
 
 const logger = createLogger('user-timezone');
+
+router.use('/:userId/timezone', requireAuth, (req, res, next) => {
+  if (String(req.user.id) !== req.params.userId) return res.status(403).json({ error: 'Cannot access another user’s timezone preference' });
+  next();
+});
 
 /**
  * 获取用户时区偏好
@@ -62,11 +68,15 @@ router.put('/:userId/timezone', async (req, res) => {
     const { timezone, autoDetect } = req.body;
 
     // 验证时区
-    if (!TimezoneUtils.isValidTimezone(timezone)) {
+    if (typeof timezone !== 'string' || !TimezoneUtils.isValidTimezone(timezone)) {
       return res.status(400).json({ 
         error: 'Invalid timezone',
         supportedTimezones: TimezoneUtils.getSupportedTimezones()
       });
+    }
+
+    if (autoDetect !== undefined && typeof autoDetect !== 'boolean') {
+      return res.status(400).json({ error: 'autoDetect must be a boolean' });
     }
 
     // 更新或插入
@@ -79,7 +89,7 @@ router.put('/:userId/timezone', async (req, res) => {
          auto_detect = EXCLUDED.auto_detect,
          updated_at = NOW()
        RETURNING *`,
-      [userId, timezone, autoDetect || false]
+      [userId, timezone, autoDetect ?? false]
     );
 
     const row = result.rows[0];
@@ -104,11 +114,11 @@ router.put('/:userId/timezone', async (req, res) => {
 router.post('/:userId/timezone/auto-detect', async (req, res) => {
   try {
     const { userId } = req.params;
-    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-
-    // 这里可以集成 GeoIP 服务（如 MaxMind）
-    // 简化实现：根据 IP 段推断时区
-    const detectedTimezone = detectTimezoneByIP(ip);
+    // The client can supply its actual browser timezone; do not invent GeoIP results.
+    const detectedTimezone = req.get('Time-Zone');
+    if (typeof detectedTimezone !== 'string' || !TimezoneUtils.isValidTimezone(detectedTimezone)) {
+      return res.status(400).json({ error: 'A valid Time-Zone header is required' });
+    }
 
     // 更新用户时区
     const result = await db.query(
@@ -124,13 +134,13 @@ router.post('/:userId/timezone/auto-detect', async (req, res) => {
     );
 
     const row = result.rows[0];
-    logger.info({ userId, ip, detectedTimezone }, 'Timezone auto-detected');
+    logger.info({ userId, detectedTimezone }, 'Client timezone preference saved');
 
     res.json({
       userId: row.user_id,
       timezone: row.timezone,
       autoDetect: true,
-      detectedFromIP: ip,
+      detectedFrom: 'Time-Zone',
       updatedAt: row.updated_at
     });
   } catch (err) {
@@ -138,34 +148,6 @@ router.post('/:userId/timezone/auto-detect', async (req, res) => {
     res.status(500).json({ error: 'Failed to auto-detect timezone' });
   }
 });
-
-/**
- * 根据IP推断时区（简化版）
- */
-function detectTimezoneByIP(ip) {
-  // 实际生产环境应使用 GeoIP 数据库（如 MaxMind GeoIP2）
-  // 这里提供简化实现
-  
-  // 如果是本地 IP，返回默认时区
-  if (ip === '127.0.0.1' || ip === '::1' || ip.startsWith('192.168.') || ip.startsWith('10.')) {
-    return 'UTC';
-  }
-
-  // 实际应调用 GeoIP 服务
-  // 示例：根据 IP 段映射到时区
-  const ipTimezoneMap = {
-    'China': 'Asia/Shanghai',
-    'Japan': 'Asia/Tokyo',
-    'US-East': 'America/New_York',
-    'US-West': 'America/Los_Angeles',
-    'UK': 'Europe/London',
-    'France': 'Europe/Paris',
-    'Australia': 'Australia/Sydney'
-  };
-
-  // 默认返回 UTC
-  return 'UTC';
-}
 
 /**
  * 获取时区列表

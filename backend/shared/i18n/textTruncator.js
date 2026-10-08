@@ -46,7 +46,7 @@ class BaseStrategy {
 class ChineseStrategy extends BaseStrategy {
   constructor() {
     super();
-    this.punctuation = ['。', '，', '！', '？', '、', '；', '：', '"', '"', ''', ''', '）', '】', '》', '~'];
+    this.punctuation = ['。', '，', '！', '？', '、', '；', '：', '"', '"', '‘', '’', '）', '】', '》', '~'];
   }
 
   truncate(text, maxLength) {
@@ -80,8 +80,8 @@ class ChineseStrategy extends BaseStrategy {
     // 简单检查：如果截断点是代理对的第一个字符，向前移动
     if (position < text.length) {
       const charCode = text.charCodeAt(position);
-      // 高代理位 (0xD800-0xDBFF)
-      if (charCode >= 0xD800 && charCode <= 0xDBFF) {
+      // A cut before the low surrogate would split the preceding pair.
+      if (charCode >= 0xDC00 && charCode <= 0xDFFF) {
         return position - 1;
       }
     }
@@ -97,8 +97,7 @@ class EnglishStrategy extends BaseStrategy {
     if (text.length <= maxLength) return text;
 
     // 向前查找空格
-    const threshold = Math.floor(maxLength * 0.7);
-    const spacePos = this.findNearestSpace(text, maxLength, threshold);
+    const spacePos = this.findNearestSpace(text, maxLength, 0);
 
     let cutPoint;
     if (spacePos > 0) {
@@ -426,18 +425,6 @@ class SmartTextTruncator {
       };
     }
 
-    let processingText = text;
-    let placeholders = [];
-    let htmlTags = [];
-
-    // 1. 保护特殊元素
-    if (preservePlaceholders || respectHTML) {
-      const protected = this.protectSpecialElements(processingText);
-      processingText = protected.protectedText;
-      placeholders = protected.placeholders;
-      htmlTags = protected.htmlTags;
-    }
-
     // 2. 选择截断策略
     const strategy = this.getStrategy(locale);
 
@@ -454,19 +441,41 @@ class SmartTextTruncator {
     }
 
     // 4. 执行截断
-    let truncated = strategy.truncate(processingText, actualMaxLength);
-
-    // 5. 恢复占位符
-    const restoreResult = this.restorePlaceholders(truncated, placeholders);
-    truncated = restoreResult.text;
-
-    // 6. 恢复 HTML 标签
-    if (respectHTML && htmlTags.length > 0) {
-      truncated = this.restoreHtmlTags(truncated, htmlTags);
-    }
-
-    // 7. 添加省略符
-    truncated = truncated.trim() + ellipsis;
+    // Work in original character offsets. Temporary markers have different
+    // lengths from the tokens they replace and can themselves be split.
+    const placeholders = preservePlaceholders ? [...text.matchAll(new RegExp(this.placeholderRegex.source, 'g'))] : [];
+    const tags = respectHTML ? [...text.matchAll(/<(?:[^>"']|"[^"]*"|'[^']*')*>/g)] : [];
+    const tokens = [...placeholders, ...tags];
+    const voidTags = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
+    let limit = actualMaxLength;
+    let truncated;
+    let closingTags;
+    let cutPoint;
+    do {
+      cutPoint = strategy.truncate(text, limit).length;
+      for (const token of tokens) {
+        if (token.index < cutPoint && token.index + token[0].length > cutPoint) cutPoint = token.index;
+      }
+      if (cutPoint > 0 && /[\uDC00-\uDFFF]/.test(text[cutPoint] || '') && /[\uD800-\uDBFF]/.test(text[cutPoint - 1])) cutPoint--;
+      truncated = text.substring(0, cutPoint).trimEnd();
+      const stack = [];
+      for (const token of tags) {
+        if (token.index + token[0].length > truncated.length) break;
+        const tag = token[0].match(/^<\s*(\/?)([a-z][\w:-]*)/i);
+        if (!tag) continue;
+        const name = tag[2].toLowerCase();
+        if (tag[1]) {
+          if (stack[stack.length - 1] === name) stack.pop();
+        } else if (!voidTags.has(name) && !/\/\s*>$/.test(token[0])) stack.push(name);
+      }
+      closingTags = stack.reverse().map(name => `</${name}>`).join('');
+      if (truncated.length + closingTags.length <= actualMaxLength) break;
+      limit = Math.max(0, Math.min(limit - 1, actualMaxLength - closingTags.length));
+    } while (limit > 0);
+    if (limit === 0) { truncated = ''; closingTags = ''; cutPoint = 0; }
+    const warnings = placeholders.filter(token => token.index + token[0].length > cutPoint)
+      .map(token => `Placeholder truncated: ${token[0]}`);
+    truncated += ellipsis + closingTags;
 
     return {
       original: text,
@@ -475,7 +484,7 @@ class SmartTextTruncator {
       originalLength: text.length,
       truncatedLength: truncated.length,
       reduction: ((1 - truncated.length / text.length) * 100).toFixed(1) + '%',
-      warnings: restoreResult.warnings
+      warnings
     };
   }
 
@@ -552,10 +561,10 @@ class SmartTextTruncator {
    * @returns {string} 检测到的语言代码
    */
   detectLocale(text) {
-    // 中文检测
-    if (/[\u4e00-\u9fff]/.test(text)) return 'zh';
     // 日语检测
     if (/[\u3040-\u309f\u30a0-\u30ff]/.test(text)) return 'ja';
+    // Kana distinguishes Japanese text that also contains CJK ideographs.
+    if (/[\u4e00-\u9fff]/.test(text)) return 'zh';
     // 韩语检测
     if (/[\uac00-\ud7af]/.test(text)) return 'ko';
     // 阿拉伯语检测

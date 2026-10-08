@@ -1,4 +1,7 @@
 'use strict';
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("services/user-service/routes/captcha"), "services/user-service/routes/captcha");
+
 
 /**
  * CAPTCHA 验证路由
@@ -129,7 +132,7 @@ router.post('/trigger',
       });
 
     } catch (error) {
-      console.error('CAPTCHA trigger error:', error);
+      _consoleLogger.error('CAPTCHA trigger error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -297,7 +300,7 @@ router.post('/verify',
       }
 
     } catch (error) {
-      console.error('CAPTCHA verify error:', error);
+      _consoleLogger.error('CAPTCHA verify error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -357,7 +360,7 @@ router.get('/challenge/:sessionId',
       });
 
     } catch (error) {
-      console.error('Get challenge error:', error);
+      _consoleLogger.error('Get challenge error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -414,7 +417,7 @@ router.get('/status/:userId',
       });
 
     } catch (error) {
-      console.error('Get status error:', error);
+      _consoleLogger.error('Get status error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -444,7 +447,7 @@ async function getCaptchaConfig() {
     
     return config;
   } catch (error) {
-    console.error('Get captcha config error:', error);
+    _consoleLogger.error('Get captcha config error:', error);
     return {
       trust_score_recovery: 10,
       trust_score_penalty: 10

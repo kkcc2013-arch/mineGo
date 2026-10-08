@@ -427,3 +427,6 @@ export const i18n = {
 // Also expose globally for non-module usage
 window.i18n = i18n;
 window.t = t;
+
+// Locale-dependent formatters use the same active language as translations.
+export const getCurrentLocale = getLanguage;

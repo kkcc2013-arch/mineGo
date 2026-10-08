@@ -7,10 +7,10 @@ const express = require('express');
 const router = express.Router();
 const { Pool } = require('pg');
 const Redis = require('ioredis');
-const { createLogger } = require('../../../shared/logger');
-const { metrics } = require('../../../shared/metrics');
-const DisasterRecoveryEngine = require('../../../shared/disasterRecovery/DisasterRecoveryEngine');
-const DrillManager = require('../../../shared/disasterRecovery/DrillManager');
+const { createLogger } = require('../../../../shared/logger');
+const { metrics } = require('../../../../shared/metrics');
+const DisasterRecoveryEngine = require('../../../../shared/disasterRecovery/DisasterRecoveryEngine');
+const DrillManager = require('../../../../shared/disasterRecovery/DrillManager');
 
 const logger = createLogger('disaster-recovery-routes');
 

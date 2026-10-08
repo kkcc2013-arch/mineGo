@@ -6,9 +6,9 @@
 const express = require('express');
 const router = express.Router();
 const { middleware, verifyChallengeResponse, verifyRuntimeIntegrity } = require('../middleware/client-integrity');
-const { createLogger } = require('../../shared/logger');
-const { getRedis, setJSON, getJSON } = require('../../shared/redis');
-const { query } = require('../../shared/db');
+const { createLogger } = require('../../../shared/logger');
+const { getRedis, setJSON, getJSON } = require('../../../shared/redis');
+const { query } = require('../../../shared/db');
 
 const logger = createLogger('client-integrity-routes');
 const redis = getRedis();

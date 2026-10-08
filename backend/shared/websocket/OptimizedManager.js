@@ -1,4 +1,6 @@
 'use strict';
+const {createLogger} = require('../logger');
+const logger = createLogger('websocket/OptimizedManager');
 
 /**
  * WebSocket 优化模块集成入口

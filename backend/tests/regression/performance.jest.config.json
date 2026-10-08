@@ -1,0 +1,8 @@
+{
+  "rootDir": "../..",
+  "testEnvironment": "node",
+  "testMatch": ["<rootDir>/tests/unit/performanceRegressionTester.test.js"],
+  "collectCoverageFrom": ["tests/regression/shared/performanceRegressionTester.js"],
+  "coverageDirectory": "coverage/performance",
+  "coverageThreshold": {"global": {"lines": 80, "statements": 80, "functions": 80}}
+}

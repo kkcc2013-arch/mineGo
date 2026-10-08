@@ -115,7 +115,7 @@ describe('PerformanceRegressionTester', () => {
 
   describe('_filterOutliers', () => {
     it('should filter outliers using Z-score', () => {
-      const values = [10, 12, 11, 13, 10, 12, 11, 100]; // 100 is outlier
+      const values = [10, 12, 11, 13, 10, 12, 11, 10, 12, 11, 13, 100]; // Z-score of 100 exceeds 3
       
       const filtered = tester._filterOutliers(values);
       
@@ -247,7 +247,7 @@ describe('PerformanceRegressionTester', () => {
       expect(analysis.isRegression).to.be.true;
       const errorRegression = analysis.regressions.find(r => r.metric === 'errorRate');
       expect(errorRegression).to.exist;
-      expect(errorRegression.severity).to.equal('critical');
+      expect(errorRegression.severity).to.equal('high'); // +4 percentage points; critical requires >5
     });
 
     it('should detect regression when throughput decreases', () => {
@@ -293,7 +293,7 @@ describe('PerformanceRegressionTester', () => {
       const improvements = [{}, {}];
       const score = tester._calculateOverallScore([], improvements);
       
-      expect(score).to.equal(110); // 100 + 2*5
+      expect(score).to.equal(100); // Requirement limits the score to 0–100
     });
   });
 
@@ -402,13 +402,15 @@ describe('PerformanceRegressionTester', () => {
     });
   });
 
-  describe('runTest (integration)', () => {
+  describe('runTest with database doubles and real HTTP', () => {
+    const app = require('express')();
+    app.get('/api/pokemon/list', (_req, res) => res.json({ items: [] }));
     it('should run complete test without baseline', async () => {
       mockDb.query.onFirstCall().resolves({ rows: [] }); // _getBaseline
       mockDb.query.onSecondCall().resolves({ rows: [{ id: 'test-123' }] }); // _storeTestResult
       
       const result = await tester.runTest('GET /api/pokemon/list', {
-        app: null,
+        app,
         iterations: 5
       });
       
@@ -428,14 +430,88 @@ describe('PerformanceRegressionTester', () => {
         sampleCount: 50
       }));
       
-      mockDb.query.onFirstCall().resolves({ rows: [{ id: 'test-456' }] });
+      mockDb.query.resolves({ rows: [{ id: 'test-456' }] });
       
       const result = await tester.runTest('GET /api/pokemon/list', {
+        app,
         iterations: 5
       });
       
       expect(result).to.have.property('baseline');
       expect(result.baseline).to.not.be.null;
+    });
+  });
+
+  describe('real measurements and failure reporting', () => {
+    const express = require('express');
+    let server;
+    afterEach(async () => { if (server) { await new Promise(resolve => server.close(resolve)); server = null; } });
+
+    it('rejects missing targets and invalid sample configuration', async () => {
+      for (const config of [{}, {app: express(), iterations: -1}, {app: express(), concurrency: -1}]) {
+        await require('assert').rejects(tester.runTest('GET /test', config));
+      }
+    });
+
+    it('measures actual HTTP bodies, headers, paths and failing status codes', async () => {
+      const app = express();
+      app.use(express.json());
+      app.post('/items/test-id-123', (req, res) => res.status(422).json({ body: req.body, auth: req.headers.authorization }));
+      server = app.listen(0, '127.0.0.1');
+      await new Promise(resolve => server.once('listening', resolve));
+      const config = {baseUrl: `http://127.0.0.1:${server.address().port}/`, body: {value: 42}, headers: {authorization: 'test-fixture'}};
+      const response = await tester._makeRequest('POST /items/:id', config);
+      expect(response.status).to.equal(422);
+      expect(response.data).to.deep.equal({body: {value: 42}, auth: 'test-fixture'});
+      const metrics = await tester._executePerformanceTest('POST /items/:id', {...config, iterations: 3, concurrency: 2, warmupIterations: 0});
+      expect(metrics.errorCount).to.equal(3);
+      expect(metrics.throughput).to.be.greaterThan(0);
+      await require('assert').rejects(tester._makeRequest('INVALID /test', config));
+    });
+
+    it('records connection failures as errors instead of successes', async () => {
+      const measured = await tester._measureApiCall('GET /test', {baseUrl: 'http://127.0.0.1:1'});
+      expect(measured.statusCode).to.equal(500);
+      expect(measured.error).to.be.a('string');
+    });
+
+    it('computes concurrent throughput from measured wall time', () => {
+      expect(tester._calculateThroughput(Array(10).fill({responseTime: 100}), 100)).to.equal(100);
+    });
+
+    it('does not swallow baseline and result persistence failures', async () => {
+      mockDb.query.rejects(new Error('Storage unavailable'));
+      await require('assert').rejects(tester._updateBaseline('GET /test', {}), /Storage unavailable/);
+      await require('assert').rejects(tester._storeTestResult('GET /test', {}, {}), /Storage unavailable/);
+    });
+
+    it('uses database baseline when cache is unavailable and tolerates cache writes', async () => {
+      mockRedis.get.rejects(new Error('Cache unavailable'));
+      mockRedis.set.rejects(new Error('Cache unavailable'));
+      mockDb.query.resolves({rows: [{endpoint: 'GET /test', avg_response_time: 50, sample_count: 10}]});
+      const baseline = await tester._getBaseline('GET /test');
+      expect(baseline.avgResponseTime).to.equal(50);
+      expect(baseline.sampleCount).to.equal(10);
+    });
+
+    it('tolerates cache invalidation failure after a successful database update', async () => {
+      mockRedis.del.rejects(new Error('Cache unavailable'));
+      await tester._updateBaseline('GET /test', {});
+      expect(mockDb.query.calledOnce).to.be.true;
+    });
+
+    it('classifies a greater than five point error increase as critical', () => {
+      const analysis = tester._analyzePerformance(
+        {avgResponseTime: 10, p95ResponseTime: 10, throughput: 100, errorRate: 0.08, samples: 10},
+        {avgResponseTime: 10, p95ResponseTime: 10, throughput: 100, errorRate: 0.01, sampleCount: 10});
+      expect(analysis.regressions.find(r => r.metric === 'errorRate').severity).to.equal('critical');
+    });
+
+    it('batch report retains measurement failures rather than passing them', async () => {
+      const result = await tester.runBatchTests(['GET /test']);
+      expect(result.summary.failed).to.equal(1);
+      expect(result.summary.passed).to.equal(0);
+      expect(result.results[0].error).to.include('real app or baseUrl');
     });
   });
 
@@ -445,7 +521,7 @@ describe('PerformanceRegressionTester', () => {
       
       try {
         await tester._getBaseline('GET /api/test');
-        // 如果没有抛出错误，测试应该失败
+        throw new Error('Expected database failure to reject');
       } catch (error) {
         expect(error.message).to.equal('Database error');
       }
@@ -457,34 +533,6 @@ describe('PerformanceRegressionTester', () => {
       
       const baseline = await tester._getBaseline('GET /api/test');
       expect(baseline).to.be.null;
-    });
-  });
-});
-
-// 运行测试覆盖率检查
-describe('Test Coverage Verification', () => {
-  it('should have > 80% coverage on core methods', () => {
-    // 核心方法覆盖检查
-    const coreMethods = [
-      'runTest',
-      '_executePerformanceTest',
-      '_calculateMetrics',
-      '_analyzePerformance',
-      '_filterOutliers',
-      '_average',
-      '_median',
-      '_percentile',
-      '_standardDeviation'
-    ];
-    
-    // 在实际测试中，这里会检查覆盖率报告
-    // 这里只是验证方法存在
-    const mockDb = { query: () => {} };
-    const mockRedis = { get: () => {}, set: () => {} };
-    const tester = new PerformanceRegressionTester(mockDb, mockRedis);
-    
-    coreMethods.forEach(method => {
-      expect(tester[method]).to.be.a('function');
     });
   });
 });

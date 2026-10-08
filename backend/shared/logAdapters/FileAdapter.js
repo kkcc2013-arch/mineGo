@@ -3,6 +3,9 @@
  * 输出日志到本地文件，支持日志轮转
  */
 'use strict';
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/logAdapters/FileAdapter"), "shared/logAdapters/FileAdapter");
+
 
 const ILogOutputAdapter = require('./ILogOutputAdapter');
 const fs = require('fs').promises;
@@ -62,7 +65,7 @@ class FileAdapter extends ILogOutputAdapter {
     });
     
     this.writeStream.on('error', (err) => {
-      console.error(`[FileAdapter] Write stream error:`, err);
+      _consoleLogger.error(`[FileAdapter] Write stream error:`, err);
       this.healthStatus = 'error';
     });
   }
@@ -156,7 +159,7 @@ class FileAdapter extends ILogOutputAdapter {
         await fs.writeFile(`${this.filePath}.1.gz`, compressed);
         await fs.unlink(this.filePath);
       } catch (err) {
-        console.error(`[FileAdapter] Compression error:`, err);
+        _consoleLogger.error(`[FileAdapter] Compression error:`, err);
       }
     } else {
       try {

@@ -10,9 +10,9 @@
 const express = require('express');
 const router = express.Router();
 const { weatherBoostSpawnService } = require('../weatherBoostSpawnService');
-const { weatherBoostEngine } = require('../../shared/weather/WeatherBoostEngine');
-const { mapWeatherCodeToGameWeather, getWeatherConfig } = require('../../shared/weather/WeatherBoostMatrix');
-const { createLogger } = require('../../shared/logger');
+const { weatherBoostEngine } = require('../../../shared/weather/WeatherBoostEngine');
+const { mapWeatherCodeToGameWeather, getWeatherConfig } = require('../../../shared/weather/WeatherBoostMatrix');
+const { createLogger } = require('../../../shared/logger');
 const { requireAuth } = require('../../gateway/src/middleware/auth');
 
 const logger = createLogger('weather-boost-routes');
@@ -191,7 +191,7 @@ router.get('/config/:weather', async (req, res) => {
  */
 router.get('/all', async (req, res) => {
   try {
-    const { WEATHER_BOOST_MATRIX } = require('../../shared/weather/WeatherBoostMatrix');
+    const { WEATHER_BOOST_MATRIX } = require('../../../shared/weather/WeatherBoostMatrix');
     
     const allWeathers = Object.entries(WEATHER_BOOST_MATRIX).map(([key, config]) => ({
       weather: key,

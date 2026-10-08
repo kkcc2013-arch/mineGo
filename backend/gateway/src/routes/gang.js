@@ -4,10 +4,13 @@
  */
 
 'use strict';
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("gateway/src/routes/gang"), "gateway/src/routes/gang");
+
 
 const express = require('express');
 const router = express.Router();
-const { GangDetectionEngine, GangActionEngine } = require('../../shared/gangDetection');
+const { GangDetectionEngine, GangActionEngine } = require('../../../shared/gangDetection');
 
 const detectionEngine = new GangDetectionEngine();
 const actionEngine = new GangActionEngine();
@@ -50,7 +53,7 @@ router.post('/analyze', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Gang analysis error:', error);
+    _consoleLogger.error('Gang analysis error:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error'
@@ -80,7 +83,7 @@ router.get('/:gangId', async (req, res) => {
       data: details
     });
   } catch (error) {
-    console.error('Get gang details error:', error);
+    _consoleLogger.error('Get gang details error:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error'
@@ -111,7 +114,7 @@ router.get('/:gangId/members', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get gang members error:', error);
+    _consoleLogger.error('Get gang members error:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error'
@@ -142,7 +145,7 @@ router.get('/:gangId/events', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get gang events error:', error);
+    _consoleLogger.error('Get gang events error:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error'
@@ -188,7 +191,7 @@ router.post('/:gangId/action', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Execute gang action error:', error);
+    _consoleLogger.error('Execute gang action error:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error'
@@ -229,7 +232,7 @@ router.get('/stats', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get gang stats error:', error);
+    _consoleLogger.error('Get gang stats error:', error);
     res.status(500).json({
       success: false,
       error: 'Internal server error'

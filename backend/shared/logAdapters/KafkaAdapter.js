@@ -3,6 +3,9 @@
  * 输出日志到 Kafka Topic，支持消息分区和批处理
  */
 'use strict';
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/logAdapters/KafkaAdapter"), "shared/logAdapters/KafkaAdapter");
+
 
 const ILogOutputAdapter = require('./ILogOutputAdapter');
 const { Kafka } = require('kafkajs');
@@ -55,7 +58,7 @@ class KafkaAdapter extends ILogOutputAdapter {
       
       // 启动批处理定时器
       this.batchTimer = setInterval(
-        () => this.sendBatch().catch(err => console.error(`[KafkaAdapter] Batch send error:`, err)),
+        () => this.sendBatch().catch(err => _consoleLogger.error(`[KafkaAdapter] Batch send error:`, err)),
         this.batchTimeout
       );
       
@@ -132,7 +135,7 @@ class KafkaAdapter extends ILogOutputAdapter {
         this.healthStatus = 'healthy';
       } catch (error) {
         this.connected = false;
-        console.error(`[KafkaAdapter] Reconnect failed:`, error);
+        _consoleLogger.error(`[KafkaAdapter] Reconnect failed:`, error);
       }
     }
   }

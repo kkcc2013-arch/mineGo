@@ -34,7 +34,7 @@ class ModuleLoader {
   /**
    * 加载模块目录
    * @param {string} dir - 目录路径
-   * @param {string} pattern - 文件匹配模式（glob 格式，默认 **/*.module.js）
+   * @param {string} pattern - 文件匹配模式（glob 格式，默认递归匹配 .module.js 文件）
    * @returns {Promise<number>} 加载的模块数量
    */
   async loadDirectory(dir, pattern = '**/*.module.js') {

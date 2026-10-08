@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "repairs": {
+    "20260609_233000": {
+      "sourceSha256": "d02b5deb704f458d09566e3efedc1f1e1ced8bf80f5a0f6c3038a2e4a33de3b3",
+      "file": "repairs/20260609_233000__spawn_pool_values.sql",
+      "reason": "Remove six trailing VALUES commas and widen weight precision to retain seeded weights up to15. Keep every row and all other statements."
+    },
+    "20260610_013000": {
+      "sourceSha256": "9698082d8fec8e6b5d106f7a36f01cd1d95d91f74707e1f6d6cad47972d2762a",
+      "file": "repairs/20260610_013000__add_pvp_battle_system.sql",
+      "reason": "Align 1 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+    },
+    "20260613_070000": {
+      "sourceSha256": "c06783bb8f43b0c30d6c315a5ada693bfa7f099145b504691fb28cd3ba4e325b",
+      "file": "repairs/20260613_070000__add_share_system_tables.sql",
+      "reason": "Align 1 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+    },
+    "20260614_070300": {
+      "sourceSha256": "b5975b92df92ef8c49ffac52afc95e1af95d376cdb24fd7014b696cabff60b9a",
+      "file": "repairs/20260614_070300__add_pokemon_backup_system.sql",
+      "reason": "Align 2 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+    },
+    "20260614_081000": {
+      "sourceSha256": "69e4f234792528a5ead888f79654614acd482e94d1da86fe62d7968c5973b6f4",
+      "file": "repairs/20260614_081000__add_equipment_system.sql",
+      "reason": "Use canonical UUID user/Pokemon references and helper argument; express the exact existing active-template partial uniqueness rule as a PostgreSQL unique index. Keep all seed values and other SQL. This does not implement full per-type slot/API/game acceptance."
+    },
+    "20260615_170500": {
+      "sourceSha256": "09a757e3a770f1549494900bc876f32c3a8d027561900d3f8c15816a1ba65611",
+      "file": "repairs/20260615_170500__add_title_system.sql",
+      "reason": "Align 1 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+    },
+    "20260630_040000": {
+      "sourceSha256": "56caa9b41aafa64822d561c733b328a4efd8c037a4fb95ad26d2a3813e2225a7",
+      "file": "repairs/20260630_040000__add_pokemon_cosmetic_system.sql",
+      "reason": "Align 3 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+    },
+    "20260707_090500": {
+      "sourceSha256": "80d3ab4ea9f1e71336c2a293bb605d65e7ec2442d42b3ec16f7aa521e0120503",
+      "file": "repairs/20260707_090500__add_weather_boost_tables.sql",
+      "reason": "Align 1 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+    },
+    "20260711_120000": {
+      "sourceSha256": "9577c3dcaf6e91a4f5931229df810235002f2fe057372296ae3eead79b381625",
+      "file": "repairs/20260711_120000__add_job_monitoring_tables.sql",
+      "reason": "Align 1 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+    },
+    "20260610_040000": {
+      "sourceSha256": "98ddd1518d321b6e86ddd4ed28f67312e3769864c1e7cd41a1b15f8eb95e1a08",
+      "file": "repairs/20260610_040000__add_guild_system_tables.sql",
+      "reason": "Implement the two intended partial uniqueness rules as PostgreSQL partial indexes; initialize leaderboard rows for actual guilds instead of nonexistent guild0."
+    },
+    "20260618_160000": {
+      "sourceSha256": "e60be5a89d60c84da8ba40f11c63bf1b5e1491e59828903856e50b490ca74bf4",
+      "file": "repairs/20260618_160000__add_voice_chat_tables.sql",
+      "reason": "Express active room membership uniqueness as a partial unique index while retaining historical memberships."
+    },
+    "20260610_080000": {
+      "sourceSha256": "fa9bd6b0aef470e0e165f6135628cfe4599521436b26fc2626065ca9c2778deb",
+      "file": "repairs/20260610_080000__add_ip_ban_system.sql",
+      "reason": "Name PostgreSQL inet_ops explicitly for the two intended CIDR GiST indexes."
+    },
+    "20260609_124500": {
+      "sourceSha256": "99c96061defc0b502f87147c491889266f53b9e5c8ae8cfbdcdda6892c09969e",
+      "file": "repairs/20260609_124500__add_item_inventory_system.sql",
+      "reason": "Use UUID owner in capacity function, named default capacity fields, positive additions and typed remaining capacity; delete expired rows instead of violating positive-quantity constraint."
+    },
+    "20260610_100000": {
+      "sourceSha256": "9a7e7ae9946cdc45a2dbfb4c27e981cffba48d7699971902f88213f49dd80bac",
+      "file": "repairs/20260610_100000__add_table_partitioning_system.sql",
+      "reason": "Use audited audit-parent conversion and schema-scoped partition creation that moves matching default rows atomically, verifies existing bounds and retains out-of-window data."
+    },
+    "20260610_103000": {
+      "sourceSha256": "bcfa7904149404b6677ab0e33591670d12746845e590849ee822dca2966071ab",
+      "file": "repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql",
+      "reason": "Replace two invalid inline INDEX declarations with PostgreSQL CREATE INDEX, retaining table fields and all other SQL."
+    },
+    "20260611_000000": {
+      "sourceSha256": "31e3714195d83afba17bafd85f3590ad51e30011831a5d0a1f5b4e8e5a00e302",
+      "file": "repairs/20260611_000000__add_achievement_system_tables.sql",
+      "reason": "Align all four achievement/title owner columns with authoritative V1 UUID users; retain all other SQL and seeds."
+    },
+    "20260611_020000": {
+      "sourceSha256": "b826b47c80ed8a3131c06f16404cf3f13b09dba752de46516d006acd939bb963",
+      "file": "repairs/20260611_020000__add_message_center_indexes.sql",
+      "reason": "Use actual V1 UUID owners and integer notification IDs in read/cleanup helpers; scope preference column inspection to the current schema. Retain all other index/view/cleanup SQL."
+    },
+    "20260605_200000": {
+      "sourceSha256": "79cf3abf1168450566ee1ea630fb3832af7c366c767e0abb73da0fd095b03295",
+      "file": "repairs/20260605_200000__add_notification_system_tables.sql",
+      "reason": "Correct cleanup to retain each recipient's newest50 with stable time/ID order; the legacy global OFFSET incorrectly deleted other users' history. Preserve all other SQL."
+    },
+    "20260611_102500": {
+      "sourceSha256": "59a2a80875b912d30755ab49eea52813c2915a92ff05e238d8d3d92810dfa498",
+      "file": "repairs/20260611_102500__add_canary_deployment_tables.sql",
+      "reason": "Express the exact existing service/status partial uniqueness rule as a PostgreSQL partial unique index. Retain other columns/data and do not infer operational canary acceptance."
+    },
+    "20260611_131000": {
+      "sourceSha256": "1d5b944eb3f8d1c16dfce690712aed383a6a126449d66f9f633a5477430a4ac8",
+      "file": "repairs/20260611_131000__add_friendship_system.sql",
+      "reason": "Preserve canonical UUID trainer bonds and numeric levels through the declared identity bridge; expose named affinity separately, use actual UUID history and species primary keys/FKs. Keep all intended evolution rules; sample catalog gaps do not prove feature acceptance."
+    },
+    "20260611_152900": {
+      "sourceSha256": "fed6b42590f4829f4b474b9ddf840a08d7b8cce7b53bd502a0b9fe7417ec63d8",
+      "file": "repairs/20260611_152900__add_privacy_preference_center.sql",
+      "reason": "Run the existing additive policy/default prerequisite before the consumer; new optional preferences remain opt-in. Seed all legacy required fields from the original multilingual content/effective date and preserve existing policy versions on conflict."
+    },
+    "20260612_070000": {
+      "sourceSha256": "071c812b16b0f3bd90eb912c88d98d01c334d709a619ae0c5e7b26280869b926",
+      "file": "repairs/20260612_070000__add_catch_anomaly_detection_system.sql",
+      "reason": "Keep canonical UUID gameplay catch sessions/throws unchanged; use distinct owned risk-attempt records, real throw evidence and atomic hourly observations. Store original base-rate seeds as configuration rather than fabricated user statistics; refuse lossy rollback and unsupported preexisting risk schemas."
+    },
+    "20260613_160000": {
+      "sourceSha256": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
+      "file": "repairs/20260613_160000__add_special_iv_system.sql",
+      "reason": "Use actual spawned_at; derive flags from preserved IV tuples, backfill without replaying user triggers, maintain current-owner stats on insert/update/delete, create missing config contract without overwriting existing settings, and reverse only owned derived objects/configuration safely."
+    },
+    "20260614_090500": {
+      "sourceSha256": "b602bc1b0e67d1b03aa441cf24de2abbc7113ab512bcd7384d006e2b15b07979",
+      "file": "repairs/20260614_090500__add_daily_quest_system.sql",
+      "reason": "Express the original per-user/definition/assigned-calendar-date uniqueness and two date lookup indexes as valid PostgreSQL expression indexes. Preserve all original timestamps, rows, reward values and seeds; canonical V1 daily_quests remains separate. This syntax repair does not verify modern quest behavior or define player timezone semantics."
+    }
+  }
+}

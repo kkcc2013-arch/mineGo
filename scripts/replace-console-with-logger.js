@@ -1,136 +1,118 @@
 #!/usr/bin/env node
-/**
- * REQ-00391: console.log 替换脚本
- * 自动将 console 调用替换为结构化日志
- */
+'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
+const parser = require('../backend/node_modules/@babel/parser');
+const traverse = require('../backend/node_modules/@babel/traverse').default;
+const ROOT = path.resolve(__dirname, '..');
+const METHODS = new Set(['log','info','warn','error','debug','trace']);
 
-const fs = require('fs');
-const path = require('path');
-
-const sharedDir = path.join(__dirname, '../backend/shared');
-const files = fs.readdirSync(sharedDir).filter(f => f.endsWith('.js'));
-
-const replacements = [];
-const errors = [];
-
-// 处理每个文件
-for (const file of files) {
-  const filePath = path.join(sharedDir, file);
-  let content = fs.readFileSync(filePath, 'utf-8');
-  let modified = false;
-  
-  // 检查是否需要添加 logger 引入
-  const hasConsole = content.includes('console.') && !file.includes('logger.js');
-  const hasLoggerImport = content.includes("require('./logger')") || 
-                          content.includes('require("@shared/logger') ||
-                          content.includes('createLogger');
-  
-  if (hasConsole) {
-    // 模块名
-    const moduleName = file.replace('.js', '');
-    
-    // 添加 logger 引入（如果不存在）
-    if (!hasLoggerImport) {
-      // 在 'use strict' 后添加 logger 引入
-      const lines = content.split('\n');
-      let insertIndex = 0;
-      
-      // 找到合适的插入位置
-      for (let i = 0; i < lines.length; i++) {
-        if (lines[i].includes("'use strict'") || lines[i].includes('"use strict"')) {
-          insertIndex = i + 1;
-          break;
-        }
-        // 找到第一个非空行
-        if (lines[i].trim() && !lines[i].trim().startsWith('//') && insertIndex === 0) {
-          insertIndex = i;
-        }
-      }
-      
-      if (insertIndex > 0) {
-        lines.splice(insertIndex, 0, `const { createLogger } = require('./logger');`);
-        lines.splice(insertIndex + 1, 0, `const logger = createLogger('${moduleName}');`);
-        content = lines.join('\n');
-        modified = true;
-      } else {
-        // 文件开头添加
-        content = `const { createLogger } = require('./logger');\nconst logger = createLogger('${moduleName}');\n\n` + content;
-        modified = true;
-      }
+function analyze(source) {
+  const ast = parser.parse(source, {sourceType:'unambiguous', plugins:['jsx']});
+  const calls = [];
+  const names = new Set();
+  let program;
+  traverse(ast, {
+    Program(nodePath) { program = nodePath; },
+    Identifier(nodePath) {names.add(nodePath.node.name);},
+    'CallExpression|OptionalCallExpression'(nodePath) {
+      const callee = nodePath.node.callee;
+      if (!['MemberExpression','OptionalMemberExpression'].includes(callee.type) ||
+          callee.object.type !== 'Identifier' || callee.object.name !== 'console' || nodePath.scope.getBinding('console')) return;
+      const method = callee.computed ? (callee.property.type === 'StringLiteral' ? callee.property.value : null) : callee.property.name;
+      calls.push({method:method || '<computed>', line:nodePath.node.loc.start.line,
+        start:callee.start, end:callee.end,
+        supported:METHODS.has(method) && !nodePath.node.optional && !callee.optional,
+        fingerprint:crypto.createHash('sha256').update(source.slice(nodePath.node.start,nodePath.node.end)).digest('hex')});
     }
-    
-    // 替换 console.error
-    content = content.replace(
-      /console\.error\(['"`]([^'"`]+)['"`]\s*,\s*([^)]+)\)/g,
-      (match, prefix, obj) => {
-        modified = true;
-        const cleanPrefix = prefix.replace(/^\[|\]$/g, '').replace(/:\s*$/, '');
-        return `logger.error({ module: '${cleanPrefix}', error: ${obj}.message }, '${cleanPrefix} error');`;
-      }
-    );
-    
-    // 替换 console.error 单参数
-    content = content.replace(
-      /console\.error\(([^)]+)\)/g,
-      (match, arg) => {
-        if (arg.includes('logger.') || arg.includes('createLogger')) return match;
-        modified = true;
-        return `logger.error({ module: '${moduleName}' }, ${arg});`;
-      }
-    );
-    
-    // 替换 console.warn
-    content = content.replace(
-      /console\.warn\(['"`]([^'"`]+)['"`]\s*(?:,\s*([^)]+))?\)/g,
-      (match, prefix, obj) => {
-        modified = true;
-        const cleanPrefix = prefix.replace(/^\[|\]$/g, '').replace(/:\s*$/, '');
-        if (obj) {
-          return `logger.warn({ module: '${cleanPrefix}', data: ${obj} }, '${cleanPrefix} warning');`;
-        }
-        return `logger.warn({ module: '${cleanPrefix}' }, '${cleanPrefix} warning');`;
-      }
-    );
-    
-    // 替换 console.log
-    content = content.replace(
-      /console\.log\(['"`]([^'"`]+)['"`]\s*(?:,\s*([^)]+))?\)/g,
-      (match, prefix, obj) => {
-        modified = true;
-        const cleanPrefix = prefix.replace(/^\[|\]$/g, '').replace(/:\s*$/, '');
-        if (obj) {
-          return `logger.info({ module: '${cleanPrefix}', data: ${obj} }, '${cleanPrefix} message');`;
-        }
-        return `logger.info({ module: '${cleanPrefix}' }, '${cleanPrefix} message');`;
-      }
-    );
-    
-    // 替换模板字符串形式的 console
-    content = content.replace(
-      /console\.(log|error|warn)\(`\[([^\]]+)\]\s*([^`]*)`\)/g,
-      (match, level, prefix, message) => {
-        modified = true;
-        const logLevel = level === 'log' ? 'info' : level;
-        return `logger.${logLevel}({ module: '${prefix}' }, '${message.trim()}');`;
-      }
-    );
-    
-    if (modified) {
-      fs.writeFileSync(filePath, content, 'utf-8');
-      replacements.push(file);
+  });
+  return {ast, calls, program, names};
+}
+
+function transform(source, filename) {
+  const {ast, calls, program, names} = analyze(source);
+  if (ast.program.sourceType === 'module' && calls.some(call => call.supported)) {
+    throw new Error('ES module migration requires a reviewed import change');
+  }
+  const supported = calls.filter(call => call.supported);
+  if (!supported.length) return {source, converted:0, skipped:calls.length};
+  let alias = program.scope.generateUidIdentifier('consoleLogger').name;
+  while (names.has(alias)) alias = program.scope.generateUidIdentifier('consoleLogger').name;
+  const moduleName = path.relative(path.join(ROOT,'backend'),filename).split(path.sep).join('/').replace(/\.js$/, '');
+  const relative = target => {
+    const result = path.relative(path.dirname(filename),path.join(ROOT,'backend/shared',target)).split(path.sep).join('/');
+    return result.startsWith('.') ? result : './'+result;
+  };
+  const imports = `\nconst ${alias} = new (require(${JSON.stringify(relative('loggingUtils'))})).ConsoleMigrationHelper(\n  require(${JSON.stringify(relative('logger'))}).createLogger(${JSON.stringify(moduleName)}), ${JSON.stringify(moduleName)});\n`;
+  const edits = supported.map(call => ({start:call.start,end:call.end,text:`${alias}.${call.method}`}));
+  // The parser provides token boundaries after comments, shebang and directives.
+  // Preserve use-strict/module directives and every original argument expression.
+  const insertion = ast.program.directives.at(-1)?.end ?? ast.program.body[0]?.start ?? ast.program.interpreter?.end ?? source.length;
+  edits.push({start:insertion,end:insertion,text:imports});
+  let output = source;
+  for (const edit of edits.sort((a,b) => b.start-a.start || b.end-a.end)) output = output.slice(0,edit.start)+edit.text+output.slice(edit.end);
+  analyze(output); // Reject invalid output before a caller can write it.
+  return {source:output, converted:supported.length, skipped:calls.length-supported.length};
+}
+
+function sourceFiles(root) {
+  const result = [];
+  function walk(directory) {
+    for (const entry of fs.readdirSync(directory,{withFileTypes:true})) {
+      if (['node_modules','tests','__tests__','__mocks__','scripts','cli'].includes(entry.name)) continue;
+      const file=path.join(directory,entry.name);
+      if (entry.isDirectory()) walk(file);
+      else if (entry.name.endsWith('.js') && entry.name !== 'cli.js' && !/\.(test|spec|cli)\.js$/.test(entry.name)) result.push(file);
     }
   }
+  walk(root); return result.sort();
 }
-
-console.log('Replacements completed:');
-console.log(`- Files processed: ${files.length}`);
-console.log(`- Files modified: ${replacements.length}`);
-if (replacements.length > 0) {
-  console.log('\nModified files:');
-  replacements.forEach(f => console.log(`  - ${f}`));
+function inventory() {
+  const records=[];
+  for(const folder of ['shared','services','gateway']) for(const file of sourceFiles(path.join(ROOT,'backend',folder))) {
+    for(const call of analyze(fs.readFileSync(file,'utf8')).calls) records.push({file:path.relative(ROOT,file).split(path.sep).join('/'),...call});
+  }
+  return records;
 }
-
-if (errors.length > 0) {
-  console.error('\nErrors:');
-  errors.forEach(e => console.error(`  - ${e}`));
+function fingerprintCounts(records) {
+  const counts={};
+  for(const record of records) {
+    const key=`${record.file}:${record.method}:${record.fingerprint}`;
+    counts[key]=(counts[key]||0)+1;
+  }
+  return counts;
 }
+function newCalls(records, baseline) {
+  const previous={...baseline};
+  return records.filter(record => {
+    const key=`${record.file}:${record.method}:${record.fingerprint}`;
+    if(previous[key]>0) {previous[key]--;return false;} return true;
+  });
+}
+function main(args=process.argv.slice(2)) {
+  if(args.includes('--write')) {
+    const index=args.indexOf('--file');
+    if(index<0 || !args[index+1]) throw new Error('--write requires one explicit --file');
+    const file=path.resolve(args[index+1]);
+    if(!file.startsWith(path.join(ROOT,'backend')+path.sep) || !fs.realpathSync(file).startsWith(path.join(ROOT,'backend')+path.sep)) throw new Error('Only backend files may be migrated');
+    const original=fs.readFileSync(file,'utf8');
+    const result=transform(original,file);
+    fs.writeFileSync(file,result.source);
+    process.stdout.write(JSON.stringify({file:path.relative(ROOT,file),converted:result.converted,skipped:result.skipped})+'\n');
+    return;
+  }
+  const records=inventory();
+  const baselinePath=path.join(ROOT,'backend/logging-console-baseline.json');
+  if(args.includes('--baseline')) fs.writeFileSync(baselinePath,JSON.stringify({schemaVersion:1,calls:fingerprintCounts(records)},null,2)+'\n');
+  if(args.includes('--check')) {
+    const added=newCalls(records,JSON.parse(fs.readFileSync(baselinePath,'utf8')).calls);
+    if(added.length) {process.stderr.write(JSON.stringify({newConsoleCalls:added},null,2)+'\n');process.exitCode=1;}
+  }
+  const outputIndex=args.indexOf('--output');
+  const report=JSON.stringify({files:new Set(records.map(record=>record.file)).size,calls:records.length,records},null,2)+'\n';
+  if(outputIndex>=0) fs.writeFileSync(args[outputIndex+1],report);
+  process.stdout.write(JSON.stringify({files:new Set(records.map(record=>record.file)).size,calls:records.length})+'\n');
+}
+if(require.main===module) {try {main();} catch(error) {process.stderr.write(error.message+'\n');process.exitCode=1;}}
+module.exports={analyze,transform,inventory,newCalls,fingerprintCounts};

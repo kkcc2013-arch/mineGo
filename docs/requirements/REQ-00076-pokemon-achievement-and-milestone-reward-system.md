@@ -7,7 +7,7 @@
 | 标题 | 精灵成就系统与里程碑奖励 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | in_progress |
 | 涉及服务 | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-10 02:15 |
 
@@ -999,3 +999,48 @@ module.exports = [
 - [Xbox Live Achievements](https://docs.microsoft.com/en-us/gaming/xbox-live/features/achievements/)
 - [Pokemon GO Achievements](https://pokemongohub.net/guide/achievements/)
 - 游戏成就系统设计最佳实践
+
+
+## 实际生产 schema 复核（2026-10-08）
+
+完整 V1+V2 和82个 pending 的实际 gate 已推进到本需求。旧脚本中四个 user_id
+INTEGER 与规范 users.id UUID 不兼容；通过绑定原始 SHA 的完整修复 SQL 改为
+UUID，保留原文件、所有其它语句和种子。随后仍失败：V1 user_achievements 已经
+存在，CREATE TABLE IF NOT EXISTS 不会新增 completed/progress/target 等字段。
+原表还引用 achievement_definitions，新服务引用 achievements；不能删除原数据/
+外键或只补字段来宣称兼容。
+
+下一步明确统一成就定义和进度合同，保留原 current_value/current_tier、既有用户
+进度及奖励记录，并验证旧 reward/catch/user 读写与新 achievement 服务同时可用，
+防止重复发奖。本次只是迁移身份修复和失败定位；HTTP/事件/奖励事务、客户端、
+性能及全部验收仍未完成。
+
+
+## 目录桥接与实际奖励事务进展（2026-10-08）
+
+新增显式 prerequisite，保留 V1 原表 OID/复合主键/外键、旧八项分层定义以及
+已有 current_value/current_tier/时间戳。31项新定义通过 is_modern 兼容记录关联；
+同一进度记录带 modern_achievement_id 外键和 NUMERIC progress，保留两种来源
+区别。ID冲突阻断，未知历史时间保持 NULL。旧计数写入继续有效；新进度使用
+真实 PostgreSQL numeric 运算，避免 JS 字符串拼接、整数截断和小数累加误差。
+完成后进度不可重置；未使用的桥接可回滚，有新记录时明确拒绝丢数据的逆转。
+
+新服务按用户事务锁串行进度/快照与发奖。统计只计已完成项，不因每次增量
+重复加分。领取事务真正增加用户金币/捕捉使用的球余额、有效背包堆叠及匹配
+的称号，然后写领取状态；并发仅一次成功。未知资源/奖励类型、容量或称号
+配置错误回滚所有余额和标记，不返回假发奖成功。球不重复入账到另一份背包
+余额；通用背包与捕捉余额集成仍需后续验收。
+
+修复静态 leaderboard/titles/categories 被 ID 路由遮蔽、分页参数、已解锁隐藏
+成就可见性，称号激活/取消与归属，移除重复挂载。旧 user 路由兼容 V1，读取
+新版精确进度，统一使用已经验证的 subject/id 身份。更新/解锁/领取指标实际
+注册到共享 registry，真实 launcher 的 metrics 端点可读。
+
+实际 PostGIS/生产类/签名 HTTP/metrics41项通过，unit621、migration/审计38、
+业务 storage/native35 和1415文件语法回归通过。83个全历史已越过此阶段，失败
+推进到20260611_020000 notification_type缺失；完整历史门禁仍失败。
+
+事件去重/持久投递/自动发奖、全部触发类型和种子资源/称号合同、独占精灵
+奖励、管理 CRUD/权限及修改定义后快照策略、原有 unit fixture、客户端、
+原生 pokemon 进程/网关和100ms/50ms性能仍待完整验收。保持 in_progress，
+没有把有限存储测试替代全部验收。实现合同见 docs/ACHIEVEMENTS.md。

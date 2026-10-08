@@ -1,0 +1,28 @@
+{
+  "rootDir": "../..",
+  "testEnvironment": "node",
+  "testMatch": [
+    "<rootDir>/tests/unit/health-registration.test.js",
+    "<rootDir>/tests/unit/gateway-proxy.test.js",
+    "<rootDir>/tests/unit/auth-routing.test.js",
+    "<rootDir>/tests/unit/gym-battle.test.js",
+    "<rootDir>/tests/unit/requestSignature.test.js",
+    "<rootDir>/tests/unit/client-integrity.test.js",
+    "<rootDir>/tests/textTruncator.test.js",
+    "<rootDir>/tests/monitorReport.test.js",
+    "<rootDir>/tests/unit/performanceRegressionTester.test.js",
+    "<rootDir>/tests/unit/schema-validator.test.js",
+    "<rootDir>/tests/unit/provider-contract.test.js",
+    "<rootDir>/tests/unit/contract.test.js",
+    "<rootDir>/tests/unit/dependencyAnalyzer.test.js",
+    "<rootDir>/tests/unit/privacy-preferences.test.js",
+    "<rootDir>/tests/unit/logging-migration.test.js",
+    "<rootDir>/tests/unit/console-replacement.test.js",
+    "<rootDir>/tests/unit/service-launcher-lifecycle.test.js",
+    "<rootDir>/tests/unit/title-service.test.js",
+    "<rootDir>/tests/unit/timezone-route.test.js",
+    "<rootDir>/tests/unit/eventbus-lifecycle.test.js",
+    "<rootDir>/tests/unit/notification-initialization.test.js",
+    "<rootDir>/tests/unit/ip-appeal.test.js"
+  ]
+}

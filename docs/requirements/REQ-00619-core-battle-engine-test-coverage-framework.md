@@ -7,7 +7,7 @@
 | 标题 | 核心战斗引擎业务测试覆盖框架 |
 | 类别 | 测试覆盖 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | in_progress |
 | 涉及服务 | gym-service, battle-engine-module |
 | 创建时间 | 2026-07-21 00:00 |
 
@@ -27,9 +27,17 @@
 
 ## 验收标准
 
-- [ ] 实现针对战斗公式的单元测试覆盖率 > 90%
-- [ ] 完成战斗引擎集成测试套件，涵盖至少 50 个典型业务场景
-- [ ] 战斗引擎回归测试流水线集成到 CI/CD
+- [x] 实现针对战斗公式的单元测试覆盖率 > 90%
+- [x] 完成战斗引擎集成测试套件，涵盖至少 50 个典型业务场景
+- [x] 战斗引擎回归测试流水线集成到 CI/CD
+
+### 2026-10-06 本地验收证据
+
+- `cd backend && npm run test:battle`：Node.js 20.20.2 下通过。
+- `cd backend && npm run test:battle:coverage`：Node.js 24.19.0 下通过；57 个公式用例、76 个业务场景，共 133 个用例。
+- `battleFormulas.js` 行、分支、函数覆盖率均为 100%，CI 门禁均设置为至少 91%。
+- `.github/workflows/ci-cd.yml` 新增独立 battle-regression 作业，并加入构建前置条件。
+- 按 GUIDELINES.md 完成定义，远程 CI 尚未运行；保留 `in_progress`，未声明整体完成。场景套件使用可注入状态服务边界；数据库、Redis 及生产性能验收不由该套件代替。
 
 ## 影响范围
 

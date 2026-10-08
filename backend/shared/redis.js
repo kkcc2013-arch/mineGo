@@ -41,7 +41,7 @@ function getRedis() {
         enableReadyCheck: true,
       });
     } else {
-      client = new Redis({
+      const options = {
         host: process.env.REDIS_HOST || 'localhost',
         port: parseInt(process.env.REDIS_PORT || '6379'),
         password: process.env.REDIS_PASSWORD,
@@ -53,7 +53,14 @@ function getRedis() {
           const jitter = Math.random() * 100;
           return delay + jitter;
         },
-      });
+      };
+      // URL configuration takes precedence over the host/port defaults.
+      if (process.env.REDIS_URL) {
+        delete options.host;
+        delete options.port;
+        delete options.password;
+        client = new Redis(process.env.REDIS_URL, options);
+      } else client = new Redis(options);
     }
 
     client.on('error', (err) => logger.error({ module: 'Redis', error: err.message }));

@@ -1,10 +1,12 @@
 /**
-const { createLogger } = require('./logger');
-const logger = createLogger('spawnMetrics');
  * 精灵刷新 Prometheus 指标
  *
  * @module spawnMetrics
  */
+
+const { createLogger } = require('./logger');
+const logger = createLogger('spawnMetrics');
+
 
 const client = require('prom-client');
 

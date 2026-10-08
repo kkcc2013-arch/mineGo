@@ -3,7 +3,7 @@
 - **编号**：REQ-00032
 - **类别**：可扩展性/解耦
 - **优先级**：P1
-- **状态**：done
+- **状态**：in_progress
 - **涉及服务/模块**：reward-service、user-service、backend/shared/notification、gateway
 - **创建时间**：2026-06-07 00:00
 - **依赖需求**：REQ-00026（游戏内实时推送通知系统）
@@ -340,3 +340,14 @@ DELETE /api/notifications/device-token
 3. **依赖关系**：REQ-00026 已实现游戏内推送，本需求是其自然延伸
 4. **生产必需**：FCM/APNs 是移动应用的标配能力，缺失会导致重要通知无法触达
 5. **可扩展价值**：插件化设计降低未来渠道接入成本，符合"可扩展性/解耦"目标
+
+
+## Acceptance review (2026-10-08)
+
+Reopened the old done declaration: pushNotificationService constructed the exported manager object as a class and failed to load. It now uses the real singleton. Actual database preferences, quiet-hour time zones, channel selection/fallback, WebSocket protocol and stored per-attempt outcomes are exercised. Live FCM/APNs providers/device delivery, adapter coverage >=80%, retries and claimed reach/retention targets remain unverified.
+
+Evidence and remaining boundaries: [notification guide](../NOTIFICATIONS.md),
+VERIFICATION.json and WORKLOG.md. Local checks: notification storage35, Chromium10,
+native/business35, broader storage114 and unit623 pass. Full V1/V2 passes; all84
+pending migrations fail later at friendship pokemon_instance_id (atomic rollback).
+No full requirement or current CI completion is claimed.

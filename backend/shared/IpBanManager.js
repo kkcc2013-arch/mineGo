@@ -5,7 +5,14 @@
 
 const { Pool } = require('pg');
 const Redis = require('ioredis');
-const { logger, metrics } = require('./index');
+const logger = require('./logger').createLogger('ip-ban-manager');
+const { register, Counter } = require('./metrics');
+const metricLabels = { ip_ban_total: ['type','severity'], ip_ban_auto_total: ['reason'], ip_ban_appeal_total: ['status'] };
+function incrementMetric(name, value, labels = {}) {
+  const names = metricLabels[name];
+  const counter = register.getSingleMetric(name) || new Counter({ name, help: name, labelNames: names, registers: [register] });
+  counter.inc(Object.fromEntries(names.map(label => [label, String(labels[label] ?? '')])), value);
+}
 
 // 封禁严重级别对应的默认时长
 const BAN_DURATIONS = {
@@ -34,37 +41,49 @@ const PUB_CHANNEL = 'ipban:events';
 
 class IpBanManager {
   constructor(options = {}) {
-    this.db = options.db || new Pool();
-    this.redis = options.redis || new Redis();
-    this.publisher = options.publisher || new Redis();
-    this.subscriber = options.subscriber || new Redis();
+    this.ownsDb = !options.db;
+    this.ownsRedis = !options.redis;
+    const database = options.db || new Pool({ connectionString: process.env.DATABASE_URL });
+    this.db = typeof database.connect === 'function' ? database : { connect: () => database.getClient() };
+    this.redis = options.redis || new Redis({ lazyConnect: true });
+    this.publisher = options.publisher || this.redis;
+    this.ownsSubscriber = !options.subscriber;
+    this.subscriber = options.subscriber || this.redis.duplicate();
     
     // 本地缓存
     this.localBlacklist = new Map();
-    this.localWhitelist = new Map();
+    this.localWhitelist = new Set();
     
     // 初始化时加载缓存
     this.initialized = false;
-    this.init();
+    this.ready = options.autoInitialize === false ? null : this.init();
+    this.ready?.catch(error => logger.error({ err: error }, 'IpBanManager initialization failed'));
   }
 
-  async init() {
-    try {
-      // 订阅 Redis 事件
+  init() {
+    if (this.ready) return this.ready;
+    this.ready = (async () => {
       await this.subscriber.subscribe(PUB_CHANNEL);
-      this.subscriber.on('message', (channel, message) => {
-        if (channel === PUB_CHANNEL) {
-          this.handleRedisEvent(JSON.parse(message));
-        }
-      });
-      
-      // 加载黑名单和白名单到本地缓存
+      this.messageHandler = (channel, message) => {
+        if (channel !== PUB_CHANNEL) return;
+        try { this.handleRedisEvent(JSON.parse(message)); }
+        catch (err) { logger.warn({ err }, 'Ignoring malformed IP ban event'); }
+      };
+      this.subscriber.on('message', this.messageHandler);
       await this.loadCaches();
       this.initialized = true;
-      logger.info('IpBanManager initialized successfully');
-    } catch (error) {
-      logger.error('IpBanManager initialization failed', { error: error.message });
-    }
+    })();
+    return this.ready;
+  }
+
+  async close() {
+    if (this.messageHandler) this.subscriber.removeListener('message', this.messageHandler);
+    const operations = [];
+    if (this.ownsSubscriber) operations.push(this.subscriber.quit());
+    if (this.ownsRedis) operations.push(this.redis.quit());
+    if (this.ownsDb) operations.push(this.db.end());
+    await Promise.all(operations);
+    this.initialized = false;
   }
 
   /**
@@ -92,26 +111,6 @@ class IpBanManager {
         this.localWhitelist.add(row.ip_address);
       }
       
-      // 同步到 Redis
-      await this.redis.del(BLACKLIST_CACHE_KEY);
-      await this.redis.del(WHITELIST_CACHE_KEY);
-      
-      for (const [ip, expires] of this.localBlacklist) {
-        if (expires) {
-          const ttl = Math.floor((new Date(expires) - new Date()) / 1000);
-          if (ttl > 0) {
-            await this.redis.hset(BLACKLIST_CACHE_KEY, ip, expires.toISOString());
-            await this.redis.expire(BLACKLIST_CACHE_KEY, ttl);
-          }
-        } else {
-          await this.redis.hset(BLACKLIST_CACHE_KEY, ip, 'permanent');
-        }
-      }
-      
-      for (const ip of this.localWhitelist) {
-        await this.redis.sadd(WHITELIST_CACHE_KEY, ip);
-      }
-      
       logger.info('IP caches loaded', {
         blacklist: this.localBlacklist.size,
         whitelist: this.localWhitelist.size
@@ -125,52 +124,24 @@ class IpBanManager {
    * 检查 IP 是否在白名单
    */
   async isWhitelisted(ipAddress) {
-    // 先检查本地缓存
-    if (this.localWhitelist.has(ipAddress)) {
-      return true;
-    }
-    
-    // 检查 Redis
-    const inWhitelist = await this.redis.sismember(WHITELIST_CACHE_KEY, ipAddress);
-    return inWhitelist === 1;
+    const client = await this.db.connect();
+    try {
+      const result = await client.query('SELECT 1 FROM ip_whitelist WHERE ip_address >>= $1::inet LIMIT 1', [ipAddress]);
+      return result.rowCount > 0;
+    } finally { client.release(); }
   }
 
-  /**
-   * 检查 IP 是否被封禁
-   */
   async isBlocked(ipAddress) {
-    // 1. 白名单优先
-    if (await this.isWhitelisted(ipAddress)) {
-      return { blocked: false, reason: 'whitelisted' };
-    }
-    
-    // 2. 检查本地缓存
-    const localExpiry = this.localBlacklist.get(ipAddress);
-    if (localExpiry) {
-      if (localExpiry === null || new Date(localExpiry) > new Date()) {
-        return { blocked: true, reason: 'blacklist', expires: localExpiry };
-      }
-    }
-    
-    // 3. 检查 Redis
-    const redisResult = await this.redis.hget(BLACKLIST_CACHE_KEY, ipAddress);
-    if (redisResult) {
-      if (redisResult === 'permanent') {
-        return { blocked: true, reason: 'blacklist', expires: null };
-      }
-      const expires = new Date(redisResult);
-      if (expires > new Date()) {
-        return { blocked: true, reason: 'blacklist', expires };
-      }
-    }
-    
-    // 4. 检查地理位置封禁
-    const geoBlocked = await this.checkGeoBan(ipAddress);
-    if (geoBlocked) {
-      return { blocked: true, reason: 'geo_ban', country: geoBlocked };
-    }
-    
-    return { blocked: false };
+    if (await this.isWhitelisted(ipAddress)) return { blocked: false, reason: 'whitelisted' };
+    const client = await this.db.connect();
+    try {
+      const result = await client.query(`SELECT expires_at FROM ip_blacklist
+        WHERE ip_address >>= $1::inet AND (expires_at IS NULL OR expires_at > NOW())
+        ORDER BY masklen(ip_address) DESC LIMIT 1`, [ipAddress]);
+      if (result.rowCount) return { blocked: true, reason: 'blacklist', expires: result.rows[0].expires_at };
+    } finally { client.release(); }
+    const country = await this.checkGeoBan(ipAddress);
+    return country ? { blocked: true, reason: 'geo_ban', country } : { blocked: false };
   }
 
   /**
@@ -179,20 +150,10 @@ class IpBanManager {
   async checkGeoBan(ipAddress) {
     const client = await this.db.connect();
     try {
-      // 获取 IP 的国家代码
-      const country = await this.getIpCountry(ipAddress);
-      if (!country) return null;
-      
-      // 检查是否被封禁
-      const result = await client.query(
-        'SELECT country_code FROM geo_bans WHERE country_code = $1 AND is_active = true',
-        [country]
-      );
-      
-      return result.rows.length > 0 ? country : null;
-    } finally {
-      client.release();
-    }
+      const result = await client.query(`SELECT g.country_code FROM ip_risk_scores r JOIN geo_bans g USING (country_code)
+        WHERE r.ip_address = $1::inet AND g.is_active = true`, [ipAddress]);
+      return result.rows[0]?.country_code || null;
+    } finally { client.release(); }
   }
 
   /**
@@ -250,7 +211,7 @@ class IpBanManager {
       await client.query('COMMIT');
       
       // 更新指标
-      metrics.increment('ip_ban_total', 1, { type: 'blacklist', severity });
+      incrementMetric('ip_ban_total', 1, { type: 'blacklist', severity });
       
       logger.info('IP added to blacklist', { ipAddress, reason, severity, expiresAt });
       
@@ -322,7 +283,7 @@ class IpBanManager {
       
       await client.query('COMMIT');
       
-      metrics.increment('ip_ban_total', 1, { type: 'whitelist' });
+      incrementMetric('ip_ban_total', 1, { type: 'whitelist' });
       
       logger.info('IP added to whitelist', { ipAddress, description });
       
@@ -406,7 +367,7 @@ class IpBanManager {
           null
         );
         
-        metrics.increment('ip_ban_auto_total', 1, { reason: triggerType });
+        incrementMetric('ip_ban_auto_total', 1, { reason: triggerType });
         
         await client.query('COMMIT');
         
@@ -433,8 +394,9 @@ class IpBanManager {
   async getRiskScore(ipAddress) {
     // 先检查 Redis 缓存
     const cached = await this.redis.get(`${RISK_SCORE_PREFIX}${ipAddress}`);
-    if (cached) {
-      return parseInt(cached, 10);
+    const cachedScore = Number(cached);
+    if (typeof cached === 'string' && /^(?:0|[1-9]\d?|100)$/.test(cached) && Number.isInteger(cachedScore) && cachedScore >= 0 && cachedScore <= 100) {
+      return cachedScore;
     }
     
     const client = await this.db.connect();
@@ -532,7 +494,7 @@ class IpBanManager {
         RETURNING id
       `, [ipAddress, userId, appealReason]);
       
-      metrics.increment('ip_ban_appeal_total', 1, { status: 'pending' });
+      incrementMetric('ip_ban_appeal_total', 1, { status: 'pending' });
       
       return { appealId: result.rows[0].id };
     } finally {

@@ -3,6 +3,9 @@
  * 输出日志到 Elasticsearch，支持批量索引和索引自动管理
  */
 'use strict';
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/logAdapters/ElasticsearchAdapter"), "shared/logAdapters/ElasticsearchAdapter");
+
 
 const ILogOutputAdapter = require('./ILogOutputAdapter');
 const { Client } = require('@elastic/elasticsearch');
@@ -45,7 +48,7 @@ class ElasticsearchAdapter extends ILogOutputAdapter {
       
       // 启动批处理定时器
       this.batchTimer = setInterval(
-        () => this.sendBatch().catch(err => console.error(`[ElasticsearchAdapter] Batch send error:`, err)),
+        () => this.sendBatch().catch(err => _consoleLogger.error(`[ElasticsearchAdapter] Batch send error:`, err)),
         this.batchTimeout
       );
       
@@ -123,7 +126,7 @@ class ElasticsearchAdapter extends ILogOutputAdapter {
         this.healthStatus = 'healthy';
       } catch (error) {
         this.connected = false;
-        console.error(`[ElasticsearchAdapter] Reconnect failed:`, error);
+        _consoleLogger.error(`[ElasticsearchAdapter] Reconnect failed:`, error);
       }
     }
   }

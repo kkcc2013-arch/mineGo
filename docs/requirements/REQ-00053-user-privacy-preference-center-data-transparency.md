@@ -3,7 +3,7 @@
 - **编号**：REQ-00053
 - **类别**：合规/隐私
 - **优先级**：P2
-- **状态**：done
+- **状态**：in_progress
 - **涉及服务/模块**：user-service、gateway、game-client、backend/shared、database/migrations
 - **创建时间**：2026-06-09 15:00
 - **依赖需求**：REQ-00016（GDPR合规）、REQ-00011（国际化）
@@ -405,3 +405,37 @@ transparencyReportsGenerated: new Counter({
 5. **非核心功能**：不影响游戏核心玩法，可在后续迭代中实现
 
 相比 P0/P1 的核心功能、安全加固、性能优化，此需求优先级适中。
+
+## 2026-10-06 重新验收与修复记录
+
+历史 done 声明不符合实际验收；当前恢复为 in_progress。本次是后端隐私偏好、策略选择、审计和路由修复，不是整体合规声明。
+
+- 非必需类别初始化及缺失偏好默认关闭；未知类别不能获得收集许可。默认初始化不生成用户同意时间。
+- 显式开启更新 consented_at，关闭清除该值；重接受政策不会覆盖已有用户选择。
+- 偏好更新、政策接受和审计写入使用同一事务；审计失败则回滚。修复了原先把位置参数传给对象参数 auditLog、缺失审计动作常量以及不存在 db.pool 接口的问题。
+- 使用真实 JWT 验证私有路由，管理员路由使用签名 roles 中的 admin 权限；游客及普通用户不得访问管理接口。
+- gateway 已挂载 /api/v1/privacy、/api/v1/user/privacy、/v1/privacy 与 /api/v1/admin/privacy。用户服务在开放端口之前初始化隐私路由。
+- 当前政策与公开历史不提前选用未来政策；接受未知、未生效或已停用政策会失败。修复 UUID 用户关联与 VARCHAR 接受表的 SQL 比较。
+- 新的增量迁移同时兼容仓库中两种政策表形状，保留已有政策文本和用户选择；不修改已执行迁移的校验和，不伪造翻译或回填默认同意。
+- 40 项单元测试通过，实测行覆盖率 91.78%、语句 89.57%、函数 100%、分支 78.72%；80% 行/语句/函数门禁通过。
+- 实际 PostgreSQL 与实际 gateway/user privacy 路由验证通过：两种 Schema 升级、公开/用户/管理员鉴权、默认偏好、未来政策、显式开关、回滚、报告和指标，共 11 项 Node 测试检查（含父测试）。新增独立 privacy-regression CI。
+
+尚未验收：完整前端隐私中心、所有服务收集点对偏好的实际执行、既有默认开启记录的同意来源、7 天历史保留调度、自动月报、第三方共享明细、强制政策弹窗和导出流程。已有用户选择保留不等于其同意来源已核实，不能据此宣布全部功能或法律合规完成。
+
+验收命令：
+
+- cd backend && npm run test:privacy:unit
+- TEST_DATABASE_URL=<isolated-test-database> npm run test:privacy:storage
+- npm test
+
+
+## Full-history consumer review (2026-10-08)
+
+The existing additive privacy/default migration now explicitly precedes its legacy
+consumer. Whole original-source-bound seed repair preserves existing policy versions
+and fills legacy required fields only from the original policy text/effective date.
+New optional preferences remain false without consent; prior choices/text/active flags/
+dates remain unchanged. Two actual CLI/order cases and11 original production privacy
+checks pass. Full85 history now fails later at the catch_sessions catch_timestamp
+contract. This does not complete the remaining original collection/client/retention/
+export/metrics acceptance. See [storage ordering](../FRIENDSHIP.md).

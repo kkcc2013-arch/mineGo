@@ -1,3 +1,6 @@
+
+const _consoleLogger = new (require("../../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../../shared/logger").createLogger("services/social-service/src/routes/guild"), "services/social-service/src/routes/guild");
 const express = require('express');
 const router = express.Router();
 const { body, param, query, validationResult } = require('express-validator');
@@ -115,7 +118,7 @@ router.post('/', [
       client.release();
     }
   } catch (error) {
-    console.error('Error creating guild:', error);
+    _consoleLogger.error('Error creating guild:', error);
     res.status(500).json({ error: '创建公会失败' });
   }
 });
@@ -207,7 +210,7 @@ router.get('/:guildId', [
       }
     });
   } catch (error) {
-    console.error('Error fetching guild:', error);
+    _consoleLogger.error('Error fetching guild:', error);
     res.status(500).json({ error: '获取公会信息失败' });
   }
 });
@@ -313,7 +316,7 @@ router.get('/', [
       }
     });
   } catch (error) {
-    console.error('Error searching guilds:', error);
+    _consoleLogger.error('Error searching guilds:', error);
     res.status(500).json({ error: '搜索公会失败' });
   }
 });
@@ -395,7 +398,7 @@ router.put('/:guildId', [
       guild: result.rows[0]
     });
   } catch (error) {
-    console.error('Error updating guild:', error);
+    _consoleLogger.error('Error updating guild:', error);
     res.status(500).json({ error: '更新公会失败' });
   }
 });
@@ -453,7 +456,7 @@ router.delete('/:guildId', [
       client.release();
     }
   } catch (error) {
-    console.error('Error disbanding guild:', error);
+    _consoleLogger.error('Error disbanding guild:', error);
     res.status(500).json({ error: '解散公会失败' });
   }
 });
@@ -574,7 +577,7 @@ router.post('/:guildId/applications', [
       status: 'pending'
     });
   } catch (error) {
-    console.error('Error applying to guild:', error);
+    _consoleLogger.error('Error applying to guild:', error);
     res.status(500).json({ error: '申请加入公会失败' });
   }
 });
@@ -680,7 +683,7 @@ router.put('/:guildId/applications/:applicationId', [
       res.json({ success: true, message: '已拒绝申请' });
     }
   } catch (error) {
-    console.error('Error handling application:', error);
+    _consoleLogger.error('Error handling application:', error);
     res.status(500).json({ error: '处理申请失败' });
   }
 });
@@ -739,7 +742,7 @@ router.post('/:guildId/leave', [
       client.release();
     }
   } catch (error) {
-    console.error('Error leaving guild:', error);
+    _consoleLogger.error('Error leaving guild:', error);
     res.status(500).json({ error: '退出公会失败' });
   }
 });
@@ -812,7 +815,7 @@ router.post('/:guildId/kick/:memberId', [
       client.release();
     }
   } catch (error) {
-    console.error('Error kicking member:', error);
+    _consoleLogger.error('Error kicking member:', error);
     res.status(500).json({ error: '踢出成员失败' });
   }
 });
@@ -905,7 +908,7 @@ router.post('/:guildId/donate', [
       client.release();
     }
   } catch (error) {
-    console.error('Error donating to guild:', error);
+    _consoleLogger.error('Error donating to guild:', error);
     res.status(500).json({ error: '捐赠失败' });
   }
 });

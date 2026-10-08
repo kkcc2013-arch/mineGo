@@ -10,6 +10,9 @@
  * @module configManager
  */
 
+
+const _consoleLogger = new (require("./loggingUtils")).ConsoleMigrationHelper(
+  require("./logger").createLogger("shared/configManager"), "shared/configManager");
 const fs = require('fs');
 const path = require('path');
 
@@ -72,7 +75,7 @@ class ConfigManager {
         const config = JSON.parse(content);
         this._applyConfig(config, 'file');
       } catch (error) {
-        console.error('Failed to load config file:', error.message);
+        _consoleLogger.error('Failed to load config file:', error.message);
       }
     }
   }
@@ -117,7 +120,7 @@ class ConfigManager {
         // const config = await response.json();
         // this._applyConfig(config, 'config-center');
       } catch (error) {
-        console.error('Failed to load from config center:', error.message);
+        _consoleLogger.error('Failed to load from config center:', error.message);
       }
     }
   }

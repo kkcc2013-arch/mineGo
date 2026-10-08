@@ -53,7 +53,10 @@ app.listen(3000, () => {
 
 // ===== 新方式（推荐）=====
 
-const { bootstrapService } = require('../shared/serviceBootstrap');
+
+const _consoleLogger = new (require("../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../shared/logger").createLogger("services/gateway/index-refactored"), "services/gateway/index-refactored");
+const { bootstrapService } = require('../../shared/serviceBootstrap');
 const express = require('express');
 
 async function startGateway() {
@@ -115,6 +118,6 @@ async function startGateway() {
 
 // 启动服务
 startGateway().catch(error => {
-  console.error('Failed to start gateway:', error);
+  _consoleLogger.error('Failed to start gateway:', error);
   process.exit(1);
 });

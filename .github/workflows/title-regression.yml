@@ -1,0 +1,101 @@
+name: Title routes and storage regression
+on:
+  pull_request:
+    paths:
+      - 'backend/services/user-service/**'
+      - 'backend/shared/**'
+      - 'backend/tests/unit/title-service.test.js'
+      - 'backend/tests/regression/title-storage.test.js'
+      - 'backend/tests/regression/ip-appeal-storage.test.js'
+      - 'backend/gateway/src/routes/ipAppealProxy.js'
+      - 'backend/gateway/src/routes/notificationProxy.js'
+      - 'backend/gateway/src/middleware/ipBan.js'
+      - 'backend/tests/regression/user-startup.test.js'
+      - 'backend/tests/regression/gateway-startup.test.js'
+      - 'backend/gateway/src/index.js'
+      - 'backend/gateway/src/routes/businessEvents.js'
+      - 'backend/package*.json'
+      - 'database/pending/*title*.sql'
+      - 'database/pending/*ip_ban*.sql'
+      - 'database/migrate.js'
+      - 'database/sqlStatements.js'
+      - 'database/migrationGraph.js'
+      - 'database/pending/dependencies.json'
+      - 'database/pending/repairs.json'
+      - 'database/pending/repairs/**'
+      - '.github/workflows/title-regression.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  title-regression:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: minego_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U test" --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+      - name: Verify title unit failure and validation cases
+        working-directory: backend
+        run: npm run test:titles:unit
+      - name: Verify actual routes, PostgreSQL concurrency, Redis and measured core coverage
+        working-directory: backend
+        run: node --test --experimental-test-coverage --test-coverage-include='**/titleService.js' --test-coverage-lines=80 --test-coverage-functions=80 tests/regression/title-storage.test.js
+        env:
+          TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
+          TEST_REDIS_URL: redis://localhost:6379
+      - name: Verify actual IP appeals, CIDR access control and gateway aliases
+        working-directory: backend
+        run: node --test tests/regression/ip-appeal-storage.test.js
+        env:
+          TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
+          TEST_REDIS_URL: redis://localhost:6379
+      - name: Start isolated Kafka for the actual user-service process
+        run: docker run -d --name minego-startup-kafka --memory=1g -p 127.0.0.1:9092:9092 -e KAFKA_HEAP_OPTS='-Xms256m -Xmx512m' apache/kafka:3.9.1
+      - name: Wait for Kafka metadata
+        run: |
+          for attempt in $(seq 1 30); do
+            if docker exec minego-startup-kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list; then
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1
+      - name: Verify actual user-service startup, health dependencies, HTTP and shutdown
+        working-directory: backend
+        run: npm run test:user:startup
+        env:
+          TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
+          TEST_REDIS_URL: redis://localhost:6379
+          TEST_KAFKA_BROKERS: localhost:9092
+      - name: Verify native gateway startup failure, readiness, IP appeals and signal shutdown
+        working-directory: backend
+        run: node --test tests/regression/gateway-startup.test.js
+        env:
+          TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
+          TEST_REDIS_URL: redis://localhost:6379
+          TEST_KAFKA_BROKERS: localhost:9092
+      - name: Stop isolated Kafka
+        if: always()
+        run: |
+          if docker container inspect minego-startup-kafka >/dev/null 2>&1; then
+            docker stop minego-startup-kafka
+          fi
