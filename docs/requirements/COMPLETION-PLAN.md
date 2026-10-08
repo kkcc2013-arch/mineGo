@@ -1,9 +1,9 @@
 # mineGo requirement completion plan
 
 Updated: 2026-10-08. Scope: all 658 existing requirement documents in INDEX.md,
-including the 205 legacy done declarations that still need independent acceptance.
+including the 204 legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 437 new, 16 in progress. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 437 new, 17 in progress. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -108,3 +108,14 @@ subsequent outage probe, not a production SLO. REQ-00039 reopened in progress: g
 warmup, full production migration history, quantification and coverage remain open.
 Next: production-compatible game schema/warmup contracts and remaining user gateway
 routes/admin authorization, then other service startup. Related CI pending this batch.
+
+
+Gateway batch d276dbb: related remote CI passed main437, dependency243, privacy9 and
+title/storage/IP/user/native-gateway6. These are partial verification results; API
+contract/performance are red and legacy integration/contract/security/E2E acceptance
+remain open. Next full schema probe: production-compose PostGIS15 image accepts all
+V1 schema, but V2 seed fails a missing evolves_to=55 foreign key. Standard migration
+CLI cannot resolve pg; diagnostic backend NODE_PATH gets as far as the moves migration
+whose species25 seed is absent. All79 pending migrations roll back together, including
+new history/lock tables. REQ-00007 reopened; next repair real CLI/fresh seeding and
+migration contracts before accepting full-schema service/warmup behavior.

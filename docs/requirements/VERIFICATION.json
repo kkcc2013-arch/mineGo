@@ -50,7 +50,7 @@
     },
     "REQ-00053-user-privacy-preference-center-data-transparency.md": {
       "date": "2026-10-08",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "9015d8979ec52a2d3f6b298b9c318db1954f2f5221106901a8823514546a7dd5",
       "sourceSha256": {
         "backend/shared/privacyPreferences.js": "28f8aebc2d5cf55c827ef1e5c597f79caaca688a88749a058dfd3afc2819311b",
@@ -150,6 +150,13 @@
           "changedReferences": [
             "backend/gateway/src/index.js"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "d276dbb75a26ebf0b402b070050cad9ba388fef4",
+          "result": "related_ci_passed",
+          "scope": "Main437, dependency243, privacy9 and title/storage/IP/user/native-gateway6 pass. No full requirement acceptance; other contract/performance/security/integration/E2E gates remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37716906946"
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
@@ -241,7 +248,7 @@
     },
     "REQ-00159-service-health-self-healing-and-auto-recovery-system.md": {
       "date": "2026-10-08",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "702f723e90c498db5a6d23b2e986b96c749e92229580af3542fc6972344f5f4d",
       "sourceSha256": {
         "backend/shared/ServiceLauncher.js": "7beaabc6f1ed2f164e4925c25156fd2c358a492516fa8ed1d742d235f9d048b7",
@@ -343,12 +350,19 @@
           "result": "passed",
           "tests": 1,
           "scope": "Native gateway/user CLI, actual PostgreSQL UUID user/title/IP schema, Redis/Kafka; startup failure, readiness outages, appeal JWT/IP ownership and signal exit. Seven registry targets alias the actual user fixture; game warmup failures remain visible, numerical/full acceptance unproven."
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "d276dbb75a26ebf0b402b070050cad9ba388fef4",
+          "result": "related_ci_passed",
+          "scope": "Main437, dependency243, privacy9 and title/storage/IP/user/native-gateway6 pass. No full requirement acceptance; other contract/performance/security/integration/E2E gates remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37716906946"
         }
       ]
     },
     "REQ-00682-service-dependency-consolidation-and-initialization-refactoring.md": {
       "date": "2026-10-08",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "47013c4163012c1b6ea9d55b496c004b1e900b1b980e4192514dc78ee8b87490",
       "sourceSha256": {
         "backend/shared/ServiceLauncher.js": "7beaabc6f1ed2f164e4925c25156fd2c358a492516fa8ed1d742d235f9d048b7",
@@ -450,12 +464,19 @@
           "result": "passed",
           "tests": 1,
           "scope": "Native gateway/user CLI, actual PostgreSQL UUID user/title/IP schema, Redis/Kafka; startup failure, readiness outages, appeal JWT/IP ownership and signal exit. Seven registry targets alias the actual user fixture; game warmup failures remain visible, numerical/full acceptance unproven."
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "d276dbb75a26ebf0b402b070050cad9ba388fef4",
+          "result": "related_ci_passed",
+          "scope": "Main437, dependency243, privacy9 and title/storage/IP/user/native-gateway6 pass. No full requirement acceptance; other contract/performance/security/integration/E2E gates remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37716906946"
         }
       ]
     },
     "REQ-00106-player-title-system-and-personalization.md": {
       "date": "2026-10-08",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "69570b98ac34ddcd7089a56badf3d1c8dbb5ed91d4437062f8293984734bd7af",
       "sourceSha256": {
         "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
@@ -566,12 +587,19 @@
           "changedReferences": [
             ".github/workflows/title-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "d276dbb75a26ebf0b402b070050cad9ba388fef4",
+          "result": "related_ci_passed",
+          "scope": "Main437, dependency243, privacy9 and title/storage/IP/user/native-gateway6 pass. No full requirement acceptance; other contract/performance/security/integration/E2E gates remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37716906946"
         }
       ]
     },
     "REQ-00612-global-timezone-scheduler.md": {
       "date": "2026-10-08",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "acb67d84c7ef83a0335a5874fbf4809ff95c8239c95cbac5f00a409a48223dd2",
       "sourceSha256": {
         "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
@@ -682,12 +710,19 @@
           "changedReferences": [
             ".github/workflows/title-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "d276dbb75a26ebf0b402b070050cad9ba388fef4",
+          "result": "related_ci_passed",
+          "scope": "Main437, dependency243, privacy9 and title/storage/IP/user/native-gateway6 pass. No full requirement acceptance; other contract/performance/security/integration/E2E gates remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37716906946"
         }
       ]
     },
     "REQ-00026-in-game-push-notification-system.md": {
       "date": "2026-10-08",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "4769b4d31a9e97a21db229e0a8f358894622067fdc2b4ba9558933d9e107306a",
       "sourceSha256": {
         "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
@@ -798,12 +833,19 @@
           "changedReferences": [
             ".github/workflows/title-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "d276dbb75a26ebf0b402b070050cad9ba388fef4",
+          "result": "related_ci_passed",
+          "scope": "Main437, dependency243, privacy9 and title/storage/IP/user/native-gateway6 pass. No full requirement acceptance; other contract/performance/security/integration/E2E gates remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37716906946"
         }
       ]
     },
     "REQ-00075-ip-blacklist-and-auto-ban-system.md": {
       "date": "2026-10-08",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "5f0f24eee768a901be3d6cb06e4e2907e72dca7e4db43398fe8da7e695677a8e",
       "sourceSha256": {
         "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
@@ -867,12 +909,19 @@
             "backend/gateway/src/index.js",
             ".github/workflows/title-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "d276dbb75a26ebf0b402b070050cad9ba388fef4",
+          "result": "related_ci_passed",
+          "scope": "Main437, dependency243, privacy9 and title/storage/IP/user/native-gateway6 pass. No full requirement acceptance; other contract/performance/security/integration/E2E gates remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37716906946"
         }
       ]
     },
     "REQ-00149-user-service-ipAppeal-route-mounting.md": {
       "date": "2026-10-08",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "1908c2353ef4f102148e015a49a26726f793d9b6daf1371ec6fb018f3f5f0bfb",
       "sourceSha256": {
         "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
@@ -936,12 +985,19 @@
             "backend/gateway/src/index.js",
             ".github/workflows/title-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "d276dbb75a26ebf0b402b070050cad9ba388fef4",
+          "result": "related_ci_passed",
+          "scope": "Main437, dependency243, privacy9 and title/storage/IP/user/native-gateway6 pass. No full requirement acceptance; other contract/performance/security/integration/E2E gates remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37716906946"
         }
       ]
     },
     "REQ-00039-hot-data-cache-warmup-system.md": {
       "date": "2026-10-08",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "b6be313ab0b1611e495be4a8a86eee54210caaa359f0b2dd978c097f556fa696",
       "sourceSha256": {
         "backend/gateway/src/index.js": "254589fa53de4441503e156368f35f416d66f8a06f0a4d7271d5bac5a1681022",
@@ -959,6 +1015,42 @@
           "result": "passed",
           "tests": 1,
           "scope": "Native gateway/user CLI, actual PostgreSQL UUID user/title/IP schema, Redis/Kafka; startup failure, readiness outages, appeal JWT/IP ownership and signal exit. Seven registry targets alias the actual user fixture; game warmup failures remain visible, numerical/full acceptance unproven."
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "d276dbb75a26ebf0b402b070050cad9ba388fef4",
+          "result": "related_ci_passed",
+          "scope": "Main437, dependency243, privacy9 and title/storage/IP/user/native-gateway6 pass. No full requirement acceptance; other contract/performance/security/integration/E2E gates remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37716906946"
+        }
+      ]
+    },
+    "REQ-00007-database-migration-management.md": {
+      "date": "2026-10-08",
+      "status": "failed_verification",
+      "documentSha256": "f574e60aac21c47904b0d492178b5fe8aadc8a0290fc403ac5faa071468d27e8",
+      "sourceSha256": {
+        "database/migrate.js": "676779ad96c27320216152987552c7d853b0124ff367dce3c635d68f25ece828",
+        "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
+        "database/seeds/V2__seed_data.sql": "94f27f554af85c15f7bc39dad7e8a51797798f796813f91afe9d0756b1baab65",
+        "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
+        "backend/tests/unit/migrate.test.js": "0f2a8c0d157d18ef957f530ce0d1357cfc94d3d7536ef8fe64798710afb87ac1"
+      },
+      "evidence": [
+        {
+          "command": "node database/migrate.js status",
+          "result": "failed",
+          "scope": "Standard installed-backend workspace cannot resolve pg from database CLI."
+        },
+        {
+          "command": "psql --single-transaction -v ON_ERROR_STOP=1 < V1__initial_schema.sql; psql --single-transaction -v ON_ERROR_STOP=1 < V2__seed_data.sql",
+          "result": "partially_failed",
+          "scope": "Actual isolated production-compose postgis/postgis:15-3.4-alpine. Full V1 schema succeeds; V2 seed transaction fails missing evolves_to=55."
+        },
+        {
+          "command": "NODE_PATH=<installed backend dependencies> node database/migrate.js up",
+          "result": "failed",
+          "scope": "79 pending files discovered; moves migration fails missing species25 after seed failure. All migration changes/history roll back. Lock-release query reports already rolled-back table missing. Diagnostic NODE_PATH is not a fix."
         }
       ]
     }

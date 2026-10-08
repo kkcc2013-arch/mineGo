@@ -12,7 +12,7 @@
 | [REQ-00004](REQ-00004-payment-unit-integration-tests.md) | 支付服务单元测试与集成测试覆盖 | 测试覆盖 | P1 | done | payment-service、backend/tests/ | 2026-06-05 00:30 |
 | [REQ-00005](REQ-00005-prometheus-alerting-rules.md) | Prometheus 告警规则与 Alertmanager 集成 | 可观测性/监控 | P1 | done | infrastructure/k8s、所有微服务 | 2026-06-05 01:30 |
 | [REQ-00006](REQ-00006-k8s-rolling-update-rollback.md) | K8s 滚动更新与回滚自动化 | 运维/CICD | P1 | done | infrastructure/k8s、GitHub Actions、所有微服务 | 2026-06-05 02:00 |
-| [REQ-00007](REQ-00007-database-migration-management.md) | 数据库迁移管理与版本控制系统 | 数据库/数据治理 | P1 | done | database/migrations、backend/shared/db.js、所有微服务、CI/CD | 2026-06-05 03:00 |
+| [REQ-00007](REQ-00007-database-migration-management.md) | 数据库迁移管理与版本控制系统 | 数据库/数据治理 | P1 | in_progress | database/migrations、backend/shared/db.js、所有微服务、CI/CD | 2026-06-05 03:00 |
 | [REQ-00008](REQ-00008-openapi-documentation-and-api-standardization.md) | OpenAPI 文档与 API 设计规范统一 | API 设计规范 | P1 | done | gateway、所有微服务、docs/api-spec | 2026-06-05 04:00 |
 | [REQ-00009](REQ-00009-pwa-offline-service-worker-cache.md) | PWA 离线支持与 Service Worker 缓存策略 | 前端体验 | P0 | done | game-client、frontend/sw.js、frontend/manifest.json | 2026-06-05 05:00 |
 | [REQ-00010](REQ-00010-gps-fake-detection-anti-cheat.md) | GPS 伪造检测与速度限制反作弊系统 | 反作弊 | P0 | done | gateway、location-service、catch-service、gym-service、backend/shared/anti-cheat.js | 2026-06-05 06:00 |

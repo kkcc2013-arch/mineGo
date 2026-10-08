@@ -3,7 +3,7 @@
 - **编号**：REQ-00007
 - **类别**：数据库/数据治理
 - **优先级**：P1
-- **状态**：done
+- **状态**：in_progress
 - **涉及服务/模块**：database/migrations、backend/shared/db.js、所有微服务、CI/CD
 - **创建时间**：2026-06-05 03:00
 - **依赖需求**：无
@@ -207,3 +207,18 @@ MIGRATION_LOCK_TIMEOUT_MS=30000
 4. **阻塞后续需求**：后续很多需求涉及数据库变更（索引优化、新功能），需要迁移系统支持
 
 虽然不是 P0（核心功能已可用），但是是 P1 高优先级，应尽快实现。
+
+
+## 验收复核（2026-10-08）
+
+重新打开旧完成声明。标准仓库命令 node database/migrate.js status 在安装后端
+依赖的现有工作区中无法加载 pg。仅为诊断指定后端 NODE_PATH 后，实际 PostGIS15
+全 V1 schema 可以创建，但 V2 seed 违反 evolves_to=55 外键，事务回滚。79 个
+pending 迁移在 20260605_180000 的 species_id=25 外键失败，迁移事务回滚且新建
+历史/锁表不保留。失败后释放锁又访问已回滚的 migration_lock 表，报二次错误。
+
+CLI 的 try 成功分支还引用未定义 err，缺少 catch；已有 migrate.test.js 主要
+重演解析正则/模拟查询，没有实际调用生产 CLI 来发现以上问题。下一批修复
+真实工具及 fresh seed/migration 路径，保留旧迁移 checksum；并发锁、校验、
+回滚/CLI退出码、完整生产迁移和自动初始化仍需逐项实测。此处没有删除生产数据
+或执行生产迁移；所有探测只在新建的本地独立 PostGIS 容器中进行。

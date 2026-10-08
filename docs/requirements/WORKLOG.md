@@ -556,3 +556,25 @@ open. Syntax1391 files zero errors, workflow YAML parses, diff whitespace clean.
 Targeted title/storage/process workflow now includes native gateway regression.
 No acceptance thresholds lowered, no full requirement promoted, no merge/deployment.
 Publication and new remote CI results pending. Goal stays active.
+
+
+Published d276dbb to draft PR6. Related remote workflows PASS: main437/37716906878,
+dependency243/37716906899, privacy9/37716906894, title/storage/IP/user/native-gateway6/
+37716906946. Native gateway step12 success confirmed via workflow jobs. API contract66
+and performance105 failed; integration412, contract362, security395 and E2E99 remained
+active at the snapshot. Ledger partial records updated with code-commit CI evidence;
+no complete requirement promoted.
+
+Independent next-batch full-schema probe used a new owned PostGIS container matching
+production docker-compose image postgis/postgis:15-3.4-alpine, localhost55433,512MB.
+Full V1 schema succeeds. Transactional full V2 seed fails evolves_to=55 FK, preserving
+zero seed mutations. Standard migration CLI fails pg module resolution. Diagnostic
+NODE_PATH pointing to backend dependencies lets actual runner discover79 files, then
+fails 20260605_180000 moves FK because species25 is absent after seed failure. Transaction
+rolls back all pending changes including new schema_migrations/migration_lock tables;
+lock-release cleanup logs a secondary missing-table error. CLI also has an unconditional
+undefined err on success rather than catch; legacy migrate.test copies logic instead of
+exercising production CLI. REQ00007 reopened (204done/17inprogress/437new), source-hashed
+failure evidence recorded. Next: fix actual CLI lifecycle and complete fresh seed/
+migration contracts, with real PG and checksum/concurrency/rollback checks. No production
+operations, no baseline-deleting resets, no new requirement scope. Goal stays active.
