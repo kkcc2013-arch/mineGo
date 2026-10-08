@@ -13,6 +13,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { orderMigrations } = require('./migrationGraph');
 // The database CLI shares the backend's declared dependency installation.
 const { Pool } = require(require.resolve('pg', { paths: [path.join(__dirname, '../backend')] }));
 
@@ -88,9 +89,25 @@ async function ensureMigrationsTable(client) {
       checksum      VARCHAR(64) NOT NULL,
       executed_at   TIMESTAMP NOT NULL DEFAULT NOW(),
       execution_ms  INTEGER NOT NULL,
-      executed_by   VARCHAR(100)
+      executed_by   VARCHAR(100),
+      execution_order BIGSERIAL UNIQUE NOT NULL,
+      dependency_checksum VARCHAR(64),
+      execution_checksum VARCHAR(64)
     )
   `);
+  const columns = await client.query("SELECT attname FROM pg_attribute WHERE attrelid='schema_migrations'::regclass AND attnum>0 AND NOT attisdropped");
+  const names = new Set(columns.rows.map(row => row.attname));
+  if (!names.has('execution_order')) {
+    await client.query('ALTER TABLE schema_migrations ADD COLUMN execution_order BIGSERIAL NOT NULL');
+    // Old runner always applied timestamp order. Preserve that historical order
+    // when adopting its rows; new rows track actual dependency execution order.
+    await client.query(`WITH ranked AS (SELECT version, row_number() OVER (ORDER BY executed_at, version) AS n FROM schema_migrations)
+      UPDATE schema_migrations m SET execution_order=ranked.n FROM ranked WHERE m.version=ranked.version`);
+    await client.query('CREATE UNIQUE INDEX schema_migrations_execution_order_key ON schema_migrations(execution_order)');
+    await client.query("SELECT setval(pg_get_serial_sequence('schema_migrations','execution_order'), COALESCE((SELECT max(execution_order) FROM schema_migrations),1), EXISTS(SELECT 1 FROM schema_migrations))");
+  }
+  if (!names.has('dependency_checksum')) await client.query('ALTER TABLE schema_migrations ADD COLUMN dependency_checksum VARCHAR(64)');
+  if (!names.has('execution_checksum')) await client.query('ALTER TABLE schema_migrations ADD COLUMN execution_checksum VARCHAR(64)');
 }
 
 /**
@@ -129,9 +146,9 @@ async function withMigrationTransaction(operation) {
  */
 async function getExecutedMigrations(client) {
   const result = await client.query(`
-    SELECT version, description, checksum, executed_at, execution_ms, executed_by
+    SELECT version, description, checksum, executed_at, execution_ms, executed_by, execution_order, dependency_checksum, execution_checksum
     FROM schema_migrations
-    ORDER BY version
+    ORDER BY execution_order
   `);
   return result.rows;
 }
@@ -142,7 +159,7 @@ async function getExecutedMigrations(client) {
 async function getPendingMigrationFiles() {
   const files = fs.readdirSync(MIGRATIONS_DIR).filter(file => file.endsWith('.sql')).sort();
   const versions = new Set();
-  return files.map(filename => {
+  const migrations = files.map(filename => {
     const parsed = parseMigrationFilename(filename);
     if (!parsed) throw new Error(`Invalid migration filename: ${filename}`);
     if (versions.has(parsed.version)) throw new Error(`Duplicate migration version: ${parsed.version}`);
@@ -151,6 +168,26 @@ async function getPendingMigrationFiles() {
     const content = fs.readFileSync(filePath, 'utf8');
     return { ...parsed, filePath, content, checksum: calculateChecksum(content), ...parseMigrationFile(content) };
   });
+  const manifestPath = path.join(MIGRATIONS_DIR, 'dependencies.json');
+  const document = fs.existsSync(manifestPath) ? JSON.parse(fs.readFileSync(manifestPath, 'utf8')) : undefined;
+  const repairPath = path.join(MIGRATIONS_DIR, 'repairs.json');
+  const repairs = fs.existsSync(repairPath) ? JSON.parse(fs.readFileSync(repairPath, 'utf8')) : { schemaVersion: 1, repairs: {} };
+  if (repairs.schemaVersion !== 1 || !repairs.repairs || typeof repairs.repairs !== 'object' || Array.isArray(repairs.repairs)) throw new Error('Invalid migration repair manifest');
+  const byVersion = new Map(migrations.map(file => [file.version, file]));
+  for (const [version, repair] of Object.entries(repairs.repairs)) {
+    const source = byVersion.get(version);
+    if (!source) throw new Error(`Repair references missing migration ${version}`);
+    if (!repair || !/^[a-f0-9]{64}$/.test(repair.sourceSha256) || repair.sourceSha256 !== source.checksum || typeof repair.file !== 'string' || !repair.file.endsWith('.sql') || typeof repair.reason !== 'string' || !repair.reason.trim()) {
+      throw new Error(`Invalid or mismatched repair source for migration ${version}`);
+    }
+    const target = fs.realpathSync(path.resolve(MIGRATIONS_DIR, repair.file));
+    if (!target.startsWith(fs.realpathSync(MIGRATIONS_DIR) + path.sep)) throw new Error(`Repair path leaves migration directory for ${version}`);
+    const content = fs.readFileSync(target, 'utf8');
+    Object.assign(source, parseMigrationFile(content), { repairFile: repair.file, repairReason: repair.reason });
+  }
+  return orderMigrations(migrations, document).map(file => ({ ...file,
+    dependencyChecksum: calculateChecksum(JSON.stringify(file.dependencies)),
+    executionChecksum: calculateChecksum(JSON.stringify({ up: file.up, down: file.down })) }));
 }
 
 function compareChecksums(executed, files) {
@@ -160,6 +197,8 @@ function compareChecksums(executed, files) {
     const file = byVersion.get(migration.version);
     if (!file) errors.push({ version: migration.version, message: 'Executed migration file is missing' });
     else if (file.checksum !== migration.checksum) errors.push({ version: migration.version, message: 'Executed migration checksum mismatch' });
+    else if (migration.dependency_checksum && file.dependencyChecksum !== migration.dependency_checksum) errors.push({ version: migration.version, message: 'Executed migration dependency checksum mismatch' });
+    else if (migration.execution_checksum && file.executionChecksum !== migration.execution_checksum) errors.push({ version: migration.version, message: 'Executed migration SQL checksum mismatch' });
   }
   return { valid: errors.length === 0, errors };
 }
@@ -189,9 +228,13 @@ async function runMigration(client, migration, direction = 'up') {
   
   // Execute migration SQL statements sequentially
   const statements = migrationStatements(sql);
-  for (const statement of statements) {
+  for (const [index, statement] of statements.entries()) {
     if (statement.trim()) {
-      await client.query(statement);
+      try { await client.query(statement); }
+      catch (error) {
+        error.message = `Migration ${migration.version} statement ${index + 1}: ${error.message}${error.position ? ` (position ${error.position})` : ''}`;
+        throw error;
+      }
     }
   }
   
@@ -200,14 +243,16 @@ async function runMigration(client, migration, direction = 'up') {
   if (direction === 'up') {
     // Record in schema_migrations
     await client.query(`
-      INSERT INTO schema_migrations (version, description, checksum, execution_ms, executed_by)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO schema_migrations (version, description, checksum, execution_ms, executed_by, dependency_checksum, execution_checksum)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
     `, [
       migration.version,
       migration.description,
       migration.checksum,
       executionMs,
       process.env.HOSTNAME || require('os').hostname(),
+      migration.dependencyChecksum,
+      migration.executionChecksum,
     ]);
   } else {
     // Remove from schema_migrations
@@ -231,6 +276,7 @@ async function runPendingMigrations() {
     const results = [];
     for (const file of pending) {
       console.log(`Running migration: ${file.version} - ${file.description}`);
+      if (file.repairFile) console.log(`  Using checksummed repair ${file.repairFile}: ${file.repairReason}`);
       const executionMs = await runMigration(client, file, 'up');
       results.push({ version: file.version, executionMs });
     }

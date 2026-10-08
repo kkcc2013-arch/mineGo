@@ -26,7 +26,7 @@ function sourceFiles(root, folder) {
 
 function main() {
   const root = path.resolve(__dirname, '..');
-  const files = ['backend', 'frontend', 'scripts', 'infrastructure'].flatMap(folder => sourceFiles(root, folder)).sort();
+  const files = ['backend', 'frontend', 'scripts', 'infrastructure', 'database'].flatMap(folder => sourceFiles(root, folder)).sort();
   let failures = 0;
   for (const file of files) {
     try { checkSource(fs.readFileSync(path.join(root, file), 'utf8'), file); }

@@ -244,3 +244,22 @@ CLI 现在从声明的后端安装加载 pg，捕获真实错误、设置退出�
 游戏数据快照，样例稀有度/捕获率是项目平衡参数。全部79 pending 尚失败：道具
 迁移依赖未建立的 items 表。新增全历史 CI 门禁保留失败，不以工具 fixture 替代
 全量验收。完整迁移目录/多服务初始化/回滚仍待完成；说明见 DATABASE-MIGRATIONS.md。
+
+
+## 依赖、修复来源与执行历史（2026-10-08）
+
+新增 dependencies.json 显式声明先决条件，拓扑顺序允许较新 prerequisite 先于
+旧版本执行。循环/缺失/非法依赖阻断；历史记录 execution_order，rollback 按
+真实执行顺序，依赖内容 hash 防止事后重写。旧记录采用原有时间/版本顺序，
+保留原 source hash；没有证据的历史执行 hash 保持 NULL，不伪造。
+
+repairs.json 每项绑定完整原始文件 hash、可审阅的完整修复 SQL 和原因。原始
+文件不改；日志标明实际使用的修复。新记录分别校验原始内容、依赖和执行 SQL
+hash，拒绝修复文件/路径或原始内容失配。当前修复包括 V1 UUID 外键、PostgreSQL
+部分唯一索引、inet_ops、刷新权重精度/VALUES 逗号、道具容量/过期函数；保留
+其余 SQL 和所有合法数据。它们以真实规范 V1 UUID 为目标，不证明其它历史
+身份 schema 自动升级已完成。
+
+核心unit8、真实CLI13、实际prerequisite/库存2、业务storage33、native进程2
+通过；全unit621。原79脚本加2prerequisite共81仍全部纳入 gate；失败已推进到
+audit_logs普通表与分区脚本冲突，未降低原始验收。完整历史及回滚仍需继续。

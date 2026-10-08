@@ -34,3 +34,14 @@ test('actual migration identities and checksums distinguish changed SQL',()=>{
   assert.equal(calculateChecksum('SELECT 1;'),calculateChecksum('SELECT 1;'));
   assert.notEqual(calculateChecksum('SELECT 1;'),calculateChecksum('SELECT 2;'));
 });
+
+test('declared prerequisites can precede older versions while independent order remains deterministic',()=>{
+  const {orderMigrations}=require('../../../database/migrationGraph');
+  const files=['20261001_000001','20261001_000002','20261008_130000'].map(version=>({version}));
+  const ordered=orderMigrations(files,{schemaVersion:1,dependencies:{'20261001_000002':['20261008_130000']}});
+  assert.deepEqual(ordered.map(file=>file.version),['20261001_000001','20261008_130000','20261001_000002']);
+});
+test('invalid, missing or cyclic prerequisites cannot produce a runnable migration plan',()=>{
+  const {orderMigrations}=require('../../../database/migrationGraph');const files=[{version:'a'},{version:'b'}];
+  for(const dependencies of [{a:['missing']},{missing:[]},{a:['b'],b:['a']},{a:['b','b']},{a:'b'}])assert.throws(()=>orderMigrations(files,{schemaVersion:1,dependencies}));
+});

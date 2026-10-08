@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 204,
-      "in_progress": 17,
+      "done": 201,
+      "in_progress": 20,
       "new": 437
     },
     "priorityCounts": {
@@ -177,7 +177,7 @@
       "category": "数据库/数据治理",
       "modules": "database/migrations、backend/shared/db.js、所有微服务、CI/CD",
       "createdAt": "2026-06-05 03:00",
-      "sha256": "d3e42e47e26b08c43a622a8b31988dfa10a47c1ed12c6e015d27b2367b02a5c1",
+      "sha256": "09759b1f7acecfa9422ec0c584660a8fc4974458ab2150b4f90836b329b2a863",
       "acceptance": [
         "- [ ] 迁移工具 `migrate.js` 实现，支持 up/down/status/create/verify 命令",
         "- [ ] `schema_migrations` 表创建成功，能正确记录迁移历史",
@@ -190,7 +190,10 @@
         "- [ ] 文档更新：README 添加迁移使用说明"
       ],
       "verificationStatus": "partial_verified_full_history_failed",
-      "implementationReferences": [],
+      "implementationReferences": [
+        "database/pending/20261008_130000__item_catalog_prerequisite.sql",
+        "database/pending/20261008_131000__pokedex_identity_prerequisite.sql"
+      ],
       "legacyId": null
     },
     {
@@ -1359,11 +1362,11 @@
       "id": "REQ-00047",
       "title": "REQ-00047: 精灵道具与背包管理系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "功能增强",
       "modules": "pokemon-service, reward-service, catch-service, social-service, gateway, game-client",
       "createdAt": "2026-06-09 09:00",
-      "sha256": "5aac2042ee330b17215405e53c8d907cb9fb54c17c0fa23166fdc3d85ea4dda9",
+      "sha256": "1e4b09e980841206306e6d778caa7f0fe0eeaef677852331fca1346756fc3592",
       "acceptance": [
         "- [ ] 数据库表结构创建完成，包含 items、player_inventory 等表",
         "- [ ] 道具种子数据包含至少 20 种基础道具（精灵球、药水、进化石等）",
@@ -1384,12 +1387,14 @@
         "- [ ] 前端背包界面显示正常",
         "- [ ] 容量限制和提示正常"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/pokemon-service/src/inventoryService.js",
         "backend/tests/unit/inventory.test.js",
         "database/migrations/20260609_124500__add_item_inventory_system.sql",
-        "database/pending/20260609_124500__add_item_inventory_system.sql"
+        "database/pending/20260609_124500__add_item_inventory_system.sql",
+        "database/pending/20261008_130000__item_catalog_prerequisite.sql",
+        "database/pending/repairs/20260609_124500__add_item_inventory_system.sql"
       ],
       "legacyId": null
     },
@@ -1662,11 +1667,11 @@
       "id": "REQ-00056",
       "title": "REQ-00056: 精灵图鉴完成度奖励系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "功能增强",
       "modules": "pokemon-service、reward-service、user-service、gateway、game-client、database/migrations",
       "createdAt": "2026-06-09 17:00",
-      "sha256": "30897b66fd7cc5e183cbb17efcb443ac4612a3ad3be5eb27c0594549f60d27ff",
+      "sha256": "f58d1055fc702bef6e3a6cf4f9ed5156499e4241c8c57d078c7a73efcb7c6212",
       "acceptance": [
         "- [ ] 图鉴进度正确记录见过和捕获的精灵",
         "- [ ] 完成度百分比计算准确",
@@ -1684,13 +1689,14 @@
         "- [ ] Prometheus 指标正确暴露",
         "- [ ] 单元测试覆盖率 ≥ 80%"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/pokemon-service/src/pokedexService.js",
         "backend/services/pokemon-service/src/routes/pokedex.js",
         "backend/tests/unit/pokedex.test.js",
         "database/migrations/20260624_010000__add_pokedex_completion_reward_system.sql",
         "database/pending/20260609_230000__add_pokedex_completion_reward_system.sql",
+        "database/pending/20261008_131000__pokedex_identity_prerequisite.sql",
         "frontend/game-client/src/components/PokedexProgress.js"
       ],
       "legacyId": null
@@ -1741,7 +1747,8 @@
         "backend/services/social-service/src/guildService.js",
         "backend/tests/unit/guild.test.js",
         "database/migrations/20260625_000100__add_guild_system.sql",
-        "database/pending/20260610_040000__add_guild_system_tables.sql"
+        "database/pending/20260610_040000__add_guild_system_tables.sql",
+        "database/pending/repairs/20260610_040000__add_guild_system_tables.sql"
       ],
       "legacyId": null
     },
@@ -1787,11 +1794,11 @@
       "id": "REQ-00060",
       "title": "REQ-00060：数据库分区表与大数据量表分区策略",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "数据库/数据治理",
       "modules": "database/migrations、所有微服务、backend/shared、PostgreSQL",
       "createdAt": "2026-06-09 18:05",
-      "sha256": "26b674cf1f0e50519cea2bf0ccdaccb21a77388e2d4300c0604c2bd93e666411",
+      "sha256": "d3dd718aa8a8376f11f2ecaf51885c73ba8a0eb8e54063ce6ce810542f4f37d0",
       "acceptance": [
         "- [ ] 5 个高增长表成功转换为分区表，数据完整性验证通过",
         "- [ ] 分区表查询性能提升 50%+（时间范围查询对比测试）",
@@ -1803,7 +1810,7 @@
         "- [ ] 迁移脚本可回滚，不影响服务可用性",
         "- [ ] 分区统计 API 可查询各分区大小和行数"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "failed_verification",
       "implementationReferences": [
         "backend/gateway/src/routes/partitions.js",
         "database/pending/20260610_100000__add_table_partitioning_system.sql",
@@ -2096,7 +2103,8 @@
       "verificationStatus": "not-audited",
       "implementationReferences": [
         "database/migrations/20260627020000__add_spawn_management_system.sql",
-        "database/pending/20260609_233000__add_spawn_management_system.sql"
+        "database/pending/20260609_233000__add_spawn_management_system.sql",
+        "database/pending/repairs/20260609_233000__spawn_pool_values.sql"
       ],
       "legacyId": null
     },
@@ -2219,7 +2227,8 @@
         "backend/shared/pvpBattleRoom.js",
         "backend/shared/pvpMatching.js",
         "backend/tests/unit/pvp.test.js",
-        "database/pending/20260610_013000__add_pvp_battle_system.sql"
+        "database/pending/20260610_013000__add_pvp_battle_system.sql",
+        "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql"
       ],
       "legacyId": null
     },
@@ -2290,7 +2299,8 @@
         "backend/tests/unit/ip-ban.test.js",
         "database/migrations/20260629_200100__add_ip_ban_system.sql",
         "database/pending/20260610_080000__add_ip_ban_system.sql",
-        "database/pending/20261008_100000__ip_ban_index_compatibility.sql"
+        "database/pending/20261008_100000__ip_ban_index_compatibility.sql",
+        "database/pending/repairs/20260610_080000__add_ip_ban_system.sql"
       ],
       "legacyId": null
     },
@@ -2789,7 +2799,8 @@
         "backend/services/pokemon-service/src/routes/equipment.js",
         "backend/shared/equipmentService.js",
         "backend/tests/unit/equipment-service.test.js",
-        "database/pending/20260614_081000__add_equipment_system.sql"
+        "database/pending/20260614_081000__add_equipment_system.sql",
+        "database/pending/repairs/20260614_081000__add_equipment_system.sql"
       ],
       "legacyId": null
     },
@@ -3251,6 +3262,7 @@
         "backend/services/user-service/src/routes/titles.js",
         "database/pending/20260615_170500__add_title_system.sql",
         "database/pending/20261007_120000__title_identity_compatibility.sql",
+        "database/pending/repairs/20260615_170500__add_title_system.sql",
         "frontend/game-client/src/components/TitleManager.js"
       ],
       "legacyId": null
@@ -3560,7 +3572,8 @@
         "backend/services/social-service/src/voice/signalingServer.js",
         "backend/services/social-service/src/voice/turnServer.js",
         "database/migrations/20260629_210000__add_voice_chat_system.sql",
-        "database/pending/20260618_160000__add_voice_chat_tables.sql"
+        "database/pending/20260618_160000__add_voice_chat_tables.sql",
+        "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql"
       ],
       "legacyId": null
     },
@@ -3787,7 +3800,8 @@
       ],
       "verificationStatus": "not-audited",
       "implementationReferences": [
-        "database/pending/20260630_040000__add_pokemon_cosmetic_system.sql"
+        "database/pending/20260630_040000__add_pokemon_cosmetic_system.sql",
+        "database/pending/repairs/20260630_040000__add_pokemon_cosmetic_system.sql"
       ],
       "legacyId": null
     },
@@ -3900,7 +3914,8 @@
         "backend/services/pokemon-service/src/routes/backup.js",
         "backend/shared/pokemonBackupService.js",
         "backend/tests/unit/pokemon-backup.test.js",
-        "database/pending/20260614_070300__add_pokemon_backup_system.sql"
+        "database/pending/20260614_070300__add_pokemon_backup_system.sql",
+        "database/pending/repairs/20260614_070300__add_pokemon_backup_system.sql"
       ],
       "legacyId": null
     },
@@ -4519,6 +4534,7 @@
         "backend/services/user-service/src/index.js",
         "backend/services/user-service/src/routes/share.js",
         "database/pending/20260613_070000__add_share_system_tables.sql",
+        "database/pending/repairs/20260613_070000__add_share_system_tables.sql",
         "frontend/game-client/src/share/ScreenshotCapture.js",
         "frontend/game-client/src/share/ShareManager.js",
         "frontend/game-client/src/share/SharePanel.js",
@@ -14522,7 +14538,8 @@
         "backend/shared/jobMonitor/smartAlertEngine.js",
         "backend/shared/jobMonitor/trendAnalyzer.js",
         "backend/tests/jobMonitor.test.js",
-        "database/pending/20260711_120000__add_job_monitoring_tables.sql"
+        "database/pending/20260711_120000__add_job_monitoring_tables.sql",
+        "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql"
       ],
       "legacyId": null
     },
@@ -17890,7 +17907,8 @@
         "backend/shared/jobMonitor/smartAlertEngine.js",
         "backend/shared/jobMonitor/trendAnalyzer.js",
         "backend/tests/jobMonitor.test.js",
-        "database/pending/20260711_120000__add_job_monitoring_tables.sql"
+        "database/pending/20260711_120000__add_job_monitoring_tables.sql",
+        "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql"
       ],
       "legacyId": "REQ-00538"
     },
@@ -17925,7 +17943,8 @@
         "backend/shared/jobMonitor/smartAlertEngine.js",
         "backend/shared/jobMonitor/trendAnalyzer.js",
         "backend/tests/jobMonitor.test.js",
-        "database/pending/20260711_120000__add_job_monitoring_tables.sql"
+        "database/pending/20260711_120000__add_job_monitoring_tables.sql",
+        "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql"
       ],
       "legacyId": "REQ-00538"
     },

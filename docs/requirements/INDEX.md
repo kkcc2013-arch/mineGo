@@ -52,7 +52,7 @@
 | [REQ-00044](REQ-00044-api-version-management-backward-compatibility.md) | API 版本管理与向后兼容策略 | API 设计规范 | P1 | done | gateway、所有微服务、docs/api-spec | 2026-06-09 03:00 |
 | [REQ-00045](REQ-00045-device-integrity-and-emulator-detection.md) | 设备完整性与模拟器检测系统 | 反作弊 | P1 | done | gateway、user-service、catch-service、gym-service、game-client、backend/shared | 2026-06-09 07:00 |
 | [REQ-00046](REQ-00046-pokemon-breeding-and-inheritance-system.md) | 精灵培育系统与遗传机制 | 功能增强 | P1 | done | pokemon-service, user-service, social-service, gateway, game-client, database/migrations | 2026-06-09 08:00 |
-| [REQ-00047](REQ-00047-pokemon-items-inventory-management-system.md) | 精灵道具与背包管理系统 | 功能增强 | P1 | done | pokemon-service, reward-service, catch-service, social-service, gateway, game-client | 2026-06-09 09:00 |
+| [REQ-00047](REQ-00047-pokemon-items-inventory-management-system.md) | 精灵道具与背包管理系统 | 功能增强 | P1 | in_progress | pokemon-service, reward-service, catch-service, social-service, gateway, game-client | 2026-06-09 09:00 |
 | [REQ-00048](REQ-00048-pokemon-friend-system-social-interaction.md) | 精灵好友系统与社交互动增强 | 功能增强 | P1 | new | social-service、user-service、gateway、game-client、pokemon-service、reward-service | 2026-06-09 10:00 |
 | [REQ-00049](REQ-00049-api-client-sdk-unified-abstraction.md) | API 客户端 SDK 统一抽象层 | 技术债/重构 | P1 | done | backend/shared, gateway, 所有微服务 | 2026-06-09 12:45 |
 | [REQ-00050](REQ-00050-plugin-middleware-system-lifecycle-management.md) | 插件化中间件系统与生命周期管理 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-09 13:00 |
@@ -61,11 +61,11 @@
 | [REQ-00053](REQ-00053-user-privacy-preference-center-data-transparency.md) | 用户隐私偏好管理中心与数据透明度报告 | 合规/隐私 | P2 | in_progress | user-service、gateway、game-client、backend/shared、database/migrations | 2026-06-09 15:00 |
 | [REQ-00054](REQ-00054-gym-battle-system.md) | 道馆战斗系统 | 功能增强 | P0 | done | gym-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-09 16:00 |
 | [REQ-00055](REQ-00055-pokemon-collection-showcase-system.md) | 精灵收藏展示系统 | 功能增强 | P1 | done | pokemon-service、social-service、user-service、gateway、game-client、database/migrations | 2026-06-09 16:35 |
-| [REQ-00056](REQ-00056-pokedex-completion-reward-system.md) | 精灵图鉴完成度奖励系统 | 功能增强 | P1 | done | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-09 17:00 |
+| [REQ-00056](REQ-00056-pokedex-completion-reward-system.md) | 精灵图鉴完成度奖励系统 | 功能增强 | P1 | in_progress | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-09 17:00 |
 | [REQ-00057](REQ-00057-game-event-system-and-limited-time-events.md) | 游戏活动系统与限时活动管理 | 功能增强 | P0 | done | reward-service、location-service、pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-09 18:00 |
 | [REQ-00058](REQ-00058-guild-system-and-team-social-features.md) | 公会系统与团队社交功能 | 功能增强 | P1 | new | social-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 19:00 |
 | [REQ-00059](REQ-00059-beginner-tutorial-and-guidance-system.md) | 新手引导与教程系统 | 功能增强 | P1 | new | user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 20:00 |
-| [REQ-00060](REQ-00060-database-partitioning-for-large-tables.md) | 数据库分区表与大数据量表分区策略 | 数据库/数据治理 | P1 | done | database/migrations、所有微服务、backend/shared、PostgreSQL | 2026-06-09 18:05 |
+| [REQ-00060](REQ-00060-database-partitioning-for-large-tables.md) | 数据库分区表与大数据量表分区策略 | 数据库/数据治理 | P1 | in_progress | database/migrations、所有微服务、backend/shared、PostgreSQL | 2026-06-09 18:05 |
 | [REQ-00061](REQ-00061-service-health-dashboard-and-auto-recovery.md) | 服务健康仪表板与自动恢复系统 | 运维/CICD | P1 | done | gateway、所有微服务、infrastructure/k8s、backend/shared | 2026-06-09 21:00 |
 | [REQ-00062](REQ-00062-game-sound-effects-and-background-music-system.md) | 游戏音效与背景音乐系统 | 前端体验 | P1 | done | game-client、frontend/audio、game-client/src/components | 2026-06-09 19:15 |
 | [REQ-00063](REQ-00063-database-slow-query-analysis-auto-optimization.md) | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | done | database/migrations、所有微服务、backend/shared、infrastructure/k8s | 2026-06-09 22:00 |

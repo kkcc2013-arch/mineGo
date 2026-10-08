@@ -42,7 +42,10 @@ test('complete legacy pending migration history applies to the full seeded produ
     let output='';child.stdout.on('data',chunk=>output+=chunk);child.stderr.on('data',chunk=>output+=chunk);
     const code=await new Promise((resolve,reject)=>{child.once('error',reject);child.once('exit',resolve);});child=null;
     assert.equal(code,0,`Complete production migration history is unfinished:\n${output}`);
-    assert.equal((await fixture.query('SELECT count(*)::int AS n FROM schema_migrations')).rows[0].n,79);
+    const files=(await fs.readdir(path.join(__dirname,'../../../database/pending'))).filter(file=>file.endsWith('.sql'));
+    const history=(await fixture.query('SELECT version,checksum FROM schema_migrations')).rows;
+    assert.equal(history.length,files.length);
+    for(const file of files){const source=await fs.readFile(path.join(__dirname,'../../../database/pending',file));const version=file.split('__')[0];assert.equal(history.find(row=>row.version===version)?.checksum,crypto.createHash('sha256').update(source).digest('hex'));}
   }finally{
     if(child&&child.exitCode===null){const exited=new Promise(resolve=>child.once('exit',resolve));child.kill('SIGKILL');await exited;}
     await fixture.end();await admin.query(`DROP SCHEMA ${schema} CASCADE`);await admin.end();

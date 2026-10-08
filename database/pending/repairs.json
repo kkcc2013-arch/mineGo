@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "repairs": {
+    "20260609_233000": {
+      "sourceSha256": "d02b5deb704f458d09566e3efedc1f1e1ced8bf80f5a0f6c3038a2e4a33de3b3",
+      "file": "repairs/20260609_233000__spawn_pool_values.sql",
+      "reason": "Remove six trailing VALUES commas and widen weight precision to retain seeded weights up to15. Keep every row and all other statements."
+    },
+    "20260610_013000": {
+      "sourceSha256": "9698082d8fec8e6b5d106f7a36f01cd1d95d91f74707e1f6d6cad47972d2762a",
+      "file": "repairs/20260610_013000__add_pvp_battle_system.sql",
+      "reason": "Align 1 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+    },
+    "20260613_070000": {
+      "sourceSha256": "c06783bb8f43b0c30d6c315a5ada693bfa7f099145b504691fb28cd3ba4e325b",
+      "file": "repairs/20260613_070000__add_share_system_tables.sql",
+      "reason": "Align 1 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+    },
+    "20260614_070300": {
+      "sourceSha256": "b5975b92df92ef8c49ffac52afc95e1af95d376cdb24fd7014b696cabff60b9a",
+      "file": "repairs/20260614_070300__add_pokemon_backup_system.sql",
+      "reason": "Align 2 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+    },
+    "20260614_081000": {
+      "sourceSha256": "69e4f234792528a5ead888f79654614acd482e94d1da86fe62d7968c5973b6f4",
+      "file": "repairs/20260614_081000__add_equipment_system.sql",
+      "reason": "Align 1 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+    },
+    "20260615_170500": {
+      "sourceSha256": "09a757e3a770f1549494900bc876f32c3a8d027561900d3f8c15816a1ba65611",
+      "file": "repairs/20260615_170500__add_title_system.sql",
+      "reason": "Align 1 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+    },
+    "20260630_040000": {
+      "sourceSha256": "56caa9b41aafa64822d561c733b328a4efd8c037a4fb95ad26d2a3813e2225a7",
+      "file": "repairs/20260630_040000__add_pokemon_cosmetic_system.sql",
+      "reason": "Align 3 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+    },
+    "20260707_090500": {
+      "sourceSha256": "80d3ab4ea9f1e71336c2a293bb605d65e7ec2442d42b3ec16f7aa521e0120503",
+      "file": "repairs/20260707_090500__add_weather_boost_tables.sql",
+      "reason": "Align 1 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+    },
+    "20260711_120000": {
+      "sourceSha256": "9577c3dcaf6e91a4f5931229df810235002f2fe057372296ae3eead79b381625",
+      "file": "repairs/20260711_120000__add_job_monitoring_tables.sql",
+      "reason": "Align 1 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+    },
+    "20260610_040000": {
+      "sourceSha256": "98ddd1518d321b6e86ddd4ed28f67312e3769864c1e7cd41a1b15f8eb95e1a08",
+      "file": "repairs/20260610_040000__add_guild_system_tables.sql",
+      "reason": "Implement the two intended partial uniqueness rules as PostgreSQL partial indexes; initialize leaderboard rows for actual guilds instead of nonexistent guild0."
+    },
+    "20260618_160000": {
+      "sourceSha256": "e60be5a89d60c84da8ba40f11c63bf1b5e1491e59828903856e50b490ca74bf4",
+      "file": "repairs/20260618_160000__add_voice_chat_tables.sql",
+      "reason": "Express active room membership uniqueness as a partial unique index while retaining historical memberships."
+    },
+    "20260610_080000": {
+      "sourceSha256": "fa9bd6b0aef470e0e165f6135628cfe4599521436b26fc2626065ca9c2778deb",
+      "file": "repairs/20260610_080000__add_ip_ban_system.sql",
+      "reason": "Name PostgreSQL inet_ops explicitly for the two intended CIDR GiST indexes."
+    },
+    "20260609_124500": {
+      "sourceSha256": "99c96061defc0b502f87147c491889266f53b9e5c8ae8cfbdcdda6892c09969e",
+      "file": "repairs/20260609_124500__add_item_inventory_system.sql",
+      "reason": "Use UUID owner in capacity function, named default capacity fields, positive additions and typed remaining capacity; delete expired rows instead of violating positive-quantity constraint."
+    }
+  }
+}

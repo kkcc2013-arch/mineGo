@@ -633,3 +633,58 @@ Next goal turn: reconcile legacy prerequisite/table contracts through an audited
 ordering/catalog/bootstrap path, preserve applied pending file checksums, then rerun
 whole history and warmup. Complete requirements7/39/306 and remaining service scopes
 remain open. No new requirements, no merge/deploy, no production data operations.
+
+
+## Persistent-goal continuation: migration dependency and catalog contracts (2026-10-08)
+
+Previous turn made authoritative progress in07248db, published to draftPR6. Revalidated
+clean worktree and remote CI: main439/37719050021,dependency246/37719050047,privacy11/
+37719050042,title/storage/nativeprocess8/37719049932 pass. Migration1/37719050130 passed
+parser/storage then failed actual full history at items (expected open defect). Contracts,
+API contracts, performance, integration and security fail; E2E101 was active at snapshot.
+No Goal blocked condition: this turn repairs the next concrete schema execution paths.
+
+Added dependency manifest/topological plan and tracked actual execution_order. Applied
+source/dependency/executed-SQL checksums are distinct; up/down/verify reject drift and
+invalid/missing/cyclic references. Legacy history adoption preserves source hashes/data,
+backfills old time/version order before adding uniqueness, and leaves unknown execution
+hashes NULL. Storage test deliberately reverses physical legacy row insertion to expose
+and prevent unique-order backfill collisions. Rollback uses real execution order.
+
+Added owned item catalog prerequisite based on the repository localization table
+contract, plus UUID Pokedex statistics cache prerequisite. Ownership/OID state prevents
+rollback from deleting a preexisting table or a replacement relation; existing incompatible
+identity is rejected rather than cast. Both execute before their legacy consumers.
+
+Actual full run exposed invalid legacy SQL beyond missing prerequisites: partial UNIQUE
+constraints embedded in CREATE TABLE, missing inet_ops, six trailing spawn VALUES commas,
+DECIMAL5,4 unable to hold seeded weight15, and V1 UUID foreign-key mismatches. Originals
+remain byte-identical. Explicit repairs.json binds each exact originalSHA to a complete
+reviewable SQL correction and reason, with guarded paths and separately persisted
+execution hash. Logs say which correction runs; no migration or intended data silently
+skipped. Guild seed uses actual guild IDs instead of nonexistent guild0. Repair fields
+align the canonical V1 UUID identities; undocumented historic schemas remain unaccepted.
+
+Real inventory SQL then exposed integer capacity arguments, unnamed default records,
+OUT/column ambiguity, a BIGINT remaining value returned as INTEGER, and expiry writing
+zero against a positive constraint. Corrected capacity takes UUID, validates positive
+addition, uses named defaults/qualified aggregates and typed nonnegative remaining.
+Expiry deletes expired rows and updates capacity while preserving valid inventory and
+the positive-quantity check. Actual storage tests verify >=20 catalog items, ownerUUID,
+default/over-capacity, expiry cleanup, FK/quantity rejection and safe catalog rollback;
+these do not accept every HTTP/service/client/event/cache requirement.
+
+Evidence: full unit621 (95standalone+8runner+133battle+385Jest), actual CLI13, actual
+prerequisite/inventory2, business PostgreSQL/Redis33 and native gateway/user process2
+pass. JS syntax now covers database too:1413 files zero errors. Workflow YAML and diff
+checks pass. Full original V1+V2 sample seed passes; all81 pending (79original+2new)
+remain gated and source-hash checked. Execution advances to20260610_100000 audit partition
+conflict: resource_type absent, audit_logs still an ordinary V1 table, IF NOT EXISTS
+did not perform conversion. The whole migration transaction rolls back on this failure.
+
+Reopened req47/56/60 (201legacydone/20inprogress/437new), preserving historical claims
+and appending evidence. New tests added to migration CI and metadata paths to native
+process CI. No complete requirement promoted, no numeric gate reduced, no prod operation.
+Next: proper audit partition conversion preserving ID/all existing fields/data/constraints/
+sequence/index/trigger and reference behavior, then actual writes/queries/rollback and
+remaining full migration conflicts. Goal remains active with all658 scope.

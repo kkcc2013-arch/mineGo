@@ -1,9 +1,9 @@
 # mineGo requirement completion plan
 
 Updated: 2026-10-08. Scope: all 658 existing requirement documents in INDEX.md,
-including the 204 legacy done declarations that still need independent acceptance.
+including the 201 legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 437 new, 17 in progress. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 437 new, 20 in progress. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -135,3 +135,23 @@ Next: reconcile/order true migration prerequisites and conflicting table definit
 without rewriting applied pending files, then complete full-history and warmup tests.
 Other services still require real startup and migration integration; full658 scope
 continues. This is substantive progress, not a blocking condition.
+
+
+## Migration dependency/catalog batch (2026-10-08)
+
+Source 07248db remote main439/dependency246/privacy11/title-storage-nativeprocess8
+pass. Database migration1 tool/storage steps pass, full-history step fails at items;
+contract/API/performance/integration/security remain red, E2E101 was still active.
+Current batch adds explicit dependency order, execution-history order, original-source
+and executed-SQL hashes, plus owned catalog/Pokedex prerequisites. Whole guarded SQL
+corrections preserve raw legacy files while repairing invalid constraints/identity/
+precision/seed syntax and actual inventory capacity/expiry helpers.
+
+Local unit621, runner unit8, actual CLI13, catalog/inventory prerequisite2, business
+storage33 and native process2 pass. Full V1+V2 still passes; all81 current pending files
+(original79+2prerequisites) are gated. History now reaches the audit-table partition
+conflict in20260610_100000. Req47/56/60 old done declarations reopened; no complete
+requirement accepted. Next: preserve V1 audit IDs/columns/history and live write/query
+contracts while implementing actual partition conversion and rollback, then continue
+remaining migration conflicts and service/schema/warmup acceptance. Full658 scope stays
+active. There is concrete progress; no blocked audit applies.

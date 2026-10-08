@@ -129,6 +129,53 @@ test('production migration CLI against actual PostgreSQL verifies transactions, 
       const recovered=await launch(['up'],{MIGRATION_LOCK_TIMEOUT_MS:'3000'}).result;assert.equal(recovered.code,0,recovered.output);
       assert.equal((await rows()).rows.length,2);
     });
+    await t.test('newer prerequisites execute first; rollback follows execution order and refuses manifest drift',async()=>{
+      assert.equal((await run('down','20261001_000001')).code,0);assert.equal((await run('down')).code,0);
+      await fs.rm(path.join(directory,filename1));await fs.rm(path.join(directory,filename2));
+      const prerequisite='20261008_130000__prerequisite.sql';const consumer='20260609_124500__consumer.sql';
+      const manifest={schemaVersion:1,dependencies:{'20260609_124500':['20261008_130000']}};
+      await fs.writeFile(path.join(directory,'dependencies.json'),JSON.stringify(manifest));
+      await fs.writeFile(path.join(directory,prerequisite),'-- migrate:up\nCREATE TABLE prerequisite(id int PRIMARY KEY);\n-- migrate:down\nDROP TABLE prerequisite;');
+      await fs.writeFile(path.join(directory,consumer),'-- migrate:up\nCREATE TABLE consumer(id int REFERENCES prerequisite(id));\n-- migrate:down\nDROP TABLE consumer;');
+      const applied=await run('up');assert.equal(applied.code,0,applied.output);
+      const history=await fixture.query('SELECT version FROM schema_migrations ORDER BY execution_order');assert.deepEqual(history.rows.map(row=>row.version),['20261008_130000','20260609_124500']);
+      await fs.writeFile(path.join(directory,'dependencies.json'),JSON.stringify({schemaVersion:1,dependencies:{}}));
+      assert.equal((await run('verify')).code,1);assert.equal((await run('down')).code,1);
+      await fs.writeFile(path.join(directory,'dependencies.json'),JSON.stringify(manifest));
+      assert.equal((await run('down')).code,0);assert.equal((await fixture.query("SELECT to_regclass('consumer') AS consumer,to_regclass('prerequisite') AS prerequisite")).rows[0].consumer,null);
+      assert.equal((await run('down')).code,0);await fs.rm(path.join(directory,prerequisite));await fs.rm(path.join(directory,consumer));await fs.rm(path.join(directory,'dependencies.json'));
+      await fs.writeFile(path.join(directory,filename1),first);await fs.writeFile(path.join(directory,filename2),second);assert.equal((await run('up')).code,0);
+    });
+    await t.test('explicit repairs preserve source checksums and verify the SQL actually executed',async()=>{
+      const broken='20261001_000003__broken.sql';const raw='CREAT TABLE repaired_fixture(id int);';
+      await fs.writeFile(path.join(directory,broken),raw);
+      const corrected='-- migrate:up\nCREATE TABLE repaired_fixture(id int);\n-- migrate:down\nDROP TABLE repaired_fixture;';
+      await fs.mkdir(path.join(directory,'repairs'));await fs.writeFile(path.join(directory,'repairs/corrected.sql'),corrected);
+      const manifest={schemaVersion:1,repairs:{'20261001_000003':{sourceSha256:crypto.createHash('sha256').update(raw).digest('hex'),file:'repairs/corrected.sql',reason:'Correct malformed CREATE keyword while retaining the declared table.'}}};
+      await fs.writeFile(path.join(directory,'repairs.json'),JSON.stringify(manifest));
+      const applied=await run('up');assert.equal(applied.code,0,applied.output);
+      const history=(await fixture.query("SELECT checksum,execution_checksum FROM schema_migrations WHERE version='20261001_000003'")).rows[0];
+      assert.equal(history.checksum,crypto.createHash('sha256').update(raw).digest('hex'));assert.ok(history.execution_checksum);
+      await fs.writeFile(path.join(directory,'repairs/corrected.sql'),corrected.replace('id int','id bigint'));
+      assert.equal((await run('verify')).code,1);assert.equal((await run('down')).code,1);
+      await fs.writeFile(path.join(directory,'repairs/corrected.sql'),corrected);assert.equal((await run('down')).code,0);
+      await fs.writeFile(path.join(directory,broken),raw+' -- changed source');assert.equal((await run('up')).code,1);
+      await fs.rm(path.join(directory,broken));await fs.rm(path.join(directory,'repairs'),{recursive:true});await fs.rm(path.join(directory,'repairs.json'));
+    });
+    await t.test('legacy history gains execution metadata without changing source hashes or application data',async()=>{
+      const before=(await fixture.query('SELECT version,checksum FROM schema_migrations ORDER BY version')).rows;
+      await fixture.query('CREATE TABLE legacy_history_copy AS SELECT version,description,checksum,executed_at,execution_ms,executed_by FROM schema_migrations');
+      await fixture.query('DELETE FROM schema_migrations');
+      await fixture.query('INSERT INTO schema_migrations(version,description,checksum,executed_at,execution_ms,executed_by) SELECT version,description,checksum,executed_at,execution_ms,executed_by FROM legacy_history_copy ORDER BY version DESC');
+      await fixture.query('ALTER TABLE schema_migrations DROP COLUMN execution_order');
+      await fixture.query('ALTER TABLE schema_migrations DROP COLUMN dependency_checksum');
+      await fixture.query('ALTER TABLE schema_migrations DROP COLUMN execution_checksum');
+      const adopted=await run('status');assert.equal(adopted.code,0,adopted.output);
+      assert.deepEqual((await fixture.query('SELECT version,checksum FROM schema_migrations ORDER BY version')).rows,before);
+      assert.equal((await rows()).rows.length,2);assert.equal((await run('verify')).code,0);
+      const adoptedRows=(await fixture.query('SELECT execution_order,execution_checksum FROM schema_migrations ORDER BY execution_order')).rows;
+      assert.deepEqual(adoptedRows.map(row=>row.execution_order),['1','2']);assert.ok(adoptedRows.every(row=>row.execution_checksum===null),'Historical execution without evidence must not be invented');
+    });
     await t.test('shared startup initialization executes pending SQL and closes its owned pool',async()=>{
       const startupFile=path.join(directory,'20261001_000004__startup.sql');await fs.writeFile(startupFile,'-- migrate:up\nCREATE TABLE initialized_on_start(id int);\n-- migrate:down\nDROP TABLE initialized_on_start;');
       const child=spawn(process.execPath,['-e',"const db=require('./backend/shared/db'); Promise.all([db.initializeMigrations(),db.initializeMigrations()]).catch(e=>{console.error(e.message);process.exitCode=1});"],{cwd:root,env:{...environment,AUTO_MIGRATE:'true'},stdio:['ignore','pipe','pipe']});

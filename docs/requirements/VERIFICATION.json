@@ -294,7 +294,10 @@
         "backend/shared/cache.js": "44d94c1e12266e6fae9ebac49f9d1279a110f32798e0252416a8b91b386f6b20",
         "backend/shared/redis.js": "087d67b984d22a1345097105f10513df84fa874c395010167964e6b3dcc7ea4b",
         "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
-        ".github/workflows/title-regression.yml": "e6384ccd3575168d4f6be163c7b0f68346680b16ef0f209ef95102c5974fbb93"
+        ".github/workflows/title-regression.yml": "326c0e08f39b24deb2838ec2f3f1c0917f435ebde214f39ea9a20c24c3641905",
+        "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
+        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
+        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca"
       },
       "evidence": [
         {
@@ -400,6 +403,15 @@
             "backend/tests/regression/gateway-startup.test.js",
             ".github/workflows/title-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisite/storage/process checks",
+          "result": "partial_passed",
+          "scope": "621 unit,13actual CLI,2actual prerequisites/inventory,33business storage and2native process cases pass. All81 pending files remain gated; full-history failure moved to audit partition conflict. Complete acceptance not claimed.",
+          "changedReferences": [
+            ".github/workflows/title-regression.yml"
+          ]
         }
       ]
     },
@@ -421,7 +433,10 @@
         "backend/shared/cache.js": "44d94c1e12266e6fae9ebac49f9d1279a110f32798e0252416a8b91b386f6b20",
         "backend/shared/redis.js": "087d67b984d22a1345097105f10513df84fa874c395010167964e6b3dcc7ea4b",
         "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
-        ".github/workflows/title-regression.yml": "e6384ccd3575168d4f6be163c7b0f68346680b16ef0f209ef95102c5974fbb93"
+        ".github/workflows/title-regression.yml": "326c0e08f39b24deb2838ec2f3f1c0917f435ebde214f39ea9a20c24c3641905",
+        "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
+        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
+        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca"
       },
       "evidence": [
         {
@@ -525,6 +540,15 @@
             "backend/tests/regression/user-startup.test.js",
             "backend/gateway/src/index.js",
             "backend/tests/regression/gateway-startup.test.js",
+            ".github/workflows/title-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisite/storage/process checks",
+          "result": "partial_passed",
+          "scope": "621 unit,13actual CLI,2actual prerequisites/inventory,33business storage and2native process cases pass. All81 pending files remain gated; full-history failure moved to audit partition conflict. Complete acceptance not claimed.",
+          "changedReferences": [
             ".github/workflows/title-regression.yml"
           ]
         }
@@ -550,8 +574,11 @@
         "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
         "backend/package.json": "474f7754919d97c6ddb6ded3d9dc6a452a4e5cd194b5699f5c382fefeb4c1e00",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
-        ".github/workflows/title-regression.yml": "e6384ccd3575168d4f6be163c7b0f68346680b16ef0f209ef95102c5974fbb93",
-        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018"
+        ".github/workflows/title-regression.yml": "326c0e08f39b24deb2838ec2f3f1c0917f435ebde214f39ea9a20c24c3641905",
+        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
+        "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
+        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
+        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca"
       },
       "evidence": [
         {
@@ -662,6 +689,15 @@
             "backend/package.json",
             ".github/workflows/title-regression.yml",
             "backend/tests/regression/gateway-startup.test.js"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisite/storage/process checks",
+          "result": "partial_passed",
+          "scope": "621 unit,13actual CLI,2actual prerequisites/inventory,33business storage and2native process cases pass. All81 pending files remain gated; full-history failure moved to audit partition conflict. Complete acceptance not claimed.",
+          "changedReferences": [
+            ".github/workflows/title-regression.yml"
           ]
         }
       ]
@@ -686,8 +722,11 @@
         "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
         "backend/package.json": "474f7754919d97c6ddb6ded3d9dc6a452a4e5cd194b5699f5c382fefeb4c1e00",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
-        ".github/workflows/title-regression.yml": "e6384ccd3575168d4f6be163c7b0f68346680b16ef0f209ef95102c5974fbb93",
-        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018"
+        ".github/workflows/title-regression.yml": "326c0e08f39b24deb2838ec2f3f1c0917f435ebde214f39ea9a20c24c3641905",
+        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
+        "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
+        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
+        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca"
       },
       "evidence": [
         {
@@ -798,6 +837,15 @@
             "backend/package.json",
             ".github/workflows/title-regression.yml",
             "backend/tests/regression/gateway-startup.test.js"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisite/storage/process checks",
+          "result": "partial_passed",
+          "scope": "621 unit,13actual CLI,2actual prerequisites/inventory,33business storage and2native process cases pass. All81 pending files remain gated; full-history failure moved to audit partition conflict. Complete acceptance not claimed.",
+          "changedReferences": [
+            ".github/workflows/title-regression.yml"
           ]
         }
       ]
@@ -822,8 +870,11 @@
         "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
         "backend/package.json": "474f7754919d97c6ddb6ded3d9dc6a452a4e5cd194b5699f5c382fefeb4c1e00",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
-        ".github/workflows/title-regression.yml": "e6384ccd3575168d4f6be163c7b0f68346680b16ef0f209ef95102c5974fbb93",
-        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018"
+        ".github/workflows/title-regression.yml": "326c0e08f39b24deb2838ec2f3f1c0917f435ebde214f39ea9a20c24c3641905",
+        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
+        "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
+        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
+        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca"
       },
       "evidence": [
         {
@@ -935,6 +986,15 @@
             ".github/workflows/title-regression.yml",
             "backend/tests/regression/gateway-startup.test.js"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisite/storage/process checks",
+          "result": "partial_passed",
+          "scope": "621 unit,13actual CLI,2actual prerequisites/inventory,33business storage and2native process cases pass. All81 pending files remain gated; full-history failure moved to audit partition conflict. Complete acceptance not claimed.",
+          "changedReferences": [
+            ".github/workflows/title-regression.yml"
+          ]
         }
       ]
     },
@@ -955,8 +1015,11 @@
         "backend/tests/regression/user-startup.test.js": "f6f425d05632c4a04858f0cef4c2be5ef0ad49a73f30c2d9b6d28bf2753533a6",
         "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
         "database/pending/20261008_100000__ip_ban_index_compatibility.sql": "574d3f082b2265bfe5b93d6066b6d62dad4ca1da00bd91e34dc7a4f964f548ae",
-        ".github/workflows/title-regression.yml": "e6384ccd3575168d4f6be163c7b0f68346680b16ef0f209ef95102c5974fbb93",
-        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018"
+        ".github/workflows/title-regression.yml": "326c0e08f39b24deb2838ec2f3f1c0917f435ebde214f39ea9a20c24c3641905",
+        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
+        "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
+        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
+        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca"
       },
       "evidence": [
         {
@@ -1023,6 +1086,15 @@
             "backend/tests/regression/user-startup.test.js",
             ".github/workflows/title-regression.yml",
             "backend/tests/regression/gateway-startup.test.js"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisite/storage/process checks",
+          "result": "partial_passed",
+          "scope": "621 unit,13actual CLI,2actual prerequisites/inventory,33business storage and2native process cases pass. All81 pending files remain gated; full-history failure moved to audit partition conflict. Complete acceptance not claimed.",
+          "changedReferences": [
+            ".github/workflows/title-regression.yml"
           ]
         }
       ]
@@ -1044,8 +1116,11 @@
         "backend/tests/regression/user-startup.test.js": "f6f425d05632c4a04858f0cef4c2be5ef0ad49a73f30c2d9b6d28bf2753533a6",
         "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
         "database/pending/20261008_100000__ip_ban_index_compatibility.sql": "574d3f082b2265bfe5b93d6066b6d62dad4ca1da00bd91e34dc7a4f964f548ae",
-        ".github/workflows/title-regression.yml": "e6384ccd3575168d4f6be163c7b0f68346680b16ef0f209ef95102c5974fbb93",
-        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018"
+        ".github/workflows/title-regression.yml": "326c0e08f39b24deb2838ec2f3f1c0917f435ebde214f39ea9a20c24c3641905",
+        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
+        "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
+        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
+        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca"
       },
       "evidence": [
         {
@@ -1113,6 +1188,15 @@
             ".github/workflows/title-regression.yml",
             "backend/tests/regression/gateway-startup.test.js"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisite/storage/process checks",
+          "result": "partial_passed",
+          "scope": "621 unit,13actual CLI,2actual prerequisites/inventory,33business storage and2native process cases pass. All81 pending files remain gated; full-history failure moved to audit partition conflict. Complete acceptance not claimed.",
+          "changedReferences": [
+            ".github/workflows/title-regression.yml"
+          ]
         }
       ]
     },
@@ -1127,7 +1211,10 @@
         "backend/shared/cache.js": "44d94c1e12266e6fae9ebac49f9d1279a110f32798e0252416a8b91b386f6b20",
         "backend/shared/redis.js": "087d67b984d22a1345097105f10513df84fa874c395010167964e6b3dcc7ea4b",
         "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
-        ".github/workflows/title-regression.yml": "e6384ccd3575168d4f6be163c7b0f68346680b16ef0f209ef95102c5974fbb93"
+        ".github/workflows/title-regression.yml": "326c0e08f39b24deb2838ec2f3f1c0917f435ebde214f39ea9a20c24c3641905",
+        "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
+        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
+        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca"
       },
       "evidence": [
         {
@@ -1154,15 +1241,24 @@
             "backend/tests/regression/gateway-startup.test.js",
             ".github/workflows/title-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisite/storage/process checks",
+          "result": "partial_passed",
+          "scope": "621 unit,13actual CLI,2actual prerequisites/inventory,33business storage and2native process cases pass. All81 pending files remain gated; full-history failure moved to audit partition conflict. Complete acceptance not claimed.",
+          "changedReferences": [
+            ".github/workflows/title-regression.yml"
+          ]
         }
       ]
     },
     "REQ-00007-database-migration-management.md": {
       "date": "2026-10-08",
       "status": "partial_verified_full_history_failed",
-      "documentSha256": "d3e42e47e26b08c43a622a8b31988dfa10a47c1ed12c6e015d27b2367b02a5c1",
+      "documentSha256": "09759b1f7acecfa9422ec0c584660a8fc4974458ab2150b4f90836b329b2a863",
       "sourceSha256": {
-        "database/migrate.js": "c7d02b4293914897c311cb30376581b803c916b508477206e605415f07d57edb",
+        "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/seeds/V2__seed_data.sql": "7c85c2d07999a4c8e5bad2d07324456b101a909c0e77fb73f0ff2d31879ed355",
         "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
@@ -1172,12 +1268,31 @@
         "backend/shared/db.js": "b83c8fa862e66ea7249aedb4fb256a3e0987ff0bba50117a317802b0833ed3b1",
         "backend/services/user-service/src/index.js": "f6786a588187634bcd7dfeca27a6301682ace0f6739dc430a7350841404f2c8f",
         "backend/gateway/src/index.js": "de952d7749eb29f8852b933c5620ab77bb02c86922bde0b039507c01e0522e19",
-        "backend/tests/unit/migration-runner.test.js": "0bf1fa1e60e4e2a7e4770d86c91dc6f32e7fee6645439bc5b8997ddbfbbd1762",
-        "backend/tests/regression/migration-storage.test.js": "c459b8ca21f6decc883cf8a1e6f3e35d4e13c1db828a4937eec3e9f84d11639f",
-        "backend/tests/regression/database-bootstrap.test.js": "89637e1fe6009987315d64b6fbbda0ddce88462e716082f7f3f69371f7cfe3aa",
+        "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
+        "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
+        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/regression/storageSetup.js": "1a67a27f674d7ef022e266da1ebbd5146870cdc290ebd64a51a799f5843ceaee",
-        ".github/workflows/migration-regression.yml": "a6e30bf8c17e28e9e45d384d3823574d73c17e7a49f5973340f048a6246e512a",
-        "docs/DATABASE-MIGRATIONS.md": "8b6d18fe534b414541d37ca0556c5da0b0139ebacd650ae8ec0c138aefbf7bf8"
+        ".github/workflows/migration-regression.yml": "04e0d774fa2e83378d729f0b826e4e9a0911c1d0c01e40245dde4fe89a33dcd3",
+        "docs/DATABASE-MIGRATIONS.md": "e068c4bbc5f81ca66401cc2d72bf7f5bd9803b518b868c484a69838543ce9edf",
+        "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
+        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
+        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca",
+        "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
+        "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
+        "backend/tests/regression/migration-prerequisites.test.js": "779edeb45b83d981d361cba79cab518a53def7f881ee44b0956f75ff6b0a7766",
+        "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
+        "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
+        "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
+        "database/pending/repairs/20260614_070300__add_pokemon_backup_system.sql": "970a5fa6d169191385be8179c6c102c002bb518e2d6a6c3355ceda75d80374e9",
+        "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d184d3882c643ad89b92fbe532e2b9db560dcfc10084c94970fa7de75378f78b",
+        "database/pending/repairs/20260615_170500__add_title_system.sql": "24499b69a874f5ddeefe3b4a6ce2bad97ef9459fb83e64884ceb257f8fbeec06",
+        "database/pending/repairs/20260630_040000__add_pokemon_cosmetic_system.sql": "25f914c389c332087828180d04ce6b48f09d382f9f9431b35193e1e232ed0351",
+        "database/pending/repairs/20260707_090500__add_weather_boost_tables.sql": "6516147bffac34d8141ac42b4195ba56b9b87a731c84ec54d5ae55dfe41ad17a",
+        "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql": "2eeccd3f32fe490e0d8650779cfa97798cb8f817e49bf45eae04d9366afec9ab",
+        "database/pending/repairs/20260610_040000__add_guild_system_tables.sql": "2a29339687184077880c8dd956ba0baa6ba5dce18d49fba3183099f11d7aaaf3",
+        "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "15e34fb1f56090ccef456b544b74bc0f518c8bc288d44dd6b1a51bcc0541bd1e",
+        "database/pending/repairs/20260610_080000__add_ip_ban_system.sql": "2e5811df9812c7e3533fec115665884b00fa6e2f4abb6c9da5a74e07dd3f3104",
+        "database/pending/repairs/20260609_124500__add_item_inventory_system.sql": "692f2f44415956fb836bcbfc2d999f0363b2c28dd2415a8f91e4158e986be8cc"
       },
       "evidence": [
         {
@@ -1226,9 +1341,163 @@
           "passed": 1,
           "failed": 1,
           "scope": "Full V1 and V2 sample seed pass, but full79 pending history fails because inventory assumes missing items catalog. This failure is retained as a CI gate."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual migration CLI/prerequisite/storage/process checks",
+          "result": "partial_passed",
+          "scope": "621 unit,13actual CLI,2actual prerequisites/inventory,33business storage and2native process cases pass. All81 pending files remain gated; full-history failure moved to audit partition conflict. Complete acceptance not claimed.",
+          "changedReferences": [
+            "database/migrate.js",
+            "backend/tests/unit/migration-runner.test.js",
+            "backend/tests/regression/migration-storage.test.js",
+            "backend/tests/regression/database-bootstrap.test.js",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
+        },
+        {
+          "command": "node --test backend/tests/regression/migration-storage.test.js",
+          "result": "passed",
+          "tests": 13,
+          "scope": "Actual CLI/PG, including actual dependency rollback, source/repair/dependency drift and legacy journal adoption."
+        },
+        {
+          "command": "node --test backend/tests/regression/migration-prerequisites.test.js",
+          "result": "passed",
+          "tests": 2,
+          "scope": "Actual production SQL/data with UUID inventory owners, capacity/expiry/FK checks and data-preserving catalog rollback."
+        },
+        {
+          "command": "node --test backend/tests/regression/database-bootstrap.test.js",
+          "result": "failed",
+          "passed": 1,
+          "failed": 1,
+          "scope": "FullV1+V2pass;81pending scripts fail20260610_100000 audit partition resource_type. Original79 verified byte-identical againstHEAD."
         }
       ],
       "remaining": "Full pending/external migration catalog and dependencies, whole-history upgrades/rollback, all-service startup integration and complete CI acceptance remain unproven."
+    },
+    "REQ-00047-pokemon-items-inventory-management-system.md": {
+      "date": "2026-10-08",
+      "status": "partial_local_verified_ci_pending",
+      "documentSha256": "1e4b09e980841206306e6d778caa7f0fe0eeaef677852331fca1346756fc3592",
+      "sourceSha256": {
+        "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
+        "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
+        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
+        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca",
+        "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
+        "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
+        "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
+        "backend/tests/regression/migration-prerequisites.test.js": "779edeb45b83d981d361cba79cab518a53def7f881ee44b0956f75ff6b0a7766",
+        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
+        "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
+        ".github/workflows/migration-regression.yml": "04e0d774fa2e83378d729f0b826e4e9a0911c1d0c01e40245dde4fe89a33dcd3",
+        "docs/DATABASE-MIGRATIONS.md": "e068c4bbc5f81ca66401cc2d72bf7f5bd9803b518b868c484a69838543ce9edf",
+        "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
+        "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
+        "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
+        "database/pending/repairs/20260614_070300__add_pokemon_backup_system.sql": "970a5fa6d169191385be8179c6c102c002bb518e2d6a6c3355ceda75d80374e9",
+        "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d184d3882c643ad89b92fbe532e2b9db560dcfc10084c94970fa7de75378f78b",
+        "database/pending/repairs/20260615_170500__add_title_system.sql": "24499b69a874f5ddeefe3b4a6ce2bad97ef9459fb83e64884ceb257f8fbeec06",
+        "database/pending/repairs/20260630_040000__add_pokemon_cosmetic_system.sql": "25f914c389c332087828180d04ce6b48f09d382f9f9431b35193e1e232ed0351",
+        "database/pending/repairs/20260707_090500__add_weather_boost_tables.sql": "6516147bffac34d8141ac42b4195ba56b9b87a731c84ec54d5ae55dfe41ad17a",
+        "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql": "2eeccd3f32fe490e0d8650779cfa97798cb8f817e49bf45eae04d9366afec9ab",
+        "database/pending/repairs/20260610_040000__add_guild_system_tables.sql": "2a29339687184077880c8dd956ba0baa6ba5dce18d49fba3183099f11d7aaaf3",
+        "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "15e34fb1f56090ccef456b544b74bc0f518c8bc288d44dd6b1a51bcc0541bd1e",
+        "database/pending/repairs/20260610_080000__add_ip_ban_system.sql": "2e5811df9812c7e3533fec115665884b00fa6e2f4abb6c9da5a74e07dd3f3104",
+        "database/pending/repairs/20260609_124500__add_item_inventory_system.sql": "692f2f44415956fb836bcbfc2d999f0363b2c28dd2415a8f91e4158e986be8cc",
+        "database/pending/20260609_124500__add_item_inventory_system.sql": "99c96061defc0b502f87147c491889266f53b9e5c8ae8cfbdcdda6892c09969e"
+      },
+      "evidence": [
+        {
+          "command": "node --test backend/tests/regression/migration-prerequisites.test.js; full default database-bootstrap.test.js",
+          "result": "partial_passed",
+          "scope": "Two actual prerequisite/storage cases pass; full81pending history stops at audit partition conflict. Complete functional/client/performance acceptance remains open."
+        }
+      ]
+    },
+    "REQ-00056-pokedex-completion-reward-system.md": {
+      "date": "2026-10-08",
+      "status": "partial_local_verified_ci_pending",
+      "documentSha256": "f58d1055fc702bef6e3a6cf4f9ed5156499e4241c8c57d078c7a73efcb7c6212",
+      "sourceSha256": {
+        "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
+        "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
+        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
+        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca",
+        "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
+        "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
+        "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
+        "backend/tests/regression/migration-prerequisites.test.js": "779edeb45b83d981d361cba79cab518a53def7f881ee44b0956f75ff6b0a7766",
+        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
+        "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
+        ".github/workflows/migration-regression.yml": "04e0d774fa2e83378d729f0b826e4e9a0911c1d0c01e40245dde4fe89a33dcd3",
+        "docs/DATABASE-MIGRATIONS.md": "e068c4bbc5f81ca66401cc2d72bf7f5bd9803b518b868c484a69838543ce9edf",
+        "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
+        "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
+        "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
+        "database/pending/repairs/20260614_070300__add_pokemon_backup_system.sql": "970a5fa6d169191385be8179c6c102c002bb518e2d6a6c3355ceda75d80374e9",
+        "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d184d3882c643ad89b92fbe532e2b9db560dcfc10084c94970fa7de75378f78b",
+        "database/pending/repairs/20260615_170500__add_title_system.sql": "24499b69a874f5ddeefe3b4a6ce2bad97ef9459fb83e64884ceb257f8fbeec06",
+        "database/pending/repairs/20260630_040000__add_pokemon_cosmetic_system.sql": "25f914c389c332087828180d04ce6b48f09d382f9f9431b35193e1e232ed0351",
+        "database/pending/repairs/20260707_090500__add_weather_boost_tables.sql": "6516147bffac34d8141ac42b4195ba56b9b87a731c84ec54d5ae55dfe41ad17a",
+        "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql": "2eeccd3f32fe490e0d8650779cfa97798cb8f817e49bf45eae04d9366afec9ab",
+        "database/pending/repairs/20260610_040000__add_guild_system_tables.sql": "2a29339687184077880c8dd956ba0baa6ba5dce18d49fba3183099f11d7aaaf3",
+        "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "15e34fb1f56090ccef456b544b74bc0f518c8bc288d44dd6b1a51bcc0541bd1e",
+        "database/pending/repairs/20260610_080000__add_ip_ban_system.sql": "2e5811df9812c7e3533fec115665884b00fa6e2f4abb6c9da5a74e07dd3f3104",
+        "database/pending/repairs/20260609_124500__add_item_inventory_system.sql": "692f2f44415956fb836bcbfc2d999f0363b2c28dd2415a8f91e4158e986be8cc",
+        "database/pending/20260609_230000__add_pokedex_completion_reward_system.sql": "748e9a8a28b86517ec5a521008e2e4e66713f14cd252c497cd3cecae310f1bd3"
+      },
+      "evidence": [
+        {
+          "command": "node --test backend/tests/regression/migration-prerequisites.test.js; full default database-bootstrap.test.js",
+          "result": "partial_passed",
+          "scope": "Two actual prerequisite/storage cases pass; full81pending history stops at audit partition conflict. Complete functional/client/performance acceptance remains open."
+        }
+      ]
+    },
+    "REQ-00060-database-partitioning-for-large-tables.md": {
+      "date": "2026-10-08",
+      "status": "failed_verification",
+      "documentSha256": "d3dd718aa8a8376f11f2ecaf51885c73ba8a0eb8e54063ce6ce810542f4f37d0",
+      "sourceSha256": {
+        "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
+        "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
+        "database/pending/dependencies.json": "5f8b261b5bd8af42b35e35493b0b139061df88c921d7c2f688156a174edf7584",
+        "database/pending/repairs.json": "94c5a62f30444cdaa106214add97572b6381b4255db46a7739efa369b7689cca",
+        "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
+        "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
+        "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
+        "backend/tests/regression/migration-prerequisites.test.js": "779edeb45b83d981d361cba79cab518a53def7f881ee44b0956f75ff6b0a7766",
+        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
+        "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
+        ".github/workflows/migration-regression.yml": "04e0d774fa2e83378d729f0b826e4e9a0911c1d0c01e40245dde4fe89a33dcd3",
+        "docs/DATABASE-MIGRATIONS.md": "e068c4bbc5f81ca66401cc2d72bf7f5bd9803b518b868c484a69838543ce9edf",
+        "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
+        "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
+        "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
+        "database/pending/repairs/20260614_070300__add_pokemon_backup_system.sql": "970a5fa6d169191385be8179c6c102c002bb518e2d6a6c3355ceda75d80374e9",
+        "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d184d3882c643ad89b92fbe532e2b9db560dcfc10084c94970fa7de75378f78b",
+        "database/pending/repairs/20260615_170500__add_title_system.sql": "24499b69a874f5ddeefe3b4a6ce2bad97ef9459fb83e64884ceb257f8fbeec06",
+        "database/pending/repairs/20260630_040000__add_pokemon_cosmetic_system.sql": "25f914c389c332087828180d04ce6b48f09d382f9f9431b35193e1e232ed0351",
+        "database/pending/repairs/20260707_090500__add_weather_boost_tables.sql": "6516147bffac34d8141ac42b4195ba56b9b87a731c84ec54d5ae55dfe41ad17a",
+        "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql": "2eeccd3f32fe490e0d8650779cfa97798cb8f817e49bf45eae04d9366afec9ab",
+        "database/pending/repairs/20260610_040000__add_guild_system_tables.sql": "2a29339687184077880c8dd956ba0baa6ba5dce18d49fba3183099f11d7aaaf3",
+        "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "15e34fb1f56090ccef456b544b74bc0f518c8bc288d44dd6b1a51bcc0541bd1e",
+        "database/pending/repairs/20260610_080000__add_ip_ban_system.sql": "2e5811df9812c7e3533fec115665884b00fa6e2f4abb6c9da5a74e07dd3f3104",
+        "database/pending/repairs/20260609_124500__add_item_inventory_system.sql": "692f2f44415956fb836bcbfc2d999f0363b2c28dd2415a8f91e4158e986be8cc",
+        "database/pending/20260610_100000__add_table_partitioning_system.sql": "9a7e7ae9946cdc45a2dbfb4c27e981cffba48d7699971902f88213f49dd80bac",
+        "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08"
+      },
+      "evidence": [
+        {
+          "command": "node --test backend/tests/regression/migration-prerequisites.test.js; full default database-bootstrap.test.js",
+          "result": "failed",
+          "scope": "Two actual prerequisite/storage cases pass; full81pending history stops at audit partition conflict. Complete functional/client/performance acceptance remains open."
+        }
+      ]
     }
   }
 }
