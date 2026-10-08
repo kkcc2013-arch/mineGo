@@ -177,7 +177,7 @@
       "category": "数据库/数据治理",
       "modules": "database/migrations、backend/shared/db.js、所有微服务、CI/CD",
       "createdAt": "2026-06-05 03:00",
-      "sha256": "f574e60aac21c47904b0d492178b5fe8aadc8a0290fc403ac5faa071468d27e8",
+      "sha256": "d3e42e47e26b08c43a622a8b31988dfa10a47c1ed12c6e015d27b2367b02a5c1",
       "acceptance": [
         "- [ ] 迁移工具 `migrate.js` 实现，支持 up/down/status/create/verify 命令",
         "- [ ] `schema_migrations` 表创建成功，能正确记录迁移历史",
@@ -189,7 +189,7 @@
         "- [ ] 编写迁移工具单元测试，覆盖核心场景",
         "- [ ] 文档更新：README 添加迁移使用说明"
       ],
-      "verificationStatus": "failed_verification",
+      "verificationStatus": "partial_verified_full_history_failed",
       "implementationReferences": [],
       "legacyId": null
     },
@@ -711,7 +711,7 @@
         "- [ ] 单元测试覆盖 NotificationManager 核心逻辑",
         "- [ ] 前端测试验证通知显示和交互"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/gym-service/src/index.js",
         "backend/services/user-service/src/handlers/notificationHandler.js",
@@ -1100,7 +1100,7 @@
         "- [ ] Prometheus 指标正确暴露：cache_warmup_total、cache_warmup_items_loaded",
         "- [ ] 单元测试覆盖预热核心逻辑（≥ 80% 覆盖率）"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/gateway/src/index.js",
         "backend/gateway/src/routes/cacheWarmup.js",
@@ -1573,7 +1573,7 @@
         "- [ ] 4 个 Prometheus 指标正常暴露",
         "- [ ] 单元测试覆盖率 ≥ 80%"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/services/user-service/src/routes/privacy.js",
@@ -2279,7 +2279,7 @@
         "- [ ] 单元测试覆盖率 >= 80%",
         "- [ ] 集成测试覆盖核心流程"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/gateway/src/index.js",
         "backend/gateway/src/middleware/ipBan.js",
@@ -3245,7 +3245,7 @@
         "- [ ] 单元测试覆盖率 > 80%",
         "- [ ] 性能测试：称号查询 < 50ms"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/services/user-service/src/routes/titles.js",
@@ -4396,7 +4396,7 @@
         "- [ ] 启动 user-service 后，`curl -sf http://localhost:8081/ip-appeal/status -H \"Authorization: Bearer invalid\"` 返回 401（认证端点）",
         "- [ ] `npm test --prefix backend/services/user-service` 通过（如有相关测试）"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js"
       ],
@@ -4697,7 +4697,7 @@
         "- [ ] **根因分析**",
         "- [ ] **监控集成**"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/shared/ServiceHealthSelfHealing.js",
@@ -16330,7 +16330,7 @@
         "- [ ] 系统时区配置支持热更新，无需重启服务。",
         "- [ ] 完成跨时区业务场景的单元测试，覆盖 DST（夏令时）切换场景。"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/gateway/src/middleware/timezone.js",
         "backend/gateway/tests/middleware/timezone.test.js",
@@ -18301,7 +18301,7 @@
         "- [ ] 代码重复行数减少至少 200 行（通过代码统计验证）",
         "- [ ] 支持测试环境下依赖 mock 和替换"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [],
       "legacyId": "REQ-00619"
     },
@@ -18327,7 +18327,7 @@
         "- [ ] 文档：提供迁移指南和最佳实践示例",
         "- [ ] CI/CD 集成：CI 中运行扫描脚本，发现新 console 调用则失败"
       ],
-      "verificationStatus": "partial_ci_verified",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [],
       "legacyId": "REQ-00624"
     }

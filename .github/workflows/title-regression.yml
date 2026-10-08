@@ -16,6 +16,8 @@ on:
       - 'backend/package*.json'
       - 'database/pending/*title*.sql'
       - 'database/pending/*ip_ban*.sql'
+      - 'database/migrate.js'
+      - 'database/sqlStatements.js'
       - '.github/workflows/title-regression.yml'
   workflow_dispatch:
 permissions:

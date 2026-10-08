@@ -578,3 +578,58 @@ exercising production CLI. REQ00007 reopened (204done/17inprogress/437new), sour
 failure evidence recorded. Next: fix actual CLI lifecycle and complete fresh seed/
 migration contracts, with real PG and checksum/concurrency/rollback checks. No production
 operations, no baseline-deleting resets, no new requirement scope. Goal stays active.
+
+
+## Persistent-goal continuation: actual migration execution (2026-10-08)
+
+Previous goal turn made substantive progress: d276dbb gateway repairs and related CI
+passed,2e2dd2d documentation published. Revalidated clean worktree and active full658
+Goal; no blocker audit condition. This batch repairs the next real database setup path.
+
+Runner now resolves pg from installed backend declarations, uses a proper CLI catch
+and natural pool cleanup/exitCode, and exposes owned pool closure for shared startup.
+Transaction-held PostgreSQL advisory locking is scoped to database/schema, honors
+MIGRATION_LOCK_TIMEOUT_MS as wait limit, and is released by transaction/session end.
+All apply/rollback SQL and source-hashed history stays in one transaction; no stale
+fixed-expiry row lock or secondary missing-lock-table failure. Checksum validation
+precedes up/down; missing applied files, duplicates and invalid names cannot silently
+pass. Actual PostgreSQL lexer handles strings/dollar function bodies/nested comments;
+only top-level section markers split scripts. Legacy whole-body/trailing COMMITs stay
+under runner ownership; internal transaction controls and empty templates are rejected.
+No existing pending migration contents or checksums were changed.
+
+Shared DB startup is memoized, verifies history, optionally runs actual pending SQL
+when AUTO_MIGRATE=true and closes the migration pool. Gateway/user call this before
+business initialization and HTTP listen. Other services still need integration.
+SQL V2 sample seed gained missing evolution targets55/75/76/80, preserving chains.
+New target base stats checked against the fixed PokeMiners game-master snapshot
+8e227be44f288d34463e23bf04e9b564d3c16f79; rarity/catch/biomes are sample balance choices.
+Full original V1 DDL plus revised V2 seed succeeds in owned PostGIS15:32 species,8
+achievements,5 stops,3 gyms and no missing evolution target. This is a sample, not151
+complete species or all game feature acceptance.
+
+Evidence: Node20 npm test619 (95standalone+6actual migration parser+133battle+385Jest)
+passes. Node24 actual migration CLI/storage10 pass: native create/status/up/verify/down
+without NODE_PATH; rejection of blank SQL; durable checksums/data/functions; idempotency;
+tampered/missing/duplicate/invalid scripts; target/last/empty rollback; SQL failure rolls
+back whole batch including legacy wrappers; two processes apply once;100ms configured
+lock wait times out; killed owned CLI's exact PostgreSQL backend eventually ends and
+its lock is released; actual AUTO_MIGRATE shared startup runs once and exits naturally.
+In-flight pg_sleep may finish before client loss is detected: initial3s observation
+failed, then test was corrected to wait for authoritative exact-session termination
+(~10s fixture), not to expire/steal its lock or claim immediate recovery.
+
+Native gateway/user process scenarios both pass after migration initialization changes.
+An initial concurrent fixture run exposed uuid-ossp installed in disposable schemas;
+serial/shared-public extension ownership repaired (storageSetup.js), rerun passes.
+Business PostgreSQL/Redis/privacy/title/IP suites33 pass. Full-history gate runs actual
+V1 and seed, then all79 default pending scripts; seed passes, pending run fails missing
+items in20260609_124500. Earlier dependency/seed failures are repaired; no missing table
+faked or bad migration skipped. New migration workflow executes both tool/storage and
+full-history gate, with the final real failure retained. README and migration guide
+explain commands, lock/rollback semantics and acceptance limits. Remote results pending.
+
+Next goal turn: reconcile legacy prerequisite/table contracts through an audited
+ordering/catalog/bootstrap path, preserve applied pending file checksums, then rerun
+whole history and warmup. Complete requirements7/39/306 and remaining service scopes
+remain open. No new requirements, no merge/deploy, no production data operations.

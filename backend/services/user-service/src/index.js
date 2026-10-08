@@ -147,6 +147,7 @@ const service = new ServiceLauncher({
   
   // Service initialization
   onInitialize: async (app) => {
+    await db.initializeMigrations();
     app.locals.db = db;
     app.set('trust proxy', process.env.USER_SERVICE_TRUST_PROXY ? process.env.USER_SERVICE_TRUST_PROXY.split(',').map(value => value.trim()) : false);
     const IpBanManager = require('../../../shared/IpBanManager');

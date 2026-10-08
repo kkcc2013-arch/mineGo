@@ -119,3 +119,19 @@ CLI cannot resolve pg; diagnostic backend NODE_PATH gets as far as the moves mig
 whose species25 seed is absent. All79 pending migrations roll back together, including
 new history/lock tables. REQ-00007 reopened; next repair real CLI/fresh seeding and
 migration contracts before accepting full-schema service/warmup behavior.
+
+
+## Migration execution batch (2026-10-08)
+
+Actual CLI dependency loading, exit/cleanup, transaction-held locking, checksum
+validation and atomic apply/rollback repaired. Six production parser checks and ten
+real PostgreSQL/CLI checks pass, including concurrency and an interrupted owned process
+whose backend session is authoritatively observed to end. Gateway/user startup now
+verifies checksums and optionally applies pending SQL before listening; 619 unit and33
+business storage checks pass, both native process scenarios pass. Full V1/PostGIS and
+V2 sample seed load with valid evolution links. All79 pending history still fails at
+missing localized items catalog; a new full-history CI gate preserves that failure.
+Next: reconcile/order true migration prerequisites and conflicting table definitions
+without rewriting applied pending files, then complete full-history and warmup tests.
+Other services still require real startup and migration integration; full658 scope
+continues. This is substantive progress, not a blocking condition.

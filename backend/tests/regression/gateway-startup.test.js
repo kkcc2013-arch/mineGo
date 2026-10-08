@@ -9,6 +9,7 @@ const {Pool} = require('pg');
 const {Kafka} = require('kafkajs');
 const http = require('node:http');
 const {performance} = require('node:perf_hooks');
+const {ensureUuidExtension} = require('./storageSetup');
 
 const root=path.resolve(__dirname,'../..');
 const migration=name=>fs.readFile(path.resolve(root,'../database',name),'utf8');
@@ -49,14 +50,13 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     if(topics.length)await kafka.createTopics({waitForLeaders:true,topics});
   }finally{await kafka.disconnect();}
   const schema=`gateway_start_${crypto.randomBytes(8).toString('hex')}`;
-  const admin=new Pool({connectionString:process.env.TEST_DATABASE_URL});await admin.query(`CREATE SCHEMA ${schema}`);
+  const admin=new Pool({connectionString:process.env.TEST_DATABASE_URL});await ensureUuidExtension(admin);await admin.query(`CREATE SCHEMA ${schema}`);
   const fixture=new Pool({connectionString:process.env.TEST_DATABASE_URL,options:`-c search_path=${schema},public`});
   let user,gateway,failed;
   const player=crypto.randomUUID();const adminId=crypto.randomUUID();
   const accessKey='gateway-startup-access-only';
   try{
     const initial=await migration('migrations/V1__initial_schema.sql');
-    await fixture.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
     await fixture.query(initial.match(/CREATE TYPE team_enum[^;]*;/)[0]);
     await fixture.query(initial.match(/CREATE TABLE users \([\s\S]*?\n\);/)[0]);
     await fixture.query('INSERT INTO users(id,nickname) VALUES ($1,$2),($3,$4)',[player,'gateway-player',adminId,'gateway-admin']);

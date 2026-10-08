@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "requirements": {
     "REQ-00619-core-battle-engine-test-coverage-framework.md": {
-      "date": "2026-10-06",
+      "date": "2026-10-08",
       "status": "local_verified_ci_pending",
       "documentSha256": "fbc3f80d23d111035712af263dfcb2b34f697804712e188d207b3f2f73b4c885",
       "sourceSha256": {
@@ -11,7 +11,7 @@
         "backend/tests/battle/context.js": "4e815529a4ba1ba8d02657bc1e8798af1c481cd277e9f64e04a2ea2be595f7c3",
         "backend/tests/battle/formulas.test.js": "40300e85e1cba36f1e9994e9cc5aa2a9af4f256b4a45b83c6fa1bb2d05b745ad",
         "backend/tests/battle/scenarios.test.js": "82ee33f17c3b2eaca95592d20d75763a2f527ae5bb238a9b6e788955fb584aad",
-        "backend/package.json": "9a7146e94460373aaf06d99168beb1b8cb40162861dea5b58dfbc5221113bb8d",
+        "backend/package.json": "474f7754919d97c6ddb6ded3d9dc6a452a4e5cd194b5699f5c382fefeb4c1e00",
         ".github/workflows/ci-cd.yml": "1572b966bb2c9c4ee3f8d2de41334552e4a63878cf604113f316e5088ce75b3a"
       },
       "evidence": [
@@ -45,28 +45,37 @@
           "changedReferences": [
             "backend/package.json"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual title/privacy/IP storage suites; native gateway/user process suites; migration CLI storage",
+          "result": "passed",
+          "scope": "619 unit checks,33 business storage checks,2 native process cases and10 actual CLI/storage checks. Only changed integration references refreshed; all79 pending migration history still fails and complete requirement acceptance remains separate.",
+          "changedReferences": [
+            "backend/package.json"
+          ]
         }
       ]
     },
     "REQ-00053-user-privacy-preference-center-data-transparency.md": {
       "date": "2026-10-08",
-      "status": "partial_ci_verified",
+      "status": "partial_local_verified_ci_pending",
       "documentSha256": "9015d8979ec52a2d3f6b298b9c318db1954f2f5221106901a8823514546a7dd5",
       "sourceSha256": {
         "backend/shared/privacyPreferences.js": "28f8aebc2d5cf55c827ef1e5c597f79caaca688a88749a058dfd3afc2819311b",
         "backend/shared/auditLog.js": "5f460a3ffb941b1737ff6561d90e96a2d3aa5bca3f0bc8c5351293e2d9227112",
         "backend/services/user-service/src/routes/privacy.js": "b85dbeb358a76c6b8bcd163f86f4ab9bb8f576f0fd6008615b2022e4ddb9e487",
-        "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
+        "backend/services/user-service/src/index.js": "f6786a588187634bcd7dfeca27a6301682ace0f6739dc430a7350841404f2c8f",
         "backend/gateway/src/routes/privacyProxy.js": "b692098d7858fc7069cd5a557f941f164ec9f2d00667623a1b51ee665a19a483",
-        "backend/gateway/src/index.js": "254589fa53de4441503e156368f35f416d66f8a06f0a4d7271d5bac5a1681022",
+        "backend/gateway/src/index.js": "de952d7749eb29f8852b933c5620ab77bb02c86922bde0b039507c01e0522e19",
         "backend/tests/unit/privacy-preferences.test.js": "71a1470f27d923319bfbb73ba9f7b6d77c7f2544085de0d1f28614eca5b9d0b0",
         "backend/tests/regression/privacy-storage.test.js": "ef3cbe968d1bcd6dc22e08622565427f1531f92ece53188881b0614dd3ad4603",
         "backend/tests/regression/privacy.jest.config.json": "cd80c47f4be46595f151bdf850571e7e0bd599d5bd2e9897550999b031b7e490",
-        "backend/package.json": "9a7146e94460373aaf06d99168beb1b8cb40162861dea5b58dfbc5221113bb8d",
+        "backend/package.json": "474f7754919d97c6ddb6ded3d9dc6a452a4e5cd194b5699f5c382fefeb4c1e00",
         ".github/workflows/privacy-regression.yml": "b730aa2c9c5c6d6379f7047ed8c86f9f5a6781c1d0c619989482478e9031b79a",
         "database/pending/20261006_150000__privacy_preference_defaults_and_policy_fields.sql": "3d21e729219b771c0b94f8474e11e6adcc222b0fbfc064beeddaed3d08849c78",
         "backend/shared/logger.js": "4fd8f577c9db1860aa011216eadd9523a46a2214a80de1e0c44ff9310fb5e457",
-        "backend/tests/regression/gateway-startup.test.js": "be854f89753f98e6950926287653f2d8fa5bf64ea66cc55795c64ba0db7dc83a"
+        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018"
       },
       "evidence": [
         {
@@ -157,13 +166,25 @@
           "result": "related_ci_passed",
           "scope": "Main437, dependency243, privacy9 and title/storage/IP/user/native-gateway6 pass. No full requirement acceptance; other contract/performance/security/integration/E2E gates remain open.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37716906946"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual title/privacy/IP storage suites; native gateway/user process suites; migration CLI storage",
+          "result": "passed",
+          "scope": "619 unit checks,33 business storage checks,2 native process cases and10 actual CLI/storage checks. Only changed integration references refreshed; all79 pending migration history still fails and complete requirement acceptance remains separate.",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/gateway/src/index.js",
+            "backend/package.json",
+            "backend/tests/regression/gateway-startup.test.js"
+          ]
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
     },
     "REQ-00683-console-logging-migration-to-structured-logger.md": {
-      "date": "2026-10-06",
-      "status": "partial_ci_verified",
+      "date": "2026-10-08",
+      "status": "partial_local_verified_ci_pending",
       "documentSha256": "d725714839a4dcd1b92df697d7f9f2c4ff526b8b3890528511472252b3ef104a",
       "sourceSha256": {
         "backend/shared/logger.js": "4fd8f577c9db1860aa011216eadd9523a46a2214a80de1e0c44ff9310fb5e457",
@@ -173,7 +194,7 @@
         "backend/tests/unit/logging-migration.test.js": "880a3f2ce8660e66a951cf8ac73b617e1396ce765fb92e2d135e5bdce711dde3",
         "backend/tests/performance/logging-benchmark.js": "a9fb82d16c779c4331e6aa2e8b5b08ee081def225de421e0e67ec3c660fef255",
         "backend/tests/regression/logging.jest.config.json": "45932a32192ebfadc2c131a9b8ba6877d8b4fbae7616fe9d98958a63a57d60b2",
-        "backend/package.json": "9a7146e94460373aaf06d99168beb1b8cb40162861dea5b58dfbc5221113bb8d",
+        "backend/package.json": "474f7754919d97c6ddb6ded3d9dc6a452a4e5cd194b5699f5c382fefeb4c1e00",
         ".github/workflows/ci-cd.yml": "1572b966bb2c9c4ee3f8d2de41334552e4a63878cf604113f316e5088ce75b3a"
       },
       "evidence": [
@@ -242,29 +263,38 @@
           "commit": "4afcce9048927727095dcadfd47ec2e3d25a9dc3",
           "scope": "Main, dependency, privacy and title/storage/process regression workflows pass; partial evidence only. Contract/performance/legacy integration and complete requirement acceptance remain open.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37623349256"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual title/privacy/IP storage suites; native gateway/user process suites; migration CLI storage",
+          "result": "passed",
+          "scope": "619 unit checks,33 business storage checks,2 native process cases and10 actual CLI/storage checks. Only changed integration references refreshed; all79 pending migration history still fails and complete requirement acceptance remains separate.",
+          "changedReferences": [
+            "backend/package.json"
+          ]
         }
       ],
       "remaining": "The 5% overhead target, production output/adapters and complete legacy integration/E2E acceptance are not verified"
     },
     "REQ-00159-service-health-self-healing-and-auto-recovery-system.md": {
       "date": "2026-10-08",
-      "status": "partial_ci_verified",
+      "status": "partial_local_verified_ci_pending",
       "documentSha256": "702f723e90c498db5a6d23b2e986b96c749e92229580af3542fc6972344f5f4d",
       "sourceSha256": {
         "backend/shared/ServiceLauncher.js": "7beaabc6f1ed2f164e4925c25156fd2c358a492516fa8ed1d742d235f9d048b7",
         "backend/shared/HealthChecker.js": "34983df1a723fc4bb4608f96e4fd98b75f4daca8158d075a78c4261f3860fbef",
-        "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
+        "backend/services/user-service/src/index.js": "f6786a588187634bcd7dfeca27a6301682ace0f6739dc430a7350841404f2c8f",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "0da04981dd8bb4325ba1cb31ff5ced39b94a305fb777c4566782bbc50b01e12a",
         "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/services/user-service/src/handlers/notificationHandler.js": "3622084204873ea50632c7bbf957f14e2da7f3a905b7304fe8ba8e08f1e3f7d0",
-        "backend/tests/regression/user-startup.test.js": "f33606ee3dce75efb28c6092c36f30dddf2e1dcaf282bcb936899bc19b98e3cd",
-        "backend/gateway/src/index.js": "254589fa53de4441503e156368f35f416d66f8a06f0a4d7271d5bac5a1681022",
+        "backend/tests/regression/user-startup.test.js": "f6f425d05632c4a04858f0cef4c2be5ef0ad49a73f30c2d9b6d28bf2753533a6",
+        "backend/gateway/src/index.js": "de952d7749eb29f8852b933c5620ab77bb02c86922bde0b039507c01e0522e19",
         "backend/gateway/src/routes/businessEvents.js": "c7487f18ddfa60587b8f318cf1b536b08d037d8c5a57d93545b473d250c918b7",
         "backend/shared/cache.js": "44d94c1e12266e6fae9ebac49f9d1279a110f32798e0252416a8b91b386f6b20",
         "backend/shared/redis.js": "087d67b984d22a1345097105f10513df84fa874c395010167964e6b3dcc7ea4b",
-        "backend/tests/regression/gateway-startup.test.js": "be854f89753f98e6950926287653f2d8fa5bf64ea66cc55795c64ba0db7dc83a",
-        ".github/workflows/title-regression.yml": "0c388da8c759d437d6c7a1ed1931d81a3aceb622be47f007df3ea1ef97cc778c"
+        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
+        ".github/workflows/title-regression.yml": "e6384ccd3575168d4f6be163c7b0f68346680b16ef0f209ef95102c5974fbb93"
       },
       "evidence": [
         {
@@ -357,28 +387,41 @@
           "result": "related_ci_passed",
           "scope": "Main437, dependency243, privacy9 and title/storage/IP/user/native-gateway6 pass. No full requirement acceptance; other contract/performance/security/integration/E2E gates remain open.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37716906946"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual title/privacy/IP storage suites; native gateway/user process suites; migration CLI storage",
+          "result": "passed",
+          "scope": "619 unit checks,33 business storage checks,2 native process cases and10 actual CLI/storage checks. Only changed integration references refreshed; all79 pending migration history still fails and complete requirement acceptance remains separate.",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            ".github/workflows/title-regression.yml"
+          ]
         }
       ]
     },
     "REQ-00682-service-dependency-consolidation-and-initialization-refactoring.md": {
       "date": "2026-10-08",
-      "status": "partial_ci_verified",
+      "status": "partial_local_verified_ci_pending",
       "documentSha256": "47013c4163012c1b6ea9d55b496c004b1e900b1b980e4192514dc78ee8b87490",
       "sourceSha256": {
         "backend/shared/ServiceLauncher.js": "7beaabc6f1ed2f164e4925c25156fd2c358a492516fa8ed1d742d235f9d048b7",
         "backend/shared/HealthChecker.js": "34983df1a723fc4bb4608f96e4fd98b75f4daca8158d075a78c4261f3860fbef",
-        "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
+        "backend/services/user-service/src/index.js": "f6786a588187634bcd7dfeca27a6301682ace0f6739dc430a7350841404f2c8f",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "0da04981dd8bb4325ba1cb31ff5ced39b94a305fb777c4566782bbc50b01e12a",
         "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/services/user-service/src/handlers/notificationHandler.js": "3622084204873ea50632c7bbf957f14e2da7f3a905b7304fe8ba8e08f1e3f7d0",
-        "backend/tests/regression/user-startup.test.js": "f33606ee3dce75efb28c6092c36f30dddf2e1dcaf282bcb936899bc19b98e3cd",
-        "backend/gateway/src/index.js": "254589fa53de4441503e156368f35f416d66f8a06f0a4d7271d5bac5a1681022",
+        "backend/tests/regression/user-startup.test.js": "f6f425d05632c4a04858f0cef4c2be5ef0ad49a73f30c2d9b6d28bf2753533a6",
+        "backend/gateway/src/index.js": "de952d7749eb29f8852b933c5620ab77bb02c86922bde0b039507c01e0522e19",
         "backend/gateway/src/routes/businessEvents.js": "c7487f18ddfa60587b8f318cf1b536b08d037d8c5a57d93545b473d250c918b7",
         "backend/shared/cache.js": "44d94c1e12266e6fae9ebac49f9d1279a110f32798e0252416a8b91b386f6b20",
         "backend/shared/redis.js": "087d67b984d22a1345097105f10513df84fa874c395010167964e6b3dcc7ea4b",
-        "backend/tests/regression/gateway-startup.test.js": "be854f89753f98e6950926287653f2d8fa5bf64ea66cc55795c64ba0db7dc83a",
-        ".github/workflows/title-regression.yml": "0c388da8c759d437d6c7a1ed1931d81a3aceb622be47f007df3ea1ef97cc778c"
+        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
+        ".github/workflows/title-regression.yml": "e6384ccd3575168d4f6be163c7b0f68346680b16ef0f209ef95102c5974fbb93"
       },
       "evidence": [
         {
@@ -471,18 +514,31 @@
           "result": "related_ci_passed",
           "scope": "Main437, dependency243, privacy9 and title/storage/IP/user/native-gateway6 pass. No full requirement acceptance; other contract/performance/security/integration/E2E gates remain open.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37716906946"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual title/privacy/IP storage suites; native gateway/user process suites; migration CLI storage",
+          "result": "passed",
+          "scope": "619 unit checks,33 business storage checks,2 native process cases and10 actual CLI/storage checks. Only changed integration references refreshed; all79 pending migration history still fails and complete requirement acceptance remains separate.",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            ".github/workflows/title-regression.yml"
+          ]
         }
       ]
     },
     "REQ-00106-player-title-system-and-personalization.md": {
       "date": "2026-10-08",
-      "status": "partial_ci_verified",
+      "status": "partial_local_verified_ci_pending",
       "documentSha256": "69570b98ac34ddcd7089a56badf3d1c8dbb5ed91d4437062f8293984734bd7af",
       "sourceSha256": {
         "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
         "backend/services/user-service/src/routes/titles.js": "8e7bede513639c93b07ff315cdd19ac259982e7f195fb32f69ac7910d970eb41",
         "backend/services/user-service/src/routes/timezone.js": "7a8f7bc0710190390ca75f478bad637d0aa550e60170f4276b12565bfd648f77",
-        "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
+        "backend/services/user-service/src/index.js": "f6786a588187634bcd7dfeca27a6301682ace0f6739dc430a7350841404f2c8f",
         "backend/services/user-service/src/handlers/notificationHandler.js": "3622084204873ea50632c7bbf957f14e2da7f3a905b7304fe8ba8e08f1e3f7d0",
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/tests/unit/title-service.test.js": "dac59417c7f2932704d8d2c4e4b76d867a95a8cc3a6306a8544092c44420faed",
@@ -490,12 +546,12 @@
         "backend/tests/unit/eventbus-lifecycle.test.js": "354b2745759db7ce844959957d1b863410f08d68f1265183e55891d3e3fd6736",
         "backend/tests/unit/notification-initialization.test.js": "84b5d4ce41afbf9b531d95fa84fbceef57e00c14cd9597f42de6799009a46b3c",
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
-        "backend/tests/regression/user-startup.test.js": "f33606ee3dce75efb28c6092c36f30dddf2e1dcaf282bcb936899bc19b98e3cd",
+        "backend/tests/regression/user-startup.test.js": "f6f425d05632c4a04858f0cef4c2be5ef0ad49a73f30c2d9b6d28bf2753533a6",
         "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
-        "backend/package.json": "9a7146e94460373aaf06d99168beb1b8cb40162861dea5b58dfbc5221113bb8d",
+        "backend/package.json": "474f7754919d97c6ddb6ded3d9dc6a452a4e5cd194b5699f5c382fefeb4c1e00",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
-        ".github/workflows/title-regression.yml": "0c388da8c759d437d6c7a1ed1931d81a3aceb622be47f007df3ea1ef97cc778c",
-        "backend/tests/regression/gateway-startup.test.js": "be854f89753f98e6950926287653f2d8fa5bf64ea66cc55795c64ba0db7dc83a"
+        ".github/workflows/title-regression.yml": "e6384ccd3575168d4f6be163c7b0f68346680b16ef0f209ef95102c5974fbb93",
+        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018"
       },
       "evidence": [
         {
@@ -594,18 +650,31 @@
           "result": "related_ci_passed",
           "scope": "Main437, dependency243, privacy9 and title/storage/IP/user/native-gateway6 pass. No full requirement acceptance; other contract/performance/security/integration/E2E gates remain open.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37716906946"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual title/privacy/IP storage suites; native gateway/user process suites; migration CLI storage",
+          "result": "passed",
+          "scope": "619 unit checks,33 business storage checks,2 native process cases and10 actual CLI/storage checks. Only changed integration references refreshed; all79 pending migration history still fails and complete requirement acceptance remains separate.",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/package.json",
+            ".github/workflows/title-regression.yml",
+            "backend/tests/regression/gateway-startup.test.js"
+          ]
         }
       ]
     },
     "REQ-00612-global-timezone-scheduler.md": {
       "date": "2026-10-08",
-      "status": "partial_ci_verified",
+      "status": "partial_local_verified_ci_pending",
       "documentSha256": "acb67d84c7ef83a0335a5874fbf4809ff95c8239c95cbac5f00a409a48223dd2",
       "sourceSha256": {
         "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
         "backend/services/user-service/src/routes/titles.js": "8e7bede513639c93b07ff315cdd19ac259982e7f195fb32f69ac7910d970eb41",
         "backend/services/user-service/src/routes/timezone.js": "7a8f7bc0710190390ca75f478bad637d0aa550e60170f4276b12565bfd648f77",
-        "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
+        "backend/services/user-service/src/index.js": "f6786a588187634bcd7dfeca27a6301682ace0f6739dc430a7350841404f2c8f",
         "backend/services/user-service/src/handlers/notificationHandler.js": "3622084204873ea50632c7bbf957f14e2da7f3a905b7304fe8ba8e08f1e3f7d0",
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/tests/unit/title-service.test.js": "dac59417c7f2932704d8d2c4e4b76d867a95a8cc3a6306a8544092c44420faed",
@@ -613,12 +682,12 @@
         "backend/tests/unit/eventbus-lifecycle.test.js": "354b2745759db7ce844959957d1b863410f08d68f1265183e55891d3e3fd6736",
         "backend/tests/unit/notification-initialization.test.js": "84b5d4ce41afbf9b531d95fa84fbceef57e00c14cd9597f42de6799009a46b3c",
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
-        "backend/tests/regression/user-startup.test.js": "f33606ee3dce75efb28c6092c36f30dddf2e1dcaf282bcb936899bc19b98e3cd",
+        "backend/tests/regression/user-startup.test.js": "f6f425d05632c4a04858f0cef4c2be5ef0ad49a73f30c2d9b6d28bf2753533a6",
         "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
-        "backend/package.json": "9a7146e94460373aaf06d99168beb1b8cb40162861dea5b58dfbc5221113bb8d",
+        "backend/package.json": "474f7754919d97c6ddb6ded3d9dc6a452a4e5cd194b5699f5c382fefeb4c1e00",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
-        ".github/workflows/title-regression.yml": "0c388da8c759d437d6c7a1ed1931d81a3aceb622be47f007df3ea1ef97cc778c",
-        "backend/tests/regression/gateway-startup.test.js": "be854f89753f98e6950926287653f2d8fa5bf64ea66cc55795c64ba0db7dc83a"
+        ".github/workflows/title-regression.yml": "e6384ccd3575168d4f6be163c7b0f68346680b16ef0f209ef95102c5974fbb93",
+        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018"
       },
       "evidence": [
         {
@@ -717,18 +786,31 @@
           "result": "related_ci_passed",
           "scope": "Main437, dependency243, privacy9 and title/storage/IP/user/native-gateway6 pass. No full requirement acceptance; other contract/performance/security/integration/E2E gates remain open.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37716906946"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual title/privacy/IP storage suites; native gateway/user process suites; migration CLI storage",
+          "result": "passed",
+          "scope": "619 unit checks,33 business storage checks,2 native process cases and10 actual CLI/storage checks. Only changed integration references refreshed; all79 pending migration history still fails and complete requirement acceptance remains separate.",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/package.json",
+            ".github/workflows/title-regression.yml",
+            "backend/tests/regression/gateway-startup.test.js"
+          ]
         }
       ]
     },
     "REQ-00026-in-game-push-notification-system.md": {
       "date": "2026-10-08",
-      "status": "partial_ci_verified",
+      "status": "partial_local_verified_ci_pending",
       "documentSha256": "4769b4d31a9e97a21db229e0a8f358894622067fdc2b4ba9558933d9e107306a",
       "sourceSha256": {
         "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
         "backend/services/user-service/src/routes/titles.js": "8e7bede513639c93b07ff315cdd19ac259982e7f195fb32f69ac7910d970eb41",
         "backend/services/user-service/src/routes/timezone.js": "7a8f7bc0710190390ca75f478bad637d0aa550e60170f4276b12565bfd648f77",
-        "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
+        "backend/services/user-service/src/index.js": "f6786a588187634bcd7dfeca27a6301682ace0f6739dc430a7350841404f2c8f",
         "backend/services/user-service/src/handlers/notificationHandler.js": "3622084204873ea50632c7bbf957f14e2da7f3a905b7304fe8ba8e08f1e3f7d0",
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/tests/unit/title-service.test.js": "dac59417c7f2932704d8d2c4e4b76d867a95a8cc3a6306a8544092c44420faed",
@@ -736,12 +818,12 @@
         "backend/tests/unit/eventbus-lifecycle.test.js": "354b2745759db7ce844959957d1b863410f08d68f1265183e55891d3e3fd6736",
         "backend/tests/unit/notification-initialization.test.js": "84b5d4ce41afbf9b531d95fa84fbceef57e00c14cd9597f42de6799009a46b3c",
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
-        "backend/tests/regression/user-startup.test.js": "f33606ee3dce75efb28c6092c36f30dddf2e1dcaf282bcb936899bc19b98e3cd",
+        "backend/tests/regression/user-startup.test.js": "f6f425d05632c4a04858f0cef4c2be5ef0ad49a73f30c2d9b6d28bf2753533a6",
         "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
-        "backend/package.json": "9a7146e94460373aaf06d99168beb1b8cb40162861dea5b58dfbc5221113bb8d",
+        "backend/package.json": "474f7754919d97c6ddb6ded3d9dc6a452a4e5cd194b5699f5c382fefeb4c1e00",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
-        ".github/workflows/title-regression.yml": "0c388da8c759d437d6c7a1ed1931d81a3aceb622be47f007df3ea1ef97cc778c",
-        "backend/tests/regression/gateway-startup.test.js": "be854f89753f98e6950926287653f2d8fa5bf64ea66cc55795c64ba0db7dc83a"
+        ".github/workflows/title-regression.yml": "e6384ccd3575168d4f6be163c7b0f68346680b16ef0f209ef95102c5974fbb93",
+        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018"
       },
       "evidence": [
         {
@@ -840,28 +922,41 @@
           "result": "related_ci_passed",
           "scope": "Main437, dependency243, privacy9 and title/storage/IP/user/native-gateway6 pass. No full requirement acceptance; other contract/performance/security/integration/E2E gates remain open.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37716906946"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual title/privacy/IP storage suites; native gateway/user process suites; migration CLI storage",
+          "result": "passed",
+          "scope": "619 unit checks,33 business storage checks,2 native process cases and10 actual CLI/storage checks. Only changed integration references refreshed; all79 pending migration history still fails and complete requirement acceptance remains separate.",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/package.json",
+            ".github/workflows/title-regression.yml",
+            "backend/tests/regression/gateway-startup.test.js"
+          ]
         }
       ]
     },
     "REQ-00075-ip-blacklist-and-auto-ban-system.md": {
       "date": "2026-10-08",
-      "status": "partial_ci_verified",
+      "status": "partial_local_verified_ci_pending",
       "documentSha256": "5f0f24eee768a901be3d6cb06e4e2907e72dca7e4db43398fe8da7e695677a8e",
       "sourceSha256": {
-        "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
+        "backend/services/user-service/src/index.js": "f6786a588187634bcd7dfeca27a6301682ace0f6739dc430a7350841404f2c8f",
         "backend/services/user-service/src/routes/ipAppeal.js": "32bc089a25a51e5ef015eebdd4440534365b93873a53c5fcd06ad13d13c718c4",
         "backend/shared/IpBanManager.js": "8baf542bcfc6d35106433e07dd0eee25e005ad48550ca04e92ec674af043ce34",
         "backend/shared/clientIp.js": "5dc3dfaddec04d912179b0bfa8c782d405f386a23c72373add3988b873153700",
-        "backend/gateway/src/index.js": "254589fa53de4441503e156368f35f416d66f8a06f0a4d7271d5bac5a1681022",
+        "backend/gateway/src/index.js": "de952d7749eb29f8852b933c5620ab77bb02c86922bde0b039507c01e0522e19",
         "backend/gateway/src/middleware/ipBan.js": "be628522d3b171b9dae46aa8862e985ea9681b5ba381e6f9f28f7c01462ac6b9",
         "backend/gateway/src/routes/ipAppealProxy.js": "4fa6f1dc2f23739aa4274dc9a0fa9ec9f21958e289cbbe322168481105001a3d",
         "backend/tests/unit/ip-appeal.test.js": "7aa02dc701586d2922d4ba958d72e3a806e8c8b60c9c98db14246f225b101c18",
         "backend/tests/regression/ip-appeal-storage.test.js": "36e48b65328b864138743ea61aa7b124c99bc608e7316d7baf8ba6603cc292fe",
-        "backend/tests/regression/user-startup.test.js": "f33606ee3dce75efb28c6092c36f30dddf2e1dcaf282bcb936899bc19b98e3cd",
+        "backend/tests/regression/user-startup.test.js": "f6f425d05632c4a04858f0cef4c2be5ef0ad49a73f30c2d9b6d28bf2753533a6",
         "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
         "database/pending/20261008_100000__ip_ban_index_compatibility.sql": "574d3f082b2265bfe5b93d6066b6d62dad4ca1da00bd91e34dc7a4f964f548ae",
-        ".github/workflows/title-regression.yml": "0c388da8c759d437d6c7a1ed1931d81a3aceb622be47f007df3ea1ef97cc778c",
-        "backend/tests/regression/gateway-startup.test.js": "be854f89753f98e6950926287653f2d8fa5bf64ea66cc55795c64ba0db7dc83a"
+        ".github/workflows/title-regression.yml": "e6384ccd3575168d4f6be163c7b0f68346680b16ef0f209ef95102c5974fbb93",
+        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018"
       },
       "evidence": [
         {
@@ -916,28 +1011,41 @@
           "result": "related_ci_passed",
           "scope": "Main437, dependency243, privacy9 and title/storage/IP/user/native-gateway6 pass. No full requirement acceptance; other contract/performance/security/integration/E2E gates remain open.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37716906946"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual title/privacy/IP storage suites; native gateway/user process suites; migration CLI storage",
+          "result": "passed",
+          "scope": "619 unit checks,33 business storage checks,2 native process cases and10 actual CLI/storage checks. Only changed integration references refreshed; all79 pending migration history still fails and complete requirement acceptance remains separate.",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            ".github/workflows/title-regression.yml",
+            "backend/tests/regression/gateway-startup.test.js"
+          ]
         }
       ]
     },
     "REQ-00149-user-service-ipAppeal-route-mounting.md": {
       "date": "2026-10-08",
-      "status": "partial_ci_verified",
+      "status": "partial_local_verified_ci_pending",
       "documentSha256": "1908c2353ef4f102148e015a49a26726f793d9b6daf1371ec6fb018f3f5f0bfb",
       "sourceSha256": {
-        "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
+        "backend/services/user-service/src/index.js": "f6786a588187634bcd7dfeca27a6301682ace0f6739dc430a7350841404f2c8f",
         "backend/services/user-service/src/routes/ipAppeal.js": "32bc089a25a51e5ef015eebdd4440534365b93873a53c5fcd06ad13d13c718c4",
         "backend/shared/IpBanManager.js": "8baf542bcfc6d35106433e07dd0eee25e005ad48550ca04e92ec674af043ce34",
         "backend/shared/clientIp.js": "5dc3dfaddec04d912179b0bfa8c782d405f386a23c72373add3988b873153700",
-        "backend/gateway/src/index.js": "254589fa53de4441503e156368f35f416d66f8a06f0a4d7271d5bac5a1681022",
+        "backend/gateway/src/index.js": "de952d7749eb29f8852b933c5620ab77bb02c86922bde0b039507c01e0522e19",
         "backend/gateway/src/middleware/ipBan.js": "be628522d3b171b9dae46aa8862e985ea9681b5ba381e6f9f28f7c01462ac6b9",
         "backend/gateway/src/routes/ipAppealProxy.js": "4fa6f1dc2f23739aa4274dc9a0fa9ec9f21958e289cbbe322168481105001a3d",
         "backend/tests/unit/ip-appeal.test.js": "7aa02dc701586d2922d4ba958d72e3a806e8c8b60c9c98db14246f225b101c18",
         "backend/tests/regression/ip-appeal-storage.test.js": "36e48b65328b864138743ea61aa7b124c99bc608e7316d7baf8ba6603cc292fe",
-        "backend/tests/regression/user-startup.test.js": "f33606ee3dce75efb28c6092c36f30dddf2e1dcaf282bcb936899bc19b98e3cd",
+        "backend/tests/regression/user-startup.test.js": "f6f425d05632c4a04858f0cef4c2be5ef0ad49a73f30c2d9b6d28bf2753533a6",
         "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
         "database/pending/20261008_100000__ip_ban_index_compatibility.sql": "574d3f082b2265bfe5b93d6066b6d62dad4ca1da00bd91e34dc7a4f964f548ae",
-        ".github/workflows/title-regression.yml": "0c388da8c759d437d6c7a1ed1931d81a3aceb622be47f007df3ea1ef97cc778c",
-        "backend/tests/regression/gateway-startup.test.js": "be854f89753f98e6950926287653f2d8fa5bf64ea66cc55795c64ba0db7dc83a"
+        ".github/workflows/title-regression.yml": "e6384ccd3575168d4f6be163c7b0f68346680b16ef0f209ef95102c5974fbb93",
+        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018"
       },
       "evidence": [
         {
@@ -992,21 +1100,34 @@
           "result": "related_ci_passed",
           "scope": "Main437, dependency243, privacy9 and title/storage/IP/user/native-gateway6 pass. No full requirement acceptance; other contract/performance/security/integration/E2E gates remain open.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37716906946"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual title/privacy/IP storage suites; native gateway/user process suites; migration CLI storage",
+          "result": "passed",
+          "scope": "619 unit checks,33 business storage checks,2 native process cases and10 actual CLI/storage checks. Only changed integration references refreshed; all79 pending migration history still fails and complete requirement acceptance remains separate.",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            ".github/workflows/title-regression.yml",
+            "backend/tests/regression/gateway-startup.test.js"
+          ]
         }
       ]
     },
     "REQ-00039-hot-data-cache-warmup-system.md": {
       "date": "2026-10-08",
-      "status": "partial_ci_verified",
+      "status": "partial_local_verified_ci_pending",
       "documentSha256": "b6be313ab0b1611e495be4a8a86eee54210caaa359f0b2dd978c097f556fa696",
       "sourceSha256": {
-        "backend/gateway/src/index.js": "254589fa53de4441503e156368f35f416d66f8a06f0a4d7271d5bac5a1681022",
+        "backend/gateway/src/index.js": "de952d7749eb29f8852b933c5620ab77bb02c86922bde0b039507c01e0522e19",
         "backend/gateway/src/routes/businessEvents.js": "c7487f18ddfa60587b8f318cf1b536b08d037d8c5a57d93545b473d250c918b7",
         "backend/shared/ServiceLauncher.js": "7beaabc6f1ed2f164e4925c25156fd2c358a492516fa8ed1d742d235f9d048b7",
         "backend/shared/cache.js": "44d94c1e12266e6fae9ebac49f9d1279a110f32798e0252416a8b91b386f6b20",
         "backend/shared/redis.js": "087d67b984d22a1345097105f10513df84fa874c395010167964e6b3dcc7ea4b",
-        "backend/tests/regression/gateway-startup.test.js": "be854f89753f98e6950926287653f2d8fa5bf64ea66cc55795c64ba0db7dc83a",
-        ".github/workflows/title-regression.yml": "0c388da8c759d437d6c7a1ed1931d81a3aceb622be47f007df3ea1ef97cc778c"
+        "backend/tests/regression/gateway-startup.test.js": "db24983c57428e4e6a1e8afceeb568c377aefcb92aaba726c940d6faddfa9018",
+        ".github/workflows/title-regression.yml": "e6384ccd3575168d4f6be163c7b0f68346680b16ef0f209ef95102c5974fbb93"
       },
       "evidence": [
         {
@@ -1022,19 +1143,41 @@
           "result": "related_ci_passed",
           "scope": "Main437, dependency243, privacy9 and title/storage/IP/user/native-gateway6 pass. No full requirement acceptance; other contract/performance/security/integration/E2E gates remain open.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37716906946"
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual title/privacy/IP storage suites; native gateway/user process suites; migration CLI storage",
+          "result": "passed",
+          "scope": "619 unit checks,33 business storage checks,2 native process cases and10 actual CLI/storage checks. Only changed integration references refreshed; all79 pending migration history still fails and complete requirement acceptance remains separate.",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            ".github/workflows/title-regression.yml"
+          ]
         }
       ]
     },
     "REQ-00007-database-migration-management.md": {
       "date": "2026-10-08",
-      "status": "failed_verification",
-      "documentSha256": "f574e60aac21c47904b0d492178b5fe8aadc8a0290fc403ac5faa071468d27e8",
+      "status": "partial_verified_full_history_failed",
+      "documentSha256": "d3e42e47e26b08c43a622a8b31988dfa10a47c1ed12c6e015d27b2367b02a5c1",
       "sourceSha256": {
-        "database/migrate.js": "676779ad96c27320216152987552c7d853b0124ff367dce3c635d68f25ece828",
+        "database/migrate.js": "c7d02b4293914897c311cb30376581b803c916b508477206e605415f07d57edb",
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
-        "database/seeds/V2__seed_data.sql": "94f27f554af85c15f7bc39dad7e8a51797798f796813f91afe9d0756b1baab65",
+        "database/seeds/V2__seed_data.sql": "7c85c2d07999a4c8e5bad2d07324456b101a909c0e77fb73f0ff2d31879ed355",
         "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
-        "backend/tests/unit/migrate.test.js": "0f2a8c0d157d18ef957f530ce0d1357cfc94d3d7536ef8fe64798710afb87ac1"
+        "backend/tests/unit/migrate.test.js": "61e3d5aec43b626644d75a2f531d2758b0d0d417a9314e08bb3faf116c7fe9ec",
+        "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
+        "database/pending/20260609_124500__add_item_inventory_system.sql": "99c96061defc0b502f87147c491889266f53b9e5c8ae8cfbdcdda6892c09969e",
+        "backend/shared/db.js": "b83c8fa862e66ea7249aedb4fb256a3e0987ff0bba50117a317802b0833ed3b1",
+        "backend/services/user-service/src/index.js": "f6786a588187634bcd7dfeca27a6301682ace0f6739dc430a7350841404f2c8f",
+        "backend/gateway/src/index.js": "de952d7749eb29f8852b933c5620ab77bb02c86922bde0b039507c01e0522e19",
+        "backend/tests/unit/migration-runner.test.js": "0bf1fa1e60e4e2a7e4770d86c91dc6f32e7fee6645439bc5b8997ddbfbbd1762",
+        "backend/tests/regression/migration-storage.test.js": "c459b8ca21f6decc883cf8a1e6f3e35d4e13c1db828a4937eec3e9f84d11639f",
+        "backend/tests/regression/database-bootstrap.test.js": "89637e1fe6009987315d64b6fbbda0ddce88462e716082f7f3f69371f7cfe3aa",
+        "backend/tests/regression/storageSetup.js": "1a67a27f674d7ef022e266da1ebbd5146870cdc290ebd64a51a799f5843ceaee",
+        ".github/workflows/migration-regression.yml": "a6e30bf8c17e28e9e45d384d3823574d73c17e7a49f5973340f048a6246e512a",
+        "docs/DATABASE-MIGRATIONS.md": "8b6d18fe534b414541d37ca0556c5da0b0139ebacd650ae8ec0c138aefbf7bf8"
       },
       "evidence": [
         {
@@ -1051,8 +1194,41 @@
           "command": "NODE_PATH=<installed backend dependencies> node database/migrate.js up",
           "result": "failed",
           "scope": "79 pending files discovered; moves migration fails missing species25 after seed failure. All migration changes/history roll back. Lock-release query reports already rolled-back table missing. Diagnostic NODE_PATH is not a fix."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "npm test; actual title/privacy/IP storage suites; native gateway/user process suites; migration CLI storage",
+          "result": "passed",
+          "scope": "619 unit checks,33 business storage checks,2 native process cases and10 actual CLI/storage checks. Only changed integration references refreshed; all79 pending migration history still fails and complete requirement acceptance remains separate.",
+          "changedReferences": [
+            "database/migrate.js",
+            "database/seeds/V2__seed_data.sql",
+            "backend/tests/unit/migrate.test.js"
+          ]
+        },
+        {
+          "command": "node --test backend/tests/unit/migration-runner.test.js",
+          "runtime": "Node.js20.20.2",
+          "result": "passed",
+          "tests": 6,
+          "scope": "Actual exported production parser/identity/checksum functions and transaction ownership."
+        },
+        {
+          "command": "TEST_DATABASE_URL=<isolated PostGIS> node --test backend/tests/regression/migration-storage.test.js",
+          "runtime": "Node.js24.19.0",
+          "result": "passed",
+          "tests": 10,
+          "scope": "Actual CLI with explicit temporary migration directory and real PostgreSQL; not all79 production migrations."
+        },
+        {
+          "command": "TEST_DATABASE_URL=<isolated PostGIS> node --test backend/tests/regression/database-bootstrap.test.js",
+          "result": "failed",
+          "passed": 1,
+          "failed": 1,
+          "scope": "Full V1 and V2 sample seed pass, but full79 pending history fails because inventory assumes missing items catalog. This failure is retained as a CI gate."
         }
-      ]
+      ],
+      "remaining": "Full pending/external migration catalog and dependencies, whole-history upgrades/rollback, all-service startup integration and complete CI acceptance remain unproven."
     }
   }
 }

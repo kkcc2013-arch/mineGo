@@ -11,6 +11,7 @@ const {performance} = require('node:perf_hooks');
 const http = require('node:http');
 const express = require('express');
 const {mountIpAppealProxy} = require('../../gateway/src/routes/ipAppealProxy');
+const {ensureUuidExtension} = require('./storageSetup');
 
 test('real user-service entry point starts against isolated PostgreSQL, Redis and Kafka and shuts down', {timeout:90000}, async () => {
   for(const variable of ['TEST_DATABASE_URL','TEST_REDIS_URL','TEST_KAFKA_BROKERS'])assert.ok(process.env[variable],`${variable} is required`);
@@ -25,6 +26,7 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
   } finally { await kafkaAdmin.disconnect(); }
   const schema=`user_start_${crypto.randomBytes(8).toString('hex')}`;
   const admin=new Pool({connectionString:process.env.TEST_DATABASE_URL});
+  await ensureUuidExtension(admin);
   await admin.query(`CREATE SCHEMA ${schema}`);
   const fixture=new Pool({connectionString:process.env.TEST_DATABASE_URL,options:`-c search_path=${schema},public`});
   let child;
@@ -33,7 +35,6 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
   const userId=crypto.randomUUID();
   try{
     const initial=await fs.readFile(path.resolve(__dirname,'../../../database/migrations/V1__initial_schema.sql'),'utf8');
-    await fixture.query('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"');
     await fixture.query(initial.match(/CREATE TYPE team_enum[^;]*;/)[0]);
     await fixture.query(initial.match(/CREATE TABLE users \([\s\S]*?\n\);/)[0]);
     await fixture.query('INSERT INTO users(id,nickname) VALUES ($1,$2)',[userId,'startup-player']);

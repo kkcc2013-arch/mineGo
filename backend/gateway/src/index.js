@@ -515,6 +515,7 @@ const service = new GatewayLauncher({
   port: PORT,
   onInitialize: async () => {
     await db.query('SELECT 1');
+    await db.initializeMigrations();
     const redisClient = redis.getRedis();
     await redisClient.ping();
     ipManager = initIpBanManager({ db, redis: redisClient, autoInitialize: false });

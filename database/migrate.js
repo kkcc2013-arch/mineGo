@@ -10,15 +10,16 @@
  *   node migrate.js verify          - Verify checksums of executed migrations
  */
 
-const { Pool } = require('pg');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+// The database CLI shares the backend's declared dependency installation.
+const { Pool } = require(require.resolve('pg', { paths: [path.join(__dirname, '../backend')] }));
 
 // Configuration
-const MIGRATIONS_DIR = path.join(__dirname, 'pending');
-const LOCK_TIMEOUT_MS = parseInt(process.env.MIGRATION_LOCK_TIMEOUT_MS || '30000', 10);
-const AUTO_MIGRATE = process.env.AUTO_MIGRATE === 'true';
+const MIGRATIONS_DIR = path.resolve(process.env.MINEGO_MIGRATIONS_DIR || path.join(__dirname, 'pending'));
+const LOCK_TIMEOUT_MS = Number(process.env.MIGRATION_LOCK_TIMEOUT_MS || '30000');
+if (!Number.isSafeInteger(LOCK_TIMEOUT_MS) || LOCK_TIMEOUT_MS <= 0) throw new Error('MIGRATION_LOCK_TIMEOUT_MS must be a positive integer');
 
 // Database connection
 let pool = null;
@@ -47,33 +48,18 @@ function calculateChecksum(content) {
  * Parse migration file to extract up and down sections
  */
 function parseMigrationFile(content) {
-  const hasUpTag = /--\s*migrate:up/.test(content);
-  const hasDownTag = /--\s*migrate:down/.test(content);
-  
-  if (!hasUpTag && !hasDownTag) {
-    return {
-      up: content.trim(),
-      down: '',
-    };
+  const directives = [];
+  splitStatements(content, (direction, start, end) => directives.push({ direction, start, end }));
+  if (!directives.length) return { up: content.trim(), down: '' };
+  const up = directives.filter(section => section.direction === 'up');
+  const down = directives.filter(section => section.direction === 'down');
+  if (up.length > 1 || down.length > 1 || (up.length && down.length && down[0].start < up[0].start)) {
+    throw new Error('Migration directives must contain at most one up followed by one down');
   }
-  
-  let up = '';
-  let down = '';
-  
-  if (hasUpTag) {
-    const upMatch = content.match(/--\s*migrate:up\s*\n([\s\S]*?)(?=--\s*migrate:down|$)/);
-    up = upMatch ? upMatch[1].trim() : '';
-  } else {
-    const beforeDownMatch = content.match(/^([\s\S]*?)(?=--\s*migrate:down)/);
-    up = beforeDownMatch ? beforeDownMatch[1].trim() : '';
-  }
-  
-  if (hasDownTag) {
-    const downMatch = content.match(/--\s*migrate:down\s*\n([\s\S]*?)$/);
-    down = downMatch ? downMatch[1].trim() : '';
-  }
-  
-  return { up, down };
+  return {
+    up: content.slice(up[0]?.end || 0, down[0]?.start ?? content.length).trim(),
+    down: down.length ? content.slice(down[0].end).trim() : ''
+  };
 }
 
 /**
@@ -111,40 +97,31 @@ async function ensureMigrationsTable(client) {
  * Acquire migration lock to prevent concurrent executions
  */
 async function acquireLock(client) {
-  // Create lock table if not exists
-  await client.query(`
-    CREATE TABLE IF NOT EXISTS migration_lock (
-      id            INTEGER PRIMARY KEY DEFAULT 1,
-      locked_at     TIMESTAMP NOT NULL,
-      locked_by     VARCHAR(100) NOT NULL,
-      CONSTRAINT    single_row CHECK (id = 1)
-    )
-  `);
-  
-  const lockId = process.env.HOSTNAME || require('os').hostname();
-  
-  // Try to acquire lock
-  const result = await client.query(`
-    INSERT INTO migration_lock (id, locked_at, locked_by)
-    VALUES (1, NOW(), $1)
-    ON CONFLICT (id) DO UPDATE
-    SET locked_at = NOW(), locked_by = $1
-    WHERE migration_lock.locked_at < NOW() - INTERVAL '30 seconds'
-    RETURNING locked_by
-  `, [lockId]);
-  
-  if (result.rows.length === 0) {
-    throw new Error('Migration is already running. Wait for it to complete or check for stale locks.');
-  }
-  
-  return lockId;
+  await client.query("SELECT set_config('lock_timeout', $1, true)", [`${LOCK_TIMEOUT_MS}ms`]);
+  // Transaction-held locks are released by COMMIT, ROLLBACK or connection loss.
+  // Include the schema so isolated environments do not contend with each other.
+  await client.query("SELECT pg_advisory_xact_lock(hashtextextended(current_database() || ':' || current_schema() || ':minego:migrations', 0))");
 }
 
-/**
- * Release migration lock
- */
-async function releaseLock(client) {
-  await client.query('DELETE FROM migration_lock WHERE id = 1');
+async function withMigrationTransaction(operation) {
+  const client = await getPool().connect();
+  let transactionOpen = false;
+  try {
+    await client.query('BEGIN');
+    transactionOpen = true;
+    await acquireLock(client);
+    await ensureMigrationsTable(client);
+    const result = await operation(client);
+    await client.query('COMMIT');
+    transactionOpen = false;
+    return result;
+  } catch (error) {
+    if (transactionOpen) {
+      try { await client.query('ROLLBACK'); }
+      catch (rollbackError) { throw new AggregateError([error, rollbackError], 'Migration failed and rollback failed'); }
+    }
+    throw error;
+  } finally { client.release(); }
 }
 
 /**
@@ -163,145 +140,40 @@ async function getExecutedMigrations(client) {
  * Get list of pending migration files
  */
 async function getPendingMigrationFiles() {
-  if (!fs.existsSync(MIGRATIONS_DIR)) {
-    fs.mkdirSync(MIGRATIONS_DIR, { recursive: true });
-    return [];
-  }
-  
-  const files = fs.readdirSync(MIGRATIONS_DIR)
-    .filter(f => f.endsWith('.sql'))
-    .sort();
-  
-  return files.map(f => {
-    const parsed = parseMigrationFilename(f);
-    if (!parsed) {
-      console.warn(`Warning: Invalid migration filename format: ${f}`);
-      return null;
-    }
-    const filePath = path.join(MIGRATIONS_DIR, f);
+  const files = fs.readdirSync(MIGRATIONS_DIR).filter(file => file.endsWith('.sql')).sort();
+  const versions = new Set();
+  return files.map(filename => {
+    const parsed = parseMigrationFilename(filename);
+    if (!parsed) throw new Error(`Invalid migration filename: ${filename}`);
+    if (versions.has(parsed.version)) throw new Error(`Duplicate migration version: ${parsed.version}`);
+    versions.add(parsed.version);
+    const filePath = path.join(MIGRATIONS_DIR, filename);
     const content = fs.readFileSync(filePath, 'utf8');
-    return {
-      ...parsed,
-      filePath,
-      content,
-      checksum: calculateChecksum(content),
-      ...parseMigrationFile(content),
-    };
-  }).filter(Boolean);
+    return { ...parsed, filePath, content, checksum: calculateChecksum(content), ...parseMigrationFile(content) };
+  });
 }
 
-/**
- * Verify checksums of already executed migrations
- */
+function compareChecksums(executed, files) {
+  const byVersion = new Map(files.map(file => [file.version, file]));
+  const errors = [];
+  for (const migration of executed) {
+    const file = byVersion.get(migration.version);
+    if (!file) errors.push({ version: migration.version, message: 'Executed migration file is missing' });
+    else if (file.checksum !== migration.checksum) errors.push({ version: migration.version, message: 'Executed migration checksum mismatch' });
+  }
+  return { valid: errors.length === 0, errors };
+}
+
+function requireValidChecksums(executed, files) {
+  const result = compareChecksums(executed, files);
+  if (!result.valid) throw new Error(result.errors.map(error => `${error.version}: ${error.message}`).join('; '));
+}
+
 async function verifyChecksums() {
-  const client = await getPool().connect();
-  try {
-    await ensureMigrationsTable(client);
-    const executed = await getExecutedMigrations(client);
-    const pending = await getPendingMigrationFiles();
-    
-    const errors = [];
-    
-    for (const migration of executed) {
-      const file = pending.find(p => p.version === migration.version);
-      if (!file) {
-        // Migration was executed but file is missing - this is OK (might be archived)
-        continue;
-      }
-      
-      if (file.checksum !== migration.checksum) {
-        errors.push({
-          version: migration.version,
-          message: `Checksum mismatch! DB: ${migration.checksum}, File: ${file.checksum}`,
-        });
-      }
-    }
-    
-    return { valid: errors.length === 0, errors };
-  } finally {
-    client.release();
-  }
+  return withMigrationTransaction(async client => compareChecksums(await getExecutedMigrations(client), await getPendingMigrationFiles()));
 }
 
-function splitStatements(sql) {
-  const statements = [];
-  let current = '';
-  let inString = false;
-  let inDoubleQuote = false;
-  let dollarTag = null;
-  
-  for (let i = 0; i < sql.length; i++) {
-    const char = sql[i];
-    const nextChar = i < sql.length - 1 ? sql[i + 1] : '';
-    const prev = i > 0 ? sql[i - 1] : '';
-    
-    // Check for single line comment: --
-    if (char === '-' && nextChar === '-' && !inString && !inDoubleQuote && !dollarTag) {
-      while (i < sql.length && sql[i] !== '\n') {
-        current += sql[i];
-        i++;
-      }
-      if (i < sql.length) {
-        current += sql[i];
-      }
-      continue;
-    }
-    
-    // Check for multi line comment: /*
-    if (char === '/' && nextChar === '*' && !inString && !inDoubleQuote && !dollarTag) {
-      current += '/*';
-      i += 2;
-      while (i < sql.length && !(sql[i] === '*' && sql[i+1] === '/')) {
-        current += sql[i];
-        i++;
-      }
-      if (i < sql.length) {
-        current += '*/';
-        i++;
-      }
-      continue;
-    }
-    
-    if (char === "'" && prev !== '\\' && !inDoubleQuote && !dollarTag) {
-      inString = !inString;
-    } else if (char === '"' && prev !== '\\' && !inString && !dollarTag) {
-      inDoubleQuote = !inDoubleQuote;
-    } else if (char === '$' && !inString && !inDoubleQuote) {
-      if (dollarTag) {
-        const potentialEnd = sql.substring(i, i + dollarTag.length);
-        if (potentialEnd === dollarTag) {
-          i += dollarTag.length - 1;
-          dollarTag = null;
-          current += potentialEnd;
-          continue;
-        }
-      } else {
-        const match = sql.substring(i).match(/^\$[a-zA-Z0-9_]*\$/);
-        if (match) {
-          dollarTag = match[0];
-          i += dollarTag.length - 1;
-          current += dollarTag;
-          continue;
-        }
-      }
-    }
-    
-    if (char === ';' && !inString && !inDoubleQuote && !dollarTag) {
-      if (current.trim()) {
-        statements.push(current.trim());
-      }
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  
-  if (current.trim()) {
-    statements.push(current.trim());
-  }
-  
-  return statements;
-}
+const { splitStatements, migrationStatements } = require('./sqlStatements');
 
 /**
  * Run a single migration
@@ -316,7 +188,7 @@ async function runMigration(client, migration, direction = 'up') {
   const start = Date.now();
   
   // Execute migration SQL statements sequentially
-  const statements = splitStatements(sql);
+  const statements = migrationStatements(sql);
   for (const statement of statements) {
     if (statement.trim()) {
       await client.query(statement);
@@ -349,150 +221,56 @@ async function runMigration(client, migration, direction = 'up') {
  * Run all pending migrations
  */
 async function runPendingMigrations() {
-  const client = await getPool().connect();
-  
-  try {
-    await client.query('BEGIN');
-    
-    // Ensure migrations table exists
-    await ensureMigrationsTable(client);
-    
-    // Acquire lock
-    const lockId = await acquireLock(client);
-    console.log(`Migration lock acquired by: ${lockId}`);
-    
-    let committed = false;
-    try {
-      // Get executed and pending migrations
-      const executed = await getExecutedMigrations(client);
-      const pending = await getPendingMigrationFiles();
-      
-      // Filter out already executed
-      const toRun = pending.filter(p => !executed.find(e => e.version === p.version));
-      
-      if (toRun.length === 0) {
-        console.log('No pending migrations to run.');
-        await client.query('COMMIT');
-        committed = true;
-        return { ran: 0, migrations: [] };
-      }
-      
-      console.log(`Found ${toRun.length} pending migration(s) to run.`);
-      
-      const results = [];
-      
-      for (const migration of toRun) {
-        console.log(`Running migration: ${migration.version} - ${migration.description}`);
-        const executionMs = await runMigration(client, migration, 'up');
-        console.log(`  ✓ Completed in ${executionMs}ms`);
-        results.push({ version: migration.version, executionMs });
-      }
-      
-      await client.query('COMMIT');
-      committed = true;
-      console.log(`Successfully ran ${toRun.length} migration(s).`);
-      
-      return { ran: toRun.length, migrations: results };
-      
-    } catch (err) {
-      if (!committed) {
-        await client.query('ROLLBACK');
-        committed = true; // prevent double rollback
-      }
-      throw err;
-    } finally {
-      try {
-        await releaseLock(client);
-        console.log('Migration lock released.');
-      } catch (lockErr) {
-        console.error('Failed to release migration lock:', lockErr.message);
-      }
+  return withMigrationTransaction(async client => {
+    const executed = await getExecutedMigrations(client);
+    const files = await getPendingMigrationFiles();
+    requireValidChecksums(executed, files);
+    const versions = new Set(executed.map(migration => migration.version));
+    const pending = files.filter(file => !versions.has(file.version));
+    console.log(`Found ${pending.length} pending migration(s) to run.`);
+    const results = [];
+    for (const file of pending) {
+      console.log(`Running migration: ${file.version} - ${file.description}`);
+      const executionMs = await runMigration(client, file, 'up');
+      results.push({ version: file.version, executionMs });
     }
-    
-  } catch (err) {
-    throw err;
-  } finally {
-    client.release();
-  }
+    return { ran: results.length, migrations: results };
+  });
 }
 
 /**
- * Rollback migrations
+ * Roll back the last migration, or all migrations newer than a retained target.
  */
 async function rollbackTo(targetVersion) {
-  const client = await getPool().connect();
-  
-  try {
-    await client.query('BEGIN');
-    
-    await ensureMigrationsTable(client);
-    
-    const lockId = await acquireLock(client);
-    console.log(`Migration lock acquired by: ${lockId}`);
-    
-    try {
-      const executed = await getExecutedMigrations(client);
-      const pending = await getPendingMigrationFiles();
-      
-      if (executed.length === 0) {
-        console.log('No migrations to rollback.');
-        return { rolledBack: 0, migrations: [] };
-      }
-      
-      // Determine which migrations to rollback
-      let toRollback;
-      if (targetVersion) {
-        const idx = executed.findIndex(e => e.version === targetVersion);
-        if (idx === -1) {
-          throw new Error(`Target version ${targetVersion} not found in executed migrations`);
-        }
-        toRollback = executed.slice(idx + 1).reverse();
-      } else {
-        // Rollback last migration
-        toRollback = [executed[executed.length - 1]];
-      }
-      
-      console.log(`Rolling back ${toRollback.length} migration(s).`);
-      
-      const results = [];
-      
-      for (const migration of toRollback) {
-        const file = pending.find(p => p.version === migration.version);
-        if (!file) {
-          throw new Error(`Migration file not found for version ${migration.version}`);
-        }
-        
-        console.log(`Rolling back: ${migration.version} - ${migration.description}`);
-        const executionMs = await runMigration(client, file, 'down');
-        console.log(`  ✓ Rolled back in ${executionMs}ms`);
-        results.push({ version: migration.version, executionMs });
-      }
-      
-      await client.query('COMMIT');
-      console.log(`Successfully rolled back ${toRollback.length} migration(s).`);
-      
-      return { rolledBack: toRollback.length, migrations: results };
-      
-    } finally {
-      await releaseLock(client);
-      console.log('Migration lock released.');
+  return withMigrationTransaction(async client => {
+    const executed = await getExecutedMigrations(client);
+    const files = await getPendingMigrationFiles();
+    requireValidChecksums(executed, files);
+    if (!executed.length) return { rolledBack: 0, migrations: [] };
+    let migrations;
+    if (targetVersion) {
+      const index = executed.findIndex(migration => migration.version === targetVersion);
+      if (index < 0) throw new Error(`Target version ${targetVersion} not found in executed migrations`);
+      migrations = executed.slice(index + 1).reverse();
+    } else migrations = [executed[executed.length - 1]];
+    const byVersion = new Map(files.map(file => [file.version, file]));
+    // Reject missing rollback code before changing any data.
+    for (const migration of migrations) if (!byVersion.get(migration.version).down) throw new Error(`No down migration found for ${migration.version}`);
+    const results = [];
+    for (const migration of migrations) {
+      console.log(`Rolling back: ${migration.version} - ${migration.description}`);
+      const executionMs = await runMigration(client, byVersion.get(migration.version), 'down');
+      results.push({ version: migration.version, executionMs });
     }
-    
-  } catch (err) {
-    await client.query('ROLLBACK');
-    throw err;
-  } finally {
-    client.release();
-  }
+    return { rolledBack: results.length, migrations: results };
+  });
 }
 
 /**
  * Get migration status
  */
 async function status() {
-  const client = await getPool().connect();
-  try {
-    await ensureMigrationsTable(client);
+  return withMigrationTransaction(async client => {
     
     const executed = await getExecutedMigrations(client);
     const pending = await getPendingMigrationFiles();
@@ -524,9 +302,7 @@ async function status() {
     
     return { executed: executed.length, pending: pendingNotExecuted.length };
     
-  } finally {
-    client.release();
-  }
+  });
 }
 
 /**
@@ -565,7 +341,8 @@ function createMigration(description) {
 -- TODO: Add your rollback SQL here
 `;
   
-  fs.writeFileSync(filePath, content);
+  if (!slug) throw new Error('Description must contain letters or numbers');
+  fs.writeFileSync(filePath, content, { flag: 'wx' });
   console.log(`Created migration file: ${filePath}`);
   
   return { filename, filePath };
@@ -607,26 +384,29 @@ async function main() {
           for (const err of result.errors) {
             console.error(`  ${err.version}: ${err.message}`);
           }
-          process.exit(1);
+          throw new Error('Migration checksum verification failed');
         }
         break;
         
       default:
         console.error(`Unknown command: ${command}`);
         console.error('Usage: node migrate.js [up|down|status|create|verify]');
-        process.exit(1);
+        throw new Error(`Unknown command: ${command}`);
     }
-    console.error('Migration failed:', err);
-    process.exit(1);
-  } finally {
-    if (pool) {
-      await pool.end();
-    }
-  }
+  } catch (error) {
+    console.error('Migration failed:', error.message);
+    process.exitCode = 1;
+  } finally { await closePool(); }
+}
+
+async function closePool() {
+  const current = pool; pool = null;
+  if (current) await current.end();
 }
 
 // Export for programmatic use
 module.exports = {
+  closePool, parseMigrationFile, parseMigrationFilename, calculateChecksum, splitStatements,
   runPendingMigrations,
   rollbackTo,
   status,

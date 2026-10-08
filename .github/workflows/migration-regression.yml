@@ -1,0 +1,49 @@
+name: Database migration regression
+on:
+  pull_request:
+    paths:
+      - 'database/**'
+      - 'backend/shared/db.js'
+      - 'backend/tests/unit/migrat*.test.js'
+      - 'backend/tests/regression/migration-storage.test.js'
+      - 'backend/tests/regression/database-bootstrap.test.js'
+      - 'backend/package*.json'
+      - '.github/workflows/migration-regression.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  migration-regression:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:15-3.4-alpine
+        env:
+          POSTGRES_DB: minego_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U test" --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Install declared backend dependencies
+        working-directory: backend
+        run: npm ci
+      - name: Check actual SQL parsing and transaction ownership
+        working-directory: backend
+        run: npm run test:migrations:unit
+      - name: Check actual CLI checksums, concurrency, rollback and interrupted ownership
+        working-directory: backend
+        run: npm run test:migrations:storage
+        env:
+          TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
+      - name: Verify complete fresh production schema, seeding and pending migration history
+        working-directory: backend
+        run: node --test tests/regression/database-bootstrap.test.js
+        env:
+          TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
