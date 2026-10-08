@@ -753,3 +753,58 @@ copies. Cleaned those copies before publication, keeping original files unchange
 Matching actual SQL tests repeated: audit23/fullV1V2pass, full82history still red at
 achievementcompleted (combined24pass/1fail). Only changed repair execution hashes
 refreshed. Full change diff check now passes.
+
+
+## 2026-10-08 — Achievement catalog/progress bridge and actual reward grants
+
+Previous goal turn: progress (published audit conversion and matching real data tests).
+Current turn: progress. Full658 goal remains active,201legacydone/21inprogress/436new,
+independentlyverified0. No repeated external blocker prevents implementation.
+
+New fourth prerequisite reconciles the canonical V1 tiered table with the modern
+achievement catalog. Keeps relation OID/compositePK/originalFK/old8definitions/progress/
+tiers/dates; explicitmodern marker+definitionlink adds31seeded definitions without
+overwriting oldIDs. Collisions fail atomically. Existing counter writes remain valid;
+modern numeric progress/one-stage tier projection use a separate definition reference
+on the same record. Unknown historic dates remain null, completed progress and claims
+cannot reset. Unused bridge reverses; existing modern data blocks lossy down. Existing
+title bootstrap now executes before the legacy consumer. Published82sources byte-identical;
+current83 all included in complete gate. No arbitrary datatype casts or originalSQL edits.
+
+Production achievement service now serializes owner updates/snapshot/claims, uses real
+PostgreSQL numeric arithmetic and accurate completed-only point/category aggregates.
+Removed string-concatenation/fraction truncation/lost updates, partial point inflation
+and duplicate completion. Claim transaction actually credits coins, canonical gameplay
+balls, validated nonball inventory/stacks/capacity and matched canonical title before
+marker. Missing/unknown/unsupported resources/configurations roll back every grant.
+Balls get one balance, not duplicate inventory credit. Full general inventory/catch
+synchronization is still open. Found old reward method previously returned metadata
+and marked claimed without granting anything; this false-success path is removed.
+
+Static/category/leaderboard/title routes now precede ID route; strict integer pagination,
+hidden-until-completed visibility, owned/valid title activation/cancellation and one
+entry-point mount. Actual existing user router works with V1 and new fractional fields,
+and uses normalized verified subject/id rather than a possibly absent raw sub claim.
+Actual launcher registry exposes committed unlock/claim counters and real update latency.
+A numeric0.1+0.2 regression led to moving all progress arithmetic into PostgreSQL; latest
+source tests include that correction rather than relying on exact-binary fractions alone.
+
+Evidence: new real V1/PostGIS/production class/signed HTTP/launcher metrics41pass; final
+unit621pass (95standalone+8runner+133battle+385Jest); migrationCLI13+prereq2+audit23=38pass;
+actual businessstorage33+nativeprocess2=35pass; syntax1415pass; actual modules load/YAML
+parse/diff checks pass. FullV1V2pass; all83pending history now fails20260611_020000 statement2
+notification_type missing, after title/bootstrap/achievement consumer success. Fullbatch
+rolls back. History gate remains red and added achievement CI precedes it.
+
+Remote previous1ec9e09: main442/dependency251/privacy14/title-process11pass. Migration4
+job113192750861 actual23audit pass, full82history completed-column failure confirmed in
+logs. Contract367/API71/performance110/integration417fail; E2E104cancelled; security400
+still running at snapshot. Current uncommitted-source CI pending publication.
+
+Remaining achievement work: complete catalog/title contracts and exclusivePokemon;
+replay/durable event delivery/automaticgrant/all trigger types; management CRUD/admin
+permissions and catalog-edit snapshot policy; oldunitfixture; client/nativepokemon/
+gateway; query100ms/update50ms performance. Typed grant failures stay visible rather
+than pretending missing resources were delivered. Next fullhistory step: reconcile
+notification_history/message-center and later partitions before complete upgrade/rollback
+and all-service acceptance. No requirement marked done, no production migration/merge.

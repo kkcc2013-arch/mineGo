@@ -85,7 +85,7 @@ Status declarations and implementation references are discovery data, not proof 
 | [REQ-00073-pvp-player-vs-player-battle-system.md](REQ-00073-pvp-player-vs-player-battle-system.md) | P0 | done | 10 | 6 |
 | [REQ-00074-player-leaderboard-system.md](REQ-00074-player-leaderboard-system.md) | P1 | done | 10 | 5 |
 | [REQ-00075-ip-blacklist-and-auto-ban-system.md](REQ-00075-ip-blacklist-and-auto-ban-system.md) | P1 | in_progress | 12 | 11 |
-| [REQ-00076-pokemon-achievement-and-milestone-reward-system.md](REQ-00076-pokemon-achievement-and-milestone-reward-system.md) | P1 | in_progress | 15 | 10 |
+| [REQ-00076-pokemon-achievement-and-milestone-reward-system.md](REQ-00076-pokemon-achievement-and-milestone-reward-system.md) | P1 | in_progress | 15 | 12 |
 | [REQ-00077-database-slow-query-analysis-system.md](REQ-00077-database-slow-query-analysis-system.md) | P1 | done | 10 | 9 |
 | [REQ-00078-canary-deployment-and-traffic-splitting.md](REQ-00078-canary-deployment-and-traffic-splitting.md) | P1 | done | 11 | 0 |
 | [REQ-00079-pokemon-friendship-and-affinity-system.md](REQ-00079-pokemon-friendship-and-affinity-system.md) | P1 | new | 11 | 4 |

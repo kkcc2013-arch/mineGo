@@ -277,3 +277,14 @@ native35通过。V1+V2通过，全部82历史 gate 越过审计阶段，但成�
 user_achievements 缺少 completed 字段失败；四个用户外键已按 V1 UUID 修复。
 全历史事务回滚，不记录假成功。完整目录、成就跨服务合同、后续分区重复迁移、
 全历史回滚及其它服务初始化仍待完成；本需求保持 in_progress。
+
+
+## 成就先决合同后的历史边界（2026-10-08）
+
+第4个 prerequisite 桥接真实 V1 成就计数/定义与新目录；显式依赖让已有称号
+bootstrap 与成就桥接先于旧 consumer。原82个已发布 pending 文件字节不变，
+83个当前文件全部保留在 gate。实际成就/HTTP存储41、runner/prerequisite/
+审计38通过；V1+V2通过。完整历史越过成就阶段后失败于20260611_020000
+statement2 notification_type 缺失，全部 pending 事务回滚。下一步协调真实
+notification_history/message-center 合同及后续冲突；全历史和带新数据回滚
+依然未完成。

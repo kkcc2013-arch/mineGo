@@ -177,7 +177,7 @@
       "category": "数据库/数据治理",
       "modules": "database/migrations、backend/shared/db.js、所有微服务、CI/CD",
       "createdAt": "2026-06-05 03:00",
-      "sha256": "4d47f4996b64dea9fcf2fd2b53ebcc6cecc70f46249c4b4cab626fb3e282cdea",
+      "sha256": "034e46d0685cd0216fa145e46909ee1996a4e421c719c4f1cd3cab3eacb47404",
       "acceptance": [
         "- [ ] 迁移工具 `migrate.js` 实现，支持 up/down/status/create/verify 命令",
         "- [ ] `schema_migrations` 表创建成功，能正确记录迁移历史",
@@ -2315,7 +2315,7 @@
       "category": "功能增强",
       "modules": "pokemon-service、reward-service、user-service、gateway、game-client、database/migrations",
       "createdAt": "2026-06-10 02:15",
-      "sha256": "2879f851f1707e278217da661058707b534de5b25354a99b091474d221a45806",
+      "sha256": "c0c8a5cd9c479e0a03b092dd10aa44db7944527b45ead014ff332cfebba4b50e",
       "acceptance": [
         "- [ ] 数据库迁移成功，包含 5 个新表（achievements、user_achievements、achievement_progress_snapshots、achievement_events、user_titles）",
         "- [ ] 成就定义管理功能可用，支持增删改查",
@@ -2339,9 +2339,11 @@
         "backend/services/pokemon-service/src/index.js",
         "backend/services/pokemon-service/src/routes/achievements.js",
         "backend/shared/achievementTriggers.js",
+        "backend/tests/regression/achievement-storage.test.js",
         "backend/tests/unit/achievement.test.js",
         "database/migrations/20260627050000_create_achievement_system.sql",
         "database/pending/20260611_000000__add_achievement_system_tables.sql",
+        "database/pending/20261008_150000__achievement_catalog_bridge.sql",
         "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql",
         "database/seeds/achievements.js",
         "frontend/game-client/src/components/AchievementPanel.js"

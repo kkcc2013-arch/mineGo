@@ -31,14 +31,15 @@ independent authorized work.
 1. Preserve actual V1 audit data/IDs and business contracts while converting the real
    table to a partition parent; prove writes, logical-ID concurrency, views and rollback.
    This storage slice now passes23 real PostGIS checks; full REQ-00060 remains open.
-2. Reconcile V1 user_achievements/achievement_definitions with the newer achievement
-   service, preserving existing progress and preventing duplicate rewards. Full pending
-   history now fails at the missing completed column; identity repairs alone are partial.
-3. Continue later full-history conflicts, including duplicate partition parents, then
-   validate fresh upgrades/rollback and real service initialization/schema/warmup.
-4. Resume the P0 service/security route work and all remaining stages. Unit621, actual
-   migration/prerequisite15 and business storage/native35 pass locally for this batch;
-   complete history, legacy contract/API/performance/integration/security/E2E stay open.
+2. V1 achievement/catalog/progress bridge and actual reward transaction now pass41
+   storage/production-router checks. Continue event delivery/replay/automatic rewards,
+   all seeded resource/title contracts, management/clients and full service acceptance.
+3. Resolve the real notification_history/message-center contract: full83 pending history
+   now fails20260611_020000 notification_type missing. Continue later partition/catalog
+   conflicts, full history/rollback and service initialization/schema/warmup.
+4. Resume P0 service/security route work and every remaining original stage. Unit621,
+   migration/prerequisite/audit38 and business storage/native35 pass locally. Complete
+   legacy contract/API/performance/integration/security/E2E acceptance remains open.
 
 ## Definition of finished
 
@@ -173,3 +174,22 @@ f79 remote main/dependency/privacy/title-process pass; migration/contract/API/in
 performance/security fail andE2E102 cancelled. No requirement promoted to verified.
 Next: achievement/schema reconciliation, remaining partition/history/runtime contracts,
 then continue all planned stages. This is progress; no blocked audit condition applies.
+
+
+## Achievement storage and reward batch (2026-10-08)
+
+Canonical V1 progress identity/key/FK/oldtier data retained. New catalog uses explicit
+modern links, preserves31modern/8legacy definitions, numeric progress and unknown old
+dates. Collisions and lossy reversal refuse safely. Existing title bootstrap orders
+before the legacy achievement consumer; all published82 SQL sources unchanged, total83.
+Actual service now serializes updates/completions/snapshots and commits real resources
+with claim markers. Decimal arithmetic stays in PostgreSQL, incomplete increments do
+not inflate points, and concurrent claims credit once. Real JWT routes/static ordering/
+legacy user reads/ownership/titles/shared metrics pass41 actual probes.
+
+Unit621, migration/prerequisite/audit38, businessstorage/native35 and syntax1415 pass.
+Full V1+V2pass, complete83history now fails notification_type in message-center index
+consumer; gate stays red. Replay/durable delivery/automaticgrant, complete resource/
+title catalog, CRUD/authorization/snapshot policy, oldunit fixture, clients, native
+pokemon/gateway and numeric performance remain open. All658 goal unchanged; no
+requirement promoted complete. This is progress, not a repeated blocking condition.
