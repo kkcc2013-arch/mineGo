@@ -688,3 +688,12 @@ process CI. No complete requirement promoted, no numeric gate reduced, no prod o
 Next: proper audit partition conversion preserving ID/all existing fields/data/constraints/
 sequence/index/trigger and reference behavior, then actual writes/queries/rollback and
 remaining full migration conflicts. Goal remains active with all658 scope.
+
+
+Published f79d55f to draftPR6. Remote main440/37721852020,dependency248/37721852033,
+privacy12/37721852024 pass. Migration2/37721852054 parser8/CLI13/catalog-inventory2
+steps pass; full-history step9 fails20260610_100000 statement21 resource_type absent,
+confirmed via job113131064031 logs. Native title/process9 was still active at the
+snapshot. Partial evidence recorded, no full requirement promoted. Own PG/Redis/Kafka/
+PostGIS containers stopped after tests; no live owned local process remains. Goal
+continues next with actual audit partition conversion, all658 scope unchanged.

@@ -1387,7 +1387,7 @@
         "- [ ] 前端背包界面显示正常",
         "- [ ] 容量限制和提示正常"
       ],
-      "verificationStatus": "partial_local_verified_ci_pending",
+      "verificationStatus": "partial_ci_verified",
       "implementationReferences": [
         "backend/services/pokemon-service/src/inventoryService.js",
         "backend/tests/unit/inventory.test.js",
@@ -1689,7 +1689,7 @@
         "- [ ] Prometheus 指标正确暴露",
         "- [ ] 单元测试覆盖率 ≥ 80%"
       ],
-      "verificationStatus": "partial_local_verified_ci_pending",
+      "verificationStatus": "partial_ci_verified",
       "implementationReferences": [
         "backend/services/pokemon-service/src/pokedexService.js",
         "backend/services/pokemon-service/src/routes/pokedex.js",

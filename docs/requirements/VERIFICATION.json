@@ -1374,13 +1374,20 @@
           "passed": 1,
           "failed": 1,
           "scope": "FullV1+V2pass;81pending scripts fail20260610_100000 audit partition resource_type. Original79 verified byte-identical againstHEAD."
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "f79d55fbe2da69247d7335114a66bff49e4c6e5f",
+          "result": "partial_ci_passed_full_history_failed",
+          "scope": "Migration regression2: parser8, actual CLI13 and prerequisite/inventory2 pass. FullV1+V2pass, but all81 history fails20260610_100000 statement21 resource_type. Main440/dependency248/privacy12 pass; this does not accept complete requirement scope.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37721852054"
         }
       ],
       "remaining": "Full pending/external migration catalog and dependencies, whole-history upgrades/rollback, all-service startup integration and complete CI acceptance remain unproven."
     },
     "REQ-00047-pokemon-items-inventory-management-system.md": {
       "date": "2026-10-08",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "1e4b09e980841206306e6d778caa7f0fe0eeaef677852331fca1346756fc3592",
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
@@ -1415,12 +1422,19 @@
           "command": "node --test backend/tests/regression/migration-prerequisites.test.js; full default database-bootstrap.test.js",
           "result": "partial_passed",
           "scope": "Two actual prerequisite/storage cases pass; full81pending history stops at audit partition conflict. Complete functional/client/performance acceptance remains open."
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "f79d55fbe2da69247d7335114a66bff49e4c6e5f",
+          "result": "partial_ci_passed_full_history_failed",
+          "scope": "Migration regression2: parser8, actual CLI13 and prerequisite/inventory2 pass. FullV1+V2pass, but all81 history fails20260610_100000 statement21 resource_type. Main440/dependency248/privacy12 pass; this does not accept complete requirement scope.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37721852054"
         }
       ]
     },
     "REQ-00056-pokedex-completion-reward-system.md": {
       "date": "2026-10-08",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "f58d1055fc702bef6e3a6cf4f9ed5156499e4241c8c57d078c7a73efcb7c6212",
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
@@ -1455,6 +1469,13 @@
           "command": "node --test backend/tests/regression/migration-prerequisites.test.js; full default database-bootstrap.test.js",
           "result": "partial_passed",
           "scope": "Two actual prerequisite/storage cases pass; full81pending history stops at audit partition conflict. Complete functional/client/performance acceptance remains open."
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "f79d55fbe2da69247d7335114a66bff49e4c6e5f",
+          "result": "partial_ci_passed_full_history_failed",
+          "scope": "Migration regression2: parser8, actual CLI13 and prerequisite/inventory2 pass. FullV1+V2pass, but all81 history fails20260610_100000 statement21 resource_type. Main440/dependency248/privacy12 pass; this does not accept complete requirement scope.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37721852054"
         }
       ]
     },
@@ -1496,6 +1517,13 @@
           "command": "node --test backend/tests/regression/migration-prerequisites.test.js; full default database-bootstrap.test.js",
           "result": "failed",
           "scope": "Two actual prerequisite/storage cases pass; full81pending history stops at audit partition conflict. Complete functional/client/performance acceptance remains open."
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "f79d55fbe2da69247d7335114a66bff49e4c6e5f",
+          "result": "partial_ci_passed_full_history_failed",
+          "scope": "Migration regression2: parser8, actual CLI13 and prerequisite/inventory2 pass. FullV1+V2pass, but all81 history fails20260610_100000 statement21 resource_type. Main440/dependency248/privacy12 pass; this does not accept complete requirement scope.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37721852054"
         }
       ]
     }
