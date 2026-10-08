@@ -12,6 +12,9 @@ const http = require('node:http');
 const express = require('express');
 const {mountIpAppealProxy} = require('../../gateway/src/routes/ipAppealProxy');
 const {ensureUuidExtension} = require('./storageSetup');
+const {parseMigrationFile}=require('../../../database/migrate');
+const {migrationStatements}=require('../../../database/sqlStatements');
+
 
 test('real user-service entry point starts against isolated PostgreSQL, Redis and Kafka and shuts down', {timeout:90000}, async () => {
   for(const variable of ['TEST_DATABASE_URL','TEST_REDIS_URL','TEST_KAFKA_BROKERS'])assert.ok(process.env[variable],`${variable} is required`);
@@ -40,13 +43,18 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
     await fixture.query('INSERT INTO users(id,nickname) VALUES ($1,$2)',[userId,'startup-player']);
     await fixture.query(await fs.readFile(path.resolve(__dirname,'../../../database/pending/20261007_120000__title_identity_compatibility.sql'),'utf8'));
     await fixture.query(await fs.readFile(path.resolve(__dirname,'../../../database/pending/20261008_100000__ip_ban_index_compatibility.sql'),'utf8'));
+    for(const file of ['repairs/20260605_200000__add_notification_system_tables.sql','20260607_000000__add_push_notification_preferences.sql','20261008_160000__notification_history_contract.sql','repairs/20260611_020000__add_message_center_indexes.sql']){
+      const parsed=parseMigrationFile(await fs.readFile(path.resolve(__dirname,'../../../database/pending',file),'utf8'));
+      for(const statement of migrationStatements(parsed.up))await fixture.query(statement);
+    }
+
     const redis=new URL(process.env.TEST_REDIS_URL);
     const database=new URL(process.env.TEST_DATABASE_URL);database.searchParams.set('options',`-c search_path=${schema},public`);
     const runner=`const service=require('./services/user-service/src/index');
       service.start().then(()=>process.send({ready:true,port:service.server.address().port})).catch(()=>{});
       process.on('message',async message=>{if(message==='stop'){try{await service.shutdown();process.send({stopped:true});process.disconnect();}catch(err){process.send({failed:err.message});process.exitCode=1;process.disconnect();}}});`;
     child=spawn(process.execPath,['-e',runner],{cwd:path.resolve(__dirname,'../..'),env:{...process.env,
-      DATABASE_URL:database.toString(),REDIS_HOST:redis.hostname,REDIS_PORT:redis.port||'6379',
+      EVENT_BUS_CLIENT_ID:'native-user-'+schema,DATABASE_URL:database.toString(),REDIS_HOST:redis.hostname,REDIS_PORT:redis.port||'6379',
       KAFKA_BROKERS:process.env.TEST_KAFKA_BROKERS,PORT:'0',LOG_LEVEL:'error',
       JWT_ACCESS_SECRET:'user-startup-test-access',JWT_REFRESH_SECRET:'user-startup-test-refresh'
     },stdio:['ignore','pipe','pipe','ipc']});

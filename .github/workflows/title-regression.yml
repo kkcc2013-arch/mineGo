@@ -8,6 +8,7 @@ on:
       - 'backend/tests/regression/title-storage.test.js'
       - 'backend/tests/regression/ip-appeal-storage.test.js'
       - 'backend/gateway/src/routes/ipAppealProxy.js'
+      - 'backend/gateway/src/routes/notificationProxy.js'
       - 'backend/gateway/src/middleware/ipBan.js'
       - 'backend/tests/regression/user-startup.test.js'
       - 'backend/tests/regression/gateway-startup.test.js'

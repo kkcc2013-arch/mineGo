@@ -1,9 +1,9 @@
 # mineGo requirement completion plan
 
 Updated: 2026-10-08. Scope: all 658 existing requirement documents in INDEX.md,
-including the 201 legacy done declarations that still need independent acceptance.
+including the 199 legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 436 new, 21 in progress. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 435 new, 24 in progress. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -34,12 +34,14 @@ independent authorized work.
 2. V1 achievement/catalog/progress bridge and actual reward transaction now pass41
    storage/production-router checks. Continue event delivery/replay/automatic rewards,
    all seeded resource/title contracts, management/clients and full service acceptance.
-3. Resolve the real notification_history/message-center contract: full83 pending history
-   now fails20260611_020000 notification_type missing. Continue later partition/catalog
-   conflicts, full history/rollback and service initialization/schema/warmup.
-4. Resume P0 service/security route work and every remaining original stage. Unit621,
-   migration/prerequisite/audit38 and business storage/native35 pass locally. Complete
-   legacy contract/API/performance/integration/security/E2E acceptance remains open.
+3. Notification storage/routes/realtime/components now pass35 actual storage and10
+   Chromium checks. Complete provider/outbox/all publishers/full game/performance/UI
+   acceptance remains open. The complete84-file migration gate now reaches friendship
+   pokemon_instance_id missing. Preserve real friendship identity/data while reconciling
+   later partition/catalog conflicts, full upgrade/rollback and all-service startup.
+4. Resume P0 service/security route work and every remaining original stage. Unit623,
+   combined storage114 and business/native35 pass locally. Complete legacy contract/API/
+   performance/integration/security/E2E acceptance remains open.
 
 ## Definition of finished
 
@@ -193,3 +195,18 @@ consumer; gate stays red. Replay/durable delivery/automaticgrant, complete resou
 title catalog, CRUD/authorization/snapshot policy, oldunit fixture, clients, native
 pokemon/gateway and numeric performance remain open. All658 goal unchanged; no
 requirement promoted complete. This is progress, not a repeated blocking condition.
+
+
+## Notification batch (2026-10-08)
+
+Actual production notification service now preserves canonical UUID/SERIAL history,
+owner-scoped50 retention, real read timestamps, persisted legacy/modern preferences,
+quiet-hour time zones and stable event receipts surviving deletion. Native user/gateway
+exercise all eight HTTP operations and all seven Kafka→authenticated socket types.
+Client component tests prove safe rendering, numeric IDs, real badges and private offline
+caches/categories. Storage114, business/native35, Chromium10, unit623 and syntax1420 pass.
+All84 history fails later at friendship pokemon_instance_id; V1/V2 still passes.
+Req32/120 old done reopened, req99 started:199done/24progress/435new, independentlyverified0.
+Remaining provider/retries/outbox/fullapp/UI/coverage/numerical acceptance is explicit in
+NOTIFICATIONS.md. Next: preserve/reconcile friendship schema and later migration conflicts,
+then all original stages. Full658 persistent goal remains active; no external blocker.

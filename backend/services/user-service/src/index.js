@@ -44,6 +44,7 @@ initPrivacyRoutes(db);
 let healthChecker;
 let eventBus;
 let ipBanManager;
+let notificationWs;
 
 // Create service launcher
 const service = new ServiceLauncher({
@@ -80,6 +81,7 @@ const service = new ServiceLauncher({
       path: '/friends',
       router: friendRouter
     },
+    {path:'/users/me/notification-preferences',router:notificationsRouter.createLegacyPreferenceRouter()},
     {
       path: '/notifications',
       router: notificationsRouter
@@ -192,7 +194,7 @@ const service = new ServiceLauncher({
     app.use(healthRoutes);
     
     // Initialize GDPR routes with db and eventBus
-    eventBus = EventBus.getEventBus();
+    eventBus = EventBus.getEventBus({clientId:process.env.EVENT_BUS_CLIENT_ID||'user-service'});
     await eventBus.connect();
     healthChecker.register('kafka', async () => {
       const health = await eventBus.healthCheck();
@@ -219,6 +221,16 @@ const service = new ServiceLauncher({
     
     await healthChecker.runAllChecks();
     _consoleLogger.log('User service initialized with health checks enabled');
+  },
+  onReady: async app => {
+    const transport=require('../../../shared/NotificationWebSocket');
+    const {getUpgradeClientIp}=require('../../../shared/clientIp');
+    notificationWs=transport.initNotificationWS(service.server,'/ws/notifications',{authorize:async req=>!(await ipBanManager.isBlocked(getUpgradeClientIp(req,app))).blocked});
+    const Plugin=require('../../../shared/notification/plugins/WebSocketPlugin');
+    require('../../../shared/notification/NotificationManager').getNotificationManager().registerPlugin(new Plugin(notificationWs,transport));
+  },
+  onBeforeShutdown: async () => {
+    if(notificationWs){for(const client of notificationWs.clients)client.terminate();await new Promise((resolve,reject)=>notificationWs.close(error=>error?reject(error):resolve()));notificationWs=null;}
   },
   onShutdown: async () => {
     healthChecker?.stopPeriodicCheck();

@@ -276,6 +276,7 @@ app.use('/api/version', apiVersionRoutes);
 
 // IP appeal endpoints authenticate private operations inside user-service.
 require('./routes/ipAppealProxy').mountIpAppealProxy(app, SERVICES.user);
+const notificationProxy=require('./routes/notificationProxy').mountNotificationProxy(app,SERVICES.user);
 
 // ── v1 API Routes (Legacy) ──────────────────────────────────────────
 // Public (no auth) - REQ-00040: 认证接口限流
@@ -527,6 +528,15 @@ const service = new GatewayLauncher({
       logger.error({ err }, 'Cache warmup failed, continuing without warm cache');
     });
   },
+  onReady: async () => {
+    notificationProxy.attach(service.server,async req=>{
+      const token=new URL(req.url,'http://localhost').searchParams.get('token');
+      const claims=require('../../shared/auth').verifyAccess(token);const id=claims.sub??claims.id;
+      if(typeof id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))return false;
+      return !(await ipManager.isBlocked(require('../../shared/clientIp').getUpgradeClientIp(req,app))).blocked;
+    });
+  },
+  onBeforeShutdown: async () => notificationProxy.close(),
   onShutdown: async () => {
     await warmupPromise;
     cacheWarmup.shutdown();

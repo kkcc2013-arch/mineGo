@@ -4,9 +4,9 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 201,
-      "in_progress": 21,
-      "new": 436
+      "done": 199,
+      "in_progress": 24,
+      "new": 435
     },
     "priorityCounts": {
       "P0": 52,
@@ -703,7 +703,7 @@
       "category": "前端体验",
       "modules": "game-client、gateway、reward-service、gym-service、social-service",
       "createdAt": "2026-06-05 18:00",
-      "sha256": "4769b4d31a9e97a21db229e0a8f358894622067fdc2b4ba9558933d9e107306a",
+      "sha256": "344fb5b9107fd20457cfbd66b11d8c25d6a261cdc36cfb51e086661b4c70a6df",
       "acceptance": [
         "- [ ] 前端 NotificationManager 模块实现，支持所有 7 种通知类型",
         "- [ ] 游戏内通知 Banner/Toast UI 组件，点击可跳转到对应功能",
@@ -719,10 +719,14 @@
         "backend/services/gym-service/src/index.js",
         "backend/services/user-service/src/handlers/notificationHandler.js",
         "backend/services/user-service/src/index.js",
+        "backend/services/user-service/src/notificationService.js",
         "backend/shared/NotificationWebSocket.js",
         "backend/shared/notification/plugins/WebSocketPlugin.js",
+        "backend/tests/regression/notification-storage.test.js",
         "backend/tests/unit/notifications.test.js",
         "database/pending/20260605_200000__add_notification_system_tables.sql",
+        "database/pending/20261008_160000__notification_history_contract.sql",
+        "database/pending/repairs/20260605_200000__add_notification_system_tables.sql",
         "frontend/game-client/src/game/NotificationManager.js"
       ],
       "legacyId": null
@@ -887,11 +891,11 @@
       "id": "REQ-00032",
       "title": "REQ-00032：多渠道推送通知插件架构",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "可扩展性/解耦",
       "modules": "reward-service、user-service、backend/shared/notification、gateway",
       "createdAt": "2026-06-07 00:00",
-      "sha256": "88d28f6978ebc31f1bbec8d386dfbcb95efd15836fa486b58305ed5afac7e359",
+      "sha256": "66fc18d71bb143c4e292fb1704d11eac9c242fa4f11c4a17a5a4aec1a9459ea7",
       "acceptance": [
         "- [ ] NotificationPlugin 接口定义清晰，包含 send/getSupportedPlatforms/getName/isEnabledForUser 方法",
         "- [ ] FCMPlugin 实现完整，支持 Android/iOS/Web 三个平台推送",
@@ -904,7 +908,7 @@
         "- [ ] 单元测试覆盖率 ≥ 80%，包含插件适配器、管理器、渠道选择策略",
         "- [ ] 静默时段（Quiet Hours）配置生效，该时段暂停推送"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [],
       "legacyId": null
     },
@@ -2441,6 +2445,7 @@
         "backend/services/pokemon-service/src/routes/friendship.js",
         "backend/shared/friendshipService.js",
         "database/pending/20260611_131000__add_friendship_system.sql",
+        "database/pending/repairs/20260611_131000__add_friendship_system.sql",
         "frontend/game-client/src/components/FriendshipPanel.js"
       ],
       "legacyId": null
@@ -3028,11 +3033,11 @@
       "id": "REQ-00099",
       "title": "REQ-00099：游戏消息中心与通知管理系统",
       "priority": "P1",
-      "declaredStatus": "new",
+      "declaredStatus": "in_progress",
       "category": "前端体验",
       "modules": "game-client、frontend/components、user-service、gateway",
       "createdAt": "2026-06-11 01:40",
-      "sha256": "782b7b0d2095b2659dc567cebdc35309168ac7800989ca1e385089b93609ab57",
+      "sha256": "89d0bb9cb00333bd1dbbc2e36bfa1b460b7ac8fa721da032b1361ba9d22efecd",
       "acceptance": [
         "- [ ] **导航栏消息图标**",
         "- [ ] **通知列表显示**",
@@ -3045,11 +3050,15 @@
         "- [ ] **性能指标**",
         "- [ ] **无障碍访问**"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
+        "backend/services/user-service/src/notificationService.js",
         "backend/services/user-service/src/routes/messageCenter.js",
+        "backend/tests/regression/notification-client.test.js",
         "backend/tests/unit/message-center.test.js",
         "database/pending/20260611_020000__add_message_center_indexes.sql",
+        "database/pending/20261008_160000__notification_history_contract.sql",
+        "database/pending/repairs/20260611_020000__add_message_center_indexes.sql",
         "frontend/game-client/src/components/MessageCenter.js"
       ],
       "legacyId": null
@@ -3658,11 +3667,11 @@
       "id": "REQ-00120",
       "title": "REQ-00120: user-service 消息中心路由挂载与集成",
       "priority": "P0",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "集成与修复",
       "modules": "user-service",
       "createdAt": "2026-06-11 17:35",
-      "sha256": "efb9c1bb0fa324fd7d37aa2e49c19699e774bb3397337695dfdb7498225b819a",
+      "sha256": "afb2654ccb86284242fcdf8f78d87e756f4d990a08cb627642a296e9a9331d92",
       "acceptance": [
         "- [ ] `node --check backend/services/user-service/src/index.js` 通过",
         "- [ ] `node --check backend/services/user-service/src/routes/messageCenter.js` 通过",
@@ -3670,9 +3679,12 @@
         "- [ ] `curl -sf http://localhost:8081/health` 返回 200（服务可启动）",
         "- [ ] 启动服务后，`curl -sf http://localhost:8081/notifications -H \"Authorization: Bearer test\"` 返回非 404"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
-        "backend/services/user-service/src/index.js"
+        "backend/services/user-service/src/index.js",
+        "backend/services/user-service/src/notificationService.js",
+        "backend/services/user-service/src/routes/messageCenter.js",
+        "database/pending/20261008_160000__notification_history_contract.sql"
       ],
       "legacyId": null
     },

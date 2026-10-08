@@ -13,6 +13,15 @@ on:
       - 'backend/tests/regression/migration-prerequisites.test.js'
       - 'backend/tests/regression/audit-partition-storage.test.js'
       - 'backend/tests/regression/achievement-storage.test.js'
+      - 'backend/tests/regression/notification-storage.test.js'
+      - 'backend/services/user-service/src/notificationService.js'
+      - 'backend/services/user-service/src/routes/messageCenter.js'
+      - 'backend/services/user-service/src/routes/notifications.js'
+      - 'backend/shared/notification/**'
+      - 'backend/shared/NotificationWebSocket.js'
+      - 'backend/shared/ServiceLauncher.js'
+      - 'backend/shared/clientIp.js'
+      - 'backend/gateway/src/routes/notificationProxy.js'
       - 'backend/services/pokemon-service/src/achievementService.js'
       - 'backend/services/pokemon-service/src/index.js'
       - 'backend/services/pokemon-service/src/routes/achievements.js'
@@ -65,6 +74,11 @@ jobs:
       - name: Verify existing tiered data, modern progress, real rewards and authenticated achievement routes
         working-directory: backend
         run: node --test tests/regression/achievement-storage.test.js
+        env:
+          TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
+      - name: Verify actual notification history, preferences, signed APIs and live recipient sockets
+        working-directory: backend
+        run: node --test tests/regression/notification-storage.test.js
         env:
           TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
       - name: Verify complete fresh production schema, seeding and pending migration history

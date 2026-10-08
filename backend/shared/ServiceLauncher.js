@@ -39,6 +39,7 @@ class ServiceLauncher {
     this.healthCheck = options.healthCheck || this.defaultHealthCheck.bind(this);
     this.onInitialize = options.onInitialize || (() => {});
     this.onReady = options.onReady || (() => {});
+    this.onBeforeShutdown = options.onBeforeShutdown || (() => {});
     this.onShutdown = options.onShutdown || (() => {});
     this.shutdownTimeout = options.shutdownTimeout ?? 10000;
     if (!Number.isFinite(this.shutdownTimeout) || this.shutdownTimeout <= 0) {
@@ -47,6 +48,7 @@ class ServiceLauncher {
     this.startPromise = null;
     this.shutdownPromise = null;
     this.cleanupRequired = false;
+    this.beforeShutdownRequired = false;
     this.signalHandler = () => {
       this.shutdown().catch(err => {
         this.logger.error({ err }, "Service shutdown failed");
@@ -202,6 +204,7 @@ class ServiceLauncher {
 
   async startService() {
     this.cleanupRequired = true;
+    this.beforeShutdownRequired = true;
     try {
       this.app = this.createApp({ finalize: false });
       // No HTTP listener exists until dependencies and dynamic routes are ready.
@@ -252,7 +255,8 @@ class ServiceLauncher {
     process.removeListener('SIGTERM', this.signalHandler);
     process.removeListener('SIGINT', this.signalHandler);
     try {
-      await this.closeServer();
+      try { if(this.beforeShutdownRequired){this.beforeShutdownRequired=false;await this.onBeforeShutdown(this.app);} }
+      finally { await this.closeServer(); }
     } finally {
       this.server = null;
       if (this.cleanupRequired) {

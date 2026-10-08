@@ -5,4 +5,8 @@ function getClientIp(req) {
   const ip = req.ip || req.socket?.remoteAddress || req.connection?.remoteAddress;
   return typeof ip === 'string' ? ip.replace(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/i, '$1') : ip;
 }
-module.exports = {getClientIp};
+function getUpgradeClientIp(req,app){
+  const address=require('proxy-addr')(req,app.get('trust proxy fn')||(()=>false));
+  return typeof address==='string'?address.replace(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/i,'$1'):address;
+}
+module.exports = {getClientIp,getUpgradeClientIp};

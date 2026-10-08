@@ -149,3 +149,14 @@ test('a stalled critical health check times out and leaves no live deadline', as
     expect(jest.getTimerCount()).toBe(0);
   } finally { jest.useRealTimers(); }
 });
+
+
+test('owned upgraded resources close before listener drain', async()=>{
+  const order=[];let service;
+  service=launcher({onBeforeShutdown:()=>{order.push('upgrade');expect(service.server.listening).toBe(true);},onShutdown:()=>order.push('resources')});
+  await service.start();await service.shutdown();expect(order).toEqual(['upgrade','resources']);
+});
+test('pre-shutdown hook failures still close the listener and owned resources', async()=>{
+  const stopped=jest.fn();const service=launcher({onBeforeShutdown:()=>{throw new Error('upgrade cleanup failed');},onShutdown:stopped});
+  await service.start();const server=service.server;await expect(service.shutdown()).rejects.toThrow('upgrade cleanup failed');expect(server.listening).toBe(false);expect(stopped).toHaveBeenCalledTimes(1);
+});

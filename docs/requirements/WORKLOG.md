@@ -808,3 +808,53 @@ gateway; query100ms/update50ms performance. Typed grant failures stay visible ra
 than pretending missing resources were delivered. Next fullhistory step: reconcile
 notification_history/message-center and later partitions before complete upgrade/rollback
 and all-service acceptance. No requirement marked done, no production migration/merge.
+
+
+## 2026-10-08 — Actual notification storage, realtime routes and browser components
+
+Previous and current goal turns: progress. Full658 remains active;199 legacydone/
+24inprogress/435new after reopening req32/120 and starting99. Independentlyverified0.
+
+New fifth prerequisite preserves original notification history OID/IDs/sequence/type/
+data/read while adding canonical type/real metadata and owner/type/event receipts.
+Dedup survives user deletion and per-owner50 retention for90 days. Unknown read times
+stay null; unused down preserves originals, actual modern metadata/receipts reject lossy
+reversal. Fixed original global-offset cleanup to rank per owner; actual helper UUID/
+INTEGER-ID predicates and schema scope repaired. Raw83 published SQL sources unchanged.
+Canary partial uniqueness becomes its intended index; friendship species lookup uses
+canonical id. Missing sample evolution targets remain unaccepted.
+
+Actual singleton service replaces duplicated incompatible route SQL, handles real
+ownership, first-save preferences, type/category pagination/count snapshots, read/batch/
+delete/stats and committed metrics. Real quiet hours respect IANA zones; missing prefs/
+storage fail closed; channel attempts log actual results. Fixed push wrapper exporting
+object/new crash. Native upgrade authenticates UUID JWT/IP before accepting, preserves
+private recipient frames and actual stored IDs; forwarded headers are rebuilt from real
+trust policy. Owned shutdown hook closes active sockets before HTTP drain. Tests publish
+all seven Kafka event types through actual user/gateway. Other seven peer processes are
+still aliases, not independently accepted services.
+
+Browser component uses real numeric IDs, escapes all notification HTML, preserves
+zero latitude and server-first read outcomes, authoritative badges and separate per-user
+IndexedDB/localStorage. Offline categories paginate retained owned records. Actual module
+load exposed missing i18n getCurrentLocale named export; now backed by real language getter.
+Real component/storage browser probes pass; no complete game app or numeric performance
+claim. Req120 historical Bearer test is401 by design; positive probe uses signed UUIDJWT.
+
+Final local evidence:623unit (95standalone+8migration+133battle+387Jest),114storage
+(35notification+41achievement+23audit+13CLI+2prerequisite),35business/native and10Chromium
+pass. Syntax1420, module loading, workflow YAML, numbering/audit/source-hash and staged
+checks required before publication. Full V1/V2pass; all84pending fail20260611_131000stmt20
+pokemon_instance_id absent, entire pending batch rolled back. Gate unchanged/red.
+
+Previous ac66 CI terminal:main443/dependency253/privacy15/title-native12 pass; migration5
+runner8/CLI13/prereq2/audit23/achievement41 steps pass, full83history notification_type
+fails (run37746100869 job113207844536). Contract368/API72/performance111/integration418/
+security401 fail; E2E105cancelled. Current-source CI pending publication.
+
+Remaining: durable outbox/retry after committed storage, all publishers/multi-instance
+socket routing/FCM/APNs/devices/adaptercoverage80%, full game/details/actions/preferences/
+a11y/incrementalsync/reconnect/virtualscroll1000/FPS60 and every numeric latency/survey/
+reach/retention target. Next reconcile true friendship table/schema and later history
+before full upgrade/rollback/allservice acceptance, then all original plan stages.
+No production migration, merge or deployment. Owned services stop after terminal checks.

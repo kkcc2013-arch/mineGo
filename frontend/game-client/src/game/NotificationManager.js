@@ -72,6 +72,8 @@ export const NOTIFICATION_TYPES = {
     }),
     action: (data) => ({ type: 'VIEW_GYM', gymId: data.gymId }),
   },
+  SYSTEM: {name:'SYSTEM',icon:'📢',title:data=>data.title||'系统通知',body:data=>data.body||'',action:()=>({type:'NONE'})},
+  TRADE_REQUEST: {name:'TRADE_REQUEST',icon:'🔄',title:data=>data.title||'交易通知',body:data=>data.body||'',action:()=>({type:'VIEW_FRIENDS',tab:'trades'})},
   GYM_LOST: {
     name: 'GYM_LOST',
     icon: '💔',
@@ -110,6 +112,8 @@ export class NotificationManager extends EventTarget {
       quest_complete: true,
       gym_under_attack: true,
       gym_lost: false,
+      system: true,
+      trade_request: true,
       sound_enabled: true,
       vibration_enabled: true,
     };
@@ -140,7 +144,8 @@ export class NotificationManager extends EventTarget {
     try {
       const prefs = await this._api.get('/notifications/preferences');
       if (prefs) {
-        this._preferences = { ...this._preferences, ...prefs };
+        const settings=prefs.data??prefs;
+        this._preferences = {...this._preferences,...settings,...settings.notificationTypes,sound_enabled:settings.soundEnabled??settings.sound_enabled??true,vibration_enabled:settings.vibrationEnabled??settings.vibration_enabled??true};
       }
     } catch (err) {
       console.warn('[NotificationManager] Failed to load preferences:', err);
@@ -242,7 +247,9 @@ export class NotificationManager extends EventTarget {
    * Handle incoming notification
    */
   _handleNotification(payload) {
-    const { eventType, data, timestamp } = payload;
+    if (payload.recipientId && payload.recipientId !== this._userId) return;
+    const { eventType, timestamp } = payload;
+    const data = ['SYSTEM','TRADE_REQUEST'].includes(eventType)?{...payload.data,title:payload.title,body:payload.body}:payload.data;
     
     // Check if this notification type is enabled
     const typeConfig = NOTIFICATION_TYPES[eventType];
@@ -260,8 +267,9 @@ export class NotificationManager extends EventTarget {
     
     // Create notification object
     const notification = {
-      id: Date.now(),
+      id: payload.id ?? Date.now(),
       type: eventType,
+      recipientId: this._userId,
       icon: typeConfig.icon,
       title: typeConfig.title(data),
       body: typeConfig.body(data),
@@ -279,6 +287,7 @@ export class NotificationManager extends EventTarget {
     
     // Dispatch event
     this.dispatchEvent(new CustomEvent('notification', { detail: notification }));
+    document.dispatchEvent(new CustomEvent('notification:received', {detail:{...notification,isRead:false,createdAt:notification.timestamp}}));
   }
   
   /**
@@ -310,16 +319,17 @@ export class NotificationManager extends EventTarget {
   /**
    * Show toast notification
    */
+  _escapeHTML(value) { return String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character])); }
   _showToast(notification) {
     const container = this._getToastContainer();
     
     const toast = document.createElement('div');
     toast.className = `notification-toast ${notification.type.toLowerCase()}`;
     toast.innerHTML = `
-      <div class="toast-icon">${notification.icon}</div>
+      <div class="toast-icon">${this._escapeHTML(notification.icon)}</div>
       <div class="toast-content">
-        <div class="toast-title">${notification.title}</div>
-        <div class="toast-body">${notification.body}</div>
+        <div class="toast-title">${this._escapeHTML(notification.title)}</div>
+        <div class="toast-body">${this._escapeHTML(notification.body)}</div>
       </div>
     `;
     
@@ -344,10 +354,10 @@ export class NotificationManager extends EventTarget {
     const banner = document.createElement('div');
     banner.className = `notification-banner ${notification.type.toLowerCase()}`;
     banner.innerHTML = `
-      <div class="notif-icon">${notification.icon}</div>
+      <div class="notif-icon">${this._escapeHTML(notification.icon)}</div>
       <div class="notif-content">
-        <div class="notif-title">${notification.title}</div>
-        <div class="notif-body">${notification.body}</div>
+        <div class="notif-title">${this._escapeHTML(notification.title)}</div>
+        <div class="notif-body">${this._escapeHTML(notification.body)}</div>
       </div>
       <button class="notif-action">${i18n.t('common.go')}</button>
       <button class="notif-close">✕</button>
@@ -446,8 +456,10 @@ export class NotificationManager extends EventTarget {
    */
   async updatePreferences(prefs) {
     try {
-      const updated = await this._api.put('/notifications/preferences', prefs);
-      this._preferences = { ...this._preferences, ...updated };
+      const notificationTypes=Object.fromEntries(Object.entries(prefs).filter(([key])=>!['sound_enabled','vibration_enabled'].includes(key)));
+      const update={notificationTypes};if(prefs.sound_enabled!==undefined)update.soundEnabled=prefs.sound_enabled;if(prefs.vibration_enabled!==undefined)update.vibrationEnabled=prefs.vibration_enabled;
+      await this._api.put('/notifications/preferences', update);
+      this._preferences = { ...this._preferences, ...prefs };
       
       console.log('[NotificationManager] Preferences updated');
       this.dispatchEvent(new CustomEvent('preferencesUpdated', { 
@@ -496,52 +508,26 @@ export class NotificationManager extends EventTarget {
    * Clear notification history
    */
   async clearHistory() {
-    this._history = [];
-    localStorage.removeItem('pmg_notification_history');
-    
-    try {
-      await this._api.delete('/notifications');
-    } catch (err) {
-      console.warn('[NotificationManager] Failed to clear history on server:', err);
-    }
-    
-    this.dispatchEvent(new CustomEvent('historyCleared'));
+    try { await this._api.delete('/notifications'); }
+    catch (error) { console.warn('[NotificationManager] Failed to clear history on server:', error); return false; }
+    this._history=[];localStorage.removeItem(this._historyKey());this.dispatchEvent(new CustomEvent('historyCleared'));return true;
   }
-  
-  /**
-   * Mark notification as read
-   */
   async markAsRead(notificationId) {
-    const notification = this._history.find(n => n.id === notificationId);
-    if (notification) {
-      notification.read = true;
-      this._saveHistory();
-    }
-    
-    try {
-      await this._api.put(`/notifications/${notificationId}/read`);
-    } catch (err) {
-      console.warn('[NotificationManager] Failed to mark as read on server:', err);
-    }
+    try { await this._api.put(`/notifications/${notificationId}/read`); }
+    catch (error) { console.warn('[NotificationManager] Failed to mark as read on server:', error); return false; }
+    const notification=this._history.find(n=>String(n.id)===String(notificationId));if(notification){notification.read=true;this._saveHistory();}return true;
   }
-  
-  /**
-   * Mark all as read
-   */
   async markAllAsRead() {
-    this._history.forEach(n => n.read = true);
-    this._saveHistory();
-    
-    try {
-      await this._api.put('/notifications/read-all');
-    } catch (err) {
-      console.warn('[NotificationManager] Failed to mark all as read on server:', err);
-    }
+    try { await this._api.put('/notifications/read-all'); }
+    catch (error) { console.warn('[NotificationManager] Failed to mark all as read on server:', error); return false; }
+    this._history.forEach(n=>n.read=true);this._saveHistory();return true;
   }
   
+  _historyKey() { return `pmg_notification_history:${this._userId}`; }
   _loadHistory() {
+    if (!this._userId) return;
     try {
-      const saved = localStorage.getItem('pmg_notification_history');
+      const saved = localStorage.getItem(this._historyKey());
       if (saved) {
         this._history = JSON.parse(saved);
       }
@@ -551,8 +537,9 @@ export class NotificationManager extends EventTarget {
   }
   
   _saveHistory() {
+    if (!this._userId) return;
     try {
-      localStorage.setItem('pmg_notification_history', JSON.stringify(this._history));
+      localStorage.setItem(this._historyKey(), JSON.stringify(this._history));
     } catch (err) {
       console.warn('[NotificationManager] Failed to save history:', err);
     }

@@ -80,6 +80,26 @@
       "sourceSha256": "31e3714195d83afba17bafd85f3590ad51e30011831a5d0a1f5b4e8e5a00e302",
       "file": "repairs/20260611_000000__add_achievement_system_tables.sql",
       "reason": "Align all four achievement/title owner columns with authoritative V1 UUID users; retain all other SQL and seeds."
+    },
+    "20260611_020000": {
+      "sourceSha256": "b826b47c80ed8a3131c06f16404cf3f13b09dba752de46516d006acd939bb963",
+      "file": "repairs/20260611_020000__add_message_center_indexes.sql",
+      "reason": "Use actual V1 UUID owners and integer notification IDs in read/cleanup helpers; scope preference column inspection to the current schema. Retain all other index/view/cleanup SQL."
+    },
+    "20260605_200000": {
+      "sourceSha256": "79cf3abf1168450566ee1ea630fb3832af7c366c767e0abb73da0fd095b03295",
+      "file": "repairs/20260605_200000__add_notification_system_tables.sql",
+      "reason": "Correct cleanup to retain each recipient's newest50 with stable time/ID order; the legacy global OFFSET incorrectly deleted other users' history. Preserve all other SQL."
+    },
+    "20260611_102500": {
+      "sourceSha256": "59a2a80875b912d30755ab49eea52813c2915a92ff05e238d8d3d92810dfa498",
+      "file": "repairs/20260611_102500__add_canary_deployment_tables.sql",
+      "reason": "Express the exact existing service/status partial uniqueness rule as a PostgreSQL partial unique index. Retain other columns/data and do not infer operational canary acceptance."
+    },
+    "20260611_131000": {
+      "sourceSha256": "1d5b944eb3f8d1c16dfce690712aed383a6a126449d66f9f633a5477430a4ac8",
+      "file": "repairs/20260611_131000__add_friendship_system.sql",
+      "reason": "Use canonical V1 pokemon_species.id in eight existing evolution-rule lookups; retain all target IDs/statements. A sample catalog lacking those species does not prove evolution-rule feature acceptance."
     }
   }
 }

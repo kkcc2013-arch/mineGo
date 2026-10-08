@@ -2,7 +2,7 @@
 // 推送通知服务封装 - 供其他模块使用
 'use strict';
 
-const NotificationManager = require('./NotificationManager');
+const {getNotificationManager} = require('./NotificationManager');
 
 // 全局单例实例
 let instance = null;
@@ -12,7 +12,7 @@ let instance = null;
  */
 function getInstance() {
   if (!instance) {
-    instance = new NotificationManager();
+    instance = getNotificationManager();
   }
   return instance;
 }

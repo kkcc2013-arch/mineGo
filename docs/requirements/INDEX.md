@@ -37,7 +37,7 @@
 | [REQ-00029](REQ-00029-timezone-localization-for-game-events.md) | 游戏事件时区本地化与多时区支持 | 国际化/本地化 | P1 | done | gateway、user-service、gym-service、reward-service、game-client、frontend | 2026-06-05 21:15 |
 | [REQ-00030](REQ-00030-developer-documentation-and-contribution-guide.md) | 开发者贡献指南与项目文档完善 | 文档/开发者体验 | P2 | done | docs、README.md、CONTRIBUTING.md、ARCHITECTURE.md | 2026-06-05 22:05 UTC |
 | [REQ-00031](REQ-00031-api-response-cache-layer.md) | API 响应缓存层与缓存失效策略 | 技术债/重构 | P2 | done | gateway、所有微服务、backend/shared、Redis | 2026-06-05 23:05 UTC |
-| [REQ-00032](REQ-00032-multi-channel-push-notification-plugin-architecture.md) | 多渠道推送通知插件架构 | 可扩展性/解耦 | P1 | done | reward-service、user-service、backend/shared/notification、gateway | 2026-06-07 00:00 |
+| [REQ-00032](REQ-00032-multi-channel-push-notification-plugin-architecture.md) | 多渠道推送通知插件架构 | 可扩展性/解耦 | P1 | in_progress | reward-service、user-service、backend/shared/notification、gateway | 2026-06-07 00:00 |
 | [REQ-00033](REQ-00033-api-stress-test-performance-benchmark.md) | API 压力测试与性能基准系统 | 测试覆盖 | P2 | done | backend/tests/performance、所有微服务、GitHub Actions、docs/performance | 2026-06-07 20:10 |
 | [REQ-00034](REQ-00034-coppa-compliance-age-verification.md) | COPPA 合规与未成年人年龄验证系统 | 合规/隐私 | P1 | done | user-service、gateway、game-client、database/migrations | 2026-06-07 21:15 |
 | [REQ-00035](REQ-00035-game-client-color-blind-accessibility-support.md) | 游戏客户端色盲模式支持 | 无障碍(a11y) | P2 | done | game-client、frontend、game-client/src/components | 2026-06-07 22:00 |
@@ -104,7 +104,7 @@
 | [REQ-00096](REQ-00096-database-transaction-isolation-deadlock-detection.md) | 数据库事务隔离级别控制与死锁检测机制 | 数据库/数据治理 | P1 | done | backend/shared/db.js、catch-service、gym-service、payment-service、social-service | 2026-06-11 00:20 |
 | [REQ-00097](REQ-00097-pokemon-daily-quest-and-reward-mechanism.md) | 精灵日常任务系统与任务奖励机制 | 功能增强 | P1 | done | reward-service、user-service、pokemon-service、catch-service、social-service、gateway、game-client、database/migrations | 2026-06-10 17:00 |
 | [REQ-00098](REQ-00098-adaptive-api-rate-limiting-and-user-quota-management.md) | 自适应 API 限流与用户配额管理系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared、Redis、PostgreSQL | 2026-06-11 00:00 |
-| [REQ-00099](REQ-00099-game-message-center-and-notification-management-system.md) | 游戏消息中心与通知管理系统 | 前端体验 | P1 | new | game-client、frontend/components、user-service、gateway | 2026-06-11 01:40 |
+| [REQ-00099](REQ-00099-game-message-center-and-notification-management-system.md) | 游戏消息中心与通知管理系统 | 前端体验 | P1 | in_progress | game-client、frontend/components、user-service、gateway | 2026-06-11 01:40 |
 | [REQ-00100](REQ-00100-automation-script-and-macro-detection-system.md) | 自动化脚本与宏检测系统 | 反作弊 | P1 | done | gateway、catch-service、gym-service、game-client、backend/shared | 2026-06-11 02:00 |
 | [REQ-00101](REQ-00101-backend-api-error-message-i18n.md) | 后端 API 错误消息国际化系统 | 国际化/本地化 | P1 | new | gateway、所有微服务、backend/shared、frontend/game-client | 2026-06-11 03:00 |
 | [REQ-00102](REQ-00102-pokemon-day-night-cycle-system.md) | 精灵昼夜循环系统 | 功能增强 | P1 | done | location-service、catch-service、pokemon-service、gateway、game-client、database/migrations | 2026-06-11 04:00 |
@@ -125,7 +125,7 @@
 | [REQ-00117](REQ-00117-map-gesture-interaction-optimization.md) | 地图手势交互优化与缩放流畅度提升 | 前端体验 | P2 | new | game-client、frontend/game-client/src/game、frontend/game-client/index.html | 2026-06-11 17:05 |
 | [REQ-00118](REQ-00118-gym-battle-route-integration.md) | gym-service 战斗路由挂载与集成 | 集成与修复 | P0 | done | gym-service、backend/services/gym-service/src/index.js、backend/services/gym-service/src/routes/battle.js | 2026-06-11 17:15 |
 | [REQ-00119](REQ-00119-pokemon-service-evolution-route-mounting.md) | pokemon-service 进化路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 17:30 |
-| [REQ-00120](REQ-00120-user-service-message-center-route-mounting.md) | user-service 消息中心路由挂载与集成 | 集成与修复 | P0 | done | user-service | 2026-06-11 17:35 |
+| [REQ-00120](REQ-00120-user-service-message-center-route-mounting.md) | user-service 消息中心路由挂载与集成 | 集成与修复 | P0 | in_progress | user-service | 2026-06-11 17:35 |
 | [REQ-00121](REQ-00121-social-service-leaderboard-route-mounting.md) | social-service 排行榜路由挂载与集成 | 集成与修复 | P0 | done | social-service | 2026-06-11 17:40 |
 | [REQ-00122](REQ-00122-microservice-config-center-and-hot-reload.md) | 微服务配置中心与动态配置热更新系统 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared/config、Redis、infrastructure/k8s | 2026-06-11 18:00 |
 | [REQ-00123](REQ-00123-pokemon-service-showcase-route-mounting.md) | pokemon-service showcase 路由挂载与集成 | 集成与修复 | P0 | done | unspecified | unspecified |

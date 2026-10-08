@@ -3,7 +3,7 @@
 'use strict';
 
 const { createLogger } = require('../../../../shared/logger');
-const { createNotification, NOTIFICATION_TYPES } = require('../routes/notifications');
+const { NOTIFICATION_TYPES } = require('../routes/notifications');
 
 const logger = createLogger('notification-handler');
 
@@ -11,7 +11,8 @@ const logger = createLogger('notification-handler');
  * Initialize notification event handlers
  * @param {EventBus} eventBus - EventBus instance
  */
-async function initNotificationHandlers(eventBus) {
+async function initNotificationHandlers(eventBus, options = {}) {
+  const createNotification = options.createNotification || require('../routes/notifications').createNotification;
   if (!eventBus) {
     logger.warn('EventBus not available, notification handlers not initialized');
     return;
@@ -27,22 +28,27 @@ async function initNotificationHandlers(eventBus) {
       logger.info({ speciesId, speciesName, nearbyUsersCount: nearbyUsers?.length }, 
         'Processing rare spawn notification');
       
-      // Send notification to all nearby users
+      const score=typeof rarity==='number'?rarity:({COMMON:1,UNCOMMON:2,RARE:3,EPIC:4,LEGENDARY:5}[String(rarity).toUpperCase()]);
+      if(!Number.isFinite(score)||score<4)return;
+      // Send only to recipients with a real distance in the required radius.
       if (nearbyUsers && Array.isArray(nearbyUsers)) {
         for (const userId of nearbyUsers) {
+          const distance=event.data.distances?.[userId];
+          if(!Number.isFinite(distance)||distance<0||distance>500)continue;
           await createNotification(userId, NOTIFICATION_TYPES.RARE_SPAWN, {
             speciesId,
             speciesName,
-            distance: event.data.distances?.[userId] || 0,
+            distance,
             lat,
             lng,
             rarity,
             expireAt: expiresAt,
-          });
+          }, {eventId:event.id || event.eventId});
         }
       }
     } catch (err) {
-      logger.error({ err, event }, 'Failed to handle rare spawn event');
+      logger.error({ err, eventId:event?.id }, 'Failed to handle rare spawn event');
+      throw err;
     }
   }));
 
@@ -67,11 +73,12 @@ async function initNotificationHandlers(eventBus) {
             lat,
             lng,
             expiresAt,
-          });
+          }, {eventId:event.id || event.eventId});
         }
       }
     } catch (err) {
-      logger.error({ err, event }, 'Failed to handle raid started event');
+      logger.error({ err, eventId:event?.id }, 'Failed to handle raid started event');
+      throw err;
     }
   }));
 
@@ -85,9 +92,10 @@ async function initNotificationHandlers(eventBus) {
       await createNotification(toUserId, NOTIFICATION_TYPES.FRIEND_REQUEST, {
         fromUserId,
         fromUserName,
-      });
+      }, {eventId:event.id || event.eventId});
     } catch (err) {
-      logger.error({ err, event }, 'Failed to handle friend request event');
+      logger.error({ err, eventId:event?.id }, 'Failed to handle friend request event');
+      throw err;
     }
   }));
 
@@ -102,9 +110,10 @@ async function initNotificationHandlers(eventBus) {
         fromUserId,
         fromUserName,
         giftId,
-      });
+      }, {eventId:event.id || event.eventId});
     } catch (err) {
-      logger.error({ err, event }, 'Failed to handle gift sent event');
+      logger.error({ err, eventId:event?.id }, 'Failed to handle gift sent event');
+      throw err;
     }
   }));
 
@@ -119,9 +128,10 @@ async function initNotificationHandlers(eventBus) {
         questId,
         questName,
         rewards,
-      });
+      }, {eventId:event.id || event.eventId});
     } catch (err) {
-      logger.error({ err, event }, 'Failed to handle quest complete event');
+      logger.error({ err, eventId:event?.id }, 'Failed to handle quest complete event');
+      throw err;
     }
   }));
 
@@ -140,11 +150,12 @@ async function initNotificationHandlers(eventBus) {
             gymId,
             gymName,
             attackerTeam,
-          });
+          }, {eventId:event.id || event.eventId});
         }
       }
     } catch (err) {
-      logger.error({ err, event }, 'Failed to handle gym under attack event');
+      logger.error({ err, eventId:event?.id }, 'Failed to handle gym under attack event');
+      throw err;
     }
   }));
 
@@ -163,11 +174,12 @@ async function initNotificationHandlers(eventBus) {
             gymId,
             gymName,
             newTeam,
-          });
+          }, {eventId:event.id || event.eventId});
         }
       }
     } catch (err) {
-      logger.error({ err, event }, 'Failed to handle gym lost event');
+      logger.error({ err, eventId:event?.id }, 'Failed to handle gym lost event');
+      throw err;
     }
   }));
 

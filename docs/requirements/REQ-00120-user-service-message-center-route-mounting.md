@@ -7,7 +7,7 @@
 | 标题 | user-service 消息中心路由挂载与集成 |
 | 类别 | 集成与修复 |
 | 优先级 | P0 |
-| 状态 | done |
+| 状态 | in_progress |
 | 涉及服务 | user-service |
 | 创建时间 | 2026-06-11 17:35 |
 
@@ -72,3 +72,14 @@
 
 - 关联需求：REQ-00099（游戏消息中心与通知管理系统）
 - 欠账来源：GUIDELINES.md §6 集成欠账清单
+
+
+## Acceptance review (2026-10-08)
+
+Reopened the old done declaration. All eight mounted operations now run through actual native user-service and gateway processes against PostgreSQL. Existing health, JWT/ownership, preference persistence and socket shutdown are tested. Full pending-history startup and current-source CI remain open. The historical Bearer test command is an invalid authentication fixture: correct behavior is HTTP401, never a successful authenticated list. Use a signed token for a real UUID fixture user for the positive probe; preserve the negative check. No authentication bypass is introduced.
+
+Evidence and remaining boundaries: [notification guide](../NOTIFICATIONS.md),
+VERIFICATION.json and WORKLOG.md. Local checks: notification storage35, Chromium10,
+native/business35, broader storage114 and unit623 pass. Full V1/V2 passes; all84
+pending migrations fail later at friendship pokemon_instance_id (atomic rollback).
+No full requirement or current CI completion is claimed.

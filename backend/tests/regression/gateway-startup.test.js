@@ -7,9 +7,13 @@ const path = require('node:path');
 const {spawn} = require('node:child_process');
 const {Pool} = require('pg');
 const {Kafka} = require('kafkajs');
+const WebSocket=require('ws');
 const http = require('node:http');
 const {performance} = require('node:perf_hooks');
 const {ensureUuidExtension} = require('./storageSetup');
+const {parseMigrationFile}=require('../../../database/migrate');
+const {migrationStatements}=require('../../../database/sqlStatements');
+
 
 const root=path.resolve(__dirname,'../..');
 const migration=name=>fs.readFile(path.resolve(root,'../database',name),'utf8');
@@ -53,6 +57,7 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
   const admin=new Pool({connectionString:process.env.TEST_DATABASE_URL});await ensureUuidExtension(admin);await admin.query(`CREATE SCHEMA ${schema}`);
   const fixture=new Pool({connectionString:process.env.TEST_DATABASE_URL,options:`-c search_path=${schema},public`});
   let user,gateway,failed;
+  let notificationSocket,notificationProducer;
   const player=crypto.randomUUID();const adminId=crypto.randomUUID();
   const accessKey='gateway-startup-access-only';
   try{
@@ -63,7 +68,7 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     await fixture.query(await migration('pending/20261007_120000__title_identity_compatibility.sql'));
     const database=new URL(process.env.TEST_DATABASE_URL);database.searchParams.set('options',`-c search_path=${schema},public`);
     const redis=new URL(process.env.TEST_REDIS_URL);
-    const env={DATABASE_URL:database.toString(),REDIS_HOST:redis.hostname,REDIS_PORT:redis.port||'6379',
+    const env={EVENT_BUS_CLIENT_ID:'native-gateway-user-'+schema,DATABASE_URL:database.toString(),REDIS_HOST:redis.hostname,REDIS_PORT:redis.port||'6379',
       KAFKA_BROKERS:process.env.TEST_KAFKA_BROKERS,LOG_LEVEL:'error',JWT_ACCESS_SECRET:accessKey,JWT_REFRESH_SECRET:'gateway-startup-refresh-only'};
     // A missing access-control migration must stop the actual CLI before listening,
     // release its subscription/storage handles, and naturally exit with failure.
@@ -74,6 +79,11 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     await assert.rejects(fetch(`http://127.0.0.1:${failedPort}/health/live`));
     failed=null;
     await fixture.query(await migration('pending/20261008_100000__ip_ban_index_compatibility.sql'));
+    for(const file of ['repairs/20260605_200000__add_notification_system_tables.sql','20260607_000000__add_push_notification_preferences.sql','20261008_160000__notification_history_contract.sql','repairs/20260611_020000__add_message_center_indexes.sql']){
+      const parsed=parseMigrationFile(await fs.readFile(path.resolve(__dirname,'../../../database/pending',file),'utf8'));
+      for(const statement of migrationStatements(parsed.up))await fixture.query(statement);
+    }
+
     const userPort=await freePort();const userBase=`http://127.0.0.1:${userPort}`;
     user=launch('services/user-service/src/index.js',{...env,PORT:String(userPort),USER_SERVICE_TRUST_PROXY:'loopback'});
     await waitForHttp(user,userBase);
@@ -99,6 +109,40 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     // This fixture contains real user/title/IP tables only. Missing game data
     // must remain visible as warmup failures, never be reported as acceptance.
     const status=await warmup.json();assert.ok(status.data.failedCount>0||status.data.isWarming);
+
+    // Exercise all eight message-center operations on the actual entry point.
+    const created=(await fixture.query("INSERT INTO notification_history(user_id,type,data,title,body) VALUES($1,'SYSTEM','{}','native message','native body') RETURNING id",[player])).rows[0].id;
+    const list=await fetch(base+'/api/notifications',{headers});assert.equal(list.status,200);assert.equal((await list.json()).data.notifications[0].id,created);
+    assert.equal((await fetch(base+'/api/notifications/unread-count',{headers})).status,200);
+    assert.equal((await fetch(base+'/api/notifications/stats',{headers})).status,200);
+    assert.equal((await fetch(base+'/api/notifications/preferences',{method:'PATCH',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({notificationTypes:{rare_spawn:true}})})).status,200);
+    assert.equal((await fetch(base+`/api/notifications/${created}/read`,{method:'PATCH',headers})).status,200);
+    assert.equal((await fetch(base+'/api/notifications/batch-read',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:'{"all":true}'})).status,200);
+    const deleted=(await fixture.query("INSERT INTO notification_history(user_id,type,data) VALUES($1,'SYSTEM','{}') RETURNING id",[player])).rows[0].id;
+    assert.equal((await fetch(base+`/api/notifications/${deleted}`,{method:'DELETE',headers})).status,200);
+    assert.equal((await fetch(base+'/api/notifications/clear-read',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:'{}'})).status,200);
+    notificationSocket=new WebSocket(base.replace('http','ws')+`/ws/notifications?token=${token}`);
+    await deadline(new Promise((resolve,reject)=>{notificationSocket.once('open',resolve);notificationSocket.once('error',reject);}),5000,()=>`Native notification upgrade failed: ${gateway.logs()} ${user.logs()}`);
+    const received=deadline(new Promise(resolve=>notificationSocket.once('message',data=>resolve(JSON.parse(data)))),10000,()=>`Real Kafka notification did not arrive: ${user.logs()}`);
+    notificationProducer=new Kafka({clientId:'native-notification-producer-'+schema,brokers:process.env.TEST_KAFKA_BROKERS.split(',')}).producer();await notificationProducer.connect();
+    const eventId=crypto.randomUUID();const event={id:eventId,data:{speciesId:4,speciesName:'native Charmander',lat:0,lng:121,rarity:4,nearbyUsers:[player],distances:{[player]:120}}};
+    await notificationProducer.send({topic:'pokemon.rare_spawn',messages:[{key:player,value:JSON.stringify(event)}]});
+    const frame=await received;assert.equal(frame.type,'NOTIFICATION');assert.equal(frame.payload.eventType,'RARE_SPAWN');assert.equal(frame.payload.recipientId,player);
+    assert.equal((await fixture.query('SELECT count(*)::int AS n FROM notification_history WHERE user_id=$1 AND source_event_id=$2',[player,eventId])).rows[0].n,1);
+    await notificationProducer.send({topic:'pokemon.rare_spawn',messages:[{key:player,value:JSON.stringify(event)}]});
+    await fetch(base+'/api/notifications/preferences',{method:'PATCH',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({notificationTypes:{gym_lost:true}})});
+    for(const [topic,type,data] of [
+      ['raid.started','RAID_STARTED',{raidId:'fixture-raid',gymId:'fixture-gym',bossName:'Boss',gymName:'Gym',nearbyUsers:[player]}],
+      ['friend.request_created','FRIEND_REQUEST',{toUserId:player,fromUserId:adminId,fromUserName:'Fixture friend'}],
+      ['social.gift_sent','GIFT_RECEIVED',{toUserId:player,fromUserId:adminId,fromUserName:'Fixture friend',giftId:'gift'}],
+      ['reward.quest_completed','QUEST_COMPLETE',{userId:player,questId:'quest',questName:'Fixture quest',rewards:{coins:1}}],
+      ['gym.under_attack','GYM_UNDER_ATTACK',{gymId:'gym',gymName:'Gym',attackerTeam:'MYSTIC',defenderUserIds:[player]}],
+      ['gym.lost','GYM_LOST',{gymId:'gym',gymName:'Gym',newTeam:'MYSTIC',previousDefenderUserIds:[player]}]
+    ]){
+      const incoming=deadline(new Promise(resolve=>{const listen=buffer=>{const message=JSON.parse(buffer);if(message.payload?.eventType===type){notificationSocket.removeListener('message',listen);resolve(message);}};notificationSocket.on('message',listen);}),10000,()=>`Native ${type} did not arrive: ${user.logs()}`);
+      await notificationProducer.send({topic,messages:[{key:player,value:JSON.stringify({id:crypto.randomUUID(),data})}]});assert.equal((await incoming).payload.eventType,type);
+    }
+    await notificationProducer.disconnect();notificationProducer=null;
     await fixture.query("INSERT INTO ip_blacklist(ip_address,reason,severity) VALUES('127.0.0.0/8','native gateway test','critical')");
     assert.equal((await fetch(base+'/v1/users/me',{headers:{...headers,'X-Forwarded-For':'198.51.100.7'}})).status,403);
     // Routes formerly mounted before access control must also be blocked.
@@ -120,7 +164,8 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     }finally{await fixture.query('ALTER TABLE ip_blacklist_outage_fixture RENAME TO ip_blacklist');}
     // Loss of the real downstream marks readiness unavailable with preserved
     // names; liveness stays reachable during a dependency outage.
-    const userShutdownStart=performance.now();await terminate(user,'SIGINT');user=null;
+    const socketClosed=deadline(new Promise(resolve=>notificationSocket.once('close',resolve)),15000,()=>`Notification upgrade leaked during shutdown`);
+    const userShutdownStart=performance.now();await terminate(user,'SIGINT');user=null;await socketClosed;notificationSocket=null;
     const degraded=await fetch(base+'/health/ready');assert.equal(degraded.status,503);
     const degradedBody=await degraded.json();assert.equal(degradedBody.status,'not_ready');
     assert.equal(degradedBody.services.find(service=>service.name==='user').status,'down');
@@ -147,6 +192,7 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     console.log(JSON.stringify({gatewaySignalShutdownMs:shutdownMs,userSignalShutdownElapsedMs:gatewayShutdownStart-userShutdownStart,
       scope:'actual native gateway/user processes, isolated PostgreSQL user/title/IP schema, Redis and Kafka; other registry targets alias the actual user fixture'}));
   }finally{
+    if(notificationSocket)notificationSocket.terminate();if(notificationProducer)await notificationProducer.disconnect();
     await Promise.all([cleanupProcess(user),cleanupProcess(gateway),cleanupProcess(failed)]);
     await fixture.end();await admin.query(`DROP SCHEMA ${schema} CASCADE`);await admin.end();
   }

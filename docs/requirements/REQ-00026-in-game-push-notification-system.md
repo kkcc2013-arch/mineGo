@@ -204,3 +204,14 @@ CREATE INDEX idx_notification_history_user ON notification_history(user_id, crea
 未注册消费者，健康检查释放管理连接，关闭并行处理所有消费者以避免累加长轮询。
 实际用户服务启动/关闭已在隔离 PostgreSQL、Redis 和 Kafka 下测试。客户端交互、
 50 条历史、真实通知效果、偏好及 <1 秒端到端延迟尚未完整验收。
+
+
+## Acceptance review (2026-10-08)
+
+Actual Kafka producer → native user-service → authenticated gateway WebSocket now exercises all seven game types. UUID ownership, invalid-token rejection, IP enforcement, owner-scoped 50-history retention, preferences and stable event-ID replay are tested with actual PostgreSQL. Chromium exercises the production realtime module and message component. Full game integration, delivery retry/outbox, all event publishers and measured end-to-end <1s remain open.
+
+Evidence and remaining boundaries: [notification guide](../NOTIFICATIONS.md),
+VERIFICATION.json and WORKLOG.md. Local checks: notification storage35, Chromium10,
+native/business35, broader storage114 and unit623 pass. Full V1/V2 passes; all84
+pending migrations fail later at friendship pokemon_instance_id (atomic rollback).
+No full requirement or current CI completion is claimed.
