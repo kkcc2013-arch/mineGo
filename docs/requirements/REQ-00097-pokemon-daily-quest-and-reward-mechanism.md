@@ -7,7 +7,7 @@
 | 标题 | 精灵日常任务系统与任务奖励机制 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | done |
+| 状态 | in_progress |
 | 涉及服务 | reward-service、user-service、pokemon-service、catch-service、social-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-10 17:00 |
 
@@ -914,3 +914,24 @@ module.exports = {
 - Pokémon GO Daily Task System Design
 - Ingress Mission System
 - 游戏任务系统设计最佳实践
+
+
+## Independent verification correction (2026-10-08)
+
+The old done declaration is reopened. The modern QuestService calls callback-based
+transaction() without a callback, imports an unavailable Redis deletion helper, emits
+completion before commit and records claimed rewards without modifying real balances
+or inventory. The modern router is not mounted; its progress endpoint lacks trusted
+authorization, while history/definitions silently return empty data through nonexistent
+db?.query. First streak day uses1.2 rather than the required1.0, and UTC assignment
+dates are combined with local expiration times. These are outstanding implementation
+failures, not accepted behavior.
+
+A source-bound repair makes the original date uniqueness and lookup indexes executable
+without changing seed values or historical timestamps. Separately, the actual mounted
+V1 /rewards/quests API now checks completion and grants real Pokeballs/stardust/XP/coins
+in one transaction with owner/quest row locks and one claim marker. This fixes the
+legacy double-claim defect and preserves historical completed_at. See
+[DAILY-QUESTS.md](../DAILY-QUESTS.md) for exact evidence and remaining acceptance.
+The original modern pools/events/streaks/rewards/client/coverage/performance/metrics
+criteria above remain required and unaccepted; this legacy slice is not full completion.

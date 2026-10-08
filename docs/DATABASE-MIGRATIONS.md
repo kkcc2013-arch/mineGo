@@ -88,7 +88,8 @@ migration explicitly precedes its consumer. All84 published pending sources are 
 Full history now passes catch-risk storage, which preserves gameplay UUID sessions and
 uses distinct risk telemetry with actual throw evidence.34 production/storage cases pass.
 All85 original pending sources remain unchanged. Special-IV ownership/genotype and equipment prerequisite storage now pass.
-Full history fails20260614_090500 statement2: daily-quest inline :: syntax is invalid. See CATCH-RISK.md. See FRIENDSHIP.md for storage and remaining service boundaries.
+Daily-quest syntax now passes with exact date-expression indexes and unchanged22 seeds.
+Full history fails20260615_170500 statement16: the title update trigger already exists. See CATCH-RISK.md. See FRIENDSHIP.md for storage and remaining service boundaries.
 Later duplicate partition migrations and complete data-preserving rollback remain open. See ACHIEVEMENTS.md for actual grant and
 remaining event/client/management boundaries.
 
@@ -101,7 +102,7 @@ Set TEST_DATABASE_URL to an isolated PostGIS database and run
 `node --test backend/tests/regression/notification-storage.test.js` and
 `node --test backend/tests/regression/friendship-storage.test.js` and
 `node --test backend/tests/regression/database-bootstrap.test.js`. The final history case
-remains red at the daily-quest conflict. See NOTIFICATIONS.md for delivery/client limits. GitHub runs all these gates in
+remains red at the title trigger conflict. See NOTIFICATIONS.md for delivery/client limits. GitHub runs all these gates in
 .github/workflows/migration-regression.yml. Whole-history upgrades/rollback, all-service
 startup, operational backups and REQ-00306 remain open; REQ-00007 is not complete.
 
@@ -120,3 +121,9 @@ red at20260610_100000: the preexisting V1 audit_logs is a regular table and lack
 partition script's resource columns. Ignoring partition work cannot satisfy REQ-00060.
 The next batch must reconcile IDs/all columns/data/constraints/defaults/dependencies,
 convert the actual table, and prove writes/queries/rollback before accepting the gate.
+
+
+The daily-quest source-bound repair does not rewrite original timestamp/date semantics
+or reconcile the separate V1 counter and modern randomized pools.18 actual SQL/mounted
+HTTP cases verify the repair and atomic legacy claims; modern feature acceptance remains
+open in DAILY-QUESTS.md. Full85 history still rolls back on the later title conflict.

@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 197,
-      "in_progress": 29,
+      "done": 196,
+      "in_progress": 30,
       "new": 432
     },
     "priorityCounts": {
@@ -2974,11 +2974,11 @@
       "id": "REQ-00097",
       "title": "REQ-00097: 精灵日常任务系统与任务奖励机制",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "功能增强",
       "modules": "reward-service、user-service、pokemon-service、catch-service、social-service、gateway、game-client、database/migrations",
       "createdAt": "2026-06-10 17:00",
-      "sha256": "610344cf6bfb51d1355526f7cb381f66a13567614a67be77e29593fce8637fdb",
+      "sha256": "ab101493c74eef56275b9aebc36a2f0f9c9d7a887b61aa0466d91c6d0d752b8d",
       "acceptance": [
         "- [ ] 每日任务自动生成功能正常，每日 0 点刷新",
         "- [ ] 任务类型覆盖捕捉、战斗、社交、探索、进化、培育、特殊 7 类",
@@ -2994,9 +2994,10 @@
         "- [ ] API 压力测试：支持 1000 req/s",
         "- [ ] Prometheus 指标正常暴露"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
-        "database/pending/20260614_090500__add_daily_quest_system.sql"
+        "database/pending/20260614_090500__add_daily_quest_system.sql",
+        "database/pending/repairs/20260614_090500__add_daily_quest_system.sql"
       ],
       "legacyId": null
     },

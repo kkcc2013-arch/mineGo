@@ -102,7 +102,7 @@
 | [REQ-00094](REQ-00094-realtime-business-metrics-dashboard-and-operations-monitoring.md) | 实时业务指标仪表板与运营监控系统 | 可观测性/监控 | P1 | done | gateway、所有微服务、infrastructure/k8s/monitoring、admin-dashboard、backend/shared/businessMetrics.js | 2026-06-10 16:05 |
 | [REQ-00095](REQ-00095-game-state-persistence-offline-recovery.md) | 游戏状态持久化与离线状态恢复系统 | 前端体验 | P1 | done | game-client、frontend/storage、backend/shared、user-service | 2026-06-10 22:50 |
 | [REQ-00096](REQ-00096-database-transaction-isolation-deadlock-detection.md) | 数据库事务隔离级别控制与死锁检测机制 | 数据库/数据治理 | P1 | done | backend/shared/db.js、catch-service、gym-service、payment-service、social-service | 2026-06-11 00:20 |
-| [REQ-00097](REQ-00097-pokemon-daily-quest-and-reward-mechanism.md) | 精灵日常任务系统与任务奖励机制 | 功能增强 | P1 | done | reward-service、user-service、pokemon-service、catch-service、social-service、gateway、game-client、database/migrations | 2026-06-10 17:00 |
+| [REQ-00097](REQ-00097-pokemon-daily-quest-and-reward-mechanism.md) | 精灵日常任务系统与任务奖励机制 | 功能增强 | P1 | in_progress | reward-service、user-service、pokemon-service、catch-service、social-service、gateway、game-client、database/migrations | 2026-06-10 17:00 |
 | [REQ-00098](REQ-00098-adaptive-api-rate-limiting-and-user-quota-management.md) | 自适应 API 限流与用户配额管理系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared、Redis、PostgreSQL | 2026-06-11 00:00 |
 | [REQ-00099](REQ-00099-game-message-center-and-notification-management-system.md) | 游戏消息中心与通知管理系统 | 前端体验 | P1 | in_progress | game-client、frontend/components、user-service、gateway | 2026-06-11 01:40 |
 | [REQ-00100](REQ-00100-automation-script-and-macro-detection-system.md) | 自动化脚本与宏检测系统 | 反作弊 | P1 | done | gateway、catch-service、gym-service、game-client、backend/shared | 2026-06-11 02:00 |
