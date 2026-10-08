@@ -99,7 +99,12 @@
     "20260611_131000": {
       "sourceSha256": "1d5b944eb3f8d1c16dfce690712aed383a6a126449d66f9f633a5477430a4ac8",
       "file": "repairs/20260611_131000__add_friendship_system.sql",
-      "reason": "Use canonical V1 pokemon_species.id in eight existing evolution-rule lookups; retain all target IDs/statements. A sample catalog lacking those species does not prove evolution-rule feature acceptance."
+      "reason": "Preserve canonical UUID trainer bonds and numeric levels through the declared identity bridge; expose named affinity separately, use actual UUID history and species primary keys/FKs. Keep all intended evolution rules; sample catalog gaps do not prove feature acceptance."
+    },
+    "20260611_152900": {
+      "sourceSha256": "fed6b42590f4829f4b474b9ddf840a08d7b8cce7b53bd502a0b9fe7417ec63d8",
+      "file": "repairs/20260611_152900__add_privacy_preference_center.sql",
+      "reason": "Run the existing additive policy/default prerequisite before the consumer; new optional preferences remain opt-in. Seed all legacy required fields from the original multilingual content/effective date and preserve existing policy versions on conflict."
     }
   }
 }

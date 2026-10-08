@@ -427,3 +427,15 @@ transparencyReportsGenerated: new Counter({
 - cd backend && npm run test:privacy:unit
 - TEST_DATABASE_URL=<isolated-test-database> npm run test:privacy:storage
 - npm test
+
+
+## Full-history consumer review (2026-10-08)
+
+The existing additive privacy/default migration now explicitly precedes its legacy
+consumer. Whole original-source-bound seed repair preserves existing policy versions
+and fills legacy required fields only from the original policy text/effective date.
+New optional preferences remain false without consent; prior choices/text/active flags/
+dates remain unchanged. Two actual CLI/order cases and11 original production privacy
+checks pass. Full85 history now fails later at the catch_sessions catch_timestamp
+contract. This does not complete the remaining original collection/client/retention/
+export/metrics acceptance. See [storage ordering](../FRIENDSHIP.md).

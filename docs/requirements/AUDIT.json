@@ -4,9 +4,9 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 199,
-      "in_progress": 24,
-      "new": 435
+      "done": 198,
+      "in_progress": 26,
+      "new": 434
     },
     "priorityCounts": {
       "P0": 52,
@@ -1566,7 +1566,7 @@
       "category": "合规/隐私",
       "modules": "user-service、gateway、game-client、backend/shared、database/migrations",
       "createdAt": "2026-06-09 15:00",
-      "sha256": "9015d8979ec52a2d3f6b298b9c318db1954f2f5221106901a8823514546a7dd5",
+      "sha256": "e0fe55e25b877f1dde7a97fb7953c3515be042e3501d29d3d650e66dd29f7f2a",
       "acceptance": [
         "- [ ] 用户可在前端隐私中心查看所有 8 类数据收集状态",
         "- [ ] 用户可切换非必需类别的数据收集开关（必需类别不可切换）",
@@ -1591,6 +1591,7 @@
         "backend/tests/unit/privacy-preferences.test.js",
         "database/pending/20260611_152900__add_privacy_preference_center.sql",
         "database/pending/20261006_150000__privacy_preference_defaults_and_policy_fields.sql",
+        "database/pending/repairs/20260611_152900__add_privacy_preference_center.sql",
         "frontend/game-client/src/components/PrivacyCenter.js"
       ],
       "legacyId": null
@@ -2024,11 +2025,11 @@
       "id": "REQ-00067",
       "title": "REQ-00067: 精灵羁绊与互动养成系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "功能增强",
       "modules": "pokemon-service、user-service、gateway、game-client、database/migrations",
       "createdAt": "2026-06-09 22:30",
-      "sha256": "7a456c96e3f47c7dd591fcf291e8929c1c9c84a96367c09794e8fff4625f465e",
+      "sha256": "2199fa22d3b8cef1ec34265ea4d1218f539c6cb9c5b9eeedb76ee9a0a5221768",
       "acceptance": [
         "- [ ] 羁绊值范围 0-255，等级 0-10，映射关系正确",
         "- [ ] 5种互动行为（feed、play、pet、train、walk）均能正常执行",
@@ -2046,12 +2047,14 @@
         "- [ ] 前端羁绊面板UI完整，支持响应式布局",
         "- [ ] 等级提升动画效果正常触发"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_verified_full_history_failed",
       "implementationReferences": [
         "backend/services/pokemon-service/src/friendshipService.js",
         "backend/services/pokemon-service/src/index.js",
+        "backend/tests/regression/friendship-storage.test.js",
         "backend/tests/unit/friendship.test.js",
-        "database/pending/20260609_223000__add_friendship_system.sql"
+        "database/pending/20260609_223000__add_friendship_system.sql",
+        "database/pending/20261008_170000__friendship_identity_bridge.sql"
       ],
       "legacyId": null
     },
@@ -2422,11 +2425,11 @@
       "id": "REQ-00079",
       "title": "REQ-00079: 精灵好感度系统与亲密度进化机制",
       "priority": "P1",
-      "declaredStatus": "new",
+      "declaredStatus": "in_progress",
       "category": "功能增强",
       "modules": "pokemon-service、user-service、catch-service、reward-service、gateway、game-client、database/migrations",
       "createdAt": "2026-06-10 11:00",
-      "sha256": "1522a4f7c2dc269e3fd551982521cbc9a7da34fae7873bf02ae22ac238144686",
+      "sha256": "88ea8074248884f00732da80e45b56fd489d819d7583d4eea469bb318650fedf",
       "acceptance": [
         "- [ ] 精灵好感度数值系统正确实现（0-255范围）",
         "- [ ] 好感度等级系统正确计算（陌生/一般/友好/亲密/挚爱）",
@@ -2440,7 +2443,7 @@
         "- [ ] 数据库迁移脚本正确执行",
         "- [ ] Prometheus 指标正确记录"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_verified_full_history_failed",
       "implementationReferences": [
         "backend/services/pokemon-service/src/routes/friendship.js",
         "backend/shared/friendshipService.js",

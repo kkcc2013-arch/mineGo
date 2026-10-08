@@ -7,7 +7,7 @@
 | 标题 | 精灵羁绊与互动养成系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | done |
+| 状态 | in_progress |
 | 涉及服务 | pokemon-service、user-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-09 22:30 |
 
@@ -851,3 +851,19 @@ const friendshipMetrics = {
 - [Pokémon Friendship Mechanics](https://bulbapedia.bulbagarden.net/wiki/Friendship)
 - [Pokémon HeartGold/SoulSilver Friendship System](https://www.serebii.net/heartgoldsoulsilver/friendship.shtml)
 - 游戏留存率提升最佳实践
+
+
+## Storage acceptance review (2026-10-08)
+
+Reopened the old done claim. The canonical UUID trainer bond relation, numeric
+levels, rows/keys/FKs/views and original dates remain intact. Named affinity is a
+generated projection; integer identities are not fabricated. Corrected the original
+trigger sink so actual positive/negative value writes record real before/after history.
+Existing update trigger identity/enablement survives; unknown old trainer times stay NULL.
+20 actual PostGIS checks pass, including concurrency and safe unused/blocked reversal.
+Full85 history advances past this consumer but fails later at catch_sessions catch_timestamp.
+
+Storage is only partial acceptance. JWT/ownership and UUID routing, service adapters,
+all original interactions/resources/cooldowns/events/initialization/trade/walking/battle,
+all real evolution targets/execution, gym/client/metrics/coverage and numerical targets
+remain unverified. See [friendship guide](../FRIENDSHIP.md), VERIFICATION.json and WORKLOG.md.

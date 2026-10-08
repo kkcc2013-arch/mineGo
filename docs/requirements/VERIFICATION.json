@@ -60,7 +60,7 @@
     "REQ-00053-user-privacy-preference-center-data-transparency.md": {
       "date": "2026-10-08",
       "status": "partial_local_verified_ci_pending",
-      "documentSha256": "9015d8979ec52a2d3f6b298b9c318db1954f2f5221106901a8823514546a7dd5",
+      "documentSha256": "e0fe55e25b877f1dde7a97fb7953c3515be042e3501d29d3d650e66dd29f7f2a",
       "sourceSha256": {
         "backend/shared/privacyPreferences.js": "28f8aebc2d5cf55c827ef1e5c597f79caaca688a88749a058dfd3afc2819311b",
         "backend/shared/auditLog.js": "5f460a3ffb941b1737ff6561d90e96a2d3aa5bca3f0bc8c5351293e2d9227112",
@@ -75,7 +75,13 @@
         ".github/workflows/privacy-regression.yml": "b730aa2c9c5c6d6379f7047ed8c86f9f5a6781c1d0c619989482478e9031b79a",
         "database/pending/20261006_150000__privacy_preference_defaults_and_policy_fields.sql": "3d21e729219b771c0b94f8474e11e6adcc222b0fbfc064beeddaed3d08849c78",
         "backend/shared/logger.js": "4fd8f577c9db1860aa011216eadd9523a46a2214a80de1e0c44ff9310fb5e457",
-        "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c"
+        "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
+        "database/pending/20260611_152900__add_privacy_preference_center.sql": "fed6b42590f4829f4b474b9ddf840a08d7b8cce7b53bd502a0b9fe7417ec63d8",
+        "database/pending/repairs/20260611_152900__add_privacy_preference_center.sql": "ac250e1ee3e789b017f7a1c54ebee3488345068aca38ea6e93df70e64483c896",
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
+        "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
+        "docs/FRIENDSHIP.md": "1bcbb71bda74398e6e4b2e4c9bf87aa6372ffdb2c22f1603f5235d7cadab060d"
       },
       "evidence": [
         {
@@ -189,6 +195,13 @@
             "backend/gateway/src/index.js",
             "backend/tests/regression/gateway-startup.test.js"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "node --test backend/tests/regression/migration-prerequisites.test.js backend/tests/regression/privacy-storage.test.js",
+          "result": "passed",
+          "tests": 15,
+          "scope": "4actual prerequisite/CLI cases including2 new policy/order/new-default/preserved-choice checks;11 production privacy/storage/authorization cases. All85history fails later catch_sessions catch_timestamp; full privacy acceptance still open."
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
@@ -307,8 +320,8 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "e90d86305b34e686f46d083e9fd0bc67da0d86149514187498ed71599536e83a",
-        "database/pending/repairs.json": "887e9d0021a3ce331661de2e1c10f3c43048835dc737b1ed02c5ace5086ebb03"
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27"
       },
       "evidence": [
         {
@@ -457,6 +470,16 @@
             "backend/gateway/src/index.js",
             "backend/tests/regression/gateway-startup.test.js",
             ".github/workflows/title-regression.yml",
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
+          "changedReferences": [
             "database/pending/dependencies.json",
             "database/pending/repairs.json"
           ]
@@ -483,8 +506,8 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "e90d86305b34e686f46d083e9fd0bc67da0d86149514187498ed71599536e83a",
-        "database/pending/repairs.json": "887e9d0021a3ce331661de2e1c10f3c43048835dc737b1ed02c5ace5086ebb03"
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27"
       },
       "evidence": [
         {
@@ -633,6 +656,16 @@
             "backend/gateway/src/index.js",
             "backend/tests/regression/gateway-startup.test.js",
             ".github/workflows/title-regression.yml",
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
+          "changedReferences": [
             "database/pending/dependencies.json",
             "database/pending/repairs.json"
           ]
@@ -662,8 +695,8 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "e90d86305b34e686f46d083e9fd0bc67da0d86149514187498ed71599536e83a",
-        "database/pending/repairs.json": "887e9d0021a3ce331661de2e1c10f3c43048835dc737b1ed02c5ace5086ebb03"
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27"
       },
       "evidence": [
         {
@@ -815,6 +848,16 @@
             "backend/tests/regression/user-startup.test.js",
             ".github/workflows/title-regression.yml",
             "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
+          "changedReferences": [
             "database/pending/dependencies.json",
             "database/pending/repairs.json"
           ]
@@ -844,8 +887,8 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "e90d86305b34e686f46d083e9fd0bc67da0d86149514187498ed71599536e83a",
-        "database/pending/repairs.json": "887e9d0021a3ce331661de2e1c10f3c43048835dc737b1ed02c5ace5086ebb03"
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27"
       },
       "evidence": [
         {
@@ -1000,6 +1043,16 @@
             "database/pending/dependencies.json",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1026,9 +1079,9 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "e90d86305b34e686f46d083e9fd0bc67da0d86149514187498ed71599536e83a",
-        "database/pending/repairs.json": "887e9d0021a3ce331661de2e1c10f3c43048835dc737b1ed02c5ace5086ebb03",
-        "docs/NOTIFICATIONS.md": "3494b94a38f85b913b43537962f276680845bc1ebbdcd75e2cf3f04b5cf9ba36",
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
+        "docs/NOTIFICATIONS.md": "784069b7365014190fc6ab29fccd17f1da7fb425d0c0c380507cf64da10e5d0e",
         "backend/services/user-service/src/notificationService.js": "9b1809ee37dcef1cc4794db12b5a0fc2f4df876ade8dab918b378eca07d75194",
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
         "backend/services/user-service/src/routes/notifications.js": "4118c13aa025d4fcfee1beb6ae7fe98f06568f62c99b0ff6bf464ec17fe28968",
@@ -1046,14 +1099,14 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "d7c7ccf65592ae0507e5c9728d7e306ef45d4f5736942815a69aa1b7cb162adc",
+        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
         "frontend/game-client/src/i18n/index.js": "37dd930d9f30e6f6b088ad74f669c7cecbd91f7937ccb84e685d1dbfe4fa2690",
         "database/pending/repairs/20260605_200000__add_notification_system_tables.sql": "9e3a99322ec6fbc522ef130a0a99e37e81bb4505df7a0b6054b5aa2891fee7e9",
         "database/pending/repairs/20260611_020000__add_message_center_indexes.sql": "8b9ac997c0bcacee265fc649fa09961601a83487bc4d5183d279a111b9f5ee1c",
         "database/pending/repairs/20260611_102500__add_canary_deployment_tables.sql": "af806cc8d46faf2228134f5cc1f80cdc1f7258d29cf78492ad511664b790366d",
-        "database/pending/repairs/20260611_131000__add_friendship_system.sql": "0e265863d6cddcbff977d3b8a4c12401a72657625ba554de12343512ea08585e"
+        "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2"
       },
       "evidence": [
         {
@@ -1238,6 +1291,26 @@
           "passed": 1,
           "failed": 1,
           "scope": "V1/V2 passes. All84 pending history fails at20260611_131000 statement20 missing pokemon_instance_id; atomic batch rollback. Full requirement acceptance remains open."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            "docs/NOTIFICATIONS.md",
+            ".github/workflows/migration-regression.yml",
+            "database/pending/repairs/20260611_131000__add_friendship_system.sql"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "31dd217cc63d7087f8f41e58a03944461c71807b",
+          "result": "partial_CI_passed_full_history_failed",
+          "scope": "Main444/dependency255/privacy16/title-native13/notification-browser1 pass. Migration6 parser8/CLI13/prerequisite2/audit23/achievement41/notification35 steps pass, full84history fails friendship pokemon_instance_id (job113264600706 actual logs inspected). Contract369/API73/performance112/integration419 fail; security402/E2E106 were still live at this snapshot. Current source CI pending publication.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37763259826"
         }
       ],
       "remainingAcceptance": [
@@ -1269,8 +1342,8 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "e90d86305b34e686f46d083e9fd0bc67da0d86149514187498ed71599536e83a",
-        "database/pending/repairs.json": "887e9d0021a3ce331661de2e1c10f3c43048835dc737b1ed02c5ace5086ebb03"
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27"
       },
       "evidence": [
         {
@@ -1379,6 +1452,16 @@
             "backend/tests/regression/user-startup.test.js",
             ".github/workflows/title-regression.yml",
             "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
+          "changedReferences": [
             "database/pending/dependencies.json",
             "database/pending/repairs.json"
           ]
@@ -1405,8 +1488,8 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "e90d86305b34e686f46d083e9fd0bc67da0d86149514187498ed71599536e83a",
-        "database/pending/repairs.json": "887e9d0021a3ce331661de2e1c10f3c43048835dc737b1ed02c5ace5086ebb03"
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27"
       },
       "evidence": [
         {
@@ -1518,6 +1601,16 @@
             "database/pending/dependencies.json",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1534,8 +1627,8 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "e90d86305b34e686f46d083e9fd0bc67da0d86149514187498ed71599536e83a",
-        "database/pending/repairs.json": "887e9d0021a3ce331661de2e1c10f3c43048835dc737b1ed02c5ace5086ebb03"
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27"
       },
       "evidence": [
         {
@@ -1604,6 +1697,16 @@
             "database/pending/dependencies.json",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1626,14 +1729,14 @@
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/regression/storageSetup.js": "1a67a27f674d7ef022e266da1ebbd5146870cdc290ebd64a51a799f5843ceaee",
-        ".github/workflows/migration-regression.yml": "d7c7ccf65592ae0507e5c9728d7e306ef45d4f5736942815a69aa1b7cb162adc",
-        "docs/DATABASE-MIGRATIONS.md": "284a9070c166595ed4115d28d5013660149fd6b5ed7b43f7114507b6108e0af2",
+        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
+        "docs/DATABASE-MIGRATIONS.md": "3bba2407334d0de1cbc04872846ef45dd87b7e0c3e68500e6192ed894676fba3",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "e90d86305b34e686f46d083e9fd0bc67da0d86149514187498ed71599536e83a",
-        "database/pending/repairs.json": "887e9d0021a3ce331661de2e1c10f3c43048835dc737b1ed02c5ace5086ebb03",
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
-        "backend/tests/regression/migration-prerequisites.test.js": "779edeb45b83d981d361cba79cab518a53def7f881ee44b0956f75ff6b0a7766",
+        "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -1662,7 +1765,10 @@
         "docs/ACHIEVEMENTS.md": "09711c5508a55e25daaa1d2735281a7c35bae20e885c998d93bb3a5d17e8a08d",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
-        "docs/NOTIFICATIONS.md": "3494b94a38f85b913b43537962f276680845bc1ebbdcd75e2cf3f04b5cf9ba36"
+        "docs/NOTIFICATIONS.md": "784069b7365014190fc6ab29fccd17f1da7fb425d0c0c380507cf64da10e5d0e",
+        "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
+        "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
+        "docs/FRIENDSHIP.md": "1bcbb71bda74398e6e4b2e4c9bf87aa6372ffdb2c22f1603f5235d7cadab060d"
       },
       "evidence": [
         {
@@ -1842,6 +1948,26 @@
           "command": "Combined actual storage suites and database-bootstrap.test.js",
           "result": "partial_passed_full_history_failed",
           "scope": "114 actual storage cases pass. V1/V2 passes; full84history now fails friendship pokemon_instance_id. Prior audited storage slices remain valid; complete features/history/rollback remain open."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            "backend/tests/regression/migration-prerequisites.test.js",
+            "docs/NOTIFICATIONS.md"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance."
         }
       ],
       "remaining": "Reconcile notification_history/message-center and later full catalog/partition dependencies, all pending/history upgrade and data-preserving rollback, all-service startup and complete required CI acceptance."
@@ -1853,16 +1979,16 @@
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "e90d86305b34e686f46d083e9fd0bc67da0d86149514187498ed71599536e83a",
-        "database/pending/repairs.json": "887e9d0021a3ce331661de2e1c10f3c43048835dc737b1ed02c5ace5086ebb03",
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
-        "backend/tests/regression/migration-prerequisites.test.js": "779edeb45b83d981d361cba79cab518a53def7f881ee44b0956f75ff6b0a7766",
+        "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "d7c7ccf65592ae0507e5c9728d7e306ef45d4f5736942815a69aa1b7cb162adc",
-        "docs/DATABASE-MIGRATIONS.md": "284a9070c166595ed4115d28d5013660149fd6b5ed7b43f7114507b6108e0af2",
+        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
+        "docs/DATABASE-MIGRATIONS.md": "3bba2407334d0de1cbc04872846ef45dd87b7e0c3e68500e6192ed894676fba3",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -1879,7 +2005,10 @@
         "database/pending/20260609_124500__add_item_inventory_system.sql": "99c96061defc0b502f87147c491889266f53b9e5c8ae8cfbdcdda6892c09969e",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
-        "docs/NOTIFICATIONS.md": "3494b94a38f85b913b43537962f276680845bc1ebbdcd75e2cf3f04b5cf9ba36"
+        "docs/NOTIFICATIONS.md": "784069b7365014190fc6ab29fccd17f1da7fb425d0c0c380507cf64da10e5d0e",
+        "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
+        "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
+        "docs/FRIENDSHIP.md": "1bcbb71bda74398e6e4b2e4c9bf87aa6372ffdb2c22f1603f5235d7cadab060d"
       },
       "evidence": [
         {
@@ -1934,6 +2063,26 @@
           "command": "Combined actual storage suites and database-bootstrap.test.js",
           "result": "partial_passed_full_history_failed",
           "scope": "114 actual storage cases pass. V1/V2 passes; full84history now fails friendship pokemon_instance_id. Prior audited storage slices remain valid; complete features/history/rollback remain open."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            "backend/tests/regression/migration-prerequisites.test.js",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "docs/NOTIFICATIONS.md"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance."
         }
       ]
     },
@@ -1944,16 +2093,16 @@
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "e90d86305b34e686f46d083e9fd0bc67da0d86149514187498ed71599536e83a",
-        "database/pending/repairs.json": "887e9d0021a3ce331661de2e1c10f3c43048835dc737b1ed02c5ace5086ebb03",
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
-        "backend/tests/regression/migration-prerequisites.test.js": "779edeb45b83d981d361cba79cab518a53def7f881ee44b0956f75ff6b0a7766",
+        "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "d7c7ccf65592ae0507e5c9728d7e306ef45d4f5736942815a69aa1b7cb162adc",
-        "docs/DATABASE-MIGRATIONS.md": "284a9070c166595ed4115d28d5013660149fd6b5ed7b43f7114507b6108e0af2",
+        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
+        "docs/DATABASE-MIGRATIONS.md": "3bba2407334d0de1cbc04872846ef45dd87b7e0c3e68500e6192ed894676fba3",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -1970,7 +2119,10 @@
         "database/pending/20260609_230000__add_pokedex_completion_reward_system.sql": "748e9a8a28b86517ec5a521008e2e4e66713f14cd252c497cd3cecae310f1bd3",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
-        "docs/NOTIFICATIONS.md": "3494b94a38f85b913b43537962f276680845bc1ebbdcd75e2cf3f04b5cf9ba36"
+        "docs/NOTIFICATIONS.md": "784069b7365014190fc6ab29fccd17f1da7fb425d0c0c380507cf64da10e5d0e",
+        "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
+        "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
+        "docs/FRIENDSHIP.md": "1bcbb71bda74398e6e4b2e4c9bf87aa6372ffdb2c22f1603f5235d7cadab060d"
       },
       "evidence": [
         {
@@ -2025,6 +2177,26 @@
           "command": "Combined actual storage suites and database-bootstrap.test.js",
           "result": "partial_passed_full_history_failed",
           "scope": "114 actual storage cases pass. V1/V2 passes; full84history now fails friendship pokemon_instance_id. Prior audited storage slices remain valid; complete features/history/rollback remain open."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            "backend/tests/regression/migration-prerequisites.test.js",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "docs/NOTIFICATIONS.md"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance."
         }
       ]
     },
@@ -2035,16 +2207,16 @@
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "e90d86305b34e686f46d083e9fd0bc67da0d86149514187498ed71599536e83a",
-        "database/pending/repairs.json": "887e9d0021a3ce331661de2e1c10f3c43048835dc737b1ed02c5ace5086ebb03",
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
-        "backend/tests/regression/migration-prerequisites.test.js": "779edeb45b83d981d361cba79cab518a53def7f881ee44b0956f75ff6b0a7766",
+        "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "d7c7ccf65592ae0507e5c9728d7e306ef45d4f5736942815a69aa1b7cb162adc",
-        "docs/DATABASE-MIGRATIONS.md": "284a9070c166595ed4115d28d5013660149fd6b5ed7b43f7114507b6108e0af2",
+        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
+        "docs/DATABASE-MIGRATIONS.md": "3bba2407334d0de1cbc04872846ef45dd87b7e0c3e68500e6192ed894676fba3",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -2075,7 +2247,10 @@
         "docs/ACHIEVEMENTS.md": "09711c5508a55e25daaa1d2735281a7c35bae20e885c998d93bb3a5d17e8a08d",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
-        "docs/NOTIFICATIONS.md": "3494b94a38f85b913b43537962f276680845bc1ebbdcd75e2cf3f04b5cf9ba36"
+        "docs/NOTIFICATIONS.md": "784069b7365014190fc6ab29fccd17f1da7fb425d0c0c380507cf64da10e5d0e",
+        "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
+        "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
+        "docs/FRIENDSHIP.md": "1bcbb71bda74398e6e4b2e4c9bf87aa6372ffdb2c22f1603f5235d7cadab060d"
       },
       "evidence": [
         {
@@ -2178,6 +2353,26 @@
           "command": "Combined actual storage suites and database-bootstrap.test.js",
           "result": "partial_passed_full_history_failed",
           "scope": "114 actual storage cases pass. V1/V2 passes; full84history now fails friendship pokemon_instance_id. Prior audited storage slices remain valid; complete features/history/rollback remain open."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            "backend/tests/regression/migration-prerequisites.test.js",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "docs/NOTIFICATIONS.md"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance."
         }
       ],
       "remaining": "Later duplicate partition/history conflicts and whole-history data-preserving upgrade/rollback, all five actual service contracts, dynamic future scheduling, archive/restore/retention/metrics/statistics API, >=80% coverage and >=50% query improvement remain open."
@@ -2190,22 +2385,25 @@
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260611_000000__add_achievement_system_tables.sql": "31e3714195d83afba17bafd85f3590ad51e30011831a5d0a1f5b4e8e5a00e302",
         "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "6f9c323240e28aa67a4d54fccd7141b72f7d58f91607ae53568631b90cd0a2d9",
-        "database/pending/repairs.json": "887e9d0021a3ce331661de2e1c10f3c43048835dc737b1ed02c5ace5086ebb03",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "database/pending/20261008_150000__achievement_catalog_bridge.sql": "432a090e79626102f6cff413f6bc844c7617bd0c2cc1346899f95fa1b801e04f",
-        "database/pending/dependencies.json": "e90d86305b34e686f46d083e9fd0bc67da0d86149514187498ed71599536e83a",
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
         "backend/services/pokemon-service/src/achievementService.js": "1d9a713fc73187c6391357c436492f1a4cb192e246c256a45b99779acabddbcf",
         "backend/services/pokemon-service/src/routes/achievements.js": "eddd615a633590f438a009aa0ed3c121016221c9d1af7dd687ff6a73af343b21",
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "backend/services/user-service/src/routes/user.js": "7d24fb40cd0662c428a6b42c2bf6636a2a3ac05fdcdc5e8717d1df5a1dbf04df",
         "backend/tests/regression/achievement-storage.test.js": "4983c1a41d7e40fd86bcb29cd59765555c2ff0f10030044ca5b75ee435a4b90b",
-        ".github/workflows/migration-regression.yml": "d7c7ccf65592ae0507e5c9728d7e306ef45d4f5736942815a69aa1b7cb162adc",
+        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
         "docs/ACHIEVEMENTS.md": "09711c5508a55e25daaa1d2735281a7c35bae20e885c998d93bb3a5d17e8a08d",
-        "docs/DATABASE-MIGRATIONS.md": "284a9070c166595ed4115d28d5013660149fd6b5ed7b43f7114507b6108e0af2",
+        "docs/DATABASE-MIGRATIONS.md": "3bba2407334d0de1cbc04872846ef45dd87b7e0c3e68500e6192ed894676fba3",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
-        "docs/NOTIFICATIONS.md": "3494b94a38f85b913b43537962f276680845bc1ebbdcd75e2cf3f04b5cf9ba36"
+        "docs/NOTIFICATIONS.md": "784069b7365014190fc6ab29fccd17f1da7fb425d0c0c380507cf64da10e5d0e",
+        "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
+        "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
+        "docs/FRIENDSHIP.md": "1bcbb71bda74398e6e4b2e4c9bf87aa6372ffdb2c22f1603f5235d7cadab060d"
       },
       "evidence": [
         {
@@ -2270,6 +2468,25 @@
           "command": "Combined actual storage suites and database-bootstrap.test.js",
           "result": "partial_passed_full_history_failed",
           "scope": "114 actual storage cases pass. V1/V2 passes; full84history now fails friendship pokemon_instance_id. Prior audited storage slices remain valid; complete features/history/rollback remain open."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            "database/pending/dependencies.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "docs/NOTIFICATIONS.md"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance."
         }
       ],
       "remaining": "Replay/idempotency/durable events/automatic grant/all triggers; complete seed item/title contract and exclusive Pokemon grant; management CRUD/admin and edited-definition snapshot policy; old unit fixture; native pokemon process/gateway/client/localization; <100ms query/<50ms update performance; full83 history and data-preserving reversal with modern records remain unproven."
@@ -2305,10 +2522,30 @@
           "passed": 1,
           "failed": 1,
           "scope": "V1/V2 passes. All84 pending history fails at20260611_131000 statement20 missing pokemon_instance_id; atomic batch rollback. Full requirement acceptance remains open."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
+          "changedReferences": [
+            "docs/NOTIFICATIONS.md",
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "database/pending/repairs/20260611_131000__add_friendship_system.sql"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "31dd217cc63d7087f8f41e58a03944461c71807b",
+          "result": "partial_CI_passed_full_history_failed",
+          "scope": "Main444/dependency255/privacy16/title-native13/notification-browser1 pass. Migration6 parser8/CLI13/prerequisite2/audit23/achievement41/notification35 steps pass, full84history fails friendship pokemon_instance_id (job113264600706 actual logs inspected). Contract369/API73/performance112/integration419 fail; security402/E2E106 were still live at this snapshot. Current source CI pending publication.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37763259826"
         }
       ],
       "sourceSha256": {
-        "docs/NOTIFICATIONS.md": "3494b94a38f85b913b43537962f276680845bc1ebbdcd75e2cf3f04b5cf9ba36",
+        "docs/NOTIFICATIONS.md": "784069b7365014190fc6ab29fccd17f1da7fb425d0c0c380507cf64da10e5d0e",
         "backend/services/user-service/src/notificationService.js": "9b1809ee37dcef1cc4794db12b5a0fc2f4df876ade8dab918b378eca07d75194",
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
         "backend/services/user-service/src/routes/notifications.js": "4118c13aa025d4fcfee1beb6ae7fe98f06568f62c99b0ff6bf464ec17fe28968",
@@ -2329,10 +2566,10 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
-        "database/pending/dependencies.json": "e90d86305b34e686f46d083e9fd0bc67da0d86149514187498ed71599536e83a",
-        "database/pending/repairs.json": "887e9d0021a3ce331661de2e1c10f3c43048835dc737b1ed02c5ace5086ebb03",
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "d7c7ccf65592ae0507e5c9728d7e306ef45d4f5736942815a69aa1b7cb162adc",
+        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -2340,7 +2577,7 @@
         "database/pending/repairs/20260605_200000__add_notification_system_tables.sql": "9e3a99322ec6fbc522ef130a0a99e37e81bb4505df7a0b6054b5aa2891fee7e9",
         "database/pending/repairs/20260611_020000__add_message_center_indexes.sql": "8b9ac997c0bcacee265fc649fa09961601a83487bc4d5183d279a111b9f5ee1c",
         "database/pending/repairs/20260611_102500__add_canary_deployment_tables.sql": "af806cc8d46faf2228134f5cc1f80cdc1f7258d29cf78492ad511664b790366d",
-        "database/pending/repairs/20260611_131000__add_friendship_system.sql": "0e265863d6cddcbff977d3b8a4c12401a72657625ba554de12343512ea08585e"
+        "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2"
       },
       "date": "2026-10-08",
       "status": "partial_local_verified_ci_pending",
@@ -2385,10 +2622,30 @@
           "passed": 1,
           "failed": 1,
           "scope": "V1/V2 passes. All84 pending history fails at20260611_131000 statement20 missing pokemon_instance_id; atomic batch rollback. Full requirement acceptance remains open."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
+          "changedReferences": [
+            "docs/NOTIFICATIONS.md",
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "database/pending/repairs/20260611_131000__add_friendship_system.sql"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "31dd217cc63d7087f8f41e58a03944461c71807b",
+          "result": "partial_CI_passed_full_history_failed",
+          "scope": "Main444/dependency255/privacy16/title-native13/notification-browser1 pass. Migration6 parser8/CLI13/prerequisite2/audit23/achievement41/notification35 steps pass, full84history fails friendship pokemon_instance_id (job113264600706 actual logs inspected). Contract369/API73/performance112/integration419 fail; security402/E2E106 were still live at this snapshot. Current source CI pending publication.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37763259826"
         }
       ],
       "sourceSha256": {
-        "docs/NOTIFICATIONS.md": "3494b94a38f85b913b43537962f276680845bc1ebbdcd75e2cf3f04b5cf9ba36",
+        "docs/NOTIFICATIONS.md": "784069b7365014190fc6ab29fccd17f1da7fb425d0c0c380507cf64da10e5d0e",
         "backend/services/user-service/src/notificationService.js": "9b1809ee37dcef1cc4794db12b5a0fc2f4df876ade8dab918b378eca07d75194",
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
         "backend/services/user-service/src/routes/notifications.js": "4118c13aa025d4fcfee1beb6ae7fe98f06568f62c99b0ff6bf464ec17fe28968",
@@ -2409,10 +2666,10 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
-        "database/pending/dependencies.json": "e90d86305b34e686f46d083e9fd0bc67da0d86149514187498ed71599536e83a",
-        "database/pending/repairs.json": "887e9d0021a3ce331661de2e1c10f3c43048835dc737b1ed02c5ace5086ebb03",
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "d7c7ccf65592ae0507e5c9728d7e306ef45d4f5736942815a69aa1b7cb162adc",
+        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -2420,7 +2677,7 @@
         "database/pending/repairs/20260605_200000__add_notification_system_tables.sql": "9e3a99322ec6fbc522ef130a0a99e37e81bb4505df7a0b6054b5aa2891fee7e9",
         "database/pending/repairs/20260611_020000__add_message_center_indexes.sql": "8b9ac997c0bcacee265fc649fa09961601a83487bc4d5183d279a111b9f5ee1c",
         "database/pending/repairs/20260611_102500__add_canary_deployment_tables.sql": "af806cc8d46faf2228134f5cc1f80cdc1f7258d29cf78492ad511664b790366d",
-        "database/pending/repairs/20260611_131000__add_friendship_system.sql": "0e265863d6cddcbff977d3b8a4c12401a72657625ba554de12343512ea08585e"
+        "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2"
       },
       "date": "2026-10-08",
       "status": "partial_local_verified_ci_pending",
@@ -2465,10 +2722,30 @@
           "passed": 1,
           "failed": 1,
           "scope": "V1/V2 passes. All84 pending history fails at20260611_131000 statement20 missing pokemon_instance_id; atomic batch rollback. Full requirement acceptance remains open."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "Actual CLI/prerequisite/audit/achievement/notification/friendship/privacy storage suites; database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
+          "changedReferences": [
+            "docs/NOTIFICATIONS.md",
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "database/pending/repairs/20260611_131000__add_friendship_system.sql"
+          ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "31dd217cc63d7087f8f41e58a03944461c71807b",
+          "result": "partial_CI_passed_full_history_failed",
+          "scope": "Main444/dependency255/privacy16/title-native13/notification-browser1 pass. Migration6 parser8/CLI13/prerequisite2/audit23/achievement41/notification35 steps pass, full84history fails friendship pokemon_instance_id (job113264600706 actual logs inspected). Contract369/API73/performance112/integration419 fail; security402/E2E106 were still live at this snapshot. Current source CI pending publication.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37763259826"
         }
       ],
       "sourceSha256": {
-        "docs/NOTIFICATIONS.md": "3494b94a38f85b913b43537962f276680845bc1ebbdcd75e2cf3f04b5cf9ba36",
+        "docs/NOTIFICATIONS.md": "784069b7365014190fc6ab29fccd17f1da7fb425d0c0c380507cf64da10e5d0e",
         "backend/services/user-service/src/notificationService.js": "9b1809ee37dcef1cc4794db12b5a0fc2f4df876ade8dab918b378eca07d75194",
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
         "backend/services/user-service/src/routes/notifications.js": "4118c13aa025d4fcfee1beb6ae7fe98f06568f62c99b0ff6bf464ec17fe28968",
@@ -2489,10 +2766,10 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
-        "database/pending/dependencies.json": "e90d86305b34e686f46d083e9fd0bc67da0d86149514187498ed71599536e83a",
-        "database/pending/repairs.json": "887e9d0021a3ce331661de2e1c10f3c43048835dc737b1ed02c5ace5086ebb03",
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "d7c7ccf65592ae0507e5c9728d7e306ef45d4f5736942815a69aa1b7cb162adc",
+        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -2500,7 +2777,7 @@
         "database/pending/repairs/20260605_200000__add_notification_system_tables.sql": "9e3a99322ec6fbc522ef130a0a99e37e81bb4505df7a0b6054b5aa2891fee7e9",
         "database/pending/repairs/20260611_020000__add_message_center_indexes.sql": "8b9ac997c0bcacee265fc649fa09961601a83487bc4d5183d279a111b9f5ee1c",
         "database/pending/repairs/20260611_102500__add_canary_deployment_tables.sql": "af806cc8d46faf2228134f5cc1f80cdc1f7258d29cf78492ad511664b790366d",
-        "database/pending/repairs/20260611_131000__add_friendship_system.sql": "0e265863d6cddcbff977d3b8a4c12401a72657625ba554de12343512ea08585e"
+        "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2"
       },
       "date": "2026-10-08",
       "status": "partial_local_verified_ci_pending",
@@ -2512,6 +2789,92 @@
         "Live FCM/APNs/device delivery and adapter coverage >=80% (REQ32)",
         "Full game navigation/details/actions/preferences, incremental/reconnect synchronization, accessibility, virtual scrolling1000/FPS60 (REQ99)",
         "Every original numerical latency/reach/retention/survey target; no fabricated pass"
+      ]
+    },
+    "REQ-00067-pokemon-friendship-and-interaction-system.md": {
+      "sourceSha256": {
+        "database/pending/20260609_223000__add_friendship_system.sql": "244f30d41a4dca04225077242c77dc724b8a0ef9a12addf0bc011c2366ed1ad7",
+        "database/pending/20260611_131000__add_friendship_system.sql": "1d5b944eb3f8d1c16dfce690712aed383a6a126449d66f9f633a5477430a4ac8",
+        "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
+        "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
+        "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
+        "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
+        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
+        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
+        "docs/FRIENDSHIP.md": "1bcbb71bda74398e6e4b2e4c9bf87aa6372ffdb2c22f1603f5235d7cadab060d"
+      },
+      "evidence": [
+        {
+          "date": "2026-10-08",
+          "command": "node --test backend/tests/regression/friendship-storage.test.js",
+          "result": "passed",
+          "tests": 20,
+          "scope": "Actual V1/UUID trainer bonds, original keys/FKs/OIDs/views/function/trigger/disabled states;256 affinity projection values; signed delta history; concurrent updates; metadata/unsupported schema guards and exact unused reverse. SQL storage only; routes/service/battle/client/coverage/quality acceptance still open."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "node --test backend/tests/regression/database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
+          "passed": 1,
+          "failed": 1
+        }
+      ],
+      "date": "2026-10-08",
+      "status": "partial_verified_full_history_failed",
+      "documentSha256": "2199fa22d3b8cef1ec34265ea4d1218f539c6cb9c5b9eeedb76ee9a0a5221768",
+      "remainingAcceptance": [
+        "Actual JWT/ownership/UUID routing and shared service adapter repairs",
+        "All five bond interactions and affinity actions/resources/cooldowns/daily limits",
+        "Capture/trade/battle/walking initialization/events/milestones/caching",
+        "At least8 real evolution rules and atomic execution; actual gym bonuses",
+        "Both client contracts, actual metrics/coverage80/85% and all numeric user targets",
+        "Complete85migration history/upgrades/data-preserving rollback and relevant CI"
+      ]
+    },
+    "REQ-00079-pokemon-friendship-and-affinity-system.md": {
+      "sourceSha256": {
+        "database/pending/20260609_223000__add_friendship_system.sql": "244f30d41a4dca04225077242c77dc724b8a0ef9a12addf0bc011c2366ed1ad7",
+        "database/pending/20260611_131000__add_friendship_system.sql": "1d5b944eb3f8d1c16dfce690712aed383a6a126449d66f9f633a5477430a4ac8",
+        "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
+        "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
+        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/repairs.json": "9fe843892872a9710444e882d030e74f46048c1c5095f13e3a2a389d452e0e27",
+        "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
+        "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
+        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
+        ".github/workflows/migration-regression.yml": "0547656262f38aa8db5cd6721a4eb0d5fd25c5f224826f20cd19e1df3aa52d3c",
+        "docs/FRIENDSHIP.md": "1bcbb71bda74398e6e4b2e4c9bf87aa6372ffdb2c22f1603f5235d7cadab060d"
+      },
+      "evidence": [
+        {
+          "date": "2026-10-08",
+          "command": "node --test backend/tests/regression/friendship-storage.test.js",
+          "result": "passed",
+          "tests": 20,
+          "scope": "Actual V1/UUID trainer bonds, original keys/FKs/OIDs/views/function/trigger/disabled states;256 affinity projection values; signed delta history; concurrent updates; metadata/unsupported schema guards and exact unused reverse. SQL storage only; routes/service/battle/client/coverage/quality acceptance still open."
+        },
+        {
+          "date": "2026-10-08",
+          "command": "node --test backend/tests/regression/database-bootstrap.test.js",
+          "result": "partial_passed_full_history_failed",
+          "scope": "147 actual storage cases pass (13CLI+4prerequisite+23audit+41achievement+35notification+20friendship+11privacy); final friendship20 repeated after retaining update-trigger identity/enablement. V1/V2 passes; all85pending history fails catch_sessions catch_timestamp. Shared migration metadata and documentation refreshed only for these executed slices, not complete service/feature/rollback acceptance.",
+          "passed": 1,
+          "failed": 1
+        }
+      ],
+      "date": "2026-10-08",
+      "status": "partial_verified_full_history_failed",
+      "documentSha256": "88ea8074248884f00732da80e45b56fd489d819d7583d4eea469bb318650fedf",
+      "remainingAcceptance": [
+        "Actual JWT/ownership/UUID routing and shared service adapter repairs",
+        "All five bond interactions and affinity actions/resources/cooldowns/daily limits",
+        "Capture/trade/battle/walking initialization/events/milestones/caching",
+        "At least8 real evolution rules and atomic execution; actual gym bonuses",
+        "Both client contracts, actual metrics/coverage80/85% and all numeric user targets",
+        "Complete85migration history/upgrades/data-preserving rollback and relevant CI"
       ]
     }
   }

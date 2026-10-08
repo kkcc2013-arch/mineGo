@@ -72,7 +72,7 @@
 | [REQ-00064](REQ-00064-risk-triggered-captcha-human-verification-system.md) | 风险触发式人机验证（CAPTCHA）系统 | 反作弊 | P1 | done | gateway、user-service、game-client、backend/shared、Redis | 2026-06-09 20:15 |
 | [REQ-00065](REQ-00065-pokemon-evolution-and-growth-system.md) | 精灵进化与成长系统 | 功能增强 | P0 | done | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-09 23:00 |
 | [REQ-00066](REQ-00066-api-error-code-standardization-and-troubleshooting-guide.md) | API 错误码标准化与故障排查手册 | HTTP 状态码 | P1 | done | gateway、所有微服务、backend/shared、docs/api-spec、docs/troubleshooting | 2026-06-09 21:15 |
-| [REQ-00067](REQ-00067-pokemon-friendship-and-interaction-system.md) | 精灵羁绊与互动养成系统 | 功能增强 | P1 | done | pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-09 22:30 |
+| [REQ-00067](REQ-00067-pokemon-friendship-and-interaction-system.md) | 精灵羁绊与互动养成系统 | 功能增强 | P1 | in_progress | pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-09 22:30 |
 | [REQ-00068](REQ-00068-service-degradation-strategy-manager.md) | 服务降级策略与优雅降级管理器 | 容灾/高可用 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s | 2026-06-09 22:05 |
 | [REQ-00069](REQ-00069-pokemon-spawn-management-dynamic-refresh-control.md) | 精灵资源管理系统与动态刷新控制 | 功能增强 | P1 | new | location-service、catch-service、backend/shared、game-client、database/migrations | 2026-06-09 23:30 |
 | [REQ-00070](REQ-00070-redis-memory-optimization-auto-ttl.md) | Redis 内存优化与自动 TTL 策略 | 成本/资源优化 | P1 | done | backend/shared/cache.js、backend/shared/redis.js、gateway、所有微服务 | 2026-06-09 23:00 |
@@ -84,7 +84,7 @@
 | [REQ-00076](REQ-00076-pokemon-achievement-and-milestone-reward-system.md) | 精灵成就系统与里程碑奖励 | 功能增强 | P1 | in_progress | pokemon-service、reward-service、user-service、gateway、game-client、database/migrations | 2026-06-10 02:15 |
 | [REQ-00077](REQ-00077-database-slow-query-analysis-system.md) | 数据库慢查询分析与自动优化建议系统 | 数据库/数据治理 | P1 | done | database/migrations、所有微服务、backend/shared、infrastructure/k8s | 2026-06-10 10:30 |
 | [REQ-00078](REQ-00078-canary-deployment-and-traffic-splitting.md) | 金丝雀发布与流量分割系统 | 运维/CICD | P1 | done | gateway、所有微服务、infrastructure/k8s、.github/workflows、backend/shared | 2026-06-10 04:00 |
-| [REQ-00079](REQ-00079-pokemon-friendship-and-affinity-system.md) | 精灵好感度系统与亲密度进化机制 | 功能增强 | P1 | new | pokemon-service、user-service、catch-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 11:00 |
+| [REQ-00079](REQ-00079-pokemon-friendship-and-affinity-system.md) | 精灵好感度系统与亲密度进化机制 | 功能增强 | P1 | in_progress | pokemon-service、user-service、catch-service、reward-service、gateway、game-client、database/migrations | 2026-06-10 11:00 |
 | [REQ-00080](REQ-00080-api-request-response-schema-validation-system.md) | API 请求响应 Schema 验证系统 | API 设计规范 | P1 | done | gateway、backend/shared、所有微服务、docs/api-spec/openapi | 2026-06-10 05:00 |
 | [REQ-00081](REQ-00081-catch-animation-effects-system.md) | 捕捉动画特效系统 | 前端体验 | P1 | done | game-client、frontend/effects、catch-service | 2026-06-10 06:00 |
 | [REQ-00082](REQ-00082-catch-success-anomaly-detection-system.md) | 精灵捕捉成功率异常检测系统 | 反作弊 | P1 | new | catch-service、gateway、backend/shared/anti-cheat.js、Redis、PostgreSQL | 2026-06-10 07:00 |

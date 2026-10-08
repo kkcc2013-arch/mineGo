@@ -858,3 +858,53 @@ a11y/incrementalsync/reconnect/virtualscroll1000/FPS60 and every numeric latency
 reach/retention target. Next reconcile true friendship table/schema and later history
 before full upgrade/rollback/allservice acceptance, then all original plan stages.
 No production migration, merge or deployment. Owned services stop after terminal checks.
+
+
+## 2026-10-08 — Friendship identity/history and privacy consumer ordering
+
+Previous goal turn: progress (published31dd217 notification batch). Current turn:
+progress. All658 remains active;198legacydone/26inprogress/434new, independentlyverified0.
+Req67 old done reopened,79 started. No repeated external blocker prevents implementation.
+
+Sixth prerequisite retains actual UUID trainer bond table/OID/key/FKs/rows/mood/counters/
+levels/timestamps and distinct old/current trainer rows. Exact generated instance UUID
+and named affinity are projections; numeric bond levels and historic values stay intact.
+Unknown first trainer date/days stayNULL, no original acquisition history fabricated.
+Original logtrigger wrote invalid system_update and negative amounts into a five-action/
+positive-only table, blocking real updates. Its function identity remains; sink now writes
+actual before/after signed history in its own schema. Concurrent changes form realchain,
+rollback leaves no phantom event. Existing update function/trigger/disabled states kept;
+final review removed legacy consumer's unnecessary DROP/recreate/replace of that trigger.
+Custom logging/additional consumers/integer identities/priorbridge collisions reject
+atomically. Unused down exactly restores original rows/functions/triggers; realmetadata/
+history refusesloss. Fullbridge is storage scope, not service/game completion.
+
+Existing privacy compatibility/default source now runs before legacyconsumer. SHA-bound
+whole correction sets newoptionaldefaultfalse and fills legacy title/content/published_at
+only from actual originalseedtext/date. ExistingversionDONOTHING, originalchoice/active/
+text/date/consent preserved; unknowntranslationsnotfabricated. ActualCLIdurableorder and
+both missing/preexistingversion cases pass. No original84 pending rawSQL edits, total85.
+
+Final evidence:147 actual storagecases (13CLI+4prereq+23audit+41achievement+35notification+
+20friendship+11privacy)pass; parser/graph8 pass. Finalfriendship20 repeatedaftertrigger
+preservation; fullV1/V2pass, complete85history fails20260612_070000stmt6 catch_sessions
+catch_timestamp missing, entirebatchrollsback. Syntax1421/YAML21/numbering658/source-hash/
+diff checks requiredbeforepublish. One preservation assertion initially included intended
+newconstraints asiforiginals; corrected to demand original constraintOIDs/definitions
+unchanged whiletestingnewchecks separately. Date assertion now reads actualSQLDATE/text,
+avoiding JS local-midnight→UTCday drift; acceptance/datevalues notchanged.
+
+Published31ddremote:main444/dependency255/privacy16/title-native13/notification-browser1
+pass. Migration6 parser8/CLI13/prereq2/audit23/achievement41/notification35 pass thenfull84
+friendshipfails. Actual job113264600706 logs confirm35pass+exactcolumnfailure. Contract369/
+API73/performance112/integration419 fail; security402/E2E106 live atlastsnapshot. Current
+source CI pendingpublication. No full requirement promoted verified.
+
+Remain friendship service nonexistent getDb/logger/metrics adapters, UUID/auth route
+bugs and caller X-User-Id trust, oldbond alternatepokemontable/nontransactionalresources/
+cooldowns; all original actions/events/initialcapture/trade/walking/gym/client/evolution/
+metrics/coverage80/85%/numericalacceptance. Sampleevolutiontargets missing means0seedrules
+is unaccepted; nofakecatalogdata. Next preserveactualcatch_sessions contract/data andlater
+migrationconflicts; fullhistory/rollback/allservices/P0auth thenallremainingplanstages.
+No production migration/merge/deploy. StopownedPostGIS afterterminalprobes; unrelated
+openclawgateway untouched. Goalactiveprogress, no blocked audit applies.

@@ -1,9 +1,9 @@
 # mineGo requirement completion plan
 
 Updated: 2026-10-08. Scope: all 658 existing requirement documents in INDEX.md,
-including the 199 legacy done declarations that still need independent acceptance.
+including the 198 legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 435 new, 24 in progress. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 434 new, 26 in progress. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -34,14 +34,15 @@ independent authorized work.
 2. V1 achievement/catalog/progress bridge and actual reward transaction now pass41
    storage/production-router checks. Continue event delivery/replay/automatic rewards,
    all seeded resource/title contracts, management/clients and full service acceptance.
-3. Notification storage/routes/realtime/components now pass35 actual storage and10
-   Chromium checks. Complete provider/outbox/all publishers/full game/performance/UI
-   acceptance remains open. The complete84-file migration gate now reaches friendship
-   pokemon_instance_id missing. Preserve real friendship identity/data while reconciling
-   later partition/catalog conflicts, full upgrade/rollback and all-service startup.
-4. Resume P0 service/security route work and every remaining original stage. Unit623,
-   combined storage114 and business/native35 pass locally. Complete legacy contract/API/
-   performance/integration/security/E2E acceptance remains open.
+3. Notification storage/routes/realtime/components pass35 actual storage and10 Chromium
+   checks; current published notification workflow passes. Provider/outbox/all publishers/
+   full game/performance/UI acceptance remains open. Friendship UUID identity/history now
+   passes20 real storage checks, and privacy consumer ordering passes actual CLI probes.
+4. Complete85-file history now reaches a catch_sessions/catch_timestamp conflict. Preserve
+   actual catch data/identity and service contracts, then continue later partitions/catalogs,
+   full history/rollback and all-service startup. Full migration/parser8 and combined actual
+   storage147 checks pass locally; complete history remains red. Continue original P0
+   service/security/game/client/quality/operations stages and audit all658 requirements.
 
 ## Definition of finished
 
@@ -210,3 +211,22 @@ Req32/120 old done reopened, req99 started:199done/24progress/435new, independen
 Remaining provider/retries/outbox/fullapp/UI/coverage/numerical acceptance is explicit in
 NOTIFICATIONS.md. Next: preserve/reconcile friendship schema and later migration conflicts,
 then all original stages. Full658 persistent goal remains active; no external blocker.
+
+
+## Friendship and privacy ordering batch (2026-10-08)
+
+Preserved actual UUID trainer bond relation/keys/FKs/data/levels/mood/timestamps and
+multiple trainer rows. Named affinity is a generated projection. Actual signed delta
+history replaces an invalid system_update/positive-only trigger sink; original update
+trigger/function and disabled states remain intact. Unknown old trainer metadata stays
+NULL; integer/custom logging/history conflicts refuse and actual metadata/history blocks
+lossy down.20 real cases pass, including all256 values/concurrency/exact unused reverse.
+Existing privacy compatibility precedes consumer; original text/date populate required
+seed fields, optional defaults remain false and old choices/policyversions stay unchanged.
+Actual CLI prereq4, parser8, combined storage147 and syntax1421 pass. Full V1/V2pass,
+complete85history fails next catch_sessions catch_timestamp. Req67 reopened/79started:
+198done/26progress/434new, independentlyverified0. Existing service auth/UUID/adapters/
+resources/events/client/battle/evolution/coverage/numerical boundaries remain open.
+Next: catch-session schema/history and later conflicts, full rollback/native services,
+then P0 authorization and all original plan stages. Persistent goal is active; progress,
+not a blocking condition. No production migration, merge or deployment.

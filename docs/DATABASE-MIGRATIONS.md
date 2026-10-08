@@ -62,7 +62,7 @@ and shared AUTO_MIGRATE startup. Full V1/PostGIS schema plus V2 sample data now 
 the sample's other game-balance settings remain unchanged. New target base stats were
 checked against the [game-master snapshot](https://github.com/PokeMiners/game_masters/blob/8e227be44f288d34463e23bf04e9b564d3c16f79/latest/latest.json).
 
-The current84-file pending history (original79 plus5 explicit prerequisites) remains
+The current85-file pending history (original79 plus6 explicit prerequisites) remains
 gated. The audit conversion now executes successfully: V1 storage is attached as a
 default partition with its original ID/sequence/columns/data retained. Views, indexes,
 triggers and grants are preserved; rollback retains rows written after conversion.
@@ -82,8 +82,11 @@ the existing title bootstrap and new bridge before the legacy consumer. All82 pr
 published pending sources are immutable.41 actual achievement service/storage/HTTP checks
 pass; an unused bridge reverses, while rollback with modern data explicitly refuses
 loss. Notification history now has an additive identity-preserving bridge and actual35 storage
-checks. All83 published pending sources remain byte-identical. Full history now fails
-at20260611_131000 statement20: the preexisting friendship table lacks pokemon_instance_id.
+checks. All83 published pending sources remain byte-identical. The friendship identity bridge now preserves canonical trainer bonds and exposes named
+affinity separately;20 actual storage checks pass. The existing privacy compatibility
+migration explicitly precedes its consumer. All84 published pending sources are unchanged.
+Full history now fails at20260612_070000 statement6: preexisting catch_sessions lacks
+catch_timestamp. See FRIENDSHIP.md for storage and remaining service boundaries.
 Later duplicate partition migrations and complete data-preserving rollback remain open. See ACHIEVEMENTS.md for actual grant and
 remaining event/client/management boundaries.
 
@@ -94,8 +97,9 @@ Set TEST_DATABASE_URL to an isolated PostGIS database and run
 `node --test backend/tests/regression/audit-partition-storage.test.js`,
 `node --test backend/tests/regression/achievement-storage.test.js` and
 `node --test backend/tests/regression/notification-storage.test.js` and
+`node --test backend/tests/regression/friendship-storage.test.js` and
 `node --test backend/tests/regression/database-bootstrap.test.js`. The final history case
-remains red at the friendship conflict. See NOTIFICATIONS.md for delivery/client limits. GitHub runs all these gates in
+remains red at the catch-session conflict. See NOTIFICATIONS.md for delivery/client limits. GitHub runs all these gates in
 .github/workflows/migration-regression.yml. Whole-history upgrades/rollback, all-service
 startup, operational backups and REQ-00306 remain open; REQ-00007 is not complete.
 
