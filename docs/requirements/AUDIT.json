@@ -711,7 +711,7 @@
         "- [ ] 单元测试覆盖 NotificationManager 核心逻辑",
         "- [ ] 前端测试验证通知显示和交互"
       ],
-      "verificationStatus": "partial_local_verified_ci_pending",
+      "verificationStatus": "partial_ci_verified",
       "implementationReferences": [
         "backend/services/gym-service/src/index.js",
         "backend/services/user-service/src/handlers/notificationHandler.js",
@@ -1573,7 +1573,7 @@
         "- [ ] 4 个 Prometheus 指标正常暴露",
         "- [ ] 单元测试覆盖率 ≥ 80%"
       ],
-      "verificationStatus": "partial_local_verified_ci_pending",
+      "verificationStatus": "partial_ci_verified",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/services/user-service/src/routes/privacy.js",
@@ -2279,7 +2279,7 @@
         "- [ ] 单元测试覆盖率 >= 80%",
         "- [ ] 集成测试覆盖核心流程"
       ],
-      "verificationStatus": "partial_local_verified_ci_pending",
+      "verificationStatus": "partial_ci_verified",
       "implementationReferences": [
         "backend/gateway/src/index.js",
         "backend/gateway/src/middleware/ipBan.js",
@@ -3245,7 +3245,7 @@
         "- [ ] 单元测试覆盖率 > 80%",
         "- [ ] 性能测试：称号查询 < 50ms"
       ],
-      "verificationStatus": "partial_local_verified_ci_pending",
+      "verificationStatus": "partial_ci_verified",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/services/user-service/src/routes/titles.js",
@@ -4396,7 +4396,7 @@
         "- [ ] 启动 user-service 后，`curl -sf http://localhost:8081/ip-appeal/status -H \"Authorization: Bearer invalid\"` 返回 401（认证端点）",
         "- [ ] `npm test --prefix backend/services/user-service` 通过（如有相关测试）"
       ],
-      "verificationStatus": "partial_local_verified_ci_pending",
+      "verificationStatus": "partial_ci_verified",
       "implementationReferences": [
         "backend/services/user-service/src/index.js"
       ],
@@ -4697,7 +4697,7 @@
         "- [ ] **根因分析**",
         "- [ ] **监控集成**"
       ],
-      "verificationStatus": "partial_local_verified_ci_pending",
+      "verificationStatus": "partial_ci_verified",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/shared/ServiceHealthSelfHealing.js",
@@ -16330,7 +16330,7 @@
         "- [ ] 系统时区配置支持热更新，无需重启服务。",
         "- [ ] 完成跨时区业务场景的单元测试，覆盖 DST（夏令时）切换场景。"
       ],
-      "verificationStatus": "partial_local_verified_ci_pending",
+      "verificationStatus": "partial_ci_verified",
       "implementationReferences": [
         "backend/gateway/src/middleware/timezone.js",
         "backend/gateway/tests/middleware/timezone.test.js",
@@ -18301,7 +18301,7 @@
         "- [ ] 代码重复行数减少至少 200 行（通过代码统计验证）",
         "- [ ] 支持测试环境下依赖 mock 和替换"
       ],
-      "verificationStatus": "partial_local_verified_ci_pending",
+      "verificationStatus": "partial_ci_verified",
       "implementationReferences": [],
       "legacyId": "REQ-00619"
     },

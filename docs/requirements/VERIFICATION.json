@@ -50,7 +50,7 @@
     },
     "REQ-00053-user-privacy-preference-center-data-transparency.md": {
       "date": "2026-10-07",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "9015d8979ec52a2d3f6b298b9c318db1954f2f5221106901a8823514546a7dd5",
       "sourceSha256": {
         "backend/shared/privacyPreferences.js": "28f8aebc2d5cf55c827ef1e5c597f79caaca688a88749a058dfd3afc2819311b",
@@ -133,6 +133,13 @@
             "backend/services/user-service/src/index.js",
             "backend/gateway/src/index.js"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "1992fb4625c80435384877559765efc0e7061308",
+          "result": "related_ci_passed",
+          "scope": "Main, dependency, privacy and title/IP/storage/user-process regression checks pass. Complete native gateway and full individual requirement acceptance remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37715515610"
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
@@ -224,7 +231,7 @@
     },
     "REQ-00159-service-health-self-healing-and-auto-recovery-system.md": {
       "date": "2026-10-07",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "6c4d7d1d6417e684d9fd2f7ce506ba17bd5958228c41495d7b5490413f8211cd",
       "sourceSha256": {
         "backend/shared/ServiceLauncher.js": "7beaabc6f1ed2f164e4925c25156fd2c358a492516fa8ed1d742d235f9d048b7",
@@ -306,12 +313,19 @@
             "backend/tests/regression/jest.config.json",
             "backend/tests/regression/user-startup.test.js"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "1992fb4625c80435384877559765efc0e7061308",
+          "result": "related_ci_passed",
+          "scope": "Main, dependency, privacy and title/IP/storage/user-process regression checks pass. Complete native gateway and full individual requirement acceptance remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37715515610"
         }
       ]
     },
     "REQ-00682-service-dependency-consolidation-and-initialization-refactoring.md": {
       "date": "2026-10-07",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "b0d70073391231edcf5ddfd293b97515807a5f98ae2b2d635accce7c90deddc9",
       "sourceSha256": {
         "backend/shared/ServiceLauncher.js": "7beaabc6f1ed2f164e4925c25156fd2c358a492516fa8ed1d742d235f9d048b7",
@@ -393,12 +407,19 @@
             "backend/tests/regression/jest.config.json",
             "backend/tests/regression/user-startup.test.js"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "1992fb4625c80435384877559765efc0e7061308",
+          "result": "related_ci_passed",
+          "scope": "Main, dependency, privacy and title/IP/storage/user-process regression checks pass. Complete native gateway and full individual requirement acceptance remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37715515610"
         }
       ]
     },
     "REQ-00106-player-title-system-and-personalization.md": {
       "date": "2026-10-07",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "69570b98ac34ddcd7089a56badf3d1c8dbb5ed91d4437062f8293984734bd7af",
       "sourceSha256": {
         "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
@@ -492,12 +513,19 @@
             "backend/tests/regression/jest.config.json",
             ".github/workflows/title-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "1992fb4625c80435384877559765efc0e7061308",
+          "result": "related_ci_passed",
+          "scope": "Main, dependency, privacy and title/IP/storage/user-process regression checks pass. Complete native gateway and full individual requirement acceptance remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37715515610"
         }
       ]
     },
     "REQ-00612-global-timezone-scheduler.md": {
       "date": "2026-10-07",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "acb67d84c7ef83a0335a5874fbf4809ff95c8239c95cbac5f00a409a48223dd2",
       "sourceSha256": {
         "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
@@ -591,12 +619,19 @@
             "backend/tests/regression/jest.config.json",
             ".github/workflows/title-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "1992fb4625c80435384877559765efc0e7061308",
+          "result": "related_ci_passed",
+          "scope": "Main, dependency, privacy and title/IP/storage/user-process regression checks pass. Complete native gateway and full individual requirement acceptance remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37715515610"
         }
       ]
     },
     "REQ-00026-in-game-push-notification-system.md": {
       "date": "2026-10-07",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "4769b4d31a9e97a21db229e0a8f358894622067fdc2b4ba9558933d9e107306a",
       "sourceSha256": {
         "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
@@ -690,12 +725,19 @@
             "backend/tests/regression/jest.config.json",
             ".github/workflows/title-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "1992fb4625c80435384877559765efc0e7061308",
+          "result": "related_ci_passed",
+          "scope": "Main, dependency, privacy and title/IP/storage/user-process regression checks pass. Complete native gateway and full individual requirement acceptance remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37715515610"
         }
       ]
     },
     "REQ-00075-ip-blacklist-and-auto-ban-system.md": {
       "date": "2026-10-08",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "5f0f24eee768a901be3d6cb06e4e2907e72dca7e4db43398fe8da7e695677a8e",
       "sourceSha256": {
         "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
@@ -741,12 +783,19 @@
         {
           "result": "incomplete",
           "scope": "Full gateway process/deployment trust; remaining automatic-ban windows/transaction/admin-CIDR-unban consistency; GeoIP; complete distributed-sync/retention/metrics/UI and overall requirement acceptance. Current tests do not prove all those conditions."
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "1992fb4625c80435384877559765efc0e7061308",
+          "result": "related_ci_passed",
+          "scope": "Main, dependency, privacy and title/IP/storage/user-process regression checks pass. Complete native gateway and full individual requirement acceptance remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37715515610"
         }
       ]
     },
     "REQ-00149-user-service-ipAppeal-route-mounting.md": {
       "date": "2026-10-08",
-      "status": "partial_local_verified_ci_pending",
+      "status": "partial_ci_verified",
       "documentSha256": "30638e9d7a8afb460c10c302569b0feada0495dc770219a86efa272a77768fde",
       "sourceSha256": {
         "backend/services/user-service/src/index.js": "736ed1edef5b0b09e856b415b8e492d3a16d5c9aa2ca1891c1151294a6794700",
@@ -792,6 +841,13 @@
         {
           "result": "incomplete",
           "scope": "Full gateway process/deployment trust; remaining automatic-ban windows/transaction/admin-CIDR-unban consistency; GeoIP; complete distributed-sync/retention/metrics/UI and overall requirement acceptance. Current tests do not prove all those conditions."
+        },
+        {
+          "date": "2026-10-08",
+          "commit": "1992fb4625c80435384877559765efc0e7061308",
+          "result": "related_ci_passed",
+          "scope": "Main, dependency, privacy and title/IP/storage/user-process regression checks pass. Complete native gateway and full individual requirement acceptance remain open.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/37715515610"
         }
       ]
     }

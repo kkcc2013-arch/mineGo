@@ -490,3 +490,18 @@ admin approval/rejection and CIDR unban semantics; real GeoIP; full Pub/Sub/rete
 metrics coverage and admin UI. Existing legacy migration checksum is preserved with
 an additive UUID-compatible GiST bootstrap; non-UUID legacy identities and the complete
 migration history still require explicit validation. Both requirements stay in progress.
+
+Published1992fb4 to draft PR6. Remote checks PASS: main435 (37715515569), dependency240
+(37715515562), privacy7 (37715515583), title/IP/storage/process4 (37715515610). Contract,
+API contract, performance and integration remain red; security/E2E were still active
+at the snapshot. Related source-hashed evidence is partial_ci_verified, not complete.
+
+Independent next-step probe: the actual gateway entry point loads/listens but reports
+missing core warmup/IP tables on the unprepared test schema and ioredis connections to
+an unconfigured/default Redis endpoint. Its existing shutdown hooks prevent termination
+on the startup probe's SIGTERM; verified the exact owned node process and timeout parent,
+then killed only that probe. Own PG/Redis/Kafka test containers stopped after verification.
+No production deployment or user-data operation occurred. Next goal continuation should
+fix gateway dependency configuration and lifecycle and run against a fully prepared
+production-compatible schema, then verify actual gateway/user route contracts. Progress
+was made; there is no blocked audit condition and the full goal remains active.
