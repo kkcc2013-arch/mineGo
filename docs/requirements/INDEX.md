@@ -260,7 +260,7 @@
 | [REQ-00252](REQ-00252-game-datetime-format-localization.md) | 游戏内日期时间格式本地化系统 | 国际化/本地化 | P2 | new | game-client、frontend/game-client/src/i18n、backend/shared/i18n.js、gateway、所有微服务 | 2026-06-16 09:00 |
 | [REQ-00253](REQ-00253-pokemon-expedition-system.md) | 精灵远征探险系统 | 功能增强 | P1 | new | pokemon-service、location-service、reward-service、gateway、game-client、database/migrations | 2026-06-16 15:00 |
 | [REQ-00254](REQ-00254-database-query-plan-cache-optimizer.md) | 数据库查询执行计划缓存与智能优化器系统 | 性能优化 | P1 | new | postgresql、backend/shared、所有微服务、database/migrations | 2026-06-16 15:05 |
-| [REQ-00255](REQ-00255-api-injection-attack-protection-system.md) | API 请求参数注入攻击防护系统 | 安全加固 | P1 | done | gateway、所有微服务、backend/shared/InjectionGuard.js、backend/shared/InputSanitizer.js | 2026-06-16 17:00 |
+| [REQ-00255](REQ-00255-api-injection-attack-protection-system.md) | API 请求参数注入攻击防护系统 | 安全加固 | P1 | in_progress | gateway、所有微服务、backend/shared/InjectionGuard.js、backend/shared/InputSanitizer.js | 2026-06-16 17:00 |
 | [REQ-00256](REQ-00256-pokemon-legend-lore-collection-system.md) | 精灵传说系统与图鉴收集故事 | 功能增强 | P1 | new | pokemon-service、user-service、gateway、game-client、database/migrations | 2026-06-16 17:30 |
 | [REQ-00257](REQ-00257-api-regression-test-automation-and-breaking-change-detection-system.md) | API 回归测试自动化与 Breaking Change 检测系统 | 测试覆盖 | P1 | done | gateway、所有微服务、backend/tests/regression、backend/shared/OpenAPIComparator.js、.github/workflows、docs/api-spec | 2026-06-18 13:05 |
 | [REQ-00258](REQ-00258-catch-animation-effects-and-particle-optimization.md) | 精灵捕捉动画特效系统增强与粒子效果优化 | 前端体验 | P1 | new | game-client、frontend/game-client/src/effects、frontend/game-client/src/game/CatchEngine.js、gateway | 2026-06-18 14:00 |

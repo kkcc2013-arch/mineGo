@@ -3,7 +3,7 @@
 - **编号**：REQ-00255
 - **类别**：安全加固
 - **优先级**：P1
-- **状态**：done
+- **状态**：in_progress
 - **涉及服务/模块**：gateway、所有微服务、backend/shared/InjectionGuard.js、backend/shared/InputSanitizer.js
 - **创建时间**：2026-06-16 17:00
 - **依赖需求**：REQ-00003、REQ-00111
@@ -264,3 +264,20 @@ GROUP BY type, severity;
 3. **风险可控**：已有 REQ-00003（支付安全）和 REQ-00111（CSP 强化）作为基础
 4. **影响范围**：涉及所有 API 端点，对整体安全态势有重大提升
 5. **合规要求**：等保二级、GDPR 等合规要求必须具备注入防护能力
+
+
+## Independent review correction (2026-10-13)
+
+The previous done declaration and approved review are reopened. The actual mounted
+reward-service /rewards/leaderboard route embedded caller-controlled team input directly
+in SQL, and its personal-rank query used an undefined users alias. Existing detection
+classes and unmeasured regular-expression claims did not establish protection for this
+production route or satisfy the original all-service acceptance criteria.
+
+This route now validates scalar type/team enums, binds team and signed JWT owner as
+parameters, and inserts only a fixed allowlisted ranking column into SQL.9 real storage/
+HTTP checks cover malformed/attack/prototype/array inputs before queries and exact
+rank/ownership/data behavior. See [REWARD-RANKINGS.md](../REWARD-RANKINGS.md).
+The original SQL/XSS/path/Redis/command protections, attack logging/admin queries,
+false-positive corpus, measured p95<5ms and actual alert-delivery criteria above remain
+required and unaccepted. No external alerts have been sent.

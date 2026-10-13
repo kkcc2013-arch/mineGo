@@ -963,3 +963,16 @@ UUID 新库需先运行兼容 bootstrap，完整历史迁移链仍需验收。
 覆盖，80% 行/函数门禁通过；这与仅单元测试的覆盖率不同。真实 user-service 进程在
 隔离库及 Kafka 下可启动并关闭，warm 空列表 HTTP 50 次 p95 <50ms；不能据此声明
 生产容量或完整前端/属性战斗应用/成就服务集成验收。远端 CI 与完整验收仍待完成。
+
+
+## Title upgrade verification (2026-10-13)
+
+Source-bound full-copy repairs now guard the earlier title bootstrap and later legacy
+consumer. Matching existing update function/trigger identities and enabled state survive;
+custom body/security/search-path/volatility/event/condition semantics refuse atomically
+instead of being overwritten. Existing title rows, keys/OIDs, views and operator catalog
+values remain intact;13 real upgrade checks pass. Original85 pending SQL stays immutable.
+The full seeded migration gate passes this consumer, then fails damage-system
+20260615_221000 statement3 because the actual move catalog lacks name. Full-chain
+upgrade/rollback, title gameplay/client effects and remaining original acceptance stay
+open. Current source evidence is tracked in VERIFICATION.json.

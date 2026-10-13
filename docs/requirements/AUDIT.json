@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 196,
-      "in_progress": 30,
+      "done": 195,
+      "in_progress": 31,
       "new": 432
     },
     "priorityCounts": {
@@ -3262,7 +3262,7 @@
       "category": "功能增强",
       "modules": "user-service、pokemon-service、social-service、gateway、game-client、database/migrations",
       "createdAt": "2026-06-11 05:30",
-      "sha256": "69570b98ac34ddcd7089a56badf3d1c8dbb5ed91d4437062f8293984734bd7af",
+      "sha256": "7148fc5066354e7354adeb16eca4e2742c67125c7620a1dc27cb1d739feb8327",
       "acceptance": [
         "- [ ] 数据库表创建成功，包含完整的索引和约束",
         "- [ ] 称号服务核心模块实现，支持解锁/激活/查询",
@@ -3284,6 +3284,7 @@
         "database/pending/20260615_170500__add_title_system.sql",
         "database/pending/20261007_120000__title_identity_compatibility.sql",
         "database/pending/repairs/20260615_170500__add_title_system.sql",
+        "database/pending/repairs/20261007_120000__title_identity_compatibility.sql",
         "frontend/game-client/src/components/TitleManager.js"
       ],
       "legacyId": null
@@ -7277,11 +7278,11 @@
       "id": "REQ-00255",
       "title": "REQ-00255：API 请求参数注入攻击防护系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "安全加固",
       "modules": "gateway、所有微服务、backend/shared/InjectionGuard.js、backend/shared/InputSanitizer.js",
       "createdAt": "2026-06-16 17:00",
-      "sha256": "286238aa7aa90177d478362e5700bb7d3b8cc79636181e898c28adcf16b535aa",
+      "sha256": "7ae59fae3513e79229a2736d7b2b6cb5488857eb54b199cf76520bc1fc6e0020",
       "acceptance": [
         "- [ ] SQL 注入测试：`/api/pokemon/search?name=\"; DROP TABLE users;--` 返回 400，日志记录攻击",
         "- [ ] XSS 测试：`POST /api/social/nickname {\"nickname\": \"<script>alert(1)</script>\"}` 存储值被编码为 `&lt;script&gt;alert(1)&lt;/script&gt;`",
@@ -7292,7 +7293,7 @@
         "- [ ] 告警测试：连续 10 次高危攻击触发 Slack/邮件告警",
         "- [ ] 日志查询：可通过 admin-dashboard 查看攻击日志统计"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [],
       "legacyId": null
     },

@@ -132,30 +132,31 @@ app.get('/rewards/leaderboard', requireAuth, async (req, res, next) => {
   try {
     const { type = 'xp', team } = req.query;
 
-    const validTypes = { xp: 'u.xp', level: 'u.level', catches: 'u.xp' }; // simplified
-    const orderCol   = validTypes[type] || 'u.xp';
-    const teamFilter = team ? `AND u.team = '${team.toUpperCase()}'` : '';
-
-    const { rows } = await query(`
-      SELECT
-        ROW_NUMBER() OVER (ORDER BY ${orderCol} DESC) AS rank,
-        u.id, u.nickname, u.avatar_url, u.level, u.team,
-        u.xp,
-        (SELECT COUNT(*)::int FROM pokemon_instances WHERE user_id=u.id) AS pokemon_count
-      FROM users u
-      WHERE u.is_banned = false ${teamFilter}
-      ORDER BY ${orderCol} DESC
-      LIMIT 100
-    `);
-
-    // Find current user's rank
-    const { rows: [myRank] } = await query(`
-      SELECT COUNT(*)::int + 1 AS rank
-      FROM users WHERE ${orderCol} > (SELECT ${orderCol} FROM users WHERE id=$1)
-        AND is_banned=false
-    `, [req.user.sub]);
-
-    res.json(successResp({ leaderboard: rows, myRank: myRank?.rank || null }));
+    if (typeof type !== 'string' || !['xp', 'level', 'catches'].includes(type) ||
+        (team !== undefined && (typeof team !== 'string' || !['VALOR', 'MYSTIC', 'INSTINCT'].includes(team.toUpperCase())))) {
+      throw new AppError('INVALID_REQUEST', 'Invalid leaderboard type or team', 400);
+    }
+    const orderCol = { xp: 'xp', level: 'level', catches: 'catch_count' }[type];
+    // Only the validated, fixed column name enters SQL. Both identities are parameters.
+    // One statement keeps the visible top100 and the caller's full rank consistent.
+    const { rows: [result] } = await query(`
+      WITH eligible AS (
+        SELECT u.id,u.nickname,u.avatar_url,u.level,u.team,u.xp,
+          (SELECT COUNT(*)::int FROM pokemon_instances WHERE user_id=u.id) AS pokemon_count,
+          COALESCE((SELECT current_value FROM user_achievements
+            WHERE user_id=u.id AND achievement_id='catch_total'),0) AS catch_count
+        FROM users u WHERE NOT u.is_banned AND ($1::text IS NULL OR u.team::text=$1)
+      ), ranked AS (
+        SELECT *,RANK() OVER(ORDER BY ${orderCol} DESC) AS rank FROM eligible
+      ), top_players AS (
+        SELECT * FROM ranked ORDER BY ${orderCol} DESC,id LIMIT 100
+      )
+      SELECT COALESCE((SELECT jsonb_agg((to_jsonb(p) || jsonb_build_object('xp',p.xp::text)) ORDER BY p.${orderCol} DESC,p.id)
+        FROM top_players p),'[]'::jsonb) AS leaderboard,
+        (SELECT rank::text FROM ranked WHERE id=$2::uuid) AS "myRank"`,
+    [team === undefined ? null : team.toUpperCase(), req.user.id]);
+    // Ranks are bounded by the service population, unlike BIGINT XP in JSON.
+    res.json(successResp({ leaderboard: result.leaderboard, myRank: result.myRank === null ? null : Number(result.myRank) }));
   } catch (err) { next(err); }
 });
 

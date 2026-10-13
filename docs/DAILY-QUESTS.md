@@ -22,8 +22,9 @@ and completed/claim markers commit together; original completed_at is retained.
 The actual application factory allows tests to use isolated PostgreSQL without
 starting an unrelated listener on import. Direct execution still starts reward-service.
 This is a mounted HTTP verification seam, not native readiness, dependency health or
-signal cleanup acceptance for reward-service. Its login reward, leaderboard and season
-paths still require separate security/data/runtime verification.
+signal cleanup acceptance for reward-service. Its login reward and season paths still require separate security/data/runtime
+verification. The ranking endpoint now has actual9-case SQL/HTTP evidence described
+in REWARD-RANKINGS.md; this does not establish full leaderboards or service readiness.
 
 Run Node24 with TEST_DATABASE_URL pointing to isolated PostGIS:
 `node --test backend/tests/regression/daily-quest-storage.test.js`.
@@ -36,8 +37,8 @@ production application mount. XP is compared as PostgreSQL BIGINT and completion
 date as the original timestamp text, avoiding Node-local timezone reinterpretation.
 
 The focused suite is included before the full-history CI gate. V1/V2 loads, and all85
-pending files now reach 20260615_170500 statement16, whose title update trigger already
-exists. The entire pending batch rolls back. Full migration history stays red.
+pending files now reach 20260615_221000 statement3, where the damage-system consumer
+expects a moves.name field missing from the actual catalog. The entire pending batch rolls back. Full migration history stays red.
 
 Outstanding modern acceptance: callback transactions; immutable assigned objectives/
 reward snapshots; daily3/weekly5/limited pools with safe concurrent refresh; actual

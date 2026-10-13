@@ -1047,3 +1047,39 @@ Next modern quest atomicstorage/grants/events/security/datecontracts and titleup
 collision, rewardleaderboardSQL injection/rank alias and otherP0/service prerequisites,
 then all original game/client/numerical/ops requirements. No new requirement, production
 migration, merge or deployment. Goal remains active; progress and no external impasse.
+
+
+## Title upgrade and reward ranking batch (2026-10-13)
+
+Earlier title bootstrap and later consumer now guarded via complete source-bound copies;
+matching update function/trigger OIDs/enabled state, catalog/operator values and owned
+rows/keys/views survive. Unknown body/security/searchpath/volatility/event/condition
+metadata refuses atomically in both stages. Original85raw SQL unchanged.13upgrade cases
+pass. Changing applied executed hashes remains an error; no hidden history rewrite or
+production upgrade. Full85V1/V2history advances to20260615_221000stmt3 missing moves.name
+in damage consumer; rawmoves has canonicaluppercaseID/requirednames/type/category/
+energy/duration fields. Complete pending transaction rollsback, no omittedfiles.
+
+Mounted rewardranking SQL no longerinterpolates team input; signedowner/team parameters,
+fixedscore allowlist/scalarenumchecks andone actualsnapshot forlist+rank. Realcanonical
+catch_total replacesfakeXP score; ownedPokemoncountseparate. BIGINT XP JSONtext preserves
+precision; competitionties/UUIDdisplayorder/scope/top100/fullrank consistent.9realcases
+pass, includingattack/object/array/prototype rejection beforeSQL.18legacyclaim checks
+repeat afterapplicationchange. Full7socialtypes/seasons/events/rewards/cache/client/
+metrics/numerical scope remainsopen. Req255false done reopened; priorreview's fabricated
+measurements/regextoacceptance withdrawn. Inventory195done31progress432new/658; full
+independentverified0. Full658 goal unchanged and active; genuine progress.
+
+Prior279storage/unit623passed in authoritative terminalhandles; after earlierbootstrap
+repair, sequential40(title13/rank9/quest18)pass. Syntax1428pass; actual rewardrequire
+exitsnaturally withoutlistener, load-only notnative readiness proof. Prior55fCIterminal:
+main448/dependency263/privacy20/title-native17/browser5pass; migration10quest18pass
+(job113364721383logs) thenexistingtitletriggerfail. Contract373/API77/perf116/integration
+423/security406fail;E2E110cancelled. CurrentbatchCIpendingpublication.
+
+Next reconcile actual move identities/requiredfields/operatorvalues, fullhistory/rollback/
+native services; modern quest realtransactions/snapshots/grants/events/security/date
+contracts andalloriginalP0/game/client/quality/ops stages. No new requirement, merge or
+deployment. Test concurrencylimited; no Maven builds. Personal preference memory files
+remain local. Owned test fixtures cleaned; stopownedPostGIS/Redis afterterminalchecks,
+unrelatedgatewayuntouched.

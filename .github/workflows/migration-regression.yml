@@ -21,6 +21,8 @@ on:
       - 'backend/services/location-service/src/index.js'
       - 'backend/tests/regression/special-iv-storage.test.js'
       - 'backend/tests/regression/daily-quest-storage.test.js'
+      - 'backend/tests/regression/title-upgrade-storage.test.js'
+      - 'backend/tests/regression/reward-leaderboard-storage.test.js'
       - 'backend/services/reward-service/src/index.js'
       - 'backend/services/reward-service/src/routes/dailyQuests.js'
       - 'backend/services/user-service/src/notificationService.js'
@@ -108,6 +110,11 @@ jobs:
       - name: Verify quest date indexes and actual mounted atomic daily reward claims
         working-directory: backend
         run: node --test tests/regression/daily-quest-storage.test.js
+        env:
+          TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
+      - name: Verify guarded title history upgrades and actual reward ranking parameters
+        working-directory: backend
+        run: node --test --test-concurrency=1 tests/regression/title-upgrade-storage.test.js tests/regression/reward-leaderboard-storage.test.js
         env:
           TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
       - name: Verify complete fresh production schema, seeding and pending migration history

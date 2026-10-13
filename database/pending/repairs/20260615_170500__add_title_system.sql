@@ -106,19 +106,55 @@ INSERT INTO title_definitions (title_id, name, description, category, rarity, ic
 ('bug_finder', '{"zh": "Bug猎人", "en": "Bug Hunter"}', '{"zh": "报告重要Bug", "en": "Reported significant bugs"}', 'special', 'rare', '/icons/titles/bug.png', '{}', 'special', '{"bugs_reported": 5}', '{}', 70)
 ON CONFLICT (title_id) DO NOTHING;
 
--- 更新时间触发器
-CREATE OR REPLACE FUNCTION update_title_definitions_updated_at()
-RETURNS TRIGGER AS $$
+-- Reuse the exact bootstrap update contract without replacing trigger identity/state.
+-- Unknown custom functions/triggers require an explicit migration, never an overwrite.
+DO $title_update$
+DECLARE
+  schema_name text := current_schema();
+  table_oid oid := 'title_definitions'::regclass;
+  function_oid oid;
+  existing_trigger record;
 BEGIN
-  NEW.updated_at = CURRENT_TIMESTAMP;
-  RETURN NEW;
+  IF (SELECT relnamespace FROM pg_class WHERE oid=table_oid) <> schema_name::regnamespace THEN
+    RAISE EXCEPTION 'Title update table must belong to the migration schema';
+  END IF;
+  SELECT p.oid INTO function_oid FROM pg_proc p
+    WHERE p.pronamespace=schema_name::regnamespace
+      AND p.proname='update_title_definitions_updated_at' AND p.pronargs=0;
+  IF function_oid IS NOT NULL THEN
+    IF NOT EXISTS (SELECT 1 FROM pg_proc p JOIN pg_language l ON l.oid=p.prolang
+      WHERE p.oid=function_oid AND l.lanname='plpgsql' AND p.prorettype='trigger'::regtype
+        AND p.provolatile='v' AND NOT p.proisstrict AND p.proparallel='u'
+        AND NOT p.prosecdef AND NOT p.proleakproof AND p.proconfig IS NULL
+        AND p.procost=100 AND p.prorows=0
+        AND lower(regexp_replace(p.prosrc,'[[:space:]]','','g'))=
+          'beginnew.updated_at=current_timestamp;returnnew;end;') THEN
+      RAISE EXCEPTION 'Unsupported existing title update function; refusing overwrite';
+    END IF;
+  ELSE
+    EXECUTE format($fn$
+      CREATE FUNCTION %I.update_title_definitions_updated_at() RETURNS trigger
+      LANGUAGE plpgsql AS $body$ BEGIN NEW.updated_at=CURRENT_TIMESTAMP; RETURN NEW; END; $body$
+    $fn$,schema_name);
+    SELECT p.oid INTO function_oid FROM pg_proc p
+      WHERE p.pronamespace=schema_name::regnamespace
+        AND p.proname='update_title_definitions_updated_at' AND p.pronargs=0;
+  END IF;
+  SELECT * INTO existing_trigger FROM pg_trigger
+    WHERE tgrelid=table_oid AND tgname='trigger_update_title_definitions_updated_at';
+  IF FOUND THEN
+    IF existing_trigger.tgfoid<>function_oid OR existing_trigger.tgtype<>19
+      OR existing_trigger.tgnargs<>0 OR existing_trigger.tgattr::text<>''
+      OR existing_trigger.tgqual IS NOT NULL OR existing_trigger.tgisinternal
+      OR existing_trigger.tgconstraint<>0 OR existing_trigger.tgoldtable IS NOT NULL
+      OR existing_trigger.tgnewtable IS NOT NULL THEN
+      RAISE EXCEPTION 'Unsupported existing title update trigger; refusing overwrite';
+    END IF;
+  ELSE
+    EXECUTE format('CREATE TRIGGER trigger_update_title_definitions_updated_at BEFORE UPDATE ON %I.title_definitions FOR EACH ROW EXECUTE FUNCTION %I.update_title_definitions_updated_at()',schema_name,schema_name);
+  END IF;
 END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_update_title_definitions_updated_at
-BEFORE UPDATE ON title_definitions
-FOR EACH ROW
-EXECUTE FUNCTION update_title_definitions_updated_at();
+$title_update$;
 
 -- 评论
 COMMENT ON TABLE title_definitions IS '称号定义表，存储所有可获得的称号信息';

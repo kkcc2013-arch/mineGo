@@ -29,7 +29,7 @@
     "20260615_170500": {
       "sourceSha256": "09a757e3a770f1549494900bc876f32c3a8d027561900d3f8c15816a1ba65611",
       "file": "repairs/20260615_170500__add_title_system.sql",
-      "reason": "Align 1 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+      "reason": "Use canonical UUID owners and preserve exact existing title bootstrap trigger/function identity and enabled state; create the known update contract when absent, refuse customized semantics instead of overwriting. Retain original seeds and all other SQL; complete title feature/rollback acceptance remains open."
     },
     "20260630_040000": {
       "sourceSha256": "56caa9b41aafa64822d561c733b328a4efd8c037a4fb95ad26d2a3813e2225a7",
@@ -120,6 +120,11 @@
       "sourceSha256": "b602bc1b0e67d1b03aa441cf24de2abbc7113ab512bcd7384d006e2b15b07979",
       "file": "repairs/20260614_090500__add_daily_quest_system.sql",
       "reason": "Express the original per-user/definition/assigned-calendar-date uniqueness and two date lookup indexes as valid PostgreSQL expression indexes. Preserve all original timestamps, rows, reward values and seeds; canonical V1 daily_quests remains separate. This syntax repair does not verify modern quest behavior or define player timezone semantics."
+    },
+    "20261007_120000": {
+      "sourceSha256": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
+      "file": "repairs/20261007_120000__title_identity_compatibility.sql",
+      "reason": "Preserve matching existing title update function/trigger OIDs and enabled state in the earlier bootstrap as well as the later consumer. Refuse customized semantics rather than replacing them. Keep original identity checks, indexes, seed values and all other SQL. Original published bootstrap stays immutable; existing applied repair hashes need an explicit upgrade plan."
     }
   }
 }

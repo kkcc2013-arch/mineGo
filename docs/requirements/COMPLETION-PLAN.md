@@ -1,9 +1,9 @@
 # mineGo requirement completion plan
 
-Updated: 2026-10-08. Scope: all 658 existing requirement documents in INDEX.md,
-including the 197 legacy done declarations that still need independent acceptance.
+Updated: 2026-10-13. Scope: all 658 existing requirement documents in INDEX.md,
+including the 195 legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 432 new, 29 in progress. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 432 new, 31 in progress. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -40,10 +40,12 @@ independent authorized work.
    passes20 real storage checks, and privacy consumer ordering passes actual CLI probes.
 4. Catch-risk storage/recorder passes34 actual cases. Special-IV/current ownership/
    generator and equipment prerequisite contracts now pass36. Complete85-file history
-   reaches daily-quest :: syntax. Continue that consumer and later conflicts, complete
+   reaches the damage-system move catalog name mismatch after title/quest repairs.
+   Continue modern quest transactions/grants/events/date contracts and move identity/
+   catalog reconciliation, complete
    upgrade/rollback/all-service startup, then all original P0/security/game/client/
-   performance/operations stages. Unit623/storage215 pass; final IV36/source checks
-   follow the latest fix. Full feature/numerical acceptance remains open.
+   performance/operations stages. Prior unit623/storage279 pass; latest title/reward/quest40 checks repeat sequentially
+   with the guarded earlier title bootstrap. Full feature/numerical acceptance remains open.
 
 ## Definition of finished
 
@@ -288,3 +290,39 @@ Next modern quest atomicstorage/grants/events/security/datecontracts and titleup
 collision, rewardleaderboardSQL injection/rank alias and otherP0/service prerequisites,
 then all original game/client/numerical/ops requirements. No new requirement, production
 migration, merge or deployment. Goal remains active; progress and no external impasse.
+
+
+## Title upgrade and reward ranking batch (2026-10-13)
+
+Earlier title bootstrap and later consumer now guarded via complete source-bound copies;
+matching update function/trigger OIDs/enabled state, catalog/operator values and owned
+rows/keys/views survive. Unknown body/security/searchpath/volatility/event/condition
+metadata refuses atomically in both stages. Original85raw SQL unchanged.13upgrade cases
+pass. Changing applied executed hashes remains an error; no hidden history rewrite or
+production upgrade. Full85V1/V2history advances to20260615_221000stmt3 missing moves.name
+in damage consumer; rawmoves has canonicaluppercaseID/requirednames/type/category/
+energy/duration fields. Complete pending transaction rollsback, no omittedfiles.
+
+Mounted rewardranking SQL no longerinterpolates team input; signedowner/team parameters,
+fixedscore allowlist/scalarenumchecks andone actualsnapshot forlist+rank. Realcanonical
+catch_total replacesfakeXP score; ownedPokemoncountseparate. BIGINT XP JSONtext preserves
+precision; competitionties/UUIDdisplayorder/scope/top100/fullrank consistent.9realcases
+pass, includingattack/object/array/prototype rejection beforeSQL.18legacyclaim checks
+repeat afterapplicationchange. Full7socialtypes/seasons/events/rewards/cache/client/
+metrics/numerical scope remainsopen. Req255false done reopened; priorreview's fabricated
+measurements/regextoacceptance withdrawn. Inventory195done31progress432new/658; full
+independentverified0. Full658 goal unchanged and active; genuine progress.
+
+Prior279storage/unit623passed in authoritative terminalhandles; after earlierbootstrap
+repair, sequential40(title13/rank9/quest18)pass. Syntax1428pass; actual rewardrequire
+exitsnaturally withoutlistener, load-only notnative readiness proof. Prior55fCIterminal:
+main448/dependency263/privacy20/title-native17/browser5pass; migration10quest18pass
+(job113364721383logs) thenexistingtitletriggerfail. Contract373/API77/perf116/integration
+423/security406fail;E2E110cancelled. CurrentbatchCIpendingpublication.
+
+Next reconcile actual move identities/requiredfields/operatorvalues, fullhistory/rollback/
+native services; modern quest realtransactions/snapshots/grants/events/security/date
+contracts andalloriginalP0/game/client/quality/ops stages. No new requirement, merge or
+deployment. Test concurrencylimited; no Maven builds. Personal preference memory files
+remain local. Owned test fixtures cleaned; stopownedPostGIS/Redis afterterminalchecks,
+unrelatedgatewayuntouched.
