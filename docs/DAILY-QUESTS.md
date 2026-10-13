@@ -59,3 +59,14 @@ batch. The unchanged85-source complete gate now fails20260619_000000 statement17
 its duplicate partition helper attempts to change the existing return type. The
 whole pending batch still rolls back; complete history and original feature
 acceptance remain open. See REQ-00116 and voice-schema-storage.test.js for scope.
+
+
+Latest canonical partition follow-up (2026-10-13): source-bound duplicate repair
+preserves all five actual business parents and the existing BOOLEAN helper, retains
+established weekly ranges, and verifies real schema-local statistics. Four new
+history cases plus23 audit cases pass (27 total). Earlier partition conflict above
+is source-specific history. Complete85 original-source setup now fails20260624_133000
+statement16 because payment_orders is absent. Actual production payments use orders;
+that identity/amount contract must be reconciled without duplicating or losing money
+records. Full-chain rollback, later shadow-management references and original
+feature/numerical/service acceptance remain open.

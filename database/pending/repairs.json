@@ -130,6 +130,11 @@
       "sourceSha256": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
       "file": "repairs/20260615_221000__add_damage_system.sql",
       "reason": "Keep canonical uppercase move IDs, localized names, power/types/energy and all rows/FKs intact; expose derived name/consumption aliases and retain all24 original proposed defaults in explicit configuration without replacing actual catalog values. Refuse unknown schemas/aliases and guard reversal of changed configuration/derived metadata. Real simulation uses canonical stored definitions, not a fabricated fallback."
+    },
+    "20260619_000000": {
+      "sourceSha256": "8f15b334d7df13b065abad4a61678282afc846ebbc48b5ccde21f9cd4f0df9f7",
+      "file": "repairs/20260619_000000__add_table_partitioning.sql",
+      "reason": "Reconcile duplicate proposals with the five actual canonical created_at range parents; preserve existing BOOLEAN helper/OIDs/rows and use the guarded prerequisite. Keep monthly/day ranges and established June9 weekly phase instead of overlapping shadow ranges. Schema-scoped statistics use real inheritance. Existing shadow layouts require explicit adoption; full service/performance/archive/rollback acceptance remains open."
     }
   }
 }

@@ -1802,7 +1802,7 @@
       "category": "数据库/数据治理",
       "modules": "database/migrations、所有微服务、backend/shared、PostgreSQL",
       "createdAt": "2026-06-09 18:05",
-      "sha256": "e8d117a28f72707b585817599a7828033cee4baf8479869c8a5f3f0cde6b0b3e",
+      "sha256": "f53061e2759ae285b52387dda4941bdcf46490ba338e288db278009a37e8cd64",
       "acceptance": [
         "- [ ] 5 个高增长表成功转换为分区表，数据完整性验证通过",
         "- [ ] 分区表查询性能提升 50%+（时间范围查询对比测试）",
@@ -1820,7 +1820,8 @@
         "database/pending/20260610_100000__add_table_partitioning_system.sql",
         "database/pending/20260619_000000__add_table_partitioning.sql",
         "database/pending/20261008_140000__audit_partition_conversion.sql",
-        "database/pending/repairs/20260610_100000__add_table_partitioning_system.sql"
+        "database/pending/repairs/20260610_100000__add_table_partitioning_system.sql",
+        "database/pending/repairs/20260619_000000__add_table_partitioning.sql"
       ],
       "legacyId": null
     },

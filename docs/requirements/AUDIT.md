@@ -69,7 +69,7 @@ Status declarations and implementation references are discovery data, not proof 
 | [REQ-00057-game-event-system-and-limited-time-events.md](REQ-00057-game-event-system-and-limited-time-events.md) | P0 | done | 0 | 14 |
 | [REQ-00058-guild-system-and-team-social-features.md](REQ-00058-guild-system-and-team-social-features.md) | P1 | new | 0 | 5 |
 | [REQ-00059-beginner-tutorial-and-guidance-system.md](REQ-00059-beginner-tutorial-and-guidance-system.md) | P1 | new | 13 | 7 |
-| [REQ-00060-database-partitioning-for-large-tables.md](REQ-00060-database-partitioning-for-large-tables.md) | P1 | in_progress | 9 | 5 |
+| [REQ-00060-database-partitioning-for-large-tables.md](REQ-00060-database-partitioning-for-large-tables.md) | P1 | in_progress | 9 | 6 |
 | [REQ-00061-service-health-dashboard-and-auto-recovery.md](REQ-00061-service-health-dashboard-and-auto-recovery.md) | P1 | done | 12 | 8 |
 | [REQ-00062-game-sound-effects-and-background-music-system.md](REQ-00062-game-sound-effects-and-background-music-system.md) | P1 | done | 10 | 0 |
 | [REQ-00063-database-slow-query-analysis-auto-optimization.md](REQ-00063-database-slow-query-analysis-auto-optimization.md) | P1 | done | 10 | 5 |

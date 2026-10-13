@@ -40,7 +40,7 @@ independent authorized work.
    passes20 real storage checks, and privacy consumer ordering passes actual CLI probes.
 4. Catch-risk storage/recorder passes34 actual cases. Special-IV/current ownership/
    generator and equipment prerequisite contracts now pass36. Complete85-file history
-   reaches the duplicate partition function return-type conflict after voice/move/title/quest repairs.
+   reaches the missing multi-currency payment_orders contract after canonical partition/voice/move/title/quest repairs.
    Continue modern quest transactions/grants/events/date contracts and move identity/
    catalog/reward/gameplay/lifecycle integration, complete
    upgrade/rollback/all-service startup, then all original P0/security/game/client/
@@ -406,3 +406,36 @@ credentials/call absent ICE method; room service references absent fields. These
 recorded as unfinished, alongside original real audio/provider/game/permission/numerical/
 client/operation criteria. Audit declarations now192done/34in_progress/432new, total658;
 independently verified0. Persistent all658 goal stays active.
+
+
+## Canonical duplicate partition history repair (2026-10-13)
+
+Voice commitceaf5b0dd4306a389bc36a9b764addd214008727 pushed; origin ref and exact
+GitHub CI prove publication. PR description update hit transient TLS EOF; no secret
+printed. Host restart stopped owned PostGIS: first fullgate ended ECONNREFUSED.
+Restarted only owned PostGIS, checked actual readiness, then repeated fullgate.
+Unrelated containers untouched. No process restarted merely on observation timeout.
+
+Source-bound duplicate partition repair declares dependency to actual earlier
+conversion. Original raw42P13 helper BOOLEAN-to-VOID failure is reproduced. Preserve
+five real parent OIDs/data and helper definition/ACL/config/comments, actual views,
+canonical June9 weekly phase and actual DEFAULT-to-range movement; no empty shadows.
+LaterJune8 proposal overlaps existing ranges: preserve old boundaries and addJune2-9
+range. Actual status follows current-schema inheritance; exact view reuses OID,
+custom shadow/regular-parent/status definition refuses atomically. Original raw SQL
+unchanged, later shadow management still unreconciled.
+
+4 new actual history checks +23 audit checks pass27; CLI/prereqs17 and syntax1434
+pass. V1/V2 passes. Full85-source gate now fails20260624_133000 statement16 missing
+payment_orders; real payments use V1 orders/amount_fen/currency/UUID/idempotency enum.
+Next implement original REQ-00051 against real money/order contracts, preserving
+identity and values, then full P0/security/runtime/game/client/numerical/operations.
+No weakened criteria/threshold/checksum, skipped file, Maven/highCPU job, production
+mutation, merge or deployment. First ledger edit encountered an existing string
+remaining field and exited before writing; corrected by preserving it as a list item.
+
+Voice exactCI451/dependency269/privacy23/title20/notification8 pass. Migration13
+job115289087384 confirms voice6 pass, then source-specific partition failure; latest
+local boundary is currency. Contract376/API80/performance119/integration426 fail;
+E2E113/security409 observed running. No full requirement accepted. Source-hashed
+partial ledger/progress updated; all658 persistent goal remains active/unbudgeted.

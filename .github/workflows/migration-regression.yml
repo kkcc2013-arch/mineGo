@@ -12,6 +12,7 @@ on:
       - 'backend/tests/regression/database-bootstrap.test.js'
       - 'backend/tests/regression/migration-prerequisites.test.js'
       - 'backend/tests/regression/audit-partition-storage.test.js'
+      - 'backend/tests/regression/partition-history-storage.test.js'
       - 'backend/tests/regression/achievement-storage.test.js'
       - 'backend/tests/regression/notification-storage.test.js'
       - 'backend/tests/regression/friendship-storage.test.js'
@@ -86,9 +87,9 @@ jobs:
         run: node --test tests/regression/migration-prerequisites.test.js
         env:
           TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
-      - name: Verify audit conversion, partition routing, concurrent IDs and data-preserving rollback
+      - name: Verify audit conversion, canonical partition history, concurrent IDs and data-preserving rollback
         working-directory: backend
-        run: node --test tests/regression/audit-partition-storage.test.js
+        run: node --test --test-concurrency=1 tests/regression/audit-partition-storage.test.js tests/regression/partition-history-storage.test.js
         env:
           TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
       - name: Verify existing tiered data, modern progress, real rewards and authenticated achievement routes
