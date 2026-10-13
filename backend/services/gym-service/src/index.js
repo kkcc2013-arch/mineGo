@@ -291,7 +291,7 @@ app.use('/batch', batchRouter);
 
 // REQ-00146: 伤害计算与属性克制系统
 const damageRoutes = require('./routes/damage');
-app.use('/api/v1/gym/damage', damageRoutes);
+app.use(['/api/v1/gym/damage', '/api/v1/gym/battle'], damageRoutes);
 
 // REQ-00043: 延迟任务队列处理器初始化
 const { initRaidRewardHandler } = require('./handlers/raidRewardHandler');

@@ -91,7 +91,7 @@ All85 original pending sources remain unchanged. Special-IV ownership/genotype a
 Daily-quest syntax now passes with exact date-expression indexes and unchanged22 seeds.
 Earlier title bootstrap and later consumer now preserve matching trigger/function OIDs
 and state through explicit repairs; customized semantics refuse. Full history fails
-20260615_221000 statement3: damage-system consumer expects missing moves.name. See CATCH-RISK.md. See FRIENDSHIP.md for storage and remaining service boundaries.
+20260618_160000 statement18: voice-chat index predicate contains a mutable time function. See CATCH-RISK.md. See FRIENDSHIP.md for storage and remaining service boundaries.
 Later duplicate partition migrations and complete data-preserving rollback remain open. See ACHIEVEMENTS.md for actual grant and
 remaining event/client/management boundaries.
 
@@ -104,7 +104,7 @@ Set TEST_DATABASE_URL to an isolated PostGIS database and run
 `node --test backend/tests/regression/notification-storage.test.js` and
 `node --test backend/tests/regression/friendship-storage.test.js` and
 `node --test backend/tests/regression/database-bootstrap.test.js`. The final history case
-remains red at the move-catalog column conflict. See NOTIFICATIONS.md for delivery/client limits. GitHub runs all these gates in
+remains red at the voice-chat mutable index predicate. See NOTIFICATIONS.md for delivery/client limits. GitHub runs all these gates in
 .github/workflows/migration-regression.yml. Whole-history upgrades/rollback, all-service
 startup, operational backups and REQ-00306 remain open; REQ-00007 is not complete.
 
@@ -128,12 +128,12 @@ convert the actual table, and prove writes/queries/rollback before accepting the
 The daily-quest source-bound repair does not rewrite original timestamp/date semantics
 or reconcile the separate V1 counter and modern randomized pools.18 actual SQL/mounted
 HTTP cases verify the repair and atomic legacy claims; modern feature acceptance remains
-open in DAILY-QUESTS.md. Full85 history still rolls back on the later move-catalog conflict.
+open in DAILY-QUESTS.md. Full85 history still rolls back on the later voice-chat index conflict.
 
 
 Title prerequisite/consumer repairs preserve existing update metadata in13 real cases,
 including disabled triggers and refusal of custom semantics. Changing an executed repair
 for an already applied migration remains a checksum error: these changes do not silently
 adopt older executed SQL. Existing deployments need an explicit reviewed upgrade plan;
-no production migration or history rewrite was performed. Fresh full-history execution
-now advances to the damage-system move-catalog conflict without omitting a file.
+no production migration or history rewrite was performed. That earlier batch advanced to the damage-system move-catalog conflict. The latest
+canonical move bridge advances to the voice-chat index conflict; see MOVE-DAMAGE.md.

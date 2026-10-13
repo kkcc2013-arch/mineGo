@@ -37,8 +37,8 @@ production application mount. XP is compared as PostgreSQL BIGINT and completion
 date as the original timestamp text, avoiding Node-local timezone reinterpretation.
 
 The focused suite is included before the full-history CI gate. V1/V2 loads, and all85
-pending files now reach 20260615_221000 statement3, where the damage-system consumer
-expects a moves.name field missing from the actual catalog. The entire pending batch rolls back. Full migration history stays red.
+pending files now reach 20260618_160000 statement18, where the voice-chat consumer
+contains a mutable time function in its voice-chat index predicate. The entire pending batch rolls back. Full migration history stays red.
 
 Outstanding modern acceptance: callback transactions; immutable assigned objectives/
 reward snapshots; daily3/weekly5/limited pools with safe concurrent refresh; actual

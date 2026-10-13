@@ -125,6 +125,11 @@
       "sourceSha256": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
       "file": "repairs/20261007_120000__title_identity_compatibility.sql",
       "reason": "Preserve matching existing title update function/trigger OIDs and enabled state in the earlier bootstrap as well as the later consumer. Refuse customized semantics rather than replacing them. Keep original identity checks, indexes, seed values and all other SQL. Original published bootstrap stays immutable; existing applied repair hashes need an explicit upgrade plan."
+    },
+    "20260615_221000": {
+      "sourceSha256": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
+      "file": "repairs/20260615_221000__add_damage_system.sql",
+      "reason": "Keep canonical uppercase move IDs, localized names, power/types/energy and all rows/FKs intact; expose derived name/consumption aliases and retain all24 original proposed defaults in explicit configuration without replacing actual catalog values. Refuse unknown schemas/aliases and guard reversal of changed configuration/derived metadata. Real simulation uses canonical stored definitions, not a fabricated fallback."
     }
   }
 }

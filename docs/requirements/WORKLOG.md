@@ -1083,3 +1083,48 @@ contracts andalloriginalP0/game/client/quality/ops stages. No new requirement, m
 deployment. Test concurrencylimited; no Maven builds. Personal preference memory files
 remain local. Owned test fixtures cleaned; stopownedPostGIS/Redis afterterminalchecks,
 unrelatedgatewayuntouched.
+
+
+## Canonical move and damage batch (2026-10-13)
+
+Actual uppercase IDs/localization/types/power/energy/duration/rows/FKs/TM/learnset and
+relation identity preserved. Fullsource-bound damage repair provides read-only lowercase
+identity and BIGINT consumed-energy projections, uniqueness, explicit base dependency
+and all24 original proposed defaults as configuration, not active-catalog replacement.
+Unknown writable aliases/identity ambiguity and modified defaults/comment/index/OID/
+dependent-view reversal refuse. Exact preexisting projections stay operator-owned.
+Exclusive reversal locks protect comparison/removal. Original85 rawSQL unchanged.
+
+Real MoveService adapter and owner/instance/inventory locks fix concurrent TM spend,
+stale selection/ownership; actual learning/switch/forget and rollback cases pass. Existing
+move router's parseInt(UUID) bug corrected, typed query/body/UUIDs and signed ownership
+validated, every named production-router read/action endpoint tested; unexpected DB
+errors remain server errors. Damage canonical queries replace nonexistent name fields
+and fakefallback. Both mounted aliases and root damage_multiplier support original
+command. Actual damageEngine used; deterministic midpoint/ranges includecrit, immune/
+zero-power returns0 estimates, strictfinite/own-key/random validation.58 oldassertions
+and5newcontracts integrated into main gate; local battle/damage checks sequential.
+
+Final32 real storage/HTTP and17CLI/prereq checks pass; main686 andsyntax1432pass. Native
+gym actualentrypoint HTTP200/multiplier0.5/EMBER observed; ownedKafka unavailable. Child
+didn't stop within diagnostic3s SIGTERM observation, force-killed and terminalSIGKILL
+observed/schema cleaned; durable diagnostic exits1.3s is observation limit, not new
+acceptance threshold; no natural/graceful shutdown/readiness claim. Full V1/V2pass,
+all85 reaches voice20260618_160000stmt18 mutableindexpredicate and pendingbatchrollsback.
+Originalgame/client/livebattle/native/GO-wording/coverage/metrics/numerical/ops stayopen.
+Req19/146old done reopened:193done33progress432new/658; independentlyverified0.
+
+Earlytests exposed PLpgSQL CASE predicate syntax, incorrect expected generated-column
+error text and a single-item query array that serialized as scalar. Fixed CASE grouping,
+assert actual SQLSTATE428C9, test repeated differing query values.32finalpass, no relaxed
+thresholds. Previous main test handle later missing; authoritative completed summaries
+and no matching active job observed, not restarted from observation timeout.
+Prior6e13CI main449/dependency265/privacy21/title-native18/browser6pass; migration11
+combinedtitle/rank22pass (job115067740964logs) thenoldmoves.namefailure. Contract374/
+API78/perf117/integration424fail; E2E111cancelled; security407 stillin_progress atread.
+No inventedterminalstate. CurrentbatchCIpendingpublication; no fullrequirement accepted.
+
+Next voice-chat mutableindex/fullhistory and native gym provider/socket/timer shutdown,
+then all original P0/security/game/client/quality/ops and remaining modernquests. No new
+requirement, production upgrade, journal rewrite, merge or deployment. Personal memory
+preference files remain local; no Maven or all-core jobs. Goalactive with genuineprogress.

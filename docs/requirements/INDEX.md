@@ -24,7 +24,7 @@
 | [REQ-00016](REQ-00016-gdpr-compliance.md) | GDPR 合规与用户数据隐私保护 | 合规/隐私 | P1 | done | user-service、所有微服务、gateway、database | 2026-06-05 09:40 |
 | [REQ-00017](REQ-00017-accessibility-support.md) | 游戏客户端无障碍访问支持 | 无障碍(a11y) | P2 | done | game-client、frontend | 2026-06-05 09:45 |
 | [REQ-00018](REQ-00018-pokemon-trading-system.md) | 精灵交易系统 | 功能增强 | P1 | done | social-service、pokemon-service、user-service、gateway、game-client | 2026-06-05 09:50 |
-| [REQ-00019](REQ-00019-pokemon-moves-learning-system.md) | 精灵技能学习与技能机器系统 | 功能增强 | P1 | done | pokemon-service、catch-service、reward-service、game-client、database/migrations | 2026-06-05 10:00 |
+| [REQ-00019](REQ-00019-pokemon-moves-learning-system.md) | 精灵技能学习与技能机器系统 | 功能增强 | P1 | in_progress | pokemon-service、catch-service、reward-service、game-client、database/migrations | 2026-06-05 10:00 |
 | [REQ-00020](REQ-00020-pokemon-list-composite-index.md) | 精灵列表查询复合索引优化 | 性能优化 | P1 | done | pokemon-service、database/migrations | 2026-06-05 11:00 |
 | [REQ-00021](REQ-00021-jwt-blacklist-force-logout.md) | JWT 令牌黑名单与强制登出机制 | 安全加固 | P1 | done | gateway、user-service、backend/shared、Redis | 2026-06-05 12:00 |
 | [REQ-00022](REQ-00022-integration-e2e-test-framework.md) | 集成测试框架与 API 端到端测试覆盖 | 测试覆盖 | P1 | done | backend/tests/integration、backend/tests/e2e、所有微服务、GitHub Actions | 2026-06-05 14:35 |
@@ -151,7 +151,7 @@
 | [REQ-00143](REQ-00143-pokemon-skill-combo-system.md) | 精灵自定义技能组合与连招系统 | 功能增强 | P1 | new | pokemon-service、gym-service、social-service、gateway、game-client、database/migrations | 2026-06-12 05:00 |
 | [REQ-00144](REQ-00144-game-client-high-contrast-mode-support.md) | 游戏客户端高对比度模式支持系统 | 无障碍(a11y) | P2 | done | game-client、frontend/game-client/src/accessibility、frontend/game-client/styles | 2026-06-12 05:10 |
 | [REQ-00145](REQ-00145-pokemon-batch-details-query-optimization.md) | 精灵详情批量查询优化 | 性能优化 | P1 | done | pokemon-service、gateway、game-client、backend/shared | 2026-06-12 06:10 |
-| [REQ-00146](REQ-00146-gym-battle-damage-formula-and-type-chart.md) | 道馆战斗伤害公式与属性克制计算系统 | 功能增强 | P1 | done | gym-service、pokemon-service、backend/shared | 2026-06-12 07:00 |
+| [REQ-00146](REQ-00146-gym-battle-damage-formula-and-type-chart.md) | 道馆战斗伤害公式与属性克制计算系统 | 功能增强 | P1 | in_progress | gym-service、pokemon-service、backend/shared | 2026-06-12 07:00 |
 | [REQ-00147](REQ-00147-api-rate-limit-bypass-detection-system.md) | API 请求速率限制绕过检测与防护系统 | 安全加固 | P1 | done | gateway、backend/shared/rateLimitMonitor.js、Redis、PostgreSQL | 2026-06-12 07:15 |
 | [REQ-00148](REQ-00148-distributed-tracing-opentelemetry.md) | 分布式追踪与请求链路可视化系统 | 可观测性/监控 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s/monitoring | 2026-06-12 08:00 |
 | [REQ-00149](REQ-00149-user-service-ipAppeal-route-mounting.md) | user-service ipAppeal 路由挂载与集成 | 集成与修复 | P0 | in_progress | user-service、backend/services/user-service/src/index.js、backend/services/user-service/src/routes/ipAppeal.js | 2026-06-12 08:10 |

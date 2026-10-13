@@ -11,7 +11,7 @@
         "backend/tests/battle/context.js": "4e815529a4ba1ba8d02657bc1e8798af1c481cd277e9f64e04a2ea2be595f7c3",
         "backend/tests/battle/formulas.test.js": "40300e85e1cba36f1e9994e9cc5aa2a9af4f256b4a45b83c6fa1bb2d05b745ad",
         "backend/tests/battle/scenarios.test.js": "82ee33f17c3b2eaca95592d20d75763a2f527ae5bb238a9b6e788955fb584aad",
-        "backend/package.json": "474f7754919d97c6ddb6ded3d9dc6a452a4e5cd194b5699f5c382fefeb4c1e00",
+        "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
         ".github/workflows/ci-cd.yml": "1572b966bb2c9c4ee3f8d2de41334552e4a63878cf604113f316e5088ce75b3a"
       },
       "evidence": [
@@ -54,6 +54,15 @@
           "changedReferences": [
             "backend/package.json"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "backend/package.json"
+          ]
         }
       ]
     },
@@ -71,15 +80,15 @@
         "backend/tests/unit/privacy-preferences.test.js": "71a1470f27d923319bfbb73ba9f7b6d77c7f2544085de0d1f28614eca5b9d0b0",
         "backend/tests/regression/privacy-storage.test.js": "ef3cbe968d1bcd6dc22e08622565427f1531f92ece53188881b0614dd3ad4603",
         "backend/tests/regression/privacy.jest.config.json": "cd80c47f4be46595f151bdf850571e7e0bd599d5bd2e9897550999b031b7e490",
-        "backend/package.json": "474f7754919d97c6ddb6ded3d9dc6a452a4e5cd194b5699f5c382fefeb4c1e00",
+        "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
         ".github/workflows/privacy-regression.yml": "b730aa2c9c5c6d6379f7047ed8c86f9f5a6781c1d0c619989482478e9031b79a",
         "database/pending/20261006_150000__privacy_preference_defaults_and_policy_fields.sql": "3d21e729219b771c0b94f8474e11e6adcc222b0fbfc064beeddaed3d08849c78",
         "backend/shared/logger.js": "4fd8f577c9db1860aa011216eadd9523a46a2214a80de1e0c44ff9310fb5e457",
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/pending/20260611_152900__add_privacy_preference_center.sql": "fed6b42590f4829f4b474b9ddf840a08d7b8cce7b53bd502a0b9fe7417ec63d8",
         "database/pending/repairs/20260611_152900__add_privacy_preference_center.sql": "ac250e1ee3e789b017f7a1c54ebee3488345068aca38ea6e93df70e64483c896",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f",
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162"
       },
@@ -254,6 +263,17 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "backend/package.json",
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
@@ -270,7 +290,7 @@
         "backend/tests/unit/logging-migration.test.js": "880a3f2ce8660e66a951cf8ac73b617e1396ce765fb92e2d135e5bdce711dde3",
         "backend/tests/performance/logging-benchmark.js": "a9fb82d16c779c4331e6aa2e8b5b08ee081def225de421e0e67ec3c660fef255",
         "backend/tests/regression/logging.jest.config.json": "45932a32192ebfadc2c131a9b8ba6877d8b4fbae7616fe9d98958a63a57d60b2",
-        "backend/package.json": "474f7754919d97c6ddb6ded3d9dc6a452a4e5cd194b5699f5c382fefeb4c1e00",
+        "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
         ".github/workflows/ci-cd.yml": "1572b966bb2c9c4ee3f8d2de41334552e4a63878cf604113f316e5088ce75b3a"
       },
       "evidence": [
@@ -348,6 +368,15 @@
           "changedReferences": [
             "backend/package.json"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "backend/package.json"
+          ]
         }
       ],
       "remaining": "The 5% overhead target, production output/adapters and complete legacy integration/E2E acceptance are not verified"
@@ -372,8 +401,8 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f"
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3"
       },
       "evidence": [
         {
@@ -569,6 +598,16 @@
           "result": "partial_pass_full_history_failed",
           "scope": "Prior279 real storage and623 units passed at this uncommitted title/ranking source. The earlier title bootstrap now also uses guarded source-bound SQL: latest40 real title13/ranking9/quest18 repeat sequentially and pass. Syntax1428 and actual reward require natural exit pass. V1/V2pass; complete85 CLI history fails damage-system20260615_221000stmt3 missing moves.name and entire pending transaction rolls back. Only matched changed common integration/documentation references refreshed. No complete feature/operations/performance acceptance.",
           "changedReferences": [
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
             "database/pending/repairs.json"
           ]
         }
@@ -594,8 +633,8 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f"
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3"
       },
       "evidence": [
         {
@@ -793,6 +832,16 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -814,17 +863,17 @@
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
         "backend/tests/regression/user-startup.test.js": "7ffef85ac5c7e6058c69850d28654699bd3132bc0843370ac0ac5c28e13c6dea",
         "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
-        "backend/package.json": "474f7754919d97c6ddb6ded3d9dc6a452a4e5cd194b5699f5c382fefeb4c1e00",
+        "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f",
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
         "database/pending/repairs/20261007_120000__title_identity_compatibility.sql": "26c5317694faa4f2a263923d4b915dfc0508d6a69c092c1c449306ee88702837",
         "database/pending/repairs/20260615_170500__add_title_system.sql": "f43872c531d7ac6a9a2875d2eb9a3f603781e4caf3bfdbe7482e7864629bf9ac",
         "backend/tests/regression/title-upgrade-storage.test.js": "406ebc4206cad8d523478a60e7e7a55e81cdbeaae369b1112fefdadfef59bb01",
-        "docs/REWARD-RANKINGS.md": "7fcdcb2b9fe34b1c421fcdb83ba6a0c614cf3aa43acccd6909a2e44c754376ac"
+        "docs/REWARD-RANKINGS.md": "dc2e187a61e94a5ab89995f9a6330bd327d86ce16212adb0146261ae6f37a18e"
       },
       "evidence": [
         {
@@ -1037,6 +1086,18 @@
           "date": "2026-10-13",
           "result": "format_only",
           "scope": "Removed copied legacy trailing whitespace from the new bootstrap repair after staged diff validation; source lines otherwise unchanged. Original raw file untouched; previously tested SQL semantics and function bodies remain identical."
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "backend/package.json",
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            "docs/REWARD-RANKINGS.md"
+          ]
         }
       ]
     },
@@ -1058,13 +1119,13 @@
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
         "backend/tests/regression/user-startup.test.js": "7ffef85ac5c7e6058c69850d28654699bd3132bc0843370ac0ac5c28e13c6dea",
         "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
-        "backend/package.json": "474f7754919d97c6ddb6ded3d9dc6a452a4e5cd194b5699f5c382fefeb4c1e00",
+        "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f"
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3"
       },
       "evidence": [
         {
@@ -1265,6 +1326,17 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "backend/package.json",
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1286,13 +1358,13 @@
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
         "backend/tests/regression/user-startup.test.js": "7ffef85ac5c7e6058c69850d28654699bd3132bc0843370ac0ac5c28e13c6dea",
         "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
-        "backend/package.json": "474f7754919d97c6ddb6ded3d9dc6a452a4e5cd194b5699f5c382fefeb4c1e00",
+        "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f",
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
         "docs/NOTIFICATIONS.md": "5b47d94114ba552f47f6d88f8aaba2ceb17c4e705174c1872d95f5e0655726ae",
         "backend/services/user-service/src/notificationService.js": "9b1809ee37dcef1cc4794db12b5a0fc2f4df876ade8dab918b378eca07d75194",
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
@@ -1311,7 +1383,7 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "60e62a2c25eb59cffce88a6bfa29137bbd75a3588ad8fc405b3ffc87696dfa6e",
+        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
         "frontend/game-client/src/i18n/index.js": "37dd930d9f30e6f6b088ad74f669c7cecbd91f7937ccb84e685d1dbfe4fa2690",
@@ -1579,6 +1651,18 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "backend/package.json",
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -1610,8 +1694,8 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f"
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3"
       },
       "evidence": [
         {
@@ -1767,6 +1851,16 @@
           "result": "partial_pass_full_history_failed",
           "scope": "Prior279 real storage and623 units passed at this uncommitted title/ranking source. The earlier title bootstrap now also uses guarded source-bound SQL: latest40 real title13/ranking9/quest18 repeat sequentially and pass. Syntax1428 and actual reward require natural exit pass. V1/V2pass; complete85 CLI history fails damage-system20260615_221000stmt3 missing moves.name and entire pending transaction rolls back. Only matched changed common integration/documentation references refreshed. No complete feature/operations/performance acceptance.",
           "changedReferences": [
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
             "database/pending/repairs.json"
           ]
         }
@@ -1792,8 +1886,8 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f"
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3"
       },
       "evidence": [
         {
@@ -1951,6 +2045,16 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1967,8 +2071,8 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f"
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3"
       },
       "evidence": [
         {
@@ -2083,6 +2187,16 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -2105,11 +2219,11 @@
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/regression/storageSetup.js": "1a67a27f674d7ef022e266da1ebbd5146870cdc290ebd64a51a799f5843ceaee",
-        ".github/workflows/migration-regression.yml": "60e62a2c25eb59cffce88a6bfa29137bbd75a3588ad8fc405b3ffc87696dfa6e",
-        "docs/DATABASE-MIGRATIONS.md": "49eaab7dc8a2b7a3b02cd5b567d9a9ba92d9ec0f5667998042773eca99b65bc9",
+        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
+        "docs/DATABASE-MIGRATIONS.md": "d1e922a26cb926276d840a4f67cbe95adccc763b6facc5df5792fb07e8ea2c20",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f",
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
@@ -2427,6 +2541,18 @@
             "database/pending/repairs.json",
             "database/pending/repairs/20260615_170500__add_title_system.sql"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
         }
       ],
       "remaining": "Reconcile notification_history/message-center and later full catalog/partition dependencies, all pending/history upgrade and data-preserving rollback, all-service startup and complete required CI acceptance."
@@ -2438,16 +2564,16 @@
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f",
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "60e62a2c25eb59cffce88a6bfa29137bbd75a3588ad8fc405b3ffc87696dfa6e",
-        "docs/DATABASE-MIGRATIONS.md": "49eaab7dc8a2b7a3b02cd5b567d9a9ba92d9ec0f5667998042773eca99b65bc9",
+        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
+        "docs/DATABASE-MIGRATIONS.md": "d1e922a26cb926276d840a4f67cbe95adccc763b6facc5df5792fb07e8ea2c20",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -2611,6 +2737,18 @@
             "docs/DATABASE-MIGRATIONS.md",
             "database/pending/repairs/20260615_170500__add_title_system.sql"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ]
     },
@@ -2621,16 +2759,16 @@
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f",
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "60e62a2c25eb59cffce88a6bfa29137bbd75a3588ad8fc405b3ffc87696dfa6e",
-        "docs/DATABASE-MIGRATIONS.md": "49eaab7dc8a2b7a3b02cd5b567d9a9ba92d9ec0f5667998042773eca99b65bc9",
+        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
+        "docs/DATABASE-MIGRATIONS.md": "d1e922a26cb926276d840a4f67cbe95adccc763b6facc5df5792fb07e8ea2c20",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -2794,6 +2932,18 @@
             "docs/DATABASE-MIGRATIONS.md",
             "database/pending/repairs/20260615_170500__add_title_system.sql"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ]
     },
@@ -2804,16 +2954,16 @@
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f",
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "60e62a2c25eb59cffce88a6bfa29137bbd75a3588ad8fc405b3ffc87696dfa6e",
-        "docs/DATABASE-MIGRATIONS.md": "49eaab7dc8a2b7a3b02cd5b567d9a9ba92d9ec0f5667998042773eca99b65bc9",
+        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
+        "docs/DATABASE-MIGRATIONS.md": "d1e922a26cb926276d840a4f67cbe95adccc763b6facc5df5792fb07e8ea2c20",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -3039,6 +3189,18 @@
             "docs/DATABASE-MIGRATIONS.md",
             "database/pending/repairs/20260615_170500__add_title_system.sql"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ],
       "remaining": "Later duplicate partition/history conflicts and whole-history data-preserving upgrade/rollback, all five actual service contracts, dynamic future scheduling, archive/restore/retention/metrics/statistics API, >=80% coverage and >=50% query improvement remain open."
@@ -3051,19 +3213,19 @@
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260611_000000__add_achievement_system_tables.sql": "31e3714195d83afba17bafd85f3590ad51e30011831a5d0a1f5b4e8e5a00e302",
         "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "6f9c323240e28aa67a4d54fccd7141b72f7d58f91607ae53568631b90cd0a2d9",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "database/pending/20261008_150000__achievement_catalog_bridge.sql": "432a090e79626102f6cff413f6bc844c7617bd0c2cc1346899f95fa1b801e04f",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
         "backend/services/pokemon-service/src/achievementService.js": "1d9a713fc73187c6391357c436492f1a4cb192e246c256a45b99779acabddbcf",
         "backend/services/pokemon-service/src/routes/achievements.js": "eddd615a633590f438a009aa0ed3c121016221c9d1af7dd687ff6a73af343b21",
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "backend/services/user-service/src/routes/user.js": "7d24fb40cd0662c428a6b42c2bf6636a2a3ac05fdcdc5e8717d1df5a1dbf04df",
         "backend/tests/regression/achievement-storage.test.js": "4983c1a41d7e40fd86bcb29cd59765555c2ff0f10030044ca5b75ee435a4b90b",
-        ".github/workflows/migration-regression.yml": "60e62a2c25eb59cffce88a6bfa29137bbd75a3588ad8fc405b3ffc87696dfa6e",
+        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
         "docs/ACHIEVEMENTS.md": "09711c5508a55e25daaa1d2735281a7c35bae20e885c998d93bb3a5d17e8a08d",
-        "docs/DATABASE-MIGRATIONS.md": "49eaab7dc8a2b7a3b02cd5b567d9a9ba92d9ec0f5667998042773eca99b65bc9",
+        "docs/DATABASE-MIGRATIONS.md": "d1e922a26cb926276d840a4f67cbe95adccc763b6facc5df5792fb07e8ea2c20",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "docs/NOTIFICATIONS.md": "5b47d94114ba552f47f6d88f8aaba2ceb17c4e705174c1872d95f5e0655726ae",
@@ -3221,6 +3383,18 @@
             ".github/workflows/migration-regression.yml",
             "docs/DATABASE-MIGRATIONS.md"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            "database/pending/dependencies.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ],
       "remaining": "Replay/idempotency/durable events/automatic grant/all triggers; complete seed item/title contract and exclusive Pokemon grant; management CRUD/admin and edited-definition snapshot policy; old unit fixture; native pokemon process/gateway/client/localization; <100ms query/<50ms update performance; full83 history and data-preserving reversal with modern records remain unproven."
@@ -3332,6 +3506,17 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -3356,10 +3541,10 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f",
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "60e62a2c25eb59cffce88a6bfa29137bbd75a3588ad8fc405b3ffc87696dfa6e",
+        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -3488,6 +3673,17 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -3512,10 +3708,10 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f",
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "60e62a2c25eb59cffce88a6bfa29137bbd75a3588ad8fc405b3ffc87696dfa6e",
+        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -3644,6 +3840,17 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -3668,10 +3875,10 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f",
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "60e62a2c25eb59cffce88a6bfa29137bbd75a3588ad8fc405b3ffc87696dfa6e",
+        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -3699,12 +3906,12 @@
         "database/pending/20260611_131000__add_friendship_system.sql": "1d5b944eb3f8d1c16dfce690712aed383a6a126449d66f9f633a5477430a4ac8",
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f",
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "60e62a2c25eb59cffce88a6bfa29137bbd75a3588ad8fc405b3ffc87696dfa6e",
+        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -3795,6 +4002,17 @@
           "result": "partial_pass_full_history_failed",
           "scope": "Prior279 real storage and623 units passed at this uncommitted title/ranking source. The earlier title bootstrap now also uses guarded source-bound SQL: latest40 real title13/ranking9/quest18 repeat sequentially and pass. Syntax1428 and actual reward require natural exit pass. V1/V2pass; complete85 CLI history fails damage-system20260615_221000stmt3 missing moves.name and entire pending transaction rolls back. Only matched changed common integration/documentation references refreshed. No complete feature/operations/performance acceptance.",
           "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
@@ -3818,12 +4036,12 @@
         "database/pending/20260611_131000__add_friendship_system.sql": "1d5b944eb3f8d1c16dfce690712aed383a6a126449d66f9f633a5477430a4ac8",
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
-        "database/pending/dependencies.json": "8ebf04a14c5a65d639f9489bb1849a07b7017017275eed3fc6f8d0ae7b7672d7",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f",
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "60e62a2c25eb59cffce88a6bfa29137bbd75a3588ad8fc405b3ffc87696dfa6e",
+        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -3914,6 +4132,17 @@
           "result": "partial_pass_full_history_failed",
           "scope": "Prior279 real storage and623 units passed at this uncommitted title/ranking source. The earlier title bootstrap now also uses guarded source-bound SQL: latest40 real title13/ranking9/quest18 repeat sequentially and pass. Syntax1428 and actual reward require natural exit pass. V1/V2pass; complete85 CLI history fails damage-system20260615_221000stmt3 missing moves.name and entire pending transaction rolls back. Only matched changed common integration/documentation references refreshed. No complete feature/operations/performance acceptance.",
           "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/dependencies.json",
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
@@ -3942,8 +4171,8 @@
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260612_070000__add_catch_anomaly_detection_system.sql": "071c812b16b0f3bd90eb912c88d98d01c334d709a619ae0c5e7b26280869b926",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f",
-        ".github/workflows/migration-regression.yml": "60e62a2c25eb59cffce88a6bfa29137bbd75a3588ad8fc405b3ffc87696dfa6e",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
         "docs/CATCH-RISK.md": "38a45565382fcc71fcd3086ed2de7b885d9e912859efe78d917741eaa3afbcf0",
         "docs/review/REQ-00082-catch-success-anomaly-detection-review.md": "76b74356f1d4b2745e8d4029639e2cb0ac5101d789d6c6c699b35fb2b3aa11a9",
         "docs/review/REQ-00082-catch-success-anomaly-detection-system-review.md": "91b9a7a16ae6203eac69695669ad3eed471d75d13259a44cd7b98a59f044e19c",
@@ -4038,6 +4267,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -4063,8 +4302,8 @@
         "database/pending/20260613_160000__add_special_iv_system.sql": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f",
-        ".github/workflows/migration-regression.yml": "60e62a2c25eb59cffce88a6bfa29137bbd75a3588ad8fc405b3ffc87696dfa6e",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -4114,6 +4353,16 @@
           "command": "sequential actual title/ranking/quest40; prior storage279/unit623; syntax; complete bootstrap CLI",
           "result": "partial_pass_full_history_failed",
           "scope": "Prior279 real storage and623 units passed at this uncommitted title/ranking source. The earlier title bootstrap now also uses guarded source-bound SQL: latest40 real title13/ranking9/quest18 repeat sequentially and pass. Syntax1428 and actual reward require natural exit pass. V1/V2pass; complete85 CLI history fails damage-system20260615_221000stmt3 missing moves.name and entire pending transaction rolls back. Only matched changed common integration/documentation references refreshed. No complete feature/operations/performance acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
           "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
@@ -4141,8 +4390,8 @@
         "database/pending/20260613_160000__add_special_iv_system.sql": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f",
-        ".github/workflows/migration-regression.yml": "60e62a2c25eb59cffce88a6bfa29137bbd75a3588ad8fc405b3ffc87696dfa6e",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -4196,6 +4445,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -4213,15 +4472,15 @@
       "sourceSha256": {
         "database/pending/20260614_090500__add_daily_quest_system.sql": "b602bc1b0e67d1b03aa441cf24de2abbc7113ab512bcd7384d006e2b15b07979",
         "database/pending/repairs/20260614_090500__add_daily_quest_system.sql": "65570155fda0333a90d88d794c600cb17b685ed1ea0a99ed7a6198669d6c53be",
-        "database/pending/repairs.json": "94c72e4a073b96cfb061436e4b211c8f20c825460144fe232eb8eb6717bfc19f",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
         "backend/services/reward-service/src/index.js": "42b8220e1654ecf40ae8d053e1b9219e651e27b1ff40f511abdc6d7c6d9f8a50",
         "backend/services/reward-service/src/routes/dailyQuests.js": "599fa242c1864866bebc2f5368e0552ad47a58afcacd7933561a1a3e6d64054b",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
         "backend/shared/questService.js": "4db34890cbb2837e2c13703dd0278e41a030fd8cbb1d39bf2411920e2f4413fd",
         "backend/shared/routes/quests.js": "415f6443d29d9f5675b0def6517d20063ec0df25d66454ccd3e3766a326163e3",
         "backend/shared/questMetrics.js": "4d70c0eb2917f3942f4cc0888d27ffdfeb6fcac91a585c4a897364a7e7afaa8f",
-        ".github/workflows/migration-regression.yml": "60e62a2c25eb59cffce88a6bfa29137bbd75a3588ad8fc405b3ffc87696dfa6e",
-        "docs/DAILY-QUESTS.md": "0a809fbd7904b7c5c3f1b3a5787559d3ab77aad8f7df62165a7c83e65ab5f301"
+        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
+        "docs/DAILY-QUESTS.md": "120f4cc0d1cf1492ea16ac8c3db9721d566bf48f6ddd1bb3b249bcea6f07f185"
       },
       "evidence": [
         {
@@ -4252,6 +4511,17 @@
             ".github/workflows/migration-regression.yml",
             "docs/DAILY-QUESTS.md"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DAILY-QUESTS.md"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -4273,8 +4543,8 @@
         "backend/services/catch-service/src/index.js": "b5901bc1a2bc732da52ffb257166948b54e84141882b5989d0dcbf3b0c26175c",
         "backend/tests/regression/reward-leaderboard-storage.test.js": "b22fe38c30f5351cbcbd39129f0794daf6dc3b2c7ed6c33cca2ba8b1159d163f",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
-        ".github/workflows/migration-regression.yml": "60e62a2c25eb59cffce88a6bfa29137bbd75a3588ad8fc405b3ffc87696dfa6e",
-        "docs/REWARD-RANKINGS.md": "7fcdcb2b9fe34b1c421fcdb83ba6a0c614cf3aa43acccd6909a2e44c754376ac",
+        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
+        "docs/REWARD-RANKINGS.md": "dc2e187a61e94a5ab89995f9a6330bd327d86ce16212adb0146261ae6f37a18e",
         "docs/review/REQ-00255-api-injection-attack-protection-system-review.md": "2ac0537e70d4896ea611958d55aaffb60793de6b06538872a554819d0a60ef76"
       },
       "evidence": [
@@ -4290,6 +4560,16 @@
           "result": "passed",
           "tests": 18,
           "scope": "Legacy actual claims preserved after changing the production reward application."
+        },
+        {
+          "date": "2026-10-13",
+          "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
+          "result": "partial_pass_full_history_failed_native_shutdown_unverified",
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml",
+            "docs/REWARD-RANKINGS.md"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -4298,6 +4578,132 @@
         "Measured original p95<5ms overhead and actual authorized alert delivery after10 high-risk attacks",
         "Full service/gateway integration and current relevant CI; native reward readiness/lifecycle",
         "Original social7 scoreboard types, seasons/events/real rewards/client/cache/numerical requirements remain separate and required"
+      ]
+    },
+    "REQ-00019-pokemon-moves-learning-system.md": {
+      "date": "2026-10-13",
+      "status": "partial_local_verified_ci_pending",
+      "documentSha256": "4ff8ac9492012c4e20f34d249935eddc559d7eedf7010351d3084ada011a63fb",
+      "sourceSha256": {
+        "backend/shared/damageCalculator.js": "ce780f1f6a9db8f8452590670071c5a8b86e1cb5ed7b302b017f893f461435b4",
+        "backend/shared/typeChart.js": "9f78659751650251154311110487de8b1610780e2ff674bd1e451841fa8ff25e",
+        "backend/services/gym-service/src/damageEngine.js": "6ca13ebe45d027238283eb4c014c7840cebc589fce52047b354537b2d79df0be",
+        "backend/services/gym-service/src/routes/damage.js": "731cf5a7a8affa3f3cf849b3d76881816edd0ef0850b80d0e33dcaa28efee762",
+        "backend/services/gym-service/src/index.js": "9c19ee09780a831cd7c319ffe76052c3351483e95467dc06df1e409db6f84d74",
+        "backend/services/pokemon-service/src/moveService.js": "2961d468c0eda01e7c08e2f1466e8ce797faa21823b47a2e64bd80609c73d200",
+        "backend/services/pokemon-service/src/routes/moves.js": "d66e92af141171001543e18ff658f17b077a38356b27c1bc015f8ac8e7fc5801",
+        "backend/tests/regression/move-damage-storage.test.js": "246503244f989fa8c0c0fcb212a826362f061de62e8003c116d013ac67adbf04",
+        "backend/tests/unit/damage-calculator.test.js": "8e8c3fb1c7137c53a360ad908c881685d97bf873d817b9455ee5a43cd8272604",
+        "backend/tests/unit/damage-contract.test.js": "e48942501ab438bcb119bc806e5d39886de1b83b3636ec249aacdec585ab2e7a",
+        "backend/tests/probes/gym-damage-process.js": "b1d6ce36aa10920816c5b8c54dddbc2100d1583a63caf155598180a10f9a08bf",
+        "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
+        "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
+        "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
+        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
+        "docs/MOVE-DAMAGE.md": "c0dcee25d4b1bdd2b3c1dc4041c862a0573c20f8185ee514b93c20172b21bc02"
+      },
+      "evidence": [
+        {
+          "command": "node --test --test-concurrency=1 backend/tests/regression/move-damage-storage.test.js",
+          "runtime": "Node24, isolated PostGIS15; real MoveService/damage engine/production-router HTTP",
+          "result": "passed",
+          "tests": 32,
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance."
+        },
+        {
+          "command": "npm test",
+          "result": "passed",
+          "checks": 686,
+          "scope": "Existing95 standalone checks,8 runner,133 battle,58 original damage assertions,5 new damage contracts and387 Jest assertions; all groups passed in final sequential run."
+        },
+        {
+          "command": "node backend/tests/probes/gym-damage-process.js",
+          "result": "native_http_pass_shutdown_unverified",
+          "nativeHttpStatus": 200,
+          "damageMultiplier": 0.5,
+          "moveId": "EMBER",
+          "exitCode": 1,
+          "termination": "SIGKILL after3s SIGTERM observation",
+          "scope": "Actual production gym entry point and real schema. Owned Kafka unavailable; no dependency-aware readiness or graceful lifecycle proof. Observer called the original HTTP listen, not a replacement handler. Child termination and fixture schema cleanup observed."
+        },
+        {
+          "command": "node --test backend/tests/regression/database-bootstrap.test.js",
+          "result": "failed",
+          "scope": "Full V1/V2passed; all85history advances to voice20260618_160000stmt18 nonimmutable time predicate. Whole pending batch rolls back; no omitted migration."
+        }
+      ],
+      "remainingAcceptance": [
+        "Complete original learning/battle/raid/client/catch/reward/drop/energy/slot/elite/legacy and relevant native/gateway criteria",
+        "Complete85 fresh/upgrade/rollback and current relevant CI; preserve existing applied executed-hash review requirements",
+        "Gym/pokemon dependency-aware readiness and graceful signal/provider/socket/timer cleanup",
+        "Authoritative resolution/integration of original GO-style wording versus explicit classic matrix/live battle formulas",
+        "All original numerical/coverage/UX/metrics/operations criteria; no thresholds changed"
+      ]
+    },
+    "REQ-00146-gym-battle-damage-formula-and-type-chart.md": {
+      "date": "2026-10-13",
+      "status": "partial_local_verified_ci_pending",
+      "documentSha256": "7927ead7a5ef1fe606c4cd75abb2c8a8b5798c237835abb02923c072527f3e83",
+      "sourceSha256": {
+        "backend/shared/damageCalculator.js": "ce780f1f6a9db8f8452590670071c5a8b86e1cb5ed7b302b017f893f461435b4",
+        "backend/shared/typeChart.js": "9f78659751650251154311110487de8b1610780e2ff674bd1e451841fa8ff25e",
+        "backend/services/gym-service/src/damageEngine.js": "6ca13ebe45d027238283eb4c014c7840cebc589fce52047b354537b2d79df0be",
+        "backend/services/gym-service/src/routes/damage.js": "731cf5a7a8affa3f3cf849b3d76881816edd0ef0850b80d0e33dcaa28efee762",
+        "backend/services/gym-service/src/index.js": "9c19ee09780a831cd7c319ffe76052c3351483e95467dc06df1e409db6f84d74",
+        "backend/services/pokemon-service/src/moveService.js": "2961d468c0eda01e7c08e2f1466e8ce797faa21823b47a2e64bd80609c73d200",
+        "backend/services/pokemon-service/src/routes/moves.js": "d66e92af141171001543e18ff658f17b077a38356b27c1bc015f8ac8e7fc5801",
+        "backend/tests/regression/move-damage-storage.test.js": "246503244f989fa8c0c0fcb212a826362f061de62e8003c116d013ac67adbf04",
+        "backend/tests/unit/damage-calculator.test.js": "8e8c3fb1c7137c53a360ad908c881685d97bf873d817b9455ee5a43cd8272604",
+        "backend/tests/unit/damage-contract.test.js": "e48942501ab438bcb119bc806e5d39886de1b83b3636ec249aacdec585ab2e7a",
+        "backend/tests/probes/gym-damage-process.js": "b1d6ce36aa10920816c5b8c54dddbc2100d1583a63caf155598180a10f9a08bf",
+        "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
+        "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
+        "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
+        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
+        "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
+        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
+        "docs/MOVE-DAMAGE.md": "c0dcee25d4b1bdd2b3c1dc4041c862a0573c20f8185ee514b93c20172b21bc02"
+      },
+      "evidence": [
+        {
+          "command": "node --test --test-concurrency=1 backend/tests/regression/move-damage-storage.test.js",
+          "runtime": "Node24, isolated PostGIS15; real MoveService/damage engine/production-router HTTP",
+          "result": "passed",
+          "tests": 32,
+          "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance."
+        },
+        {
+          "command": "npm test",
+          "result": "passed",
+          "checks": 686,
+          "scope": "Existing95 standalone checks,8 runner,133 battle,58 original damage assertions,5 new damage contracts and387 Jest assertions; all groups passed in final sequential run."
+        },
+        {
+          "command": "node backend/tests/probes/gym-damage-process.js",
+          "result": "native_http_pass_shutdown_unverified",
+          "nativeHttpStatus": 200,
+          "damageMultiplier": 0.5,
+          "moveId": "EMBER",
+          "exitCode": 1,
+          "termination": "SIGKILL after3s SIGTERM observation",
+          "scope": "Actual production gym entry point and real schema. Owned Kafka unavailable; no dependency-aware readiness or graceful lifecycle proof. Observer called the original HTTP listen, not a replacement handler. Child termination and fixture schema cleanup observed."
+        },
+        {
+          "command": "node --test backend/tests/regression/database-bootstrap.test.js",
+          "result": "failed",
+          "scope": "Full V1/V2passed; all85history advances to voice20260618_160000stmt18 nonimmutable time predicate. Whole pending batch rolls back; no omitted migration."
+        }
+      ],
+      "remainingAcceptance": [
+        "Complete original learning/battle/raid/client/catch/reward/drop/energy/slot/elite/legacy and relevant native/gateway criteria",
+        "Complete85 fresh/upgrade/rollback and current relevant CI; preserve existing applied executed-hash review requirements",
+        "Gym/pokemon dependency-aware readiness and graceful signal/provider/socket/timer cleanup",
+        "Authoritative resolution/integration of original GO-style wording versus explicit classic matrix/live battle formulas",
+        "All original numerical/coverage/UX/metrics/operations criteria; no thresholds changed"
       ]
     }
   }

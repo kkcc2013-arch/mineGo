@@ -11,10 +11,10 @@
   "scripts": {
     "dev": "concurrently \"npm run dev -w shared\" \"npm run dev -w services/user-service\" \"npm run dev -w services/location-service\" \"npm run dev -w services/pokemon-service\" \"npm run dev -w services/catch-service\" \"npm run dev -w services/gym-service\"",
     "test": "npm run test:unit && npm run test --workspaces --if-present",
-    "test:unit": "node tests/unit/catch.test.js && node tests/unit/auth.test.js && node tests/unit/spawn.test.js && node tests/unit/logger-metrics.test.js && node tests/unit/payment.test.js && npm run test:migrations:unit && npm run test:battle && npm run test:regression",
-    "test:battle": "node --test tests/battle/*.test.js",
+    "test:unit": "node tests/unit/catch.test.js && node tests/unit/auth.test.js && node tests/unit/spawn.test.js && node tests/unit/logger-metrics.test.js && node tests/unit/payment.test.js && npm run test:migrations:unit && npm run test:battle && npm run test:damage && npm run test:regression",
+    "test:battle": "node --test --test-concurrency=1 tests/battle/*.test.js",
     "test:regression": "jest --runInBand --config tests/regression/jest.config.json",
-    "test:battle:coverage": "node --test --experimental-test-coverage --test-coverage-include=**/battleFormulas.js --test-coverage-lines=91 --test-coverage-functions=91 --test-coverage-branches=91 tests/battle/*.test.js",
+    "test:battle:coverage": "node --test --test-concurrency=1 --experimental-test-coverage --test-coverage-include=**/battleFormulas.js --test-coverage-lines=91 --test-coverage-functions=91 --test-coverage-branches=91 tests/battle/*.test.js",
     "test:integration": "jest --config tests/integration/jest.config.json",
     "test:e2e": "jest --config tests/integration/jest.config.json tests/e2e",
     "test:all": "npm run test:unit && npm run test:integration",
@@ -42,7 +42,8 @@
     "test:titles:unit": "jest --runInBand --config tests/regression/jest.config.json --runTestsByPath tests/unit/title-service.test.js",
     "test:user:startup": "node --test tests/regression/user-startup.test.js",
     "test:migrations:unit": "node --test tests/unit/migration-runner.test.js",
-    "test:migrations:storage": "node --test tests/regression/migration-storage.test.js"
+    "test:migrations:storage": "node --test tests/regression/migration-storage.test.js",
+    "test:damage": "node tests/unit/damage-calculator.test.js && node --test --test-concurrency=1 tests/unit/damage-contract.test.js"
   },
   "devDependencies": {
     "@babel/parser": "7.29.7",

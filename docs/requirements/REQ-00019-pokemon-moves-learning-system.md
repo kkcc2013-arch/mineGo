@@ -3,7 +3,7 @@
 - **编号**：REQ-00019
 - **类别**：功能增强
 - **优先级**：P1
-- **状态**：done
+- **状态**：in_progress
 - **涉及服务/模块**：pokemon-service、catch-service、reward-service、game-client、database/migrations
 - **创建时间**：2026-06-05 10:00
 - **依赖需求**：REQ-00018（精灵交易系统）
@@ -253,3 +253,27 @@ class PokemonMovesPanel {
 5. **商业化价值**：TM 可作为高级奖励，增加 Raid 参与动力
 
 虽然不是 P0（不影响核心捕捉/道馆流程），但对游戏体验提升显著，应优先实现。
+
+
+## Independent acceptance correction (2026-10-13)
+
+The old done declaration is reopened pending complete acceptance. Damage migration
+conflicts with the canonical learning catalog; the previous learning/switching/forgetting
+transactions did not lock owner/instance/TM state, permitting stale ownership/selection
+and concurrent TM consumption. The production MoveService now uses one injectable real
+DB adapter and locks actual owner/instance/inventory rows before validation/mutation.
+Real learning tests show one TM can fund only one of two simultaneous requests, resource
+failure rolls back learned moves and quantity, equipped moves cannot be forgotten,
+and real switching/forgetting/foreign-ownership cases work.
+
+Actual catalog list/detail/owned-move reads, at-least50 original definitions, IDs,
+localized names, types/power/energy/duration, TM/learnset references and relation identity
+survive the guarded damage bridge.32 combined actual cases pass; full modern energy
+system, complete mounted move API/client/catch/reward/drop flows, all slot/elite/legacy
+conditions and original coverage/acceptance remain required. See MOVE-DAMAGE.md.
+
+The existing move router also truncated UUIDs with parseInt. It now validates UUIDs
+and typed query/body data, uses signed identity, and keeps unexpected DB failures out
+of client error bodies. Actual production-router HTTP checks exercise every named
+read/action endpoint and foreign/anonymous/invalid cases; native pokemon/gateway/client
+flows remain separate and unverified.

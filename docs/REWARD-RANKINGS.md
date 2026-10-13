@@ -37,10 +37,9 @@ with custom-state guards and disabled state tested against both repaired stages.
 
 All85 original pending SQL files remain unchanged. Existing deployments with different
 applied executed hashes need an explicit reviewed upgrade plan; checksums are not rewritten
-to hide changed repairs. Full V1/V2 passes. Complete85 history fails at damage-system
-20260615_221000 statement3: actual moves has id/name_zh/name_en and other required fields,
-while the consumer expects name. Lowercase names, uppercase identifiers/types and
-conflicting power/energy values need reconciliation against actual gameplay contracts.
+to hide changed repairs. Full V1/V2 passes. The move bridge now preserves actual catalog values and retains proposed defaults;
+see MOVE-DAMAGE.md. Complete85 history fails voice-chat20260618_160000 statement18
+because its time-dependent index predicate is not immutable.
 The entire pending transaction rolls back; no file is skipped. Full-chain data-preserving
 upgrade/rollback and all native service/client/game acceptance remain open.
 

@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 195,
-      "in_progress": 31,
+      "done": 193,
+      "in_progress": 33,
       "new": 432
     },
     "priorityCounts": {
@@ -513,11 +513,11 @@
       "id": "REQ-00019",
       "title": "REQ-00019：精灵技能学习与技能机器系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "功能增强",
       "modules": "pokemon-service、catch-service、reward-service、game-client、database/migrations",
       "createdAt": "2026-06-05 10:00",
-      "sha256": "11e84f956eafc7fe82de8f60417cf8e63fd241f28c9abd3e9a45790713389f10",
+      "sha256": "4ff8ac9492012c4e20f34d249935eddc559d7eedf7010351d3084ada011a63fb",
       "acceptance": [
         "- [ ] 数据库迁移成功执行，moves、pokemon_moves、technical_machines、tm_inventory 表创建完成",
         "- [ ] 至少 50 个技能数据种子插入成功",
@@ -534,12 +534,11 @@
         "- [ ] 前端技能管理 UI 可正常显示和操作",
         "- [ ] 单元测试覆盖核心逻辑（技能学习、切换、遗忘）"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/catch-service/src/index.js",
         "backend/services/pokemon-service/src/index.js",
         "backend/services/pokemon-service/src/moveService.js",
-        "backend/services/pokemon-service/src/routes/moves.js",
         "backend/services/reward-service/src/raidRewards.js",
         "backend/tests/unit/moves.test.js",
         "database/pending/20260605_180000__add_moves_and_tm_system.sql"
@@ -4331,11 +4330,11 @@
       "id": "REQ-00146",
       "title": "REQ-00146: 道馆战斗伤害公式与属性克制计算系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "功能增强",
       "modules": "gym-service、pokemon-service、backend/shared",
       "createdAt": "2026-06-12 07:00",
-      "sha256": "8f32be2a170c28388267f747e66a9e3d3029838fb332ad370ddf7641574bfec8",
+      "sha256": "7927ead7a5ef1fe606c4cd75abb2c8a8b5798c237835abb02923c072527f3e83",
       "acceptance": [
         "- [ ] `node --check backend/shared/damageCalculator.js` 通过",
         "- [ ] `node --check backend/shared/typeChart.js` 通过",
@@ -4343,14 +4342,14 @@
         "- [ ] `node backend/tests/unit/damage-calculator.test.js` 通过",
         "- [ ] `curl -sf http://localhost:3003/api/v1/gym/battle/simulate -H \"Authorization: Bearer $TOKEN\" -H \"Content-Type: application/json\" -d '{\"attacker\":{\"species_id\":6,\"attack\":150,\"fast_move\":\"ember\"},\"defender\":{\"species_id\":9,\"defense\":120}}' | jq '.damage_multiplier'` 返回值在合理范围"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/gym-service/src/index.js",
-        "backend/services/gym-service/src/routes/damage.js",
         "backend/shared/damageCalculator.js",
         "backend/shared/typeChart.js",
         "backend/tests/unit/damage-calculator.test.js",
-        "database/pending/20260615_221000__add_damage_system.sql"
+        "database/pending/20260615_221000__add_damage_system.sql",
+        "database/pending/repairs/20260615_221000__add_damage_system.sql"
       ],
       "legacyId": null
     },
