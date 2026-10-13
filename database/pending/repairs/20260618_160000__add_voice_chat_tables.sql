@@ -87,8 +87,19 @@ CREATE TABLE IF NOT EXISTS turn_credentials (
 -- 索引
 CREATE INDEX IF NOT EXISTS idx_turn_creds_user ON turn_credentials(user_id);
 CREATE INDEX IF NOT EXISTS idx_turn_creds_expires ON turn_credentials(expires_at);
-CREATE INDEX IF NOT EXISTS idx_turn_creds_active ON turn_credentials(user_id) 
-  WHERE revoked_at IS NULL AND expires_at > NOW();
+-- Reuse only the exact index contract; never silently accept or replace operator indexes.
+DO $turn_index$
+DECLARE idx oid := to_regclass(format('%I.idx_turn_creds_active', current_schema()));
+BEGIN
+  IF idx IS NOT NULL AND pg_get_indexdef(idx) IS DISTINCT FROM format(
+    'CREATE INDEX idx_turn_creds_active ON %I.turn_credentials USING btree (user_id, expires_at) WHERE (revoked_at IS NULL)', current_schema()) THEN
+    RAISE EXCEPTION 'TURN active index differs; explicit adoption required';
+  END IF;
+END
+$turn_index$;
+-- Expiry is evaluated by each query. A time-dependent predicate cannot be indexed.
+CREATE INDEX IF NOT EXISTS idx_turn_creds_active ON turn_credentials(user_id, expires_at)
+  WHERE revoked_at IS NULL;
 
 -- 语音房间事件日志表
 CREATE TABLE IF NOT EXISTS voice_room_events (

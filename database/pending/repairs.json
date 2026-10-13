@@ -54,7 +54,7 @@
     "20260618_160000": {
       "sourceSha256": "e60be5a89d60c84da8ba40f11c63bf1b5e1491e59828903856e50b490ca74bf4",
       "file": "repairs/20260618_160000__add_voice_chat_tables.sql",
-      "reason": "Express active room membership uniqueness as a partial unique index while retaining historical memberships."
+      "reason": "Express active room membership uniqueness as a partial unique index while retaining historical memberships. Index unrevoked TURN credentials by user and expiry using a stable revoked_at predicate; evaluate current-time expiry in queries, never an IMMUTABLE wrapper. Keep all tables, records, defaults and other SQL. Full voice/WebRTC/provider/security acceptance remains open."
     },
     "20260610_080000": {
       "sourceSha256": "fa9bd6b0aef470e0e165f6135628cfe4599521436b26fc2626065ca9c2778deb",

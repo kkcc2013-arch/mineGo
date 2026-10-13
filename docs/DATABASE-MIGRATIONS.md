@@ -137,3 +137,13 @@ for an already applied migration remains a checksum error: these changes do not 
 adopt older executed SQL. Existing deployments need an explicit reviewed upgrade plan;
 no production migration or history rewrite was performed. That earlier batch advanced to the damage-system move-catalog conflict. The latest
 canonical move bridge advances to the voice-chat index conflict; see MOVE-DAMAGE.md.
+
+
+Current follow-up (2026-10-13): the explicit source-bound voice repair now uses a
+stable unrevoked user/expiry index, preserving historical credentials and exact
+existing operator indexes. Six actual voice-schema/CLI cases and17 migration
+CLI/prerequisite cases pass. Earlier voice-index failure above records the preceding
+batch. The unchanged85-source complete gate now fails20260619_000000 statement17:
+its duplicate partition helper attempts to change the existing return type. The
+whole pending batch still rolls back; complete history and original feature
+acceptance remain open. See REQ-00116 and voice-schema-storage.test.js for scope.

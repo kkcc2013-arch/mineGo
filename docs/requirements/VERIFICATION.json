@@ -88,7 +88,7 @@
         "database/pending/20260611_152900__add_privacy_preference_center.sql": "fed6b42590f4829f4b474b9ddf840a08d7b8cce7b53bd502a0b9fe7417ec63d8",
         "database/pending/repairs/20260611_152900__add_privacy_preference_center.sql": "ac250e1ee3e789b017f7a1c54ebee3488345068aca38ea6e93df70e64483c896",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162"
       },
@@ -274,6 +274,15 @@
             "database/pending/dependencies.json",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
@@ -402,7 +411,7 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3"
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d"
       },
       "evidence": [
         {
@@ -608,6 +617,15 @@
           "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
           "changedReferences": [
             "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
             "database/pending/repairs.json"
           ]
         }
@@ -634,7 +652,7 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3"
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d"
       },
       "evidence": [
         {
@@ -840,6 +858,15 @@
           "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
           "changedReferences": [
             "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
             "database/pending/repairs.json"
           ]
         }
@@ -869,11 +896,11 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
         "database/pending/repairs/20261007_120000__title_identity_compatibility.sql": "26c5317694faa4f2a263923d4b915dfc0508d6a69c092c1c449306ee88702837",
         "database/pending/repairs/20260615_170500__add_title_system.sql": "f43872c531d7ac6a9a2875d2eb9a3f603781e4caf3bfdbe7482e7864629bf9ac",
         "backend/tests/regression/title-upgrade-storage.test.js": "406ebc4206cad8d523478a60e7e7a55e81cdbeaae369b1112fefdadfef59bb01",
-        "docs/REWARD-RANKINGS.md": "dc2e187a61e94a5ab89995f9a6330bd327d86ce16212adb0146261ae6f37a18e"
+        "docs/REWARD-RANKINGS.md": "d12687df5c9e6dd6ada3fba29f4b685fe52ddf89f6e8f972097b447499e59ca8"
       },
       "evidence": [
         {
@@ -1098,6 +1125,16 @@
             "database/pending/repairs.json",
             "docs/REWARD-RANKINGS.md"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            "docs/REWARD-RANKINGS.md"
+          ]
         }
       ]
     },
@@ -1125,7 +1162,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3"
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d"
       },
       "evidence": [
         {
@@ -1337,6 +1374,15 @@
             "database/pending/dependencies.json",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1364,7 +1410,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
         "docs/NOTIFICATIONS.md": "5b47d94114ba552f47f6d88f8aaba2ceb17c4e705174c1872d95f5e0655726ae",
         "backend/services/user-service/src/notificationService.js": "9b1809ee37dcef1cc4794db12b5a0fc2f4df876ade8dab918b378eca07d75194",
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
@@ -1383,7 +1429,7 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
         "frontend/game-client/src/i18n/index.js": "37dd930d9f30e6f6b088ad74f669c7cecbd91f7937ccb84e685d1dbfe4fa2690",
@@ -1663,6 +1709,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -1695,7 +1751,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3"
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d"
       },
       "evidence": [
         {
@@ -1861,6 +1917,15 @@
           "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
           "changedReferences": [
             "database/pending/dependencies.json",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
             "database/pending/repairs.json"
           ]
         }
@@ -1887,7 +1952,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3"
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d"
       },
       "evidence": [
         {
@@ -2055,6 +2120,15 @@
             "database/pending/dependencies.json",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -2072,7 +2146,7 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3"
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d"
       },
       "evidence": [
         {
@@ -2197,6 +2271,15 @@
             "database/pending/dependencies.json",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -2219,11 +2302,11 @@
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/regression/storageSetup.js": "1a67a27f674d7ef022e266da1ebbd5146870cdc290ebd64a51a799f5843ceaee",
-        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
-        "docs/DATABASE-MIGRATIONS.md": "d1e922a26cb926276d840a4f67cbe95adccc763b6facc5df5792fb07e8ea2c20",
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
+        "docs/DATABASE-MIGRATIONS.md": "28b5e6311372b8b71666175dd2b61d499e5655633dbc70b183da818cd9fbca2d",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
@@ -2237,7 +2320,7 @@
         "database/pending/repairs/20260707_090500__add_weather_boost_tables.sql": "6516147bffac34d8141ac42b4195ba56b9b87a731c84ec54d5ae55dfe41ad17a",
         "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql": "2eeccd3f32fe490e0d8650779cfa97798cb8f817e49bf45eae04d9366afec9ab",
         "database/pending/repairs/20260610_040000__add_guild_system_tables.sql": "2a29339687184077880c8dd956ba0baa6ba5dce18d49fba3183099f11d7aaaf3",
-        "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "15e34fb1f56090ccef456b544b74bc0f518c8bc288d44dd6b1a51bcc0541bd1e",
+        "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "b2034194cd84c4f47f3c73438555df5b80c21135535de704a782313dfefe8b8b",
         "database/pending/repairs/20260610_080000__add_ip_ban_system.sql": "2e5811df9812c7e3533fec115665884b00fa6e2f4abb6c9da5a74e07dd3f3104",
         "database/pending/repairs/20260609_124500__add_item_inventory_system.sql": "692f2f44415956fb836bcbfc2d999f0363b2c28dd2415a8f91e4158e986be8cc",
         "database/pending/20261008_140000__audit_partition_conversion.sql": "6341c87821de38f68340cbb952b0b393496b52793ddd1c225cb27c221f6b6eaf",
@@ -2553,6 +2636,18 @@
             "database/pending/dependencies.json",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "database/pending/repairs.json",
+            "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql"
+          ]
         }
       ],
       "remaining": "Reconcile notification_history/message-center and later full catalog/partition dependencies, all pending/history upgrade and data-preserving rollback, all-service startup and complete required CI acceptance."
@@ -2565,15 +2660,15 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
-        "docs/DATABASE-MIGRATIONS.md": "d1e922a26cb926276d840a4f67cbe95adccc763b6facc5df5792fb07e8ea2c20",
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
+        "docs/DATABASE-MIGRATIONS.md": "28b5e6311372b8b71666175dd2b61d499e5655633dbc70b183da818cd9fbca2d",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -2584,7 +2679,7 @@
         "database/pending/repairs/20260707_090500__add_weather_boost_tables.sql": "6516147bffac34d8141ac42b4195ba56b9b87a731c84ec54d5ae55dfe41ad17a",
         "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql": "2eeccd3f32fe490e0d8650779cfa97798cb8f817e49bf45eae04d9366afec9ab",
         "database/pending/repairs/20260610_040000__add_guild_system_tables.sql": "2a29339687184077880c8dd956ba0baa6ba5dce18d49fba3183099f11d7aaaf3",
-        "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "15e34fb1f56090ccef456b544b74bc0f518c8bc288d44dd6b1a51bcc0541bd1e",
+        "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "b2034194cd84c4f47f3c73438555df5b80c21135535de704a782313dfefe8b8b",
         "database/pending/repairs/20260610_080000__add_ip_ban_system.sql": "2e5811df9812c7e3533fec115665884b00fa6e2f4abb6c9da5a74e07dd3f3104",
         "database/pending/repairs/20260609_124500__add_item_inventory_system.sql": "692f2f44415956fb836bcbfc2d999f0363b2c28dd2415a8f91e4158e986be8cc",
         "database/pending/20260609_124500__add_item_inventory_system.sql": "99c96061defc0b502f87147c491889266f53b9e5c8ae8cfbdcdda6892c09969e",
@@ -2749,6 +2844,18 @@
             ".github/workflows/migration-regression.yml",
             "docs/DATABASE-MIGRATIONS.md"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql"
+          ]
         }
       ]
     },
@@ -2760,15 +2867,15 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
-        "docs/DATABASE-MIGRATIONS.md": "d1e922a26cb926276d840a4f67cbe95adccc763b6facc5df5792fb07e8ea2c20",
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
+        "docs/DATABASE-MIGRATIONS.md": "28b5e6311372b8b71666175dd2b61d499e5655633dbc70b183da818cd9fbca2d",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -2779,7 +2886,7 @@
         "database/pending/repairs/20260707_090500__add_weather_boost_tables.sql": "6516147bffac34d8141ac42b4195ba56b9b87a731c84ec54d5ae55dfe41ad17a",
         "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql": "2eeccd3f32fe490e0d8650779cfa97798cb8f817e49bf45eae04d9366afec9ab",
         "database/pending/repairs/20260610_040000__add_guild_system_tables.sql": "2a29339687184077880c8dd956ba0baa6ba5dce18d49fba3183099f11d7aaaf3",
-        "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "15e34fb1f56090ccef456b544b74bc0f518c8bc288d44dd6b1a51bcc0541bd1e",
+        "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "b2034194cd84c4f47f3c73438555df5b80c21135535de704a782313dfefe8b8b",
         "database/pending/repairs/20260610_080000__add_ip_ban_system.sql": "2e5811df9812c7e3533fec115665884b00fa6e2f4abb6c9da5a74e07dd3f3104",
         "database/pending/repairs/20260609_124500__add_item_inventory_system.sql": "692f2f44415956fb836bcbfc2d999f0363b2c28dd2415a8f91e4158e986be8cc",
         "database/pending/20260609_230000__add_pokedex_completion_reward_system.sql": "748e9a8a28b86517ec5a521008e2e4e66713f14cd252c497cd3cecae310f1bd3",
@@ -2944,6 +3051,18 @@
             ".github/workflows/migration-regression.yml",
             "docs/DATABASE-MIGRATIONS.md"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql"
+          ]
         }
       ]
     },
@@ -2955,15 +3074,15 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
-        "docs/DATABASE-MIGRATIONS.md": "d1e922a26cb926276d840a4f67cbe95adccc763b6facc5df5792fb07e8ea2c20",
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
+        "docs/DATABASE-MIGRATIONS.md": "28b5e6311372b8b71666175dd2b61d499e5655633dbc70b183da818cd9fbca2d",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -2974,7 +3093,7 @@
         "database/pending/repairs/20260707_090500__add_weather_boost_tables.sql": "6516147bffac34d8141ac42b4195ba56b9b87a731c84ec54d5ae55dfe41ad17a",
         "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql": "2eeccd3f32fe490e0d8650779cfa97798cb8f817e49bf45eae04d9366afec9ab",
         "database/pending/repairs/20260610_040000__add_guild_system_tables.sql": "2a29339687184077880c8dd956ba0baa6ba5dce18d49fba3183099f11d7aaaf3",
-        "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "15e34fb1f56090ccef456b544b74bc0f518c8bc288d44dd6b1a51bcc0541bd1e",
+        "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "b2034194cd84c4f47f3c73438555df5b80c21135535de704a782313dfefe8b8b",
         "database/pending/repairs/20260610_080000__add_ip_ban_system.sql": "2e5811df9812c7e3533fec115665884b00fa6e2f4abb6c9da5a74e07dd3f3104",
         "database/pending/repairs/20260609_124500__add_item_inventory_system.sql": "692f2f44415956fb836bcbfc2d999f0363b2c28dd2415a8f91e4158e986be8cc",
         "database/pending/20260610_100000__add_table_partitioning_system.sql": "9a7e7ae9946cdc45a2dbfb4c27e981cffba48d7699971902f88213f49dd80bac",
@@ -3201,6 +3320,18 @@
             ".github/workflows/migration-regression.yml",
             "docs/DATABASE-MIGRATIONS.md"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql"
+          ]
         }
       ],
       "remaining": "Later duplicate partition/history conflicts and whole-history data-preserving upgrade/rollback, all five actual service contracts, dynamic future scheduling, archive/restore/retention/metrics/statistics API, >=80% coverage and >=50% query improvement remain open."
@@ -3213,7 +3344,7 @@
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260611_000000__add_achievement_system_tables.sql": "31e3714195d83afba17bafd85f3590ad51e30011831a5d0a1f5b4e8e5a00e302",
         "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "6f9c323240e28aa67a4d54fccd7141b72f7d58f91607ae53568631b90cd0a2d9",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "database/pending/20261008_150000__achievement_catalog_bridge.sql": "432a090e79626102f6cff413f6bc844c7617bd0c2cc1346899f95fa1b801e04f",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
@@ -3223,9 +3354,9 @@
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "backend/services/user-service/src/routes/user.js": "7d24fb40cd0662c428a6b42c2bf6636a2a3ac05fdcdc5e8717d1df5a1dbf04df",
         "backend/tests/regression/achievement-storage.test.js": "4983c1a41d7e40fd86bcb29cd59765555c2ff0f10030044ca5b75ee435a4b90b",
-        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
         "docs/ACHIEVEMENTS.md": "09711c5508a55e25daaa1d2735281a7c35bae20e885c998d93bb3a5d17e8a08d",
-        "docs/DATABASE-MIGRATIONS.md": "d1e922a26cb926276d840a4f67cbe95adccc763b6facc5df5792fb07e8ea2c20",
+        "docs/DATABASE-MIGRATIONS.md": "28b5e6311372b8b71666175dd2b61d499e5655633dbc70b183da818cd9fbca2d",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "docs/NOTIFICATIONS.md": "5b47d94114ba552f47f6d88f8aaba2ceb17c4e705174c1872d95f5e0655726ae",
@@ -3395,6 +3526,17 @@
             ".github/workflows/migration-regression.yml",
             "docs/DATABASE-MIGRATIONS.md"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ],
       "remaining": "Replay/idempotency/durable events/automatic grant/all triggers; complete seed item/title contract and exclusive Pokemon grant; management CRUD/admin and edited-definition snapshot policy; old unit fixture; native pokemon process/gateway/client/localization; <100ms query/<50ms update performance; full83 history and data-preserving reversal with modern records remain unproven."
@@ -3517,6 +3659,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -3542,9 +3694,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -3684,6 +3836,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -3709,9 +3871,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -3851,6 +4013,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -3876,9 +4048,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -3907,11 +4079,11 @@
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -4013,6 +4185,16 @@
           "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
           "changedReferences": [
             "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
@@ -4037,11 +4219,11 @@
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -4143,6 +4325,16 @@
           "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
           "changedReferences": [
             "database/pending/dependencies.json",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
@@ -4171,8 +4363,8 @@
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260612_070000__add_catch_anomaly_detection_system.sql": "071c812b16b0f3bd90eb912c88d98d01c334d709a619ae0c5e7b26280869b926",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
-        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
         "docs/CATCH-RISK.md": "38a45565382fcc71fcd3086ed2de7b885d9e912859efe78d917741eaa3afbcf0",
         "docs/review/REQ-00082-catch-success-anomaly-detection-review.md": "76b74356f1d4b2745e8d4029639e2cb0ac5101d789d6c6c699b35fb2b3aa11a9",
         "docs/review/REQ-00082-catch-success-anomaly-detection-system-review.md": "91b9a7a16ae6203eac69695669ad3eed471d75d13259a44cd7b98a59f044e19c",
@@ -4277,6 +4469,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -4302,8 +4504,8 @@
         "database/pending/20260613_160000__add_special_iv_system.sql": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
-        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -4363,6 +4565,16 @@
           "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
           "result": "partial_pass_full_history_failed_native_shutdown_unverified",
           "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
           "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
@@ -4390,8 +4602,8 @@
         "database/pending/20260613_160000__add_special_iv_system.sql": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
-        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -4455,6 +4667,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -4472,15 +4694,15 @@
       "sourceSha256": {
         "database/pending/20260614_090500__add_daily_quest_system.sql": "b602bc1b0e67d1b03aa441cf24de2abbc7113ab512bcd7384d006e2b15b07979",
         "database/pending/repairs/20260614_090500__add_daily_quest_system.sql": "65570155fda0333a90d88d794c600cb17b685ed1ea0a99ed7a6198669d6c53be",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
         "backend/services/reward-service/src/index.js": "42b8220e1654ecf40ae8d053e1b9219e651e27b1ff40f511abdc6d7c6d9f8a50",
         "backend/services/reward-service/src/routes/dailyQuests.js": "599fa242c1864866bebc2f5368e0552ad47a58afcacd7933561a1a3e6d64054b",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
         "backend/shared/questService.js": "4db34890cbb2837e2c13703dd0278e41a030fd8cbb1d39bf2411920e2f4413fd",
         "backend/shared/routes/quests.js": "415f6443d29d9f5675b0def6517d20063ec0df25d66454ccd3e3766a326163e3",
         "backend/shared/questMetrics.js": "4d70c0eb2917f3942f4cc0888d27ffdfeb6fcac91a585c4a897364a7e7afaa8f",
-        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
-        "docs/DAILY-QUESTS.md": "120f4cc0d1cf1492ea16ac8c3db9721d566bf48f6ddd1bb3b249bcea6f07f185"
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
+        "docs/DAILY-QUESTS.md": "9bbbd3ff6e3595dd7e1249db797c0f319a1d587bc04d2980e32ccc954ad588db"
       },
       "evidence": [
         {
@@ -4522,6 +4744,17 @@
             ".github/workflows/migration-regression.yml",
             "docs/DAILY-QUESTS.md"
           ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DAILY-QUESTS.md"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -4543,8 +4776,8 @@
         "backend/services/catch-service/src/index.js": "b5901bc1a2bc732da52ffb257166948b54e84141882b5989d0dcbf3b0c26175c",
         "backend/tests/regression/reward-leaderboard-storage.test.js": "b22fe38c30f5351cbcbd39129f0794daf6dc3b2c7ed6c33cca2ba8b1159d163f",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
-        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
-        "docs/REWARD-RANKINGS.md": "dc2e187a61e94a5ab89995f9a6330bd327d86ce16212adb0146261ae6f37a18e",
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
+        "docs/REWARD-RANKINGS.md": "d12687df5c9e6dd6ada3fba29f4b685fe52ddf89f6e8f972097b447499e59ca8",
         "docs/review/REQ-00255-api-injection-attack-protection-system-review.md": "2ac0537e70d4896ea611958d55aaffb60793de6b06538872a554819d0a60ef76"
       },
       "evidence": [
@@ -4566,6 +4799,16 @@
           "command": "actual move/damage32; CLI/prereq17; npm test; syntax; full seeded bootstrap; real gym diagnostic",
           "result": "partial_pass_full_history_failed_native_shutdown_unverified",
           "scope": "32 actual canonical move/damage/TM storage and production-router HTTP cases,17 actual CLI/prerequisite checks and686 unit checks pass. Original58 damage assertions and5 contracts are now in the main gate. Syntax1432 and changed module loads pass. Native gym entry-point HTTP returns200/multiplier0.5/EMBER, but a bounded3s SIGTERM observation ended in owned SIGKILL and diagnostic exit1; graceful readiness/lifecycle remains unverified. Full V1/V2passes; all85 history fails voice20260618_160000stmt18 mutable index predicate and whole pending transaction rolls back. Refresh applies only to exercised common integration references; no complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml",
+            "docs/REWARD-RANKINGS.md"
+          ]
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
           "changedReferences": [
             ".github/workflows/migration-regression.yml",
             "docs/REWARD-RANKINGS.md"
@@ -4599,11 +4842,11 @@
         "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
         "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
-        "docs/MOVE-DAMAGE.md": "c0dcee25d4b1bdd2b3c1dc4041c862a0573c20f8185ee514b93c20172b21bc02"
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
+        "docs/MOVE-DAMAGE.md": "7cae0d287f7e7cfe38e624fd6ff98ad945c65e4ab8fc3c532426be5347aaf93f"
       },
       "evidence": [
         {
@@ -4633,6 +4876,24 @@
           "command": "node --test backend/tests/regression/database-bootstrap.test.js",
           "result": "failed",
           "scope": "Full V1/V2passed; all85history advances to voice20260618_160000stmt18 nonimmutable time predicate. Whole pending batch rolls back; no omitted migration."
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/MOVE-DAMAGE.md"
+          ]
+        },
+        {
+          "date": "2026-10-13",
+          "commit": "d87da14f948c05615eca777737eb35444ed898d4",
+          "result": "scoped_ci_pass_full_history_failed",
+          "scope": "Published main CI/CD450 succeeds; actual move/damage storage step32 succeeds (job115247597349). Full migration12 fails voice stmt18 at that source; latest local voice repair advances to duplicate partition helper. Original complete feature criteria remain open. Contract/API/performance/integration workflows fail; E2E/security were still running at observation.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/38382940191"
         }
       ],
       "remainingAcceptance": [
@@ -4662,11 +4923,11 @@
         "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
         "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
-        "database/pending/repairs.json": "ca0c75a6d761ef4853c091c13b3655f67be802a727a86de198788d5330f0d8e3",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
         "database/pending/dependencies.json": "591ae175e3d74e7ba0394196c47be2f621be2da38fba0239c62278456911ec03",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/migration-regression.yml": "92bb7ac72e62d96029c4f04cad1d30b216c0b6031d7b98ab548f7b13dd89fde8",
-        "docs/MOVE-DAMAGE.md": "c0dcee25d4b1bdd2b3c1dc4041c862a0573c20f8185ee514b93c20172b21bc02"
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
+        "docs/MOVE-DAMAGE.md": "7cae0d287f7e7cfe38e624fd6ff98ad945c65e4ab8fc3c532426be5347aaf93f"
       },
       "evidence": [
         {
@@ -4696,6 +4957,24 @@
           "command": "node --test backend/tests/regression/database-bootstrap.test.js",
           "result": "failed",
           "scope": "Full V1/V2passed; all85history advances to voice20260618_160000stmt18 nonimmutable time predicate. Whole pending batch rolls back; no omitted migration."
+        },
+        {
+          "date": "2026-10-13",
+          "command": "voice-schema-storage6; migration CLI/prerequisites17; syntax1433; actual full bootstrap",
+          "result": "partial_pass_full_history_failed",
+          "scope": "6 actual voice-schema/storage/CLI checks and17 migration CLI/prerequisite checks pass. Syntax1433 passes; actual TURN module loads. Full V1/V2 passes and unchanged85-source history advances past the repaired voice index, then fails20260619_000000 statement17 because a duplicate helper changes its return type. Common manifest/workflow/document refresh is limited to this exercised integration slice, not re-verification of complete feature acceptance. Historical source-specific evidence remains.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/MOVE-DAMAGE.md"
+          ]
+        },
+        {
+          "date": "2026-10-13",
+          "commit": "d87da14f948c05615eca777737eb35444ed898d4",
+          "result": "scoped_ci_pass_full_history_failed",
+          "scope": "Published main CI/CD450 succeeds; actual move/damage storage step32 succeeds (job115247597349). Full migration12 fails voice stmt18 at that source; latest local voice repair advances to duplicate partition helper. Original complete feature criteria remain open. Contract/API/performance/integration workflows fail; E2E/security were still running at observation.",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/38382940191"
         }
       ],
       "remainingAcceptance": [
@@ -4704,6 +4983,56 @@
         "Gym/pokemon dependency-aware readiness and graceful signal/provider/socket/timer cleanup",
         "Authoritative resolution/integration of original GO-style wording versus explicit classic matrix/live battle formulas",
         "All original numerical/coverage/UX/metrics/operations criteria; no thresholds changed"
+      ]
+    },
+    "REQ-00116-pokemon-team-real-time-voice-chat-system.md": {
+      "date": "2026-10-13",
+      "status": "partial_verified_full_history_failed",
+      "documentSha256": "b6b3f8b0c1f29513adb080bd796ad395abf3a1f848704020408d006881ef7d30",
+      "sourceSha256": {
+        "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
+        "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
+        "database/pending/20260618_160000__add_voice_chat_tables.sql": "e60be5a89d60c84da8ba40f11c63bf1b5e1491e59828903856e50b490ca74bf4",
+        "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "b2034194cd84c4f47f3c73438555df5b80c21135535de704a782313dfefe8b8b",
+        "database/pending/repairs.json": "7d427b7846c9a97b56bd3d89c28f2935b1c4deeeb82a2eef184e992b3e9bbf1d",
+        "backend/tests/regression/voice-schema-storage.test.js": "5e4162b28e07f7f35ab339d707b4be8a99e19e1921bd208cd51890fbf5058c6f",
+        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
+        ".github/workflows/migration-regression.yml": "1d11a60bb649f5ddfe38c05be63ab312512a9d73b5c2ce744e16daedc9bf7c42",
+        "backend/services/social-service/src/voice/turnServer.js": "2ca289a62a2fa2648e4c5a18ac49a13af268d55c17c3739334851c5673df5eb5",
+        "backend/services/social-service/src/voice/routes.js": "cdcbac7391f275b20a7646517ac0a5d3883c35a629d10e66aef9b49a42349b80",
+        "backend/services/social-service/src/voice/signalingServer.js": "4e8199480ff3745f671a20845680cf48ef5d374d4544813ca914d3fbce842505",
+        "backend/services/social-service/src/voice/roomManager.js": "3592a42e2ad55ac5462fc60b0f470c81d0bfea5e24b4b67666e831c63329b652",
+        "backend/services/social-service/src/index.js": "299f36885884f8e8225f7d588b695cb6a79b5c5d3dbd344a572f9c72fbded9d5"
+      },
+      "evidence": [
+        {
+          "command": "TEST_DATABASE_URL=<isolated PostGIS> node --test --test-concurrency=1 backend/tests/regression/voice-schema-storage.test.js",
+          "result": "passed",
+          "tests": 6,
+          "scope": "Real immutable-predicate failure and atomic DDL rollback; active-only membership uniqueness with preserved history; real expiry/revocation/owner SQL and EXPLAIN index use, no audit record deletion; existing rows/table/index OIDs/views/FKs/comments preserved; custom index refused; actual CLI original/executed checksums and idempotent rerun. No mounted voice/actual audio/provider acceptance."
+        },
+        {
+          "command": "migration-storage.test.js; migration-prerequisites.test.js",
+          "result": "passed",
+          "tests": 17
+        },
+        {
+          "command": "scripts/check-js-syntax.js; require(actual TURN manager)",
+          "result": "passed",
+          "files": 1433
+        },
+        {
+          "command": "database-bootstrap.test.js",
+          "result": "failed",
+          "scope": "V1/V2 passes; all85 source history fails20260619_000000 statement17 return type conflict; pending batch atomic, no skip."
+        }
+      ],
+      "remaining": [
+        "Secure mounted HTTP/signaling contracts and verified identities; remove placeholder identities before enabling routes.",
+        "Actual room schema/API alignment, 2-50 participants, passwords/permissions, host transfer, guild/raid integration.",
+        "TURN usage fields, revocation checks, awaited issuance, actual ICE API and secret/provider configuration.",
+        "P2P>95%, TURN>99.9%, latency<150ms, coverage>80%,1000 concurrent users; real audio controls/echo/noise/volume and client/monitoring/K8s evidence.",
+        "Complete original85-source migration history and data-preserving full-chain upgrade/rollback; voice migration still has no down section."
       ]
     }
   }

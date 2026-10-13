@@ -121,7 +121,7 @@
 | [REQ-00113](REQ-00113-realtime-business-event-stream-monitoring.md) | 实时业务事件流监控与分析系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/eventStream.js、backend/shared/realTimeAnalytics.js、infrastructure/k8s/monitoring、Kafka | 2026-06-11 13:05 |
 | [REQ-00114](REQ-00114-pokemon-seasonal-event-system.md) | 精灵季节活动系统 | 功能增强 | P1 | done | location-service、catch-service、pokemon-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 14:00 |
 | [REQ-00115](REQ-00115-database-connection-pool-adaptive-scheduling.md) | 数据库连接池自适应调度与负载均衡系统 | 数据库/数据治理 | P1 | new | backend/shared/db.js、所有微服务、PostgreSQL、infrastructure/k8s | 2026-06-11 15:50 |
-| [REQ-00116](REQ-00116-pokemon-team-real-time-voice-chat-system.md) | 精灵团队实时语音聊天系统 | 功能增强 | P1 | done | gym-service、social-service、user-service、gateway、game-client、infrastructure/k8s | 2026-06-11 16:00 |
+| [REQ-00116](REQ-00116-pokemon-team-real-time-voice-chat-system.md) | 精灵团队实时语音聊天系统 | 功能增强 | P1 | in_progress | gym-service、social-service、user-service、gateway、game-client、infrastructure/k8s | 2026-06-11 16:00 |
 | [REQ-00117](REQ-00117-map-gesture-interaction-optimization.md) | 地图手势交互优化与缩放流畅度提升 | 前端体验 | P2 | new | game-client、frontend/game-client/src/game、frontend/game-client/index.html | 2026-06-11 17:05 |
 | [REQ-00118](REQ-00118-gym-battle-route-integration.md) | gym-service 战斗路由挂载与集成 | 集成与修复 | P0 | done | gym-service、backend/services/gym-service/src/index.js、backend/services/gym-service/src/routes/battle.js | 2026-06-11 17:15 |
 | [REQ-00119](REQ-00119-pokemon-service-evolution-route-mounting.md) | pokemon-service 进化路由挂载与集成 | 集成与修复 | P0 | done | pokemon-service | 2026-06-11 17:30 |

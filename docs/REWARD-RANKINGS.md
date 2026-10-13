@@ -47,3 +47,13 @@ REQ-00255's original all-service SQL/XSS/path/Redis/command/logging/alert/false-
 and measured p95<5ms criteria remain unaccepted. The previous approved review inferred
 runtime results and numerical performance from class/regular-expression existence;
 that approval is retracted. This route fix is one verified production slice.
+
+
+Current follow-up (2026-10-13): the explicit source-bound voice repair now uses a
+stable unrevoked user/expiry index, preserving historical credentials and exact
+existing operator indexes. Six actual voice-schema/CLI cases and17 migration
+CLI/prerequisite cases pass. Earlier voice-index failure above records the preceding
+batch. The unchanged85-source complete gate now fails20260619_000000 statement17:
+its duplicate partition helper attempts to change the existing return type. The
+whole pending batch still rolls back; complete history and original feature
+acceptance remain open. See REQ-00116 and voice-schema-storage.test.js for scope.

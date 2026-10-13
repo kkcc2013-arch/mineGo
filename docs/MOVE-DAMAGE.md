@@ -75,3 +75,13 @@ its time-dependent index predicate is not immutable. The entire pending transact
 rolls back. Complete migration history, current CI, native readiness/shutdown, full
 learning/reward/drop/client/energy and battle/raid criteria remain required. No new
 requirement, production upgrade, journal rewrite, merge or deployment was performed.
+
+
+Current follow-up (2026-10-13): the explicit source-bound voice repair now uses a
+stable unrevoked user/expiry index, preserving historical credentials and exact
+existing operator indexes. Six actual voice-schema/CLI cases and17 migration
+CLI/prerequisite cases pass. Earlier voice-index failure above records the preceding
+batch. The unchanged85-source complete gate now fails20260619_000000 statement17:
+its duplicate partition helper attempts to change the existing return type. The
+whole pending batch still rolls back; complete history and original feature
+acceptance remain open. See REQ-00116 and voice-schema-storage.test.js for scope.

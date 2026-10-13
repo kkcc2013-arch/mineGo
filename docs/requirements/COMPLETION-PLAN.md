@@ -1,9 +1,9 @@
 # mineGo requirement completion plan
 
 Updated: 2026-10-13. Scope: all 658 existing requirement documents in INDEX.md,
-including the 193 legacy done declarations that still need independent acceptance.
+including the 192 legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 432 new, 33 in progress. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 432 new, 34 in progress. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -40,7 +40,7 @@ independent authorized work.
    passes20 real storage checks, and privacy consumer ordering passes actual CLI probes.
 4. Catch-risk storage/recorder passes34 actual cases. Special-IV/current ownership/
    generator and equipment prerequisite contracts now pass36. Complete85-file history
-   reaches the voice-chat mutable index predicate after move/title/quest repairs.
+   reaches the duplicate partition function return-type conflict after voice/move/title/quest repairs.
    Continue modern quest transactions/grants/events/date contracts and move identity/
    catalog/reward/gameplay/lifecycle integration, complete
    upgrade/rollback/all-service startup, then all original P0/security/game/client/
@@ -371,3 +371,38 @@ Next voice-chat mutableindex/fullhistory and native gym provider/socket/timer sh
 then all original P0/security/game/client/quality/ops and remaining modernquests. No new
 requirement, production upgrade, journal rewrite, merge or deployment. Personal memory
 preference files remain local; no Maven or all-core jobs. Goalactive with genuineprogress.
+
+
+## Voice index prerequisite and next partition conflict (2026-10-13)
+
+Published move/damage batch d87da14f948c05615eca777737eb35444ed898d4 to draft PR6;
+verified remote head/draft state. Main CI450, dependency267, privacy22, title19 and
+notification7 succeed. Actual move storage32 succeeds in migration job115247597349;
+whole migration12 fails the source-specific voice NOW() predicate. Contract375,
+API79, performance118 and integration425 fail; E2E112/security408 were still running.
+No complete requirement is accepted from these scoped successes.
+
+Reopened legacy done REQ-00116 after reading original16 criteria, retaining every
+threshold. Source-bound voice repair uses (user_id,expires_at) with revoked_at IS NULL;
+queries evaluate current-time expiry. It never mislabels NOW() IMMUTABLE or deletes
+history. Exact operator index is reused preserving OID/comment; unknown definition
+refuses atomically. Six actual PostGIS/CLI cases pass, including original42P17 failure,
+membership histories, real EXPLAIN/filtering, expired/revoked audit retention, preexisting
+views/FKs/OIDs and actual original/executed checksums/idempotent rerun. First CLI test
+wrongly expected a raw-file execution digest; corrected to the actual documented
+runner digest of parsed up/down JSON, then all6 passed. CLI/prerequisites17 pass;
+syntax1433 and actual TURN-manager load pass. No Maven or CPU saturation.
+
+Complete85 original source files remain unchanged. V1/V2 passes; full history now
+fails20260619_000000 statement17: duplicate partition helper changes BOOLEAN to VOID.
+Earlier canonical partition conversion/helper must retain data, identity and behavior;
+later duplicate shadow layouts also have conflicting child names/time bounds. Next
+work reconciles these with actual canonical parents and real storage, rather than
+replacing functions, losing data or skipping migrations. Full-chain rollback still open.
+
+Voice HTTP routes remain unmounted; signaling identity is random placeholder. TURN
+validator ignores revocation and uses absent usage columns; routes fail to await
+credentials/call absent ICE method; room service references absent fields. These are
+recorded as unfinished, alongside original real audio/provider/game/permission/numerical/
+client/operation criteria. Audit declarations now192done/34in_progress/432new, total658;
+independently verified0. Persistent all658 goal stays active.

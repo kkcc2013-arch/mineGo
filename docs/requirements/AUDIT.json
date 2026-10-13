@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 193,
-      "in_progress": 33,
+      "done": 192,
+      "in_progress": 34,
       "new": 432
     },
     "priorityCounts": {
@@ -3563,11 +3563,11 @@
       "id": "REQ-00116",
       "title": "REQ-00116: 精灵团队实时语音聊天系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "功能增强",
       "modules": "gym-service、social-service、user-service、gateway、game-client、infrastructure/k8s",
       "createdAt": "2026-06-11 16:00",
-      "sha256": "639ea734890e67bf1b43490b80bdb1b3deccd46088c370c06bee619d07b65b97",
+      "sha256": "b6b3f8b0c1f29513adb080bd796ad395abf3a1f848704020408d006881ef7d30",
       "acceptance": [
         "- [ ] 用户可以创建临时和持久语音房间",
         "- [ ] 语音房间支持密码保护",
@@ -3586,7 +3586,7 @@
         "- [ ] 单元测试覆盖率 > 80%",
         "- [ ] 压力测试支持 1000 并发用户"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_verified_full_history_failed",
       "implementationReferences": [
         "backend/services/social-service/src/routes/voice.js",
         "backend/services/social-service/src/voice/roomManager.js",
