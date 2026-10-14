@@ -158,3 +158,13 @@ statement16 because payment_orders is absent. Actual production payments use ord
 that identity/amount contract must be reconciled without duplicating or losing money
 records. Full-chain rollback, later shadow-management references and original
 feature/numerical/service acceptance remain open.
+
+
+Current currency follow-up (2026-10-14): real orders receive additive nullable quote
+metadata while retaining original identity, money, status and idempotency; historic
+conversion values remain unknown. Authenticated UUID rate-lock ownership is explicit.
+All20 currency/price seeds remain; no parallel payment table is invented.18 actual
+currency/storage/HTTP cases and17 CLI/prerequisite cases pass. Original85 sources
+remain byte-identical. V1/V2 passes; full history now rolls back at20260626_040000
+statement1 because its header uses //. Whole-chain/rollback and full payment/voice/
+partition/provider/runtime acceptance remain open. See CURRENCIES.md for evidence.

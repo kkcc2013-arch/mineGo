@@ -1196,3 +1196,67 @@ job115289087384 confirms voice6 pass, then source-specific partition failure; la
 local boundary is currency. Contract376/API80/performance119/integration426 fail;
 E2E113/security409 observed running. No full requirement accepted. Source-hashed
 partial ledger/progress updated; all658 persistent goal remains active/unbudgeted.
+
+
+## Canonical currency foundation and observed native lifecycle (2026-10-14)
+
+Read full REQ-00051; reopened old done declaration without changing10 criteria or
+30min/15min/90%/80%/100ms thresholds. Real orders/UUID/minor-unit money/status/
+idempotency/old views/FKs remain. Add nullable quote metadata, never infer historical
+USD conversions; keep20 currency+20 price seed values. Source-bound repair refuses
+parallel payment_orders and owner FKs targeting another user alias instead of ID.
+
+Actual rate service now uses real transactions/advisory pair locks for one current
+quote and full snapshot/UTC daily histories; failures preserve old quote/cache.
+Cache stops at real expiry, and provider failure never invents mock/default1 rates.
+NUMERIC conversions retain exact amount/audit; owned15min locks freeze real quotes,
+reject foreign/expired/double consumption and share outer order rollback. Used-lock
+cleanup preserves history. Actual public/typed/signed owner/admin routers use both
+existing mounts before error handling; GET/POST detection and locale parsing fixed.
+Actual counters replace missing metrics.increment, found by first real-storage run.
+
+Final actual currency18 (including parent), CLI/prereq17, unit686 (22Jest suites),
+syntax1437 and changed module loads pass. Owned HTTP server verifies all3 actual
+provider adapters against documented response bases, not live providers. Consulted
+official OER/ExchangeRate-API/vendor Fixer contracts; full credentials/freshness/live
+provider acceptance remains open. Last host restart stopped owned PostGIS; test
+ECONNREFUSED was terminal, restarted only owned DB/Redis and revalidated readiness.
+No processes restarted merely on timeout; unrelated containers untouched.
+
+Actual native payment process in production mode with fixture JWT/channel keys,
+isolated PostGIS/Redis and provider keys explicitly disabled returns4 expected200
+responses:20 currencies, CNYprice6.00, signed preference, exact USD1.01 from1.005.
+It remains alive during3s SIGTERM observation; ownedSIGKILL termination observed,
+schema/pools cleaned, diagnostic exit1. Not graceful/readiness acceptance; bounded
+observation is not a new threshold. Kafka unavailable and provider acceptance absent.
+
+V1/V2 passes; all85 raw sources unchanged. Full chain now fails20260626_040000 stmt1
+JavaScript-style //header and rolls back. Native checkout still fixed CNY/mockprepay;
+coins_1200 seed108 and checkout98 disagree. Missing multiCurrencyPayment module,
+trusted provider/currency/bill binding, idempotency, minor-spend error handling,
+30min owned scheduler, complete audit, representative performance/coverage, actual
+gateway/client/all-feature/operations acceptance remain. Prioritize P0 billing/
+identity/minor/lifecycle and remaining database prerequisite, then full original scope.
+
+Published partition ef1bc74 exact CI452/dependency271/privacy24/title21/notification9
+pass; migration14 canonical step9 succeeds (job115292180276), full gate fails prior
+payment_orders at that source. API81/contract377/performance120/integration427/
+security410 fail, E2E114 cancelled. Security dependency scan passes, K8s archive
+extract fails before policy checks; secret scan fails but log fetch unavailable.
+Also static K8s schema gate skips41 resources, and policy step only warns via grep;
+these cannot prove operation/security acceptance and need real gates, not green claims.
+
+No new requirement, lower threshold, fabricated pass, Maven/maxCPU work, merge,
+production migration or deployment. Source-hashed partial ledger/current notes updated;
+inventory191done/35in_progress/432new,total658,independently verified0. Persistent
+all658 goal stays active/unbudgeted. Personal MEMORY.md and Oct09 notes remain local.
+
+
+Final currency correction before publication: preserve exact submitted input in nullable
+TEXT input_amount beside historical normalized amount columns, without inventing old
+inputs. Actual0.10/1.005 checks pass. First INSERT reused a NUMERIC parameter in TEXT
+context and real PostgreSQL rejected inconsistent types; use an independent TEXT
+parameter and repeat actual18 successfully. Final source unit686/syntax1437 pass;
+native catalog/price/preference/conversion again200 but diagnostic1/ownedSIGKILL;
+full-chain again malformed20260626_040000 stmt1. Source hashes refreshed only after
+these observations. No fabricated success or complete feature acceptance.

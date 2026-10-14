@@ -135,6 +135,11 @@
       "sourceSha256": "8f15b334d7df13b065abad4a61678282afc846ebbc48b5ccde21f9cd4f0df9f7",
       "file": "repairs/20260619_000000__add_table_partitioning.sql",
       "reason": "Reconcile duplicate proposals with the five actual canonical created_at range parents; preserve existing BOOLEAN helper/OIDs/rows and use the guarded prerequisite. Keep monthly/day ranges and established June9 weekly phase instead of overlapping shadow ranges. Schema-scoped statistics use real inheritance. Existing shadow layouts require explicit adoption; full service/performance/archive/rollback acceptance remains open."
+    },
+    "20260624_133000": {
+      "sourceSha256": "9d82251238972d1bd61c2264504f10f709039e52b2b42921c81957c32b689bcf",
+      "file": "repairs/20260624_133000__add_multi_currency_support.sql",
+      "reason": "Attach quote metadata to real UUID orders without altering existing IDs/minor-unit amounts/currencies/status/idempotency or fabricating historical USD conversions. Refuse parallel legacy payment_orders layout; retain all20 currency and20 price seeds. Add actual UUID ownership to new rate locks; leave anonymous old ownership unknown. Full payment/provider/client/numerical/rollback acceptance remains open."
     }
   }
 }

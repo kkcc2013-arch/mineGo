@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 192,
-      "in_progress": 34,
+      "done": 191,
+      "in_progress": 35,
       "new": 432
     },
     "priorityCounts": {
@@ -1502,11 +1502,11 @@
       "id": "REQ-00051",
       "title": "REQ-00051: 多货币支持与汇率转换系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "国际化/本地化",
       "modules": "payment-service、user-service、gateway、backend/shared",
       "createdAt": "2026-06-09 15:00",
-      "sha256": "99252fd1b825f87bf1d764d5a8d43b7ce10e1ec1d818e7174e8ade9a01cb08d2",
+      "sha256": "dcbacc58410c1b87a56bd1a19e042a673d4e27b4ad309fdb71cfe910dde1b6f8",
       "acceptance": [
         "- [ ] 支持 15+ 种主流货币（USD、EUR、GBP、JPY、CNY、KRW 等）",
         "- [ ] 汇率每 30 分钟自动刷新，支持 3+ 个数据源",
@@ -1519,15 +1519,14 @@
         "- [ ] 单元测试覆盖率 ≥ 80%",
         "- [ ] API 响应时间 < 100ms（缓存命中）"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_verified_full_history_failed",
       "implementationReferences": [
-        "backend/services/payment-service/src/index.js",
-        "backend/services/payment-service/src/routes/currency.js",
         "backend/shared/currencyFormatter.js",
         "backend/shared/exchangeRateService.js",
         "backend/tests/unit/currency.test.js",
         "database/pending/20260609_150000__add_currency_support.sql",
-        "database/pending/20260624_133000__add_multi_currency_support.sql"
+        "database/pending/20260624_133000__add_multi_currency_support.sql",
+        "database/pending/repairs/20260624_133000__add_multi_currency_support.sql"
       ],
       "legacyId": null
     },
