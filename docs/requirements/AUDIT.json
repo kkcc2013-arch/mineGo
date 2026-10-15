@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 191,
-      "in_progress": 35,
+      "done": 190,
+      "in_progress": 36,
       "new": 432
     },
     "priorityCounts": {
@@ -2361,11 +2361,11 @@
       "id": "REQ-00077",
       "title": "REQ-00077: 数据库慢查询分析与自动优化建议系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "数据库/数据治理",
       "modules": "database/migrations、所有微服务、backend/shared、infrastructure/k8s",
       "createdAt": "2026-06-10 10:30",
-      "sha256": "73155246b1c3a5616babec7172574cd307ea0a7ff7c2e055028c0302e4a03a04",
+      "sha256": "e09f4e7d3a1def964169755c5636cd1c997dca70617567cf330f28dc2e361e86",
       "acceptance": [
         "- [ ] 慢查询采集器成功采集超过阈值的查询",
         "- [ ] 查询执行计划分析器正确识别全表扫描",
@@ -2378,7 +2378,7 @@
         "- [ ] 单元测试覆盖率 > 80%",
         "- [ ] 文档完整（使用说明、最佳实践）"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_verified_full_history_failed",
       "implementationReferences": [
         "backend/shared/indexUsageAnalyzer.js",
         "backend/shared/queryPlanAnalyzer.js",
@@ -2388,6 +2388,7 @@
         "database/pending/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql",
         "database/pending/20260627_041000__enable_pg_stat_statements.sql",
         "database/pending/repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql",
+        "database/pending/repairs/20260627_041000__enable_pg_stat_statements.sql",
         "infrastructure/k8s/monitoring/slow-query-alerts.yaml"
       ],
       "legacyId": null
@@ -2949,7 +2950,7 @@
       "category": "数据库/数据治理",
       "modules": "backend/shared/db.js、catch-service、gym-service、payment-service、social-service",
       "createdAt": "2026-06-11 00:20",
-      "sha256": "0e993fb57bbd0f06cea29ae54975a2403585b647848abb67ab1bd98d2cd891c7",
+      "sha256": "4e19c9a9e91636622b16912dbe8ed8259f809b095e16f6ff1e048eef37a4e315",
       "acceptance": [
         "- [ ] `transaction()` 支持 3 种隔离级别配置",
         "- [ ] 死锁发生时自动重试，最多重试 3 次",

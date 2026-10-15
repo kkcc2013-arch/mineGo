@@ -118,3 +118,27 @@ UV_THREADPOOL_SIZE=2 node --test --test-concurrency=1 tests/regression/database-
 
 The three storage commands require TEST_DATABASE_URL for that disposable database;
 the benchmark also needs the immutable baseline commit available in Git history.
+
+
+## Remote performance finding and follow-up (2026-10-15)
+
+Exact transaction commit bae401eb passes remote correctness/storage, mainCI454 and
+its battle coverage job. Migration16 job116334922847 reaches the fixed original
+throughput gate and fails at-5.624629685951888% median versus the unchanged-5%
+ceiling. Full-history step is consequently skipped there, not passed. The earlier
+local+0.054927% report above describes that source and does not override remote
+failure; the [failed CI measurement](benchmarks/transaction-throughput-ci-bae401e-2026-10-15.json)
+is preserved with its actual source hashes.
+
+The follow-up removes success-path Error stack construction (build the same timeout
+error only on failure) and an empty pending-query Promise.all/race. Deadline,
+rollback, cancellation, query ownership, retry, audit and metric semantics remain.
+Current-source real transaction22 repeats successfully. The unchanged local paired
+benchmark passes at-3.2443239972000937%; see its separate
+[measurement](benchmarks/transaction-throughput-optimized-2026-10-15.json).
+That is a local pass, not evidence that remote regression is resolved. Exact new
+remote throughput must pass the original gate before accepting REQ-00096.
+
+An independent slow-query SQL repair advances complete history to20260627_060000
+statement13 is_deleted missing. Complete upgrades/reversal and service/feature
+acceptance still remain open. No threshold/baseline/benchmark workload was changed.

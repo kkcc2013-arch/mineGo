@@ -3,7 +3,7 @@
 Updated: 2026-10-15. Scope: all 658 existing requirement documents in INDEX.md,
 including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 432 new, 35 in progress;191 declared done, including one independently verified framework. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 432 new, 36 in progress;190 declared done, including one independently verified framework. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -524,3 +524,21 @@ scenarios/formula100% with unchanged91% gates. Mark this framework done/verified
 other battle/game/storage/client/numerical requirements remain separate. Inventory
 191done/35in_progress/432new,total658,independently verified1. REQ-00096 and the
 full migration chain remain open; next work and all original stages continue.
+
+
+### Remote throughput and next SQL prerequisite (2026-10-15)
+
+Exact bae401eb migration16 confirms all transaction/storage correctness but fails
+the original throughput gate at-5.624629685951888%. Preserve the negative report;
+no threshold/baseline/workload change. Success-path Error construction and empty
+pending-query promises are removed; same local benchmark-3.2443239972000937%
+passes, while exact new remote performance remains unverified. REQ-00096 stays open.
+
+REQ-00077 old done is reopened. Its slow-query SQL prerequisite now passes7 real
+preloaded PostgreSQL15 cases, retaining identities/history and numeric precision.
+Raw85 SQL remains unchanged; full chain advances to20260627_060000 statement13
+missing is_deleted. Actual JS collector/API/security/monitoring/policy conflict and
+all original10 criteria remain open. Next align canonical inventory fields and UUID
+ownership while preserving actual Pokémon/candy/team contracts, alongside original
+P0 billing/provider/idempotency/minor/lifecycle priorities. Inventory190done/36in_progress/
+432new,total658,independently accepted1. All original stages continue.

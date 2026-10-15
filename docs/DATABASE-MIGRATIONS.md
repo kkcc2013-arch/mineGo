@@ -181,3 +181,15 @@ The complete V1/V2 seed passes, but all85 history rolls back at20260627_041000
 statement14, round(double precision,integer). Earlier header failure above is prior
 source history. Whole-chain upgrades/reversal, actual business/service/provider
 acceptance and exact current remote CI remain open; see TRANSACTIONS.md.
+
+
+Slow-query follow-up (2026-10-15): checksummed20260627_041000 repair preserves the
+original two-decimal index ratio using NUMERIC and binds both SQL helpers to actual
+PostgreSQL15 mean_exec_time/total_exec_time. Seven real live-statistics/schema checks
+pass, including original failure/rollback, old data/OIDs/views/FKs, helper execution
+and rerun identities. Tests use an additional owned one-CPU PostGIS instance with
+statistics preloaded; no reset or production change. Original85 SQL stays unchanged.
+Latest V1/V2 passes; full history now fails20260627_060000 statement13 is_deleted
+missing and rolls back. Earlier round/header failures above are source history.
+The existing30/90-day policy difference and all JS/API/monitoring/operations remain
+open. See SLOW-QUERIES.md. Whole chain and REQ-00077 are not accepted.

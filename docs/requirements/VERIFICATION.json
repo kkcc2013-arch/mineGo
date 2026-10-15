@@ -120,7 +120,7 @@
         "database/pending/20260611_152900__add_privacy_preference_center.sql": "fed6b42590f4829f4b474b9ddf840a08d7b8cce7b53bd502a0b9fe7417ec63d8",
         "database/pending/repairs/20260611_152900__add_privacy_preference_center.sql": "ac250e1ee3e789b017f7a1c54ebee3488345068aca38ea6e93df70e64483c896",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162"
       },
@@ -343,6 +343,15 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
@@ -471,7 +480,7 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15"
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b"
       },
       "evidence": [
         {
@@ -715,6 +724,15 @@
           "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
           "changedReferences": [
             "backend/tests/regression/jest.config.json",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
             "database/pending/repairs.json"
           ]
         }
@@ -741,7 +759,7 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15"
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b"
       },
       "evidence": [
         {
@@ -985,6 +1003,15 @@
           "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
           "changedReferences": [
             "backend/tests/regression/jest.config.json",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
             "database/pending/repairs.json"
           ]
         }
@@ -1014,7 +1041,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
         "database/pending/repairs/20261007_120000__title_identity_compatibility.sql": "26c5317694faa4f2a263923d4b915dfc0508d6a69c092c1c449306ee88702837",
         "database/pending/repairs/20260615_170500__add_title_system.sql": "f43872c531d7ac6a9a2875d2eb9a3f603781e4caf3bfdbe7482e7864629bf9ac",
         "backend/tests/regression/title-upgrade-storage.test.js": "406ebc4206cad8d523478a60e7e7a55e81cdbeaae369b1112fefdadfef59bb01",
@@ -1283,6 +1310,15 @@
             "backend/tests/regression/jest.config.json",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1310,7 +1346,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15"
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b"
       },
       "evidence": [
         {
@@ -1560,6 +1596,15 @@
             "backend/tests/regression/jest.config.json",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1587,7 +1632,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
         "docs/NOTIFICATIONS.md": "5b47d94114ba552f47f6d88f8aaba2ceb17c4e705174c1872d95f5e0655726ae",
         "backend/services/user-service/src/notificationService.js": "9b1809ee37dcef1cc4794db12b5a0fc2f4df876ade8dab918b378eca07d75194",
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
@@ -1606,7 +1651,7 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
         "frontend/game-client/src/i18n/index.js": "37dd930d9f30e6f6b088ad74f669c7cecbd91f7937ccb84e685d1dbfe4fa2690",
@@ -1928,6 +1973,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -1960,7 +2015,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15"
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b"
       },
       "evidence": [
         {
@@ -2164,6 +2219,15 @@
           "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
           "changedReferences": [
             "backend/tests/regression/jest.config.json",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
             "database/pending/repairs.json"
           ]
         }
@@ -2190,7 +2254,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15"
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b"
       },
       "evidence": [
         {
@@ -2396,6 +2460,15 @@
             "backend/tests/regression/jest.config.json",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -2413,7 +2486,7 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15"
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b"
       },
       "evidence": [
         {
@@ -2575,6 +2648,15 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -2597,11 +2679,11 @@
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/regression/storageSetup.js": "1a67a27f674d7ef022e266da1ebbd5146870cdc290ebd64a51a799f5843ceaee",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
-        "docs/DATABASE-MIGRATIONS.md": "47f8b32a628bd5aedbfeb3039d34a78fdbb08d15a7e0e864605fd22097bc4051",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
+        "docs/DATABASE-MIGRATIONS.md": "72adabdd4441335f7572e0d32f8de59819be837b85501d0048fcb5968ee28fb0",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
@@ -2978,9 +3060,20 @@
             "docs/DATABASE-MIGRATIONS.md",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "database/pending/repairs.json"
+          ]
         }
       ],
-      "remaining": "Reconcile notification_history/message-center and later full catalog/partition dependencies, all pending/history upgrade and data-preserving rollback, all-service startup and complete required CI acceptance."
+      "remaining": "Complete85-source history now fails20260627_060000 statement13 missing is_deleted. Reconcile canonical inventory/ownership/contracts, all later pending files, data-preserving upgrades/reversal and all-service startup. Exact new remote throughput still unverified; all original acceptance remains open."
     },
     "REQ-00047-pokemon-items-inventory-management-system.md": {
       "date": "2026-10-08",
@@ -2990,15 +3083,15 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
-        "docs/DATABASE-MIGRATIONS.md": "47f8b32a628bd5aedbfeb3039d34a78fdbb08d15a7e0e864605fd22097bc4051",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
+        "docs/DATABASE-MIGRATIONS.md": "72adabdd4441335f7572e0d32f8de59819be837b85501d0048fcb5968ee28fb0",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -3220,6 +3313,17 @@
             ".github/workflows/migration-regression.yml",
             "docs/DATABASE-MIGRATIONS.md"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ]
     },
@@ -3231,15 +3335,15 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
-        "docs/DATABASE-MIGRATIONS.md": "47f8b32a628bd5aedbfeb3039d34a78fdbb08d15a7e0e864605fd22097bc4051",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
+        "docs/DATABASE-MIGRATIONS.md": "72adabdd4441335f7572e0d32f8de59819be837b85501d0048fcb5968ee28fb0",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -3461,6 +3565,17 @@
             ".github/workflows/migration-regression.yml",
             "docs/DATABASE-MIGRATIONS.md"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ]
     },
@@ -3472,15 +3587,15 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
-        "docs/DATABASE-MIGRATIONS.md": "47f8b32a628bd5aedbfeb3039d34a78fdbb08d15a7e0e864605fd22097bc4051",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
+        "docs/DATABASE-MIGRATIONS.md": "72adabdd4441335f7572e0d32f8de59819be837b85501d0048fcb5968ee28fb0",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -3785,6 +3900,17 @@
             ".github/workflows/migration-regression.yml",
             "docs/DATABASE-MIGRATIONS.md"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ],
       "remaining": [
@@ -3801,7 +3927,7 @@
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260611_000000__add_achievement_system_tables.sql": "31e3714195d83afba17bafd85f3590ad51e30011831a5d0a1f5b4e8e5a00e302",
         "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "6f9c323240e28aa67a4d54fccd7141b72f7d58f91607ae53568631b90cd0a2d9",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "database/pending/20261008_150000__achievement_catalog_bridge.sql": "432a090e79626102f6cff413f6bc844c7617bd0c2cc1346899f95fa1b801e04f",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
@@ -3811,9 +3937,9 @@
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "backend/services/user-service/src/routes/user.js": "7d24fb40cd0662c428a6b42c2bf6636a2a3ac05fdcdc5e8717d1df5a1dbf04df",
         "backend/tests/regression/achievement-storage.test.js": "4983c1a41d7e40fd86bcb29cd59765555c2ff0f10030044ca5b75ee435a4b90b",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
         "docs/ACHIEVEMENTS.md": "09711c5508a55e25daaa1d2735281a7c35bae20e885c998d93bb3a5d17e8a08d",
-        "docs/DATABASE-MIGRATIONS.md": "47f8b32a628bd5aedbfeb3039d34a78fdbb08d15a7e0e864605fd22097bc4051",
+        "docs/DATABASE-MIGRATIONS.md": "72adabdd4441335f7572e0d32f8de59819be837b85501d0048fcb5968ee28fb0",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "docs/NOTIFICATIONS.md": "5b47d94114ba552f47f6d88f8aaba2ceb17c4e705174c1872d95f5e0655726ae",
@@ -4028,6 +4154,17 @@
             ".github/workflows/migration-regression.yml",
             "docs/DATABASE-MIGRATIONS.md"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ],
       "remaining": "Replay/idempotency/durable events/automatic grant/all triggers; complete seed item/title contract and exclusive Pokemon grant; management CRUD/admin and edited-definition snapshot policy; old unit fixture; native pokemon process/gateway/client/localization; <100ms query/<50ms update performance; full83 history and data-preserving reversal with modern records remain unproven."
@@ -4191,6 +4328,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -4216,9 +4363,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -4399,6 +4546,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -4424,9 +4581,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -4607,6 +4764,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -4632,9 +4799,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -4663,11 +4830,11 @@
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -4809,6 +4976,16 @@
           "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
           "result": "partial_pass_full_history_failed_current_ci_pending",
           "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
           "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
@@ -4834,11 +5011,11 @@
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -4980,6 +5157,16 @@
           "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
           "result": "partial_pass_full_history_failed_current_ci_pending",
           "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
           "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
@@ -5009,8 +5196,8 @@
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260612_070000__add_catch_anomaly_detection_system.sql": "071c812b16b0f3bd90eb912c88d98d01c334d709a619ae0c5e7b26280869b926",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
         "docs/CATCH-RISK.md": "38a45565382fcc71fcd3086ed2de7b885d9e912859efe78d917741eaa3afbcf0",
         "docs/review/REQ-00082-catch-success-anomaly-detection-review.md": "76b74356f1d4b2745e8d4029639e2cb0ac5101d789d6c6c699b35fb2b3aa11a9",
         "docs/review/REQ-00082-catch-success-anomaly-detection-system-review.md": "91b9a7a16ae6203eac69695669ad3eed471d75d13259a44cd7b98a59f044e19c",
@@ -5155,6 +5342,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -5180,8 +5377,8 @@
         "database/pending/20260613_160000__add_special_iv_system.sql": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -5281,6 +5478,16 @@
           "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
           "result": "partial_pass_full_history_failed_current_ci_pending",
           "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
           "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
@@ -5308,8 +5515,8 @@
         "database/pending/20260613_160000__add_special_iv_system.sql": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -5413,6 +5620,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -5430,14 +5647,14 @@
       "sourceSha256": {
         "database/pending/20260614_090500__add_daily_quest_system.sql": "b602bc1b0e67d1b03aa441cf24de2abbc7113ab512bcd7384d006e2b15b07979",
         "database/pending/repairs/20260614_090500__add_daily_quest_system.sql": "65570155fda0333a90d88d794c600cb17b685ed1ea0a99ed7a6198669d6c53be",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
         "backend/services/reward-service/src/index.js": "42b8220e1654ecf40ae8d053e1b9219e651e27b1ff40f511abdc6d7c6d9f8a50",
         "backend/services/reward-service/src/routes/dailyQuests.js": "599fa242c1864866bebc2f5368e0552ad47a58afcacd7933561a1a3e6d64054b",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
         "backend/shared/questService.js": "4db34890cbb2837e2c13703dd0278e41a030fd8cbb1d39bf2411920e2f4413fd",
         "backend/shared/routes/quests.js": "415f6443d29d9f5675b0def6517d20063ec0df25d66454ccd3e3766a326163e3",
         "backend/shared/questMetrics.js": "4d70c0eb2917f3942f4cc0888d27ffdfeb6fcac91a585c4a897364a7e7afaa8f",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
         "docs/DAILY-QUESTS.md": "b63d44e8e29e3fdcd856248af47935ca99924740c887be49c45defd33cdd21de"
       },
       "evidence": [
@@ -5522,6 +5739,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -5543,7 +5770,7 @@
         "backend/services/catch-service/src/index.js": "b5901bc1a2bc732da52ffb257166948b54e84141882b5989d0dcbf3b0c26175c",
         "backend/tests/regression/reward-leaderboard-storage.test.js": "b22fe38c30f5351cbcbd39129f0794daf6dc3b2c7ed6c33cca2ba8b1159d163f",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
         "docs/REWARD-RANKINGS.md": "ad7d89e56547dcdd24d5fe07ac61557a5e1c0ee69bce4ea77b6aa116fa9fd933",
         "docs/review/REQ-00255-api-injection-attack-protection-system-review.md": "2ac0537e70d4896ea611958d55aaffb60793de6b06538872a554819d0a60ef76"
       },
@@ -5608,6 +5835,15 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -5637,10 +5873,10 @@
         "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
         "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
       "evidence": [
@@ -5717,6 +5953,16 @@
           "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
           "result": "partial_pass_full_history_failed_current_ci_pending",
           "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
           "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
@@ -5750,10 +5996,10 @@
         "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
         "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
       "evidence": [
@@ -5834,6 +6080,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -5853,10 +6109,10 @@
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "database/pending/20260618_160000__add_voice_chat_tables.sql": "e60be5a89d60c84da8ba40f11c63bf1b5e1491e59828903856e50b490ca74bf4",
         "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "b2034194cd84c4f47f3c73438555df5b80c21135535de704a782313dfefe8b8b",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
         "backend/tests/regression/voice-schema-storage.test.js": "5e4162b28e07f7f35ab339d707b4be8a99e19e1921bd208cd51890fbf5058c6f",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
         "backend/services/social-service/src/voice/turnServer.js": "2ca289a62a2fa2648e4c5a18ac49a13af268d55c17c3739334851c5673df5eb5",
         "backend/services/social-service/src/voice/routes.js": "cdcbac7391f275b20a7646517ac0a5d3883c35a629d10e66aef9b49a42349b80",
         "backend/services/social-service/src/voice/signalingServer.js": "4e8199480ff3745f671a20845680cf48ef5d374d4544813ca914d3fbce842505",
@@ -5921,6 +6177,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -5946,8 +6212,8 @@
         "backend/tests/unit/currency.test.js": "155a7c7d561b2911a5da8c5a91ec5e054eb283ff8b98deca22779f4fbeb93558",
         "database/pending/20260624_133000__add_multi_currency_support.sql": "9d82251238972d1bd61c2264504f10f709039e52b2b42921c81957c32b689bcf",
         "database/pending/repairs/20260624_133000__add_multi_currency_support.sql": "a6f2318807e7824c4c458beb7762ec555e256d97af41405707dafbf8ac24dde2",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
         "docs/CURRENCIES.md": "02ca61669686acdd8038b3ec185dd96a04a0ed6bc6014493d43120d5940676b7"
       },
       "evidence": [
@@ -5999,6 +6265,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -6012,9 +6288,9 @@
     "REQ-00096-database-transaction-isolation-deadlock-detection.md": {
       "date": "2026-10-15",
       "status": "partial_verified_full_history_failed",
-      "documentSha256": "0e993fb57bbd0f06cea29ae54975a2403585b647848abb67ab1bd98d2cd891c7",
+      "documentSha256": "4e19c9a9e91636622b16912dbe8ed8259f809b095e16f6ff1e048eef37a4e315",
       "sourceSha256": {
-        "backend/shared/TransactionManager.js": "1d94558049559ff060424a52571f461e9478d1ae37ed5651bbf6600799ae721f",
+        "backend/shared/TransactionManager.js": "6d3b92bdedd8b639bff6888bf711b1189855a21e97f8e83a7fe059bf460ab41d",
         "backend/shared/transactionManager.js": "04015c6fb573e724d96c0c2ad3cb1e75d1d5a7b6eb883fa2ea177e6969e67929",
         "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
         "backend/shared/pgDeadlock.js": "2afdcc6058b8160b05a8eaa6b83fbdfcb8cf89d3c07e3c9c54e713c3e4e10285",
@@ -6030,10 +6306,12 @@
         "docs/benchmarks/transaction-throughput-2026-10-15.json": "b22bccb8cee394a16a4c5135761e5e104c97e6b95c974a18ceb7e36d887e4a03",
         "database/pending/20260626_040000__add_deadlock_log_table.sql": "b9060fc1aab1fd26bbb27d08a7d0ba83f9df521191ecc37cbe679c447ed16238",
         "database/pending/repairs/20260626_040000__add_deadlock_log_table.sql": "fe133fbc60e1719e237752d8a9508ff246d3e376a46aed62e024c5939a721cbc",
-        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
-        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
-        "docs/TRANSACTIONS.md": "437ec8cac219c1aeadb6106b77a879352511425d6221dedd9e4b23369275348d",
-        "docs/DATABASE-MIGRATIONS.md": "47f8b32a628bd5aedbfeb3039d34a78fdbb08d15a7e0e864605fd22097bc4051"
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
+        "docs/TRANSACTIONS.md": "72c2b277ace40d6adbac52710344a9fa751feec0a7d6089351e2c857fc84c5ca",
+        "docs/DATABASE-MIGRATIONS.md": "72adabdd4441335f7572e0d32f8de59819be837b85501d0048fcb5968ee28fb0",
+        "docs/benchmarks/transaction-throughput-ci-bae401e-2026-10-15.json": "61c8117367a10c9984f6d83854443cd8a71990cb1f8d0270ee72ea8ccf6a1bf6",
+        "docs/benchmarks/transaction-throughput-optimized-2026-10-15.json": "d10f3e6df7005b973d3a04a0136cd828dc315b7979f824944641d4abcf41193b"
       },
       "evidence": [
         {
@@ -6072,12 +6350,81 @@
           "command": "node --test --test-concurrency=1 backend/tests/regression/database-bootstrap.test.js",
           "result": "failed",
           "scope": "V1/V2 passes. All85 raw SQL unchanged. Full pending batch rolls back at20260627_041000 statement14 round(double precision,integer). No skipped file, threshold waiver or history rewrite."
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual339 storage/CLI; live slow-query7; unit724; syntax1442; unchanged paired throughput; full85 history",
+          "result": "partial_pass_full_history_failed_remote_performance_pending",
+          "scope": "Current shared-core optimization removes success-path timeout Error construction and empty pending-query promises without changing guards/retry/metrics. All339 real storage/CLI checks in17 suites repeat with Node24;724 units/24Jest suites and syntax1442 pass. Separate preloaded PostgreSQL15 slow-query SQL suite7 passes;85 raw SQL unchanged and full V1/V2 passes, history now fails20260627_060000 stmt13 is_deleted missing. Original fixed throughput local median-3.2443239972000937percent passes; prior exact bae401eb CI failed-5.624629685951888percent at unchanged-5percent and is archived. Exact optimized remote throughput remains unverified. Only exercised common references refreshed; no other complete feature/numerical/operations acceptance.",
+          "changedReferences": [
+            "backend/shared/TransactionManager.js",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/TRANSACTIONS.md",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
+        },
+        {
+          "date": "2026-10-15",
+          "result": "failed",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/38708847743",
+          "commit": "bae401eb83c7ad1db2d98e7db6e16b713c8f98dd",
+          "job": 116334922847,
+          "medianChangePercent": -5.624629685951888,
+          "requiredMinimumChangePercent": -5,
+          "scope": "All transaction/storage correctness steps passed. Original throughput gate failed; later full-history step skipped, not passed. Archived exact failed report/source hashes. MainCI454 and battle job independently pass; they do not override this failure."
+        },
+        {
+          "date": "2026-10-15",
+          "command": "node backend/tests/performance/transaction-throughput.js",
+          "result": "local_pass_remote_pending",
+          "medianChangePercent": -3.2443239972000937,
+          "requiredMinimumChangePercent": -5,
+          "artifact": "docs/benchmarks/transaction-throughput-optimized-2026-10-15.json",
+          "scope": "Only production fast-path overhead removed; benchmark baseline/workload/threshold unchanged. Actual balances and before/after source hashes match. Local result does not establish remote regression resolved."
         }
       ],
       "remaining": [
+        "Exact optimized remote throughput must pass original5percent ceiling; prior bae401eb CI failed5.624629685951888percent and remains historical evidence, never waived.",
         "Exact current-source relevant CI, complete REQ-00007 migration history and data-preserving upgrade/reversal remain open.",
         "Audit retrying production callers for durable money/resource/idempotency and external side effects; this shared foundation does not accept whole payment/battle/catch/social features.",
         "Representative production/service numerical acceptance remains separate from the original local paired throughput regression."
+      ]
+    },
+    "REQ-00077-database-slow-query-analysis-system.md": {
+      "date": "2026-10-15",
+      "status": "partial_verified_full_history_failed",
+      "documentSha256": "e09f4e7d3a1def964169755c5636cd1c997dca70617567cf330f28dc2e361e86",
+      "sourceSha256": {
+        "database/pending/20260627_041000__enable_pg_stat_statements.sql": "3178a37c69af0278a822cf2764bf91331e5899bc2f9a8f81d458cb45e15e2da5",
+        "database/pending/repairs/20260627_041000__enable_pg_stat_statements.sql": "9e0711c0cd8191609f0edb4aa5eb9d62fb3e162e63805328d338ba2b5918af20",
+        "database/pending/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "bcfa7904149404b6677ab0e33591670d12746845e590849ee822dca2966071ab",
+        "database/pending/repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "660c62531f86d2f8981163afbe85b50ec68bbe27269b840d7b7ea4dba64f0df4",
+        "database/pending/repairs.json": "6c2476215802c8aaa363e25959861780bfdee64e5bfb86f6582f67fc36893c7b",
+        "backend/tests/regression/slow-query-schema-storage.test.js": "6bc39b79d7901946ad4f7664d49b9e4d7d2a33019fa9b4a45603738a95017329",
+        ".github/workflows/migration-regression.yml": "3c7f1d786cd3e2ff07cb5e2be3634d834bfeae51db79d9d36f190f27588eacc2",
+        "docs/SLOW-QUERIES.md": "b83886d20c6f7d5b5d140129a243694c6b8a45f69ac6bd94ab964692fecabdd6",
+        "docs/DATABASE-MIGRATIONS.md": "72adabdd4441335f7572e0d32f8de59819be837b85501d0048fcb5968ee28fb0"
+      },
+      "evidence": [
+        {
+          "command": "node --test --test-concurrency=1 backend/tests/regression/slow-query-schema-storage.test.js",
+          "runtime": "Node.js24.19.0/PostgreSQL15.8 with actual pg_stat_statements preloaded",
+          "result": "passed",
+          "tests": 7,
+          "scope": "Actual earlier prerequisite, old rows/table/sequence OIDs/exact floating history/views/FKs/suggested SQL; original42883 rollback; numeric two-decimal index ratio; real pg_sleep/statistics rows invoke both SQL helpers; original30-day cutoff and rerun helper OIDs. No fabricated stats, global reset or production change."
+        },
+        {
+          "command": "database-bootstrap.test.js",
+          "result": "failed",
+          "scope": "V1/V2 passes;85 raw SQL byte-identical. All history advances to20260627_060000 statement13 is_deleted missing, pending transaction rolls back. Separate original30/90-day policy conflict remains untouched."
+        }
+      ],
+      "remaining": [
+        "Original all10 acceptance criteria including3 suggestion types,6 panels,4 alerts,>80percent coverage remain unchanged and unaccepted.",
+        "Repair actual JS collector nonexistent metrics, lifecycle/readiness/permissions and invalid unmounted router construction. Admin authorization and constrained SQL plans required before mounting.",
+        "Actual index/plan/collection/metrics/dashboard/alert evidence, full documentation/operations/CI and30/90-day retention policy reconciliation.",
+        "Whole85 history and data-preserving upgrade/reversal still open."
       ]
     }
   }

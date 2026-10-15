@@ -1,0 +1,49 @@
+# Slow-query migration prerequisite
+
+REQ-00077 remains in progress. Its original ten acceptance criteria include actual
+collection, plans and three suggestion types, unused indexes, metrics, six dashboard
+panels, four alerts, mounted APIs, over80% unit coverage and documentation. The SQL
+prerequisite below does not complete those criteria.
+
+The original20260627_041000 migration fails on PostgreSQL15 because two-argument
+round requires NUMERIC rather than DOUBLE PRECISION. Its two PL/pgSQL helpers also
+refer to pre-13 mean_time/total_time columns that fail when invoked on15. The
+source-bound repair uses NUMERIC for the existing two-decimal index-usage ratio
+and actual mean_exec_time/total_exec_time for the helper queries, preserving their
+output signatures and all original table/index/retention SQL. These contracts are
+specified in the official [math documentation](https://www.postgresql.org/docs/15/functions-math.html)
+and [statement statistics documentation](https://www.postgresql.org/docs/15/pgstatstatements.html).
+
+The extension needs shared_preload_libraries at server start plus CREATE EXTENSION
+in the intended database. Tests use an explicitly owned isolated PostGIS15 instance
+with this setting, one CPU and a bounded memory allocation. CI configures/restarts
+only its disposable service container before tests, then checks readiness. No
+production configuration, existing application database or unrelated container is
+changed; tests do not reset shared statement statistics.
+
+`backend/tests/regression/slow-query-schema-storage.test.js` passes7 real checks
+including its parent. It applies the earlier source-bound prerequisite, retains
+actual data/sequence/table OIDs, exact floating-point history, views/FKs and existing
+suggested SQL. It proves original SQL failure/rollback, actual rounded index ratios,
+a real pg_sleep query observed by the live extension and both existing SQL helper
+functions, the original30-day snapshot cutoff and rerun function OIDs/old data.
+It does not substitute fabricated pg_stat_statements rows.
+
+```bash
+cd backend
+node --test --test-concurrency=1 tests/regression/slow-query-schema-storage.test.js
+```
+
+TEST_DATABASE_URL must point to that disposable database with the extension preloaded.
+The helper's30-day cutoff and earlier cleanup configuration's90 days are an existing
+policy conflict; this syntax/version repair preserves both rather than silently
+changing retention. All85 root pending SQL files remain byte-identical. The full
+seed still passes and complete history now rolls back at20260627_060000 statement13:
+missing pokemon_instances.is_deleted. Complete upgrades/reversal and REQ-00007 stay open.
+
+The existing JavaScript collector calls nonexistent metrics methods; its status/
+readiness/lifecycle need repair. The existing slowQuery router is unmounted and has
+an invalid collector construction. Any query-plan endpoint needs actual admin
+access control and constrained SQL execution before mounting. Real collectors,
+plan/index analysis, appropriate permissions, actual metrics/dashboard/alert drills,
+coverage and complete operations acceptance remain open.

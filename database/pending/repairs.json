@@ -145,6 +145,11 @@
       "sourceSha256": "b9060fc1aab1fd26bbb27d08a7d0ba83f9df521191ecc37cbe679c447ed16238",
       "file": "repairs/20260626_040000__add_deadlock_log_table.sql",
       "reason": "Convert the invalid initial JavaScript //header to a PostgreSQL comment. Preserve canonical table/sequence OIDs, rows, views, foreign keys and indexes; bridge the documented context-only layout with nullable transaction_name/retry_count and preserve unknown historical values as NULL. Add missing nullable JSONB context; validate existing column types and refuse incompatible layouts. Full history/upgrade/rollback and service acceptance remain separate."
+    },
+    "20260627_041000": {
+      "sourceSha256": "3178a37c69af0278a822cf2764bf91331e5899bc2f9a8f81d458cb45e15e2da5",
+      "file": "repairs/20260627_041000__enable_pg_stat_statements.sql",
+      "reason": "Use NUMERIC for two-argument round while retaining two decimal places and index-usage semantics. Bind actual PostgreSQL15 pg_stat_statements mean_exec_time/total_exec_time in both existing SQL helpers without changing function signatures, table identities, original rows or raw migration checksum. Full collector/API/monitoring/history and operational acceptance remain separate."
     }
   }
 }

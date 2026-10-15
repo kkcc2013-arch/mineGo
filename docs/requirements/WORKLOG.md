@@ -1341,3 +1341,42 @@ Inventory191done/35in_progress/432new,total658,independently verified1. Other ba
 status persistence/HTTP/client/production numerical and full migration acceptance
 remain open. Current migration16 and other workflows still running at observation;
 no terminal result invented. Persistent goal active; continue next actual prerequisite.
+
+
+## Remote throughput failure, bounded optimization and slow-query SQL (2026-10-15)
+
+Exact bae401eb migration16 job116334922847 confirms all actual storage/correctness
+steps through transaction22 succeed, then the unchanged throughput gate fails at
+-5.624629685951888% against original-5%. Full-history step is skipped there, never
+reported green. Downloaded actual failed report/source hashes are archived. Main
+CI454/dependency275/battle133/100% pass independently, and the framework acceptance
+remains restricted to REQ-00619. Local earlier+0.054927% cannot override CI failure.
+
+Remove success-path timeout Error stack creation and empty pending-query Promise
+work; retain all deadline/rollback/late-lease/control/retry/metric/COMMIT semantics.
+Same original baseline/workload/threshold/source checks, final local paired result
+-3.2443239972000937% passes, exact balances. This is not proof remote regression
+resolved. Repeat actual339 checks in17 suites, unit724/24Jest suites, syntax1442 and
+actual optimized module load; pass. YAML check initially assumed every step had a
+name; fixed observation to handle uses-only steps, workflow parses. No gate lowered.
+
+Read complete REQ-00077, reopen old done preserving10 standards/3 suggestion types/
+6 panels/4 alerts/>80% threshold. Source-bound SQL repair preserves two-decimal
+NUMERIC index ratios, binds both existing helpers to PostgreSQL15 execution columns,
+keeps table/sequence/history/view/FK/function identities and original85 raw sources.
+Official PostgreSQL15 statement/math contracts checked. Additional owned PostGIS
+instance preloads real statistics, capped one CPU/512MiB; existing DB/unrelated
+containers unchanged. Seven actual cases pass, including live pg_sleep statement
+observed through real extension/helpers/snapshot, original failure rollback and
+old data/OIDs. No fake stats/global reset. Original30-day snapshot vs90-day config
+conflict stays explicit; JS collector missing metrics, invalid/unmounted router,
+admin/constrained SQL, real dashboard/alert/coverage/lifecycle/operations stay open.
+
+CI enables/restarts only its disposable service for preloading and readiness, then
+runs real slow-query schema suite. Full V1/V2 passes; complete unchanged85 history
+now fails20260627_060000 statement13 missing is_deleted and rolls back. Next align
+canonical inventory/UUID ownership/candy/team semantics, continue P0 money/provider/
+idempotency/minor/lifecycle and all original stages. Latest remote optimized-source
+performance pending; no fabricated pass. Ledger hashes current, inventory190done/
+36in_progress/432new,total658,independently verified1. Persistent goal active, no
+new requirement/Maven/CPU saturation/production migration/merge/deployment.

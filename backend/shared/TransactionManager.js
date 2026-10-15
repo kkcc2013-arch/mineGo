@@ -67,10 +67,11 @@ class TransactionManager{
   async _executeWithTimeout(fn,o,deadline){
     let client,timer,onClientError,onClientEnd,closed=false,timedOut=false,controlInFlight=0,commitStarted=false,begun=false,destroy=false;
     const queries=new Set(),id='minego-tx-'+randomUUID(),startTime=Date.now(),start=performance.now(),labels={service:this.service,isolation_level:o.isolationLevel};
-    const expired=timeoutError(o.timeout);
+    // Build the stack-bearing deadline error only on failure, not every committed operation.
+    let expired;const expiry=()=>expired||(expired=timeoutError(o.timeout));
     const remaining=()=>Math.max(0,deadline-performance.now());
-    if(remaining()<=0)throw expired;
-    const deadlineFailure=new Promise((_,reject)=>{timer=setTimeout(()=>{timedOut=true;closed=true;reject(expired);},remaining());});
+    if(remaining()<=0)throw expiry();
+    const deadlineFailure=new Promise((_,reject)=>{timer=setTimeout(()=>{timedOut=true;closed=true;reject(expiry());},remaining());});
     let rejectConnection;const connectionFailure=new Promise((_,reject)=>rejectConnection=reject);
     const timeout=Promise.race([deadlineFailure,connectionFailure]);timeout.catch(()=>{});
     const checkout=Promise.resolve().then(()=>this.pool.connect());
@@ -87,15 +88,15 @@ class TransactionManager{
       begun=true;
       await Promise.race([control(`BEGIN ISOLATION LEVEL ${o.isolationLevel}; SET LOCAL statement_timeout='${Math.max(1,Math.floor(remaining()))}ms'; SET LOCAL application_name='${id}'`),timeout]);
       const managed={processID:client.processID,query:(...args)=>{
-        if(closed||remaining()<=0){const rejected=Promise.reject(expired);rejected.catch(()=>{});return rejected;}
+        if(closed||remaining()<=0){const rejected=Promise.reject(expiry());rejected.catch(()=>{});return rejected;}
         if(args.some(a=>typeof a==='function'))throw new TypeError('Managed queries must use promises');
         rejectTransactionControl(args);
         const promise=client.query(...args);queries.add(promise);promise.then(()=>queries.delete(promise),()=>queries.delete(promise));return promise;
       }};
       const work=Promise.resolve().then(()=>fn(managed));work.catch(()=>{});
       const result=await Promise.race([work,timeout]);closed=true;
-      await Promise.race([Promise.all([...queries]),timeout]);
-      if(remaining()<=0)throw expired;
+      if(queries.size)await Promise.race([Promise.all([...queries]),timeout]);
+      if(remaining()<=0)throw expiry();
       commitStarted=true;
       const committed=await Promise.race([control('COMMIT'),timeout]);
       if(committed.command!=='COMMIT'){const error=new Error('Transaction was aborted instead of committed');error.code='25P02';throw error;}

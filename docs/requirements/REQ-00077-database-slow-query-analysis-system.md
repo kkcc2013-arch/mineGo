@@ -7,7 +7,7 @@
 | 标题 | 数据库慢查询分析与自动优化建议系统 |
 | 类别 | 数据库/数据治理 |
 | 优先级 | P1 |
-| 状态 | done |
+| 状态 | in_progress |
 | 涉及服务 | database/migrations、所有微服务、backend/shared、infrastructure/k8s |
 | 创建时间 | 2026-06-10 10:30 |
 
@@ -1270,3 +1270,23 @@ describe('Slow Query Analysis System', () => {
 - [PostgreSQL EXPLAIN ANALYZE](https://www.postgresql.org/docs/current/sql-explain.html)
 - [PostgreSQL Index Documentation](https://www.postgresql.org/docs/current/indexes.html)
 - [Prometheus Histogram Best Practices](https://prometheus.io/docs/practices/histograms/)
+
+
+## 2026-10-15 实际迁移复核（部分完成）
+
+撤回旧done声明，原10项标准、至少3类建议/6面板/4告警/>80%覆盖率不改。
+原20260627_041000在真实PostgreSQL15第14句因双参数round不支持
+double precision失败；显式绑定原始校验和的repair采用NUMERIC两位小数，
+并将两个现存SQL helper的旧统计列映射到实际mean_exec_time/total_exec_time。
+原85份SQL及表/序列/历史行/视图/FK/函数签名保持，未重置真实统计。
+
+独立预载pg_stat_statements的单CPU测试数据库，7个实际用例（含父用例）通过：
+旧脚本失败回滚、保留历史身份/精度、真实索引比例、真实慢查询采集到SQL
+helper/snapshot、原30天边界、重复应用保留函数OID/旧行。配置清理90天与
+snapshot30天仍有历史契约差异，此次不偷偷改变留存策略。完整迁移推进到
+20260627_060000第13句is_deleted不存在并回滚，尚未完成REQ-00007。
+
+现存JS采集器仍调用不存在的指标API；slowQuery路由未挂载且实例化写法
+错误，受控SQL分析/鉴权、完整采集/监控/仪表板/真实告警、>80%覆盖率和
+运维/权限均须独立完成。SQL helper局部通过不代表所有原标准达成。
+详见后续来源哈希与WORKLOG证据；保持in_progress。
