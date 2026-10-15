@@ -1,9 +1,9 @@
 # mineGo requirement completion plan
 
-Updated: 2026-10-14. Scope: all 658 existing requirement documents in INDEX.md,
-including the 191 legacy done declarations that still need independent acceptance.
+Updated: 2026-10-15. Scope: all 658 existing requirement documents in INDEX.md,
+including the 190 legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 432 new, 35 in progress. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 432 new, 36 in progress. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -40,7 +40,7 @@ independent authorized work.
    passes20 real storage checks, and privacy consumer ordering passes actual CLI probes.
 4. Catch-risk storage/recorder passes34 actual cases. Special-IV/current ownership/
    generator and equipment prerequisite contracts now pass36. Complete85-file history
-   reaches the malformed deadlock migration header after currency/canonical partition/voice/move/title/quest repairs.
+   now reaches20260627_041000 statement14 round(double precision,integer) after the explicit deadlock/currency/canonical partition/voice/move/title/quest repairs.
    Continue modern quest transactions/grants/events/date contracts and move identity/
    catalog/reward/gameplay/lifecycle integration, complete
    upgrade/rollback/all-service startup, then all original P0/security/game/client/
@@ -493,3 +493,24 @@ No new requirement, lower threshold, fabricated pass, Maven/maxCPU work, merge,
 production migration or deployment. Source-hashed partial ledger/current notes updated;
 inventory191done/35in_progress/432new,total658,independently verified0. Persistent
 all658 goal stays active/unbudgeted. Personal MEMORY.md and Oct09 notes remain local.
+
+
+## Shared transaction follow-up (2026-10-15)
+
+REQ-00096 is reopened from legacy done with all seven original criteria unchanged.
+Default shared transactions and all isolation convenience APIs now use the same
+owned implementation: actual PostgreSQL contention retries, bounded deadlines,
+rollback/late-lease protection, uncertain COMMIT handling, actual registry metrics
+and durable bounded deadlock audit. Preserve existing distributed detector API.
+Original38 unit cases are enrolled; real transaction storage22 and source-hashed
+paired throughput measurement pass, median+0.054927% at the original-5% gate.
+Historical table identity/unknown metadata are preserved. See TRANSACTIONS.md.
+
+Whole85 history remains red at20260627_041000 statement14; next reconcile that
+actual dependency without changing raw history or numerical semantics. Continue
+P0 money/provider/idempotency/minor protection and all original security/runtime/
+game/client/performance/operations work. REQ-00619 now links current production
+paths and its actual design/test boundary; previous exact43c6b148 main453 battle
+coverage100% is recorded separately from pending current-source CI. No complete
+requirement acceptance is inferred from partial tests. Persistent all658 goal stays
+active; no new requirement, Maven build, CPU saturation, merge or deployment.

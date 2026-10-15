@@ -1260,3 +1260,73 @@ parameter and repeat actual18 successfully. Final source unit686/syntax1437 pass
 native catalog/price/preference/conversion again200 but diagnostic1/ownedSIGKILL;
 full-chain again malformed20260626_040000 stmt1. Source hashes refreshed only after
 these observations. No fabricated success or complete feature acceptance.
+
+
+## Owned shared transactions and actual contention evidence (2026-10-15)
+
+Read complete REQ-00096. Reopen old done declaration without changing its seven
+criteria,20+ unit cases, default three retries or original5% throughput ceiling.
+Both old helpers and no-options db.transaction now share a pool-owned core. It
+validates3 isolation choices before checkout, owns BEGIN/COMMIT/ROLLBACK, bounds
+checkout/callback/query/backoff/audit, protects late work and leases, destroys busy
+failed connections and handles uncertain COMMIT without repeating business work.
+Only real40P01/40001 aborts trigger automatic retry; broad old diagnostic classifiers
+retain compatibility. Metrics use real shared registry collectors, not nonexistent
+instrumentation methods. Contention rows persist through a separate bounded owned
+transaction and never mask the original business error if auditing fails.
+
+Actual production bugs found/fixed include nonexistent metrics and checkout leaks,
+timeout releasing an open transaction and late callbacks writing through a reused
+lease, implicit ROLLBACK misreported as success, and uncaught checked-out connection
+errors after COMMIT disconnect. First query-control guard incorrectly reused a
+migration-only parser that drops trailing COMMIT; a real regression exposed the
+bypass and it now uses raw splitStatements with nested leading-comment handling.
+An accidental replacement of existing distributed deadlockDetector was detected
+in review, restored from HEAD and reduced to additive pure-helper exports; its
+existing wait graph/alert API remains intact. Unit fixtures had wrong module paths,
+an error never reached because BEGIN consumed its attempt counter, missing real
+COMMIT result metadata and a wrong3*(BEGIN+query+ROLLBACK)=6 assertion. Corrected
+semantic business/audit query accounting preserves the intended failure coverage.
+
+Explicit source-bound repair corrects only the malformed initial header plus the
+necessary additive legacy context-only bridge/type checks. Table/sequence OIDs,
+old data/views/FKs remain, unknown historical retry count/name stay NULL; no fake
+backfill. Original85 root pending SQL sources remain byte-identical.
+
+Original38 transaction unit cases are now in the main gate. Actual transaction
+PostGIS suite22 passes (including parent), covering genuine2-session40P01, four
+actual40001 aborts/three retries, durable rows/participant IDs, blocked audit,
+late checkout/callback/query deadlines,55P03 exclusion, real active/retry/duration
+metrics, uncertain COMMIT disconnect and default ExchangeRateService transaction.
+All17 affected actual storage/CLI suites pass339 checks sequentially with Node24;
+full unit724/24Jest suites, battle133/formula100%, syntax1441 and six actual shared
+module loads pass. An initial observation used system Node18 and its coverage
+flags failed; corrected to bundled24.19.0 and repeated affected storage plus unit/
+coverage/full-history gates with supported runtime, without lowering any gate.
+
+Immutable published43c6b148 working helper versus current core uses identical
+actual V1 resource transfers, same owned pool and default metrics, two workers,
+50 warmup/worker, seven alternating paired rounds,200 transfers/worker/round.
+Final exact-source median change+0.0549274192291227% passes original-5% gate; all
+resource balances exact and before/after source hashes match. Archived raw report
+in docs/benchmarks. This limited local comparison does not establish production
+capacity. CI adds actual transaction storage and fixed throughput gate before the
+existing full-history check. V1/V2 passes; full85 history still rolls back at
+20260627_041000 statement14 round(double precision,integer). Complete migration,
+upgrades/reversal, all business callers and exact new-source CI remain open.
+
+REQ-00619 now references actual current production paths and a design/test-boundary
+document, with original3 criteria/>90%/50 scenarios unchanged. Exact prior43c6b148
+main453 job115638282796 independently confirms133/100% coverage; new commit CI
+must be observed separately. Current local133/100% repeats. Injection of external
+status service does not accept real storage/full gameplay or mix damage models.
+
+Latest observed43c6b148 CI453/dependency273/privacy25/title22/notification10 pass.
+Migration15/API82/contract378/performance121/integration428/security411 fail;
+E2E115 cancelled. These source-specific observations do not imply current green.
+No new requirement, lowered threshold, skipped history, fabricated result, Maven
+build, CPU saturation, production mutation, merge or deployment. Personal memory
+and Oct09 preference notes stay local. Inventory190done/36in_progress/432new,total658;
+independently accepted0. Persistent all658 goal remains active/unbudgeted. Next:
+actual slow-query migration compatibility, P0 money/provider/idempotency/minor and
+lifecycle gaps, then all remaining original stages; keep publishing reviewable work.

@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 191,
-      "in_progress": 35,
+      "done": 190,
+      "in_progress": 36,
       "new": 432
     },
     "priorityCounts": {
@@ -2945,11 +2945,11 @@
       "id": "REQ-00096",
       "title": "REQ-00096：数据库事务隔离级别控制与死锁检测机制",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "数据库/数据治理",
       "modules": "backend/shared/db.js、catch-service、gym-service、payment-service、social-service",
       "createdAt": "2026-06-11 00:20",
-      "sha256": "c829fd3a7afb93cd61abcdd15bf1e2deca3919df1c745ea703df5e66502feebc",
+      "sha256": "0e993fb57bbd0f06cea29ae54975a2403585b647848abb67ab1bd98d2cd891c7",
       "acceptance": [
         "- [ ] `transaction()` 支持 3 种隔离级别配置",
         "- [ ] 死锁发生时自动重试，最多重试 3 次",
@@ -2959,12 +2959,12 @@
         "- [ ] 单元测试覆盖核心逻辑（20+ 测试用例）",
         "- [ ] 性能测试：事务吞吐量不下降超过 5%"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_verified_full_history_failed",
       "implementationReferences": [
-        "backend/shared/TransactionManager.js",
         "backend/shared/db.js",
         "backend/tests/unit/transaction-manager.test.js",
-        "database/pending/20260626_040000__add_deadlock_log_table.sql"
+        "database/pending/20260626_040000__add_deadlock_log_table.sql",
+        "database/pending/repairs/20260626_040000__add_deadlock_log_table.sql"
       ],
       "legacyId": null
     },
@@ -16550,7 +16550,7 @@
       "category": "测试覆盖",
       "modules": "gym-service, battle-engine-module",
       "createdAt": "2026-07-21 00:00",
-      "sha256": "fbc3f80d23d111035712af263dfcb2b34f697804712e188d207b3f2f73b4c885",
+      "sha256": "0bd88c8d4733564e2ab077d58b7c11987112c825d73ca69e0b47ef4a1a749a83",
       "acceptance": [
         "- [x] 实现针对战斗公式的单元测试覆盖率 > 90%",
         "- [x] 完成战斗引擎集成测试套件，涵盖至少 50 个典型业务场景",
@@ -17104,10 +17104,10 @@
       ],
       "verificationStatus": "not-audited",
       "implementationReferences": [
-        "backend/shared/TransactionManager.js",
         "backend/shared/db.js",
         "backend/tests/unit/transaction-manager.test.js",
-        "database/pending/20260626_040000__add_deadlock_log_table.sql"
+        "database/pending/20260626_040000__add_deadlock_log_table.sql",
+        "database/pending/repairs/20260626_040000__add_deadlock_log_table.sql"
       ],
       "legacyId": "REQ-00096"
     },

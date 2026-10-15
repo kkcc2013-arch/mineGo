@@ -168,3 +168,16 @@ currency/storage/HTTP cases and17 CLI/prerequisite cases pass. Original85 source
 remain byte-identical. V1/V2 passes; full history now rolls back at20260626_040000
 statement1 because its header uses //. Whole-chain/rollback and full payment/voice/
 partition/provider/runtime acceptance remain open. See CURRENCIES.md for evidence.
+
+
+Current transaction follow-up (2026-10-15): explicit source-bound deadlock-log repair
+corrects the invalid initial // comment and preserves existing table/sequence/data/
+view/FK identities. It bridges the documented context-only layout with nullable
+transaction_name/retry_count; historical unknown values remain NULL. Incompatible
+column types require explicit adoption. Original85 root SQL files remain byte-identical.
+Real transaction/storage22 checks and the original-5% comparative throughput gate
+pass; default shared transactions now have bounded ownership/retry/cleanup/metrics.
+The complete V1/V2 seed passes, but all85 history rolls back at20260627_041000
+statement14, round(double precision,integer). Earlier header failure above is prior
+source history. Whole-chain upgrades/reversal, actual business/service/provider
+acceptance and exact current remote CI remain open; see TRANSACTIONS.md.

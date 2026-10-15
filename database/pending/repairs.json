@@ -140,6 +140,11 @@
       "sourceSha256": "9d82251238972d1bd61c2264504f10f709039e52b2b42921c81957c32b689bcf",
       "file": "repairs/20260624_133000__add_multi_currency_support.sql",
       "reason": "Attach quote metadata to real UUID orders without altering existing IDs/minor-unit amounts/currencies/status/idempotency or fabricating historical USD conversions. Refuse parallel legacy payment_orders layout; retain all20 currency and20 price seeds. Add actual UUID ownership to new rate locks; leave anonymous old ownership unknown. Full payment/provider/client/numerical/rollback acceptance remains open."
+    },
+    "20260626_040000": {
+      "sourceSha256": "b9060fc1aab1fd26bbb27d08a7d0ba83f9df521191ecc37cbe679c447ed16238",
+      "file": "repairs/20260626_040000__add_deadlock_log_table.sql",
+      "reason": "Convert the invalid initial JavaScript //header to a PostgreSQL comment. Preserve canonical table/sequence OIDs, rows, views, foreign keys and indexes; bridge the documented context-only layout with nullable transaction_name/retry_count and preserve unknown historical values as NULL. Add missing nullable JSONB context; validate existing column types and refuse incompatible layouts. Full history/upgrade/rollback and service acceptance remain separate."
     }
   }
 }

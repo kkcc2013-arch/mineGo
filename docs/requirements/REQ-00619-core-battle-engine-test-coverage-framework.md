@@ -41,9 +41,19 @@
 
 ## 影响范围
 
-- /data/mineGo/gym-service/battle-engine/
-- /data/mineGo/tests/gym-service-integration/
+- `backend/services/gym-service/src/battleEngine.js` 与 `battleFormulas.js`（历史 `/data/mineGo/gym-service/battle-engine/` 的当前仓库映射）
+- `backend/tests/battle/`（历史 `/data/mineGo/tests/gym-service-integration/` 的当前仓库映射）
 
 ## 参考
 
-- [核心战斗引擎设计规范](/data/mineGo/docs/api-spec/battle-engine-design.md)
+- [核心战斗引擎设计规范](../api-spec/battle-engine-design.md)
+
+
+## 2026-10-15 来源复核
+
+原3项标准与>90%/50场景阈值不改。真实仓库影响路径与缺失的历史绝对引用已映射
+到当前生产模块/测试目录，并补充基于现有实现的设计/测试边界文档。已读取确切
+43c6b148源码CI453的独立battle job115638282796：133通过、公式行/分支/函数
+100%。这是此前源码的证据；本轮共享事务依赖仍在修改，需要当前源码相关CI
+再次核验后才更新最终状态。框架模拟的外部状态边界不代替实际持久化/完整战斗
+功能验收，尤其不混用另一damage simulation的倍率模型。

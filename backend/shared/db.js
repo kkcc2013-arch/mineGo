@@ -150,27 +150,7 @@ async function transaction(fn, options = {}) {
   const poolManager = getPoolManagerInstance();
   const pool = poolManager.getPool(serviceName);
   
-  // 如果提供了高级选项，使用 TransactionManager
-  if (options && Object.keys(options).length > 0) {
-    const { TransactionManager } = require('./TransactionManager');
-    const txManager = new TransactionManager(pool);
-    return txManager.execute(fn, options);
-  }
-  
-  // 向后兼容：简单的无参数事务
-  const client = await pool.connect();
-  
-  try {
-    await client.query('BEGIN');
-    const result = await fn(client);
-    await client.query('COMMIT');
-    return result;
-  } catch (err) {
-    await client.query('ROLLBACK');
-    throw err;
-  } finally {
-    client.release();
-  }
+  return require('./TransactionManager').getManager(pool).execute(fn, options);
 }
 
 /**

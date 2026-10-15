@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "requirements": {
     "REQ-00619-core-battle-engine-test-coverage-framework.md": {
-      "date": "2026-10-08",
+      "date": "2026-10-15",
       "status": "local_verified_ci_pending",
-      "documentSha256": "fbc3f80d23d111035712af263dfcb2b34f697804712e188d207b3f2f73b4c885",
+      "documentSha256": "0bd88c8d4733564e2ab077d58b7c11987112c825d73ca69e0b47ef4a1a749a83",
       "sourceSha256": {
         "backend/services/gym-service/src/battleEngine.js": "bad55c38a438bcc5a28f4a2b3f45e04a53416eb74548d310e2f44529fe056c93",
         "backend/services/gym-service/src/battleFormulas.js": "a08da8b0fa486d3524895739365a3c7a3f615e31f8ad78dea3e99fcc7bc0e109",
@@ -12,7 +12,8 @@
         "backend/tests/battle/formulas.test.js": "40300e85e1cba36f1e9994e9cc5aa2a9af4f256b4a45b83c6fa1bb2d05b745ad",
         "backend/tests/battle/scenarios.test.js": "82ee33f17c3b2eaca95592d20d75763a2f527ae5bb238a9b6e788955fb584aad",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/ci-cd.yml": "1572b966bb2c9c4ee3f8d2de41334552e4a63878cf604113f316e5088ce75b3a"
+        ".github/workflows/ci-cd.yml": "1572b966bb2c9c4ee3f8d2de41334552e4a63878cf604113f316e5088ce75b3a",
+        "docs/api-spec/battle-engine-design.md": "bb832c9cb72847ab8a823d62022295da1e2bdee49c26f15f8eb51b10ace7b4ed"
       },
       "evidence": [
         {
@@ -63,6 +64,21 @@
           "changedReferences": [
             "backend/package.json"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "result": "local_pass_current_ci_pending",
+          "command": "npm run test:battle:coverage",
+          "runtime": "Node.js24.19.0",
+          "tests": 133,
+          "businessScenarios": 76,
+          "coverage": {
+            "lines": 100,
+            "branches": 100,
+            "functions": 100
+          },
+          "scope": "Original3 criteria and >90percent/50 scenarios unchanged. Current production paths and actual design boundary documented. Initial command under system Node18 rejected unsupported coverage flags; corrected runtime, unchanged gate passes. Source-specific43c6b148 main453/battle job115638282796 independently observed pass; current shared-dependency commit CI must be rechecked. Injected external status boundary does not prove full persistent battle feature acceptance.",
+          "priorSourceCI": "https://github.com/kkcc2013-arch/mineGo/actions/runs/38498063993"
         }
       ]
     },
@@ -88,7 +104,7 @@
         "database/pending/20260611_152900__add_privacy_preference_center.sql": "fed6b42590f4829f4b474b9ddf840a08d7b8cce7b53bd502a0b9fe7417ec63d8",
         "database/pending/repairs/20260611_152900__add_privacy_preference_center.sql": "ac250e1ee3e789b017f7a1c54ebee3488345068aca38ea6e93df70e64483c896",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162"
       },
@@ -302,6 +318,15 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
@@ -418,7 +443,7 @@
         "backend/shared/HealthChecker.js": "34983df1a723fc4bb4608f96e4fd98b75f4daca8158d075a78c4261f3860fbef",
         "backend/services/user-service/src/index.js": "58528fc459173847bc452ce968643a2b1559995f4da3f2206396d5e8d17e495f",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
-        "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
+        "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/services/user-service/src/handlers/notificationHandler.js": "542e893148bbc7ceae4aaf5764be992667cd004f54acafc7e681603236fd611a",
         "backend/tests/regression/user-startup.test.js": "7ffef85ac5c7e6058c69850d28654699bd3132bc0843370ac0ac5c28e13c6dea",
@@ -430,7 +455,7 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06"
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15"
       },
       "evidence": [
         {
@@ -664,6 +689,16 @@
           "result": "partial_pass_full_history_failed_native_shutdown_unverified",
           "scope": "Refresh common manifest/workflow/migration documentation only. Actual currency18 and CLI17 pass, all unit686/syntax1437 pass. Full V1/V2 passes, complete85 unchanged-source history advances to20260626_040000 stmt1 //header failure. Real payment entry-point currency catalog/prices/preference/conversion returns200, but requires owned SIGKILL after bounded3s SIGTERM observation; diagnostic exit1. Full original feature/provider/client/numerical/security/operation acceptance remains open. Earlier source-specific feature evidence is not reinterpreted as full acceptance.",
           "changedReferences": [
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "backend/tests/regression/jest.config.json",
             "database/pending/repairs.json"
           ]
         }
@@ -678,7 +713,7 @@
         "backend/shared/HealthChecker.js": "34983df1a723fc4bb4608f96e4fd98b75f4daca8158d075a78c4261f3860fbef",
         "backend/services/user-service/src/index.js": "58528fc459173847bc452ce968643a2b1559995f4da3f2206396d5e8d17e495f",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
-        "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
+        "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/services/user-service/src/handlers/notificationHandler.js": "542e893148bbc7ceae4aaf5764be992667cd004f54acafc7e681603236fd611a",
         "backend/tests/regression/user-startup.test.js": "7ffef85ac5c7e6058c69850d28654699bd3132bc0843370ac0ac5c28e13c6dea",
@@ -690,7 +725,7 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06"
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15"
       },
       "evidence": [
         {
@@ -924,6 +959,16 @@
           "result": "partial_pass_full_history_failed_native_shutdown_unverified",
           "scope": "Refresh common manifest/workflow/migration documentation only. Actual currency18 and CLI17 pass, all unit686/syntax1437 pass. Full V1/V2 passes, complete85 unchanged-source history advances to20260626_040000 stmt1 //header failure. Real payment entry-point currency catalog/prices/preference/conversion returns200, but requires owned SIGKILL after bounded3s SIGTERM observation; diagnostic exit1. Full original feature/provider/client/numerical/security/operation acceptance remains open. Earlier source-specific feature evidence is not reinterpreted as full acceptance.",
           "changedReferences": [
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "backend/tests/regression/jest.config.json",
             "database/pending/repairs.json"
           ]
         }
@@ -946,14 +991,14 @@
         "backend/tests/unit/notification-initialization.test.js": "84b5d4ce41afbf9b531d95fa84fbceef57e00c14cd9597f42de6799009a46b3c",
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
         "backend/tests/regression/user-startup.test.js": "7ffef85ac5c7e6058c69850d28654699bd3132bc0843370ac0ac5c28e13c6dea",
-        "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
+        "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
         "database/pending/repairs/20261007_120000__title_identity_compatibility.sql": "26c5317694faa4f2a263923d4b915dfc0508d6a69c092c1c449306ee88702837",
         "database/pending/repairs/20260615_170500__add_title_system.sql": "f43872c531d7ac6a9a2875d2eb9a3f603781e4caf3bfdbe7482e7864629bf9ac",
         "backend/tests/regression/title-upgrade-storage.test.js": "406ebc4206cad8d523478a60e7e7a55e81cdbeaae369b1112fefdadfef59bb01",
@@ -1212,6 +1257,16 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "backend/tests/regression/jest.config.json",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1232,14 +1287,14 @@
         "backend/tests/unit/notification-initialization.test.js": "84b5d4ce41afbf9b531d95fa84fbceef57e00c14cd9597f42de6799009a46b3c",
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
         "backend/tests/regression/user-startup.test.js": "7ffef85ac5c7e6058c69850d28654699bd3132bc0843370ac0ac5c28e13c6dea",
-        "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
+        "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06"
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15"
       },
       "evidence": [
         {
@@ -1479,6 +1534,16 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "backend/tests/regression/jest.config.json",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1499,14 +1564,14 @@
         "backend/tests/unit/notification-initialization.test.js": "84b5d4ce41afbf9b531d95fa84fbceef57e00c14cd9597f42de6799009a46b3c",
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
         "backend/tests/regression/user-startup.test.js": "7ffef85ac5c7e6058c69850d28654699bd3132bc0843370ac0ac5c28e13c6dea",
-        "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
+        "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
         "docs/NOTIFICATIONS.md": "5b47d94114ba552f47f6d88f8aaba2ceb17c4e705174c1872d95f5e0655726ae",
         "backend/services/user-service/src/notificationService.js": "9b1809ee37dcef1cc4794db12b5a0fc2f4df876ade8dab918b378eca07d75194",
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
@@ -1525,7 +1590,7 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
         "frontend/game-client/src/i18n/index.js": "37dd930d9f30e6f6b088ad74f669c7cecbd91f7937ccb84e685d1dbfe4fa2690",
@@ -1836,6 +1901,17 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "backend/tests/regression/jest.config.json",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -1862,13 +1938,13 @@
         "backend/tests/unit/ip-appeal.test.js": "7aa02dc701586d2922d4ba958d72e3a806e8c8b60c9c98db14246f225b101c18",
         "backend/tests/regression/ip-appeal-storage.test.js": "36e48b65328b864138743ea61aa7b124c99bc608e7316d7baf8ba6603cc292fe",
         "backend/tests/regression/user-startup.test.js": "7ffef85ac5c7e6058c69850d28654699bd3132bc0843370ac0ac5c28e13c6dea",
-        "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
+        "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
         "database/pending/20261008_100000__ip_ban_index_compatibility.sql": "574d3f082b2265bfe5b93d6066b6d62dad4ca1da00bd91e34dc7a4f964f548ae",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06"
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15"
       },
       "evidence": [
         {
@@ -2062,6 +2138,16 @@
           "result": "partial_pass_full_history_failed_native_shutdown_unverified",
           "scope": "Refresh common manifest/workflow/migration documentation only. Actual currency18 and CLI17 pass, all unit686/syntax1437 pass. Full V1/V2 passes, complete85 unchanged-source history advances to20260626_040000 stmt1 //header failure. Real payment entry-point currency catalog/prices/preference/conversion returns200, but requires owned SIGKILL after bounded3s SIGTERM observation; diagnostic exit1. Full original feature/provider/client/numerical/security/operation acceptance remains open. Earlier source-specific feature evidence is not reinterpreted as full acceptance.",
           "changedReferences": [
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "backend/tests/regression/jest.config.json",
             "database/pending/repairs.json"
           ]
         }
@@ -2082,13 +2168,13 @@
         "backend/tests/unit/ip-appeal.test.js": "7aa02dc701586d2922d4ba958d72e3a806e8c8b60c9c98db14246f225b101c18",
         "backend/tests/regression/ip-appeal-storage.test.js": "36e48b65328b864138743ea61aa7b124c99bc608e7316d7baf8ba6603cc292fe",
         "backend/tests/regression/user-startup.test.js": "7ffef85ac5c7e6058c69850d28654699bd3132bc0843370ac0ac5c28e13c6dea",
-        "backend/tests/regression/jest.config.json": "a9fb12922ad3dcb745db141f94dd760cd2aa3668a86628806ece83a121193933",
+        "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
         "database/pending/20261008_100000__ip_ban_index_compatibility.sql": "574d3f082b2265bfe5b93d6066b6d62dad4ca1da00bd91e34dc7a4f964f548ae",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06"
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15"
       },
       "evidence": [
         {
@@ -2284,6 +2370,16 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "backend/tests/regression/jest.config.json",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -2301,7 +2397,7 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06"
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15"
       },
       "evidence": [
         {
@@ -2454,6 +2550,15 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -2469,18 +2574,18 @@
         "backend/tests/unit/migrate.test.js": "61e3d5aec43b626644d75a2f531d2758b0d0d417a9314e08bb3faf116c7fe9ec",
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "database/pending/20260609_124500__add_item_inventory_system.sql": "99c96061defc0b502f87147c491889266f53b9e5c8ae8cfbdcdda6892c09969e",
-        "backend/shared/db.js": "b83c8fa862e66ea7249aedb4fb256a3e0987ff0bba50117a317802b0833ed3b1",
+        "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
         "backend/services/user-service/src/index.js": "58528fc459173847bc452ce968643a2b1559995f4da3f2206396d5e8d17e495f",
         "backend/gateway/src/index.js": "0217c0c2694d50849a3ee80d98d14c5cf1d0076591348c3440b5d0eddc15673e",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/regression/storageSetup.js": "1a67a27f674d7ef022e266da1ebbd5146870cdc290ebd64a51a799f5843ceaee",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
-        "docs/DATABASE-MIGRATIONS.md": "aaef51fa0970c5b7c670dee618bb4422001975b90ffaffe8f5c0787d9e15fb04",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        "docs/DATABASE-MIGRATIONS.md": "47f8b32a628bd5aedbfeb3039d34a78fdbb08d15a7e0e864605fd22097bc4051",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
@@ -2845,6 +2950,18 @@
             "docs/DATABASE-MIGRATIONS.md",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "backend/shared/db.js",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "database/pending/repairs.json"
+          ]
         }
       ],
       "remaining": "Reconcile notification_history/message-center and later full catalog/partition dependencies, all pending/history upgrade and data-preserving rollback, all-service startup and complete required CI acceptance."
@@ -2857,15 +2974,15 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
-        "docs/DATABASE-MIGRATIONS.md": "aaef51fa0970c5b7c670dee618bb4422001975b90ffaffe8f5c0787d9e15fb04",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        "docs/DATABASE-MIGRATIONS.md": "47f8b32a628bd5aedbfeb3039d34a78fdbb08d15a7e0e864605fd22097bc4051",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -3076,6 +3193,17 @@
             ".github/workflows/migration-regression.yml",
             "docs/DATABASE-MIGRATIONS.md"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ]
     },
@@ -3087,15 +3215,15 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
-        "docs/DATABASE-MIGRATIONS.md": "aaef51fa0970c5b7c670dee618bb4422001975b90ffaffe8f5c0787d9e15fb04",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        "docs/DATABASE-MIGRATIONS.md": "47f8b32a628bd5aedbfeb3039d34a78fdbb08d15a7e0e864605fd22097bc4051",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -3306,6 +3434,17 @@
             ".github/workflows/migration-regression.yml",
             "docs/DATABASE-MIGRATIONS.md"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ]
     },
@@ -3317,15 +3456,15 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
-        "docs/DATABASE-MIGRATIONS.md": "aaef51fa0970c5b7c670dee618bb4422001975b90ffaffe8f5c0787d9e15fb04",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        "docs/DATABASE-MIGRATIONS.md": "47f8b32a628bd5aedbfeb3039d34a78fdbb08d15a7e0e864605fd22097bc4051",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -3619,6 +3758,17 @@
           "result": "scoped_ci_pass_full_history_failed",
           "scope": "MainCI452/dependency271/privacy24/title21/notification9 pass. Migration14 actual canonical partition/audit step9 succeeds (job115292180276), full gate fails the missing payment_orders contract at that source. Latest local currency repair advances to deadlock //header. API81/contract377/performance120/integration427/security410 fail; E2E114 terminal cancelled. Security dependencies pass; K8s job fails archive extraction before policy checks; secret-job logs unavailable at observation. No full acceptance.",
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/38396273631"
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ],
       "remaining": [
@@ -3635,7 +3785,7 @@
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260611_000000__add_achievement_system_tables.sql": "31e3714195d83afba17bafd85f3590ad51e30011831a5d0a1f5b4e8e5a00e302",
         "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "6f9c323240e28aa67a4d54fccd7141b72f7d58f91607ae53568631b90cd0a2d9",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "database/pending/20261008_150000__achievement_catalog_bridge.sql": "432a090e79626102f6cff413f6bc844c7617bd0c2cc1346899f95fa1b801e04f",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
@@ -3645,9 +3795,9 @@
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "backend/services/user-service/src/routes/user.js": "7d24fb40cd0662c428a6b42c2bf6636a2a3ac05fdcdc5e8717d1df5a1dbf04df",
         "backend/tests/regression/achievement-storage.test.js": "4983c1a41d7e40fd86bcb29cd59765555c2ff0f10030044ca5b75ee435a4b90b",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
         "docs/ACHIEVEMENTS.md": "09711c5508a55e25daaa1d2735281a7c35bae20e885c998d93bb3a5d17e8a08d",
-        "docs/DATABASE-MIGRATIONS.md": "aaef51fa0970c5b7c670dee618bb4422001975b90ffaffe8f5c0787d9e15fb04",
+        "docs/DATABASE-MIGRATIONS.md": "47f8b32a628bd5aedbfeb3039d34a78fdbb08d15a7e0e864605fd22097bc4051",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "docs/NOTIFICATIONS.md": "5b47d94114ba552f47f6d88f8aaba2ceb17c4e705174c1872d95f5e0655726ae",
@@ -3851,6 +4001,17 @@
             ".github/workflows/migration-regression.yml",
             "docs/DATABASE-MIGRATIONS.md"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ],
       "remaining": "Replay/idempotency/durable events/automatic grant/all triggers; complete seed item/title contract and exclusive Pokemon grant; management CRUD/admin and edited-definition snapshot policy; old unit fixture; native pokemon process/gateway/client/localization; <100ms query/<50ms update performance; full83 history and data-preserving reversal with modern records remain unproven."
@@ -4004,6 +4165,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -4029,9 +4200,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -4202,6 +4373,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -4227,9 +4408,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -4400,6 +4581,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -4425,9 +4616,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -4456,11 +4647,11 @@
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -4592,6 +4783,16 @@
           "command": "currency/storage18; actual CLI/prerequisite17; full85-source bootstrap; unit686; syntax1437; native currency diagnostic",
           "result": "partial_pass_full_history_failed_native_shutdown_unverified",
           "scope": "Refresh common manifest/workflow/migration documentation only. Actual currency18 and CLI17 pass, all unit686/syntax1437 pass. Full V1/V2 passes, complete85 unchanged-source history advances to20260626_040000 stmt1 //header failure. Real payment entry-point currency catalog/prices/preference/conversion returns200, but requires owned SIGKILL after bounded3s SIGTERM observation; diagnostic exit1. Full original feature/provider/client/numerical/security/operation acceptance remains open. Earlier source-specific feature evidence is not reinterpreted as full acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
           "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
@@ -4617,11 +4818,11 @@
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -4753,6 +4954,16 @@
           "command": "currency/storage18; actual CLI/prerequisite17; full85-source bootstrap; unit686; syntax1437; native currency diagnostic",
           "result": "partial_pass_full_history_failed_native_shutdown_unverified",
           "scope": "Refresh common manifest/workflow/migration documentation only. Actual currency18 and CLI17 pass, all unit686/syntax1437 pass. Full V1/V2 passes, complete85 unchanged-source history advances to20260626_040000 stmt1 //header failure. Real payment entry-point currency catalog/prices/preference/conversion returns200, but requires owned SIGKILL after bounded3s SIGTERM observation; diagnostic exit1. Full original feature/provider/client/numerical/security/operation acceptance remains open. Earlier source-specific feature evidence is not reinterpreted as full acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
           "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
@@ -4782,8 +4993,8 @@
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260612_070000__add_catch_anomaly_detection_system.sql": "071c812b16b0f3bd90eb912c88d98d01c334d709a619ae0c5e7b26280869b926",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
         "docs/CATCH-RISK.md": "38a45565382fcc71fcd3086ed2de7b885d9e912859efe78d917741eaa3afbcf0",
         "docs/review/REQ-00082-catch-success-anomaly-detection-review.md": "76b74356f1d4b2745e8d4029639e2cb0ac5101d789d6c6c699b35fb2b3aa11a9",
         "docs/review/REQ-00082-catch-success-anomaly-detection-system-review.md": "91b9a7a16ae6203eac69695669ad3eed471d75d13259a44cd7b98a59f044e19c",
@@ -4918,6 +5129,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -4943,8 +5164,8 @@
         "database/pending/20260613_160000__add_special_iv_system.sql": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -5034,6 +5255,16 @@
           "command": "currency/storage18; actual CLI/prerequisite17; full85-source bootstrap; unit686; syntax1437; native currency diagnostic",
           "result": "partial_pass_full_history_failed_native_shutdown_unverified",
           "scope": "Refresh common manifest/workflow/migration documentation only. Actual currency18 and CLI17 pass, all unit686/syntax1437 pass. Full V1/V2 passes, complete85 unchanged-source history advances to20260626_040000 stmt1 //header failure. Real payment entry-point currency catalog/prices/preference/conversion returns200, but requires owned SIGKILL after bounded3s SIGTERM observation; diagnostic exit1. Full original feature/provider/client/numerical/security/operation acceptance remains open. Earlier source-specific feature evidence is not reinterpreted as full acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
           "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
@@ -5061,8 +5292,8 @@
         "database/pending/20260613_160000__add_special_iv_system.sql": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -5156,6 +5387,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -5173,14 +5414,14 @@
       "sourceSha256": {
         "database/pending/20260614_090500__add_daily_quest_system.sql": "b602bc1b0e67d1b03aa441cf24de2abbc7113ab512bcd7384d006e2b15b07979",
         "database/pending/repairs/20260614_090500__add_daily_quest_system.sql": "65570155fda0333a90d88d794c600cb17b685ed1ea0a99ed7a6198669d6c53be",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
         "backend/services/reward-service/src/index.js": "42b8220e1654ecf40ae8d053e1b9219e651e27b1ff40f511abdc6d7c6d9f8a50",
         "backend/services/reward-service/src/routes/dailyQuests.js": "599fa242c1864866bebc2f5368e0552ad47a58afcacd7933561a1a3e6d64054b",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
         "backend/shared/questService.js": "4db34890cbb2837e2c13703dd0278e41a030fd8cbb1d39bf2411920e2f4413fd",
         "backend/shared/routes/quests.js": "415f6443d29d9f5675b0def6517d20063ec0df25d66454ccd3e3766a326163e3",
         "backend/shared/questMetrics.js": "4d70c0eb2917f3942f4cc0888d27ffdfeb6fcac91a585c4a897364a7e7afaa8f",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
         "docs/DAILY-QUESTS.md": "b63d44e8e29e3fdcd856248af47935ca99924740c887be49c45defd33cdd21de"
       },
       "evidence": [
@@ -5255,6 +5496,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -5276,7 +5527,7 @@
         "backend/services/catch-service/src/index.js": "b5901bc1a2bc732da52ffb257166948b54e84141882b5989d0dcbf3b0c26175c",
         "backend/tests/regression/reward-leaderboard-storage.test.js": "b22fe38c30f5351cbcbd39129f0794daf6dc3b2c7ed6c33cca2ba8b1159d163f",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
         "docs/REWARD-RANKINGS.md": "ad7d89e56547dcdd24d5fe07ac61557a5e1c0ee69bce4ea77b6aa116fa9fd933",
         "docs/review/REQ-00255-api-injection-attack-protection-system-review.md": "2ac0537e70d4896ea611958d55aaffb60793de6b06538872a554819d0a60ef76"
       },
@@ -5332,6 +5583,15 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -5361,10 +5621,10 @@
         "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
         "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
       "evidence": [
@@ -5431,6 +5691,16 @@
           "command": "currency/storage18; actual CLI/prerequisite17; full85-source bootstrap; unit686; syntax1437; native currency diagnostic",
           "result": "partial_pass_full_history_failed_native_shutdown_unverified",
           "scope": "Refresh common manifest/workflow/migration documentation only. Actual currency18 and CLI17 pass, all unit686/syntax1437 pass. Full V1/V2 passes, complete85 unchanged-source history advances to20260626_040000 stmt1 //header failure. Real payment entry-point currency catalog/prices/preference/conversion returns200, but requires owned SIGKILL after bounded3s SIGTERM observation; diagnostic exit1. Full original feature/provider/client/numerical/security/operation acceptance remains open. Earlier source-specific feature evidence is not reinterpreted as full acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
           "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
@@ -5464,10 +5734,10 @@
         "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
         "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
       "evidence": [
@@ -5538,6 +5808,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -5557,10 +5837,10 @@
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "database/pending/20260618_160000__add_voice_chat_tables.sql": "e60be5a89d60c84da8ba40f11c63bf1b5e1491e59828903856e50b490ca74bf4",
         "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "b2034194cd84c4f47f3c73438555df5b80c21135535de704a782313dfefe8b8b",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
         "backend/tests/regression/voice-schema-storage.test.js": "5e4162b28e07f7f35ab339d707b4be8a99e19e1921bd208cd51890fbf5058c6f",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
         "backend/services/social-service/src/voice/turnServer.js": "2ca289a62a2fa2648e4c5a18ac49a13af268d55c17c3739334851c5673df5eb5",
         "backend/services/social-service/src/voice/routes.js": "cdcbac7391f275b20a7646517ac0a5d3883c35a629d10e66aef9b49a42349b80",
         "backend/services/social-service/src/voice/signalingServer.js": "4e8199480ff3745f671a20845680cf48ef5d374d4544813ca914d3fbce842505",
@@ -5615,6 +5895,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -5640,8 +5930,8 @@
         "backend/tests/unit/currency.test.js": "155a7c7d561b2911a5da8c5a91ec5e054eb283ff8b98deca22779f4fbeb93558",
         "database/pending/20260624_133000__add_multi_currency_support.sql": "9d82251238972d1bd61c2264504f10f709039e52b2b42921c81957c32b689bcf",
         "database/pending/repairs/20260624_133000__add_multi_currency_support.sql": "a6f2318807e7824c4c458beb7762ec555e256d97af41405707dafbf8ac24dde2",
-        "database/pending/repairs.json": "6b0b5f7d30c8bd41a800de600a00f6c968401cc649ffcc2bce8213e23a3fff06",
-        ".github/workflows/migration-regression.yml": "551baf60a1590bc9e6bf59e6a4fdd597fe53f8dcb1be4900d86ed76d5083248d",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
         "docs/CURRENCIES.md": "02ca61669686acdd8038b3ec185dd96a04a0ed6bc6014493d43120d5940676b7"
       },
       "evidence": [
@@ -5683,6 +5973,16 @@
           "command": "latest input-audit binding storage18; repeated unit686/syntax1437; native diagnostic/full85 bootstrap",
           "result": "partial_pass_full_history_failed_native_shutdown_unverified",
           "scope": "Preserve exact input_amount TEXT alongside unchanged normalized amount fields; historical rows NULL. Real18 storage cases verify0.10/1.005 exact strings, valid NUMERIC target/rate audit, and owner-FK alias rejection. Fixed observed SQL inconsistent parameter typing with separate TEXT parameter. Latest unit686/syntax1437 pass; native4 HTTP responses200 but3s bounded observation needs owned SIGKILL(exit1); full-chain remains //header stmt1 failure. Original complete audit/checkout/provider/numerical/lifecycle acceptance stays open."
+        },
+        {
+          "date": "2026-10-15",
+          "command": "actual sequential17 storage suites; npm test; battle coverage; syntax; actual module loads; immutable-baseline throughput; full85 bootstrap",
+          "result": "partial_pass_full_history_failed_current_ci_pending",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -5691,6 +5991,77 @@
         "Owned automatic30min refresh/lifecycle, three live configured providers/freshness/fault evidence, complete audit policy and original unit coverage.",
         "Representative90percent cache hit and cached API<100ms measurements, native clean shutdown, full gateway/client/localization/browser/device flows.",
         "Whole85 migration history and data-preserving upgrades/rollback. Repair still has no down section; unknown legacy layouts require explicit adoption."
+      ]
+    },
+    "REQ-00096-database-transaction-isolation-deadlock-detection.md": {
+      "date": "2026-10-15",
+      "status": "partial_verified_full_history_failed",
+      "documentSha256": "0e993fb57bbd0f06cea29ae54975a2403585b647848abb67ab1bd98d2cd891c7",
+      "sourceSha256": {
+        "backend/shared/TransactionManager.js": "1d94558049559ff060424a52571f461e9478d1ae37ed5651bbf6600799ae721f",
+        "backend/shared/transactionManager.js": "04015c6fb573e724d96c0c2ad3cb1e75d1d5a7b6eb883fa2ea177e6969e67929",
+        "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
+        "backend/shared/pgDeadlock.js": "2afdcc6058b8160b05a8eaa6b83fbdfcb8cf89d3c07e3c9c54e713c3e4e10285",
+        "backend/shared/deadlockDetector.js": "094eb06e5ba53d6bcb02f18cf87630b62edbb04db3952ddbde5af59931914416",
+        "backend/shared/transactionMetrics.js": "2f1b5c96d9d5f1b53fbda06c1a6f6be1937cc547905415a112f1c3bd510d0711",
+        "backend/shared/metrics.js": "42d9fc149e871ac0a4623e50b97ad19cdc3df5ca2e5e488b2e4fd3d32cbb572b",
+        "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
+        "backend/tests/unit/transaction-manager.test.js": "866290ace655ef1c3c0a3b417a29182ffd832c22189a70f0e75092e0e537795a",
+        "backend/tests/unit/transactionManager.test.js": "b34eab972bba2244bae16221b4186aae715de3a4fa86ab2907e0e68b0872a45b",
+        "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
+        "backend/tests/regression/transaction-storage.test.js": "3c278c041509ee48e98503a7b6eb4a4a87cdfa921a392800e9ab4fef38d463a1",
+        "backend/tests/performance/transaction-throughput.js": "e53b7c9e2abfa47e82698ab353746c2c4adb123803108d6cdf1e6d5b7751fc83",
+        "docs/benchmarks/transaction-throughput-2026-10-15.json": "b22bccb8cee394a16a4c5135761e5e104c97e6b95c974a18ceb7e36d887e4a03",
+        "database/pending/20260626_040000__add_deadlock_log_table.sql": "b9060fc1aab1fd26bbb27d08a7d0ba83f9df521191ecc37cbe679c447ed16238",
+        "database/pending/repairs/20260626_040000__add_deadlock_log_table.sql": "fe133fbc60e1719e237752d8a9508ff246d3e376a46aed62e024c5939a721cbc",
+        "database/pending/repairs.json": "a9de44ec780a9a085aa5389951a73197884824370e1c128483c4c389fa2b6a15",
+        ".github/workflows/migration-regression.yml": "dbb41fcaec223933c707f54e27dad79b70e2cfad7f30e13db9e1d68806c5d905",
+        "docs/TRANSACTIONS.md": "437ec8cac219c1aeadb6106b77a879352511425d6221dedd9e4b23369275348d",
+        "docs/DATABASE-MIGRATIONS.md": "47f8b32a628bd5aedbfeb3039d34a78fdbb08d15a7e0e864605fd22097bc4051"
+      },
+      "evidence": [
+        {
+          "command": "npm test --prefix backend",
+          "result": "passed",
+          "tests": 724,
+          "transactionUnitTests": 38,
+          "jestSuites": 24,
+          "jestTests": 425,
+          "scope": "Original transaction cases enrolled, actual imports and real business failure injection repaired; no acceptance threshold reduced."
+        },
+        {
+          "command": "node --test --test-concurrency=1 backend/tests/regression/transaction-storage.test.js",
+          "runtime": "Node.js24.19.0",
+          "result": "passed",
+          "tests": 22,
+          "scope": "Actual V1 resources, three isolations, genuine40P01/40001 contention, exactly3 retries after initial attempt, durable audit/participants, deadlines/late work/checkout,55P03 exclusion, real metrics, uncertain COMMIT disconnect and actual ExchangeRateService through default db.transaction. Legacy context-only schema retains OIDs/history/views/FKs/unknown NULL metadata."
+        },
+        {
+          "command": "node backend/tests/performance/transaction-throughput.js",
+          "result": "passed",
+          "baselineCommit": "43c6b148ccdba62f76af415927f2a86676feaa18",
+          "artifact": "docs/benchmarks/transaction-throughput-2026-10-15.json",
+          "medianChangePercent": 0.0549274192291227,
+          "requiredMinimumChangePercent": -5,
+          "concurrency": 2,
+          "rounds": 7,
+          "scope": "Immutable working published helper and current manager, same actual V1 transfer/pool/default metrics. Alternating paired rounds; exact resource balances and before/after source hashes. Local comparative result, not production capacity."
+        },
+        {
+          "command": "17 sequential actual storage suites; syntax; module loads; battle coverage",
+          "result": "passed",
+          "scope": "339 actual isolated CLI/storage checks in17 sequential suites pass with Node24, including22 transaction,18 currency,11 privacy,32 move/damage,27 canonical/audit,41 achievement,35 notification,20 friendship,34 risk,36 IV,18 quest and22 title/ranking. Main unit724/24Jest suites, battle133/formula100percent, syntax1441 and six actual module loads pass. Fixed-source paired throughput+0.054927percent passes original-5percent. Full V1/V2 passes;85 unchanged raw sources fail20260627_041000 stmt14 round(double precision,integer), pending batch rolls back. Refresh only exercised common references; no full business/provider/client/numerical/operations acceptance."
+        },
+        {
+          "command": "node --test --test-concurrency=1 backend/tests/regression/database-bootstrap.test.js",
+          "result": "failed",
+          "scope": "V1/V2 passes. All85 raw SQL unchanged. Full pending batch rolls back at20260627_041000 statement14 round(double precision,integer). No skipped file, threshold waiver or history rewrite."
+        }
+      ],
+      "remaining": [
+        "Exact current-source relevant CI, complete REQ-00007 migration history and data-preserving upgrade/reversal remain open.",
+        "Audit retrying production callers for durable money/resource/idempotency and external side effects; this shared foundation does not accept whole payment/battle/catch/social features.",
+        "Representative production/service numerical acceptance remains separate from the original local paired throughput regression."
       ]
     }
   }

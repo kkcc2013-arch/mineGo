@@ -5,8 +5,8 @@
 
 'use strict';
 
-const { TransactionManager, ISOLATION_LEVELS, ERROR_CODES, isDeadlockError, isTimeoutError, parseDeadlockDetail, calculateRetryDelay } = require('../TransactionManager');
-const { createLogger } = require('../logger');
+const { TransactionManager, ISOLATION_LEVELS, ERROR_CODES, isDeadlockError, isTimeoutError, parseDeadlockDetail, calculateRetryDelay } = require('../../shared/TransactionManager');
+const { createLogger } = require('../../shared/logger');
 
 // Mock pool
 const mockPool = {
@@ -23,7 +23,8 @@ describe('TransactionManager', () => {
   let transactionManager;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
+    mockPool.query.mockResolvedValue({rows:[]});
     mockPool.connect.mockResolvedValue(mockClient);
     transactionManager = new TransactionManager(mockPool);
   });
@@ -114,14 +115,14 @@ describe('TransactionManager', () => {
       mockClient.query
         .mockResolvedValueOnce({}) // BEGIN
         .mockResolvedValueOnce({ rows: [{ id: 1 }] }) // user query
-        .mockResolvedValueOnce({}); // COMMIT
+        .mockResolvedValueOnce({command:'COMMIT'}); // COMMIT
 
       const result = await transactionManager.execute(async (client) => {
         return await client.query('SELECT * FROM users WHERE id = $1', [1]);
       }, { transactionName: 'test_query' });
 
       expect(result.rows).toEqual([{ id: 1 }]);
-      expect(mockClient.query).toHaveBeenCalledWith('BEGIN ISOLATION LEVEL READ COMMITTED');
+      expect(mockClient.query).toHaveBeenCalledWith(expect.stringMatching(/^BEGIN ISOLATION LEVEL READ COMMITTED; SET LOCAL statement_timeout='[1-9]\d*ms'; SET LOCAL application_name='minego-tx-[a-f0-9-]+'$/));
       expect(mockClient.query).toHaveBeenCalledWith('COMMIT');
       expect(mockClient.release).toHaveBeenCalled();
     });
@@ -130,7 +131,7 @@ describe('TransactionManager', () => {
       mockClient.query
         .mockResolvedValueOnce({}) // BEGIN
         .mockResolvedValueOnce({ rows: [] }) // query
-        .mockResolvedValueOnce({}); // COMMIT
+        .mockResolvedValueOnce({command:'COMMIT'}); // COMMIT
 
       await transactionManager.execute(async (client) => {
         return await client.query('SELECT 1');
@@ -139,7 +140,7 @@ describe('TransactionManager', () => {
         transactionName: 'test_repeatable_read'
       });
 
-      expect(mockClient.query).toHaveBeenCalledWith('BEGIN ISOLATION LEVEL REPEATABLE READ');
+      expect(mockClient.query).toHaveBeenCalledWith(expect.stringMatching(/^BEGIN ISOLATION LEVEL REPEATABLE READ; SET LOCAL statement_timeout='[1-9]\d*ms'; SET LOCAL application_name='minego-tx-[a-f0-9-]+'$/));
     });
 
     test('should rollback on error', async () => {
@@ -150,7 +151,7 @@ describe('TransactionManager', () => {
 
       await expect(
         transactionManager.execute(async (client) => {
-          throw new Error('Query failed');
+          return await client.query('SELECT 1');
         }, { transactionName: 'test_rollback' })
       ).rejects.toThrow('Query failed');
 
@@ -159,6 +160,7 @@ describe('TransactionManager', () => {
     });
 
     test('should timeout long-running transaction', async () => {
+      mockClient.query.mockResolvedValue({command:'ROLLBACK'}); // Safe cleanup default
       mockClient.query.mockResolvedValueOnce({}); // BEGIN
 
       await expect(
@@ -187,11 +189,12 @@ describe('TransactionManager', () => {
             return {};
           }
           if (sql.includes('COMMIT')) {
-            return {};
+            return {command:'COMMIT'};
           }
           if (sql.includes('ROLLBACK')) {
             return {};
           }
+          if(sql.includes('INSERT INTO deadlock_log')) return {rows:[]};
           // User query
           attempts++;
           if (attempts === 1) {
@@ -218,9 +221,9 @@ describe('TransactionManager', () => {
 
       mockClient.query
         .mockImplementation(async (sql) => {
-          if (sql.includes('BEGIN') || sql.includes('ROLLBACK')) {
-            return {};
-          }
+          if (sql.includes('BEGIN') || sql.includes('ROLLBACK')) return {};
+          if (sql.includes('COMMIT')) return {command:'COMMIT'};
+          if (sql.includes('INSERT INTO deadlock_log')) return {rows:[]};
           throw deadlockError;
         });
 
@@ -235,7 +238,8 @@ describe('TransactionManager', () => {
       ).rejects.toThrow('deadlock detected');
 
       // Should have tried 3 times (1 initial + 2 retries)
-      expect(mockClient.query).toHaveBeenCalledTimes(6); // 3 * (BEGIN + query + ROLLBACK)
+      expect(mockClient.query.mock.calls.filter(([sql])=>sql==='SELECT 1')).toHaveLength(3); // Initial attempt plus two retries; audit uses separate owned transactions.
+      expect(mockClient.query.mock.calls.filter(([sql])=>sql==='ROLLBACK')).toHaveLength(3);
     });
 
     test('should not retry non-deadlock errors', async () => {
@@ -278,7 +282,7 @@ describe('TransactionManager', () => {
       mockClient.query.mockImplementation(async () => {
         // Simulate long-running transaction
         await new Promise(resolve => setTimeout(resolve, 1000));
-        return {};
+        return {command:'COMMIT'};
       });
 
       const txPromise = transactionManager.execute(async (client) => {
@@ -305,7 +309,7 @@ describe('TransactionManager', () => {
         .mockResolvedValueOnce({}) // BEGIN
         .mockResolvedValueOnce({ rows: [{ balance: 100 }] })
         .mockResolvedValueOnce({ rows: [{ balance: 90 }] })
-        .mockResolvedValueOnce({}); // COMMIT
+        .mockResolvedValueOnce({command:'COMMIT'}); // COMMIT
 
       const result = await transactionManager.execute(async (client) => {
         // Simulate payment: deduct balance
@@ -321,7 +325,7 @@ describe('TransactionManager', () => {
         transactionName: 'payment_deduct'
       });
 
-      expect(mockClient.query).toHaveBeenCalledWith('BEGIN ISOLATION LEVEL SERIALIZABLE');
+      expect(mockClient.query).toHaveBeenCalledWith(expect.stringMatching(/^BEGIN ISOLATION LEVEL SERIALIZABLE; SET LOCAL statement_timeout='[1-9]\d*ms'; SET LOCAL application_name='minego-tx-[a-f0-9-]+'$/));
       expect(result.success).toBe(true);
       expect(result.newBalance).toBe(90);
     });
@@ -330,7 +334,7 @@ describe('TransactionManager', () => {
 
 describe('Integration with db.js', () => {
   test('transaction function should support options', () => {
-    const { transaction, ISOLATION_LEVELS } = require('../db');
+    const { transaction, ISOLATION_LEVELS } = require('../../shared/db');
     
     expect(typeof transaction).toBe('function');
     expect(ISOLATION_LEVELS).toBeDefined();

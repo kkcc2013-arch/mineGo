@@ -341,3 +341,6 @@ module.exports = {
   getDeadlockDetector,
   resetDeadlockDetector
 };
+
+// PostgreSQL helpers are separate from the existing distributed-lock detector.
+Object.assign(module.exports, require('./pgDeadlock'));
