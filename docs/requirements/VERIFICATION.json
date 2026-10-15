@@ -3,8 +3,8 @@
   "requirements": {
     "REQ-00619-core-battle-engine-test-coverage-framework.md": {
       "date": "2026-10-15",
-      "status": "local_verified_ci_pending",
-      "documentSha256": "0bd88c8d4733564e2ab077d58b7c11987112c825d73ca69e0b47ef4a1a749a83",
+      "status": "verified",
+      "documentSha256": "d92a32cc5117dfb1c20d00fec4f135f4b93c329afde1497eb97b55557bf21884",
       "sourceSha256": {
         "backend/services/gym-service/src/battleEngine.js": "bad55c38a438bcc5a28f4a2b3f45e04a53416eb74548d310e2f44529fe056c93",
         "backend/services/gym-service/src/battleFormulas.js": "a08da8b0fa486d3524895739365a3c7a3f615e31f8ad78dea3e99fcc7bc0e109",
@@ -79,6 +79,22 @@
           },
           "scope": "Original3 criteria and >90percent/50 scenarios unchanged. Current production paths and actual design boundary documented. Initial command under system Node18 rejected unsupported coverage flags; corrected runtime, unchanged gate passes. Source-specific43c6b148 main453/battle job115638282796 independently observed pass; current shared-dependency commit CI must be rechecked. Injected external status boundary does not prove full persistent battle feature acceptance.",
           "priorSourceCI": "https://github.com/kkcc2013-arch/mineGo/actions/runs/38498063993"
+        },
+        {
+          "date": "2026-10-15",
+          "result": "passed",
+          "commit": "bae401eb83c7ad1db2d98e7db6e16b713c8f98dd",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/38708847414",
+          "workflowRun": 38708847414,
+          "battleJob": 116334921896,
+          "tests": 133,
+          "businessScenarios": 76,
+          "coverage": {
+            "lines": 100,
+            "branches": 100,
+            "functions": 100
+          },
+          "scope": "Main CI454 completed success; exact-source battle job completed success and actual downloaded log confirms133 pass/0 fail and100percent formulas with original91percent line/function/branch gates. All original3 framework criteria satisfied. Production engine/scenario modules unchanged by this documentation-only acceptance update. No implication for real status persistence, mounted battle routes/clients, other damage model, production SLOs or complete migration acceptance."
         }
       ]
     },

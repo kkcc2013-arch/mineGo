@@ -1,9 +1,9 @@
 # mineGo requirement completion plan
 
 Updated: 2026-10-15. Scope: all 658 existing requirement documents in INDEX.md,
-including the 190 legacy done declarations that still need independent acceptance.
+including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 432 new, 36 in progress. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 432 new, 35 in progress;191 declared done, including one independently verified framework. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -514,3 +514,13 @@ paths and its actual design/test boundary; previous exact43c6b148 main453 battle
 coverage100% is recorded separately from pending current-source CI. No complete
 requirement acceptance is inferred from partial tests. Persistent all658 goal stays
 active; no new requirement, Maven build, CPU saturation, merge or deployment.
+
+
+### First independently accepted requirement (2026-10-15)
+
+REQ-00619 original three framework criteria now have exact-source bae401eb CI454
+success and downloaded battle-job116334921896 proof:133 pass/76 actual engine
+scenarios/formula100% with unchanged91% gates. Mark this framework done/verified;
+other battle/game/storage/client/numerical requirements remain separate. Inventory
+191done/35in_progress/432new,total658,independently verified1. REQ-00096 and the
+full migration chain remain open; next work and all original stages continue.

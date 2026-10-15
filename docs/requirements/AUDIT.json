@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 190,
-      "in_progress": 36,
+      "done": 191,
+      "in_progress": 35,
       "new": 432
     },
     "priorityCounts": {
@@ -14,8 +14,8 @@
       "P2": 41
     },
     "withoutAcceptanceCheckboxes": 10,
-    "independentlyVerified": 0,
-    "localVerificationAwaitingCI": 1
+    "independentlyVerified": 1,
+    "localVerificationAwaitingCI": 0
   },
   "duplicateIds": [],
   "requirements": [
@@ -16546,17 +16546,17 @@
       "id": "REQ-00619",
       "title": "REQ-00619: 核心战斗引擎业务测试覆盖框架",
       "priority": "P1",
-      "declaredStatus": "in_progress",
+      "declaredStatus": "done",
       "category": "测试覆盖",
       "modules": "gym-service, battle-engine-module",
       "createdAt": "2026-07-21 00:00",
-      "sha256": "0bd88c8d4733564e2ab077d58b7c11987112c825d73ca69e0b47ef4a1a749a83",
+      "sha256": "d92a32cc5117dfb1c20d00fec4f135f4b93c329afde1497eb97b55557bf21884",
       "acceptance": [
         "- [x] 实现针对战斗公式的单元测试覆盖率 > 90%",
         "- [x] 完成战斗引擎集成测试套件，涵盖至少 50 个典型业务场景",
         "- [x] 战斗引擎回归测试流水线集成到 CI/CD"
       ],
-      "verificationStatus": "local_verified_ci_pending",
+      "verificationStatus": "verified",
       "implementationReferences": [],
       "legacyId": null
     },

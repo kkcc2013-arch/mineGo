@@ -599,7 +599,7 @@
 | [REQ-00616](REQ-00616-intelligent-resource-scheduling-system.md) | 智能资源调度与自动扩缩容系统 | 运维/CICD | P1 | done | infrastructure, gateway, autoscaling | 2026-07-20 18:00 |
 | [REQ-00617](REQ-00617-user-experience-realtime-monitoring-rum-system.md) | 用户体验实时监控与性能追踪系统（RUM/APM） | 可观测性/监控 | P1 | new | game-client、gateway、backend/shared/monitoring | 2026-07-20 19:00 |
 | [REQ-00618](REQ-00618-implement-database-read-write-split-and-replica-consistency-monitoring.md) | 数据库读写分离与副本延迟监控系统 | 性能优化 | P1 | done | backend, database, gateway | 2026-07-20 20:00 |
-| [REQ-00619](REQ-00619-core-battle-engine-test-coverage-framework.md) | 核心战斗引擎业务测试覆盖框架 | 测试覆盖 | P1 | in_progress | gym-service, battle-engine-module | 2026-07-21 00:00 |
+| [REQ-00619](REQ-00619-core-battle-engine-test-coverage-framework.md) | 核心战斗引擎业务测试覆盖框架 | 测试覆盖 | P1 | done | gym-service, battle-engine-module | 2026-07-21 00:00 |
 | [REQ-00620](REQ-00620-game-offline-experience-service-worker-cache-system.md) | 游戏离线体验与 Service Worker 智能缓存管理系统 | 前端体验 | P1 | new | frontend/game-client、service-worker、backend/gateway、游戏资源管理 | 2026-07-20 21:00 |
 | [REQ-00621](REQ-00621-dsar-automation-service.md) | GDPR/CCPA 自动化数据主体请求处理系统 (DSAR) | 合规/隐私 | P1 | new | user-service, data-platform, gateway | 2026-07-21 02:00 |
 | [REQ-00622](REQ-00622-api-request-parameter-validation-injection-protection-system.md) | API 请求参数统一验证与注入防护中间件系统 | API 设计规范 | P1 | new | gateway/middleware/validation, backend/shared/validators, 所有后端服务路由层 | 2026-07-20 22:00 |
