@@ -142,3 +142,35 @@ remote throughput must pass the original gate before accepting REQ-00096.
 An independent slow-query SQL repair advances complete history to20260627_060000
 statement13 is_deleted missing. Complete upgrades/reversal and service/feature
 acceptance still remain open. No threshold/baseline/benchmark workload was changed.
+
+
+## One operation and one abort signal (2026-10-16)
+
+Exact5864a4a mainCI456/battle succeed and actual transaction correctness passes,
+but migration18 job116881319622 again fails the original throughput gate at
+-5.691201189980399%; report archived separately. Preload setup passes; slow-query
+and full-history steps are skipped there and are not reported as remote passes.
+
+The follow-up races the whole owned transaction against one deadline/connection
+abort signal, instead of racing every awaited phase against multiple signals.
+Each continuation checks ownership before executing more work; a late checkout is
+released without invoking the callback, a late BEGIN cannot start it, and late
+callback/query completion cannot commit after rollback/release. Existing transaction
+control, local server timeout, unique backend tag, bounded cleanup/audit, retry,
+metrics and uncertain-COMMIT behavior remain. New real pending-query cases prove
+that unawaited SQL completes before confirmed commit and failed pending SQL rolls
+back preceding writes. The actual transaction suite now reports24 passing checks.
+
+The original benchmark baseline, two workers,50 warmup,200 transfers/worker/round,
+seven alternating rounds and-5% threshold remain unchanged. Environment metadata
+now records actual Node/architecture and server version/synchronous_commit/preload
+settings before timing. Current local median+0.5400157583078435% passes with exact
+balances/source hashes and synchronous_commit on; see
+[measurement](benchmarks/transaction-throughput-operation-2026-10-16.json). Exact
+new remote gate is still required; neither earlier negative report is overridden.
+
+CI runs the independent slow-query correctness case before throughput, and always
+runs full history after success or failure of preceding checks. Failure still fails
+the job; no continue-on-error or threshold waiver is added. This collects actual
+evidence for independent gates even while the known complete-history conflict stays
+red. Whole-chain, service and feature acceptance remain open.

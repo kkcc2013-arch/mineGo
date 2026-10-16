@@ -1408,3 +1408,42 @@ unchanged from the prior verified local result; original remote throughput failu
 remains, exact optimized CI still required. Ledger refreshed only on actual exercised
 references;190done/36in_progress/432new,total658,independently verified1. Persistent
 all658 goal active/unbudgeted; no Maven/maxCPU/new requirement/merge/deployment.
+
+
+## Whole-operation deadline and another verified negative gate (2026-10-16)
+
+5864a4a mainCI456 and battle pass, but migration18 job116881319622 again fails
+original throughput at-5.691201189980399%. Actual setup/correctness succeed;
+slow-query/history steps skipped there, never claimed remotely passed. Archive
+second negative report with source hashes. Do not dismiss it as noise or change
+the fixed baseline/workload/threshold.
+
+Use one owned-operation race against one deadline/connection abort signal, with
+checks before every continuation that may execute more work. Late checkout returns
+its lease; expired BEGIN cannot invoke a callback; late callback/SQL cannot commit
+through a returned connection. Retain unique backend tag/local server timeout,
+real metrics, retry, bounded audit/cleanup and unknown-COMMIT behavior. Two new
+actual pending-query cases verify queued SQL finishes before reported commit and
+failure rolls back preceding writes. Initial positive case incorrectly combined
+parameterized commands, which PostgreSQL rejected; correct it to one materialized
+CTE preserving actual delay+write and genuine promise observation. No assertion
+weakened or fake successful SQL. Actual transaction suite now24 passes.
+
+All18 actual suites repeat348 checks on the owned oneCPU preloaded DB;724 units/
+24Jest suites and syntax1442 pass. Actual modules/router load and workflow parses.
+Original fixed paired benchmark local+0.5400157583078435%, exact balances/hashes;
+record real Node/architecture/server/synchronous_commit=on/preload before timing.
+Only environment metadata added, no timing workload/threshold/baseline change.
+Exact new remote performance still unverified. Move independent slow-query case
+before throughput; full history runs after earlier success/failure while any
+failure still fails the job. No continue-on-error or waiver.
+
+Read all845 original REQ348 lines and actual mounted router/advisor/canonical schema;
+reopen legacy done without changing10 criteria/80/95percent/<500ms. Existing V1
+UUID instances/cp/caught_at/species metadata and per-species candy conflict with
+shadow columns/global candy; existing UUID teams/arrays/max6 must not be replaced.
+Mounted module loads do not prove broken data queries or fixed300-capacity behavior
+work. Carry actual owner/protection/confirmed atomic transfer/cache/prefs/sort/group/
+capacity/UI/mobile/performance and data-preserving upgrade acceptance forward.
+No new requirement or fake backfill. Inventory189done/37in_progress/432new,total658,
+independently verified1. Persistent all658 active; no Maven/maxCPU/merge/deployment.

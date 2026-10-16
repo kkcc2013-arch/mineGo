@@ -27,6 +27,7 @@ const median=values=>[...values].sort((a,b)=>a-b)[Math.floor(values.length/2)];
     });}));return {milliseconds:performance.now()-start,transactions:count*concurrency};
   };
   try{
+    const environment={node:process.version,platform:process.platform,architecture:process.arch,database:(await pool.query("SELECT current_setting('server_version') AS version,current_setting('synchronous_commit') AS synchronous_commit,current_setting('shared_preload_libraries') AS shared_preload_libraries")).rows[0]};
     await pool.query(await fs.readFile(path.join(root,'database/migrations/V1__initial_schema.sql'),'utf8'));
     for(const [i,pair]of owners.entries())for(const [j,id]of pair.entries())await pool.query('INSERT INTO users(id,nickname,stardust) VALUES($1,$2,1000000)',[id,`benchmark-${i}-${j}`]);
     await run(legacy,warmup);await run(current,warmup);const results=[];
@@ -38,7 +39,7 @@ const median=values=>[...values].sort((a,b)=>a-b)[Math.floor(values.length/2)];
     const moved=2*(warmup+rounds*iterations);
     for(const [from,to]of owners){assert.equal((await pool.query('SELECT stardust FROM users WHERE id=$1',[from])).rows[0].stardust,1000000-moved);assert.equal((await pool.query('SELECT stardust FROM users WHERE id=$1',[to])).rows[0].stardust,1000000+moved);}
     assert.deepEqual(await digest(),currentSourceSha256,'Measured sources changed during the run');
-    const changePercent=median(results.map(r=>r.changePercent));const report={currentSourceSha256,baselineCommit,baselineSourceSha256:crypto.createHash('sha256').update(source).digest('hex'),method:'Alternating paired rounds; median paired throughput change; exact same V1 resource transfer and owned pool; both default metrics enabled',concurrency,iterationsPerWorker:iterations,rounds,warmupPerWorker:warmup,results,medianChangePercent:changePercent,requiredMinimumChangePercent:-5,dataIntegrity:'all resource deltas exact',passed:changePercent>=-5};
+    const changePercent=median(results.map(r=>r.changePercent));const report={environment,currentSourceSha256,baselineCommit,baselineSourceSha256:crypto.createHash('sha256').update(source).digest('hex'),method:'Alternating paired rounds; median paired throughput change; exact same V1 resource transfer and owned pool; both default metrics enabled',concurrency,iterationsPerWorker:iterations,rounds,warmupPerWorker:warmup,results,medianChangePercent:changePercent,requiredMinimumChangePercent:-5,dataIntegrity:'all resource deltas exact',passed:changePercent>=-5};
     console.log(JSON.stringify(report,null,2));if(!report.passed)process.exitCode=1;
   }finally{await pool.end();await admin.query(`DROP SCHEMA ${schema} CASCADE`);await admin.end();}
 })().catch(e=>{console.error(e.message);process.exitCode=1;});

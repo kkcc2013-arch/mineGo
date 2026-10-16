@@ -52,6 +52,23 @@ test('actual production transaction ownership, isolation, contention and cleanup
     await t.test('caught SQL errors cannot turn PostgreSQL implicit rollback into a successful result',async()=>{
       const before=await xp();await assert.rejects(manager.execute(async c=>{await c.query('UPDATE users SET xp=xp+10 WHERE id=$1',[a]);try{await c.query('UPDATE users SET stardust=-1 WHERE id=$1',[a]);}catch{}return 'not committed';}),{code:'25P02'});assert.equal(await xp(),before);
     });
+    await t.test('unawaited in-flight SQL completes before the owned transaction reports a commit',async()=>{
+      const before=await xp();let finished=false;
+      const result=await manager.execute(c=>{
+        c.query('WITH delay AS MATERIALIZED (SELECT pg_sleep(0.02)) UPDATE users SET xp=xp+1 FROM delay WHERE id=$1',[a]).then(()=>{finished=true;},()=>{});
+        return 'queued result';
+      });
+      assert.equal(result,'queued result');assert.equal(finished,true);assert.equal(await xp(),before+1);
+    });
+    await t.test('unawaited pending SQL failure rolls back previous writes and cannot report success',async()=>{
+      const before=await xp();
+      await assert.rejects(manager.execute(async c=>{
+        await c.query('UPDATE users SET xp=xp+10 WHERE id=$1',[a]);
+        c.query('UPDATE users SET stardust=-1 WHERE id=$1',[a]);
+        return 'not committed';
+      }),{code:'23514'});
+      assert.equal(await xp(),before);assert.equal(manager.getActiveTransactionCount(),0);
+    });
     await t.test('JavaScript deadline rolls back and prevents late writes after the same client is reused',async()=>{
       const before=await xp();let late;
       await assert.rejects(manager.execute(async c=>{await c.query('UPDATE users SET xp=xp+100 WHERE id=$1',[a]);await delay(100);try{await c.query('UPDATE users SET xp=xp+1000 WHERE id=$1',[a]);}catch(e){late=e;throw e;}},{timeout:30}),{code:'57014'});

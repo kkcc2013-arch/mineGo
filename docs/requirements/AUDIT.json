@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 190,
-      "in_progress": 36,
+      "done": 189,
+      "in_progress": 37,
       "new": 432
     },
     "priorityCounts": {
@@ -2950,7 +2950,7 @@
       "category": "数据库/数据治理",
       "modules": "backend/shared/db.js、catch-service、gym-service、payment-service、social-service",
       "createdAt": "2026-06-11 00:20",
-      "sha256": "4e19c9a9e91636622b16912dbe8ed8259f809b095e16f6ff1e048eef37a4e315",
+      "sha256": "734c90db912b0b7563240f9b1e2cb69746d74c1d3b39d2aa3cc25a21d1597b67",
       "acceptance": [
         "- [ ] `transaction()` 支持 3 种隔离级别配置",
         "- [ ] 死锁发生时自动重试，最多重试 3 次",
@@ -9957,11 +9957,11 @@
       "id": "REQ-00348",
       "title": "REQ-00348: 精灵背包智能整理与自动分类系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "功能增强",
       "modules": "pokemon-service、user-service、gateway、game-client、database/migrations",
       "createdAt": "2026-06-27 06:00 UTC",
-      "sha256": "6d5700b20abd6deba2f2fd81985423db218a88184d9bb913ef03efeb8f235400",
+      "sha256": "b0ac54e76c9865d5d27cf6d66840aaeef3634a66b8b5be993b54510ff475deb0",
       "acceptance": [
         "- [ ] 用户可以通过多种维度（战斗力、CP、时间、类型、稀有度等）对精灵进行排序",
         "- [ ] 用户可以按类型、用途、稀有度等维度对精灵进行分组展示",
@@ -9974,7 +9974,7 @@
         "- [ ] 前端 UI 提供直观的整理控制面板",
         "- [ ] 移动端适配，支持手势滑动操作"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "audited_incomplete",
       "implementationReferences": [
         "backend/services/pokemon-service/src/index.js",
         "backend/services/pokemon-service/src/inventory/InventorySorter.js",

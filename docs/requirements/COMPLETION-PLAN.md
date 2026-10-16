@@ -3,7 +3,7 @@
 Updated: 2026-10-16. Scope: all 658 existing requirement documents in INDEX.md,
 including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 432 new, 36 in progress;190 declared done, including one independently verified framework. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 432 new, 37 in progress;189 declared done, including one independently verified framework. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -552,3 +552,26 @@ and qualifying foreign-database negative case. Actual7 repeats pass; no reset or
 weakened assertion. Prior original throughput CI failure remains recorded, optimized
 exact-source remote verification still required. Continue publication, inventory
 canonical contracts and all original stages; persistent all658 goal active.
+
+
+### Whole-operation deadline optimization (2026-10-16)
+
+Second exact-source remote throughput5864a4a still fails-5.691201189980399%.
+Preserve failure. Use one whole-operation deadline/connection abort race with
+continuation guards; actual pending-SQL success/failure cases expand transaction
+storage to24. Same fixed benchmark local+0.5400157583078435% passes, environment
+recorded with synchronous_commit on. Exact new remote performance remains required;
+no threshold/workload/baseline change. Independent slow-query check now precedes
+throughput and full history executes after prior failure without waiving any gate.
+Full inventory-schema conflict and all original goal stages remain open.
+
+
+### Inventory audit carried forward (2026-10-16)
+
+Read full845-line REQ-00348; reopen legacy done with original10 conditions and
+80%/95%/<500ms unchanged. Actual current schema/failed full-chain and mounted
+source show incompatible instance/species fields, UUID team identity/arrays and
+per-species candy resource contracts, plus fixed capacity. Module loads but that
+is not HTTP/feature acceptance. Continue actual canonical reconciliation without
+shadow metadata or inventing historical resource attribution. Inventory189done/
+37in_progress/432new,total658,verified1; all original goal stages remain active.

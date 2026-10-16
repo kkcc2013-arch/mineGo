@@ -65,65 +65,105 @@ class TransactionManager{
     }}finally{if(o.enableMetrics)record(()=>metrics.duration.observe(labels,(performance.now()-started)/1000));}
   }
   async _executeWithTimeout(fn,o,deadline){
-    let client,timer,onClientError,onClientEnd,closed=false,timedOut=false,controlInFlight=0,commitStarted=false,begun=false,destroy=false;
-    const queries=new Set(),id='minego-tx-'+randomUUID(),startTime=Date.now(),start=performance.now(),labels={service:this.service,isolation_level:o.isolationLevel};
-    // Build the stack-bearing deadline error only on failure, not every committed operation.
-    let expired;const expiry=()=>expired||(expired=timeoutError(o.timeout));
+    let client,timer,onClientError,onClientEnd;
+    let closed=false,aborted=false,timedOut=false,controlInFlight=0,commitStarted=false,begun=false,destroy=false;
+    const queries=new Set(),id='minego-tx-'+randomUUID(),startTime=Date.now();
+    const labels={service:this.service,isolation_level:o.isolationLevel};
+    let expired;
+    const expiry=()=>expired||(expired=timeoutError(o.timeout));
     const remaining=()=>Math.max(0,deadline-performance.now());
-    if(remaining()<=0)throw expiry();
-    const deadlineFailure=new Promise((_,reject)=>{timer=setTimeout(()=>{timedOut=true;closed=true;reject(expiry());},remaining());});
-    let rejectConnection;const connectionFailure=new Promise((_,reject)=>rejectConnection=reject);
-    const timeout=Promise.race([deadlineFailure,connectionFailure]);timeout.catch(()=>{});
-    const checkout=Promise.resolve().then(()=>this.pool.connect());
+    const ensureActive=()=>{if(aborted||remaining()<=0)throw expiry();};
+    ensureActive();
+
+    // One operation races one abort signal. Every continuation checks ownership
+    // before starting more work, including a checkout that completes after expiry.
+    let rejectAbort;
+    const abortSignal=new Promise((_,reject)=>{rejectAbort=reject;});
+    const abort=error=>{aborted=true;closed=true;rejectAbort(error);};
+    timer=setTimeout(()=>{timedOut=true;abort(expiry());},remaining());
     const control=async text=>{controlInFlight++;try{return await client.query(text);}finally{controlInFlight--;}};
-    const activate=delta=>{activeByService.set(this.service,(activeByService.get(this.service)||0)+delta);if(o.enableMetrics)record(()=>metrics.active.set({service:this.service},activeByService.get(this.service)));};
-    try{
-      client=await Promise.race([checkout,timeout]);
-      onClientError=error=>{destroy=true;rejectConnection(error);};
+    const activate=delta=>{
+      activeByService.set(this.service,(activeByService.get(this.service)||0)+delta);
+      if(o.enableMetrics)record(()=>metrics.active.set({service:this.service},activeByService.get(this.service)));
+    };
+    const operation=(async()=>{
+      const candidate=await this.pool.connect();
+      if(aborted||remaining()<=0){candidate.release();throw expiry();}
+      client=candidate;
+      onClientError=error=>{destroy=true;abort(error);};
       onClientEnd=()=>client.removeListener('error',onClientError);
       if(typeof client.on==='function'){client.on('error',onClientError);client.once('end',onClientEnd);}
-      this.activeTransactions.set(id,{name:o.transactionName,isolationLevel:o.isolationLevel,startTime});activate(1);
-      if(o.enableMetrics)record(()=>{metrics.attempts.inc(labels);if(o.retryIndex>0){metrics.retries.inc(labels);metrics.legacyRetries.inc(labels);}});
-      // Validated constants permit one simple-protocol round trip for BEGIN and SET LOCAL.
+      this.activeTransactions.set(id,{name:o.transactionName,isolationLevel:o.isolationLevel,startTime});
+      activate(1);
+      if(o.enableMetrics)record(()=>{
+        metrics.attempts.inc(labels);
+        if(o.retryIndex>0){metrics.retries.inc(labels);metrics.legacyRetries.inc(labels);}
+      });
+      ensureActive();
       begun=true;
-      await Promise.race([control(`BEGIN ISOLATION LEVEL ${o.isolationLevel}; SET LOCAL statement_timeout='${Math.max(1,Math.floor(remaining()))}ms'; SET LOCAL application_name='${id}'`),timeout]);
+      await control(`BEGIN ISOLATION LEVEL ${o.isolationLevel}; SET LOCAL statement_timeout='${Math.max(1,Math.floor(remaining()))}ms'; SET LOCAL application_name='${id}'`);
+      ensureActive();
       const managed={processID:client.processID,query:(...args)=>{
         if(closed||remaining()<=0){const rejected=Promise.reject(expiry());rejected.catch(()=>{});return rejected;}
         if(args.some(a=>typeof a==='function'))throw new TypeError('Managed queries must use promises');
         rejectTransactionControl(args);
-        const promise=client.query(...args);queries.add(promise);promise.then(()=>queries.delete(promise),()=>queries.delete(promise));return promise;
+        const promise=client.query(...args);
+        queries.add(promise);
+        promise.then(()=>queries.delete(promise),()=>queries.delete(promise));
+        return promise;
       }};
-      const work=Promise.resolve().then(()=>fn(managed));work.catch(()=>{});
-      const result=await Promise.race([work,timeout]);closed=true;
-      if(queries.size)await Promise.race([Promise.all([...queries]),timeout]);
-      if(remaining()<=0)throw expiry();
-      commitStarted=true;
-      const committed=await Promise.race([control('COMMIT'),timeout]);
-      if(committed.command!=='COMMIT'){const error=new Error('Transaction was aborted instead of committed');error.code='25P02';throw error;}
-      begun=false;return result;
-    }catch(error){
+      const result=await fn(managed);
       closed=true;
-      if(commitStarted && error && !['40P01','40001','25P02'].includes(error.code) && (error===expired || error.severity!=='ERROR')){error.commitOutcomeUnknown=true;destroy=true;}
-      if(timedOut&&(controlInFlight>0||queries.size>0)){destroy=true;if(commitStarted)error.commitOutcomeUnknown=true;}
-      else if(client&&begun){
+      if(queries.size)await Promise.all([...queries]);
+      ensureActive();
+      commitStarted=true;
+      const committed=await control('COMMIT');
+      if(committed.command!=='COMMIT'){
+        const error=new Error('Transaction was aborted instead of committed');
+        error.code='25P02';throw error;
+      }
+      begun=false;
+      return result;
+    })();
+    // A callback or queued query may finish after an abort; observe its rejection.
+    operation.catch(()=>{});
+    try{
+      return await Promise.race([operation,abortSignal]);
+    }catch(error){
+      aborted=true;closed=true;
+      if(commitStarted && error && !['40P01','40001','25P02'].includes(error.code) && (error===expired || error.severity!=='ERROR')){
+        error.commitOutcomeUnknown=true;destroy=true;
+      }
+      if(timedOut&&(controlInFlight>0||queries.size>0)){
+        destroy=true;if(commitStarted)error.commitOutcomeUnknown=true;
+      }else if(client&&begun){
         let cleanupTimer;
-        try{await Promise.race([control('ROLLBACK'),new Promise((_,reject)=>{cleanupTimer=setTimeout(()=>reject(new Error('Rollback cleanup timeout')),this.config.cleanupTimeout);})]);}
-        catch{destroy=true;}finally{clearTimeout(cleanupTimer);}
+        try{
+          await Promise.race([control('ROLLBACK'),new Promise((_,reject)=>{
+            cleanupTimer=setTimeout(()=>reject(new Error('Rollback cleanup timeout')),this.config.cleanupTimeout);
+          })]);
+        }catch{destroy=true;}finally{clearTimeout(cleanupTimer);}
       }
       throw error;
     }finally{
       closed=true;clearTimeout(timer);
       if(client){
         this.activeTransactions.delete(id);activate(-1);
-        if(!destroy&&typeof client.removeListener==='function'){client.removeListener('error',onClientError);client.removeListener('end',onClientEnd);}
+        if(!destroy&&typeof client.removeListener==='function'){
+          client.removeListener('error',onClientError);client.removeListener('end',onClientEnd);
+        }
         client.release(destroy);
         if(destroy&&timedOut){
           let cancelTimer;
-          try{await Promise.race([this.pool.query('SELECT pg_cancel_backend(pid) FROM pg_stat_activity WHERE pid=$1 AND application_name=$2 AND usename=current_user AND datname=current_database()',[client.processID,id]),new Promise((_,reject)=>{cancelTimer=setTimeout(()=>reject(new Error('Owned cancellation timeout')),this.config.cleanupTimeout);})]);}
-          catch{logger.error({event:'owned_transaction_cancel_failed'},'Could not confirm owned transaction cancellation');}finally{clearTimeout(cancelTimer);}
+          try{
+            await Promise.race([
+              this.pool.query('SELECT pg_cancel_backend(pid) FROM pg_stat_activity WHERE pid=$1 AND application_name=$2 AND usename=current_user AND datname=current_database()',[client.processID,id]),
+              new Promise((_,reject)=>{cancelTimer=setTimeout(()=>reject(new Error('Owned cancellation timeout')),this.config.cleanupTimeout);})
+            ]);
+          }catch{logger.error({event:'owned_transaction_cancel_failed'},'Could not confirm owned transaction cancellation');}
+          finally{clearTimeout(cancelTimer);}
         }
       }
-      else checkout.then(late=>late.release(),()=>{});
     }
   }
   async _logDeadlockEvent(error,name,retry,context,deadline){
