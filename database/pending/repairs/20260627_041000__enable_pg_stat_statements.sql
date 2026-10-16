@@ -70,21 +70,22 @@ RETURNS TABLE (
 ) AS $$
 BEGIN
     RETURN QUERY
-    SELECT 
+    SELECT
         s.queryid,
         s.query,
         s.calls,
         s.mean_exec_time,
         s.total_exec_time,
-        CASE 
-            WHEN s.query LIKE '%WHERE%' AND s.mean_exec_time > threshold_ms * 2 
+        CASE
+            WHEN s.query LIKE '%WHERE%' AND s.mean_exec_time > threshold_ms * 2
             THEN 'Consider adding index on WHERE clause columns'
-            WHEN s.rows > 10000 
+            WHEN s.rows > 10000
             THEN 'Consider adding LIMIT or pagination'
             ELSE 'Review query structure'
         END as optimization_hint
     FROM pg_stat_statements s
-    WHERE s.mean_exec_time > threshold_ms
+    WHERE s.dbid = (SELECT oid FROM pg_database WHERE datname = current_database())
+      AND s.mean_exec_time > threshold_ms
     ORDER BY s.total_exec_time DESC
     LIMIT 50;
 END;
@@ -92,7 +93,7 @@ $$ LANGUAGE plpgsql;
 
 -- 创建自动分析视图
 CREATE OR REPLACE VIEW v_index_usage_summary AS
-SELECT 
+SELECT
     schemaname,
     relname as table_name,
     COUNT(*) as total_indexes,
@@ -113,7 +114,7 @@ BEGIN
         query_id, query_text, mean_time_ms, total_time_ms,
         calls, rows_returned, shared_blks_hit, shared_blks_read
     )
-    SELECT 
+    SELECT
         queryid,
         query,
         mean_exec_time,
@@ -123,14 +124,15 @@ BEGIN
         shared_blks_hit,
         shared_blks_read
     FROM pg_stat_statements
-    WHERE mean_exec_time > threshold_ms;
-    
+    WHERE dbid = (SELECT oid FROM pg_database WHERE datname = current_database())
+      AND mean_exec_time > threshold_ms;
+
     GET DIAGNOSTICS inserted_count = ROW_COUNT;
-    
+
     -- 清理 30 天前的历史数据
-    DELETE FROM slow_query_history 
+    DELETE FROM slow_query_history
     WHERE recorded_at < CURRENT_TIMESTAMP - INTERVAL '30 days';
-    
+
     RETURN inserted_count;
 END;
 $$ LANGUAGE plpgsql;

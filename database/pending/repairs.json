@@ -149,7 +149,7 @@
     "20260627_041000": {
       "sourceSha256": "3178a37c69af0278a822cf2764bf91331e5899bc2f9a8f81d458cb45e15e2da5",
       "file": "repairs/20260627_041000__enable_pg_stat_statements.sql",
-      "reason": "Use NUMERIC for two-argument round while retaining two decimal places and index-usage semantics. Bind actual PostgreSQL15 pg_stat_statements mean_exec_time/total_exec_time in both existing SQL helpers without changing function signatures, table identities, original rows or raw migration checksum. Full collector/API/monitoring/history and operational acceptance remain separate."
+      "reason": "Use NUMERIC for two-argument round while retaining two decimal places and index-usage semantics. Bind actual PostgreSQL15 mean_exec_time/total_exec_time in both existing SQL helpers and scope collection/reporting to current database. Preserve function signatures, table identities, old data and raw migration checksum; unrelated databases must not enter reports/history. Full collector/API/monitoring/history and operational acceptance remain separate."
     }
   }
 }

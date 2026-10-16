@@ -1,6 +1,6 @@
 # mineGo requirement completion plan
 
-Updated: 2026-10-15. Scope: all 658 existing requirement documents in INDEX.md,
+Updated: 2026-10-16. Scope: all 658 existing requirement documents in INDEX.md,
 including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
 Current declarations: 52 P0, 565 P1 and 41 P2; 432 new, 36 in progress;190 declared done, including one independently verified framework. These counts
@@ -542,3 +542,13 @@ all original10 criteria remain open. Next align canonical inventory fields and U
 ownership while preserving actual Pokémon/candy/team contracts, alongside original
 P0 billing/provider/idempotency/minor/lifecycle priorities. Inventory190done/36in_progress/
 432new,total658,independently accepted1. All original stages continue.
+
+
+### Database scope repeat (2026-10-16)
+
+A real repeated slow-query probe exposed global historical/top50 interference.
+Both SQL helpers now filter current database, with an owned fresh-database fixture
+and qualifying foreign-database negative case. Actual7 repeats pass; no reset or
+weakened assertion. Prior original throughput CI failure remains recorded, optimized
+exact-source remote verification still required. Continue publication, inventory
+canonical contracts and all original stages; persistent all658 goal active.

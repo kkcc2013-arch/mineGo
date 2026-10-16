@@ -1380,3 +1380,31 @@ idempotency/minor/lifecycle and all original stages. Latest remote optimized-sou
 performance pending; no fabricated pass. Ledger hashes current, inventory190done/
 36in_progress/432new,total658,independently verified1. Persistent goal active, no
 new requirement/Maven/CPU saturation/production migration/merge/deployment.
+
+
+## Repeated slow-query scope finding and actual isolation (2026-10-16)
+
+Previous goal turn made concrete progress: transaction and framework commits were
+published, one framework independently accepted, and exact remote performance
+failure recorded. The subsequent SQL/optimization batch83e3381 remained unpublished.
+Final whitespace check failed on inherited raw SQL trailing spaces; an unguarded
+multiline shell continued into an own commit. Correct repair whitespace and guard
+subsequent mutations on successful checked subprocesses before publication; no raw
+history rewrite. Repeated7-case check then exposed a real missing live probe in
+shared historical top50, so do not treat the first pass as final source acceptance.
+
+Both SQL helpers now constrain current_database. The fixture owns and drops a fresh
+database rather than competing with earlier schemas, and executes a real qualifying
+foreign-database slow query to prove it enters neither analysis nor history. Current
+probe still captured through actual extension/helper/snapshot. Final7 pass (including
+parent), repeated without global resets or weakened assertions.1442 syntax checks
+pass; exact full V1/V2 passes and85 unchanged-source history still fails inventory
+20260627_060000 statement13 missing is_deleted, pending transaction rolls back.
+
+Host state showed owned test containers stopped and no active test process; restarted
+only the owned preloaded PostGIS oneCPU/512MiB and verified actual settings/readiness.
+Unrelated gateway untouched. Transaction optimized sources/paired benchmark hashes
+unchanged from the prior verified local result; original remote throughput failure
+remains, exact optimized CI still required. Ledger refreshed only on actual exercised
+references;190done/36in_progress/432new,total658,independently verified1. Persistent
+all658 goal active/unbudgeted; no Maven/maxCPU/new requirement/merge/deployment.

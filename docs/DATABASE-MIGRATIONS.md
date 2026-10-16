@@ -193,3 +193,11 @@ Latest V1/V2 passes; full history now fails20260627_060000 statement13 is_delete
 missing and rolls back. Earlier round/header failures above are source history.
 The existing30/90-day policy difference and all JS/API/monitoring/operations remain
 open. See SLOW-QUERIES.md. Whole chain and REQ-00077 are not accepted.
+
+
+2026-10-16 repeat: SQL helpers now scope actual statistics to current database;
+owned fresh-database fixture prevents unrelated historical top50 competition and
+proves a qualifying second-database query is excluded. Actual7 pass without global
+statistics reset. Repair-only inherited trailing whitespace is removed; original
+raw SQL and signatures/data remain unchanged. Whole-history inventory boundary
+remains20260627_060000 stmt13 missing is_deleted; full acceptance stays open.

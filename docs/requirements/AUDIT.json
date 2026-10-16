@@ -2365,7 +2365,7 @@
       "category": "数据库/数据治理",
       "modules": "database/migrations、所有微服务、backend/shared、infrastructure/k8s",
       "createdAt": "2026-06-10 10:30",
-      "sha256": "e09f4e7d3a1def964169755c5636cd1c997dca70617567cf330f28dc2e361e86",
+      "sha256": "5c21e2739e9f27ec2e053126b8f691149e4d31503f5cecd495aba629a5083e8c",
       "acceptance": [
         "- [ ] 慢查询采集器成功采集超过阈值的查询",
         "- [ ] 查询执行计划分析器正确识别全表扫描",

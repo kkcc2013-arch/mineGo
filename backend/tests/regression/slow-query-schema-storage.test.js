@@ -11,17 +11,22 @@ const root=path.resolve(__dirname,'../../..');
 test('actual PostgreSQL15 slow-query migration and live statement helpers',async t=>{
   assert.ok(process.env.TEST_DATABASE_URL,'TEST_DATABASE_URL must identify isolated PostGIS with pg_stat_statements preloaded');
   const admin=new Pool({connectionString:process.env.TEST_DATABASE_URL,max:1});
-  const schema='slow_schema_'+crypto.randomBytes(8).toString('hex');
-  await admin.query('CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public');
-  assert.match((await admin.query('SHOW shared_preload_libraries')).rows[0].shared_preload_libraries,/pg_stat_statements/);
-  await admin.query(`CREATE SCHEMA ${schema}`);
-  const pool=new Pool({connectionString:process.env.TEST_DATABASE_URL,max:1,options:`-c search_path=${schema},public`});
-  const apply=async text=>{const c=await pool.connect();try{await c.query('BEGIN');for(const sql of migrationStatements(text))await c.query(sql);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}};
-  const read=file=>fs.readFile(path.join(root,'database/pending',file),'utf8');
-  const raw=await read('20260627_041000__enable_pg_stat_statements.sql');
-  const repair=await read('repairs/20260627_041000__enable_pg_stat_statements.sql');
-  const identities=async()=> (await pool.query("SELECT relname,oid FROM pg_class WHERE relnamespace=current_schema()::regnamespace AND relname IN('slow_query_history','index_suggestions','query_performance_baseline','slow_query_history_id_seq') ORDER BY relname")).rows;
+  const suffix=crypto.randomBytes(8).toString('hex');
+  const schema='slow_schema_'+suffix,database='slow_db_'+suffix,foreignSchema='slow_foreign_'+suffix;
+  let pool;
   try{
+    assert.match((await admin.query('SHOW shared_preload_libraries')).rows[0].shared_preload_libraries,/pg_stat_statements/);
+    await admin.query('CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public');
+    await admin.query(`CREATE DATABASE ${database} TEMPLATE template0`);
+    const fixtureURL=new URL(process.env.TEST_DATABASE_URL);fixtureURL.pathname='/'+database;
+    pool=new Pool({connectionString:fixtureURL.toString(),max:1,options:`-c search_path=${schema},public`});
+    await pool.query('CREATE EXTENSION pg_stat_statements WITH SCHEMA public');
+    await pool.query(`CREATE SCHEMA ${schema}`);
+    const apply=async text=>{const c=await pool.connect();try{await c.query('BEGIN');for(const sql of migrationStatements(text))await c.query(sql);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}};
+    const read=file=>fs.readFile(path.join(root,'database/pending',file),'utf8');
+    const raw=await read('20260627_041000__enable_pg_stat_statements.sql');
+    const repair=await read('repairs/20260627_041000__enable_pg_stat_statements.sql');
+    const identities=async()=> (await pool.query("SELECT relname,oid FROM pg_class WHERE relnamespace=current_schema()::regnamespace AND relname IN('slow_query_history','index_suggestions','query_performance_baseline','slow_query_history_id_seq') ORDER BY relname")).rows;
     await apply(await read('repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql'));
     await pool.query("INSERT INTO slow_query_history(query_id,query_text,mean_time_ms,calls) VALUES(77,'historical preserved',123.456,9)");
     await pool.query("INSERT INTO index_suggestions(table_name,column_name,suggested_sql) VALUES('old_table','old_column','historical suggestion')");
@@ -46,14 +51,23 @@ test('actual PostgreSQL15 slow-query migration and live statement helpers',async
       const rows=(await pool.query('SELECT * FROM v_index_usage_summary WHERE schemaname=current_schema()')).rows;assert.ok(rows.length>0);
       for(const row of rows){assert.equal(Number(row.total_indexes),Number(row.used_indexes)+Number(row.unused_indexes));assert.equal(row.usage_ratio,(Number(row.used_indexes)/Number(row.total_indexes)*100).toFixed(2));}
     });
-    await t.test('helpers use real PostgreSQL15 execution statistics, not fabricated statement rows',async()=>{
+    await t.test('helpers use actual current-database execution statistics and exclude another database',async()=>{
+      await admin.query(`CREATE SCHEMA ${foreignSchema}`);
+      await admin.query(`CREATE TABLE ${foreignSchema}.foreign_slow_probe(id integer PRIMARY KEY)`);
+      await admin.query(`INSERT INTO ${foreignSchema}.foreign_slow_probe VALUES(1)`);
+      await admin.query(`SELECT count(*) FROM ${foreignSchema}.foreign_slow_probe CROSS JOIN pg_sleep(0.05)`);
+      const foreign=(await admin.query('SELECT queryid,mean_exec_time FROM public.pg_stat_statements WHERE dbid=(SELECT oid FROM pg_database WHERE datname=current_database()) AND query LIKE $1',[`SELECT count(*) FROM ${foreignSchema}.foreign_slow_probe%`])).rows;
+      assert.equal(foreign.length,1);assert.ok(foreign[0].mean_exec_time>=1,'Foreign slow query must qualify before testing its exclusion');
       await pool.query('CREATE TABLE live_slow_probe(id integer PRIMARY KEY)');await pool.query('INSERT INTO live_slow_probe VALUES(1)');
       await pool.query(`SELECT count(*) FROM ${schema}.live_slow_probe CROSS JOIN pg_sleep(0.015)`);
       const observed=(await pool.query('SELECT queryid,mean_exec_time,total_exec_time,calls FROM public.pg_stat_statements WHERE dbid=(SELECT oid FROM pg_database WHERE datname=current_database()) AND query LIKE $1',[`SELECT count(*) FROM ${schema}.live_slow_probe%`])).rows;
       assert.equal(observed.length,1);assert.ok(observed[0].mean_exec_time>=1);assert.ok(Number(observed[0].calls)>=1);
-      const analyzed=(await pool.query('SELECT * FROM analyze_slow_queries(1)')).rows.find(row=>row.query_id===observed[0].queryid);assert.ok(analyzed);assert.equal(analyzed.mean_time,observed[0].mean_exec_time);assert.equal(analyzed.total_time,observed[0].total_exec_time);
+      const analysis=(await pool.query('SELECT * FROM analyze_slow_queries(1)')).rows;
+      assert.ok(analysis.every(row=>row.query_id!==foreign[0].queryid),'Current database report must not contain another database statement');
+      const analyzed=analysis.find(row=>row.query_id===observed[0].queryid);assert.ok(analyzed);assert.equal(analyzed.mean_time,observed[0].mean_exec_time);assert.equal(analyzed.total_time,observed[0].total_exec_time);
       const snap=(await pool.query('SELECT snapshot_slow_queries(1) AS inserted')).rows[0].inserted;assert.ok(snap>=1);
       const saved=(await pool.query('SELECT * FROM slow_query_history WHERE query_id=$1',[observed[0].queryid])).rows;assert.ok(saved.length>=1);assert.equal(saved[0].mean_time_ms,observed[0].mean_exec_time);assert.equal(saved[0].calls,observed[0].calls);
+      assert.equal((await pool.query('SELECT 1 FROM slow_query_history WHERE query_id=$1',[foreign[0].queryid])).rowCount,0);
     });
     await t.test('retained snapshot cutoff remains30 days and does not remove newer history',async()=>{
       await pool.query("INSERT INTO slow_query_history(query_id,query_text,recorded_at) VALUES(900001,'old',now()-interval '31 days'),(900002,'recent',now()-interval '29 days')");
@@ -64,5 +78,8 @@ test('actual PostgreSQL15 slow-query migration and live statement helpers',async
       const data=(await pool.query('SELECT * FROM slow_query_history ORDER BY id')).rows;
       await apply(repair);assert.deepEqual((await pool.query("SELECT oid FROM pg_proc WHERE pronamespace=current_schema()::regnamespace AND proname IN('analyze_slow_queries','snapshot_slow_queries') ORDER BY proname")).rows,before);assert.deepEqual((await pool.query('SELECT * FROM slow_query_history ORDER BY id')).rows,data);
     });
-  }finally{await pool.end();await admin.query(`DROP SCHEMA ${schema} CASCADE`);await admin.end();}
+  }finally{
+    if(pool)await pool.end();
+    try{await admin.query(`DROP DATABASE IF EXISTS ${database}`);await admin.query(`DROP SCHEMA IF EXISTS ${foreignSchema} CASCADE`);}finally{await admin.end();}
+  }
 });
