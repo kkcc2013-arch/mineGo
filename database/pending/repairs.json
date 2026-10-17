@@ -34,7 +34,7 @@
     "20260630_040000": {
       "sourceSha256": "56caa9b41aafa64822d561c733b328a4efd8c037a4fb95ad26d2a3813e2225a7",
       "file": "repairs/20260630_040000__add_pokemon_cosmetic_system.sql",
-      "reason": "Align 3 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+      "reason": "Use all four actual UUID user/Pokemon references, including the missed pokemon_instance_id. Preserve compatible table/sequence/data/view/FK/comment identities, operator catalog prices and recorded statistics. Keep all13 original seed definitions and intended new-item gem prices; derive only observable existing owners/equipment and leave unknown historical purchases/revenue NULL. Refuse unmapped identities, invalid quantities and missing ownership/reference constraints atomically. Complete service/purchase/preset/expiry/client/metrics/coverage/upgrade/reversal acceptance remains open."
     },
     "20260707_090500": {
       "sourceSha256": "80d3ab4ea9f1e71336c2a293bb605d65e7ec2442d42b3ec16f7aa521e0120503",

@@ -214,3 +214,16 @@ migration, then fails20260630_040000 stmt13 cosmetic pokemon_instance_id FK type
 Pending batch rolls back; no skipped source/history rewrite. Complete history,
 already-applied repair upgrade, full reverse and service acceptance remain open.
 See INVENTORY-ORGANIZATION.md for actual tests and feature gaps.
+
+
+2026-10-17 cosmetic prerequisite: the existing three-reference repair missed
+pokemon_cosmetics.pokemon_instance_id. Bind all4 actual UUID references and verify
+7 FK contracts. Preserve five table/OID/row/sequence/view/FK/comment identities, all13
+seed definitions/intended new prices and existing operator prices/statistics. Derive
+only observable missing current-owner/equipment values; historical old purchase/
+revenue fields stay NULL rather than fake zero. Unknown IDs/quantities/constraints
+refuse atomically. Original85 SQL sources remain unchanged. V1/V2 passes; full history
+now passes cosmetics and fails20260630_050000 stmt2 data_deletion_tasks.request_id FK
+against the preexisting request identity. Pending batch rolls back. Full fresh/
+already-applied repair upgrades/reverse and feature acceptance remain open. COSMETICS.md
+describes actual storage/CLI evidence and all remaining runtime/client criteria.

@@ -130,7 +130,7 @@
 | [REQ-00122](REQ-00122-microservice-config-center-and-hot-reload.md) | 微服务配置中心与动态配置热更新系统 | 可扩展性/解耦 | P1 | new | gateway、所有微服务、backend/shared/config、Redis、infrastructure/k8s | 2026-06-11 18:00 |
 | [REQ-00123](REQ-00123-pokemon-service-showcase-route-mounting.md) | pokemon-service showcase 路由挂载与集成 | 集成与修复 | P0 | done | unspecified | unspecified |
 | [REQ-00124](REQ-00124-message-center-unit-test-coverage.md) | 消息中心服务单元测试覆盖 | 测试覆盖 | P1 | done | user-service、backend/services/user-service/src/routes/messageCenter.js、backend/tests/unit/ | 2026-06-11 19:10 |
-| [REQ-00125](REQ-00125-pokemon-cosmetic-customization-system.md) | 精灵外观定制系统 | 功能增强 | P1 | new | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 19:30 |
+| [REQ-00125](REQ-00125-pokemon-cosmetic-customization-system.md) | 精灵外观定制系统 | 功能增强 | P1 | in_progress | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 19:30 |
 | [REQ-00126](REQ-00126-user-service-mfa-route-mounting.md) | user-service MFA 路由挂载与集成 | 集成与修复 | P0 | done | user-service, backend/services/user-service/src/routes/mfa.js, backend/services/user-service/src/index.js | 2026-06-11 20:05 |
 | [REQ-00127](REQ-00127-user-data-deletion-requests-management.md) | 用户数据删除请求管理系统 | 合规/隐私 | P1 | new | user-service、gateway、所有微服务、database、backend/jobs | 2026-06-11 20:15 |
 | [REQ-00128](REQ-00128-social-service-pvp-route-mounting.md) | social-service PVP 路由挂载与集成 | 集成与修复 | P0 | done | social-service | 2026-06-11 21:05 |

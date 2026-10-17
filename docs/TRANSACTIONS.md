@@ -259,3 +259,10 @@ CI success. The new independent inventory prerequisite moves the local full-chai
 failure to cosmetic20260630_040000 statement13. Default caller/resource/idempotency,
 complete installation/upgrade/reversal and full feature/operations acceptance remain
 open. Unchanged measured transaction sources need no new local benchmark rerun.
+
+Exacta769b0d migration21/job117376047375 confirms inventory24 and all existing
+transaction/slow-query/TLS checks pass. Throughput again passes at-1.6979621741050943%
+with all8 measured hashes unchanged; report archived as transaction-throughput-ci-
+a769b0d-2026-10-17.json. Main459 succeeds. Full job fails old cosmetic FK; current
+local independent cosmetic repair advances full history to deletion20260630_050000
+stmt2. Full fresh/upgrade/reversal and all original full-feature acceptance stay open.

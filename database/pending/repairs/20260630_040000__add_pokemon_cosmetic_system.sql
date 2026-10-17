@@ -1,7 +1,23 @@
--- Explicit V1 UUID identity repair; original migration source stays immutable.
+-- Explicit canonical UUID/resource-history repair; original source stays immutable.
 -- REQ-00125: 精灵外观定制系统
 -- 创建时间: 2026-06-30 04:00 UTC
 -- 涉及服务: pokemon-service, user-service, reward-service
+
+DO $canonical$
+DECLARE expected record; target oid;
+BEGIN
+  IF NOT EXISTS(SELECT 1 FROM pg_attribute WHERE attrelid=to_regclass(format('%I.users',current_schema())) AND attname='id' AND atttypid='uuid'::regtype AND NOT attisdropped)
+    OR NOT EXISTS(SELECT 1 FROM pg_attribute WHERE attrelid=to_regclass(format('%I.pokemon_instances',current_schema())) AND attname='id' AND atttypid='uuid'::regtype AND NOT attisdropped) THEN
+    RAISE EXCEPTION 'Cosmetics require canonical local UUID users and Pokemon';
+  END IF;
+  FOR expected IN SELECT * FROM (VALUES('user_cosmetics','user_id'),('pokemon_cosmetics','pokemon_instance_id'),('pokemon_cosmetics','equipped_by'),('cosmetic_presets','user_id')) AS fields(relation,name) LOOP
+    target:=to_regclass(format('%I.%I',current_schema(),expected.relation));
+    IF target IS NOT NULL AND NOT EXISTS(SELECT 1 FROM pg_attribute WHERE attrelid=target AND attname=expected.name AND atttypid='uuid'::regtype AND NOT attisdropped) THEN
+      RAISE EXCEPTION 'Cosmetic %.% identity requires explicit adoption; no historical IDs will be guessed',expected.relation,expected.name;
+    END IF;
+  END LOOP;
+END
+$canonical$;
 
 -- 1. 装饰物定义表
 CREATE TABLE IF NOT EXISTS cosmetic_items (
@@ -30,9 +46,15 @@ CREATE INDEX IF NOT EXISTS idx_cosmetic_items_rarity ON cosmetic_items(rarity);
 CREATE INDEX IF NOT EXISTS idx_cosmetic_items_source ON cosmetic_items(source_type, source_id);
 CREATE INDEX IF NOT EXISTS idx_cosmetic_items_availability ON cosmetic_items(available_from, available_until);
 
-COMMENT ON TABLE cosmetic_items IS 'REQ-00125: 装饰物定义表';
-COMMENT ON COLUMN cosmetic_items.category IS '装饰物类别: hat/glasses/accessory/sticker/aura/trail';
-COMMENT ON COLUMN cosmetic_items.rarity IS '稀有度: common/uncommon/rare/epic/legendary';
+DO $comment$ BEGIN IF obj_description('cosmetic_items'::regclass,'pg_class') IS NULL THEN
+  COMMENT ON TABLE cosmetic_items IS 'REQ-00125: 装饰物定义表';
+END IF; END $comment$;
+DO $comment$ BEGIN IF col_description('cosmetic_items'::regclass,(SELECT attnum FROM pg_attribute WHERE attrelid='cosmetic_items'::regclass AND attname='category' AND NOT attisdropped)) IS NULL THEN
+  COMMENT ON COLUMN cosmetic_items.category IS '装饰物类别: hat/glasses/accessory/sticker/aura/trail';
+END IF; END $comment$;
+DO $comment$ BEGIN IF col_description('cosmetic_items'::regclass,(SELECT attnum FROM pg_attribute WHERE attrelid='cosmetic_items'::regclass AND attname='rarity' AND NOT attisdropped)) IS NULL THEN
+  COMMENT ON COLUMN cosmetic_items.rarity IS '稀有度: common/uncommon/rare/epic/legendary';
+END IF; END $comment$;
 
 -- 2. 用户装饰物库存表
 CREATE TABLE IF NOT EXISTS user_cosmetics (
@@ -49,12 +71,14 @@ CREATE TABLE IF NOT EXISTS user_cosmetics (
 CREATE INDEX IF NOT EXISTS idx_user_cosmetics_user ON user_cosmetics(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_cosmetics_expires ON user_cosmetics(expires_at) WHERE expires_at IS NOT NULL;
 
-COMMENT ON TABLE user_cosmetics IS 'REQ-00125: 用户装饰物库存表';
+DO $comment$ BEGIN IF obj_description('user_cosmetics'::regclass,'pg_class') IS NULL THEN
+  COMMENT ON TABLE user_cosmetics IS 'REQ-00125: 用户装饰物库存表';
+END IF; END $comment$;
 
 -- 3. 精灵装备装饰物表
 CREATE TABLE IF NOT EXISTS pokemon_cosmetics (
     id SERIAL PRIMARY KEY,
-    pokemon_instance_id VARCHAR(50) NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
+    pokemon_instance_id UUID NOT NULL REFERENCES pokemon_instances(id) ON DELETE CASCADE,
     cosmetic_id VARCHAR(50) NOT NULL REFERENCES cosmetic_items(id) ON DELETE CASCADE,
     slot_position INT DEFAULT 0,            -- 装饰物槽位
     equipped_at TIMESTAMPTZ DEFAULT NOW(),
@@ -65,7 +89,9 @@ CREATE TABLE IF NOT EXISTS pokemon_cosmetics (
 CREATE INDEX IF NOT EXISTS idx_pokemon_cosmetics_pokemon ON pokemon_cosmetics(pokemon_instance_id);
 CREATE INDEX IF NOT EXISTS idx_pokemon_cosmetics_cosmetic ON pokemon_cosmetics(cosmetic_id);
 
-COMMENT ON TABLE pokemon_cosmetics IS 'REQ-00125: 精灵装备装饰物表';
+DO $comment$ BEGIN IF obj_description('pokemon_cosmetics'::regclass,'pg_class') IS NULL THEN
+  COMMENT ON TABLE pokemon_cosmetics IS 'REQ-00125: 精灵装备装饰物表';
+END IF; END $comment$;
 
 -- 4. 装饰物组合方案表（预设搭配）
 CREATE TABLE IF NOT EXISTS cosmetic_presets (
@@ -79,7 +105,9 @@ CREATE TABLE IF NOT EXISTS cosmetic_presets (
 
 CREATE INDEX IF NOT EXISTS idx_cosmetic_presets_user ON cosmetic_presets(user_id);
 
-COMMENT ON TABLE cosmetic_presets IS 'REQ-00125: 装饰物组合方案表';
+DO $comment$ BEGIN IF obj_description('cosmetic_presets'::regclass,'pg_class') IS NULL THEN
+  COMMENT ON TABLE cosmetic_presets IS 'REQ-00125: 装饰物组合方案表';
+END IF; END $comment$;
 
 -- 5. 装饰物统计表
 CREATE TABLE IF NOT EXISTS cosmetic_statistics (
@@ -92,10 +120,40 @@ CREATE TABLE IF NOT EXISTS cosmetic_statistics (
     last_updated TIMESTAMPTZ DEFAULT NOW()
 );
 
-COMMENT ON TABLE cosmetic_statistics IS 'REQ-00125: 装饰物统计表';
+DO $comment$ BEGIN IF obj_description('cosmetic_statistics'::regclass,'pg_class') IS NULL THEN
+  COMMENT ON TABLE cosmetic_statistics IS 'REQ-00125: 装饰物统计表';
+END IF; END $comment$;
+
+DO $references$
+DECLARE expected record; relation_id oid; target_id oid; source_att smallint; target_att smallint;
+BEGIN
+  FOR expected IN SELECT * FROM (VALUES
+    ('user_cosmetics','user_id','users','id','c'),('user_cosmetics','cosmetic_id','cosmetic_items','id','c'),
+    ('pokemon_cosmetics','pokemon_instance_id','pokemon_instances','id','c'),('pokemon_cosmetics','cosmetic_id','cosmetic_items','id','c'),
+    ('pokemon_cosmetics','equipped_by','users','id','a'),('cosmetic_presets','user_id','users','id','c'),
+    ('cosmetic_statistics','cosmetic_id','cosmetic_items','id','c')
+  ) AS refs(relation,source,target,target_column,on_delete) LOOP
+    relation_id:=to_regclass(format('%I.%I',current_schema(),expected.relation));
+    target_id:=to_regclass(format('%I.%I',current_schema(),expected.target));
+    SELECT attnum INTO source_att FROM pg_attribute WHERE attrelid=relation_id AND attname=expected.source AND NOT attisdropped;
+    SELECT attnum INTO target_att FROM pg_attribute WHERE attrelid=target_id AND attname=expected.target_column AND NOT attisdropped;
+    IF NOT EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid=relation_id AND contype='f' AND conkey=ARRAY[source_att] AND confrelid=target_id AND confkey=ARRAY[target_att] AND confdeltype::text=expected.on_delete AND convalidated) THEN
+      RAISE EXCEPTION 'Cosmetic %.% foreign-key contract requires explicit adoption',expected.relation,expected.source;
+    END IF;
+  END LOOP;
+END
+$references$;
 
 -- 6. 插入初始装饰物数据
-INSERT INTO cosmetic_items (id, name, description, category, rarity, icon_url, position_data, source_type, price_coins) VALUES
+DO $seed$
+DECLARE old_ids TEXT[];
+BEGIN
+  SELECT COALESCE(array_agg(id::text),'{}') INTO old_ids FROM cosmetic_items;
+  IF EXISTS(SELECT 1 FROM user_cosmetics WHERE quantity IS NULL OR quantity<0) THEN
+    RAISE EXCEPTION 'Unknown cosmetic quantities require explicit adoption';
+  END IF;
+  WITH defaults(id,name,description,category,rarity,icon_url,position_data,source_type,price_coins) AS (
+    VALUES
 -- 帽子类
 ('hat_party_hat', '{"en": "Party Hat", "zh": "派对帽", "ja": "パーティハット"}', '{"en": "A colorful party hat", "zh": "多彩的派对帽", "ja": "カラフルなパーティハット"}', 'hat', 'common', 'https://cdn.minego.com/cosmetics/hats/party_hat.png', '{"offset": [0, 15, 0], "scale": 1.0}', 'shop', 500),
 ('hat_santa_hat', '{"en": "Santa Hat", "zh": "圣诞帽", "ja": "サンタ帽"}', '{"en": "A festive Santa hat", "zh": "节日圣诞帽", "ja": "フェスティブなサンタ帽"}', 'hat', 'rare', 'https://cdn.minego.com/cosmetics/hats/santa_hat.png', '{"offset": [0, 18, 0], "scale": 1.1}', 'event', 0),
@@ -120,18 +178,23 @@ INSERT INTO cosmetic_items (id, name, description, category, rarity, icon_url, p
 -- 轨迹类
 ('trail_rainbow_trail', '{"en": "Rainbow Trail", "zh": "彩虹轨迹", "ja": "レインボートレイル"}', '{"en": "A colorful rainbow trail", "zh": "多彩的彩虹轨迹", "ja": "カラフルなレインボートレイル"}', 'trail', 'epic', 'https://cdn.minego.com/cosmetics/trails/rainbow.png', '{"offset": [0, -5, -10], "scale": 1.0}', 'shop', 1500),
 ('trail_fire_trail', '{"en": "Fire Trail", "zh": "火焰轨迹", "ja": "ファイアトレイル"}', '{"en": "A blazing fire trail", "zh": "炽热的火焰轨迹", "ja": "燃えるファイアトレイル"}', 'trail', 'rare', 'https://cdn.minego.com/cosmetics/trails/fire.png', '{"offset": [0, -5, -10], "scale": 1.0}', 'shop', 1000)
-ON CONFLICT (id) DO NOTHING;
+  )
+  INSERT INTO cosmetic_items(id,name,description,category,rarity,icon_url,position_data,source_type,price_coins,price_gems)
+  SELECT id,name::jsonb,description::jsonb,category,rarity,icon_url,position_data::jsonb,source_type,price_coins,
+    CASE WHEN rarity='legendary' AND source_type='shop' THEN 100
+         WHEN rarity='epic' AND source_type='shop' THEN 50 ELSE 0 END
+  FROM defaults ON CONFLICT(id) DO NOTHING;
 
--- 7. 初始化统计表
-INSERT INTO cosmetic_statistics (cosmetic_id, total_owned, total_equipped, total_purchased)
-SELECT id, 0, 0, 0 FROM cosmetic_items
-ON CONFLICT (cosmetic_id) DO NOTHING;
-
--- 8. 添加部分付费装饰物
-UPDATE cosmetic_items 
-SET price_gems = 100 
-WHERE rarity = 'legendary' AND source_type = 'shop';
-
-UPDATE cosmetic_items 
-SET price_gems = 50 
-WHERE rarity = 'epic' AND source_type = 'shop';
+  -- Existing purchase/revenue history cannot be inferred from an inventory snapshot.
+  -- Preserve recorded counters. For missing old records, derive only observable
+  -- current owners/equipment and leave historical purchase/revenue values NULL.
+  INSERT INTO cosmetic_statistics(cosmetic_id,total_owned,total_equipped,total_purchased,total_revenue_coins,total_revenue_gems)
+  SELECT c.id,
+    (SELECT count(DISTINCT u.user_id)::integer FROM user_cosmetics u WHERE u.cosmetic_id=c.id AND u.quantity>0 AND (u.expires_at IS NULL OR u.expires_at>=CURRENT_TIMESTAMP)),
+    (SELECT count(*)::integer FROM pokemon_cosmetics p WHERE p.cosmetic_id=c.id),
+    CASE WHEN c.id=ANY(old_ids) THEN NULL ELSE 0 END,
+    CASE WHEN c.id=ANY(old_ids) THEN NULL ELSE 0 END,
+    CASE WHEN c.id=ANY(old_ids) THEN NULL ELSE 0 END
+  FROM cosmetic_items c ON CONFLICT(cosmetic_id) DO NOTHING;
+END
+$seed$;

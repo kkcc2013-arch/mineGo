@@ -1570,3 +1570,62 @@ cosmetic20260630_040000 stmt13 remains failed; new exact-source CI pending. All2
 historical database-password findings were individually verified against their
 actual commit/file/line as test:test on localhost/127.0.0.1:5432; no values exposed.
 Provider-pattern findings still need complete assessment; no clean scan claimed.
+
+
+## Cosmetic identities, preserved pricing/history and next deletion prerequisite (2026-10-17)
+
+Classify previous turn as progress: source-bound inventory repair/24 real cases and
+source-hashed evidence publisheda769b0d. Exact migration21 job117376047375/run39025669947
+confirms new24 passes and original throughput-1.6979621741050943% passes unchanged-5%
+with all8 current measured hashes; full job fails cosmetic FKey as expected. Preserve
+this actual remote report alongside26f pass and all three older negative reports.
+
+Read full original1307-line REQ125, current SQL/repair/V1 and GUIDELINES. Actual search
+finds no production cosmetic service/router/metrics/client from embedded examples.
+Keep all15 criteria and≥90% coverage; move new toin_progress. Earlier repair changed3
+user FK types but missed VARCHAR pokemon_instance_id against UUID canonical Pokemon.
+Fix all4 references; verify actual7 FK contracts and refuse unmapped legacy identities
+without casting/fabricating old ownership. Retain five tables, existing rows/OIDs/
+views/FKs/comments/sequences,13 complete multilingual definitions/new-item prices.
+Original global gem UPDATE would overwrite operator prices; set intended gem values
+only on new seed insertion, preserving old catalog/price/position/custom metadata.
+
+Original statistics seeding would invent zero old purchases/revenue. Preserve recorded
+statistics, derive only real active distinct owners/stored equipment for missing old
+rows and leave historical counters/revenues NULL; new definitions start0. No cleanup
+or telemetry correctness claim. Compare database JSON as text to avoid silently
+rounding BIGINT revenue near64-bit limits in JS assertions. Actual V1/V2/old failures/
+rollback, every seed field against minimally UUID-corrected original, real owner/FK
+constraints, grants/presets/prices/history/comments/OIDs/sequence/view preservation,
+unknown layout rejection and actual CLI raw/execution checksums are exercised.
+New native suite enrolled in migration workflow; no mocked SQL or threshold waiver.
+
+Full V1/V2 passes; unchanged85-source history now passes cosmetics and fails next
+20260630_050000 stmt2 data_deletion_tasks.request_id FK against earlier request
+identity. Whole pending batch rolls back. Next deletion workflow prerequisite (declared P1) must preserve
+actual existing request identity/status/history rather than blindly changing IDs.
+Cosmetic APIs/service/slot concurrency/atomic presets/expiry/events/cache/metrics/
+client/assets/≥90% coverage/full purchase flow remain open; canonical users have
+coins/premium_coins, not proposal gems. Existing applied-repair upgrade/full reversal
+remain open. All658 scope retained,189done/38in_progress/431new, verified1. No Maven/
+CPU saturation/merge/deploy. Broad sequential current-source gates follow.
+
+The stronger all13-field comparison initially failed because nested owned schemas
+could not see uuid_generate_v4 installed in the first schema. Keep the full assertion
+and install actual V1 uuid-ossp/PostGIS/pgcrypto APIs in the owned fixture public
+schema before comparing independent schemas. Focused15 cases then pass; repeat the
+full21-suite gate on the final shared-extension setup. Production SQL and original
+assertions remain intact. Actual REQ127 and its older GDPR parent are declaredP1,
+not P0; they block the shared installation needed by P0 services. Keep priority
+metadata accurate and retain all original P0 work in the plan.
+
+Final current-source validation:724 unit checks/24Jest suites425,394 actual checks in21
+sequential storage/CLI suites/no skips,1446 syntax checks and actual migration module/
+workflow/new cosmetic gate parse pass. The final15 cosmetic cases retain full13-row
+seed equivalence and exact BIGINT comparison after proper shared-extension setup.
+V1/V2 passes; entire85-source history still fails deletion20260630_050000 stmt2 and
+rolls back. All15 original cosmetic criteria/≥90% and85 original SQL bytes remain
+exact. Exacta769b0d main459/inventory24/throughput-1.6979621741050943% pass; new full
+source CI remains to be observed. No new local benchmark rerun for unchanged8
+measured transaction sources. Full runtime/client/numerical/upgrade/reverse remains
+open. Current declarations189done/38in_progress/431new,total658, verified1.

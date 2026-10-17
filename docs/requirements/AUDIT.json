@@ -5,8 +5,8 @@
     "uniqueIds": 658,
     "declaredStatusCounts": {
       "done": 189,
-      "in_progress": 37,
-      "new": 432
+      "in_progress": 38,
+      "new": 431
     },
     "priorityCounts": {
       "P0": 52,
@@ -3801,11 +3801,11 @@
       "id": "REQ-00125",
       "title": "REQ-00125: 精灵外观定制系统",
       "priority": "P1",
-      "declaredStatus": "new",
+      "declaredStatus": "in_progress",
       "category": "功能增强",
       "modules": "pokemon-service、user-service、reward-service、gateway、game-client、database/migrations",
       "createdAt": "2026-06-11 19:30",
-      "sha256": "bf8d8fd4e2a4978da574b131f59a69672870dd27100657aa9ecb7bf3eef66454",
+      "sha256": "06005e08acfea08f076fc7b54ef8dcace7df4d642addb33421e55168e7b3ea53",
       "acceptance": [
         "- [ ] 数据库迁移成功执行（5 张表创建完成）",
         "- [ ] GET /pokemon/cosmetics 返回装饰物列表（支持分类、稀有度过滤）",
@@ -3823,7 +3823,7 @@
         "- [ ] 单元测试覆盖率 ≥ 90%",
         "- [ ] 集成测试验证完整购买流程"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_sql_verified_full_history_failed",
       "implementationReferences": [
         "database/pending/20260630_040000__add_pokemon_cosmetic_system.sql",
         "database/pending/repairs/20260630_040000__add_pokemon_cosmetic_system.sql"

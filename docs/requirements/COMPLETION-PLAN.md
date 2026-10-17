@@ -3,7 +3,7 @@
 Updated: 2026-10-17. Scope: all 658 existing requirement documents in INDEX.md,
 including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 432 new, 37 in progress;189 declared done, including one independently verified framework. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 431 new, 38 in progress;189 declared done, including one independently verified framework. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -28,24 +28,21 @@ independent authorized work.
 
 ## Current batch
 
-1. Preserve actual V1 audit data/IDs and business contracts while converting the real
-   table to a partition parent; prove writes, logical-ID concurrency, views and rollback.
-   This storage slice now passes23 real PostGIS checks; full REQ-00060 remains open.
-2. V1 achievement/catalog/progress bridge and actual reward transaction now pass41
-   storage/production-router checks. Continue event delivery/replay/automatic rewards,
-   all seeded resource/title contracts, management/clients and full service acceptance.
-3. Notification storage/routes/realtime/components pass35 actual storage and10 Chromium
-   checks; current published notification workflow passes. Provider/outbox/all publishers/
-   full game/performance/UI acceptance remains open. Friendship UUID identity/history now
-   passes20 real storage checks, and privacy consumer ordering passes actual CLI probes.
-4. Catch-risk storage/recorder passes34 actual cases. Special-IV/current ownership/
-   generator and equipment prerequisite contracts now pass36. Complete85-file history
-   now reaches20260627_041000 statement14 round(double precision,integer) after the explicit deadlock/currency/canonical partition/voice/move/title/quest repairs.
-   Continue modern quest transactions/grants/events/date contracts and move identity/
-   catalog/reward/gameplay/lifecycle integration, complete
-   upgrade/rollback/all-service startup, then all original P0/security/game/client/
-   performance/operations stages. Prior unit623/storage279 pass; latest title/reward/quest40 checks repeat sequentially
-   with the guarded earlier title bootstrap. Full feature/numerical acceptance remains open.
+1. Complete shared installation: the full85-source chain now reaches20260630_050000
+   statement2, where modern deletion tasks conflict with the earlier request identity.
+   Preserve canonical legacy IDs/status/history and implement actual deletion workflow
+   contracts. This P1 schema prerequisite blocks the installation used by P0 services.
+2. Inventory/cosmetic storage prerequisites have real preservation/CLI evidence;
+   actual inventory projections/confirmed protected transfers/soft-deletion consumers,
+   preferences/cache/capacity/UI and cosmetic service/routes/purchase/slots/presets/
+   expiry/client/metrics/coverage remain incomplete. Keep all original criteria.
+3. Carry all original P0 authentication/MFA/payment/idempotency/privacy/minor/anti-cheat
+   and service startup/readiness/lifecycle work forward. Continue independent local
+   work while genuine external provider/staging/device inputs are unavailable.
+4. Repair remaining legacy contract/API/integration/performance/security/operations
+   gates, meet each original numerical target and perform all658 acceptance audit.
+   Main459 and selected storage routes pass at a769b0d; full migration and other named
+   workflows do not. A partial/source-specific pass never accepts a whole feature.
 
 ## Definition of finished
 
@@ -642,3 +639,39 @@ cosmetic20260630_040000 stmt13 remains failed; new exact-source CI pending. All2
 historical database-password findings were individually verified against their
 actual commit/file/line as test:test on localhost/127.0.0.1:5432; no values exposed.
 Provider-pattern findings still need complete assessment; no clean scan claimed.
+
+
+### Cosmetic prerequisite and next deletion conflict (2026-10-17)
+
+Previous turn is concrete progress: publisheda769b0d inventory repair/24 native cases
+and actual379-suite-check evidence. Exact migration21 job117376047375 confirms new
+inventory24 and all preceding correctness steps pass; original throughput again
+passes at-1.6979621741050943%, measured8 source hashes unchanged. Full job fails
+cosmetic UUID FK as locally observed, not generally green. Remote report retained.
+
+Read full1307-line cosmetic requirement and actual raw/repair/schema; no corresponding
+production service/router/client exists. REQ125 movesnew toin_progress with all15
+criteria/≥90% unchanged. Fix missed fourth UUID reference, preserve actual catalog/
+prices/history/OIDs/views/FKs/comments/sequences and all13 initial definitions. Old
+missing purchase/revenue history stays NULL, only observable owners/equipment are
+derived. Original raw85 stays immutable. Native storage/CLI cases exercise genuine
+failures/rollback, full seed equivalence and precise BIGINT preservation. All cosmetic
+runtime/purchase/concurrency/preset/expiry/client/metrics/coverage remain open.
+
+Full seeding passes and history advances to20260630_050000 stmt2 deletion-task FK
+identity conflict. Continue that existing P1 data-deletion prerequisite/canonical
+request history, continue actual inventory runtime and all original P0/security/
+service/client/performance/operations stages. Full installation/upgrade/reverse and
+latest exact CI remain open. Current declarations189done/38in_progress/431new,total
+658; independently verified1. No scope shrink, new requirement, Maven or maxCPU.
+
+Final current-source validation:724 unit checks/24Jest suites425,394 actual checks in21
+sequential storage/CLI suites/no skips,1446 syntax checks and actual migration module/
+workflow/new cosmetic gate parse pass. The final15 cosmetic cases retain full13-row
+seed equivalence and exact BIGINT comparison after proper shared-extension setup.
+V1/V2 passes; entire85-source history still fails deletion20260630_050000 stmt2 and
+rolls back. All15 original cosmetic criteria/≥90% and85 original SQL bytes remain
+exact. Exacta769b0d main459/inventory24/throughput-1.6979621741050943% pass; new full
+source CI remains to be observed. No new local benchmark rerun for unchanged8
+measured transaction sources. Full runtime/client/numerical/upgrade/reverse remains
+open. Current declarations189done/38in_progress/431new,total658, verified1.

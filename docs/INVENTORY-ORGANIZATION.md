@@ -53,11 +53,12 @@ The small-fixture index-plan check disables sequential scans to prove index
 eligibility; it is not a response-time or production-capacity measurement. No SQL
 handler or successful database result is fabricated.
 
-The complete seeded history now passes the inventory migration and fails next at
-20260630_040000 statement13: the cosmetic pokemon_instance_id foreign key still has
-an incompatible type. The whole pending batch rolls back. The existing cosmetic
-repair missed that differently named owner reference; full upgrade/reversal and
-REQ-00007 remain open.
+The current complete seeded history passes inventory and cosmetics, then fails at
+20260630_050000 statement2: data_deletion_tasks.request_id conflicts with the earlier
+request identity. The whole pending batch rolls back. The former cosmetic boundary
+at20260630_040000 statement13 is retained in exacta769b0d CI evidence; the independent
+[cosmetic prerequisite](COSMETICS.md) fixes that reference without replacing data.
+Full installation/upgrade/reversal and REQ-00007 remain open.
 
 Inventory HTTP is still incomplete: the existing mounted router/advisor reads
 nonexistent instance/species fields and is_deleted, transfers into the wrong global
