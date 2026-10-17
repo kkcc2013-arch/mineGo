@@ -55,8 +55,8 @@ function isProtectedPath(path) {
   }
 
   // 检查是否在保护列表中
-  for (const protected of PROTECTED_PATHS) {
-    if (path.startsWith(protected)) {
+  for (const protectedPath of PROTECTED_PATHS) {
+    if (path.startsWith(protectedPath)) {
       return true;
     }
   }

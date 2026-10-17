@@ -218,3 +218,8 @@ npm run test:coverage       # 覆盖率报告
 ---
 
 ⭐ 如果这个项目对你有帮助，请给一个 Star！
+
+
+### Database migration verification
+
+Install backend dependencies first: `npm ci --prefix backend`. Run `node database/migrate.js status` or `verify` from the repository root; `up` applies pending changes and `down [retained-version]` rolls back newer versions. See [database migration execution](docs/DATABASE-MIGRATIONS.md) for transaction/lock/checksum behavior, isolated checks and the current unfinished full-history dependency. AUTO_MIGRATE remains off by default.

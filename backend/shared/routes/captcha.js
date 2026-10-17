@@ -8,11 +8,11 @@
 const express = require('express');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
-const CaptchaTrigger = require('../shared/captchaTrigger');
-const CaptchaValidator = require('../shared/captchaValidator');
-const { requireAuth, verifyAccess } = require('../shared/auth');
-const { createLogger } = require('../shared/logger');
-const { metrics } = require('../shared/metrics');
+const CaptchaTrigger = require('../captchaTrigger');
+const CaptchaValidator = require('../captchaValidator');
+const { requireAuth, verifyAccess } = require('../auth');
+const { createLogger } = require('../logger');
+const { metrics } = require('../metrics');
 
 const logger = createLogger('captcha-routes');
 

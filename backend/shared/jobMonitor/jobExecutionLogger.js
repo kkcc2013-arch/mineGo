@@ -3,6 +3,9 @@
  * REQ-00538: 任务执行状态实时监控与智能告警系统
  */
 
+
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/jobMonitor/jobExecutionLogger"), "shared/jobMonitor/jobExecutionLogger");
 const { Pool } = require('pg');
 
 class JobExecutionLogger {
@@ -49,7 +52,7 @@ class JobExecutionLogger {
 
     await this.pool.query(createTableSQL);
     this.isInitialized = true;
-    console.log('[JobExecutionLogger] Database initialized');
+    _consoleLogger.log('[JobExecutionLogger] Database initialized');
   }
 
   /**
@@ -283,7 +286,7 @@ class JobExecutionLogger {
     `;
 
     const result = await this.pool.query(sql, [cutoffDate]);
-    console.log(`[JobExecutionLogger] Cleaned up ${result.rowCount} old logs before ${cutoffDate.toISOString()}`);
+    _consoleLogger.log(`[JobExecutionLogger] Cleaned up ${result.rowCount} old logs before ${cutoffDate.toISOString()}`);
     return result.rowCount;
   }
 
@@ -316,7 +319,7 @@ class JobExecutionLogger {
    */
   async close() {
     await this.pool.end();
-    console.log('[JobExecutionLogger] Connection pool closed');
+    _consoleLogger.log('[JobExecutionLogger] Connection pool closed');
   }
 }
 

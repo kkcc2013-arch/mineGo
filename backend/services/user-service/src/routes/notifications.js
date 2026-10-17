@@ -1,235 +1,36 @@
-// backend/services/user-service/src/routes/notifications.js
 'use strict';
-
-const { Router } = require('express');
-const { query, transaction } = require('../../../../shared/db');
-const { requireAuth, AppError, successResp, errorHandler } = require('../../../../shared/auth');
-const { createLogger } = require('../../../../shared/logger');
-
-const logger = createLogger('user-service:notifications');
-const router = Router();
-
-/**
- * GET /api/notifications/preferences
- * 获取用户推送偏好
- */
-router.get('/preferences', requireAuth, async (req, res, next) => {
-  try {
-    const userId = req.user.sub;
-
-    const { rows: [prefs] } = await query(
-      `SELECT 
-        preferred_channels, 
-        notification_types, 
-        quiet_hours,
-        CASE WHEN fcm_token IS NOT NULL THEN true ELSE false END as has_fcm_token,
-        CASE WHEN apns_token IS NOT NULL THEN true ELSE false END as has_apns_token
-       FROM user_push_preferences 
-       WHERE user_id = $1`,
-      [userId]
-    );
-
-    if (!prefs) {
-      // 创建默认偏好
-      await query(
-        `INSERT INTO user_push_preferences (user_id) VALUES ($1)`,
-        [userId]
-      );
-      
-      return res.json(successResp({
-        preferredChannels: ['websocket', 'fcm', 'apns'],
-        notificationTypes: {
-          gym_raid: true,
-          friend_request: true,
-          trade_request: true,
-          reward: true,
-          system: true,
-        },
-        quietHours: { enabled: false, start: '22:00', end: '08:00' },
-        hasFcmToken: false,
-        hasApnsToken: false,
-      }));
-    }
-
-    res.json(successResp({
-      preferredChannels: prefs.preferred_channels,
-      notificationTypes: prefs.notification_types,
-      quietHours: prefs.quiet_hours,
-      hasFcmToken: prefs.has_fcm_token,
-      hasApnsToken: prefs.has_apns_token,
-    }));
-  } catch (err) {
-    next(err);
-  }
-});
-
-/**
- * POST /api/notifications/preferences
- * 更新用户推送偏好
- */
-router.post('/preferences', requireAuth, async (req, res, next) => {
-  try {
-    const userId = req.user.sub;
-    const { preferredChannels, notificationTypes, quietHours } = req.body;
-
-    // 验证参数
-    if (preferredChannels && !Array.isArray(preferredChannels)) {
-      throw new AppError(4001, 'preferredChannels 必须是数组', 400);
-    }
-
-    if (notificationTypes && typeof notificationTypes !== 'object') {
-      throw new AppError(4002, 'notificationTypes 必须是对象', 400);
-    }
-
-    if (quietHours && typeof quietHours !== 'object') {
-      throw new AppError(4003, 'quietHours 必须是对象', 400);
-    }
-
-    // 构造更新语句
-    const updates = [];
-    const values = [userId];
-    let paramIndex = 2;
-
-    if (preferredChannels) {
-      updates.push(`preferred_channels = $${paramIndex++}`);
-      values.push(preferredChannels);
-    }
-
-    if (notificationTypes) {
-      updates.push(`notification_types = $${paramIndex++}`);
-      values.push(JSON.stringify(notificationTypes));
-    }
-
-    if (quietHours) {
-      updates.push(`quiet_hours = $${paramIndex++}`);
-      values.push(JSON.stringify(quietHours));
-    }
-
-    if (updates.length === 0) {
-      throw new AppError(4004, '没有提供更新字段', 400);
-    }
-
-    updates.push('updated_at = NOW()');
-
-    await query(
-      `INSERT INTO user_push_preferences (user_id, preferred_channels, notification_types, quiet_hours)
-       VALUES ($1, $2, $3, $4)
-       ON CONFLICT (user_id) 
-       DO UPDATE SET ${updates.join(', ')}`,
-      values.length === 2 
-        ? [...values, preferredChannels || ['websocket', 'fcm', 'apns'], notificationTypes || {}, quietHours || {}]
-        : values
-    );
-
-    logger.info({ userId }, 'Push preferences updated');
-
-    res.json(successResp(null, '推送偏好已更新'));
-  } catch (err) {
-    next(err);
-  }
-});
-
-/**
- * POST /api/notifications/device-token
- * 注册设备推送 Token
- */
-router.post('/device-token', requireAuth, async (req, res, next) => {
-  try {
-    const userId = req.user.sub;
-    const { platform, token } = req.body;
-
-    if (!platform || !token) {
-      throw new AppError(4005, 'platform 和 token 是必需字段', 400);
-    }
-
-    if (!['ios', 'android'].includes(platform)) {
-      throw new AppError(4006, 'platform 必须是 ios 或 android', 400);
-    }
-
-    // 确保用户有推送偏好记录
-    await query(
-      `INSERT INTO user_push_preferences (user_id) VALUES ($1)
-       ON CONFLICT (user_id) DO NOTHING`,
-      [userId]
-    );
-
-    // 更新对应平台的 token
-    const tokenField = platform === 'ios' ? 'apns_token' : 'fcm_token';
-    
-    await query(
-      `UPDATE user_push_preferences 
-       SET ${tokenField} = $2, updated_at = NOW()
-       WHERE user_id = $1`,
-      [userId, token]
-    );
-
-    logger.info({ userId, platform }, 'Device token registered');
-
-    res.json(successResp(null, '设备 Token 注册成功'));
-  } catch (err) {
-    next(err);
-  }
-});
-
-/**
- * DELETE /api/notifications/device-token
- * 注销设备推送 Token（用户登出时调用）
- */
-router.delete('/device-token', requireAuth, async (req, res, next) => {
-  try {
-    const userId = req.user.sub;
-    const { platform } = req.body;
-
-    if (!platform) {
-      throw new AppError(4007, 'platform 是必需字段', 400);
-    }
-
-    const tokenField = platform === 'ios' ? 'apns_token' : 'fcm_token';
-    
-    await query(
-      `UPDATE user_push_preferences 
-       SET ${tokenField} = NULL, updated_at = NOW()
-       WHERE user_id = $1`,
-      [userId]
-    );
-
-    logger.info({ userId, platform }, 'Device token removed');
-
-    res.json(successResp(null, '设备 Token 已注销'));
-  } catch (err) {
-    next(err);
-  }
-});
-
-/**
- * GET /api/notifications/logs
- * 获取推送日志（最近 50 条）
- */
-router.get('/logs', requireAuth, async (req, res, next) => {
-  try {
-    const userId = req.user.sub;
-    const limit = Math.min(parseInt(req.query.limit) || 50, 100);
-
-    const { rows } = await query(
-      `SELECT 
-        channel, 
-        notification_type, 
-        title, 
-        body, 
-        success, 
-        error_message,
-        created_at
-       FROM push_logs 
-       WHERE user_id = $1
-       ORDER BY created_at DESC
-       LIMIT $2`,
-      [userId, limit]
-    );
-
-    res.json(successResp(rows));
-  } catch (err) {
-    next(err);
-  }
-});
-
-module.exports = router;
+const {Router}=require('express');
+const {query}=require('../../../../shared/db');
+const {requireAuth,AppError,successResp}=require('../../../../shared/auth');
+const {notificationService,integer}=require('../notificationService');
+const {NOTIFICATION_TYPES}=require('../../../../shared/notification/contracts');
+function createNotificationRouter(service=notificationService,dbQuery=query){
+  const router=Router();router.use(requireAuth);
+  const action=(method,path,fn)=>router[method](path,async(req,res,next)=>{try{res.json(successResp(await fn(req)));}catch(error){next(error);}});
+  action('get','/preferences',req=>service.getPreferences(req.user.id));
+  action('post','/preferences',req=>service.updatePreferences(req.user.id,req.body));
+  action('put','/preferences',req=>service.updatePreferences(req.user.id,req.body));
+  function tokenField(platform){if(!['ios','android'].includes(platform))throw new AppError('INVALID_REQUEST','Invalid device platform',400);return platform==='ios'?'apns_token':'fcm_token';}
+  action('post','/device-token',async req=>{
+    const field=tokenField(req.body.platform);const token=req.body.token;
+    if(typeof token!=='string'||!token.trim()||token.length>4096||/\s/.test(token))throw new AppError('INVALID_REQUEST','Invalid device token',400);
+    await dbQuery(`INSERT INTO user_push_preferences(user_id,${field}) VALUES($1,$2) ON CONFLICT(user_id) DO UPDATE SET ${field}=EXCLUDED.${field},updated_at=NOW()`,[req.user.id,token]);return {registered:true};
+  });
+  action('delete','/device-token',async req=>{const field=tokenField(req.body.platform);await dbQuery(`UPDATE user_push_preferences SET ${field}=NULL,updated_at=NOW() WHERE user_id=$1`,[req.user.id]);return {removed:true};});
+  action('get','/logs',async req=>(await dbQuery('SELECT channel,notification_type,title,body,success,error_message,created_at FROM push_logs WHERE user_id=$1 ORDER BY created_at DESC,id DESC LIMIT $2',[req.user.id,integer(req.query.limit??50,'limit',{max:100})])).rows);
+  return router;
+}
+function createLegacyPreferenceRouter(service=notificationService){
+  const router=Router();router.use(requireAuth);
+  const keys={rareSpawn:'rare_spawn',raidStarted:'raid_started',friendRequest:'friend_request',giftReceived:'gift_received',questComplete:'quest_complete',gymUnderAttack:'gym_under_attack',gymLost:'gym_lost'};
+  router.get('/',async(req,res,next)=>{try{const prefs=await service.getPreferences(req.user.id);res.json(successResp({...Object.fromEntries(Object.entries(keys).map(([camel,key])=>[camel,prefs.notificationTypes[key]])),soundEnabled:prefs.soundEnabled,vibrationEnabled:prefs.vibrationEnabled}));}catch(error){next(error);}});
+  router.put('/',async(req,res,next)=>{try{
+    if(!req.body||Array.isArray(req.body)||Object.keys(req.body).some(key=>!Object.hasOwn(keys,key)&&!['soundEnabled','vibrationEnabled'].includes(key)))throw new AppError('INVALID_REQUEST','Invalid legacy preference fields',400);
+    const notificationTypes=Object.fromEntries(Object.entries(req.body).filter(([key])=>Object.hasOwn(keys,key)).map(([key,value])=>[keys[key],value]));const input={notificationTypes};
+    for(const key of ['soundEnabled','vibrationEnabled'])if(req.body[key]!==undefined)input[key]=req.body[key];
+    if(!Object.keys(req.body).length)throw new AppError('INVALID_REQUEST','Empty preference update',400);
+    res.json(successResp(await service.updatePreferences(req.user.id,input)));
+  }catch(error){next(error);}});
+  return router;
+}
+module.exports=createNotificationRouter();Object.assign(module.exports,{createNotificationRouter,createLegacyPreferenceRouter,NOTIFICATION_TYPES,createNotification:notificationService.createNotification.bind(notificationService)});

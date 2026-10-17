@@ -10,8 +10,8 @@
  * - AI 防守策略
  */
 
-const { v4: uuidv4 } = require('uuid');
-const logger = require('../../../shared/logger');
+const formulas = require('./battleFormulas');
+const { TYPE_CHART } = formulas;
 
 const POKEMON_TYPES_ALPHABETICAL = [
   'normal', 'fighting', 'flying', 'poison', 'ground', 'rock', 'bug', 'ghost', 'steel',
@@ -23,28 +23,6 @@ function getTypeId(typeStr) {
   const index = POKEMON_TYPES_ALPHABETICAL.indexOf(typeStr.toLowerCase());
   return index !== -1 ? index + 1 : null;
 }
-
-// 属性克制表（基于 Pokemon 标准）
-const TYPE_CHART = {
-  normal: { rock: 0.5, ghost: 0, steel: 0.5 },
-  fire: { fire: 0.5, water: 0.5, grass: 2, ice: 2, bug: 2, rock: 0.5, dragon: 0.5, steel: 2 },
-  water: { fire: 2, water: 0.5, grass: 0.5, ground: 2, rock: 2, dragon: 0.5 },
-  electric: { water: 2, electric: 0.5, grass: 0.5, ground: 0, flying: 2, dragon: 0.5 },
-  grass: { fire: 0.5, water: 2, grass: 0.5, poison: 0.5, ground: 2, flying: 0.5, bug: 0.5, rock: 2, dragon: 0.5, steel: 0.5 },
-  ice: { fire: 0.5, water: 0.5, grass: 2, ice: 0.5, ground: 2, flying: 2, dragon: 2, steel: 0.5 },
-  fighting: { normal: 2, ice: 2, poison: 0.5, flying: 0.5, psychic: 0.5, bug: 0.5, rock: 2, ghost: 0, dark: 2, steel: 2, fairy: 0.5 },
-  poison: { grass: 2, poison: 0.5, ground: 0.5, rock: 0.5, ghost: 0.5, steel: 0, fairy: 2 },
-  ground: { fire: 2, electric: 2, grass: 0.5, poison: 2, flying: 0, bug: 0.5, rock: 2, steel: 2 },
-  flying: { electric: 0.5, grass: 2, fighting: 2, bug: 2, rock: 0.5, steel: 0.5 },
-  psychic: { fighting: 2, poison: 2, psychic: 0.5, dark: 0, steel: 0.5 },
-  bug: { fire: 0.5, grass: 2, fighting: 0.5, poison: 0.5, flying: 0.5, psychic: 2, ghost: 0.5, dark: 2, steel: 0.5, fairy: 0.5 },
-  rock: { fire: 2, ice: 2, fighting: 0.5, ground: 0.5, flying: 2, bug: 2, steel: 0.5 },
-  ghost: { normal: 0, psychic: 2, ghost: 2, dark: 0.5 },
-  dragon: { dragon: 2, steel: 0.5, fairy: 0 },
-  dark: { fighting: 0.5, psychic: 2, ghost: 2, dark: 0.5, fairy: 0.5 },
-  steel: { fire: 0.5, water: 0.5, electric: 0.5, ice: 2, rock: 2, steel: 0.5, fairy: 2 },
-  fairy: { fire: 0.5, fighting: 2, poison: 0.5, dragon: 2, dark: 2, steel: 0.5 }
-};
 
 // 状态效果处理器
 const STATUS_EFFECTS = {
@@ -58,12 +36,12 @@ const STATUS_EFFECTS = {
   },
   paralyze: {
     name: '麻痹',
-    canAct: () => Math.random() < 0.75,
+    canAct: (random = Math.random) => random() < 0.75,
     statModifier: { speed: 0.5 }
   },
   freeze: {
     name: '冰冻',
-    canAct: () => Math.random() < 0.2,
+    canAct: (random = Math.random) => random() < 0.2,
     onHit: (move) => move.type === 'fire' ? 'thaw' : null
   },
   poison: {
@@ -83,12 +61,12 @@ const STATUS_EFFECTS = {
   sleep: {
     name: '睡眠',
     canAct: () => false,
-    duration: () => Math.floor(Math.random() * 3) + 1
+    duration: (random = Math.random) => Math.floor(random() * 3) + 1
   },
   confusion: {
     name: '混乱',
-    onAct: (pokemon) => {
-      if (Math.random() < 0.33) {
+    onAct: (pokemon, random = Math.random) => {
+      if (random() < 0.33) {
         return {
           selfDamage: Math.floor(pokemon.attack * 0.4),
           message: `${pokemon.nickname || pokemon.species} 在混乱中攻击了自己！`
@@ -100,7 +78,9 @@ const STATUS_EFFECTS = {
 };
 
 class BattleEngine {
-  constructor(battleId, gymId, attackerId, defenderId) {
+  constructor(battleId, gymId, attackerId, defenderId, dependencies = {}) {
+    this.random = dependencies.random || (() => Math.random());
+    this.now = dependencies.now || Date.now;
     this.battleId = battleId;
     this.gymId = gymId;
     this.attacker = {
@@ -118,11 +98,13 @@ class BattleEngine {
     this.turn = 0;
     this.replay = [];
     this.status = 'pending';
-    this.startTime = Date.now();
+    this.startTime = this.now();
     this.toxicTurns = { attacker: 0, defender: 0 };
     
     // 初始化状态效果引擎
-    try {
+    if (Object.prototype.hasOwnProperty.call(dependencies, 'statusEngine')) {
+      this.statusEngine = dependencies.statusEngine;
+    } else try {
       const { getRedis } = require('../../../shared/redis');
       const StatusEffectEngine = require('../../pokemon-service/src/statusEffectEngine');
       this.statusEngine = new StatusEffectEngine(getRedis());
@@ -135,116 +117,15 @@ class BattleEngine {
    * 计算属性克制倍率
    */
   calculateTypeEffectiveness(moveTypes, defenderTypes) {
-    let multiplier = 1;
-    const effectivenessLog = [];
-    
-    for (const moveType of moveTypes) {
-      for (const defenderType of defenderTypes) {
-        if (TYPE_CHART[moveType] && TYPE_CHART[moveType][defenderType] !== undefined) {
-          multiplier *= TYPE_CHART[moveType][defenderType];
-          effectivenessLog.push({
-            moveType,
-            defenderType,
-            multiplier: TYPE_CHART[moveType][defenderType]
-          });
-        }
-      }
-    }
-    
-    return { multiplier, log: effectivenessLog };
+    return formulas.calculateTypeEffectiveness(moveTypes, defenderTypes);
   }
 
-  /**
-   * 计算伤害
-   */
   calculateDamage(attacker, defender, move) {
-    const level = attacker.level || 50;
-    const attackerStats = attacker.modifiedStats || attacker;
-    const defenderStats = defender.modifiedStats || defender;
-    
-    let attack = move.category === 'physical' ? (attackerStats.attack || 100) : (attackerStats.special_attack || 100);
-    const defense = move.category === 'physical' ? (defenderStats.defense || 100) : (defenderStats.special_defense || 100);
-    
-    // 灼伤状态下物理伤害减半
-    if (move.category === 'physical') {
-      const hasBurn = (attacker.statuses && attacker.statuses.some(s => s.code === 'burn')) || attacker.status === 'burn';
-      if (hasBurn) {
-        attack = Math.floor(attack * 0.5);
-      }
-    }
-    const power = move.power || 40;
-    
-    // 基础伤害公式
-    let damage = Math.floor(((2 * level / 5 + 2) * power * attack / defense) / 50 + 2);
-    
-    // 属性克制
-    const { multiplier: effectiveness } = this.calculateTypeEffectiveness([move.type], defender.types || ['normal']);
-    damage = Math.floor(damage * effectiveness);
-    
-    // STAB 加成（同属性技能加成）
-    if (attacker.types && attacker.types.includes(move.type)) {
-      damage = Math.floor(damage * 1.5);
-    }
-    
-    // 暴击（基础 6.25% 概率）
-    const critChance = move.crit_rate || 0.0625;
-    const isCrit = Math.random() < critChance;
-    if (isCrit) {
-      damage = Math.floor(damage * 1.5);
-    }
-    
-    // 随机波动 85%-100%
-    damage = Math.floor(damage * (0.85 + Math.random() * 0.15));
-    
-    // 最小伤害为 1
-    damage = Math.max(1, damage);
-    
-    return {
-      damage,
-      effectiveness,
-      isCrit,
-      effectivenessText: effectiveness > 1 ? '效果拔群！' : 
-                        effectiveness < 1 && effectiveness > 0 ? '效果不太好...' :
-                        effectiveness === 0 ? '没有效果...' : ''
-    };
+    return formulas.calculateDamage(attacker, defender, move, this.random);
   }
 
-  /**
-   * 计算行动顺序
-   */
-  determineTurnOrder(attackerPokemon, defenderPokemon, attackerMove, defenderMove) {
-    // 获取实际速度（考虑状态效果和能力变化）
-    const attackerStats = attackerPokemon.modifiedStats || attackerPokemon;
-    const defenderStats = defenderPokemon.modifiedStats || defenderPokemon;
-    
-    let attackerSpeed = attackerStats.speed || 100;
-    let defenderSpeed = defenderStats.speed || 100;
-    
-    // 状态效果影响速度 (麻痹速度减半)
-    const hasAttackerParalysis = (attackerPokemon.statuses && attackerPokemon.statuses.some(s => s.code === 'paralysis')) || attackerPokemon.status === 'paralyze';
-    if (hasAttackerParalysis) {
-      attackerSpeed *= 0.5;
-    }
-    const hasDefenderParalysis = (defenderPokemon.statuses && defenderPokemon.statuses.some(s => s.code === 'paralysis')) || defenderPokemon.status === 'paralyze';
-    if (hasDefenderParalysis) {
-      defenderSpeed *= 0.5;
-    }
-    
-    // 优先级比较
-    const attackerPriority = attackerMove.priority || 0;
-    const defenderPriority = defenderMove.priority || 0;
-    
-    if (attackerPriority !== defenderPriority) {
-      return attackerPriority > defenderPriority ? 'attacker' : 'defender';
-    }
-    
-    // 速度比较
-    if (attackerSpeed !== defenderSpeed) {
-      return attackerSpeed > defenderSpeed ? 'attacker' : 'defender';
-    }
-    
-    // 速度相同随机决定
-    return Math.random() < 0.5 ? 'attacker' : 'defender';
+  determineTurnOrder(attacker, defender, attackerMove, defenderMove) {
+    return formulas.determineTurnOrder(attacker, defender, attackerMove, defenderMove, this.random);
   }
 
   /**
@@ -262,14 +143,14 @@ class BattleEngine {
     // 如果没有被新引擎阻止，且存在旧状态字段，则进行旧状态检查（兼容旧测试）
     if (!blockedResult.blocked && attacker.status) {
       const statusHandler = STATUS_EFFECTS[attacker.status];
-      if (statusHandler?.canAct && !statusHandler.canAct()) {
+      if (statusHandler?.canAct && !statusHandler.canAct(this.random)) {
         blockedResult = {
           blocked: true,
           statusCode: attacker.status,
           reason: statusHandler.name
         };
       } else if (statusHandler?.onAct) {
-        const confusionResult = statusHandler.onAct(attacker);
+        const confusionResult = statusHandler.onAct(attacker, this.random);
         if (confusionResult) {
           blockedResult = {
             blocked: true,
@@ -292,7 +173,7 @@ class BattleEngine {
       
       if (blockedResult.selfDamage) {
         const damageVal = blockedResult.selfDamageValue || Math.floor((attacker.attack || 100) * 0.4);
-        attacker.current_hp -= damageVal;
+        attacker.current_hp = Math.max(0, attacker.current_hp - damageVal);
         actions.push({
           type: 'confusion_damage',
           pokemon: isPlayer ? 'attacker' : 'defender',
@@ -305,7 +186,7 @@ class BattleEngine {
     
     // 命中率检查
     const accuracy = (move.accuracy !== undefined && move.accuracy !== null) ? move.accuracy : 100;
-    if (Math.random() * 100 > accuracy) {
+    if (this.random() * 100 >= accuracy) {
       actions.push({
         type: 'miss',
         pokemon: isPlayer ? 'attacker' : 'defender',
@@ -317,7 +198,7 @@ class BattleEngine {
     
     // 计算伤害
     const damageResult = this.calculateDamage(attacker, defender, move);
-    defender.current_hp -= damageResult.damage;
+    defender.current_hp = Math.max(0, defender.current_hp - damageResult.damage);
     
     actions.push({
       type: 'attack',
@@ -330,9 +211,9 @@ class BattleEngine {
     });
     
     // 技能附加效果（状态效果）
-    if (move.status_effect && Math.random() < (move.status_chance || 0.1)) {
+    if (move.status_effect && this.random() < (move.status_chance ?? 0.1)) {
       const targetSide = isPlayer ? 'defender' : 'attacker';
-      const targetPoke = isPlayer ? defender : attacker;
+      const targetPoke = defender;
       
       let applied = false;
       let statusName = STATUS_EFFECTS[move.status_effect]?.name || move.status_effect;
@@ -392,7 +273,7 @@ class BattleEngine {
       actions: [],
       statusEffects: [],
       damage: { attacker: 0, defender: 0 },
-      timestamp: Date.now()
+      timestamp: this.now()
     };
 
     const attackerPokemon = this.attacker.currentPokemon;
@@ -502,7 +383,7 @@ class BattleEngine {
    */
   async processTurnEndStatusEffects(attackerPokemon, defenderPokemon, turnData) {
     for (const [pokemon, isPlayer, side] of [[attackerPokemon, true, 'attacker'], [defenderPokemon, false, 'defender']]) {
-      if (!pokemon.status) continue;
+      if (pokemon.current_hp <= 0 || !pokemon.status) continue;
       
       const statusHandler = STATUS_EFFECTS[pokemon.status];
       if (!statusHandler?.onTurnEnd) continue;
@@ -516,7 +397,7 @@ class BattleEngine {
         damage = statusHandler.onTurnEnd(pokemon).damage;
       }
       
-      pokemon.current_hp -= damage;
+      pokemon.current_hp = Math.max(0, pokemon.current_hp - damage);
       
       turnData.statusEffects.push({
         pokemon: isPlayer ? 'attacker' : 'defender',
@@ -586,6 +467,7 @@ class BattleEngine {
       if (nextDefender) {
         this.defender.currentPokemon = nextDefender;
         this.defender.currentDefenderIndex++;
+        this.toxicTurns.defender = 0;
         this.status = 'defender_fainted';
         
         return {
@@ -620,6 +502,7 @@ class BattleEngine {
       const nextPokemon = this.getNextAttackerPokemon();
       if (nextPokemon) {
         this.attacker.currentPokemon = nextPokemon;
+        this.toxicTurns.attacker = 0;
         this.status = 'attacker_switch';
         
         return {
@@ -722,7 +605,7 @@ class BattleEngine {
    * 获取战斗结果
    */
   getBattleResult() {
-    const duration = Date.now() - this.startTime;
+    const duration = this.now() - this.startTime;
     
     // 计算奖励
     let prestigeGained = 0;
@@ -730,9 +613,9 @@ class BattleEngine {
     let coinsGained = 0;
     
     if (this.status === 'attacker_won') {
-      prestigeGained = Math.floor(1000 + Math.random() * 500);
-      experienceGained = Math.floor(100 + Math.random() * 50);
-      coinsGained = Math.floor(10 + Math.random() * 20);
+      prestigeGained = Math.floor(1000 + this.random() * 500);
+      experienceGained = Math.floor(100 + this.random() * 50);
+      coinsGained = Math.floor(10 + this.random() * 20);
     }
     
     return {
@@ -762,20 +645,22 @@ class BattleEngine {
       turn: this.turn,
       status: this.status,
       startTime: this.startTime,
-      toxicTurns: this.toxicTurns
+      toxicTurns: this.toxicTurns,
+      replay: this.replay
     });
   }
 
   /**
    * 反序列化战斗状态
    */
-  static deserialize(data) {
+  static deserialize(data, dependencies = {}) {
     const parsed = JSON.parse(data);
     const engine = new BattleEngine(
       parsed.battleId,
       parsed.gymId,
       parsed.attacker.userId,
-      parsed.defender.pokemon
+      parsed.defender.pokemon,
+      dependencies
     );
     
     engine.attacker = parsed.attacker;
@@ -783,7 +668,8 @@ class BattleEngine {
     engine.turn = parsed.turn;
     engine.status = parsed.status;
     engine.startTime = parsed.startTime;
-    engine.toxicTurns = parsed.toxicTurns;
+    engine.toxicTurns = parsed.toxicTurns || { attacker: 0, defender: 0 };
+    engine.replay = parsed.replay || [];
     
     return engine;
   }

@@ -1,0 +1,229 @@
+# Database migration execution
+
+Install the declared dependencies with `npm ci --prefix backend`. From the repository
+root, use `node database/migrate.js status`, `up`, `verify`, `down [retained-version]`
+or `create description`. Backend npm scripts provide the same commands. DATABASE_URL
+must identify the intended database; do not put it in logs or source control.
+
+`up` and `down` check the source checksum of every applied file before changing data.
+Missing applied files and changed checksums are errors, including for rollback. Keep
+applied files available and immutable. Add a new migration for an upgrade. A created
+template must contain actual SQL before it can be applied; creation alone is not an
+applied migration. Duplicate versions and invalid filenames are errors.
+
+A dependencies.json file in the migration directory declares prerequisites by version.
+The runner rejects missing/cyclic/invalid dependencies and executes a deterministic
+valid order. execution_order records actual applied order; rollback follows that order
+rather than assuming timestamps reflect prerequisite order. Existing legacy rows retain
+their original source checksums and are ordered by recorded time/version on adoption.
+Historical execution/dependency hashes without evidence remain null.
+
+repairs.json explicitly binds a legacy file's exact original SHA256 to a complete
+corrected SQL file and a reason. Repair paths must remain inside the migration directory.
+Logs identify the correction used. New history stores separate original-source,
+dependency and executed-SQL checksums; changing a source, repair or dependency after
+application fails verification/up/down. Original pending SQL is not overwritten. The
+current identity corrections target the canonical V1 UUID schema, not all undocumented
+historical identity layouts.
+
+Each operation uses a PostgreSQL transaction-held advisory lock scoped to the database
+and schema. MIGRATION_LOCK_TIMEOUT_MS sets the wait limit (positive integer, default
+30000ms); it does not expire a working owner's lock. All pending DDL/data/history changes
+commit together or roll back together. Legacy outer BEGIN/COMMIT wrappers and trailing
+COMMIT terminators are executed under the runner's transaction. Internal transaction
+control is rejected so a script cannot commit untracked intermediate data. PostgreSQL
+may finish an in-flight command before detecting client loss; an interrupted process's
+session ending, rather than a client timeout alone, proves its transaction has ended.
+[PostgreSQL advisory-lock documentation](https://www.postgresql.org/docs/15/functions-admin.html#FUNCTIONS-ADVISORY-LOCKS).
+
+`down` without a target removes only the latest applied migration. A target retains that
+applied migration and rolls back migrations executed after it. Every selected migration must have executable
+down SQL. Empty rollback still releases the transaction. The CLI naturally closes its
+connection pool, reports the original failure and returns a nonzero exit status.
+
+User-service and gateway startup verify saved checksums before initializing business
+routes. AUTO_MIGRATE=true also applies pending scripts before HTTP listening. The shared
+initialization is memoized for concurrent callers and closes its migration-specific pool.
+AUTO_MIGRATE=false is the default; it does not claim missing business tables are present.
+Other services still need the same startup integration and acceptance.
+
+MINEGO_MIGRATIONS_DIR explicitly selects a different migration directory, principally for
+isolated tests and controlled tooling. The default remains database/pending. A small
+fixture directory proves runner behavior, not the repository's entire schema history.
+
+## Current acceptance boundary
+
+Eight production-parser/unit checks and thirteen actual PostgreSQL/CLI checks cover script
+creation, complex SQL strings/function bodies, empty templates, durable history,
+idempotency, checksum tampering/missing files, duplicate identities, target/last/empty
+rollback, whole-batch SQL failure, concurrency, lock wait limits, interrupted ownership
+and shared AUTO_MIGRATE startup. Full V1/PostGIS schema plus V2 sample data now loads with
+32 sample species and intact evolution references. Missing target species were added;
+the sample's other game-balance settings remain unchanged. New target base stats were
+checked against the [game-master snapshot](https://github.com/PokeMiners/game_masters/blob/8e227be44f288d34463e23bf04e9b564d3c16f79/latest/latest.json).
+
+The current85-file pending history (original79 plus6 explicit prerequisites) remains
+gated. The audit conversion now executes successfully: V1 storage is attached as a
+default partition with its original ID/sequence/columns/data retained. Views, indexes,
+triggers and grants are preserved; rollback retains rows written after conversion.
+Partition creation validates schema/parent/bounds, moves matching default rows atomically
+and rechecks a concurrent creator after acquiring the lock. Unsupported incoming foreign
+keys, additional uniqueness, forced RLS, materialized views and target-name collisions
+fail atomically; these custom upgrade cases still need explicit plans.
+
+23 actual PostGIS storage checks cover audit conversion/rollback, logical ID concurrency,
+failed attachments, and historical/current writes to all five actual parents. This is
+SQL storage evidence, not acceptance of all service/client paths or retention/performance.
+Guarded repairs also replace two invalid inline INDEX declarations and four achievement
+owner types with canonical UUIDs. All81 previously published pending sources remain
+byte-identical. The achievement bridge now reconciles V1 tiered progress with the newer catalog while
+retaining the original composite key, FK, rows and identity. Declared dependencies run
+the existing title bootstrap and new bridge before the legacy consumer. All82 previously
+published pending sources are immutable.41 actual achievement service/storage/HTTP checks
+pass; an unused bridge reverses, while rollback with modern data explicitly refuses
+loss. Notification history now has an additive identity-preserving bridge and actual35 storage
+checks. All83 published pending sources remain byte-identical. The friendship identity bridge now preserves canonical trainer bonds and exposes named
+affinity separately;20 actual storage checks pass. The existing privacy compatibility
+migration explicitly precedes its consumer. All84 published pending sources are unchanged.
+Full history now passes catch-risk storage, which preserves gameplay UUID sessions and
+uses distinct risk telemetry with actual throw evidence.34 production/storage cases pass.
+All85 original pending sources remain unchanged. Special-IV ownership/genotype and equipment prerequisite storage now pass.
+Daily-quest syntax now passes with exact date-expression indexes and unchanged22 seeds.
+Earlier title bootstrap and later consumer now preserve matching trigger/function OIDs
+and state through explicit repairs; customized semantics refuse. Full history fails
+20260618_160000 statement18: voice-chat index predicate contains a mutable time function. See CATCH-RISK.md. See FRIENDSHIP.md for storage and remaining service boundaries.
+Later duplicate partition migrations and complete data-preserving rollback remain open. See ACHIEVEMENTS.md for actual grant and
+remaining event/client/management boundaries.
+
+Run `npm run test:migrations:unit --prefix backend` for the actual parser/unit suite.
+Set TEST_DATABASE_URL to an isolated PostGIS database and run
+`npm run test:migrations:storage --prefix backend`,
+`node --test backend/tests/regression/migration-prerequisites.test.js`,
+`node --test backend/tests/regression/audit-partition-storage.test.js`,
+`node --test backend/tests/regression/achievement-storage.test.js` and
+`node --test backend/tests/regression/notification-storage.test.js` and
+`node --test backend/tests/regression/friendship-storage.test.js` and
+`node --test backend/tests/regression/database-bootstrap.test.js`. The final history case
+remains red at the voice-chat mutable index predicate. See NOTIFICATIONS.md for delivery/client limits. GitHub runs all these gates in
+.github/workflows/migration-regression.yml. Whole-history upgrades/rollback, all-service
+startup, operational backups and REQ-00306 remain open; REQ-00007 is not complete.
+
+
+## Earlier dependency/catalog probe (2026-10-08, source f79d55f)
+
+Runner unit8 and actual CLI13 cases pass, including repair/dependency tampering,
+actual order rollback and legacy journal adoption preserving application data and
+original hashes. Catalog/Pokedex prerequisites pass actual data tests: existing catalog
+survives rollback, newly owned catalog is removed safely, valid UUID cache owners work,
+and invalid owners/zero quantities are rejected. Actual inventory helpers now handle
+UUID capacity, default fields and expiry without violating quantity constraints.
+
+At that source, the pending set was81: original79 plus2 declared prerequisites. The full gate remains
+red at20260610_100000: the preexisting V1 audit_logs is a regular table and lacks the
+partition script's resource columns. Ignoring partition work cannot satisfy REQ-00060.
+The next batch must reconcile IDs/all columns/data/constraints/defaults/dependencies,
+convert the actual table, and prove writes/queries/rollback before accepting the gate.
+
+
+The daily-quest source-bound repair does not rewrite original timestamp/date semantics
+or reconcile the separate V1 counter and modern randomized pools.18 actual SQL/mounted
+HTTP cases verify the repair and atomic legacy claims; modern feature acceptance remains
+open in DAILY-QUESTS.md. Full85 history still rolls back on the later voice-chat index conflict.
+
+
+Title prerequisite/consumer repairs preserve existing update metadata in13 real cases,
+including disabled triggers and refusal of custom semantics. Changing an executed repair
+for an already applied migration remains a checksum error: these changes do not silently
+adopt older executed SQL. Existing deployments need an explicit reviewed upgrade plan;
+no production migration or history rewrite was performed. That earlier batch advanced to the damage-system move-catalog conflict. The latest
+canonical move bridge advances to the voice-chat index conflict; see MOVE-DAMAGE.md.
+
+
+Current follow-up (2026-10-13): the explicit source-bound voice repair now uses a
+stable unrevoked user/expiry index, preserving historical credentials and exact
+existing operator indexes. Six actual voice-schema/CLI cases and17 migration
+CLI/prerequisite cases pass. Earlier voice-index failure above records the preceding
+batch. The unchanged85-source complete gate now fails20260619_000000 statement17:
+its duplicate partition helper attempts to change the existing return type. The
+whole pending batch still rolls back; complete history and original feature
+acceptance remain open. See REQ-00116 and voice-schema-storage.test.js for scope.
+
+
+Latest canonical partition follow-up (2026-10-13): source-bound duplicate repair
+preserves all five actual business parents and the existing BOOLEAN helper, retains
+established weekly ranges, and verifies real schema-local statistics. Four new
+history cases plus23 audit cases pass (27 total). Earlier partition conflict above
+is source-specific history. Complete85 original-source setup now fails20260624_133000
+statement16 because payment_orders is absent. Actual production payments use orders;
+that identity/amount contract must be reconciled without duplicating or losing money
+records. Full-chain rollback, later shadow-management references and original
+feature/numerical/service acceptance remain open.
+
+
+Current currency follow-up (2026-10-14): real orders receive additive nullable quote
+metadata while retaining original identity, money, status and idempotency; historic
+conversion values remain unknown. Authenticated UUID rate-lock ownership is explicit.
+All20 currency/price seeds remain; no parallel payment table is invented.18 actual
+currency/storage/HTTP cases and17 CLI/prerequisite cases pass. Original85 sources
+remain byte-identical. V1/V2 passes; full history now rolls back at20260626_040000
+statement1 because its header uses //. Whole-chain/rollback and full payment/voice/
+partition/provider/runtime acceptance remain open. See CURRENCIES.md for evidence.
+
+
+Current transaction follow-up (2026-10-15): explicit source-bound deadlock-log repair
+corrects the invalid initial // comment and preserves existing table/sequence/data/
+view/FK identities. It bridges the documented context-only layout with nullable
+transaction_name/retry_count; historical unknown values remain NULL. Incompatible
+column types require explicit adoption. Original85 root SQL files remain byte-identical.
+Real transaction/storage22 checks and the original-5% comparative throughput gate
+pass; default shared transactions now have bounded ownership/retry/cleanup/metrics.
+The complete V1/V2 seed passes, but all85 history rolls back at20260627_041000
+statement14, round(double precision,integer). Earlier header failure above is prior
+source history. Whole-chain upgrades/reversal, actual business/service/provider
+acceptance and exact current remote CI remain open; see TRANSACTIONS.md.
+
+
+Slow-query follow-up (2026-10-15): checksummed20260627_041000 repair preserves the
+original two-decimal index ratio using NUMERIC and binds both SQL helpers to actual
+PostgreSQL15 mean_exec_time/total_exec_time. Seven real live-statistics/schema checks
+pass, including original failure/rollback, old data/OIDs/views/FKs, helper execution
+and rerun identities. Tests use an additional owned one-CPU PostGIS instance with
+statistics preloaded; no reset or production change. Original85 SQL stays unchanged.
+Latest V1/V2 passes; full history now fails20260627_060000 statement13 is_deleted
+missing and rolls back. Earlier round/header failures above are source history.
+The existing30/90-day policy difference and all JS/API/monitoring/operations remain
+open. See SLOW-QUERIES.md. Whole chain and REQ-00077 are not accepted.
+
+
+2026-10-16 repeat: SQL helpers now scope actual statistics to current database;
+owned fresh-database fixture prevents unrelated historical top50 competition and
+proves a qualifying second-database query is excluded. Actual7 pass without global
+statistics reset. Repair-only inherited trailing whitespace is removed; original
+raw SQL and signatures/data remain unchanged. Whole-history inventory boundary
+remains20260627_060000 stmt13 missing is_deleted; full acceptance stays open.
+
+
+2026-10-17 inventory prerequisite: source-bound20260627_060000 repair keeps V1
+UUID instance/favorite/nickname identity, real species metadata, per-species candy
+and earlier UUID team/constraints. Add live cp/caught_at/deleted_at indexes and UUID
+preferences, preserving compatible old choices/sequence/time/function/trigger state.
+Unknown deletion/global resources/ownership/index/custom-trigger schemas fail
+atomically, without invented historical timestamps or candy attribution. All85 raw
+sources remain unchanged. Complete V1/V2 passes and full history now passes this
+migration, then fails20260630_040000 stmt13 cosmetic pokemon_instance_id FK type.
+Pending batch rolls back; no skipped source/history rewrite. Complete history,
+already-applied repair upgrade, full reverse and service acceptance remain open.
+See INVENTORY-ORGANIZATION.md for actual tests and feature gaps.
+
+
+2026-10-17 cosmetic prerequisite: the existing three-reference repair missed
+pokemon_cosmetics.pokemon_instance_id. Bind all4 actual UUID references and verify
+7 FK contracts. Preserve five table/OID/row/sequence/view/FK/comment identities, all13
+seed definitions/intended new prices and existing operator prices/statistics. Derive
+only observable missing current-owner/equipment values; historical old purchase/
+revenue fields stay NULL rather than fake zero. Unknown IDs/quantities/constraints
+refuse atomically. Original85 SQL sources remain unchanged. V1/V2 passes; full history
+now passes cosmetics and fails20260630_050000 stmt2 data_deletion_tasks.request_id FK
+against the preexisting request identity. Pending batch rolls back. Full fresh/
+already-applied repair upgrades/reverse and feature acceptance remain open. COSMETICS.md
+describes actual storage/CLI evidence and all remaining runtime/client criteria.

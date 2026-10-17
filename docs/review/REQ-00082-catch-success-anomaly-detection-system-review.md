@@ -1,5 +1,9 @@
 # REQ-00082-review: 精灵捕捉成功率异常检测系统
 
+> Current independent status (2026-10-08): partial, not accepted as complete. Historic
+> approval below is superseded by the correction at the end and the
+> [current review](REQ-00082-catch-success-anomaly-detection-review.md).
+
 ## 需求编号和标题
 - **编号**: REQ-00082
 - **标题**: 精灵捕捉成功率异常检测系统
@@ -119,3 +123,20 @@ $ ls -la backend/tests/unit/catch-anomaly-detector.test.js
 
 ## 状态
 ✅ **已审核** - 实现完整，测试覆盖充分，符合需求
+
+
+## Independent correction (2026-10-08)
+
+The historic approval above is superseded by partial acceptance. File existence and
+unexecuted example tests do not prove integration, sliding-window correctness, signature
+security, measured catch blocking90%+, false positives0.5%, compliance or coverage.
+Actual catch-service does not invoke the engine. Validator location/inventory flags are
+hardcoded true; signature validation has a default key and pads input; incomplete score
+components are zero and counter expiry is extended per request. No current measured
+quality/security/compliance acceptance is supported by the old report.
+
+Actual storage/production-recorder34 cases pass and preserve gameplay UUID identities,
+real throw evidence, transactional counters and exact hourly observations. Complete85
+migration history still fails the later special-IV created_at conflict. The requirement
+remains in_progress. Full original criteria remain open in the [current review](REQ-00082-catch-success-anomaly-detection-review.md)
+and [catch guide](../CATCH-RISK.md). No historic evidence is deleted or rewritten.

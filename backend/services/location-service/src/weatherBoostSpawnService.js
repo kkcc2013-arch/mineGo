@@ -7,11 +7,11 @@
 
 'use strict';
 
-const { createLogger } = require('../shared/logger');
-const { weatherBoostEngine } = require('../shared/weather/WeatherBoostEngine');
-const { mapWeatherCodeToGameWeather } = require('../shared/weather/WeatherBoostMatrix');
-const { query } = require('../shared/db');
-const { getJSON, setJSON } = require('../shared/redis');
+const { createLogger } = require('../../../shared/logger');
+const { weatherBoostEngine } = require('../../../shared/weather/WeatherBoostEngine');
+const { mapWeatherCodeToGameWeather } = require('../../../shared/weather/WeatherBoostMatrix');
+const { query } = require('../../../shared/db');
+const { getJSON, setJSON } = require('../../../shared/redis');
 
 const logger = createLogger('weather-boost-spawn-service');
 

@@ -4,7 +4,7 @@
 
 const express = require('express');
 const router = express.Router();
-const ServiceHealthDashboard = require('../../shared/ServiceHealthDashboard');
+const ServiceHealthDashboard = require('../../../shared/ServiceHealthDashboard');
 
 // 全局仪表板实例
 let dashboardInstance = null;

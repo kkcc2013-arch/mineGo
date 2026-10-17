@@ -1,0 +1,18 @@
+{
+  "rootDir": "../..",
+  "testEnvironment": "node",
+  "testMatch": [
+    "<rootDir>/tests/unit/logging-migration.test.js"
+  ],
+  "collectCoverageFrom": [
+    "shared/loggingUtils.js"
+  ],
+  "coverageDirectory": "coverage/logging",
+  "coverageThreshold": {
+    "global": {
+      "lines": 85,
+      "statements": 85,
+      "functions": 85
+    }
+  }
+}

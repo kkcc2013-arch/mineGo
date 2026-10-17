@@ -6,9 +6,11 @@
 const crypto = require('crypto');
 const { EventEmitter } = require('events');
 const { createLogger } = require('./logger');
-const { metrics } = require('./metrics');
+const metrics = require('./metrics');
 
 const logger = createLogger('request-signature');
+const verificationDuration = metrics.histogram('signature_verification_duration_ms', 'Signature verification duration in milliseconds', [], [1, 5, 10, 50, 100, 500]);
+const verificationResults = metrics.counter('signature_verification_total', 'Signature verification results', ['result']);
 
 /**
  * 请求签名验证服务
@@ -152,10 +154,11 @@ class RequestSignatureService extends EventEmitter {
       .update(canonicalString)
       .digest('hex');
     
-    if (signature !== expectedSignature) {
+    const received = typeof signature === 'string' && /^[a-f0-9]{64}$/i.test(signature)
+      ? Buffer.from(signature, 'hex') : Buffer.alloc(0);
+    const expected = Buffer.from(expectedSignature, 'hex');
+    if (received.length !== expected.length || !crypto.timingSafeEqual(received, expected)) {
       logger.warn('Invalid signature', {
-        expected: expectedSignature.substring(0, 16) + '...',
-        received: signature.substring(0, 16) + '...',
         method,
         path
       });
@@ -194,7 +197,9 @@ class RequestSignatureService extends EventEmitter {
    * 路径匹配
    */
   matchPattern(pattern, method, path) {
-    const [patternMethod, patternPath] = pattern.split(':');
+    const separator = pattern.indexOf(':');
+    const patternMethod = pattern.slice(0, separator);
+    const patternPath = pattern.slice(separator + 1);
     if (patternMethod !== method) return false;
     
     if (patternPath.endsWith('*')) {
@@ -237,10 +242,11 @@ class RequestSignatureService extends EventEmitter {
       this.keyStore.set(backupVersion, oldKey);
       
       // 10分钟后删除备份密钥
-      setTimeout(() => {
+      const expiration = setTimeout(() => {
         this.keyStore.delete(backupVersion);
         logger.info('Backup key removed', { version: backupVersion });
       }, 600000);
+      expiration.unref();
     }
     
     this.keyStore.set('current', newKey);
@@ -275,7 +281,7 @@ class RequestSignatureService extends EventEmitter {
    * 获取活跃密钥
    */
   getActiveKey(keyVersion) {
-    return this.keyStore.get(keyVersion) || this.keyStore.get('current');
+    return this.keyStore.get(keyVersion);
   }
 
   /**
@@ -299,8 +305,8 @@ class RequestSignatureService extends EventEmitter {
   recordVerification(result, startTime) {
     const duration = Date.now() - startTime;
     
-    metrics.timing('signature_verification_duration', duration);
-    metrics.increment(`signature_verification_${result.toLowerCase()}`, 1);
+    verificationDuration.observe(duration);
+    verificationResults.inc({ result: result.toLowerCase() });
     
     if (result !== 'SUCCESS') {
       logger.warn('Signature verification failed', {

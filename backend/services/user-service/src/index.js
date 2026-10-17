@@ -1,8 +1,12 @@
 // user-service/src/index.js - 重构版（使用 ServiceLauncher）
 'use strict';
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("services/user-service/src/index"), "services/user-service/src/index");
+
 
 const { ServiceLauncher } = require('../../../shared/ServiceLauncher');
 const db = require('../../../shared/db');
+const redis = require('../../../shared/redis');
 const EventBus = require('../../../shared/EventBus');
 
 // REQ-00159: 健康检查与自愈系统
@@ -34,13 +38,31 @@ const languageRouter = require('./routes/language'); // REQ-00393: 动态语言�
 const minorProtectionRouter = require('./routes/minorProtection'); // REQ-00578: 未成年人保护路由
 const { initNotificationHandlers } = require('./handlers/notificationHandler');
 
+// Initialize the privacy router before it can receive requests.
+initPrivacyRoutes(db);
+
+let healthChecker;
+let eventBus;
+let ipBanManager;
+let notificationWs;
+
 // Create service launcher
 const service = new ServiceLauncher({
   serviceName: 'user-service',
   version: '1.0.0',
-  port: 8081,
+  port: process.env.PORT === undefined ? 8081 : Number(process.env.PORT),
   
   routes: [
+    // These routers own their authentication and expose explicit public paths.
+    {
+      path: '/users', // REQ-00106: 称号系统路由
+      router: titlesRouter
+    },
+    {
+      path: '/users',
+      router: timezoneRouter
+    },
+
     {
       path: '/auth',
       router: authRouter,
@@ -59,6 +81,7 @@ const service = new ServiceLauncher({
       path: '/friends',
       router: friendRouter
     },
+    {path:'/users/me/notification-preferences',router:notificationsRouter.createLegacyPreferenceRouter()},
     {
       path: '/notifications',
       router: notificationsRouter
@@ -70,10 +93,6 @@ const service = new ServiceLauncher({
     {
       path: '/users', // REQ-00057: MFA 路由
       router: mfaRouter
-    },
-    {
-      path: '/users',
-      router: timezoneRouter
     },
     {
       path: '/age', // REQ-00034: 年龄验证路由
@@ -111,10 +130,6 @@ const service = new ServiceLauncher({
       rateLimit: { windowMs: 60_000, max: 20 }
     },
     {
-      path: '/users', // REQ-00106: 称号系统路由
-      router: titlesRouter
-    },
-    {
       path: '/devices', // REQ-00250: 设备管理路由
       router: deviceManagementRouter
     },
@@ -133,9 +148,16 @@ const service = new ServiceLauncher({
   ],
   
   // Service initialization
-  onReady: async (app) => {
+  onInitialize: async (app) => {
+    await db.initializeMigrations();
+    app.locals.db = db;
+    app.set('trust proxy', process.env.USER_SERVICE_TRUST_PROXY ? process.env.USER_SERVICE_TRUST_PROXY.split(',').map(value => value.trim()) : false);
+    const IpBanManager = require('../../../shared/IpBanManager');
+    ipBanManager = new IpBanManager({ db, redis: redis.getRedis(), autoInitialize: false });
+    ipAppealRouter.initIpAppealRoutes(ipBanManager);
+    await ipBanManager.init();
     // REQ-00159: 初始化健康检查系统
-    const healthChecker = new HealthChecker({
+    healthChecker = new HealthChecker({
       serviceName: 'user-service',
       checkInterval: 30000,
       cpuThreshold: 80,
@@ -150,6 +172,11 @@ const service = new ServiceLauncher({
       return { status: 'healthy', latency_ms: latency };
     }, { critical: true });
     
+    healthChecker.register('redis', async () => {
+      await redis.getRedis().ping();
+      return { status: 'healthy' };
+    }, { critical: true });
+
     // 注册资源健康检查
     healthChecker.register('resources', async () => {
       return await healthChecker.checkResources();
@@ -167,12 +194,15 @@ const service = new ServiceLauncher({
     app.use(healthRoutes);
     
     // Initialize GDPR routes with db and eventBus
-    const eventBus = EventBus.getEventBus();
+    eventBus = EventBus.getEventBus({clientId:process.env.EVENT_BUS_CLIENT_ID||'user-service'});
+    await eventBus.connect();
+    healthChecker.register('kafka', async () => {
+      const health = await eventBus.healthCheck();
+      if (!health.healthy) throw new Error('Kafka is unavailable');
+      return { status: 'healthy' };
+    }, { critical: false });
     initGDPRRoutes(db, eventBus);
     app.use('/gdpr', gdprRouter);
-    
-    // Initialize privacy preference routes - REQ-00053
-    initPrivacyRoutes(db);
     
     // Initialize data transfer compliance routes - REQ-00089
     initDataTransferRoutes(db);
@@ -181,20 +211,41 @@ const service = new ServiceLauncher({
     initDataDeletionRoutes(db, eventBus);
     
     // Initialize notification event handlers - REQ-00026
-    initNotificationHandlers(eventBus);
+    await initNotificationHandlers(eventBus);
     
     // Initialize title service - REQ-00106
     const { TitleService } = require('./titleService');
+    TitleService.eventBus = eventBus;
     await TitleService.initialize();
-    console.log('Title service initialized');
+    _consoleLogger.log('Title service initialized');
     
-    console.log('User service ready with health checks enabled');
+    await healthChecker.runAllChecks();
+    _consoleLogger.log('User service initialized with health checks enabled');
+  },
+  onReady: async app => {
+    const transport=require('../../../shared/NotificationWebSocket');
+    const {getUpgradeClientIp}=require('../../../shared/clientIp');
+    notificationWs=transport.initNotificationWS(service.server,'/ws/notifications',{authorize:async req=>!(await ipBanManager.isBlocked(getUpgradeClientIp(req,app))).blocked});
+    const Plugin=require('../../../shared/notification/plugins/WebSocketPlugin');
+    require('../../../shared/notification/NotificationManager').getNotificationManager().registerPlugin(new Plugin(notificationWs,transport));
+  },
+  onBeforeShutdown: async () => {
+    if(notificationWs){for(const client of notificationWs.clients)client.terminate();await new Promise((resolve,reject)=>notificationWs.close(error=>error?reject(error):resolve()));notificationWs=null;}
+  },
+  onShutdown: async () => {
+    healthChecker?.stopPeriodicCheck();
+    const results = await Promise.allSettled([
+      eventBus ? eventBus.disconnect() : Promise.resolve(),
+      ipBanManager ? ipBanManager.close() : Promise.resolve(), db.closePools(), redis.closeRedis()
+    ]);
+    const failures = results.filter(result => result.status === 'rejected').map(result => result.reason);
+    if (failures.length) throw new AggregateError(failures, 'User service cleanup failed');
   }
 });
 
 // Start service
 service.start().catch(err => {
-  console.error('Failed to start user-service:', err);
+  _consoleLogger.error('Failed to start user-service:', err);
   process.exit(1);
 });
 

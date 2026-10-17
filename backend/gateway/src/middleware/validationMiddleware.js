@@ -6,8 +6,8 @@
 'use strict';
 
 const express = require('express');
-const { validateRequest, body, query, headers } = require('../../shared/requestValidator');
-const { injectionProtectionMiddleware } = require('../../shared/injectionDetector');
+const { validateRequest, body, query, headers } = require('../../../shared/requestValidator');
+const { injectionProtectionMiddleware } = require('../../../shared/injectionDetector');
 
 const router = express.Router();
 

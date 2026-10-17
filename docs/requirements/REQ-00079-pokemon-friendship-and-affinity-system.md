@@ -7,7 +7,7 @@
 | 标题 | 精灵好感度系统与亲密度进化机制 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | in_progress |
 | 涉及服务 | pokemon-service、user-service、catch-service、reward-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-10 11:00 |
 
@@ -1111,3 +1111,19 @@ describe('FriendshipService', () => {
 - 宝可梦好感度机制: https://bulbapedia.bulbagarden.net/wiki/Friendship
 - 亲密度进化列表: https://www.serebii.net/pokedex-swsh/friendship.shtml
 - 好感度战斗加成: https://game8.co/games/pokemon-scarlet-violet/archives/393666
+
+
+## Storage acceptance review (2026-10-08)
+
+Started the existing requirement. The canonical UUID trainer bond relation, numeric
+levels, rows/keys/FKs/views and original dates remain intact. Named affinity is a
+generated projection; integer identities are not fabricated. Corrected the original
+trigger sink so actual positive/negative value writes record real before/after history.
+Existing update trigger identity/enablement survives; unknown old trainer times stay NULL.
+20 actual PostGIS checks pass, including concurrency and safe unused/blocked reversal.
+Full85 history advances past this consumer but fails later at catch_sessions catch_timestamp.
+
+Storage is only partial acceptance. JWT/ownership and UUID routing, service adapters,
+all original interactions/resources/cooldowns/events/initialization/trade/walking/battle,
+all real evolution targets/execution, gym/client/metrics/coverage and numerical targets
+remain unverified. See [friendship guide](../FRIENDSHIP.md), VERIFICATION.json and WORKLOG.md.

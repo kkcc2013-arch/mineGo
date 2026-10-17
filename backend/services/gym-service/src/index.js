@@ -1,5 +1,8 @@
 // gym-service/src/index.js
 'use strict';
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("services/gym-service/src/index"), "services/gym-service/src/index");
+
 const express   = require('express');
 const http      = require('http');
 const WebSocket = require('ws');
@@ -70,7 +73,7 @@ wss.on('connection', (ws, req) => {
   if (!raidRooms.has(raidId)) raidRooms.set(raidId, new Set());
   raidRooms.get(raidId).add(ws);
 
-  console.log(`[Raid WS] User ${userId} joined raid ${raidId}`);
+  _consoleLogger.log(`[Raid WS] User ${userId} joined raid ${raidId}`);
   
   // Update WebSocket metrics
   metrics.websocketConnectionsActive.inc({ service: 'gym-service', room: raidId });
@@ -83,7 +86,7 @@ wss.on('connection', (ws, req) => {
       if (msg.type === 'ATTACK') {
         await handleRaidAttack(ws.userId, ws.raidId, msg.moveId, msg.damage);
       }
-    } catch (e) { console.error('[Raid WS] Message error', e); }
+    } catch (e) { _consoleLogger.error('[Raid WS] Message error', e); }
   });
 
   ws.on('close', () => {
@@ -288,7 +291,7 @@ app.use('/batch', batchRouter);
 
 // REQ-00146: 伤害计算与属性克制系统
 const damageRoutes = require('./routes/damage');
-app.use('/api/v1/gym/damage', damageRoutes);
+app.use(['/api/v1/gym/damage', '/api/v1/gym/battle'], damageRoutes);
 
 // REQ-00043: 延迟任务队列处理器初始化
 const { initRaidRewardHandler } = require('./handlers/raidRewardHandler');
@@ -343,7 +346,7 @@ async function initializeDelayQueue() {
 }
 
 server.listen(PORT, async () => {
-  console.log(`[gym-service] listening on :${PORT}`);
+  _consoleLogger.log(`[gym-service] listening on :${PORT}`);
   // Initialize delay queue handlers
   await initializeDelayQueue();
   // Initialize battle WebSocket server

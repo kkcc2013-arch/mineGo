@@ -239,7 +239,7 @@ describe('ContractRegistry', () => {
     test('should return results for provider verification', async () => {
       registry.registerProvider('user-service', testContract);
       
-      const results = await registry.verifyProvider('user-service');
+      const results = await registry.verifyProvider('user-service', async () => ({passed: true}));
       
       expect(results.provider).toBe('user-service');
       expect(results.total).toBe(1);

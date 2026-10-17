@@ -3,6 +3,9 @@
  * REQ-00505: 插件生命周期管理与热插拔系统
  */
 
+
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/plugins/ConfigCenterPlugin"), "shared/plugins/ConfigCenterPlugin");
 const BasePlugin = require('../pluginSystem/BasePlugin');
 const ConfigCenter = require('../ConfigCenter');
 
@@ -85,7 +88,7 @@ class ConfigCenterPlugin extends BasePlugin {
   }
 
   log(message) {
-    console.log(message);
+    _consoleLogger.log(message);
   }
 }
 

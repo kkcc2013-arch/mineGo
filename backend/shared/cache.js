@@ -25,6 +25,7 @@ const MAX_MEMORY_SIZE = 1000;
 // L2 Redis 客户端
 let redisClient = null;
 let isInitialized = false;
+let cleanupTimer = null;
 
 // 统计数据
 const stats = {
@@ -58,10 +59,15 @@ function init(redisConfig = {}) {
     }
   };
 
+  if (process.env.REDIS_URL) {
+    delete defaultConfig.host;
+    delete defaultConfig.port;
+    delete defaultConfig.password;
+  }
   const config = { ...defaultConfig, ...redisConfig };
   
   try {
-    redisClient = new Redis(config);
+    redisClient = process.env.REDIS_URL ? new Redis(process.env.REDIS_URL, config) : new Redis(config);
     
     redisClient.on('connect', () => {
       logger.info({ config: { host: config.host, port: config.port } }, 'Redis cache connected');
@@ -72,7 +78,7 @@ function init(redisConfig = {}) {
     });
     
     // 定期清理过期的内存缓存
-    setInterval(cleanupMemoryCache, 30000);
+    cleanupTimer = setInterval(cleanupMemoryCache, 30000);
     
     isInitialized = true;
     logger.info('Cache module initialized');
@@ -466,6 +472,8 @@ async function flush() {
  * 关闭缓存连接
  */
 async function close() {
+  clearInterval(cleanupTimer);
+  cleanupTimer = null;
   try {
     memoryCache.clear();
     

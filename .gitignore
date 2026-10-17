@@ -10,3 +10,7 @@ coverage/
 
 # CI/CD deployment history
 .deploy-history/
+
+# Browser test output
+frontend/game-client/playwright-report/
+frontend/game-client/test-results/

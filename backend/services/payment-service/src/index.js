@@ -434,8 +434,7 @@ function generateMockPayParams(orderId, amountFen, channel) {
 const { initOrderTimeoutHandler } = require('./handlers/orderTimeoutHandler');
 
 // REQ-00131: 多货币支持路由
-const currencyRouter = require('./routes/currency');
-app.use('/currency', currencyRouter);
+app.use(['/currency','/api/v1/currencies'], currencyRoutes);
 
 app.use(errorHandler);
 
@@ -449,9 +448,6 @@ async function initializeDelayQueue() {
 }
 
 app.listen(PORT, async () => {
-  // Mount currency routes (REQ-00051)
-  app.use('/api/v1/currencies', currencyRoutes);
-
   logger.info({ port: PORT }, 'payment-service started');
   await initializeDelayQueue();
 

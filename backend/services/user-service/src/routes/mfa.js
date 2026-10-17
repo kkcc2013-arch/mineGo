@@ -354,7 +354,7 @@ router.delete('/trusted-devices', async (req, res) => {
       return res.status(401).json({ code: 1001, message: '未登录' });
     }
 
-    const db = require('../../shared/db');
+    const db = require('../../../../shared/db');
     await db.query(
       'DELETE FROM mfa_trusted_devices WHERE user_id = $1',
       [req.user.id]
