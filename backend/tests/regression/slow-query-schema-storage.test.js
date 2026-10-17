@@ -69,6 +69,24 @@ test('actual PostgreSQL15 slow-query migration and live statement helpers',async
       const saved=(await pool.query('SELECT * FROM slow_query_history WHERE query_id=$1',[observed[0].queryid])).rows;assert.ok(saved.length>=1);assert.equal(saved[0].mean_time_ms,observed[0].mean_exec_time);assert.equal(saved[0].calls,observed[0].calls);
       assert.equal((await pool.query('SELECT 1 FROM slow_query_history WHERE query_id=$1',[foreign[0].queryid])).rowCount,0);
     });
+    await t.test('local deadlines preserve session configuration without per-transaction display-name changes',async()=>{
+      const {TransactionManager}=require('../../shared/TransactionManager');
+      const manager=new TransactionManager(pool);
+      const originalName=(await pool.query('SHOW application_name')).rows[0].application_name;
+      const originalTimeout=(await pool.query('SHOW statement_timeout')).rows[0].statement_timeout;
+      const names=new Set();
+      for(let i=0;i<5;i++)await manager.execute(async c=>{
+        names.add(manager.getActiveTransactions()[0].id);
+        assert.equal((await c.query('SHOW application_name')).rows[0].application_name,originalName);
+        assert.notEqual((await c.query('SHOW statement_timeout')).rows[0].statement_timeout,'0');
+      });
+      assert.equal(names.size,5,'Cancellation ownership remains unique');
+      const settings=(await pool.query("SELECT calls FROM public.pg_stat_statements WHERE dbid=(SELECT oid FROM pg_database WHERE datname=current_database()) AND query LIKE 'SELECT set_config(%'")).rows;
+      assert.equal(settings.length,0,'Cancellation ownership must not add per-operation configuration rows');
+      assert.equal((await pool.query("SELECT 1 FROM public.pg_stat_statements WHERE dbid=(SELECT oid FROM pg_database WHERE datname=current_database()) AND query LIKE 'SET LOCAL application_name=%'")).rowCount,0);
+      assert.equal((await pool.query('SHOW application_name')).rows[0].application_name,originalName);
+      assert.equal((await pool.query('SHOW statement_timeout')).rows[0].statement_timeout,originalTimeout);
+    });
     await t.test('retained snapshot cutoff remains30 days and does not remove newer history',async()=>{
       await pool.query("INSERT INTO slow_query_history(query_id,query_text,recorded_at) VALUES(900001,'old',now()-interval '31 days'),(900002,'recent',now()-interval '29 days')");
       await pool.query('SELECT snapshot_slow_queries(1000000000)');assert.equal((await pool.query('SELECT query_id FROM slow_query_history WHERE query_id=900001')).rowCount,0);assert.equal((await pool.query('SELECT query_id FROM slow_query_history WHERE query_id=900002')).rowCount,1);

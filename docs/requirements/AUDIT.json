@@ -2950,7 +2950,7 @@
       "category": "数据库/数据治理",
       "modules": "backend/shared/db.js、catch-service、gym-service、payment-service、social-service",
       "createdAt": "2026-06-11 00:20",
-      "sha256": "734c90db912b0b7563240f9b1e2cb69746d74c1d3b39d2aa3cc25a21d1597b67",
+      "sha256": "f52b3ccedbf89da0463dcc922be42bae33ea20a67249d8501cf075b96e22297b",
       "acceptance": [
         "- [ ] `transaction()` 支持 3 种隔离级别配置",
         "- [ ] 死锁发生时自动重试，最多重试 3 次",

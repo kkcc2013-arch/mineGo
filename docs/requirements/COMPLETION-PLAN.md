@@ -1,6 +1,6 @@
 # mineGo requirement completion plan
 
-Updated: 2026-10-16. Scope: all 658 existing requirement documents in INDEX.md,
+Updated: 2026-10-17. Scope: all 658 existing requirement documents in INDEX.md,
 including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
 Current declarations: 52 P0, 565 P1 and 41 P2; 432 new, 37 in progress;189 declared done, including one independently verified framework. These counts
@@ -575,3 +575,32 @@ per-species candy resource contracts, plus fixed capacity. Module loads but that
 is not HTTP/feature acceptance. Continue actual canonical reconciliation without
 shadow metadata or inventing historical resource attribution. Inventory189done/
 37in_progress/432new,total658,verified1; all original goal stages remain active.
+
+
+### Exact cancellation and measured follow-up (2026-10-17)
+
+Exact2b5ab77 mainCI457/battle and transaction24/slow-query7 pass; remote throughput
+fails-7.838354232137334% and independent full history fails inventory is_deleted.
+Retain all three exact remote negative reports. Replace per-operation backend-name
+changes with bounded startup PID/key CancelRequest, inheriting verified TLS and
+refusing plaintext fallback; retain local server timeout and unknown-COMMIT rules.
+Guard mutable query configuration and commented control keywords. Count actual
+metric producer events and flush exact deltas at observation, including reset.
+
+Current724 units and355 actual checks in19 sequential storage suites pass, including
+27transaction/8slow-query/3verified-TLS. Original short-window tmpfs diagnostic fails
+-5.0164301546780425% and is retained. Increase actual per-worker sample200 to2000
+and warmup50 to500 after observed short-window jitter; retain original immutable
+baseline/real transfer/two workers/seven paired rounds/-5% gate and include both
+actual registry exposures in timed work with29000 exact event counts each. Longer
+owned tmpfs diagnostic passes-2.9650592644973828%; regular-disk measurement and exact
+new CI remain to be observed. Neither diagnostic proves durable production capacity.
+
+Continue canonical inventory prerequisite preserving UUID/data/team/candy/bond
+contracts; complete original P0 money/provider/idempotency/minor/lifecycle and all
+remaining stages. All658 scope remains active,189declared done/37in_progress/432new,
+independently verified1. No new requirement, Maven, CPU saturation, merge or deploy.
+
+Final ordinary-disk long-window result+0.22104147149817344% passes with actual
+synchronous_commit on/exact balances/events/source hashes. Preserve earlier failed
+reports; exact new remote CI and full inventory migration remain open.

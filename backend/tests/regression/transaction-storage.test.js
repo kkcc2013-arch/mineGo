@@ -8,7 +8,7 @@ const root=path.resolve(__dirname,'../../..');const delay=ms=>new Promise(resolv
 test('actual production transaction ownership, isolation, contention and cleanup',async t=>{
   assert.ok(process.env.TEST_DATABASE_URL,'TEST_DATABASE_URL must identify isolated PostGIS');
   const schema='tx_owner_'+crypto.randomBytes(8).toString('hex');const admin=new Pool({connectionString:process.env.TEST_DATABASE_URL,max:1});await admin.query(`CREATE SCHEMA ${schema}`);
-  const pool=new Pool({connectionString:process.env.TEST_DATABASE_URL,max:2,options:`-c search_path=${schema},public`});
+  const pool=new Pool({connectionString:process.env.TEST_DATABASE_URL,max:2,application_name:'minego-'+schema,options:`-c search_path=${schema},public`});
   const manager=new TransactionManager(pool,{retryDelayBase:0,maxRetryDelay:0});
   const a=crypto.randomUUID(),b=crypto.randomUUID();let shared;
   const raw=await fs.readFile(path.join(root,'database/pending/20260626_040000__add_deadlock_log_table.sql'),'utf8');
@@ -45,9 +45,26 @@ test('actual production transaction ownership, isolation, contention and cleanup
     });
     await t.test('callbacks cannot commit or end the owned scope through comments or batched SQL',async()=>{
       const before=await xp();
-      for(const command of ['COMMIT','ROLLBACK','/* outer /* nested */ comment */ END','SELECT 1; COMMIT',"PREPARE TRANSACTION 'not_owned'",'SET TRANSACTION ISOLATION LEVEL READ COMMITTED'])await assert.rejects(manager.execute(async c=>{await c.query('UPDATE users SET xp=xp+10 WHERE id=$1',[a]);await c.query(command);}),/owned by the manager/);
+      for(const command of ['COMMIT','ROLLBACK','/* outer /* nested */ comment */ END','SELECT 1; COMMIT',"PREPARE TRANSACTION 'not_owned'",'SET TRANSACTION ISOLATION LEVEL READ COMMITTED','START/**/TRANSACTION',"PREPARE/**/TRANSACTION 'not_owned'",'SET/**/LOCAL/**/TRANSACTION ISOLATION LEVEL READ COMMITTED','-- comment\rCOMMIT'])await assert.rejects(manager.execute(async c=>{await c.query('UPDATE users SET xp=xp+10 WHERE id=$1',[a]);await c.query(command);}),/owned by the manager/);
       assert.equal(await xp(),before);
       await manager.execute(async c=>{await c.query('SAVEPOINT recoverable');await c.query('UPDATE users SET xp=xp+10 WHERE id=$1',[a]);await c.query('ROLLBACK TO SAVEPOINT recoverable');await c.query("SELECT ';COMMIT' AS ordinary_literal");});assert.equal(await xp(),before);
+    });
+    await t.test('mutable query configuration cannot commit between SQL validation and execution',async()=>{
+      const before=await xp();let reads=0;
+      const config={get text(){return ++reads===1?'SELECT 1':'COMMIT';}};
+      await assert.rejects(manager.execute(async c=>{
+        await c.query('UPDATE users SET xp=xp+100 WHERE id=$1',[a]);
+        await c.query(config);
+        throw new Error('abort guarded configuration');
+      }),/abort guarded configuration/);
+      assert.equal(await xp(),before);
+      await manager.execute(async c=>{
+        assert.equal((await c.query({name:'owned_prepared_query',text:'SELECT 1 AS n'})).rows[0].n,1);
+        await assert.rejects(Promise.resolve().then(()=>c.query({text:'SELECT 1',callback:()=>{}})),/must use promises/);
+        let submitted=false;
+        await assert.rejects(Promise.resolve().then(()=>c.query({text:'SELECT 1',submit:()=>{submitted=true;}})),/must use promises/);
+        assert.equal(submitted,false,'Custom submit must not receive the owned connection');
+      });
     });
     await t.test('caught SQL errors cannot turn PostgreSQL implicit rollback into a successful result',async()=>{
       const before=await xp();await assert.rejects(manager.execute(async c=>{await c.query('UPDATE users SET xp=xp+10 WHERE id=$1',[a]);try{await c.query('UPDATE users SET stardust=-1 WHERE id=$1',[a]);}catch{}return 'not committed';}),{code:'25P02'});assert.equal(await xp(),before);
@@ -77,6 +94,23 @@ test('actual production transaction ownership, isolation, contention and cleanup
     await t.test('actual pg_sleep deadline cancels owned SQL and clears all earlier uncommitted data',async()=>{
       const before=await xp();await assert.rejects(manager.execute(async c=>{await c.query('UPDATE users SET xp=xp+100 WHERE id=$1',[a]);await c.query('SELECT pg_sleep(1)');},{timeout:40}),{code:'57014'});
       assert.equal(await xp(),before);assert.equal(manager.getActiveTransactionCount(),0);assert.equal((await pool.query('SELECT 1 AS n')).rows[0].n,1);
+    });
+    await t.test('wire cancellation releases actual row locks with the SQL timeout disabled and preserves a different backend',async()=>{
+      const before=await xp(),witness=await pool.connect();
+      const witnessPid=(await witness.query('SELECT pg_backend_pid() AS pid')).rows[0].pid;
+      const previousTimeout=(await admin.query('SHOW statement_timeout')).rows[0].statement_timeout;
+      try{
+        await assert.rejects(manager.execute(async c=>{
+          assert.notEqual(c.processID,witnessPid);assert.equal(c.secretKey,undefined);
+          await c.query("SET LOCAL statement_timeout='0'");
+          await c.query('UPDATE users SET xp=xp+100 WHERE id=$1',[a]);
+          await c.query('SELECT pg_sleep(5)');
+        },{timeout:60}),{code:'57014'});
+        await admin.query("SET statement_timeout='800ms'");
+        await admin.query(`SELECT id FROM ${schema}.users WHERE id=$1 FOR UPDATE`,[a]);
+        assert.equal((await witness.query('SELECT pg_backend_pid() AS pid')).rows[0].pid,witnessPid);
+        assert.equal(await xp(),before);assert.equal(manager.getActiveTransactionCount(),0);
+      }finally{await admin.query("SELECT set_config('statement_timeout',$1,false)",[previousTimeout]);witness.release();}
     });
     await t.test('deadline includes a queued checkout and releases the eventual late lease',async()=>{
       const one=await pool.connect(),two=await pool.connect();let called=false;
@@ -116,6 +150,23 @@ test('actual production transaction ownership, isolation, contention and cleanup
       let entered,finish;const started=new Promise(resolve=>entered=resolve),done=new Promise(resolve=>finish=resolve);
       const work=manager.execute(async c=>{await c.query('SELECT 1');entered();await done;},{transactionName:'active_observation'});await started;assert.equal(manager.getActiveTransactionCount(),1);assert.equal(manager.getActiveTransactions()[0].name,'active_observation');finish();await work;assert.equal(manager.getActiveTransactionCount(),0);
       const text=await require('../../shared/metrics').register.metrics();assert.match(text,/db_deadlock_retries_total\{service="default",isolation_level="SERIALIZABLE"\} 3/);assert.match(text,/db_active_transactions\{service="default"\} 0/);assert.match(text,/db_transaction_duration_seconds_count/);
+    });
+    await t.test('observed metrics retain exact queued events, reset behavior and disabled-operation scope',async()=>{
+      const metrics=require('../../shared/transactionMetrics');
+      const value=async metric=>{
+        const values=(await metric.get()).values;
+        return values.filter(row=>row.labels.service==='default'&&row.labels.isolation_level==='READ COMMITTED').reduce((sum,row)=>sum+row.value,0);
+      };
+      const before={started:await value(metrics.started),attempts:await value(metrics.attempts),completed:await value(metrics.completed)};
+      const active=async()=>((await metrics.active.get()).values.find(row=>row.labels.service==='default')?.value)||0;
+      await manager.execute(async c=>{await c.query('SELECT 1');assert.equal(await value(metrics.started),before.started+1);assert.equal(await active(),1);});
+      await manager.execute(c=>c.query('SELECT 1'));
+      await assert.rejects(manager.execute(c=>c.query('UPDATE users SET stardust=-1 WHERE id=$1',[a])),{code:'23514'});
+      assert.equal(await value(metrics.started),before.started+3);assert.equal(await value(metrics.attempts),before.attempts+3);assert.equal(await value(metrics.completed),before.completed+2);
+      await manager.execute(async c=>{await c.query('SELECT 1');assert.equal(manager.getActiveTransactionCount(),1);assert.equal(await active(),0);},{enableMetrics:false});
+      assert.equal(await value(metrics.started),before.started+3);assert.equal(await active(),0);
+      metrics.started.reset();await manager.execute(c=>c.query('SELECT 1'));assert.equal(await value(metrics.started),1);
+      metrics.started.reset();assert.equal(await value(metrics.started),0);
     });
     await t.test('lost commit connection reports uncertainty without retrying or leaking its owned lease',async()=>{
       await pool.query('CREATE TABLE owned_commit_guard(id uuid PRIMARY KEY)');

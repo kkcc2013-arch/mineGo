@@ -122,7 +122,7 @@ describe('TransactionManager', () => {
       }, { transactionName: 'test_query' });
 
       expect(result.rows).toEqual([{ id: 1 }]);
-      expect(mockClient.query).toHaveBeenCalledWith(expect.stringMatching(/^BEGIN ISOLATION LEVEL READ COMMITTED; SET LOCAL statement_timeout='[1-9]\d*ms'; SET LOCAL application_name='minego-tx-[a-f0-9-]+'$/));
+      expect(mockClient.query).toHaveBeenCalledWith(expect.stringMatching(/^BEGIN ISOLATION LEVEL READ COMMITTED; SET LOCAL statement_timeout='[1-9]\d*ms'$/));
       expect(mockClient.query).toHaveBeenCalledWith('COMMIT');
       expect(mockClient.release).toHaveBeenCalled();
     });
@@ -140,7 +140,7 @@ describe('TransactionManager', () => {
         transactionName: 'test_repeatable_read'
       });
 
-      expect(mockClient.query).toHaveBeenCalledWith(expect.stringMatching(/^BEGIN ISOLATION LEVEL REPEATABLE READ; SET LOCAL statement_timeout='[1-9]\d*ms'; SET LOCAL application_name='minego-tx-[a-f0-9-]+'$/));
+      expect(mockClient.query).toHaveBeenCalledWith(expect.stringMatching(/^BEGIN ISOLATION LEVEL REPEATABLE READ; SET LOCAL statement_timeout='[1-9]\d*ms'$/));
     });
 
     test('should rollback on error', async () => {
@@ -325,7 +325,7 @@ describe('TransactionManager', () => {
         transactionName: 'payment_deduct'
       });
 
-      expect(mockClient.query).toHaveBeenCalledWith(expect.stringMatching(/^BEGIN ISOLATION LEVEL SERIALIZABLE; SET LOCAL statement_timeout='[1-9]\d*ms'; SET LOCAL application_name='minego-tx-[a-f0-9-]+'$/));
+      expect(mockClient.query).toHaveBeenCalledWith(expect.stringMatching(/^BEGIN ISOLATION LEVEL SERIALIZABLE; SET LOCAL statement_timeout='[1-9]\d*ms'$/));
       expect(result.success).toBe(true);
       expect(result.newBalance).toBe(90);
     });

@@ -1654,7 +1654,7 @@
       ]
     },
     "REQ-00026-in-game-push-notification-system.md": {
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "344fb5b9107fd20457cfbd66b11d8c25d6a261cdc36cfb51e086661b4c70a6df",
       "sourceSha256": {
@@ -1696,7 +1696,7 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
         "frontend/game-client/src/i18n/index.js": "37dd930d9f30e6f6b088ad74f669c7cecbd91f7937ccb84e685d1dbfe4fa2690",
@@ -2043,6 +2043,15 @@
           "command": "18 actual sequential suites348; unit724; syntax1442; actual module/workflow loads; unchanged throughput",
           "result": "partial_local_pass_remote_performance_pending_full_history_failed",
           "scope": "One owned operation races one deadline/connection abort signal; continuation guards preserve late-checkout/BEGIN/callback/query protections, cleanup/audit/retry/metrics and unknown COMMIT. Current18 actual suites pass348 checks including24 transaction and7 live slow-query cases;724 unit checks/24Jest suites and syntax1442 pass. Original unchanged paired gate local+0.5400157583078435percent with exact balances/source hashes and actual synchronous_commit on. Exact5864a4a remote throughput failed-5.691201189980399percent at-5percent and is archived; new remote performance still required. SQL full-history boundary remains20260627_060000 stmt13 is_deleted missing; no full original feature/runtime/numerical/operations acceptance. Refresh only exercised common references.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
@@ -2751,7 +2760,7 @@
       ]
     },
     "REQ-00007-database-migration-management.md": {
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "034e46d0685cd0216fa145e46909ee1996a4e421c719c4f1cd3cab3eacb47404",
       "sourceSha256": {
@@ -2769,7 +2778,7 @@
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/regression/storageSetup.js": "1a67a27f674d7ef022e266da1ebbd5146870cdc290ebd64a51a799f5843ceaee",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         "docs/DATABASE-MIGRATIONS.md": "9cc528d2e810158f50f600e7328ae87e7e4f46cd9fc6544cdc456648e6eb6044",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
@@ -2815,7 +2824,8 @@
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "backend/tests/regression/special-iv-storage.test.js": "a36c9842feabcaa478ece692c839cb1b8b876db66d1facc8b932d38e2ddedd54",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2",
-        "backend/shared/TransactionManager.js": "bb4cde846f4792f883db6addfc70b65b124316af600a561f885a970817351a88"
+        "backend/shared/TransactionManager.js": "87d7f3a984e6822739a852833281456fe8d232c94edccbc29e9dd96acd7d6705",
+        "backend/shared/pgCancel.js": "92f0c891d270da29d0fb3769016baa60925c875fd88346b38c3ddc700e3b87ad"
       },
       "evidence": [
         {
@@ -3181,12 +3191,22 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml",
+            "backend/shared/TransactionManager.js"
+          ]
         }
       ],
       "remaining": "Complete85-source history now fails20260627_060000 statement13 missing is_deleted. Reconcile canonical inventory/ownership/contracts, all later pending files, data-preserving upgrades/reversal and all-service startup. Exact new remote throughput still unverified; all original acceptance remains open."
     },
     "REQ-00047-pokemon-items-inventory-management-system.md": {
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "1e4b09e980841206306e6d778caa7f0fe0eeaef677852331fca1346756fc3592",
       "sourceSha256": {
@@ -3200,7 +3220,7 @@
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         "docs/DATABASE-MIGRATIONS.md": "9cc528d2e810158f50f600e7328ae87e7e4f46cd9fc6544cdc456648e6eb6044",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
@@ -3453,11 +3473,20 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ]
     },
     "REQ-00056-pokedex-completion-reward-system.md": {
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "f58d1055fc702bef6e3a6cf4f9ed5156499e4241c8c57d078c7a73efcb7c6212",
       "sourceSha256": {
@@ -3471,7 +3500,7 @@
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         "docs/DATABASE-MIGRATIONS.md": "9cc528d2e810158f50f600e7328ae87e7e4f46cd9fc6544cdc456648e6eb6044",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
@@ -3724,11 +3753,20 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ]
     },
     "REQ-00060-database-partitioning-for-large-tables.md": {
-      "date": "2026-10-13",
+      "date": "2026-10-17",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "f53061e2759ae285b52387dda4941bdcf46490ba338e288db278009a37e8cd64",
       "sourceSha256": {
@@ -3742,7 +3780,7 @@
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         "docs/DATABASE-MIGRATIONS.md": "9cc528d2e810158f50f600e7328ae87e7e4f46cd9fc6544cdc456648e6eb6044",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
@@ -4078,6 +4116,15 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -4087,7 +4134,7 @@
       ]
     },
     "REQ-00076-pokemon-achievement-and-milestone-reward-system.md": {
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "c0c8a5cd9c479e0a03b092dd10aa44db7944527b45ead014ff332cfebba4b50e",
       "sourceSha256": {
@@ -4104,7 +4151,7 @@
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "backend/services/user-service/src/routes/user.js": "7d24fb40cd0662c428a6b42c2bf6636a2a3ac05fdcdc5e8717d1df5a1dbf04df",
         "backend/tests/regression/achievement-storage.test.js": "4983c1a41d7e40fd86bcb29cd59765555c2ff0f10030044ca5b75ee435a4b90b",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         "docs/ACHIEVEMENTS.md": "09711c5508a55e25daaa1d2735281a7c35bae20e885c998d93bb3a5d17e8a08d",
         "docs/DATABASE-MIGRATIONS.md": "9cc528d2e810158f50f600e7328ae87e7e4f46cd9fc6544cdc456648e6eb6044",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
@@ -4351,6 +4398,15 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": "Replay/idempotency/durable events/automatic grant/all triggers; complete seed item/title contract and exclusive Pokemon grant; management CRUD/admin and edited-definition snapshot policy; old unit fixture; native pokemon process/gateway/client/localization; <100ms query/<50ms update performance; full83 history and data-preserving reversal with modern records remain unproven."
@@ -4542,6 +4598,15 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -4569,7 +4634,7 @@
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -4579,7 +4644,7 @@
         "database/pending/repairs/20260611_102500__add_canary_deployment_tables.sql": "af806cc8d46faf2228134f5cc1f80cdc1f7258d29cf78492ad511664b790366d",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2"
       },
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "66fc18d71bb143c4e292fb1704d11eac9c242fa4f11c4a17a5a4aec1a9459ea7",
       "remainingAcceptance": [
@@ -4778,6 +4843,15 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -4805,7 +4879,7 @@
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -4815,7 +4889,7 @@
         "database/pending/repairs/20260611_102500__add_canary_deployment_tables.sql": "af806cc8d46faf2228134f5cc1f80cdc1f7258d29cf78492ad511664b790366d",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2"
       },
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "89d0bb9cb00333bd1dbbc2e36bfa1b460b7ac8fa721da032b1361ba9d22efecd",
       "remainingAcceptance": [
@@ -5014,6 +5088,15 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -5041,7 +5124,7 @@
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -5051,7 +5134,7 @@
         "database/pending/repairs/20260611_102500__add_canary_deployment_tables.sql": "af806cc8d46faf2228134f5cc1f80cdc1f7258d29cf78492ad511664b790366d",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2"
       },
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "afb2654ccb86284242fcdf8f78d87e756f4d990a08cb627642a296e9a9331d92",
       "remainingAcceptance": [
@@ -5074,7 +5157,7 @@
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -5248,9 +5331,18 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "2199fa22d3b8cef1ec34265ea4d1218f539c6cb9c5b9eeedb76ee9a0a5221768",
       "remainingAcceptance": [
@@ -5273,7 +5365,7 @@
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -5447,9 +5539,18 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "88ea8074248884f00732da80e45b56fd489d819d7583d4eea469bb318650fedf",
       "remainingAcceptance": [
@@ -5462,7 +5563,7 @@
       ]
     },
     "REQ-00082-catch-success-anomaly-detection-system.md": {
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "1b8f5000c786f9446e14bdc65febc7965f4ee516e6d46af2d8663e8989f32608",
       "sourceSha256": {
@@ -5473,7 +5574,7 @@
         "database/pending/20260612_070000__add_catch_anomaly_detection_system.sql": "071c812b16b0f3bd90eb912c88d98d01c334d709a619ae0c5e7b26280869b926",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         "docs/CATCH-RISK.md": "38a45565382fcc71fcd3086ed2de7b885d9e912859efe78d917741eaa3afbcf0",
         "docs/review/REQ-00082-catch-success-anomaly-detection-review.md": "76b74356f1d4b2745e8d4029639e2cb0ac5101d789d6c6c699b35fb2b3aa11a9",
         "docs/review/REQ-00082-catch-success-anomaly-detection-system-review.md": "91b9a7a16ae6203eac69695669ad3eed471d75d13259a44cd7b98a59f044e19c",
@@ -5646,6 +5747,15 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -5659,7 +5769,7 @@
       ]
     },
     "REQ-00160-special-iv-system.md": {
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "8c055ccc9664dbdf2a7045cb4929ed1e6333de36746a1245fb4a494c4b73524c",
       "sourceSha256": {
@@ -5672,7 +5782,7 @@
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
         "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -5801,6 +5911,15 @@
           "command": "18 actual sequential suites348; unit724; syntax1442; actual module/workflow loads; unchanged throughput",
           "result": "partial_local_pass_remote_performance_pending_full_history_failed",
           "scope": "One owned operation races one deadline/connection abort signal; continuation guards preserve late-checkout/BEGIN/callback/query protections, cleanup/audit/retry/metrics and unknown COMMIT. Current18 actual suites pass348 checks including24 transaction and7 live slow-query cases;724 unit checks/24Jest suites and syntax1442 pass. Original unchanged paired gate local+0.5400157583078435percent with exact balances/source hashes and actual synchronous_commit on. Exact5864a4a remote throughput failed-5.691201189980399percent at-5percent and is archived; new remote performance still required. SQL full-history boundary remains20260627_060000 stmt13 is_deleted missing; no full original feature/runtime/numerical/operations acceptance. Refresh only exercised common references.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
@@ -5815,7 +5934,7 @@
       ]
     },
     "REQ-00091-pokemon-equipment-system-and-stat-bonus-mechanism.md": {
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "5d4285d83cf374d1fc35fef7c9e10a18a3eb5e53dd1626990c1d8995ac8c1401",
       "sourceSha256": {
@@ -5828,7 +5947,7 @@
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
         "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -5960,6 +6079,15 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -5971,7 +6099,7 @@
       ]
     },
     "REQ-00097-pokemon-daily-quest-and-reward-mechanism.md": {
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "ab101493c74eef56275b9aebc36a2f0f9c9d7a887b61aa0466d91c6d0d752b8d",
       "sourceSha256": {
@@ -5984,7 +6112,7 @@
         "backend/shared/questService.js": "4db34890cbb2837e2c13703dd0278e41a030fd8cbb1d39bf2411920e2f4413fd",
         "backend/shared/routes/quests.js": "415f6443d29d9f5675b0def6517d20063ec0df25d66454ccd3e3766a326163e3",
         "backend/shared/questMetrics.js": "4d70c0eb2917f3942f4cc0888d27ffdfeb6fcac91a585c4a897364a7e7afaa8f",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         "docs/DAILY-QUESTS.md": "b63d44e8e29e3fdcd856248af47935ca99924740c887be49c45defd33cdd21de"
       },
       "evidence": [
@@ -6097,6 +6225,15 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -6110,7 +6247,7 @@
       ]
     },
     "REQ-00255-api-injection-attack-protection-system.md": {
-      "date": "2026-10-13",
+      "date": "2026-10-17",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "7ae59fae3513e79229a2736d7b2b6cb5488857eb54b199cf76520bc1fc6e0020",
       "sourceSha256": {
@@ -6118,7 +6255,7 @@
         "backend/services/catch-service/src/index.js": "b5901bc1a2bc732da52ffb257166948b54e84141882b5989d0dcbf3b0c26175c",
         "backend/tests/regression/reward-leaderboard-storage.test.js": "b22fe38c30f5351cbcbd39129f0794daf6dc3b2c7ed6c33cca2ba8b1159d163f",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         "docs/REWARD-RANKINGS.md": "ad7d89e56547dcdd24d5fe07ac61557a5e1c0ee69bce4ea77b6aa116fa9fd933",
         "docs/review/REQ-00255-api-injection-attack-protection-system-review.md": "2ac0537e70d4896ea611958d55aaffb60793de6b06538872a554819d0a60ef76"
       },
@@ -6201,6 +6338,15 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -6212,7 +6358,7 @@
       ]
     },
     "REQ-00019-pokemon-moves-learning-system.md": {
-      "date": "2026-10-13",
+      "date": "2026-10-17",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "4ff8ac9492012c4e20f34d249935eddc559d7eedf7010351d3084ada011a63fb",
       "sourceSha256": {
@@ -6233,7 +6379,7 @@
         "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
       "evidence": [
@@ -6342,6 +6488,15 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -6353,7 +6508,7 @@
       ]
     },
     "REQ-00146-gym-battle-damage-formula-and-type-chart.md": {
-      "date": "2026-10-13",
+      "date": "2026-10-17",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "7927ead7a5ef1fe606c4cd75abb2c8a8b5798c237835abb02923c072527f3e83",
       "sourceSha256": {
@@ -6374,7 +6529,7 @@
         "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
       "evidence": [
@@ -6483,6 +6638,15 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -6494,7 +6658,7 @@
       ]
     },
     "REQ-00116-pokemon-team-real-time-voice-chat-system.md": {
-      "date": "2026-10-13",
+      "date": "2026-10-17",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "b6b3f8b0c1f29513adb080bd796ad395abf3a1f848704020408d006881ef7d30",
       "sourceSha256": {
@@ -6505,7 +6669,7 @@
         "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
         "backend/tests/regression/voice-schema-storage.test.js": "5e4162b28e07f7f35ab339d707b4be8a99e19e1921bd208cd51890fbf5058c6f",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         "backend/services/social-service/src/voice/turnServer.js": "2ca289a62a2fa2648e4c5a18ac49a13af268d55c17c3739334851c5673df5eb5",
         "backend/services/social-service/src/voice/routes.js": "cdcbac7391f275b20a7646517ac0a5d3883c35a629d10e66aef9b49a42349b80",
         "backend/services/social-service/src/voice/signalingServer.js": "4e8199480ff3745f671a20845680cf48ef5d374d4544813ca914d3fbce842505",
@@ -6598,6 +6762,15 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -6609,7 +6782,7 @@
       ]
     },
     "REQ-00051-multi-currency-support-exchange-rate-system.md": {
-      "date": "2026-10-14",
+      "date": "2026-10-17",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "dcbacc58410c1b87a56bd1a19e042a673d4e27b4ad309fdb71cfe910dde1b6f8",
       "sourceSha256": {
@@ -6624,7 +6797,7 @@
         "database/pending/20260624_133000__add_multi_currency_support.sql": "9d82251238972d1bd61c2264504f10f709039e52b2b42921c81957c32b689bcf",
         "database/pending/repairs/20260624_133000__add_multi_currency_support.sql": "a6f2318807e7824c4c458beb7762ec555e256d97af41405707dafbf8ac24dde2",
         "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
         "docs/CURRENCIES.md": "02ca61669686acdd8038b3ec185dd96a04a0ed6bc6014493d43120d5940676b7"
       },
       "evidence": [
@@ -6704,6 +6877,15 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -6715,34 +6897,44 @@
       ]
     },
     "REQ-00096-database-transaction-isolation-deadlock-detection.md": {
-      "date": "2026-10-15",
+      "date": "2026-10-17",
       "status": "partial_verified_full_history_failed",
-      "documentSha256": "734c90db912b0b7563240f9b1e2cb69746d74c1d3b39d2aa3cc25a21d1597b67",
+      "documentSha256": "f52b3ccedbf89da0463dcc922be42bae33ea20a67249d8501cf075b96e22297b",
       "sourceSha256": {
-        "backend/shared/TransactionManager.js": "bb4cde846f4792f883db6addfc70b65b124316af600a561f885a970817351a88",
+        "backend/shared/TransactionManager.js": "87d7f3a984e6822739a852833281456fe8d232c94edccbc29e9dd96acd7d6705",
         "backend/shared/transactionManager.js": "04015c6fb573e724d96c0c2ad3cb1e75d1d5a7b6eb883fa2ea177e6969e67929",
         "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
         "backend/shared/pgDeadlock.js": "2afdcc6058b8160b05a8eaa6b83fbdfcb8cf89d3c07e3c9c54e713c3e4e10285",
         "backend/shared/deadlockDetector.js": "094eb06e5ba53d6bcb02f18cf87630b62edbb04db3952ddbde5af59931914416",
-        "backend/shared/transactionMetrics.js": "2f1b5c96d9d5f1b53fbda06c1a6f6be1937cc547905415a112f1c3bd510d0711",
+        "backend/shared/transactionMetrics.js": "bd1664a8cac4140deb86dc9873ad0698845efdec78831ee3951024953082836b",
         "backend/shared/metrics.js": "42d9fc149e871ac0a4623e50b97ad19cdc3df5ca2e5e488b2e4fd3d32cbb572b",
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
-        "backend/tests/unit/transaction-manager.test.js": "866290ace655ef1c3c0a3b417a29182ffd832c22189a70f0e75092e0e537795a",
+        "backend/tests/unit/transaction-manager.test.js": "2b55c4586aa67168b80d2b1d20b4b7bba6d6c12cdb30fcd988229a9429d9f26c",
         "backend/tests/unit/transactionManager.test.js": "b34eab972bba2244bae16221b4186aae715de3a4fa86ab2907e0e68b0872a45b",
         "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
-        "backend/tests/regression/transaction-storage.test.js": "6965e290418d9a66b7da47bc8844a04aaf10389f48d99525ade50fe3d254cfc5",
-        "backend/tests/performance/transaction-throughput.js": "62fb7ff107b83a0e4f71ffb6af97c4a563c78ba70dc7ed34421831b14ea52751",
+        "backend/tests/regression/transaction-storage.test.js": "5d5e0ea19175740f7284ff8d3f334ea622d01d51309628d0c12fac5566b779db",
+        "backend/tests/performance/transaction-throughput.js": "a1f1ab19ee43c8e35bd4cd7ba5923b16f5325d95f04a07d769c30081d6252f1e",
         "docs/benchmarks/transaction-throughput-2026-10-15.json": "b22bccb8cee394a16a4c5135761e5e104c97e6b95c974a18ceb7e36d887e4a03",
         "database/pending/20260626_040000__add_deadlock_log_table.sql": "b9060fc1aab1fd26bbb27d08a7d0ba83f9df521191ecc37cbe679c447ed16238",
         "database/pending/repairs/20260626_040000__add_deadlock_log_table.sql": "fe133fbc60e1719e237752d8a9508ff246d3e376a46aed62e024c5939a721cbc",
         "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
-        "docs/TRANSACTIONS.md": "1d988b1037b802d2e6a8682e11cc6e55c8612c25f3d0f390ef7aa16b7203d036",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        "docs/TRANSACTIONS.md": "fe1f73f77de5549815e9dae502cb9d928f6c3fe565ccb08d4a64bcd9e000cdac",
         "docs/DATABASE-MIGRATIONS.md": "9cc528d2e810158f50f600e7328ae87e7e4f46cd9fc6544cdc456648e6eb6044",
         "docs/benchmarks/transaction-throughput-ci-bae401e-2026-10-15.json": "61c8117367a10c9984f6d83854443cd8a71990cb1f8d0270ee72ea8ccf6a1bf6",
         "docs/benchmarks/transaction-throughput-optimized-2026-10-15.json": "d10f3e6df7005b973d3a04a0136cd828dc315b7979f824944641d4abcf41193b",
         "docs/benchmarks/transaction-throughput-ci-5864a4a-2026-10-16.json": "556cb07df13262532238b5c4feaed36fa11d79daa84a3ecf7237577d9047bddb",
-        "docs/benchmarks/transaction-throughput-operation-2026-10-16.json": "b629eeb3c7c79d350c4b3be49df5283ee1e192ec27d55be74ad5f0442192a288"
+        "docs/benchmarks/transaction-throughput-operation-2026-10-16.json": "b629eeb3c7c79d350c4b3be49df5283ee1e192ec27d55be74ad5f0442192a288",
+        "backend/shared/pgCancel.js": "92f0c891d270da29d0fb3769016baa60925c875fd88346b38c3ddc700e3b87ad",
+        "backend/tests/regression/transaction-tls-cancel.test.js": "7349cda998af875d3810434ae25d93a72d5030b744cbd66a191f68e7279231d6",
+        "docs/benchmarks/transaction-throughput-ci-2b5ab77-2026-10-16.json": "047cb45ddad1808eb1a37bf4d779e33e2328e200e2b18a30d1c864f2b0e82533",
+        "docs/benchmarks/transaction-fast-storage-environment-2026-10-16.json": "67b04d2acb6fdc926a150a239fae9dfa2aa604b854064c7f526eac8b813fe19d",
+        "docs/benchmarks/transaction-throughput-settings-2026-10-16.json": "29e272dd8b2f31e1109cb5d541c0b6d8f9a67b781cbd8807c525a463c0fc20fd",
+        "docs/benchmarks/transaction-throughput-settings-fast-storage-diagnostic-2026-10-16.json": "dbd89109e25aeb55e68bc92d3b0a8b6d370ac758c9b6e4b25c48f79802400911",
+        "docs/benchmarks/transaction-throughput-collected-fast-storage-diagnostic-2026-10-17.json": "a12c871b01faed32eadfbae490e9e1034e61cef3a119065ac74b687d5abdbd5d",
+        "docs/benchmarks/transaction-throughput-wire-fast-storage-diagnostic-2026-10-17.json": "8c4c945dea2ad343c6eeda26435179edbaf682d5bc370d4972b2a1ca919548cc",
+        "docs/benchmarks/transaction-throughput-wire-long-fast-storage-diagnostic-2026-10-17.json": "9cadec63d049c7e0e7e785bc3e43ced50b08f5e4b9e5d7473979b978dec8f3a3",
+        "docs/benchmarks/transaction-throughput-wire-long-2026-10-17.json": "f1f7d923dd471d164fe97efd697799abda35348108807030ffbd415aa6c598c0"
       },
       "evidence": [
         {
@@ -6856,6 +7048,48 @@
           "requiredMinimumChangePercent": -5,
           "artifact": "docs/benchmarks/transaction-throughput-operation-2026-10-16.json",
           "scope": "Actual new pending-SQL cases prove unawaited success waits before confirmed commit and failed pending query rolls back earlier writes. All original cases retained. Same baseline/workload/rounds/threshold; add actual environment metadata before timing, synchronous_commit on. Local pass only, new remote pending."
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "backend/shared/TransactionManager.js",
+            "backend/shared/transactionMetrics.js",
+            "backend/tests/unit/transaction-manager.test.js",
+            "backend/tests/regression/transaction-storage.test.js",
+            "backend/tests/performance/transaction-throughput.js",
+            ".github/workflows/migration-regression.yml",
+            "docs/TRANSACTIONS.md"
+          ]
+        },
+        {
+          "date": "2026-10-17",
+          "commit": "2b5ab77c30708529b8d83e0f74067c41e37c8362",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/38875055400",
+          "job": 116887975018,
+          "result": "correctness_passed_performance_and_full_history_failed",
+          "medianChangePercent": -7.838354232137334,
+          "requiredMinimumChangePercent": -5,
+          "scope": "Exact mainCI457/battle passed; migration19 actual transaction24 and slow-query7 passed, throughput failed unchanged original gate. Independent full history ran and failed inventory20260627_060000 stmt13 missing is_deleted. Old200/50sample report retained, not equated with longer current2000/500sample. No acceptance waiver."
+        },
+        {
+          "date": "2026-10-17",
+          "command": "actual verified-TLS cancel/refusal;ordinary storage;immutable-baseline paired throughput",
+          "result": "local_pass_remote_pending",
+          "transactionChecks": 27,
+          "slowQueryChecks": 8,
+          "tlsChecks": 3,
+          "regularDiskArtifact": "docs/benchmarks/transaction-throughput-wire-long-2026-10-17.json",
+          "medianChangePercent": 0.22104147149817344,
+          "requiredMinimumChangePercent": -5,
+          "fastStorageDiagnostic": "docs/benchmarks/transaction-throughput-wire-long-fast-storage-diagnostic-2026-10-17.json",
+          "samplesPerWorkerPerRound": 2000,
+          "warmupPerWorker": 500,
+          "rounds": 7,
+          "concurrency": 2,
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance."
         }
       ],
       "remaining": [
@@ -6863,11 +7097,12 @@
         "Exact optimized remote throughput must pass original5percent ceiling; prior bae401eb CI failed5.624629685951888percent and remains historical evidence, never waived.",
         "Exact current-source relevant CI, complete REQ-00007 migration history and data-preserving upgrade/reversal remain open.",
         "Audit retrying production callers for durable money/resource/idempotency and external side effects; this shared foundation does not accept whole payment/battle/catch/social features.",
-        "Representative production/service numerical acceptance remains separate from the original local paired throughput regression."
+        "Representative production/service numerical acceptance remains separate from the original local paired throughput regression.",
+        "New cancellation/metric source and longer sampling window require exact remote throughput gate. Both original legacy helper and actual default shared-db callers still require representative review; local tmpfs/disk comparisons are not production capacity or full all-service acceptance."
       ]
     },
     "REQ-00077-database-slow-query-analysis-system.md": {
-      "date": "2026-10-16",
+      "date": "2026-10-17",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "5c21e2739e9f27ec2e053126b8f691149e4d31503f5cecd495aba629a5083e8c",
       "sourceSha256": {
@@ -6876,9 +7111,9 @@
         "database/pending/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "bcfa7904149404b6677ab0e33591670d12746845e590849ee822dca2966071ab",
         "database/pending/repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "660c62531f86d2f8981163afbe85b50ec68bbe27269b840d7b7ea4dba64f0df4",
         "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
-        "backend/tests/regression/slow-query-schema-storage.test.js": "0ad92a1d3774e67f4f0c8424b581ca63699b48fe9b1659490ec3c22d7879e20a",
-        ".github/workflows/migration-regression.yml": "60c537d4249c4b23aa8a1fbf8fe841eff5e3fb96ec16097e6175bbeff6a374cd",
-        "docs/SLOW-QUERIES.md": "27748dcfbea3ab37223067728f4bb0ec6cbcff2b341055b7a1a3dea8f865fb8d",
+        "backend/tests/regression/slow-query-schema-storage.test.js": "35c43ce9cc230648eeb82e069000bfd6f5b5019b533eaa14b5a1b8349bf71fbb",
+        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        "docs/SLOW-QUERIES.md": "8c3a6dde07fb0d411ed7b3da05e2d7daa4ab20c4fc52ddd4a8e89e3499353921",
         "docs/DATABASE-MIGRATIONS.md": "9cc528d2e810158f50f600e7328ae87e7e4f46cd9fc6544cdc456648e6eb6044"
       },
       "evidence": [
@@ -6923,6 +7158,27 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "command": "npm run test:unit;19 actual sequential storage suites;final TLS repeat;syntax;module/workflow loads;paired real throughput;full bootstrap",
+          "result": "partial_local_verified_current_ci_pending_full_history_failed",
+          "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
+          "changedReferences": [
+            "backend/tests/regression/slow-query-schema-storage.test.js",
+            ".github/workflows/migration-regression.yml",
+            "docs/SLOW-QUERIES.md"
+          ]
+        },
+        {
+          "date": "2026-10-17",
+          "commit": "2b5ab77c30708529b8d83e0f74067c41e37c8362",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/38875055400",
+          "job": 116887975018,
+          "result": "correctness_passed_performance_and_full_history_failed",
+          "medianChangePercent": -7.838354232137334,
+          "requiredMinimumChangePercent": -5,
+          "scope": "Exact mainCI457/battle passed; migration19 actual transaction24 and slow-query7 passed, throughput failed unchanged original gate. Independent full history ran and failed inventory20260627_060000 stmt13 missing is_deleted. Old200/50sample report retained, not equated with longer current2000/500sample. No acceptance waiver."
         }
       ],
       "remaining": [

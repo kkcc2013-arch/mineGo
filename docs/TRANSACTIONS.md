@@ -32,8 +32,10 @@ queries finish before commit, and a PostgreSQL implicit ROLLBACK cannot count as
 successful COMMIT.
 
 On error the manager rolls back a usable lease. Busy/failed leases are destroyed;
-a timed-out busy backend is cancelled only when PID, unique application_name,
-current database and current role all match. A callback that finishes late cannot
+a failed busy backend receives PostgreSQL CancelRequest using the private startup
+PID/key of that exact lease. The cancellation connection inherits the original TLS
+policy; TLS refusal cannot trigger plaintext fallback. The failed lease is always
+quarantined. CancelRequest transport closure is not an acknowledgement of success. A callback that finishes late cannot
 write through a returned lease. Checked-out connection errors are handled through
 lease destruction, including a disconnect during COMMIT. A lost/expired COMMIT
 response has `commitOutcomeUnknown=true` and is never automatically retried; callers
@@ -57,8 +59,10 @@ Collectors use the actual shared registry exposed by service metrics endpoints.
 `db_transaction_retries_total` and `db_deadlock_retries_total` count retries actually
 checked out. `db_transactions_total` records final success, rollback, timeout,
 max_retries_exceeded or unknown_commit. The duration histogram measures the whole
-logical operation including retry/cleanup. The active gauge sums owned checked-out
-transactions by service. Labels use service/isolation/status/error classifications,
+logical operation including retry/cleanup. The active gauge sums actual owned checked-out transactions with metrics enabled
+by service. Starts/attempts/completions/final outcomes accumulate exact producer
+deltas and flush through the public Counter API when collected; reset clears both
+pending and published counts. Failure/retry counters and duration remain direct. Labels use service/isolation/status/error classifications,
 not user IDs or transaction names. Instrumentation failures do not reverse a
 confirmed commit or convert it into a reported business failure.
 
@@ -71,8 +75,9 @@ Missing transaction_name/retry_count/context are additive; historical unknown na
 and retry counts stay NULL, and default zero applies only to future missing-column
 inserts. Incompatible column types are refused. All85 root pending SQL sources stay
 byte-identical; the manifest records the original checksum and separate repair.
-This is not an upgrade plan for already applied differing repairs. The complete
-history still fails at 20260627_041000 statement14, `round(double precision,integer)`;
+This is not an upgrade plan for already applied differing repairs. The independent
+slow-query repair advances complete history to 20260627_060000 statement13, missing
+`pokemon_instances.is_deleted`;
 its pending batch rolls back. Complete history, reversal and all-service acceptance
 remain open.
 
@@ -174,3 +179,68 @@ runs full history after success or failure of preceding checks. Failure still fa
 the job; no continue-on-error or threshold waiver is added. This collects actual
 evidence for independent gates even while the known complete-history conflict stays
 red. Whole-chain, service and feature acceptance remain open.
+
+
+## Owned cancellation and longer measurement windows (2026-10-17)
+
+Exact2b5ab77 mainCI457/battle passed. Migration19 job116887975018 passed the
+actual24 transaction and7 slow-query checks, then failed throughput at
+-7.838354232137334%. The independently executed full history also failed at
+inventory20260627_060000 statement13. The third
+[negative CI report](benchmarks/transaction-throughput-ci-2b5ab77-2026-10-16.json)
+is retained; no local result overrides it.
+
+The previous per-operation application_name changed two PostgreSQL session-status
+messages per commit and generated distinct unnormalized utility entries in real
+pg_stat_statements. Cancellation now uses the driver's startup PID/private key
+through a separate bounded connection, started before the exact failed lease is
+destroyed. application_name remains unchanged; SET LOCAL statement_timeout remains
+in the same BEGIN round trip and restores after completion. Private backend keys
+are never exposed to callbacks, logs or artifacts. TLS cancellation negotiates SSL
+and waits for the verified encrypted connection before sending the request, with
+the original CA/certificate policy and no plaintext fallback. This follows the
+[PostgreSQL cancellation protocol](https://www.postgresql.org/docs/15/protocol-flow.html#PROTOCOL-FLOW-CANCELING-REQUESTS);
+closure confirms only transport completion, not a successful database cancellation.
+Actual lock-release/rollback tests verify the business outcome separately.
+
+Query configuration getters are materialized before validating the exact SQL sent.
+Callback/custom submit hooks cannot receive an owned driver connection. The control
+guard handles comments between keywords, CR line endings, nested comments and
+batched statements while retaining prepared queries and savepoints. A bounded cache
+holds at most256 validated SQL texts of at most4096 characters each. Metric labels
+are immutable and reused; actual event deltas flush at observation, including reset
+and disabled-metrics behavior, without changing any reported business outcome.
+
+The former200-transfer samples lasted roughly0.17s on faster storage and showed
+large pair-to-pair variation. The benchmark now uses2000 actual transfers per worker
+per round and500 warmup, retaining the exact published43c6b148 predecessor, V1
+SELECT-FOR-UPDATE/two-UPDATE transfer, two workers, seven alternating pairs and
+original-5% limit. Both real registry exposures are inside every timed sample and
+exact started/completed counts must equal all29000 operations for each producer.
+All resource balances and before/after source hashes are still checked. This sample
+length change is explicit; old and new sample counts must not be conflated.
+
+The preceding short fast-storage diagnostic failed at-5.0164301546780425% and is
+[retained](benchmarks/transaction-throughput-wire-fast-storage-diagnostic-2026-10-17.json).
+The longer diagnostic passes at-2.9650592644973828%; its
+[source-hashed report](benchmarks/transaction-throughput-wire-long-fast-storage-diagnostic-2026-10-17.json)
+uses an owned one-CPU/512MiB PostgreSQL15.8 instance with256MiB tmpfs PGDATA and
+synchronous_commit on. The tmpfs measurement is exploratory comparative evidence,
+not durable-storage, production-capacity or remote-CI acceptance. Intermediate
+settings/buffering diagnostics refer to their own recorded hashes, not the final
+source. All original seven criteria and the remote gate remain open until verified.
+
+The TLS storage suite additionally requires TEST_SSL_DATABASE_URL and the public
+TEST_DATABASE_SSL_CA certificate path. CI creates a disposable certificate/key,
+installs it only in its owned PostGIS container and enables SSL during the existing
+preload restart. Private keys are never committed or uploaded. No unrelated server
+configuration or database is changed.
+
+The final regular-disk measurement also passes at+0.22104147149817344% median,
+with synchronous_commit on, exact balances/29000 event counts and matching final
+source hashes; [report](benchmarks/transaction-throughput-wire-long-2026-10-17.json).
+This is a separate owned one-CPU/512MiB local comparison, not production capacity.
+Final724 unit checks/24Jest suites425 and355 actual storage checks pass, including
+27transaction/8slow-query/3TLS; TLS is repeated after pre-establishing its verified
+connection so its deadline targets blocked-query cancellation. All checkout/deadline
+cases remain in the original storage suite. Exact new remote CI is still required.

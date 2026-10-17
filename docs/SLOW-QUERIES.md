@@ -60,3 +60,16 @@ its live probe from the top50. This exposed the missing database scope. The repa
 now filters current database in both helpers, and the fixture owns a fresh database.
 Repeated actual7-case runs pass, including positive current-database collection and
 negative foreign-database collection; assertions and acceptance thresholds remain.
+
+
+## Transaction metadata regression (2026-10-17)
+
+A real repeated-transaction probe exposed per-operation application_name utility
+entries competing in the shared statement catalog. The transaction manager now
+retains its original backend name and uses exact startup PID/key cancellation.
+A new actual case checks five distinct managed operation IDs, unchanged backend
+application_name, restored statement_timeout and absence of application-name or
+SELECT-set_config monitoring entries from those operations. This adds to, rather
+than substitutes for, the live slow-query/foreign-database/history checks. See
+[transaction evidence](TRANSACTIONS.md); the original ten slow-query feature criteria
+and complete migration chain remain open.

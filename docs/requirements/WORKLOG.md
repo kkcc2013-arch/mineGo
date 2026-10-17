@@ -1447,3 +1447,62 @@ work. Carry actual owner/protection/confirmed atomic transfer/cache/prefs/sort/g
 capacity/UI/mobile/performance and data-preserving upgrade acceptance forward.
 No new requirement or fake backfill. Inventory189done/37in_progress/432new,total658,
 independently verified1. Persistent all658 active; no Maven/maxCPU/merge/deployment.
+
+
+## Owned wire cancellation and exact metric observation (2026-10-17)
+
+Observed exact2b5ab77 mainCI457 success and battle success. Migration19
+job116887975018 passes actual transaction24 and slow-query7, then original throughput
+fails-7.838354232137334%. Independent full history now executes and fails inventory
+20260627_060000 stmt13 is_deleted; no continue-on-error or fabricated green result.
+Third exact remote negative report retained beside the preceding two failures.
+
+Actual pg_stat_statements reveals per-transaction UUID application_name utility
+entries and evictions; PostgreSQL protocol also emits name-change status packets.
+Replace display-name mutation with bounded CancelRequest using the exact owned
+backend's private startup PID/key, before quarantining/destroying the failed lease.
+Keep local statement_timeout in BEGIN and verify restoration/original backend name.
+Cancellation inherits original CA/TLS, waits secureConnect before sending and
+refuses plaintext fallback. Transport close is not database success; genuine blocked
+row lock releases, writes roll back and another backend stays alive. Keys never
+reach callback/log/artifact. Callback/config custom submit hooks and mutable SQL
+getters cannot escape ownership; comment-separated controls/CR/batches rejected,
+prepared queries and savepoints retained. Initial added test had a SQL quoting typo;
+correct syntax and rerun actual operations, no weakened assertion.
+
+Metrics reuse bounded label sets, accumulate exact producer deltas and flush using
+public Counter API when observed; reset clears queued/published counts. Real active
+leases with metrics enabled feed the observed gauge. Actual started/attempts/
+completed/failed/reset/disabled cases pass. Both real registries are exposed inside
+benchmark timing and exact counts must match every actual operation.
+
+Current unit gate724/24Jest suites425 and19 actual sequential storage suites355 pass,
+including transaction27/slow-query8/TLS3. All original assertions/criteria retained.
+Owned fast diagnostic DB is capped1CPU/512MiB/tmpfs256MiB with synchronous_commit on;
+not production/durable storage evidence. Intermediate normalized-setting disk+0.259%
+and fast-6.914%, buffered fast-10.019%, and wire short-window-5.016% measurements
+identify their own exploratory source hashes only; failures retained. Short samples
+were about0.17s with broad variation. Increase actual sample200 to2000 transfers per
+worker and warmup50 to500, preserving predecessor43c6b148/real V1 workload/two workers/
+seven alternating rounds/original-5% limit. Long-window fast diagnostic-2.965% passes
+with exact29000 events per producer/balances/source hashes. Regular-disk run is next;
+new exact remote CI still required and REQ96/77/full history remain incomplete.
+
+TLS fixture lesson: docker cp into the running container tmpfs reported success
+without visible destination files. Use explicit owned-container exec stdin, root
+only for installation/chown, postgres-owned0600 key; enable SSL in a separate SQL
+command/reload. Host private key removed after install; public certificate alone
+is retained for validation. CI uses the same stdin installation during its existing
+owned preload restart. No unrelated container or production config changed.
+
+Continuity: no Maven or CPU saturation; heavy jobs sequential/nice/UV2, two workers
+only for actual required contention/comparison. All658 persistent goal remains active;
+189declared done/37in_progress/432new, independently verified1. Next actual inventory
+canonical/UUID/team/species-candy/bond prerequisite and all original plan stages.
+
+Final regular-disk long-window benchmark exits0 at+0.22104147149817344%, original
+-5% gate, exact balances/29000 events per producer/source hashes/synchronous_commit
+on. Report retained separately from tmpfs. TLS fixture additionally pre-establishes
+its verified connection before blocked-query cancellation deadline; original actual
+checkout/connection-timeout cases remain. This changes only fixture setup and final
+TLS3 is repeated. New exact remote CI still required; full all658 remains open.

@@ -3,11 +3,13 @@ const {createLogger}=require('./logger');
 const metrics=require('./transactionMetrics');
 const logger=createLogger('transaction-manager');
 const {randomUUID}=require('node:crypto');
+const {requestOwnedCancellation}=require('./pgCancel');
 const ISOLATION_LEVELS=Object.freeze({'READ COMMITTED':'READ COMMITTED','REPEATABLE READ':'REPEATABLE READ','SERIALIZABLE':'SERIALIZABLE'});
 const {ERROR_CODES,isDeadlockError,parseDeadlockDetail,logDeadlock}=require('./pgDeadlock');
 const {splitStatements}=require('../../database/sqlStatements');
 const DEFAULT_CONFIG={defaultIsolationLevel:'READ COMMITTED',defaultTimeout:30000,defaultMaxRetries:3,retryDelayBase:100,maxRetryDelay:2000,cleanupTimeout:1000};
 const activeByService=new Map();const managers=new WeakMap();
+metrics.registerActiveSource(activeByService);
 const isTimeoutError=e=>!!e&&(e.code==='57014'||/timeout/i.test(typeof e.message==='string'?e.message:''));
 function integer(value,min,max,label){if(!Number.isInteger(value)||value<min||value>max)throw new TypeError('Invalid '+label);return value;}
 function calculateRetryDelay(count,base=100,max=2000,random=Math.random){integer(count,0,10,'retry count');integer(base,0,60000,'retry base');integer(max,0,60000,'retry maximum');const draw=random();if(!Number.isFinite(draw)||draw<0||draw>1)throw new TypeError('Invalid random sample');return Math.min(max,base*2**count*(0.75+draw*0.5));}
@@ -15,17 +17,40 @@ function leadingSQL(text){
   let i=0;
   while(i<text.length){
     if(/\s/.test(text[i])){i++;continue;}
-    if(text.startsWith('--',i)){const end=text.indexOf('\n',i+2);i=end<0?text.length:end+1;continue;}
+    if(text.startsWith('--',i)){const end=text.slice(i+2).search(/[\r\n]/);i=end<0?text.length:i+2+end+1;continue;}
     if(text.startsWith('/*',i)){let depth=1;i+=2;while(i<text.length&&depth){if(text.startsWith('/*',i)){depth++;i+=2;}else if(text.startsWith('*/',i)){depth--;i+=2;}else i++;}continue;}
     break;
   }
   return text.slice(i);
 }
+const validatedQueries=new Map();
+function leadingWords(statement){
+  const words=[];
+  for(let index=0;index<3;index++){
+    statement=leadingSQL(statement);
+    const match=/^[A-Za-z_][A-Za-z0-9_$]*/.exec(statement);
+    if(!match)break;
+    words.push(match[0].toUpperCase());statement=statement.slice(match[0].length);
+  }
+  return words;
+}
 function rejectTransactionControl(args){
   const text=typeof args[0]==='string'?args[0]:args[0]?.text;
   if(typeof text!=='string')throw new TypeError('Managed queries require SQL text');
+  if(validatedQueries.has(text))return;
   const statements=text.includes(';')?splitStatements(text):[text];
-  for(const statement of statements){const start=leadingSQL(statement);if(/^(?:BEGIN|COMMIT|END|ABORT|START\s+TRANSACTION|PREPARE\s+TRANSACTION|SET\s+TRANSACTION)\b/i.test(start)||/^ROLLBACK\b/i.test(start)&&!/^ROLLBACK\s+(?:(?:WORK|TRANSACTION)\s+)?TO\b/i.test(start))throw new Error('Transaction control is owned by the manager');}
+  for(const statement of statements){
+    const [first,second,third]=leadingWords(statement);
+    const scope=['BEGIN','COMMIT','END','ABORT'].includes(first)
+      || ['START','PREPARE'].includes(first)&&second==='TRANSACTION'
+      || first==='SET'&&(second==='TRANSACTION'||['LOCAL','SESSION'].includes(second)&&['TRANSACTION','CHARACTERISTICS'].includes(third))
+      || first==='ROLLBACK'&&!(second==='TO'||['WORK','TRANSACTION'].includes(second)&&third==='TO');
+    if(scope)throw new Error('Transaction control is owned by the manager');
+  }
+  if(text.length<=4096){
+    if(validatedQueries.size>=256)validatedQueries.delete(validatedQueries.keys().next().value);
+    validatedQueries.set(text,true);
+  }
 }
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function timeoutError(ms){const e=new Error(`Transaction timeout after ${ms}ms`);e.code='57014';return e;}
@@ -33,8 +58,14 @@ function record(fn){try{fn();}catch{logger.error({event:'transaction_metric_fail
 class TransactionManager{
   constructor(pool,config={}){
     if(!pool||typeof pool.connect!=='function'||typeof pool.query!=='function')throw new TypeError('A transaction pool is required');
-    this.pool=pool;this.config={...DEFAULT_CONFIG,...config};this.service=process.env.SERVICE_NAME||'default';this.activeTransactions=new Map();
+    this.pool=pool;this.config={...DEFAULT_CONFIG,...config};this.service=process.env.SERVICE_NAME||'default';this.activeTransactions=new Map();this.metricLabelSets=new Map();
     this._options({});integer(this.config.retryDelayBase,0,60000,'retry base');integer(this.config.maxRetryDelay,0,60000,'retry maximum');integer(this.config.cleanupTimeout,1,60000,'cleanup timeout');
+  }
+  _metricLabels(isolationLevel,status){
+    const key=this.service+'\0'+isolationLevel+'\0'+(status||'');
+    let labels=this.metricLabelSets.get(key);
+    if(!labels){labels=Object.freeze({service:this.service,isolation_level:isolationLevel,...(status?{status}:{})});this.metricLabelSets.set(key,labels);}
+    return labels;
   }
   _options(options){
     const result={isolationLevel:options.isolationLevel??this.config.defaultIsolationLevel,timeout:options.timeout??this.config.defaultTimeout,maxRetries:options.maxRetries??this.config.defaultMaxRetries,retryOnDeadlock:options.retryOnDeadlock??true,transactionName:options.transactionName??'unknown',enableMetrics:options.enableMetrics??true,retryDelay:options.retryDelay??this.config.retryDelayBase};
@@ -44,12 +75,13 @@ class TransactionManager{
   }
   async execute(fn,options={}){
     if(typeof fn!=='function')throw new TypeError('Transaction callback must be a function');
-    const o=this._options(options),started=performance.now(),deadline=started+o.timeout,labels={service:this.service,isolation_level:o.isolationLevel};
-    if(o.enableMetrics)record(()=>metrics.started.inc(labels));
+    const o=this._options(options),started=performance.now(),deadline=started+o.timeout,labels=this._metricLabels(o.isolationLevel);
+    o.metricLabels=labels;
+    if(o.enableMetrics)record(()=>metrics.recordStarted(labels));
     try{for(let retry=0;;retry++){
       try{
         const result=await this._executeWithTimeout(fn,{...o,retryIndex:retry},deadline);
-        if(o.enableMetrics)record(()=>{metrics.total.inc({...labels,status:'success'});metrics.completed.inc(labels);});return result;
+        if(o.enableMetrics)record(()=>{metrics.recordTotal(this._metricLabels(o.isolationLevel,'success'));metrics.recordCompleted(labels);});return result;
       }catch(thrown){
         const error=thrown instanceof Error?thrown:new Error('Transaction callback failed',{cause:thrown});
         if(o.enableMetrics)record(()=>metrics.failed.inc({...labels,error_type:error.commitOutcomeUnknown?'unknown_commit':error.code==='40P01'?'deadlock':error.code==='40001'?'serialization':isTimeoutError(error)?'timeout':'other'}));
@@ -60,7 +92,7 @@ class TransactionManager{
           await sleep(Math.min(calculateRetryDelay(retry,o.retryDelay,this.config.maxRetryDelay),Math.max(0,deadline-performance.now())));continue;
         }
         const status=error.commitOutcomeUnknown?'unknown_commit':isTimeoutError(error)?'timeout':contention&&retry===o.maxRetries?'max_retries_exceeded':'rollback';
-        if(o.enableMetrics)record(()=>metrics.total.inc({...labels,status}));throw error;
+        if(o.enableMetrics)record(()=>metrics.recordTotal(this._metricLabels(o.isolationLevel,status)));throw error;
       }
     }}finally{if(o.enableMetrics)record(()=>metrics.duration.observe(labels,(performance.now()-started)/1000));}
   }
@@ -68,7 +100,7 @@ class TransactionManager{
     let client,timer,onClientError,onClientEnd;
     let closed=false,aborted=false,timedOut=false,controlInFlight=0,commitStarted=false,begun=false,destroy=false;
     const queries=new Set(),id='minego-tx-'+randomUUID(),startTime=Date.now();
-    const labels={service:this.service,isolation_level:o.isolationLevel};
+    const labels=o.metricLabels||this._metricLabels(o.isolationLevel);
     let expired;
     const expiry=()=>expired||(expired=timeoutError(o.timeout));
     const remaining=()=>Math.max(0,deadline-performance.now());
@@ -83,8 +115,7 @@ class TransactionManager{
     timer=setTimeout(()=>{timedOut=true;abort(expiry());},remaining());
     const control=async text=>{controlInFlight++;try{return await client.query(text);}finally{controlInFlight--;}};
     const activate=delta=>{
-      activeByService.set(this.service,(activeByService.get(this.service)||0)+delta);
-      if(o.enableMetrics)record(()=>metrics.active.set({service:this.service},activeByService.get(this.service)));
+      if(o.enableMetrics)activeByService.set(labels.service,(activeByService.get(labels.service)||0)+delta);
     };
     const operation=(async()=>{
       const candidate=await this.pool.connect();
@@ -96,16 +127,21 @@ class TransactionManager{
       this.activeTransactions.set(id,{name:o.transactionName,isolationLevel:o.isolationLevel,startTime});
       activate(1);
       if(o.enableMetrics)record(()=>{
-        metrics.attempts.inc(labels);
+        metrics.recordAttempt(labels);
         if(o.retryIndex>0){metrics.retries.inc(labels);metrics.legacyRetries.inc(labels);}
       });
       ensureActive();
       begun=true;
-      await control(`BEGIN ISOLATION LEVEL ${o.isolationLevel}; SET LOCAL statement_timeout='${Math.max(1,Math.floor(remaining()))}ms'; SET LOCAL application_name='${id}'`);
+      await control(`BEGIN ISOLATION LEVEL ${o.isolationLevel}; SET LOCAL statement_timeout='${Math.max(1,Math.floor(remaining()))}ms'`);
       ensureActive();
       const managed={processID:client.processID,query:(...args)=>{
         if(closed||remaining()<=0){const rejected=Promise.reject(expiry());rejected.catch(()=>{});return rejected;}
         if(args.some(a=>typeof a==='function'))throw new TypeError('Managed queries must use promises');
+        // Snapshot a configuration getter before validating the exact SQL sent.
+        if(args[0]&&typeof args[0]==='object'){
+          args[0]={...args[0]};
+          if(typeof args[0].callback==='function'||typeof args[0].submit==='function')throw new TypeError('Managed queries must use promises');
+        }
         rejectTransactionControl(args);
         const promise=client.query(...args);
         queries.add(promise);
@@ -152,16 +188,18 @@ class TransactionManager{
         if(!destroy&&typeof client.removeListener==='function'){
           client.removeListener('error',onClientError);client.removeListener('end',onClientEnd);
         }
+        // Begin the authenticated cancellation before destroying this exact lease.
+        // Transport closure is not a success acknowledgement; the business outcome
+        // remains failed/unknown and the connection is always quarantined.
+        let cancellation;
+        if(destroy){
+          try{cancellation=requestOwnedCancellation(client,this.config.cleanupTimeout);}
+          catch{logger.error({event:'owned_transaction_cancel_failed'},'Could not request owned cancellation');}
+        }
         client.release(destroy);
-        if(destroy&&timedOut){
-          let cancelTimer;
-          try{
-            await Promise.race([
-              this.pool.query('SELECT pg_cancel_backend(pid) FROM pg_stat_activity WHERE pid=$1 AND application_name=$2 AND usename=current_user AND datname=current_database()',[client.processID,id]),
-              new Promise((_,reject)=>{cancelTimer=setTimeout(()=>reject(new Error('Owned cancellation timeout')),this.config.cleanupTimeout);})
-            ]);
-          }catch{logger.error({event:'owned_transaction_cancel_failed'},'Could not confirm owned transaction cancellation');}
-          finally{clearTimeout(cancelTimer);}
+        if(cancellation){
+          try{await cancellation;}
+          catch{logger.error({event:'owned_transaction_cancel_failed'},'Could not request owned cancellation');}
         }
       }
     }
