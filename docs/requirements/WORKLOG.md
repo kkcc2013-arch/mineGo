@@ -1506,3 +1506,67 @@ on. Report retained separately from tmpfs. TLS fixture additionally pre-establis
 its verified connection before blocked-query cancellation deadline; original actual
 checkout/connection-timeout cases remain. This changes only fixture setup and final
 TLS3 is repeated. New exact remote CI still required; full all658 remains open.
+
+
+## Inventory organization prerequisite and genuine remote throughput pass (2026-10-17)
+
+The preceding goal turn is progress: published checked25-file26f553f,724 unit/355
+actual storage cases and matched local ordinary/tmpfs measurements. Confirm exact
+main458 succeeds. Migration20 job117273205599 passes transaction27/slow-query8/TLS3
+and unchanged-5percent throughput at-1.1060183236359267% with actual Node24.21.0;
+downloaded report matches all8 measured current sources. Keep preceding three exact
+CI negative reports. Full job fails original inventory20260627_060000 stmt13; do not
+claim CI generally green. Related privacy/title/notification/dependency pass while
+legacy contract/API/integration/performance/security remain failed; E2E cancelled.
+
+Read actual current full inventory requirement/SQL/schema/advisor/routes and
+GUIDELINES before implementation. Add source-bound inventory repair, leaving raw85
+SQL byte-identical. Canonical UUID instance/favorite/30-character nickname/history/
+views/FKs, true species metadata, per-species candy and prior UUID teams/constraints
+remain. Add actual deleted_at/protection/tags/priority/CP-time indexes/UUID preferences
+and nullable team used_at. Do not create fake per-instance type/rarity/level/IV sums,
+a global candy balance or a second writable deletion flag. Unknown historic deletion
+times/resource attribution require explicit adoption, never invented values.
+
+Known old preference function/trigger OIDs/definitions/enabled state and exact saved
+choices/custom groups/timestamps/sequence remain, including nullable protection and
+unrelated user UPDATE trigger behavior. Validate existing owner/size constraints and
+index definitions instead of silently accepting incompatible same-named objects.
+Unsupported layouts fail in the owned transaction with data/OIDs preserved. Default
+preference inserts run only after all guards and exclude already seeded owners.
+
+New actual24-case storage/CLI suite uses real V1/V2 and extracted authentic prior gym
+team DDL. First fixture lookup was incorrectly anchored before leading SQL comments;
+fix lookup to select the genuine statement, never replace SQL execution with a mock.
+Actual original SQL fails/rolls back; repaired rows/OIDs/views/FKs/choices/sequence/
+triggers preserved; real query plan uses live-row index, CLI journals separate raw
+and exact repaired checksums, tampered immutable source rejected. Missing/wrong
+constraints/custom triggers/global candy/writable deletion flags/wrong columns/index
+layouts reject atomically. New gate enrolled in actual migration workflow.
+
+Full V1/V2 passes; complete85-source history advances past inventory and fails next
+20260630_040000 stmt13 cosmetic pokemon_instance_id FK type. Whole pending batch
+rolls back. No skipped file, lowered numerical target or rewritten acceptance.
+Original10 REQ348 criteria/80%/95%/<500ms remain; routes/canonical projections/real
+level-bond-evolution metadata/protected confirmed per-species transfer/soft-delete
+consumers/preferences/cache/capacity/clients/mobile/performance need implementation.
+Original up-only proposal, existing applied-repair upgrades and complete reverse
+still open. Broad20-suite repeat and final unit/syntax/evidence checks follow.
+
+Security416 actual failed step evidence retained privately; report8934 finding
+classes are4442 WeChat/4472 Aliyun/20 database-password. Unscoped custom patterns match
+checksum metadata; DB findings identify workflow fixtures. Classification is ongoing,
+not an asserted clean scan. Do not display matched secret values or weaken detection
+with broad file exclusions. K8s kubesec step also fails. Carry original security/P0
+stages forward alongside actual inventory/cosmetic prerequisites. All658 active,
+189done/37in_progress/432new, independently verified1. No Maven/maxCPU/merge/deploy.
+
+Final current-source repeat:724 unit checks/24Jest suites425,379 actual checks in20
+sequential storage/CLI suites/no skips,1445 syntax checks and actual inventory module/
+workflow/new gate loads pass. Original10 acceptance checkboxes and85 raw SQL bytes
+remain exact. Measured transaction core/benchmark8 hashes still match the genuine
+26f553f remote pass; no redundant unchanged local performance rerun. Full-chain
+cosmetic20260630_040000 stmt13 remains failed; new exact-source CI pending. All20
+historical database-password findings were individually verified against their
+actual commit/file/line as test:test on localhost/127.0.0.1:5432; no values exposed.
+Provider-pattern findings still need complete assessment; no clean scan claimed.

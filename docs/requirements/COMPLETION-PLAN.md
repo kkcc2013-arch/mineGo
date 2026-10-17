@@ -604,3 +604,41 @@ independently verified1. No new requirement, Maven, CPU saturation, merge or dep
 Final ordinary-disk long-window result+0.22104147149817344% passes with actual
 synchronous_commit on/exact balances/events/source hashes. Preserve earlier failed
 reports; exact new remote CI and full inventory migration remain open.
+
+
+### Inventory storage and exact transaction CI (2026-10-17)
+
+Previous turn published26f553f and real tests/evidence: concrete progress. Exact main
+458 succeeds; migration20 transaction27/slow-query8/TLS3 and original throughput gate
+pass at-1.1060183236359267%. Full job still fails original inventory history. Preserve
+source-hashed remote pass and all three previous remote negative reports. Related
+privacy/title/notification/dependency jobs pass; legacy contract/API/integration/
+performance/security workflows remain failed and E2E was cancelled, not accepted.
+
+Inventory repair now retains actual UUID instances/favorites/nicknames, species
+metadata, per-species candy and UUID teams/constraints. Add truthful deletion-time
+indexes/UUID preferences/protection/tags without fake copied metadata/resources.
+Preserve existing choices/timestamps/sequence/function/trigger identity/state; refuse
+unknown deletion/global candy/ownership/index/custom behavior atomically. Current
+focused24 genuine storage/CLI checks pass; broad sequential repeat is being completed.
+Full85-source chain now passes inventory then fails cosmetic20260630_040000 stmt13
+pokemon_instance_id FK type. Full upgrade/reversal and REQ348 feature acceptance stay
+open. Continue actual canonical inventory route/transfer/soft-delete consumers,
+cosmetic prerequisites and original P0/security/service/client/numerical/operations
+stages. All658 scope/189done/37in_progress/432new/independently verified1 unchanged.
+
+Standalone security416 also remains red. Its secret scan reports8934 findings,
+including many checksum-file matches from unscoped custom provider regexes and20
+workflow database-password matches; values are never displayed. Assess each class
+and repair detection precision without broad exclusions or inventing a clean scan.
+K8s policy validation and the remaining original security criteria still require work.
+
+Final current-source repeat:724 unit checks/24Jest suites425,379 actual checks in20
+sequential storage/CLI suites/no skips,1445 syntax checks and actual inventory module/
+workflow/new gate loads pass. Original10 acceptance checkboxes and85 raw SQL bytes
+remain exact. Measured transaction core/benchmark8 hashes still match the genuine
+26f553f remote pass; no redundant unchanged local performance rerun. Full-chain
+cosmetic20260630_040000 stmt13 remains failed; new exact-source CI pending. All20
+historical database-password findings were individually verified against their
+actual commit/file/line as test:test on localhost/127.0.0.1:5432; no values exposed.
+Provider-pattern findings still need complete assessment; no clean scan claimed.

@@ -244,3 +244,18 @@ Final724 unit checks/24Jest suites425 and355 actual storage checks pass, includi
 27transaction/8slow-query/3TLS; TLS is repeated after pre-establishing its verified
 connection so its deadline targets blocked-query cancellation. All checkout/deadline
 cases remain in the original storage suite. Exact new remote CI is still required.
+
+
+## Exact remote gate observed (2026-10-17)
+
+Commit26f553fe6cdf2dcf2366984074d75c6d5fc1fc32 passes mainCI458, actual transaction27,
+slow-query8, verified-TLS3 and the original throughput ceiling in migration20
+job117273205599/run38991013485. Downloaded actual report records-1.1060183236359267%
+with Node24.21.0; all eight measured-source hashes still match. The
+[remote report](benchmarks/transaction-throughput-ci-26f553f-2026-10-17.json) is retained
+beside all previous negative reports. Full job remains failed because complete
+migration history fails inventory20260627_060000 statement13; no claim of overall
+CI success. The new independent inventory prerequisite moves the local full-chain
+failure to cosmetic20260630_040000 statement13. Default caller/resource/idempotency,
+complete installation/upgrade/reversal and full feature/operations acceptance remain
+open. Unchanged measured transaction sources need no new local benchmark rerun.

@@ -356,7 +356,7 @@ Status declarations and implementation references are discovery data, not proof 
 | [REQ-00345-dynamic-localization-and-language-recommendation-system.md](REQ-00345-dynamic-localization-and-language-recommendation-system.md) | P1 | new | 12 | 0 |
 | [REQ-00346-data-lineage-tracking-and-impact-analysis-system.md](REQ-00346-data-lineage-tracking-and-impact-analysis-system.md) | P1 | new | 12 | 0 |
 | [REQ-00347-service-call-anomaly-prediction-dependency-health-propagation.md](REQ-00347-service-call-anomaly-prediction-dependency-health-propagation.md) | P1 | new | 8 | 0 |
-| [REQ-00348-pokemon-inventory-smart-organization.md](REQ-00348-pokemon-inventory-smart-organization.md) | P1 | in_progress | 10 | 5 |
+| [REQ-00348-pokemon-inventory-smart-organization.md](REQ-00348-pokemon-inventory-smart-organization.md) | P1 | in_progress | 10 | 6 |
 | [REQ-00349-error-handling-module-consolidation.md](REQ-00349-error-handling-module-consolidation.md) | P2 | new | 12 | 0 |
 | [REQ-00350-pokemon-batch-query-and-data-aggregation-optimization.md](REQ-00350-pokemon-batch-query-and-data-aggregation-optimization.md) | P1 | new | 11 | 0 |
 | [REQ-00351-game-number-format-localization-system.md](REQ-00351-game-number-format-localization-system.md) | P1 | new | 10 | 0 |

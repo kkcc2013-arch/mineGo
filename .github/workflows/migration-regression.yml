@@ -22,6 +22,7 @@ on:
       - 'backend/tests/regression/migration-storage.test.js'
       - 'backend/tests/regression/database-bootstrap.test.js'
       - 'backend/tests/regression/migration-prerequisites.test.js'
+      - 'backend/tests/regression/inventory-organization-storage.test.js'
       - 'backend/tests/regression/audit-partition-storage.test.js'
       - 'backend/tests/regression/partition-history-storage.test.js'
       - 'backend/tests/regression/currency-storage.test.js'
@@ -125,6 +126,11 @@ jobs:
       - name: Verify actual inventory catalog, UUID identities and data-preserving prerequisite rollback
         working-directory: backend
         run: node --test tests/regression/migration-prerequisites.test.js
+        env:
+          TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
+      - name: Verify inventory organization data, UUID teams, preferences and guarded legacy adoption
+        working-directory: backend
+        run: node --test --test-concurrency=1 tests/regression/inventory-organization-storage.test.js
         env:
           TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
       - name: Verify audit conversion, canonical partition history, concurrent IDs and data-preserving rollback

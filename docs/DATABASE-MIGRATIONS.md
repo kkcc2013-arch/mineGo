@@ -201,3 +201,16 @@ proves a qualifying second-database query is excluded. Actual7 pass without glob
 statistics reset. Repair-only inherited trailing whitespace is removed; original
 raw SQL and signatures/data remain unchanged. Whole-history inventory boundary
 remains20260627_060000 stmt13 missing is_deleted; full acceptance stays open.
+
+
+2026-10-17 inventory prerequisite: source-bound20260627_060000 repair keeps V1
+UUID instance/favorite/nickname identity, real species metadata, per-species candy
+and earlier UUID team/constraints. Add live cp/caught_at/deleted_at indexes and UUID
+preferences, preserving compatible old choices/sequence/time/function/trigger state.
+Unknown deletion/global resources/ownership/index/custom-trigger schemas fail
+atomically, without invented historical timestamps or candy attribution. All85 raw
+sources remain unchanged. Complete V1/V2 passes and full history now passes this
+migration, then fails20260630_040000 stmt13 cosmetic pokemon_instance_id FK type.
+Pending batch rolls back; no skipped source/history rewrite. Complete history,
+already-applied repair upgrade, full reverse and service acceptance remain open.
+See INVENTORY-ORGANIZATION.md for actual tests and feature gaps.

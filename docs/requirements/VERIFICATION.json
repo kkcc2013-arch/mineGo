@@ -99,7 +99,7 @@
       ]
     },
     "REQ-00053-user-privacy-preference-center-data-transparency.md": {
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "e0fe55e25b877f1dde7a97fb7953c3515be042e3501d29d3d650e66dd29f7f2a",
       "sourceSha256": {
@@ -120,7 +120,7 @@
         "database/pending/20260611_152900__add_privacy_preference_center.sql": "fed6b42590f4829f4b474b9ddf840a08d7b8cce7b53bd502a0b9fe7417ec63d8",
         "database/pending/repairs/20260611_152900__add_privacy_preference_center.sql": "ac250e1ee3e789b017f7a1c54ebee3488345068aca38ea6e93df70e64483c896",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162"
       },
@@ -361,6 +361,15 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
@@ -469,7 +478,7 @@
       "remaining": "The 5% overhead target, production output/adapters and complete legacy integration/E2E acceptance are not verified"
     },
     "REQ-00159-service-health-self-healing-and-auto-recovery-system.md": {
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "702f723e90c498db5a6d23b2e986b96c749e92229580af3542fc6972344f5f4d",
       "sourceSha256": {
@@ -489,7 +498,7 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17"
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338"
       },
       "evidence": [
         {
@@ -753,11 +762,20 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
     "REQ-00682-service-dependency-consolidation-and-initialization-refactoring.md": {
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "47013c4163012c1b6ea9d55b496c004b1e900b1b980e4192514dc78ee8b87490",
       "sourceSha256": {
@@ -777,7 +795,7 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17"
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338"
       },
       "evidence": [
         {
@@ -1041,11 +1059,20 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
     "REQ-00106-player-title-system-and-personalization.md": {
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "7148fc5066354e7354adeb16eca4e2742c67125c7620a1dc27cb1d739feb8327",
       "sourceSha256": {
@@ -1068,7 +1095,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
         "database/pending/repairs/20261007_120000__title_identity_compatibility.sql": "26c5317694faa4f2a263923d4b915dfc0508d6a69c092c1c449306ee88702837",
         "database/pending/repairs/20260615_170500__add_title_system.sql": "f43872c531d7ac6a9a2875d2eb9a3f603781e4caf3bfdbe7482e7864629bf9ac",
         "backend/tests/regression/title-upgrade-storage.test.js": "406ebc4206cad8d523478a60e7e7a55e81cdbeaae369b1112fefdadfef59bb01",
@@ -1355,11 +1382,20 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
     "REQ-00612-global-timezone-scheduler.md": {
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "acb67d84c7ef83a0335a5874fbf4809ff95c8239c95cbac5f00a409a48223dd2",
       "sourceSha256": {
@@ -1382,7 +1418,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17"
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338"
       },
       "evidence": [
         {
@@ -1650,6 +1686,15 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1677,7 +1722,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
         "docs/NOTIFICATIONS.md": "5b47d94114ba552f47f6d88f8aaba2ceb17c4e705174c1872d95f5e0655726ae",
         "backend/services/user-service/src/notificationService.js": "9b1809ee37dcef1cc4794db12b5a0fc2f4df876ade8dab918b378eca07d75194",
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
@@ -1696,7 +1741,7 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
         "frontend/game-client/src/i18n/index.js": "37dd930d9f30e6f6b088ad74f669c7cecbd91f7937ccb84e685d1dbfe4fa2690",
@@ -2055,6 +2100,16 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -2067,7 +2122,7 @@
       ]
     },
     "REQ-00075-ip-blacklist-and-auto-ban-system.md": {
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "5f0f24eee768a901be3d6cb06e4e2907e72dca7e4db43398fe8da7e695677a8e",
       "sourceSha256": {
@@ -2087,7 +2142,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17"
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338"
       },
       "evidence": [
         {
@@ -2311,11 +2366,20 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
     "REQ-00149-user-service-ipAppeal-route-mounting.md": {
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "1908c2353ef4f102148e015a49a26726f793d9b6daf1371ec6fb018f3f5f0bfb",
       "sourceSha256": {
@@ -2335,7 +2399,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17"
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338"
       },
       "evidence": [
         {
@@ -2559,11 +2623,20 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
     "REQ-00039-hot-data-cache-warmup-system.md": {
-      "date": "2026-10-08",
+      "date": "2026-10-17",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "b6be313ab0b1611e495be4a8a86eee54210caaa359f0b2dd978c097f556fa696",
       "sourceSha256": {
@@ -2576,7 +2649,7 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17"
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338"
       },
       "evidence": [
         {
@@ -2756,6 +2829,15 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -2778,11 +2860,11 @@
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/regression/storageSetup.js": "1a67a27f674d7ef022e266da1ebbd5146870cdc290ebd64a51a799f5843ceaee",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
-        "docs/DATABASE-MIGRATIONS.md": "9cc528d2e810158f50f600e7328ae87e7e4f46cd9fc6544cdc456648e6eb6044",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
+        "docs/DATABASE-MIGRATIONS.md": "59e04c06ac18d014dcefb51d3932a21424f077f3a14ebb5a0260a6d02a7c5f98",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
@@ -2825,7 +2907,10 @@
         "backend/tests/regression/special-iv-storage.test.js": "a36c9842feabcaa478ece692c839cb1b8b876db66d1facc8b932d38e2ddedd54",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2",
         "backend/shared/TransactionManager.js": "87d7f3a984e6822739a852833281456fe8d232c94edccbc29e9dd96acd7d6705",
-        "backend/shared/pgCancel.js": "92f0c891d270da29d0fb3769016baa60925c875fd88346b38c3ddc700e3b87ad"
+        "backend/shared/pgCancel.js": "92f0c891d270da29d0fb3769016baa60925c875fd88346b38c3ddc700e3b87ad",
+        "database/pending/repairs/20260627_060000__add_inventory_organization_system.sql": "31aac467ae420bdafb0204bf33832c4c8a33e39368cf01f6c2ad33bd95b887a7",
+        "backend/tests/regression/inventory-organization-storage.test.js": "bbd1497563252b999d530c8480e4e9370fee599561ed1262540127e46c1e7b2c",
+        "docs/INVENTORY-ORGANIZATION.md": "dc6fa1fa3d2bbf750066fd77ea99564068aa406076b54d7b80b1afcca0778bcc"
       },
       "evidence": [
         {
@@ -3201,6 +3286,22 @@
             ".github/workflows/migration-regression.yml",
             "backend/shared/TransactionManager.js"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_pass_full_history_failed",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references."
         }
       ],
       "remaining": "Complete85-source history now fails20260627_060000 statement13 missing is_deleted. Reconcile canonical inventory/ownership/contracts, all later pending files, data-preserving upgrades/reversal and all-service startup. Exact new remote throughput still unverified; all original acceptance remains open."
@@ -3213,15 +3314,15 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
-        "docs/DATABASE-MIGRATIONS.md": "9cc528d2e810158f50f600e7328ae87e7e4f46cd9fc6544cdc456648e6eb6044",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
+        "docs/DATABASE-MIGRATIONS.md": "59e04c06ac18d014dcefb51d3932a21424f077f3a14ebb5a0260a6d02a7c5f98",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -3482,6 +3583,17 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ]
     },
@@ -3493,15 +3605,15 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
-        "docs/DATABASE-MIGRATIONS.md": "9cc528d2e810158f50f600e7328ae87e7e4f46cd9fc6544cdc456648e6eb6044",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
+        "docs/DATABASE-MIGRATIONS.md": "59e04c06ac18d014dcefb51d3932a21424f077f3a14ebb5a0260a6d02a7c5f98",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -3762,6 +3874,17 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ]
     },
@@ -3773,15 +3896,15 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
-        "docs/DATABASE-MIGRATIONS.md": "9cc528d2e810158f50f600e7328ae87e7e4f46cd9fc6544cdc456648e6eb6044",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
+        "docs/DATABASE-MIGRATIONS.md": "59e04c06ac18d014dcefb51d3932a21424f077f3a14ebb5a0260a6d02a7c5f98",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -4125,6 +4248,17 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ],
       "remaining": [
@@ -4141,7 +4275,7 @@
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260611_000000__add_achievement_system_tables.sql": "31e3714195d83afba17bafd85f3590ad51e30011831a5d0a1f5b4e8e5a00e302",
         "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "6f9c323240e28aa67a4d54fccd7141b72f7d58f91607ae53568631b90cd0a2d9",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "database/pending/20261008_150000__achievement_catalog_bridge.sql": "432a090e79626102f6cff413f6bc844c7617bd0c2cc1346899f95fa1b801e04f",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
@@ -4151,9 +4285,9 @@
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "backend/services/user-service/src/routes/user.js": "7d24fb40cd0662c428a6b42c2bf6636a2a3ac05fdcdc5e8717d1df5a1dbf04df",
         "backend/tests/regression/achievement-storage.test.js": "4983c1a41d7e40fd86bcb29cd59765555c2ff0f10030044ca5b75ee435a4b90b",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
         "docs/ACHIEVEMENTS.md": "09711c5508a55e25daaa1d2735281a7c35bae20e885c998d93bb3a5d17e8a08d",
-        "docs/DATABASE-MIGRATIONS.md": "9cc528d2e810158f50f600e7328ae87e7e4f46cd9fc6544cdc456648e6eb6044",
+        "docs/DATABASE-MIGRATIONS.md": "59e04c06ac18d014dcefb51d3932a21424f077f3a14ebb5a0260a6d02a7c5f98",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "docs/NOTIFICATIONS.md": "5b47d94114ba552f47f6d88f8aaba2ceb17c4e705174c1872d95f5e0655726ae",
@@ -4407,6 +4541,17 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
         }
       ],
       "remaining": "Replay/idempotency/durable events/automatic grant/all triggers; complete seed item/title contract and exclusive Pokemon grant; management CRUD/admin and edited-definition snapshot policy; old unit fixture; native pokemon process/gateway/client/localization; <100ms query/<50ms update performance; full83 history and data-preserving reversal with modern records remain unproven."
@@ -4607,6 +4752,16 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -4632,9 +4787,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -4852,6 +5007,16 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -4877,9 +5042,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -5097,6 +5262,16 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -5122,9 +5297,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -5153,11 +5328,11 @@
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -5338,6 +5513,16 @@
           "result": "partial_local_verified_current_ci_pending_full_history_failed",
           "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
           "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
         }
@@ -5361,11 +5546,11 @@
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -5546,6 +5731,16 @@
           "result": "partial_local_verified_current_ci_pending_full_history_failed",
           "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
           "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
         }
@@ -5573,8 +5768,8 @@
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260612_070000__add_catch_anomaly_detection_system.sql": "071c812b16b0f3bd90eb912c88d98d01c334d709a619ae0c5e7b26280869b926",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
         "docs/CATCH-RISK.md": "38a45565382fcc71fcd3086ed2de7b885d9e912859efe78d917741eaa3afbcf0",
         "docs/review/REQ-00082-catch-success-anomaly-detection-review.md": "76b74356f1d4b2745e8d4029639e2cb0ac5101d789d6c6c699b35fb2b3aa11a9",
         "docs/review/REQ-00082-catch-success-anomaly-detection-system-review.md": "91b9a7a16ae6203eac69695669ad3eed471d75d13259a44cd7b98a59f044e19c",
@@ -5756,6 +5951,16 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -5781,8 +5986,8 @@
         "database/pending/20260613_160000__add_special_iv_system.sql": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -5921,6 +6126,16 @@
           "result": "partial_local_verified_current_ci_pending_full_history_failed",
           "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
           "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
         }
@@ -5946,8 +6161,8 @@
         "database/pending/20260613_160000__add_special_iv_system.sql": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -6088,6 +6303,16 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -6105,14 +6330,14 @@
       "sourceSha256": {
         "database/pending/20260614_090500__add_daily_quest_system.sql": "b602bc1b0e67d1b03aa441cf24de2abbc7113ab512bcd7384d006e2b15b07979",
         "database/pending/repairs/20260614_090500__add_daily_quest_system.sql": "65570155fda0333a90d88d794c600cb17b685ed1ea0a99ed7a6198669d6c53be",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
         "backend/services/reward-service/src/index.js": "42b8220e1654ecf40ae8d053e1b9219e651e27b1ff40f511abdc6d7c6d9f8a50",
         "backend/services/reward-service/src/routes/dailyQuests.js": "599fa242c1864866bebc2f5368e0552ad47a58afcacd7933561a1a3e6d64054b",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
         "backend/shared/questService.js": "4db34890cbb2837e2c13703dd0278e41a030fd8cbb1d39bf2411920e2f4413fd",
         "backend/shared/routes/quests.js": "415f6443d29d9f5675b0def6517d20063ec0df25d66454ccd3e3766a326163e3",
         "backend/shared/questMetrics.js": "4d70c0eb2917f3942f4cc0888d27ffdfeb6fcac91a585c4a897364a7e7afaa8f",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
         "docs/DAILY-QUESTS.md": "b63d44e8e29e3fdcd856248af47935ca99924740c887be49c45defd33cdd21de"
       },
       "evidence": [
@@ -6234,6 +6459,16 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -6255,7 +6490,7 @@
         "backend/services/catch-service/src/index.js": "b5901bc1a2bc732da52ffb257166948b54e84141882b5989d0dcbf3b0c26175c",
         "backend/tests/regression/reward-leaderboard-storage.test.js": "b22fe38c30f5351cbcbd39129f0794daf6dc3b2c7ed6c33cca2ba8b1159d163f",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
         "docs/REWARD-RANKINGS.md": "ad7d89e56547dcdd24d5fe07ac61557a5e1c0ee69bce4ea77b6aa116fa9fd933",
         "docs/review/REQ-00255-api-injection-attack-protection-system-review.md": "2ac0537e70d4896ea611958d55aaffb60793de6b06538872a554819d0a60ef76"
       },
@@ -6347,6 +6582,15 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -6376,10 +6620,10 @@
         "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
         "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
       "evidence": [
@@ -6495,6 +6739,16 @@
           "result": "partial_local_verified_current_ci_pending_full_history_failed",
           "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance.",
           "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
         }
@@ -6526,10 +6780,10 @@
         "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
         "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
       "evidence": [
@@ -6647,6 +6901,16 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -6666,10 +6930,10 @@
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "database/pending/20260618_160000__add_voice_chat_tables.sql": "e60be5a89d60c84da8ba40f11c63bf1b5e1491e59828903856e50b490ca74bf4",
         "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "b2034194cd84c4f47f3c73438555df5b80c21135535de704a782313dfefe8b8b",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
         "backend/tests/regression/voice-schema-storage.test.js": "5e4162b28e07f7f35ab339d707b4be8a99e19e1921bd208cd51890fbf5058c6f",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
         "backend/services/social-service/src/voice/turnServer.js": "2ca289a62a2fa2648e4c5a18ac49a13af268d55c17c3739334851c5673df5eb5",
         "backend/services/social-service/src/voice/routes.js": "cdcbac7391f275b20a7646517ac0a5d3883c35a629d10e66aef9b49a42349b80",
         "backend/services/social-service/src/voice/signalingServer.js": "4e8199480ff3745f671a20845680cf48ef5d374d4544813ca914d3fbce842505",
@@ -6771,6 +7035,16 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -6796,8 +7070,8 @@
         "backend/tests/unit/currency.test.js": "155a7c7d561b2911a5da8c5a91ec5e054eb283ff8b98deca22779f4fbeb93558",
         "database/pending/20260624_133000__add_multi_currency_support.sql": "9d82251238972d1bd61c2264504f10f709039e52b2b42921c81957c32b689bcf",
         "database/pending/repairs/20260624_133000__add_multi_currency_support.sql": "a6f2318807e7824c4c458beb7762ec555e256d97af41405707dafbf8ac24dde2",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
         "docs/CURRENCIES.md": "02ca61669686acdd8038b3ec185dd96a04a0ed6bc6014493d43120d5940676b7"
       },
       "evidence": [
@@ -6886,6 +7160,16 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -6917,10 +7201,10 @@
         "docs/benchmarks/transaction-throughput-2026-10-15.json": "b22bccb8cee394a16a4c5135761e5e104c97e6b95c974a18ceb7e36d887e4a03",
         "database/pending/20260626_040000__add_deadlock_log_table.sql": "b9060fc1aab1fd26bbb27d08a7d0ba83f9df521191ecc37cbe679c447ed16238",
         "database/pending/repairs/20260626_040000__add_deadlock_log_table.sql": "fe133fbc60e1719e237752d8a9508ff246d3e376a46aed62e024c5939a721cbc",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
-        "docs/TRANSACTIONS.md": "fe1f73f77de5549815e9dae502cb9d928f6c3fe565ccb08d4a64bcd9e000cdac",
-        "docs/DATABASE-MIGRATIONS.md": "9cc528d2e810158f50f600e7328ae87e7e4f46cd9fc6544cdc456648e6eb6044",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
+        "docs/TRANSACTIONS.md": "30e32585a191407782fb40055d5627cd20369b6d5b180e2c11b0111f7979bd70",
+        "docs/DATABASE-MIGRATIONS.md": "59e04c06ac18d014dcefb51d3932a21424f077f3a14ebb5a0260a6d02a7c5f98",
         "docs/benchmarks/transaction-throughput-ci-bae401e-2026-10-15.json": "61c8117367a10c9984f6d83854443cd8a71990cb1f8d0270ee72ea8ccf6a1bf6",
         "docs/benchmarks/transaction-throughput-optimized-2026-10-15.json": "d10f3e6df7005b973d3a04a0136cd828dc315b7979f824944641d4abcf41193b",
         "docs/benchmarks/transaction-throughput-ci-5864a4a-2026-10-16.json": "556cb07df13262532238b5c4feaed36fa11d79daa84a3ecf7237577d9047bddb",
@@ -6934,7 +7218,8 @@
         "docs/benchmarks/transaction-throughput-collected-fast-storage-diagnostic-2026-10-17.json": "a12c871b01faed32eadfbae490e9e1034e61cef3a119065ac74b687d5abdbd5d",
         "docs/benchmarks/transaction-throughput-wire-fast-storage-diagnostic-2026-10-17.json": "8c4c945dea2ad343c6eeda26435179edbaf682d5bc370d4972b2a1ca919548cc",
         "docs/benchmarks/transaction-throughput-wire-long-fast-storage-diagnostic-2026-10-17.json": "9cadec63d049c7e0e7e785bc3e43ced50b08f5e4b9e5d7473979b978dec8f3a3",
-        "docs/benchmarks/transaction-throughput-wire-long-2026-10-17.json": "f1f7d923dd471d164fe97efd697799abda35348108807030ffbd415aa6c598c0"
+        "docs/benchmarks/transaction-throughput-wire-long-2026-10-17.json": "f1f7d923dd471d164fe97efd697799abda35348108807030ffbd415aa6c598c0",
+        "docs/benchmarks/transaction-throughput-ci-26f553f-2026-10-17.json": "858bd11da1948ca938a582b304ffcd4ebf6147c7c1459c6e465b54efa6ddfce9"
       },
       "evidence": [
         {
@@ -7090,6 +7375,32 @@
           "rounds": 7,
           "concurrency": 2,
           "scope": "Current724 unit checks/24Jest suites425 and355 actual checks in19 sequential storage suites pass, including27 transaction/8 slow-query/3 verified-TLS. Syntax1444, actual module loads and workflow parsing pass. Exact startup PID/private-key cancellation inherits TLS/CA with no plaintext fallback, quarantines failed leases and actually releases locks without killing another backend. Preserve local statement_timeout/original application_name, exact queued metric event exposure/reset/disabled scope and query ownership. Original short-window wire tmpfs diagnostic-5.0164301546780425percent fails and is retained. Increase actual samples200 to2000/worker/round and warmup50 to500 to reduce observed short-window jitter; same immutable predecessor/two workers/seven alternating pairs/real V1 SQL/original-5percent gate; both real registry exposures timed and29000 exact event totals per producer. Longer tmpfs diagnostic-2.9650592644973828percent passes; actual regular-disk median 0.22104147149817344percent, passed=True. Exact new remote CI still required. Three previous exact remote failures retained; full85 unchanged-source history remains failed inventory20260627_060000 stmt13. Refresh only exercised common references, no full original feature/provider/client/numerical/operations acceptance."
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/TRANSACTIONS.md",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
+        },
+        {
+          "date": "2026-10-17",
+          "commit": "26f553fe6cdf2dcf2366984074d75c6d5fc1fc32",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/38991013485",
+          "job": 117273205599,
+          "result": "transaction_slowquery_tls_throughput_passed_full_history_failed",
+          "transactionTests": 27,
+          "slowQueryTests": 8,
+          "tlsTests": 3,
+          "medianChangePercent": -1.1060183236359267,
+          "requiredMinimumChangePercent": -5,
+          "artifact": "docs/benchmarks/transaction-throughput-ci-26f553f-2026-10-17.json",
+          "scope": "Actual downloaded log confirms27/8/3 pass and throughput pass. Report Node24.21.0 and all8 measured current-source hashes match. MainCI458 succeeds; full migration20 job fails inventory history, unrelated contract/integration/security/performance jobs also remain failed. New inventory prerequisite advances local full failure to cosmetic. No full feature/installation/operations acceptance or numerical waiver."
         }
       ],
       "remaining": [
@@ -7098,7 +7409,7 @@
         "Exact current-source relevant CI, complete REQ-00007 migration history and data-preserving upgrade/reversal remain open.",
         "Audit retrying production callers for durable money/resource/idempotency and external side effects; this shared foundation does not accept whole payment/battle/catch/social features.",
         "Representative production/service numerical acceptance remains separate from the original local paired throughput regression.",
-        "New cancellation/metric source and longer sampling window require exact remote throughput gate. Both original legacy helper and actual default shared-db callers still require representative review; local tmpfs/disk comparisons are not production capacity or full all-service acceptance."
+        "Exact26f553f measured transaction-source remote comparison passes with matching8 hashes. Full fresh/upgrade/reversal, representative original/default callers and latest complete schema CI remain open; inventory repair now exposes cosmetic FK failure."
       ]
     },
     "REQ-00077-database-slow-query-analysis-system.md": {
@@ -7110,11 +7421,12 @@
         "database/pending/repairs/20260627_041000__enable_pg_stat_statements.sql": "fb9f244c96563de01b9dfcd18ccda92105b5023e9201e9019af9472e13ea51d2",
         "database/pending/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "bcfa7904149404b6677ab0e33591670d12746845e590849ee822dca2966071ab",
         "database/pending/repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "660c62531f86d2f8981163afbe85b50ec68bbe27269b840d7b7ea4dba64f0df4",
-        "database/pending/repairs.json": "5337bc02cac8e990855541af67a8e5fb5a91380dd3d75e0459eb7add595bfe17",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
         "backend/tests/regression/slow-query-schema-storage.test.js": "35c43ce9cc230648eeb82e069000bfd6f5b5019b533eaa14b5a1b8349bf71fbb",
-        ".github/workflows/migration-regression.yml": "e8309c58911d2722373a98713d72d227cce2d9e839b93a21f330caa9ee9ec855",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
         "docs/SLOW-QUERIES.md": "8c3a6dde07fb0d411ed7b3da05e2d7daa4ab20c4fc52ddd4a8e89e3499353921",
-        "docs/DATABASE-MIGRATIONS.md": "9cc528d2e810158f50f600e7328ae87e7e4f46cd9fc6544cdc456648e6eb6044"
+        "docs/DATABASE-MIGRATIONS.md": "59e04c06ac18d014dcefb51d3932a21424f077f3a14ebb5a0260a6d02a7c5f98",
+        "docs/benchmarks/transaction-throughput-ci-26f553f-2026-10-17.json": "858bd11da1948ca938a582b304ffcd4ebf6147c7c1459c6e465b54efa6ddfce9"
       },
       "evidence": [
         {
@@ -7179,6 +7491,31 @@
           "medianChangePercent": -7.838354232137334,
           "requiredMinimumChangePercent": -5,
           "scope": "Exact mainCI457/battle passed; migration19 actual transaction24 and slow-query7 passed, throughput failed unchanged original gate. Independent full history ran and failed inventory20260627_060000 stmt13 missing is_deleted. Old200/50sample report retained, not equated with longer current2000/500sample. No acceptance waiver."
+        },
+        {
+          "date": "2026-10-17",
+          "result": "partial_local_pass_current_ci_pending_full_history_failed",
+          "command": "20 actual sequential storage/CLI suites;unit;syntax;real module/workflow/gate parse;full85 bootstrap;exact remote observation",
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ]
+        },
+        {
+          "date": "2026-10-17",
+          "commit": "26f553fe6cdf2dcf2366984074d75c6d5fc1fc32",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/38991013485",
+          "job": 117273205599,
+          "result": "transaction_slowquery_tls_throughput_passed_full_history_failed",
+          "transactionTests": 27,
+          "slowQueryTests": 8,
+          "tlsTests": 3,
+          "medianChangePercent": -1.1060183236359267,
+          "requiredMinimumChangePercent": -5,
+          "artifact": "docs/benchmarks/transaction-throughput-ci-26f553f-2026-10-17.json",
+          "scope": "Actual downloaded log confirms27/8/3 pass and throughput pass. Report Node24.21.0 and all8 measured current-source hashes match. MainCI458 succeeds; full migration20 job fails inventory history, unrelated contract/integration/security/performance jobs also remain failed. New inventory prerequisite advances local full failure to cosmetic. No full feature/installation/operations acceptance or numerical waiver."
         }
       ],
       "remaining": [
@@ -7189,9 +7526,9 @@
       ]
     },
     "REQ-00348-pokemon-inventory-smart-organization.md": {
-      "date": "2026-10-16",
-      "status": "audited_incomplete",
-      "documentSha256": "b0ac54e76c9865d5d27cf6d66840aaeef3634a66b8b5be993b54510ff475deb0",
+      "date": "2026-10-17",
+      "status": "partial_verified_full_history_failed",
+      "documentSha256": "40352533a1741d32f483664a77ffafc09e962d2d4fde0d61f88f45cc79f89fc5",
       "sourceSha256": {
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260627_060000__add_inventory_organization_system.sql": "896fde1c3d77db95fe6acd4748dd9c993793668b16caa5c573357e50558aea8b",
@@ -7199,20 +7536,36 @@
         "backend/services/pokemon-service/src/routes/inventory.js": "1639b047070d2570a2bb507b7216349d39b0df9d7bba9045feca3ce666506ac1",
         "backend/services/pokemon-service/src/inventory/OrganizationAdvisor.js": "dab0cf3de318420dcf1ef687975edbc1706bce1273e9247022a89a1351fa9339",
         "backend/services/pokemon-service/src/inventory/InventorySorter.js": "157e29018efc72fcae09fb4ef6fab83717fa7f6761397a4afcf485714dbf14d1",
-        "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03"
+        "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
+        "database/pending/repairs/20260627_060000__add_inventory_organization_system.sql": "31aac467ae420bdafb0204bf33832c4c8a33e39368cf01f6c2ad33bd95b887a7",
+        "database/pending/repairs.json": "8c4d6331802074b60e38eb1d93267e88528c402b10a165b14ee1a7cad91c2338",
+        "backend/tests/regression/inventory-organization-storage.test.js": "bbd1497563252b999d530c8480e4e9370fee599561ed1262540127e46c1e7b2c",
+        ".github/workflows/migration-regression.yml": "4a0cf0522c1b09eebdb24b48b24e94fb06386cf4b98aed71df383ac24648f9e6",
+        "docs/INVENTORY-ORGANIZATION.md": "dc6fa1fa3d2bbf750066fd77ea99564068aa406076b54d7b80b1afcca0778bcc",
+        "docs/DATABASE-MIGRATIONS.md": "59e04c06ac18d014dcefb51d3932a21424f077f3a14ebb5a0260a6d02a7c5f98"
       },
       "evidence": [
         {
           "command": "complete original845-line requirement read; canonical schema/route/consumer audit; actual full85-source bootstrap; real require inventory router",
           "result": "incomplete",
           "scope": "Original10 criteria and80/95percent/<500ms unchanged; old done reopened. Real full history fails this migration stmt13 is_deleted absent. V1 canonical UUID instances/cp/caught_at/species and per-species candy conflict with proposed shadow columns/global candy; existing UUID team identity/arrays/max6 must remain. Inventory mounts exist and actual module loads, but malformed data queries and fixed300 capacity do not prove actual HTTP/game/client/performance acceptance."
+        },
+        {
+          "date": "2026-10-17",
+          "command": "node --test --test-concurrency=1 backend/tests/regression/inventory-organization-storage.test.js;20-suite repeat;actual full85 bootstrap",
+          "result": "prerequisite_pass_feature_incomplete_full_history_failed",
+          "tests": 24,
+          "actualSequentialSuites": 20,
+          "actualChecks": 379,
+          "scope": "Canonical inventory organization prerequisite preserves real UUID instances/favorites/nicknames/species metadata/per-species candy/earlier UUID teams and constraints, existing preferences/timestamps/sequence/function/trigger identities and nullable historical protection. Actual24 new storage/CLI cases pass; all20 sequential suites379/no skips,724 units/24Jest suites425,syntax1445 and actual module/workflow/new gate checks pass. No fabricated old deletion times/levels/global candy or writable shadow deletion flag. Unsupported layouts reject atomically. All85 raw SQL unchanged; full V1/V2 passes, complete history advances past inventory then fails cosmetic20260630_040000 stmt13 pokemon_instance_id FK type and rolls back. Genuine26f553f remote transaction27/slow-query8/TLS3/throughput-1.1060183236359267percent passes original-5percent gate and all8 measured hashes still match, with main458 success; latest full schema/source CI pending. Other full HTTP/sorting/group/advice/confirmed transfer/protection across consumers/preferences/cache/capacity/500ms/UI/mobile/provider/security/upgrade/reversal acceptance remains open. Refresh only actually exercised shared references."
         }
       ],
       "remaining": [
-        "Reconcile canonical schema/instance/species metadata and actual numeric bond/capacity sources without fabricating history or replacing existing UUID team/candy identities.",
-        "Execute real protected owner favorite/lock/tags/preferences and atomic confirmed batch transfers with actual per-species candy, concurrency/idempotency and cache-after-commit semantics.",
-        "Original sorting/grouping/advice and80/95percent warnings with actual expanded capacity, all operations<500ms, complete client/mobile gesture flows and required CI.",
-        "Whole85 migration history/upgrade/reversal and all original acceptance remain open."
+        "Implement all original10 criteria in actual mounted routes/production services and clients; storage prerequisite alone does not verify any complete feature acceptance.",
+        "Use actual canonical fields/species rarity including EPIC/per-owner bond and truthful level/evolution metadata; no invented historical data.",
+        "Confirmed atomic per-species transfer must exclude protected/foreign/repeated/defending/team resources and all canonical consumers must respect soft deletion; implement coherent postcommit cache behavior.",
+        "Actual saved preferences, all7sorts/groups/custom tags/advice, real capacity and exact80/95percent boundaries, representative<500ms measurements and mobile/desktop UI remain open.",
+        "Already-applied differing repair upgrades, original up-only proposal reversal, complete85 history and latest relevant CI remain open."
       ]
     }
   }

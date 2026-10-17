@@ -9961,7 +9961,7 @@
       "category": "功能增强",
       "modules": "pokemon-service、user-service、gateway、game-client、database/migrations",
       "createdAt": "2026-06-27 06:00 UTC",
-      "sha256": "b0ac54e76c9865d5d27cf6d66840aaeef3634a66b8b5be993b54510ff475deb0",
+      "sha256": "40352533a1741d32f483664a77ffafc09e962d2d4fde0d61f88f45cc79f89fc5",
       "acceptance": [
         "- [ ] 用户可以通过多种维度（战斗力、CP、时间、类型、稀有度等）对精灵进行排序",
         "- [ ] 用户可以按类型、用途、稀有度等维度对精灵进行分组展示",
@@ -9974,13 +9974,14 @@
         "- [ ] 前端 UI 提供直观的整理控制面板",
         "- [ ] 移动端适配，支持手势滑动操作"
       ],
-      "verificationStatus": "audited_incomplete",
+      "verificationStatus": "partial_verified_full_history_failed",
       "implementationReferences": [
         "backend/services/pokemon-service/src/index.js",
         "backend/services/pokemon-service/src/inventory/InventorySorter.js",
         "backend/services/pokemon-service/src/inventory/OrganizationAdvisor.js",
         "backend/services/pokemon-service/src/routes/inventory.js",
-        "database/pending/20260627_060000__add_inventory_organization_system.sql"
+        "database/pending/20260627_060000__add_inventory_organization_system.sql",
+        "database/pending/repairs/20260627_060000__add_inventory_organization_system.sql"
       ],
       "legacyId": null
     },
