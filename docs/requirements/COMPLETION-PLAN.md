@@ -3,7 +3,7 @@
 Updated: 2026-10-18. Scope: all 658 existing requirement documents in INDEX.md,
 including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 430 new, 40 in progress; 188 declared done, including one independently verified framework. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 430 new, 41 in progress; 187 declared done, including one independently verified framework. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -28,10 +28,11 @@ independent authorized work.
 
 ## Current batch
 
-1. Complete shared installation: the full85-source chain now reaches20260701_110000
-   statement1, invalid canary partial uniqueness. Preserve canonical existing rollout
-   identities/history while reconciling duplicate proposals. UUID erasure storage now
-   preserves legacy requests; actual deletion workflow runtime remains incomplete. These schema prerequisites block installation used by P0 services.
+1. Complete shared installation: full85-source history now reaches20260707_060000
+   statement6, partition-view size_bytes→size conflict. Preserve canonical view
+   identity/contracts while reconciling later partition proposals. Canary/erasure
+   storage has real preservation evidence; actual routing/deletion runtime remains
+   incomplete. These schema prerequisites block installation used by P0 services.
 2. Inventory/cosmetic storage prerequisites have real preservation/CLI evidence;
    actual inventory projections/confirmed protected transfers/soft-deletion consumers,
    preferences/cache/capacity/UI and cosmetic service/routes/purchase/slots/presets/
@@ -692,3 +693,19 @@ unchanged;188done/40progress/430new,total658, independently verified1. Continue
 canary prerequisite, actual deletion/inventory/cosmetic/service and original P0/
 security/client/numerical/operations work. No scope shrink or false legal/feature
 acceptance; no Maven/maxCPU.
+
+
+## Canary checkpoint (2026-10-18)
+
+Source-bound repeated canary SQL retains earlier SERIAL rollout state/history and
+adds request logs, real one-active-service uniqueness, truthful new creation times
+and guarded updater/index identities.18 actual canary checks plus19 erasure checks
+pass sequentially; missing-predicate adoption uses NULL-safe comparison in both.
+Actual manager reads work; create event/API/metric failures and false healthy
+statistics remain. Original1074-line78 read; legacy done reopened, all11 original
+checkbox lines (including truncated final line) retained. Full history now fails
+partition20260707_060000 stmt6 view size_bytes→size, entire pending rollback.
+Exact40a98d3 main461 and erasure18/other migration23 correctness pass; throughput
+-2.76910724385816% passes original-5%; full migration job fails former canary syntax.
+Current187done/41progress/430new,658 unique, independently verified1; all stages
+continue. No claim that prior394 suites were locally rerun in this narrower batch.

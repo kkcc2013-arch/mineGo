@@ -96,3 +96,18 @@ ceiling at-4.0321937222349895%; all8 measured sources still match. The report is
 remote migration job fails the former deletion FK boundary; current complete-source
 CI still requires observation. No full-job success is claimed. Current658 documents:
 188 declared done,40 in progress,430 new; independently verified1.
+
+
+## Latest installation boundary (2026-10-18)
+
+The independent [canary repair](CANARY.md) now preserves original rollout history
+and provisions real logs/one-active-service uniqueness. Final18 canary+19 erasure
+checks pass sequentially, including missing partial-predicate refusal. Full85-source
+history advances to partition20260707_060000 stmt6 size_bytes→size view conflict;
+entire pending batch rolls back. Existing business runtime/runner and8 measured
+transaction sources remain unchanged. Prior394 checks/21 suites were not rerun.
+Exact40a98d3 main461 and migration23 correctness (including erasure18) pass, with
+[throughput-2.76910724385816%](benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json)
+meeting the unchanged-5% ceiling. That full remote job fails former canary syntax;
+latest full-source CI still requires observation. Current658 documents retain all
+criteria:187 declared done,41 in progress,430 new; independently verified1.

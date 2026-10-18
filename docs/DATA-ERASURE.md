@@ -81,3 +81,14 @@ identity and exception rules. The repository's blanket delay/retention examples 
 not independent compliance evidence. See the [European Commission's principles](https://commission.europa.eu/law/law-topic/data-protection/information-business-and-organisations/principles-gdpr_en)
 and [California DOJ's erasure guidance](https://oag.ca.gov/privacy/ccpa#sectiond).
 No legal-review acceptance is claimed.
+
+
+## Follow-up checkpoint (2026-10-18)
+
+A missing partial predicate previously produced NULL in the adoption comparison.
+Use IS DISTINCT FROM and reject an all-status unique index explicitly; the final
+erasure suite is19 checks. Together with18 actual canary checks,37 pass sequentially
+with no skips. Older18-check publication remains exact-source prior evidence.
+The independent [canary prerequisite](CANARY.md) advances complete85-source history
+to partition20260707_060000 statement6 (size_bytes→size view-column conflict); entire
+pending batch rolls back. Runtime/API/worker/legal/upgrade/reversal remains open.

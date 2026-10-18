@@ -187,7 +187,7 @@ BEGIN
   IF NOT FOUND THEN RAISE EXCEPTION 'Erasure active request index requires explicit adoption'; END IF;
   IF NOT actual.indisunique OR NOT actual.indisvalid OR actual.indrelid<>'data_erasure_requests'::regclass OR actual.indnatts<>1
      OR actual.indkey::text<>(SELECT attnum::text FROM pg_attribute WHERE attrelid='data_erasure_requests'::regclass AND attname='user_id' AND NOT attisdropped)
-     OR regexp_replace(actual.predicate,'[[:space:]]','','g')<>regexp_replace('((status)::text = ANY ((ARRAY[''pending''::character varying, ''verifying''::character varying, ''approved''::character varying, ''processing''::character varying])::text[]))','[[:space:]]','','g') THEN
+     OR regexp_replace(actual.predicate,'[[:space:]]','','g') IS DISTINCT FROM regexp_replace('((status)::text = ANY ((ARRAY[''pending''::character varying, ''verifying''::character varying, ''approved''::character varying, ''processing''::character varying])::text[]))','[[:space:]]','','g') THEN
     RAISE EXCEPTION 'Erasure active request index requires explicit adoption';
   END IF;
 END

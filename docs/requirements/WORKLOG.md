@@ -1686,3 +1686,57 @@ EUR-Lex/leginfo direct pages are robot/403 blocked; no legal sign-off fabricated
 Continue canary installation prerequisite, actual P0/service/runtime and all original
 658 stages. Current188done/40in_progress/430new, independently verified1. No Maven/
 CPU saturation/production deletion/merge/deploy or external recipient messages.
+
+
+## 2026-10-18 — published erasure CI; preserve repeated canary storage
+
+Published40a98d34ebe7d3fa800c02d2f346b6e3796ce99b to existing draftPR6 (19 project
+files, personal memory/credentials excluded). Exact main461 unit/syntax/audit and
+battle jobs pass. Migration23 run39100238639/job117594848091 downloaded log confirms
+erasure18 and all existing correctness gates pass; throughput-2.76910724385816%
+passes original-5%, all8 measured source hashes match, report archived. Full job
+fails old canary110000 stmt1 WHERE syntax; not an overall migration success.
+
+Read all original1074 lines ofREQ78 and both65/104-line SQL proposals, earlier
+checksummed repair and actual manager/router/API/metric/CLI/workflow consumers.
+Requirement ends at a truncated11th checkbox; preserve every original criterion
+verbatim and reopen legacydone. Earlier canonical SERIAL deployments/history/
+snapshots already exist. New source-bound repair keeps original85 SQL unchanged
+and retains all IDs/rows/choices/history/sequences/views/FKs/comments/indexes. Add
+actual request logs and one-active-service uniqueness across active/promoting; refuse
+ambiguous history rather than discard or fake completion. Old unknown created_at
+isNULL; new rows get real current timestamp and operator default survives rerun.
+Owned update function/trigger/index definitions/enabled state are guarded, not reset.
+
+Initial runtime diagnostic wrongly assumed destructured db absent. Actual db.db
+compatibility alias exists; native query opened a real pool instead of throwing
+TypeError, leaving its metrics timer alive. Stop only owned test processes, replace
+that assumption with child-process probes using actual isolated DATABASE_URL,
+max2 pool and finally closePools. Final test exits naturally. Actual manager read
+works, but create persists rows/history then throws static EventBus.publish; absent
+samples become healthy defaults and an all503 sample incorrectly returns success1;
+API fails missing requireAdmin and actual metric helper fails Counter.increment.
+No gateway mount/upstream version selection or actual rollback/staging accepted.
+
+Review found a NULL predicate makes old comparison unknown rather than rejecting
+a nonpartial unique index. Both erasure/canary comparisons now use IS DISTINCT FROM,
+and actual all-status unique-index fixtures must fail atomically. The first canary
+fixture could not create that deliberately wrong index because two historical rows
+shared a service; give those fixture rows distinct service names before constructing
+the incompatible index, then retain the complete pre-repair snapshot/atomic refusal
+assertion. No historical row is removed. Final19 erasure
+and18 canary checks (37 total/no skips) pass sequentially against real PostgreSQL.
+Include original failures, real two-caller race/unique enforcement, exact retained
+rows/OIDs/sequences/functions/triggers/defaults, parent/cascade checks and genuine
+CLI raw/executed checksum/up/up/verify. Earlier394 business checks remain prior
+source-specific evidence, not a fictitious new total. Production JavaScript/runner/
+all older repair-manifest entries and8 measured transaction sources unchanged.
+
+Full V1/V2 passes; complete85 history now passes canary and fails partition
+20260707_060000 stmt6: cannot change view column size_bytes to size. Entire pending
+transaction rolls back. Next reconcile original partition-view contract/history,
+then actual P0/startup/security/runtime/client/operations and all658 stages. Current
+187done/41progress/430new, sole independently verified619 unchanged. Full new CI,
+canary runtime/auth/proxy/metrics/promotion/rollback/upgrade/reversal, erasure worker/
+API/key lifecycle/legal review and all original thresholds remain open. No Maven,
+CPU saturation, production release, deployment, merge or recipient messages.

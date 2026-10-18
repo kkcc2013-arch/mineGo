@@ -120,7 +120,7 @@
         "database/pending/20260611_152900__add_privacy_preference_center.sql": "fed6b42590f4829f4b474b9ddf840a08d7b8cce7b53bd502a0b9fe7417ec63d8",
         "database/pending/repairs/20260611_152900__add_privacy_preference_center.sql": "ac250e1ee3e789b017f7a1c54ebee3488345068aca38ea6e93df70e64483c896",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162"
       },
@@ -387,6 +387,14 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
@@ -515,7 +523,7 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6"
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6"
       },
       "evidence": [
         {
@@ -805,6 +813,14 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ]
     },
@@ -829,7 +845,7 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6"
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6"
       },
       "evidence": [
         {
@@ -1119,6 +1135,14 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ]
     },
@@ -1146,7 +1170,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "database/pending/repairs/20261007_120000__title_identity_compatibility.sql": "26c5317694faa4f2a263923d4b915dfc0508d6a69c092c1c449306ee88702837",
         "database/pending/repairs/20260615_170500__add_title_system.sql": "f43872c531d7ac6a9a2875d2eb9a3f603781e4caf3bfdbe7482e7864629bf9ac",
         "backend/tests/regression/title-upgrade-storage.test.js": "406ebc4206cad8d523478a60e7e7a55e81cdbeaae369b1112fefdadfef59bb01",
@@ -1459,6 +1483,14 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ]
     },
@@ -1486,7 +1518,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6"
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6"
       },
       "evidence": [
         {
@@ -1780,6 +1812,14 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ]
     },
@@ -1807,7 +1847,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "docs/NOTIFICATIONS.md": "5b47d94114ba552f47f6d88f8aaba2ceb17c4e705174c1872d95f5e0655726ae",
         "backend/services/user-service/src/notificationService.js": "9b1809ee37dcef1cc4794db12b5a0fc2f4df876ade8dab918b378eca07d75194",
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
@@ -1826,7 +1866,7 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
         "frontend/game-client/src/i18n/index.js": "37dd930d9f30e6f6b088ad74f669c7cecbd91f7937ccb84e685d1dbfe4fa2690",
@@ -2214,6 +2254,15 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ],
       "remainingAcceptance": [
@@ -2246,7 +2295,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6"
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6"
       },
       "evidence": [
         {
@@ -2496,6 +2545,14 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ]
     },
@@ -2520,7 +2577,7 @@
         "backend/tests/regression/gateway-startup.test.js": "68cffc1230ec8f56d3ad77026c7a4f106cdb02431ca60c911c50eb99984deb5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6"
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6"
       },
       "evidence": [
         {
@@ -2770,6 +2827,14 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ]
     },
@@ -2787,7 +2852,7 @@
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6"
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6"
       },
       "evidence": [
         {
@@ -2993,6 +3058,14 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ]
     },
@@ -3015,11 +3088,11 @@
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/regression/storageSetup.js": "1a67a27f674d7ef022e266da1ebbd5146870cdc290ebd64a51a799f5843ceaee",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
-        "docs/DATABASE-MIGRATIONS.md": "ad4236603a49814f739fa601e91bc5a22efd349d4d30930a0765d9362815f66d",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
+        "docs/DATABASE-MIGRATIONS.md": "2fc89f56e8a4df2ebf1e4758d1c3856f5b8fa9c589201425d743deece8195d5c",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
@@ -3065,14 +3138,19 @@
         "backend/shared/pgCancel.js": "92f0c891d270da29d0fb3769016baa60925c875fd88346b38c3ddc700e3b87ad",
         "database/pending/repairs/20260627_060000__add_inventory_organization_system.sql": "31aac467ae420bdafb0204bf33832c4c8a33e39368cf01f6c2ad33bd95b887a7",
         "backend/tests/regression/inventory-organization-storage.test.js": "bbd1497563252b999d530c8480e4e9370fee599561ed1262540127e46c1e7b2c",
-        "docs/INVENTORY-ORGANIZATION.md": "e1d6a721d1a96eb7a34845f1f11ab7c62a7fcf791a0f72a97f2859f33622967f",
+        "docs/INVENTORY-ORGANIZATION.md": "ec8824d117d2b09e4617f73e29c01b05d62c9f815d3cb9f6362954bc50aa8b10",
         "backend/tests/regression/cosmetic-schema-storage.test.js": "05d835a2fc7e7fd82e06868ae168c5077be3813a7c7b19eccc70a8129ccf547c",
-        "docs/COSMETICS.md": "4af885fdc189e3249f0fde4f537b2320b62186559b65172d46826b38aa090d5c",
+        "docs/COSMETICS.md": "0b2c3bb7652568b64b5d863b7dea488e834be4ec79c55d99594aaccf92a545e3",
         "database/pending/20260630_050000__add_data_deletion_request_tables.sql": "4e8a931542163151277c85582a75caa1335dd6885913f6cb3ef35892077baee3",
-        "database/pending/repairs/20260630_050000__add_data_deletion_request_tables.sql": "988a125909dd61f512b7d0a2f35dee5dd1c81fc7f2b866084c7bc9baf0a806d0",
-        "backend/tests/regression/erasure-schema-storage.test.js": "49d3829cbba24034410818414ba0025a8ba1c5926a54dde357fe84542aec4a9b",
-        "docs/DATA-ERASURE.md": "17208e1f79eb376b92e981e2bebbec6d4a6e0c4e58f0755f358d154bbb5b96d8",
-        "docs/benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json": "da6ec93efd94f88465cc156434b19c48c78235961be425ef2fa9711377132300"
+        "database/pending/repairs/20260630_050000__add_data_deletion_request_tables.sql": "18af611ad1688d68200770e0b3ad2e395e6b1c069052d8f73af8ce87e393502a",
+        "backend/tests/regression/erasure-schema-storage.test.js": "4c54f92e9492772d096201675ffe7b0d0594c609bc64e1395b9b910feeda535b",
+        "docs/DATA-ERASURE.md": "9a05d539f2c1ab2fe4d1e74b76fdf0b2e93da98bce0ef0ad02380db82ae494d8",
+        "docs/benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json": "da6ec93efd94f88465cc156434b19c48c78235961be425ef2fa9711377132300",
+        "database/pending/20260701_110000__add_canary_deployment_tables.sql": "f96b82ee32401a2995bf18e461f0359e2273def1d189c219b630b1719167edc4",
+        "database/pending/repairs/20260701_110000__add_canary_deployment_tables.sql": "66ca1c9bcefe9a5bb36a6b8fee01b305a2626040ea6b4a1f6b089dadd52897a3",
+        "backend/tests/regression/canary-schema-storage.test.js": "18bc7caffb2b93568aff590318e2fdbc3874f183c29b7d80efd14be1a15d7ffc",
+        "docs/CANARY.md": "ed8d43ea80bb07bc9a5a1f4a6ba69ff6eca0756b1258b4dd7d8b0426e02d16b8",
+        "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json": "fa441fdcf8f5471c1a0d5c74082467f4bf92777d547989df6ddd08c42c68b765"
       },
       "evidence": [
         {
@@ -3507,6 +3585,33 @@
           "requiredMinimumChangePercent": -5,
           "artifact": "docs/benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json",
           "scope": "Downloaded actual remote log: cosmetic15/inventory24 and existing transaction/slow-query/TLS gates pass; all8 measured transaction hashes still match. Full migration22 job fails old deletion050000 stmt2. Independent current repair advances local full history to canary110000 stmt1. No full CI/feature/installation or operations acceptance."
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md",
+            "database/pending/repairs.json",
+            "docs/INVENTORY-ORGANIZATION.md",
+            "docs/COSMETICS.md",
+            "database/pending/repairs/20260630_050000__add_data_deletion_request_tables.sql",
+            "backend/tests/regression/erasure-schema-storage.test.js",
+            "docs/DATA-ERASURE.md"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
+        },
+        {
+          "date": "2026-10-18",
+          "commit": "40a98d34ebe7d3fa800c02d2f346b6e3796ce99b",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39100238639",
+          "job": 117594848091,
+          "result": "correctness_and_throughput_passed_full_history_failed",
+          "erasureStorageTests": 18,
+          "medianChangePercent": -2.76910724385816,
+          "requiredMinimumChangePercent": -5,
+          "artifact": "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json",
+          "scope": "Downloaded actual migration23 log confirms erasure18 and all existing correctness gates pass; throughput passes original gate,8 measured hashes still match. Exact main461 unit/syntax/audit/battle jobs pass. Full remote job fails original canary syntax; independent latest local repair advances to partition view conflict. Current new CI remains to be observed; not full migration/feature acceptance."
         }
       ],
       "remaining": "Complete85-source history now fails20260627_060000 statement13 missing is_deleted. Reconcile canonical inventory/ownership/contracts, all later pending files, data-preserving upgrades/reversal and all-service startup. Exact new remote throughput still unverified; all original acceptance remains open."
@@ -3519,15 +3624,15 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
-        "docs/DATABASE-MIGRATIONS.md": "ad4236603a49814f739fa601e91bc5a22efd349d4d30930a0765d9362815f66d",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
+        "docs/DATABASE-MIGRATIONS.md": "2fc89f56e8a4df2ebf1e4758d1c3856f5b8fa9c589201425d743deece8195d5c",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -3821,6 +3926,16 @@
             ".github/workflows/migration-regression.yml",
             "docs/DATABASE-MIGRATIONS.md"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ]
     },
@@ -3832,15 +3947,15 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
-        "docs/DATABASE-MIGRATIONS.md": "ad4236603a49814f739fa601e91bc5a22efd349d4d30930a0765d9362815f66d",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
+        "docs/DATABASE-MIGRATIONS.md": "2fc89f56e8a4df2ebf1e4758d1c3856f5b8fa9c589201425d743deece8195d5c",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -4134,6 +4249,16 @@
             ".github/workflows/migration-regression.yml",
             "docs/DATABASE-MIGRATIONS.md"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ]
     },
@@ -4145,15 +4270,15 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
-        "docs/DATABASE-MIGRATIONS.md": "ad4236603a49814f739fa601e91bc5a22efd349d4d30930a0765d9362815f66d",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
+        "docs/DATABASE-MIGRATIONS.md": "2fc89f56e8a4df2ebf1e4758d1c3856f5b8fa9c589201425d743deece8195d5c",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
         "database/pending/repairs/20260613_070000__add_share_system_tables.sql": "76878d9137932106edb11dd047828c0302aa51eb8bc6884759ba0eb0c65080af",
@@ -4530,6 +4655,16 @@
             ".github/workflows/migration-regression.yml",
             "docs/DATABASE-MIGRATIONS.md"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ],
       "remaining": [
@@ -4546,7 +4681,7 @@
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260611_000000__add_achievement_system_tables.sql": "31e3714195d83afba17bafd85f3590ad51e30011831a5d0a1f5b4e8e5a00e302",
         "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "6f9c323240e28aa67a4d54fccd7141b72f7d58f91607ae53568631b90cd0a2d9",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "database/pending/20261008_150000__achievement_catalog_bridge.sql": "432a090e79626102f6cff413f6bc844c7617bd0c2cc1346899f95fa1b801e04f",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
@@ -4556,9 +4691,9 @@
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "backend/services/user-service/src/routes/user.js": "7d24fb40cd0662c428a6b42c2bf6636a2a3ac05fdcdc5e8717d1df5a1dbf04df",
         "backend/tests/regression/achievement-storage.test.js": "4983c1a41d7e40fd86bcb29cd59765555c2ff0f10030044ca5b75ee435a4b90b",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
         "docs/ACHIEVEMENTS.md": "09711c5508a55e25daaa1d2735281a7c35bae20e885c998d93bb3a5d17e8a08d",
-        "docs/DATABASE-MIGRATIONS.md": "ad4236603a49814f739fa601e91bc5a22efd349d4d30930a0765d9362815f66d",
+        "docs/DATABASE-MIGRATIONS.md": "2fc89f56e8a4df2ebf1e4758d1c3856f5b8fa9c589201425d743deece8195d5c",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "docs/NOTIFICATIONS.md": "5b47d94114ba552f47f6d88f8aaba2ceb17c4e705174c1872d95f5e0655726ae",
@@ -4844,6 +4979,16 @@
             ".github/workflows/migration-regression.yml",
             "docs/DATABASE-MIGRATIONS.md"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ],
       "remaining": "Replay/idempotency/durable events/automatic grant/all triggers; complete seed item/title contract and exclusive Pokemon grant; management CRUD/admin and edited-definition snapshot policy; old unit fixture; native pokemon process/gateway/client/localization; <100ms query/<50ms update performance; full83 history and data-preserving reversal with modern records remain unproven."
@@ -5073,6 +5218,15 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ],
       "sourceSha256": {
@@ -5098,9 +5252,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -5347,6 +5501,15 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ],
       "sourceSha256": {
@@ -5372,9 +5535,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -5621,6 +5784,15 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ],
       "sourceSha256": {
@@ -5646,9 +5818,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
         ".github/workflows/title-regression.yml": "015041ddd6964a2c59f1b0ae0413bc9bd085a15bd4e2f4a2c39c2edcc500bb33",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -5677,11 +5849,11 @@
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -5893,6 +6065,15 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ],
       "date": "2026-10-18",
@@ -5914,11 +6095,11 @@
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -6130,6 +6311,15 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ],
       "date": "2026-10-18",
@@ -6155,8 +6345,8 @@
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260612_070000__add_catch_anomaly_detection_system.sql": "071c812b16b0f3bd90eb912c88d98d01c334d709a619ae0c5e7b26280869b926",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
         "docs/CATCH-RISK.md": "38a45565382fcc71fcd3086ed2de7b885d9e912859efe78d917741eaa3afbcf0",
         "docs/review/REQ-00082-catch-success-anomaly-detection-review.md": "76b74356f1d4b2745e8d4029639e2cb0ac5101d789d6c6c699b35fb2b3aa11a9",
         "docs/review/REQ-00082-catch-success-anomaly-detection-system-review.md": "91b9a7a16ae6203eac69695669ad3eed471d75d13259a44cd7b98a59f044e19c",
@@ -6367,6 +6557,15 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ],
       "remainingAcceptance": [
@@ -6392,8 +6591,8 @@
         "database/pending/20260613_160000__add_special_iv_system.sql": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -6563,6 +6762,15 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ],
       "remainingAcceptance": [
@@ -6586,8 +6794,8 @@
         "database/pending/20260613_160000__add_special_iv_system.sql": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -6757,6 +6965,15 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ],
       "remainingAcceptance": [
@@ -6774,14 +6991,14 @@
       "sourceSha256": {
         "database/pending/20260614_090500__add_daily_quest_system.sql": "b602bc1b0e67d1b03aa441cf24de2abbc7113ab512bcd7384d006e2b15b07979",
         "database/pending/repairs/20260614_090500__add_daily_quest_system.sql": "65570155fda0333a90d88d794c600cb17b685ed1ea0a99ed7a6198669d6c53be",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "backend/services/reward-service/src/index.js": "42b8220e1654ecf40ae8d053e1b9219e651e27b1ff40f511abdc6d7c6d9f8a50",
         "backend/services/reward-service/src/routes/dailyQuests.js": "599fa242c1864866bebc2f5368e0552ad47a58afcacd7933561a1a3e6d64054b",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
         "backend/shared/questService.js": "4db34890cbb2837e2c13703dd0278e41a030fd8cbb1d39bf2411920e2f4413fd",
         "backend/shared/routes/quests.js": "415f6443d29d9f5675b0def6517d20063ec0df25d66454ccd3e3766a326163e3",
         "backend/shared/questMetrics.js": "4d70c0eb2917f3942f4cc0888d27ffdfeb6fcac91a585c4a897364a7e7afaa8f",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
         "docs/DAILY-QUESTS.md": "b63d44e8e29e3fdcd856248af47935ca99924740c887be49c45defd33cdd21de"
       },
       "evidence": [
@@ -6932,6 +7149,15 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ],
       "remainingAcceptance": [
@@ -6953,7 +7179,7 @@
         "backend/services/catch-service/src/index.js": "b5901bc1a2bc732da52ffb257166948b54e84141882b5989d0dcbf3b0c26175c",
         "backend/tests/regression/reward-leaderboard-storage.test.js": "b22fe38c30f5351cbcbd39129f0794daf6dc3b2c7ed6c33cca2ba8b1159d163f",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
         "docs/REWARD-RANKINGS.md": "ad7d89e56547dcdd24d5fe07ac61557a5e1c0ee69bce4ea77b6aa116fa9fd933",
         "docs/review/REQ-00255-api-injection-attack-protection-system-review.md": "2ac0537e70d4896ea611958d55aaffb60793de6b06538872a554819d0a60ef76"
       },
@@ -7071,6 +7297,14 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ],
       "remainingAcceptance": [
@@ -7100,10 +7334,10 @@
         "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
         "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
       "evidence": [
@@ -7250,6 +7484,15 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ],
       "remainingAcceptance": [
@@ -7279,10 +7522,10 @@
         "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
         "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
       "evidence": [
@@ -7429,6 +7672,15 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ],
       "remainingAcceptance": [
@@ -7448,10 +7700,10 @@
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "database/pending/20260618_160000__add_voice_chat_tables.sql": "e60be5a89d60c84da8ba40f11c63bf1b5e1491e59828903856e50b490ca74bf4",
         "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "b2034194cd84c4f47f3c73438555df5b80c21135535de704a782313dfefe8b8b",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "backend/tests/regression/voice-schema-storage.test.js": "5e4162b28e07f7f35ab339d707b4be8a99e19e1921bd208cd51890fbf5058c6f",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
         "backend/services/social-service/src/voice/turnServer.js": "2ca289a62a2fa2648e4c5a18ac49a13af268d55c17c3739334851c5673df5eb5",
         "backend/services/social-service/src/voice/routes.js": "cdcbac7391f275b20a7646517ac0a5d3883c35a629d10e66aef9b49a42349b80",
         "backend/services/social-service/src/voice/signalingServer.js": "4e8199480ff3745f671a20845680cf48ef5d374d4544813ca914d3fbce842505",
@@ -7582,6 +7834,15 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ],
       "remaining": [
@@ -7607,8 +7868,8 @@
         "backend/tests/unit/currency.test.js": "155a7c7d561b2911a5da8c5a91ec5e054eb283ff8b98deca22779f4fbeb93558",
         "database/pending/20260624_133000__add_multi_currency_support.sql": "9d82251238972d1bd61c2264504f10f709039e52b2b42921c81957c32b689bcf",
         "database/pending/repairs/20260624_133000__add_multi_currency_support.sql": "a6f2318807e7824c4c458beb7762ec555e256d97af41405707dafbf8ac24dde2",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
         "docs/CURRENCIES.md": "02ca61669686acdd8038b3ec185dd96a04a0ed6bc6014493d43120d5940676b7"
       },
       "evidence": [
@@ -7726,6 +7987,15 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
         }
       ],
       "remaining": [
@@ -7757,10 +8027,10 @@
         "docs/benchmarks/transaction-throughput-2026-10-15.json": "b22bccb8cee394a16a4c5135761e5e104c97e6b95c974a18ceb7e36d887e4a03",
         "database/pending/20260626_040000__add_deadlock_log_table.sql": "b9060fc1aab1fd26bbb27d08a7d0ba83f9df521191ecc37cbe679c447ed16238",
         "database/pending/repairs/20260626_040000__add_deadlock_log_table.sql": "fe133fbc60e1719e237752d8a9508ff246d3e376a46aed62e024c5939a721cbc",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
-        "docs/TRANSACTIONS.md": "4b77f508482265d9af9d694393c89aef0c78fccb1cf308e69c19a5b0412a4f98",
-        "docs/DATABASE-MIGRATIONS.md": "ad4236603a49814f739fa601e91bc5a22efd349d4d30930a0765d9362815f66d",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
+        "docs/TRANSACTIONS.md": "3663450f0a02d7f3870a68e827e64519ba18726452c3b57776ee9e66c17a561a",
+        "docs/DATABASE-MIGRATIONS.md": "2fc89f56e8a4df2ebf1e4758d1c3856f5b8fa9c589201425d743deece8195d5c",
         "docs/benchmarks/transaction-throughput-ci-bae401e-2026-10-15.json": "61c8117367a10c9984f6d83854443cd8a71990cb1f8d0270ee72ea8ccf6a1bf6",
         "docs/benchmarks/transaction-throughput-optimized-2026-10-15.json": "d10f3e6df7005b973d3a04a0136cd828dc315b7979f824944641d4abcf41193b",
         "docs/benchmarks/transaction-throughput-ci-5864a4a-2026-10-16.json": "556cb07df13262532238b5c4feaed36fa11d79daa84a3ecf7237577d9047bddb",
@@ -7777,7 +8047,8 @@
         "docs/benchmarks/transaction-throughput-wire-long-2026-10-17.json": "f1f7d923dd471d164fe97efd697799abda35348108807030ffbd415aa6c598c0",
         "docs/benchmarks/transaction-throughput-ci-26f553f-2026-10-17.json": "858bd11da1948ca938a582b304ffcd4ebf6147c7c1459c6e465b54efa6ddfce9",
         "docs/benchmarks/transaction-throughput-ci-a769b0d-2026-10-17.json": "df4cf64be36dae3da71a0c2d532fb7bb5b83a5841e9873f0a66323ff4634000c",
-        "docs/benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json": "da6ec93efd94f88465cc156434b19c48c78235961be425ef2fa9711377132300"
+        "docs/benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json": "da6ec93efd94f88465cc156434b19c48c78235961be425ef2fa9711377132300",
+        "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json": "fa441fdcf8f5471c1a0d5c74082467f4bf92777d547989df6ddd08c42c68b765"
       },
       "evidence": [
         {
@@ -8007,6 +8278,29 @@
           "requiredMinimumChangePercent": -5,
           "artifact": "docs/benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json",
           "scope": "Downloaded actual remote log: cosmetic15/inventory24 and existing transaction/slow-query/TLS gates pass; all8 measured transaction hashes still match. Full migration22 job fails old deletion050000 stmt2. Independent current repair advances local full history to canary110000 stmt1. No full CI/feature/installation or operations acceptance."
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/TRANSACTIONS.md",
+            "docs/DATABASE-MIGRATIONS.md"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
+        },
+        {
+          "date": "2026-10-18",
+          "commit": "40a98d34ebe7d3fa800c02d2f346b6e3796ce99b",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39100238639",
+          "job": 117594848091,
+          "result": "correctness_and_throughput_passed_full_history_failed",
+          "erasureStorageTests": 18,
+          "medianChangePercent": -2.76910724385816,
+          "requiredMinimumChangePercent": -5,
+          "artifact": "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json",
+          "scope": "Downloaded actual migration23 log confirms erasure18 and all existing correctness gates pass; throughput passes original gate,8 measured hashes still match. Exact main461 unit/syntax/audit/battle jobs pass. Full remote job fails original canary syntax; independent latest local repair advances to partition view conflict. Current new CI remains to be observed; not full migration/feature acceptance."
         }
       ],
       "remaining": [
@@ -8027,14 +8321,15 @@
         "database/pending/repairs/20260627_041000__enable_pg_stat_statements.sql": "fb9f244c96563de01b9dfcd18ccda92105b5023e9201e9019af9472e13ea51d2",
         "database/pending/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "bcfa7904149404b6677ab0e33591670d12746845e590849ee822dca2966071ab",
         "database/pending/repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "660c62531f86d2f8981163afbe85b50ec68bbe27269b840d7b7ea4dba64f0df4",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "backend/tests/regression/slow-query-schema-storage.test.js": "35c43ce9cc230648eeb82e069000bfd6f5b5019b533eaa14b5a1b8349bf71fbb",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
         "docs/SLOW-QUERIES.md": "8c3a6dde07fb0d411ed7b3da05e2d7daa4ab20c4fc52ddd4a8e89e3499353921",
-        "docs/DATABASE-MIGRATIONS.md": "ad4236603a49814f739fa601e91bc5a22efd349d4d30930a0765d9362815f66d",
+        "docs/DATABASE-MIGRATIONS.md": "2fc89f56e8a4df2ebf1e4758d1c3856f5b8fa9c589201425d743deece8195d5c",
         "docs/benchmarks/transaction-throughput-ci-26f553f-2026-10-17.json": "858bd11da1948ca938a582b304ffcd4ebf6147c7c1459c6e465b54efa6ddfce9",
         "docs/benchmarks/transaction-throughput-ci-a769b0d-2026-10-17.json": "df4cf64be36dae3da71a0c2d532fb7bb5b83a5841e9873f0a66323ff4634000c",
-        "docs/benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json": "da6ec93efd94f88465cc156434b19c48c78235961be425ef2fa9711377132300"
+        "docs/benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json": "da6ec93efd94f88465cc156434b19c48c78235961be425ef2fa9711377132300",
+        "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json": "fa441fdcf8f5471c1a0d5c74082467f4bf92777d547989df6ddd08c42c68b765"
       },
       "evidence": [
         {
@@ -8170,6 +8465,28 @@
           "requiredMinimumChangePercent": -5,
           "artifact": "docs/benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json",
           "scope": "Downloaded actual remote log: cosmetic15/inventory24 and existing transaction/slow-query/TLS gates pass; all8 measured transaction hashes still match. Full migration22 job fails old deletion050000 stmt2. Independent current repair advances local full history to canary110000 stmt1. No full CI/feature/installation or operations acceptance."
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATABASE-MIGRATIONS.md"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
+        },
+        {
+          "date": "2026-10-18",
+          "commit": "40a98d34ebe7d3fa800c02d2f346b6e3796ce99b",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39100238639",
+          "job": 117594848091,
+          "result": "correctness_and_throughput_passed_full_history_failed",
+          "erasureStorageTests": 18,
+          "medianChangePercent": -2.76910724385816,
+          "requiredMinimumChangePercent": -5,
+          "artifact": "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json",
+          "scope": "Downloaded actual migration23 log confirms erasure18 and all existing correctness gates pass; throughput passes original gate,8 measured hashes still match. Exact main461 unit/syntax/audit/battle jobs pass. Full remote job fails original canary syntax; independent latest local repair advances to partition view conflict. Current new CI remains to be observed; not full migration/feature acceptance."
         }
       ],
       "remaining": [
@@ -8192,13 +8509,14 @@
         "backend/services/pokemon-service/src/inventory/InventorySorter.js": "157e29018efc72fcae09fb4ef6fab83717fa7f6761397a4afcf485714dbf14d1",
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "database/pending/repairs/20260627_060000__add_inventory_organization_system.sql": "31aac467ae420bdafb0204bf33832c4c8a33e39368cf01f6c2ad33bd95b887a7",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "backend/tests/regression/inventory-organization-storage.test.js": "bbd1497563252b999d530c8480e4e9370fee599561ed1262540127e46c1e7b2c",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
-        "docs/INVENTORY-ORGANIZATION.md": "e1d6a721d1a96eb7a34845f1f11ab7c62a7fcf791a0f72a97f2859f33622967f",
-        "docs/DATABASE-MIGRATIONS.md": "ad4236603a49814f739fa601e91bc5a22efd349d4d30930a0765d9362815f66d",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
+        "docs/INVENTORY-ORGANIZATION.md": "ec8824d117d2b09e4617f73e29c01b05d62c9f815d3cb9f6362954bc50aa8b10",
+        "docs/DATABASE-MIGRATIONS.md": "2fc89f56e8a4df2ebf1e4758d1c3856f5b8fa9c589201425d743deece8195d5c",
         "docs/benchmarks/transaction-throughput-ci-a769b0d-2026-10-17.json": "df4cf64be36dae3da71a0c2d532fb7bb5b83a5841e9873f0a66323ff4634000c",
-        "docs/benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json": "da6ec93efd94f88465cc156434b19c48c78235961be425ef2fa9711377132300"
+        "docs/benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json": "da6ec93efd94f88465cc156434b19c48c78235961be425ef2fa9711377132300",
+        "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json": "fa441fdcf8f5471c1a0d5c74082467f4bf92777d547989df6ddd08c42c68b765"
       },
       "evidence": [
         {
@@ -8262,6 +8580,29 @@
           "requiredMinimumChangePercent": -5,
           "artifact": "docs/benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json",
           "scope": "Downloaded actual remote log: cosmetic15/inventory24 and existing transaction/slow-query/TLS gates pass; all8 measured transaction hashes still match. Full migration22 job fails old deletion050000 stmt2. Independent current repair advances local full history to canary110000 stmt1. No full CI/feature/installation or operations acceptance."
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/INVENTORY-ORGANIZATION.md",
+            "docs/DATABASE-MIGRATIONS.md"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
+        },
+        {
+          "date": "2026-10-18",
+          "commit": "40a98d34ebe7d3fa800c02d2f346b6e3796ce99b",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39100238639",
+          "job": 117594848091,
+          "result": "correctness_and_throughput_passed_full_history_failed",
+          "erasureStorageTests": 18,
+          "medianChangePercent": -2.76910724385816,
+          "requiredMinimumChangePercent": -5,
+          "artifact": "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json",
+          "scope": "Downloaded actual migration23 log confirms erasure18 and all existing correctness gates pass; throughput passes original gate,8 measured hashes still match. Exact main461 unit/syntax/audit/battle jobs pass. Full remote job fails original canary syntax; independent latest local repair advances to partition view conflict. Current new CI remains to be observed; not full migration/feature acceptance."
         }
       ],
       "remaining": [
@@ -8281,13 +8622,14 @@
         "database/seeds/V2__seed_data.sql": "7c85c2d07999a4c8e5bad2d07324456b101a909c0e77fb73f0ff2d31879ed355",
         "database/pending/20260630_040000__add_pokemon_cosmetic_system.sql": "56caa9b41aafa64822d561c733b328a4efd8c037a4fb95ad26d2a3813e2225a7",
         "database/pending/repairs/20260630_040000__add_pokemon_cosmetic_system.sql": "401c58b503ea8bf2edee1bf338876213e665a269cd55ade0605c431d1b52b498",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "backend/tests/regression/cosmetic-schema-storage.test.js": "05d835a2fc7e7fd82e06868ae168c5077be3813a7c7b19eccc70a8129ccf547c",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
-        "docs/COSMETICS.md": "4af885fdc189e3249f0fde4f537b2320b62186559b65172d46826b38aa090d5c",
-        "docs/DATABASE-MIGRATIONS.md": "ad4236603a49814f739fa601e91bc5a22efd349d4d30930a0765d9362815f66d",
-        "docs/benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json": "da6ec93efd94f88465cc156434b19c48c78235961be425ef2fa9711377132300"
+        "docs/COSMETICS.md": "0b2c3bb7652568b64b5d863b7dea488e834be4ec79c55d99594aaccf92a545e3",
+        "docs/DATABASE-MIGRATIONS.md": "2fc89f56e8a4df2ebf1e4758d1c3856f5b8fa9c589201425d743deece8195d5c",
+        "docs/benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json": "da6ec93efd94f88465cc156434b19c48c78235961be425ef2fa9711377132300",
+        "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json": "fa441fdcf8f5471c1a0d5c74082467f4bf92777d547989df6ddd08c42c68b765"
       },
       "evidence": [
         {
@@ -8329,6 +8671,29 @@
           "requiredMinimumChangePercent": -5,
           "artifact": "docs/benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json",
           "scope": "Downloaded actual remote log: cosmetic15/inventory24 and existing transaction/slow-query/TLS gates pass; all8 measured transaction hashes still match. Full migration22 job fails old deletion050000 stmt2. Independent current repair advances local full history to canary110000 stmt1. No full CI/feature/installation or operations acceptance."
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "docs/COSMETICS.md",
+            "docs/DATABASE-MIGRATIONS.md"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
+        },
+        {
+          "date": "2026-10-18",
+          "commit": "40a98d34ebe7d3fa800c02d2f346b6e3796ce99b",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39100238639",
+          "job": 117594848091,
+          "result": "correctness_and_throughput_passed_full_history_failed",
+          "erasureStorageTests": 18,
+          "medianChangePercent": -2.76910724385816,
+          "requiredMinimumChangePercent": -5,
+          "artifact": "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json",
+          "scope": "Downloaded actual migration23 log confirms erasure18 and all existing correctness gates pass; throughput passes original gate,8 measured hashes still match. Exact main461 unit/syntax/audit/battle jobs pass. Full remote job fails original canary syntax; independent latest local repair advances to partition view conflict. Current new CI remains to be observed; not full migration/feature acceptance."
         }
       ],
       "remaining": [
@@ -8348,8 +8713,8 @@
         "database/seeds/V2__seed_data.sql": "7c85c2d07999a4c8e5bad2d07324456b101a909c0e77fb73f0ff2d31879ed355",
         "database/pending/20260605_161000__add_gdpr_tables.sql": "30147b3ae9822690425e90840db6bad0d6217d1d588aa75743d3f7b4c440639a",
         "database/pending/20260630_050000__add_data_deletion_request_tables.sql": "4e8a931542163151277c85582a75caa1335dd6885913f6cb3ef35892077baee3",
-        "database/pending/repairs/20260630_050000__add_data_deletion_request_tables.sql": "988a125909dd61f512b7d0a2f35dee5dd1c81fc7f2b866084c7bc9baf0a806d0",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs/20260630_050000__add_data_deletion_request_tables.sql": "18af611ad1688d68200770e0b3ad2e395e6b1c069052d8f73af8ce87e393502a",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "backend/shared/dataDeletionService.js": "de359f084c0d1af413db95355b268f5a7cfeb44746eb5dcac9da59abd2ed45b7",
@@ -8359,10 +8724,11 @@
         "backend/services/user-service/src/routes/dataDeletion.js": "0c0a50662e271046bc57864145fecdc72e39217e3fc9a78390afcb58a7083b3a",
         "backend/services/user-service/src/index.js": "58528fc459173847bc452ce968643a2b1559995f4da3f2206396d5e8d17e495f",
         "backend/jobs/dataDeletionProcessor.js": "966f12addfaf5a97f68b329e155173c2dae85699c2d818e8996d48ffcfb52244",
-        "backend/tests/regression/erasure-schema-storage.test.js": "49d3829cbba24034410818414ba0025a8ba1c5926a54dde357fe84542aec4a9b",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
-        "docs/DATA-ERASURE.md": "17208e1f79eb376b92e981e2bebbec6d4a6e0c4e58f0755f358d154bbb5b96d8",
-        "docs/DATABASE-MIGRATIONS.md": "ad4236603a49814f739fa601e91bc5a22efd349d4d30930a0765d9362815f66d"
+        "backend/tests/regression/erasure-schema-storage.test.js": "4c54f92e9492772d096201675ffe7b0d0594c609bc64e1395b9b910feeda535b",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
+        "docs/DATA-ERASURE.md": "9a05d539f2c1ab2fe4d1e74b76fdf0b2e93da98bce0ef0ad02380db82ae494d8",
+        "docs/DATABASE-MIGRATIONS.md": "2fc89f56e8a4df2ebf1e4758d1c3856f5b8fa9c589201425d743deece8195d5c",
+        "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json": "fa441fdcf8f5471c1a0d5c74082467f4bf92777d547989df6ddd08c42c68b765"
       },
       "evidence": [
         {
@@ -8371,6 +8737,31 @@
           "result": "storage_prerequisite_passed_runtime_incompatible_full_history_failed",
           "tests": 18,
           "scope": "Current erasure-only batch:18 genuine PostgreSQL/storage/CLI checks pass/no skips;724 unit checks including24 Jest suites425 tests,1447 syntax checks, actual migration/deletion/GDPR loads and workflow/new gate parsing pass. Full V1/V2 passes; complete85-source history now passes erasure and fails canary20260701_110000 statement1 inline UNIQUE WHERE, with whole pending transaction rollback. All85 original SQL, all older repair entries, existing production JS and migration runner remain unchanged. Earlier394 checks/21 suites are retained source-specific prior evidence, not a new combined412-case rerun. Refresh only exercised common manifest/workflow/documentation references; no change to prior business evidence or complete feature acceptance. Current full-source CI pending. Preserve original12 criteria per document and GDPR80percent/formal legal review. Legacy SERIAL/numeric-owner IDs/states/history/views/FKs/sequences/shared functions are preserved. New distinct5-table UUID namespace binds live account plus immutable subject; no guessed identity/state conversion. Digest-only challenges, explicit retention/signing-key metadata and genuine Ed25519 signed payload/accounting preservation after actual fixture account removal. Actual3 owned canonical Pokemon DELETE RETURNING rows recorded; another owner remains. Bad subjects/counts/category totals, wrong types, missing FK, disabled trigger, changed active index and custom owned functions reject atomically. Actual legacy GDPR request22P02/export42703 fail canonical UUID/V1. No real production worker/API/approval/channel/export/retention/key lifecycle/certificate access/metrics/coverage or legal acceptance claimed."
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs/20260630_050000__add_data_deletion_request_tables.sql",
+            "database/pending/repairs.json",
+            "backend/tests/regression/erasure-schema-storage.test.js",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATA-ERASURE.md",
+            "docs/DATABASE-MIGRATIONS.md"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
+        },
+        {
+          "date": "2026-10-18",
+          "commit": "40a98d34ebe7d3fa800c02d2f346b6e3796ce99b",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39100238639",
+          "job": 117594848091,
+          "result": "correctness_and_throughput_passed_full_history_failed",
+          "erasureStorageTests": 18,
+          "medianChangePercent": -2.76910724385816,
+          "requiredMinimumChangePercent": -5,
+          "artifact": "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json",
+          "scope": "Downloaded actual migration23 log confirms erasure18 and all existing correctness gates pass; throughput passes original gate,8 measured hashes still match. Exact main461 unit/syntax/audit/battle jobs pass. Full remote job fails original canary syntax; independent latest local repair advances to partition view conflict. Current new CI remains to be observed; not full migration/feature acceptance."
         }
       ]
     },
@@ -8383,8 +8774,8 @@
         "database/seeds/V2__seed_data.sql": "7c85c2d07999a4c8e5bad2d07324456b101a909c0e77fb73f0ff2d31879ed355",
         "database/pending/20260605_161000__add_gdpr_tables.sql": "30147b3ae9822690425e90840db6bad0d6217d1d588aa75743d3f7b4c440639a",
         "database/pending/20260630_050000__add_data_deletion_request_tables.sql": "4e8a931542163151277c85582a75caa1335dd6885913f6cb3ef35892077baee3",
-        "database/pending/repairs/20260630_050000__add_data_deletion_request_tables.sql": "988a125909dd61f512b7d0a2f35dee5dd1c81fc7f2b866084c7bc9baf0a806d0",
-        "database/pending/repairs.json": "ec6c965c6beade8a1346ab4fbd2974810c1b61dedbc60b3e72aa26c0c61a94b6",
+        "database/pending/repairs/20260630_050000__add_data_deletion_request_tables.sql": "18af611ad1688d68200770e0b3ad2e395e6b1c069052d8f73af8ce87e393502a",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "backend/shared/dataDeletionService.js": "de359f084c0d1af413db95355b268f5a7cfeb44746eb5dcac9da59abd2ed45b7",
@@ -8394,10 +8785,11 @@
         "backend/services/user-service/src/routes/dataDeletion.js": "0c0a50662e271046bc57864145fecdc72e39217e3fc9a78390afcb58a7083b3a",
         "backend/services/user-service/src/index.js": "58528fc459173847bc452ce968643a2b1559995f4da3f2206396d5e8d17e495f",
         "backend/jobs/dataDeletionProcessor.js": "966f12addfaf5a97f68b329e155173c2dae85699c2d818e8996d48ffcfb52244",
-        "backend/tests/regression/erasure-schema-storage.test.js": "49d3829cbba24034410818414ba0025a8ba1c5926a54dde357fe84542aec4a9b",
-        ".github/workflows/migration-regression.yml": "e1b30154ec0fc820d9b6be3930b4b357137bc12ea508e48883cb52153a752bef",
-        "docs/DATA-ERASURE.md": "17208e1f79eb376b92e981e2bebbec6d4a6e0c4e58f0755f358d154bbb5b96d8",
-        "docs/DATABASE-MIGRATIONS.md": "ad4236603a49814f739fa601e91bc5a22efd349d4d30930a0765d9362815f66d"
+        "backend/tests/regression/erasure-schema-storage.test.js": "4c54f92e9492772d096201675ffe7b0d0594c609bc64e1395b9b910feeda535b",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
+        "docs/DATA-ERASURE.md": "9a05d539f2c1ab2fe4d1e74b76fdf0b2e93da98bce0ef0ad02380db82ae494d8",
+        "docs/DATABASE-MIGRATIONS.md": "2fc89f56e8a4df2ebf1e4758d1c3856f5b8fa9c589201425d743deece8195d5c",
+        "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json": "fa441fdcf8f5471c1a0d5c74082467f4bf92777d547989df6ddd08c42c68b765"
       },
       "evidence": [
         {
@@ -8406,6 +8798,71 @@
           "result": "storage_prerequisite_passed_runtime_incompatible_full_history_failed",
           "tests": 18,
           "scope": "Current erasure-only batch:18 genuine PostgreSQL/storage/CLI checks pass/no skips;724 unit checks including24 Jest suites425 tests,1447 syntax checks, actual migration/deletion/GDPR loads and workflow/new gate parsing pass. Full V1/V2 passes; complete85-source history now passes erasure and fails canary20260701_110000 statement1 inline UNIQUE WHERE, with whole pending transaction rollback. All85 original SQL, all older repair entries, existing production JS and migration runner remain unchanged. Earlier394 checks/21 suites are retained source-specific prior evidence, not a new combined412-case rerun. Refresh only exercised common manifest/workflow/documentation references; no change to prior business evidence or complete feature acceptance. Current full-source CI pending. Preserve original12 criteria per document and GDPR80percent/formal legal review. Legacy SERIAL/numeric-owner IDs/states/history/views/FKs/sequences/shared functions are preserved. New distinct5-table UUID namespace binds live account plus immutable subject; no guessed identity/state conversion. Digest-only challenges, explicit retention/signing-key metadata and genuine Ed25519 signed payload/accounting preservation after actual fixture account removal. Actual3 owned canonical Pokemon DELETE RETURNING rows recorded; another owner remains. Bad subjects/counts/category totals, wrong types, missing FK, disabled trigger, changed active index and custom owned functions reject atomically. Actual legacy GDPR request22P02/export42703 fail canonical UUID/V1. No real production worker/API/approval/channel/export/retention/key lifecycle/certificate access/metrics/coverage or legal acceptance claimed."
+        },
+        {
+          "date": "2026-10-18",
+          "result": "partial_storage_pass_full_history_failed",
+          "changedReferences": [
+            "database/pending/repairs/20260630_050000__add_data_deletion_request_tables.sql",
+            "database/pending/repairs.json",
+            "backend/tests/regression/erasure-schema-storage.test.js",
+            ".github/workflows/migration-regression.yml",
+            "docs/DATA-ERASURE.md",
+            "docs/DATABASE-MIGRATIONS.md"
+          ],
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open."
+        },
+        {
+          "date": "2026-10-18",
+          "commit": "40a98d34ebe7d3fa800c02d2f346b6e3796ce99b",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39100238639",
+          "job": 117594848091,
+          "result": "correctness_and_throughput_passed_full_history_failed",
+          "erasureStorageTests": 18,
+          "medianChangePercent": -2.76910724385816,
+          "requiredMinimumChangePercent": -5,
+          "artifact": "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json",
+          "scope": "Downloaded actual migration23 log confirms erasure18 and all existing correctness gates pass; throughput passes original gate,8 measured hashes still match. Exact main461 unit/syntax/audit/battle jobs pass. Full remote job fails original canary syntax; independent latest local repair advances to partition view conflict. Current new CI remains to be observed; not full migration/feature acceptance."
+        }
+      ]
+    },
+    "REQ-00078-canary-deployment-and-traffic-splitting.md": {
+      "date": "2026-10-18",
+      "status": "partial_sql_verified_runtime_and_full_history_failed",
+      "documentSha256": "25823b679de8a6833cf0a3949ad00123769eda8419fdff1141be31bec2981994",
+      "sourceSha256": {
+        "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
+        "database/seeds/V2__seed_data.sql": "7c85c2d07999a4c8e5bad2d07324456b101a909c0e77fb73f0ff2d31879ed355",
+        "database/pending/20260611_102500__add_canary_deployment_tables.sql": "59a2a80875b912d30755ab49eea52813c2915a92ff05e238d8d3d92810dfa498",
+        "database/pending/repairs/20260611_102500__add_canary_deployment_tables.sql": "af806cc8d46faf2228134f5cc1f80cdc1f7258d29cf78492ad511664b790366d",
+        "database/pending/20260701_110000__add_canary_deployment_tables.sql": "f96b82ee32401a2995bf18e461f0359e2273def1d189c219b630b1719167edc4",
+        "database/pending/repairs/20260701_110000__add_canary_deployment_tables.sql": "66ca1c9bcefe9a5bb36a6b8fee01b305a2626040ea6b4a1f6b089dadd52897a3",
+        "database/pending/repairs.json": "d3b3de0b628801b4dc5d3fb1353d652441b4e3e21a87568def13ebeb53a711a6",
+        "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
+        "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
+        "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
+        "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
+        "backend/shared/canaryManager.js": "80953168fcd4b54669a31da6d5bbb5b1997c9a4aae2228d9eaeb970ebfe3dce9",
+        "backend/shared/canaryMetrics.js": "25e3fe51addb08796c761cf021d68fbf2068ef41e31e62c4e129d34144560ea8",
+        "backend/gateway/src/middleware/auth.js": "7679c07044463a6aacf085eab04abefdf3f1f11dc1f47dacb0ff83bad03fdcce",
+        "backend/gateway/src/middleware/canaryRouter.js": "8e06cc373a594a3a0f464f9052cf4f447a97a6957af3c4ae10948f7cd86453ed",
+        "backend/gateway/src/routes/canary.js": "2919433b6ed012125b58bb522e497c9a574d7e488127bf562dac4b2e390a169d",
+        "backend/gateway/src/index.js": "0217c0c2694d50849a3ee80d98d14c5cf1d0076591348c3440b5d0eddc15673e",
+        "scripts/canary-cli.js": "55af26b715eee3c508a85e1be6909a39b923267b936860edbcf590d356c9b815",
+        ".github/workflows/canary-deploy.yml": "873f89716acd7d2632999c14a8155594668f1b522c4fb46db1186eefd4a74b29",
+        "backend/tests/regression/canary-schema-storage.test.js": "18bc7caffb2b93568aff590318e2fdbc3874f183c29b7d80efd14be1a15d7ffc",
+        ".github/workflows/migration-regression.yml": "aa0b9457ce38f39c6af6bfaa5b2d2e44cf90e7cff5fa72f88dcd263ff6a0dbfe",
+        "docs/CANARY.md": "ed8d43ea80bb07bc9a5a1f4a6ba69ff6eca0756b1258b4dd7d8b0426e02d16b8",
+        "docs/DATABASE-MIGRATIONS.md": "2fc89f56e8a4df2ebf1e4758d1c3856f5b8fa9c589201425d743deece8195d5c"
+      },
+      "evidence": [
+        {
+          "date": "2026-10-18",
+          "command": "full original1074-line requirement/read actual consumers; sequential native erasure19/canary18 checks;syntax/workflow;full85 seeded bootstrap",
+          "result": "storage_prerequisite_passed_runtime_defects_full_history_failed",
+          "canaryTests": 18,
+          "erasureTests": 19,
+          "scope": "Final37 actual checks (18 canary+19 erasure) pass sequentially/no skips on owned PostgreSQL;1448 syntax checks and workflow/both gate parsing pass. Canary prerequisite preserves original SERIAL rollout/history/snapshot identities/rows/sequences/views/FKs/comments/indexes/operator choices, adds real request logs and one-active-service race protection, preserves unknown creation NULL and actual new-row time/default/OID/updater contracts. Both index-adoption predicates use NULL-safe comparison; incompatible all-status indexes reject atomically. Actual manager read works; API/admin/Counter.increment/static EventBus.publish-after-persistence and false healthy no-data/all503 results remain defects. Initial db alias assumption corrected after real inspection; final child closes actual pool naturally. CLI up/up/verify records separate raw/executed hashes. Full V1/V2 passes; complete85 source chain now fails partition20260707_060000 stmt6 size_bytes→size view conflict and pending transaction rolls back. Original85 SQL/all older manifest entries/existing production JS/runner/eight measured transaction sources unchanged. Prior724 units at40 source and394checks21suites remain matching prior evidence, not a fresh broad combined run. Full new CI/runtime/client/threshold/upgrade/reversal/operations acceptance remains open. Legacy done reopened; original11 checkbox lines including truncated last item and all numerical routing/rollback goals preserved. No whole feature/operations acceptance."
         }
       ]
     }

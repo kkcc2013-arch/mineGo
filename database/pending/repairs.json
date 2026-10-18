@@ -160,6 +160,11 @@
       "sourceSha256": "4e8a931542163151277c85582a75caa1335dd6885913f6cb3ef35892077baee3",
       "file": "repairs/20260630_050000__add_data_deletion_request_tables.sql",
       "reason": "Preserve legacy SERIAL/numeric-owner requests, views, FKs, sequences and shared triggers unchanged. Introduce distinct UUID erasure workflow tables with live-account linkage plus immutable subject identity, digest-only verification and accountable signed-proof storage that survives account removal. Preserve all8 proposal categories as nonexecutable metadata, require explicit certificate retention/key policy, guard known functions/triggers instead of replacing shared objects. No automatic legacy identity/state conversion, account deletion, delivery, approval or compliance claim. Runtime adapters/worker/legal review/full history/upgrade/reversal remain open."
+    },
+    "20260701_110000": {
+      "sourceSha256": "f96b82ee32401a2995bf18e461f0359e2273def1d189c219b630b1719167edc4",
+      "file": "repairs/20260701_110000__add_canary_deployment_tables.sql",
+      "reason": "Reconcile repeated invalid inline partial uniqueness against earlier SERIAL canary deployment/history/snapshot storage. Preserve IDs/rows/sequences/views/FKs/operator comments and original index; add real request logs and manager-compatible one-active-service uniqueness, refusing conflicting history without discarding it. Old unknown creation times remain NULL; new rows get actual timestamps. Guard owned timestamp function/trigger/index contracts without replacing customized objects. Runtime routing/admin/proxy/metric/rollback/workflow/staging acceptance remains open."
     }
   }
 }

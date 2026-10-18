@@ -240,3 +240,15 @@ resource deletion/crypto/legacy module failures and guarded schema adoption. Ful
 V1/V2 passes; all85 immutable-source history advances to20260701_110000 stmt1 invalid
 inline partial uniqueness WHERE. Pending batch rolls back; full installation/
 applied-repair upgrade/reversal and all runtime/legal acceptance remain open.
+
+
+## Canary prerequisite checkpoint (2026-10-18)
+
+Repeated20260701_110000 invalid inline uniqueness now uses guarded source-bound SQL,
+preserving earlier SERIAL deployments/history/snapshots and adding logs/one-active
+service uniqueness without discarding conflicts or inventing historical creation
+times. See [canary boundaries](CANARY.md). The final actual19 erasure+18 canary checks
+pass; both adoption predicates reject NULL/missing partial predicates. All85 original
+SQL and every older manifest entry remain unchanged. Actual full V1/V2 passes, then
+complete history fails20260707_060000 stmt6 view size_bytes→size; batch rolls back.
+Existing differing-repair upgrade and complete reversal remain unaccepted.

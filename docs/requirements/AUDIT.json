@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 188,
-      "in_progress": 40,
+      "done": 187,
+      "in_progress": 41,
       "new": 430
     },
     "priorityCounts": {
@@ -2398,11 +2398,11 @@
       "id": "REQ-00078",
       "title": "REQ-00078：金丝雀发布与流量分割系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "运维/CICD",
       "modules": "gateway、所有微服务、infrastructure/k8s、.github/workflows、backend/shared",
       "createdAt": "2026-06-10 04:00",
-      "sha256": "d42100de63ba38864b76af1eba33bb09a9af4bb7ee3654d0d191783daf4ce4db",
+      "sha256": "25823b679de8a6833cf0a3949ad00123769eda8419fdff1141be31bec2981994",
       "acceptance": [
         "- [ ] **金丝雀发布创建**：可通过 API 创建金丝雀发布，初始流量设置为指定百分比",
         "- [ ] **流量分割正确**：请求按配置的百分比路由到金丝雀版本",
@@ -2416,8 +2416,10 @@
         "- [ ] **监控指标**：提供 Prometheus 指标用于监控金丝雀发布状态",
         "- [ ] **API 完"
       ],
-      "verificationStatus": "not-audited",
-      "implementationReferences": [],
+      "verificationStatus": "partial_sql_verified_runtime_and_full_history_failed",
+      "implementationReferences": [
+        "database/pending/repairs/20260701_110000__add_canary_deployment_tables.sql"
+      ],
       "legacyId": null
     },
     {

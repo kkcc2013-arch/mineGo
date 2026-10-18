@@ -124,6 +124,7 @@ test('existing unknown UUID workflows and customized owned contracts require exp
     ['missing live-owner FK','ALTER TABLE data_erasure_requests DROP CONSTRAINT data_erasure_requests_live_user_id_fkey',/reference contract/,true],
     ['disabled subject binding','ALTER TABLE data_erasure_requests DISABLE TRIGGER erasure_bind_subject',/Customized erasure trigger/,true],
     ['changed active-request index','DROP INDEX erasure_one_active_request_per_subject; CREATE INDEX erasure_one_active_request_per_subject ON data_erasure_requests(user_id)',/active request index/,true],
+    ['lost partial predicate','DROP INDEX erasure_one_active_request_per_subject; CREATE UNIQUE INDEX erasure_one_active_request_per_subject ON data_erasure_requests(user_id)',/active request index/,true],
     ['custom owned function',"CREATE FUNCTION data_erasure_touch_updated_at() RETURNS trigger LANGUAGE plpgsql AS $$BEGIN RETURN NEW; END;$$",/Customized erasure function/]
   ])await t.test(label,async()=>fixture(async({pool})=>{
     if(existing)await apply(pool,await repair());
