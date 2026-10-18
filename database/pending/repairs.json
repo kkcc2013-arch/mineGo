@@ -165,6 +165,11 @@
       "sourceSha256": "f96b82ee32401a2995bf18e461f0359e2273def1d189c219b630b1719167edc4",
       "file": "repairs/20260701_110000__add_canary_deployment_tables.sql",
       "reason": "Reconcile repeated invalid inline partial uniqueness against earlier SERIAL canary deployment/history/snapshot storage. Preserve IDs/rows/sequences/views/FKs/operator comments and original index; add real request logs and manager-compatible one-active-service uniqueness, refusing conflicting history without discarding it. Old unknown creation times remain NULL; new rows get actual timestamps. Guard owned timestamp function/trigger/index contracts without replacing customized objects. Runtime routing/admin/proxy/metric/rollback/workflow/staging acceptance remains open."
+    },
+    "20260707_060000": {
+      "sourceSha256": "98c5dbb5232a7d3869d7a97d657baa479d41e12db6ffa4cb09d5debd5d624707",
+      "file": "repairs/20260707_060000__complete_partition_management.sql",
+      "reason": "Preserve canonical five created_at RANGE parents, historical bounds/data and partition_stats/dependents instead of replacing view columns or creating shadow tables. Add guarded actual UTC current+three-future-month creation, exact child counts/bytes and truthful health; reuse actual existing bounds/weekly phase and original atomic DEFAULT movement helper. No unverified pg_cron archive/drop schedule, hardcoded missing archive tables or false implemented notice. Durable archive/recovery/S3/retention/performance/full runtime/upgrade/reversal acceptance remains open."
     }
   }
 }

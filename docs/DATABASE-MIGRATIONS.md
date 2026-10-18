@@ -252,3 +252,22 @@ pass; both adoption predicates reject NULL/missing partial predicates. All85 ori
 SQL and every older manifest entry remain unchanged. Actual full V1/V2 passes, then
 complete history fails20260707_060000 stmt6 view size_bytes→size; batch rolls back.
 Existing differing-repair upgrade and complete reversal remain unaccepted.
+
+
+## Actual partition maintenance checkpoint (2026-10-18)
+
+The [canonical maintenance repair](PARTITION-MAINTENANCE.md) preserves five actual
+parents, historical/current values and partition_stats/dependents instead of
+replacing its columns or creating shadow parents. Guarded UTC current+three-future-
+month ranges, exact counts/bytes/health and physical creation postconditions are
+executed by real storage/production gateway APIs and daily lifecycle.22 new actual
+checks/no skips,80% module gates (100line/94branch/90.48function), native gateway/user,
+724 units and1450 syntax pass. All85 original SQL and every earlier manifest entry
+remain unchanged. Full chain now passes partition/weather and fails CDC
+20260707_100000 stmt5 nonexistent pokemon; whole pending transaction rolls back.
+New helper default-expression guards compare deparsed semantics rather than parse-
+tree source locations; existing function identities/ACLs/configuration and custom
+legacy views survive. Full archive/S3/Parquet/recovery/deletion/retention/benchmarks/
+complete installation/upgrade/reversal remain open; no unverified deletion schedule
+or fake implemented notice. Prior2e5 throughput-6.352968581797381% fails original-5%
+while correctness/main462 pass; actual failed evidence retained.

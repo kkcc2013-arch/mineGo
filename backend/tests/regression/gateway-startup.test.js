@@ -66,6 +66,14 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     await fixture.query(initial.match(/CREATE TABLE users \([\s\S]*?\n\);/)[0]);
     await fixture.query('INSERT INTO users(id,nickname) VALUES ($1,$2),($3,$4)',[player,'gateway-player',adminId,'gateway-admin']);
     await fixture.query(await migration('pending/20261007_120000__title_identity_compatibility.sql'));
+    // Actual canonical partition contracts are required by gateway precreation.
+    await fixture.query('CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public');
+    await fixture.query(initial.match(/CREATE TABLE audit_logs \([\s\S]*?\n\);/)[0]);
+    for(const file of ['20261008_140000__audit_partition_conversion.sql','repairs/20260610_100000__add_table_partitioning_system.sql','repairs/20260619_000000__add_table_partitioning.sql','repairs/20260707_060000__complete_partition_management.sql']){
+      const parsed=parseMigrationFile(await migration('pending/'+file));
+      for(const statement of migrationStatements(parsed.up))await fixture.query(statement);
+    }
+
     const database=new URL(process.env.TEST_DATABASE_URL);database.searchParams.set('options',`-c search_path=${schema},public`);
     const redis=new URL(process.env.TEST_REDIS_URL);
     const env={EVENT_BUS_CLIENT_ID:'native-gateway-user-'+schema,DATABASE_URL:database.toString(),REDIS_HOST:redis.hostname,REDIS_PORT:redis.port||'6379',
@@ -103,10 +111,20 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     const token=require('jsonwebtoken').sign({sub:player},accessKey);
     const adminToken=require('jsonwebtoken').sign({sub:adminId,roles:['admin']},accessKey);
     const headers={Authorization:`Bearer ${token}`};
+    assert.equal((await fetch(base+'/api/partitions/overview')).status,401);
+    assert.equal((await fetch(base+'/api/partitions/overview',{headers})).status,403);
+    const partitionHeaders={Authorization:`Bearer ${adminToken}`};
+    const partitions=await fetch(base+'/api/partitions/overview',{headers:partitionHeaders});assert.equal(partitions.status,200);
+    const partitionReport=(await partitions.json()).data;assert.equal(Object.keys(partitionReport).length,5);
+    for(const table of Object.values(partitionReport)){assert.equal(table.health.missingRanges,0);assert.equal(table.totalRows,'0');}
+    assert.equal((await fetch(base+'/api/partitions/audit_logs/create',{method:'POST',headers:{...partitionHeaders,'Content-Type':'application/json'},body:'{"months":3}'})).status,200);
+    assert.equal((await fetch(base+'/api/partitions/audit_logs/create',{method:'POST',headers:partitionHeaders})).status,200);
+    const partitionMetrics=await (await fetch(base+'/metrics')).text();assert.match(partitionMetrics,/minego_partition_management_duration_seconds_count/);
+
     assert.equal((await fetch(base+'/admin/cache/warmup/status')).status,401);
     assert.equal((await fetch(base+'/admin/cache/warmup/status',{headers})).status,403);
     const warmup=await fetch(base+'/admin/cache/warmup/status',{headers:{Authorization:`Bearer ${adminToken}`}});assert.equal(warmup.status,200);
-    // This fixture contains real user/title/IP tables only. Missing game data
+    // This fixture contains real user/title/IP and partition tables. Other missing game data
     // must remain visible as warmup failures, never be reported as acceptance.
     const status=await warmup.json();assert.ok(status.data.failedCount>0||status.data.isWarming);
 
@@ -190,7 +208,7 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     assert.ok(limited,'Forging a different forwarding header must not bypass the global IP limit');
     await terminate(gateway);assert.doesNotMatch(gateway.logs(),/Unhandled error event|Redis cache error/);gateway=null;
     console.log(JSON.stringify({gatewaySignalShutdownMs:shutdownMs,userSignalShutdownElapsedMs:gatewayShutdownStart-userShutdownStart,
-      scope:'actual native gateway/user processes, isolated PostgreSQL user/title/IP schema, Redis and Kafka; other registry targets alias the actual user fixture'}));
+      scope:'actual native gateway/user processes, isolated PostgreSQL user/title/IP/partition schema, Redis and Kafka; other registry targets alias the actual user fixture'}));
   }finally{
     if(notificationSocket)notificationSocket.terminate();if(notificationProducer)await notificationProducer.disconnect();
     await Promise.all([cleanupProcess(user),cleanupProcess(gateway),cleanupProcess(failed)]);

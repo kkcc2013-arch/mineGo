@@ -786,3 +786,30 @@ partition-history-storage4项和原audit-partition-storage23项真实 PostGIS15 
 payment_orders。全链仍红，未跳过文件。此证据不替代真实服务写入、50%性能、
 80%覆盖率、调度/归档/恢复/删除、未来动态范围、统计API或全链回滚的原验收。
 较晚20260707_060000仍引用影子表/不一致管理规则，需要后续完整实现。
+
+
+## Actual operational partition maintenance (2026-10-18)
+
+Read all788 existing lines and preserve all9 original acceptance criteria,50% query
+gain and≥80% coverage target. The later20260707_060000 proposal used different shadow
+parents and tried to replace partition_stats column size_bytes with size. A new
+source-bound repair preserves canonical five parent/view/helper identities, complete
+existing columns/rows/geometry/JSON/payment/audit values, bounds/dependents/comments/
+sequences/ACLs and operator choices. Use guarded real UTC current+three-future-month
+creation with canonical monthly/daily/existing Tuesday-weekly phase; verify physical
+postconditions, reuse matching ranges and reject overlaps/false creator success.
+Statistics count actual rows/bytes in current-schema children; health reports real
+missing ranges/default rows. No unverified cron archive/drop or fake archive table.
+
+Production gateway mounts protected signed-admin statistics/precreate routes, exposes
+actual metrics and refreshes coverage daily with owned timer/error/cleanup behavior.
+22 actual storage/router/CLI checks pass/no skips; new maintenance module coverage
+100% lines/94% branches/90.48% functions at80% line/function gates. That is scoped to
+the new module, not entire original manager/archive/optimizer/UI acceptance. Actual
+native gateway/user processes, signed-admin/ordinary/anonymous HTTP, readiness and
+natural shutdown pass;724 units/24Jest425 and1450 syntax checks pass. All85 raw SQL
+and every prior repair-manifest entry unchanged. Complete history now passes this
+and weather, then fails CDC20260707_100000 stmt5 nonexistent pokemon; batch rolls
+back. Fresh full history, upgrades/reversal, true production caller/query targets,
+archive/delete/restore/backup/S3/retention/alerts/UI and all original numerical
+criteria remain open. See [scope](../PARTITION-MAINTENANCE.md), VERIFICATION and plan.

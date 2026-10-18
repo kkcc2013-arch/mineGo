@@ -606,7 +606,7 @@
 | [REQ-00623](REQ-00623-database-connection-pool-intelligent-preheat-and-adaptive-management.md) | 数据库连接池智能预热与动态自适应管理系统 | 性能优化 | P1 | new | backend/jobs/pool-manager, backend/shared/database, gateway | 2026-07-21 09:00 |
 | [REQ-00624](REQ-00624-game-rich-content-i18n-version-management-system.md) | 游戏内富文本内容本地化与版本管理系统 | 国际化/本地化 | P2 | new | gateway、user-service、reward-service、backend/shared/i18n、admin-dashboard、database/migrations | 2026-07-21 12:00 |
 | [REQ-00625](REQ-00625-game-server-cloud-resource-cost-prediction-and-optimization.md) | 游戏服务端云资源成本动态预测与智能优化系统 | 成本/资源优化 | P2 | new | infrastructure, backend | 2026-07-21 13:00 |
-| [REQ-00626](REQ-00626-database-partitioning-strategy.md) | 游戏数据分区策略与自动化分区管理系统 | 性能优化 | P1 | done | database、player-service、catch-service、battle-service、trade-service、monitoring、admin-dashboard | 2026-07-03 02:00 |
+| [REQ-00626](REQ-00626-database-partitioning-strategy.md) | 游戏数据分区策略与自动化分区管理系统 | 性能优化 | P1 | in_progress | database、player-service、catch-service、battle-service、trade-service、monitoring、admin-dashboard | 2026-07-03 02:00 |
 | [REQ-00627](REQ-00627-implement-rate-limiting-for-api-endpoints.md) | Implement Rate Limiting for API Endpoints | 安全加固 | P0 | done | gateway-service | 2026-07-08 14:00 |
 | [REQ-00628](REQ-00628-offline-cache-consistency-system.md) | Offline Cache Data Consistency & Synchronization System | Data Governance | P1 | new | game-client, gateway, backend | 2026-07-11 16:05 |
 | [REQ-00629](REQ-00629-high-performance-pwa-offline-sync.md) | 高性能PWA离线持久化同步系统 | 前端体验 | P1 | new | frontend, api-gateway, sync-service | 2026-07-15 10:00 |

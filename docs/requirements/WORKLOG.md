@@ -1740,3 +1740,71 @@ then actual P0/startup/security/runtime/client/operations and all658 stages. Cur
 canary runtime/auth/proxy/metrics/promotion/rollback/upgrade/reversal, erasure worker/
 API/key lifecycle/legal review and all original thresholds remain open. No Maven,
 CPU saturation, production release, deployment, merge or recipient messages.
+
+
+## 2026-10-18 — actual canonical partition operations and native gateway integration
+
+Previous turn is concrete progress: published2e5fc2b9ec96def82a84c673f55a7cadd6d93586
+to draftPR6. Exact main462 passes. Migration24 run39100627589/job117595987123
+passes canary18/erasure19/all existing correctness, but original throughput-5%
+gate fails at-6.352968581797381%. Downloaded actual report archived; all8 measured
+transaction hashes still match. Full job fails partition view size_bytes→size.
+Retain this negative result; earlier passing reports are not a waiver or new pass.
+
+Read complete788-lineREQ60 (9 original criteria),1089-lineREQ626 (12) and478-line
+raw management proposal, existing conversion/duplicate repairs and actual manager/
+API/job/caller sources.626 legacydone reopened; all criteria and50%/60%/P95/80%/
+Parquet>70%/backup>70%/<30s targets unchanged. Old manager has incompatible fields,
+Redis1-hour temporary export/count-only verification and DROP, not durable S3/
+Parquet recovery. Existing route called nonexistent methods and lacked access
+checks. Preserve original five canonical created_at parents and view/helper/row/
+sequence/FK/trigger/comment/ACL identities; never manufacture archives or new
+shadow parents. New source-bound repair uses actual UTC monthly/daily/established
+Tuesday-weekly current+three-future-month ranges, parent locks, exact old-bound
+reuse and checked physical postconditions. Actual live child counts/total bytes and
+missing-range/default-row health are schema-scoped, with no fake catalog counts or
+healthy defaults. partition_stats/custom definitions/dependent view stay untouched.
+
+Actual gateway now mounts signed-admin routes, preserves legacy count alias and
+no-body default creation, records exact BIGINT API totals and genuine Prometheus
+observations/counters/timings, and removes stale labels. Gateway startup awaits
+real precreation; a daily sequential refresh owns its timer, records database
+failures and naturally drains on signal/startup-failure cleanup. No unverified
+archive/drop cron jobs, absent hardcoded archive tables or implemented notice.
+
+Initial new module used nonexistent metrics.registry; actual module exports
+register, corrected before acceptance. Actual rerun guard first compared raw
+PostgreSQL default parse trees (source locations differ under a temporary function
+name); use pg_get_expr semantic default comparison while retaining all argument/
+return/body/configuration guards. First false-success fixture omitted original
+input parameter names and PostgreSQL refused setup; retain exact names. First
+overlap fixture was in an already past week of the month, so no conflict existed;
+use actual current canonical week+one-day phase shift and retain rejection/rollback.
+Final22 real storage/router/CLI cases pass/no skips. Native coverage of actual
+new maintenance module100% line/94% branch/90.48% function passes80% line/function
+gates; no whole legacy/archive/optimizer/UI coverage acceptance. Preserve exact
+historical/current rows of all5 parents including geometry/JSON/payment and global
+audit IDs, actual DEFAULT movement/real counts/bytes, UTC/leap-month/week/cross-
+schema bounds, concurrent creation, signed HTTP negatives/summary totals, live
+periodic refresh and real database-fault observation, CLI raw/executed checksums and
+atomic shadow/custom-function/overlap/wrong-config/false-creator refusal.
+
+Final724 unit checks (24Jest425), native actual gateway/user entrypoint HTTP/admin/
+metrics/readiness/old notifications/IP flows/natural shutdown and1450 syntax pass.
+Native fixtures use authentic V1 audit/partition SQL and PostGIS; CI title image
+updated accordingly, migration CI adds actual module80% gate. One earlier local
+coverage/native invocation overlapped briefly; subsequent final heavy validations
+run sequentially. Owned Redis/Kafka fixtures receive1CPU caps, Redis256MiB/Kafka1GiB,
+and are stopped after final checks. Unrelated running containers are unchanged.
+Prior business394/earlier partition27 checks remain prior source-specific evidence,
+not a fabricated larger rerun. All85 raw SQL, older manifest entries and8 measured
+transaction sources unchanged. Full V1/V2 passes;85-chain passes partition/weather
+then fails CDC20260707_100000 stmt5, nonexistent pokemon; entire pending rollback.
+
+Continue real CDC resource/key/transaction/subscription/privacy integration, actual
+P0/services and all658 stages. Durable S3/Parquet/archive/restore/backups/retention/
+delete/alerts/UI/caller/query performance and all original complete criteria stay
+open. Current186done/42progress/430new, sole independently verified619 unchanged.
+Latest full-source CI still needs observation. No Maven, CPU saturation, new
+requirements, credentials in project files, production deletion, merge/deploy or
+external recipient messages.

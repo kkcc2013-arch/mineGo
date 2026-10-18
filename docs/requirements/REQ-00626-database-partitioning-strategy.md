@@ -7,7 +7,7 @@
 | 标题 | 游戏数据分区策略与自动化分区管理系统 |
 | 类别 | 性能优化 |
 | 优先级 | P1 |
-| 状态 | done |
+| 状态 | in_progress |
 | 涉及服务 | database、player-service、catch-service、battle-service、trade-service、monitoring、admin-dashboard |
 | 创建时间 | 2026-07-03 02:00 |
 
@@ -1087,3 +1087,28 @@ describe('Partition Performance', () => {
 
 
 > 编号迁移（2026-10-06）：本需求原编号为 REQ-00027。该编号被多个文档使用，现改为 REQ-00626；历史映射见 [编号迁移记录](NUMBER-MIGRATIONS.md)。
+
+
+## Independent implementation audit (2026-10-18)
+
+Read all1089 original lines. Legacy done is withdrawn; preserve all12 original
+checkboxes and original60% gain/50ms and100ms P95/>70% Parquet compression/backup
+reduction/<30s restore targets. Current legacy manager assumes nonexistent canonical
+fields, treats one-hour Redis JSON/count comparison as archive verification, drops
+data and has no actual durable S3/Parquet restore path. Additional battle/trade/
+session/composite activity models, cold/warm routing, backend/UI/alerts/provider
+round-trip and original benchmarks remain unaccepted. No fabricated archive or
+blanket payment-retention compliance claim is added.
+
+Canonical prerequisite shared withREQ60 now preserves the actual five created_at
+parents and old partition_stats/dependents, provides guarded real UTC horizons,
+physical range postconditions, true counts/bytes/default health and a production
+gateway signed-admin API with daily sequential refresh/natural cleanup.22 real
+storage/router/CLI cases pass, new module100% line/94% branch/90.48% function
+coverage; native gateway/user actual processes plus724 units/1450 syntax pass.
+These prove exercised canonical operations, not all models/archives/benchmarks.
+All85 raw SQL/older manifest entries unchanged; full chain now fails CDC
+20260707_100000 stmt5 missing pokemon and rolls back the pending batch. Latest
+full-source CI remains to be observed. Prior2e5 main462/correctness passes but
+throughput-6.352968581797381% fails original-5%, retained without waiver. See
+[actual scope](../PARTITION-MAINTENANCE.md), VERIFICATION.json and COMPLETION-PLAN.

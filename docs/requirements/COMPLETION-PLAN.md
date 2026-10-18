@@ -3,7 +3,7 @@
 Updated: 2026-10-18. Scope: all 658 existing requirement documents in INDEX.md,
 including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 430 new, 41 in progress; 187 declared done, including one independently verified framework. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 430 new, 42 in progress; 186 declared done, including one independently verified framework. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -28,11 +28,12 @@ independent authorized work.
 
 ## Current batch
 
-1. Complete shared installation: full85-source history now reaches20260707_060000
-   statement6, partition-view size_bytes→size conflict. Preserve canonical view
-   identity/contracts while reconciling later partition proposals. Canary/erasure
-   storage has real preservation evidence; actual routing/deletion runtime remains
-   incomplete. These schema prerequisites block installation used by P0 services.
+1. Complete shared installation: full85-source history now passes partition/weather
+   and reaches CDC20260707_100000 statement5, trigger on nonexistent pokemon. Bind
+   cache invalidation to actual canonical resources/keys and verify real commit,
+   rollback, subscription/reconnect and privacy behavior. Partition creation/stats/
+   admin API/daily lifecycle now have actual storage/native evidence; archive/S3/
+   restore/retention/benchmarks and all full requirements remain open.
 2. Inventory/cosmetic storage prerequisites have real preservation/CLI evidence;
    actual inventory projections/confirmed protected transfers/soft-deletion consumers,
    preferences/cache/capacity/UI and cosmetic service/routes/purchase/slots/presets/
@@ -709,3 +710,22 @@ Exact40a98d3 main461 and erasure18/other migration23 correctness pass; throughpu
 -2.76910724385816% passes original-5%; full migration job fails former canary syntax.
 Current187done/41progress/430new,658 unique, independently verified1; all stages
 continue. No claim that prior394 suites were locally rerun in this narrower batch.
+
+
+## Partition runtime checkpoint (2026-10-18)
+
+Canonical current+three-future-month creation/statistics/health preserve earlier
+view/helper/row identities, existing weekly phase, exact values and operator choices.
+Actual gateway signed-admin API, Prometheus and daily timer/initial failure/natural
+cleanup work.22 real storage/router/CLI cases pass/no skips with new module
+100line/94branch/90.48function coverage at80% line/function gates. Actual native
+gateway/user and724 units/1450 syntax pass; no fresh prior394-suite rerun claimed.
+All85 raw SQL and older manifest entries unchanged. Full chain now fails CDC
+20260707_100000 stmt5 missing pokemon and rolls back. Original60/626 full documents
+read;9+12 criteria and all original thresholds retained.626 legacydone reopened;
+actual S3 Parquet/durable restore/retention/deletion/full client/benchmark targets
+remain open. Prior2e5 main462/correctness pass but throughput-6.352968581797381%
+fails original-5% despite8 unchanged measured hashes. Preserve failure and repair
+required gates; older passes do not waive it. Current186done/42progress/430new,
+658 unique, verified1; all original P0/service/client/security/operations stages
+continue after installation prerequisites, with no merge/deploy or new scope.

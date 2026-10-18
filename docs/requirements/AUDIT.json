@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 187,
-      "in_progress": 41,
+      "done": 186,
+      "in_progress": 42,
       "new": 430
     },
     "priorityCounts": {
@@ -1801,7 +1801,7 @@
       "category": "数据库/数据治理",
       "modules": "database/migrations、所有微服务、backend/shared、PostgreSQL",
       "createdAt": "2026-06-09 18:05",
-      "sha256": "f53061e2759ae285b52387dda4941bdcf46490ba338e288db278009a37e8cd64",
+      "sha256": "977f5774653c6250eb0e796ac0e6243512d045f17252df04c009d8ae21dce7a5",
       "acceptance": [
         "- [ ] 5 个高增长表成功转换为分区表，数据完整性验证通过",
         "- [ ] 分区表查询性能提升 50%+（时间范围查询对比测试）",
@@ -1815,12 +1815,15 @@
       ],
       "verificationStatus": "partial_verified_full_history_failed",
       "implementationReferences": [
+        "backend/gateway/src/index.js",
         "backend/gateway/src/routes/partitions.js",
+        "backend/shared/partitionMaintenance.js",
         "database/pending/20260610_100000__add_table_partitioning_system.sql",
         "database/pending/20260619_000000__add_table_partitioning.sql",
         "database/pending/20261008_140000__audit_partition_conversion.sql",
         "database/pending/repairs/20260610_100000__add_table_partitioning_system.sql",
-        "database/pending/repairs/20260619_000000__add_table_partitioning.sql"
+        "database/pending/repairs/20260619_000000__add_table_partitioning.sql",
+        "database/pending/repairs/20260707_060000__complete_partition_management.sql"
       ],
       "legacyId": null
     },
@@ -16714,11 +16717,11 @@
       "id": "REQ-00626",
       "title": "REQ-00626: 游戏数据分区策略与自动化分区管理系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "性能优化",
       "modules": "database、player-service、catch-service、battle-service、trade-service、monitoring、admin-dashboard",
       "createdAt": "2026-07-03 02:00",
-      "sha256": "d8a0e7adfcd7de61c1a69b783ee26f6935dde84a8fa6a7a988556408f181a299",
+      "sha256": "e5cc8dcac57ef88b0bfe924ac96b99a543c5dfa8c32a2c6db02659dd4dda5c1c",
       "acceptance": [
         "- [ ] 核心业务表实现自动分区（catch_records、battle_logs、trade_records、payment_transactions）",
         "- [ ] 分区预创建功能正常（提前 7 天创建）",
@@ -16733,12 +16736,16 @@
         "- [ ] 数据完整性验证通过（归档前后数据一致）",
         "- [ ] 文档完善（分区策略、运维手册、故障恢复指南）"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_runtime_storage_verified_full_history_failed",
       "implementationReferences": [
+        "backend/gateway/src/index.js",
+        "backend/gateway/src/routes/partitions.js",
+        "backend/shared/partitionMaintenance.js",
         "backend/shared/partitionManager.js",
         "backend/tests/partitionManager.test.js",
         "database/migrations/20260708_070000_partition_tables.sql",
-        "database/pending/20260707_060000__complete_partition_management.sql"
+        "database/pending/20260707_060000__complete_partition_management.sql",
+        "database/pending/repairs/20260707_060000__complete_partition_management.sql"
       ],
       "legacyId": "REQ-00027"
     },

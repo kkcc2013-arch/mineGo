@@ -65,3 +65,18 @@ health with sample minimums, promotion state transitions, cache reconciliation,
 actual upstream selection, metrics, lifecycle, CLI/workflow/admin tokens and staging
 rollback/routing timings need implementation and acceptance. No live canary or
 production deployment has been performed.
+
+
+## Current installation checkpoint (2026-10-18)
+
+The independent [partition maintenance implementation](PARTITION-MAINTENANCE.md)
+now preserves canonical view/history contracts and runs actual protected creation/
+statistics/metrics/lifecycle.22 new real checks, native gateway/user,724 units and
+1450 syntax pass; prior broad business suites were not rerun. Full85-source history
+passes partition/weather and fails CDC20260707_100000 stmt5 missing pokemon, with
+entire pending rollback. Latest preceding2e5 main462/canary18/erasure19/correctness
+pass, but original throughput gate fails at-6.352968581797381% against unchanged-5%;
+[actual failed report](benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json)
+is retained with all8 measured hashes still matching. Earlier passes do not waive
+this failure. New full-source CI and all original full-feature criteria remain open.
+Current186done/42in_progress/430new,658 documents, independently verified1.

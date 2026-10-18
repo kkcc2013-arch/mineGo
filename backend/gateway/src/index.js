@@ -17,6 +17,8 @@ const redis = require('@pmg/shared/redis');
 const { getClientIp } = require('@pmg/shared/clientIp');
 const { createLogger, requestLogger } = require('@pmg/shared/logger');
 const metrics = require('@pmg/shared/metrics');
+const { partitionMaintenance } = require('@pmg/shared/partitionMaintenance');
+const partitionRoutes = require('./routes/partitions');
 const { authWithBlacklistMiddleware } = require('./middleware/jwtBlacklist');
 
 // ── Auth middleware for protected routes ──────────────────────
@@ -444,6 +446,9 @@ app.use('/v1/payment/webhook',
   proxy(SERVICES.payment, { '^/': '/payment/webhook/' })
 );
 
+// REQ-00060 / REQ-00626: actual protected partition statistics and precreation.
+app.use('/api/partitions', authMiddleware, partitionRoutes);
+
 // ── Cache Warmup Management API (REQ-00039) ────────────────────
 // 获取预热状态
 app.get('/admin/cache/warmup/status', requireAuth, requireAdmin, async (req, res) => {
@@ -521,6 +526,7 @@ const service = new GatewayLauncher({
     await redisClient.ping();
     ipManager = initIpBanManager({ db, redis: redisClient, autoInitialize: false });
     await ipManager.init();
+    await partitionMaintenance.start({ onError: err => logger.error({ err }, 'Partition precreation failed') });
     cache.init();
     // Warmup is optional and does not delay the listener. Shutdown awaits its
     // outcome before removing refresh timers and releasing storage resources.
@@ -536,8 +542,9 @@ const service = new GatewayLauncher({
       return !(await ipManager.isBlocked(require('../../shared/clientIp').getUpgradeClientIp(req,app))).blocked;
     });
   },
-  onBeforeShutdown: async () => notificationProxy.close(),
+  onBeforeShutdown: async () => { await partitionMaintenance.stop(); await notificationProxy.close(); },
   onShutdown: async () => {
+    await partitionMaintenance.stop();
     await warmupPromise;
     cacheWarmup.shutdown();
     healthChecker.stopPeriodicCheck();
