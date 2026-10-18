@@ -1629,3 +1629,60 @@ exact. Exacta769b0d main459/inventory24/throughput-1.6979621741050943% pass; new
 source CI remains to be observed. No new local benchmark rerun for unchanged8
 measured transaction sources. Full runtime/client/numerical/upgrade/reverse remains
 open. Current declarations189done/38in_progress/431new,total658, verified1.
+
+
+## Preserved legacy erasure history and accountable UUID storage (2026-10-18)
+
+Previous turn is progress: published checked5c1ddd5 cosmetic repair/15 real cases and
+evidence. Exact migration22 job117378639218 confirms cosmetic15 and all prior actual
+correctness steps pass; original throughput-4.0321937222349895% passes original-5%.
+Actual downloaded report/source hashes retained; full job fails deletion request
+UUID FK as expected. This is not overall CI or full cosmetic feature acceptance.
+
+Read full original1312-line REQ127 and539-line GDPR16 plus actual legacy/new SQL,
+service/routes/processor/mounts. New127 entersin_progress; withdraw old16done with
+both original12 criteria and GDPR≥80%/legal review unchanged. Actual mounted legacy
+GDPR module submits canonical UUID into INTEGER owner and fails22P02, exports fail
+42703 on missing V1 fields. Logger facade and actual module imports work; do not
+report an invented module/load failure. Retain full feature/operation boundaries.
+
+Source-bound repair separates new UUID data_erasure_*5 tables from untouched legacy
+SERIAL/numeric-owner requests. Do not guess cast/owner mapping or synthesize old
+verifications/approval/task/proof rows. Preserve old IDs/status/times/tokens/sequence/
+views/FKs/shared timestamp function. New UUID subject/request identity is immutable;
+real live FK clears only when account disappears, preserving workflow/receipt history.
+Challenge storage uses digest, task rows use compiled resource/plan codes rather than
+raw SQL templates;8 old category proposals/retention numbers remain metadata, not
+execution authority or legal approval. Exact payload/hash/request/subject/counts/
+category totals and deferred completion accounting prevent inconsistent receipt rows.
+Require explicit retention/key/algorithm; no default HMAC mislabeled as RSA.
+
+Native18 checks run actual V1/legacy DDL/PG/CLI, including actual deletion of3 owned
+canonical Pokemon rows, preservation of another owner, genuine Ed25519 verification
+before/after fixture account removal and request/receipt history/OID/config reruns.
+This is SQL storage/crypto evidence, not the production worker or legal compliance.
+Initial receipt SQL reused one parameter for JSONB/text, causing42P08; explicitly
+bind original text before deriving JSONB/digest, retaining exact signed bytes and
+all failure assertions. Move unknown new-identity guard before dependent FK DDL.
+Stronger live-FK/disabled-trigger/changed-index profiles expose PostgreSQL15's actual
+serialized predicate casts; observe exact catalog expression on an owned TEMP table
+and retain precise adoption checking rather than dropping the guard. Final18 pass.
+
+Full original85 chain passes erasure storage, then fails20260701_110000 stmt1 inline
+partial UNIQUE WHERE; entire pending batch rolls back. No raw SQL rewrite, skipped
+source, fake journal or lowered criterion. All previous repair entries and existing
+production JS/migrator inputs stay byte-identical. Preserve prior394 scoped storage
+checks/source hashes; do not pretend those21 suites were rerun in this narrower batch.
+New18/CLI/full-history gates plus main unit/syntax checks exercise current changes;
+new complete CI still must be observed.
+
+Current routes/service/worker still target legacy models and need real namespace/
+owner/admin/channel/verification/approval/delay/canonical-resource/atomic deletion/
+retry/outbox/metrics/certificate-access/token-revocation work. Old export/encryption/
+consent/retention/audit/coverage and formal privacy-policy review remain. Official
+European Commission/California DOJ sources checked; retention purpose/obligations
+and erasure exceptions do not establish the repo's blanket7-year proof policy. Some
+EUR-Lex/leginfo direct pages are robot/403 blocked; no legal sign-off fabricated.
+Continue canary installation prerequisite, actual P0/service/runtime and all original
+658 stages. Current188done/40in_progress/430new, independently verified1. No Maven/
+CPU saturation/production deletion/merge/deploy or external recipient messages.

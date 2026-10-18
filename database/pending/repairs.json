@@ -155,6 +155,11 @@
       "sourceSha256": "896fde1c3d77db95fe6acd4748dd9c993793668b16caa5c573357e50558aea8b",
       "file": "repairs/20260627_060000__add_inventory_organization_system.sql",
       "reason": "Preserve canonical UUID Pokemon/favorites/nicknames, species-owned type/rarity, UUID gym teams/constraints and per-species candy. Use actual cp/caught_at/deleted_at indexes, UUID preferences and additive protection/tags/team-use time. Preserve compatible preference function/trigger identities and enabled state; refuse ambiguous deletion flags, global candy resources and incompatible schemas instead of fabricating historical data. Complete route/transfer/client/capacity/performance/upgrade/reversal acceptance remains open."
+    },
+    "20260630_050000": {
+      "sourceSha256": "4e8a931542163151277c85582a75caa1335dd6885913f6cb3ef35892077baee3",
+      "file": "repairs/20260630_050000__add_data_deletion_request_tables.sql",
+      "reason": "Preserve legacy SERIAL/numeric-owner requests, views, FKs, sequences and shared triggers unchanged. Introduce distinct UUID erasure workflow tables with live-account linkage plus immutable subject identity, digest-only verification and accountable signed-proof storage that survives account removal. Preserve all8 proposal categories as nonexecutable metadata, require explicit certificate retention/key policy, guard known functions/triggers instead of replacing shared objects. No automatic legacy identity/state conversion, account deletion, delivery, approval or compliance claim. Runtime adapters/worker/legal review/full history/upgrade/reversal remain open."
     }
   }
 }

@@ -21,7 +21,7 @@
 | [REQ-00013](REQ-00013-event-driven-architecture.md) | 事件驱动架构与服务解耦 | 可扩展性/解耦 | P1 | done | 所有微服务、Kafka、backend/shared | 2026-06-05 09:25 |
 | [REQ-00014](REQ-00014-circuit-breaker-fallback.md) | 服务熔断与降级机制 | 容灾/高可用 | P0 | done | gateway、所有微服务、backend/shared | 2026-06-05 09:30 |
 | [REQ-00015](REQ-00015-database-pool-optimization.md) | 数据库连接池优化与成本控制 | 成本/资源优化 | P2 | done | 所有微服务、database、backend/shared | 2026-06-05 09:35 |
-| [REQ-00016](REQ-00016-gdpr-compliance.md) | GDPR 合规与用户数据隐私保护 | 合规/隐私 | P1 | done | user-service、所有微服务、gateway、database | 2026-06-05 09:40 |
+| [REQ-00016](REQ-00016-gdpr-compliance.md) | GDPR 合规与用户数据隐私保护 | 合规/隐私 | P1 | in_progress | user-service、所有微服务、gateway、database | 2026-06-05 09:40 |
 | [REQ-00017](REQ-00017-accessibility-support.md) | 游戏客户端无障碍访问支持 | 无障碍(a11y) | P2 | done | game-client、frontend | 2026-06-05 09:45 |
 | [REQ-00018](REQ-00018-pokemon-trading-system.md) | 精灵交易系统 | 功能增强 | P1 | done | social-service、pokemon-service、user-service、gateway、game-client | 2026-06-05 09:50 |
 | [REQ-00019](REQ-00019-pokemon-moves-learning-system.md) | 精灵技能学习与技能机器系统 | 功能增强 | P1 | in_progress | pokemon-service、catch-service、reward-service、game-client、database/migrations | 2026-06-05 10:00 |
@@ -132,7 +132,7 @@
 | [REQ-00124](REQ-00124-message-center-unit-test-coverage.md) | 消息中心服务单元测试覆盖 | 测试覆盖 | P1 | done | user-service、backend/services/user-service/src/routes/messageCenter.js、backend/tests/unit/ | 2026-06-11 19:10 |
 | [REQ-00125](REQ-00125-pokemon-cosmetic-customization-system.md) | 精灵外观定制系统 | 功能增强 | P1 | in_progress | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 19:30 |
 | [REQ-00126](REQ-00126-user-service-mfa-route-mounting.md) | user-service MFA 路由挂载与集成 | 集成与修复 | P0 | done | user-service, backend/services/user-service/src/routes/mfa.js, backend/services/user-service/src/index.js | 2026-06-11 20:05 |
-| [REQ-00127](REQ-00127-user-data-deletion-requests-management.md) | 用户数据删除请求管理系统 | 合规/隐私 | P1 | new | user-service、gateway、所有微服务、database、backend/jobs | 2026-06-11 20:15 |
+| [REQ-00127](REQ-00127-user-data-deletion-requests-management.md) | 用户数据删除请求管理系统 | 合规/隐私 | P1 | in_progress | user-service、gateway、所有微服务、database、backend/jobs | 2026-06-11 20:15 |
 | [REQ-00128](REQ-00128-social-service-pvp-route-mounting.md) | social-service PVP 路由挂载与集成 | 集成与修复 | P0 | done | social-service | 2026-06-11 21:05 |
 | [REQ-00129](REQ-00129-pokemon-data-backup-and-restore-system.md) | 精灵数据备份与恢复系统 | 数据库/数据治理 | P1 | new | pokemon-service、user-service、database、backend/jobs、gateway | 2026-06-11 21:30 |
 | [REQ-00130](REQ-00130-realtime-business-event-stream-monitoring.md) | 实时业务事件流监控与分析系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared、Kafka、infrastructure/k8s/monitoring | 2026-06-11 22:00 |

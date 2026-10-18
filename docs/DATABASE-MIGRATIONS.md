@@ -227,3 +227,16 @@ now passes cosmetics and fails20260630_050000 stmt2 data_deletion_tasks.request_
 against the preexisting request identity. Pending batch rolls back. Full fresh/
 already-applied repair upgrades/reverse and feature acceptance remain open. COSMETICS.md
 describes actual storage/CLI evidence and all remaining runtime/client criteria.
+
+
+2026-10-18 erasure identity prerequisite: earlier data_deletion_requests hasSERIAL/
+numeric owners, while the later UUID workflow proposal reused that name. Preserve
+old IDs/status/history/sequence/views/FKs and the shared update function. A source-
+bound repair creates5 distinct data_erasure_* tables with immutable UUID subject/
+nullable live link, digest challenge, accounted signed-payload storage and8 preserved
+nonexecutable category proposals. No automatic identity mapping/state/approval or
+proof is fabricated. Actual18 storage/CLI checks pass, including genuine fixture
+resource deletion/crypto/legacy module failures and guarded schema adoption. Full
+V1/V2 passes; all85 immutable-source history advances to20260701_110000 stmt1 invalid
+inline partial uniqueness WHERE. Pending batch rolls back; full installation/
+applied-repair upgrade/reversal and all runtime/legal acceptance remain open.

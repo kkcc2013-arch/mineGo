@@ -1,9 +1,9 @@
 # mineGo requirement completion plan
 
-Updated: 2026-10-17. Scope: all 658 existing requirement documents in INDEX.md,
+Updated: 2026-10-18. Scope: all 658 existing requirement documents in INDEX.md,
 including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 431 new, 38 in progress;189 declared done, including one independently verified framework. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 430 new, 40 in progress; 188 declared done, including one independently verified framework. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -28,10 +28,10 @@ independent authorized work.
 
 ## Current batch
 
-1. Complete shared installation: the full85-source chain now reaches20260630_050000
-   statement2, where modern deletion tasks conflict with the earlier request identity.
-   Preserve canonical legacy IDs/status/history and implement actual deletion workflow
-   contracts. This P1 schema prerequisite blocks the installation used by P0 services.
+1. Complete shared installation: the full85-source chain now reaches20260701_110000
+   statement1, invalid canary partial uniqueness. Preserve canonical existing rollout
+   identities/history while reconciling duplicate proposals. UUID erasure storage now
+   preserves legacy requests; actual deletion workflow runtime remains incomplete. These schema prerequisites block installation used by P0 services.
 2. Inventory/cosmetic storage prerequisites have real preservation/CLI evidence;
    actual inventory projections/confirmed protected transfers/soft-deletion consumers,
    preferences/cache/capacity/UI and cosmetic service/routes/purchase/slots/presets/
@@ -675,3 +675,20 @@ exact. Exacta769b0d main459/inventory24/throughput-1.6979621741050943% pass; new
 source CI remains to be observed. No new local benchmark rerun for unchanged8
 measured transaction sources. Full runtime/client/numerical/upgrade/reverse remains
 open. Current declarations189done/38in_progress/431new,total658, verified1.
+
+
+### Legacy deletion identities and runtime audit (2026-10-18)
+
+Exact5c1ddd5 migration22 cosmetic15 and existing correctness/throughput pass; full
+job fails deletion FK. New distinct UUID erasure storage keeps authentic SERIAL/
+numeric-owner history and explicit subject/proof bindings; new18 actual storage/CLI
+checks pass. Prior394 checks retained by exact unchanged inputs, not claimed rerun.
+Full V1/V2 passes; all85 history now fails20260701_110000 stmt1 canary inline partial
+UNIQUE WHERE, pending transaction rolls back. Current new-source CI pending.
+
+REQ127 new→in_progress and GDPR16 olddone→in_progress after full original reads and
+actual legacy module22P02/42703 failures. Original12+12 criteria,80%/legal review
+unchanged;188done/40progress/430new,total658, independently verified1. Continue
+canary prerequisite, actual deletion/inventory/cosmetic/service and original P0/
+security/client/numerical/operations work. No scope shrink or false legal/feature
+acceptance; no Maven/maxCPU.

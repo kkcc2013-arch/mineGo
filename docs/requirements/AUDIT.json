@@ -4,9 +4,9 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 189,
-      "in_progress": 38,
-      "new": 431
+      "done": 188,
+      "in_progress": 40,
+      "new": 430
     },
     "priorityCounts": {
       "P0": 52,
@@ -414,11 +414,11 @@
       "id": "REQ-00016",
       "title": "REQ-00016：GDPR 合规与用户数据隐私保护",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "合规/隐私",
       "modules": "user-service、所有微服务、gateway、database",
       "createdAt": "2026-06-05 09:40",
-      "sha256": "ad6bd6e12449e555930896648f4f42135a6b7b75aa4f1c9e22fa6a4a35c46e04",
+      "sha256": "0e4b74e6e33e9e38b1b6b1acb60df77071ee8d8ed4f57f085fefbaf1f8ce6bb9",
       "acceptance": [
         "- [ ] 隐私政策文档已创建，版本管理正常",
         "- [ ] 用户注册时必须同意隐私政策，记录同意时间",
@@ -433,7 +433,7 @@
         "- [ ] 集成测试验证完整删除流程",
         "- [ ] 法律审核通过（隐私政策）"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_sql_verified_runtime_and_full_history_failed",
       "implementationReferences": [
         "backend/services/user-service/src/gdprService.js",
         "backend/services/user-service/src/routes/auth.js",
@@ -3855,11 +3855,11 @@
       "id": "REQ-00127",
       "title": "REQ-00127: 用户数据删除请求管理系统",
       "priority": "P1",
-      "declaredStatus": "new",
+      "declaredStatus": "in_progress",
       "category": "合规/隐私",
       "modules": "user-service、gateway、所有微服务、database、backend/jobs",
       "createdAt": "2026-06-11 20:15",
-      "sha256": "9a3f2e2521a3a2f97699956803f81b0a3048be9019a15f1fb7aab8dde39474aa",
+      "sha256": "bcf8bb3d4bc6480129a8b7936a79136d897f4ed3f7f4c6c704aa391088d07dee",
       "acceptance": [
         "- [ ] 用户可通过 API 提交数据删除请求",
         "- [ ] 系统发送验证码确认用户身份",
@@ -3874,14 +3874,15 @@
         "- [ ] 满足 GDPR 第17条\"被遗忘权\"要求",
         "- [ ] 满足 CCPA 第1798.105条\"删除权\"要求"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_sql_verified_runtime_and_full_history_failed",
       "implementationReferences": [
         "backend/jobs/dataDeletionProcessor.js",
         "backend/services/user-service/src/index.js",
         "backend/services/user-service/src/routes/dataDeletion.js",
         "backend/shared/dataDeletionService.js",
         "database/migrations/20260614220000_data_deletion_request_system.sql",
-        "database/pending/20260630_050000__add_data_deletion_request_tables.sql"
+        "database/pending/20260630_050000__add_data_deletion_request_tables.sql",
+        "database/pending/repairs/20260630_050000__add_data_deletion_request_tables.sql"
       ],
       "legacyId": null
     },

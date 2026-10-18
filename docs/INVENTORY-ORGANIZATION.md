@@ -74,3 +74,24 @@ in20 sequential suites with no skips,1445 JavaScript syntax checks, actual inven
 module loads and the workflow/new gate parse all pass. Exact new remote source still
 requires observation. None of these checks accepts the original complete UI/HTTP/
 capacity/sorting/performance feature criteria.
+
+
+## Installation checkpoint (2026-10-18)
+
+The independent [erasure storage prerequisite](DATA-ERASURE.md) now preserves legacy
+numeric-owner requests while provisioning distinct UUID workflow storage. Its18 real
+storage/CLI checks pass. Complete85-source history advances past deletion and fails
+canary20260701_110000 statement1 near WHERE; the whole pending batch rolls back.
+This batch also passes724 unit checks (including24 Jest suites/425 tests),1447 syntax
+checks and actual migration/deletion/GDPR module and workflow parsing. Prior394
+storage checks across21 suites remain source-specific evidence; they were not rerun
+as a new combined412-check suite. Existing production runtime modules and all85 raw
+SQL files are unchanged. Full feature/client/coverage/upgrade/reversal remains open.
+
+Exact5c1ddd5 migration22/job117378639218 passes cosmetic15, inventory24 and existing
+transaction/slow-query/TLS checks. Its throughput report passes the original-5%
+ceiling at-4.0321937222349895%; all8 measured sources still match. The report is
+[archived](benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json). That full
+remote migration job fails the former deletion FK boundary; current complete-source
+CI still requires observation. No full-job success is claimed. Current658 documents:
+188 declared done,40 in progress,430 new; independently verified1.

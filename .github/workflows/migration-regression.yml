@@ -24,6 +24,7 @@ on:
       - 'backend/tests/regression/migration-prerequisites.test.js'
       - 'backend/tests/regression/inventory-organization-storage.test.js'
       - 'backend/tests/regression/cosmetic-schema-storage.test.js'
+      - 'backend/tests/regression/erasure-schema-storage.test.js'
       - 'backend/tests/regression/audit-partition-storage.test.js'
       - 'backend/tests/regression/partition-history-storage.test.js'
       - 'backend/tests/regression/currency-storage.test.js'
@@ -137,6 +138,11 @@ jobs:
       - name: Verify cosmetic UUID references, original catalog and retained purchase history
         working-directory: backend
         run: node --test --test-concurrency=1 tests/regression/cosmetic-schema-storage.test.js
+        env:
+          TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
+      - name: Verify retained legacy deletion identities and accountable UUID erasure storage
+        working-directory: backend
+        run: node --test --test-concurrency=1 tests/regression/erasure-schema-storage.test.js
         env:
           TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
       - name: Verify audit conversion, canonical partition history, concurrent IDs and data-preserving rollback
