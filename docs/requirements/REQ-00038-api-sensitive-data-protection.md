@@ -3,7 +3,7 @@
 - **编号**：REQ-00038
 - **类别**：安全加固
 - **优先级**：P1
-- **状态**：done
+- **状态**：in_progress
 - **涉及服务/模块**：gateway、所有微服务、backend/shared、database/migrations
 - **创建时间**：2026-06-08 19:48
 - **依赖需求**：REQ-00016（GDPR 合规）、REQ-00021（JWT 黑名单）

@@ -58,9 +58,11 @@ This setting is separate from the measured transaction-throughput baseline.
 The retained diagnostic schema also exposed an older audit migration's unscoped
 `information_schema.columns` lookup: another schema's audit column can prevent
 creation in the current schema. After cleaning only the confirmed owned diagnostic
-fixture, the isolated full-bootstrap gate passes. Cross-schema audit installation
-still needs a source-bound repair and dedicated verification. This is not hidden
-by a claim that the entire migration requirement is complete.
+fixture, the isolated full-bootstrap gate passes. The source-bound audit repair now
+also verifies the complete history beside an unrelated audit schema, with actual
+cleanup-role denial and retained cipher history. See
+[Sensitive audit storage](SENSITIVE-AUDIT-STORAGE.md). Complete upgrade/reversal,
+production cryptography and the full migration/security requirements remain open.
 
 ## Remaining REQ-00669 acceptance
 

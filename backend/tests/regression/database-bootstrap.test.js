@@ -27,10 +27,12 @@ test('full production V1 schema and V2 sample seed retain valid evolution relati
   finally{client.release();await fixture.end();await admin.query(`DROP SCHEMA ${schema} CASCADE`);await admin.end();}
 });
 
-test('complete legacy pending migration history applies to the full seeded production schema', {timeout:60000},async()=>{
+async function checkFullHistory({unrelatedAudit=false}={}){
   assert.ok(process.env.TEST_DATABASE_URL,'TEST_DATABASE_URL must identify an isolated PostGIS database');
   const admin=new Pool({connectionString:process.env.TEST_DATABASE_URL});
   const schema=`full_migrations_${crypto.randomBytes(8).toString('hex')}`;await admin.query(`CREATE SCHEMA ${schema}`);
+  const outsider=schema+'_unrelated';let outsiderOid;
+  if(unrelatedAudit){await admin.query(`CREATE SCHEMA ${outsider};CREATE TABLE ${outsider}.audit_logs(encrypted_data bytea,encryption_key_id varchar(64),encryption_iv varchar(64),encryption_auth_tag varchar(64),marker text);INSERT INTO ${outsider}.audit_logs(marker) VALUES('owned unrelated schema marker')`);outsiderOid=(await admin.query('SELECT to_regclass($1)::oid AS oid',[outsider+'.audit_logs'])).rows[0].oid;}
   const fixture=new Pool({connectionString:process.env.TEST_DATABASE_URL,options:`-c search_path=${schema},public`});
   let child;
   try{
@@ -46,8 +48,12 @@ test('complete legacy pending migration history applies to the full seeded produ
     const history=(await fixture.query('SELECT version,checksum FROM schema_migrations')).rows;
     assert.equal(history.length,files.length);
     for(const file of files){const source=await fs.readFile(path.join(__dirname,'../../../database/pending',file));const version=file.split('__')[0];assert.equal(history.find(row=>row.version===version)?.checksum,crypto.createHash('sha256').update(source).digest('hex'));}
+    if(unrelatedAudit){assert.equal((await admin.query('SELECT to_regclass($1)::oid AS oid',[outsider+'.audit_logs'])).rows[0].oid,outsiderOid);assert.deepEqual((await admin.query(`SELECT marker FROM ${outsider}.audit_logs`)).rows,[{marker:'owned unrelated schema marker'}]);assert.equal((await fixture.query("SELECT count(*)::int AS n FROM information_schema.columns WHERE table_schema=current_schema() AND table_name='audit_logs' AND column_name IN('encrypted_data','encryption_key_id','encryption_iv','encryption_auth_tag')")).rows[0].n,4);}
   }finally{
     if(child&&child.exitCode===null){const exited=new Promise(resolve=>child.once('exit',resolve));child.kill('SIGKILL');await exited;}
-    await fixture.end();await admin.query(`DROP SCHEMA ${schema} CASCADE`);await admin.end();
+    await fixture.end();await admin.query(`DROP SCHEMA ${schema} CASCADE`);if(unrelatedAudit)await admin.query(`DROP SCHEMA ${outsider} CASCADE`);await admin.end();
   }
-});
+}
+
+test('complete legacy pending migration history applies to the full seeded production schema',{timeout:60000},()=>checkFullHistory());
+test('complete production history also installs beside another schema with the same audit encryption columns',{timeout:60000},()=>checkFullHistory({unrelatedAudit:true}));

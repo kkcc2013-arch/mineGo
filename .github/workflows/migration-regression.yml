@@ -30,6 +30,7 @@ on:
       - 'backend/gateway/src/routes/partitions.js'
       - 'backend/tests/regression/cdc-invalidation-storage.test.js'
       - 'backend/tests/regression/job-monitor-storage.test.js'
+      - 'backend/tests/regression/sensitive-audit-storage.test.js'
       - 'backend/shared/jobMonitor/jobExecutionLogger.js'
       - 'backend/tests/regression/audit-partition-storage.test.js'
       - 'backend/tests/regression/partition-history-storage.test.js'
@@ -136,6 +137,12 @@ jobs:
       - name: Verify retained job history, atomic execution logging and original retention
         working-directory: backend
         run: node --test --test-concurrency=1 --experimental-test-coverage --test-coverage-include='**/jobExecutionLogger.js' --test-coverage-lines=80 --test-coverage-functions=80 tests/regression/job-monitor-storage.test.js
+        env:
+          UV_THREADPOOL_SIZE: '2'
+          TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
+      - name: Verify isolated audit installation, retained cipher history and actual cleanup permissions
+        working-directory: backend
+        run: node --test --test-concurrency=1 tests/regression/sensitive-audit-storage.test.js
         env:
           UV_THREADPOOL_SIZE: '2'
           TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test

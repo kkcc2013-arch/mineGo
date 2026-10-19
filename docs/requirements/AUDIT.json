@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 184,
-      "in_progress": 45,
+      "done": 183,
+      "in_progress": 46,
       "new": 429
     },
     "priorityCounts": {
@@ -1053,11 +1053,11 @@
       "id": "REQ-00038",
       "title": "REQ-00038：API 敏感数据泄露防护与审计日志加密存储",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "安全加固",
       "modules": "gateway、所有微服务、backend/shared、database/migrations",
       "createdAt": "2026-06-08 19:48",
-      "sha256": "4fe3776e8366a65c4ad21780e865c7e85cb143e614ffb3e48087b0495bfabf35",
+      "sha256": "80a255e29524056b95ee5a8c46bf5862d65ee4f91498df2e2591c3a4ed78ae9e",
       "acceptance": [
         "- [ ] API 响应过滤中间件已实现，普通用户无法看到 P0/P1 字段",
         "- [ ] 审计日志采用 AES-256-GCM 加密存储，密钥可轮换",
@@ -1070,7 +1070,7 @@
         "- [ ] CI/CD 流水线集成 API 敏感字段扫描，P0 级暴露会导致构建失败",
         "- [ ] 文档更新，包括敏感字段定义、脱敏规则配置、密钥管理流程"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_sql_isolation_and_privileges_verified_crypto_mfa_api_open",
       "implementationReferences": [
         "backend/shared/auditLogEncrypted.js",
         "backend/shared/dataMaskingEngine.js",
@@ -1081,7 +1081,8 @@
         "backend/tests/unit/sensitive-data-protection.test.js",
         "backend/tools/api-sensitive-scanner.js",
         "database/pending/20260608_194800__add_sensitive_data_protection_tables.sql",
-        "database/pending/20260608_200000__add_sensitive_data_audit_tables.sql"
+        "database/pending/20260608_200000__add_sensitive_data_audit_tables.sql",
+        "database/pending/repairs/20260608_200000__add_sensitive_data_audit_tables.sql"
       ],
       "legacyId": null
     },
@@ -12931,7 +12932,7 @@
         "- [ ] 在 Redis 网络波动时支持异步清理重试",
         "- [ ] 系统运行不会对数据库造成显著负载"
       ],
-      "verificationStatus": "partial_runtime_storage_verified_load_full_history_and_ci_open",
+      "verificationStatus": "partial_runtime_storage_verified_load_upgrade_and_ci_open",
       "implementationReferences": [
         "backend/gateway/src/routes/cdc.js",
         "backend/shared/cdc/InvalidationRetryQueue.js",
@@ -14165,7 +14166,7 @@
         "- [ ] 提供配置接口，实现无需修改代码即可定义新的缓存失效规则。",
         "- [ ] 具备完善的监控日志，记录缓存清除成功率和延迟。"
       ],
-      "verificationStatus": "partial_runtime_storage_verified_load_full_history_and_ci_open",
+      "verificationStatus": "partial_runtime_storage_verified_load_upgrade_and_ci_open",
       "implementationReferences": [
         "backend/config/cache-invalidation.yml",
         "backend/migrations/20260716030000_cdc_cache_invalidation_triggers.sql",

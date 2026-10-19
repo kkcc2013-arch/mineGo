@@ -3,7 +3,7 @@
 Updated: 2026-10-19. Scope: all 658 existing requirement documents in INDEX.md,
 including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 429 new, 45 in progress; 184 declared done, including one independently verified framework. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 429 new, 46 in progress; 183 declared done, including one independently verified framework. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -28,12 +28,12 @@ independent authorized work.
 
 ## Current batch
 
-1. Full isolated V1/V2 plus all85 original pending migrations/checksums/cleanup now
-   pass with declared test-server lock capacity256. Complete remaining safe upgrade/
-   reverse/startup behavior and fix the known cross-schema audit column lookup.
-   Continue actual P0/service/security prerequisites; fresh installation does not
-   accept every feature. Job history/logger now have genuine persistence evidence;
-   full monitor registration, authenticated API/controls, alerts and dashboard remain.
+1. Isolated V1/V2 plus all85 original migrations and the complete installation
+   beside an unrelated audit schema now pass checksums/cleanup. Continue safe
+   upgrades/reversal and actual P0/service/security startup dependencies. Complete
+   canonical encrypted audit/key rotation/MFA/filter/scanner runtime; database
+   privilege/storage checks do not accept the full security requirement. Job monitor
+   registration, authenticated controls/alerts/dashboard also remain unfinished.
 2. Inventory/cosmetic storage prerequisites have real preservation/CLI evidence;
    actual inventory projections/confirmed protected transfers/soft-deletion consumers,
    preferences/cache/capacity/UI and cosmetic service/routes/purchase/slots/presets/
@@ -43,8 +43,8 @@ independent authorized work.
    work while genuine external provider/staging/device inputs are unavailable.
 4. Repair remaining legacy contract/API/integration/performance/security/operations
    gates, meet each original numerical target and perform all658 acceptance audit.
-   Main464 passes at766ad98; its cache CI and full migration CI fail as
-   recorded. New local fresh-history pass must receive current-source CI. A partial/source-specific pass never accepts a whole feature.
+   Main465/native34/migration27 pass at519f880, including the fresh85 gate.
+   New audit source still requires CI; other legacy workflows remain unaccepted. A partial/source-specific pass never accepts a whole feature.
 
 ## Definition of finished
 
@@ -853,3 +853,66 @@ aggregator. Next prioritize actual P0 services/security dependencies and the sco
 audit installation defect; finish full monitor runtime safely, with actual auth,
 job ownership and real delivery before accepting669. No external recipients,
 production deletion, merge/deploy, new requirements or reduced targets.
+
+
+## Scoped sensitive audit storage checkpoint (2026-10-19)
+
+Previous goal turn made concrete progress:20project files published519f880, actual
+job logger24/cache41/fullfresh85 gate2 and source-hashed evidence. Independently
+observed exact519 main465/run39205897731, title/native34/run39205897769/job117908550436
+and migration27/run39205897816/job117908550452 all completedSUCCESS. Downloaded logs
+confirm actual native gateway/user and cache41, job24/original80% module gates and
+complete fresh85. Actual transaction throughput-2.517669437114245% meets unchanged
+-5%; all8 measured source hashes match. Archive report and sanitized three-gate
+metadata/log hashes. Other legacy workflows/full658 acceptance remain separate.
+
+Read complete originalREQ38(331lines/10criteria) and both sensitive-audit rawSQL
+194800/200000. Legacydone is reopened, retaining every original criterion including
+AES256GCM rotation/KMS, complete access chain, ≥10masktypes, allendpointscanner/MFA,
+≥90%crypto/mask/permissionscoverage/integration/CI/docs. Current183done46progress
+429new/658unique,42 source-matching records, independently verified619 only.
+
+New source-bound200000repair fixes four global information_schema existence checks
+and temporarily isolates relation lookup to actual target schema; restores exact
+caller search_path. Preserve actual BIGSERIAL audit/data, encrypted cipher/tag/IV/
+wrapped-key bytes, operator comments, statistics/dependents and previous key choices.
+New historical timestamps stayNULL for canonical V1 TIMESTAMP WITHOUT TIME ZONE;
+only genuine timestamptz creation instants can populate them. Initial fixture exposed
+an8-hour implicit timezone assumption; corrected to preserve unknown provenance.
+Old missing key versions stayNULL; defaults apply to future keys. No guessed tags,
+key rewrap or fake historical clock/version. Crypto/storage incompatibilities and
+custom functions/config/views require explicit adoption; guards NULL-safe.
+
+Both known cleanup functions retainOID but move fromSECURITYDEFINER/publicexecute
+toSECURITYINVOKER, schema-qualified targets and pinnedpg_catalogpath. Migration
+never invokes cleanup. A real ephemeral read-only fixture role is denied without
+PUBLICexecute and still denied ownerDELETE escalation after explicitEXECUTE grant;
+role/grants and fixture schemas are cleaned up. No privileged cleanup/job, global
+shared function replacement, production deletion, recipient or rekey operation.
+
+Final16 actual target+outsider PostgreSQL/V1/V2/SQL/CLI/real-role cases pass/no skips.
+Reproduce original42703 and atomic rollback, retain four columns/settings/outsider,
+unknown+known history, real fixtureGCM bytes/wrappedkeys/serial IDs/comments/views,
+actual rootCLIup/up/verify/raw+executionhash, and custom tag/timestamp/body/config/
+view refusals. Fixture crypto validates preserved bytes, not production encryption.
+Full bootstrap now3/3/no skips:V1/V2 plus original isolated85 and complete85 beside
+an unrelated schema with matching4 audit columns and unchanged OID/marker. Every
+raw checksum and schema cleanup retained; max_locks256 from previous checkpoint.
+Final724 unit/24Jest425 and1457 syntax/workflow/audit pass. All85 rawfiles and every
+older repair entry unchanged; one new audit entry. No fresh rerun of prior broad
+business/native suites claimed; new current-source CI still must be observed.
+
+The actual runtime encryption helpers remain incomplete and unmounted in current
+native gateway/user entry points. AuditLogEncrypted fullsource reviewed: temporary/
+development/plaintext fallback, BYTEA encryptedKey.split type mismatch, writer drops
+GCM authTag and names resource_type/id instead of canonical entity_type/id, query
+passes wrong decryption arguments, rotationgetOrCreate mayreuseactivekey. Sensitive
+DataAudit complete415lines reviewed: dropsIV/tag, no accessor-role enforcement,
+suppliedhasMFAboolean, unknownruleallow, truthyfieldaccessdetection/identitymismatch,
+res.jsonaudit failure returns data. Common auditLog firstfunction stillplainSQL/logs.
+No claim of real crypto decryptability, MFA, complete role filtering/scanner or
+compliance. Finish actual canonical crypto/provider/keypurpose/rotation/history
+and durable access semantics before mounting authorized MFA/decrypt routes.
+Remaining original P0/services/client/security/operations and all658 goal persist.
+No Maven/CPU saturation/new requirements/merge/deploy/production cleanup. Heavy
+checks sequentialnice10/UV2; Redis/Kafka remain stopped and unrelated containers intact.

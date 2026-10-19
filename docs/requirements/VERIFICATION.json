@@ -120,7 +120,7 @@
         "database/pending/20260611_152900__add_privacy_preference_center.sql": "fed6b42590f4829f4b474b9ddf840a08d7b8cce7b53bd502a0b9fe7417ec63d8",
         "database/pending/repairs/20260611_152900__add_privacy_preference_center.sql": "ac250e1ee3e789b017f7a1c54ebee3488345068aca38ea6e93df70e64483c896",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162"
       },
@@ -425,6 +425,15 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
@@ -553,7 +562,7 @@
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e"
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b"
       },
       "evidence": [
         {
@@ -881,6 +890,15 @@
           "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
           "result": "partial_local_verified_fresh_history_pass_ci_pending",
           "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
           "changedReferences": [
             "database/pending/repairs.json"
           ]
@@ -908,7 +926,7 @@
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e"
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b"
       },
       "evidence": [
         {
@@ -1236,6 +1254,15 @@
           "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
           "result": "partial_local_verified_fresh_history_pass_ci_pending",
           "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
           "changedReferences": [
             "database/pending/repairs.json"
           ]
@@ -1266,7 +1293,7 @@
         "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/repairs/20261007_120000__title_identity_compatibility.sql": "26c5317694faa4f2a263923d4b915dfc0508d6a69c092c1c449306ee88702837",
         "database/pending/repairs/20260615_170500__add_title_system.sql": "f43872c531d7ac6a9a2875d2eb9a3f603781e4caf3bfdbe7482e7864629bf9ac",
         "backend/tests/regression/title-upgrade-storage.test.js": "406ebc4206cad8d523478a60e7e7a55e81cdbeaae369b1112fefdadfef59bb01",
@@ -1617,6 +1644,15 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1644,7 +1680,7 @@
         "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e"
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b"
       },
       "evidence": [
         {
@@ -1976,6 +2012,15 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -2003,7 +2048,7 @@
         "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "docs/NOTIFICATIONS.md": "5b47d94114ba552f47f6d88f8aaba2ceb17c4e705174c1872d95f5e0655726ae",
         "backend/services/user-service/src/notificationService.js": "9b1809ee37dcef1cc4794db12b5a0fc2f4df876ade8dab918b378eca07d75194",
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
@@ -2022,7 +2067,7 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
         "frontend/game-client/src/i18n/index.js": "37dd930d9f30e6f6b088ad74f669c7cecbd91f7937ccb84e685d1dbfe4fa2690",
@@ -2454,6 +2499,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -2486,7 +2541,7 @@
         "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e"
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b"
       },
       "evidence": [
         {
@@ -2773,6 +2828,15 @@
           "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
           "result": "partial_local_verified_fresh_history_pass_ci_pending",
           "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
           "changedReferences": [
             "database/pending/repairs.json"
           ]
@@ -2800,7 +2864,7 @@
         "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e"
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b"
       },
       "evidence": [
         {
@@ -3090,6 +3154,15 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -3107,7 +3180,7 @@
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e"
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b"
       },
       "evidence": [
         {
@@ -3354,6 +3427,15 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -3374,13 +3456,13 @@
         "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
-        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
+        "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
         "backend/tests/regression/storageSetup.js": "1a67a27f674d7ef022e266da1ebbd5146870cdc290ebd64a51a799f5843ceaee",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
@@ -3446,7 +3528,10 @@
         "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297",
         "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json": "07157be9339982b7c7fce5202f3f713766bbffcbf88d6474c96e70f98275b669",
         "docs/benchmarks/migration-fresh-history-local-2026-10-19.json": "14409159f1ff9c0d1d2b039e8a3619bee2af413efd7f3a34bba5c899e9ddcaf5",
-        "docs/benchmarks/transaction-throughput-ci-766ad98-2026-10-19.json": "07d9da96e769d661372b02dc11a3aec04d0b46b357b35d2acb4adac0fb094016"
+        "docs/benchmarks/transaction-throughput-ci-766ad98-2026-10-19.json": "07d9da96e769d661372b02dc11a3aec04d0b46b357b35d2acb4adac0fb094016",
+        "docs/benchmarks/ci-519f880-2026-10-19.json": "093aab6f8e7d49390947aee159e72c0cdf63dfa93742e73d76c0d3d4c35871e6",
+        "docs/benchmarks/transaction-throughput-ci-519f880-2026-10-19.json": "3a394fe7b218843aa8faba42c1502acb46d072e3d58a0e5a3c30b11775c64eed",
+        "docs/benchmarks/migration-cross-schema-history-local-2026-10-19.json": "2bfc8d4b712816972131696d4966ba3d4711398b17588c59f60f67e5809d6719"
       },
       "evidence": [
         {
@@ -3986,6 +4071,41 @@
           "medianChangePercent": -2.715739325993871,
           "requiredMinimumChangePercent": -5,
           "scope": "Exact766 main464 passed; migration26 actual canonical CDC17/other correctness/original partition80% gate/TLS and measured throughput pass; full workflow fails old job created_time. Actual downloaded report all8 hashes match. Preserve all earlier negative throughput reports. Current new-source CI must still be observed; no new local throughput rerun or full-upgrade/runtime claim."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "backend/tests/regression/database-bootstrap.test.js",
+            ".github/workflows/migration-regression.yml",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "exact_prior_source_dedicated_ci_passed",
+          "commit": "519f88039b561e0dbe0c800b9a2345200d6de93a",
+          "artifact": "docs/benchmarks/ci-519f880-2026-10-19.json",
+          "mainRun": 39205897731,
+          "nativeRun": 39205897769,
+          "migrationRun": 39205897816,
+          "migrationJob": 117908550452,
+          "nativeJob": 117908550436,
+          "throughputArtifact": "docs/benchmarks/transaction-throughput-ci-519f880-2026-10-19.json",
+          "medianChangePercent": -2.517669437114245,
+          "originalRequiredMinimumPercent": -5,
+          "scope": "Main465, title/native34 and migration27 completed success. Downloaded logs confirm cache41, actual native gateway/user processes, actual job24/original80% logger gate and complete fresh85. Actual throughput report all8 measured source hashes match. Earlier failures remain retained/unwaived. New audit repair is a different source; do not infer current-source CI success or completion of other legacy workflows/requirements."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "passed_after_exact_body_literal_formatting",
+          "command": "actual sensitive SQL16/full bootstrap3/unit724/syntax1457",
+          "scope": "Staged whitespace check caught copied raw SQL whitespace. Preserve exact historical prosrc via SQL E-string literals, strip outer trailing whitespace and rerun all four checks without changing contracts or gates.",
+          "changedReferences": [
+            "docs/benchmarks/migration-cross-schema-history-local-2026-10-19.json"
+          ]
         }
       ],
       "remaining": "Complete85-source history now fails20260627_060000 statement13 missing is_deleted. Reconcile canonical inventory/ownership/contracts, all later pending files, data-preserving upgrades/reversal and all-service startup. Exact new remote throughput still unverified; all original acceptance remains open."
@@ -3998,14 +4118,14 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
-        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
+        "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
@@ -4341,6 +4461,17 @@
             ".github/workflows/migration-regression.yml",
             "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            "backend/tests/regression/database-bootstrap.test.js",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ]
     },
@@ -4352,14 +4483,14 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
-        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
+        "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
@@ -4695,6 +4826,17 @@
             ".github/workflows/migration-regression.yml",
             "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            "backend/tests/regression/database-bootstrap.test.js",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ]
     },
@@ -4706,14 +4848,14 @@
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
-        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
+        "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
@@ -5198,6 +5340,17 @@
           "medianChangePercent": -2.715739325993871,
           "requiredMinimumChangePercent": -5,
           "scope": "Exact766 main464 passed; migration26 actual canonical CDC17/other correctness/original partition80% gate/TLS and measured throughput pass; full workflow fails old job created_time. Actual downloaded report all8 hashes match. Preserve all earlier negative throughput reports. Current new-source CI must still be observed; no new local throughput rerun or full-upgrade/runtime claim."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            "backend/tests/regression/database-bootstrap.test.js",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -5214,8 +5367,8 @@
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260611_000000__add_achievement_system_tables.sql": "31e3714195d83afba17bafd85f3590ad51e30011831a5d0a1f5b4e8e5a00e302",
         "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "6f9c323240e28aa67a4d54fccd7141b72f7d58f91607ae53568631b90cd0a2d9",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
-        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
+        "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
         "database/pending/20261008_150000__achievement_catalog_bridge.sql": "432a090e79626102f6cff413f6bc844c7617bd0c2cc1346899f95fa1b801e04f",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
@@ -5224,7 +5377,7 @@
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "backend/services/user-service/src/routes/user.js": "7d24fb40cd0662c428a6b42c2bf6636a2a3ac05fdcdc5e8717d1df5a1dbf04df",
         "backend/tests/regression/achievement-storage.test.js": "4983c1a41d7e40fd86bcb29cd59765555c2ff0f10030044ca5b75ee435a4b90b",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/ACHIEVEMENTS.md": "09711c5508a55e25daaa1d2735281a7c35bae20e885c998d93bb3a5d17e8a08d",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
@@ -5552,6 +5705,17 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            "backend/tests/regression/database-bootstrap.test.js",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": "Replay/idempotency/durable events/automatic grant/all triggers; complete seed item/title contract and exclusive Pokemon grant; management CRUD/admin and edited-definition snapshot policy; old unit fixture; native pokemon process/gateway/client/localization; <100ms query/<50ms update performance; full83 history and data-preserving reversal with modern records remain unproven."
@@ -5825,6 +5989,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -5850,9 +6024,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -6143,6 +6317,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -6168,9 +6352,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -6461,6 +6645,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -6486,9 +6680,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -6517,11 +6711,11 @@
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
-        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -6769,6 +6963,17 @@
           "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
           "changedReferences": [
             "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            "backend/tests/regression/database-bootstrap.test.js",
             ".github/workflows/migration-regression.yml"
           ]
         }
@@ -6792,11 +6997,11 @@
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
-        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -7046,6 +7251,17 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            "backend/tests/regression/database-bootstrap.test.js",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "date": "2026-10-19",
@@ -7067,12 +7283,12 @@
       "sourceSha256": {
         "backend/shared/catchAnomalyDetector.js": "6aeee5e229cd3595ed314da01e4c4614d1bbfc0603e3d078e298129317d0d600",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
-        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
+        "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260612_070000__add_catch_anomaly_detection_system.sql": "071c812b16b0f3bd90eb912c88d98d01c334d709a619ae0c5e7b26280869b926",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/CATCH-RISK.md": "38a45565382fcc71fcd3086ed2de7b885d9e912859efe78d917741eaa3afbcf0",
         "docs/review/REQ-00082-catch-success-anomaly-detection-review.md": "76b74356f1d4b2745e8d4029639e2cb0ac5101d789d6c6c699b35fb2b3aa11a9",
         "docs/review/REQ-00082-catch-success-anomaly-detection-system-review.md": "91b9a7a16ae6203eac69695669ad3eed471d75d13259a44cd7b98a59f044e19c",
@@ -7321,6 +7537,17 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "backend/tests/regression/database-bootstrap.test.js",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -7341,13 +7568,13 @@
         "backend/shared/specialIv.js": "2bc3716db1b535fc637a89a17759504d82ba9dd832a2ca7628c97a409e8c83a6",
         "backend/services/location-service/src/index.js": "9a9cf4e6781e30808f591fb0fa21e7e63c75fe27611cbf81f9f20603742fff4a",
         "backend/tests/regression/special-iv-storage.test.js": "a36c9842feabcaa478ece692c839cb1b8b876db66d1facc8b932d38e2ddedd54",
-        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
+        "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260613_160000__add_special_iv_system.sql": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -7552,6 +7779,17 @@
           "result": "partial_local_verified_fresh_history_pass_ci_pending",
           "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
           "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "backend/tests/regression/database-bootstrap.test.js",
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
@@ -7573,13 +7811,13 @@
         "backend/shared/specialIv.js": "2bc3716db1b535fc637a89a17759504d82ba9dd832a2ca7628c97a409e8c83a6",
         "backend/services/location-service/src/index.js": "9a9cf4e6781e30808f591fb0fa21e7e63c75fe27611cbf81f9f20603742fff4a",
         "backend/tests/regression/special-iv-storage.test.js": "a36c9842feabcaa478ece692c839cb1b8b876db66d1facc8b932d38e2ddedd54",
-        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
+        "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260613_160000__add_special_iv_system.sql": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -7787,6 +8025,17 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "backend/tests/regression/database-bootstrap.test.js",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -7804,14 +8053,14 @@
       "sourceSha256": {
         "database/pending/20260614_090500__add_daily_quest_system.sql": "b602bc1b0e67d1b03aa441cf24de2abbc7113ab512bcd7384d006e2b15b07979",
         "database/pending/repairs/20260614_090500__add_daily_quest_system.sql": "65570155fda0333a90d88d794c600cb17b685ed1ea0a99ed7a6198669d6c53be",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "backend/services/reward-service/src/index.js": "42b8220e1654ecf40ae8d053e1b9219e651e27b1ff40f511abdc6d7c6d9f8a50",
         "backend/services/reward-service/src/routes/dailyQuests.js": "599fa242c1864866bebc2f5368e0552ad47a58afcacd7933561a1a3e6d64054b",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
         "backend/shared/questService.js": "4db34890cbb2837e2c13703dd0278e41a030fd8cbb1d39bf2411920e2f4413fd",
         "backend/shared/routes/quests.js": "415f6443d29d9f5675b0def6517d20063ec0df25d66454ccd3e3766a326163e3",
         "backend/shared/questMetrics.js": "4d70c0eb2917f3942f4cc0888d27ffdfeb6fcac91a585c4a897364a7e7afaa8f",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/DAILY-QUESTS.md": "b63d44e8e29e3fdcd856248af47935ca99924740c887be49c45defd33cdd21de"
       },
       "evidence": [
@@ -8000,6 +8249,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -8021,7 +8280,7 @@
         "backend/services/catch-service/src/index.js": "b5901bc1a2bc732da52ffb257166948b54e84141882b5989d0dcbf3b0c26175c",
         "backend/tests/regression/reward-leaderboard-storage.test.js": "b22fe38c30f5351cbcbd39129f0794daf6dc3b2c7ed6c33cca2ba8b1159d163f",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/REWARD-RANKINGS.md": "ad7d89e56547dcdd24d5fe07ac61557a5e1c0ee69bce4ea77b6aa116fa9fd933",
         "docs/review/REQ-00255-api-injection-attack-protection-system-review.md": "2ac0537e70d4896ea611958d55aaffb60793de6b06538872a554819d0a60ef76"
       },
@@ -8173,6 +8432,15 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -8202,10 +8470,10 @@
         "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
         "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
       "evidence": [
@@ -8386,6 +8654,16 @@
           "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
           "result": "partial_local_verified_fresh_history_pass_ci_pending",
           "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
           "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
@@ -8419,10 +8697,10 @@
         "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
         "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
       "evidence": [
@@ -8607,6 +8885,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -8626,10 +8914,10 @@
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "database/pending/20260618_160000__add_voice_chat_tables.sql": "e60be5a89d60c84da8ba40f11c63bf1b5e1491e59828903856e50b490ca74bf4",
         "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "b2034194cd84c4f47f3c73438555df5b80c21135535de704a782313dfefe8b8b",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "backend/tests/regression/voice-schema-storage.test.js": "5e4162b28e07f7f35ab339d707b4be8a99e19e1921bd208cd51890fbf5058c6f",
-        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "backend/services/social-service/src/voice/turnServer.js": "2ca289a62a2fa2648e4c5a18ac49a13af268d55c17c3739334851c5673df5eb5",
         "backend/services/social-service/src/voice/routes.js": "cdcbac7391f275b20a7646517ac0a5d3883c35a629d10e66aef9b49a42349b80",
         "backend/services/social-service/src/voice/signalingServer.js": "4e8199480ff3745f671a20845680cf48ef5d374d4544813ca914d3fbce842505",
@@ -8798,6 +9086,17 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            "backend/tests/regression/database-bootstrap.test.js",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -8823,8 +9122,8 @@
         "backend/tests/unit/currency.test.js": "155a7c7d561b2911a5da8c5a91ec5e054eb283ff8b98deca22779f4fbeb93558",
         "database/pending/20260624_133000__add_multi_currency_support.sql": "9d82251238972d1bd61c2264504f10f709039e52b2b42921c81957c32b689bcf",
         "database/pending/repairs/20260624_133000__add_multi_currency_support.sql": "a6f2318807e7824c4c458beb7762ec555e256d97af41405707dafbf8ac24dde2",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/CURRENCIES.md": "02ca61669686acdd8038b3ec185dd96a04a0ed6bc6014493d43120d5940676b7"
       },
       "evidence": [
@@ -8980,6 +9279,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -9011,8 +9320,8 @@
         "docs/benchmarks/transaction-throughput-2026-10-15.json": "b22bccb8cee394a16a4c5135761e5e104c97e6b95c974a18ceb7e36d887e4a03",
         "database/pending/20260626_040000__add_deadlock_log_table.sql": "b9060fc1aab1fd26bbb27d08a7d0ba83f9df521191ecc37cbe679c447ed16238",
         "database/pending/repairs/20260626_040000__add_deadlock_log_table.sql": "fe133fbc60e1719e237752d8a9508ff246d3e376a46aed62e024c5939a721cbc",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/TRANSACTIONS.md": "6c66f5a585349370e3e8f4487f4368029233db4a4b4effcf80b6907026687c5e",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-bae401e-2026-10-15.json": "61c8117367a10c9984f6d83854443cd8a71990cb1f8d0270ee72ea8ccf6a1bf6",
@@ -9036,7 +9345,10 @@
         "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297",
         "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json": "07157be9339982b7c7fce5202f3f713766bbffcbf88d6474c96e70f98275b669",
         "docs/benchmarks/migration-fresh-history-local-2026-10-19.json": "14409159f1ff9c0d1d2b039e8a3619bee2af413efd7f3a34bba5c899e9ddcaf5",
-        "docs/benchmarks/transaction-throughput-ci-766ad98-2026-10-19.json": "07d9da96e769d661372b02dc11a3aec04d0b46b357b35d2acb4adac0fb094016"
+        "docs/benchmarks/transaction-throughput-ci-766ad98-2026-10-19.json": "07d9da96e769d661372b02dc11a3aec04d0b46b357b35d2acb4adac0fb094016",
+        "docs/benchmarks/ci-519f880-2026-10-19.json": "093aab6f8e7d49390947aee159e72c0cdf63dfa93742e73d76c0d3d4c35871e6",
+        "docs/benchmarks/transaction-throughput-ci-519f880-2026-10-19.json": "3a394fe7b218843aa8faba42c1502acb46d072e3d58a0e5a3c30b11775c64eed",
+        "docs/benchmarks/migration-cross-schema-history-local-2026-10-19.json": "2bfc8d4b712816972131696d4966ba3d4711398b17588c59f60f67e5809d6719"
       },
       "evidence": [
         {
@@ -9356,6 +9668,40 @@
           "medianChangePercent": -2.715739325993871,
           "requiredMinimumChangePercent": -5,
           "scope": "Exact766 main464 passed; migration26 actual canonical CDC17/other correctness/original partition80% gate/TLS and measured throughput pass; full workflow fails old job created_time. Actual downloaded report all8 hashes match. Preserve all earlier negative throughput reports. Current new-source CI must still be observed; no new local throughput rerun or full-upgrade/runtime claim."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "exact_prior_source_dedicated_ci_passed",
+          "commit": "519f88039b561e0dbe0c800b9a2345200d6de93a",
+          "artifact": "docs/benchmarks/ci-519f880-2026-10-19.json",
+          "mainRun": 39205897731,
+          "nativeRun": 39205897769,
+          "migrationRun": 39205897816,
+          "migrationJob": 117908550452,
+          "nativeJob": 117908550436,
+          "throughputArtifact": "docs/benchmarks/transaction-throughput-ci-519f880-2026-10-19.json",
+          "medianChangePercent": -2.517669437114245,
+          "originalRequiredMinimumPercent": -5,
+          "scope": "Main465, title/native34 and migration27 completed success. Downloaded logs confirm cache41, actual native gateway/user processes, actual job24/original80% logger gate and complete fresh85. Actual throughput report all8 measured source hashes match. Earlier failures remain retained/unwaived. New audit repair is a different source; do not infer current-source CI success or completion of other legacy workflows/requirements."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "passed_after_exact_body_literal_formatting",
+          "command": "actual sensitive SQL16/full bootstrap3/unit724/syntax1457",
+          "scope": "Staged whitespace check caught copied raw SQL whitespace. Preserve exact historical prosrc via SQL E-string literals, strip outer trailing whitespace and rerun all four checks without changing contracts or gates.",
+          "changedReferences": [
+            "docs/benchmarks/migration-cross-schema-history-local-2026-10-19.json"
+          ]
         }
       ],
       "remaining": [
@@ -9376,9 +9722,9 @@
         "database/pending/repairs/20260627_041000__enable_pg_stat_statements.sql": "fb9f244c96563de01b9dfcd18ccda92105b5023e9201e9019af9472e13ea51d2",
         "database/pending/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "bcfa7904149404b6677ab0e33591670d12746845e590849ee822dca2966071ab",
         "database/pending/repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "660c62531f86d2f8981163afbe85b50ec68bbe27269b840d7b7ea4dba64f0df4",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "backend/tests/regression/slow-query-schema-storage.test.js": "35c43ce9cc230648eeb82e069000bfd6f5b5019b533eaa14b5a1b8349bf71fbb",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/SLOW-QUERIES.md": "8c3a6dde07fb0d411ed7b3da05e2d7daa4ab20c4fc52ddd4a8e89e3499353921",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-26f553f-2026-10-17.json": "858bd11da1948ca938a582b304ffcd4ebf6147c7c1459c6e465b54efa6ddfce9",
@@ -9584,6 +9930,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -9606,9 +9962,9 @@
         "backend/services/pokemon-service/src/inventory/InventorySorter.js": "157e29018efc72fcae09fb4ef6fab83717fa7f6761397a4afcf485714dbf14d1",
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "database/pending/repairs/20260627_060000__add_inventory_organization_system.sql": "31aac467ae420bdafb0204bf33832c4c8a33e39368cf01f6c2ad33bd95b887a7",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "backend/tests/regression/inventory-organization-storage.test.js": "bbd1497563252b999d530c8480e4e9370fee599561ed1262540127e46c1e7b2c",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/INVENTORY-ORGANIZATION.md": "f289e0b8ba30ea8ef99d1d21b45aca5d8237f3ca2110004e9c8b2aed346ed8ad",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-a769b0d-2026-10-17.json": "df4cf64be36dae3da71a0c2d532fb7bb5b83a5841e9873f0a66323ff4634000c",
@@ -9743,6 +10099,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -9762,9 +10128,9 @@
         "database/seeds/V2__seed_data.sql": "7c85c2d07999a4c8e5bad2d07324456b101a909c0e77fb73f0ff2d31879ed355",
         "database/pending/20260630_040000__add_pokemon_cosmetic_system.sql": "56caa9b41aafa64822d561c733b328a4efd8c037a4fb95ad26d2a3813e2225a7",
         "database/pending/repairs/20260630_040000__add_pokemon_cosmetic_system.sql": "401c58b503ea8bf2edee1bf338876213e665a269cd55ade0605c431d1b52b498",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "backend/tests/regression/cosmetic-schema-storage.test.js": "05d835a2fc7e7fd82e06868ae168c5077be3813a7c7b19eccc70a8129ccf547c",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "docs/COSMETICS.md": "89e99dd73175a7800780ce1d89680f2e0c145e0c694fffbefbadd5e2abe05b69",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
@@ -9877,6 +10243,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -9897,7 +10273,7 @@
         "database/pending/20260605_161000__add_gdpr_tables.sql": "30147b3ae9822690425e90840db6bad0d6217d1d588aa75743d3f7b4c440639a",
         "database/pending/20260630_050000__add_data_deletion_request_tables.sql": "4e8a931542163151277c85582a75caa1335dd6885913f6cb3ef35892077baee3",
         "database/pending/repairs/20260630_050000__add_data_deletion_request_tables.sql": "18af611ad1688d68200770e0b3ad2e395e6b1c069052d8f73af8ce87e393502a",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "backend/shared/dataDeletionService.js": "de359f084c0d1af413db95355b268f5a7cfeb44746eb5dcac9da59abd2ed45b7",
@@ -9908,7 +10284,7 @@
         "backend/services/user-service/src/index.js": "58528fc459173847bc452ce968643a2b1559995f4da3f2206396d5e8d17e495f",
         "backend/jobs/dataDeletionProcessor.js": "966f12addfaf5a97f68b329e155173c2dae85699c2d818e8996d48ffcfb52244",
         "backend/tests/regression/erasure-schema-storage.test.js": "4c54f92e9492772d096201675ffe7b0d0594c609bc64e1395b9b910feeda535b",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/DATA-ERASURE.md": "004d0f83214e94f4ee8783bd7b905619abb4681bf8ff2f44c041f74b93a967e5",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json": "fa441fdcf8f5471c1a0d5c74082467f4bf92777d547989df6ddd08c42c68b765",
@@ -9984,6 +10360,16 @@
           "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
           "result": "partial_local_verified_fresh_history_pass_ci_pending",
           "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
           "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
@@ -10001,7 +10387,7 @@
         "database/pending/20260605_161000__add_gdpr_tables.sql": "30147b3ae9822690425e90840db6bad0d6217d1d588aa75743d3f7b4c440639a",
         "database/pending/20260630_050000__add_data_deletion_request_tables.sql": "4e8a931542163151277c85582a75caa1335dd6885913f6cb3ef35892077baee3",
         "database/pending/repairs/20260630_050000__add_data_deletion_request_tables.sql": "18af611ad1688d68200770e0b3ad2e395e6b1c069052d8f73af8ce87e393502a",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "backend/shared/dataDeletionService.js": "de359f084c0d1af413db95355b268f5a7cfeb44746eb5dcac9da59abd2ed45b7",
@@ -10012,7 +10398,7 @@
         "backend/services/user-service/src/index.js": "58528fc459173847bc452ce968643a2b1559995f4da3f2206396d5e8d17e495f",
         "backend/jobs/dataDeletionProcessor.js": "966f12addfaf5a97f68b329e155173c2dae85699c2d818e8996d48ffcfb52244",
         "backend/tests/regression/erasure-schema-storage.test.js": "4c54f92e9492772d096201675ffe7b0d0594c609bc64e1395b9b910feeda535b",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/DATA-ERASURE.md": "004d0f83214e94f4ee8783bd7b905619abb4681bf8ff2f44c041f74b93a967e5",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json": "fa441fdcf8f5471c1a0d5c74082467f4bf92777d547989df6ddd08c42c68b765",
@@ -10088,6 +10474,16 @@
           "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
           "result": "partial_local_verified_fresh_history_pass_ci_pending",
           "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
           "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
@@ -10106,7 +10502,7 @@
         "database/pending/repairs/20260611_102500__add_canary_deployment_tables.sql": "af806cc8d46faf2228134f5cc1f80cdc1f7258d29cf78492ad511664b790366d",
         "database/pending/20260701_110000__add_canary_deployment_tables.sql": "f96b82ee32401a2995bf18e461f0359e2273def1d189c219b630b1719167edc4",
         "database/pending/repairs/20260701_110000__add_canary_deployment_tables.sql": "66ca1c9bcefe9a5bb36a6b8fee01b305a2626040ea6b4a1f6b089dadd52897a3",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
@@ -10120,7 +10516,7 @@
         "scripts/canary-cli.js": "55af26b715eee3c508a85e1be6909a39b923267b936860edbcf590d356c9b815",
         ".github/workflows/canary-deploy.yml": "873f89716acd7d2632999c14a8155594668f1b522c4fb46db1186eefd4a74b29",
         "backend/tests/regression/canary-schema-storage.test.js": "18bc7caffb2b93568aff590318e2fdbc3874f183c29b7d80efd14be1a15d7ffc",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/CANARY.md": "772be4628219e07cb6a5e14bb7ce8e892733c7603acf7d75942f175afe8049ae",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297"
@@ -10177,6 +10573,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ]
     },
@@ -10187,7 +10593,7 @@
       "sourceSha256": {
         "database/pending/20260707_060000__complete_partition_management.sql": "98c5dbb5232a7d3869d7a97d657baa479d41e12db6ffa4cb09d5debd5d624707",
         "database/pending/repairs/20260707_060000__complete_partition_management.sql": "111f466396cfa58cf8bb7c87790f64f8f2d8cfc00e587669eb07197669ffc922",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/20261008_140000__audit_partition_conversion.sql": "6341c87821de38f68340cbb952b0b393496b52793ddd1c225cb27c221f6b6eaf",
         "database/pending/repairs/20260610_100000__add_table_partitioning_system.sql": "b4d42d6e9ce79b30d9bb65530e82f8a28fc10879ecfd8799b56aef959f98b87d",
         "database/pending/repairs/20260619_000000__add_table_partitioning.sql": "24797d2a3b1370dae8a2768f77a3f7f6e869095ecd33059c774780577a3b7d89",
@@ -10197,7 +10603,7 @@
         "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
         "backend/tests/regression/partition-maintenance-storage.test.js": "56fc446bc42f1189161d5993129756a498924c14feb154470c488e9f2710102b",
         "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "docs/PARTITION-MAINTENANCE.md": "b5c1d26502ec01a3ec74b14cb8084a42c587139cfcb32d6c74af2f9c84a6b46f",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
@@ -10271,12 +10677,22 @@
           "medianChangePercent": -2.715739325993871,
           "requiredMinimumChangePercent": -5,
           "scope": "Exact766 main464 passed; migration26 actual canonical CDC17/other correctness/original partition80% gate/TLS and measured throughput pass; full workflow fails old job created_time. Actual downloaded report all8 hashes match. Preserve all earlier negative throughput reports. Current new-source CI must still be observed; no new local throughput rerun or full-upgrade/runtime claim."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ]
     },
     "REQ-00479-database-query-result-cache-invalidation-system.md": {
       "date": "2026-10-19",
-      "status": "partial_runtime_storage_verified_load_full_history_and_ci_open",
+      "status": "partial_runtime_storage_verified_load_upgrade_and_ci_open",
       "documentSha256": "83e88ce75dd358f93001aa75340e4032dbfb2174b7a0a37b546de6f1f4fdaf58",
       "sourceSha256": {
         "backend/shared/cache.js": "1e02ac9cf3f507263f89b64f1158d339530d56c7bcd69ec9738a0e54b5d1f27e",
@@ -10297,15 +10713,18 @@
         "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/pending/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "4a11a1f7e457ea11181580d313097b276582947b3975c4fe67fb4813867b5f39",
         "database/pending/repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "279e7b764797d2ad636f704c3e73c97c504a6077a7c1bc14aa39f30737c7b478",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/CACHE-INVALIDATION.md": "e788e8e763088178f2107778f3050ea08d4992d5ad8c21690ba4e4f082f52260",
         "docs/benchmarks/cache-invalidation-local-2026-10-19.json": "df2b208f0d35ce625bf48841add89cfc79c713cc998b2cbd33db8da410462e13",
         "docs/benchmarks/cache-invalidation-50ms-failure-2026-10-19.json": "cb78efb6409f41a4bfe1f876f21788c6a414a02ba71afa6332b78a1277dd6069",
         "docs/benchmarks/cache-invalidation-prior-latency-2026-10-19.json": "b9f7fae62ce1303de23a958e0e3ebad2a49d01dd4dbf580dcddc757fa1176c5f",
         "docs/benchmarks/cache-invalidation-local-fill-2026-10-19.json": "179a75a304f5a7c880c1280b16bcae7e4b2d7a9691df56b9fdce837fefc16a14",
-        "docs/benchmarks/cache-invalidation-ci-766ad98-2026-10-19.json": "1d05e53c7cd4545007bcd5f86a359e85a24cca37de2c2f7dd976742696105e95"
+        "docs/benchmarks/cache-invalidation-ci-766ad98-2026-10-19.json": "1d05e53c7cd4545007bcd5f86a359e85a24cca37de2c2f7dd976742696105e95",
+        "docs/benchmarks/ci-519f880-2026-10-19.json": "093aab6f8e7d49390947aee159e72c0cdf63dfa93742e73d76c0d3d4c35871e6",
+        "docs/benchmarks/transaction-throughput-ci-519f880-2026-10-19.json": "3a394fe7b218843aa8faba42c1502acb46d072e3d58a0e5a3c30b11775c64eed",
+        "docs/benchmarks/migration-cross-schema-history-local-2026-10-19.json": "2bfc8d4b712816972131696d4966ba3d4711398b17588c59f60f67e5809d6719"
       },
       "evidence": [
         {
@@ -10387,13 +10806,47 @@
           "scope": "Remote766 full cache suite37pass/3fail exposed generation-bypass during test cache population;12 remote latency samples max15.145301ms still pass but do not waive failed suite. Add held genuine Redis-read/invalidation case to assert disabled/miss/no L1 fill, then actual successful fenced seeding before testing later behavior. Final41 pass/no skips, unchanged production cache/gateway modules, no numerical target relaxation.",
           "currentArtifact": "docs/benchmarks/cache-invalidation-local-fill-2026-10-19.json",
           "negativeCIArtifact": "docs/benchmarks/cache-invalidation-ci-766ad98-2026-10-19.json"
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "exact_prior_source_dedicated_ci_passed",
+          "commit": "519f88039b561e0dbe0c800b9a2345200d6de93a",
+          "artifact": "docs/benchmarks/ci-519f880-2026-10-19.json",
+          "mainRun": 39205897731,
+          "nativeRun": 39205897769,
+          "migrationRun": 39205897816,
+          "migrationJob": 117908550452,
+          "nativeJob": 117908550436,
+          "throughputArtifact": "docs/benchmarks/transaction-throughput-ci-519f880-2026-10-19.json",
+          "medianChangePercent": -2.517669437114245,
+          "originalRequiredMinimumPercent": -5,
+          "scope": "Main465, title/native34 and migration27 completed success. Downloaded logs confirm cache41, actual native gateway/user processes, actual job24/original80% logger gate and complete fresh85. Actual throughput report all8 measured source hashes match. Earlier failures remain retained/unwaived. New audit repair is a different source; do not infer current-source CI success or completion of other legacy workflows/requirements."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "passed_after_exact_body_literal_formatting",
+          "command": "actual sensitive SQL16/full bootstrap3/unit724/syntax1457",
+          "scope": "Staged whitespace check caught copied raw SQL whitespace. Preserve exact historical prosrc via SQL E-string literals, strip outer trailing whitespace and rerun all four checks without changing contracts or gates.",
+          "changedReferences": [
+            "docs/benchmarks/migration-cross-schema-history-local-2026-10-19.json"
+          ]
         }
       ],
       "remaining": "Preserve original4 criteria each, including100ms/50ms. Complete production/capacity and no-significant-database-load acceptance are open; all legacy cache consumers and cross-environment/provider/upgrade/reversal behavior are not accepted. Current source CI must be observed. Only original battle framework619 remains independently verified."
     },
     "REQ-00523-database-query-result-cache-invalidation-system.md": {
       "date": "2026-10-19",
-      "status": "partial_runtime_storage_verified_load_full_history_and_ci_open",
+      "status": "partial_runtime_storage_verified_load_upgrade_and_ci_open",
       "documentSha256": "e0c38f15144c9e22186b6d37d24fded63ec9f4b2949a3906b1435a121d31c0aa",
       "sourceSha256": {
         "backend/shared/cache.js": "1e02ac9cf3f507263f89b64f1158d339530d56c7bcd69ec9738a0e54b5d1f27e",
@@ -10414,15 +10867,18 @@
         "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/pending/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "4a11a1f7e457ea11181580d313097b276582947b3975c4fe67fb4813867b5f39",
         "database/pending/repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "279e7b764797d2ad636f704c3e73c97c504a6077a7c1bc14aa39f30737c7b478",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
         "docs/CACHE-INVALIDATION.md": "e788e8e763088178f2107778f3050ea08d4992d5ad8c21690ba4e4f082f52260",
         "docs/benchmarks/cache-invalidation-local-2026-10-19.json": "df2b208f0d35ce625bf48841add89cfc79c713cc998b2cbd33db8da410462e13",
         "docs/benchmarks/cache-invalidation-50ms-failure-2026-10-19.json": "cb78efb6409f41a4bfe1f876f21788c6a414a02ba71afa6332b78a1277dd6069",
         "docs/benchmarks/cache-invalidation-prior-latency-2026-10-19.json": "b9f7fae62ce1303de23a958e0e3ebad2a49d01dd4dbf580dcddc757fa1176c5f",
         "docs/benchmarks/cache-invalidation-local-fill-2026-10-19.json": "179a75a304f5a7c880c1280b16bcae7e4b2d7a9691df56b9fdce837fefc16a14",
-        "docs/benchmarks/cache-invalidation-ci-766ad98-2026-10-19.json": "1d05e53c7cd4545007bcd5f86a359e85a24cca37de2c2f7dd976742696105e95"
+        "docs/benchmarks/cache-invalidation-ci-766ad98-2026-10-19.json": "1d05e53c7cd4545007bcd5f86a359e85a24cca37de2c2f7dd976742696105e95",
+        "docs/benchmarks/ci-519f880-2026-10-19.json": "093aab6f8e7d49390947aee159e72c0cdf63dfa93742e73d76c0d3d4c35871e6",
+        "docs/benchmarks/transaction-throughput-ci-519f880-2026-10-19.json": "3a394fe7b218843aa8faba42c1502acb46d072e3d58a0e5a3c30b11775c64eed",
+        "docs/benchmarks/migration-cross-schema-history-local-2026-10-19.json": "2bfc8d4b712816972131696d4966ba3d4711398b17588c59f60f67e5809d6719"
       },
       "evidence": [
         {
@@ -10504,6 +10960,40 @@
           "scope": "Remote766 full cache suite37pass/3fail exposed generation-bypass during test cache population;12 remote latency samples max15.145301ms still pass but do not waive failed suite. Add held genuine Redis-read/invalidation case to assert disabled/miss/no L1 fill, then actual successful fenced seeding before testing later behavior. Final41 pass/no skips, unchanged production cache/gateway modules, no numerical target relaxation.",
           "currentArtifact": "docs/benchmarks/cache-invalidation-local-fill-2026-10-19.json",
           "negativeCIArtifact": "docs/benchmarks/cache-invalidation-ci-766ad98-2026-10-19.json"
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "exact_prior_source_dedicated_ci_passed",
+          "commit": "519f88039b561e0dbe0c800b9a2345200d6de93a",
+          "artifact": "docs/benchmarks/ci-519f880-2026-10-19.json",
+          "mainRun": 39205897731,
+          "nativeRun": 39205897769,
+          "migrationRun": 39205897816,
+          "migrationJob": 117908550452,
+          "nativeJob": 117908550436,
+          "throughputArtifact": "docs/benchmarks/transaction-throughput-ci-519f880-2026-10-19.json",
+          "medianChangePercent": -2.517669437114245,
+          "originalRequiredMinimumPercent": -5,
+          "scope": "Main465, title/native34 and migration27 completed success. Downloaded logs confirm cache41, actual native gateway/user processes, actual job24/original80% logger gate and complete fresh85. Actual throughput report all8 measured source hashes match. Earlier failures remain retained/unwaived. New audit repair is a different source; do not infer current-source CI success or completion of other legacy workflows/requirements."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "passed_after_exact_body_literal_formatting",
+          "command": "actual sensitive SQL16/full bootstrap3/unit724/syntax1457",
+          "scope": "Staged whitespace check caught copied raw SQL whitespace. Preserve exact historical prosrc via SQL E-string literals, strip outer trailing whitespace and rerun all four checks without changing contracts or gates.",
+          "changedReferences": [
+            "docs/benchmarks/migration-cross-schema-history-local-2026-10-19.json"
+          ]
         }
       ],
       "remaining": "Preserve original4 criteria each, including100ms/50ms. Complete production/capacity and no-significant-database-load acceptance are open; all legacy cache consumers and cross-environment/provider/upgrade/reversal behavior are not accepted. Current source CI must be observed. Only original battle framework619 remains independently verified."
@@ -10517,11 +11007,14 @@
         "backend/tests/regression/job-monitor-storage.test.js": "a4e49eeec4c3ca4dff9cff018149aa78ae262b98f86b1ee1c1db0388b28e0dcd",
         "database/pending/20260711_120000__add_job_monitoring_tables.sql": "9577c3dcaf6e91a4f5931229df810235002f2fe057372296ae3eead79b381625",
         "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql": "fa363868bb347077a17a7b9bd06efa507b7f13d69d9752e28b51b0ce7821d9df",
-        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
-        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
-        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
+        "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
         "docs/benchmarks/migration-fresh-history-local-2026-10-19.json": "14409159f1ff9c0d1d2b039e8a3619bee2af413efd7f3a34bba5c899e9ddcaf5",
-        "docs/JOB-MONITORING.md": "17beb0131cfcf9a665de5f784c852a53d2b6dcdeb9d7d5cf8cb81826c87a9ec0"
+        "docs/JOB-MONITORING.md": "25321e193af31c620ba9e7c174b04b70ff02fd6e0dd826d23d851395c0d509ec",
+        "docs/benchmarks/ci-519f880-2026-10-19.json": "093aab6f8e7d49390947aee159e72c0cdf63dfa93742e73d76c0d3d4c35871e6",
+        "docs/benchmarks/transaction-throughput-ci-519f880-2026-10-19.json": "3a394fe7b218843aa8faba42c1502acb46d072e3d58a0e5a3c30b11775c64eed",
+        "docs/benchmarks/migration-cross-schema-history-local-2026-10-19.json": "2bfc8d4b712816972131696d4966ba3d4711398b17588c59f60f67e5809d6719"
       },
       "evidence": [
         {
@@ -10543,9 +11036,96 @@
             "functions": 95.65
           },
           "scope": "Full V1/V2 fixture. Raw created_time42703 rolls back. Four histories/serial OIDs/sequences/view dependents/real aggregation/UUID owner FK/comments/indexes retain; customized index/type/view/FK contracts reject atomically. Real CLI up/up/verify raw/execution hashes. Actual logger missing-schema refusal, empty null rate, owner+ID atomic completion and contention/replay, parameterized history/rates/metadata, true90-day-minimum retention preserving active/recent/unknown rows, UTC/Shanghai native processes under NewYork database timezone and UTC creation clock. Actual configured shared DATABASE_URL pool remains usable; explicitly owned pool naturally closes."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "backend/tests/regression/database-bootstrap.test.js",
+            "docs/JOB-MONITORING.md"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "exact_prior_source_dedicated_ci_passed",
+          "commit": "519f88039b561e0dbe0c800b9a2345200d6de93a",
+          "artifact": "docs/benchmarks/ci-519f880-2026-10-19.json",
+          "mainRun": 39205897731,
+          "nativeRun": 39205897769,
+          "migrationRun": 39205897816,
+          "migrationJob": 117908550452,
+          "nativeJob": 117908550436,
+          "throughputArtifact": "docs/benchmarks/transaction-throughput-ci-519f880-2026-10-19.json",
+          "medianChangePercent": -2.517669437114245,
+          "originalRequiredMinimumPercent": -5,
+          "scope": "Main465, title/native34 and migration27 completed success. Downloaded logs confirm cache41, actual native gateway/user processes, actual job24/original80% logger gate and complete fresh85. Actual throughput report all8 measured source hashes match. Earlier failures remain retained/unwaived. New audit repair is a different source; do not infer current-source CI success or completion of other legacy workflows/requirements."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "passed_after_exact_body_literal_formatting",
+          "command": "actual sensitive SQL16/full bootstrap3/unit724/syntax1457",
+          "scope": "Staged whitespace check caught copied raw SQL whitespace. Preserve exact historical prosrc via SQL E-string literals, strip outer trailing whitespace and rerun all four checks without changing contracts or gates.",
+          "changedReferences": [
+            "docs/benchmarks/migration-cross-schema-history-local-2026-10-19.json"
+          ]
         }
       ],
       "remaining": "All10 original criteria preserved. All-job actual registration/status reporting, <5s dashboard visibility, real mounted authenticated controls, configured60s delivery/noise10min, >95%zombie accuracy/<10%score error, actual admin dashboard, core aggregator/alerts/health>80% and end-to-end alert delivery remain required. No external recipients contacted or destructive job/control/production cleanup started. Fresh install pass does not accept differing-repair upgrade/reversal/cross-schema audit behavior."
+    },
+    "REQ-00038-api-sensitive-data-protection.md": {
+      "date": "2026-10-19",
+      "status": "partial_sql_isolation_and_privileges_verified_crypto_mfa_api_open",
+      "documentSha256": "80a255e29524056b95ee5a8c46bf5862d65ee4f91498df2e2591c3a4ed78ae9e",
+      "sourceSha256": {
+        "database/pending/20260608_194800__add_sensitive_data_protection_tables.sql": "ab3f8b262f933277624bcc572333e162da01a3909ef694547e93d3a5b58e1340",
+        "database/pending/20260608_200000__add_sensitive_data_audit_tables.sql": "e4883424f23d735d2a1697e0de182f6117c085e24dddf7797004539f9124887f",
+        "database/pending/repairs/20260608_200000__add_sensitive_data_audit_tables.sql": "b80646c039f042b02dcfa0d67f6c04bf5fb7e05bad8100449bc37e9150f3c290",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
+        "backend/tests/regression/sensitive-audit-storage.test.js": "d079c03dd8bbd789c8dd2558576b41693ecf9e6f7ac1eb992d722630e0a02a73",
+        "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
+        ".github/workflows/migration-regression.yml": "c1daf03e0e4a2e457ec797a8879144181e376d83fa377b32ddbb10b8cb0eeb1a",
+        "docs/SENSITIVE-AUDIT-STORAGE.md": "0ce1625c184a7e3f4197a8e7cb92939b0ea703cd061101fcd0e5eede7b56fa6e",
+        "docs/benchmarks/migration-cross-schema-history-local-2026-10-19.json": "2bfc8d4b712816972131696d4966ba3d4711398b17588c59f60f67e5809d6719",
+        "backend/shared/auditLogEncrypted.js": "31f25d12164d614f35ec0940a1a78c70baa7dc86996932a680ec3109e654a350",
+        "backend/shared/auditLog.js": "5f460a3ffb941b1737ff6561d90e96a2d3aa5bca3f0bc8c5351293e2d9227112",
+        "backend/shared/sensitiveDataAudit.js": "a565bfb95d1ab4cdde0cc70039b8f663e34dc19f389e07e4e8a55a6e52cacea2"
+      },
+      "evidence": [
+        {
+          "date": "2026-10-19",
+          "result": "partial_local_storage_and_full_fresh_schema_isolation_pass_ci_pending",
+          "command": "actual sensitive-audit storage16; full V1/V2+both85 histories3; npm test:unit; syntax1457",
+          "scope": "Changed shared integration references only.16 actual SQL/CLI/retained cipher/key/unknown-time history/real read-only role/namespace and custom-function-view-column-config refusal cases pass;3 full bootstrap cases validate every raw checksum/cleanup and another audit schema.724 unit/24Jest425 and1457 syntax pass; heavy checks sequential/UV2/nice10. All85 raw files and all older repair entries unchanged, one new source-bound audit repair. Production crypto/MFA/filters/scanner/API coverage remains incomplete. Prior feature-specific suites are historical source evidence, not a fabricated larger rerun. Current-source CI must still be observed."
+        },
+        {
+          "date": "2026-10-19",
+          "command": "node --test --test-concurrency=1 backend/tests/regression/sensitive-audit-storage.test.js",
+          "result": "passed",
+          "tests": 16,
+          "skipped": 0,
+          "scope": "Real target+outsider V1/V2 and authentic194800 prerequisites. Original unscoped42703 reproduces/rolls back; repaired4-column/current-schema lookup restores caller path and leaves another schema intact. Retain canonical BIGSERIAL audit/cipher/tag/IV/wrapped-key rows and operator comments/dependent statistics. Old timezone-free instants and missing key versions remain null; genuine timestamptz history can supply an instant. Both known cleanup OIDs now invoker-only/pinned schema/noPUBLIC; a real read-only role is denied both public call and owner DELETE escalation even with explicit EXECUTE. Genuine root CLI up/up/verify raw/execution hashes. Custom tag/timestamp types, cleanup bodies/config and view definitions refuse atomically. Fixture GCM decryption proves preserved bytes only, not production crypto correctness."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "production_runtime_gaps_confirmed_by_source_review",
+          "scope": "Actual auditLogEncrypted stores/query-decrypts without correct tag/argument flow; BYTEA work-key handling calls split; rotation calls getOrCreate; environment/temporary and plaintext fallbacks; V1 resource column mismatch. SensitiveDataAudit dropsIV/tag, trusts suppliedMFA flag and does not check accessor role; middleware catches audit errors and returns data. Common audit logger still stores plaintext. These modules are hashed as reviewed incomplete sources, not accepted production encryption."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "passed_after_exact_body_literal_formatting",
+          "command": "actual sensitive SQL16/full bootstrap3/unit724/syntax1457",
+          "scope": "Staged whitespace check caught copied raw SQL whitespace. Preserve exact historical prosrc via SQL E-string literals, strip outer trailing whitespace and rerun all four checks without changing contracts or gates.",
+          "changedReferences": [
+            "database/pending/repairs/20260608_200000__add_sensitive_data_audit_tables.sql",
+            "docs/benchmarks/migration-cross-schema-history-local-2026-10-19.json"
+          ]
+        }
+      ],
+      "remaining": "All10 original criteria and>=90% crypto/mask/permission coverage/atleast10 masking types remain unchanged. Actual durable AES256GCM/KMS/key rotation/historical decryptability, all sensitive access/query chains, signed/adminMFA routes, response filters/scannerfailonP0/CI/admin UI/docs remain required. Differing-repair upgrades/reversal and compliance are not accepted. No production cleanup/rekey/deployment/external recipient action."
     }
   }
 }

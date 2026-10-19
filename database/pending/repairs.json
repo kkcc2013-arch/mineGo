@@ -175,6 +175,11 @@
       "sourceSha256": "4a11a1f7e457ea11181580d313097b276582947b3975c4fe67fb4813867b5f39",
       "file": "repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql",
       "reason": "Bind18 actual canonical user/species/instance/candy/pokedex/catch/gym/raid/social/item/quest/achievement/order resources. Preserve rows, existing trigger/function identities and partition ancestry; refuse customized/legacy active contracts rather than silently replace them. Transactional pending outbox projects only approved bounded identity columns, with opaque UUID-only schema-scoped NOTIFY; no full user/payment/row payload or8KB failure. Actual Redis deletion/retry/distributed-L1/fill-fencing/rule/API/latency/load and complete history acceptance must be verified independently."
+    },
+    "20260608_200000": {
+      "sourceSha256": "e4883424f23d735d2a1697e0de182f6117c085e24dddf7797004539f9124887f",
+      "file": "repairs/20260608_200000__add_sensitive_data_audit_tables.sql",
+      "reason": "Scope all4 encrypted audit column checks and relation lookup to the current schema, restoring caller search_path. Preserve canonical BIGSERIAL rows, ciphertext/IV/tag/wrapped-key history, comments and statistics/dependents; unknown timezone-free historical instants and key versions stay NULL. Retain known cleanup OIDs while removing SECURITY DEFINER/PUBLIC execution and binding actual schemas; reject custom function/view/config or incompatible crypto storage. Migration never invokes cleanup or rekeys data. Full crypto/rotation/MFA/filter/scanner/client/coverage and upgrade/reversal acceptance remain open."
     }
   }
 }
