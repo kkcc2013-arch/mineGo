@@ -4,9 +4,9 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 186,
-      "in_progress": 42,
-      "new": 430
+      "done": 185,
+      "in_progress": 44,
+      "new": 429
     },
     "priorityCounts": {
       "P0": 52,
@@ -877,7 +877,6 @@
       "implementationReferences": [
         "backend/gateway/src/cacheConfig.js",
         "backend/gateway/src/index.js",
-        "backend/shared/cache.js",
         "backend/shared/cacheInvalidation.js",
         "backend/shared/cacheMiddleware.js",
         "backend/shared/metrics.js",
@@ -2141,7 +2140,6 @@
       ],
       "verificationStatus": "not-audited",
       "implementationReferences": [
-        "backend/shared/cache.js",
         "backend/shared/cacheTTLConfig.js",
         "backend/shared/metrics.js",
         "backend/shared/redisCleanupTask.js",
@@ -12922,27 +12920,24 @@
       "id": "REQ-00479",
       "title": "REQ-00479: 数据库查询结果缓存自动失效策略系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "性能优化",
       "modules": "database-service/cache-layer/persistence-adapter",
       "createdAt": "2026-07-07 10:00",
-      "sha256": "5c8ac2e9d86c367ac971fe6a3cc5df9adfa3d4ce9a417c6c9920543900cbcfc2",
+      "sha256": "83e88ce75dd358f93001aa75340e4032dbfb2174b7a0a37b546de6f1f4fdaf58",
       "acceptance": [
         "- [ ] 数据库更新后 100ms 内缓存被清除",
         "- [ ] 支持缓存 Key 的模式匹配批量删除",
         "- [ ] 在 Redis 网络波动时支持异步清理重试",
         "- [ ] 系统运行不会对数据库造成显著负载"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_runtime_storage_verified_load_full_history_and_ci_open",
       "implementationReferences": [
         "backend/gateway/src/routes/cdc.js",
-        "backend/shared/cdc/CacheInvalidationCenter.js",
-        "backend/shared/cdc/ChangeToCacheMapper.js",
         "backend/shared/cdc/InvalidationRetryQueue.js",
-        "backend/shared/cdc/PgCDCListener.js",
-        "backend/shared/cdc/index.js",
         "backend/tests/cdc/cacheInvalidationCenter.test.js",
-        "database/pending/20260707_100000__cdc_triggers_for_cache_invalidation.sql"
+        "database/pending/20260707_100000__cdc_triggers_for_cache_invalidation.sql",
+        "database/pending/repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql"
       ],
       "legacyId": null
     },
@@ -14159,21 +14154,20 @@
       "id": "REQ-00523",
       "title": "REQ-00523: 数据库查询结果缓存失效智能同步系统",
       "priority": "P1",
-      "declaredStatus": "new",
+      "declaredStatus": "in_progress",
       "category": "性能优化",
       "modules": "backend/shared/cache, database/cdc, gateway",
       "createdAt": "2026-07-09 14:00",
-      "sha256": "95c82a7dd2a9666bd0cbc032d36bf6555bbcb086ad84d3e9ccf0fdbe5a792eb2",
+      "sha256": "e0c38f15144c9e22186b6d37d24fded63ec9f4b2949a3906b1435a121d31c0aa",
       "acceptance": [
         "- [ ] 数据库变更时，缓存能在 50ms 内实现失效或更新。",
         "- [ ] 支持多实例分布式环境下的一致性保证。",
         "- [ ] 提供配置接口，实现无需修改代码即可定义新的缓存失效规则。",
         "- [ ] 具备完善的监控日志，记录缓存清除成功率和延迟。"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_runtime_storage_verified_load_full_history_and_ci_open",
       "implementationReferences": [
         "backend/config/cache-invalidation.yml",
-        "backend/gateway/src/routes/cacheInvalidationRoutes.js",
         "backend/migrations/20260716030000_cdc_cache_invalidation_triggers.sql",
         "backend/shared/CDCAdapter.js",
         "backend/shared/CacheInvalidationSyncEngine.js",
@@ -14183,7 +14177,8 @@
         "backend/shared/cdcCacheInvalidator.js",
         "backend/tests/CacheInvalidationSyncEngine.test.js",
         "backend/tests/unit/cacheInvalidation.test.js",
-        "database/migrations/20260720_180000_create_cache_invalidation_system.sql"
+        "database/migrations/20260720_180000_create_cache_invalidation_system.sql",
+        "database/pending/repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql"
       ],
       "legacyId": null
     },

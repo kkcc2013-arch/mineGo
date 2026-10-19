@@ -1,9 +1,9 @@
 # mineGo requirement completion plan
 
-Updated: 2026-10-18. Scope: all 658 existing requirement documents in INDEX.md,
+Updated: 2026-10-19. Scope: all 658 existing requirement documents in INDEX.md,
 including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 430 new, 42 in progress; 186 declared done, including one independently verified framework. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 429 new, 44 in progress; 185 declared done, including one independently verified framework. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -729,3 +729,53 @@ fails original-5% despite8 unchanged measured hashes. Preserve failure and repai
 required gates; older passes do not waive it. Current186done/42progress/430new,
 658 unique, verified1; all original P0/service/client/security/operations stages
 continue after installation prerequisites, with no merge/deploy or new scope.
+
+
+## Durable cache invalidation checkpoint (2026-10-19)
+
+Read complete original REQ479/523 and retain all4+4 criteria and100ms/50ms gates.
+479 legacy done is reopened;523 moves new→in_progress. Current185done/44progress/
+429new,658 unique original documents,40 source-matching evidence records and sole
+verified619 remain. Real gateway caches now use commit-driven invalidation across
+18 canonical sources, approved bounded identity-only PG outbox/UUID hints, durable
+retry/reconnect/worker restart, per-namespace Redis+independent L1 broadcasts, CAS
+fill fences, signed-admin durable revision config, original baseline YAML plus
+validated glob/bounded-regex additions, and actual processing/backlog/error metrics.
+Actual proxy streams now fill bounded JSON envelopes; keys separate full target,
+verified subject/language/structured queries. Existing own-statistics/public-profile
+routes are mapped to real upstream paths, and personal Pokédex authenticates.
+Joined Pokemon profile counts/species/candy/friend dependencies invalidate too.
+
+Final40 actual SQL/Redis/worker/streaming HTTP cases pass/no skips. Diagnostic
+selected-module coverage90.48line/71.68branch/79.02function; no whole-feature coverage
+claim or reduced gate. Actual two-OS-gateway+user native suite passes existing
+Kafka/notification/WS/IP/readiness/admin/signal/RedisURL cases and new streamed-cache
+MISS/HIT/committed-update/joined-count/config/400/413/ownership cases. Final native
+observed45.31109ms functional recovery is not capacity acceptance.724 existing unit
+checks/24Jest425 and1455 syntax pass; heavy checks sequential UV2/nice10. Owned
+Redis/Kafka1CPU fixtures stopped afterward; unrelated containers unchanged.
+
+Repeated native coverage latency exposed53.273283ms > original50ms. Preserve that
+negative source-hashed artifact. Reduce real Redis round trips by matching up to
+100 source rules during shared owned data/fence scans, rather than rescanning for
+each entity rule. Final12 writer→bothL1+Redis measurements max13.414005ms, original
+50/100 gates unchanged; real source hashes match report. First late-commit fixture
+incorrectly rewrote L2 then expected another L1 to change without invalidation;
+isolate a fresh key, retain the actual late-commit/rollback requirements and rerun.
+Prior latency-positive/overall-fixture-failure report is retained with that scope.
+No production load/no-significant-database-load or long-outage acceptance claimed.
+
+All85 original raw SQL and every previous manifest entry remain unchanged. Guarded
+new repair retains compatible trigger/function/outbox/settings contracts and refuses
+customized/privacy/primary/singleton/revision changes. Genuine CLI up/up/verify
+retains raw/executed hashes. Full V1/V2 passes;85-chain now passes CDC and fails
+job-monitoring20260711_120000 statement6: created_time absent. Entire pending batch
+rolls back. Full upgrade/reversal, all cache consumers and all original P0/service/
+client/security/operations stages remain open. Current-source CI must be observed.
+
+Exact prior2df7d22 main463/battle and native32 pass; migration25/job117672875464
+passes partition22/original80% gate/all other correctness and actual throughput
+-2.7440245081718717% meets original-5%, with all8 measured hashes matching. Migration
+job still fails oldCDC trigger. Archive its actual report alongside prior2e5
+-6.352968581797381% failed gate; no waiver/cherrypicking, no new local throughput
+rerun for unchanged8 sources. Never mark all658 achieved from partial checkpoints.

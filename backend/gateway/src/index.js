@@ -29,6 +29,9 @@ const authMiddleware = authWithBlacklistMiddleware;
 const cache = require('@pmg/shared/cache');
 const { cacheMiddleware } = require('@pmg/shared/cacheMiddleware');
 const cacheInvalidation = require('@pmg/shared/cacheInvalidation');
+const CacheInvalidationCenter = require('@pmg/shared/cdc/CacheInvalidationCenter');
+const {createCacheInvalidationRoutes} = require('./routes/cacheInvalidationRoutes');
+const cacheCenter = new CacheInvalidationCenter();
 const { cacheRoutes, presets } = require('./cacheConfig');
 
 // REQ-00039: 缓存预热系统
@@ -330,14 +333,15 @@ app.use('/v1/auth',     proxy(SERVICES.user, { '^/v1/': '/auth/' }));
 app.get('/v1/users/:id/profile',
   authMiddleware,
   cacheMiddleware({ ...presets.userData, keyPrefix: 'api:profile:', ttl: 300 }),
-  proxy(SERVICES.user, { '^/': '/users/' })
+  proxy(SERVICES.user, (url, req) => '/users/' + encodeURIComponent(req.params.id === 'me' ? (req.user.sub ?? req.user.id) : req.params.id) + (url.includes('?') ? url.slice(url.indexOf('?')) : ''))
 );
 
 // 用户统计 - 缓存 5 分钟
 app.get('/v1/users/:id/stats',
   authMiddleware,
+  (req, res, next) => req.params.id === 'me' || req.params.id.toLowerCase() === String(req.user.sub ?? req.user.id).toLowerCase() ? next() : res.status(403).json({code: 1003, message: 'Only your own statistics are available', data: null}),
   cacheMiddleware({ ...presets.userData, keyPrefix: 'api:user-stats:', ttl: 300 }),
-  proxy(SERVICES.user, { '^/': '/users/' })
+  proxy(SERVICES.user, url => '/users/me' + (url.includes('?') ? url.slice(url.indexOf('?')) : ''))
 );
 
 // 其他用户路由（不缓存）
@@ -350,7 +354,7 @@ app.use('/v1/users',
 app.get('/v1/friends',
   authMiddleware,
   cacheMiddleware({ ...presets.list, keyPrefix: 'api:friends:', ttl: 180 }),
-  proxy(SERVICES.social, { '^/': '/friends/' })
+  proxy(SERVICES.social, { '^/v1/': '/' })
 );
 
 // 其他好友路由（不缓存）
@@ -376,17 +380,18 @@ app.use('/v1/location',
   proxy(SERVICES.location, { '^/': '/location/' })
 );
 
-// 精灵图鉴 - 缓存 1 小时（静态数据）
+// Personal Pokédex requires the verified owner in both the route and cache key.
 app.get('/v1/pokemon/pokedex',
-  cacheMiddleware({ ...presets.static, keyPrefix: 'api:pokedex:', ttl: 3600 }),
-  proxy(SERVICES.pokemon, { '^/': '/pokemon/' })
+  authMiddleware,
+  cacheMiddleware({ ...presets.userData, keyPrefix: 'api:pokedex:', ttl: 3600 }),
+  proxy(SERVICES.pokemon, { '^/v1/': '/' })
 );
 
 // 用户精灵列表 - 缓存 2 分钟
 app.get('/v1/pokemon',
   authMiddleware,
   cacheMiddleware({ ...presets.userData, keyPrefix: 'api:pokemon-list:', ttl: 120 }),
-  proxy(SERVICES.pokemon, { '^/': '/pokemon/' })
+  proxy(SERVICES.pokemon, url => '/pokemon/my' + (url.includes('?') ? url.slice(url.indexOf('?')) : ''))
 );
 
 // 其他精灵路由（不缓存）
@@ -412,7 +417,7 @@ app.use('/v1/catch',
 app.get('/v1/gyms/nearby',
   authMiddleware,
   cacheMiddleware({ ...presets.dynamic, keyPrefix: 'api:gyms-nearby:', ttl: 60 }),
-  proxy(SERVICES.gym, { '^/': '/gyms/' })
+  proxy(SERVICES.gym, { '^/v1/': '/' })
 );
 
 // 其他道馆路由（不缓存）
@@ -425,7 +430,7 @@ app.use('/v1/gyms',
 app.get('/v1/raids/nearby',
   authMiddleware,
   cacheMiddleware({ ...presets.dynamic, keyPrefix: 'api:raids-nearby:', ttl: 30 }),
-  proxy(SERVICES.gym, { '^/': '/raids/' })
+  proxy(SERVICES.gym, { '^/v1/': '/' })
 );
 
 // 其他 Raid 路由（不缓存）
@@ -448,6 +453,7 @@ app.use('/v1/payment/webhook',
 
 // REQ-00060 / REQ-00626: actual protected partition statistics and precreation.
 app.use('/api/partitions', authMiddleware, partitionRoutes);
+app.use('/api/admin/cache-invalidation', authMiddleware, createCacheInvalidationRoutes(cacheCenter));
 
 // ── Cache Warmup Management API (REQ-00039) ────────────────────
 // 获取预热状态
@@ -527,7 +533,7 @@ const service = new GatewayLauncher({
     ipManager = initIpBanManager({ db, redis: redisClient, autoInitialize: false });
     await ipManager.init();
     await partitionMaintenance.start({ onError: err => logger.error({ err }, 'Partition precreation failed') });
-    cache.init();
+    await cacheCenter.start();
     // Warmup is optional and does not delay the listener. Shutdown awaits its
     // outcome before removing refresh timers and releasing storage resources.
     warmupPromise = cacheWarmup.initialize({ redis: redisClient }).catch(err => {
@@ -547,6 +553,7 @@ const service = new GatewayLauncher({
     await partitionMaintenance.stop();
     await warmupPromise;
     cacheWarmup.shutdown();
+    await cacheCenter.stop();
     healthChecker.stopPeriodicCheck();
     const results = await Promise.allSettled([
       ipManager ? ipManager.close() : Promise.resolve(), cache.close(), db.closePools(), redis.closeRedis()

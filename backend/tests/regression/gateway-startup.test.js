@@ -56,20 +56,19 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
   const schema=`gateway_start_${crypto.randomBytes(8).toString('hex')}`;
   const admin=new Pool({connectionString:process.env.TEST_DATABASE_URL});await ensureUuidExtension(admin);await admin.query(`CREATE SCHEMA ${schema}`);
   const fixture=new Pool({connectionString:process.env.TEST_DATABASE_URL,options:`-c search_path=${schema},public`});
-  let user,gateway,failed;
+  let user,gateway,gatewaySecond,failed;
   let notificationSocket,notificationProducer;
   const player=crypto.randomUUID();const adminId=crypto.randomUUID();
   const accessKey='gateway-startup-access-only';
   try{
     const initial=await migration('migrations/V1__initial_schema.sql');
-    await fixture.query(initial.match(/CREATE TYPE team_enum[^;]*;/)[0]);
-    await fixture.query(initial.match(/CREATE TABLE users \([\s\S]*?\n\);/)[0]);
+    await fixture.query('CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public');
+    await fixture.query(initial);
+    await fixture.query(await migration('seeds/V2__seed_data.sql'));
     await fixture.query('INSERT INTO users(id,nickname) VALUES ($1,$2),($3,$4)',[player,'gateway-player',adminId,'gateway-admin']);
     await fixture.query(await migration('pending/20261007_120000__title_identity_compatibility.sql'));
-    // Actual canonical partition contracts are required by gateway precreation.
-    await fixture.query('CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public');
-    await fixture.query(initial.match(/CREATE TABLE audit_logs \([\s\S]*?\n\);/)[0]);
-    for(const file of ['20261008_140000__audit_partition_conversion.sql','repairs/20260610_100000__add_table_partitioning_system.sql','repairs/20260619_000000__add_table_partitioning.sql','repairs/20260707_060000__complete_partition_management.sql']){
+    // Full authentic V1/V2 storage, canonical partitions and durable CDC.
+    for(const file of ['20261008_140000__audit_partition_conversion.sql','repairs/20260610_100000__add_table_partitioning_system.sql','repairs/20260619_000000__add_table_partitioning.sql','repairs/20260707_060000__complete_partition_management.sql','20261008_130000__item_catalog_prerequisite.sql','repairs/20260609_124500__add_item_inventory_system.sql','repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql']){
       const parsed=parseMigrationFile(await migration('pending/'+file));
       for(const statement of migrationStatements(parsed.up))await fixture.query(statement);
     }
@@ -121,10 +120,60 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     assert.equal((await fetch(base+'/api/partitions/audit_logs/create',{method:'POST',headers:partitionHeaders})).status,200);
     const partitionMetrics=await (await fetch(base+'/metrics')).text();assert.match(partitionMetrics,/minego_partition_management_duration_seconds_count/);
 
+    // Start a second actual OS gateway process against the same durable journal
+    // and Redis namespace; each has its own listener, worker and L1 Map.
+    const secondPort=await freePort();const secondBase=`http://127.0.0.1:${secondPort}`;
+    gatewaySecond=launch('gateway/src/index.js',{...env,PORT:String(secondPort),USER_SERVICE_URL:userBase});
+    await waitForHttp(gatewaySecond,secondBase);
+    const control='/api/admin/cache-invalidation';
+    assert.equal((await fetch(base+control+'/rules')).status,401);
+    assert.equal((await fetch(base+control+'/rules',{headers})).status,403);
+    const rules=await fetch(base+control+'/rules',{headers:partitionHeaders});assert.equal(rules.status,200);
+    const rulesBody=(await rules.json()).data;assert.equal(Object.keys(rulesBody.effective.defaults).length,18);
+    const configResponse=await fetch(base+control+'/rules',{method:'POST',headers:{...partitionHeaders,'Content-Type':'application/json'},body:JSON.stringify({expectedRevision:rulesBody.revision,document:{version:1,customRules:{users:['query:native:*user:{id}']}}})});
+    assert.equal(configResponse.status,200);
+    const invalidConfig=await fetch(base+control+'/rules',{method:'POST',headers:{...partitionHeaders,'Content-Type':'application/json'},body:JSON.stringify({expectedRevision:(await configResponse.json()).data.revision,document:{version:1,customRules:{users:['*']}}})});
+    assert.equal(invalidConfig.status,400);
+    for(const [body,status]of [['{',400],['{\"oversized\":\"'+'x'.repeat(65536)+'\"}',413]])assert.equal((await fetch(base+control+'/rules',{method:'POST',headers:{...partitionHeaders,'Content-Type':'application/json'},body})).status,status);
+    const profilePath=`/v1/users/${player}/profile`;
+    const readProfile=async(origin,auth=headers,path=profilePath)=>{const response=await fetch(origin+path,{headers:auth});assert.equal(response.status,200);return {cache:response.headers.get('X-Cache'),body:await response.json()};};
+    const expectHit=async origin=>{
+      for(let i=0;i<100;i++){const response=await readProfile(origin);if(response.cache==='HIT')return response;await delay(5);}
+      throw new Error(`Actual streaming proxy never populated cache: ${gateway.logs()}`);
+    };
+    assert.equal((await readProfile(base)).body.data.nickname,'gateway-player');
+    assert.equal((await expectHit(base)).body.data.nickname,'gateway-player');
+    assert.equal((await expectHit(secondBase)).body.data.nickname,'gateway-player');
+    const otherProfile=await readProfile(base,headers,`/v1/users/${adminId}/profile`);
+    assert.equal(otherProfile.body.data.id,adminId);assert.equal(otherProfile.body.data.nickname,'gateway-admin');
+    assert.equal(otherProfile.body.data.coins,undefined);
+    assert.equal((await readProfile(base,partitionHeaders)).cache,'MISS','Different verified viewers cannot share private cache keys');
+    const commitStarted=performance.now();await fixture.query("UPDATE users SET nickname='gateway-player-updated' WHERE id=$1",[player]);
+    let coherent=false;
+    for(let i=0;i<100;i++){
+      const first=await readProfile(base);const second=await readProfile(secondBase);
+      if(first.body.data.nickname==='gateway-player-updated'&&second.body.data.nickname==='gateway-player-updated'){coherent=true;break;}
+      await delay(5);
+    }
+    assert.ok(coherent,'Committed source update must clear both native gateway caches');
+    console.log(JSON.stringify({nativeTwoGatewayCacheRecoveryMs:performance.now()-commitStarted,scope:'real user-service HTTP bytes, two independent OS gateways, PostgreSQL CDC, Redis and independent L1 caches; functional fixture, not capacity acceptance'}));
+    // Public profiles join Pokemon counts: a direct instance INSERT must also
+    // invalidate a profile viewed by somebody other than its owner.
+    await readProfile(base,partitionHeaders);await expectHit(base);
+    const countPokemon=crypto.randomUUID();await fixture.query('INSERT INTO pokemon_instances(id,user_id,species_id,cp,hp_current,hp_max,iv_attack,iv_defense,iv_hp) VALUES($1,$2,1,10,10,10,1,1,1)',[countPokemon,player]);
+    let countUpdated=false;
+    for(let i=0;i<100;i++){if((await readProfile(base,partitionHeaders)).body.data.pokemon_count===1){countUpdated=true;break;}await delay(5);}
+    assert.ok(countUpdated,'Joined Pokemon count must invalidate public-profile views');
+    assert.equal((await fetch(base+`/v1/users/${adminId}/stats`,{headers})).status,403);
+    const ownStats=await fetch(base+`/v1/users/${player}/stats`,{headers});assert.equal(ownStats.status,200);assert.equal((await ownStats.json()).data.id,player);
+    assert.equal((await fetch(base+control+'/metrics',{headers:partitionHeaders})).status,200);
+    const cdcMetrics=await (await fetch(base+'/metrics')).text();assert.match(cdcMetrics,/minego_cdc_events_applied_total/);assert.match(cdcMetrics,/minego_cdc_apply_duration_seconds/);
+    await terminate(gatewaySecond);gatewaySecond=null;
+
     assert.equal((await fetch(base+'/admin/cache/warmup/status')).status,401);
     assert.equal((await fetch(base+'/admin/cache/warmup/status',{headers})).status,403);
     const warmup=await fetch(base+'/admin/cache/warmup/status',{headers:{Authorization:`Bearer ${adminToken}`}});assert.equal(warmup.status,200);
-    // This fixture contains real user/title/IP and partition tables. Other missing game data
+    // This fixture contains authentic V1/V2, user/title/IP, partition and CDC tables. Other missing game data
     // must remain visible as warmup failures, never be reported as acceptance.
     const status=await warmup.json();assert.ok(status.data.failedCount>0||status.data.isWarming);
 
@@ -208,10 +257,10 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     assert.ok(limited,'Forging a different forwarding header must not bypass the global IP limit');
     await terminate(gateway);assert.doesNotMatch(gateway.logs(),/Unhandled error event|Redis cache error/);gateway=null;
     console.log(JSON.stringify({gatewaySignalShutdownMs:shutdownMs,userSignalShutdownElapsedMs:gatewayShutdownStart-userShutdownStart,
-      scope:'actual native gateway/user processes, isolated PostgreSQL user/title/IP/partition schema, Redis and Kafka; other registry targets alias the actual user fixture'}));
+      scope:'actual native gateway/user processes, isolated PostgreSQL V1/V2/user/title/IP/partition/CDC schema, Redis and Kafka; other registry targets alias the actual user fixture'}));
   }finally{
     if(notificationSocket)notificationSocket.terminate();if(notificationProducer)await notificationProducer.disconnect();
-    await Promise.all([cleanupProcess(user),cleanupProcess(gateway),cleanupProcess(failed)]);
+    await Promise.all([cleanupProcess(user),cleanupProcess(gateway),cleanupProcess(gatewaySecond),cleanupProcess(failed)]);
     await fixture.end();await admin.query(`DROP SCHEMA ${schema} CASCADE`);await admin.end();
   }
 });

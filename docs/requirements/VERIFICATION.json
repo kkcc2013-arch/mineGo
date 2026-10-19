@@ -99,7 +99,7 @@
       ]
     },
     "REQ-00053-user-privacy-preference-center-data-transparency.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "e0fe55e25b877f1dde7a97fb7953c3515be042e3501d29d3d650e66dd29f7f2a",
       "sourceSha256": {
@@ -108,7 +108,7 @@
         "backend/services/user-service/src/routes/privacy.js": "b85dbeb358a76c6b8bcd163f86f4ab9bb8f576f0fd6008615b2022e4ddb9e487",
         "backend/services/user-service/src/index.js": "58528fc459173847bc452ce968643a2b1559995f4da3f2206396d5e8d17e495f",
         "backend/gateway/src/routes/privacyProxy.js": "b692098d7858fc7069cd5a557f941f164ec9f2d00667623a1b51ee665a19a483",
-        "backend/gateway/src/index.js": "e3e6a1c16c007a7756ecd6e3c1cae83d8a9153fba001488c970bb34b49e4c7f1",
+        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
         "backend/tests/unit/privacy-preferences.test.js": "71a1470f27d923319bfbb73ba9f7b6d77c7f2544085de0d1f28614eca5b9d0b0",
         "backend/tests/regression/privacy-storage.test.js": "ef3cbe968d1bcd6dc22e08622565427f1531f92ece53188881b0614dd3ad4603",
         "backend/tests/regression/privacy.jest.config.json": "cd80c47f4be46595f151bdf850571e7e0bd599d5bd2e9897550999b031b7e490",
@@ -116,11 +116,11 @@
         ".github/workflows/privacy-regression.yml": "b730aa2c9c5c6d6379f7047ed8c86f9f5a6781c1d0c619989482478e9031b79a",
         "database/pending/20261006_150000__privacy_preference_defaults_and_policy_fields.sql": "3d21e729219b771c0b94f8474e11e6adcc222b0fbfc064beeddaed3d08849c78",
         "backend/shared/logger.js": "4fd8f577c9db1860aa011216eadd9523a46a2214a80de1e0c44ff9310fb5e457",
-        "backend/tests/regression/gateway-startup.test.js": "9bb42e67fcdf84abc84d733d7f7bf510a8783cd6588c70184678e45c6f6d2c4f",
+        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/pending/20260611_152900__add_privacy_preference_center.sql": "fed6b42590f4829f4b474b9ddf840a08d7b8cce7b53bd502a0b9fe7417ec63d8",
         "database/pending/repairs/20260611_152900__add_privacy_preference_center.sql": "ac250e1ee3e789b017f7a1c54ebee3488345068aca38ea6e93df70e64483c896",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162"
       },
@@ -405,6 +405,17 @@
             "database/pending/repairs.json"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/repairs.json"
+          ]
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
@@ -513,7 +524,7 @@
       "remaining": "The 5% overhead target, production output/adapters and complete legacy integration/E2E acceptance are not verified"
     },
     "REQ-00159-service-health-self-healing-and-auto-recovery-system.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "702f723e90c498db5a6d23b2e986b96c749e92229580af3542fc6972344f5f4d",
       "sourceSha256": {
@@ -525,15 +536,15 @@
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/services/user-service/src/handlers/notificationHandler.js": "542e893148bbc7ceae4aaf5764be992667cd004f54acafc7e681603236fd611a",
         "backend/tests/regression/user-startup.test.js": "7ffef85ac5c7e6058c69850d28654699bd3132bc0843370ac0ac5c28e13c6dea",
-        "backend/gateway/src/index.js": "e3e6a1c16c007a7756ecd6e3c1cae83d8a9153fba001488c970bb34b49e4c7f1",
+        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
         "backend/gateway/src/routes/businessEvents.js": "c7487f18ddfa60587b8f318cf1b536b08d037d8c5a57d93545b473d250c918b7",
-        "backend/shared/cache.js": "44d94c1e12266e6fae9ebac49f9d1279a110f32798e0252416a8b91b386f6b20",
+        "backend/shared/cache.js": "1e02ac9cf3f507263f89b64f1158d339530d56c7bcd69ec9738a0e54b5d1f27e",
         "backend/shared/redis.js": "087d67b984d22a1345097105f10513df84fa874c395010167964e6b3dcc7ea4b",
-        "backend/tests/regression/gateway-startup.test.js": "9bb42e67fcdf84abc84d733d7f7bf510a8783cd6588c70184678e45c6f6d2c4f",
-        ".github/workflows/title-regression.yml": "ab67b5550eedd984ae63ffa6f8808280ef311dc008eccabfaaef3e32dd11ba27",
+        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85"
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa"
       },
       "evidence": [
         {
@@ -842,11 +853,24 @@
             "database/pending/repairs.json"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/shared/cache.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            ".github/workflows/title-regression.yml",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
     "REQ-00682-service-dependency-consolidation-and-initialization-refactoring.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "47013c4163012c1b6ea9d55b496c004b1e900b1b980e4192514dc78ee8b87490",
       "sourceSha256": {
@@ -858,15 +882,15 @@
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/services/user-service/src/handlers/notificationHandler.js": "542e893148bbc7ceae4aaf5764be992667cd004f54acafc7e681603236fd611a",
         "backend/tests/regression/user-startup.test.js": "7ffef85ac5c7e6058c69850d28654699bd3132bc0843370ac0ac5c28e13c6dea",
-        "backend/gateway/src/index.js": "e3e6a1c16c007a7756ecd6e3c1cae83d8a9153fba001488c970bb34b49e4c7f1",
+        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
         "backend/gateway/src/routes/businessEvents.js": "c7487f18ddfa60587b8f318cf1b536b08d037d8c5a57d93545b473d250c918b7",
-        "backend/shared/cache.js": "44d94c1e12266e6fae9ebac49f9d1279a110f32798e0252416a8b91b386f6b20",
+        "backend/shared/cache.js": "1e02ac9cf3f507263f89b64f1158d339530d56c7bcd69ec9738a0e54b5d1f27e",
         "backend/shared/redis.js": "087d67b984d22a1345097105f10513df84fa874c395010167964e6b3dcc7ea4b",
-        "backend/tests/regression/gateway-startup.test.js": "9bb42e67fcdf84abc84d733d7f7bf510a8783cd6588c70184678e45c6f6d2c4f",
-        ".github/workflows/title-regression.yml": "ab67b5550eedd984ae63ffa6f8808280ef311dc008eccabfaaef3e32dd11ba27",
+        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85"
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa"
       },
       "evidence": [
         {
@@ -1175,11 +1199,24 @@
             "database/pending/repairs.json"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/shared/cache.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            ".github/workflows/title-regression.yml",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
     "REQ-00106-player-title-system-and-personalization.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "7148fc5066354e7354adeb16eca4e2742c67125c7620a1dc27cb1d739feb8327",
       "sourceSha256": {
@@ -1198,11 +1235,11 @@
         "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
-        ".github/workflows/title-regression.yml": "ab67b5550eedd984ae63ffa6f8808280ef311dc008eccabfaaef3e32dd11ba27",
-        "backend/tests/regression/gateway-startup.test.js": "9bb42e67fcdf84abc84d733d7f7bf510a8783cd6588c70184678e45c6f6d2c4f",
+        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
+        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "database/pending/repairs/20261007_120000__title_identity_compatibility.sql": "26c5317694faa4f2a263923d4b915dfc0508d6a69c092c1c449306ee88702837",
         "database/pending/repairs/20260615_170500__add_title_system.sql": "f43872c531d7ac6a9a2875d2eb9a3f603781e4caf3bfdbe7482e7864629bf9ac",
         "backend/tests/regression/title-upgrade-storage.test.js": "406ebc4206cad8d523478a60e7e7a55e81cdbeaae369b1112fefdadfef59bb01",
@@ -1533,11 +1570,22 @@
             "database/pending/repairs.json"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            ".github/workflows/title-regression.yml",
+            "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
     "REQ-00612-global-timezone-scheduler.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "acb67d84c7ef83a0335a5874fbf4809ff95c8239c95cbac5f00a409a48223dd2",
       "sourceSha256": {
@@ -1556,11 +1604,11 @@
         "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
-        ".github/workflows/title-regression.yml": "ab67b5550eedd984ae63ffa6f8808280ef311dc008eccabfaaef3e32dd11ba27",
-        "backend/tests/regression/gateway-startup.test.js": "9bb42e67fcdf84abc84d733d7f7bf510a8783cd6588c70184678e45c6f6d2c4f",
+        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
+        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85"
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa"
       },
       "evidence": [
         {
@@ -1872,11 +1920,22 @@
             "database/pending/repairs.json"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            ".github/workflows/title-regression.yml",
+            "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
     "REQ-00026-in-game-push-notification-system.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "344fb5b9107fd20457cfbd66b11d8c25d6a261cdc36cfb51e086661b4c70a6df",
       "sourceSha256": {
@@ -1895,11 +1954,11 @@
         "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
-        ".github/workflows/title-regression.yml": "ab67b5550eedd984ae63ffa6f8808280ef311dc008eccabfaaef3e32dd11ba27",
-        "backend/tests/regression/gateway-startup.test.js": "9bb42e67fcdf84abc84d733d7f7bf510a8783cd6588c70184678e45c6f6d2c4f",
+        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
+        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "docs/NOTIFICATIONS.md": "5b47d94114ba552f47f6d88f8aaba2ceb17c4e705174c1872d95f5e0655726ae",
         "backend/services/user-service/src/notificationService.js": "9b1809ee37dcef1cc4794db12b5a0fc2f4df876ade8dab918b378eca07d75194",
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
@@ -1911,14 +1970,14 @@
         "backend/shared/NotificationWebSocket.js": "bc1e9eff0386d83b4b31553e26521e36809ddee344328f3e556581a968f8ee57",
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "e3e6a1c16c007a7756ecd6e3c1cae83d8a9153fba001488c970bb34b49e4c7f1",
+        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
         "backend/gateway/src/routes/notificationProxy.js": "a7e03edf9fd81343a0cad94590a26600b64fee14306d19665fed421b2f9497bd",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "backend/tests/regression/notification-client.test.js": "9a56b0116debb82aa313d0d0bf9963c247760d9763a01828755122283329ffda",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
         "frontend/game-client/src/i18n/index.js": "37dd930d9f30e6f6b088ad74f669c7cecbd91f7937ccb84e685d1dbfe4fa2690",
@@ -2327,6 +2386,19 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            ".github/workflows/title-regression.yml",
+            "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/repairs.json",
+            "backend/gateway/src/index.js",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -2339,7 +2411,7 @@
       ]
     },
     "REQ-00075-ip-blacklist-and-auto-ban-system.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "5f0f24eee768a901be3d6cb06e4e2907e72dca7e4db43398fe8da7e695677a8e",
       "sourceSha256": {
@@ -2347,7 +2419,7 @@
         "backend/services/user-service/src/routes/ipAppeal.js": "32bc089a25a51e5ef015eebdd4440534365b93873a53c5fcd06ad13d13c718c4",
         "backend/shared/IpBanManager.js": "8baf542bcfc6d35106433e07dd0eee25e005ad48550ca04e92ec674af043ce34",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "e3e6a1c16c007a7756ecd6e3c1cae83d8a9153fba001488c970bb34b49e4c7f1",
+        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
         "backend/gateway/src/middleware/ipBan.js": "be628522d3b171b9dae46aa8862e985ea9681b5ba381e6f9f28f7c01462ac6b9",
         "backend/gateway/src/routes/ipAppealProxy.js": "4fa6f1dc2f23739aa4274dc9a0fa9ec9f21958e289cbbe322168481105001a3d",
         "backend/tests/unit/ip-appeal.test.js": "7aa02dc701586d2922d4ba958d72e3a806e8c8b60c9c98db14246f225b101c18",
@@ -2355,11 +2427,11 @@
         "backend/tests/regression/user-startup.test.js": "7ffef85ac5c7e6058c69850d28654699bd3132bc0843370ac0ac5c28e13c6dea",
         "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
         "database/pending/20261008_100000__ip_ban_index_compatibility.sql": "574d3f082b2265bfe5b93d6066b6d62dad4ca1da00bd91e34dc7a4f964f548ae",
-        ".github/workflows/title-regression.yml": "ab67b5550eedd984ae63ffa6f8808280ef311dc008eccabfaaef3e32dd11ba27",
-        "backend/tests/regression/gateway-startup.test.js": "9bb42e67fcdf84abc84d733d7f7bf510a8783cd6588c70184678e45c6f6d2c4f",
+        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
+        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85"
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa"
       },
       "evidence": [
         {
@@ -2628,11 +2700,23 @@
             "database/pending/repairs.json"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            ".github/workflows/title-regression.yml",
+            "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
     "REQ-00149-user-service-ipAppeal-route-mounting.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "1908c2353ef4f102148e015a49a26726f793d9b6daf1371ec6fb018f3f5f0bfb",
       "sourceSha256": {
@@ -2640,7 +2724,7 @@
         "backend/services/user-service/src/routes/ipAppeal.js": "32bc089a25a51e5ef015eebdd4440534365b93873a53c5fcd06ad13d13c718c4",
         "backend/shared/IpBanManager.js": "8baf542bcfc6d35106433e07dd0eee25e005ad48550ca04e92ec674af043ce34",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "e3e6a1c16c007a7756ecd6e3c1cae83d8a9153fba001488c970bb34b49e4c7f1",
+        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
         "backend/gateway/src/middleware/ipBan.js": "be628522d3b171b9dae46aa8862e985ea9681b5ba381e6f9f28f7c01462ac6b9",
         "backend/gateway/src/routes/ipAppealProxy.js": "4fa6f1dc2f23739aa4274dc9a0fa9ec9f21958e289cbbe322168481105001a3d",
         "backend/tests/unit/ip-appeal.test.js": "7aa02dc701586d2922d4ba958d72e3a806e8c8b60c9c98db14246f225b101c18",
@@ -2648,11 +2732,11 @@
         "backend/tests/regression/user-startup.test.js": "7ffef85ac5c7e6058c69850d28654699bd3132bc0843370ac0ac5c28e13c6dea",
         "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
         "database/pending/20261008_100000__ip_ban_index_compatibility.sql": "574d3f082b2265bfe5b93d6066b6d62dad4ca1da00bd91e34dc7a4f964f548ae",
-        ".github/workflows/title-regression.yml": "ab67b5550eedd984ae63ffa6f8808280ef311dc008eccabfaaef3e32dd11ba27",
-        "backend/tests/regression/gateway-startup.test.js": "9bb42e67fcdf84abc84d733d7f7bf510a8783cd6588c70184678e45c6f6d2c4f",
+        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
+        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85"
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa"
       },
       "evidence": [
         {
@@ -2921,24 +3005,36 @@
             "database/pending/repairs.json"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            ".github/workflows/title-regression.yml",
+            "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
     "REQ-00039-hot-data-cache-warmup-system.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "b6be313ab0b1611e495be4a8a86eee54210caaa359f0b2dd978c097f556fa696",
       "sourceSha256": {
-        "backend/gateway/src/index.js": "e3e6a1c16c007a7756ecd6e3c1cae83d8a9153fba001488c970bb34b49e4c7f1",
+        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
         "backend/gateway/src/routes/businessEvents.js": "c7487f18ddfa60587b8f318cf1b536b08d037d8c5a57d93545b473d250c918b7",
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
-        "backend/shared/cache.js": "44d94c1e12266e6fae9ebac49f9d1279a110f32798e0252416a8b91b386f6b20",
+        "backend/shared/cache.js": "1e02ac9cf3f507263f89b64f1158d339530d56c7bcd69ec9738a0e54b5d1f27e",
         "backend/shared/redis.js": "087d67b984d22a1345097105f10513df84fa874c395010167964e6b3dcc7ea4b",
-        "backend/tests/regression/gateway-startup.test.js": "9bb42e67fcdf84abc84d733d7f7bf510a8783cd6588c70184678e45c6f6d2c4f",
-        ".github/workflows/title-regression.yml": "ab67b5550eedd984ae63ffa6f8808280ef311dc008eccabfaaef3e32dd11ba27",
+        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85"
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa"
       },
       "evidence": [
         {
@@ -3163,11 +3259,24 @@
             "database/pending/repairs.json"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/shared/cache.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            ".github/workflows/title-regression.yml",
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
     "REQ-00007-database-migration-management.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "034e46d0685cd0216fa145e46909ee1996a4e421c719c4f1cd3cab3eacb47404",
       "sourceSha256": {
@@ -3180,16 +3289,16 @@
         "database/pending/20260609_124500__add_item_inventory_system.sql": "99c96061defc0b502f87147c491889266f53b9e5c8ae8cfbdcdda6892c09969e",
         "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
         "backend/services/user-service/src/index.js": "58528fc459173847bc452ce968643a2b1559995f4da3f2206396d5e8d17e495f",
-        "backend/gateway/src/index.js": "e3e6a1c16c007a7756ecd6e3c1cae83d8a9153fba001488c970bb34b49e4c7f1",
+        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/regression/storageSetup.js": "1a67a27f674d7ef022e266da1ebbd5146870cdc290ebd64a51a799f5843ceaee",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
@@ -3252,7 +3361,8 @@
         "database/pending/repairs/20260707_060000__complete_partition_management.sql": "111f466396cfa58cf8bb7c87790f64f8f2d8cfc00e587669eb07197669ffc922",
         "backend/tests/regression/partition-maintenance-storage.test.js": "56fc446bc42f1189161d5993129756a498924c14feb154470c488e9f2710102b",
         "docs/PARTITION-MAINTENANCE.md": "b5c1d26502ec01a3ec74b14cb8084a42c587139cfcb32d6c74af2f9c84a6b46f",
-        "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297"
+        "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297",
+        "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json": "07157be9339982b7c7fce5202f3f713766bbffcbf88d6474c96e70f98275b669"
       },
       "evidence": [
         {
@@ -3745,26 +3855,49 @@
           "requiredMinimumChangePercent": -5,
           "artifact": "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json",
           "scope": "Downloaded actual migration24 log: canary18/erasure19 and existing correctness pass; original throughput gate fails-6.352968581797381percent despite8 measured matching hashes. Full remote job fails former partition view; latest local repair advances to CDC missing pokemon. Exact main462 unit/syntax/audit/battle jobs pass. Retain negative report alongside older passes/failures; do not waive/retry unchanged sources into acceptance or claim full CI success."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            ".github/workflows/migration-regression.yml",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "prior_source_ci_observed",
+          "commit": "2df7d22bbb1be42737988947398b1fe319933bf8",
+          "mainRun": 39126581383,
+          "nativeRun": 39126581489,
+          "migrationRun": 39126581480,
+          "migrationJob": 117672875464,
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39126581480",
+          "scope": "Exact2df main463 unit/syntax/audit and battle jobs pass; native/title32 job117672875555 passes. Migration25 correctness including actual partition22/original80% module gate and throughput pass; entire migration job fails formerCDC20260707_100000stmt5. Actual archived throughput-2.7440245081718717% meets original-5%; all8 measured source hashes match. Earlier2e5 throughput-6.352968581797381% failure remains retained and unwaived. New CDC source CI is still pending.",
+          "artifact": "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json"
         }
       ],
       "remaining": "Complete85-source history now fails20260627_060000 statement13 missing is_deleted. Reconcile canonical inventory/ownership/contracts, all later pending files, data-preserving upgrades/reversal and all-service startup. Exact new remote throughput still unverified; all original acceptance remains open."
     },
     "REQ-00047-pokemon-items-inventory-management-system.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "1e4b09e980841206306e6d778caa7f0fe0eeaef677852331fca1346756fc3592",
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
@@ -4079,25 +4212,35 @@
             "docs/DATABASE-MIGRATIONS.md"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ]
     },
     "REQ-00056-pokedex-completion-reward-system.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "f58d1055fc702bef6e3a6cf4f9ed5156499e4241c8c57d078c7a73efcb7c6212",
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
@@ -4412,25 +4555,35 @@
             "docs/DATABASE-MIGRATIONS.md"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ]
     },
     "REQ-00060-database-partitioning-for-large-tables.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "977f5774653c6250eb0e796ac0e6243512d045f17252df04c009d8ae21dce7a5",
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
@@ -4480,12 +4633,13 @@
         "backend/shared/partitionMaintenance.js": "eb2a2169cc22fb12a54448a4c23dcfd671a8034110d15b4f7a4ae1add8fc3786",
         "backend/shared/partitionManager.js": "6cd34c463fffa999c33e7cf1c6affe11f7ed840fe55b7a34059d893aa9578a0a",
         "backend/gateway/src/routes/partitions.js": "2a0368052e9cbc616aa54065da4d982edbb049b99dbd162d2f8e992316c218d0",
-        "backend/gateway/src/index.js": "e3e6a1c16c007a7756ecd6e3c1cae83d8a9153fba001488c970bb34b49e4c7f1",
+        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
         "backend/tests/regression/partition-maintenance-storage.test.js": "56fc446bc42f1189161d5993129756a498924c14feb154470c488e9f2710102b",
-        "backend/tests/regression/gateway-startup.test.js": "9bb42e67fcdf84abc84d733d7f7bf510a8783cd6588c70184678e45c6f6d2c4f",
-        ".github/workflows/title-regression.yml": "ab67b5550eedd984ae63ffa6f8808280ef311dc008eccabfaaef3e32dd11ba27",
+        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "docs/PARTITION-MAINTENANCE.md": "b5c1d26502ec01a3ec74b14cb8084a42c587139cfcb32d6c74af2f9c84a6b46f",
-        "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297"
+        "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297",
+        "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json": "07157be9339982b7c7fce5202f3f713766bbffcbf88d6474c96e70f98275b669"
       },
       "evidence": [
         {
@@ -4863,6 +5017,31 @@
           "requiredMinimumChangePercent": -5,
           "artifact": "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json",
           "scope": "Downloaded actual migration24 log: canary18/erasure19 and existing correctness pass; original throughput gate fails-6.352968581797381percent despite8 measured matching hashes. Full remote job fails former partition view; latest local repair advances to CDC missing pokemon. Exact main462 unit/syntax/audit/battle jobs pass. Retain negative report alongside older passes/failures; do not waive/retry unchanged sources into acceptance or claim full CI success."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            ".github/workflows/title-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "prior_source_ci_observed",
+          "commit": "2df7d22bbb1be42737988947398b1fe319933bf8",
+          "mainRun": 39126581383,
+          "nativeRun": 39126581489,
+          "migrationRun": 39126581480,
+          "migrationJob": 117672875464,
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39126581480",
+          "scope": "Exact2df main463 unit/syntax/audit and battle jobs pass; native/title32 job117672875555 passes. Migration25 correctness including actual partition22/original80% module gate and throughput pass; entire migration job fails formerCDC20260707_100000stmt5. Actual archived throughput-2.7440245081718717% meets original-5%; all8 measured source hashes match. Earlier2e5 throughput-6.352968581797381% failure remains retained and unwaived. New CDC source CI is still pending.",
+          "artifact": "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json"
         }
       ],
       "remaining": [
@@ -4872,14 +5051,14 @@
       ]
     },
     "REQ-00076-pokemon-achievement-and-milestone-reward-system.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "c0c8a5cd9c479e0a03b092dd10aa44db7944527b45ead014ff332cfebba4b50e",
       "sourceSha256": {
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260611_000000__add_achievement_system_tables.sql": "31e3714195d83afba17bafd85f3590ad51e30011831a5d0a1f5b4e8e5a00e302",
         "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "6f9c323240e28aa67a4d54fccd7141b72f7d58f91607ae53568631b90cd0a2d9",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "database/pending/20261008_150000__achievement_catalog_bridge.sql": "432a090e79626102f6cff413f6bc844c7617bd0c2cc1346899f95fa1b801e04f",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
@@ -4889,7 +5068,7 @@
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "backend/services/user-service/src/routes/user.js": "7d24fb40cd0662c428a6b42c2bf6636a2a3ac05fdcdc5e8717d1df5a1dbf04df",
         "backend/tests/regression/achievement-storage.test.js": "4983c1a41d7e40fd86bcb29cd59765555c2ff0f10030044ca5b75ee435a4b90b",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/ACHIEVEMENTS.md": "09711c5508a55e25daaa1d2735281a7c35bae20e885c998d93bb3a5d17e8a08d",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
@@ -5197,6 +5376,16 @@
             "docs/DATABASE-MIGRATIONS.md"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": "Replay/idempotency/durable events/automatic grant/all triggers; complete seed item/title contract and exclusive Pokemon grant; management CRUD/admin and edited-definition snapshot policy; old unit fixture; native pokemon process/gateway/client/localization; <100ms query/<50ms update performance; full83 history and data-preserving reversal with modern records remain unproven."
@@ -5447,6 +5636,19 @@
             ".github/workflows/title-regression.yml"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            ".github/workflows/title-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -5463,19 +5665,19 @@
         "backend/shared/NotificationWebSocket.js": "bc1e9eff0386d83b4b31553e26521e36809ddee344328f3e556581a968f8ee57",
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "e3e6a1c16c007a7756ecd6e3c1cae83d8a9153fba001488c970bb34b49e4c7f1",
+        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
         "backend/gateway/src/routes/notificationProxy.js": "a7e03edf9fd81343a0cad94590a26600b64fee14306d19665fed421b2f9497bd",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "backend/tests/regression/notification-client.test.js": "9a56b0116debb82aa313d0d0bf9963c247760d9763a01828755122283329ffda",
         "backend/tests/regression/user-startup.test.js": "7ffef85ac5c7e6058c69850d28654699bd3132bc0843370ac0ac5c28e13c6dea",
-        "backend/tests/regression/gateway-startup.test.js": "9bb42e67fcdf84abc84d733d7f7bf510a8783cd6588c70184678e45c6f6d2c4f",
+        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
-        ".github/workflows/title-regression.yml": "ab67b5550eedd984ae63ffa6f8808280ef311dc008eccabfaaef3e32dd11ba27",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
         "frontend/game-client/src/i18n/index.js": "37dd930d9f30e6f6b088ad74f669c7cecbd91f7937ccb84e685d1dbfe4fa2690",
@@ -5484,7 +5686,7 @@
         "database/pending/repairs/20260611_102500__add_canary_deployment_tables.sql": "af806cc8d46faf2228134f5cc1f80cdc1f7258d29cf78492ad511664b790366d",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2"
       },
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "66fc18d71bb143c4e292fb1704d11eac9c242fa4f11c4a17a5a4aec1a9459ea7",
       "remainingAcceptance": [
@@ -5742,6 +5944,19 @@
             ".github/workflows/title-regression.yml"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            ".github/workflows/title-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -5758,19 +5973,19 @@
         "backend/shared/NotificationWebSocket.js": "bc1e9eff0386d83b4b31553e26521e36809ddee344328f3e556581a968f8ee57",
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "e3e6a1c16c007a7756ecd6e3c1cae83d8a9153fba001488c970bb34b49e4c7f1",
+        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
         "backend/gateway/src/routes/notificationProxy.js": "a7e03edf9fd81343a0cad94590a26600b64fee14306d19665fed421b2f9497bd",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "backend/tests/regression/notification-client.test.js": "9a56b0116debb82aa313d0d0bf9963c247760d9763a01828755122283329ffda",
         "backend/tests/regression/user-startup.test.js": "7ffef85ac5c7e6058c69850d28654699bd3132bc0843370ac0ac5c28e13c6dea",
-        "backend/tests/regression/gateway-startup.test.js": "9bb42e67fcdf84abc84d733d7f7bf510a8783cd6588c70184678e45c6f6d2c4f",
+        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
-        ".github/workflows/title-regression.yml": "ab67b5550eedd984ae63ffa6f8808280ef311dc008eccabfaaef3e32dd11ba27",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
         "frontend/game-client/src/i18n/index.js": "37dd930d9f30e6f6b088ad74f669c7cecbd91f7937ccb84e685d1dbfe4fa2690",
@@ -5779,7 +5994,7 @@
         "database/pending/repairs/20260611_102500__add_canary_deployment_tables.sql": "af806cc8d46faf2228134f5cc1f80cdc1f7258d29cf78492ad511664b790366d",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2"
       },
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "89d0bb9cb00333bd1dbbc2e36bfa1b460b7ac8fa721da032b1361ba9d22efecd",
       "remainingAcceptance": [
@@ -6037,6 +6252,19 @@
             ".github/workflows/title-regression.yml"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            ".github/workflows/title-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -6053,19 +6281,19 @@
         "backend/shared/NotificationWebSocket.js": "bc1e9eff0386d83b4b31553e26521e36809ddee344328f3e556581a968f8ee57",
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "e3e6a1c16c007a7756ecd6e3c1cae83d8a9153fba001488c970bb34b49e4c7f1",
+        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
         "backend/gateway/src/routes/notificationProxy.js": "a7e03edf9fd81343a0cad94590a26600b64fee14306d19665fed421b2f9497bd",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "backend/tests/regression/notification-client.test.js": "9a56b0116debb82aa313d0d0bf9963c247760d9763a01828755122283329ffda",
         "backend/tests/regression/user-startup.test.js": "7ffef85ac5c7e6058c69850d28654699bd3132bc0843370ac0ac5c28e13c6dea",
-        "backend/tests/regression/gateway-startup.test.js": "9bb42e67fcdf84abc84d733d7f7bf510a8783cd6588c70184678e45c6f6d2c4f",
+        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
-        ".github/workflows/title-regression.yml": "ab67b5550eedd984ae63ffa6f8808280ef311dc008eccabfaaef3e32dd11ba27",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
         "frontend/game-client/src/i18n/index.js": "37dd930d9f30e6f6b088ad74f669c7cecbd91f7937ccb84e685d1dbfe4fa2690",
@@ -6074,7 +6302,7 @@
         "database/pending/repairs/20260611_102500__add_canary_deployment_tables.sql": "af806cc8d46faf2228134f5cc1f80cdc1f7258d29cf78492ad511664b790366d",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2"
       },
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "afb2654ccb86284242fcdf8f78d87e756f4d990a08cb627642a296e9a9331d92",
       "remainingAcceptance": [
@@ -6093,11 +6321,11 @@
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -6327,9 +6555,19 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "2199fa22d3b8cef1ec34265ea4d1218f539c6cb9c5b9eeedb76ee9a0a5221768",
       "remainingAcceptance": [
@@ -6348,11 +6586,11 @@
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -6582,9 +6820,19 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "88ea8074248884f00732da80e45b56fd489d819d7583d4eea469bb318650fedf",
       "remainingAcceptance": [
@@ -6597,7 +6845,7 @@
       ]
     },
     "REQ-00082-catch-success-anomaly-detection-system.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "1b8f5000c786f9446e14bdc65febc7965f4ee516e6d46af2d8663e8989f32608",
       "sourceSha256": {
@@ -6607,8 +6855,8 @@
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260612_070000__add_catch_anomaly_detection_system.sql": "071c812b16b0f3bd90eb912c88d98d01c334d709a619ae0c5e7b26280869b926",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/CATCH-RISK.md": "38a45565382fcc71fcd3086ed2de7b885d9e912859efe78d917741eaa3afbcf0",
         "docs/review/REQ-00082-catch-success-anomaly-detection-review.md": "76b74356f1d4b2745e8d4029639e2cb0ac5101d789d6c6c699b35fb2b3aa11a9",
         "docs/review/REQ-00082-catch-success-anomaly-detection-system-review.md": "91b9a7a16ae6203eac69695669ad3eed471d75d13259a44cd7b98a59f044e19c",
@@ -6837,6 +7085,16 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -6850,7 +7108,7 @@
       ]
     },
     "REQ-00160-special-iv-system.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "8c055ccc9664dbdf2a7045cb4929ed1e6333de36746a1245fb4a494c4b73524c",
       "sourceSha256": {
@@ -6862,8 +7120,8 @@
         "database/pending/20260613_160000__add_special_iv_system.sql": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -7051,6 +7309,16 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -7062,7 +7330,7 @@
       ]
     },
     "REQ-00091-pokemon-equipment-system-and-stat-bonus-mechanism.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "5d4285d83cf374d1fc35fef7c9e10a18a3eb5e53dd1626990c1d8995ac8c1401",
       "sourceSha256": {
@@ -7074,8 +7342,8 @@
         "database/pending/20260613_160000__add_special_iv_system.sql": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -7263,6 +7531,16 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -7274,20 +7552,20 @@
       ]
     },
     "REQ-00097-pokemon-daily-quest-and-reward-mechanism.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "ab101493c74eef56275b9aebc36a2f0f9c9d7a887b61aa0466d91c6d0d752b8d",
       "sourceSha256": {
         "database/pending/20260614_090500__add_daily_quest_system.sql": "b602bc1b0e67d1b03aa441cf24de2abbc7113ab512bcd7384d006e2b15b07979",
         "database/pending/repairs/20260614_090500__add_daily_quest_system.sql": "65570155fda0333a90d88d794c600cb17b685ed1ea0a99ed7a6198669d6c53be",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "backend/services/reward-service/src/index.js": "42b8220e1654ecf40ae8d053e1b9219e651e27b1ff40f511abdc6d7c6d9f8a50",
         "backend/services/reward-service/src/routes/dailyQuests.js": "599fa242c1864866bebc2f5368e0552ad47a58afcacd7933561a1a3e6d64054b",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
         "backend/shared/questService.js": "4db34890cbb2837e2c13703dd0278e41a030fd8cbb1d39bf2411920e2f4413fd",
         "backend/shared/routes/quests.js": "415f6443d29d9f5675b0def6517d20063ec0df25d66454ccd3e3766a326163e3",
         "backend/shared/questMetrics.js": "4d70c0eb2917f3942f4cc0888d27ffdfeb6fcac91a585c4a897364a7e7afaa8f",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/DAILY-QUESTS.md": "b63d44e8e29e3fdcd856248af47935ca99924740c887be49c45defd33cdd21de"
       },
       "evidence": [
@@ -7456,6 +7734,16 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -7469,7 +7757,7 @@
       ]
     },
     "REQ-00255-api-injection-attack-protection-system.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "7ae59fae3513e79229a2736d7b2b6cb5488857eb54b199cf76520bc1fc6e0020",
       "sourceSha256": {
@@ -7477,7 +7765,7 @@
         "backend/services/catch-service/src/index.js": "b5901bc1a2bc732da52ffb257166948b54e84141882b5989d0dcbf3b0c26175c",
         "backend/tests/regression/reward-leaderboard-storage.test.js": "b22fe38c30f5351cbcbd39129f0794daf6dc3b2c7ed6c33cca2ba8b1159d163f",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/REWARD-RANKINGS.md": "ad7d89e56547dcdd24d5fe07ac61557a5e1c0ee69bce4ea77b6aa116fa9fd933",
         "docs/review/REQ-00255-api-injection-attack-protection-system-review.md": "2ac0537e70d4896ea611958d55aaffb60793de6b06538872a554819d0a60ef76"
       },
@@ -7611,6 +7899,15 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -7622,7 +7919,7 @@
       ]
     },
     "REQ-00019-pokemon-moves-learning-system.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "4ff8ac9492012c4e20f34d249935eddc559d7eedf7010351d3084ada011a63fb",
       "sourceSha256": {
@@ -7640,10 +7937,10 @@
         "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
         "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
       "evidence": [
@@ -7808,6 +8105,16 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -7819,7 +8126,7 @@
       ]
     },
     "REQ-00146-gym-battle-damage-formula-and-type-chart.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "7927ead7a5ef1fe606c4cd75abb2c8a8b5798c237835abb02923c072527f3e83",
       "sourceSha256": {
@@ -7837,10 +8144,10 @@
         "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
         "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
       "evidence": [
@@ -8005,6 +8312,16 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -8016,7 +8333,7 @@
       ]
     },
     "REQ-00116-pokemon-team-real-time-voice-chat-system.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "b6b3f8b0c1f29513adb080bd796ad395abf3a1f848704020408d006881ef7d30",
       "sourceSha256": {
@@ -8024,10 +8341,10 @@
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "database/pending/20260618_160000__add_voice_chat_tables.sql": "e60be5a89d60c84da8ba40f11c63bf1b5e1491e59828903856e50b490ca74bf4",
         "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "b2034194cd84c4f47f3c73438555df5b80c21135535de704a782313dfefe8b8b",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "backend/tests/regression/voice-schema-storage.test.js": "5e4162b28e07f7f35ab339d707b4be8a99e19e1921bd208cd51890fbf5058c6f",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "backend/services/social-service/src/voice/turnServer.js": "2ca289a62a2fa2648e4c5a18ac49a13af268d55c17c3739334851c5673df5eb5",
         "backend/services/social-service/src/voice/routes.js": "cdcbac7391f275b20a7646517ac0a5d3883c35a629d10e66aef9b49a42349b80",
         "backend/services/social-service/src/voice/signalingServer.js": "4e8199480ff3745f671a20845680cf48ef5d374d4544813ca914d3fbce842505",
@@ -8176,6 +8493,16 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -8187,7 +8514,7 @@
       ]
     },
     "REQ-00051-multi-currency-support-exchange-rate-system.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "dcbacc58410c1b87a56bd1a19e042a673d4e27b4ad309fdb71cfe910dde1b6f8",
       "sourceSha256": {
@@ -8201,8 +8528,8 @@
         "backend/tests/unit/currency.test.js": "155a7c7d561b2911a5da8c5a91ec5e054eb283ff8b98deca22779f4fbeb93558",
         "database/pending/20260624_133000__add_multi_currency_support.sql": "9d82251238972d1bd61c2264504f10f709039e52b2b42921c81957c32b689bcf",
         "database/pending/repairs/20260624_133000__add_multi_currency_support.sql": "a6f2318807e7824c4c458beb7762ec555e256d97af41405707dafbf8ac24dde2",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/CURRENCIES.md": "02ca61669686acdd8038b3ec185dd96a04a0ed6bc6014493d43120d5940676b7"
       },
       "evidence": [
@@ -8338,6 +8665,16 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Only changed shared references refreshed: actual22 partition SQL/production-router/CLI checks and new module100line94branch90.48function at80percent gates; final724 units/native gateway-user entrypoint HTTP/metrics/readiness/natural cleanup and1450 syntax pass. Full85 source history now fails CDC20260707_100000stmt5 nonexistent pokemon; pending batch rolls back. Prior broad394 checks/earlier partition27 remain prior source-specific evidence, not a new combined run. Full original feature/numerical/upgrade/reversal acceptance remains open. Detailed scope:REQ00060/00626 evidence and docs/PARTITION-MAINTENANCE.md."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -8349,7 +8686,7 @@
       ]
     },
     "REQ-00096-database-transaction-isolation-deadlock-detection.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "f52b3ccedbf89da0463dcc922be42bae33ea20a67249d8501cf075b96e22297b",
       "sourceSha256": {
@@ -8369,8 +8706,8 @@
         "docs/benchmarks/transaction-throughput-2026-10-15.json": "b22bccb8cee394a16a4c5135761e5e104c97e6b95c974a18ceb7e36d887e4a03",
         "database/pending/20260626_040000__add_deadlock_log_table.sql": "b9060fc1aab1fd26bbb27d08a7d0ba83f9df521191ecc37cbe679c447ed16238",
         "database/pending/repairs/20260626_040000__add_deadlock_log_table.sql": "fe133fbc60e1719e237752d8a9508ff246d3e376a46aed62e024c5939a721cbc",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/TRANSACTIONS.md": "6c66f5a585349370e3e8f4487f4368029233db4a4b4effcf80b6907026687c5e",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-bae401e-2026-10-15.json": "61c8117367a10c9984f6d83854443cd8a71990cb1f8d0270ee72ea8ccf6a1bf6",
@@ -8391,7 +8728,8 @@
         "docs/benchmarks/transaction-throughput-ci-a769b0d-2026-10-17.json": "df4cf64be36dae3da71a0c2d532fb7bb5b83a5841e9873f0a66323ff4634000c",
         "docs/benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json": "da6ec93efd94f88465cc156434b19c48c78235961be425ef2fa9711377132300",
         "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json": "fa441fdcf8f5471c1a0d5c74082467f4bf92777d547989df6ddd08c42c68b765",
-        "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297"
+        "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297",
+        "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json": "07157be9339982b7c7fce5202f3f713766bbffcbf88d6474c96e70f98275b669"
       },
       "evidence": [
         {
@@ -8666,6 +9004,28 @@
           "requiredMinimumChangePercent": -5,
           "artifact": "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json",
           "scope": "Downloaded actual migration24 log: canary18/erasure19 and existing correctness pass; original throughput gate fails-6.352968581797381percent despite8 measured matching hashes. Full remote job fails former partition view; latest local repair advances to CDC missing pokemon. Exact main462 unit/syntax/audit/battle jobs pass. Retain negative report alongside older passes/failures; do not waive/retry unchanged sources into acceptance or claim full CI success."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "prior_source_ci_observed",
+          "commit": "2df7d22bbb1be42737988947398b1fe319933bf8",
+          "mainRun": 39126581383,
+          "nativeRun": 39126581489,
+          "migrationRun": 39126581480,
+          "migrationJob": 117672875464,
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39126581480",
+          "scope": "Exact2df main463 unit/syntax/audit and battle jobs pass; native/title32 job117672875555 passes. Migration25 correctness including actual partition22/original80% module gate and throughput pass; entire migration job fails formerCDC20260707_100000stmt5. Actual archived throughput-2.7440245081718717% meets original-5%; all8 measured source hashes match. Earlier2e5 throughput-6.352968581797381% failure remains retained and unwaived. New CDC source CI is still pending.",
+          "artifact": "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json"
         }
       ],
       "remaining": [
@@ -8678,7 +9038,7 @@
       ]
     },
     "REQ-00077-database-slow-query-analysis-system.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "5c21e2739e9f27ec2e053126b8f691149e4d31503f5cecd495aba629a5083e8c",
       "sourceSha256": {
@@ -8686,9 +9046,9 @@
         "database/pending/repairs/20260627_041000__enable_pg_stat_statements.sql": "fb9f244c96563de01b9dfcd18ccda92105b5023e9201e9019af9472e13ea51d2",
         "database/pending/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "bcfa7904149404b6677ab0e33591670d12746845e590849ee822dca2966071ab",
         "database/pending/repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "660c62531f86d2f8981163afbe85b50ec68bbe27269b840d7b7ea4dba64f0df4",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "backend/tests/regression/slow-query-schema-storage.test.js": "35c43ce9cc230648eeb82e069000bfd6f5b5019b533eaa14b5a1b8349bf71fbb",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/SLOW-QUERIES.md": "8c3a6dde07fb0d411ed7b3da05e2d7daa4ab20c4fc52ddd4a8e89e3499353921",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-26f553f-2026-10-17.json": "858bd11da1948ca938a582b304ffcd4ebf6147c7c1459c6e465b54efa6ddfce9",
@@ -8874,6 +9234,16 @@
           "requiredMinimumChangePercent": -5,
           "artifact": "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json",
           "scope": "Downloaded actual migration24 log: canary18/erasure19 and existing correctness pass; original throughput gate fails-6.352968581797381percent despite8 measured matching hashes. Full remote job fails former partition view; latest local repair advances to CDC missing pokemon. Exact main462 unit/syntax/audit/battle jobs pass. Retain negative report alongside older passes/failures; do not waive/retry unchanged sources into acceptance or claim full CI success."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -8884,7 +9254,7 @@
       ]
     },
     "REQ-00348-pokemon-inventory-smart-organization.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_verified_full_history_failed",
       "documentSha256": "40352533a1741d32f483664a77ffafc09e962d2d4fde0d61f88f45cc79f89fc5",
       "sourceSha256": {
@@ -8896,9 +9266,9 @@
         "backend/services/pokemon-service/src/inventory/InventorySorter.js": "157e29018efc72fcae09fb4ef6fab83717fa7f6761397a4afcf485714dbf14d1",
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "database/pending/repairs/20260627_060000__add_inventory_organization_system.sql": "31aac467ae420bdafb0204bf33832c4c8a33e39368cf01f6c2ad33bd95b887a7",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "backend/tests/regression/inventory-organization-storage.test.js": "bbd1497563252b999d530c8480e4e9370fee599561ed1262540127e46c1e7b2c",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/INVENTORY-ORGANIZATION.md": "f289e0b8ba30ea8ef99d1d21b45aca5d8237f3ca2110004e9c8b2aed346ed8ad",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-a769b0d-2026-10-17.json": "df4cf64be36dae3da71a0c2d532fb7bb5b83a5841e9873f0a66323ff4634000c",
@@ -9013,6 +9383,16 @@
           "requiredMinimumChangePercent": -5,
           "artifact": "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json",
           "scope": "Downloaded actual migration24 log: canary18/erasure19 and existing correctness pass; original throughput gate fails-6.352968581797381percent despite8 measured matching hashes. Full remote job fails former partition view; latest local repair advances to CDC missing pokemon. Exact main462 unit/syntax/audit/battle jobs pass. Retain negative report alongside older passes/failures; do not waive/retry unchanged sources into acceptance or claim full CI success."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -9024,7 +9404,7 @@
       ]
     },
     "REQ-00125-pokemon-cosmetic-customization-system.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_sql_verified_full_history_failed",
       "documentSha256": "06005e08acfea08f076fc7b54ef8dcace7df4d642addb33421e55168e7b3ea53",
       "sourceSha256": {
@@ -9032,9 +9412,9 @@
         "database/seeds/V2__seed_data.sql": "7c85c2d07999a4c8e5bad2d07324456b101a909c0e77fb73f0ff2d31879ed355",
         "database/pending/20260630_040000__add_pokemon_cosmetic_system.sql": "56caa9b41aafa64822d561c733b328a4efd8c037a4fb95ad26d2a3813e2225a7",
         "database/pending/repairs/20260630_040000__add_pokemon_cosmetic_system.sql": "401c58b503ea8bf2edee1bf338876213e665a269cd55ade0605c431d1b52b498",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "backend/tests/regression/cosmetic-schema-storage.test.js": "05d835a2fc7e7fd82e06868ae168c5077be3813a7c7b19eccc70a8129ccf547c",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "docs/COSMETICS.md": "89e99dd73175a7800780ce1d89680f2e0c145e0c694fffbefbadd5e2abe05b69",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
@@ -9127,6 +9507,16 @@
           "requiredMinimumChangePercent": -5,
           "artifact": "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json",
           "scope": "Downloaded actual migration24 log: canary18/erasure19 and existing correctness pass; original throughput gate fails-6.352968581797381percent despite8 measured matching hashes. Full remote job fails former partition view; latest local repair advances to CDC missing pokemon. Exact main462 unit/syntax/audit/battle jobs pass. Retain negative report alongside older passes/failures; do not waive/retry unchanged sources into acceptance or claim full CI success."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -9138,7 +9528,7 @@
       ]
     },
     "REQ-00016-gdpr-compliance.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_sql_verified_runtime_and_full_history_failed",
       "documentSha256": "0e4b74e6e33e9e38b1b6b1acb60df77071ee8d8ed4f57f085fefbaf1f8ce6bb9",
       "sourceSha256": {
@@ -9147,7 +9537,7 @@
         "database/pending/20260605_161000__add_gdpr_tables.sql": "30147b3ae9822690425e90840db6bad0d6217d1d588aa75743d3f7b4c440639a",
         "database/pending/20260630_050000__add_data_deletion_request_tables.sql": "4e8a931542163151277c85582a75caa1335dd6885913f6cb3ef35892077baee3",
         "database/pending/repairs/20260630_050000__add_data_deletion_request_tables.sql": "18af611ad1688d68200770e0b3ad2e395e6b1c069052d8f73af8ce87e393502a",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "backend/shared/dataDeletionService.js": "de359f084c0d1af413db95355b268f5a7cfeb44746eb5dcac9da59abd2ed45b7",
@@ -9158,7 +9548,7 @@
         "backend/services/user-service/src/index.js": "58528fc459173847bc452ce968643a2b1559995f4da3f2206396d5e8d17e495f",
         "backend/jobs/dataDeletionProcessor.js": "966f12addfaf5a97f68b329e155173c2dae85699c2d818e8996d48ffcfb52244",
         "backend/tests/regression/erasure-schema-storage.test.js": "4c54f92e9492772d096201675ffe7b0d0594c609bc64e1395b9b910feeda535b",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/DATA-ERASURE.md": "004d0f83214e94f4ee8783bd7b905619abb4681bf8ff2f44c041f74b93a967e5",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json": "fa441fdcf8f5471c1a0d5c74082467f4bf92777d547989df6ddd08c42c68b765",
@@ -9218,11 +9608,21 @@
           "requiredMinimumChangePercent": -5,
           "artifact": "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json",
           "scope": "Downloaded actual migration24 log: canary18/erasure19 and existing correctness pass; original throughput gate fails-6.352968581797381percent despite8 measured matching hashes. Full remote job fails former partition view; latest local repair advances to CDC missing pokemon. Exact main462 unit/syntax/audit/battle jobs pass. Retain negative report alongside older passes/failures; do not waive/retry unchanged sources into acceptance or claim full CI success."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ]
     },
     "REQ-00127-user-data-deletion-requests-management.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_sql_verified_runtime_and_full_history_failed",
       "documentSha256": "bcf8bb3d4bc6480129a8b7936a79136d897f4ed3f7f4c6c704aa391088d07dee",
       "sourceSha256": {
@@ -9231,7 +9631,7 @@
         "database/pending/20260605_161000__add_gdpr_tables.sql": "30147b3ae9822690425e90840db6bad0d6217d1d588aa75743d3f7b4c440639a",
         "database/pending/20260630_050000__add_data_deletion_request_tables.sql": "4e8a931542163151277c85582a75caa1335dd6885913f6cb3ef35892077baee3",
         "database/pending/repairs/20260630_050000__add_data_deletion_request_tables.sql": "18af611ad1688d68200770e0b3ad2e395e6b1c069052d8f73af8ce87e393502a",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "backend/shared/dataDeletionService.js": "de359f084c0d1af413db95355b268f5a7cfeb44746eb5dcac9da59abd2ed45b7",
@@ -9242,7 +9642,7 @@
         "backend/services/user-service/src/index.js": "58528fc459173847bc452ce968643a2b1559995f4da3f2206396d5e8d17e495f",
         "backend/jobs/dataDeletionProcessor.js": "966f12addfaf5a97f68b329e155173c2dae85699c2d818e8996d48ffcfb52244",
         "backend/tests/regression/erasure-schema-storage.test.js": "4c54f92e9492772d096201675ffe7b0d0594c609bc64e1395b9b910feeda535b",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/DATA-ERASURE.md": "004d0f83214e94f4ee8783bd7b905619abb4681bf8ff2f44c041f74b93a967e5",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json": "fa441fdcf8f5471c1a0d5c74082467f4bf92777d547989df6ddd08c42c68b765",
@@ -9302,11 +9702,21 @@
           "requiredMinimumChangePercent": -5,
           "artifact": "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json",
           "scope": "Downloaded actual migration24 log: canary18/erasure19 and existing correctness pass; original throughput gate fails-6.352968581797381percent despite8 measured matching hashes. Full remote job fails former partition view; latest local repair advances to CDC missing pokemon. Exact main462 unit/syntax/audit/battle jobs pass. Retain negative report alongside older passes/failures; do not waive/retry unchanged sources into acceptance or claim full CI success."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ]
     },
     "REQ-00078-canary-deployment-and-traffic-splitting.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_sql_verified_runtime_and_full_history_failed",
       "documentSha256": "25823b679de8a6833cf0a3949ad00123769eda8419fdff1141be31bec2981994",
       "sourceSha256": {
@@ -9316,7 +9726,7 @@
         "database/pending/repairs/20260611_102500__add_canary_deployment_tables.sql": "af806cc8d46faf2228134f5cc1f80cdc1f7258d29cf78492ad511664b790366d",
         "database/pending/20260701_110000__add_canary_deployment_tables.sql": "f96b82ee32401a2995bf18e461f0359e2273def1d189c219b630b1719167edc4",
         "database/pending/repairs/20260701_110000__add_canary_deployment_tables.sql": "66ca1c9bcefe9a5bb36a6b8fee01b305a2626040ea6b4a1f6b089dadd52897a3",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
@@ -9326,11 +9736,11 @@
         "backend/gateway/src/middleware/auth.js": "7679c07044463a6aacf085eab04abefdf3f1f11dc1f47dacb0ff83bad03fdcce",
         "backend/gateway/src/middleware/canaryRouter.js": "8e06cc373a594a3a0f464f9052cf4f447a97a6957af3c4ae10948f7cd86453ed",
         "backend/gateway/src/routes/canary.js": "2919433b6ed012125b58bb522e497c9a574d7e488127bf562dac4b2e390a169d",
-        "backend/gateway/src/index.js": "e3e6a1c16c007a7756ecd6e3c1cae83d8a9153fba001488c970bb34b49e4c7f1",
+        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
         "scripts/canary-cli.js": "55af26b715eee3c508a85e1be6909a39b923267b936860edbcf590d356c9b815",
         ".github/workflows/canary-deploy.yml": "873f89716acd7d2632999c14a8155594668f1b522c4fb46db1186eefd4a74b29",
         "backend/tests/regression/canary-schema-storage.test.js": "18bc7caffb2b93568aff590318e2fdbc3874f183c29b7d80efd14be1a15d7ffc",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
         "docs/CANARY.md": "772be4628219e07cb6a5e14bb7ce8e892733c7603acf7d75942f175afe8049ae",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297"
@@ -9366,31 +9776,43 @@
           "requiredMinimumChangePercent": -5,
           "artifact": "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json",
           "scope": "Downloaded actual migration24 log: canary18/erasure19 and existing correctness pass; original throughput gate fails-6.352968581797381percent despite8 measured matching hashes. Full remote job fails former partition view; latest local repair advances to CDC missing pokemon. Exact main462 unit/syntax/audit/battle jobs pass. Retain negative report alongside older passes/failures; do not waive/retry unchanged sources into acceptance or claim full CI success."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            "backend/gateway/src/index.js",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ]
     },
     "REQ-00626-database-partitioning-strategy.md": {
-      "date": "2026-10-18",
+      "date": "2026-10-19",
       "status": "partial_runtime_storage_verified_full_history_failed",
       "documentSha256": "e5cc8dcac57ef88b0bfe924ac96b99a543c5dfa8c32a2c6db02659dd4dda5c1c",
       "sourceSha256": {
         "database/pending/20260707_060000__complete_partition_management.sql": "98c5dbb5232a7d3869d7a97d657baa479d41e12db6ffa4cb09d5debd5d624707",
         "database/pending/repairs/20260707_060000__complete_partition_management.sql": "111f466396cfa58cf8bb7c87790f64f8f2d8cfc00e587669eb07197669ffc922",
-        "database/pending/repairs.json": "863d15037422ae493b9a8a678a19241f5def79c653bf614bc4fc9f2260b9df85",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
         "database/pending/20261008_140000__audit_partition_conversion.sql": "6341c87821de38f68340cbb952b0b393496b52793ddd1c225cb27c221f6b6eaf",
         "database/pending/repairs/20260610_100000__add_table_partitioning_system.sql": "b4d42d6e9ce79b30d9bb65530e82f8a28fc10879ecfd8799b56aef959f98b87d",
         "database/pending/repairs/20260619_000000__add_table_partitioning.sql": "24797d2a3b1370dae8a2768f77a3f7f6e869095ecd33059c774780577a3b7d89",
         "backend/shared/partitionMaintenance.js": "eb2a2169cc22fb12a54448a4c23dcfd671a8034110d15b4f7a4ae1add8fc3786",
         "backend/shared/partitionManager.js": "6cd34c463fffa999c33e7cf1c6affe11f7ed840fe55b7a34059d893aa9578a0a",
         "backend/gateway/src/routes/partitions.js": "2a0368052e9cbc616aa54065da4d982edbb049b99dbd162d2f8e992316c218d0",
-        "backend/gateway/src/index.js": "e3e6a1c16c007a7756ecd6e3c1cae83d8a9153fba001488c970bb34b49e4c7f1",
+        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
         "backend/tests/regression/partition-maintenance-storage.test.js": "56fc446bc42f1189161d5993129756a498924c14feb154470c488e9f2710102b",
-        "backend/tests/regression/gateway-startup.test.js": "9bb42e67fcdf84abc84d733d7f7bf510a8783cd6588c70184678e45c6f6d2c4f",
-        ".github/workflows/migration-regression.yml": "3e25ac9446c03007f0f16fc7c1f3b7143ec1de2572ef190ed1ce049d9ac8382c",
-        ".github/workflows/title-regression.yml": "ab67b5550eedd984ae63ffa6f8808280ef311dc008eccabfaaef3e32dd11ba27",
+        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "docs/PARTITION-MAINTENANCE.md": "b5c1d26502ec01a3ec74b14cb8084a42c587139cfcb32d6c74af2f9c84a6b46f",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
-        "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297"
+        "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297",
+        "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json": "07157be9339982b7c7fce5202f3f713766bbffcbf88d6474c96e70f98275b669"
       },
       "evidence": [
         {
@@ -9409,8 +9831,221 @@
           "requiredMinimumChangePercent": -5,
           "artifact": "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json",
           "scope": "Downloaded actual migration24 log: canary18/erasure19 and existing correctness pass; original throughput gate fails-6.352968581797381percent despite8 measured matching hashes. Full remote job fails former partition view; latest local repair advances to CDC missing pokemon. Exact main462 unit/syntax/audit/battle jobs pass. Retain negative report alongside older passes/failures; do not waive/retry unchanged sources into acceptance or claim full CI success."
+        },
+        {
+          "date": "2026-10-19",
+          "result": "partial_integration_checks_pass_full_history_failed",
+          "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
+          "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            ".github/workflows/migration-regression.yml",
+            ".github/workflows/title-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "prior_source_ci_observed",
+          "commit": "2df7d22bbb1be42737988947398b1fe319933bf8",
+          "mainRun": 39126581383,
+          "nativeRun": 39126581489,
+          "migrationRun": 39126581480,
+          "migrationJob": 117672875464,
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39126581480",
+          "scope": "Exact2df main463 unit/syntax/audit and battle jobs pass; native/title32 job117672875555 passes. Migration25 correctness including actual partition22/original80% module gate and throughput pass; entire migration job fails formerCDC20260707_100000stmt5. Actual archived throughput-2.7440245081718717% meets original-5%; all8 measured source hashes match. Earlier2e5 throughput-6.352968581797381% failure remains retained and unwaived. New CDC source CI is still pending.",
+          "artifact": "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json"
         }
       ]
+    },
+    "REQ-00479-database-query-result-cache-invalidation-system.md": {
+      "date": "2026-10-19",
+      "status": "partial_runtime_storage_verified_load_full_history_and_ci_open",
+      "documentSha256": "83e88ce75dd358f93001aa75340e4032dbfb2174b7a0a37b546de6f1f4fdaf58",
+      "sourceSha256": {
+        "backend/shared/cache.js": "1e02ac9cf3f507263f89b64f1158d339530d56c7bcd69ec9738a0e54b5d1f27e",
+        "backend/shared/cache/CoherentCache.js": "07679376b7eab5d0b51a3462a54055b99c979c2611629d1f1c7b235533efb978",
+        "backend/shared/cacheMiddleware.js": "5d2b5a9ad83416558fb865afaf2f43477d27f88ccbf29c195b62ac972f844b33",
+        "backend/shared/cdc/CacheInvalidationCenter.js": "7a814123cf521701622cd8d93cc121b3ff9360695e90c0d63852f208642340ea",
+        "backend/shared/cdc/ChangeToCacheMapper.js": "f700ff760db31d9aadcccb03ef087007ddce7e0a2ff6c1981c2185787951db8f",
+        "backend/shared/cdc/PgCDCListener.js": "e89725a3447e797376434f7fae4800ee1152da5bfa61db1c0f6fbb040982bf4e",
+        "backend/shared/cdc/index.js": "fde729fafa94217faee27e1675f22ef3fd0cef6eb95925b448102a4bfbec3875",
+        "backend/shared/cdc/cache-rules.yml": "84660897aa4d95532fc8dfc713fa1160e0dae9c20acd15643f198622672c58cb",
+        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
+        "backend/gateway/src/proxy.js": "619d307da0e4e8531c54f4abfa8feaed8a86b930b01c5cdc07cb0c081c477db1",
+        "backend/gateway/src/routes/cacheInvalidationRoutes.js": "85619b0b7a6618f70e21efe29ac6d0db43004a8d0b68922958fd5bec22e31f6e",
+        "backend/tests/regression/cdc-invalidation-storage.test.js": "19d4aa4806109909046fca882d55cc2e03f9fd0476d7e0b9e0f237de2c5c364f",
+        "backend/tests/regression/cdc-cache-runtime.test.js": "efa8b7a7a148fd6a6626ba15f5c92aba5889935583e446a4b00483924b63deb9",
+        "backend/tests/regression/cache-coherence-storage.test.js": "3663fc5f8686396e621a80fda74aa9c044d673a09f24cfd7640a2f3551eff1cf",
+        "backend/tests/regression/cache-http-storage.test.js": "5d655fae7c92be4ef595d98e07ab70a27890510781bb0a60eb6d7671ab4f7efb",
+        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        "database/pending/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "4a11a1f7e457ea11181580d313097b276582947b3975c4fe67fb4813867b5f39",
+        "database/pending/repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "279e7b764797d2ad636f704c3e73c97c504a6077a7c1bc14aa39f30737c7b478",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        "docs/CACHE-INVALIDATION.md": "e788e8e763088178f2107778f3050ea08d4992d5ad8c21690ba4e4f082f52260",
+        "docs/benchmarks/cache-invalidation-local-2026-10-19.json": "df2b208f0d35ce625bf48841add89cfc79c713cc998b2cbd33db8da410462e13",
+        "docs/benchmarks/cache-invalidation-50ms-failure-2026-10-19.json": "cb78efb6409f41a4bfe1f876f21788c6a414a02ba71afa6332b78a1277dd6069",
+        "docs/benchmarks/cache-invalidation-prior-latency-2026-10-19.json": "b9f7fae62ce1303de23a958e0e3ebad2a49d01dd4dbf580dcddc757fa1176c5f"
+      },
+      "evidence": [
+        {
+          "date": "2026-10-19",
+          "command": "node --test --test-concurrency=1 --experimental-test-coverage <actual CDC storage/cache coherence/CDC runtime/HTTP storage suites>",
+          "runtime": "Node.js24.19.0",
+          "result": "passed",
+          "tests": 40,
+          "skipped": 0,
+          "scope": "Actual full V1/V2 plus canonical partition/item migrations and checksummed CDC.18 real identity sources, rollback/commit/large-private-row privacy, preserved old/new owners, genuine partition-leaf movement, exact rerun/CLI up/up/verify/raw+execution hashes and atomic custom-contract refusal. Actual Redis independent L1, ownership/namespace preservation,230-key bulk SCAN, late-fill CAS, null/TTL/unready behavior. Real revision config/optimistic race/glob/bounded regex, lost database listener, stopped-worker replay, late commits and durable Redis-error retries. Actual joined profile count/species/candy/friend mappings. Production proxy streaming/directJSON with status/header/body, structured-query/subject/language/target separation, stale fill refusal, and cookie/no-store/error/unknown-vary/large payload refusal.",
+          "coverage": {
+            "scope": "These actual selected modules, diagnostic; no full-feature coverage claim or weakened gate",
+            "lines": 90.48,
+            "branches": 71.68,
+            "functions": 79.02
+          }
+        },
+        {
+          "date": "2026-10-19",
+          "result": "passed_healthy_isolated_fixture_only",
+          "artifact": "docs/benchmarks/cache-invalidation-local-2026-10-19.json",
+          "samples": 12,
+          "maxMs": 13.414005000000088,
+          "originalGatesMs": {
+            "REQ00479": 100,
+            "REQ00523": 50
+          },
+          "scope": "12 sequential real PostgreSQL writer operations through two independent CDC/cache clients, shared actual Redis and both L1 maps; measured from before UPDATE through observed removal, healthy isolated fixture only; no capacity/database-load acceptance"
+        },
+        {
+          "date": "2026-10-19",
+          "result": "failed_original_50ms_gate_before_roundtrip_optimization",
+          "observedMs": 53.27328299999999,
+          "originalLimitMs": 50,
+          "artifact": "docs/benchmarks/cache-invalidation-50ms-failure-2026-10-19.json",
+          "scope": "Retained negative evidence. Fix groups up to100 rules into one owned-prefix scan instead of serially scanning every overlapping entity rule. No target relaxation; final source rerun passes. Earlier positive latency report retains explicit separate fixture failure, not full-suite acceptance."
+        },
+        {
+          "date": "2026-10-19",
+          "command": "node --test --test-concurrency=1 backend/tests/regression/gateway-startup.test.js",
+          "result": "passed",
+          "tests": 1,
+          "scope": "Real user-service and two independent gateway OS processes with authentic V1/V2/item/partition/CDC storage, Redis and Kafka. Native streamed response MISS→HIT, committed update refresh on both L1s, actual joined Pokemon count invalidates other viewers, private stats deny another owner, signed admin config/rules/metrics; JSON400/413; existing notification/Kafka/WS/IP/admin/readiness/failure/signal/RedisURL cases remain checked. Other service registry targets alias user fixture and are not accepted.",
+          "observedFunctionalTwoGatewayRecoveryMs": 45.31108999999924
+        },
+        {
+          "date": "2026-10-19",
+          "command": "npm run test:unit --prefix backend; node scripts/check-js-syntax.js",
+          "result": "passed",
+          "unitChecks": 724,
+          "jestSuites": 24,
+          "jestTests": 425,
+          "syntaxFiles": 1455,
+          "scope": "Sequential limited CPU local checks; no Maven. Full unrelated feature acceptance remains separate."
+        },
+        {
+          "date": "2026-10-19",
+          "command": "node --test --test-concurrency=1 backend/tests/regression/database-bootstrap.test.js",
+          "result": "full_seed_pass_pending_history_failed",
+          "scope": "Full V1/V2 passes. All85 raw pending SQL and older repair entries unchanged. Complete chain now passes CDC and fails20260711_120000stmt6 created_time missing. Complete pending batch rolls back; no skipped/rewritten journal."
+        }
+      ],
+      "remaining": "Preserve original4 criteria each, including100ms/50ms. Complete production/capacity and no-significant-database-load acceptance are open; all legacy cache consumers and cross-environment/provider/upgrade/reversal behavior are not accepted. Current source CI must be observed. Only original battle framework619 remains independently verified."
+    },
+    "REQ-00523-database-query-result-cache-invalidation-system.md": {
+      "date": "2026-10-19",
+      "status": "partial_runtime_storage_verified_load_full_history_and_ci_open",
+      "documentSha256": "e0c38f15144c9e22186b6d37d24fded63ec9f4b2949a3906b1435a121d31c0aa",
+      "sourceSha256": {
+        "backend/shared/cache.js": "1e02ac9cf3f507263f89b64f1158d339530d56c7bcd69ec9738a0e54b5d1f27e",
+        "backend/shared/cache/CoherentCache.js": "07679376b7eab5d0b51a3462a54055b99c979c2611629d1f1c7b235533efb978",
+        "backend/shared/cacheMiddleware.js": "5d2b5a9ad83416558fb865afaf2f43477d27f88ccbf29c195b62ac972f844b33",
+        "backend/shared/cdc/CacheInvalidationCenter.js": "7a814123cf521701622cd8d93cc121b3ff9360695e90c0d63852f208642340ea",
+        "backend/shared/cdc/ChangeToCacheMapper.js": "f700ff760db31d9aadcccb03ef087007ddce7e0a2ff6c1981c2185787951db8f",
+        "backend/shared/cdc/PgCDCListener.js": "e89725a3447e797376434f7fae4800ee1152da5bfa61db1c0f6fbb040982bf4e",
+        "backend/shared/cdc/index.js": "fde729fafa94217faee27e1675f22ef3fd0cef6eb95925b448102a4bfbec3875",
+        "backend/shared/cdc/cache-rules.yml": "84660897aa4d95532fc8dfc713fa1160e0dae9c20acd15643f198622672c58cb",
+        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
+        "backend/gateway/src/proxy.js": "619d307da0e4e8531c54f4abfa8feaed8a86b930b01c5cdc07cb0c081c477db1",
+        "backend/gateway/src/routes/cacheInvalidationRoutes.js": "85619b0b7a6618f70e21efe29ac6d0db43004a8d0b68922958fd5bec22e31f6e",
+        "backend/tests/regression/cdc-invalidation-storage.test.js": "19d4aa4806109909046fca882d55cc2e03f9fd0476d7e0b9e0f237de2c5c364f",
+        "backend/tests/regression/cdc-cache-runtime.test.js": "efa8b7a7a148fd6a6626ba15f5c92aba5889935583e446a4b00483924b63deb9",
+        "backend/tests/regression/cache-coherence-storage.test.js": "3663fc5f8686396e621a80fda74aa9c044d673a09f24cfd7640a2f3551eff1cf",
+        "backend/tests/regression/cache-http-storage.test.js": "5d655fae7c92be4ef595d98e07ab70a27890510781bb0a60eb6d7671ab4f7efb",
+        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        "database/pending/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "4a11a1f7e457ea11181580d313097b276582947b3975c4fe67fb4813867b5f39",
+        "database/pending/repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "279e7b764797d2ad636f704c3e73c97c504a6077a7c1bc14aa39f30737c7b478",
+        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
+        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        "docs/CACHE-INVALIDATION.md": "e788e8e763088178f2107778f3050ea08d4992d5ad8c21690ba4e4f082f52260",
+        "docs/benchmarks/cache-invalidation-local-2026-10-19.json": "df2b208f0d35ce625bf48841add89cfc79c713cc998b2cbd33db8da410462e13",
+        "docs/benchmarks/cache-invalidation-50ms-failure-2026-10-19.json": "cb78efb6409f41a4bfe1f876f21788c6a414a02ba71afa6332b78a1277dd6069",
+        "docs/benchmarks/cache-invalidation-prior-latency-2026-10-19.json": "b9f7fae62ce1303de23a958e0e3ebad2a49d01dd4dbf580dcddc757fa1176c5f"
+      },
+      "evidence": [
+        {
+          "date": "2026-10-19",
+          "command": "node --test --test-concurrency=1 --experimental-test-coverage <actual CDC storage/cache coherence/CDC runtime/HTTP storage suites>",
+          "runtime": "Node.js24.19.0",
+          "result": "passed",
+          "tests": 40,
+          "skipped": 0,
+          "scope": "Actual full V1/V2 plus canonical partition/item migrations and checksummed CDC.18 real identity sources, rollback/commit/large-private-row privacy, preserved old/new owners, genuine partition-leaf movement, exact rerun/CLI up/up/verify/raw+execution hashes and atomic custom-contract refusal. Actual Redis independent L1, ownership/namespace preservation,230-key bulk SCAN, late-fill CAS, null/TTL/unready behavior. Real revision config/optimistic race/glob/bounded regex, lost database listener, stopped-worker replay, late commits and durable Redis-error retries. Actual joined profile count/species/candy/friend mappings. Production proxy streaming/directJSON with status/header/body, structured-query/subject/language/target separation, stale fill refusal, and cookie/no-store/error/unknown-vary/large payload refusal.",
+          "coverage": {
+            "scope": "These actual selected modules, diagnostic; no full-feature coverage claim or weakened gate",
+            "lines": 90.48,
+            "branches": 71.68,
+            "functions": 79.02
+          }
+        },
+        {
+          "date": "2026-10-19",
+          "result": "passed_healthy_isolated_fixture_only",
+          "artifact": "docs/benchmarks/cache-invalidation-local-2026-10-19.json",
+          "samples": 12,
+          "maxMs": 13.414005000000088,
+          "originalGatesMs": {
+            "REQ00479": 100,
+            "REQ00523": 50
+          },
+          "scope": "12 sequential real PostgreSQL writer operations through two independent CDC/cache clients, shared actual Redis and both L1 maps; measured from before UPDATE through observed removal, healthy isolated fixture only; no capacity/database-load acceptance"
+        },
+        {
+          "date": "2026-10-19",
+          "result": "failed_original_50ms_gate_before_roundtrip_optimization",
+          "observedMs": 53.27328299999999,
+          "originalLimitMs": 50,
+          "artifact": "docs/benchmarks/cache-invalidation-50ms-failure-2026-10-19.json",
+          "scope": "Retained negative evidence. Fix groups up to100 rules into one owned-prefix scan instead of serially scanning every overlapping entity rule. No target relaxation; final source rerun passes. Earlier positive latency report retains explicit separate fixture failure, not full-suite acceptance."
+        },
+        {
+          "date": "2026-10-19",
+          "command": "node --test --test-concurrency=1 backend/tests/regression/gateway-startup.test.js",
+          "result": "passed",
+          "tests": 1,
+          "scope": "Real user-service and two independent gateway OS processes with authentic V1/V2/item/partition/CDC storage, Redis and Kafka. Native streamed response MISS→HIT, committed update refresh on both L1s, actual joined Pokemon count invalidates other viewers, private stats deny another owner, signed admin config/rules/metrics; JSON400/413; existing notification/Kafka/WS/IP/admin/readiness/failure/signal/RedisURL cases remain checked. Other service registry targets alias user fixture and are not accepted.",
+          "observedFunctionalTwoGatewayRecoveryMs": 45.31108999999924
+        },
+        {
+          "date": "2026-10-19",
+          "command": "npm run test:unit --prefix backend; node scripts/check-js-syntax.js",
+          "result": "passed",
+          "unitChecks": 724,
+          "jestSuites": 24,
+          "jestTests": 425,
+          "syntaxFiles": 1455,
+          "scope": "Sequential limited CPU local checks; no Maven. Full unrelated feature acceptance remains separate."
+        },
+        {
+          "date": "2026-10-19",
+          "command": "node --test --test-concurrency=1 backend/tests/regression/database-bootstrap.test.js",
+          "result": "full_seed_pass_pending_history_failed",
+          "scope": "Full V1/V2 passes. All85 raw pending SQL and older repair entries unchanged. Complete chain now passes CDC and fails20260711_120000stmt6 created_time missing. Complete pending batch rolls back; no skipped/rewritten journal."
+        }
+      ],
+      "remaining": "Preserve original4 criteria each, including100ms/50ms. Complete production/capacity and no-significant-database-load acceptance are open; all legacy cache consumers and cross-environment/provider/upgrade/reversal behavior are not accepted. Current source CI must be observed. Only original battle framework619 remains independently verified."
     }
   }
 }

@@ -459,7 +459,7 @@
 | [REQ-00476](REQ-00476-api-performance-budget-and-benchmark-automation-system.md) | API性能预算与基准测试自动化系统 | API 设计规范 | P1 | new | gateway/shared/performance-budget、backend/tests/benchmark、backend/shared/middleware/perBudgetMiddleware | 2026-07-07 07:00 UTC |
 | [REQ-00477](REQ-00477-unified-user-consent-management-platform.md) | 统一用户同意管理平台 | 合规/隐私 | P1 | new | gateway、user-service、game-client、database/migrations | 2026-07-07 08:00 UTC |
 | [REQ-00478](REQ-00478-game-data-archiving-and-lifecycle-management-system.md) | 游戏数据归档与生命周期管理系统 | 数据库/数据治理 | P1 | new | database-service、user-service、catch-service、reward-service、backend/jobs、admin-dashboard | 2026-07-07 09:00 UTC |
-| [REQ-00479](REQ-00479-database-query-result-cache-invalidation-system.md) | 数据库查询结果缓存自动失效策略系统 | 性能优化 | P1 | done | database-service/cache-layer/persistence-adapter | 2026-07-07 10:00 |
+| [REQ-00479](REQ-00479-database-query-result-cache-invalidation-system.md) | 数据库查询结果缓存自动失效策略系统 | 性能优化 | P1 | in_progress | database-service/cache-layer/persistence-adapter | 2026-07-07 10:00 |
 | [REQ-00480](REQ-00480-log-anomaly-detection-and-alert-aggregation-system.md) | 日志异常检测与智能告警聚合系统 | 可观测性/监控 | P1 | new | gateway/shared/logger、backend/shared/alerting、backend/jobs/analytics | 2026-07-07 10:00 UTC |
 | [REQ-00481](REQ-00481-pokemon-data-precompiled-cache-system.md) | 精灵数据预编译缓存系统 | 性能优化 | P1 | done | pokemon-service/cache-layer/shared/data-utils | 2026-07-07 11:00 |
 | [REQ-00482](REQ-00482-dynamic-container-load-prediction-autoscaling.md) | 动态容器资源负载预测与主动扩缩容系统 | 成本/资源优化 | P1 | new | k8s-operator/monitoring/autoscaler | 2026-07-07 15:00 |
@@ -503,7 +503,7 @@
 | [REQ-00520](REQ-00520-backend-service-api-compatibility-versioning-system.md) | 后端服务 API 兼容性版本管理与自动化测试系统 | 运维/CICD | P1 | new | gateway、所有后端服务、backend/shared/apiVersionManager.js、backend/tests | 2026-07-09 02:00 UTC |
 | [REQ-00521](REQ-00521-game-ar-capture-mode-anti-cheat-and-security-system.md) | 游戏 AR 增强现实捕获模式防作弊与安全防护系统 | 反作弊 | P0 | done | game-client、backend/security、backend/analysis、gateway | 2026-07-09 09:00 |
 | [REQ-00522](REQ-00522-data-retention-policy-transparency-notification-system.md) | 数据保留政策透明化与用户通知系统 | 合规/隐私 | P1 | new | gateway、user-service、backend/shared/dataRetentionPolicyService.js、backend/jobs/retentionNotificationJob.js、game-client、admin-dashboard | 2026-07-09 03:00 |
-| [REQ-00523](REQ-00523-database-query-result-cache-invalidation-system.md) | 数据库查询结果缓存失效智能同步系统 | 性能优化 | P1 | new | backend/shared/cache, database/cdc, gateway | 2026-07-09 14:00 |
+| [REQ-00523](REQ-00523-database-query-result-cache-invalidation-system.md) | 数据库查询结果缓存失效智能同步系统 | 性能优化 | P1 | in_progress | backend/shared/cache, database/cdc, gateway | 2026-07-09 14:00 |
 | [REQ-00524](REQ-00524-game-datetime-format-localization-system.md) | 游戏日期时间格式本地化与智能显示系统 | 国际化/本地化 | P1 | done | backend/shared/dateTimeFormat.js、gateway/middleware、user-service、game-client、admin-dashboard | 2026-07-09 04:05 UTC |
 | [REQ-00525](REQ-00525-property-based-testing-framework-and-fuzz-testing-system.md) | Property-Based Testing 框架与 API Fuzz Testing 系统 | 测试覆盖 | P1 | done | backend/tests, backend/shared/testing, all services, GitHub Actions | 2026-07-09 09:00 UTC |
 | [REQ-00526](REQ-00526-api-streaming-compression.md) | 实现 API 响应数据流式压缩与流处理系统 | 性能优化 | P1 | new | gateway, backend/shared, game-client | 2026-07-09 15:00 |

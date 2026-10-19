@@ -43,6 +43,12 @@ function createProxyMiddleware(options) {
     proxyTimeout: options.proxyTimeout || 30000,
     timeout: options.timeout || 30000
   });
+  proxy.on('proxyReq', (upstream, req) => {
+    if (req.cacheCapture) upstream.setHeader('accept-encoding', 'identity');
+  });
+  proxy.on('proxyRes', (upstream, req) => {
+    if (req.cacheCapture) req.cacheCapture(upstream);
+  });
   for (const event of ['proxyReq', 'proxyRes', 'proxyReqWs']) {
     if (options.on?.[event]) proxy.on(event, (...args) => {
       try { options.on[event](...args); }

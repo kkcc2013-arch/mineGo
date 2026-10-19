@@ -28,6 +28,7 @@ on:
       - 'backend/tests/regression/canary-schema-storage.test.js'
       - 'backend/tests/regression/partition-maintenance-storage.test.js'
       - 'backend/gateway/src/routes/partitions.js'
+      - 'backend/tests/regression/cdc-invalidation-storage.test.js'
       - 'backend/tests/regression/audit-partition-storage.test.js'
       - 'backend/tests/regression/partition-history-storage.test.js'
       - 'backend/tests/regression/currency-storage.test.js'
@@ -123,6 +124,12 @@ jobs:
       - name: Check actual SQL parsing and transaction ownership
         working-directory: backend
         run: npm run test:migrations:unit
+      - name: Verify canonical identity-only CDC storage and refusal of customized contracts
+        working-directory: backend
+        run: node --test --test-concurrency=1 tests/regression/cdc-invalidation-storage.test.js
+        env:
+          UV_THREADPOOL_SIZE: '2'
+          TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
       - name: Check actual CLI checksums, concurrency, rollback and interrupted ownership
         working-directory: backend
         run: npm run test:migrations:storage

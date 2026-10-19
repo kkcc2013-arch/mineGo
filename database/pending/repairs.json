@@ -170,6 +170,11 @@
       "sourceSha256": "98c5dbb5232a7d3869d7a97d657baa479d41e12db6ffa4cb09d5debd5d624707",
       "file": "repairs/20260707_060000__complete_partition_management.sql",
       "reason": "Preserve canonical five created_at RANGE parents, historical bounds/data and partition_stats/dependents instead of replacing view columns or creating shadow tables. Add guarded actual UTC current+three-future-month creation, exact child counts/bytes and truthful health; reuse actual existing bounds/weekly phase and original atomic DEFAULT movement helper. No unverified pg_cron archive/drop schedule, hardcoded missing archive tables or false implemented notice. Durable archive/recovery/S3/retention/performance/full runtime/upgrade/reversal acceptance remains open."
+    },
+    "20260707_100000": {
+      "sourceSha256": "4a11a1f7e457ea11181580d313097b276582947b3975c4fe67fb4813867b5f39",
+      "file": "repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql",
+      "reason": "Bind18 actual canonical user/species/instance/candy/pokedex/catch/gym/raid/social/item/quest/achievement/order resources. Preserve rows, existing trigger/function identities and partition ancestry; refuse customized/legacy active contracts rather than silently replace them. Transactional pending outbox projects only approved bounded identity columns, with opaque UUID-only schema-scoped NOTIFY; no full user/payment/row payload or8KB failure. Actual Redis deletion/retry/distributed-L1/fill-fencing/rule/API/latency/load and complete history acceptance must be verified independently."
     }
   }
 }
