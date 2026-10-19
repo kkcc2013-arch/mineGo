@@ -1070,7 +1070,7 @@
         "- [ ] CI/CD 流水线集成 API 敏感字段扫描，P0 级暴露会导致构建失败",
         "- [ ] 文档更新，包括敏感字段定义、脱敏规则配置、密钥管理流程"
       ],
-      "verificationStatus": "partial_sql_isolation_and_privileges_verified_crypto_mfa_api_open",
+      "verificationStatus": "partial_durable_crypto_storage_and_kms_wire_verified_live_kms_mfa_api_open",
       "implementationReferences": [
         "backend/shared/auditLogEncrypted.js",
         "backend/shared/dataMaskingEngine.js",

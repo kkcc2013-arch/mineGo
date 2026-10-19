@@ -3,7 +3,8 @@
 REQ-00038 remains in progress. Its ten original criteria, including rotating
 AES-256-GCM keys, complete access audit, ten masking types, admin MFA and at least
 90% crypto/masking/permission coverage, are unchanged. This checkpoint verifies
-storage isolation and database function privileges.
+storage isolation and database function privileges. The subsequent runtime
+checkpoint is described in [audit encryption](AUDIT-ENCRYPTION.md).
 
 The original `20260608_200000` migration checked `information_schema.columns` by
 table and column name across every schema. Another schema's encryption tag caused
@@ -51,21 +52,19 @@ V1/V2, both alone and alongside an unrelated audit table with matching encryptio
 column names. This installation evidence does not accept every historical upgrade,
 reverse migration, service, provider or security criterion.
 
-The remaining runtime defects include:
+The runtime helper now persists authenticated canonical writes, durable wrapped
+work keys and true rotation. Sensitive-access writes preserve the complete
+cipher/IV/tag/key envelope in existing BYTEA storage and withhold responses when
+recording fails. Actual PostgreSQL and real SDK HTTP evidence is described in
+[audit encryption](AUDIT-ENCRYPTION.md); live AWS authorization is still open.
 
-- `auditLogEncrypted.js` has temporary/development key and plaintext fallbacks;
-  stored BYTEA keys are treated as strings, rotation can reuse the active key,
-  the writer drops the authentication tag, and its query calls decryption with
-  the wrong arguments. It also names resource columns that differ from V1.
-- `sensitiveDataAudit.js` does not persist the IV/tag needed to recover its cipher
-  payload. Its configured role/MFA decisions and query boundaries need real
-  authenticated integration.
-- The common audit logger still writes plaintext details and application log
-  metadata. Production encrypted writes, stable key-provider ownership, historical
-  decryptability and migration policy require actual end-to-end verification.
-- Response filters/scanners, actual mounted admin MFA/decrypt/access routes and
-  the dashboard remain to be completed and tested with the original numerical
-  targets. A storage pass is not evidence of encryption, MFA or compliance.
+The remaining requirement work includes the common logger's plaintext paths,
+complete business/transaction access coverage, authenticated role and admin MFA
+boundaries, complete response filtering/scanning, and the dashboard. The existing
+sensitive-rule helper still trusts a supplied MFA boolean and is not an HTTP
+authorization boundary. These APIs have not been mounted in the production
+entry points. New crypto module coverage does not establish the original combined
+crypto/masking/permission coverage target or accept every criterion.
 
 No production cleanup, key replacement, external delivery or deployment is performed
 by these checks. Local fixture keys are generated at runtime and are not project

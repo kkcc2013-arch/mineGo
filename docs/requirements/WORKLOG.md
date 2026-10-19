@@ -1997,3 +1997,81 @@ No Maven/CPU saturation/new requirements/merge/deploy/production cleanup. Heavy
 checks sequentialnice10/UV2; Redis/Kafka remain stopped and unrelated containers intact.
 
 Final staging whitespace check caught trailing whitespace inherited by the new repair. Encode known historical function prosrc as SQL E-string literals to preserve exact legacy whitespace, then remove outer trailing whitespace. Final rerun16 sensitive/3 fullbootstrap/724 unit/1457 syntax passes; refresh only actual changed repair/artifact references. No raw migration or functional gate changed.
+
+## Durable audit encryption checkpoint (2026-10-19)
+
+Continued the existing 658-requirement goal and read the actual audit, local KMS
+and MFA interfaces. The old encrypted helper lost tags, mishandled BYTEA keys,
+used incorrect canonical columns/decrypt arguments, and could reuse an active key
+on rotation. The existing KMS directory is a local vault, with development
+fallbacks; it does not establish external production KMS or verified admin MFA.
+
+The lazy encrypted-audit facade now uses three production modules for bounded
+AES-256-GCM primitives, explicit environment/AWS KMS providers, and durable
+canonical PostgreSQL storage. Audit rows commit their cipher/key/IV/auth tag
+atomically, bind row identity/subject/action/resource metadata with AAD, and keep
+private details/IP/agent out of plaintext columns. BIGSERIAL remains a string,
+including genuine IDs above 2^53 after actual partition conversion. Initialization
+refuses schema shadows instead of borrowing another search-path schema's tables.
+There is no runtime DDL, master/key file, generated-master or plaintext fallback.
+Caller-owned pools/providers survive close; imports start no timers or clients.
+
+Audit-owned work keys are purpose-separated in the existing canonical table.
+Actual row/advisory locking supports first-use contention and overlapping rotation
+with writes, without shared-row-lock upgrade deadlock. Original 90-day expiry,
+forced and changed-master rotation create new keys; versions/lineage and old
+wrapped history remain. Provider/storage failure rolls back key and audit changes;
+actual generated work-key buffers are cleared after failed insertion. Historical
+legacy wrapping requires an explicitly retained master and authentic IV/tag;
+missing historical data is reported unavailable, never reconstructed as success.
+
+The sensitive-access adapter now stores its full versioned envelope in existing
+BYTEA storage, keeping fields/reason/IP/agent encrypted and preserving 90-day
+retention. Reads report old incomplete records explicitly. Its middleware detects
+present zero-valued fields, recognizes the upstream sub identity and withholds the
+private HTTP response on audit failure. The actual fresh-process HTTP fixture
+injects trusted identity; it does not prove production authentication or MFA.
+
+Production requires stable namespace and a full regional AWS KMS key ARN, with an
+explicit historical decrypt allowlist and SDK credential chain. The pinned SDK
+adds 23 packages without changing any existing locked package version. Real signed
+SDK HTTP requests verify GenerateDataKey/Decrypt/context and failure handling
+against a loopback fixture. This exposed a requestTimeout option that only warned;
+throwOnRequestTimeout now aborts and the real timeout test passes. It is not live
+AWS IAM/key-policy/CloudTrail/availability/latency acceptance. No real AWS key or
+credential was supplied, no provider-family conversion or rewrap is performed.
+
+Final current-source crypto20/20/no skips passes with three-module coverage:
+98.04% lines, 88.98% branches, 98.31% functions. The new CI gate enforces 90% lines
+and functions for that scope; a 90% branch/full combined-scope pass is not claimed.
+Also pass actual sensitive SQL16, complete bootstrap3 (V1/V2 plus both isolated
+and cross-schema all85 histories), 724 unit checks/24Jest425, battle133 with
+100% formula coverage, and 1462 syntax files. Initial broad unit invocation
+incorrectly inherited LOG_LEVEL=error, suppressing INFO records asserted by the
+existing logging test; rerun under normal logging passes without changing its
+assertions. Initial fixture SQL quoting and partition sequence ownership mistakes
+were corrected; the canonical default child retains sequence ownership. Heavy
+checks remain sequential/nice10/UV2/node concurrency1/Jest runInBand, without Maven.
+
+Independently observed exact previous f671847 main466/run39239346368,
+title-native35/run39239346234 and migration28/run39239346302 all SUCCESS.
+Downloaded migration job118016095205 confirms actual SQL16 and complete85;
+paired throughput -2.5227292689284586% passes the unchanged -5% ceiling, with all
+eight measured hashes matching. Archive metadata/log hash/report. Earlier negative
+cache/throughput evidence remains unwaived. Other legacy contract/API/security/
+integration/performance/E2E workflows remain separate; new crypto-source CI still
+requires observation after publication.
+
+REQ38 remains in progress and all ten original criteria/numerical targets are
+unchanged. Common auditLog still writes plaintext; full business/transaction
+access coverage, actual roles/server-verified admin MFA, response filters/scanner,
+UI and original combined >=90% crypto/mask/permission coverage remain open. The
+old sensitive-rule helper still trusts hasMFA, and no new native admin decrypt
+route is mounted. Do not accept the full feature from this crypto checkpoint.
+
+All85 raw migrations and repair manifest unchanged. No new requirement, merge,
+deploy, production cleanup/rekey or recipient delivery. Inventory remains
+183 declared done/46 in progress/429 new, 658 unique documents,42 matching
+source-hashed records; independently verified1 remains the original REQ619 battle
+framework. Continue common audit/real authorization integration and all remaining
+P0/services/clients/security/operations work in the persistent goal.
