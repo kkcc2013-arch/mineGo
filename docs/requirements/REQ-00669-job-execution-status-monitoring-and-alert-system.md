@@ -3,7 +3,7 @@
 - **编号**：REQ-00669
 - **类别**：运维/CICD
 - **优先级**：P1
-- **状态**: done
+- **状态**: in_progress
 - **涉及服务/模块**：backend/jobs、backend/shared/jobMonitor、infrastructure/monitoring、admin-dashboard
 - **创建时间**：2026-07-11 11:00
 - **依赖需求**：REQ-00491（监控指标生命周期管理）
@@ -230,6 +230,6 @@ class TrendAnalyzer {
 **编号**: REQ-00669
 **类别**: 运维/CICD
 **优先级**: P1
-**状态**: new
+**状态**: in_progress
 
 > 编号迁移（2026-10-06）：本需求原编号为 REQ-00538。该编号被多个文档使用，现改为 REQ-00669；历史映射见 [编号迁移记录](NUMBER-MIGRATIONS.md)。

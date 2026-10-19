@@ -32,6 +32,19 @@ test('actual Redis and independent L1 instances fence fills, broadcast invalidat
       const unusual='api:items:item[ab]*?:literal',near='api:items:itemaXYZ:literal';await fill(first,unusual,{literal:true});await fill(first,near,{retained:true});
       assert.equal(await first.invalidatePatternStrict('api:items:item\\[ab\\]\\*\\?:literal'),1);assert.equal(await first.get(unusual),null);assert.deepEqual(await first.get(near),{retained:true});
     });
+    await t.test('invalidation arriving during a genuine Redis read bypasses that fill instead of treating it as a hit',async()=>{
+      const raced='api:read-race:value';await fill(first,raced,{retained:true});first.memory.delete(raced);
+      const actualEval=first.client.eval;
+      let release,readCompleted;
+      const held=new Promise(resolve=>{release=resolve;});const started=new Promise(resolve=>{readCompleted=resolve;});
+      first.client.eval=async function(...args){const result=await actualEval.apply(this,args);readCompleted();await held;return result;};
+      const pending=first.readForFill(raced);const before=first.epoch;
+      try{
+        await started;await second.invalidatePatternStrict('api:unrelated:*');await until(()=>first.epoch>before);
+        release();const entry=await pending;assert.equal(entry.disabled,true);assert.equal(entry.hit,false);assert.equal(entry.value,null);assert.equal(first.memory.has(raced),false);
+      }finally{first.client.eval=actualEval;release();await pending;}
+      assert.deepEqual(await first.get(raced),{retained:true});
+    });
     await t.test('bulk matching iterates real SCAN pages and invalidates all actual keys',async()=>{
       for(let i=0;i<230;i++)await fill(first,'api:bulk:'+i,{i});assert.equal(await first.invalidatePatternStrict('api:bulk:*'),230);
       let remaining=0;await first.scan(first.storagePrefix+'api:bulk:*',keys=>{remaining+=keys.length;});assert.equal(remaining,0);

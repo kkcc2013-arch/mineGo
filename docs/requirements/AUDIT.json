@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 185,
-      "in_progress": 44,
+      "done": 184,
+      "in_progress": 45,
       "new": 429
     },
     "priorityCounts": {
@@ -189,7 +189,7 @@
         "- [ ] 编写迁移工具单元测试，覆盖核心场景",
         "- [ ] 文档更新：README 添加迁移使用说明"
       ],
-      "verificationStatus": "partial_verified_full_history_failed",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "database/pending/20261008_130000__item_catalog_prerequisite.sql",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql"
@@ -433,7 +433,7 @@
         "- [ ] 集成测试验证完整删除流程",
         "- [ ] 法律审核通过（隐私政策）"
       ],
-      "verificationStatus": "partial_sql_verified_runtime_and_full_history_failed",
+      "verificationStatus": "partial_sql_verified_runtime_and_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/services/user-service/src/gdprService.js",
         "backend/services/user-service/src/routes/auth.js",
@@ -1389,7 +1389,7 @@
         "- [ ] 前端背包界面显示正常",
         "- [ ] 容量限制和提示正常"
       ],
-      "verificationStatus": "partial_verified_full_history_failed",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/services/pokemon-service/src/inventoryService.js",
         "backend/tests/unit/inventory.test.js",
@@ -1518,7 +1518,7 @@
         "- [ ] 单元测试覆盖率 ≥ 80%",
         "- [ ] API 响应时间 < 100ms（缓存命中）"
       ],
-      "verificationStatus": "partial_verified_full_history_failed",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/shared/currencyFormatter.js",
         "backend/shared/exchangeRateService.js",
@@ -1691,7 +1691,7 @@
         "- [ ] Prometheus 指标正确暴露",
         "- [ ] 单元测试覆盖率 ≥ 80%"
       ],
-      "verificationStatus": "partial_verified_full_history_failed",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/services/pokemon-service/src/pokedexService.js",
         "backend/services/pokemon-service/src/routes/pokedex.js",
@@ -1812,7 +1812,7 @@
         "- [ ] 迁移脚本可回滚，不影响服务可用性",
         "- [ ] 分区统计 API 可查询各分区大小和行数"
       ],
-      "verificationStatus": "partial_verified_full_history_failed",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/gateway/src/index.js",
         "backend/gateway/src/routes/partitions.js",
@@ -2048,7 +2048,7 @@
         "- [ ] 前端羁绊面板UI完整，支持响应式布局",
         "- [ ] 等级提升动画效果正常触发"
       ],
-      "verificationStatus": "partial_verified_full_history_failed",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/services/pokemon-service/src/friendshipService.js",
         "backend/services/pokemon-service/src/index.js",
@@ -2340,7 +2340,7 @@
         "- [ ] 性能测试：成就查询 < 100ms，进度更新 < 50ms",
         "- [ ] Prometheus 指标正确暴露（成就解锁数、处理延迟等）"
       ],
-      "verificationStatus": "partial_verified_full_history_failed",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/services/pokemon-service/src/achievementService.js",
         "backend/services/pokemon-service/src/index.js",
@@ -2379,7 +2379,7 @@
         "- [ ] 单元测试覆盖率 > 80%",
         "- [ ] 文档完整（使用说明、最佳实践）"
       ],
-      "verificationStatus": "partial_verified_full_history_failed",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/shared/indexUsageAnalyzer.js",
         "backend/shared/queryPlanAnalyzer.js",
@@ -2417,7 +2417,7 @@
         "- [ ] **监控指标**：提供 Prometheus 指标用于监控金丝雀发布状态",
         "- [ ] **API 完"
       ],
-      "verificationStatus": "partial_sql_verified_runtime_and_full_history_failed",
+      "verificationStatus": "partial_sql_verified_runtime_and_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "database/pending/repairs/20260701_110000__add_canary_deployment_tables.sql"
       ],
@@ -2446,7 +2446,7 @@
         "- [ ] 数据库迁移脚本正确执行",
         "- [ ] Prometheus 指标正确记录"
       ],
-      "verificationStatus": "partial_verified_full_history_failed",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/services/pokemon-service/src/routes/friendship.js",
         "backend/shared/friendshipService.js",
@@ -2533,7 +2533,7 @@
         "- [ ] 已集成到 catch-service，捕捉流程已接入风控检查",
         "- [ ] 异常捕捉阻止率 ≥ 90%，误判率 ≤ 0.5%"
       ],
-      "verificationStatus": "partial_verified_full_history_failed",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/shared/catchAnomalyDetector.js",
         "backend/tests/regression/catch-risk-storage.test.js",
@@ -2812,7 +2812,7 @@
         "- [ ] Prometheus 指标正确记录装备获取、强化、装备等事件",
         "- [ ] 单元测试覆盖率 ≥ 80%，至少 40 个测试用例"
       ],
-      "verificationStatus": "partial_verified_full_history_failed",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/services/pokemon-service/src/index.js",
         "backend/services/pokemon-service/src/routes/equipment.js",
@@ -2963,7 +2963,7 @@
         "- [ ] 单元测试覆盖核心逻辑（20+ 测试用例）",
         "- [ ] 性能测试：事务吞吐量不下降超过 5%"
       ],
-      "verificationStatus": "partial_verified_full_history_failed",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/shared/db.js",
         "backend/tests/unit/transaction-manager.test.js",
@@ -3590,7 +3590,7 @@
         "- [ ] 单元测试覆盖率 > 80%",
         "- [ ] 压力测试支持 1000 并发用户"
       ],
-      "verificationStatus": "partial_verified_full_history_failed",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/services/social-service/src/routes/voice.js",
         "backend/services/social-service/src/voice/roomManager.js",
@@ -3826,7 +3826,7 @@
         "- [ ] 单元测试覆盖率 ≥ 90%",
         "- [ ] 集成测试验证完整购买流程"
       ],
-      "verificationStatus": "partial_sql_verified_full_history_failed",
+      "verificationStatus": "partial_sql_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "database/pending/20260630_040000__add_pokemon_cosmetic_system.sql",
         "database/pending/repairs/20260630_040000__add_pokemon_cosmetic_system.sql"
@@ -3877,7 +3877,7 @@
         "- [ ] 满足 GDPR 第17条\"被遗忘权\"要求",
         "- [ ] 满足 CCPA 第1798.105条\"删除权\"要求"
       ],
-      "verificationStatus": "partial_sql_verified_runtime_and_full_history_failed",
+      "verificationStatus": "partial_sql_verified_runtime_and_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/jobs/dataDeletionProcessor.js",
         "backend/services/user-service/src/index.js",
@@ -4771,7 +4771,7 @@
         "- [ ] 单元测试覆盖特殊 IV 生成逻辑",
         "- [ ] 集成测试覆盖幸运精灵交换流程"
       ],
-      "verificationStatus": "partial_verified_full_history_failed",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/services/location-service/src/index.js",
         "backend/services/pokemon-service/src/routes/pokedex.js",
@@ -9978,7 +9978,7 @@
         "- [ ] 前端 UI 提供直观的整理控制面板",
         "- [ ] 移动端适配，支持手势滑动操作"
       ],
-      "verificationStatus": "partial_verified_full_history_failed",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/services/pokemon-service/src/index.js",
         "backend/services/pokemon-service/src/inventory/InventorySorter.js",
@@ -16731,7 +16731,7 @@
         "- [ ] 数据完整性验证通过（归档前后数据一致）",
         "- [ ] 文档完善（分区策略、运维手册、故障恢复指南）"
       ],
-      "verificationStatus": "partial_runtime_storage_verified_full_history_failed",
+      "verificationStatus": "partial_runtime_storage_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/gateway/src/index.js",
         "backend/gateway/src/routes/partitions.js",
@@ -17951,11 +17951,11 @@
       "id": "REQ-00669",
       "title": "REQ-00669：任务执行状态实时监控与智能告警系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "运维/CICD",
       "modules": "backend/jobs、backend/shared/jobMonitor、infrastructure/monitoring、admin-dashboard",
       "createdAt": "2026-07-11 11:00",
-      "sha256": "3de36e12042a8b672207860beca1071296bdc0270e636f6d2aae79528cbbc51c",
+      "sha256": "0b2d55cbfd7e616e7eac9400491aae2456518349fddc5eed79e1481754cbfc3d",
       "acceptance": [
         "- [ ] 所有 backend/jobs/ 目录的任务（22 个）均注册到 JobStatusAggregator",
         "- [ ] 任务状态实时聚合延迟 < 5 秒（从状态变更到仪表板可见）",
@@ -17968,7 +17968,7 @@
         "- [ ] 单元测试覆盖率 > 80%（覆盖聚合器、告警引擎、健康检查器）",
         "- [ ] 端到端测试：模拟任务失败场景，验证告警链路完整性"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_storage_logger_verified_registration_alerts_api_ui_open",
       "implementationReferences": [
         "backend/gateway/src/routes/jobMonitor.js",
         "backend/shared/jobMonitor/jobExecutionLogger.js",

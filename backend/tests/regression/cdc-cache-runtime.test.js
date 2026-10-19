@@ -16,7 +16,9 @@ test('actual committed PostgreSQL changes invalidate independent Redis/L1 instan
   const a=new CoherentCache(),b=new CoherentCache();
   const first=new CacheInvalidationCenter({pool,cache:a,namespace,redis:redisConfig,registry:new Registry(),pollMs:100});const second=new CacheInvalidationCenter({pool,cache:b,namespace,redis:redisConfig,registry:new Registry(),pollMs:100});
   const owner=crypto.randomUUID(),other=crypto.randomUUID();const key=`api:profile:/v1/users/${owner}/profile:user:${owner}`,foreign=`api:profile:/v1/users/${other}/profile:user:${other}`;
-  const fill=async(cache,key,value)=>{const entry=await cache.readForFill(key);assert.equal(entry.disabled,undefined);assert.equal(await cache.set(key,value,60,{token:entry.token}),true);};
+  // Source writes can still be broadcasting a prior invalidation. Establish an
+  // actual successful fenced fill before measuring or asserting later behavior.
+  const fill=async(cache,key,value)=>until(async()=>{const entry=await cache.readForFill(key);if(entry.disabled)return false;return cache.set(key,value,60,{token:entry.token});});
   try{
     await pool.query(await read('database/migrations/V1__initial_schema.sql'));await pool.query(await read('database/seeds/V2__seed_data.sql'));
     for(const file of ['20261008_140000__audit_partition_conversion.sql','repairs/20260610_100000__add_table_partitioning_system.sql','20261008_130000__item_catalog_prerequisite.sql','repairs/20260609_124500__add_item_inventory_system.sql'])await apply(pool,await read('database/pending/'+file));

@@ -44,7 +44,7 @@
     "20260711_120000": {
       "sourceSha256": "9577c3dcaf6e91a4f5931229df810235002f2fe057372296ae3eead79b381625",
       "file": "repairs/20260711_120000__add_job_monitoring_tables.sql",
-      "reason": "Align 1 foreign-key column types with authoritative V1 UUID users/pokemon_instances; retain other SQL."
+      "reason": "Retain canonical SERIAL log/alert/snapshot/suppression identities and UUID acknowledger linkage. Correct the impossible created_time index to the actual created_at used by the production logger; preserve rows, sequences, view/dependent/index/FK/comment identities and refuse customized table/index/view contracts atomically. Do not fabricate history, replace operator definitions or send alerts. Full job registration, persisted runtime/API/dashboard/latency/noise/coverage and complete history/upgrade/reversal acceptance remain open."
     },
     "20260610_040000": {
       "sourceSha256": "98ddd1518d321b6e86ddd4ed28f67312e3769864c1e7cd41a1b15f8eb95e1a08",

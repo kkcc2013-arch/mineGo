@@ -3,7 +3,7 @@
 Updated: 2026-10-19. Scope: all 658 existing requirement documents in INDEX.md,
 including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 429 new, 44 in progress; 185 declared done, including one independently verified framework. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 429 new, 45 in progress; 184 declared done, including one independently verified framework. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -28,12 +28,12 @@ independent authorized work.
 
 ## Current batch
 
-1. Complete shared installation: full85-source history now passes partition/weather
-   and reaches CDC20260707_100000 statement5, trigger on nonexistent pokemon. Bind
-   cache invalidation to actual canonical resources/keys and verify real commit,
-   rollback, subscription/reconnect and privacy behavior. Partition creation/stats/
-   admin API/daily lifecycle now have actual storage/native evidence; archive/S3/
-   restore/retention/benchmarks and all full requirements remain open.
+1. Full isolated V1/V2 plus all85 original pending migrations/checksums/cleanup now
+   pass with declared test-server lock capacity256. Complete remaining safe upgrade/
+   reverse/startup behavior and fix the known cross-schema audit column lookup.
+   Continue actual P0/service/security prerequisites; fresh installation does not
+   accept every feature. Job history/logger now have genuine persistence evidence;
+   full monitor registration, authenticated API/controls, alerts and dashboard remain.
 2. Inventory/cosmetic storage prerequisites have real preservation/CLI evidence;
    actual inventory projections/confirmed protected transfers/soft-deletion consumers,
    preferences/cache/capacity/UI and cosmetic service/routes/purchase/slots/presets/
@@ -43,8 +43,8 @@ independent authorized work.
    work while genuine external provider/staging/device inputs are unavailable.
 4. Repair remaining legacy contract/API/integration/performance/security/operations
    gates, meet each original numerical target and perform all658 acceptance audit.
-   Main459 and selected storage routes pass at a769b0d; full migration and other named
-   workflows do not. A partial/source-specific pass never accepts a whole feature.
+   Main464 passes at766ad98; its cache CI and full migration CI fail as
+   recorded. New local fresh-history pass must receive current-source CI. A partial/source-specific pass never accepts a whole feature.
 
 ## Definition of finished
 
@@ -779,3 +779,77 @@ passes partition22/original80% gate/all other correctness and actual throughput
 job still fails oldCDC trigger. Archive its actual report alongside prior2e5
 -6.352968581797381% failed gate; no waiver/cherrypicking, no new local throughput
 rerun for unchanged8 sources. Never mark all658 achieved from partial checkpoints.
+
+
+## Job history and fresh installation checkpoint (2026-10-19)
+
+Previous goal turn made concrete progress: published766ad98 actual CDC/gateway
+runtime and40 genuine storage tests. Exact-source main464 passed. Title/native33
+run39179749635/job117829780788 then failed cache37pass/3fail (two children+parent),
+so its native step was skipped. Remote12 latency samples max15.145301ms pass original
+50ms; that does not waive functional failure. Real invalidation advanced the local
+generation while a setup Redis read was in flight, correctly returning disabled.
+New deterministic held-real-Redis-read case verifies bypass/miss/no stale L1 fill;
+seed only after a genuinely successful fenced fill. Production cache/gateway code
+unchanged. Final41 real cache/CDC/HTTP cases pass/no skips; final12 latency samples
+max12.950595ms with matching hashes. Preserve original50/100ms gates and archived
+source-specific CI failure, earlier53.273ms failure and prior diagnostic scopes.
+
+REQ669 original document fully read,10 criteria retained; its conflicting topdone/
+footernew metadata both becomein_progress.185→184done,44→45progress,429new;658 unique,
+41 source-matching records and verified619 only. Its canonical source-bound existing
+job repair corrects created_time to realcreated_at, preserves four operational
+histories/SERIAL IDs/sequences/operator comments/indexes/views/dependents and UUID
+acknowledger FK, and atomically rejects incompatible contracts. TEMP probes cannot
+reference permanent users via FK (actual42P16); check actual UUID target/action/
+validation/column contract separately, with no disabled FK or fabricated link.
+Genuine CLI up/up/verify preserves raw/execution hashes. All85 raw sources remain
+unchanged; only the existing20260711_120000 repair entry/executed content changes,
+never a recorded journal. Differing-repair upgrade still needs explicit handling.
+
+Production JobExecutionLogger now lazily shares configured DATABASE_URL pool and
+verifies canonical migrated storage rather than auto-DDL/default credentials.
+Supplied shared pools remain usable; explicitly owned dedicated pools close.
+Scoped atomic completion gives one actual winner/conflicting status409, matching
+replay preserves result; negative time/invalid input cannot rewrite execution.
+Real parameterized history/filters/metadata/rates include null success for no runs.
+New UTC start/end/created_at clocks survive real UTC/Shanghai process and NewYork
+session timezone differences. Historical types/values remain; unknown timezone
+provenance is not reconstructed. Retention >=90days deletes only old completed
+records, preserving running/recent/unknown states; no production cleanup/timer starts.
+Final24 actual job SQL/CLI/logger/storage/native-TZ/pool/race cases pass/no skips,
+module100line/94.50branch/95.65function at80% line/function gate. Original669 core
+aggregator/alert/health>80% remains separate and unmet. First timezone child used
+root require(pg), corrected actual backend dependency path; no fake dependency.
+
+Full85 chain initially reached all85 raw-matching journal entries but final owned
+2574-object schema DROP failed53200 under default max_locks_per_transaction64.
+Raise only owned PostGIS fixture/isolated migrationCI to256 before restart, preserving
+whole atomic migration and checksum gates. Confirm original85 raw hashes in the
+retained fixture before removing that owned schema. It exposed an older audit
+migration's unscoped information_schema lookup: another schema's encryption_auth_tag
+caused new schema skip/failure. That cross-schema case is explicitly unresolved.
+After confirmed owned diagnostic cleanup, real full V1/V2+all85/checksums/cleanup
+passes2/2/no skips. PostgreSQL15 official lock docs linked in JOB-MONITORING.md;
+no production config/data change, no benchmark threshold or immutable baseline change.
+Fresh install is a prerequisite pass, not all upgrade/reverse/service acceptance.
+
+Final current checks: job24/cache41, full bootstrap2,724 unit/24Jest425,1456 syntax,
+workflow parsing and audit. First unit invocation wrongly forcedLOG_LEVEL=error
+and correctly failed a logger-context assertion; rerun with normal environment
+passes unchanged tests. Heavy checks sequential nice10/UV2; no Maven/CPU saturation.
+Owned Redis stopped after tests; Kafka remains stopped; unrelated containers intact.
+Exact prior766 migration26/run39179749602/job117829780475 correctness/CDC17/TLS/
+partition80% and actual throughput-2.715739325993871% pass original-5%, all8 source
+hashes match. Full prior migration fails old jobcreated_time. Archive actual report
+alongside earlier negatives; no new local throughput rerun for unchanged8 sources.
+New full-source CI still must be observed; do not claim all green.
+
+All original P0/service/client/security/operations stages and669 registration/
+<5s realtime/90dayhistory/60sactualalert/10minsuppression/>95%zombie/<10%scoreerror/
+adminUI/corecoverage/E2E remain required. Job routes remain unmounted/unauthenticated
+with lazy resources and placeholder restart/skip, and no jobs register into current
+aggregator. Next prioritize actual P0 services/security dependencies and the scoped
+audit installation defect; finish full monitor runtime safely, with actual auth,
+job ownership and real delivery before accepting669. No external recipients,
+production deletion, merge/deploy, new requirements or reduced targets.

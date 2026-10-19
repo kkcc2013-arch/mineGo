@@ -120,7 +120,7 @@
         "database/pending/20260611_152900__add_privacy_preference_center.sql": "fed6b42590f4829f4b474b9ddf840a08d7b8cce7b53bd502a0b9fe7417ec63d8",
         "database/pending/repairs/20260611_152900__add_privacy_preference_center.sql": "ac250e1ee3e789b017f7a1c54ebee3488345068aca38ea6e93df70e64483c896",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162"
       },
@@ -416,6 +416,15 @@
             "backend/tests/regression/gateway-startup.test.js",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
@@ -544,7 +553,7 @@
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa"
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e"
       },
       "evidence": [
         {
@@ -864,6 +873,15 @@
             "backend/shared/cache.js",
             "backend/tests/regression/gateway-startup.test.js",
             ".github/workflows/title-regression.yml",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
             "database/pending/repairs.json"
           ]
         }
@@ -890,7 +908,7 @@
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa"
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e"
       },
       "evidence": [
         {
@@ -1210,6 +1228,15 @@
             "backend/shared/cache.js",
             "backend/tests/regression/gateway-startup.test.js",
             ".github/workflows/title-regression.yml",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
             "database/pending/repairs.json"
           ]
         }
@@ -1239,7 +1266,7 @@
         "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "database/pending/repairs/20261007_120000__title_identity_compatibility.sql": "26c5317694faa4f2a263923d4b915dfc0508d6a69c092c1c449306ee88702837",
         "database/pending/repairs/20260615_170500__add_title_system.sql": "f43872c531d7ac6a9a2875d2eb9a3f603781e4caf3bfdbe7482e7864629bf9ac",
         "backend/tests/regression/title-upgrade-storage.test.js": "406ebc4206cad8d523478a60e7e7a55e81cdbeaae369b1112fefdadfef59bb01",
@@ -1581,6 +1608,15 @@
             "backend/tests/regression/gateway-startup.test.js",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1608,7 +1644,7 @@
         "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa"
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e"
       },
       "evidence": [
         {
@@ -1931,6 +1967,15 @@
             "backend/tests/regression/gateway-startup.test.js",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -1958,7 +2003,7 @@
         "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "docs/NOTIFICATIONS.md": "5b47d94114ba552f47f6d88f8aaba2ceb17c4e705174c1872d95f5e0655726ae",
         "backend/services/user-service/src/notificationService.js": "9b1809ee37dcef1cc4794db12b5a0fc2f4df876ade8dab918b378eca07d75194",
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
@@ -1977,7 +2022,7 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
         "frontend/game-client/src/i18n/index.js": "37dd930d9f30e6f6b088ad74f669c7cecbd91f7937ccb84e685d1dbfe4fa2690",
@@ -2399,6 +2444,16 @@
             "backend/gateway/src/index.js",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -2431,7 +2486,7 @@
         "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa"
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e"
       },
       "evidence": [
         {
@@ -2710,6 +2765,15 @@
             "backend/gateway/src/index.js",
             ".github/workflows/title-regression.yml",
             "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/repairs.json"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
             "database/pending/repairs.json"
           ]
         }
@@ -2736,7 +2800,7 @@
         "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa"
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e"
       },
       "evidence": [
         {
@@ -3017,6 +3081,15 @@
             "backend/tests/regression/gateway-startup.test.js",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
@@ -3034,7 +3107,7 @@
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa"
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e"
       },
       "evidence": [
         {
@@ -3272,12 +3345,21 @@
             ".github/workflows/title-regression.yml",
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json"
+          ]
         }
       ]
     },
     "REQ-00007-database-migration-management.md": {
       "date": "2026-10-19",
-      "status": "partial_verified_full_history_failed",
+      "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "034e46d0685cd0216fa145e46909ee1996a4e421c719c4f1cd3cab3eacb47404",
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
@@ -3294,11 +3376,11 @@
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/regression/storageSetup.js": "1a67a27f674d7ef022e266da1ebbd5146870cdc290ebd64a51a799f5843ceaee",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
@@ -3310,7 +3392,7 @@
         "database/pending/repairs/20260615_170500__add_title_system.sql": "f43872c531d7ac6a9a2875d2eb9a3f603781e4caf3bfdbe7482e7864629bf9ac",
         "database/pending/repairs/20260630_040000__add_pokemon_cosmetic_system.sql": "401c58b503ea8bf2edee1bf338876213e665a269cd55ade0605c431d1b52b498",
         "database/pending/repairs/20260707_090500__add_weather_boost_tables.sql": "6516147bffac34d8141ac42b4195ba56b9b87a731c84ec54d5ae55dfe41ad17a",
-        "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql": "2eeccd3f32fe490e0d8650779cfa97798cb8f817e49bf45eae04d9366afec9ab",
+        "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql": "fa363868bb347077a17a7b9bd06efa507b7f13d69d9752e28b51b0ce7821d9df",
         "database/pending/repairs/20260610_040000__add_guild_system_tables.sql": "2a29339687184077880c8dd956ba0baa6ba5dce18d49fba3183099f11d7aaaf3",
         "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "b2034194cd84c4f47f3c73438555df5b80c21135535de704a782313dfefe8b8b",
         "database/pending/repairs/20260610_080000__add_ip_ban_system.sql": "2e5811df9812c7e3533fec115665884b00fa6e2f4abb6c9da5a74e07dd3f3104",
@@ -3362,7 +3444,9 @@
         "backend/tests/regression/partition-maintenance-storage.test.js": "56fc446bc42f1189161d5993129756a498924c14feb154470c488e9f2710102b",
         "docs/PARTITION-MAINTENANCE.md": "b5c1d26502ec01a3ec74b14cb8084a42c587139cfcb32d6c74af2f9c84a6b46f",
         "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297",
-        "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json": "07157be9339982b7c7fce5202f3f713766bbffcbf88d6474c96e70f98275b669"
+        "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json": "07157be9339982b7c7fce5202f3f713766bbffcbf88d6474c96e70f98275b669",
+        "docs/benchmarks/migration-fresh-history-local-2026-10-19.json": "14409159f1ff9c0d1d2b039e8a3619bee2af413efd7f3a34bba5c899e9ddcaf5",
+        "docs/benchmarks/transaction-throughput-ci-766ad98-2026-10-19.json": "07d9da96e769d661372b02dc11a3aec04d0b46b357b35d2acb4adac0fb094016"
       },
       "evidence": [
         {
@@ -3878,26 +3962,50 @@
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39126581480",
           "scope": "Exact2df main463 unit/syntax/audit and battle jobs pass; native/title32 job117672875555 passes. Migration25 correctness including actual partition22/original80% module gate and throughput pass; entire migration job fails formerCDC20260707_100000stmt5. Actual archived throughput-2.7440245081718717% meets original-5%; all8 measured source hashes match. Earlier2e5 throughput-6.352968581797381% failure remains retained and unwaived. New CDC source CI is still pending.",
           "artifact": "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json"
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml",
+            "database/pending/repairs.json",
+            "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "fresh_local_history_pass_prior_source_ci_observed",
+          "freshArtifact": "docs/benchmarks/migration-fresh-history-local-2026-10-19.json",
+          "priorCommit": "766ad986e599e9c8f5820d79bd6adc641bb988c3",
+          "migrationRun": 39179749602,
+          "migrationJob": 117829780475,
+          "mainRun": 39179749655,
+          "throughputArtifact": "docs/benchmarks/transaction-throughput-ci-766ad98-2026-10-19.json",
+          "medianChangePercent": -2.715739325993871,
+          "requiredMinimumChangePercent": -5,
+          "scope": "Exact766 main464 passed; migration26 actual canonical CDC17/other correctness/original partition80% gate/TLS and measured throughput pass; full workflow fails old job created_time. Actual downloaded report all8 hashes match. Preserve all earlier negative throughput reports. Current new-source CI must still be observed; no new local throughput rerun or full-upgrade/runtime claim."
         }
       ],
       "remaining": "Complete85-source history now fails20260627_060000 statement13 missing is_deleted. Reconcile canonical inventory/ownership/contracts, all later pending files, data-preserving upgrades/reversal and all-service startup. Exact new remote throughput still unverified; all original acceptance remains open."
     },
     "REQ-00047-pokemon-items-inventory-management-system.md": {
       "date": "2026-10-19",
-      "status": "partial_verified_full_history_failed",
+      "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "1e4b09e980841206306e6d778caa7f0fe0eeaef677852331fca1346756fc3592",
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
@@ -3907,7 +4015,7 @@
         "database/pending/repairs/20260615_170500__add_title_system.sql": "f43872c531d7ac6a9a2875d2eb9a3f603781e4caf3bfdbe7482e7864629bf9ac",
         "database/pending/repairs/20260630_040000__add_pokemon_cosmetic_system.sql": "401c58b503ea8bf2edee1bf338876213e665a269cd55ade0605c431d1b52b498",
         "database/pending/repairs/20260707_090500__add_weather_boost_tables.sql": "6516147bffac34d8141ac42b4195ba56b9b87a731c84ec54d5ae55dfe41ad17a",
-        "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql": "2eeccd3f32fe490e0d8650779cfa97798cb8f817e49bf45eae04d9366afec9ab",
+        "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql": "fa363868bb347077a17a7b9bd06efa507b7f13d69d9752e28b51b0ce7821d9df",
         "database/pending/repairs/20260610_040000__add_guild_system_tables.sql": "2a29339687184077880c8dd956ba0baa6ba5dce18d49fba3183099f11d7aaaf3",
         "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "b2034194cd84c4f47f3c73438555df5b80c21135535de704a782313dfefe8b8b",
         "database/pending/repairs/20260610_080000__add_ip_ban_system.sql": "2e5811df9812c7e3533fec115665884b00fa6e2f4abb6c9da5a74e07dd3f3104",
@@ -4222,25 +4330,36 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql"
+          ]
         }
       ]
     },
     "REQ-00056-pokedex-completion-reward-system.md": {
       "date": "2026-10-19",
-      "status": "partial_verified_full_history_failed",
+      "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "f58d1055fc702bef6e3a6cf4f9ed5156499e4241c8c57d078c7a73efcb7c6212",
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
@@ -4250,7 +4369,7 @@
         "database/pending/repairs/20260615_170500__add_title_system.sql": "f43872c531d7ac6a9a2875d2eb9a3f603781e4caf3bfdbe7482e7864629bf9ac",
         "database/pending/repairs/20260630_040000__add_pokemon_cosmetic_system.sql": "401c58b503ea8bf2edee1bf338876213e665a269cd55ade0605c431d1b52b498",
         "database/pending/repairs/20260707_090500__add_weather_boost_tables.sql": "6516147bffac34d8141ac42b4195ba56b9b87a731c84ec54d5ae55dfe41ad17a",
-        "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql": "2eeccd3f32fe490e0d8650779cfa97798cb8f817e49bf45eae04d9366afec9ab",
+        "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql": "fa363868bb347077a17a7b9bd06efa507b7f13d69d9752e28b51b0ce7821d9df",
         "database/pending/repairs/20260610_040000__add_guild_system_tables.sql": "2a29339687184077880c8dd956ba0baa6ba5dce18d49fba3183099f11d7aaaf3",
         "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "b2034194cd84c4f47f3c73438555df5b80c21135535de704a782313dfefe8b8b",
         "database/pending/repairs/20260610_080000__add_ip_ban_system.sql": "2e5811df9812c7e3533fec115665884b00fa6e2f4abb6c9da5a74e07dd3f3104",
@@ -4565,25 +4684,36 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql"
+          ]
         }
       ]
     },
     "REQ-00060-database-partitioning-for-large-tables.md": {
       "date": "2026-10-19",
-      "status": "partial_verified_full_history_failed",
+      "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "977f5774653c6250eb0e796ac0e6243512d045f17252df04c009d8ae21dce7a5",
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "database/pending/repairs/20260609_233000__spawn_pool_values.sql": "3cc70791efad8348c04cf4f16eebb44392001ed0643705ebb6a49fc0d6eeab90",
         "database/pending/repairs/20260610_013000__add_pvp_battle_system.sql": "fced9a9ff0cba25fb24e9e75feee287466eebbe9ef3ecf7ee22803c8c2ff13b5",
@@ -4593,7 +4723,7 @@
         "database/pending/repairs/20260615_170500__add_title_system.sql": "f43872c531d7ac6a9a2875d2eb9a3f603781e4caf3bfdbe7482e7864629bf9ac",
         "database/pending/repairs/20260630_040000__add_pokemon_cosmetic_system.sql": "401c58b503ea8bf2edee1bf338876213e665a269cd55ade0605c431d1b52b498",
         "database/pending/repairs/20260707_090500__add_weather_boost_tables.sql": "6516147bffac34d8141ac42b4195ba56b9b87a731c84ec54d5ae55dfe41ad17a",
-        "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql": "2eeccd3f32fe490e0d8650779cfa97798cb8f817e49bf45eae04d9366afec9ab",
+        "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql": "fa363868bb347077a17a7b9bd06efa507b7f13d69d9752e28b51b0ce7821d9df",
         "database/pending/repairs/20260610_040000__add_guild_system_tables.sql": "2a29339687184077880c8dd956ba0baa6ba5dce18d49fba3183099f11d7aaaf3",
         "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "b2034194cd84c4f47f3c73438555df5b80c21135535de704a782313dfefe8b8b",
         "database/pending/repairs/20260610_080000__add_ip_ban_system.sql": "2e5811df9812c7e3533fec115665884b00fa6e2f4abb6c9da5a74e07dd3f3104",
@@ -4639,7 +4769,9 @@
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "docs/PARTITION-MAINTENANCE.md": "b5c1d26502ec01a3ec74b14cb8084a42c587139cfcb32d6c74af2f9c84a6b46f",
         "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297",
-        "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json": "07157be9339982b7c7fce5202f3f713766bbffcbf88d6474c96e70f98275b669"
+        "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json": "07157be9339982b7c7fce5202f3f713766bbffcbf88d6474c96e70f98275b669",
+        "docs/benchmarks/migration-fresh-history-local-2026-10-19.json": "14409159f1ff9c0d1d2b039e8a3619bee2af413efd7f3a34bba5c899e9ddcaf5",
+        "docs/benchmarks/transaction-throughput-ci-766ad98-2026-10-19.json": "07d9da96e769d661372b02dc11a3aec04d0b46b357b35d2acb4adac0fb094016"
       },
       "evidence": [
         {
@@ -5042,6 +5174,30 @@
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39126581480",
           "scope": "Exact2df main463 unit/syntax/audit and battle jobs pass; native/title32 job117672875555 passes. Migration25 correctness including actual partition22/original80% module gate and throughput pass; entire migration job fails formerCDC20260707_100000stmt5. Actual archived throughput-2.7440245081718717% meets original-5%; all8 measured source hashes match. Earlier2e5 throughput-6.352968581797381% failure remains retained and unwaived. New CDC source CI is still pending.",
           "artifact": "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json"
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml",
+            "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "fresh_local_history_pass_prior_source_ci_observed",
+          "freshArtifact": "docs/benchmarks/migration-fresh-history-local-2026-10-19.json",
+          "priorCommit": "766ad986e599e9c8f5820d79bd6adc641bb988c3",
+          "migrationRun": 39179749602,
+          "migrationJob": 117829780475,
+          "mainRun": 39179749655,
+          "throughputArtifact": "docs/benchmarks/transaction-throughput-ci-766ad98-2026-10-19.json",
+          "medianChangePercent": -2.715739325993871,
+          "requiredMinimumChangePercent": -5,
+          "scope": "Exact766 main464 passed; migration26 actual canonical CDC17/other correctness/original partition80% gate/TLS and measured throughput pass; full workflow fails old job created_time. Actual downloaded report all8 hashes match. Preserve all earlier negative throughput reports. Current new-source CI must still be observed; no new local throughput rerun or full-upgrade/runtime claim."
         }
       ],
       "remaining": [
@@ -5052,13 +5208,13 @@
     },
     "REQ-00076-pokemon-achievement-and-milestone-reward-system.md": {
       "date": "2026-10-19",
-      "status": "partial_verified_full_history_failed",
+      "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "c0c8a5cd9c479e0a03b092dd10aa44db7944527b45ead014ff332cfebba4b50e",
       "sourceSha256": {
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260611_000000__add_achievement_system_tables.sql": "31e3714195d83afba17bafd85f3590ad51e30011831a5d0a1f5b4e8e5a00e302",
         "database/pending/repairs/20260611_000000__add_achievement_system_tables.sql": "6f9c323240e28aa67a4d54fccd7141b72f7d58f91607ae53568631b90cd0a2d9",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
         "database/pending/20261008_150000__achievement_catalog_bridge.sql": "432a090e79626102f6cff413f6bc844c7617bd0c2cc1346899f95fa1b801e04f",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
@@ -5068,7 +5224,7 @@
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "backend/services/user-service/src/routes/user.js": "7d24fb40cd0662c428a6b42c2bf6636a2a3ac05fdcdc5e8717d1df5a1dbf04df",
         "backend/tests/regression/achievement-storage.test.js": "4983c1a41d7e40fd86bcb29cd59765555c2ff0f10030044ca5b75ee435a4b90b",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/ACHIEVEMENTS.md": "09711c5508a55e25daaa1d2735281a7c35bae20e885c998d93bb3a5d17e8a08d",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
@@ -5386,6 +5542,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": "Replay/idempotency/durable events/automatic grant/all triggers; complete seed item/title contract and exclusive Pokemon grant; management CRUD/admin and edited-definition snapshot policy; old unit fixture; native pokemon process/gateway/client/localization; <100ms query/<50ms update performance; full83 history and data-preserving reversal with modern records remain unproven."
@@ -5649,6 +5815,16 @@
             ".github/workflows/migration-regression.yml",
             ".github/workflows/title-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -5674,9 +5850,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -5957,6 +6133,16 @@
             ".github/workflows/migration-regression.yml",
             ".github/workflows/title-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -5982,9 +6168,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -6265,6 +6451,16 @@
             ".github/workflows/migration-regression.yml",
             ".github/workflows/title-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "sourceSha256": {
@@ -6290,9 +6486,9 @@
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
@@ -6321,11 +6517,11 @@
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -6565,10 +6761,20 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "date": "2026-10-19",
-      "status": "partial_verified_full_history_failed",
+      "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "2199fa22d3b8cef1ec34265ea4d1218f539c6cb9c5b9eeedb76ee9a0a5221768",
       "remainingAcceptance": [
         "Actual JWT/ownership/UUID routing and shared service adapter repairs",
@@ -6586,11 +6792,11 @@
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
         "backend/tests/regression/catch-risk-storage.test.js": "d59fe72ef51513934a0295aae7756d98bdc40f9fae1d4dfa0a2d07fe8afd24bb",
@@ -6830,10 +7036,20 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "date": "2026-10-19",
-      "status": "partial_verified_full_history_failed",
+      "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "88ea8074248884f00732da80e45b56fd489d819d7583d4eea469bb318650fedf",
       "remainingAcceptance": [
         "Actual JWT/ownership/UUID routing and shared service adapter repairs",
@@ -6846,7 +7062,7 @@
     },
     "REQ-00082-catch-success-anomaly-detection-system.md": {
       "date": "2026-10-19",
-      "status": "partial_verified_full_history_failed",
+      "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "1b8f5000c786f9446e14bdc65febc7965f4ee516e6d46af2d8663e8989f32608",
       "sourceSha256": {
         "backend/shared/catchAnomalyDetector.js": "6aeee5e229cd3595ed314da01e4c4614d1bbfc0603e3d078e298129317d0d600",
@@ -6855,8 +7071,8 @@
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/pending/20260612_070000__add_catch_anomaly_detection_system.sql": "071c812b16b0f3bd90eb912c88d98d01c334d709a619ae0c5e7b26280869b926",
         "database/pending/repairs/20260612_070000__add_catch_anomaly_detection_system.sql": "9bb18c9374332330ad28789f469f4b42080f1aee70bd40848dab894f6bef7197",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/CATCH-RISK.md": "38a45565382fcc71fcd3086ed2de7b885d9e912859efe78d917741eaa3afbcf0",
         "docs/review/REQ-00082-catch-success-anomaly-detection-review.md": "76b74356f1d4b2745e8d4029639e2cb0ac5101d789d6c6c699b35fb2b3aa11a9",
         "docs/review/REQ-00082-catch-success-anomaly-detection-system-review.md": "91b9a7a16ae6203eac69695669ad3eed471d75d13259a44cd7b98a59f044e19c",
@@ -7095,6 +7311,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -7109,7 +7335,7 @@
     },
     "REQ-00160-special-iv-system.md": {
       "date": "2026-10-19",
-      "status": "partial_verified_full_history_failed",
+      "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "8c055ccc9664dbdf2a7045cb4929ed1e6333de36746a1245fb4a494c4b73524c",
       "sourceSha256": {
         "backend/shared/specialIv.js": "2bc3716db1b535fc637a89a17759504d82ba9dd832a2ca7628c97a409e8c83a6",
@@ -7120,8 +7346,8 @@
         "database/pending/20260613_160000__add_special_iv_system.sql": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -7315,6 +7541,16 @@
           "result": "partial_integration_checks_pass_full_history_failed",
           "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
           "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
           "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
@@ -7331,7 +7567,7 @@
     },
     "REQ-00091-pokemon-equipment-system-and-stat-bonus-mechanism.md": {
       "date": "2026-10-19",
-      "status": "partial_verified_full_history_failed",
+      "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "5d4285d83cf374d1fc35fef7c9e10a18a3eb5e53dd1626990c1d8995ac8c1401",
       "sourceSha256": {
         "backend/shared/specialIv.js": "2bc3716db1b535fc637a89a17759504d82ba9dd832a2ca7628c97a409e8c83a6",
@@ -7342,8 +7578,8 @@
         "database/pending/20260613_160000__add_special_iv_system.sql": "af34f102c2fc7dcf7ba90c91e3889bcee5373201e65b629407acb746546b02d5",
         "database/pending/repairs/20260613_160000__add_special_iv_system.sql": "6365161cbc144d797ffa69bf02794059e00ad223686523c5fc05478432dbe323",
         "database/pending/repairs/20260614_081000__add_equipment_system.sql": "d6c8dc1f6a74b2424e6547e4bb016e5886ac0c70079f3c3f8e18c26c29084f6a",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/SPECIAL-IV.md": "36d67a65a43e4c8cf0048b9843d1616e5a6512bdb7ec5e495e5431a12b7f94c2"
       },
       "evidence": [
@@ -7537,6 +7773,16 @@
           "result": "partial_integration_checks_pass_full_history_failed",
           "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
           "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
           "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
@@ -7558,14 +7804,14 @@
       "sourceSha256": {
         "database/pending/20260614_090500__add_daily_quest_system.sql": "b602bc1b0e67d1b03aa441cf24de2abbc7113ab512bcd7384d006e2b15b07979",
         "database/pending/repairs/20260614_090500__add_daily_quest_system.sql": "65570155fda0333a90d88d794c600cb17b685ed1ea0a99ed7a6198669d6c53be",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "backend/services/reward-service/src/index.js": "42b8220e1654ecf40ae8d053e1b9219e651e27b1ff40f511abdc6d7c6d9f8a50",
         "backend/services/reward-service/src/routes/dailyQuests.js": "599fa242c1864866bebc2f5368e0552ad47a58afcacd7933561a1a3e6d64054b",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
         "backend/shared/questService.js": "4db34890cbb2837e2c13703dd0278e41a030fd8cbb1d39bf2411920e2f4413fd",
         "backend/shared/routes/quests.js": "415f6443d29d9f5675b0def6517d20063ec0df25d66454ccd3e3766a326163e3",
         "backend/shared/questMetrics.js": "4d70c0eb2917f3942f4cc0888d27ffdfeb6fcac91a585c4a897364a7e7afaa8f",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/DAILY-QUESTS.md": "b63d44e8e29e3fdcd856248af47935ca99924740c887be49c45defd33cdd21de"
       },
       "evidence": [
@@ -7744,6 +7990,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -7765,7 +8021,7 @@
         "backend/services/catch-service/src/index.js": "b5901bc1a2bc732da52ffb257166948b54e84141882b5989d0dcbf3b0c26175c",
         "backend/tests/regression/reward-leaderboard-storage.test.js": "b22fe38c30f5351cbcbd39129f0794daf6dc3b2c7ed6c33cca2ba8b1159d163f",
         "backend/tests/regression/daily-quest-storage.test.js": "b66564bc4d828bee7a5f0627957494476ca08b4a1ba89f55cbbcb16f3356e902",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/REWARD-RANKINGS.md": "ad7d89e56547dcdd24d5fe07ac61557a5e1c0ee69bce4ea77b6aa116fa9fd933",
         "docs/review/REQ-00255-api-injection-attack-protection-system-review.md": "2ac0537e70d4896ea611958d55aaffb60793de6b06538872a554819d0a60ef76"
       },
@@ -7908,6 +8164,15 @@
           "changedReferences": [
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -7937,10 +8202,10 @@
         "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
         "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
       "evidence": [
@@ -8111,6 +8376,16 @@
           "result": "partial_integration_checks_pass_full_history_failed",
           "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
           "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
           "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
@@ -8144,10 +8419,10 @@
         "database/pending/20260605_180000__add_moves_and_tm_system.sql": "ec384fce330b3effa29c9bc553027108c4f4ca823514758fde6f6c96fdd28ceb",
         "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
         "backend/package.json": "bd3d18884b1cc5be2956c2be7cb3c188b8ef5b715bca9a05fa2447c47d4a8434",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
       "evidence": [
@@ -8322,6 +8597,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remainingAcceptance": [
@@ -8334,17 +8619,17 @@
     },
     "REQ-00116-pokemon-team-real-time-voice-chat-system.md": {
       "date": "2026-10-19",
-      "status": "partial_verified_full_history_failed",
+      "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "b6b3f8b0c1f29513adb080bd796ad395abf3a1f848704020408d006881ef7d30",
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "database/pending/20260618_160000__add_voice_chat_tables.sql": "e60be5a89d60c84da8ba40f11c63bf1b5e1491e59828903856e50b490ca74bf4",
         "database/pending/repairs/20260618_160000__add_voice_chat_tables.sql": "b2034194cd84c4f47f3c73438555df5b80c21135535de704a782313dfefe8b8b",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "backend/tests/regression/voice-schema-storage.test.js": "5e4162b28e07f7f35ab339d707b4be8a99e19e1921bd208cd51890fbf5058c6f",
         "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "backend/services/social-service/src/voice/turnServer.js": "2ca289a62a2fa2648e4c5a18ac49a13af268d55c17c3739334851c5673df5eb5",
         "backend/services/social-service/src/voice/routes.js": "cdcbac7391f275b20a7646517ac0a5d3883c35a629d10e66aef9b49a42349b80",
         "backend/services/social-service/src/voice/signalingServer.js": "4e8199480ff3745f671a20845680cf48ef5d374d4544813ca914d3fbce842505",
@@ -8503,6 +8788,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -8515,7 +8810,7 @@
     },
     "REQ-00051-multi-currency-support-exchange-rate-system.md": {
       "date": "2026-10-19",
-      "status": "partial_verified_full_history_failed",
+      "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "dcbacc58410c1b87a56bd1a19e042a673d4e27b4ad309fdb71cfe910dde1b6f8",
       "sourceSha256": {
         "backend/shared/exchangeRateService.js": "ddeec7627ecb35542a56cb0c7093b5eed3cfd9214af65718afb7a061f3df700f",
@@ -8528,8 +8823,8 @@
         "backend/tests/unit/currency.test.js": "155a7c7d561b2911a5da8c5a91ec5e054eb283ff8b98deca22779f4fbeb93558",
         "database/pending/20260624_133000__add_multi_currency_support.sql": "9d82251238972d1bd61c2264504f10f709039e52b2b42921c81957c32b689bcf",
         "database/pending/repairs/20260624_133000__add_multi_currency_support.sql": "a6f2318807e7824c4c458beb7762ec555e256d97af41405707dafbf8ac24dde2",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/CURRENCIES.md": "02ca61669686acdd8038b3ec185dd96a04a0ed6bc6014493d43120d5940676b7"
       },
       "evidence": [
@@ -8675,6 +8970,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -8687,7 +8992,7 @@
     },
     "REQ-00096-database-transaction-isolation-deadlock-detection.md": {
       "date": "2026-10-19",
-      "status": "partial_verified_full_history_failed",
+      "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "f52b3ccedbf89da0463dcc922be42bae33ea20a67249d8501cf075b96e22297b",
       "sourceSha256": {
         "backend/shared/TransactionManager.js": "87d7f3a984e6822739a852833281456fe8d232c94edccbc29e9dd96acd7d6705",
@@ -8706,8 +9011,8 @@
         "docs/benchmarks/transaction-throughput-2026-10-15.json": "b22bccb8cee394a16a4c5135761e5e104c97e6b95c974a18ceb7e36d887e4a03",
         "database/pending/20260626_040000__add_deadlock_log_table.sql": "b9060fc1aab1fd26bbb27d08a7d0ba83f9df521191ecc37cbe679c447ed16238",
         "database/pending/repairs/20260626_040000__add_deadlock_log_table.sql": "fe133fbc60e1719e237752d8a9508ff246d3e376a46aed62e024c5939a721cbc",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/TRANSACTIONS.md": "6c66f5a585349370e3e8f4487f4368029233db4a4b4effcf80b6907026687c5e",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-bae401e-2026-10-15.json": "61c8117367a10c9984f6d83854443cd8a71990cb1f8d0270ee72ea8ccf6a1bf6",
@@ -8729,7 +9034,9 @@
         "docs/benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json": "da6ec93efd94f88465cc156434b19c48c78235961be425ef2fa9711377132300",
         "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json": "fa441fdcf8f5471c1a0d5c74082467f4bf92777d547989df6ddd08c42c68b765",
         "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297",
-        "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json": "07157be9339982b7c7fce5202f3f713766bbffcbf88d6474c96e70f98275b669"
+        "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json": "07157be9339982b7c7fce5202f3f713766bbffcbf88d6474c96e70f98275b669",
+        "docs/benchmarks/migration-fresh-history-local-2026-10-19.json": "14409159f1ff9c0d1d2b039e8a3619bee2af413efd7f3a34bba5c899e9ddcaf5",
+        "docs/benchmarks/transaction-throughput-ci-766ad98-2026-10-19.json": "07d9da96e769d661372b02dc11a3aec04d0b46b357b35d2acb4adac0fb094016"
       },
       "evidence": [
         {
@@ -9026,6 +9333,29 @@
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39126581480",
           "scope": "Exact2df main463 unit/syntax/audit and battle jobs pass; native/title32 job117672875555 passes. Migration25 correctness including actual partition22/original80% module gate and throughput pass; entire migration job fails formerCDC20260707_100000stmt5. Actual archived throughput-2.7440245081718717% meets original-5%; all8 measured source hashes match. Earlier2e5 throughput-6.352968581797381% failure remains retained and unwaived. New CDC source CI is still pending.",
           "artifact": "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json"
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "fresh_local_history_pass_prior_source_ci_observed",
+          "freshArtifact": "docs/benchmarks/migration-fresh-history-local-2026-10-19.json",
+          "priorCommit": "766ad986e599e9c8f5820d79bd6adc641bb988c3",
+          "migrationRun": 39179749602,
+          "migrationJob": 117829780475,
+          "mainRun": 39179749655,
+          "throughputArtifact": "docs/benchmarks/transaction-throughput-ci-766ad98-2026-10-19.json",
+          "medianChangePercent": -2.715739325993871,
+          "requiredMinimumChangePercent": -5,
+          "scope": "Exact766 main464 passed; migration26 actual canonical CDC17/other correctness/original partition80% gate/TLS and measured throughput pass; full workflow fails old job created_time. Actual downloaded report all8 hashes match. Preserve all earlier negative throughput reports. Current new-source CI must still be observed; no new local throughput rerun or full-upgrade/runtime claim."
         }
       ],
       "remaining": [
@@ -9039,16 +9369,16 @@
     },
     "REQ-00077-database-slow-query-analysis-system.md": {
       "date": "2026-10-19",
-      "status": "partial_verified_full_history_failed",
+      "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "5c21e2739e9f27ec2e053126b8f691149e4d31503f5cecd495aba629a5083e8c",
       "sourceSha256": {
         "database/pending/20260627_041000__enable_pg_stat_statements.sql": "3178a37c69af0278a822cf2764bf91331e5899bc2f9a8f81d458cb45e15e2da5",
         "database/pending/repairs/20260627_041000__enable_pg_stat_statements.sql": "fb9f244c96563de01b9dfcd18ccda92105b5023e9201e9019af9472e13ea51d2",
         "database/pending/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "bcfa7904149404b6677ab0e33591670d12746845e590849ee822dca2966071ab",
         "database/pending/repairs/20260610_103000__enable_pg_stat_statements_and_analysis_tables.sql": "660c62531f86d2f8981163afbe85b50ec68bbe27269b840d7b7ea4dba64f0df4",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "backend/tests/regression/slow-query-schema-storage.test.js": "35c43ce9cc230648eeb82e069000bfd6f5b5019b533eaa14b5a1b8349bf71fbb",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/SLOW-QUERIES.md": "8c3a6dde07fb0d411ed7b3da05e2d7daa4ab20c4fc52ddd4a8e89e3499353921",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-26f553f-2026-10-17.json": "858bd11da1948ca938a582b304ffcd4ebf6147c7c1459c6e465b54efa6ddfce9",
@@ -9244,6 +9574,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -9255,7 +9595,7 @@
     },
     "REQ-00348-pokemon-inventory-smart-organization.md": {
       "date": "2026-10-19",
-      "status": "partial_verified_full_history_failed",
+      "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "40352533a1741d32f483664a77ffafc09e962d2d4fde0d61f88f45cc79f89fc5",
       "sourceSha256": {
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
@@ -9266,9 +9606,9 @@
         "backend/services/pokemon-service/src/inventory/InventorySorter.js": "157e29018efc72fcae09fb4ef6fab83717fa7f6761397a4afcf485714dbf14d1",
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "database/pending/repairs/20260627_060000__add_inventory_organization_system.sql": "31aac467ae420bdafb0204bf33832c4c8a33e39368cf01f6c2ad33bd95b887a7",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "backend/tests/regression/inventory-organization-storage.test.js": "bbd1497563252b999d530c8480e4e9370fee599561ed1262540127e46c1e7b2c",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/INVENTORY-ORGANIZATION.md": "f289e0b8ba30ea8ef99d1d21b45aca5d8237f3ca2110004e9c8b2aed346ed8ad",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-a769b0d-2026-10-17.json": "df4cf64be36dae3da71a0c2d532fb7bb5b83a5841e9873f0a66323ff4634000c",
@@ -9393,6 +9733,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -9405,16 +9755,16 @@
     },
     "REQ-00125-pokemon-cosmetic-customization-system.md": {
       "date": "2026-10-19",
-      "status": "partial_sql_verified_full_history_failed",
+      "status": "partial_sql_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "06005e08acfea08f076fc7b54ef8dcace7df4d642addb33421e55168e7b3ea53",
       "sourceSha256": {
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/seeds/V2__seed_data.sql": "7c85c2d07999a4c8e5bad2d07324456b101a909c0e77fb73f0ff2d31879ed355",
         "database/pending/20260630_040000__add_pokemon_cosmetic_system.sql": "56caa9b41aafa64822d561c733b328a4efd8c037a4fb95ad26d2a3813e2225a7",
         "database/pending/repairs/20260630_040000__add_pokemon_cosmetic_system.sql": "401c58b503ea8bf2edee1bf338876213e665a269cd55ade0605c431d1b52b498",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "backend/tests/regression/cosmetic-schema-storage.test.js": "05d835a2fc7e7fd82e06868ae168c5077be3813a7c7b19eccc70a8129ccf547c",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "backend/services/pokemon-service/src/index.js": "3dca8490ac538a78362500dd4ab1032352430f2bc55b259a5a03253c036b1b03",
         "docs/COSMETICS.md": "89e99dd73175a7800780ce1d89680f2e0c145e0c694fffbefbadd5e2abe05b69",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
@@ -9517,6 +9867,16 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ],
       "remaining": [
@@ -9529,7 +9889,7 @@
     },
     "REQ-00016-gdpr-compliance.md": {
       "date": "2026-10-19",
-      "status": "partial_sql_verified_runtime_and_full_history_failed",
+      "status": "partial_sql_verified_runtime_and_fresh_history_pass_full_acceptance_open",
       "documentSha256": "0e4b74e6e33e9e38b1b6b1acb60df77071ee8d8ed4f57f085fefbaf1f8ce6bb9",
       "sourceSha256": {
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
@@ -9537,7 +9897,7 @@
         "database/pending/20260605_161000__add_gdpr_tables.sql": "30147b3ae9822690425e90840db6bad0d6217d1d588aa75743d3f7b4c440639a",
         "database/pending/20260630_050000__add_data_deletion_request_tables.sql": "4e8a931542163151277c85582a75caa1335dd6885913f6cb3ef35892077baee3",
         "database/pending/repairs/20260630_050000__add_data_deletion_request_tables.sql": "18af611ad1688d68200770e0b3ad2e395e6b1c069052d8f73af8ce87e393502a",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "backend/shared/dataDeletionService.js": "de359f084c0d1af413db95355b268f5a7cfeb44746eb5dcac9da59abd2ed45b7",
@@ -9548,7 +9908,7 @@
         "backend/services/user-service/src/index.js": "58528fc459173847bc452ce968643a2b1559995f4da3f2206396d5e8d17e495f",
         "backend/jobs/dataDeletionProcessor.js": "966f12addfaf5a97f68b329e155173c2dae85699c2d818e8996d48ffcfb52244",
         "backend/tests/regression/erasure-schema-storage.test.js": "4c54f92e9492772d096201675ffe7b0d0594c609bc64e1395b9b910feeda535b",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/DATA-ERASURE.md": "004d0f83214e94f4ee8783bd7b905619abb4681bf8ff2f44c041f74b93a967e5",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json": "fa441fdcf8f5471c1a0d5c74082467f4bf92777d547989df6ddd08c42c68b765",
@@ -9614,6 +9974,16 @@
           "result": "partial_integration_checks_pass_full_history_failed",
           "command": "npm run test:unit --prefix backend; actual CDC/Redis/HTTP40; native gateway/user; syntax1455; full seeded bootstrap",
           "scope": "Changed common integration references only. 724 existing unit checks/24 Jest425 pass;40 new real SQL/Redis/HTTP/worker checks and actual two-OS-gateway/user HTTP/notification/IP/admin/readiness/signal suite pass. Original85 raw SQL and every older manifest entry unchanged. Full V1/V2 passes; complete history passes CDC then fails20260711_120000stmt6 created_time missing and rolls back. Prior feature-specific suites remain historical evidence, not a fabricated fresh combined rerun. No full feature, production capacity, database-load or operational acceptance.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
           "changedReferences": [
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
@@ -9623,7 +9993,7 @@
     },
     "REQ-00127-user-data-deletion-requests-management.md": {
       "date": "2026-10-19",
-      "status": "partial_sql_verified_runtime_and_full_history_failed",
+      "status": "partial_sql_verified_runtime_and_fresh_history_pass_full_acceptance_open",
       "documentSha256": "bcf8bb3d4bc6480129a8b7936a79136d897f4ed3f7f4c6c704aa391088d07dee",
       "sourceSha256": {
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
@@ -9631,7 +10001,7 @@
         "database/pending/20260605_161000__add_gdpr_tables.sql": "30147b3ae9822690425e90840db6bad0d6217d1d588aa75743d3f7b4c440639a",
         "database/pending/20260630_050000__add_data_deletion_request_tables.sql": "4e8a931542163151277c85582a75caa1335dd6885913f6cb3ef35892077baee3",
         "database/pending/repairs/20260630_050000__add_data_deletion_request_tables.sql": "18af611ad1688d68200770e0b3ad2e395e6b1c069052d8f73af8ce87e393502a",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "backend/shared/dataDeletionService.js": "de359f084c0d1af413db95355b268f5a7cfeb44746eb5dcac9da59abd2ed45b7",
@@ -9642,7 +10012,7 @@
         "backend/services/user-service/src/index.js": "58528fc459173847bc452ce968643a2b1559995f4da3f2206396d5e8d17e495f",
         "backend/jobs/dataDeletionProcessor.js": "966f12addfaf5a97f68b329e155173c2dae85699c2d818e8996d48ffcfb52244",
         "backend/tests/regression/erasure-schema-storage.test.js": "4c54f92e9492772d096201675ffe7b0d0594c609bc64e1395b9b910feeda535b",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/DATA-ERASURE.md": "004d0f83214e94f4ee8783bd7b905619abb4681bf8ff2f44c041f74b93a967e5",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json": "fa441fdcf8f5471c1a0d5c74082467f4bf92777d547989df6ddd08c42c68b765",
@@ -9712,12 +10082,22 @@
             "database/pending/repairs.json",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ]
     },
     "REQ-00078-canary-deployment-and-traffic-splitting.md": {
       "date": "2026-10-19",
-      "status": "partial_sql_verified_runtime_and_full_history_failed",
+      "status": "partial_sql_verified_runtime_and_fresh_history_pass_full_acceptance_open",
       "documentSha256": "25823b679de8a6833cf0a3949ad00123769eda8419fdff1141be31bec2981994",
       "sourceSha256": {
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
@@ -9726,7 +10106,7 @@
         "database/pending/repairs/20260611_102500__add_canary_deployment_tables.sql": "af806cc8d46faf2228134f5cc1f80cdc1f7258d29cf78492ad511664b790366d",
         "database/pending/20260701_110000__add_canary_deployment_tables.sql": "f96b82ee32401a2995bf18e461f0359e2273def1d189c219b630b1719167edc4",
         "database/pending/repairs/20260701_110000__add_canary_deployment_tables.sql": "66ca1c9bcefe9a5bb36a6b8fee01b305a2626040ea6b4a1f6b089dadd52897a3",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
@@ -9740,7 +10120,7 @@
         "scripts/canary-cli.js": "55af26b715eee3c508a85e1be6909a39b923267b936860edbcf590d356c9b815",
         ".github/workflows/canary-deploy.yml": "873f89716acd7d2632999c14a8155594668f1b522c4fb46db1186eefd4a74b29",
         "backend/tests/regression/canary-schema-storage.test.js": "18bc7caffb2b93568aff590318e2fdbc3874f183c29b7d80efd14be1a15d7ffc",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/CANARY.md": "772be4628219e07cb6a5e14bb7ce8e892733c7603acf7d75942f175afe8049ae",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297"
@@ -9787,17 +10167,27 @@
             "backend/gateway/src/index.js",
             ".github/workflows/migration-regression.yml"
           ]
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
         }
       ]
     },
     "REQ-00626-database-partitioning-strategy.md": {
       "date": "2026-10-19",
-      "status": "partial_runtime_storage_verified_full_history_failed",
+      "status": "partial_runtime_storage_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "e5cc8dcac57ef88b0bfe924ac96b99a543c5dfa8c32a2c6db02659dd4dda5c1c",
       "sourceSha256": {
         "database/pending/20260707_060000__complete_partition_management.sql": "98c5dbb5232a7d3869d7a97d657baa479d41e12db6ffa4cb09d5debd5d624707",
         "database/pending/repairs/20260707_060000__complete_partition_management.sql": "111f466396cfa58cf8bb7c87790f64f8f2d8cfc00e587669eb07197669ffc922",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         "database/pending/20261008_140000__audit_partition_conversion.sql": "6341c87821de38f68340cbb952b0b393496b52793ddd1c225cb27c221f6b6eaf",
         "database/pending/repairs/20260610_100000__add_table_partitioning_system.sql": "b4d42d6e9ce79b30d9bb65530e82f8a28fc10879ecfd8799b56aef959f98b87d",
         "database/pending/repairs/20260619_000000__add_table_partitioning.sql": "24797d2a3b1370dae8a2768f77a3f7f6e869095ecd33059c774780577a3b7d89",
@@ -9807,12 +10197,14 @@
         "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
         "backend/tests/regression/partition-maintenance-storage.test.js": "56fc446bc42f1189161d5993129756a498924c14feb154470c488e9f2710102b",
         "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
         "docs/PARTITION-MAINTENANCE.md": "b5c1d26502ec01a3ec74b14cb8084a42c587139cfcb32d6c74af2f9c84a6b46f",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297",
-        "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json": "07157be9339982b7c7fce5202f3f713766bbffcbf88d6474c96e70f98275b669"
+        "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json": "07157be9339982b7c7fce5202f3f713766bbffcbf88d6474c96e70f98275b669",
+        "docs/benchmarks/migration-fresh-history-local-2026-10-19.json": "14409159f1ff9c0d1d2b039e8a3619bee2af413efd7f3a34bba5c899e9ddcaf5",
+        "docs/benchmarks/transaction-throughput-ci-766ad98-2026-10-19.json": "07d9da96e769d661372b02dc11a3aec04d0b46b357b35d2acb4adac0fb094016"
       },
       "evidence": [
         {
@@ -9856,6 +10248,29 @@
           "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39126581480",
           "scope": "Exact2df main463 unit/syntax/audit and battle jobs pass; native/title32 job117672875555 passes. Migration25 correctness including actual partition22/original80% module gate and throughput pass; entire migration job fails formerCDC20260707_100000stmt5. Actual archived throughput-2.7440245081718717% meets original-5%; all8 measured source hashes match. Earlier2e5 throughput-6.352968581797381% failure remains retained and unwaived. New CDC source CI is still pending.",
           "artifact": "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json"
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "fresh_local_history_pass_prior_source_ci_observed",
+          "freshArtifact": "docs/benchmarks/migration-fresh-history-local-2026-10-19.json",
+          "priorCommit": "766ad986e599e9c8f5820d79bd6adc641bb988c3",
+          "migrationRun": 39179749602,
+          "migrationJob": 117829780475,
+          "mainRun": 39179749655,
+          "throughputArtifact": "docs/benchmarks/transaction-throughput-ci-766ad98-2026-10-19.json",
+          "medianChangePercent": -2.715739325993871,
+          "requiredMinimumChangePercent": -5,
+          "scope": "Exact766 main464 passed; migration26 actual canonical CDC17/other correctness/original partition80% gate/TLS and measured throughput pass; full workflow fails old job created_time. Actual downloaded report all8 hashes match. Preserve all earlier negative throughput reports. Current new-source CI must still be observed; no new local throughput rerun or full-upgrade/runtime claim."
         }
       ]
     },
@@ -9876,19 +10291,21 @@
         "backend/gateway/src/proxy.js": "619d307da0e4e8531c54f4abfa8feaed8a86b930b01c5cdc07cb0c081c477db1",
         "backend/gateway/src/routes/cacheInvalidationRoutes.js": "85619b0b7a6618f70e21efe29ac6d0db43004a8d0b68922958fd5bec22e31f6e",
         "backend/tests/regression/cdc-invalidation-storage.test.js": "19d4aa4806109909046fca882d55cc2e03f9fd0476d7e0b9e0f237de2c5c364f",
-        "backend/tests/regression/cdc-cache-runtime.test.js": "efa8b7a7a148fd6a6626ba15f5c92aba5889935583e446a4b00483924b63deb9",
-        "backend/tests/regression/cache-coherence-storage.test.js": "3663fc5f8686396e621a80fda74aa9c044d673a09f24cfd7640a2f3551eff1cf",
+        "backend/tests/regression/cdc-cache-runtime.test.js": "080844f0c4635f82c5aa9428bfdd139f440027dc74d9b505870b5a83552d22bf",
+        "backend/tests/regression/cache-coherence-storage.test.js": "f9c34c3a0ec863cff14bb5fb0d81df7d5453ac30f5e80c604d60eb52d41e35ac",
         "backend/tests/regression/cache-http-storage.test.js": "5d655fae7c92be4ef595d98e07ab70a27890510781bb0a60eb6d7671ab4f7efb",
         "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/pending/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "4a11a1f7e457ea11181580d313097b276582947b3975c4fe67fb4813867b5f39",
         "database/pending/repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "279e7b764797d2ad636f704c3e73c97c504a6077a7c1bc14aa39f30737c7b478",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/CACHE-INVALIDATION.md": "e788e8e763088178f2107778f3050ea08d4992d5ad8c21690ba4e4f082f52260",
         "docs/benchmarks/cache-invalidation-local-2026-10-19.json": "df2b208f0d35ce625bf48841add89cfc79c713cc998b2cbd33db8da410462e13",
         "docs/benchmarks/cache-invalidation-50ms-failure-2026-10-19.json": "cb78efb6409f41a4bfe1f876f21788c6a414a02ba71afa6332b78a1277dd6069",
-        "docs/benchmarks/cache-invalidation-prior-latency-2026-10-19.json": "b9f7fae62ce1303de23a958e0e3ebad2a49d01dd4dbf580dcddc757fa1176c5f"
+        "docs/benchmarks/cache-invalidation-prior-latency-2026-10-19.json": "b9f7fae62ce1303de23a958e0e3ebad2a49d01dd4dbf580dcddc757fa1176c5f",
+        "docs/benchmarks/cache-invalidation-local-fill-2026-10-19.json": "179a75a304f5a7c880c1280b16bcae7e4b2d7a9691df56b9fdce837fefc16a14",
+        "docs/benchmarks/cache-invalidation-ci-766ad98-2026-10-19.json": "1d05e53c7cd4545007bcd5f86a359e85a24cca37de2c2f7dd976742696105e95"
       },
       "evidence": [
         {
@@ -9949,6 +10366,27 @@
           "command": "node --test --test-concurrency=1 backend/tests/regression/database-bootstrap.test.js",
           "result": "full_seed_pass_pending_history_failed",
           "scope": "Full V1/V2 passes. All85 raw pending SQL and older repair entries unchanged. Complete chain now passes CDC and fails20260711_120000stmt6 created_time missing. Complete pending batch rolls back; no skipped/rewritten journal."
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "backend/tests/regression/cdc-cache-runtime.test.js",
+            "backend/tests/regression/cache-coherence-storage.test.js",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "local_41_pass_prior_ci_failure_retained",
+          "command": "node --test --test-concurrency=1 <four actual CDC/cache suites>",
+          "tests": 41,
+          "scope": "Remote766 full cache suite37pass/3fail exposed generation-bypass during test cache population;12 remote latency samples max15.145301ms still pass but do not waive failed suite. Add held genuine Redis-read/invalidation case to assert disabled/miss/no L1 fill, then actual successful fenced seeding before testing later behavior. Final41 pass/no skips, unchanged production cache/gateway modules, no numerical target relaxation.",
+          "currentArtifact": "docs/benchmarks/cache-invalidation-local-fill-2026-10-19.json",
+          "negativeCIArtifact": "docs/benchmarks/cache-invalidation-ci-766ad98-2026-10-19.json"
         }
       ],
       "remaining": "Preserve original4 criteria each, including100ms/50ms. Complete production/capacity and no-significant-database-load acceptance are open; all legacy cache consumers and cross-environment/provider/upgrade/reversal behavior are not accepted. Current source CI must be observed. Only original battle framework619 remains independently verified."
@@ -9970,19 +10408,21 @@
         "backend/gateway/src/proxy.js": "619d307da0e4e8531c54f4abfa8feaed8a86b930b01c5cdc07cb0c081c477db1",
         "backend/gateway/src/routes/cacheInvalidationRoutes.js": "85619b0b7a6618f70e21efe29ac6d0db43004a8d0b68922958fd5bec22e31f6e",
         "backend/tests/regression/cdc-invalidation-storage.test.js": "19d4aa4806109909046fca882d55cc2e03f9fd0476d7e0b9e0f237de2c5c364f",
-        "backend/tests/regression/cdc-cache-runtime.test.js": "efa8b7a7a148fd6a6626ba15f5c92aba5889935583e446a4b00483924b63deb9",
-        "backend/tests/regression/cache-coherence-storage.test.js": "3663fc5f8686396e621a80fda74aa9c044d673a09f24cfd7640a2f3551eff1cf",
+        "backend/tests/regression/cdc-cache-runtime.test.js": "080844f0c4635f82c5aa9428bfdd139f440027dc74d9b505870b5a83552d22bf",
+        "backend/tests/regression/cache-coherence-storage.test.js": "f9c34c3a0ec863cff14bb5fb0d81df7d5453ac30f5e80c604d60eb52d41e35ac",
         "backend/tests/regression/cache-http-storage.test.js": "5d655fae7c92be4ef595d98e07ab70a27890510781bb0a60eb6d7671ab4f7efb",
         "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
         "database/pending/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "4a11a1f7e457ea11181580d313097b276582947b3975c4fe67fb4813867b5f39",
         "database/pending/repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "279e7b764797d2ad636f704c3e73c97c504a6077a7c1bc14aa39f30737c7b478",
-        "database/pending/repairs.json": "e507df305d399c9bc9d29c690969fe8ff78b136f4794759ecb23a7d961ee08fa",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
         ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
-        ".github/workflows/migration-regression.yml": "8e62a3fdeee990b4c45443fe1eddc93b5a4f213ca8bab07a0f228736066d097b",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
         "docs/CACHE-INVALIDATION.md": "e788e8e763088178f2107778f3050ea08d4992d5ad8c21690ba4e4f082f52260",
         "docs/benchmarks/cache-invalidation-local-2026-10-19.json": "df2b208f0d35ce625bf48841add89cfc79c713cc998b2cbd33db8da410462e13",
         "docs/benchmarks/cache-invalidation-50ms-failure-2026-10-19.json": "cb78efb6409f41a4bfe1f876f21788c6a414a02ba71afa6332b78a1277dd6069",
-        "docs/benchmarks/cache-invalidation-prior-latency-2026-10-19.json": "b9f7fae62ce1303de23a958e0e3ebad2a49d01dd4dbf580dcddc757fa1176c5f"
+        "docs/benchmarks/cache-invalidation-prior-latency-2026-10-19.json": "b9f7fae62ce1303de23a958e0e3ebad2a49d01dd4dbf580dcddc757fa1176c5f",
+        "docs/benchmarks/cache-invalidation-local-fill-2026-10-19.json": "179a75a304f5a7c880c1280b16bcae7e4b2d7a9691df56b9fdce837fefc16a14",
+        "docs/benchmarks/cache-invalidation-ci-766ad98-2026-10-19.json": "1d05e53c7cd4545007bcd5f86a359e85a24cca37de2c2f7dd976742696105e95"
       },
       "evidence": [
         {
@@ -10043,9 +10483,69 @@
           "command": "node --test --test-concurrency=1 backend/tests/regression/database-bootstrap.test.js",
           "result": "full_seed_pass_pending_history_failed",
           "scope": "Full V1/V2 passes. All85 raw pending SQL and older repair entries unchanged. Complete chain now passes CDC and fails20260711_120000stmt6 created_time missing. Complete pending batch rolls back; no skipped/rewritten journal."
+        },
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time.",
+          "changedReferences": [
+            "backend/tests/regression/cdc-cache-runtime.test.js",
+            "backend/tests/regression/cache-coherence-storage.test.js",
+            "database/pending/repairs.json",
+            ".github/workflows/migration-regression.yml"
+          ]
+        },
+        {
+          "date": "2026-10-19",
+          "result": "local_41_pass_prior_ci_failure_retained",
+          "command": "node --test --test-concurrency=1 <four actual CDC/cache suites>",
+          "tests": 41,
+          "scope": "Remote766 full cache suite37pass/3fail exposed generation-bypass during test cache population;12 remote latency samples max15.145301ms still pass but do not waive failed suite. Add held genuine Redis-read/invalidation case to assert disabled/miss/no L1 fill, then actual successful fenced seeding before testing later behavior. Final41 pass/no skips, unchanged production cache/gateway modules, no numerical target relaxation.",
+          "currentArtifact": "docs/benchmarks/cache-invalidation-local-fill-2026-10-19.json",
+          "negativeCIArtifact": "docs/benchmarks/cache-invalidation-ci-766ad98-2026-10-19.json"
         }
       ],
       "remaining": "Preserve original4 criteria each, including100ms/50ms. Complete production/capacity and no-significant-database-load acceptance are open; all legacy cache consumers and cross-environment/provider/upgrade/reversal behavior are not accepted. Current source CI must be observed. Only original battle framework619 remains independently verified."
+    },
+    "REQ-00669-job-execution-status-monitoring-and-alert-system.md": {
+      "date": "2026-10-19",
+      "status": "partial_storage_logger_verified_registration_alerts_api_ui_open",
+      "documentSha256": "0b2d55cbfd7e616e7eac9400491aae2456518349fddc5eed79e1481754cbfc3d",
+      "sourceSha256": {
+        "backend/shared/jobMonitor/jobExecutionLogger.js": "cdee3acb743ae5226a4ef6bb0d9556c07515aba01cc0eda9563795c8f75da3d5",
+        "backend/tests/regression/job-monitor-storage.test.js": "a4e49eeec4c3ca4dff9cff018149aa78ae262b98f86b1ee1c1db0388b28e0dcd",
+        "database/pending/20260711_120000__add_job_monitoring_tables.sql": "9577c3dcaf6e91a4f5931229df810235002f2fe057372296ae3eead79b381625",
+        "database/pending/repairs/20260711_120000__add_job_monitoring_tables.sql": "fa363868bb347077a17a7b9bd06efa507b7f13d69d9752e28b51b0ce7821d9df",
+        "database/pending/repairs.json": "8d6f5c85cd92cd77fc4f02c92efadab60952a3e8bf40b8a877c0dbf468ab955e",
+        ".github/workflows/migration-regression.yml": "6189371a5fa63ecb9ce3cf4818693cc3cfda6612c7b266fb03f259fe7cb10a52",
+        "backend/tests/regression/database-bootstrap.test.js": "908a4e87021e06b492c48bde2977419e5825fc1375472aa331a32418fa27e513",
+        "docs/benchmarks/migration-fresh-history-local-2026-10-19.json": "14409159f1ff9c0d1d2b039e8a3619bee2af413efd7f3a34bba5c899e9ddcaf5",
+        "docs/JOB-MONITORING.md": "17beb0131cfcf9a665de5f784c852a53d2b6dcdeb9d7d5cf8cb81826c87a9ec0"
+      },
+      "evidence": [
+        {
+          "date": "2026-10-19",
+          "command": "actual job SQL/logger24 at80% line/function gates; cache SQL/Redis/worker/HTTP41; full seeded85 bootstrap2; npm test:unit; syntax1456",
+          "result": "partial_local_verified_fresh_history_pass_ci_pending",
+          "scope": "Actual job logger100line/94.50branch/95.65function;24 genuine SQL/CLI/history/race/retention/pool/UTC-vs-Shanghai checks.41 actual cache/CDC/HTTP cases include a held real Redis read receiving an invalidation and explicit successful fill preconditions; original50/100ms gates remain.724 units/24Jest425 and1456 syntax pass. Full isolated V1/V2 and all85 raw-history checks/cleanup pass with owned/CI max_locks_per_transaction256. Raw85 and all repair entries except existing job repair remain unchanged; raw job hash retained and execution history never rewritten. Diagnostic64-lock cleanup failed53200, retained schema exposed unscoped legacy audit column lookup; cross-schema install and full upgrade/reverse/runtime/provider/client/operations criteria remain open. No fresh native gateway run in this batch; unchanged production gateway sources retain prior source-specific local evidence, not remote native acceptance. Prior766 CI cache37pass/3fail is retained; main464 and migration26 correctness/throughput pass but complete prior workflow fails old job created_time."
+        },
+        {
+          "date": "2026-10-19",
+          "command": "node --test --test-concurrency=1 --experimental-test-coverage --test-coverage-include=**/jobExecutionLogger.js --test-coverage-lines=80 --test-coverage-functions=80 backend/tests/regression/job-monitor-storage.test.js",
+          "result": "passed",
+          "tests": 24,
+          "skipped": 0,
+          "coverage": {
+            "scope": "actual execution logger only; original aggregator/alert/health criteria remain open",
+            "lines": 100,
+            "branches": 94.5,
+            "functions": 95.65
+          },
+          "scope": "Full V1/V2 fixture. Raw created_time42703 rolls back. Four histories/serial OIDs/sequences/view dependents/real aggregation/UUID owner FK/comments/indexes retain; customized index/type/view/FK contracts reject atomically. Real CLI up/up/verify raw/execution hashes. Actual logger missing-schema refusal, empty null rate, owner+ID atomic completion and contention/replay, parameterized history/rates/metadata, true90-day-minimum retention preserving active/recent/unknown rows, UTC/Shanghai native processes under NewYork database timezone and UTC creation clock. Actual configured shared DATABASE_URL pool remains usable; explicitly owned pool naturally closes."
+        }
+      ],
+      "remaining": "All10 original criteria preserved. All-job actual registration/status reporting, <5s dashboard visibility, real mounted authenticated controls, configured60s delivery/noise10min, >95%zombie accuracy/<10%score error, actual admin dashboard, core aggregator/alerts/health>80% and end-to-end alert delivery remain required. No external recipients contacted or destructive job/control/production cleanup started. Fresh install pass does not accept differing-repair upgrade/reversal/cross-schema audit behavior."
     }
   }
 }

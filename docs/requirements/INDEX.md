@@ -649,7 +649,7 @@
 | [REQ-00666](REQ-00666-跨境数据传输合规性自动检测与审计系统.md) | 跨境数据传输合规性自动检测与审计系统 | 合规/隐私 | P1 | new | gateway、user-service、backend/shared/crossBorderCompliance、backend/jobs/auditJob、admin-dashboard | 2026-07-11 04:40 |
 | [REQ-00667](REQ-00667-mutation-testing-and-test-quality-metrics-system.md) | 变异测试框架与测试质量度量系统 | 测试覆盖 | P1 | done | backend/tests, backend/shared/testing, .github/workflows, all services | 2026-07-11 09:00 UTC |
 | [REQ-00668](REQ-00668-preview-test-environment-auto-reclamation.md) | 预览与测试环境智能资源回收与成本优化系统 | 成本/资源优化 | P1 | new | .github/workflows、infrastructure/k8s/environments、backend/jobs/environmentReclaimer.js、admin-dashboard | 2026-07-11 10:15 |
-| [REQ-00669](REQ-00669-job-execution-status-monitoring-and-alert-system.md) | 任务执行状态实时监控与智能告警系统 | 运维/CICD | P1 | done | backend/jobs、backend/shared/jobMonitor、infrastructure/monitoring、admin-dashboard | 2026-07-11 11:00 |
+| [REQ-00669](REQ-00669-job-execution-status-monitoring-and-alert-system.md) | 任务执行状态实时监控与智能告警系统 | 运维/CICD | P1 | in_progress | backend/jobs、backend/shared/jobMonitor、infrastructure/monitoring、admin-dashboard | 2026-07-11 11:00 |
 | [REQ-00670](REQ-00670-performance-auto-diagnosis-engine.md) | 游戏性能数据分析与自动诊断引擎 | 性能优化 | P1 | new | backend-analysis, performance-monitor | 2026-07-13 10:00 |
 | [REQ-00671](REQ-00671-api-mock-service-and-test-isolation-system.md) | API Mock 服务与测试隔离系统 | 测试覆盖 | P1 | done | backend/tests、backend/shared/mockService、所有后端服务、gateway、.github/workflows | 2026-07-12 18:45 |
 | [REQ-00672](REQ-00672-api-request-signature-verification-and-anti-tampering-protection-system.md) | API 请求签名验证与防篡改保护系统 | API 设计规范 | P1 | new | gateway、所有后端服务、backend/shared/requestSignatureService.js、game-client、admin-dashboard | 2026-07-15 04:00 |

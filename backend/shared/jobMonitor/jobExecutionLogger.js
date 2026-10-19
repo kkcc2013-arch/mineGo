@@ -1,326 +1,88 @@
-/**
- * 执行日志持久化 - 将任务执行记录存储到 PostgreSQL
- * REQ-00538: 任务执行状态实时监控与智能告警系统
- */
-
-
-const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
-  require("../logger").createLogger("shared/jobMonitor/jobExecutionLogger"), "shared/jobMonitor/jobExecutionLogger");
-const { Pool } = require('pg');
-
+'use strict';
+// REQ-00669 (legacy REQ-00538): durable execution history on canonical storage.
+const {createLogger}=require('../logger');
+const logger=createLogger('job-execution-logger');
+const STATUSES=new Set(['idle','running','success','failed','timeout']);
+const TERMINAL=new Set(['success','failed','timeout']);
+const fail=(message,status=400)=>Object.assign(new Error(message),{status});
+const timestamp=value=>{
+  if(value===null||value===undefined||value==='')throw fail('A valid timestamp is required');
+  const date=value instanceof Date?value:new Date(value);
+  if(!Number.isFinite(date.getTime()))throw fail('A valid timestamp is required');
+  // Existing columns are TIMESTAMP WITHOUT TIME ZONE. New records use UTC wall
+  // time consistently; never reinterpret or rewrite historical rows.
+  return date.toISOString().slice(0,-1);
+};
+function text(value,name,max,optional=false){if(optional&&(value===null||value===undefined))return null;if(typeof value!=='string'||!value.length||value.length>max)throw fail('Invalid '+name);return value;}
+function integer(value,name,min=0,max=2147483647){if(!Number.isSafeInteger(value)||value<min||value>max)throw fail('Invalid '+name);return value;}
+const fields=`id,job_id,job_name,category,status,start_time AT TIME ZONE 'UTC' AS start_time,end_time AT TIME ZONE 'UTC' AS end_time,duration_ms,error_message,error_stack,metadata,created_at AT TIME ZONE 'UTC' AS created_at`;
 class JobExecutionLogger {
-  constructor(options = {}) {
-    this.pool = options.pool || new Pool({
-      host: process.env.PG_HOST || 'localhost',
-      port: process.env.PG_PORT || 5432,
-      database: process.env.PG_DATABASE || 'minego',
-      user: process.env.PG_USER || 'minego',
-      password: process.env.PG_PASSWORD || 'minego123',
-      max: 10
-    });
-    this.retentionDays = options.retentionDays || 90;
-    this.isInitialized = false;
+  constructor(options={}){
+    this.pool=options.pool||null;this.ownsPool=Boolean(options.pool)&&options.ownsPool===true;
+    this.retentionDays=integer(options.retentionDays??90,'retention days',90,3650);
+    this.isInitialized=false;this.initializing=null;this.closed=false;
   }
-
-  /**
-   * 初始化数据库表
-   */
-  async initialize() {
-    if (this.isInitialized) return;
-
-    const createTableSQL = `
-      CREATE TABLE IF NOT EXISTS job_execution_logs (
-        id SERIAL PRIMARY KEY,
-        job_id VARCHAR(100) NOT NULL,
-        job_name VARCHAR(200),
-        category VARCHAR(50),
-        status VARCHAR(20) NOT NULL,
-        start_time TIMESTAMP NOT NULL,
-        end_time TIMESTAMP,
-        duration_ms INTEGER,
-        error_message TEXT,
-        error_stack TEXT,
-        metadata JSONB,
-        created_at TIMESTAMP DEFAULT NOW()
-      );
-
-      CREATE INDEX IF NOT EXISTS idx_job_logs_job_id ON job_execution_logs(job_id);
-      CREATE INDEX IF NOT EXISTS idx_job_logs_status ON job_execution_logs(status);
-      CREATE INDEX IF NOT EXISTS idx_job_logs_start_time ON job_execution_logs(start_time DESC);
-      CREATE INDEX IF NOT EXISTS idx_job_logs_category ON job_execution_logs(category);
-    `;
-
-    await this.pool.query(createTableSQL);
-    this.isInitialized = true;
-    _consoleLogger.log('[JobExecutionLogger] Database initialized');
+  async initialize(){
+    if(this.closed)throw fail('Job history logger is closed',503);
+    if(this.isInitialized)return;if(this.initializing)return this.initializing;
+    this.pool=this.pool||require('../db').getPool();
+    this.initializing=(async()=>{await this.pool.query('SELECT '+fields+' FROM job_execution_logs LIMIT 0');this.isInitialized=true;})().finally(()=>{this.initializing=null;});
+    return this.initializing;
   }
-
-  /**
-   * 记录执行日志
-   * @param {object} logData 执行日志数据
-   */
-  async log(logData) {
-    if (!this.isInitialized) await this.initialize();
-
-    const {
-      jobId,
-      jobName,
-      category,
-      status,
-      startTime,
-      endTime,
-      durationMs,
-      errorMessage,
-      errorStack,
-      metadata
-    } = logData;
-
-    const insertSQL = `
-      INSERT INTO job_execution_logs (
-        job_id, job_name, category, status, start_time, end_time,
-        duration_ms, error_message, error_stack, metadata
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-      RETURNING id
-    `;
-
-    const values = [
-      jobId,
-      jobName,
-      category,
-      status,
-      startTime,
-      endTime,
-      durationMs,
-      errorMessage,
-      errorStack,
-      metadata ? JSON.stringify(metadata) : null
-    ];
-
-    const result = await this.pool.query(insertSQL, values);
+  async query(sql,values=[]){await this.initialize();return this.pool.query(sql,values);}
+  async log(data){
+    if(!data||typeof data!=='object')throw fail('Execution data is required');
+    const jobId=text(data.jobId,'job ID',100),jobName=text(data.jobName,'job name',200,true),category=text(data.category,'category',50,true);
+    if(!STATUSES.has(data.status))throw fail('Invalid execution status');
+    const start=timestamp(data.startTime),end=data.endTime===undefined||data.endTime===null?null:timestamp(data.endTime);
+    if(end&&end<start)throw fail('Execution cannot finish before it starts');
+    let duration=data.durationMs??(end?new Date(end+'Z')-new Date(start+'Z'):null);
+    if(duration!==null)duration=integer(duration,'duration');
+    let metadata=null;if(data.metadata!==undefined&&data.metadata!==null){try{metadata=JSON.stringify(data.metadata);}catch{throw fail('Invalid execution metadata');}if(metadata===undefined)throw fail('Invalid execution metadata');}
+    const result=await this.query(`INSERT INTO job_execution_logs(job_id,job_name,category,status,start_time,end_time,duration_ms,error_message,error_stack,metadata,created_at) VALUES($1,$2,$3,$4,$5::timestamp,$6::timestamp,$7,$8,$9,$10::jsonb,clock_timestamp() AT TIME ZONE 'UTC') RETURNING id`,[jobId,jobName,category,data.status,start,end,duration,data.errorMessage??null,data.errorStack??null,metadata]);
     return result.rows[0].id;
   }
-
-  /**
-   * 记录任务开始
-   */
-  async logStart(jobId, jobName, category, startTime = new Date()) {
-    return this.log({
-      jobId,
-      jobName,
-      category,
-      status: 'running',
-      startTime,
-      metadata: { action: 'started' }
-    });
+  async logStart(jobId,jobName,category,startTime=new Date()){return this.log({jobId,jobName,category,status:'running',startTime,metadata:{action:'started'}});}
+  async logEnd(jobId,logId,status,endTime=new Date(),error=null){
+    text(jobId,'job ID',100);integer(logId,'log ID',1);if(!TERMINAL.has(status))throw fail('A terminal execution status is required');const end=timestamp(endTime);
+    const result=await this.query(`UPDATE job_execution_logs SET status=$1,end_time=$3::timestamp,duration_ms=(EXTRACT(EPOCH FROM ($3::timestamp-start_time))*1000)::integer,error_message=$4,error_stack=$5 WHERE id=$6 AND job_id=$2 AND status='running' AND start_time<=$3::timestamp RETURNING `+fields,[status,jobId,end,error?.message??null,error?.stack??null,logId]);
+    if(result.rowCount)return result.rows[0];
+    const existing=(await this.query('SELECT '+fields+' FROM job_execution_logs WHERE id=$1 AND job_id=$2',[logId,jobId])).rows[0];
+    if(!existing)throw fail('Execution not found',404);
+    if(existing.status===status&&existing.end_time)return existing;
+    if(existing.status!=='running')throw fail('Execution is already finalized',409);
+    throw fail('Execution cannot finish before it starts');
   }
-
-  /**
-   * 更新任务结束
-   */
-  async logEnd(jobId, logId, status, endTime = new Date(), error = null) {
-    const updateSQL = `
-      UPDATE job_execution_logs
-      SET status = $1, end_time = $2, duration_ms = $3,
-          error_message = $4, error_stack = $5
-      WHERE id = $6 AND job_id = $7
-    `;
-
-    const startTime = await this.getLogStartTime(logId);
-    const durationMs = startTime ? endTime.getTime() - startTime.getTime() : null;
-
-    await this.pool.query(updateSQL, [
-      status,
-      endTime,
-      durationMs,
-      error?.message,
-      error?.stack,
-      logId,
-      jobId
-    ]);
+  async getLogStartTime(logId,jobId){
+    integer(logId,'log ID',1);const values=[logId];let where='id=$1';if(jobId!==undefined){text(jobId,'job ID',100);values.push(jobId);where+=' AND job_id=$2';}
+    return (await this.query("SELECT start_time AT TIME ZONE 'UTC' AS start_time FROM job_execution_logs WHERE "+where,values)).rows[0]?.start_time;
   }
-
-  /**
-   * 获取日志开始时间
-   */
-  async getLogStartTime(logId) {
-    const result = await this.pool.query(
-      'SELECT start_time FROM job_execution_logs WHERE id = $1',
-      [logId]
-    );
-    return result.rows[0]?.start_time;
+  period(period={},days=7){const start=timestamp(period.startDate??new Date(Date.now()-days*86400000)),end=timestamp(period.endDate??new Date());if(end<start)throw fail('Invalid history interval');return [start,end];}
+  async getHistory(jobId,options={}){
+    text(jobId,'job ID',100);const limit=integer(options.limit??100,'history limit',1,1000),offset=integer(options.offset??0,'history offset');const values=[jobId];let where='job_id=$1';
+    if(options.status!==undefined&&options.status!==null){if(!STATUSES.has(options.status))throw fail('Invalid execution status');values.push(options.status);where+=' AND status=$'+values.length;}
+    if(options.startDate!==undefined&&options.startDate!==null){values.push(timestamp(options.startDate));where+=' AND start_time>=$'+values.length+'::timestamp';}
+    if(options.endDate!==undefined&&options.endDate!==null){values.push(timestamp(options.endDate));where+=' AND start_time<=$'+values.length+'::timestamp';}
+    if(options.startDate&&options.endDate&&timestamp(options.startDate)>timestamp(options.endDate))throw fail('Invalid history interval');
+    values.push(limit,offset);return (await this.query('SELECT '+fields+' FROM job_execution_logs WHERE '+where+' ORDER BY start_time DESC,id DESC LIMIT $'+(values.length-1)+' OFFSET $'+values.length,values)).rows;
   }
-
-  /**
-   * 查询执行历史
-   * @param {string} jobId 任务ID
-   * @param {object} options 查询选项
-   */
-  async getHistory(jobId, options = {}) {
-    const { limit = 100, offset = 0, status = null, startDate = null, endDate = null } = options;
-
-    let sql = 'SELECT * FROM job_execution_logs WHERE job_id = $1';
-    const values = [jobId];
-    let paramIndex = 2;
-
-    if (status) {
-      sql += ` AND status = $${paramIndex}`;
-      values.push(status);
-      paramIndex++;
-    }
-
-    if (startDate) {
-      sql += ` AND start_time >= $${paramIndex}`;
-      values.push(startDate);
-      paramIndex++;
-    }
-
-    if (endDate) {
-      sql += ` AND start_time <= $${paramIndex}`;
-      values.push(endDate);
-      paramIndex++;
-    }
-
-    sql += ` ORDER BY start_time DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
-    values.push(limit, offset);
-
-    const result = await this.pool.query(sql, values);
-    return result.rows;
+  async getRecentFailures(jobId,count=10){return this.getHistory(jobId,{status:'failed',limit:integer(count,'failure count',1,1000)});}
+  async getAllRecentLogs(limit=50){integer(limit,'history limit',1,1000);return (await this.query('SELECT '+fields+' FROM job_execution_logs ORDER BY start_time DESC,id DESC LIMIT $1',[limit])).rows;}
+  async getStatistics(jobId,period={}){
+    text(jobId,'job ID',100);const [start,end]=this.period(period);
+    return (await this.query(`SELECT COUNT(*) AS total_runs,COUNT(*) FILTER(WHERE status='success') AS success_count,COUNT(*) FILTER(WHERE status='failed') AS failure_count,COUNT(*) FILTER(WHERE status='timeout') AS timeout_count,AVG(duration_ms) AS avg_duration_ms,MIN(duration_ms) AS min_duration_ms,MAX(duration_ms) AS max_duration_ms,COUNT(*) FILTER(WHERE status='success')::float/NULLIF(COUNT(*),0)::float AS success_rate FROM job_execution_logs WHERE job_id=$1 AND start_time>=$2::timestamp AND start_time<=$3::timestamp`,[jobId,start,end])).rows[0];
   }
-
-  /**
-   * 查询最近失败的日志
-   * @param {string} jobId 任务ID
-   * @param {number} count 数量
-   */
-  async getRecentFailures(jobId, count = 10) {
-    const sql = `
-      SELECT * FROM job_execution_logs
-      WHERE job_id = $1 AND status = 'failed'
-      ORDER BY start_time DESC
-      LIMIT $2
-    `;
-    const result = await this.pool.query(sql, [jobId, count]);
-    return result.rows;
+  async getAllJobsStatistics(period={}){
+    const [start,end]=this.period(period,1);return (await this.query(`SELECT job_id,job_name,category,COUNT(*) AS total_runs,COUNT(*) FILTER(WHERE status='success') AS success_count,COUNT(*) FILTER(WHERE status='failed') AS failure_count,COUNT(*) FILTER(WHERE status='running') AS running_count,AVG(duration_ms) AS avg_duration_ms,COUNT(*) FILTER(WHERE status='success')::float/NULLIF(COUNT(*),0)::float AS success_rate FROM job_execution_logs WHERE start_time>=$1::timestamp AND start_time<=$2::timestamp GROUP BY job_id,job_name,category ORDER BY job_id`,[start,end])).rows;
   }
-
-  /**
-   * 获取所有任务的最近执行记录
-   */
-  async getAllRecentLogs(limit = 50) {
-    const sql = `
-      SELECT * FROM job_execution_logs
-      ORDER BY start_time DESC
-      LIMIT $1
-    `;
-    const result = await this.pool.query(sql, [limit]);
-    return result.rows;
+  async cleanupOldLogs(){
+    const cutoff=timestamp(new Date(Date.now()-this.retentionDays*86400000));
+    const result=await this.query("DELETE FROM job_execution_logs WHERE created_at<$1::timestamp AND end_time<$1::timestamp AND status IN('success','failed','timeout') RETURNING id",[cutoff]);
+    logger.info({deletedCount:result.rowCount,retentionDays:this.retentionDays},'Old completed job records removed');return result.rowCount;
   }
-
-  /**
-   * 获取统计数据
-   * @param {string} jobId 任务ID
-   * @param {object} period 时间范围
-   */
-  async getStatistics(jobId, period = {}) {
-    const { startDate, endDate } = period;
-    const defaultStart = startDate || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 默认7天
-    const defaultEnd = endDate || new Date();
-
-    const sql = `
-      SELECT
-        COUNT(*) as total_runs,
-        COUNT(*) FILTER (WHERE status = 'success') as success_count,
-        COUNT(*) FILTER (WHERE status = 'failed') as failure_count,
-        COUNT(*) FILTER (WHERE status = 'timeout') as timeout_count,
-        AVG(duration_ms) FILTER (WHERE duration_ms IS NOT NULL) as avg_duration_ms,
-        MIN(duration_ms) FILTER (WHERE duration_ms IS NOT NULL) as min_duration_ms,
-        MAX(duration_ms) FILTER (WHERE duration_ms IS NOT NULL) as max_duration_ms,
-        COUNT(*) FILTER (WHERE status = 'success')::float / COUNT(*)::float as success_rate
-      FROM job_execution_logs
-      WHERE job_id = $1 AND start_time >= $2 AND start_time <= $3
-    `;
-
-    const result = await this.pool.query(sql, [jobId, defaultStart, defaultEnd]);
-    return result.rows[0];
+  async getFailureDistribution(jobId,period={}){
+    text(jobId,'job ID',100);const [start,end]=this.period(period,30);return (await this.query("SELECT error_message,COUNT(*) AS count FROM job_execution_logs WHERE job_id=$1 AND status='failed' AND start_time>=$2::timestamp AND start_time<=$3::timestamp GROUP BY error_message ORDER BY count DESC,error_message LIMIT 10",[jobId,start,end])).rows;
   }
-
-  /**
-   * 获取所有任务的统计摘要
-   */
-  async getAllJobsStatistics(period = {}) {
-    const { startDate, endDate } = period;
-    const defaultStart = startDate || new Date(Date.now() - 24 * 60 * 60 * 1000); // 默认1天
-    const defaultEnd = endDate || new Date();
-
-    const sql = `
-      SELECT
-        job_id,
-        job_name,
-        category,
-        COUNT(*) as total_runs,
-        COUNT(*) FILTER (WHERE status = 'success') as success_count,
-        COUNT(*) FILTER (WHERE status = 'failed') as failure_count,
-        COUNT(*) FILTER (WHERE status = 'running') as running_count,
-        AVG(duration_ms) FILTER (WHERE duration_ms IS NOT NULL) as avg_duration_ms,
-        COUNT(*) FILTER (WHERE status = 'success')::float / COUNT(*)::float as success_rate
-      FROM job_execution_logs
-      WHERE start_time >= $1 AND start_time <= $2
-      GROUP BY job_id, job_name, category
-      ORDER BY job_id
-    `;
-
-    const result = await this.pool.query(sql, [defaultStart, defaultEnd]);
-    return result.rows;
-  }
-
-  /**
-   * 清理过期日志
-   */
-  async cleanupOldLogs() {
-    const cutoffDate = new Date(Date.now() - this.retentionDays * 24 * 60 * 60 * 1000);
-
-    const sql = `
-      DELETE FROM job_execution_logs
-      WHERE created_at < $1
-      RETURNING COUNT(*) as deleted_count
-    `;
-
-    const result = await this.pool.query(sql, [cutoffDate]);
-    _consoleLogger.log(`[JobExecutionLogger] Cleaned up ${result.rowCount} old logs before ${cutoffDate.toISOString()}`);
-    return result.rowCount;
-  }
-
-  /**
-   * 获取失败类型分布
-   * @param {string} jobId 任务ID
-   */
-  async getFailureDistribution(jobId, period = {}) {
-    const { startDate, endDate } = period;
-    const defaultStart = startDate || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const defaultEnd = endDate || new Date();
-
-    const sql = `
-      SELECT
-        error_message,
-        COUNT(*) as count
-      FROM job_execution_logs
-      WHERE job_id = $1 AND status = 'failed' AND start_time >= $2 AND start_time <= $3
-      GROUP BY error_message
-      ORDER BY count DESC
-      LIMIT 10
-    `;
-
-    const result = await this.pool.query(sql, [jobId, defaultStart, defaultEnd]);
-    return result.rows;
-  }
-
-  /**
-   * 关闭连接池
-   */
-  async close() {
-    await this.pool.end();
-    _consoleLogger.log('[JobExecutionLogger] Connection pool closed');
-  }
+  async close(){this.closed=true;if(this.initializing)await this.initializing.catch(()=>{});if(this.ownsPool&&this.pool)await this.pool.end();this.isInitialized=false;}
 }
-
-module.exports = { JobExecutionLogger };
+module.exports={JobExecutionLogger};
