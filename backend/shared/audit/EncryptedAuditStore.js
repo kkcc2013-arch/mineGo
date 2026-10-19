@@ -43,12 +43,21 @@ function wrapped(row) {
 class EncryptedAuditStore {
   constructor({
     pool,
+    transactionClient,
     provider,
     env = process.env,
     nodeEnv = env.NODE_ENV,
     namespace = env.AUDIT_KEY_NAMESPACE
   } = {}) {
-    this.pool = pool || null;
+    if (transactionClient && (pool || typeof transactionClient.query !== 'function')) throw fail('AUDIT_DATABASE_INVALID');
+    this.transactionClient = transactionClient || null;
+    this.pool = transactionClient ? {
+      query: transactionClient.query.bind(transactionClient),
+      connect: async () => ({
+        query: transactionClient.query.bind(transactionClient),
+        release() {}
+      })
+    } : pool || null;
     this.ownsProvider = !provider;
     this.closed = false;
     this.namespaceInput = namespace || '';
@@ -86,6 +95,24 @@ class EncryptedAuditStore {
     return this.initializing;
   }
   async transaction(work) {
+    if (this.transactionClient) {
+      // SAVEPOINT fails outside a transaction. Never BEGIN/COMMIT or release the
+      // caller's client, and never leave its transaction aborted after failure.
+      if (this.closed) throw fail('AUDIT_STORE_CLOSED');
+      const client = this.transactionClient;
+      const point = 'minego_audit_' + crypto.randomBytes(12).toString('hex');
+      await client.query('SAVEPOINT ' + point);
+      try {
+        await this.initialize();
+        const result = await work(client);
+        await client.query('RELEASE SAVEPOINT ' + point);
+        return result;
+      } catch (error) {
+        await client.query('ROLLBACK TO SAVEPOINT ' + point).catch(() => {});
+        await client.query('RELEASE SAVEPOINT ' + point).catch(() => {});
+        throw error;
+      }
+    }
     await this.initialize();
     const client = await this.pool.connect();
     try {
@@ -235,7 +262,8 @@ class EncryptedAuditStore {
       actionData: params.actionData ?? params.details ?? {},
       ipAddress: params.ipAddress ?? null,
       userAgent: params.userAgent ?? null,
-      service: params.service ?? null
+      service: params.service ?? null,
+      requestId: params.requestId ?? null
     });
     try {
       return await this.transaction(async client => {

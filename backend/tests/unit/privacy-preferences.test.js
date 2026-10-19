@@ -1,3 +1,5 @@
+jest.mock('../../shared/auditLog', () => ({...jest.requireActual('../../shared/auditLog'), auditLog: jest.fn()}));
+const {auditLog: mockAuditLog} = require('../../shared/auditLog');
 /**
  * REQ-00053: 用户隐私偏好管理中心 - 单元测试
  */
@@ -26,6 +28,7 @@ describe('PrivacyPreferencesService', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+    mockAuditLog.mockResolvedValue(true);
     service = new PrivacyPreferencesService(mockDb);
     mockDb.pool.connect.mockResolvedValue(mockClient);
   });
@@ -63,10 +66,8 @@ describe('PrivacyPreferencesService', () => {
   });
 
   test('rolls back privacy changes when audit persistence fails', async () => {
-    mockClient.query.mockImplementation(async sql => {
-      if (sql.includes('INSERT INTO audit_logs')) throw new Error('Audit storage failed');
-      return {rows: []};
-    });
+    mockClient.query.mockResolvedValue({rows: []});
+    mockAuditLog.mockResolvedValueOnce(false);
     await expect(service.updateUserPreferences('user-123', {marketing: true})).rejects.toThrow('audit could not be persisted');
     expect(mockClient.query).toHaveBeenCalledWith('ROLLBACK');
     expect(mockClient.query).not.toHaveBeenCalledWith('COMMIT');
@@ -294,6 +295,7 @@ describe('PrivacyPolicyService', () => {
 
   beforeEach(() => {
     jest.resetAllMocks();
+    mockAuditLog.mockResolvedValue(true);
     service = new PrivacyPolicyService(mockDb);
   });
 

@@ -2075,3 +2075,90 @@ deploy, production cleanup/rekey or recipient delivery. Inventory remains
 source-hashed records; independently verified1 remains the original REQ619 battle
 framework. Continue common audit/real authorization integration and all remaining
 P0/services/clients/security/operations work in the persistent goal.
+
+## Common audit transactions and actual native privacy (2026-10-20)
+
+Previous ac53b06 made substantive progress:19files published, real crypto20 and
+scoped90line/function gate. Independently observe exactac53 main467/run39242272932,
+title-native36/run39242273009 and migration29/run39242273002 SUCCESS. Downloaded
+migration job118025695411 confirms crypto20, original90gates and whole85. Actual
+paired throughput -4.494916657640657% meets unchanged -5% with8 matching measured
+hashes. Archive exact metadata/log hash/report; retain earlier negative evidence.
+Other legacy workflows are separate and current common-audit source needs CI.
+
+Read full originalREQ16(558lines/12criteria), REQ53(441lines/13criteria),
+REQ202(266lines/7criteria). Common logger still used plaintext SQL and duplicated
+private details/IP/agent into application logs; no-db writes returned success.
+Policy/preference callers already required audit success inside their transaction.
+Legacy unit mocks used INTEGER users/plaintext SQL and did not prove encryption or
+transaction safety. Reopen202's unsupported done declaration. Differently named
+lock/response tests exist: exact filename counts are discovery, not proof of missing
+coverage. Original11module85/90targets/fullnpmtest/CI/<30s still need independent
+verification. Preserve every original checkbox/numerical target and all658 scope.
+
+Common audit now uses the durable encrypted provider/store, records only a fixed
+code/opaque audit ID explicitly in its application receipt, and returns false with
+fixed failure code on key/storage/invalid-call failure. No plaintext/no-storage
+success fallback. Public Pool/shared getPool/getClient adapters are explicit;
+bare clients cannot silently become a new transaction. Caller transactionClient
+uses a random-name SAVEPOINT, same-connection schema verification and complete
+cipher write; it never BEGIN/COMMIT/releases the caller or closes its provider.
+An error rolls back to the savepoint, leaving the outer transaction usable so its
+caller can roll back the business action. Real sessions prove outside-session
+invisibility, caller rollback/commit, error recovery and ownership. Request IDs
+join encrypted audit payloads. The tested partition conversion retains actual
+int64/sequence/global identity behavior.
+
+Mounted policy-acceptance/preference writes use transactionClient and pass trusted
+request context for encrypted IP/agent/request ID. Final review caught the missing
+preference context; route and service now pass it, with real agent/IP assertions. Actual gateway/
+privacy routes and the production user-service OS process verify private columns
+null, stored tags, independent authentic decryption and failure rollback. Native
+owner audit metadata routes reject anonymous/partly numeric limits and return
+explicit detailsUnavailable without cipher or legacy plaintext. Common metadata
+queries do not accept encrypted service filtering or claim completed decrypt access;
+implement full protected query/roles/server-MFA, not metadata-only as final success.
+Common buffered-response middleware withholds private body/headers on recording
+failure, including anonymous actions. Streaming callers must record before first
+write; already sent bytes cannot be retracted. Full access coverage remains open.
+Service owner closes its managed provider after HTTP drains; caller resources survive.
+
+Final checks, all no-skips where applicable:
+
+- Actual crypto/PostgreSQL/SDK21 pass. Four-module crypto+facade scope is98.21%lines,
+  89.56%branches,95.52%functions; original90line/function gate retained. Facade
+  itself100line/function, underlying store92.5function. No90branch/full combined
+  mask/permission acceptance.
+- Common wrapper9 unit tests pass in under one second, actual98.7line/96.96statement/
+  96.84branch/93.75function at original85line/statement/function gates. This gate is
+  now in test:unit; other security modules are not accepted from it.
+- Existing privacy40 unit tests retain91.78line/89.57statement/78.94branch/
+  100function at unchanged80line/statement/function gates. Audit dependency is
+  explicitly isolated there; actual storage is independently tested.
+- Real privacy12 SQL/JWT/gateway route checks pass, now with original canonical
+  audit prerequisites and actual decryptability/atomic rejection assertions.
+- Both actual native user/gateway scenarios pass. User explicitly exercises the
+  mounted privacy flow, owner metadata and rollback plus old title/IP/health and
+  natural cleanup. The unchanged50ms titlep95 gate passes; independent gateway
+  checks retain CDC/cache/notifications/IP/health/signals. Exact local latency and
+  shutdown observations are archived in the current common-audit benchmark. These fixture observations are not production SLO acceptance.
+- Full733 unit checks pass:common1Jest9 plus prior24Jest425, with battle133 and
+  separate100%formula coverage.1462JS syntax/workflow/audit/number/health/console
+  checks pass. Full85/raw storage16 remain previous exact-source CI evidence;
+  no fabricated fresh broad rerun is claimed.
+
+A new borrowed-client failure test initially left its owned NOT VALID rejection
+constraint in place, causing the later independent partition conversion to reject
+it. Remove that temporary constraint in finally after proving rollback; preserve
+the original partition assertions. All85 raw SQL, repair manifest and lockfile
+unchanged. Heavy checks sequential/nice10/UV2/node concurrency1/Jest runInBand;
+owned Redis/Kafka stopped after native tests, unrelated containers untouched.
+
+Current182declared done47inprogress429new,658unique,43source-hashed records;
+sole independently verified requirement remains619. REQ38/16/53/202 and all full
+business/transaction callers, positional interfaces/jobs/ignoredfalse, authenticated
+admin/serverMFA/decrypt/service-filter contracts, complete export/delete/retention,
+masking/scanner/UI/liveAWS/original combined coverage remain open. No all-service,
+11-module, compliance or full-goal claim. No new requirement/Maven/maxCPU/subagents/
+merge/deploy/productioncleanup/rekey/recipient messages. Continue the full persistent
+P0/service/client/security/operations objective after this published checkpoint.

@@ -10,42 +10,34 @@ const AuditActions = {
   // 用户同意
   CONSENT_GIVEN: 'consent_given',
   CONSENT_WITHDRAWN: 'consent_withdrawn',
-  
   // 数据访问
   DATA_EXPORTED: 'data_exported',
   DATA_VIEWED: 'data_viewed',
-  
   // 数据删除
   DELETION_REQUESTED: 'deletion_requested',
   DELETION_STARTED: 'deletion_started',
   DELETION_COMPLETED: 'deletion_completed',
   DELETION_FAILED: 'deletion_failed',
-  
   // 数据修改
   DATA_UPDATED: 'data_updated',
   DATA_DELETED: 'data_deleted',
-  
   // 认证相关
   LOGIN: 'login',
   LOGOUT: 'logout',
   PASSWORD_CHANGED: 'password_changed',
-  
   // 支付相关
   PAYMENT_CREATED: 'payment_created',
   PAYMENT_COMPLETED: 'payment_completed',
   PAYMENT_REFUNDED: 'payment_refunded',
-  
   // 隐私设置
   PRIVACY_SETTINGS_CHANGED: 'privacy_settings_changed',
   PRIVACY_PREFERENCE_CHANGE: 'privacy_preference_change',
   PRIVACY_POLICY_ACCEPT: 'privacy_policy_accept',
-  
   // 数据跨境传输 - REQ-00089
   DATA_REGION_CHANGED: 'data_region_changed',
   TRANSFER_APPROVED: 'transfer_approved',
   TRANSFER_REJECTED: 'transfer_rejected',
   TRANSFER_REQUESTED: 'transfer_requested',
-  
   // 管理操作
   ADMIN_USER_VIEW: 'admin_user_view',
   ADMIN_USER_MODIFY: 'admin_user_modify',
@@ -53,185 +45,176 @@ const AuditActions = {
 };
 
 /**
- * 记录审计日志
- * @param {object} options - 审计选项
- * @param {number} options.userId - 用户 ID
- * @param {string} options.action - 操作类型
- * @param {object} options.details - 详细信息
- * @param {object} options.req - Express 请求对象（可选）
- * @param {string} options.service - 服务名称
- * @param {object} options.db - 数据库连接
+ * Persist authenticated audit data. transactionClient must already be inside
+ * the caller's transaction; false requires the caller to roll back its action.
+ * db accepts a Pool or the shared pool/getClient adapter, never a bare client.
  */
-async function auditLog({ userId, action, details = {}, req, service = 'unknown', db }) {
+const encryptedAudit = require('./auditLogEncrypted');
+const {
+  Pool
+} = require('pg');
+const {
+  fail
+} = require('./audit/cryptoPrimitives');
+function poolFor(db) {
+  if (!db) return undefined;
+  if (db instanceof Pool) return db;
+  if (typeof db.getPool === 'function') {
+    const pool = db.getPool();
+    if (!(pool instanceof Pool)) throw fail('AUDIT_DATABASE_INVALID');
+    return pool;
+  }
+  if (db.pool instanceof Pool) return db.pool;
+  if (typeof db.getClient === 'function' && typeof db.query === 'function') {
+    return {
+      connect: db.getClient.bind(db),
+      query: db.query.bind(db)
+    };
+  }
+  throw fail('AUDIT_DATABASE_INVALID');
+}
+async function auditLog(options) {
   try {
-    const logData = {
+    if (!options || typeof options !== 'object' || Array.isArray(options) || arguments.length !== 1) throw fail('AUDIT_INPUT_INVALID', 400);
+    const {
       userId,
       action,
-      details,
-      ipAddress: req?.ip || req?.headers?.['x-forwarded-for'] || null,
-      userAgent: req?.headers?.['user-agent'] || null,
+      details = {},
+      req,
+      service = 'unknown',
+      db,
+      transactionClient,
+      resourceType,
+      resourceId
+    } = options;
+    if (db && transactionClient) throw fail('AUDIT_DATABASE_INVALID');
+    const auditId = await encryptedAudit.useAuditStore({
+      pool: poolFor(db),
+      transactionClient
+    }, store => store.writeEncryptedAuditLog({
+      userId,
+      action,
+      actionData: details,
+      resourceType,
+      resourceId,
+      ipAddress: req?.ip ?? options.ipAddress ?? null,
+      userAgent: req?.headers?.['user-agent'] ?? options.userAgent ?? null,
+      requestId: req?.id ?? req?.requestId ?? null,
       service
-    };
-    
-    // 写入数据库
-    if (db) {
-      await db.query(`
-        INSERT INTO audit_logs (user_id, action, details, ip_address, user_agent, service)
-        VALUES ($1, $2, $3, $4, $5, $6)
-      `, [
-        userId,
-        action,
-        JSON.stringify(details),
-        logData.ipAddress,
-        logData.userAgent,
-        service
-      ]);
-    }
-    
-    // 同时写入应用日志
-    logger.info(logData, `Audit: ${action}`);
-    
+    }));
+    // Do not duplicate private payload, identities, addresses, keys or upstream
+    // database/KMS error messages in application logs.
+    logger.info({
+      code: 'AUDIT_WRITE_PERSISTED',
+      auditId
+    }, 'Audit record persisted');
     return true;
-  } catch (err) {
-    logger.error({ err, userId, action }, 'Failed to write audit log');
-    // 审计日志失败不应影响主流程
+  } catch {
+    logger.error({
+      code: 'AUDIT_WRITE_FAILED'
+    }, 'Audit persistence failed');
     return false;
   }
 }
 
-/**
- * 查询用户审计日志
- * @param {number} userId - 用户 ID
- * @param {object} options - 查询选项
- * @param {number} options.limit - 限制数量
- * @param {string} options.action - 过滤操作类型
- * @param {Date} options.startDate - 开始日期
- * @param {Date} options.endDate - 结束日期
- * @param {object} db - 数据库连接
- */
+// These query helpers return metadata only. Decrypted content requires the
+// separately authenticated role/MFA boundary; ciphertext/legacy plaintext is
+// never substituted for a decrypted response.
+async function auditMetadata(options, db) {
+  const {
+    limit = 100,
+    userId,
+    action,
+    service,
+    startDate,
+    endDate
+  } = options;
+  if (!Number.isSafeInteger(limit) || limit < 1 || limit > 1000) throw fail('AUDIT_LIMIT_INVALID', 400);
+  if (service !== undefined) throw fail('AUDIT_FILTER_INVALID', 400); // service is encrypted
+  const filters = {};
+  if (userId !== undefined) {
+    if (typeof userId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)) throw fail('AUDIT_SUBJECT_INVALID', 400);
+    filters.user_id = userId.toLowerCase();
+  }
+  if (action !== undefined) {
+    if (typeof action !== 'string' || !action.length || action.length > 100) throw fail('AUDIT_INPUT_INVALID', 400);
+    filters.action = action;
+  }
+  const args = [],
+    where = [];
+  for (const [column, value] of Object.entries(filters)) {
+    args.push(value);
+    where.push(column + '=$' + args.length);
+  }
+  for (const [value, operator] of [[startDate, '>='], [endDate, '<=']]) if (value !== undefined) {
+    const date = new Date(value);
+    if (!Number.isFinite(date.getTime())) throw fail('AUDIT_DATE_INVALID', 400);
+    args.push(date.toISOString());
+    where.push('timestamp' + operator + '$' + args.length + '::timestamptz');
+  }
+  if (startDate && endDate && new Date(startDate) > new Date(endDate)) throw fail('AUDIT_DATE_INVALID', 400);
+  args.push(limit);
+  return encryptedAudit.useAuditStore({
+    pool: poolFor(db)
+  }, async store => {
+    await store.initialize();
+    const result = await store.pool.query('SELECT id::text,user_id,action,entity_type,entity_id,created_at,timestamp,(encrypted_data IS NOT NULL AND encryption_key_id IS NOT NULL AND encryption_iv IS NOT NULL AND encryption_auth_tag IS NOT NULL) AS encrypted FROM audit_logs' + (where.length ? ' WHERE ' + where.join(' AND ') : '') + ' ORDER BY created_at DESC,id DESC LIMIT $' + args.length, args);
+    return result.rows.map(row => ({
+      ...row,
+      detailsUnavailable: true
+    }));
+  });
+}
 async function getUserAuditLogs(userId, options = {}, db) {
-  const { limit = 100, action, startDate, endDate } = options;
-  
-  let query = `
-    SELECT id, action, details, ip_address, user_agent, service, created_at
-    FROM audit_logs
-    WHERE user_id = $1
-  `;
-  const params = [userId];
-  let paramIndex = 2;
-  
-  if (action) {
-    query += ` AND action = $${paramIndex}`;
-    params.push(action);
-    paramIndex++;
-  }
-  
-  if (startDate) {
-    query += ` AND created_at >= $${paramIndex}`;
-    params.push(startDate);
-    paramIndex++;
-  }
-  
-  if (endDate) {
-    query += ` AND created_at <= $${paramIndex}`;
-    params.push(endDate);
-    paramIndex++;
-  }
-  
-  query += ` ORDER BY created_at DESC LIMIT $${paramIndex}`;
-  params.push(limit);
-  
-  const result = await db.query(query, params);
-  return result.rows;
+  if (!userId || !options || typeof options !== 'object' || Array.isArray(options) || Object.keys(options).some(key => !['limit', 'action', 'startDate', 'endDate'].includes(key))) throw fail('AUDIT_FILTER_INVALID', 400);
+  return auditMetadata({
+    ...options,
+    userId
+  }, db);
 }
-
-/**
- * 查询系统审计日志（管理员）
- * @param {object} options - 查询选项
- * @param {object} db - 数据库连接
- */
 async function getSystemAuditLogs(options = {}, db) {
-  const { limit = 100, action, userId, service, startDate, endDate } = options;
-  
-  let query = 'SELECT * FROM audit_logs WHERE 1=1';
-  const params = [];
-  let paramIndex = 1;
-  
-  if (userId) {
-    query += ` AND user_id = $${paramIndex}`;
-    params.push(userId);
-    paramIndex++;
-  }
-  
-  if (action) {
-    query += ` AND action = $${paramIndex}`;
-    params.push(action);
-    paramIndex++;
-  }
-  
-  if (service) {
-    query += ` AND service = $${paramIndex}`;
-    params.push(service);
-    paramIndex++;
-  }
-  
-  if (startDate) {
-    query += ` AND created_at >= $${paramIndex}`;
-    params.push(startDate);
-    paramIndex++;
-  }
-  
-  if (endDate) {
-    query += ` AND created_at <= $${paramIndex}`;
-    params.push(endDate);
-    paramIndex++;
-  }
-  
-  query += ` ORDER BY created_at DESC LIMIT $${paramIndex}`;
-  params.push(limit);
-  
-  const result = await db.query(query, params);
-  return result.rows;
+  if (!options || typeof options !== 'object' || Array.isArray(options) || Object.keys(options).some(key => !['limit', 'userId', 'action', 'service', 'startDate', 'endDate'].includes(key))) throw fail('AUDIT_FILTER_INVALID', 400);
+  return auditMetadata(options, db);
 }
-
-/**
- * 创建审计中间件
- * @param {string} action - 操作类型
- * @param {function} getDetails - 获取详细信息的函数
- */
 function auditMiddleware(action, getDetails = null) {
-  return async (req, res, next) => {
-    // 保存原始 end 方法
-    const originalEnd = res.end;
-    
-    res.end = async function(...args) {
-      // 在响应结束后记录审计日志
-      try {
-        const userId = req.user?.id;
-        if (userId) {
-          const details = getDetails ? await getDetails(req, res) : {};
-          
-          await auditLog({
+  return (req, res, next) => {
+    const originalEnd = res.end.bind(res);
+    let ending = false;
+    res.end = function (...args) {
+      if (ending) return res;
+      ending = true;
+      (async () => {
+        const userId = req.user?.sub || req.user?.id;
+        try {
+          return await auditLog({
             userId,
             action,
-            details,
+            details: getDetails ? await getDetails(req, res) : {},
             req,
             service: req.serviceName || 'api',
             db: req.app.locals.db
           });
+        } catch {
+          return false;
         }
-      } catch (err) {
-        logger.error({ err }, 'Audit middleware error');
-      }
-      
-      // 调用原始 end
-      originalEnd.apply(this, args);
+      })().then(ok => {
+        if (ok) return originalEnd(...args);
+        // Streaming callers must audit before sending any headers/body. Once
+        // bytes escaped, terminate instead of claiming a complete audited reply.
+        if (res.headersSent) return res.destroy();
+        res.statusCode = 503;
+        for (const name of res.getHeaderNames()) res.removeHeader(name);
+        res.setHeader('Cache-Control', 'no-store');
+        res.setHeader('Content-Type', 'application/json');
+        originalEnd(JSON.stringify({
+          error: 'AUDIT_WRITE_FAILED'
+        }));
+      }).catch(() => res.destroy());
+      return res;
     };
-    
     next();
   };
 }
-
 module.exports = {
   auditLog,
   getUserAuditLogs,

@@ -207,7 +207,7 @@
 | [REQ-00199](REQ-00199-data-lineage-tracking-and-impact-analysis.md) | 数据血缘追踪与影响分析系统 | 数据库/数据治理 | P1 | new | gateway、所有微服务、backend/shared、database、infrastructure/k8s/monitoring | 2026-06-14 15:00 |
 | [REQ-00200](REQ-00200-sensitive-operation-risk-verification-system.md) | 敏感操作二次验证与风险分级验证系统 | 安全加固 | P1 | new | gateway、user-service、payment-service、social-service、backend/shared/riskVerifier.js、game-client | 2026-06-14 15:05 |
 | [REQ-00201](REQ-00201-api-contract-version-negotiation-system.md) | API 契约版本协商与灰度兼容系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared、docs/api-spec | 2026-06-14 16:00 |
-| [REQ-00202](REQ-00202-security-modules-unit-test-coverage.md) | 安全模块单元测试覆盖率提升系统 | 测试覆盖 | P1 | done | backend/shared、backend/tests/unit、所有微服务 | 2026-06-14 16:05 |
+| [REQ-00202](REQ-00202-security-modules-unit-test-coverage.md) | 安全模块单元测试覆盖率提升系统 | 测试覆盖 | P1 | in_progress | backend/shared、backend/tests/unit、所有微服务 | 2026-06-14 16:05 |
 | [REQ-00203](REQ-00203-distributed-tracing-opentelemetry-integration.md) | 分布式追踪与 OpenTelemetry 集成系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/tracing、infrastructure/k8s/monitoring | 2026-06-14 17:00 |
 | [REQ-00204](REQ-00204-pokemon-action-queue-animation-preload.md) | 精灵动作队列与动画预加载系统 | 前端体验 | P1 | new | game-client、frontend/game-client/src/animation、frontend/game-client/src/game、gateway、pokemon-service | 2026-06-14 17:00 |
 | [REQ-00205](REQ-00205-developer-environment-auto-setup-tool.md) | 开发者环境自动化配置工具 | 文档/开发者体验 | P1 | new | scripts/setup-dev.js、backend/shared/config、.env.example、Dockerfile.dev、docs | 2026-06-14 18:00 |

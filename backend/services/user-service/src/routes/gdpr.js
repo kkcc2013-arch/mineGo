@@ -219,12 +219,15 @@ router.post('/withdraw', requireAuth, async (req, res) => {
 router.get('/audit-logs', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { limit = 100, action } = req.query;
+    const { limit = '100', action } = req.query;
+    if(typeof limit!=='string'||!/^([1-9][0-9]{0,3})$/.test(limit)||Number(limit)>1000||action!==undefined&&(typeof action!=='string'||!action.length||action.length>100)){
+      return res.status(400).json({error:'Invalid audit filters'});
+    }
     
     const { getUserAuditLogs } = require('../../../../shared/auditLog');
     const logs = await getUserAuditLogs(
       userId,
-      { limit: parseInt(limit), action },
+      { limit: Number(limit), ...(action===undefined?{}:{action}) },
       gdprService.db
     );
     

@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 183,
-      "in_progress": 46,
+      "done": 182,
+      "in_progress": 47,
       "new": 429
     },
     "priorityCounts": {
@@ -5864,11 +5864,11 @@
       "id": "REQ-00202",
       "title": "REQ-00202：安全模块单元测试覆盖率提升系统",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "测试覆盖",
       "modules": "backend/shared、backend/tests/unit、所有微服务",
       "createdAt": "2026-06-14 16:05",
-      "sha256": "a4dda870b383e5f476c44e0df83b7ffe6d21b86f0ba044a8913e8735f1341e65",
+      "sha256": "d021da3f49a98fa1dd9649a99f2bfb8e9905bc16a356823679dcf051ddbc1e06",
       "acceptance": [
         "- [ ] 11 个单元测试文件创建完成",
         "- [ ] 每个模块测试覆盖率 ≥ 85%",
@@ -5878,9 +5878,8 @@
         "- [ ] 测试执行时间 < 30 秒",
         "- [ ] CI 流水线测试通过"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_common_and_encrypted_audit_coverage_verified_other_security_modules_open",
       "implementationReferences": [
-        "backend/tests/unit/auditLog.test.js",
         "backend/tests/unit/securityHeaders.test.js"
       ],
       "legacyId": null

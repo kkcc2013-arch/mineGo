@@ -94,6 +94,78 @@ MFA before using decrypt, query, status or rotation methods. The facade is not a
 HTTP authorization API. No admin decrypt route is mounted by this change. The
 older rule helper's supplied `hasMFA` boolean remains insufficient and open work.
 
+## Business transactions and query boundaries
+
+The common `auditLog` wrapper now writes through the encrypted store. Its explicit
+application log receipt contains only a fixed code and opaque audit ID; failures
+use a fixed code, without private details, identities or upstream SQL/KMS errors.
+Existing framework request-context logging is separate. No success is returned
+for a log-only operation or an invalid legacy positional call.
+
+Use `db` for a real Pool or the shared `getPool`/`getClient` adapter when the audit
+owns its transaction. Use **`transactionClient`** when a business transaction
+already holds a client. The latter creates a random-name savepoint, verifies the
+canonical schema on that same connection, writes the audit and releases only the
+savepoint. It never starts or commits the business transaction, releases its
+client, or closes the shared provider. An audit error rolls back to the savepoint
+and returns false through the common wrapper; callers must then roll back their
+business action. Passing a bare client as `db` is rejected, and passing a client
+outside a transaction fails before any write. These boundaries are verified with
+real sessions, including outside-session invisibility, caller rollback/commit,
+a usable outer transaction after audit failure and preserved client ownership.
+
+```js
+await client.query('BEGIN');
+try {
+  // Apply the business change with this same client.
+  const recorded = await auditLog({
+    userId, action: 'privacy_preference_change', details,
+    transactionClient: client, service: 'user-service'
+  });
+  if (!recorded) throw new Error('Audit persistence required');
+  await client.query('COMMIT');
+} catch (error) {
+  await client.query('ROLLBACK');
+  throw error;
+} finally {
+  client.release();
+}
+```
+
+This follows PostgreSQL's documented [savepoint](https://www.postgresql.org/docs/15/sql-savepoint.html)
+and [rollback-to-savepoint](https://www.postgresql.org/docs/15/sql-rollback-to.html)
+semantics: savepoints require an existing transaction and isolate changes made
+after their creation. No production data or history is deleted by these checks.
+
+Policy acceptance and preference changes use this interface in their existing
+mounted routes. Both pass the trusted request context into encrypted audit data,
+including the resolved IP, agent and request ID when available. The real gateway/privacy fixture and native user-service process
+verify ciphertext-only columns, authenticated round trips and failure rollback.
+The user-service owner closes its provider after draining HTTP requests. Other
+legacy callers, positional interfaces, jobs, exports/deletion and every business
+transaction are still under review; a caller that ignores false does not meet the
+complete atomic-audit requirement.
+
+Common query helpers and the mounted owner `/gdpr/audit-logs` endpoint return
+bounded metadata with `detailsUnavailable: true`. They do not select historical
+plaintext details, ciphertext or wrapping material. Invalid limits are rejected,
+including partially numeric strings at the route. These responses are explicitly
+incomplete until the actual role/server-MFA decrypt boundary is implemented.
+The legacy system `service` filter is rejected because service is encrypted; its
+full protected-query contract also remains open. This checkpoint does not accept
+metadata-only access as the final admin/decrypt/export requirement.
+
+The general audit middleware persists before sending a buffered response and
+withholds the body and private headers on audit failure. Anonymous actions are
+recorded as such, rather than silently skipped. Streaming handlers must record
+before their first write; middleware cannot retract bytes already sent. Both the
+real crypto HTTP path and isolated wrapper tests exercise response refusal.
+
+The common-wrapper unit gate measures only `auditLog.js`, with its original 85%
+line/statement/function target. The three crypto modules and encrypted facade retain their separate
+90% line/function gate. Neither gate proves all eleven modules of REQ-00202, the
+full GDPR coverage target, or complete masking/permission/MFA coverage.
+
 ## Reproduction and evidence limits
 
 Run against an owned isolated PostGIS database after installing declared backend
@@ -103,6 +175,7 @@ dependencies, using Node 24:
 UV_THREADPOOL_SIZE=2 LOG_LEVEL=error nice -n 10 node --test --test-concurrency=1 \
   --test-timeout=20000 --experimental-test-coverage \
   --test-coverage-include='**/shared/audit/*.js' \
+  --test-coverage-include='**/shared/auditLogEncrypted.js' \
   --test-coverage-lines=90 --test-coverage-functions=90 \
   backend/tests/regression/audit-crypto-storage.test.js \
   backend/tests/regression/audit-kms-wire.test.js
@@ -120,7 +193,7 @@ protocol fixture and verifies context, denial, malformed responses and deadlines
 It is not evidence of live AWS IAM/key policy, CloudTrail, availability or latency.
 
 The original 90% complete crypto/masking/permission criterion remains open. The
-new gate measures only the three production audit crypto modules; source-hashed
+new gate measures only the three production audit crypto modules and facade; source-hashed
 results and exact percentages are retained in the benchmark evidence. Branch
 coverage is reported separately without claiming a 90% branch pass. No broader
 performance, business, MFA, client or compliance acceptance follows from these tests.

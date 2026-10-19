@@ -137,7 +137,7 @@ router.patch('/preferences', async (req, res) => {
       }
     }
     
-    const result = await privacyService.updateUserPreferences(userId, updates);
+    const result = await privacyService.updateUserPreferences(userId, updates, {req});
     
     res.json({
       success: result.success,
@@ -305,7 +305,7 @@ router.post('/policy/accept', async (req, res) => {
       await policyService.recordAcceptance(userId, acceptVersion, client);
       await privacyService.initializeUserPreferences(userId, client);
       const audited = await auditLog({userId, action: AuditActions.PRIVACY_POLICY_ACCEPT,
-        details: {version: acceptVersion}, req, service: 'user-service', db: client});
+        details: {version: acceptVersion}, req, service: 'user-service', transactionClient: client});
       if (!audited) throw new Error('Policy acceptance audit could not be persisted');
       await client.query('COMMIT');
       metrics.privacyPolicyAcceptances.inc({version: acceptVersion});

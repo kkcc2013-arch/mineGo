@@ -1,9 +1,9 @@
 # mineGo requirement completion plan
 
-Updated: 2026-10-19. Scope: all 658 existing requirement documents in INDEX.md,
+Updated: 2026-10-20. Scope: all 658 existing requirement documents in INDEX.md,
 including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 429 new, 46 in progress; 183 declared done, including one independently verified framework. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 429 new, 47 in progress; 182 declared done, including one independently verified framework. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -43,8 +43,9 @@ independent authorized work.
    work while genuine external provider/staging/device inputs are unavailable.
 4. Repair remaining legacy contract/API/integration/performance/security/operations
    gates, meet each original numerical target and perform all658 acceptance audit.
-   Main465/native34/migration27 pass at519f880, including the fresh85 gate.
-   New audit source still requires CI; other legacy workflows remain unaccepted. A partial/source-specific pass never accepts a whole feature.
+   Main467/native36/migration29 pass at ac53b06, including actual crypto20 and
+   the fresh85 gate. Transaction-aware common audit/native privacy source still
+   requires CI; other legacy workflows remain unaccepted. A partial/source-specific pass never accepts a whole feature.
 
 ## Definition of finished
 

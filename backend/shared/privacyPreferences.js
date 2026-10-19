@@ -196,7 +196,7 @@ class PrivacyPreferencesService {
   /**
    * 更新用户隐私偏好
    */
-  async updateUserPreferences(userId, preferences) {
+  async updateUserPreferences(userId, preferences, context = {}) {
     const client = await (this.db.getClient ? this.db.getClient() : this.db.pool.connect());
     const updatedCategories = [];
     const errors = [];
@@ -233,7 +233,7 @@ class PrivacyPreferencesService {
         
         // 记录审计日志
         const audited = await auditLog({userId, action: AuditActions.PRIVACY_PREFERENCE_CHANGE,
-          details: {category, collectable}, service: 'user-service', db: client});
+          details: {category, collectable}, req: context.req, service: 'user-service', transactionClient: client});
         if (!audited) throw new Error('Privacy preference audit could not be persisted');
       }
       

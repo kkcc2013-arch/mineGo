@@ -6,6 +6,9 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const http = require('node:http');
 const {Pool} = require('pg');
+const {parseMigrationFile}=require('../../../database/migrate');
+const {migrationStatements}=require('../../../database/sqlStatements');
+const encryptedAudit=require('../../shared/auditLogEncrypted');
 const express = require('express');
 const request = require('supertest');
 const {signAccess, errorHandler} = require('../../shared/auth');
@@ -21,14 +24,24 @@ test('privacy preferences and actual proxy routes with PostgreSQL, JWT and audit
   const db = new Pool({connectionString: process.env.TEST_DATABASE_URL, options: `-c search_path=${schema},public`});
   const database = {query: db.query.bind(db), getClient: () => db.connect()};
   let upstream, proxy;
+  const oldMaster=process.env.MASTER_ENCRYPTION_KEY;
+  const oldKeyId=process.env.AUDIT_MASTER_KEY_ID;
+  const master=crypto.randomBytes(32);
+  process.env.MASTER_ENCRYPTION_KEY=master.toString('hex');
+  process.env.AUDIT_MASTER_KEY_ID='privacy-fixture';
+  await encryptedAudit.closeAuditEncryption();
   const userId = crypto.randomUUID();
   const secondUserId = crypto.randomUUID();
   try {
     await db.query('CREATE TABLE users (id UUID PRIMARY KEY, nickname VARCHAR(30))');
-    // Use the actual initial audit definition and legacy policy definition so the
-    // additive migration is exercised against the existing schema shapes.
+    // Canonical audit prerequisites are real source-bound migrations. No
+    // test-only ciphertext columns or plaintext success fallback.
     const initial = await fs.readFile(path.resolve(__dirname, '../../../database/migrations/V1__initial_schema.sql'), 'utf8');
     await db.query(initial.match(/CREATE TABLE audit_logs \([\s\S]*?\n\);/)[0]);
+    for(const file of ['20260608_194800__add_sensitive_data_protection_tables.sql','repairs/20260608_200000__add_sensitive_data_audit_tables.sql']){
+      const migration=parseMigrationFile(await fs.readFile(path.resolve(__dirname,'../../../database/pending',file),'utf8'));
+      for(const statement of migrationStatements(migration.up))await db.query(statement);
+    }
     const legacy = await fs.readFile(path.resolve(__dirname, '../../../database/pending/20260605_161000__add_gdpr_tables.sql'), 'utf8');
     await db.query(legacy.match(/CREATE TABLE IF NOT EXISTS privacy_policy_versions \([\s\S]*?\n\);/)[0]);
     await db.query("INSERT INTO privacy_policy_versions (version,title,content,published_at) VALUES ('legacy','Existing policy','Existing text', NOW() - INTERVAL '1 day')");
@@ -117,7 +130,7 @@ test('privacy preferences and actual proxy routes with PostgreSQL, JWT and audit
       assert.equal((await authenticated('get','/api/v1/privacy/policy/check')).body.data.needsAccept, false);
     });
     await t.test('explicit opt-in and withdrawal update consent time and audit records', async () => {
-      assert.equal((await authenticated('patch','/api/v1/privacy/preferences').send({marketing: true})).status, 200);
+      assert.equal((await authenticated('patch','/api/v1/privacy/preferences').set('User-Agent','fixture-private-privacy-agent').send({marketing: true})).status, 200);
       let preference = (await db.query("SELECT * FROM user_privacy_preferences WHERE user_id=$1 AND category='marketing'", [userId])).rows[0];
       assert.ok(preference.consented_at);
       assert.equal(preference.collectable, true);
@@ -128,6 +141,14 @@ test('privacy preferences and actual proxy routes with PostgreSQL, JWT and audit
       preference = (await db.query("SELECT * FROM user_privacy_preferences WHERE user_id=$1 AND category='marketing'", [userId])).rows[0];
       assert.equal(preference.collectable, false); assert.equal(preference.consented_at, null);
       assert.equal((await db.query("SELECT COUNT(*) FROM audit_logs WHERE user_id=$1 AND action='privacy_preference_change'", [userId])).rows[0].count, '2');
+    });
+    await t.test('policy and preference audits contain authentic encrypted values and no plaintext details',async()=>{
+      const rows=(await db.query('SELECT * FROM audit_logs WHERE user_id=$1 ORDER BY id',[userId])).rows;
+      assert.ok(rows.length>=3);
+      for(const row of rows){assert.equal(row.details,null);assert.equal(row.ip_address,null);assert.equal(row.user_agent,null);assert.equal(row.encryption_iv.length,32);assert.equal(row.encryption_auth_tag.length,32);}
+      const decoded=await encryptedAudit.useAuditStore({pool:db},store=>store.queryDecryptedAuditLogs({userId}));
+      const changes=decoded.filter(row=>row.action==='privacy_preference_change');assert.deepEqual(changes.map(row=>row.data.actionData.collectable).sort(),[false,true]);assert.ok(changes.every(row=>row.data.actionData.category==='marketing'));assert.ok(changes.every(row=>typeof row.data.ipAddress==='string'));assert.equal(changes.find(row=>row.data.actionData.collectable).data.userAgent,'fixture-private-privacy-agent');
+      assert.ok(decoded.some(row=>row.action==='privacy_policy_accept'&&row.data.actionData.version==='current'));
     });
     await t.test('rejects invalid and mixed updates without partially changing preferences', async () => {
       for (const body of [{location:false}, {marketing:'false'}, {unknown:true}, [], {marketing:true, device:false}]) {
@@ -165,6 +186,10 @@ test('privacy preferences and actual proxy routes with PostgreSQL, JWT and audit
   } finally {
     proxy?.close();
     if (upstream) await new Promise(resolve => upstream.close(resolve));
+    await encryptedAudit.closeAuditEncryption();
+    if(oldMaster===undefined)delete process.env.MASTER_ENCRYPTION_KEY;else process.env.MASTER_ENCRYPTION_KEY=oldMaster;
+    if(oldKeyId===undefined)delete process.env.AUDIT_MASTER_KEY_ID;else process.env.AUDIT_MASTER_KEY_ID=oldKeyId;
+    master.fill(0);
     await db.end(); await admin.query(`DROP SCHEMA ${schema} CASCADE`); await admin.end();
   }
 });

@@ -58,8 +58,10 @@ cipher/IV/tag/key envelope in existing BYTEA storage and withhold responses when
 recording fails. Actual PostgreSQL and real SDK HTTP evidence is described in
 [audit encryption](AUDIT-ENCRYPTION.md); live AWS authorization is still open.
 
-The remaining requirement work includes the common logger's plaintext paths,
-complete business/transaction access coverage, authenticated role and admin MFA
+The common logger now uses durable encrypted writes and explicit caller-owned
+transaction savepoints. Mounted policy/preference operations are verified; other
+callers and all complete business/transaction access coverage remain open. Other
+remaining work includes authenticated role and admin MFA
 boundaries, complete response filtering/scanning, and the dashboard. The existing
 sensitive-rule helper still trusts a supplied MFA boolean and is not an HTTP
 authorization boundary. These APIs have not been mounted in the production

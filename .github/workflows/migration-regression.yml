@@ -6,6 +6,10 @@ on:
       - 'backend/shared/db.js'
       - 'backend/shared/audit/**'
       - 'backend/shared/auditLogEncrypted.js'
+      - 'backend/shared/auditLog.js'
+      - 'backend/shared/privacyPreferences.js'
+      - 'backend/tests/unit/auditLog.test.js'
+      - 'backend/tests/regression/audit.jest.config.json'
       - 'backend/shared/sensitiveDataAudit.js'
       - 'backend/tests/regression/audit-crypto-storage.test.js'
       - 'backend/tests/regression/audit-kms-wire.test.js'
@@ -153,7 +157,7 @@ jobs:
           TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
       - name: Verify durable authenticated audit writes, rotation, refusal and actual KMS SDK protocol
         working-directory: backend
-        run: nice -n 10 node --test --test-concurrency=1 --test-timeout=20000 --experimental-test-coverage --test-coverage-include='**/shared/audit/*.js' --test-coverage-lines=90 --test-coverage-functions=90 tests/regression/audit-crypto-storage.test.js tests/regression/audit-kms-wire.test.js
+        run: nice -n 10 node --test --test-concurrency=1 --test-timeout=20000 --experimental-test-coverage --test-coverage-include='**/shared/audit/*.js' --test-coverage-include='**/shared/auditLogEncrypted.js' --test-coverage-lines=90 --test-coverage-functions=90 tests/regression/audit-crypto-storage.test.js tests/regression/audit-kms-wire.test.js
         env:
           UV_THREADPOOL_SIZE: '2'
           LOG_LEVEL: error

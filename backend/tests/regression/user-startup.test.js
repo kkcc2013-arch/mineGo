@@ -36,10 +36,19 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
   let appealGateway, appealProxy;
   let logs='';
   const userId=crypto.randomUUID();
+  const auditMaster=crypto.randomBytes(32);
+  const auditNamespace='native-privacy-fixture';
   try{
     const initial=await fs.readFile(path.resolve(__dirname,'../../../database/migrations/V1__initial_schema.sql'),'utf8');
     await fixture.query(initial.match(/CREATE TYPE team_enum[^;]*;/)[0]);
     await fixture.query(initial.match(/CREATE TABLE users \([\s\S]*?\n\);/)[0]);
+    await fixture.query(initial.match(/CREATE TABLE audit_logs \([\s\S]*?\n\);/)[0]);
+    for(const file of ['20260608_194800__add_sensitive_data_protection_tables.sql','repairs/20260608_200000__add_sensitive_data_audit_tables.sql','20261006_150000__privacy_preference_defaults_and_policy_fields.sql']){
+      const migration=parseMigrationFile(await fs.readFile(path.resolve(__dirname,'../../../database/pending',file),'utf8'));
+      for(const statement of migrationStatements(migration.up))await fixture.query(statement);
+    }
+    const policy=new(require('../../shared/privacyPreferences').PrivacyPolicyService)({query:fixture.query.bind(fixture)});
+    await policy.createPolicyVersion('native-v1','2020-01-01',[],'fixture zh','fixture en','fixture ja');
     await fixture.query('INSERT INTO users(id,nickname) VALUES ($1,$2)',[userId,'startup-player']);
     await fixture.query(await fs.readFile(path.resolve(__dirname,'../../../database/pending/20261007_120000__title_identity_compatibility.sql'),'utf8'));
     await fixture.query(await fs.readFile(path.resolve(__dirname,'../../../database/pending/20261008_100000__ip_ban_index_compatibility.sql'),'utf8'));
@@ -56,6 +65,7 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
     child=spawn(process.execPath,['-e',runner],{cwd:path.resolve(__dirname,'../..'),env:{...process.env,
       EVENT_BUS_CLIENT_ID:'native-user-'+schema,DATABASE_URL:database.toString(),REDIS_HOST:redis.hostname,REDIS_PORT:redis.port||'6379',
       KAFKA_BROKERS:process.env.TEST_KAFKA_BROKERS,PORT:'0',LOG_LEVEL:'error',
+      NODE_ENV:'test',AUDIT_MASTER_KEY_ID:'native-fixture',MASTER_ENCRYPTION_KEY:auditMaster.toString('hex'),AUDIT_MASTER_KEYS_JSON:'',AUDIT_KMS_KEY_ID:'',AUDIT_KEY_NAMESPACE:auditNamespace,
       JWT_ACCESS_SECRET:'user-startup-test-access',JWT_REFRESH_SECRET:'user-startup-test-refresh'
     },stdio:['ignore','pipe','pipe','ipc']});
     child.stdout.on('data',chunk=>{logs=(logs+chunk).slice(-16000);});child.stderr.on('data',chunk=>{logs=(logs+chunk).slice(-16000);});
@@ -81,6 +91,26 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
     const token=require('jsonwebtoken').sign({sub:userId},'user-startup-test-access');
     const headers={Authorization:`Bearer ${token}`};
     assert.equal((await fetch(base+'/users/me/titles',{headers})).status,200);
+    const accept=await fetch(base+'/privacy/policy/accept',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:'{}'});assert.equal(accept.status,200);
+    const change=await fetch(base+'/privacy/preferences',{method:'PATCH',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({marketing:true})});assert.equal(change.status,200);
+    const {EnvironmentKeyProvider}=require('../../shared/audit/KeyProviders');
+    const {EncryptedAuditStore}=require('../../shared/audit/EncryptedAuditStore');
+    const provider=new EnvironmentKeyProvider({keys:{'native-fixture':auditMaster},activeKeyId:'native-fixture',nodeEnv:'test'});
+    const audit=new EncryptedAuditStore({pool:fixture,provider,namespace:auditNamespace,nodeEnv:'test'});
+    try{
+      const history=await audit.queryDecryptedAuditLogs({userId});
+      assert.ok(history.some(row=>row.action==='privacy_policy_accept'&&row.data.actionData.version==='native-v1'));
+      assert.ok(history.some(row=>row.action==='privacy_preference_change'&&row.data.actionData.category==='marketing'&&row.data.actionData.collectable===true&&typeof row.data.ipAddress==='string'&&typeof row.data.userAgent==='string'));
+      for(const row of(await fixture.query('SELECT details,ip_address,user_agent,encryption_auth_tag FROM audit_logs WHERE user_id=$1',[userId])).rows){assert.equal(row.details,null);assert.equal(row.ip_address,null);assert.equal(row.user_agent,null);assert.equal(row.encryption_auth_tag.length,32);}
+    }finally{await audit.close();provider.close();}
+    const history=await fetch(base+'/gdpr/audit-logs',{headers});assert.equal(history.status,200);
+    const visible=await history.json();assert.ok(visible.length>=2);assert.ok(visible.every(row=>row.encrypted&&row.detailsUnavailable));assert.ok(visible.every(row=>!Object.hasOwn(row,'encrypted_data')&&!Object.hasOwn(row,'details')));
+    assert.equal((await fetch(base+'/gdpr/audit-logs?limit=5abc',{headers})).status,400);
+    assert.equal((await fetch(base+'/gdpr/audit-logs')).status,401);
+    await fixture.query("ALTER TABLE audit_logs ADD CONSTRAINT native_audit_refusal CHECK(action<>'privacy_preference_change') NOT VALID");
+    const failed=await fetch(base+'/privacy/preferences',{method:'PATCH',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({marketing:false})});assert.equal(failed.status,500);
+    assert.equal((await fixture.query("SELECT collectable FROM user_privacy_preferences WHERE user_id=$1 AND category='marketing'",[userId])).rows[0].collectable,true);
+    assert.ok(!logs.includes(auditMaster.toString('hex')));
     await fixture.query("INSERT INTO ip_blacklist(ip_address,reason,severity) VALUES('127.0.0.0/8','startup appeal test','critical')");
     const gatewayApp=express();gatewayApp.use(express.json());appealProxy=mountIpAppealProxy(gatewayApp,base);
     appealGateway=http.createServer(gatewayApp);await new Promise(resolve=>appealGateway.listen(0,'127.0.0.1',resolve));
@@ -104,6 +134,7 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
   }finally{
     appealProxy?.close();if(appealGateway)await new Promise(resolve=>appealGateway.close(resolve));
     if(child&&child.exitCode===null){const exited=new Promise(resolve=>child.once('exit',resolve));child.kill('SIGKILL');await exited;}
+    auditMaster.fill(0);
     await fixture.end();await admin.query(`DROP SCHEMA ${schema} CASCADE`);await admin.end();
   }
 });

@@ -487,7 +487,7 @@ test('production audit crypto persists authenticated canonical history and real 
     }
   });
   await t.test('actual lazy facade and sensitive access module use DATABASE_URL across a new process and close owned providers', async () => {
-    const script = `const assert=require('node:assert/strict');const audit=require('./backend/shared/auditLogEncrypted');const access=require('./backend/shared/sensitiveDataAudit');const db=require('./backend/shared/db');
+    const script = `const assert=require('node:assert/strict');const audit=require('./backend/shared/auditLogEncrypted');const access=require('./backend/shared/sensitiveDataAudit');const common=require('./backend/shared/auditLog');const db=require('./backend/shared/db');
       (async()=>{const input=JSON.parse(process.env.AUDIT_FIXTURE_INPUT);try{
         const id=await audit.writeEncryptedAuditLog({userId:input.owner,action:'facade-process',actionData:{value:'fixture-private-child'}});
         assert.equal((await audit.readEncryptedAuditLog(id)).data.actionData.value,'fixture-private-child');
@@ -497,12 +497,17 @@ test('production audit crypto persists authenticated canonical history and real 
         const report=await access.generateSensitiveAccessReport({userId:input.owner});assert.ok(report.stats.unavailableAccesses>=1);
         assert.ok((await audit.getEncryptionKeyStatus()).some(row=>row.isActive));await audit.rotateEncryptionKey();
         assert.equal((await audit.readEncryptedAuditLog(id)).data.actionData.value,'fixture-private-child');
-        const express=require('./backend/node_modules/express');const app=express();
+        const metadata=await common.getSystemAuditLogs({},db);assert.ok(metadata.length);assert.ok(metadata.every(row=>row.detailsUnavailable));assert.ok(!JSON.stringify(metadata).includes('fixture-private'));
+        const express=require('./backend/node_modules/express');const app=express();app.locals.db=db;
+        app.get('/common',(req,res,next)=>{req.user={sub:input.owner};next();},common.auditMiddleware('common-http',()=>({value:'fixture-private-common-http'})),(req,res)=>res.json({value:'fixture-private-common-response'}));
         app.get('/fixture/:id',(req,res,next)=>{req.user={sub:input.other};next();},access.sensitiveDataAccessMiddleware({resourceType:'user',sensitiveFields:['email']}),(req,res)=>res.json({email:0}));
         const server=app.listen(0,'127.0.0.1');await new Promise(resolve=>server.once('listening',resolve));
         try{const url='http://127.0.0.1:'+server.address().port+'/fixture/'+input.owner;
+          const commonUrl='http://127.0.0.1:'+server.address().port+'/common';
+          const commonSuccess=await fetch(commonUrl);assert.equal(commonSuccess.status,200);assert.equal((await commonSuccess.json()).value,'fixture-private-common-response');
           const success=await fetch(url);assert.equal(success.status,200);assert.deepEqual(await success.json(),{email:0});
           await audit.closeAuditEncryption();process.env.AUDIT_MASTER_KEYS_JSON='{}';
+          const commonRefused=await fetch(commonUrl);assert.equal(commonRefused.status,503);assert.deepEqual(await commonRefused.json(),{error:'AUDIT_WRITE_FAILED'});
           const refused=await fetch(url);assert.equal(refused.status,503);assert.deepEqual(await refused.json(),{error:'SENSITIVE_ACCESS_AUDIT_UNAVAILABLE'});
         }finally{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
         process.stdout.write('fixture-facade-complete');
@@ -550,6 +555,69 @@ test('production audit crypto persists authenticated canonical history and real 
       assert.ok(!stderr.includes(masterA.toString('hex')));
     } finally {
       clearTimeout(timer);
+    }
+  });
+  await t.test('borrowed audit clients never commit business work and savepoint failure leaves caller transaction usable', async () => {
+    await pool.query('CREATE TABLE audit_business_fixture(id UUID PRIMARY KEY,value INTEGER NOT NULL)');
+    const client = await pool.connect();
+    const scoped = new EncryptedAuditStore({
+      transactionClient: client,
+      provider,
+      nodeEnv: 'test'
+    });
+    const marker = crypto.randomUUID();
+    try {
+      await assert.rejects(scoped.writeEncryptedAuditLog({
+        userId: owner,
+        action: 'outside-transaction'
+      }), error => error.code === '25P01');
+      assert.equal((await client.query('SELECT 1 AS alive')).rows[0].alive, 1);
+      await client.query('BEGIN');
+      await client.query('INSERT INTO audit_business_fixture VALUES($1,1)', [marker]);
+      const value = await scoped.writeEncryptedAuditLog({
+        userId: owner,
+        action: 'caller-rollback',
+        actionData: {
+          private: 'fixture-private-business'
+        }
+      });
+      assert.equal((await client.query('SELECT count(*)::int AS n FROM audit_logs WHERE id=$1', [value])).rows[0].n, 1);
+      assert.equal((await pool.query("SELECT count(*)::int AS n FROM audit_logs WHERE action='caller-rollback'")).rows[0].n, 0);
+      assert.equal((await pool.query('SELECT count(*)::int AS n FROM audit_business_fixture')).rows[0].n, 0);
+      await client.query('ROLLBACK');
+      assert.equal((await pool.query("SELECT count(*)::int AS n FROM audit_logs WHERE action='caller-rollback'")).rows[0].n, 0);
+      await client.query('BEGIN');
+      await client.query('INSERT INTO audit_business_fixture VALUES($1,2)', [marker]);
+      const committed = await scoped.writeEncryptedAuditLog({
+        userId: owner,
+        action: 'caller-commit',
+        actionData: {
+          ok: true
+        },
+        requestId: 'fixture-request'
+      });
+      await client.query('COMMIT');
+      assert.equal((await pool.query('SELECT value FROM audit_business_fixture WHERE id=$1', [marker])).rows[0].value, 2);
+      assert.equal((await store.readEncryptedAuditLog(committed)).data.requestId, 'fixture-request');
+      await pool.query("ALTER TABLE audit_logs ADD CONSTRAINT refuse_caller_audit CHECK(action<>'caller-refused') NOT VALID");
+      const before = (await pool.query('SELECT id,is_active,encrypted_key FROM encryption_keys ORDER BY id')).rows;
+      await client.query('BEGIN');
+      await client.query('UPDATE audit_business_fixture SET value=3 WHERE id=$1', [marker]);
+      await assert.rejects(scoped.writeEncryptedAuditLog({
+        userId: owner,
+        action: 'caller-refused'
+      }), error => error.code === '23514');
+      assert.equal((await client.query('SELECT value FROM audit_business_fixture WHERE id=$1', [marker])).rows[0].value, 3, 'audit savepoint rollback must not abort or commit the caller');
+      await client.query('ROLLBACK');
+      assert.equal((await pool.query('SELECT value FROM audit_business_fixture WHERE id=$1', [marker])).rows[0].value, 2);
+      assert.deepEqual((await pool.query('SELECT id,is_active,encrypted_key FROM encryption_keys ORDER BY id')).rows, before);
+      await scoped.close();
+      assert.equal((await client.query('SELECT 1 AS alive')).rows[0].alive, 1);
+    } finally {
+      await client.query('ROLLBACK');
+      await scoped.close();
+      client.release();
+      await pool.query('ALTER TABLE audit_logs DROP CONSTRAINT IF EXISTS refuse_caller_audit');
     }
   });
   await t.test('canonical partition conversion and int64 IDs preserve authenticated reads and caller-owned pool', async () => {

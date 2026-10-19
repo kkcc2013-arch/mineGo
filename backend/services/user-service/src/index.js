@@ -236,7 +236,7 @@ const service = new ServiceLauncher({
     healthChecker?.stopPeriodicCheck();
     const results = await Promise.allSettled([
       eventBus ? eventBus.disconnect() : Promise.resolve(),
-      ipBanManager ? ipBanManager.close() : Promise.resolve(), db.closePools(), redis.closeRedis()
+      ipBanManager ? ipBanManager.close() : Promise.resolve(), require('../../../shared/auditLogEncrypted').closeAuditEncryption(), db.closePools(), redis.closeRedis()
     ]);
     const failures = results.filter(result => result.status === 'rejected').map(result => result.reason);
     if (failures.length) throw new AggregateError(failures, 'User service cleanup failed');
