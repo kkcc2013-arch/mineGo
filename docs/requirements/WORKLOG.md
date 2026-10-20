@@ -2269,3 +2269,16 @@ performance/operations and all658 acceptance. Heavy checks sequential nice10/UV2
 node concurrency1/JestInBand; no Maven, CPU saturation, subagents, new requirement,
 production cleanup/rekey, recipient delivery, merge or deployment. Owned Redis/Kafka
 stopped after final native checks; unrelated containers unchanged. Draft PR6 only.
+
+MFA source d2daf86119c698544b2e95dc8acfaca789db216b published to existing draftPR6
+(39files). DedicatedMFA CI1 succeeds at that exact source; downloaded actual job
+118581814475 proves primitive4/facade5/storage25 and99.35line80.83branch100func at
+unchanged90line/function gate. Native38 also succeeds. Migration31 still running
+at this observation; do not cancel or restart it. Main469 fails the generated
+inventory check before unit tests: I regenerated inventory before updating the
+source-hash ledger, leaving AUDIT.json stale. Reproduce locally, regenerate after
+the final ledger, and rerun the check; no acceptance criterion or gate changed.
+This follow-up only synchronizes generated evidence and records the failure.
+Every future publication preflight must regenerate/check inventory after ledger
+updates and immediately before staging. Preserve the failed run; main/broad CI
+is not accepted from a dedicated MFA pass. Full658 objective remains active.

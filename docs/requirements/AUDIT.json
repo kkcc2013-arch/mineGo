@@ -14,7 +14,7 @@
       "P2": 41
     },
     "withoutAcceptanceCheckboxes": 10,
-    "independentlyVerified": 0,
+    "independentlyVerified": 1,
     "localVerificationAwaitingCI": 0
   },
   "duplicateIds": [],
@@ -189,7 +189,7 @@
         "- [ ] 编写迁移工具单元测试，覆盖核心场景",
         "- [ ] 文档更新：README 添加迁移使用说明"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "database/pending/20261008_130000__item_catalog_prerequisite.sql",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql"
@@ -433,7 +433,7 @@
         "- [ ] 集成测试验证完整删除流程",
         "- [ ] 法律审核通过（隐私政策）"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_sql_verified_runtime_and_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/services/user-service/src/gdprService.js",
         "backend/services/user-service/src/routes/auth.js",
@@ -534,7 +534,7 @@
         "- [ ] 前端技能管理 UI 可正常显示和操作",
         "- [ ] 单元测试覆盖核心逻辑（技能学习、切换、遗忘）"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/catch-service/src/index.js",
         "backend/services/pokemon-service/src/index.js",
@@ -713,7 +713,7 @@
         "- [ ] 单元测试覆盖 NotificationManager 核心逻辑",
         "- [ ] 前端测试验证通知显示和交互"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/gym-service/src/index.js",
         "backend/services/user-service/src/handlers/notificationHandler.js",
@@ -906,7 +906,7 @@
         "- [ ] 单元测试覆盖率 ≥ 80%，包含插件适配器、管理器、渠道选择策略",
         "- [ ] 静默时段（Quiet Hours）配置生效，该时段暂停推送"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [],
       "legacyId": null
     },
@@ -1070,7 +1070,7 @@
         "- [ ] CI/CD 流水线集成 API 敏感字段扫描，P0 级暴露会导致构建失败",
         "- [ ] 文档更新，包括敏感字段定义、脱敏规则配置、密钥管理流程"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_durable_crypto_storage_and_kms_wire_verified_live_kms_mfa_api_open",
       "implementationReferences": [
         "backend/shared/auditLogEncrypted.js",
         "backend/shared/dataMaskingEngine.js",
@@ -1107,7 +1107,7 @@
         "- [ ] Prometheus 指标正确暴露：cache_warmup_total、cache_warmup_items_loaded",
         "- [ ] 单元测试覆盖预热核心逻辑（≥ 80% 覆盖率）"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/gateway/src/index.js",
         "backend/gateway/src/routes/cacheWarmup.js",
@@ -1391,7 +1391,7 @@
         "- [ ] 前端背包界面显示正常",
         "- [ ] 容量限制和提示正常"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/services/pokemon-service/src/inventoryService.js",
         "backend/tests/unit/inventory.test.js",
@@ -1581,7 +1581,7 @@
         "- [ ] 4 个 Prometheus 指标正常暴露",
         "- [ ] 单元测试覆盖率 ≥ 80%"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/services/user-service/src/routes/privacy.js",
@@ -1693,7 +1693,7 @@
         "- [ ] Prometheus 指标正确暴露",
         "- [ ] 单元测试覆盖率 ≥ 80%"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/services/pokemon-service/src/pokedexService.js",
         "backend/services/pokemon-service/src/routes/pokedex.js",
@@ -1810,7 +1810,7 @@
         "- [ ] 迁移脚本可回滚，不影响服务可用性",
         "- [ ] 分区统计 API 可查询各分区大小和行数"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/gateway/src/index.js",
         "backend/gateway/src/routes/partitions.js",
@@ -2046,7 +2046,7 @@
         "- [ ] 前端羁绊面板UI完整，支持响应式布局",
         "- [ ] 等级提升动画效果正常触发"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/services/pokemon-service/src/friendshipService.js",
         "backend/services/pokemon-service/src/index.js",
@@ -2295,7 +2295,7 @@
         "- [ ] 单元测试覆盖率 >= 80%",
         "- [ ] 集成测试覆盖核心流程"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/gateway/src/index.js",
         "backend/gateway/src/middleware/ipBan.js",
@@ -2338,7 +2338,7 @@
         "- [ ] 性能测试：成就查询 < 100ms，进度更新 < 50ms",
         "- [ ] Prometheus 指标正确暴露（成就解锁数、处理延迟等）"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/services/pokemon-service/src/achievementService.js",
         "backend/services/pokemon-service/src/index.js",
@@ -2415,7 +2415,7 @@
         "- [ ] **监控指标**：提供 Prometheus 指标用于监控金丝雀发布状态",
         "- [ ] **API 完"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_sql_verified_runtime_and_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "database/pending/repairs/20260701_110000__add_canary_deployment_tables.sql"
       ],
@@ -2444,7 +2444,7 @@
         "- [ ] 数据库迁移脚本正确执行",
         "- [ ] Prometheus 指标正确记录"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/services/pokemon-service/src/routes/friendship.js",
         "backend/shared/friendshipService.js",
@@ -3057,7 +3057,7 @@
         "- [ ] **性能指标**",
         "- [ ] **无障碍访问**"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/notificationService.js",
         "backend/services/user-service/src/routes/messageCenter.js",
@@ -3278,7 +3278,7 @@
         "- [ ] 单元测试覆盖率 > 80%",
         "- [ ] 性能测试：称号查询 < 50ms"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/services/user-service/src/routes/titles.js",
@@ -3687,7 +3687,7 @@
         "- [ ] `curl -sf http://localhost:8081/health` 返回 200（服务可启动）",
         "- [ ] 启动服务后，`curl -sf http://localhost:8081/notifications -H \"Authorization: Bearer test\"` 返回非 404"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/services/user-service/src/notificationService.js",
@@ -3847,7 +3847,7 @@
         "- [ ] `curl -sf http://localhost:3002/api/v1/auth/mfa/status -H \"Authorization: Bearer test_token\"` 返回非 404（路由可达）",
         "- [ ] `node -e \"require('./backend/services/user-service/src/routes/mfa')\"` 通过（模块可加载）"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_actual_native_aliases_and_original_three_static_commands_pass_literal_forged_token_curl_conflict_open",
       "implementationReferences": [],
       "legacyId": null
     },
@@ -3875,7 +3875,7 @@
         "- [ ] 满足 GDPR 第17条\"被遗忘权\"要求",
         "- [ ] 满足 CCPA 第1798.105条\"删除权\"要求"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_sql_verified_runtime_and_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/jobs/dataDeletionProcessor.js",
         "backend/services/user-service/src/index.js",
@@ -4345,7 +4345,7 @@
         "- [ ] `node backend/tests/unit/damage-calculator.test.js` 通过",
         "- [ ] `curl -sf http://localhost:3003/api/v1/gym/battle/simulate -H \"Authorization: Bearer $TOKEN\" -H \"Content-Type: application/json\" -d '{\"attacker\":{\"species_id\":6,\"attack\":150,\"fast_move\":\"ember\"},\"defender\":{\"species_id\":9,\"defense\":120}}' | jq '.damage_multiplier'` 返回值在合理范围"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/gym-service/src/index.js",
         "backend/shared/damageCalculator.js",
@@ -4438,7 +4438,7 @@
         "- [ ] 启动 user-service 后，`curl -sf http://localhost:8081/ip-appeal/status -H \"Authorization: Bearer invalid\"` 返回 401（认证端点）",
         "- [ ] `npm test --prefix backend/services/user-service` 通过（如有相关测试）"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js"
       ],
@@ -4740,7 +4740,7 @@
         "- [ ] **根因分析**",
         "- [ ] **监控集成**"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/services/user-service/src/index.js",
         "backend/shared/ServiceHealthSelfHealing.js",
@@ -5875,7 +5875,7 @@
         "- [ ] 测试执行时间 < 30 秒",
         "- [ ] CI 流水线测试通过"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_common_and_encrypted_audit_coverage_verified_other_security_modules_open",
       "implementationReferences": [
         "backend/tests/unit/securityHeaders.test.js"
       ],
@@ -12928,7 +12928,7 @@
         "- [ ] 在 Redis 网络波动时支持异步清理重试",
         "- [ ] 系统运行不会对数据库造成显著负载"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_runtime_storage_verified_load_upgrade_and_ci_open",
       "implementationReferences": [
         "backend/gateway/src/routes/cdc.js",
         "backend/shared/cdc/InvalidationRetryQueue.js",
@@ -14162,7 +14162,7 @@
         "- [ ] 提供配置接口，实现无需修改代码即可定义新的缓存失效规则。",
         "- [ ] 具备完善的监控日志，记录缓存清除成功率和延迟。"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_runtime_storage_verified_load_upgrade_and_ci_open",
       "implementationReferences": [
         "backend/config/cache-invalidation.yml",
         "backend/migrations/20260716030000_cdc_cache_invalidation_triggers.sql",
@@ -15785,7 +15785,7 @@
         "- [ ] 风控系统能够有效拦截高风险行为调用。",
         "- [ ] 相关的风控日志需加密存储并支持溯源。"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_server_verified_factor_prerequisite_pass_canonical_risk_engine_business_integration_open",
       "implementationReferences": [
         "backend/security/src/sensitiveApiMfa.js",
         "backend/security/tests/sensitiveApiMfa.test.js",
@@ -16374,7 +16374,7 @@
         "- [ ] 系统时区配置支持热更新，无需重启服务。",
         "- [ ] 完成跨时区业务场景的单元测试，覆盖 DST（夏令时）切换场景。"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [
         "backend/gateway/src/middleware/timezone.js",
         "backend/gateway/tests/middleware/timezone.test.js",
@@ -16556,7 +16556,7 @@
         "- [x] 完成战斗引擎集成测试套件，涵盖至少 50 个典型业务场景",
         "- [x] 战斗引擎回归测试流水线集成到 CI/CD"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "verified",
       "implementationReferences": [],
       "legacyId": null
     },
@@ -16728,7 +16728,7 @@
         "- [ ] 数据完整性验证通过（归档前后数据一致）",
         "- [ ] 文档完善（分区策略、运维手册、故障恢复指南）"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_runtime_storage_verified_fresh_history_pass_full_acceptance_open",
       "implementationReferences": [
         "backend/gateway/src/index.js",
         "backend/gateway/src/routes/partitions.js",
@@ -17043,7 +17043,7 @@
         "- [ ] 单元测试覆盖率 ≥ 90%",
         "- [ ] Prometheus 指标正确上报"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_canonical_factor_replay_lockout_recovery_session_proofs_and_native_mounts_pass_full_requirement_open",
       "implementationReferences": [
         "backend/gateway/src/index.js",
         "backend/services/reward-service/src/eventService.js",
@@ -18351,7 +18351,7 @@
         "- [ ] 代码重复行数减少至少 200 行（通过代码统计验证）",
         "- [ ] 支持测试环境下依赖 mock 和替换"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [],
       "legacyId": "REQ-00619"
     },
@@ -18377,7 +18377,7 @@
         "- [ ] 文档：提供迁移指南和最佳实践示例",
         "- [ ] CI/CD 集成：CI 中运行扫描脚本，发现新 console 调用则失败"
       ],
-      "verificationStatus": "stale-evidence",
+      "verificationStatus": "partial_local_verified_ci_pending",
       "implementationReferences": [],
       "legacyId": "REQ-00624"
     }

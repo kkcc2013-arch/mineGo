@@ -12223,7 +12223,8 @@
         "docs/MFA-STATE.md": "97080225bdc363d3c99f029d5f71a4d6dc8c5d4727edb52cdc6513e752b336ca",
         "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8",
         "docs/benchmarks/ci-b17ddee-2026-10-20.json": "6d1767e7481ffd142836ff2d96cb84bd438d5eb3f98786aa2ebcdc16c0622833",
-        "docs/benchmarks/transaction-throughput-ci-b17ddee-2026-10-20.json": "5935de8471a209f26032e1781b8311db0f0e50bb9a37af9c17a859eeab6bde90"
+        "docs/benchmarks/transaction-throughput-ci-b17ddee-2026-10-20.json": "5935de8471a209f26032e1781b8311db0f0e50bb9a37af9c17a859eeab6bde90",
+        "docs/benchmarks/ci-d2daf86-2026-10-20.json": "cb9351eadcdb9dc2d6b6d07db91404e0b46d62c98c1f1e333148222d177c7934"
       },
       "evidence": [
         {
@@ -12368,6 +12369,14 @@
           "medianChangePercent": -1.9117597094924332,
           "requiredMinimumChangePercent": -5,
           "scope": "Prior exactb17source:actualaudit21/90gates and full85 retained;8throughputhashesmatch. CurrentMFA/wall-clocksourceCIpending; earliernegativeevidenceandotherlegacyworkflowsremainopen."
+        },
+        {
+          "date": "2026-10-20",
+          "commit": "d2daf86119c698544b2e95dc8acfaca789db216b",
+          "result": "exact_mfa1_and_native38_pass_main469_inventory_check_failed_before_unit_migration31_running",
+          "artifact": "docs/benchmarks/ci-d2daf86-2026-10-20.json",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39408995404",
+          "scope": "Exact published d2daf86MFA/native pass with current runtime/module source hashes matching. Main469 fails only at stale generated AUDIT.json before unit tests; preserve failure and fix inventory after final ledger. Migration31 observed running, never accepted prematurely. No full requirements, all-service, risk/business/client, liveKMS or wholeCI acceptance."
         }
       ],
       "remaining": "Original10 unchanged. Common wrapper now encrypted with caller savepoints and actual mounted privacy/native proof. Other legacy positional callers/jobs/exports/deletion/ignoredfalse and every business/access chain remain open. Metadata-only queries are incomplete: verified role/admin server-MFA decrypt boundary and full service-filter/query contract needed. Complete filters/masking/scannerfailonP0/UI/combined>=90coverage/atleast10masktypes and liveAWSARN+authorizedcredentials/IAM/keypolicy/CloudTrail/performance remain required. Lost historical tags/IVs cannot be reconstructed. No production cleanup/rekey/merge/deploy."
@@ -12423,7 +12432,8 @@
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         ".github/workflows/mfa-regression.yml": "8eab2d99cd8a88ba8942111cf791a11aab84c80533287300fde9502bc0b9d7fb",
         "docs/MFA-STATE.md": "97080225bdc363d3c99f029d5f71a4d6dc8c5d4727edb52cdc6513e752b336ca",
-        "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8"
+        "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8",
+        "docs/benchmarks/ci-d2daf86-2026-10-20.json": "cb9351eadcdb9dc2d6b6d07db91404e0b46d62c98c1f1e333148222d177c7934"
       },
       "evidence": [
         {
@@ -12490,6 +12500,14 @@
           "result": "canonical_mfa_prerequisite_and_legacy_wall_clock_preservation_pass_actual_admin_decrypt_and_full_security_scope_open",
           "artifact": "docs/benchmarks/mfa-local-2026-10-20.json",
           "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
+        },
+        {
+          "date": "2026-10-20",
+          "commit": "d2daf86119c698544b2e95dc8acfaca789db216b",
+          "result": "exact_mfa1_and_native38_pass_main469_inventory_check_failed_before_unit_migration31_running",
+          "artifact": "docs/benchmarks/ci-d2daf86-2026-10-20.json",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39408995404",
+          "scope": "Exact published d2daf86MFA/native pass with current runtime/module source hashes matching. Main469 fails only at stale generated AUDIT.json before unit tests; preserve failure and fix inventory after final ledger. Migration31 observed running, never accepted prematurely. No full requirements, all-service, risk/business/client, liveKMS or wholeCI acceptance."
         }
       ],
       "remaining": "All11 security modules eachoriginal85/90coverage, correctmock/stub isolation, retainedcleanup, whole npmtest/CI and completeunitexecution<30s still need independent evidence. Partialnewaudit gates do not accept this framework."
@@ -12533,7 +12551,8 @@
         ".github/workflows/mfa-regression.yml": "8eab2d99cd8a88ba8942111cf791a11aab84c80533287300fde9502bc0b9d7fb",
         "docs/MFA-STATE.md": "97080225bdc363d3c99f029d5f71a4d6dc8c5d4727edb52cdc6513e752b336ca",
         "docs/AUDIT-ENCRYPTION.md": "587425b7ba4183dccc8ad8d460cf7cc1fbad4ef48685c838a4e2cf7602c0b63c",
-        "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8"
+        "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8",
+        "docs/benchmarks/ci-d2daf86-2026-10-20.json": "cb9351eadcdb9dc2d6b6d07db91404e0b46d62c98c1f1e333148222d177c7934"
       },
       "evidence": [
         {
@@ -12546,9 +12565,17 @@
           "result": "canonical_factor_replay_lockout_recovery_session_proofs_and_native_mounts_pass_full_requirement_open",
           "artifact": "docs/benchmarks/mfa-local-2026-10-20.json",
           "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
+        },
+        {
+          "date": "2026-10-20",
+          "commit": "d2daf86119c698544b2e95dc8acfaca789db216b",
+          "result": "exact_mfa1_and_native38_pass_main469_inventory_check_failed_before_unit_migration31_running",
+          "artifact": "docs/benchmarks/ci-d2daf86-2026-10-20.json",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39408995404",
+          "scope": "Exact published d2daf86MFA/native pass with current runtime/module source hashes matching. Main469 fails only at stale generated AUDIT.json before unit tests; preserve failure and fix inventory after final ledger. Migration31 observed running, never accepted prematurely. No full requirements, all-service, risk/business/client, liveKMS or wholeCI acceptance."
         }
       ],
-      "remaining": "All original10 criteria retained. Real core factor/session/storage behavior verified, but actual frontend setup/login and Google scan/manual interoperability, seven-day trusted devices, password/payment/asset business operations, full unit>=90scope, complete metrics/alerts/productimpact remain unaccepted. DedicatedCI current source pending; actual AWS authorization/IAM/latency unproven. Unknown legacy profiles require explicit reviewed adoption."
+      "remaining": "All original10 criteria retained. Real core factor/session/storage behavior verified, but actual frontend setup/login and Google scan/manual interoperability, seven-day trusted devices, password/payment/asset business operations, full unit>=90scope, complete metrics/alerts/productimpact remain unaccepted. DedicatedMFA CI1/native38 pass at d2daf86; main469 fails stale generated inventory and requires corrected-source CI; actual AWS authorization/IAM/latency unproven. Unknown legacy profiles require explicit reviewed adoption."
     },
     "REQ-00126-user-service-mfa-route-mounting.md": {
       "date": "2026-10-20",
@@ -12589,7 +12616,8 @@
         ".github/workflows/mfa-regression.yml": "8eab2d99cd8a88ba8942111cf791a11aab84c80533287300fde9502bc0b9d7fb",
         "docs/MFA-STATE.md": "97080225bdc363d3c99f029d5f71a4d6dc8c5d4727edb52cdc6513e752b336ca",
         "docs/AUDIT-ENCRYPTION.md": "587425b7ba4183dccc8ad8d460cf7cc1fbad4ef48685c838a4e2cf7602c0b63c",
-        "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8"
+        "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8",
+        "docs/benchmarks/ci-d2daf86-2026-10-20.json": "cb9351eadcdb9dc2d6b6d07db91404e0b46d62c98c1f1e333148222d177c7934"
       },
       "evidence": [
         {
@@ -12602,9 +12630,17 @@
           "result": "actual_native_aliases_and_original_three_static_commands_pass_literal_forged_token_curl_conflict_open",
           "artifact": "docs/benchmarks/mfa-local-2026-10-20.json",
           "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
+        },
+        {
+          "date": "2026-10-20",
+          "commit": "d2daf86119c698544b2e95dc8acfaca789db216b",
+          "result": "exact_mfa1_and_native38_pass_main469_inventory_check_failed_before_unit_migration31_running",
+          "artifact": "docs/benchmarks/ci-d2daf86-2026-10-20.json",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39408995404",
+          "scope": "Exact published d2daf86MFA/native pass with current runtime/module source hashes matching. Main469 fails only at stale generated AUDIT.json before unit tests; preserve failure and fix inventory after final ledger. Migration31 observed running, never accepted prematurely. No full requirements, all-service, risk/business/client, liveKMS or wholeCI acceptance."
         }
       ],
-      "remaining": "All original4 boxes retained. Syntax/grep/load commands pass; authenticated native aliases reachable. Original curl -sf with literal forged Bearer test_token gets401 as required by signed authentication; command cannot securely succeed as written. Preserve conflict, do not whitelist token or silently rewrite criterion. Current relevantCI pending."
+      "remaining": "All original4 boxes retained. Syntax/grep/load commands pass; authenticated native aliases reachable. Original curl -sf with literal forged Bearer test_token gets401 as required by signed authentication; command cannot securely succeed as written. Preserve conflict, do not whitelist token or silently rewrite criterion. Native38 and dedicatedMFA1 pass at d2daf86; main469 stale inventory failure still needs corrected-source CI."
     },
     "REQ-00588-sensitive-api-mfa-risk-grading.md": {
       "date": "2026-10-20",
@@ -12645,7 +12681,8 @@
         ".github/workflows/mfa-regression.yml": "8eab2d99cd8a88ba8942111cf791a11aab84c80533287300fde9502bc0b9d7fb",
         "docs/MFA-STATE.md": "97080225bdc363d3c99f029d5f71a4d6dc8c5d4727edb52cdc6513e752b336ca",
         "docs/AUDIT-ENCRYPTION.md": "587425b7ba4183dccc8ad8d460cf7cc1fbad4ef48685c838a4e2cf7602c0b63c",
-        "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8"
+        "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8",
+        "docs/benchmarks/ci-d2daf86-2026-10-20.json": "cb9351eadcdb9dc2d6b6d07db91404e0b46d62c98c1f1e333148222d177c7934"
       },
       "evidence": [
         {
@@ -12658,6 +12695,14 @@
           "result": "server_verified_factor_prerequisite_pass_canonical_risk_engine_business_integration_open",
           "artifact": "docs/benchmarks/mfa-local-2026-10-20.json",
           "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
+        },
+        {
+          "date": "2026-10-20",
+          "commit": "d2daf86119c698544b2e95dc8acfaca789db216b",
+          "result": "exact_mfa1_and_native38_pass_main469_inventory_check_failed_before_unit_migration31_running",
+          "artifact": "docs/benchmarks/ci-d2daf86-2026-10-20.json",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39408995404",
+          "scope": "Exact published d2daf86MFA/native pass with current runtime/module source hashes matching. Main469 fails only at stale generated AUDIT.json before unit tests; preserve failure and fix inventory after final ledger. Migration31 observed running, never accepted prematurely. No full requirements, all-service, risk/business/client, liveKMS or wholeCI acceptance."
         }
       ],
       "remaining": "All original4 boxes retained. Actual serverproof/session/scope/role middleware tests are prerequisites only. Legacy separate risk engine still parseInt UUIDs and retains raw verified tokens; actual current gateway risk scoring/geography/device/session policies, cross-service business authorization and encrypted attributable risk-log acceptance/provider delivery remain unverified. No synthetic adapter/caller flags can accept full risk grading."
