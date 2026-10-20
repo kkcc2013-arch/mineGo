@@ -2282,3 +2282,19 @@ This follow-up only synchronizes generated evidence and records the failure.
 Every future publication preflight must regenerate/check inventory after ledger
 updates and immediately before staging. Preserve the failed run; main/broad CI
 is not accepted from a dedicated MFA pass. Full658 objective remains active.
+
+Post-ledger inventory follow-up89caae147261fe86d09bed670cc7d85f6ebd6411 published
+(5metadatafiles); exact main470 and dedicatedMFA2 now succeed. Runtime/module hashes
+unchanged; original failed main469 retained. Native39/migration32 still running at
+the saved89snapshot. The prior d2 migration31 completed with failure at unchanged
+transaction-throughput gate: actual median-5.6653600267481234% below original-5.
+All8 measured source hashes match priorb17's passing report. The runner now reports
+Node24.22 vs prior24.21 and higher absolute TPS; neither fact establishes causality
+or excuses failure. Archive every actual pair/round/log hash and preserve the
+negative result. Do not lower the threshold or blindly retry for a preferred score.
+Full86 remote bootstrap was skipped after that gate; local normal/isolated full86
+three tests remain independently passed. REQ96/performance remains open for actual
+profiling/optimization and the original target. Publisher preflight now verifies
+current inventory before push. Next functional work: real admin audit decrypt/
+service filtering using verified role/MFA; continue client/trusted-device/sensitive
+business/risk, performance, all remaining P0/services/operations and all658 scope.
