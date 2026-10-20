@@ -131,7 +131,7 @@
 | [REQ-00123](REQ-00123-pokemon-service-showcase-route-mounting.md) | pokemon-service showcase 路由挂载与集成 | 集成与修复 | P0 | done | unspecified | unspecified |
 | [REQ-00124](REQ-00124-message-center-unit-test-coverage.md) | 消息中心服务单元测试覆盖 | 测试覆盖 | P1 | done | user-service、backend/services/user-service/src/routes/messageCenter.js、backend/tests/unit/ | 2026-06-11 19:10 |
 | [REQ-00125](REQ-00125-pokemon-cosmetic-customization-system.md) | 精灵外观定制系统 | 功能增强 | P1 | in_progress | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations | 2026-06-11 19:30 |
-| [REQ-00126](REQ-00126-user-service-mfa-route-mounting.md) | user-service MFA 路由挂载与集成 | 集成与修复 | P0 | done | user-service, backend/services/user-service/src/routes/mfa.js, backend/services/user-service/src/index.js | 2026-06-11 20:05 |
+| [REQ-00126](REQ-00126-user-service-mfa-route-mounting.md) | user-service MFA 路由挂载与集成 | 集成与修复 | P0 | in_progress | user-service, backend/services/user-service/src/routes/mfa.js, backend/services/user-service/src/index.js | 2026-06-11 20:05 |
 | [REQ-00127](REQ-00127-user-data-deletion-requests-management.md) | 用户数据删除请求管理系统 | 合规/隐私 | P1 | in_progress | user-service、gateway、所有微服务、database、backend/jobs | 2026-06-11 20:15 |
 | [REQ-00128](REQ-00128-social-service-pvp-route-mounting.md) | social-service PVP 路由挂载与集成 | 集成与修复 | P0 | done | social-service | 2026-06-11 21:05 |
 | [REQ-00129](REQ-00129-pokemon-data-backup-and-restore-system.md) | 精灵数据备份与恢复系统 | 数据库/数据治理 | P1 | new | pokemon-service、user-service、database、backend/jobs、gateway | 2026-06-11 21:30 |
@@ -568,7 +568,7 @@
 | [REQ-00585](REQ-00585-database-deadlock-monitoring.md) | 数据库死锁检测与自动化记录分析系统 | 性能优化 | P1 | new | database-proxy, backend-shared-db | 2026-07-16 23:00 |
 | [REQ-00586](REQ-00586-gps-location-spoofing-detection-system.md) | GPS 位置欺骗检测与虚拟定位防护系统 | 反作弊 | P0 | new | game-client、gateway、location-service、backend/security、backend/analysis、Redis、PostgreSQL | 2026-07-16 22:00 |
 | [REQ-00587](REQ-00587-ui-text-smart-truncation-i18n.md) | 用户界面文本智能截断与本地化适配系统 | 国际化/本地化 | P1 | done | game-client、backend/shared/i18n/textTruncator.js、所有后端服务、admin-dashboard | 2026-07-16 23:00 |
-| [REQ-00588](REQ-00588-sensitive-api-mfa-risk-grading.md) | 敏感 API 二次身份验证与风控行为分级系统 | 安全加固 | P0 | done | gateway, user-service, backend/security, admin-dashboard | 2026-07-16 23:30 |
+| [REQ-00588](REQ-00588-sensitive-api-mfa-risk-grading.md) | 敏感 API 二次身份验证与风控行为分级系统 | 安全加固 | P0 | in_progress | gateway, user-service, backend/security, admin-dashboard | 2026-07-16 23:30 |
 | [REQ-00589](REQ-00589-microservice-architecture-visualization.md) | 微服务架构可视化与 API 依赖关系图谱系统 | 文档/开发者体验 | P1 | new | admin-dashboard, gateway, 所有后端服务, docs-site | 2026-07-17 00:00 |
 | [REQ-00590](REQ-00590-cross-region-data-consistency-verification.md) | 跨区域数据同步一致性校验系统 | 合规/运维 | P1 | new | database-replica, cross-region-sync-manager | 2026-07-17 06:00 |
 | [REQ-00591](REQ-00591-localization-collaboration-approval-workflow.md) | 本地化内容协作审批工作流系统 | 国际化/本地化 | P2 | new | gateway、admin-dashboard、backend/shared/i18n、PostgreSQL | 2026-07-17 01:00 |
@@ -618,7 +618,7 @@
 | [REQ-00635](REQ-00635-input-validation-and-sanitization-middleware.md) | 统一 API 输入验证与清理中间件 | 安全加固 | P0 | done | api-gateway, user-service, pokemon-service | 2026-07-16 12:00 |
 | [REQ-00636](REQ-00636-distributed-tracing-log-aggregation.md) | 分布式追踪与日志聚合平台集成 | 可观测性/监控 | P0 | new | gateway, user-service, catch-service, pokemon-service, gym-service, shared/tracing, shared/logger | 2026-07-16 12:00 |
 | [REQ-00637](REQ-00637-implement-gdpr-data-compliance.md) | 实现 GDPR 兼容的数据删除与导出接口 | 合规/隐私 | P0 | new | user-service, data-service | 2026-07-16 10:00 |
-| [REQ-00638](REQ-00638-multi-factor-authentication-mfa-system.md) | 多因素认证（MFA）系统 | 安全加固 | P1 | done | user-service、gateway、game-client、backend/shared、database/migrations | 2026-06-09 17:05 |
+| [REQ-00638](REQ-00638-multi-factor-authentication-mfa-system.md) | 多因素认证（MFA）系统 | 安全加固 | P1 | in_progress | user-service、gateway、game-client、backend/shared、database/migrations | 2026-06-09 17:05 |
 | [REQ-00639](REQ-00639-chaos-engineering-fault-injection.md) | 混沌工程与故障注入测试系统 | 容灾/高可用 | P1 | done | gateway、所有微服务、backend/shared、infrastructure/k8s、backend/tests/chaos | 2026-06-10 10:00 |
 | [REQ-00640](REQ-00640-database-transaction-isolation-and-deadlock-detection.md) | 数据库事务隔离级别控制与死锁检测机制 | 数据库/数据治理 | P1 | new | backend/shared/db.js、catch-service、gym-service、payment-service、social-service | 2026-06-11 00:20 |
 | [REQ-00641](REQ-00641-frontend-lazy-load-and-code-splitting.md) | 前端资源懒加载与代码分割系统 | 性能优化 | P1 | done | game-client、frontend/game-client/src、frontend/game-client/src/components、frontend/game-client/src/utils | 2026-06-11 11:35 |

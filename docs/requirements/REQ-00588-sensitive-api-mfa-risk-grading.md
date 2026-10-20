@@ -7,7 +7,7 @@
 | 标题 | 敏感 API 二次身份验证与风控行为分级系统 |
 | 类别 | 安全加固 |
 | 优先级 | P0 |
-| 状态 | done |
+| 状态 | in_progress |
 | 涉及服务 | gateway, user-service, backend/security, admin-dashboard |
 | 创建时间 | 2026-07-16 23:30 |
 

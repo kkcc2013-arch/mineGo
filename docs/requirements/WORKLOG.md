@@ -2162,3 +2162,110 @@ masking/scanner/UI/liveAWS/original combined coverage remain open. No all-servic
 11-module, compliance or full-goal claim. No new requirement/Maven/maxCPU/subagents/
 merge/deploy/productioncleanup/rekey/recipient messages. Continue the full persistent
 P0/service/client/security/operations objective after this published checkpoint.
+
+## Canonical MFA factor/session prerequisites and historical audit time (2026-10-20)
+
+Read all original REQ638/126/588 and original MFA implementation/routes/guard.
+Unsupported done declarations reopened to in_progress; all10/4/4 original boxes
+and thresholds preserved verbatim. REQ126's literal Bearer test_token is invalid
+and correctly returns401, so its curl -sf command cannot pass securely as written.
+Keep this conflict visible without accepting forged credentials or changing the
+criterion. Three static/load/mount commands pass; authenticated native aliases
+are separately exercised. Full658 scope and sole verified619 stay unchanged.
+
+Prior exact b17ddee CI main468/native37/migration30 succeeded. Downloaded migration
+job118367742787 retains audit21 at original90line/function and full85. Actual
+transaction throughput-1.9117597094924332% meets unchanged-5% ceiling with all8
+measured hashes matching. Snapshot and report archived; earlier negative reports
+and other legacy contract/API/integration/performance/security failures remain.
+This result does not establish the current MFA source's remote CI.
+
+Old MFA facade imports logger/metrics values absent from the shared export,
+has a hardcoded development master, non-atomic recovery/failure handling and
+updates nonexistent users.mfa_enabled; source places a logger call after setup
+commit. Guard trusts missing/false JWT mfaEnabled and uses a static signing-key
+fallback. Routes are in the wrong management namespace and old public verify
+accepts body userId. These source findings do not claim a measured old setup
+commit/failure reproduction. Replace with the actual canonical store, dedicated
+key provider, real signed session boundary and bounded managed transactions.
+
+One additive raw migration creates durable credential epochs/replay counters,
+absolute lock timestamps and hashed five-minute login/step-up proofs. Existing
+85 raw SQL, repair manifest and lockfile are unchanged. Full86 production history
+passes fresh and beside an unrelated audit schema. Actual migration checks prove
+empty reversal, populated reversal refusal/history preservation, UUID mismatch
+and fallback-schema refusal without adopting unrelated tables/ciphertext.
+Legacy state/unknown keys/timezone need explicit review and never authorize by guess.
+
+Fresh AES-256-GCM secret envelopes bind namespace/database/schema, subject hash,
+epoch and purpose, with complete wrapped key/IV/tag and distinct audit/MFA keys.
+Production requires actual AWS provider configuration and explicit JWT signing
+keys; KMS_ENABLED cannot select known sync fallback keys. No live AWS authorization
+claim. Setup yields160bitBase32, explicit issuer/SHA1/six digits/30sec QR and eight
+unique cryptographic4-4 recovery codes, only hashes retained. Initial real URI
+check caught Speakeasy ignoring issuer; append explicit URI parameters rather
+than weakening the assertion. TOTP exact +/-2 window rejects repeated counters;
+real simultaneous recovery/login completion has one winner. Five failures lock
+15minutes, early correct factors and setup reset denied; owned fixture expiry
+checks the boundary without claiming a real15minute wait.
+
+Encrypted audit is required in the same transaction for successful/denied factor
+changes; failure rolls enrollment back. Real held locks enforce whole-operation
+deadlines; close drains actual in-flight work and keeps caller resources usable.
+No runtime DDL/timer/defaultmaster. Sensitive guards independently verify JWT,
+Redis revocation, actual enrollment and exact session/scope/epoch-bound proof.
+Proof outage returns fixed503; false/missing JWT flags and old static-key proofs
+cannot bypass it. Management routes also reject revoked sessions. Final review
+caught refresh checking token:blacklist instead of real blacklist:token; correct
+key and actual revoked-refresh test now pass. Refresh epochs rotate with factor
+state. Public login challenge cannot select a body userId, is single-use, and only
+a completed actual factor invokes the awaited real issuer. Redis MULTI command
+errors cannot return successful login tokens. Primary SMS verification uses atomic
+compare/delete. Without real SMS provider return503; explicit nonproduction dev
+fixture is the only code-generation option. No recipient messages/code logs.
+
+User-service mounts /users/me/mfa and /auth/mfa; gateway /api,/api/v1,/api/v2,/v1
+aliases precede generic proxies. Actual native user/gateway processes prove aliases,
+setup/enable/protected counts/step-up, no-store and no keys/secrets in captured logs;
+prior privacy/title/IP/CDC/cache/notification/health/signal checks remain. Service
+shutdown drains MFA before its audit provider/database/Redis. Production ready
+checks canonical state and audit/provider configuration; no live KMS call implied.
+
+Historical audit metadata used pg Date conversion on timestamp-without-time-zone,
+losing microseconds and inventing an instant. Actual prior test failed with a
+fabricated UTC suffix. Select created_at::text; final real UTC/Shanghai process
+cross UTC/NewYork database cases keep exact wall text and distinct genuine instant.
+Do not guess old timestamp provenance or rewrite history.
+
+Final source-specific checks all pass without skips where applicable:
+
+- Actual MFA storage/HTTP25: five production modules99.35line80.83branch100function,
+  original90line/function gate unchanged; facade Jest5 at100all metrics. RFC/unit4
+  include500/500 controlled valid-window samples (>=99% for these inputs only),
+  beyond2038/epoch0, recovery formatting and production key refusal. Controlled
+  samples do not establish real authenticator/device/NTP/network availability.
+- Actual crypto22 at98.21line89.56branch95.52function, original90line/function gate;
+  common audit9/85gate retained; privacy12 storage plus40unit/80gates pass.
+- Complete742 unit checks include original24Jest425 plus audit9 and MFA5/4;
+  battle133 plus separate100% formula coverage pass.1467 JS syntax and audit-tool,
+  inventory, numbering, health, console and original three MFA static commands pass.
+- Both native process cases pass with actual PostgreSQL/Redis/Kafka; original
+  title50ms p95 gate retained. Exact timings/log hashes in current MFA benchmark,
+  not production SLO/capacity acceptance. Other peers alias actual user fixture.
+- Full86 migration bootstrap3 passes, including schema isolation; no original
+  SQL/repair/lock/check-box/numerical-gate rewrites. Dedicated MFA CI added, related
+  native workflow paths updated; current remote execution remains pending.
+
+179declared done50inprogress429new=658unique;46source-hashed records, verified1=619.
+MFA server proof is a prerequisite, not completed password/payment/asset business
+mounts, seven-day trusted devices, frontend setup/login or Google scan/manual
+interoperability. Full metrics/alerts/product impact, risk engine canonicalUUID/
+actual gateway integration/cross-service proofs/encrypted risk-log criteria remain
+open. Separate old risk source still parseInt UUIDs and stores raw verified tokens;
+source review is not an acceptance run. Protected HTTP adapter uses real roles/
+MFA but does not implement admin audit query/decrypt/service filtering. Complete
+those actual business routes next, then remaining original P0/services/client/
+performance/operations and all658 acceptance. Heavy checks sequential nice10/UV2/
+node concurrency1/JestInBand; no Maven, CPU saturation, subagents, new requirement,
+production cleanup/rekey, recipient delivery, merge or deployment. Owned Redis/Kafka
+stopped after final native checks; unrelated containers unchanged. Draft PR6 only.

@@ -88,8 +88,9 @@ const REFRESH_SECRET_ENV = process.env.JWT_REFRESH_SECRET;
 const ACCESS_TTL  = process.env.JWT_ACCESS_TTL  || '24h';
 const REFRESH_TTL = process.env.JWT_REFRESH_TTL || '30d';
 
-// Fail-fast: refuse to start in production with missing JWT secrets (if KMS is not enabled)
-if (process.env.NODE_ENV === 'production' && !kmsEnabled) {
+// Synchronous request boundaries require explicit production keys even when
+// the legacy KMS flag is set; that flag cannot authorize a development fallback.
+if (process.env.NODE_ENV === 'production') {
   if (!ACCESS_SECRET_ENV)  throw new Error('FATAL: JWT_ACCESS_SECRET must be set in production');
   if (!REFRESH_SECRET_ENV) throw new Error('FATAL: JWT_REFRESH_SECRET must be set in production');
 }

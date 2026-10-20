@@ -60,6 +60,7 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
   let notificationSocket,notificationProducer;
   const player=crypto.randomUUID();const adminId=crypto.randomUUID();
   const accessKey='gateway-startup-access-only';
+  const auditMaster=crypto.randomBytes(32),mfaMaster=crypto.randomBytes(32);
   try{
     const initial=await migration('migrations/V1__initial_schema.sql');
     await fixture.query('CREATE EXTENSION IF NOT EXISTS postgis WITH SCHEMA public');
@@ -68,7 +69,7 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     await fixture.query('INSERT INTO users(id,nickname) VALUES ($1,$2),($3,$4)',[player,'gateway-player',adminId,'gateway-admin']);
     await fixture.query(await migration('pending/20261007_120000__title_identity_compatibility.sql'));
     // Full authentic V1/V2 storage, canonical partitions and durable CDC.
-    for(const file of ['20261008_140000__audit_partition_conversion.sql','repairs/20260610_100000__add_table_partitioning_system.sql','repairs/20260619_000000__add_table_partitioning.sql','repairs/20260707_060000__complete_partition_management.sql','20261008_130000__item_catalog_prerequisite.sql','repairs/20260609_124500__add_item_inventory_system.sql','repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql']){
+    for(const file of ['20260608_194800__add_sensitive_data_protection_tables.sql','repairs/20260608_200000__add_sensitive_data_audit_tables.sql','20260610_000000__add_mfa_system.sql','20261020_120000__mfa_verification_state.sql','20261008_140000__audit_partition_conversion.sql','repairs/20260610_100000__add_table_partitioning_system.sql','repairs/20260619_000000__add_table_partitioning.sql','repairs/20260707_060000__complete_partition_management.sql','20261008_130000__item_catalog_prerequisite.sql','repairs/20260609_124500__add_item_inventory_system.sql','repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql']){
       const parsed=parseMigrationFile(await migration('pending/'+file));
       for(const statement of migrationStatements(parsed.up))await fixture.query(statement);
     }
@@ -92,7 +93,7 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     }
 
     const userPort=await freePort();const userBase=`http://127.0.0.1:${userPort}`;
-    user=launch('services/user-service/src/index.js',{...env,PORT:String(userPort),USER_SERVICE_TRUST_PROXY:'loopback'});
+    user=launch('services/user-service/src/index.js',{...env,PORT:String(userPort),USER_SERVICE_TRUST_PROXY:'loopback',MASTER_ENCRYPTION_KEY:auditMaster.toString('hex'),AUDIT_MASTER_KEY_ID:'gateway-user-audit',AUDIT_MASTER_KEYS_JSON:'',AUDIT_KMS_KEY_ID:'',AUDIT_KEY_NAMESPACE:'gateway-user-audit',MFA_MASTER_ENCRYPTION_KEY:mfaMaster.toString('hex'),MFA_MASTER_KEY_ID:'gateway-user-mfa',MFA_MASTER_KEYS_JSON:'',MFA_KMS_KEY_ID:'',MFA_KEY_NAMESPACE:'gateway-user-mfa'});
     await waitForHttp(user,userBase);
     const gatewayPort=await freePort();const base=`http://127.0.0.1:${gatewayPort}`;
     gateway=launch('gateway/src/index.js',{...env,PORT:String(gatewayPort),USER_SERVICE_URL:userBase,
@@ -120,6 +121,13 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     assert.equal((await fetch(base+'/api/partitions/audit_logs/create',{method:'POST',headers:partitionHeaders})).status,200);
     const partitionMetrics=await (await fetch(base+'/metrics')).text();assert.match(partitionMetrics,/minego_partition_management_duration_seconds_count/);
 
+    for(const path of ['/api/v1/auth/mfa/status','/api/v2/auth/mfa/status','/api/auth/mfa/status','/v1/auth/mfa/status','/api/v1/users/me/mfa','/api/v2/users/me/mfa','/api/users/me/mfa','/v1/users/me/mfa']){const response=await fetch(base+path,{headers});assert.equal(response.status,200,path);assert.equal((await response.json()).data.enabled,false);}
+    const enroll=await fetch(base+'/api/v1/users/me/mfa/setup',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:'{}'});assert.equal(enroll.status,200);const mfaSetup=(await enroll.json()).data;assert.equal(enroll.headers.get('cache-control'),'no-store');
+    const totp=require('speakeasy').totp({secret:mfaSetup.secret,encoding:'base32',time:(await fixture.query('SELECT extract(epoch FROM clock_timestamp())::double precision AS now')).rows[0].now});
+    assert.equal((await fetch(base+'/api/v1/users/me/mfa/enable',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({code:totp})})).status,200);
+    assert.equal((await fetch(base+'/api/v1/users/me/mfa/recovery-codes',{headers})).status,403);
+    const verified=await fetch(base+'/api/v1/users/me/mfa/step-up',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({code:mfaSetup.recoveryCodes[0],scope:'mfa-manage'})});assert.equal(verified.status,200);const proof=(await verified.json()).data.mfaToken;
+    assert.equal((await fetch(base+'/api/v1/users/me/mfa/recovery-codes',{headers:{...headers,'x-mfa-token':proof}})).status,200);assert.ok(!user.logs().includes(mfaMaster.toString('hex')));assert.ok(!user.logs().includes(mfaSetup.secret));
     // Start a second actual OS gateway process against the same durable journal
     // and Redis namespace; each has its own listener, worker and L1 Map.
     const secondPort=await freePort();const secondBase=`http://127.0.0.1:${secondPort}`;
@@ -261,6 +269,7 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
   }finally{
     if(notificationSocket)notificationSocket.terminate();if(notificationProducer)await notificationProducer.disconnect();
     await Promise.all([cleanupProcess(user),cleanupProcess(gateway),cleanupProcess(gatewaySecond),cleanupProcess(failed)]);
+    auditMaster.fill(0);mfaMaster.fill(0);
     await fixture.end();await admin.query(`DROP SCHEMA ${schema} CASCADE`);await admin.end();
   }
 });

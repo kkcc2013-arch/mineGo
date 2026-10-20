@@ -3,7 +3,7 @@
 Updated: 2026-10-20. Scope: all 658 existing requirement documents in INDEX.md,
 including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 429 new, 47 in progress; 182 declared done, including one independently verified framework. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 429 new, 50 in progress; 179 declared done, including one independently verified framework. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -28,7 +28,7 @@ independent authorized work.
 
 ## Current batch
 
-1. Isolated V1/V2 plus all85 original migrations and the complete installation
+1. Isolated V1/V2 plus all86 migrations (85 unchanged originals plus additive MFA state) and the complete installation
    beside an unrelated audit schema now pass checksums/cleanup. Continue safe
    upgrades/reversal and actual P0/service/security startup dependencies. Complete
    canonical encrypted audit/key rotation/MFA/filter/scanner runtime; database
@@ -43,8 +43,8 @@ independent authorized work.
    work while genuine external provider/staging/device inputs are unavailable.
 4. Repair remaining legacy contract/API/integration/performance/security/operations
    gates, meet each original numerical target and perform all658 acceptance audit.
-   Main467/native36/migration29 pass at ac53b06, including actual crypto20 and
-   the fresh85 gate. Transaction-aware common audit/native privacy source still
+   Main468/native37/migration30 pass at b17ddee, including actual crypto21 and
+   the fresh85 gate. Current additive MFA/state/wall-clock source still
    requires CI; other legacy workflows remain unaccepted. A partial/source-specific pass never accepts a whole feature.
 
 ## Definition of finished
@@ -917,3 +917,23 @@ and durable access semantics before mounting authorized MFA/decrypt routes.
 Remaining original P0/services/client/security/operations and all658 goal persist.
 No Maven/CPU saturation/new requirements/merge/deploy/production cleanup. Heavy
 checks sequentialnice10/UV2; Redis/Kafka remain stopped and unrelated containers intact.
+
+
+## Canonical MFA batch (2026-10-20)
+
+Reopened unsupported done declarations for REQ638/126/588 without changing their
+10/4/4 original acceptance boxes. Actual signed server state now guards MFA;
+encrypted secrets, single-use factor/recovery/login challenges, fifteen-minute
+lockout and epoch/session/scope-bound five-minute proofs have real PostgreSQL/
+Redis/HTTP evidence. Mounted native user/gateway aliases are exercised. Dedicated
+MFA CI preserves the original90% line/function gate; controlled valid-window
+500/500 samples do not establish real-device clock/network availability.
+
+Complete actual protected admin audit query/decrypt/service filtering next using
+the verified role/MFA boundary. Finish seven-day trusted-device semantics, client
+setup/login, actual sensitive password/payment/asset mounts, full metrics and
+canonical risk-engine/cross-service contracts before accepting full MFA/risk
+requirements. REQ126's literal forged Bearer test_token still returns401; record
+that acceptance-command conflict without accepting the token or changing its box.
+All658 requirements, external staging/provider/device gates and previous failures
+remain in scope; sole independently verified framework remains REQ619.

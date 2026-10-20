@@ -91,9 +91,10 @@ const service = new ServiceLauncher({
       router: messageCenterRouter
     },
     {
-      path: '/users', // REQ-00057: MFA 路由
+      path: '/users/me/mfa', // REQ-00638: authenticated canonical management
       router: mfaRouter
     },
+    {path:'/auth/mfa',router:mfaRouter.createLoginRouter(undefined,{issueTokens:require('./authSessionTokens').issueTokens})},
     {
       path: '/age', // REQ-00034: 年龄验证路由
       router: ageVerificationRouter
@@ -150,6 +151,7 @@ const service = new ServiceLauncher({
   // Service initialization
   onInitialize: async (app) => {
     await db.initializeMigrations();
+    if(process.env.NODE_ENV==='production')await require('../../../shared/mfaService').ready();
     app.locals.db = db;
     app.set('trust proxy', process.env.USER_SERVICE_TRUST_PROXY ? process.env.USER_SERVICE_TRUST_PROXY.split(',').map(value => value.trim()) : false);
     const IpBanManager = require('../../../shared/IpBanManager');
@@ -234,11 +236,12 @@ const service = new ServiceLauncher({
   },
   onShutdown: async () => {
     healthChecker?.stopPeriodicCheck();
+    const mfaCleanup=await Promise.allSettled([require('../../../shared/mfaService').closeMFA()]);
     const results = await Promise.allSettled([
       eventBus ? eventBus.disconnect() : Promise.resolve(),
       ipBanManager ? ipBanManager.close() : Promise.resolve(), require('../../../shared/auditLogEncrypted').closeAuditEncryption(), db.closePools(), redis.closeRedis()
     ]);
-    const failures = results.filter(result => result.status === 'rejected').map(result => result.reason);
+    const failures = [...mfaCleanup,...results].filter(result => result.status === 'rejected').map(result => result.reason);
     if (failures.length) throw new AggregateError(failures, 'User service cleanup failed');
   }
 });

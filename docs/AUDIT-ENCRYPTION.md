@@ -155,6 +155,13 @@ The legacy system `service` filter is rejected because service is encrypted; its
 full protected-query contract also remains open. This checkpoint does not accept
 metadata-only access as the final admin/decrypt/export requirement.
 
+Metadata selects legacy `created_at::text` so PostgreSQL timestamp-without-time-zone
+values keep their exact historical wall clock and microseconds. A separate genuine
+instant is not inferred from that value. Actual process UTC/Asia-Shanghai and
+PostgreSQL UTC/America-New-York combinations prove this distinction. The
+[canonical MFA state](MFA-STATE.md) now supplies server-verified scoped proof
+prerequisites; the actual protected decrypt/admin business route remains open.
+
 The general audit middleware persists before sending a buffered response and
 withholds the body and private headers on audit failure. Anonymous actions are
 recorded as such, rather than silently skipped. Streaming handlers must record

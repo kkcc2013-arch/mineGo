@@ -37,13 +37,14 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
   let logs='';
   const userId=crypto.randomUUID();
   const auditMaster=crypto.randomBytes(32);
+  const mfaMaster=crypto.randomBytes(32);
   const auditNamespace='native-privacy-fixture';
   try{
     const initial=await fs.readFile(path.resolve(__dirname,'../../../database/migrations/V1__initial_schema.sql'),'utf8');
     await fixture.query(initial.match(/CREATE TYPE team_enum[^;]*;/)[0]);
     await fixture.query(initial.match(/CREATE TABLE users \([\s\S]*?\n\);/)[0]);
     await fixture.query(initial.match(/CREATE TABLE audit_logs \([\s\S]*?\n\);/)[0]);
-    for(const file of ['20260608_194800__add_sensitive_data_protection_tables.sql','repairs/20260608_200000__add_sensitive_data_audit_tables.sql','20261006_150000__privacy_preference_defaults_and_policy_fields.sql']){
+    for(const file of ['20260608_194800__add_sensitive_data_protection_tables.sql','repairs/20260608_200000__add_sensitive_data_audit_tables.sql','20261006_150000__privacy_preference_defaults_and_policy_fields.sql','20260610_000000__add_mfa_system.sql','20261020_120000__mfa_verification_state.sql']){
       const migration=parseMigrationFile(await fs.readFile(path.resolve(__dirname,'../../../database/pending',file),'utf8'));
       for(const statement of migrationStatements(migration.up))await fixture.query(statement);
     }
@@ -66,6 +67,7 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
       EVENT_BUS_CLIENT_ID:'native-user-'+schema,DATABASE_URL:database.toString(),REDIS_HOST:redis.hostname,REDIS_PORT:redis.port||'6379',
       KAFKA_BROKERS:process.env.TEST_KAFKA_BROKERS,PORT:'0',LOG_LEVEL:'error',
       NODE_ENV:'test',AUDIT_MASTER_KEY_ID:'native-fixture',MASTER_ENCRYPTION_KEY:auditMaster.toString('hex'),AUDIT_MASTER_KEYS_JSON:'',AUDIT_KMS_KEY_ID:'',AUDIT_KEY_NAMESPACE:auditNamespace,
+      MFA_MASTER_ENCRYPTION_KEY:mfaMaster.toString('hex'),MFA_MASTER_KEY_ID:'native-mfa',MFA_MASTER_KEYS_JSON:'',MFA_KMS_KEY_ID:'',MFA_KEY_NAMESPACE:'native-mfa',
       JWT_ACCESS_SECRET:'user-startup-test-access',JWT_REFRESH_SECRET:'user-startup-test-refresh'
     },stdio:['ignore','pipe','pipe','ipc']});
     child.stdout.on('data',chunk=>{logs=(logs+chunk).slice(-16000);});child.stderr.on('data',chunk=>{logs=(logs+chunk).slice(-16000);});
@@ -111,6 +113,13 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
     const failed=await fetch(base+'/privacy/preferences',{method:'PATCH',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({marketing:false})});assert.equal(failed.status,500);
     assert.equal((await fixture.query("SELECT collectable FROM user_privacy_preferences WHERE user_id=$1 AND category='marketing'",[userId])).rows[0].collectable,true);
     assert.ok(!logs.includes(auditMaster.toString('hex')));
+    const mfaSetupResponse=await fetch(base+'/users/me/mfa/setup',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:'{}'});assert.equal(mfaSetupResponse.status,200);const mfaSetup=(await mfaSetupResponse.json()).data;
+    const totp=require('speakeasy').totp({secret:mfaSetup.secret,encoding:'base32',time:(await fixture.query('SELECT extract(epoch FROM clock_timestamp())::double precision AS now')).rows[0].now});
+    assert.equal((await fetch(base+'/users/me/mfa/enable',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({code:totp})})).status,200);
+    assert.equal((await fetch(base+'/auth/mfa/status',{headers})).status,200);
+    assert.equal((await fetch(base+'/users/me/mfa/recovery-codes',{headers})).status,403);
+    const proofResponse=await fetch(base+'/users/me/mfa/step-up',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({code:mfaSetup.recoveryCodes[0],scope:'mfa-manage'})});assert.equal(proofResponse.status,200);const mfaProof=(await proofResponse.json()).data.mfaToken;
+    const recovery=await fetch(base+'/users/me/mfa/recovery-codes',{headers:{...headers,'x-mfa-token':mfaProof}});assert.equal(recovery.status,200);assert.equal((await recovery.json()).data.remaining,7);assert.ok(!logs.includes(mfaMaster.toString('hex')));assert.ok(!logs.includes(mfaSetup.secret));
     await fixture.query("INSERT INTO ip_blacklist(ip_address,reason,severity) VALUES('127.0.0.0/8','startup appeal test','critical')");
     const gatewayApp=express();gatewayApp.use(express.json());appealProxy=mountIpAppealProxy(gatewayApp,base);
     appealGateway=http.createServer(gatewayApp);await new Promise(resolve=>appealGateway.listen(0,'127.0.0.1',resolve));
@@ -134,7 +143,7 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
   }finally{
     appealProxy?.close();if(appealGateway)await new Promise(resolve=>appealGateway.close(resolve));
     if(child&&child.exitCode===null){const exited=new Promise(resolve=>child.once('exit',resolve));child.kill('SIGKILL');await exited;}
-    auditMaster.fill(0);
+    auditMaster.fill(0);mfaMaster.fill(0);
     await fixture.end();await admin.query(`DROP SCHEMA ${schema} CASCADE`);await admin.end();
   }
 });

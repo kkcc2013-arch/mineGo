@@ -1,0 +1,56 @@
+name: MFA factors, sessions and storage regression
+on:
+  pull_request:
+    paths:
+      - 'backend/shared/**'
+      - 'backend/services/user-service/**'
+      - 'backend/gateway/src/middleware/mfaRequired.js'
+      - 'backend/gateway/src/index.js'
+      - 'backend/tests/**/*mfa*'
+      - 'backend/package*.json'
+      - 'database/pending/*mfa*.sql'
+      - 'database/pending/*sensitive_data*.sql'
+      - 'database/pending/repairs/**'
+      - 'database/migrate.js'
+      - 'database/sqlStatements.js'
+      - '.github/workflows/mfa-regression.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  mfa-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgis/postgis:15-3.4-alpine
+        env:
+          POSTGRES_DB: minego_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U test" --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      UV_THREADPOOL_SIZE: '2'
+      TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
+      TEST_REDIS_URL: redis://localhost:6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Install declared backend dependencies
+        working-directory: backend
+        run: npm ci
+      - name: Verify RFC reference vectors, production key refusal and facade ownership
+        working-directory: backend
+        run: npm run test:mfa:unit
+      - name: Enforce original 90 percent line and function coverage with actual storage and signed HTTP
+        working-directory: backend
+        run: npm run test:mfa:storage

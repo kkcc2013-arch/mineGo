@@ -11,7 +11,7 @@
         "backend/tests/battle/context.js": "4e815529a4ba1ba8d02657bc1e8798af1c481cd277e9f64e04a2ea2be595f7c3",
         "backend/tests/battle/formulas.test.js": "40300e85e1cba36f1e9994e9cc5aa2a9af4f256b4a45b83c6fa1bb2d05b745ad",
         "backend/tests/battle/scenarios.test.js": "82ee33f17c3b2eaca95592d20d75763a2f527ae5bb238a9b6e788955fb584aad",
-        "backend/package.json": "71dd2cf8c73749526063a64a7ddf3613aad5331c78e986478b15ba044cbea440",
+        "backend/package.json": "5888d8f726b403ad0500417da6ac0ea87be2a330498c16ea4ea24dc0176b8b22",
         ".github/workflows/ci-cd.yml": "1572b966bb2c9c4ee3f8d2de41334552e4a63878cf604113f316e5088ce75b3a",
         "docs/api-spec/battle-engine-design.md": "bb832c9cb72847ab8a823d62022295da1e2bdee49c26f15f8eb51b10ace7b4ed"
       },
@@ -111,6 +111,14 @@
             "backend/package.json"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ]
     },
@@ -120,22 +128,22 @@
       "documentSha256": "e0fe55e25b877f1dde7a97fb7953c3515be042e3501d29d3d650e66dd29f7f2a",
       "sourceSha256": {
         "backend/shared/privacyPreferences.js": "b53545398ecaae442a160761d66626fce664f1f10461c49a193c147d7f2b84cf",
-        "backend/shared/auditLog.js": "682bb711f0de81afa8f51d191f91a7f4897c96952862af922f1639361cfa6f78",
+        "backend/shared/auditLog.js": "09d7c5a5dbb5809c2f0375063a5ac864ac6a640ed4c7a8feb95beb2655d2b41e",
         "backend/services/user-service/src/routes/privacy.js": "ce9bdca099991fab6397437c80bf16d38a26cc3283fe8265bf503404aa65efa6",
-        "backend/services/user-service/src/index.js": "e056828eb277b9587e07e5969bddf682fd52e86464544416d2a725b1ed442afd",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
         "backend/gateway/src/routes/privacyProxy.js": "b692098d7858fc7069cd5a557f941f164ec9f2d00667623a1b51ee665a19a483",
-        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
         "backend/tests/unit/privacy-preferences.test.js": "ff1e6f9920d3b003c3284bd353d6f8138482d8700652e2b750375e06e900eab1",
         "backend/tests/regression/privacy-storage.test.js": "5e166b9018051b20b74988426d04e588823feb6f473600beeefe54b00041cc97",
         "backend/tests/regression/privacy.jest.config.json": "cd80c47f4be46595f151bdf850571e7e0bd599d5bd2e9897550999b031b7e490",
-        "backend/package.json": "71dd2cf8c73749526063a64a7ddf3613aad5331c78e986478b15ba044cbea440",
+        "backend/package.json": "5888d8f726b403ad0500417da6ac0ea87be2a330498c16ea4ea24dc0176b8b22",
         ".github/workflows/privacy-regression.yml": "b730aa2c9c5c6d6379f7047ed8c86f9f5a6781c1d0c619989482478e9031b79a",
         "database/pending/20261006_150000__privacy_preference_defaults_and_policy_fields.sql": "3d21e729219b771c0b94f8474e11e6adcc222b0fbfc064beeddaed3d08849c78",
         "backend/shared/logger.js": "4fd8f577c9db1860aa011216eadd9523a46a2214a80de1e0c44ff9310fb5e457",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
         "database/pending/20260611_152900__add_privacy_preference_center.sql": "fed6b42590f4829f4b474b9ddf840a08d7b8cce7b53bd502a0b9fe7417ec63d8",
         "database/pending/repairs/20260611_152900__add_privacy_preference_center.sql": "ac250e1ee3e789b017f7a1c54ebee3488345068aca38ea6e93df70e64483c896",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
         "docs/FRIENDSHIP.md": "12970cbfb59fcc6c6e1fabe8d057e9cb270ac4b5ad6e033e51932d2e1a06c162",
@@ -145,14 +153,14 @@
         "backend/shared/audit/KeyProviders.js": "e380a04f73ef5e8dea1eaa92165b2f5527e9a1527800eb03766ee38551624aa8",
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/services/user-service/src/routes/gdpr.js": "5603ea37f1ab0df32b7d2bfa462f95c282fa8a2eae08f5b0e7a63bf9902f8266",
-        "backend/tests/regression/audit-crypto-storage.test.js": "fe9b9e29562df27d2fd7b1e2241e2b505faac17a6085c30f4b91a5734e9eef41",
+        "backend/tests/regression/audit-crypto-storage.test.js": "f8251c25953ac4af72d6a01b982ed4cb85e7a2ca2b1ebae2af958f8143f01f54",
         "backend/tests/regression/audit-kms-wire.test.js": "11ca121f3f229022d33c9d469d2e7faf1d2aa3e5db807d2d7aaec91e22b5e9d3",
         "backend/tests/regression/audit.jest.config.json": "92fe3f290a0908de7af7a05df26d3b9216ce36227d636808df14dc81691c4cde",
-        "backend/tests/regression/user-startup.test.js": "35b5686bcc91ad43af74a1ab9dbbb5fc8e2b03decf1bd880a21aa5bae6a44ef8",
+        "backend/tests/regression/user-startup.test.js": "b1bee90313734f94a92bfd09571bbcaa01536606a6dbcc2a7a45233483ae23a9",
         "backend/tests/unit/auditLog.test.js": "129d92b8c127d8cb0be99971b3c438560bb3d6714b9e91cdaf2e5d0f1008adf9",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
-        "docs/AUDIT-ENCRYPTION.md": "6349bf32e90a9bb47c8cdc3c33a65be626db737f5c28924ed885272b5362f240",
+        "docs/AUDIT-ENCRYPTION.md": "587425b7ba4183dccc8ad8d460cf7cc1fbad4ef48685c838a4e2cf7602c0b63c",
         "docs/SENSITIVE-AUDIT-STORAGE.md": "3d9f2b933a804a7831f51d818cccbb08f3d633e623e6890360d4a3694b2deddf",
         "docs/benchmarks/common-audit-local-2026-10-20.json": "90e78ca8be2327b3ded7fb24550300c6061fa43643c20187a2efbef8e8e20ad7"
       },
@@ -495,6 +503,22 @@
           "artifact": "docs/benchmarks/common-audit-local-2026-10-20.json",
           "command": "npm run test:unit inclaudit9; actual crypto21/90gates; privacy12+40coverage80; nativeuser/gateway2; battlecoverage133; syntax1462",
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/shared/auditLog.js",
+            "backend/services/user-service/src/index.js",
+            "backend/gateway/src/index.js",
+            "backend/package.json",
+            "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/dependencies.json",
+            "backend/tests/regression/audit-crypto-storage.test.js",
+            "backend/tests/regression/user-startup.test.js",
+            "docs/AUDIT-ENCRYPTION.md"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
@@ -511,7 +535,7 @@
         "backend/tests/unit/logging-migration.test.js": "880a3f2ce8660e66a951cf8ac73b617e1396ce765fb92e2d135e5bdce711dde3",
         "backend/tests/performance/logging-benchmark.js": "a9fb82d16c779c4331e6aa2e8b5b08ee081def225de421e0e67ec3c660fef255",
         "backend/tests/regression/logging.jest.config.json": "45932a32192ebfadc2c131a9b8ba6877d8b4fbae7616fe9d98958a63a57d60b2",
-        "backend/package.json": "71dd2cf8c73749526063a64a7ddf3613aad5331c78e986478b15ba044cbea440",
+        "backend/package.json": "5888d8f726b403ad0500417da6ac0ea87be2a330498c16ea4ea24dc0176b8b22",
         ".github/workflows/ci-cd.yml": "1572b966bb2c9c4ee3f8d2de41334552e4a63878cf604113f316e5088ce75b3a"
       },
       "evidence": [
@@ -614,6 +638,14 @@
             "backend/package.json"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ],
       "remaining": "The 5% overhead target, production output/adapters and complete legacy integration/E2E acceptance are not verified"
@@ -625,20 +657,20 @@
       "sourceSha256": {
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/shared/HealthChecker.js": "34983df1a723fc4bb4608f96e4fd98b75f4daca8158d075a78c4261f3860fbef",
-        "backend/services/user-service/src/index.js": "e056828eb277b9587e07e5969bddf682fd52e86464544416d2a725b1ed442afd",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/services/user-service/src/handlers/notificationHandler.js": "542e893148bbc7ceae4aaf5764be992667cd004f54acafc7e681603236fd611a",
-        "backend/tests/regression/user-startup.test.js": "35b5686bcc91ad43af74a1ab9dbbb5fc8e2b03decf1bd880a21aa5bae6a44ef8",
-        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
+        "backend/tests/regression/user-startup.test.js": "b1bee90313734f94a92bfd09571bbcaa01536606a6dbcc2a7a45233483ae23a9",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
         "backend/gateway/src/routes/businessEvents.js": "c7487f18ddfa60587b8f318cf1b536b08d037d8c5a57d93545b473d250c918b7",
         "backend/shared/cache.js": "1e02ac9cf3f507263f89b64f1158d339530d56c7bcd69ec9738a0e54b5d1f27e",
         "backend/shared/redis.js": "087d67b984d22a1345097105f10513df84fa874c395010167964e6b3dcc7ea4b",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
-        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b"
       },
       "evidence": [
@@ -988,6 +1020,19 @@
             "backend/tests/regression/user-startup.test.js"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            ".github/workflows/title-regression.yml",
+            "database/pending/dependencies.json"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ]
     },
@@ -998,20 +1043,20 @@
       "sourceSha256": {
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/shared/HealthChecker.js": "34983df1a723fc4bb4608f96e4fd98b75f4daca8158d075a78c4261f3860fbef",
-        "backend/services/user-service/src/index.js": "e056828eb277b9587e07e5969bddf682fd52e86464544416d2a725b1ed442afd",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/services/user-service/src/handlers/notificationHandler.js": "542e893148bbc7ceae4aaf5764be992667cd004f54acafc7e681603236fd611a",
-        "backend/tests/regression/user-startup.test.js": "35b5686bcc91ad43af74a1ab9dbbb5fc8e2b03decf1bd880a21aa5bae6a44ef8",
-        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
+        "backend/tests/regression/user-startup.test.js": "b1bee90313734f94a92bfd09571bbcaa01536606a6dbcc2a7a45233483ae23a9",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
         "backend/gateway/src/routes/businessEvents.js": "c7487f18ddfa60587b8f318cf1b536b08d037d8c5a57d93545b473d250c918b7",
         "backend/shared/cache.js": "1e02ac9cf3f507263f89b64f1158d339530d56c7bcd69ec9738a0e54b5d1f27e",
         "backend/shared/redis.js": "087d67b984d22a1345097105f10513df84fa874c395010167964e6b3dcc7ea4b",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
-        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b"
       },
       "evidence": [
@@ -1361,6 +1406,19 @@
             "backend/tests/regression/user-startup.test.js"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            ".github/workflows/title-regression.yml",
+            "database/pending/dependencies.json"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ]
     },
@@ -1372,7 +1430,7 @@
         "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
         "backend/services/user-service/src/routes/titles.js": "8e7bede513639c93b07ff315cdd19ac259982e7f195fb32f69ac7910d970eb41",
         "backend/services/user-service/src/routes/timezone.js": "7a8f7bc0710190390ca75f478bad637d0aa550e60170f4276b12565bfd648f77",
-        "backend/services/user-service/src/index.js": "e056828eb277b9587e07e5969bddf682fd52e86464544416d2a725b1ed442afd",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
         "backend/services/user-service/src/handlers/notificationHandler.js": "542e893148bbc7ceae4aaf5764be992667cd004f54acafc7e681603236fd611a",
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/tests/unit/title-service.test.js": "dac59417c7f2932704d8d2c4e4b76d867a95a8cc3a6306a8544092c44420faed",
@@ -1380,14 +1438,14 @@
         "backend/tests/unit/eventbus-lifecycle.test.js": "354b2745759db7ce844959957d1b863410f08d68f1265183e55891d3e3fd6736",
         "backend/tests/unit/notification-initialization.test.js": "84b5d4ce41afbf9b531d95fa84fbceef57e00c14cd9597f42de6799009a46b3c",
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
-        "backend/tests/regression/user-startup.test.js": "35b5686bcc91ad43af74a1ab9dbbb5fc8e2b03decf1bd880a21aa5bae6a44ef8",
+        "backend/tests/regression/user-startup.test.js": "b1bee90313734f94a92bfd09571bbcaa01536606a6dbcc2a7a45233483ae23a9",
         "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
-        "backend/package.json": "71dd2cf8c73749526063a64a7ddf3613aad5331c78e986478b15ba044cbea440",
+        "backend/package.json": "5888d8f726b403ad0500417da6ac0ea87be2a330498c16ea4ea24dc0176b8b22",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
-        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/repairs/20261007_120000__title_identity_compatibility.sql": "26c5317694faa4f2a263923d4b915dfc0508d6a69c092c1c449306ee88702837",
         "database/pending/repairs/20260615_170500__add_title_system.sql": "f43872c531d7ac6a9a2875d2eb9a3f603781e4caf3bfdbe7482e7864629bf9ac",
@@ -1766,6 +1824,19 @@
             "backend/package.json"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/package.json",
+            ".github/workflows/title-regression.yml",
+            "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/dependencies.json"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ]
     },
@@ -1777,7 +1848,7 @@
         "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
         "backend/services/user-service/src/routes/titles.js": "8e7bede513639c93b07ff315cdd19ac259982e7f195fb32f69ac7910d970eb41",
         "backend/services/user-service/src/routes/timezone.js": "7a8f7bc0710190390ca75f478bad637d0aa550e60170f4276b12565bfd648f77",
-        "backend/services/user-service/src/index.js": "e056828eb277b9587e07e5969bddf682fd52e86464544416d2a725b1ed442afd",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
         "backend/services/user-service/src/handlers/notificationHandler.js": "542e893148bbc7ceae4aaf5764be992667cd004f54acafc7e681603236fd611a",
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/tests/unit/title-service.test.js": "dac59417c7f2932704d8d2c4e4b76d867a95a8cc3a6306a8544092c44420faed",
@@ -1785,14 +1856,14 @@
         "backend/tests/unit/eventbus-lifecycle.test.js": "354b2745759db7ce844959957d1b863410f08d68f1265183e55891d3e3fd6736",
         "backend/tests/unit/notification-initialization.test.js": "84b5d4ce41afbf9b531d95fa84fbceef57e00c14cd9597f42de6799009a46b3c",
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
-        "backend/tests/regression/user-startup.test.js": "35b5686bcc91ad43af74a1ab9dbbb5fc8e2b03decf1bd880a21aa5bae6a44ef8",
+        "backend/tests/regression/user-startup.test.js": "b1bee90313734f94a92bfd09571bbcaa01536606a6dbcc2a7a45233483ae23a9",
         "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
-        "backend/package.json": "71dd2cf8c73749526063a64a7ddf3613aad5331c78e986478b15ba044cbea440",
+        "backend/package.json": "5888d8f726b403ad0500417da6ac0ea87be2a330498c16ea4ea24dc0176b8b22",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
-        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b"
       },
       "evidence": [
@@ -2152,6 +2223,19 @@
             "backend/package.json"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/package.json",
+            ".github/workflows/title-regression.yml",
+            "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/dependencies.json"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ]
     },
@@ -2163,7 +2247,7 @@
         "backend/services/user-service/src/titleService.js": "79e270e8854e357278074efe7a76750dde31e4a47988c899e9156a3cc442dc66",
         "backend/services/user-service/src/routes/titles.js": "8e7bede513639c93b07ff315cdd19ac259982e7f195fb32f69ac7910d970eb41",
         "backend/services/user-service/src/routes/timezone.js": "7a8f7bc0710190390ca75f478bad637d0aa550e60170f4276b12565bfd648f77",
-        "backend/services/user-service/src/index.js": "e056828eb277b9587e07e5969bddf682fd52e86464544416d2a725b1ed442afd",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
         "backend/services/user-service/src/handlers/notificationHandler.js": "542e893148bbc7ceae4aaf5764be992667cd004f54acafc7e681603236fd611a",
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/tests/unit/title-service.test.js": "dac59417c7f2932704d8d2c4e4b76d867a95a8cc3a6306a8544092c44420faed",
@@ -2171,14 +2255,14 @@
         "backend/tests/unit/eventbus-lifecycle.test.js": "354b2745759db7ce844959957d1b863410f08d68f1265183e55891d3e3fd6736",
         "backend/tests/unit/notification-initialization.test.js": "84b5d4ce41afbf9b531d95fa84fbceef57e00c14cd9597f42de6799009a46b3c",
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
-        "backend/tests/regression/user-startup.test.js": "35b5686bcc91ad43af74a1ab9dbbb5fc8e2b03decf1bd880a21aa5bae6a44ef8",
+        "backend/tests/regression/user-startup.test.js": "b1bee90313734f94a92bfd09571bbcaa01536606a6dbcc2a7a45233483ae23a9",
         "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
-        "backend/package.json": "71dd2cf8c73749526063a64a7ddf3613aad5331c78e986478b15ba044cbea440",
+        "backend/package.json": "5888d8f726b403ad0500417da6ac0ea87be2a330498c16ea4ea24dc0176b8b22",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
-        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "docs/NOTIFICATIONS.md": "5b47d94114ba552f47f6d88f8aaba2ceb17c4e705174c1872d95f5e0655726ae",
         "backend/services/user-service/src/notificationService.js": "9b1809ee37dcef1cc4794db12b5a0fc2f4df876ade8dab918b378eca07d75194",
@@ -2191,7 +2275,7 @@
         "backend/shared/NotificationWebSocket.js": "bc1e9eff0386d83b4b31553e26521e36809ddee344328f3e556581a968f8ee57",
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
         "backend/gateway/src/routes/notificationProxy.js": "a7e03edf9fd81343a0cad94590a26600b64fee14306d19665fed421b2f9497bd",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "backend/tests/regression/notification-client.test.js": "9a56b0116debb82aa313d0d0bf9963c247760d9763a01828755122283329ffda",
@@ -2660,6 +2744,20 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/package.json",
+            ".github/workflows/title-regression.yml",
+            "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/dependencies.json",
+            "backend/gateway/src/index.js"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ],
       "remainingAcceptance": [
@@ -2676,22 +2774,22 @@
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "5f0f24eee768a901be3d6cb06e4e2907e72dca7e4db43398fe8da7e695677a8e",
       "sourceSha256": {
-        "backend/services/user-service/src/index.js": "e056828eb277b9587e07e5969bddf682fd52e86464544416d2a725b1ed442afd",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
         "backend/services/user-service/src/routes/ipAppeal.js": "32bc089a25a51e5ef015eebdd4440534365b93873a53c5fcd06ad13d13c718c4",
         "backend/shared/IpBanManager.js": "8baf542bcfc6d35106433e07dd0eee25e005ad48550ca04e92ec674af043ce34",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
         "backend/gateway/src/middleware/ipBan.js": "be628522d3b171b9dae46aa8862e985ea9681b5ba381e6f9f28f7c01462ac6b9",
         "backend/gateway/src/routes/ipAppealProxy.js": "4fa6f1dc2f23739aa4274dc9a0fa9ec9f21958e289cbbe322168481105001a3d",
         "backend/tests/unit/ip-appeal.test.js": "7aa02dc701586d2922d4ba958d72e3a806e8c8b60c9c98db14246f225b101c18",
         "backend/tests/regression/ip-appeal-storage.test.js": "36e48b65328b864138743ea61aa7b124c99bc608e7316d7baf8ba6603cc292fe",
-        "backend/tests/regression/user-startup.test.js": "35b5686bcc91ad43af74a1ab9dbbb5fc8e2b03decf1bd880a21aa5bae6a44ef8",
+        "backend/tests/regression/user-startup.test.js": "b1bee90313734f94a92bfd09571bbcaa01536606a6dbcc2a7a45233483ae23a9",
         "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
         "database/pending/20261008_100000__ip_ban_index_compatibility.sql": "574d3f082b2265bfe5b93d6066b6d62dad4ca1da00bd91e34dc7a4f964f548ae",
-        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b"
       },
       "evidence": [
@@ -3000,6 +3098,19 @@
             "backend/tests/regression/user-startup.test.js"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            ".github/workflows/title-regression.yml",
+            "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/dependencies.json"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ]
     },
@@ -3008,22 +3119,22 @@
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "1908c2353ef4f102148e015a49a26726f793d9b6daf1371ec6fb018f3f5f0bfb",
       "sourceSha256": {
-        "backend/services/user-service/src/index.js": "e056828eb277b9587e07e5969bddf682fd52e86464544416d2a725b1ed442afd",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
         "backend/services/user-service/src/routes/ipAppeal.js": "32bc089a25a51e5ef015eebdd4440534365b93873a53c5fcd06ad13d13c718c4",
         "backend/shared/IpBanManager.js": "8baf542bcfc6d35106433e07dd0eee25e005ad48550ca04e92ec674af043ce34",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
         "backend/gateway/src/middleware/ipBan.js": "be628522d3b171b9dae46aa8862e985ea9681b5ba381e6f9f28f7c01462ac6b9",
         "backend/gateway/src/routes/ipAppealProxy.js": "4fa6f1dc2f23739aa4274dc9a0fa9ec9f21958e289cbbe322168481105001a3d",
         "backend/tests/unit/ip-appeal.test.js": "7aa02dc701586d2922d4ba958d72e3a806e8c8b60c9c98db14246f225b101c18",
         "backend/tests/regression/ip-appeal-storage.test.js": "36e48b65328b864138743ea61aa7b124c99bc608e7316d7baf8ba6603cc292fe",
-        "backend/tests/regression/user-startup.test.js": "35b5686bcc91ad43af74a1ab9dbbb5fc8e2b03decf1bd880a21aa5bae6a44ef8",
+        "backend/tests/regression/user-startup.test.js": "b1bee90313734f94a92bfd09571bbcaa01536606a6dbcc2a7a45233483ae23a9",
         "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
         "database/pending/20261008_100000__ip_ban_index_compatibility.sql": "574d3f082b2265bfe5b93d6066b6d62dad4ca1da00bd91e34dc7a4f964f548ae",
-        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b"
       },
       "evidence": [
@@ -3332,23 +3443,36 @@
             "backend/tests/regression/user-startup.test.js"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            ".github/workflows/title-regression.yml",
+            "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/dependencies.json"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ]
     },
     "REQ-00039-hot-data-cache-warmup-system.md": {
-      "date": "2026-10-19",
+      "date": "2026-10-20",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "b6be313ab0b1611e495be4a8a86eee54210caaa359f0b2dd978c097f556fa696",
       "sourceSha256": {
-        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
         "backend/gateway/src/routes/businessEvents.js": "c7487f18ddfa60587b8f318cf1b536b08d037d8c5a57d93545b473d250c918b7",
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/shared/cache.js": "1e02ac9cf3f507263f89b64f1158d339530d56c7bcd69ec9738a0e54b5d1f27e",
         "backend/shared/redis.js": "087d67b984d22a1345097105f10513df84fa874c395010167964e6b3dcc7ea4b",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
-        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b"
       },
       "evidence": [
@@ -3605,6 +3729,17 @@
           "changedReferences": [
             "database/pending/repairs.json"
           ]
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            ".github/workflows/title-regression.yml",
+            "database/pending/dependencies.json"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ]
     },
@@ -3621,8 +3756,8 @@
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "database/pending/20260609_124500__add_item_inventory_system.sql": "99c96061defc0b502f87147c491889266f53b9e5c8ae8cfbdcdda6892c09969e",
         "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
-        "backend/services/user-service/src/index.js": "e056828eb277b9587e07e5969bddf682fd52e86464544416d2a725b1ed442afd",
-        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
@@ -3630,7 +3765,7 @@
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
@@ -3704,7 +3839,9 @@
         "docs/benchmarks/ci-f671847-2026-10-19.json": "1be0d29197bd56c322328f8a4b342183b2c89c99947f073e490e1994709b7c37",
         "docs/benchmarks/transaction-throughput-ci-f671847-2026-10-19.json": "d7deb161b24b904fb2263e2a3697edb3a6b886c4e70b22b370bfb529e4b6f834",
         "docs/benchmarks/ci-ac53b06-2026-10-20.json": "544b213079ff5c749b3f0c5959df117bb1a3584a1f2a7d47845fd3f979ca60cd",
-        "docs/benchmarks/transaction-throughput-ci-ac53b06-2026-10-20.json": "08316598a4dcb2eaab7ff9f2ef125547b4bf88ad16321915b0143e8d05002061"
+        "docs/benchmarks/transaction-throughput-ci-ac53b06-2026-10-20.json": "08316598a4dcb2eaab7ff9f2ef125547b4bf88ad16321915b0143e8d05002061",
+        "docs/benchmarks/ci-b17ddee-2026-10-20.json": "6d1767e7481ffd142836ff2d96cb84bd438d5eb3f98786aa2ebcdc16c0622833",
+        "docs/benchmarks/transaction-throughput-ci-b17ddee-2026-10-20.json": "5935de8471a209f26032e1781b8311db0f0e50bb9a37af9c17a859eeab6bde90"
       },
       "evidence": [
         {
@@ -4316,6 +4453,26 @@
           "medianChangePercent": -4.494916657640657,
           "requiredMinimumChangePercent": -5,
           "scope": "Exactac53b06 main467/native36/migration29success. Downloadedactualcrypto20/90gates andfull85;8throughputhashesmatch. Earliernegativeevidenceunwaived; otherworkflows/currentcommon-sourceCI/fullacceptance remain separate."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/gateway/src/index.js",
+            "database/pending/dependencies.json"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
+        },
+        {
+          "date": "2026-10-20",
+          "commit": "b17ddee99e94c941fda30f89faae6f815915e186",
+          "result": "previous_exact_main468_native37_migration30_success",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39342676423",
+          "job": 118367742787,
+          "medianChangePercent": -1.9117597094924332,
+          "requiredMinimumChangePercent": -5,
+          "scope": "Prior exactb17source:actualaudit21/90gates and full85 retained;8throughputhashesmatch. CurrentMFA/wall-clocksourceCIpending; earliernegativeevidenceandotherlegacyworkflowsremainopen."
         }
       ],
       "remaining": "Complete85-source history now fails20260627_060000 statement13 missing is_deleted. Reconcile canonical inventory/ownership/contracts, all later pending files, data-preserving upgrades/reversal and all-service startup. Exact new remote throughput still unverified; all original acceptance remains open."
@@ -4327,7 +4484,7 @@
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
@@ -4698,6 +4855,14 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "database/pending/dependencies.json"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ]
     },
@@ -4708,7 +4873,7 @@
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
@@ -5079,6 +5244,14 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "database/pending/dependencies.json"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ]
     },
@@ -5089,7 +5262,7 @@
       "sourceSha256": {
         "database/migrate.js": "6d4734c17723dc4e245cba7b0202cbba388623b18223c34c54c18c4c8ffa2057",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/20261008_130000__item_catalog_prerequisite.sql": "855620e9bbbf813bc6f55ab0f803c93b23ea6453e5942ac529b41fd3429dff55",
         "database/pending/20261008_131000__pokedex_identity_prerequisite.sql": "03c270bc238fbb74ccb653b10fa976f417a4daca85450ea1b42f37fe8cd5ca32",
@@ -5147,10 +5320,10 @@
         "backend/shared/partitionMaintenance.js": "eb2a2169cc22fb12a54448a4c23dcfd671a8034110d15b4f7a4ae1add8fc3786",
         "backend/shared/partitionManager.js": "6cd34c463fffa999c33e7cf1c6affe11f7ed840fe55b7a34059d893aa9578a0a",
         "backend/gateway/src/routes/partitions.js": "2a0368052e9cbc616aa54065da4d982edbb049b99dbd162d2f8e992316c218d0",
-        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
         "backend/tests/regression/partition-maintenance-storage.test.js": "56fc446bc42f1189161d5993129756a498924c14feb154470c488e9f2710102b",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
-        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "docs/PARTITION-MAINTENANCE.md": "b5c1d26502ec01a3ec74b14cb8084a42c587139cfcb32d6c74af2f9c84a6b46f",
         "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297",
         "docs/benchmarks/transaction-throughput-ci-2df7d22-2026-10-18.json": "07157be9339982b7c7fce5202f3f713766bbffcbf88d6474c96e70f98275b669",
@@ -5609,6 +5782,17 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            ".github/workflows/title-regression.yml"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ],
       "remaining": [
@@ -5628,7 +5812,7 @@
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
         "database/pending/20261008_150000__achievement_catalog_bridge.sql": "432a090e79626102f6cff413f6bc844c7617bd0c2cc1346899f95fa1b801e04f",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
         "backend/services/pokemon-service/src/achievementService.js": "1d9a713fc73187c6391357c436492f1a4cb192e246c256a45b99779acabddbcf",
         "backend/services/pokemon-service/src/routes/achievements.js": "eddd615a633590f438a009aa0ed3c121016221c9d1af7dd687ff6a73af343b21",
@@ -5990,6 +6174,14 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "database/pending/dependencies.json"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ],
       "remaining": "Replay/idempotency/durable events/automatic grant/all triggers; complete seed item/title contract and exclusive Pokemon grant; management CRUD/admin and edited-definition snapshot policy; old unit fixture; native pokemon process/gateway/client/localization; <100ms query/<50ms update performance; full83 history and data-preserving reversal with modern records remain unproven."
@@ -6291,6 +6483,19 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/dependencies.json",
+            ".github/workflows/title-regression.yml"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ],
       "sourceSha256": {
@@ -6299,7 +6504,7 @@
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
         "backend/services/user-service/src/routes/notifications.js": "4118c13aa025d4fcfee1beb6ae7fe98f06568f62c99b0ff6bf464ec17fe28968",
         "backend/services/user-service/src/handlers/notificationHandler.js": "542e893148bbc7ceae4aaf5764be992667cd004f54acafc7e681603236fd611a",
-        "backend/services/user-service/src/index.js": "e056828eb277b9587e07e5969bddf682fd52e86464544416d2a725b1ed442afd",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
         "backend/shared/notification/contracts.js": "f501ec1b657cb5ecee98cea543703d6c284ed60fc88a3e830a0039627e5bbd8b",
         "backend/shared/notification/NotificationManager.js": "1fb1247ac0a28c0a1e2381e091c073395b3f9e3cbfe85bde1854c7d86eebfd55",
         "backend/shared/notification/pushNotificationService.js": "e493d5d65d4cfa341538a54a2ad48236b428486e6ac90ce54b2508686c92f19e",
@@ -6307,19 +6512,19 @@
         "backend/shared/NotificationWebSocket.js": "bc1e9eff0386d83b4b31553e26521e36809ddee344328f3e556581a968f8ee57",
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
         "backend/gateway/src/routes/notificationProxy.js": "a7e03edf9fd81343a0cad94590a26600b64fee14306d19665fed421b2f9497bd",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "backend/tests/regression/notification-client.test.js": "9a56b0116debb82aa313d0d0bf9963c247760d9763a01828755122283329ffda",
-        "backend/tests/regression/user-startup.test.js": "35b5686bcc91ad43af74a1ab9dbbb5fc8e2b03decf1bd880a21aa5bae6a44ef8",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        "backend/tests/regression/user-startup.test.js": "b1bee90313734f94a92bfd09571bbcaa01536606a6dbcc2a7a45233483ae23a9",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
-        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
         "frontend/game-client/src/i18n/index.js": "37dd930d9f30e6f6b088ad74f669c7cecbd91f7937ccb84e685d1dbfe4fa2690",
@@ -6637,6 +6842,19 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/dependencies.json",
+            ".github/workflows/title-regression.yml"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ],
       "sourceSha256": {
@@ -6645,7 +6863,7 @@
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
         "backend/services/user-service/src/routes/notifications.js": "4118c13aa025d4fcfee1beb6ae7fe98f06568f62c99b0ff6bf464ec17fe28968",
         "backend/services/user-service/src/handlers/notificationHandler.js": "542e893148bbc7ceae4aaf5764be992667cd004f54acafc7e681603236fd611a",
-        "backend/services/user-service/src/index.js": "e056828eb277b9587e07e5969bddf682fd52e86464544416d2a725b1ed442afd",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
         "backend/shared/notification/contracts.js": "f501ec1b657cb5ecee98cea543703d6c284ed60fc88a3e830a0039627e5bbd8b",
         "backend/shared/notification/NotificationManager.js": "1fb1247ac0a28c0a1e2381e091c073395b3f9e3cbfe85bde1854c7d86eebfd55",
         "backend/shared/notification/pushNotificationService.js": "e493d5d65d4cfa341538a54a2ad48236b428486e6ac90ce54b2508686c92f19e",
@@ -6653,19 +6871,19 @@
         "backend/shared/NotificationWebSocket.js": "bc1e9eff0386d83b4b31553e26521e36809ddee344328f3e556581a968f8ee57",
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
         "backend/gateway/src/routes/notificationProxy.js": "a7e03edf9fd81343a0cad94590a26600b64fee14306d19665fed421b2f9497bd",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "backend/tests/regression/notification-client.test.js": "9a56b0116debb82aa313d0d0bf9963c247760d9763a01828755122283329ffda",
-        "backend/tests/regression/user-startup.test.js": "35b5686bcc91ad43af74a1ab9dbbb5fc8e2b03decf1bd880a21aa5bae6a44ef8",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        "backend/tests/regression/user-startup.test.js": "b1bee90313734f94a92bfd09571bbcaa01536606a6dbcc2a7a45233483ae23a9",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
-        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
         "frontend/game-client/src/i18n/index.js": "37dd930d9f30e6f6b088ad74f669c7cecbd91f7937ccb84e685d1dbfe4fa2690",
@@ -6983,6 +7201,19 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            "database/pending/dependencies.json",
+            ".github/workflows/title-regression.yml"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ],
       "sourceSha256": {
@@ -6991,7 +7222,7 @@
         "backend/services/user-service/src/routes/messageCenter.js": "7e14b391448072211f29ba05b8fdb19e1f8db7996fd9ce67dd5a4a47f5568d70",
         "backend/services/user-service/src/routes/notifications.js": "4118c13aa025d4fcfee1beb6ae7fe98f06568f62c99b0ff6bf464ec17fe28968",
         "backend/services/user-service/src/handlers/notificationHandler.js": "542e893148bbc7ceae4aaf5764be992667cd004f54acafc7e681603236fd611a",
-        "backend/services/user-service/src/index.js": "e056828eb277b9587e07e5969bddf682fd52e86464544416d2a725b1ed442afd",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
         "backend/shared/notification/contracts.js": "f501ec1b657cb5ecee98cea543703d6c284ed60fc88a3e830a0039627e5bbd8b",
         "backend/shared/notification/NotificationManager.js": "1fb1247ac0a28c0a1e2381e091c073395b3f9e3cbfe85bde1854c7d86eebfd55",
         "backend/shared/notification/pushNotificationService.js": "e493d5d65d4cfa341538a54a2ad48236b428486e6ac90ce54b2508686c92f19e",
@@ -6999,19 +7230,19 @@
         "backend/shared/NotificationWebSocket.js": "bc1e9eff0386d83b4b31553e26521e36809ddee344328f3e556581a968f8ee57",
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
         "backend/gateway/src/routes/notificationProxy.js": "a7e03edf9fd81343a0cad94590a26600b64fee14306d19665fed421b2f9497bd",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "backend/tests/regression/notification-client.test.js": "9a56b0116debb82aa313d0d0bf9963c247760d9763a01828755122283329ffda",
-        "backend/tests/regression/user-startup.test.js": "35b5686bcc91ad43af74a1ab9dbbb5fc8e2b03decf1bd880a21aa5bae6a44ef8",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        "backend/tests/regression/user-startup.test.js": "b1bee90313734f94a92bfd09571bbcaa01536606a6dbcc2a7a45233483ae23a9",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         ".github/workflows/notification-client-regression.yml": "b52a1dc99da92f3f2f0f0135c9b23d3cd54e9d365a9386e4a44e9ac2dbf075b5",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
-        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "frontend/game-client/src/components/MessageCenter.js": "4e2080955e2c85f8395d38764d0613f81d2b01c4224d2d15e044cbfcdcdcd0ff",
         "frontend/game-client/src/game/NotificationManager.js": "f155d94d0e1025a4d92db309d3bdab7552e633f60e09773df94d9431a43848a1",
         "frontend/game-client/src/i18n/index.js": "37dd930d9f30e6f6b088ad74f669c7cecbd91f7937ccb84e685d1dbfe4fa2690",
@@ -7038,7 +7269,7 @@
         "database/pending/20260611_131000__add_friendship_system.sql": "1d5b944eb3f8d1c16dfce690712aed383a6a126449d66f9f633a5477430a4ac8",
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
@@ -7320,6 +7551,14 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "database/pending/dependencies.json"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ],
       "date": "2026-10-20",
@@ -7340,7 +7579,7 @@
         "database/pending/20260611_131000__add_friendship_system.sql": "1d5b944eb3f8d1c16dfce690712aed383a6a126449d66f9f633a5477430a4ac8",
         "database/pending/20261008_170000__friendship_identity_bridge.sql": "2b11cfc1bf0118b573ddae472973810cfcfd1e287e1ad1bf64ed2be6b0fd798c",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "backend/tests/regression/friendship-storage.test.js": "71302a42f16ecbb3383113e06de8ad648592182f6d8d3e6ed65a32ca23902a78",
         "backend/tests/regression/migration-prerequisites.test.js": "e7b50f939a3c9e30b5c283867332815ce4e4b5aa89da41c61e7991ad2cc629d6",
@@ -7622,6 +7861,14 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "database/pending/dependencies.json"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ],
       "date": "2026-10-20",
@@ -8911,8 +9158,8 @@
         "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "backend/package.json": "71dd2cf8c73749526063a64a7ddf3613aad5331c78e986478b15ba044cbea440",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
+        "backend/package.json": "5888d8f726b403ad0500417da6ac0ea87be2a330498c16ea4ea24dc0176b8b22",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
@@ -9126,6 +9373,15 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "backend/package.json"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ],
       "remainingAcceptance": [
@@ -9156,8 +9412,8 @@
         "database/pending/20260615_221000__add_damage_system.sql": "c5c174ec9f0d80f1137c795e3a2c0fc32266a3c40ef49fee09f1e0ac7f13bee3",
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
-        "database/pending/dependencies.json": "121cee53b55d8d571a993a5aa79977c2c2dd7a569af9069e2dd12d153cd410c3",
-        "backend/package.json": "71dd2cf8c73749526063a64a7ddf3613aad5331c78e986478b15ba044cbea440",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
+        "backend/package.json": "5888d8f726b403ad0500417da6ac0ea87be2a330498c16ea4ea24dc0176b8b22",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
@@ -9371,6 +9627,15 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "database/pending/dependencies.json",
+            "backend/package.json"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ],
       "remainingAcceptance": [
@@ -9860,7 +10125,9 @@
         "docs/benchmarks/ci-f671847-2026-10-19.json": "1be0d29197bd56c322328f8a4b342183b2c89c99947f073e490e1994709b7c37",
         "docs/benchmarks/transaction-throughput-ci-f671847-2026-10-19.json": "d7deb161b24b904fb2263e2a3697edb3a6b886c4e70b22b370bfb529e4b6f834",
         "docs/benchmarks/ci-ac53b06-2026-10-20.json": "544b213079ff5c749b3f0c5959df117bb1a3584a1f2a7d47845fd3f979ca60cd",
-        "docs/benchmarks/transaction-throughput-ci-ac53b06-2026-10-20.json": "08316598a4dcb2eaab7ff9f2ef125547b4bf88ad16321915b0143e8d05002061"
+        "docs/benchmarks/transaction-throughput-ci-ac53b06-2026-10-20.json": "08316598a4dcb2eaab7ff9f2ef125547b4bf88ad16321915b0143e8d05002061",
+        "docs/benchmarks/ci-b17ddee-2026-10-20.json": "6d1767e7481ffd142836ff2d96cb84bd438d5eb3f98786aa2ebcdc16c0622833",
+        "docs/benchmarks/transaction-throughput-ci-b17ddee-2026-10-20.json": "5935de8471a209f26032e1781b8311db0f0e50bb9a37af9c17a859eeab6bde90"
       },
       "evidence": [
         {
@@ -10250,6 +10517,16 @@
           "medianChangePercent": -4.494916657640657,
           "requiredMinimumChangePercent": -5,
           "scope": "Exactac53b06 main467/native36/migration29success. Downloadedactualcrypto20/90gates andfull85;8throughputhashesmatch. Earliernegativeevidenceunwaived; otherworkflows/currentcommon-sourceCI/fullacceptance remain separate."
+        },
+        {
+          "date": "2026-10-20",
+          "commit": "b17ddee99e94c941fda30f89faae6f815915e186",
+          "result": "previous_exact_main468_native37_migration30_success",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39342676423",
+          "job": 118367742787,
+          "medianChangePercent": -1.9117597094924332,
+          "requiredMinimumChangePercent": -5,
+          "scope": "Prior exactb17source:actualaudit21/90gates and full85 retained;8throughputhashesmatch. CurrentMFA/wall-clocksourceCIpending; earliernegativeevidenceandotherlegacyworkflowsremainopen."
         }
       ],
       "remaining": [
@@ -10877,7 +11154,7 @@
         "backend/services/user-service/src/routes/gdpr.js": "5603ea37f1ab0df32b7d2bfa462f95c282fa8a2eae08f5b0e7a63bf9902f8266",
         "backend/services/user-service/src/routes/gdprService.js": "92277df82b37fa90a6e47d3052d81380ae606a9ffa5051a086bfc4f3adcabf24",
         "backend/services/user-service/src/routes/dataDeletion.js": "0c0a50662e271046bc57864145fecdc72e39217e3fc9a78390afcb58a7083b3a",
-        "backend/services/user-service/src/index.js": "e056828eb277b9587e07e5969bddf682fd52e86464544416d2a725b1ed442afd",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
         "backend/jobs/dataDeletionProcessor.js": "966f12addfaf5a97f68b329e155173c2dae85699c2d818e8996d48ffcfb52244",
         "backend/tests/regression/erasure-schema-storage.test.js": "4c54f92e9492772d096201675ffe7b0d0594c609bc64e1395b9b910feeda535b",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
@@ -10885,7 +11162,7 @@
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json": "fa441fdcf8f5471c1a0d5c74082467f4bf92777d547989df6ddd08c42c68b765",
         "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297",
-        "backend/shared/auditLog.js": "682bb711f0de81afa8f51d191f91a7f4897c96952862af922f1639361cfa6f78",
+        "backend/shared/auditLog.js": "09d7c5a5dbb5809c2f0375063a5ac864ac6a640ed4c7a8feb95beb2655d2b41e",
         "backend/shared/auditLogEncrypted.js": "6db1529a78bbfa1d967b898ed453d314a290fdd58e95c2dc8b3cec9fc1d6fb44",
         "backend/shared/audit/EncryptedAuditStore.js": "97bcf79057fc4af775c42e87a4a0eb5266253367de190232097b32cb2423c874",
         "backend/shared/audit/cryptoPrimitives.js": "ac6df0883e6f92ac0db6dad5ae4707d2c31a835e06ff89cc4aced0c1e517af46",
@@ -10893,18 +11170,18 @@
         "backend/shared/privacyPreferences.js": "b53545398ecaae442a160761d66626fce664f1f10461c49a193c147d7f2b84cf",
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/services/user-service/src/routes/privacy.js": "ce9bdca099991fab6397437c80bf16d38a26cc3283fe8265bf503404aa65efa6",
-        "backend/tests/regression/audit-crypto-storage.test.js": "fe9b9e29562df27d2fd7b1e2241e2b505faac17a6085c30f4b91a5734e9eef41",
+        "backend/tests/regression/audit-crypto-storage.test.js": "f8251c25953ac4af72d6a01b982ed4cb85e7a2ca2b1ebae2af958f8143f01f54",
         "backend/tests/regression/audit-kms-wire.test.js": "11ca121f3f229022d33c9d469d2e7faf1d2aa3e5db807d2d7aaec91e22b5e9d3",
         "backend/tests/regression/audit.jest.config.json": "92fe3f290a0908de7af7a05df26d3b9216ce36227d636808df14dc81691c4cde",
         "backend/tests/regression/privacy-storage.test.js": "5e166b9018051b20b74988426d04e588823feb6f473600beeefe54b00041cc97",
         "backend/tests/regression/privacy.jest.config.json": "cd80c47f4be46595f151bdf850571e7e0bd599d5bd2e9897550999b031b7e490",
-        "backend/tests/regression/user-startup.test.js": "35b5686bcc91ad43af74a1ab9dbbb5fc8e2b03decf1bd880a21aa5bae6a44ef8",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        "backend/tests/regression/user-startup.test.js": "b1bee90313734f94a92bfd09571bbcaa01536606a6dbcc2a7a45233483ae23a9",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
         "backend/tests/unit/auditLog.test.js": "129d92b8c127d8cb0be99971b3c438560bb3d6714b9e91cdaf2e5d0f1008adf9",
         "backend/tests/unit/privacy-preferences.test.js": "ff1e6f9920d3b003c3284bd353d6f8138482d8700652e2b750375e06e900eab1",
-        "backend/package.json": "71dd2cf8c73749526063a64a7ddf3613aad5331c78e986478b15ba044cbea440",
+        "backend/package.json": "5888d8f726b403ad0500417da6ac0ea87be2a330498c16ea4ea24dc0176b8b22",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
-        "docs/AUDIT-ENCRYPTION.md": "6349bf32e90a9bb47c8cdc3c33a65be626db737f5c28924ed885272b5362f240",
+        "docs/AUDIT-ENCRYPTION.md": "587425b7ba4183dccc8ad8d460cf7cc1fbad4ef48685c838a4e2cf7602c0b63c",
         "docs/SENSITIVE-AUDIT-STORAGE.md": "3d9f2b933a804a7831f51d818cccbb08f3d633e623e6890360d4a3694b2deddf",
         "docs/benchmarks/common-audit-local-2026-10-20.json": "90e78ca8be2327b3ded7fb24550300c6061fa43643c20187a2efbef8e8e20ad7"
       },
@@ -11017,6 +11294,20 @@
           "artifact": "docs/benchmarks/common-audit-local-2026-10-20.json",
           "command": "npm run test:unit inclaudit9; actual crypto21/90gates; privacy12+40coverage80; nativeuser/gateway2; battlecoverage133; syntax1462",
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js",
+            "backend/shared/auditLog.js",
+            "backend/tests/regression/audit-crypto-storage.test.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            "backend/package.json",
+            "docs/AUDIT-ENCRYPTION.md"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ]
     },
@@ -11038,7 +11329,7 @@
         "backend/services/user-service/src/routes/gdpr.js": "5603ea37f1ab0df32b7d2bfa462f95c282fa8a2eae08f5b0e7a63bf9902f8266",
         "backend/services/user-service/src/routes/gdprService.js": "92277df82b37fa90a6e47d3052d81380ae606a9ffa5051a086bfc4f3adcabf24",
         "backend/services/user-service/src/routes/dataDeletion.js": "0c0a50662e271046bc57864145fecdc72e39217e3fc9a78390afcb58a7083b3a",
-        "backend/services/user-service/src/index.js": "e056828eb277b9587e07e5969bddf682fd52e86464544416d2a725b1ed442afd",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
         "backend/jobs/dataDeletionProcessor.js": "966f12addfaf5a97f68b329e155173c2dae85699c2d818e8996d48ffcfb52244",
         "backend/tests/regression/erasure-schema-storage.test.js": "4c54f92e9492772d096201675ffe7b0d0594c609bc64e1395b9b910feeda535b",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
@@ -11149,6 +11440,14 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/services/user-service/src/index.js"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ]
     },
@@ -11173,7 +11472,7 @@
         "backend/gateway/src/middleware/auth.js": "7679c07044463a6aacf085eab04abefdf3f1f11dc1f47dacb0ff83bad03fdcce",
         "backend/gateway/src/middleware/canaryRouter.js": "8e06cc373a594a3a0f464f9052cf4f447a97a6957af3c4ae10948f7cd86453ed",
         "backend/gateway/src/routes/canary.js": "2919433b6ed012125b58bb522e497c9a574d7e488127bf562dac4b2e390a169d",
-        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
         "scripts/canary-cli.js": "55af26b715eee3c508a85e1be6909a39b923267b936860edbcf590d356c9b815",
         ".github/workflows/canary-deploy.yml": "873f89716acd7d2632999c14a8155594668f1b522c4fb46db1186eefd4a74b29",
         "backend/tests/regression/canary-schema-storage.test.js": "18bc7caffb2b93568aff590318e2fdbc3874f183c29b7d80efd14be1a15d7ffc",
@@ -11260,6 +11559,14 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ]
     },
@@ -11277,11 +11584,11 @@
         "backend/shared/partitionMaintenance.js": "eb2a2169cc22fb12a54448a4c23dcfd671a8034110d15b4f7a4ae1add8fc3786",
         "backend/shared/partitionManager.js": "6cd34c463fffa999c33e7cf1c6affe11f7ed840fe55b7a34059d893aa9578a0a",
         "backend/gateway/src/routes/partitions.js": "2a0368052e9cbc616aa54065da4d982edbb049b99dbd162d2f8e992316c218d0",
-        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
         "backend/tests/regression/partition-maintenance-storage.test.js": "56fc446bc42f1189161d5993129756a498924c14feb154470c488e9f2710102b",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
-        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "docs/PARTITION-MAINTENANCE.md": "b5c1d26502ec01a3ec74b14cb8084a42c587139cfcb32d6c74af2f9c84a6b46f",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297",
@@ -11380,6 +11687,16 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            ".github/workflows/title-regression.yml"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ]
     },
@@ -11396,18 +11713,18 @@
         "backend/shared/cdc/PgCDCListener.js": "e89725a3447e797376434f7fae4800ee1152da5bfa61db1c0f6fbb040982bf4e",
         "backend/shared/cdc/index.js": "fde729fafa94217faee27e1675f22ef3fd0cef6eb95925b448102a4bfbec3875",
         "backend/shared/cdc/cache-rules.yml": "84660897aa4d95532fc8dfc713fa1160e0dae9c20acd15643f198622672c58cb",
-        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
         "backend/gateway/src/proxy.js": "619d307da0e4e8531c54f4abfa8feaed8a86b930b01c5cdc07cb0c081c477db1",
         "backend/gateway/src/routes/cacheInvalidationRoutes.js": "85619b0b7a6618f70e21efe29ac6d0db43004a8d0b68922958fd5bec22e31f6e",
         "backend/tests/regression/cdc-invalidation-storage.test.js": "19d4aa4806109909046fca882d55cc2e03f9fd0476d7e0b9e0f237de2c5c364f",
         "backend/tests/regression/cdc-cache-runtime.test.js": "080844f0c4635f82c5aa9428bfdd139f440027dc74d9b505870b5a83552d22bf",
         "backend/tests/regression/cache-coherence-storage.test.js": "f9c34c3a0ec863cff14bb5fb0d81df7d5453ac30f5e80c604d60eb52d41e35ac",
         "backend/tests/regression/cache-http-storage.test.js": "5d655fae7c92be4ef595d98e07ab70a27890510781bb0a60eb6d7671ab4f7efb",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
         "database/pending/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "4a11a1f7e457ea11181580d313097b276582947b3975c4fe67fb4813867b5f39",
         "database/pending/repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "279e7b764797d2ad636f704c3e73c97c504a6077a7c1bc14aa39f30737c7b478",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
-        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
         "docs/CACHE-INVALIDATION.md": "e788e8e763088178f2107778f3050ea08d4992d5ad8c21690ba4e4f082f52260",
         "docs/benchmarks/cache-invalidation-local-2026-10-19.json": "df2b208f0d35ce625bf48841add89cfc79c713cc998b2cbd33db8da410462e13",
@@ -11549,6 +11866,16 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            ".github/workflows/title-regression.yml"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ],
       "remaining": "Preserve original4 criteria each, including100ms/50ms. Complete production/capacity and no-significant-database-load acceptance are open; all legacy cache consumers and cross-environment/provider/upgrade/reversal behavior are not accepted. Current source CI must be observed. Only original battle framework619 remains independently verified."
@@ -11566,18 +11893,18 @@
         "backend/shared/cdc/PgCDCListener.js": "e89725a3447e797376434f7fae4800ee1152da5bfa61db1c0f6fbb040982bf4e",
         "backend/shared/cdc/index.js": "fde729fafa94217faee27e1675f22ef3fd0cef6eb95925b448102a4bfbec3875",
         "backend/shared/cdc/cache-rules.yml": "84660897aa4d95532fc8dfc713fa1160e0dae9c20acd15643f198622672c58cb",
-        "backend/gateway/src/index.js": "22a46cd88310f2ee5af6a816c58379d20152b8fc05b043c1c39715c4d4b9da26",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
         "backend/gateway/src/proxy.js": "619d307da0e4e8531c54f4abfa8feaed8a86b930b01c5cdc07cb0c081c477db1",
         "backend/gateway/src/routes/cacheInvalidationRoutes.js": "85619b0b7a6618f70e21efe29ac6d0db43004a8d0b68922958fd5bec22e31f6e",
         "backend/tests/regression/cdc-invalidation-storage.test.js": "19d4aa4806109909046fca882d55cc2e03f9fd0476d7e0b9e0f237de2c5c364f",
         "backend/tests/regression/cdc-cache-runtime.test.js": "080844f0c4635f82c5aa9428bfdd139f440027dc74d9b505870b5a83552d22bf",
         "backend/tests/regression/cache-coherence-storage.test.js": "f9c34c3a0ec863cff14bb5fb0d81df7d5453ac30f5e80c604d60eb52d41e35ac",
         "backend/tests/regression/cache-http-storage.test.js": "5d655fae7c92be4ef595d98e07ab70a27890510781bb0a60eb6d7671ab4f7efb",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
         "database/pending/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "4a11a1f7e457ea11181580d313097b276582947b3975c4fe67fb4813867b5f39",
         "database/pending/repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "279e7b764797d2ad636f704c3e73c97c504a6077a7c1bc14aa39f30737c7b478",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
-        ".github/workflows/title-regression.yml": "926f3dcc42d02f7a6e09a4e89c592c1200ade766168c0de8bd4ffe011be1ea56",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
         "docs/CACHE-INVALIDATION.md": "e788e8e763088178f2107778f3050ea08d4992d5ad8c21690ba4e4f082f52260",
         "docs/benchmarks/cache-invalidation-local-2026-10-19.json": "df2b208f0d35ce625bf48841add89cfc79c713cc998b2cbd33db8da410462e13",
@@ -11719,6 +12046,16 @@
             ".github/workflows/migration-regression.yml"
           ],
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            ".github/workflows/title-regression.yml"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ],
       "remaining": "Preserve original4 criteria each, including100ms/50ms. Complete production/capacity and no-significant-database-load acceptance are open; all legacy cache consumers and cross-environment/provider/upgrade/reversal behavior are not accepted. Current source CI must be observed. Only original battle framework619 remains independently verified."
@@ -11832,20 +12169,20 @@
         "docs/SENSITIVE-AUDIT-STORAGE.md": "3d9f2b933a804a7831f51d818cccbb08f3d633e623e6890360d4a3694b2deddf",
         "docs/benchmarks/migration-cross-schema-history-local-2026-10-19.json": "2bfc8d4b712816972131696d4966ba3d4711398b17588c59f60f67e5809d6719",
         "backend/shared/auditLogEncrypted.js": "6db1529a78bbfa1d967b898ed453d314a290fdd58e95c2dc8b3cec9fc1d6fb44",
-        "backend/shared/auditLog.js": "682bb711f0de81afa8f51d191f91a7f4897c96952862af922f1639361cfa6f78",
+        "backend/shared/auditLog.js": "09d7c5a5dbb5809c2f0375063a5ac864ac6a640ed4c7a8feb95beb2655d2b41e",
         "backend/shared/sensitiveDataAudit.js": "02adb2e43bf92cef5f2cd7b69e1b014840718c1f3ece1681bc7038dc04f41c75",
         "backend/shared/audit/cryptoPrimitives.js": "ac6df0883e6f92ac0db6dad5ae4707d2c31a835e06ff89cc4aced0c1e517af46",
         "backend/shared/audit/KeyProviders.js": "e380a04f73ef5e8dea1eaa92165b2f5527e9a1527800eb03766ee38551624aa8",
         "backend/shared/audit/EncryptedAuditStore.js": "97bcf79057fc4af775c42e87a4a0eb5266253367de190232097b32cb2423c874",
         "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
-        "backend/tests/regression/audit-crypto-storage.test.js": "fe9b9e29562df27d2fd7b1e2241e2b505faac17a6085c30f4b91a5734e9eef41",
+        "backend/tests/regression/audit-crypto-storage.test.js": "f8251c25953ac4af72d6a01b982ed4cb85e7a2ca2b1ebae2af958f8143f01f54",
         "backend/tests/regression/audit-kms-wire.test.js": "11ca121f3f229022d33c9d469d2e7faf1d2aa3e5db807d2d7aaec91e22b5e9d3",
-        "backend/package.json": "71dd2cf8c73749526063a64a7ddf3613aad5331c78e986478b15ba044cbea440",
+        "backend/package.json": "5888d8f726b403ad0500417da6ac0ea87be2a330498c16ea4ea24dc0176b8b22",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/seeds/V2__seed_data.sql": "7c85c2d07999a4c8e5bad2d07324456b101a909c0e77fb73f0ff2d31879ed355",
         "database/pending/20261008_140000__audit_partition_conversion.sql": "6341c87821de38f68340cbb952b0b393496b52793ddd1c225cb27c221f6b6eaf",
-        "docs/AUDIT-ENCRYPTION.md": "6349bf32e90a9bb47c8cdc3c33a65be626db737f5c28924ed885272b5362f240",
+        "docs/AUDIT-ENCRYPTION.md": "587425b7ba4183dccc8ad8d460cf7cc1fbad4ef48685c838a4e2cf7602c0b63c",
         "docs/benchmarks/audit-crypto-local-2026-10-19.json": "a10a5092d216efe841c53c911799fb08648698313c7bfefe81daf704ae993116",
         "docs/benchmarks/ci-f671847-2026-10-19.json": "1be0d29197bd56c322328f8a4b342183b2c89c99947f073e490e1994709b7c37",
         "docs/benchmarks/transaction-throughput-ci-f671847-2026-10-19.json": "d7deb161b24b904fb2263e2a3697edb3a6b886c4e70b22b370bfb529e4b6f834",
@@ -11853,17 +12190,40 @@
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/services/user-service/src/routes/privacy.js": "ce9bdca099991fab6397437c80bf16d38a26cc3283fe8265bf503404aa65efa6",
         "backend/services/user-service/src/routes/gdpr.js": "5603ea37f1ab0df32b7d2bfa462f95c282fa8a2eae08f5b0e7a63bf9902f8266",
-        "backend/services/user-service/src/index.js": "e056828eb277b9587e07e5969bddf682fd52e86464544416d2a725b1ed442afd",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
         "backend/tests/regression/audit.jest.config.json": "92fe3f290a0908de7af7a05df26d3b9216ce36227d636808df14dc81691c4cde",
         "backend/tests/regression/privacy-storage.test.js": "5e166b9018051b20b74988426d04e588823feb6f473600beeefe54b00041cc97",
         "backend/tests/regression/privacy.jest.config.json": "cd80c47f4be46595f151bdf850571e7e0bd599d5bd2e9897550999b031b7e490",
-        "backend/tests/regression/user-startup.test.js": "35b5686bcc91ad43af74a1ab9dbbb5fc8e2b03decf1bd880a21aa5bae6a44ef8",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        "backend/tests/regression/user-startup.test.js": "b1bee90313734f94a92bfd09571bbcaa01536606a6dbcc2a7a45233483ae23a9",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
         "backend/tests/unit/auditLog.test.js": "129d92b8c127d8cb0be99971b3c438560bb3d6714b9e91cdaf2e5d0f1008adf9",
         "backend/tests/unit/privacy-preferences.test.js": "ff1e6f9920d3b003c3284bd353d6f8138482d8700652e2b750375e06e900eab1",
         "docs/benchmarks/common-audit-local-2026-10-20.json": "90e78ca8be2327b3ded7fb24550300c6061fa43643c20187a2efbef8e8e20ad7",
         "docs/benchmarks/ci-ac53b06-2026-10-20.json": "544b213079ff5c749b3f0c5959df117bb1a3584a1f2a7d47845fd3f979ca60cd",
-        "docs/benchmarks/transaction-throughput-ci-ac53b06-2026-10-20.json": "08316598a4dcb2eaab7ff9f2ef125547b4bf88ad16321915b0143e8d05002061"
+        "docs/benchmarks/transaction-throughput-ci-ac53b06-2026-10-20.json": "08316598a4dcb2eaab7ff9f2ef125547b4bf88ad16321915b0143e8d05002061",
+        "backend/shared/mfa/MFAStore.js": "ef79bb60130c23f958d416001c1ed315a5e258cee93af382dd87e4f6ee2e3bc2",
+        "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
+        "backend/shared/auth.js": "f97ba49f230a9ac6b5c6ce51583b7f41a0178775d9da85cda47b1ddfd670dfe0",
+        "backend/shared/JwtBlacklist.js": "6749c600e8f5f8e2a52a3c19feddcc36a7614f89a7fcd351e99f5792958b545f",
+        "backend/gateway/src/middleware/mfaRequired.js": "896e8fa81c3dd8e39c2ad4a47515203c6bbd7ff8184f02a5a5889edd3314e003",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
+        "backend/services/user-service/src/routes/mfa.js": "85c97f4d8c0641c5e366264f0e87f0645b001bdcb682a25c16b99735e069d79e",
+        "backend/services/user-service/src/routes/auth.js": "029a6d23d3a91eea263f0ece6ade96105a9f4d47f99c836285ad6294e18649ad",
+        "backend/services/user-service/src/authSessionTokens.js": "7044dd0b8e925a4149440a5c15f942abdc0f8aaa9d192ae251fe5bb5cad889a8",
+        "backend/tests/unit/mfa.test.js": "6f20346e13fdb2cb0d8fdcc84b3fce54891993e994afc177d08278cb2f6b23c5",
+        "backend/tests/unit/mfa-primitives.test.js": "b8bc21558e189addcd8ab87384cbeef34e6763a61056c7a269a2b936e52c8ea5",
+        "backend/tests/regression/mfa.jest.config.json": "46e35a51ba45004a8be7ba10faf863bd2f8dc057ca15d08714c398282a299fdb",
+        "backend/tests/regression/mfa-storage.test.js": "b5c03b81bb109e83bc4557823efce65944965058734d904ad66b623500327eb3",
+        "backend/tests/regression/mfa-http-storage.test.js": "40b7a13f239df07f41c20510d045333dc27ce23972e97971610efec7aa7fc7f4",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
+        "database/pending/20260610_000000__add_mfa_system.sql": "652b95497f7f28727a4dc07f9469a8a6f5c51b3c4fb58917a2a8c071b4720a65",
+        "database/pending/20261020_120000__mfa_verification_state.sql": "16809f6325475ca2a9e39cf24f1805014c3b7851c2d7338be1eff3752097ca87",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
+        ".github/workflows/mfa-regression.yml": "8eab2d99cd8a88ba8942111cf791a11aab84c80533287300fde9502bc0b9d7fb",
+        "docs/MFA-STATE.md": "97080225bdc363d3c99f029d5f71a4d6dc8c5d4727edb52cdc6513e752b336ca",
+        "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8",
+        "docs/benchmarks/ci-b17ddee-2026-10-20.json": "6d1767e7481ffd142836ff2d96cb84bd438d5eb3f98786aa2ebcdc16c0622833",
+        "docs/benchmarks/transaction-throughput-ci-b17ddee-2026-10-20.json": "5935de8471a209f26032e1781b8311db0f0e50bb9a37af9c17a859eeab6bde90"
       },
       "evidence": [
         {
@@ -11978,6 +12338,36 @@
           "medianChangePercent": -4.494916657640657,
           "requiredMinimumChangePercent": -5,
           "scope": "Exactac53b06 main467/native36/migration29success. Downloadedactualcrypto20/90gates andfull85;8throughputhashesmatch. Earliernegativeevidenceunwaived; otherworkflows/currentcommon-sourceCI/fullacceptance remain separate."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/shared/auditLog.js",
+            "backend/tests/regression/audit-crypto-storage.test.js",
+            "backend/package.json",
+            "docs/AUDIT-ENCRYPTION.md",
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/tests/regression/gateway-startup.test.js"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "canonical_mfa_prerequisite_and_legacy_wall_clock_preservation_pass_actual_admin_decrypt_and_full_security_scope_open",
+          "artifact": "docs/benchmarks/mfa-local-2026-10-20.json",
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
+        },
+        {
+          "date": "2026-10-20",
+          "commit": "b17ddee99e94c941fda30f89faae6f815915e186",
+          "result": "previous_exact_main468_native37_migration30_success",
+          "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39342676423",
+          "job": 118367742787,
+          "medianChangePercent": -1.9117597094924332,
+          "requiredMinimumChangePercent": -5,
+          "scope": "Prior exactb17source:actualaudit21/90gates and full85 retained;8throughputhashesmatch. CurrentMFA/wall-clocksourceCIpending; earliernegativeevidenceandotherlegacyworkflowsremainopen."
         }
       ],
       "remaining": "Original10 unchanged. Common wrapper now encrypted with caller savepoints and actual mounted privacy/native proof. Other legacy positional callers/jobs/exports/deletion/ignoredfalse and every business/access chain remain open. Metadata-only queries are incomplete: verified role/admin server-MFA decrypt boundary and full service-filter/query contract needed. Complete filters/masking/scannerfailonP0/UI/combined>=90coverage/atleast10masktypes and liveAWSARN+authorizedcredentials/IAM/keypolicy/CloudTrail/performance remain required. Lost historical tags/IVs cannot be reconstructed. No production cleanup/rekey/merge/deploy."
@@ -11987,7 +12377,7 @@
       "status": "partial_common_and_encrypted_audit_coverage_verified_other_security_modules_open",
       "documentSha256": "d021da3f49a98fa1dd9649a99f2bfb8e9905bc16a356823679dcf051ddbc1e06",
       "sourceSha256": {
-        "backend/shared/auditLog.js": "682bb711f0de81afa8f51d191f91a7f4897c96952862af922f1639361cfa6f78",
+        "backend/shared/auditLog.js": "09d7c5a5dbb5809c2f0375063a5ac864ac6a640ed4c7a8feb95beb2655d2b41e",
         "backend/shared/auditLogEncrypted.js": "6db1529a78bbfa1d967b898ed453d314a290fdd58e95c2dc8b3cec9fc1d6fb44",
         "backend/shared/audit/EncryptedAuditStore.js": "97bcf79057fc4af775c42e87a4a0eb5266253367de190232097b32cb2423c874",
         "backend/shared/audit/cryptoPrimitives.js": "ac6df0883e6f92ac0db6dad5ae4707d2c31a835e06ff89cc4aced0c1e517af46",
@@ -11996,22 +12386,44 @@
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/services/user-service/src/routes/privacy.js": "ce9bdca099991fab6397437c80bf16d38a26cc3283fe8265bf503404aa65efa6",
         "backend/services/user-service/src/routes/gdpr.js": "5603ea37f1ab0df32b7d2bfa462f95c282fa8a2eae08f5b0e7a63bf9902f8266",
-        "backend/services/user-service/src/index.js": "e056828eb277b9587e07e5969bddf682fd52e86464544416d2a725b1ed442afd",
-        "backend/tests/regression/audit-crypto-storage.test.js": "fe9b9e29562df27d2fd7b1e2241e2b505faac17a6085c30f4b91a5734e9eef41",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
+        "backend/tests/regression/audit-crypto-storage.test.js": "f8251c25953ac4af72d6a01b982ed4cb85e7a2ca2b1ebae2af958f8143f01f54",
         "backend/tests/regression/audit-kms-wire.test.js": "11ca121f3f229022d33c9d469d2e7faf1d2aa3e5db807d2d7aaec91e22b5e9d3",
         "backend/tests/regression/audit.jest.config.json": "92fe3f290a0908de7af7a05df26d3b9216ce36227d636808df14dc81691c4cde",
         "backend/tests/regression/privacy-storage.test.js": "5e166b9018051b20b74988426d04e588823feb6f473600beeefe54b00041cc97",
         "backend/tests/regression/privacy.jest.config.json": "cd80c47f4be46595f151bdf850571e7e0bd599d5bd2e9897550999b031b7e490",
-        "backend/tests/regression/user-startup.test.js": "35b5686bcc91ad43af74a1ab9dbbb5fc8e2b03decf1bd880a21aa5bae6a44ef8",
-        "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+        "backend/tests/regression/user-startup.test.js": "b1bee90313734f94a92bfd09571bbcaa01536606a6dbcc2a7a45233483ae23a9",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
         "backend/tests/unit/auditLog.test.js": "129d92b8c127d8cb0be99971b3c438560bb3d6714b9e91cdaf2e5d0f1008adf9",
         "backend/tests/unit/privacy-preferences.test.js": "ff1e6f9920d3b003c3284bd353d6f8138482d8700652e2b750375e06e900eab1",
-        "backend/package.json": "71dd2cf8c73749526063a64a7ddf3613aad5331c78e986478b15ba044cbea440",
+        "backend/package.json": "5888d8f726b403ad0500417da6ac0ea87be2a330498c16ea4ea24dc0176b8b22",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
-        "docs/AUDIT-ENCRYPTION.md": "6349bf32e90a9bb47c8cdc3c33a65be626db737f5c28924ed885272b5362f240",
+        "docs/AUDIT-ENCRYPTION.md": "587425b7ba4183dccc8ad8d460cf7cc1fbad4ef48685c838a4e2cf7602c0b63c",
         "docs/SENSITIVE-AUDIT-STORAGE.md": "3d9f2b933a804a7831f51d818cccbb08f3d633e623e6890360d4a3694b2deddf",
-        "docs/benchmarks/common-audit-local-2026-10-20.json": "90e78ca8be2327b3ded7fb24550300c6061fa43643c20187a2efbef8e8e20ad7"
+        "docs/benchmarks/common-audit-local-2026-10-20.json": "90e78ca8be2327b3ded7fb24550300c6061fa43643c20187a2efbef8e8e20ad7",
+        "backend/shared/mfa/MFAStore.js": "ef79bb60130c23f958d416001c1ed315a5e258cee93af382dd87e4f6ee2e3bc2",
+        "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
+        "backend/shared/auth.js": "f97ba49f230a9ac6b5c6ce51583b7f41a0178775d9da85cda47b1ddfd670dfe0",
+        "backend/shared/JwtBlacklist.js": "6749c600e8f5f8e2a52a3c19feddcc36a7614f89a7fcd351e99f5792958b545f",
+        "backend/gateway/src/middleware/mfaRequired.js": "896e8fa81c3dd8e39c2ad4a47515203c6bbd7ff8184f02a5a5889edd3314e003",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
+        "backend/services/user-service/src/routes/mfa.js": "85c97f4d8c0641c5e366264f0e87f0645b001bdcb682a25c16b99735e069d79e",
+        "backend/services/user-service/src/routes/auth.js": "029a6d23d3a91eea263f0ece6ade96105a9f4d47f99c836285ad6294e18649ad",
+        "backend/services/user-service/src/authSessionTokens.js": "7044dd0b8e925a4149440a5c15f942abdc0f8aaa9d192ae251fe5bb5cad889a8",
+        "backend/tests/unit/mfa.test.js": "6f20346e13fdb2cb0d8fdcc84b3fce54891993e994afc177d08278cb2f6b23c5",
+        "backend/tests/unit/mfa-primitives.test.js": "b8bc21558e189addcd8ab87384cbeef34e6763a61056c7a269a2b936e52c8ea5",
+        "backend/tests/regression/mfa.jest.config.json": "46e35a51ba45004a8be7ba10faf863bd2f8dc057ca15d08714c398282a299fdb",
+        "backend/tests/regression/mfa-storage.test.js": "b5c03b81bb109e83bc4557823efce65944965058734d904ad66b623500327eb3",
+        "backend/tests/regression/mfa-http-storage.test.js": "40b7a13f239df07f41c20510d045333dc27ce23972e97971610efec7aa7fc7f4",
+        "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
+        "database/pending/20260610_000000__add_mfa_system.sql": "652b95497f7f28727a4dc07f9469a8a6f5c51b3c4fb58917a2a8c071b4720a65",
+        "database/pending/20261020_120000__mfa_verification_state.sql": "16809f6325475ca2a9e39cf24f1805014c3b7851c2d7338be1eff3752097ca87",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
+        ".github/workflows/mfa-regression.yml": "8eab2d99cd8a88ba8942111cf791a11aab84c80533287300fde9502bc0b9d7fb",
+        "docs/MFA-STATE.md": "97080225bdc363d3c99f029d5f71a4d6dc8c5d4727edb52cdc6513e752b336ca",
+        "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8"
       },
       "evidence": [
         {
@@ -12058,9 +12470,197 @@
           },
           "artifact": "docs/benchmarks/common-audit-local-2026-10-20.json",
           "scope": "Changed tested integration references only:commonaudit9 at98.7line96.96statement96.84branch93.75function/85gates; actualcrypto21 andfacade at98.21line89.56branch95.52function/90line-function gates; privacy12SQL/HTTP+40unit91.78line89.57statement100function/80gates; nativegateway/user2 includes actualprivacyencryptedwrites/decrypt/rollback/metadata+unchanged50msp95 titlegate;733 units25Jest434/battle133formula100/syntax1462 pass. Raw85/manifest/lock unchanged. Full85 andbroadfeature suites remain previous exactsource evidence, not fresh combined reruns. LiveAWS/serverMFA/allcallers/masking/scanner/UI/completeexport and full11moduleacceptance remain open. NoMaven/maxCPU."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "partial_canonical_mfa_and_wallclock_integration_shared_references_refreshed",
+          "changedReferences": [
+            "backend/shared/auditLog.js",
+            "backend/services/user-service/src/index.js",
+            "backend/tests/regression/audit-crypto-storage.test.js",
+            "backend/tests/regression/user-startup.test.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            "backend/package.json",
+            "docs/AUDIT-ENCRYPTION.md"
+          ],
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "canonical_mfa_prerequisite_and_legacy_wall_clock_preservation_pass_actual_admin_decrypt_and_full_security_scope_open",
+          "artifact": "docs/benchmarks/mfa-local-2026-10-20.json",
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
         }
       ],
       "remaining": "All11 security modules eachoriginal85/90coverage, correctmock/stub isolation, retainedcleanup, whole npmtest/CI and completeunitexecution<30s still need independent evidence. Partialnewaudit gates do not accept this framework."
+    },
+    "REQ-00638-multi-factor-authentication-mfa-system.md": {
+      "date": "2026-10-20",
+      "status": "partial_canonical_factor_replay_lockout_recovery_session_proofs_and_native_mounts_pass_full_requirement_open",
+      "documentSha256": "0ebe2ef64ee0c2654b6dc5ebc598e306ffce9e341439a8123335ab4b557c701e",
+      "sourceSha256": {
+        "backend/shared/mfa/MFAStore.js": "ef79bb60130c23f958d416001c1ed315a5e258cee93af382dd87e4f6ee2e3bc2",
+        "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
+        "backend/shared/auth.js": "f97ba49f230a9ac6b5c6ce51583b7f41a0178775d9da85cda47b1ddfd670dfe0",
+        "backend/shared/JwtBlacklist.js": "6749c600e8f5f8e2a52a3c19feddcc36a7614f89a7fcd351e99f5792958b545f",
+        "backend/gateway/src/middleware/mfaRequired.js": "896e8fa81c3dd8e39c2ad4a47515203c6bbd7ff8184f02a5a5889edd3314e003",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
+        "backend/services/user-service/src/routes/mfa.js": "85c97f4d8c0641c5e366264f0e87f0645b001bdcb682a25c16b99735e069d79e",
+        "backend/services/user-service/src/routes/auth.js": "029a6d23d3a91eea263f0ece6ade96105a9f4d47f99c836285ad6294e18649ad",
+        "backend/services/user-service/src/authSessionTokens.js": "7044dd0b8e925a4149440a5c15f942abdc0f8aaa9d192ae251fe5bb5cad889a8",
+        "backend/shared/auditLog.js": "09d7c5a5dbb5809c2f0375063a5ac864ac6a640ed4c7a8feb95beb2655d2b41e",
+        "backend/shared/auditLogEncrypted.js": "6db1529a78bbfa1d967b898ed453d314a290fdd58e95c2dc8b3cec9fc1d6fb44",
+        "backend/shared/audit/EncryptedAuditStore.js": "97bcf79057fc4af775c42e87a4a0eb5266253367de190232097b32cb2423c874",
+        "backend/shared/audit/KeyProviders.js": "e380a04f73ef5e8dea1eaa92165b2f5527e9a1527800eb03766ee38551624aa8",
+        "backend/shared/audit/cryptoPrimitives.js": "ac6df0883e6f92ac0db6dad5ae4707d2c31a835e06ff89cc4aced0c1e517af46",
+        "backend/tests/unit/mfa.test.js": "6f20346e13fdb2cb0d8fdcc84b3fce54891993e994afc177d08278cb2f6b23c5",
+        "backend/tests/unit/mfa-primitives.test.js": "b8bc21558e189addcd8ab87384cbeef34e6763a61056c7a269a2b936e52c8ea5",
+        "backend/tests/regression/mfa.jest.config.json": "46e35a51ba45004a8be7ba10faf863bd2f8dc057ca15d08714c398282a299fdb",
+        "backend/tests/regression/mfa-storage.test.js": "b5c03b81bb109e83bc4557823efce65944965058734d904ad66b623500327eb3",
+        "backend/tests/regression/mfa-http-storage.test.js": "40b7a13f239df07f41c20510d045333dc27ce23972e97971610efec7aa7fc7f4",
+        "backend/tests/regression/audit-crypto-storage.test.js": "f8251c25953ac4af72d6a01b982ed4cb85e7a2ca2b1ebae2af958f8143f01f54",
+        "backend/tests/regression/audit-kms-wire.test.js": "11ca121f3f229022d33c9d469d2e7faf1d2aa3e5db807d2d7aaec91e22b5e9d3",
+        "backend/tests/regression/user-startup.test.js": "b1bee90313734f94a92bfd09571bbcaa01536606a6dbcc2a7a45233483ae23a9",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
+        "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
+        "backend/package.json": "5888d8f726b403ad0500417da6ac0ea87be2a330498c16ea4ea24dc0176b8b22",
+        "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
+        "database/pending/20260610_000000__add_mfa_system.sql": "652b95497f7f28727a4dc07f9469a8a6f5c51b3c4fb58917a2a8c071b4720a65",
+        "database/pending/20261020_120000__mfa_verification_state.sql": "16809f6325475ca2a9e39cf24f1805014c3b7851c2d7338be1eff3752097ca87",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
+        ".github/workflows/mfa-regression.yml": "8eab2d99cd8a88ba8942111cf791a11aab84c80533287300fde9502bc0b9d7fb",
+        "docs/MFA-STATE.md": "97080225bdc363d3c99f029d5f71a4d6dc8c5d4727edb52cdc6513e752b336ca",
+        "docs/AUDIT-ENCRYPTION.md": "587425b7ba4183dccc8ad8d460cf7cc1fbad4ef48685c838a4e2cf7602c0b63c",
+        "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8"
+      },
+      "evidence": [
+        {
+          "date": "2026-10-20",
+          "result": "unsupported_legacy_done_reopened_original_criteria_preserved",
+          "scope": "Full original requirement read; original10/4/4 acceptance boxes/numerical thresholds unchanged."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "canonical_factor_replay_lockout_recovery_session_proofs_and_native_mounts_pass_full_requirement_open",
+          "artifact": "docs/benchmarks/mfa-local-2026-10-20.json",
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
+        }
+      ],
+      "remaining": "All original10 criteria retained. Real core factor/session/storage behavior verified, but actual frontend setup/login and Google scan/manual interoperability, seven-day trusted devices, password/payment/asset business operations, full unit>=90scope, complete metrics/alerts/productimpact remain unaccepted. DedicatedCI current source pending; actual AWS authorization/IAM/latency unproven. Unknown legacy profiles require explicit reviewed adoption."
+    },
+    "REQ-00126-user-service-mfa-route-mounting.md": {
+      "date": "2026-10-20",
+      "status": "partial_actual_native_aliases_and_original_three_static_commands_pass_literal_forged_token_curl_conflict_open",
+      "documentSha256": "de911ca6abd25dc8c3bb84811c8ecedd21025ac32adc898d3b47776fb0153dba",
+      "sourceSha256": {
+        "backend/shared/mfa/MFAStore.js": "ef79bb60130c23f958d416001c1ed315a5e258cee93af382dd87e4f6ee2e3bc2",
+        "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
+        "backend/shared/auth.js": "f97ba49f230a9ac6b5c6ce51583b7f41a0178775d9da85cda47b1ddfd670dfe0",
+        "backend/shared/JwtBlacklist.js": "6749c600e8f5f8e2a52a3c19feddcc36a7614f89a7fcd351e99f5792958b545f",
+        "backend/gateway/src/middleware/mfaRequired.js": "896e8fa81c3dd8e39c2ad4a47515203c6bbd7ff8184f02a5a5889edd3314e003",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
+        "backend/services/user-service/src/routes/mfa.js": "85c97f4d8c0641c5e366264f0e87f0645b001bdcb682a25c16b99735e069d79e",
+        "backend/services/user-service/src/routes/auth.js": "029a6d23d3a91eea263f0ece6ade96105a9f4d47f99c836285ad6294e18649ad",
+        "backend/services/user-service/src/authSessionTokens.js": "7044dd0b8e925a4149440a5c15f942abdc0f8aaa9d192ae251fe5bb5cad889a8",
+        "backend/shared/auditLog.js": "09d7c5a5dbb5809c2f0375063a5ac864ac6a640ed4c7a8feb95beb2655d2b41e",
+        "backend/shared/auditLogEncrypted.js": "6db1529a78bbfa1d967b898ed453d314a290fdd58e95c2dc8b3cec9fc1d6fb44",
+        "backend/shared/audit/EncryptedAuditStore.js": "97bcf79057fc4af775c42e87a4a0eb5266253367de190232097b32cb2423c874",
+        "backend/shared/audit/KeyProviders.js": "e380a04f73ef5e8dea1eaa92165b2f5527e9a1527800eb03766ee38551624aa8",
+        "backend/shared/audit/cryptoPrimitives.js": "ac6df0883e6f92ac0db6dad5ae4707d2c31a835e06ff89cc4aced0c1e517af46",
+        "backend/tests/unit/mfa.test.js": "6f20346e13fdb2cb0d8fdcc84b3fce54891993e994afc177d08278cb2f6b23c5",
+        "backend/tests/unit/mfa-primitives.test.js": "b8bc21558e189addcd8ab87384cbeef34e6763a61056c7a269a2b936e52c8ea5",
+        "backend/tests/regression/mfa.jest.config.json": "46e35a51ba45004a8be7ba10faf863bd2f8dc057ca15d08714c398282a299fdb",
+        "backend/tests/regression/mfa-storage.test.js": "b5c03b81bb109e83bc4557823efce65944965058734d904ad66b623500327eb3",
+        "backend/tests/regression/mfa-http-storage.test.js": "40b7a13f239df07f41c20510d045333dc27ce23972e97971610efec7aa7fc7f4",
+        "backend/tests/regression/audit-crypto-storage.test.js": "f8251c25953ac4af72d6a01b982ed4cb85e7a2ca2b1ebae2af958f8143f01f54",
+        "backend/tests/regression/audit-kms-wire.test.js": "11ca121f3f229022d33c9d469d2e7faf1d2aa3e5db807d2d7aaec91e22b5e9d3",
+        "backend/tests/regression/user-startup.test.js": "b1bee90313734f94a92bfd09571bbcaa01536606a6dbcc2a7a45233483ae23a9",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
+        "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
+        "backend/package.json": "5888d8f726b403ad0500417da6ac0ea87be2a330498c16ea4ea24dc0176b8b22",
+        "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
+        "database/pending/20260610_000000__add_mfa_system.sql": "652b95497f7f28727a4dc07f9469a8a6f5c51b3c4fb58917a2a8c071b4720a65",
+        "database/pending/20261020_120000__mfa_verification_state.sql": "16809f6325475ca2a9e39cf24f1805014c3b7851c2d7338be1eff3752097ca87",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
+        ".github/workflows/mfa-regression.yml": "8eab2d99cd8a88ba8942111cf791a11aab84c80533287300fde9502bc0b9d7fb",
+        "docs/MFA-STATE.md": "97080225bdc363d3c99f029d5f71a4d6dc8c5d4727edb52cdc6513e752b336ca",
+        "docs/AUDIT-ENCRYPTION.md": "587425b7ba4183dccc8ad8d460cf7cc1fbad4ef48685c838a4e2cf7602c0b63c",
+        "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8"
+      },
+      "evidence": [
+        {
+          "date": "2026-10-20",
+          "result": "unsupported_legacy_done_reopened_original_criteria_preserved",
+          "scope": "Full original requirement read; original10/4/4 acceptance boxes/numerical thresholds unchanged."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "actual_native_aliases_and_original_three_static_commands_pass_literal_forged_token_curl_conflict_open",
+          "artifact": "docs/benchmarks/mfa-local-2026-10-20.json",
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
+        }
+      ],
+      "remaining": "All original4 boxes retained. Syntax/grep/load commands pass; authenticated native aliases reachable. Original curl -sf with literal forged Bearer test_token gets401 as required by signed authentication; command cannot securely succeed as written. Preserve conflict, do not whitelist token or silently rewrite criterion. Current relevantCI pending."
+    },
+    "REQ-00588-sensitive-api-mfa-risk-grading.md": {
+      "date": "2026-10-20",
+      "status": "partial_server_verified_factor_prerequisite_pass_canonical_risk_engine_business_integration_open",
+      "documentSha256": "2993073cb0a0038363a2d4ea93f847c7dac3660aecfddef204e0565305384742",
+      "sourceSha256": {
+        "backend/shared/mfa/MFAStore.js": "ef79bb60130c23f958d416001c1ed315a5e258cee93af382dd87e4f6ee2e3bc2",
+        "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
+        "backend/shared/auth.js": "f97ba49f230a9ac6b5c6ce51583b7f41a0178775d9da85cda47b1ddfd670dfe0",
+        "backend/shared/JwtBlacklist.js": "6749c600e8f5f8e2a52a3c19feddcc36a7614f89a7fcd351e99f5792958b545f",
+        "backend/gateway/src/middleware/mfaRequired.js": "896e8fa81c3dd8e39c2ad4a47515203c6bbd7ff8184f02a5a5889edd3314e003",
+        "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
+        "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
+        "backend/services/user-service/src/routes/mfa.js": "85c97f4d8c0641c5e366264f0e87f0645b001bdcb682a25c16b99735e069d79e",
+        "backend/services/user-service/src/routes/auth.js": "029a6d23d3a91eea263f0ece6ade96105a9f4d47f99c836285ad6294e18649ad",
+        "backend/services/user-service/src/authSessionTokens.js": "7044dd0b8e925a4149440a5c15f942abdc0f8aaa9d192ae251fe5bb5cad889a8",
+        "backend/shared/auditLog.js": "09d7c5a5dbb5809c2f0375063a5ac864ac6a640ed4c7a8feb95beb2655d2b41e",
+        "backend/shared/auditLogEncrypted.js": "6db1529a78bbfa1d967b898ed453d314a290fdd58e95c2dc8b3cec9fc1d6fb44",
+        "backend/shared/audit/EncryptedAuditStore.js": "97bcf79057fc4af775c42e87a4a0eb5266253367de190232097b32cb2423c874",
+        "backend/shared/audit/KeyProviders.js": "e380a04f73ef5e8dea1eaa92165b2f5527e9a1527800eb03766ee38551624aa8",
+        "backend/shared/audit/cryptoPrimitives.js": "ac6df0883e6f92ac0db6dad5ae4707d2c31a835e06ff89cc4aced0c1e517af46",
+        "backend/tests/unit/mfa.test.js": "6f20346e13fdb2cb0d8fdcc84b3fce54891993e994afc177d08278cb2f6b23c5",
+        "backend/tests/unit/mfa-primitives.test.js": "b8bc21558e189addcd8ab87384cbeef34e6763a61056c7a269a2b936e52c8ea5",
+        "backend/tests/regression/mfa.jest.config.json": "46e35a51ba45004a8be7ba10faf863bd2f8dc057ca15d08714c398282a299fdb",
+        "backend/tests/regression/mfa-storage.test.js": "b5c03b81bb109e83bc4557823efce65944965058734d904ad66b623500327eb3",
+        "backend/tests/regression/mfa-http-storage.test.js": "40b7a13f239df07f41c20510d045333dc27ce23972e97971610efec7aa7fc7f4",
+        "backend/tests/regression/audit-crypto-storage.test.js": "f8251c25953ac4af72d6a01b982ed4cb85e7a2ca2b1ebae2af958f8143f01f54",
+        "backend/tests/regression/audit-kms-wire.test.js": "11ca121f3f229022d33c9d469d2e7faf1d2aa3e5db807d2d7aaec91e22b5e9d3",
+        "backend/tests/regression/user-startup.test.js": "b1bee90313734f94a92bfd09571bbcaa01536606a6dbcc2a7a45233483ae23a9",
+        "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
+        "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
+        "backend/package.json": "5888d8f726b403ad0500417da6ac0ea87be2a330498c16ea4ea24dc0176b8b22",
+        "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
+        "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
+        "database/pending/20260610_000000__add_mfa_system.sql": "652b95497f7f28727a4dc07f9469a8a6f5c51b3c4fb58917a2a8c071b4720a65",
+        "database/pending/20261020_120000__mfa_verification_state.sql": "16809f6325475ca2a9e39cf24f1805014c3b7851c2d7338be1eff3752097ca87",
+        ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
+        ".github/workflows/mfa-regression.yml": "8eab2d99cd8a88ba8942111cf791a11aab84c80533287300fde9502bc0b9d7fb",
+        "docs/MFA-STATE.md": "97080225bdc363d3c99f029d5f71a4d6dc8c5d4727edb52cdc6513e752b336ca",
+        "docs/AUDIT-ENCRYPTION.md": "587425b7ba4183dccc8ad8d460cf7cc1fbad4ef48685c838a4e2cf7602c0b63c",
+        "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8"
+      },
+      "evidence": [
+        {
+          "date": "2026-10-20",
+          "result": "unsupported_legacy_done_reopened_original_criteria_preserved",
+          "scope": "Full original requirement read; original10/4/4 acceptance boxes/numerical thresholds unchanged."
+        },
+        {
+          "date": "2026-10-20",
+          "result": "server_verified_factor_prerequisite_pass_canonical_risk_engine_business_integration_open",
+          "artifact": "docs/benchmarks/mfa-local-2026-10-20.json",
+          "scope": "Only changed exercised integration references refreshed:742unit, battle133/formula100, MFA25PGRedisHTTP/five-module99.35line80.83branch100func/90line-function gate+primitive4/facade5, audit22/90gate, privacy12+40/80gates, nativeuser/gateway2, full86bootstrap3 normal+unrelatedschema and1467syntax/statictools pass. Prior85SQL/repairmanifest/lock unchanged. No fresh execution of every earlier feature/allservice acceptance. Full MFA/client/trusteddevices/sensitivebusiness/risk/adminauditdecrypt/liveAWS/full658 acceptance remains open."
+        }
+      ],
+      "remaining": "All original4 boxes retained. Actual serverproof/session/scope/role middleware tests are prerequisites only. Legacy separate risk engine still parseInt UUIDs and retains raw verified tokens; actual current gateway risk scoring/geography/device/session policies, cross-service business authorization and encrypted attributable risk-log acceptance/provider delivery remain unverified. No synthetic adapter/caller flags can accept full risk grading."
     }
   }
 }

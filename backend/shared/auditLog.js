@@ -158,7 +158,7 @@ async function auditMetadata(options, db) {
     pool: poolFor(db)
   }, async store => {
     await store.initialize();
-    const result = await store.pool.query('SELECT id::text,user_id,action,entity_type,entity_id,created_at,timestamp,(encrypted_data IS NOT NULL AND encryption_key_id IS NOT NULL AND encryption_iv IS NOT NULL AND encryption_auth_tag IS NOT NULL) AS encrypted FROM audit_logs' + (where.length ? ' WHERE ' + where.join(' AND ') : '') + ' ORDER BY created_at DESC,id DESC LIMIT $' + args.length, args);
+    const result = await store.pool.query('SELECT id::text,user_id,action,entity_type,entity_id,created_at::text AS created_at,timestamp,(encrypted_data IS NOT NULL AND encryption_key_id IS NOT NULL AND encryption_iv IS NOT NULL AND encryption_auth_tag IS NOT NULL) AS encrypted FROM audit_logs' + (where.length ? ' WHERE ' + where.join(' AND ') : '') + ' ORDER BY created_at DESC,id DESC LIMIT $' + args.length, args);
     return result.rows.map(row => ({
       ...row,
       detailsUnavailable: true

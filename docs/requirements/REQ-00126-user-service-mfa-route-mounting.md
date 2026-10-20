@@ -3,7 +3,7 @@
 - **编号**: REQ-00126
 - **类别**: 集成与修复
 - **优先级**: P0
-- **状态**: done
+- **状态**: in_progress
 - **涉及服务/模块**: user-service, backend/services/user-service/src/routes/mfa.js, backend/services/user-service/src/index.js
 - **创建时间**: 2026-06-11 20:05
 - **父需求**: REQ-00057（多因素认证 MFA 系统）

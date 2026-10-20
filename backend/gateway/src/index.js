@@ -284,6 +284,14 @@ require('./routes/ipAppealProxy').mountIpAppealProxy(app, SERVICES.user);
 const notificationProxy=require('./routes/notificationProxy').mountNotificationProxy(app,SERVICES.user);
 
 // ── v1 API Routes (Legacy) ──────────────────────────────────────────
+// REQ-00638/00126: canonical MFA aliases before generic versioned user routers.
+for(const prefix of ['/api/users/me/mfa','/api/v1/users/me/mfa','/api/v2/users/me/mfa','/v1/users/me/mfa']){
+  app.use(prefix,authMiddleware,proxy(SERVICES.user,url=>'/users/me/mfa'+(url==='/'?'':url)));
+}
+for(const prefix of ['/api/auth/mfa','/api/v1/auth/mfa','/api/v2/auth/mfa','/v1/auth/mfa']){
+  app.use(prefix,authRateLimiter(),proxy(SERVICES.user,url=>'/auth/mfa'+(url==='/'?'':url)));
+}
+
 // Public (no auth) - REQ-00040: 认证接口限流
 app.use('/api/v1/auth', authRateLimiter(), proxy(SERVICES.user, { '^/api/v1/': '/' }));
 

@@ -486,6 +486,63 @@ test('production audit crypto persists authenticated canonical history and real 
       await pool.query('DROP SCHEMA ' + shadow);
     }
   });
+  await t.test('metadata preserves historical wall clocks and real instants across process/database timezones', async () => {
+    const wall = '2020-02-03 04:05:06.123456';
+    const legacy = (await pool.query("INSERT INTO audit_logs(user_id,action,created_at,timestamp) VALUES($1,'timezone-legacy',$2,NULL) RETURNING id::text", [owner, wall])).rows[0].id;
+    const known = (await pool.query("INSERT INTO audit_logs(user_id,action,created_at,timestamp) VALUES($1,'timezone-known',$2,'2020-02-03T04:05:06.123Z') RETURNING id::text", [owner, wall])).rows[0].id;
+    const script = `const common=require('./backend/shared/auditLog');const audit=require('./backend/shared/auditLogEncrypted');const db=require('./backend/shared/db');(async()=>{try{const rows=await common.getUserAuditLogs(process.env.AUDIT_FIXTURE_OWNER,{},db);process.stdout.write(JSON.stringify(rows.filter(row=>row.action.startsWith('timezone-')).map(row=>({id:row.id,wall:row.created_at,instant:row.timestamp}))));}finally{await audit.closeAuditEncryption();await db.closePools();}})().catch(()=>{process.stderr.write('wallclock-query-failed');process.exitCode=1;});`;
+    for (const processZone of ['UTC', 'Asia/Shanghai']) for (const databaseZone of ['UTC', 'America/New_York']) {
+      const source = new URL(url);
+      source.searchParams.set('options', source.searchParams.get('options') + ' -c timezone=' + databaseZone);
+      const child = spawn(process.execPath, ['-e', script], {
+        cwd: root,
+        env: {
+          ...process.env,
+          NODE_ENV: 'test',
+          TZ: processZone,
+          LOG_LEVEL: 'error',
+          DATABASE_URL: source.toString(),
+          AUDIT_FIXTURE_OWNER: owner,
+          AUDIT_KMS_KEY_ID: '',
+          MASTER_ENCRYPTION_KEY: '',
+          AUDIT_MASTER_KEY_ID: 'a',
+          AUDIT_MASTER_KEYS_JSON: JSON.stringify({
+            a: masterA.toString('hex')
+          })
+        },
+        stdio: ['ignore', 'pipe', 'pipe']
+      });
+      let stdout = '',
+        stderr = '';
+      child.stdout.on('data', data => {
+        stdout += data;
+      });
+      child.stderr.on('data', data => {
+        stderr += data;
+      });
+      const timer = setTimeout(() => child.kill('SIGTERM'), 10000);
+      try {
+        assert.equal(await new Promise((resolve, reject) => {
+          child.on('error', reject);
+          child.on('exit', resolve);
+        }), 0, stderr);
+        const rows = JSON.parse(stdout);
+        assert.deepEqual(rows.find(row => row.id === legacy), {
+          id: legacy,
+          wall,
+          instant: null
+        }, processZone + '/' + databaseZone);
+        assert.deepEqual(rows.find(row => row.id === known), {
+          id: known,
+          wall,
+          instant: '2020-02-03T04:05:06.123Z'
+        }, processZone + '/' + databaseZone);
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+    assert.equal((await pool.query('SELECT created_at::text AS wall,timestamp FROM audit_logs WHERE id=$1', [legacy])).rows[0].wall, wall);
+  });
   await t.test('actual lazy facade and sensitive access module use DATABASE_URL across a new process and close owned providers', async () => {
     const script = `const assert=require('node:assert/strict');const audit=require('./backend/shared/auditLogEncrypted');const access=require('./backend/shared/sensitiveDataAudit');const common=require('./backend/shared/auditLog');const db=require('./backend/shared/db');
       (async()=>{const input=JSON.parse(process.env.AUDIT_FIXTURE_INPUT);try{
