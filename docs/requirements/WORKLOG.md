@@ -2394,3 +2394,76 @@ subagents/new requirement/recipient delivery/production cleanup/rekey/merge/depl
 Owned native40/Redis/Kafka stopped after tests; unrelated containers untouched.
 Publish only existing draftPR6. Regenerate inventory AFTER final ledger update and
 check it immediately before staging/publishing; keep persistent goal active.
+
+## 2026-10-23 — actual game-client MFA, offline factor boundaries and legacy gateway login
+
+Persistent goal remains all658 originals, not this batch. Prior published4abdb82
+now has exact main472/native41/MFA4/migration34 SUCCESS; migration34 also ran the
+full86 bootstrap successfully. Actual original throughput ceiling result is
+-1.6165389170840427% versus unchanged-5, with all8 measured source hashes matching,
+Node24.21.0/PG15.8. Archived complete report/CI snapshot and logSHA. Previous failed
+-5.6653600267481234/-6.526500223984499% reports/rounds remain; no preferred-score
+rerun, gate lowering, causal/noise conclusion or fullperformance acceptance. Other
+legacy contract/integration/security/performance jobs remain red/E2Ecancelled.
+
+Actual client previously stored literal undefined tokens from a challenge response,
+entered gameplay early, required code0 despite MFA's success envelope, refreshed/
+retried one-time failures, used a different token key and had no working factor
+login/settings integration. Replaced the legacy setup widget with actual API/DOM
+screens: QR/manual key/TOTP enable, explicit eight-code download/acknowledgement
+clearance, recovery login, cancellation, fresh-factor regenerate/disable and real
+status. Transient challenge/secrets/codes never enter localStorage/CacheStorage;
+close/logout aborts and clears DOM/material/objectURLs. Both complete JWTs required;
+rotated refresh pair and identity epochs reject stale login/private responses,
+including logout while JSON body decodes. Actual access/refresh storage remains the
+existinglocalStorage protocol; no complete encryptedstorage/XSS protection claim.
+
+All APIclient requests no-store. Actual SW bypasses caches/queue for auth/MFA/admin
+reads/proof/reason/private bearer/no-store requests, returns503offline instead of
+queued-success, purges legacy factor/proof/audit queue entries and filters replay
+again. Cached/poisoned MFAstatus cannot authorize offline/online. Versioned-cache
+cleanup narrowed to ownednames. First browser attempt failed because fresh SW
+install reloaded login; real production install now avoids first-controller reload.
+First failure logSHA retained. Legacy /v1/auth rewrite fixed /auth/auth/login and
+now has actual auth limiter; CORS permits actual X-Client-Ver/X-Platform.
+
+Final source checks, all applicable no skips:
+
+- 756 unit checks, including10 Node-reported production API client boundary checks
+  and4 pure P0policy checks, original26Jest439; single factor attempt, completion
+  dedupe, malformed/queued refusal, delayed login/refresh/private body cancellation,
+  full refresh pair and failed storage rollback. This is separate from browser tests.
+- 6 actual Chromium145 browser checks using production entry/API/widgets/SW/auth/
+  user/MFArouters, canonicalV1+audit+MFA migrations and real PG/Redis. Owned Redis
+  one-time SMS codes only; externaloriginsblocked, syntheticlocation. Real setup/
+  natural300pxQR/TOTP/8codes/explicitdownload/ackclear, cancel, invalidfactoronce,
+  offlinefactornoqueue/network, actual recovery consumption/signedsession, regen/
+  disable, legacyqueuepurge/replay and poisonedcache refusal. Mobile390x844 and
+  desktop1280x900 factor/token-free screens visually reviewed and archived.
+- Actual MFA/adminHTTP/storage26 still99.42line83.43branch100function across7scoped
+  productionmodules at unchanged90line/functiongate. No fullsecurity/clientcoverage.
+- Both native OSuser+two-gateway scenarios pass with actualPG/Redis/Kafka, legacy
+  primary challenge then real recovery/signedsub/epoch, clientheaderpreflight and
+  retained adminreceipts/privacy/title/IP/cache/CDC/notification/health/signals.
+  Same separateowned40connectionnativefixture, original20connectionSQLfixture and
+  untouched performancefixture. Warmtitlep95=3.139078ms over50localreads<original50ms;
+  gatewaySIGTERM788.753410ms/user5371.650496ms separately measured; no productionSLO.
+- 1474 JS syntax,12audittoolchecks, logging/numbering/health and workflowYAML pass.
+  LockedPlaywright1.63.0 unchanged; dedicatedCI installs matchingChromium and runs
+  actualbrowser/storage. All86rawSQL/manifests/dependencies/locks unchanged; no fresh
+  full86localbootstrap claim (exact prior4abremote result archived separately).
+
+Source-hashed artifact docs/benchmarks/mfa-client-local-2026-10-23.json; refreshed
+only exercised changed refs in46records, sole619verified. Still179declared done/
+50progress/429new=658unique; original requirement text/acceptanceboxes/targets intact.
+PhysicalGoogleAuthenticatorQR/manualinterop, seven-daytrusteddevices, realSMSdelivery,
+everysensitivepassword/payment/riskboundary, adminprovisioning/governance/L3exports,
+allresponse/unstructured/custommask/scanner/combinedsecuritycoverage/liveAWS,
+encrypted/account-boundofflinebusinessqueue/fullPWAassets/registrationconsent,
+other services/game/client/performance/operations and full658 acceptance remainopen.
+
+Checks sequentialnice10/UV2/Nodeconcurrency1/JestInBand; noMaven/CPUsaturation/
+subagents/newrequirements/recipientmessages/productioncleanup/rekey/merge/deploy.
+Ownednative40/Redis/Kafkastoppedafterchecks; unrelatedcontainersuntouched. Private
+MEMORY/Oct09remainunstaged. Regenerateinventory AFTERledger and checkbeforepush.
+Publish onlyexistingdraftPR6; this batch's new current-sourceCI still pending.

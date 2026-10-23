@@ -11,7 +11,7 @@
         "backend/tests/battle/context.js": "4e815529a4ba1ba8d02657bc1e8798af1c481cd277e9f64e04a2ea2be595f7c3",
         "backend/tests/battle/formulas.test.js": "40300e85e1cba36f1e9994e9cc5aa2a9af4f256b4a45b83c6fa1bb2d05b745ad",
         "backend/tests/battle/scenarios.test.js": "82ee33f17c3b2eaca95592d20d75763a2f527ae5bb238a9b6e788955fb584aad",
-        "backend/package.json": "51ace9ea3254dd1427283c287f93d39b65058a53f1791e5c5225e4e145faeb33",
+        "backend/package.json": "3fd4d788b7468700387af48486dd2929e1ebff5a9c9ba4cc78f254d6eff42ad3",
         ".github/workflows/ci-cd.yml": "1572b966bb2c9c4ee3f8d2de41334552e4a63878cf604113f316e5088ce75b3a",
         "docs/api-spec/battle-engine-design.md": "bb832c9cb72847ab8a823d62022295da1e2bdee49c26f15f8eb51b10ace7b4ed"
       },
@@ -127,6 +127,14 @@
             "backend/package.json"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ]
     },
@@ -140,15 +148,15 @@
         "backend/services/user-service/src/routes/privacy.js": "ce9bdca099991fab6397437c80bf16d38a26cc3283fe8265bf503404aa65efa6",
         "backend/services/user-service/src/index.js": "dfba6ed38b22ec2218c51a650e6784e42a94b19d2b047ed090a5f7ec4b7029f3",
         "backend/gateway/src/routes/privacyProxy.js": "b692098d7858fc7069cd5a557f941f164ec9f2d00667623a1b51ee665a19a483",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/tests/unit/privacy-preferences.test.js": "ff1e6f9920d3b003c3284bd353d6f8138482d8700652e2b750375e06e900eab1",
         "backend/tests/regression/privacy-storage.test.js": "5e166b9018051b20b74988426d04e588823feb6f473600beeefe54b00041cc97",
         "backend/tests/regression/privacy.jest.config.json": "cd80c47f4be46595f151bdf850571e7e0bd599d5bd2e9897550999b031b7e490",
-        "backend/package.json": "51ace9ea3254dd1427283c287f93d39b65058a53f1791e5c5225e4e145faeb33",
+        "backend/package.json": "3fd4d788b7468700387af48486dd2929e1ebff5a9c9ba4cc78f254d6eff42ad3",
         ".github/workflows/privacy-regression.yml": "b730aa2c9c5c6d6379f7047ed8c86f9f5a6781c1d0c619989482478e9031b79a",
         "database/pending/20261006_150000__privacy_preference_defaults_and_policy_fields.sql": "3d21e729219b771c0b94f8474e11e6adcc222b0fbfc064beeddaed3d08849c78",
         "backend/shared/logger.js": "4fd8f577c9db1860aa011216eadd9523a46a2214a80de1e0c44ff9310fb5e457",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "database/pending/20260611_152900__add_privacy_preference_center.sql": "fed6b42590f4829f4b474b9ddf840a08d7b8cce7b53bd502a0b9fe7417ec63d8",
         "database/pending/repairs/20260611_152900__add_privacy_preference_center.sql": "ac250e1ee3e789b017f7a1c54ebee3488345068aca38ea6e93df70e64483c896",
         "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
@@ -544,6 +552,16 @@
             "docs/AUDIT-ENCRYPTION.md"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/package.json",
+            "backend/tests/regression/gateway-startup.test.js"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
@@ -560,7 +578,7 @@
         "backend/tests/unit/logging-migration.test.js": "880a3f2ce8660e66a951cf8ac73b617e1396ce765fb92e2d135e5bdce711dde3",
         "backend/tests/performance/logging-benchmark.js": "a9fb82d16c779c4331e6aa2e8b5b08ee081def225de421e0e67ec3c660fef255",
         "backend/tests/regression/logging.jest.config.json": "45932a32192ebfadc2c131a9b8ba6877d8b4fbae7616fe9d98958a63a57d60b2",
-        "backend/package.json": "51ace9ea3254dd1427283c287f93d39b65058a53f1791e5c5225e4e145faeb33",
+        "backend/package.json": "3fd4d788b7468700387af48486dd2929e1ebff5a9c9ba4cc78f254d6eff42ad3",
         ".github/workflows/ci-cd.yml": "1572b966bb2c9c4ee3f8d2de41334552e4a63878cf604113f316e5088ce75b3a"
       },
       "evidence": [
@@ -679,6 +697,14 @@
             "backend/package.json"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ],
       "remaining": "The 5% overhead target, production output/adapters and complete legacy integration/E2E acceptance are not verified"
@@ -696,11 +722,11 @@
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/services/user-service/src/handlers/notificationHandler.js": "542e893148bbc7ceae4aaf5764be992667cd004f54acafc7e681603236fd611a",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/gateway/src/routes/businessEvents.js": "c7487f18ddfa60587b8f318cf1b536b08d037d8c5a57d93545b473d250c918b7",
         "backend/shared/cache.js": "1e02ac9cf3f507263f89b64f1158d339530d56c7bcd69ec9738a0e54b5d1f27e",
         "backend/shared/redis.js": "087d67b984d22a1345097105f10513df84fa874c395010167964e6b3dcc7ea4b",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
@@ -1077,6 +1103,15 @@
             "backend/tests/regression/gateway-startup.test.js"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ]
     },
@@ -1093,11 +1128,11 @@
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/services/user-service/src/handlers/notificationHandler.js": "542e893148bbc7ceae4aaf5764be992667cd004f54acafc7e681603236fd611a",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/gateway/src/routes/businessEvents.js": "c7487f18ddfa60587b8f318cf1b536b08d037d8c5a57d93545b473d250c918b7",
         "backend/shared/cache.js": "1e02ac9cf3f507263f89b64f1158d339530d56c7bcd69ec9738a0e54b5d1f27e",
         "backend/shared/redis.js": "087d67b984d22a1345097105f10513df84fa874c395010167964e6b3dcc7ea4b",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
@@ -1474,6 +1509,15 @@
             "backend/tests/regression/gateway-startup.test.js"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ]
     },
@@ -1495,10 +1539,10 @@
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
         "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
-        "backend/package.json": "51ace9ea3254dd1427283c287f93d39b65058a53f1791e5c5225e4e145faeb33",
+        "backend/package.json": "3fd4d788b7468700387af48486dd2929e1ebff5a9c9ba4cc78f254d6eff42ad3",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
@@ -1903,6 +1947,15 @@
             "backend/tests/regression/gateway-startup.test.js"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/package.json",
+            "backend/tests/regression/gateway-startup.test.js"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ]
     },
@@ -1924,10 +1977,10 @@
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
         "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
-        "backend/package.json": "51ace9ea3254dd1427283c287f93d39b65058a53f1791e5c5225e4e145faeb33",
+        "backend/package.json": "3fd4d788b7468700387af48486dd2929e1ebff5a9c9ba4cc78f254d6eff42ad3",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b"
@@ -2313,6 +2366,15 @@
             "backend/tests/regression/gateway-startup.test.js"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/package.json",
+            "backend/tests/regression/gateway-startup.test.js"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ]
     },
@@ -2334,10 +2396,10 @@
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
         "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
-        "backend/package.json": "51ace9ea3254dd1427283c287f93d39b65058a53f1791e5c5225e4e145faeb33",
+        "backend/package.json": "3fd4d788b7468700387af48486dd2929e1ebff5a9c9ba4cc78f254d6eff42ad3",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
@@ -2352,7 +2414,7 @@
         "backend/shared/NotificationWebSocket.js": "bc1e9eff0386d83b4b31553e26521e36809ddee344328f3e556581a968f8ee57",
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/gateway/src/routes/notificationProxy.js": "a7e03edf9fd81343a0cad94590a26600b64fee14306d19665fed421b2f9497bd",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "backend/tests/regression/notification-client.test.js": "9a56b0116debb82aa313d0d0bf9963c247760d9763a01828755122283329ffda",
@@ -2847,6 +2909,16 @@
             "backend/gateway/src/index.js"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/package.json",
+            "backend/tests/regression/gateway-startup.test.js",
+            "backend/gateway/src/index.js"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ],
       "remainingAcceptance": [
@@ -2867,7 +2939,7 @@
         "backend/services/user-service/src/routes/ipAppeal.js": "32bc089a25a51e5ef015eebdd4440534365b93873a53c5fcd06ad13d13c718c4",
         "backend/shared/IpBanManager.js": "8baf542bcfc6d35106433e07dd0eee25e005ad48550ca04e92ec674af043ce34",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/gateway/src/middleware/ipBan.js": "86865494f9e51f81e9d0c9e3dd7110db6033b296c10e018316427bf5faee6396",
         "backend/gateway/src/routes/ipAppealProxy.js": "4fa6f1dc2f23739aa4274dc9a0fa9ec9f21958e289cbbe322168481105001a3d",
         "backend/tests/unit/ip-appeal.test.js": "7aa02dc701586d2922d4ba958d72e3a806e8c8b60c9c98db14246f225b101c18",
@@ -2876,7 +2948,7 @@
         "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
         "database/pending/20261008_100000__ip_ban_index_compatibility.sql": "574d3f082b2265bfe5b93d6066b6d62dad4ca1da00bd91e34dc7a4f964f548ae",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b"
@@ -3212,6 +3284,15 @@
             "backend/tests/regression/gateway-startup.test.js"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ]
     },
@@ -3224,7 +3305,7 @@
         "backend/services/user-service/src/routes/ipAppeal.js": "32bc089a25a51e5ef015eebdd4440534365b93873a53c5fcd06ad13d13c718c4",
         "backend/shared/IpBanManager.js": "8baf542bcfc6d35106433e07dd0eee25e005ad48550ca04e92ec674af043ce34",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/gateway/src/middleware/ipBan.js": "86865494f9e51f81e9d0c9e3dd7110db6033b296c10e018316427bf5faee6396",
         "backend/gateway/src/routes/ipAppealProxy.js": "4fa6f1dc2f23739aa4274dc9a0fa9ec9f21958e289cbbe322168481105001a3d",
         "backend/tests/unit/ip-appeal.test.js": "7aa02dc701586d2922d4ba958d72e3a806e8c8b60c9c98db14246f225b101c18",
@@ -3233,7 +3314,7 @@
         "backend/tests/regression/jest.config.json": "0792522ea8d0a8dd85b391b9677722b28cbd4bd66cd284b7fb1d1a5cab6b11a7",
         "database/pending/20261008_100000__ip_ban_index_compatibility.sql": "574d3f082b2265bfe5b93d6066b6d62dad4ca1da00bd91e34dc7a4f964f548ae",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b"
@@ -3569,6 +3650,15 @@
             "backend/tests/regression/gateway-startup.test.js"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ]
     },
@@ -3577,12 +3667,12 @@
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "b6be313ab0b1611e495be4a8a86eee54210caaa359f0b2dd978c097f556fa696",
       "sourceSha256": {
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/gateway/src/routes/businessEvents.js": "c7487f18ddfa60587b8f318cf1b536b08d037d8c5a57d93545b473d250c918b7",
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/shared/cache.js": "1e02ac9cf3f507263f89b64f1158d339530d56c7bcd69ec9738a0e54b5d1f27e",
         "backend/shared/redis.js": "087d67b984d22a1345097105f10513df84fa874c395010167964e6b3dcc7ea4b",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
@@ -3862,6 +3952,15 @@
             "backend/tests/regression/gateway-startup.test.js"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ]
     },
@@ -3879,7 +3978,7 @@
         "database/pending/20260609_124500__add_item_inventory_system.sql": "99c96061defc0b502f87147c491889266f53b9e5c8ae8cfbdcdda6892c09969e",
         "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
         "backend/services/user-service/src/index.js": "dfba6ed38b22ec2218c51a650e6784e42a94b19d2b047ed090a5f7ec4b7029f3",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
@@ -3968,7 +4067,9 @@
         "docs/benchmarks/ci-d2daf86-2026-10-20.json": "b15cbf6bcc745c89a62a2a7c5bb7e1495f7e4c0b5972a36bc7c498ae593e6e91",
         "docs/benchmarks/transaction-throughput-ci-d2daf86-2026-10-20.json": "d888a4fdea28111f6f2cd7f85d88a9e0a431df7f5de355032938cbaa3a5b9183",
         "docs/benchmarks/ci-45d1562-2026-10-23.json": "8bbf0ad2748b942dfbd2078871f244e6805b878e3ade10bf2ff5231e6cde8c62",
-        "docs/benchmarks/transaction-throughput-ci-45d1562-2026-10-23.json": "c7b30d84408128f4f5b8cd9d70442d4628dea55c33e54a9609a6b02aa5c0bd9a"
+        "docs/benchmarks/transaction-throughput-ci-45d1562-2026-10-23.json": "c7b30d84408128f4f5b8cd9d70442d4628dea55c33e54a9609a6b02aa5c0bd9a",
+        "docs/benchmarks/ci-4abdb82-2026-10-23.json": "7d290418aab99d46a3e59ee17fd1f3c81a4c7a7ac6ac3e326923bbcd379b980b",
+        "docs/benchmarks/transaction-throughput-ci-4abdb82-2026-10-23.json": "c66372d68832b4d281c08143b80024d27b2b2299510d4a6cbf33d9bcd03dfade"
       },
       "evidence": [
         {
@@ -4628,6 +4729,23 @@
           "medianChangePercent": -6.526500223984499,
           "requiredMinimumChangePercent": -5,
           "scope": "Exactpublished45,8hashesmatch,Node24.21, full86remote skipped afterfailedgate. Preserveallnegativepairs/rounds; no preferredscore rerun/loweredgate/causalityclaim. CurrentprotectedadminsourceCIpending."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
+        },
+        {
+          "date": "2026-10-23",
+          "commit": "4abdb825912a3d5e97d6532a6c6015596d50d5e0",
+          "result": "exact_prior_main472_native41_mfa4_migration34_pass_with_full86_remote_bootstrap",
+          "artifact": "docs/benchmarks/ci-4abdb82-2026-10-23.json",
+          "medianChangePercent": -1.6165389170840427,
+          "requiredMinimumChangePercent": -5,
+          "scope": "8actualmeasuredhashesmatch/Node24.21.0/PG15.8. Original-5gateunchanged; allpreviousnegativepairs/roundsretained. A singlepassingCIrunisnotfullperformanceacceptance; otherlegacyredgates/currentMFAclientCIremainopen."
         }
       ],
       "remaining": "Complete85-source history now fails20260627_060000 statement13 missing is_deleted. Reconcile canonical inventory/ownership/contracts, all later pending files, data-preserving upgrades/reversal and all-service startup. Exact new remote throughput still unverified; all original acceptance remains open."
@@ -5475,9 +5593,9 @@
         "backend/shared/partitionMaintenance.js": "eb2a2169cc22fb12a54448a4c23dcfd671a8034110d15b4f7a4ae1add8fc3786",
         "backend/shared/partitionManager.js": "6cd34c463fffa999c33e7cf1c6affe11f7ed840fe55b7a34059d893aa9578a0a",
         "backend/gateway/src/routes/partitions.js": "2a0368052e9cbc616aa54065da4d982edbb049b99dbd162d2f8e992316c218d0",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/tests/regression/partition-maintenance-storage.test.js": "56fc446bc42f1189161d5993129756a498924c14feb154470c488e9f2710102b",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "docs/PARTITION-MAINTENANCE.md": "b5c1d26502ec01a3ec74b14cb8084a42c587139cfcb32d6c74af2f9c84a6b46f",
         "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297",
@@ -5957,6 +6075,15 @@
             "backend/tests/regression/gateway-startup.test.js"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ],
       "remaining": [
@@ -6671,6 +6798,15 @@
             "backend/tests/regression/gateway-startup.test.js"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ],
       "sourceSha256": {
@@ -6687,12 +6823,12 @@
         "backend/shared/NotificationWebSocket.js": "bc1e9eff0386d83b4b31553e26521e36809ddee344328f3e556581a968f8ee57",
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/gateway/src/routes/notificationProxy.js": "a7e03edf9fd81343a0cad94590a26600b64fee14306d19665fed421b2f9497bd",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "backend/tests/regression/notification-client.test.js": "9a56b0116debb82aa313d0d0bf9963c247760d9763a01828755122283329ffda",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
@@ -7041,6 +7177,15 @@
             "backend/tests/regression/gateway-startup.test.js"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ],
       "sourceSha256": {
@@ -7057,12 +7202,12 @@
         "backend/shared/NotificationWebSocket.js": "bc1e9eff0386d83b4b31553e26521e36809ddee344328f3e556581a968f8ee57",
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/gateway/src/routes/notificationProxy.js": "a7e03edf9fd81343a0cad94590a26600b64fee14306d19665fed421b2f9497bd",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "backend/tests/regression/notification-client.test.js": "9a56b0116debb82aa313d0d0bf9963c247760d9763a01828755122283329ffda",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
@@ -7411,6 +7556,15 @@
             "backend/tests/regression/gateway-startup.test.js"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ],
       "sourceSha256": {
@@ -7427,12 +7581,12 @@
         "backend/shared/NotificationWebSocket.js": "bc1e9eff0386d83b4b31553e26521e36809ddee344328f3e556581a968f8ee57",
         "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/gateway/src/routes/notificationProxy.js": "a7e03edf9fd81343a0cad94590a26600b64fee14306d19665fed421b2f9497bd",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "backend/tests/regression/notification-client.test.js": "9a56b0116debb82aa313d0d0bf9963c247760d9763a01828755122283329ffda",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
         "database/pending/20261008_160000__notification_history_contract.sql": "dac4111291182aa43c689f5c6b7945fa1ec7aad860a9d2600b8eef7b1bfb1fb8",
         "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
@@ -9356,7 +9510,7 @@
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
-        "backend/package.json": "51ace9ea3254dd1427283c287f93d39b65058a53f1791e5c5225e4e145faeb33",
+        "backend/package.json": "3fd4d788b7468700387af48486dd2929e1ebff5a9c9ba4cc78f254d6eff42ad3",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
@@ -9587,6 +9741,14 @@
             "backend/package.json"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ],
       "remainingAcceptance": [
@@ -9618,7 +9780,7 @@
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
-        "backend/package.json": "51ace9ea3254dd1427283c287f93d39b65058a53f1791e5c5225e4e145faeb33",
+        "backend/package.json": "3fd4d788b7468700387af48486dd2929e1ebff5a9c9ba4cc78f254d6eff42ad3",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
@@ -9849,6 +10011,14 @@
             "backend/package.json"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ],
       "remainingAcceptance": [
@@ -10345,7 +10515,9 @@
         "docs/benchmarks/ci-d2daf86-2026-10-20.json": "b15cbf6bcc745c89a62a2a7c5bb7e1495f7e4c0b5972a36bc7c498ae593e6e91",
         "docs/benchmarks/transaction-throughput-ci-d2daf86-2026-10-20.json": "d888a4fdea28111f6f2cd7f85d88a9e0a431df7f5de355032938cbaa3a5b9183",
         "docs/benchmarks/ci-45d1562-2026-10-23.json": "8bbf0ad2748b942dfbd2078871f244e6805b878e3ade10bf2ff5231e6cde8c62",
-        "docs/benchmarks/transaction-throughput-ci-45d1562-2026-10-23.json": "c7b30d84408128f4f5b8cd9d70442d4628dea55c33e54a9609a6b02aa5c0bd9a"
+        "docs/benchmarks/transaction-throughput-ci-45d1562-2026-10-23.json": "c7b30d84408128f4f5b8cd9d70442d4628dea55c33e54a9609a6b02aa5c0bd9a",
+        "docs/benchmarks/ci-4abdb82-2026-10-23.json": "7d290418aab99d46a3e59ee17fd1f3c81a4c7a7ac6ac3e326923bbcd379b980b",
+        "docs/benchmarks/transaction-throughput-ci-4abdb82-2026-10-23.json": "c66372d68832b4d281c08143b80024d27b2b2299510d4a6cbf33d9bcd03dfade"
       },
       "evidence": [
         {
@@ -10764,6 +10936,15 @@
           "medianChangePercent": -6.526500223984499,
           "requiredMinimumChangePercent": -5,
           "scope": "Exactpublished45,8hashesmatch,Node24.21, full86remote skipped afterfailedgate. Preserveallnegativepairs/rounds; no preferredscore rerun/loweredgate/causalityclaim. CurrentprotectedadminsourceCIpending."
+        },
+        {
+          "date": "2026-10-23",
+          "commit": "4abdb825912a3d5e97d6532a6c6015596d50d5e0",
+          "result": "exact_prior_main472_native41_mfa4_migration34_pass_with_full86_remote_bootstrap",
+          "artifact": "docs/benchmarks/ci-4abdb82-2026-10-23.json",
+          "medianChangePercent": -1.6165389170840427,
+          "requiredMinimumChangePercent": -5,
+          "scope": "8actualmeasuredhashesmatch/Node24.21.0/PG15.8. Original-5gateunchanged; allpreviousnegativepairs/roundsretained. A singlepassingCIrunisnotfullperformanceacceptance; otherlegacyredgates/currentMFAclientCIremainopen."
         }
       ],
       "remaining": [
@@ -11709,10 +11890,10 @@
         "backend/tests/regression/privacy-storage.test.js": "5e166b9018051b20b74988426d04e588823feb6f473600beeefe54b00041cc97",
         "backend/tests/regression/privacy.jest.config.json": "cd80c47f4be46595f151bdf850571e7e0bd599d5bd2e9897550999b031b7e490",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "backend/tests/unit/auditLog.test.js": "129d92b8c127d8cb0be99971b3c438560bb3d6714b9e91cdaf2e5d0f1008adf9",
         "backend/tests/unit/privacy-preferences.test.js": "ff1e6f9920d3b003c3284bd353d6f8138482d8700652e2b750375e06e900eab1",
-        "backend/package.json": "51ace9ea3254dd1427283c287f93d39b65058a53f1791e5c5225e4e145faeb33",
+        "backend/package.json": "3fd4d788b7468700387af48486dd2929e1ebff5a9c9ba4cc78f254d6eff42ad3",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "docs/AUDIT-ENCRYPTION.md": "227244af459af83941348bd721e952722c8132967833df154eae90b051f5a8a2",
         "docs/SENSITIVE-AUDIT-STORAGE.md": "3d9f2b933a804a7831f51d818cccbb08f3d633e623e6890360d4a3694b2deddf",
@@ -11857,6 +12038,15 @@
             "docs/AUDIT-ENCRYPTION.md"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/tests/regression/gateway-startup.test.js",
+            "backend/package.json"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ]
     },
@@ -12029,7 +12219,7 @@
         "backend/gateway/src/middleware/auth.js": "7679c07044463a6aacf085eab04abefdf3f1f11dc1f47dacb0ff83bad03fdcce",
         "backend/gateway/src/middleware/canaryRouter.js": "8e06cc373a594a3a0f464f9052cf4f447a97a6957af3c4ae10948f7cd86453ed",
         "backend/gateway/src/routes/canary.js": "2919433b6ed012125b58bb522e497c9a574d7e488127bf562dac4b2e390a169d",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "scripts/canary-cli.js": "55af26b715eee3c508a85e1be6909a39b923267b936860edbcf590d356c9b815",
         ".github/workflows/canary-deploy.yml": "873f89716acd7d2632999c14a8155594668f1b522c4fb46db1186eefd4a74b29",
         "backend/tests/regression/canary-schema-storage.test.js": "18bc7caffb2b93568aff590318e2fdbc3874f183c29b7d80efd14be1a15d7ffc",
@@ -12132,6 +12322,14 @@
             "backend/gateway/src/index.js"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ]
     },
@@ -12149,9 +12347,9 @@
         "backend/shared/partitionMaintenance.js": "eb2a2169cc22fb12a54448a4c23dcfd671a8034110d15b4f7a4ae1add8fc3786",
         "backend/shared/partitionManager.js": "6cd34c463fffa999c33e7cf1c6affe11f7ed840fe55b7a34059d893aa9578a0a",
         "backend/gateway/src/routes/partitions.js": "2a0368052e9cbc616aa54065da4d982edbb049b99dbd162d2f8e992316c218d0",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/tests/regression/partition-maintenance-storage.test.js": "56fc446bc42f1189161d5993129756a498924c14feb154470c488e9f2710102b",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "docs/PARTITION-MAINTENANCE.md": "b5c1d26502ec01a3ec74b14cb8084a42c587139cfcb32d6c74af2f9c84a6b46f",
@@ -12271,6 +12469,15 @@
             "backend/tests/regression/gateway-startup.test.js"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ]
     },
@@ -12287,14 +12494,14 @@
         "backend/shared/cdc/PgCDCListener.js": "e89725a3447e797376434f7fae4800ee1152da5bfa61db1c0f6fbb040982bf4e",
         "backend/shared/cdc/index.js": "fde729fafa94217faee27e1675f22ef3fd0cef6eb95925b448102a4bfbec3875",
         "backend/shared/cdc/cache-rules.yml": "84660897aa4d95532fc8dfc713fa1160e0dae9c20acd15643f198622672c58cb",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/gateway/src/proxy.js": "619d307da0e4e8531c54f4abfa8feaed8a86b930b01c5cdc07cb0c081c477db1",
         "backend/gateway/src/routes/cacheInvalidationRoutes.js": "85619b0b7a6618f70e21efe29ac6d0db43004a8d0b68922958fd5bec22e31f6e",
         "backend/tests/regression/cdc-invalidation-storage.test.js": "19d4aa4806109909046fca882d55cc2e03f9fd0476d7e0b9e0f237de2c5c364f",
         "backend/tests/regression/cdc-cache-runtime.test.js": "080844f0c4635f82c5aa9428bfdd139f440027dc74d9b505870b5a83552d22bf",
         "backend/tests/regression/cache-coherence-storage.test.js": "f9c34c3a0ec863cff14bb5fb0d81df7d5453ac30f5e80c604d60eb52d41e35ac",
         "backend/tests/regression/cache-http-storage.test.js": "5d655fae7c92be4ef595d98e07ab70a27890510781bb0a60eb6d7671ab4f7efb",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "database/pending/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "4a11a1f7e457ea11181580d313097b276582947b3975c4fe67fb4813867b5f39",
         "database/pending/repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "279e7b764797d2ad636f704c3e73c97c504a6077a7c1bc14aa39f30737c7b478",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
@@ -12459,6 +12666,15 @@
             "backend/tests/regression/gateway-startup.test.js"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ],
       "remaining": "Preserve original4 criteria each, including100ms/50ms. Complete production/capacity and no-significant-database-load acceptance are open; all legacy cache consumers and cross-environment/provider/upgrade/reversal behavior are not accepted. Current source CI must be observed. Only original battle framework619 remains independently verified."
@@ -12476,14 +12692,14 @@
         "backend/shared/cdc/PgCDCListener.js": "e89725a3447e797376434f7fae4800ee1152da5bfa61db1c0f6fbb040982bf4e",
         "backend/shared/cdc/index.js": "fde729fafa94217faee27e1675f22ef3fd0cef6eb95925b448102a4bfbec3875",
         "backend/shared/cdc/cache-rules.yml": "84660897aa4d95532fc8dfc713fa1160e0dae9c20acd15643f198622672c58cb",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/gateway/src/proxy.js": "619d307da0e4e8531c54f4abfa8feaed8a86b930b01c5cdc07cb0c081c477db1",
         "backend/gateway/src/routes/cacheInvalidationRoutes.js": "85619b0b7a6618f70e21efe29ac6d0db43004a8d0b68922958fd5bec22e31f6e",
         "backend/tests/regression/cdc-invalidation-storage.test.js": "19d4aa4806109909046fca882d55cc2e03f9fd0476d7e0b9e0f237de2c5c364f",
         "backend/tests/regression/cdc-cache-runtime.test.js": "080844f0c4635f82c5aa9428bfdd139f440027dc74d9b505870b5a83552d22bf",
         "backend/tests/regression/cache-coherence-storage.test.js": "f9c34c3a0ec863cff14bb5fb0d81df7d5453ac30f5e80c604d60eb52d41e35ac",
         "backend/tests/regression/cache-http-storage.test.js": "5d655fae7c92be4ef595d98e07ab70a27890510781bb0a60eb6d7671ab4f7efb",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "database/pending/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "4a11a1f7e457ea11181580d313097b276582947b3975c4fe67fb4813867b5f39",
         "database/pending/repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "279e7b764797d2ad636f704c3e73c97c504a6077a7c1bc14aa39f30737c7b478",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
@@ -12648,6 +12864,15 @@
             "backend/tests/regression/gateway-startup.test.js"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ],
       "remaining": "Preserve original4 criteria each, including100ms/50ms. Complete production/capacity and no-significant-database-load acceptance are open; all legacy cache consumers and cross-environment/provider/upgrade/reversal behavior are not accepted. Current source CI must be observed. Only original battle framework619 remains independently verified."
@@ -12769,7 +12994,7 @@
         "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
         "backend/tests/regression/audit-crypto-storage.test.js": "ab8434cfb793a9d8d380df6323734538b66a773de000af7873babe40c3999380",
         "backend/tests/regression/audit-kms-wire.test.js": "11ca121f3f229022d33c9d469d2e7faf1d2aa3e5db807d2d7aaec91e22b5e9d3",
-        "backend/package.json": "51ace9ea3254dd1427283c287f93d39b65058a53f1791e5c5225e4e145faeb33",
+        "backend/package.json": "3fd4d788b7468700387af48486dd2929e1ebff5a9c9ba4cc78f254d6eff42ad3",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/seeds/V2__seed_data.sql": "7c85c2d07999a4c8e5bad2d07324456b101a909c0e77fb73f0ff2d31879ed355",
@@ -12787,7 +13012,7 @@
         "backend/tests/regression/privacy-storage.test.js": "5e166b9018051b20b74988426d04e588823feb6f473600beeefe54b00041cc97",
         "backend/tests/regression/privacy.jest.config.json": "cd80c47f4be46595f151bdf850571e7e0bd599d5bd2e9897550999b031b7e490",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "backend/tests/unit/auditLog.test.js": "129d92b8c127d8cb0be99971b3c438560bb3d6714b9e91cdaf2e5d0f1008adf9",
         "backend/tests/unit/privacy-preferences.test.js": "ff1e6f9920d3b003c3284bd353d6f8138482d8700652e2b750375e06e900eab1",
         "docs/benchmarks/common-audit-local-2026-10-20.json": "90e78ca8be2327b3ded7fb24550300c6061fa43643c20187a2efbef8e8e20ad7",
@@ -12798,7 +13023,7 @@
         "backend/shared/auth.js": "f97ba49f230a9ac6b5c6ce51583b7f41a0178775d9da85cda47b1ddfd670dfe0",
         "backend/shared/JwtBlacklist.js": "6749c600e8f5f8e2a52a3c19feddcc36a7614f89a7fcd351e99f5792958b545f",
         "backend/gateway/src/middleware/mfaRequired.js": "896e8fa81c3dd8e39c2ad4a47515203c6bbd7ff8184f02a5a5889edd3314e003",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/services/user-service/src/routes/mfa.js": "85c97f4d8c0641c5e366264f0e87f0645b001bdcb682a25c16b99735e069d79e",
         "backend/services/user-service/src/routes/auth.js": "029a6d23d3a91eea263f0ece6ade96105a9f4d47f99c836285ad6294e18649ad",
         "backend/services/user-service/src/authSessionTokens.js": "7044dd0b8e925a4149440a5c15f942abdc0f8aaa9d192ae251fe5bb5cad889a8",
@@ -12812,7 +13037,7 @@
         "database/pending/20261020_120000__mfa_verification_state.sql": "16809f6325475ca2a9e39cf24f1805014c3b7851c2d7338be1eff3752097ca87",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         ".github/workflows/mfa-regression.yml": "8eab2d99cd8a88ba8942111cf791a11aab84c80533287300fde9502bc0b9d7fb",
-        "docs/MFA-STATE.md": "70275ac5fd8631f514118e78401abac2cee30dbf4ff752b54c658c35121b495b",
+        "docs/MFA-STATE.md": "7894eaa54d6a3cea987f8257095cba579801dceea710c5b401d678e603cae999",
         "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8",
         "docs/benchmarks/ci-b17ddee-2026-10-20.json": "6d1767e7481ffd142836ff2d96cb84bd438d5eb3f98786aa2ebcdc16c0622833",
         "docs/benchmarks/transaction-throughput-ci-b17ddee-2026-10-20.json": "5935de8471a209f26032e1781b8311db0f0e50bb9a37af9c17a859eeab6bde90",
@@ -12826,7 +13051,26 @@
         "backend/tests/unit/sensitive-fields.test.js": "40ce1c746e4a8555e4d3b7c5c330df588204d069078fb1af997354115b5d9b27",
         "docs/benchmarks/admin-audit-local-2026-10-23.json": "f6e182768943e7e8d30ccfd2ccad3312728c8656bd3f669a76edaf5afc14b94c",
         "docs/benchmarks/ci-45d1562-2026-10-23.json": "8bbf0ad2748b942dfbd2078871f244e6805b878e3ade10bf2ff5231e6cde8c62",
-        "docs/benchmarks/transaction-throughput-ci-45d1562-2026-10-23.json": "c7b30d84408128f4f5b8cd9d70442d4628dea55c33e54a9609a6b02aa5c0bd9a"
+        "docs/benchmarks/transaction-throughput-ci-45d1562-2026-10-23.json": "c7b30d84408128f4f5b8cd9d70442d4628dea55c33e54a9609a6b02aa5c0bd9a",
+        "frontend/game-client/index.html": "cbee53edcbb8d641308a4d63ea048b3c269329120cf8fb3ca1141077cb645658",
+        "frontend/game-client/src/api/client.js": "648fc2c78e79402244fc8e4ea24874d1074b7ecfc7e4f9296706d6e10e86dc83",
+        "frontend/game-client/src/main.js": "3a0699afed0f1388e03ef287f817b2e2ec6b32d7bd9ce32d78d7313e92eb745e",
+        "frontend/game-client/src/components/MFASetup.js": "c813d3aa630237014c5e7a1839b67048642c144b9e61a0c0107d7151f294ee2c",
+        "frontend/game-client/src/components/MFAVerify.js": "9fc2ac91dc14a5869568788e043d6d9ea481c0338c65f235c8b48e58c03a31f0",
+        "frontend/game-client/src/components/mfaUi.js": "23a3f06c07e8261e01fd7a9a467f6a9aac3cb0d36f4131f425237f0c29d39566",
+        "frontend/game-client/src/styles/mfa.css": "6b35f9bc955d6cccfdebcd19edaf2adc0faff88ec3fc52da36ab643796eeaa65",
+        "frontend/game-client/sw.js": "ff14ad4afa056a4ae8a77b150f57415a1022b519db1e38210a7e4c75f1c76061",
+        "frontend/game-client/package.json": "aa41d55f80d83376dd765b0fae2594855a94c227695e8999adbb43fd112ee9ab",
+        "frontend/game-client/package-lock.json": "7f700cdab2c54920fe1623c61176e0937005b608759141975b8a84d4b38f07dd",
+        "backend/tests/regression/mfa-browser-storage.test.js": "89e74251add694837494094415b47d07eaa9e9cfddaa70ff7ef39febf8783db0",
+        "backend/tests/unit/mfa-client.test.js": "b73cc2326b28011ab03279bd8842c9a8245409b02e998704bcd47aca587ff5de",
+        ".github/workflows/mfa-client-regression.yml": "c6058109906220dc6c589ac720670cca9ecf69f9cf618097dba4157f078a220e",
+        "docs/benchmarks/mfa-client-local-2026-10-23.json": "d566048016ec4b291afe93b6061b2c6fbf896120bcc943d6fb9513ae560493fc",
+        "docs/benchmarks/mfa-client-2026-10-23/mfa-login-mobile.png": "6a5b237b02810bda64ef1faa25dc056aab7db6a89892e397c8cd122d6efd8e5b",
+        "docs/benchmarks/mfa-client-2026-10-23/mfa-enabled-mobile.png": "f802313dd9a007afef3cb0b76cb983a8d44a81e646ac86df049df49c44a19a51",
+        "docs/benchmarks/mfa-client-2026-10-23/mfa-enabled-desktop.png": "058144a535885276adefa93e08f2d1d698b5b7458f64b15adf227f8212ba55d2",
+        "docs/benchmarks/ci-4abdb82-2026-10-23.json": "7d290418aab99d46a3e59ee17fd1f3c81a4c7a7ac6ac3e326923bbcd379b980b",
+        "docs/benchmarks/transaction-throughput-ci-4abdb82-2026-10-23.json": "c66372d68832b4d281c08143b80024d27b2b2299510d4a6cbf33d9bcd03dfade"
       },
       "evidence": [
         {
@@ -13023,6 +13267,32 @@
           "medianChangePercent": -6.526500223984499,
           "requiredMinimumChangePercent": -5,
           "scope": "Exactpublished45,8hashesmatch,Node24.21, full86remote skipped afterfailedgate. Preserveallnegativepairs/rounds; no preferredscore rerun/loweredgate/causalityclaim. CurrentprotectedadminsourceCIpending."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/package.json",
+            "backend/tests/regression/gateway-startup.test.js",
+            "backend/gateway/src/index.js",
+            "docs/MFA-STATE.md"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_game_mfa_enrollment_factor_recovery_management_and_offline_boundaries_pass_full_acceptance_open",
+          "artifact": "docs/benchmarks/mfa-client-local-2026-10-23.json",
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
+        },
+        {
+          "date": "2026-10-23",
+          "commit": "4abdb825912a3d5e97d6532a6c6015596d50d5e0",
+          "result": "exact_prior_main472_native41_mfa4_migration34_pass_with_full86_remote_bootstrap",
+          "artifact": "docs/benchmarks/ci-4abdb82-2026-10-23.json",
+          "medianChangePercent": -1.6165389170840427,
+          "requiredMinimumChangePercent": -5,
+          "scope": "8actualmeasuredhashesmatch/Node24.21.0/PG15.8. Original-5gateunchanged; allpreviousnegativepairs/roundsretained. A singlepassingCIrunisnotfullperformanceacceptance; otherlegacyredgates/currentMFAclientCIremainopen."
         }
       ],
       "remaining": "Original10criteria unchanged. Actual signedL2+serverMFA+reason protected decrypt/audit-service-query/sensitive-access-query and transactional receipts implemented; known structuredP0aliases filtered. Full frontend/provisioning/admin governance/approvedL3exports, all sensitive business/denied attempts and legacy callers/jobs/ignoredfalse, originalallresponse/unstructured/custommask/atleast10types/scannerfailP0 and fullcombinedunit>=90 remain open. LiveAWS/IAM/keypolicy/CloudTrail/availability/latency unverified. Unknownlegacykeys/tags/timestamp provenance never guessed. Sensitive lookup is bounded lookahead, not complete export; old common helpers remain metadata. No productioncleanup/rekey/merge/deploy."
@@ -13048,10 +13318,10 @@
         "backend/tests/regression/privacy-storage.test.js": "5e166b9018051b20b74988426d04e588823feb6f473600beeefe54b00041cc97",
         "backend/tests/regression/privacy.jest.config.json": "cd80c47f4be46595f151bdf850571e7e0bd599d5bd2e9897550999b031b7e490",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "backend/tests/unit/auditLog.test.js": "129d92b8c127d8cb0be99971b3c438560bb3d6714b9e91cdaf2e5d0f1008adf9",
         "backend/tests/unit/privacy-preferences.test.js": "ff1e6f9920d3b003c3284bd353d6f8138482d8700652e2b750375e06e900eab1",
-        "backend/package.json": "51ace9ea3254dd1427283c287f93d39b65058a53f1791e5c5225e4e145faeb33",
+        "backend/package.json": "3fd4d788b7468700387af48486dd2929e1ebff5a9c9ba4cc78f254d6eff42ad3",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
         "docs/AUDIT-ENCRYPTION.md": "227244af459af83941348bd721e952722c8132967833df154eae90b051f5a8a2",
@@ -13062,7 +13332,7 @@
         "backend/shared/auth.js": "f97ba49f230a9ac6b5c6ce51583b7f41a0178775d9da85cda47b1ddfd670dfe0",
         "backend/shared/JwtBlacklist.js": "6749c600e8f5f8e2a52a3c19feddcc36a7614f89a7fcd351e99f5792958b545f",
         "backend/gateway/src/middleware/mfaRequired.js": "896e8fa81c3dd8e39c2ad4a47515203c6bbd7ff8184f02a5a5889edd3314e003",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/services/user-service/src/routes/mfa.js": "85c97f4d8c0641c5e366264f0e87f0645b001bdcb682a25c16b99735e069d79e",
         "backend/services/user-service/src/routes/auth.js": "029a6d23d3a91eea263f0ece6ade96105a9f4d47f99c836285ad6294e18649ad",
         "backend/services/user-service/src/authSessionTokens.js": "7044dd0b8e925a4149440a5c15f942abdc0f8aaa9d192ae251fe5bb5cad889a8",
@@ -13077,7 +13347,7 @@
         "database/pending/20261020_120000__mfa_verification_state.sql": "16809f6325475ca2a9e39cf24f1805014c3b7851c2d7338be1eff3752097ca87",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         ".github/workflows/mfa-regression.yml": "8eab2d99cd8a88ba8942111cf791a11aab84c80533287300fde9502bc0b9d7fb",
-        "docs/MFA-STATE.md": "70275ac5fd8631f514118e78401abac2cee30dbf4ff752b54c658c35121b495b",
+        "docs/MFA-STATE.md": "7894eaa54d6a3cea987f8257095cba579801dceea710c5b401d678e603cae999",
         "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8",
         "docs/benchmarks/ci-d2daf86-2026-10-20.json": "b15cbf6bcc745c89a62a2a7c5bb7e1495f7e4c0b5972a36bc7c498ae593e6e91",
         "docs/benchmarks/ci-89caae1-2026-10-20.json": "14e30ad105edf8d9c3baa3aecceb6ea8e8925ca3ea2f316082978eac928ba2a9",
@@ -13087,7 +13357,24 @@
         "backend/shared/sensitiveFields.js": "9a3a1036faeb7ad590f5b76ecbf30cfdd95b6f3bab8e15f86bb2523c52011926",
         "backend/shared/responseFilter.js": "f05d2b921fc5da4d478f673860bb04ec4dc8b50b066a9d7f0b9bdb2f2432a57c",
         "backend/tests/unit/sensitive-fields.test.js": "40ce1c746e4a8555e4d3b7c5c330df588204d069078fb1af997354115b5d9b27",
-        "docs/benchmarks/admin-audit-local-2026-10-23.json": "f6e182768943e7e8d30ccfd2ccad3312728c8656bd3f669a76edaf5afc14b94c"
+        "docs/benchmarks/admin-audit-local-2026-10-23.json": "f6e182768943e7e8d30ccfd2ccad3312728c8656bd3f669a76edaf5afc14b94c",
+        "frontend/game-client/index.html": "cbee53edcbb8d641308a4d63ea048b3c269329120cf8fb3ca1141077cb645658",
+        "frontend/game-client/src/api/client.js": "648fc2c78e79402244fc8e4ea24874d1074b7ecfc7e4f9296706d6e10e86dc83",
+        "frontend/game-client/src/main.js": "3a0699afed0f1388e03ef287f817b2e2ec6b32d7bd9ce32d78d7313e92eb745e",
+        "frontend/game-client/src/components/MFASetup.js": "c813d3aa630237014c5e7a1839b67048642c144b9e61a0c0107d7151f294ee2c",
+        "frontend/game-client/src/components/MFAVerify.js": "9fc2ac91dc14a5869568788e043d6d9ea481c0338c65f235c8b48e58c03a31f0",
+        "frontend/game-client/src/components/mfaUi.js": "23a3f06c07e8261e01fd7a9a467f6a9aac3cb0d36f4131f425237f0c29d39566",
+        "frontend/game-client/src/styles/mfa.css": "6b35f9bc955d6cccfdebcd19edaf2adc0faff88ec3fc52da36ab643796eeaa65",
+        "frontend/game-client/sw.js": "ff14ad4afa056a4ae8a77b150f57415a1022b519db1e38210a7e4c75f1c76061",
+        "frontend/game-client/package.json": "aa41d55f80d83376dd765b0fae2594855a94c227695e8999adbb43fd112ee9ab",
+        "frontend/game-client/package-lock.json": "7f700cdab2c54920fe1623c61176e0937005b608759141975b8a84d4b38f07dd",
+        "backend/tests/regression/mfa-browser-storage.test.js": "89e74251add694837494094415b47d07eaa9e9cfddaa70ff7ef39febf8783db0",
+        "backend/tests/unit/mfa-client.test.js": "b73cc2326b28011ab03279bd8842c9a8245409b02e998704bcd47aca587ff5de",
+        ".github/workflows/mfa-client-regression.yml": "c6058109906220dc6c589ac720670cca9ecf69f9cf618097dba4157f078a220e",
+        "docs/benchmarks/mfa-client-local-2026-10-23.json": "d566048016ec4b291afe93b6061b2c6fbf896120bcc943d6fb9513ae560493fc",
+        "docs/benchmarks/mfa-client-2026-10-23/mfa-login-mobile.png": "6a5b237b02810bda64ef1faa25dc056aab7db6a89892e397c8cd122d6efd8e5b",
+        "docs/benchmarks/mfa-client-2026-10-23/mfa-enabled-mobile.png": "f802313dd9a007afef3cb0b76cb983a8d44a81e646ac86df049df49c44a19a51",
+        "docs/benchmarks/mfa-client-2026-10-23/mfa-enabled-desktop.png": "058144a535885276adefa93e08f2d1d698b5b7458f64b15adf227f8212ba55d2"
       },
       "evidence": [
         {
@@ -13197,13 +13484,30 @@
           "result": "actual_protected_audit_decrypt_query_accountable_receipts_and_known_structured_p0_pass_full_scope_open",
           "artifact": "docs/benchmarks/admin-audit-local-2026-10-23.json",
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/tests/regression/gateway-startup.test.js",
+            "backend/package.json",
+            "backend/gateway/src/index.js",
+            "docs/MFA-STATE.md"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_game_mfa_enrollment_factor_recovery_management_and_offline_boundaries_pass_full_acceptance_open",
+          "artifact": "docs/benchmarks/mfa-client-local-2026-10-23.json",
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ],
       "remaining": "All11 security modules eachoriginal85/90coverage, correctmock/stub isolation, retainedcleanup, whole npmtest/CI and completeunitexecution<30s still need independent evidence. Partialnewaudit gates do not accept this framework."
     },
     "REQ-00638-multi-factor-authentication-mfa-system.md": {
       "date": "2026-10-23",
-      "status": "partial_canonical_factor_replay_lockout_recovery_session_proofs_and_native_mounts_pass_full_requirement_open",
+      "status": "partial_canonical_mfa_sessions_http_game_client_and_offline_boundaries_verified",
       "documentSha256": "0ebe2ef64ee0c2654b6dc5ebc598e306ffce9e341439a8123335ab4b557c701e",
       "sourceSha256": {
         "backend/shared/mfa/MFAStore.js": "ef79bb60130c23f958d416001c1ed315a5e258cee93af382dd87e4f6ee2e3bc2",
@@ -13211,7 +13515,7 @@
         "backend/shared/auth.js": "f97ba49f230a9ac6b5c6ce51583b7f41a0178775d9da85cda47b1ddfd670dfe0",
         "backend/shared/JwtBlacklist.js": "6749c600e8f5f8e2a52a3c19feddcc36a7614f89a7fcd351e99f5792958b545f",
         "backend/gateway/src/middleware/mfaRequired.js": "896e8fa81c3dd8e39c2ad4a47515203c6bbd7ff8184f02a5a5889edd3314e003",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/services/user-service/src/index.js": "dfba6ed38b22ec2218c51a650e6784e42a94b19d2b047ed090a5f7ec4b7029f3",
         "backend/services/user-service/src/routes/mfa.js": "85c97f4d8c0641c5e366264f0e87f0645b001bdcb682a25c16b99735e069d79e",
         "backend/services/user-service/src/routes/auth.js": "029a6d23d3a91eea263f0ece6ade96105a9f4d47f99c836285ad6294e18649ad",
@@ -13229,16 +13533,16 @@
         "backend/tests/regression/audit-crypto-storage.test.js": "ab8434cfb793a9d8d380df6323734538b66a773de000af7873babe40c3999380",
         "backend/tests/regression/audit-kms-wire.test.js": "11ca121f3f229022d33c9d469d2e7faf1d2aa3e5db807d2d7aaec91e22b5e9d3",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
-        "backend/package.json": "51ace9ea3254dd1427283c287f93d39b65058a53f1791e5c5225e4e145faeb33",
+        "backend/package.json": "3fd4d788b7468700387af48486dd2929e1ebff5a9c9ba4cc78f254d6eff42ad3",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/20260610_000000__add_mfa_system.sql": "652b95497f7f28727a4dc07f9469a8a6f5c51b3c4fb58917a2a8c071b4720a65",
         "database/pending/20261020_120000__mfa_verification_state.sql": "16809f6325475ca2a9e39cf24f1805014c3b7851c2d7338be1eff3752097ca87",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         ".github/workflows/mfa-regression.yml": "8eab2d99cd8a88ba8942111cf791a11aab84c80533287300fde9502bc0b9d7fb",
-        "docs/MFA-STATE.md": "70275ac5fd8631f514118e78401abac2cee30dbf4ff752b54c658c35121b495b",
+        "docs/MFA-STATE.md": "7894eaa54d6a3cea987f8257095cba579801dceea710c5b401d678e603cae999",
         "docs/AUDIT-ENCRYPTION.md": "227244af459af83941348bd721e952722c8132967833df154eae90b051f5a8a2",
         "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8",
         "docs/benchmarks/ci-d2daf86-2026-10-20.json": "b15cbf6bcc745c89a62a2a7c5bb7e1495f7e4c0b5972a36bc7c498ae593e6e91",
@@ -13250,7 +13554,24 @@
         "backend/shared/responseFilter.js": "f05d2b921fc5da4d478f673860bb04ec4dc8b50b066a9d7f0b9bdb2f2432a57c",
         "backend/tests/unit/sensitive-fields.test.js": "40ce1c746e4a8555e4d3b7c5c330df588204d069078fb1af997354115b5d9b27",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
-        "docs/benchmarks/admin-audit-local-2026-10-23.json": "f6e182768943e7e8d30ccfd2ccad3312728c8656bd3f669a76edaf5afc14b94c"
+        "docs/benchmarks/admin-audit-local-2026-10-23.json": "f6e182768943e7e8d30ccfd2ccad3312728c8656bd3f669a76edaf5afc14b94c",
+        "frontend/game-client/index.html": "cbee53edcbb8d641308a4d63ea048b3c269329120cf8fb3ca1141077cb645658",
+        "frontend/game-client/src/api/client.js": "648fc2c78e79402244fc8e4ea24874d1074b7ecfc7e4f9296706d6e10e86dc83",
+        "frontend/game-client/src/main.js": "3a0699afed0f1388e03ef287f817b2e2ec6b32d7bd9ce32d78d7313e92eb745e",
+        "frontend/game-client/src/components/MFASetup.js": "c813d3aa630237014c5e7a1839b67048642c144b9e61a0c0107d7151f294ee2c",
+        "frontend/game-client/src/components/MFAVerify.js": "9fc2ac91dc14a5869568788e043d6d9ea481c0338c65f235c8b48e58c03a31f0",
+        "frontend/game-client/src/components/mfaUi.js": "23a3f06c07e8261e01fd7a9a467f6a9aac3cb0d36f4131f425237f0c29d39566",
+        "frontend/game-client/src/styles/mfa.css": "6b35f9bc955d6cccfdebcd19edaf2adc0faff88ec3fc52da36ab643796eeaa65",
+        "frontend/game-client/sw.js": "ff14ad4afa056a4ae8a77b150f57415a1022b519db1e38210a7e4c75f1c76061",
+        "frontend/game-client/package.json": "aa41d55f80d83376dd765b0fae2594855a94c227695e8999adbb43fd112ee9ab",
+        "frontend/game-client/package-lock.json": "7f700cdab2c54920fe1623c61176e0937005b608759141975b8a84d4b38f07dd",
+        "backend/tests/regression/mfa-browser-storage.test.js": "89e74251add694837494094415b47d07eaa9e9cfddaa70ff7ef39febf8783db0",
+        "backend/tests/unit/mfa-client.test.js": "b73cc2326b28011ab03279bd8842c9a8245409b02e998704bcd47aca587ff5de",
+        ".github/workflows/mfa-client-regression.yml": "c6058109906220dc6c589ac720670cca9ecf69f9cf618097dba4157f078a220e",
+        "docs/benchmarks/mfa-client-local-2026-10-23.json": "d566048016ec4b291afe93b6061b2c6fbf896120bcc943d6fb9513ae560493fc",
+        "docs/benchmarks/mfa-client-2026-10-23/mfa-login-mobile.png": "6a5b237b02810bda64ef1faa25dc056aab7db6a89892e397c8cd122d6efd8e5b",
+        "docs/benchmarks/mfa-client-2026-10-23/mfa-enabled-mobile.png": "f802313dd9a007afef3cb0b76cb983a8d44a81e646ac86df049df49c44a19a51",
+        "docs/benchmarks/mfa-client-2026-10-23/mfa-enabled-desktop.png": "058144a535885276adefa93e08f2d1d698b5b7458f64b15adf227f8212ba55d2"
       },
       "evidence": [
         {
@@ -13306,9 +13627,26 @@
           "result": "actual_protected_audit_decrypt_query_accountable_receipts_and_known_structured_p0_pass_full_scope_open",
           "artifact": "docs/benchmarks/admin-audit-local-2026-10-23.json",
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            "backend/package.json",
+            "docs/MFA-STATE.md"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_game_mfa_enrollment_factor_recovery_management_and_offline_boundaries_pass_full_acceptance_open",
+          "artifact": "docs/benchmarks/mfa-client-local-2026-10-23.json",
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ],
-      "remaining": "All original10 criteria retained. Real core factor/session/storage behavior verified, but actual frontend setup/login and Google scan/manual interoperability, seven-day trusted devices, password/payment/asset business operations, full unit>=90scope, complete metrics/alerts/productimpact remain unaccepted. DedicatedMFA CI1/native38 pass at d2daf86; main469 inventory failure retained, corrected main470 and dedicatedMFA2 passed at89caae1; separate migration31 throughput failed; actual AWS authorization/IAM/latency unproven. Unknown legacy profiles require explicit reviewed adoption."
+      "remaining": "Original10criteria/targets unchanged. Actualbackendfactors/sessions/locks/epoch/proofs and gameenrollment/login/recovery/regeneration/disable/cancel/browserstoragebounds work. PhysicalGoogleAuthenticatorQRscan/manualinterop and originalend-to-end>=99percentproductsuccess, seven-daytrusteddevices, everysensitivepassword/payment/admin/riskbusinessscope, realSMSprovider, fullmonitoring/metrics/alerts/originalproductimpact and productionacceptance remainopen. Controlled500/500referencewindows and scoped90line/functioncoverage do not accept device/network/allbusinesscriteria. No remembereddeviceflag:serverexplicitlyrefuses whilecontractopen."
     },
     "REQ-00126-user-service-mfa-route-mounting.md": {
       "date": "2026-10-23",
@@ -13320,7 +13658,7 @@
         "backend/shared/auth.js": "f97ba49f230a9ac6b5c6ce51583b7f41a0178775d9da85cda47b1ddfd670dfe0",
         "backend/shared/JwtBlacklist.js": "6749c600e8f5f8e2a52a3c19feddcc36a7614f89a7fcd351e99f5792958b545f",
         "backend/gateway/src/middleware/mfaRequired.js": "896e8fa81c3dd8e39c2ad4a47515203c6bbd7ff8184f02a5a5889edd3314e003",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/services/user-service/src/index.js": "dfba6ed38b22ec2218c51a650e6784e42a94b19d2b047ed090a5f7ec4b7029f3",
         "backend/services/user-service/src/routes/mfa.js": "85c97f4d8c0641c5e366264f0e87f0645b001bdcb682a25c16b99735e069d79e",
         "backend/services/user-service/src/routes/auth.js": "029a6d23d3a91eea263f0ece6ade96105a9f4d47f99c836285ad6294e18649ad",
@@ -13338,21 +13676,38 @@
         "backend/tests/regression/audit-crypto-storage.test.js": "ab8434cfb793a9d8d380df6323734538b66a773de000af7873babe40c3999380",
         "backend/tests/regression/audit-kms-wire.test.js": "11ca121f3f229022d33c9d469d2e7faf1d2aa3e5db807d2d7aaec91e22b5e9d3",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
-        "backend/package.json": "51ace9ea3254dd1427283c287f93d39b65058a53f1791e5c5225e4e145faeb33",
+        "backend/package.json": "3fd4d788b7468700387af48486dd2929e1ebff5a9c9ba4cc78f254d6eff42ad3",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/20260610_000000__add_mfa_system.sql": "652b95497f7f28727a4dc07f9469a8a6f5c51b3c4fb58917a2a8c071b4720a65",
         "database/pending/20261020_120000__mfa_verification_state.sql": "16809f6325475ca2a9e39cf24f1805014c3b7851c2d7338be1eff3752097ca87",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         ".github/workflows/mfa-regression.yml": "8eab2d99cd8a88ba8942111cf791a11aab84c80533287300fde9502bc0b9d7fb",
-        "docs/MFA-STATE.md": "70275ac5fd8631f514118e78401abac2cee30dbf4ff752b54c658c35121b495b",
+        "docs/MFA-STATE.md": "7894eaa54d6a3cea987f8257095cba579801dceea710c5b401d678e603cae999",
         "docs/AUDIT-ENCRYPTION.md": "227244af459af83941348bd721e952722c8132967833df154eae90b051f5a8a2",
         "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8",
         "docs/benchmarks/ci-d2daf86-2026-10-20.json": "b15cbf6bcc745c89a62a2a7c5bb7e1495f7e4c0b5972a36bc7c498ae593e6e91",
         "docs/benchmarks/ci-89caae1-2026-10-20.json": "14e30ad105edf8d9c3baa3aecceb6ea8e8925ca3ea2f316082978eac928ba2a9",
-        "docs/benchmarks/transaction-throughput-ci-d2daf86-2026-10-20.json": "d888a4fdea28111f6f2cd7f85d88a9e0a431df7f5de355032938cbaa3a5b9183"
+        "docs/benchmarks/transaction-throughput-ci-d2daf86-2026-10-20.json": "d888a4fdea28111f6f2cd7f85d88a9e0a431df7f5de355032938cbaa3a5b9183",
+        "frontend/game-client/index.html": "cbee53edcbb8d641308a4d63ea048b3c269329120cf8fb3ca1141077cb645658",
+        "frontend/game-client/src/api/client.js": "648fc2c78e79402244fc8e4ea24874d1074b7ecfc7e4f9296706d6e10e86dc83",
+        "frontend/game-client/src/main.js": "3a0699afed0f1388e03ef287f817b2e2ec6b32d7bd9ce32d78d7313e92eb745e",
+        "frontend/game-client/src/components/MFASetup.js": "c813d3aa630237014c5e7a1839b67048642c144b9e61a0c0107d7151f294ee2c",
+        "frontend/game-client/src/components/MFAVerify.js": "9fc2ac91dc14a5869568788e043d6d9ea481c0338c65f235c8b48e58c03a31f0",
+        "frontend/game-client/src/components/mfaUi.js": "23a3f06c07e8261e01fd7a9a467f6a9aac3cb0d36f4131f425237f0c29d39566",
+        "frontend/game-client/src/styles/mfa.css": "6b35f9bc955d6cccfdebcd19edaf2adc0faff88ec3fc52da36ab643796eeaa65",
+        "frontend/game-client/sw.js": "ff14ad4afa056a4ae8a77b150f57415a1022b519db1e38210a7e4c75f1c76061",
+        "frontend/game-client/package.json": "aa41d55f80d83376dd765b0fae2594855a94c227695e8999adbb43fd112ee9ab",
+        "frontend/game-client/package-lock.json": "7f700cdab2c54920fe1623c61176e0937005b608759141975b8a84d4b38f07dd",
+        "backend/tests/regression/mfa-browser-storage.test.js": "89e74251add694837494094415b47d07eaa9e9cfddaa70ff7ef39febf8783db0",
+        "backend/tests/unit/mfa-client.test.js": "b73cc2326b28011ab03279bd8842c9a8245409b02e998704bcd47aca587ff5de",
+        ".github/workflows/mfa-client-regression.yml": "c6058109906220dc6c589ac720670cca9ecf69f9cf618097dba4157f078a220e",
+        "docs/benchmarks/mfa-client-local-2026-10-23.json": "d566048016ec4b291afe93b6061b2c6fbf896120bcc943d6fb9513ae560493fc",
+        "docs/benchmarks/mfa-client-2026-10-23/mfa-login-mobile.png": "6a5b237b02810bda64ef1faa25dc056aab7db6a89892e397c8cd122d6efd8e5b",
+        "docs/benchmarks/mfa-client-2026-10-23/mfa-enabled-mobile.png": "f802313dd9a007afef3cb0b76cb983a8d44a81e646ac86df049df49c44a19a51",
+        "docs/benchmarks/mfa-client-2026-10-23/mfa-enabled-desktop.png": "058144a535885276adefa93e08f2d1d698b5b7458f64b15adf227f8212ba55d2"
       },
       "evidence": [
         {
@@ -13402,6 +13757,23 @@
             "docs/AUDIT-ENCRYPTION.md"
           ],
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            "backend/package.json",
+            "docs/MFA-STATE.md"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_game_mfa_enrollment_factor_recovery_management_and_offline_boundaries_pass_full_acceptance_open",
+          "artifact": "docs/benchmarks/mfa-client-local-2026-10-23.json",
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ],
       "remaining": "All original4 boxes retained. Syntax/grep/load commands pass; authenticated native aliases reachable. Original curl -sf with literal forged Bearer test_token gets401 as required by signed authentication; command cannot securely succeed as written. Preserve conflict, do not whitelist token or silently rewrite criterion. Native38 and dedicatedMFA1 pass at d2daf86; main469 inventory failure retained; corrected main470 and dedicatedMFA2 passed at89caae1; separate migration31 throughput failed."
@@ -13416,7 +13788,7 @@
         "backend/shared/auth.js": "f97ba49f230a9ac6b5c6ce51583b7f41a0178775d9da85cda47b1ddfd670dfe0",
         "backend/shared/JwtBlacklist.js": "6749c600e8f5f8e2a52a3c19feddcc36a7614f89a7fcd351e99f5792958b545f",
         "backend/gateway/src/middleware/mfaRequired.js": "896e8fa81c3dd8e39c2ad4a47515203c6bbd7ff8184f02a5a5889edd3314e003",
-        "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+        "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
         "backend/services/user-service/src/index.js": "dfba6ed38b22ec2218c51a650e6784e42a94b19d2b047ed090a5f7ec4b7029f3",
         "backend/services/user-service/src/routes/mfa.js": "85c97f4d8c0641c5e366264f0e87f0645b001bdcb682a25c16b99735e069d79e",
         "backend/services/user-service/src/routes/auth.js": "029a6d23d3a91eea263f0ece6ade96105a9f4d47f99c836285ad6294e18649ad",
@@ -13434,16 +13806,16 @@
         "backend/tests/regression/audit-crypto-storage.test.js": "ab8434cfb793a9d8d380df6323734538b66a773de000af7873babe40c3999380",
         "backend/tests/regression/audit-kms-wire.test.js": "11ca121f3f229022d33c9d469d2e7faf1d2aa3e5db807d2d7aaec91e22b5e9d3",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
-        "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+        "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
-        "backend/package.json": "51ace9ea3254dd1427283c287f93d39b65058a53f1791e5c5225e4e145faeb33",
+        "backend/package.json": "3fd4d788b7468700387af48486dd2929e1ebff5a9c9ba4cc78f254d6eff42ad3",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
         "database/pending/20260610_000000__add_mfa_system.sql": "652b95497f7f28727a4dc07f9469a8a6f5c51b3c4fb58917a2a8c071b4720a65",
         "database/pending/20261020_120000__mfa_verification_state.sql": "16809f6325475ca2a9e39cf24f1805014c3b7851c2d7338be1eff3752097ca87",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         ".github/workflows/mfa-regression.yml": "8eab2d99cd8a88ba8942111cf791a11aab84c80533287300fde9502bc0b9d7fb",
-        "docs/MFA-STATE.md": "70275ac5fd8631f514118e78401abac2cee30dbf4ff752b54c658c35121b495b",
+        "docs/MFA-STATE.md": "7894eaa54d6a3cea987f8257095cba579801dceea710c5b401d678e603cae999",
         "docs/AUDIT-ENCRYPTION.md": "227244af459af83941348bd721e952722c8132967833df154eae90b051f5a8a2",
         "docs/benchmarks/mfa-local-2026-10-20.json": "0db02d6b6abd0100d864c8cfeb3cb9e23aabcd76dabf80b53a7ebbe63187fbf8",
         "docs/benchmarks/ci-d2daf86-2026-10-20.json": "b15cbf6bcc745c89a62a2a7c5bb7e1495f7e4c0b5972a36bc7c498ae593e6e91",
@@ -13455,7 +13827,24 @@
         "backend/shared/responseFilter.js": "f05d2b921fc5da4d478f673860bb04ec4dc8b50b066a9d7f0b9bdb2f2432a57c",
         "backend/tests/unit/sensitive-fields.test.js": "40ce1c746e4a8555e4d3b7c5c330df588204d069078fb1af997354115b5d9b27",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
-        "docs/benchmarks/admin-audit-local-2026-10-23.json": "f6e182768943e7e8d30ccfd2ccad3312728c8656bd3f669a76edaf5afc14b94c"
+        "docs/benchmarks/admin-audit-local-2026-10-23.json": "f6e182768943e7e8d30ccfd2ccad3312728c8656bd3f669a76edaf5afc14b94c",
+        "frontend/game-client/index.html": "cbee53edcbb8d641308a4d63ea048b3c269329120cf8fb3ca1141077cb645658",
+        "frontend/game-client/src/api/client.js": "648fc2c78e79402244fc8e4ea24874d1074b7ecfc7e4f9296706d6e10e86dc83",
+        "frontend/game-client/src/main.js": "3a0699afed0f1388e03ef287f817b2e2ec6b32d7bd9ce32d78d7313e92eb745e",
+        "frontend/game-client/src/components/MFASetup.js": "c813d3aa630237014c5e7a1839b67048642c144b9e61a0c0107d7151f294ee2c",
+        "frontend/game-client/src/components/MFAVerify.js": "9fc2ac91dc14a5869568788e043d6d9ea481c0338c65f235c8b48e58c03a31f0",
+        "frontend/game-client/src/components/mfaUi.js": "23a3f06c07e8261e01fd7a9a467f6a9aac3cb0d36f4131f425237f0c29d39566",
+        "frontend/game-client/src/styles/mfa.css": "6b35f9bc955d6cccfdebcd19edaf2adc0faff88ec3fc52da36ab643796eeaa65",
+        "frontend/game-client/sw.js": "ff14ad4afa056a4ae8a77b150f57415a1022b519db1e38210a7e4c75f1c76061",
+        "frontend/game-client/package.json": "aa41d55f80d83376dd765b0fae2594855a94c227695e8999adbb43fd112ee9ab",
+        "frontend/game-client/package-lock.json": "7f700cdab2c54920fe1623c61176e0937005b608759141975b8a84d4b38f07dd",
+        "backend/tests/regression/mfa-browser-storage.test.js": "89e74251add694837494094415b47d07eaa9e9cfddaa70ff7ef39febf8783db0",
+        "backend/tests/unit/mfa-client.test.js": "b73cc2326b28011ab03279bd8842c9a8245409b02e998704bcd47aca587ff5de",
+        ".github/workflows/mfa-client-regression.yml": "c6058109906220dc6c589ac720670cca9ecf69f9cf618097dba4157f078a220e",
+        "docs/benchmarks/mfa-client-local-2026-10-23.json": "d566048016ec4b291afe93b6061b2c6fbf896120bcc943d6fb9513ae560493fc",
+        "docs/benchmarks/mfa-client-2026-10-23/mfa-login-mobile.png": "6a5b237b02810bda64ef1faa25dc056aab7db6a89892e397c8cd122d6efd8e5b",
+        "docs/benchmarks/mfa-client-2026-10-23/mfa-enabled-mobile.png": "f802313dd9a007afef3cb0b76cb983a8d44a81e646ac86df049df49c44a19a51",
+        "docs/benchmarks/mfa-client-2026-10-23/mfa-enabled-desktop.png": "058144a535885276adefa93e08f2d1d698b5b7458f64b15adf227f8212ba55d2"
       },
       "evidence": [
         {
@@ -13511,6 +13900,23 @@
           "result": "actual_protected_audit_decrypt_query_accountable_receipts_and_known_structured_p0_pass_full_scope_open",
           "artifact": "docs/benchmarks/admin-audit-local-2026-10-23.json",
           "scope": "Only exercised changed integration references refreshed:actualaudit26 four-module98.30line90.45branch95.77function/90line-functiongate; MFA/adminHTTP26 sevenmodules99.42line83.43branch100function/90gate; P0policy4at100all/90gate; actualnative2 with same-image40connectionfixture/capacity20original/benchmarkunchanged, receipt/context/CORS and oldprivacy/title/IP/cache/CDC/notification/health/signals;746unit26Jest439,privacy12+40/IP9/battle133formula100/syntax1470/statictools pass. No fresh execution of every earlier feature/allservices or newfull86bootstrap. Fullsecurity/frontend/provisioning/L3export/masking/scanner/liveAWS/originalperformance and all658 acceptance stay open."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_mfa_client_and_gateway_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/tests/regression/gateway-startup.test.js",
+            "backend/package.json",
+            "docs/MFA-STATE.md"
+          ],
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
+        },
+        {
+          "date": "2026-10-23",
+          "result": "actual_game_mfa_enrollment_factor_recovery_management_and_offline_boundaries_pass_full_acceptance_open",
+          "artifact": "docs/benchmarks/mfa-client-local-2026-10-23.json",
+          "scope": "Changed commonintegration refs only:756unit(26Jest439,client10+pureP0policy4), actualbrowser6 onproductionHTML/API/widgets/worker/routes+canonicalPG/Redis(ownedSMSseed,noexternaldelivery), actualMFA/adminHTTP26 sevenmodules99.42line83.43branch100func/original90linefunctiongate, nativeOS2 with realPG/Redis/Kafka/legacyprimarychallenge+factorlogin/CORS and retainedpriorroute/lifecyclecases, syntax1474/audittools12/logging/workflow/numbering/healthpass. No fresh everyfeature/full86localbootstrap/physicalauthenticator/provider/fullsecurity/performance/operations acceptance. Full658goalactive."
         }
       ],
       "remaining": "All original4 boxes retained. Actual serverproof/session/scope/role middleware tests are prerequisites only. Legacy separate risk engine still parseInt UUIDs and retains raw verified tokens; actual current gateway risk scoring/geography/device/session policies, cross-service business authorization and encrypted attributable risk-log acceptance/provider delivery remain unverified. No synthetic adapter/caller flags can accept full risk grading."

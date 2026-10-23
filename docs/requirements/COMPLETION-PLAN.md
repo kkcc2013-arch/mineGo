@@ -43,9 +43,12 @@ independent authorized work.
    work while genuine external provider/staging/device inputs are unavailable.
 4. Repair remaining legacy contract/API/integration/performance/security/operations
    gates, meet each original numerical target and perform all658 acceptance audit.
-   Main471/native40/MFA3 pass at45d1562. Migration33 fails the original
-   throughput ceiling at-6.526500223984499% against-5; full86 remote step skipped.
-   Current protected audit/P0-filter/query source still requires CI; other legacy workflows remain unaccepted. A partial/source-specific pass never accepts a whole feature.
+   Exact4abdb82 main472/native41/MFA4/migration34 pass, including the full86
+   remote bootstrap. Its measured throughput is-1.6165389170840427% against the
+   original-5 ceiling; prior failed-5.6653600267481234% and-6.526500223984499%
+   evidence remains. This is not full performance acceptance. Current real MFA
+   client/offline/gateway batch requires CI; legacy contract/integration/security/
+   performance workflows remain unaccepted. A partial pass never accepts a whole feature.
 
 ## Definition of finished
 
@@ -956,3 +959,20 @@ combined unit/security coverage targets. Continue actual original performance
 profiling/optimization without weakening-5. Preserve prior negative results and
 complete original P0/payment/auth/privacy/minor/anti-cheat/service/client/operations
 requirements; this batch does not accept full REQ38/638/588 or the full goal.
+
+
+## Game client MFA batch (2026-10-23)
+
+Real enrollment/QR/manual secret, explicit recovery-code download/save clearance,
+primary challenge/factor login/cancel, regeneration and disabling now use actual
+service APIs. Challenges/secrets/codes stay transient, factor submissions never
+automatically refresh/retry, and stale responses cannot restore ended identities.
+The service worker refuses offline factor queuing/cached status and filters legacy
+queued auth/proof/audit operations. Correct legacy gateway auth rewriting/rate
+limits and client preflight headers are exercised by actual native processes.
+The dedicated browser fixture uses production modules and canonical PostgreSQL/
+Redis, with owned seeded SMS codes only. Source-hashed results are recorded in
+VERIFICATION/WORKLOG; all original boxes and targets stay unchanged. Next close
+sensitive business boundaries and risk/scanner gaps, continue other real service
+startup and original client/security/performance/operations acceptance. Physical
+Google Authenticator/SMS delivery and seven-day trusted devices remain open.

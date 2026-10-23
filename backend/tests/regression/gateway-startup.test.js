@@ -128,7 +128,7 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     assert.equal((await fetch(base+'/api/v1/users/me/mfa/recovery-codes',{headers})).status,403);
     const verified=await fetch(base+'/api/v1/users/me/mfa/step-up',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({code:mfaSetup.recoveryCodes[0],scope:'mfa-manage'})});assert.equal(verified.status,200);const proof=(await verified.json()).data.mfaToken;
     assert.equal((await fetch(base+'/api/v1/users/me/mfa/recovery-codes',{headers:{...headers,'x-mfa-token':proof}})).status,200);assert.ok(!user.logs().includes(mfaMaster.toString('hex')));assert.ok(!user.logs().includes(mfaSetup.secret));
-    const preflight=await fetch(base+'/api/admin/audit-logs',{method:'OPTIONS',headers:{Origin:'https://admin.example.invalid','Access-Control-Request-Method':'GET','Access-Control-Request-Headers':'authorization,x-mfa-token,x-audit-reason'}});assert.equal(preflight.status,204);assert.match(preflight.headers.get('access-control-allow-headers'),/X-MFA-Token/);assert.match(preflight.headers.get('access-control-allow-headers'),/X-Audit-Reason/);
+    const preflight=await fetch(base+'/api/admin/audit-logs',{method:'OPTIONS',headers:{Origin:'https://admin.example.invalid','Access-Control-Request-Method':'GET','Access-Control-Request-Headers':'authorization,x-mfa-token,x-audit-reason,x-client-ver,x-platform'}});assert.equal(preflight.status,204);assert.match(preflight.headers.get('access-control-allow-headers'),/X-MFA-Token/);assert.match(preflight.headers.get('access-control-allow-headers'),/X-Audit-Reason/);assert.match(preflight.headers.get('access-control-allow-headers'),/X-Client-Ver/);assert.match(preflight.headers.get('access-control-allow-headers'),/X-Platform/);
     const readerToken=require('jsonwebtoken').sign({sub:player,roles:['admin'],permissions:['audit:decrypt']},accessKey);
     const readerHeaders={Authorization:'Bearer '+readerToken,'x-audit-reason':'native gateway audit review'};
     const proofResponse=await fetch(base+'/api/v1/users/me/mfa/step-up',{method:'POST',headers:{...readerHeaders,'Content-Type':'application/json'},body:JSON.stringify({code:mfaSetup.recoveryCodes[1],scope:'audit-read'})});assert.equal(proofResponse.status,200);readerHeaders['x-mfa-token']=(await proofResponse.json()).data.mfaToken;
@@ -139,6 +139,13 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
       assert.equal((await fetch(base+prefix+'/admin/sensitive-access-logs?user_id='+player,{headers:readerHeaders})).status,200);
     }
     assert.ok(!user.logs().includes(mfaSetup.secret));assert.ok(!gateway.logs().includes(mfaSetup.secret));
+    const loginPhone='139'+String(crypto.randomInt(0,100000000)).padStart(8,'0');await fixture.query('UPDATE users SET phone=$2 WHERE id=$1',[player,loginPhone]);
+    const loginRedis=new (require('ioredis'))(process.env.TEST_REDIS_URL);
+    try{
+      await loginRedis.set('sms:code:'+loginPhone+':login','123456','EX',300);
+      const primary=await fetch(base+'/v1/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:loginPhone,smsCode:'123456'})});assert.equal(primary.status,200);const primaryData=(await primary.json()).data;assert.equal(primaryData.mfaRequired,true);assert.ok(!primaryData.accessToken);
+      const completed=await fetch(base+'/v1/auth/mfa/recovery',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({challenge:primaryData.tempToken,code:mfaSetup.recoveryCodes[2]})});assert.equal(completed.status,200);const claims=require('jsonwebtoken').verify((await completed.json()).data.accessToken,accessKey);assert.equal(claims.sub,player);assert.ok(claims.mfa_epoch);
+    }finally{await loginRedis.del('sms:code:'+loginPhone+':login');await loginRedis.quit();}
     // Start a second actual OS gateway process against the same durable journal
     // and Redis namespace; each has its own listener, worker and L1 Map.
     const secondPort=await freePort();const secondBase=`http://127.0.0.1:${secondPort}`;

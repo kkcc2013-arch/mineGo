@@ -66,7 +66,7 @@ Status declarations and implementation references are discovery data, not proof 
 | [REQ-00054-gym-battle-system.md](REQ-00054-gym-battle-system.md) | P0 | done | 11 | 6 |
 | [REQ-00055-pokemon-collection-showcase-system.md](REQ-00055-pokemon-collection-showcase-system.md) | P1 | done | 13 | 7 |
 | [REQ-00056-pokedex-completion-reward-system.md](REQ-00056-pokedex-completion-reward-system.md) | P1 | in_progress | 15 | 7 |
-| [REQ-00057-game-event-system-and-limited-time-events.md](REQ-00057-game-event-system-and-limited-time-events.md) | P0 | done | 0 | 10 |
+| [REQ-00057-game-event-system-and-limited-time-events.md](REQ-00057-game-event-system-and-limited-time-events.md) | P0 | done | 0 | 9 |
 | [REQ-00058-guild-system-and-team-social-features.md](REQ-00058-guild-system-and-team-social-features.md) | P1 | new | 0 | 5 |
 | [REQ-00059-beginner-tutorial-and-guidance-system.md](REQ-00059-beginner-tutorial-and-guidance-system.md) | P1 | new | 13 | 7 |
 | [REQ-00060-database-partitioning-for-large-tables.md](REQ-00060-database-partitioning-for-large-tables.md) | P1 | in_progress | 9 | 9 |
@@ -622,7 +622,7 @@ Status declarations and implementation references are discovery data, not proof 
 | [REQ-00635-input-validation-and-sanitization-middleware.md](REQ-00635-input-validation-and-sanitization-middleware.md) | P0 | done | 3 | 4 |
 | [REQ-00636-distributed-tracing-log-aggregation.md](REQ-00636-distributed-tracing-log-aggregation.md) | P0 | new | 6 | 1 |
 | [REQ-00637-implement-gdpr-data-compliance.md](REQ-00637-implement-gdpr-data-compliance.md) | P0 | new | 4 | 15 |
-| [REQ-00638-multi-factor-authentication-mfa-system.md](REQ-00638-multi-factor-authentication-mfa-system.md) | P1 | in_progress | 10 | 14 |
+| [REQ-00638-multi-factor-authentication-mfa-system.md](REQ-00638-multi-factor-authentication-mfa-system.md) | P1 | in_progress | 10 | 13 |
 | [REQ-00639-chaos-engineering-fault-injection.md](REQ-00639-chaos-engineering-fault-injection.md) | P1 | done | 7 | 0 |
 | [REQ-00640-database-transaction-isolation-and-deadlock-detection.md](REQ-00640-database-transaction-isolation-and-deadlock-detection.md) | P1 | new | 9 | 4 |
 | [REQ-00641-frontend-lazy-load-and-code-splitting.md](REQ-00641-frontend-lazy-load-and-code-splitting.md) | P1 | done | 10 | 6 |

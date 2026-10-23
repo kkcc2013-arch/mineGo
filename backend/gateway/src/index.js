@@ -135,7 +135,7 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization','X-Idempotency-Key','X-Request-ID','X-Trace-ID','X-MFA-Token','X-Audit-Reason'],
+  allowedHeaders: ['Content-Type','Authorization','X-Idempotency-Key','X-Request-ID','X-Trace-ID','X-MFA-Token','X-Audit-Reason','X-Client-Ver','X-Platform'],
 }));
 
 // Global rate limit
@@ -340,7 +340,7 @@ app.use('/api/v2/pokemon',
 // ── Legacy Routes (Default to current version) ──────────────────────
 // 以下路由保持向后兼容，默认使用当前版本
 // Public (no auth)
-app.use('/v1/auth',     proxy(SERVICES.user, { '^/v1/': '/auth/' }));
+app.use('/v1/auth', authRateLimiter(), proxy(SERVICES.user,url=>'/auth'+(url==='/'?'':url)));
 
 // Protected with cache (REQ-00031)
 // 用户资料 - 缓存 5 分钟

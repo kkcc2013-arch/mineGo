@@ -2,7 +2,7 @@
 // Service Worker for PWA offline support and caching
 'use strict';
 
-const CACHE_VERSION = 'pmg-v1';
+const CACHE_VERSION = 'pmg-v2-mfa';
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const API_CACHE = `${CACHE_VERSION}-api`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
@@ -18,8 +18,12 @@ const PRECACHE_URLS = [
   '/src/game/LocationManager.js',
   '/src/game/CatchEngine.js',
   '/src/game/RaidManager.js',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  '/src/components/MFASetup.js',
+  '/src/components/MFAVerify.js',
+  '/src/components/mfaUi.js',
+  '/src/styles/mfa.css',
+  '/icons/icon-192.svg',
+  '/icons/icon-512.svg'
 ];
 
 // API caching rules: path prefix -> { maxAge, strategy }
@@ -65,7 +69,7 @@ self.addEventListener('activate', (event) => {
       .then((cacheNames) => {
         return Promise.all(
           cacheNames
-            .filter((name) => !name.startsWith(CACHE_VERSION))
+            .filter((name) => /^pmg-v\d+(?:-[a-z0-9]+)*-(?:static|api|images)$/.test(name)&&![STATIC_CACHE,API_CACHE,IMAGE_CACHE].includes(name))
             .map((name) => {
               console.log('[SW] Deleting old cache:', name);
               return caches.delete(name);
@@ -74,7 +78,7 @@ self.addEventListener('activate', (event) => {
       })
       .then(() => {
         console.log('[SW] Service Worker activated');
-        return self.clients.claim();
+        return purgeAuthenticationQueue().then(()=>self.clients.claim());
       })
   );
 });
@@ -83,6 +87,12 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
+
+  // Authentication factors, private bearer reads and no-store calls must never
+  // enter CacheStorage or the legacy background replay queue.
+  if(request.cache==='no-store'||isAuthenticationPath(url.pathname)||request.headers.has('x-mfa-token')||request.headers.has('x-audit-reason')||request.method==='GET'&&request.headers.has('authorization')){
+    event.respondWith(fetch(request).catch(()=>new Response(JSON.stringify({code:9999,message:'当前离线，请检查网络连接',data:null,offline:true}),{status:503,headers:{'Content-Type':'application/json','Cache-Control':'no-store'}})));return;
+  }
 
   // Skip non-GET requests for caching
   if (request.method !== 'GET') {
@@ -221,8 +231,10 @@ function isStaticResource(pathname) {
          pathname === '/index.html';
 }
 
+function isAuthenticationPath(pathname){return /(?:^|\/)(?:auth|mfa)(?:\/|$)|\/admin\/(?:audit-logs|sensitive-access-logs)(?:\/|$)/.test(pathname);}
+
 function shouldQueueForSync(pathname) {
-  return NO_CACHE_PATHS.some(p => pathname.startsWith(p));
+  return !isAuthenticationPath(pathname)&&NO_CACHE_PATHS.some(p => pathname.startsWith(p));
 }
 
 function offlineResponse(request) {
@@ -304,6 +316,14 @@ async function saveSyncQueue(queue) {
   await cache.put('queue', new Response(JSON.stringify(queue)));
 }
 
+function safeQueuedOperation(op){
+  try{return op&&typeof op.url==='string'&&!isAuthenticationPath(new URL(op.url,self.location.origin).pathname)&&!new Headers(op.headers||{}).has('x-mfa-token')&&!new Headers(op.headers||{}).has('x-audit-reason');}catch{return false;}
+}
+async function purgeAuthenticationQueue(){
+  const queue=await getSyncQueue();if(!Array.isArray(queue)){await saveSyncQueue([]);return;}
+  const retained=queue.filter(safeQueuedOperation);if(retained.length!==queue.length)await saveSyncQueue(retained);
+}
+
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-pending-operations') {
     event.waitUntil(syncPendingOperations());
@@ -312,7 +332,8 @@ self.addEventListener('sync', (event) => {
 
 async function syncPendingOperations() {
   console.log('[SW] Starting background sync...');
-  const queue = await getSyncQueue();
+  const stored=await getSyncQueue();
+  const queue=Array.isArray(stored)?stored.filter(safeQueuedOperation):[];
   const failed = [];
 
   for (const op of queue) {
