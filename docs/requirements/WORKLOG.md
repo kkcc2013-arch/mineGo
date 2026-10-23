@@ -2298,3 +2298,99 @@ profiling/optimization and the original target. Publisher preflight now verifies
 current inventory before push. Next functional work: real admin audit decrypt/
 service filtering using verified role/MFA; continue client/trusted-device/sensitive
 business/risk, performance, all remaining P0/services/operations and all658 scope.
+
+## Protected audit reads, numeric pagination and P0 projection (2026-10-23)
+
+Previous goal turn classified as progress: published45d1562 and independently
+retained both successful MFA/runtime CI and actual original throughput failures.
+Revalidated current checkout/PR context and complete original REQ38 before this
+batch; all658 scope remains. Exact45 main471/native40/MFA3 succeeded, migration33
+failed its original throughput gate at-6.526500223984499% against-5, Node24.21.
+All8 measured hashes match current transaction sources; cause is unproven and the
+negative report/all rounds/log hash remain evidence. Full86 remote step skipped.
+No threshold changes, preferred-score reruns or full performance acceptance.
+
+Actual user-service now mounts admin audit decrypt, audit query and sensitive-access
+query. All four gateway namespaces forward them with signed-admin controls and
+admin rate limits, outside generic cached profiles. CORS permits the actual MFA
+and access-reason headers. The user service independently verifies actual roles/
+permissions arrays (admin plus explicit audit:decrypt L2 capability), actual server
+MFA audit-read proof bound to the exact session/epoch/scope, revocation/banning and
+expiry. Generic/L1 admin, string-shaped roles/permissions, caller flags, wrong
+proofs and literal invalid tokens cannot decrypt. Reason3..1024 is required and
+kept encrypted. Trusted issuer/provisioning/governance and L3 approval remain open.
+
+Actual reads and encrypted admin_audit_decrypt receipt commit in the same bounded
+transaction before JSON release. Receipt records verified accessor, source IDs,
+reason/query/IP/agent/request correlation. Native read of its own receipt proves
+the real ServiceLauncher reqId context, now supported by common audit too. Real
+constraint refusal withholds plaintext and rolls receipt back; tampered tags and
+legacy incomplete ciphertext refuse rather than using old plaintext. Sensitive
+query uses real canonical records and explicit user/accessor/date/limit validation,
+lookahead hasMore and refusal of unreadable data. No total/export claim.
+
+Known structured P0/credential aliases are removed recursively from authorized
+admin HTTP output, including nested arrays and prototype-like keys; P1 remains
+available only with authorized L2 plus MFA. Cipher originals retained. Extract the
+unchanged base classifications from old responseFilter into pure sensitiveFields,
+so the new view does not start the legacy filter's timer/access-buffer machinery.
+Four real unit cases prove no input mutation, original/alias P0 removal, prototype
+refusal, genuine timestamps/primitives and bounded cyclic/deep refusal. Arbitrary
+unstructured secrets, custom policy governance, all response chains/masking/scanner
+and original full combined coverage remain open; scoped100% is not full acceptance.
+
+Audit query matches encrypted service only after authenticated decryption, with
+limit1..50, numeric int64 keyset cursor, bounded200 candidates and7MiB plaintext
+page; generic responses capped8MiB. Fetch candidate IDs then one cipher at a time,
+not200 large payloads at once. Full nonmatching candidate pages report incomplete
+with cursor; byte-boundary records stay available next page. Actual201-record and
+nine-large-payload cases prove progress/no skipped IDs. First boundary test failed:
+SELECT id::text ORDER BY id sorted aliases lexically. Qualify native audit_logs.id,
+and native created_at/id in owner metadata. Real99/100 equal-wall-clock rows prove
+numeric tie order. Preserve the failed result in development evidence.
+
+Date filters retain explicit offsets and PostgreSQL six-digit microseconds, not
+JavaScript-rounded bounds. Exact fractional inclusion/exclusion and reversed
+microsecond ranges are tested; excessive precision/invalid dates refuse. Existing
+internal genuine Date and UTC-midnight date-only contracts remain; new HTTP needs
+explicit offsets. DTOs separate legacy wall-clock text from genuine UTC instants
+with six fractional digits, preserving unknown historical timezone provenance.
+
+Native diagnostics retained original cache/profile assertions. Initial native
+scenarios failed503; safe structured IP-guard phase/code tracing identified actual
+53300 connection exhaustion in the second gateway. The owned slow-query container
+forces max_connections20 via command line; attempted ALTER SYSTEM was ineffective
+and RESET, with original config restored. Use a NEW owned native-only PostGIS of
+the exact same image,1CPU/512MiB/40connections/locks256, measured40, port55436.
+User+two gateways+fixture clients fit; no weaker assertions. Other SQL/HTTP tests
+still use55434/20connections. Performance55435/environment/5% gate unchanged.
+IP errors now emit fixed safe phase/code instead of raw address/SQL/stack payload.
+This is functional capacity provisioning, not a production capacity/performance pass.
+
+Final current-source results, no skips where applicable:
+
+- Audit/crypto26 pass: four-module98.30line90.45branch95.77function, original90line/
+  function gate retained; no complete mask/permission/all-security coverage claim.
+- Actual MFA/admin PostgreSQL/Redis/HTTP26 pass: seven scoped modules99.42line/
+  83.43branch/100function at unchanged90line/function gate; adminAudit100line/
+  93.75branch/100function. Pure P0 policy4 separately100line/branch/function at90gate.
+- Both actual native gateway/user scenarios pass, including all four admin aliases,
+  actual decrypt/receipt/context/CORS, source privacy/title/IP/cache/CDC/notification/
+  health and natural shutdown. Original50ms titlep95 preserved; exact local fixture
+  timings/log hashes archived, not production SLO. Other peers alias user fixture.
+- All746 unit checks (original26Jest439 plus Node/legacy checks including newpolicy4),
+  privacy12 storage+40unit/80gates, IP9 storage and battle133/formula100 pass.
+- 1470JS syntax, audit tools12, numbering/health/console checks pass. Original86raw
+  SQL, manifests/dependencies and lock unchanged; no fabricated fresh full86 rerun.
+  Previous SQL-specific full bootstrap evidence stays separate from failed remote CI.
+
+Still179 declared done50progress429new=658unique;46matching records/sole619verified.
+Original REQ38/638/588 acceptance boxes and all numerical targets unchanged. Client/
+admin governance/approved exports/all business sensitive fields/access/denied audit,
+all-service response/masking/scanner/full combined security coverage/liveAWS and
+all other existing P0/services/game/client/performance/operations remain in scope.
+Checks sequential nice10/UV2/Nodeconcurrency1/JestInBand; no Maven/CPU saturation/
+subagents/new requirement/recipient delivery/production cleanup/rekey/merge/deploy.
+Owned native40/Redis/Kafka stopped after tests; unrelated containers untouched.
+Publish only existing draftPR6. Regenerate inventory AFTER final ledger update and
+check it immediately before staging/publishing; keep persistent goal active.

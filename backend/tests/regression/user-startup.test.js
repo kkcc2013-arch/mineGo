@@ -120,6 +120,15 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
     assert.equal((await fetch(base+'/users/me/mfa/recovery-codes',{headers})).status,403);
     const proofResponse=await fetch(base+'/users/me/mfa/step-up',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({code:mfaSetup.recoveryCodes[0],scope:'mfa-manage'})});assert.equal(proofResponse.status,200);const mfaProof=(await proofResponse.json()).data.mfaToken;
     const recovery=await fetch(base+'/users/me/mfa/recovery-codes',{headers:{...headers,'x-mfa-token':mfaProof}});assert.equal(recovery.status,200);assert.equal((await recovery.json()).data.remaining,7);assert.ok(!logs.includes(mfaMaster.toString('hex')));assert.ok(!logs.includes(mfaSetup.secret));
+    const readerToken=require('jsonwebtoken').sign({sub:userId,roles:['admin'],permissions:['audit:decrypt']},'user-startup-test-access');
+    const readerHeaders={Authorization:'Bearer '+readerToken,'x-audit-reason':'native audit review','x-request-id':'native-audit-context'};
+    const readerProofResponse=await fetch(base+'/users/me/mfa/step-up',{method:'POST',headers:{...readerHeaders,'Content-Type':'application/json'},body:JSON.stringify({code:mfaSetup.recoveryCodes[1],scope:'audit-read'})});assert.equal(readerProofResponse.status,200);readerHeaders['x-mfa-token']=(await readerProofResponse.json()).data.mfaToken;
+    const target=(await fixture.query("SELECT id::text FROM audit_logs WHERE action='privacy_policy_accept' LIMIT 1")).rows[0].id;
+    assert.equal((await fetch(base+'/admin/audit-logs/'+target+'/decrypt',{headers})).status,403);
+    const readAudit=await fetch(base+'/admin/audit-logs/'+target+'/decrypt',{headers:readerHeaders});assert.equal(readAudit.status,200);assert.equal(readAudit.headers.get('cache-control'),'no-store');assert.equal((await readAudit.json()).data.data.actionData.version,'native-v1');
+    assert.equal((await fixture.query("SELECT count(*)::int AS n FROM audit_logs WHERE action='admin_audit_decrypt'")).rows[0].n,1);
+    const receipt=(await fixture.query("SELECT id::text FROM audit_logs WHERE action='admin_audit_decrypt' LIMIT 1")).rows[0].id;
+    const receiptRead=await fetch(base+'/admin/audit-logs/'+receipt+'/decrypt',{headers:readerHeaders});assert.equal(receiptRead.status,200);assert.equal((await receiptRead.json()).data.data.requestId,'native-audit-context');
     await fixture.query("INSERT INTO ip_blacklist(ip_address,reason,severity) VALUES('127.0.0.0/8','startup appeal test','critical')");
     const gatewayApp=express();gatewayApp.use(express.json());appealProxy=mountIpAppealProxy(gatewayApp,base);
     appealGateway=http.createServer(gatewayApp);await new Promise(resolve=>appealGateway.listen(0,'127.0.0.1',resolve));

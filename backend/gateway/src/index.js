@@ -135,7 +135,7 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization','X-Idempotency-Key','X-Request-ID','X-Trace-ID'],
+  allowedHeaders: ['Content-Type','Authorization','X-Idempotency-Key','X-Request-ID','X-Trace-ID','X-MFA-Token','X-Audit-Reason'],
 }));
 
 // Global rate limit
@@ -290,6 +290,12 @@ for(const prefix of ['/api/users/me/mfa','/api/v1/users/me/mfa','/api/v2/users/m
 }
 for(const prefix of ['/api/auth/mfa','/api/v1/auth/mfa','/api/v2/auth/mfa','/v1/auth/mfa']){
   app.use(prefix,authRateLimiter(),proxy(SERVICES.user,url=>'/auth/mfa'+(url==='/'?'':url)));
+}
+
+// Protected audit data is never served through the generic cached user paths.
+for(const resource of ['audit-logs','sensitive-access-logs'])for(const root of ['/api','/api/v1','/api/v2','/v1']){
+  const prefix=root+'/admin/'+resource;
+  app.use(prefix,adminRateLimiter(),requireAuth,requireAdmin,proxy(SERVICES.user,url=>'/admin/'+resource+(url==='/'?'':url)));
 }
 
 // Public (no auth) - REQ-00040: 认证接口限流

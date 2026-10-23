@@ -53,6 +53,8 @@ const service = new ServiceLauncher({
   port: process.env.PORT === undefined ? 8081 : Number(process.env.PORT),
   
   routes: [
+    {path:'/admin/audit-logs',router:require('./routes/adminAudit')},
+    {path:'/admin/sensitive-access-logs',router:require('./routes/adminAudit').createAdminAuditRouter({sensitive:true})},
     // These routers own their authentication and expose explicit public paths.
     {
       path: '/users', // REQ-00106: 称号系统路由

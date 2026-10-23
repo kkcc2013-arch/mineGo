@@ -77,7 +77,7 @@ one-time codes only in owned Redis keys and never send recipient messages.
 
 `npm run test:mfa:unit` checks RFC reference vectors, 500 controlled valid windows,
 production key refusal and facade lifecycle. `npm run test:mfa:storage` runs actual
-PostgreSQL, Redis, signed HTTP and the production five-module 90% line/function gate.
+PostgreSQL, Redis, signed HTTP and the production factor/session modules plus protected audit route90% line/function gate.
 These tests include two-client consumption, real locks/deadlines, audit rollback,
 proof scope/session/expiry, login challenge replay, revoked refresh/proof issuance,
 credential rotation and legacy/schema/refused-down preservation. The dedicated
@@ -95,8 +95,10 @@ Seven-day trusted devices, front-end enrollment/login screens, real authenticato
 scan/manual interoperability, full metrics/alerts and original product impact
 claims remain open. `rememberDevice` is explicitly rejected. Sensitive password,
 payment/transaction operations still need the actual middleware at every business
-boundary. The protected HTTP fixture checks real role/MFA middleware, not completed
-admin audit decryption. The separate legacy risk engine still requires canonical
+boundary. The protected admin audit routes now combine signed L2 capability, actual MFA,
+transactional decryption/access receipts and bounded service filtering; see
+[AUDIT-ENCRYPTION.md](AUDIT-ENCRYPTION.md). Other sensitive business routes and
+full admin/client acceptance remain open. The separate legacy risk engine still requires canonical
 UUID identities, real gateway wiring, atomic proofs, provider delivery and encrypted
 risk-log acceptance; this batch does not accept cross-service risk grading.
 

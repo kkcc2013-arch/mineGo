@@ -39,12 +39,13 @@ function createIpBanMiddleware(getManager = () => ipBanManager) {
     const path = (req.originalUrl || req.path).split('?')[0];
     if (isIpAppealPath(path) || ['/health','/metrics','/health/live','/health/ready'].includes(path)) return next();
     if (!ipBanManager) {
-      logger.warn('IpBanManager not initialized');
+      logger.error({code:'IP_MANAGER_NOT_INITIALIZED'},'IP access control unavailable');
       return res.status(503).json({ error: 'IP access control unavailable' });
     }
     // 获取客户端 IP
     const ipAddress = getClientIp(req);
 
+    let phase='blacklist';
     try {
       // 检查是否被封禁
       const blockResult = await ipBanManager.isBlocked(ipAddress);
@@ -82,6 +83,7 @@ function createIpBanMiddleware(getManager = () => ipBanManager) {
       }
 
       // 检查风险评分
+      phase='risk-score';
       const riskScore = await ipBanManager.getRiskScore(ipAddress);
       if (riskScore >= 80) {
         req.highRiskIp = true;
@@ -93,13 +95,10 @@ function createIpBanMiddleware(getManager = () => ipBanManager) {
       req.clientIp = ipAddress;
       req.ipRiskScore = riskScore;
 
+      phase='forward';
       next();
     } catch (error) {
-      logger.error('IP ban middleware error', {
-        ipAddress,
-        error: error.message,
-        stack: error.stack
-      });
+      logger.error({code:/^[A-Z0-9_]{1,64}$/.test(error?.code||'')?error.code:'IP_ACCESS_LOOKUP_FAILED',phase},'IP access control failed');
 
       // A failed access-control lookup cannot establish permission to bypass a ban.
       res.status(503).json({ error: 'IP access control unavailable' });

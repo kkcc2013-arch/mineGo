@@ -54,7 +54,8 @@ const {
   Pool
 } = require('pg');
 const {
-  fail
+  fail,
+  instant
 } = require('./audit/cryptoPrimitives');
 function poolFor(db) {
   if (!db) return undefined;
@@ -99,7 +100,7 @@ async function auditLog(options) {
       resourceId,
       ipAddress: req?.ip ?? options.ipAddress ?? null,
       userAgent: req?.headers?.['user-agent'] ?? options.userAgent ?? null,
-      requestId: req?.id ?? req?.requestId ?? null,
+      requestId: req?.id ?? req?.requestId ?? req?.reqId ?? null,
       service
     }));
     // Do not duplicate private payload, identities, addresses, keys or upstream
@@ -147,18 +148,16 @@ async function auditMetadata(options, db) {
     where.push(column + '=$' + args.length);
   }
   for (const [value, operator] of [[startDate, '>='], [endDate, '<=']]) if (value !== undefined) {
-    const date = new Date(value);
-    if (!Number.isFinite(date.getTime())) throw fail('AUDIT_DATE_INVALID', 400);
-    args.push(date.toISOString());
+    args.push(instant(value).sql);
     where.push('timestamp' + operator + '$' + args.length + '::timestamptz');
   }
-  if (startDate && endDate && new Date(startDate) > new Date(endDate)) throw fail('AUDIT_DATE_INVALID', 400);
+  if (startDate && endDate && instant(startDate).microseconds > instant(endDate).microseconds) throw fail('AUDIT_DATE_INVALID', 400);
   args.push(limit);
   return encryptedAudit.useAuditStore({
     pool: poolFor(db)
   }, async store => {
     await store.initialize();
-    const result = await store.pool.query('SELECT id::text,user_id,action,entity_type,entity_id,created_at::text AS created_at,timestamp,(encrypted_data IS NOT NULL AND encryption_key_id IS NOT NULL AND encryption_iv IS NOT NULL AND encryption_auth_tag IS NOT NULL) AS encrypted FROM audit_logs' + (where.length ? ' WHERE ' + where.join(' AND ') : '') + ' ORDER BY created_at DESC,id DESC LIMIT $' + args.length, args);
+    const result = await store.pool.query('SELECT id::text,user_id,action,entity_type,entity_id,created_at::text AS created_at,timestamp,(encrypted_data IS NOT NULL AND encryption_key_id IS NOT NULL AND encryption_iv IS NOT NULL AND encryption_auth_tag IS NOT NULL) AS encrypted FROM audit_logs' + (where.length ? ' WHERE ' + where.join(' AND ') : '') + ' ORDER BY audit_logs.created_at DESC,audit_logs.id DESC LIMIT $' + args.length, args);
     return result.rows.map(row => ({
       ...row,
       detailsUnavailable: true

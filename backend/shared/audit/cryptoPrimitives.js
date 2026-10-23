@@ -73,6 +73,16 @@ function jsonBytes(value) {
   if (encoded === undefined || Buffer.byteLength(encoded) > 1048576) throw fail('AUDIT_PAYLOAD_INVALID', 400);
   return Buffer.from(encoded);
 }
+function instant(value,{allowDateOnly=true}={}) {
+  let source=value;
+  if(value instanceof Date){if(!Number.isFinite(value.getTime()))throw fail('AUDIT_DATE_INVALID',400);source=value.toISOString();}
+  if(typeof source!=='string')throw fail('AUDIT_DATE_INVALID',400);
+  if(allowDateOnly&&/^\d{4}-\d{2}-\d{2}$/.test(source))source+='T00:00:00.000Z';
+  if(!require('zod').z.string().datetime({offset:true}).safeParse(source).success||/\.\d{7}/.test(source))throw fail('AUDIT_DATE_INVALID',400);
+  const date=new Date(source);if(!Number.isFinite(date.getTime()))throw fail('AUDIT_DATE_INVALID',400);
+  const fraction=(/\.(\d+)(?:Z|[+-]\d{2}:\d{2})$/.exec(source)?.[1]||'').padEnd(6,'0');
+  return {sql:source,microseconds:BigInt(date.getTime())*1000n+BigInt(fraction.slice(3))};
+}
 module.exports = {
   CONFIG,
   AuditCryptoError,
@@ -81,5 +91,6 @@ module.exports = {
   aad,
   seal,
   open,
-  jsonBytes
+  jsonBytes,
+  instant
 };

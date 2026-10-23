@@ -21,6 +21,8 @@ test('actual MFA HTTP/auth modules enforce enrolled factors, scoped proofs and l
   }
   await pool.query("INSERT INTO users(id,nickname,phone) VALUES($1,'mfa-http-owner',$3),($2,'mfa-http-victim',NULL)",[owner,victim,phone]);
   const app=express();app.use(express.json());const router=require('../../services/user-service/src/routes/mfa');const {mfaRequired,sensitiveOperationRequired}=require('../../gateway/src/middleware/mfaRequired');
+  app.use('/admin/audit-logs',require('../../services/user-service/src/routes/adminAudit'));
+  app.use('/admin/sensitive-access-logs',require('../../services/user-service/src/routes/adminAudit').createAdminAuditRouter({sensitive:true}));
   app.use('/auth',require('../../services/user-service/src/routes/auth'));app.use('/users/me/mfa',router);app.use('/auth/mfa',router.createLoginRouter(undefined,{issueTokens:require('../../services/user-service/src/authSessionTokens').issueTokens}));
   app.get('/optional',mfaRequired({mandatory:false}),(req,res)=>res.json({allowed:true}));
   app.get('/operation',sensitiveOperationRequired('change-password'),(req,res)=>res.json({serverVerified:req.mfaVerified}));
@@ -57,11 +59,43 @@ test('actual MFA HTTP/auth modules enforce enrolled factors, scoped proofs and l
    assert.equal((await call('GET','/users/me/mfa/recovery-codes',undefined,access,require('jsonwebtoken').sign({type:'mfa',userId:owner},'minego-secret'))).status,403);
   });
   await t.test('actual protected middleware combines verified roles, scoped MFA and revocation',async()=>{
-   const jti=crypto.randomUUID();adminAccess=signAccess({sub:owner,roles:['admin'],jti,mfaEnabled:false});
+   const jti=crypto.randomUUID();adminAccess=signAccess({sub:owner,roles:['admin'],permissions:['audit:decrypt'],jti,mfaEnabled:false});
    assert.equal((await call('GET','/protected',undefined,access,managementProof)).status,403);assert.equal((await call('GET','/protected',undefined,adminAccess)).status,403);
    const proof=await call('POST','/users/me/mfa/step-up',{code:setup.recoveryCodes[1],scope:'audit-read'},adminAccess);assert.equal(proof.status,200);adminProof=proof.body.data.mfaToken;
    const result=await call('GET','/protected',undefined,adminAccess,adminProof);assert.equal(result.status,200);assert.equal(result.body.serverVerified,true);
    await r.set('blacklist:token:'+jti,'1','EX',300);revocations.push('blacklist:token:'+jti);assert.equal((await call('GET','/protected',undefined,adminAccess,adminProof)).status,401);assert.equal((await call('GET','/users/me/mfa/status',undefined,adminAccess)).status,401);assert.equal((await call('POST','/users/me/mfa/step-up',{code:setup.recoveryCodes[2],scope:'audit-read'},adminAccess)).status,401);await r.del('blacklist:token:'+jti);
+  });
+  await t.test('actual admin decrypt and service query require signed L2 permission, current MFA and an accountable encrypted reason',async()=>{
+   const id=await audit.writeEncryptedAuditLog({userId:victim,action:'admin-read-target',service:'private-reader',actionData:{marker:'protected-value-fixture',email:'fixture@example.invalid',password:'p0-password-fixture',nested:[{cardNumber:'p0-card-fixture',refresh_token:'p0-refresh-fixture',note:'retained'}]}});
+   const path='/admin/audit-logs/'+id+'/decrypt';
+   async function read(token,proof,reason='review fixture access',url=path){const headers={'x-audit-reason':reason};if(token)headers.Authorization='Bearer '+token;if(proof)headers['x-mfa-token']=proof;const response=await fetch(base+url,{headers});return {status:response.status,headers:response.headers,body:await response.json()};}
+   for(const token of [signAccess({sub:owner,roles:['admin']}),signAccess({sub:owner,roles:'admin',permissions:['audit:decrypt']}),signAccess({sub:owner,roles:['admin'],permissions:'audit:decrypt'}),access])assert.equal((await read(token,adminProof)).status,403);
+   assert.equal((await read()).status,401);assert.equal((await read(adminAccess)).status,403);assert.equal((await read(adminAccess,managementProof)).status,403);
+   assert.equal((await read(adminAccess,adminProof,'')).status,400);assert.equal((await read(adminAccess,adminProof,'ok')).status,400);
+   assert.equal((await read(adminAccess,adminProof,'review',path+'?user_id='+owner)).status,400);
+   assert.equal((await read(adminAccess,adminProof,'review','/admin/audit-logs/9223372036854775808/decrypt')).status,400);
+   const response=await read(adminAccess,adminProof);assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');assert.equal(response.body.data.data.actionData.marker,'protected-value-fixture');assert.equal(response.body.p0FieldsRemoved,true);assert.equal(response.body.data.data.actionData.email,'fixture@example.invalid');assert.deepEqual(response.body.data.data.actionData.nested,[{note:'retained'}]);for(const marker of ['p0-password-fixture','p0-card-fixture','p0-refresh-fixture'])assert.ok(!JSON.stringify(response.body).includes(marker));
+   const receipts=await audit.queryDecryptedAuditLogs({userId:owner,action:'admin_audit_decrypt'});assert.equal(receipts.length,1);assert.equal(receipts[0].data.actionData.reason,'review fixture access');assert.deepEqual(receipts[0].data.actionData.readIds,[id]);assert.ok(receipts[0].data.ipAddress);assert.ok(receipts[0].data.userAgent);
+   assert.equal((await pool.query("SELECT details,ip_address,user_agent FROM audit_logs WHERE action='admin_audit_decrypt'")).rows[0].details,null);
+   const page=await read(adminAccess,adminProof,'review','/admin/audit-logs?user_id='+victim+'&service=private-reader&limit=1');assert.equal(page.status,200);assert.equal(page.body.data.items[0].id,id);
+   await pool.query("ALTER TABLE audit_logs ADD CONSTRAINT reject_admin_read_receipt CHECK(action<>'admin_audit_decrypt') NOT VALID");
+   try{const denied=await read(adminAccess,adminProof);assert.equal(denied.status,503);assert.ok(!JSON.stringify(denied.body).includes('protected-value-fixture'));assert.deepEqual(denied.body,{error:'AUDIT_UNAVAILABLE'});}finally{await pool.query('ALTER TABLE audit_logs DROP CONSTRAINT reject_admin_read_receipt');}
+   const proofHash=crypto.createHash('sha256').update(adminProof).digest('hex');const proofTimes=(await pool.query('SELECT created_at,expires_at FROM mfa_auth_proofs WHERE proof_hash=$1',[proofHash])).rows[0];
+   await pool.query("UPDATE mfa_auth_proofs SET created_at=clock_timestamp()-INTERVAL '6 minutes',expires_at=clock_timestamp()-INTERVAL '1 minute' WHERE proof_hash=$1",[proofHash]);
+   try{assert.equal((await read(adminAccess,adminProof)).status,403);}finally{await pool.query('UPDATE mfa_auth_proofs SET created_at=$2,expires_at=$3 WHERE proof_hash=$1',[proofHash,proofTimes.created_at,proofTimes.expires_at]);}
+   const sensitiveId=await audit.writeSensitiveDataAccess({userId:victim,accessedBy:owner,resourceType:'user',resourceId:victim,accessedFields:['phone'],accessReason:'encrypted-access-reason',ipAddress:'198.51.100.42',userAgent:'private-agent-fixture'});
+   const sensitiveUrl='/admin/sensitive-access-logs?user_id='+victim+'&accessed_by='+owner+'&limit=1&start_date=2000-01-01T00:00:00Z&end_date=2099-01-01T00:00:00Z';
+   const sensitive=await read(adminAccess,adminProof,'review',sensitiveUrl);assert.equal(sensitive.status,200);assert.equal(sensitive.body.data.items[0].id,sensitiveId);assert.deepEqual(sensitive.body.data.items[0].accessedFields,['phone']);assert.equal(sensitive.body.data.items[0].accessReason,'encrypted-access-reason');assert.equal(sensitive.body.data.hasMore,false);
+   for(const suffix of ['?limit=0','?user_id='+victim+'&limit=1abc','?user_id='+victim+'&unknown=x','?user_id='+victim+'&start_date=2020-01-01',''])assert.equal((await read(adminAccess,adminProof,'review','/admin/sensitive-access-logs'+suffix)).status,400);
+   const sequence=(await pool.query("SELECT pg_get_serial_sequence('audit_logs','id') AS name")).rows[0].name;await pool.query('SELECT setval($1::regclass,98,true)',[sequence]);
+   const low=await audit.writeEncryptedAuditLog({userId:victim,action:'numeric-order'}),high=await audit.writeEncryptedAuditLog({userId:victim,action:'numeric-order'});
+   await pool.query("UPDATE audit_logs SET created_at='2020-01-01 01:02:03.123456' WHERE action='numeric-order'");
+   const metadata=await require('../../shared/auditLog').getUserAuditLogs(victim,{action:'numeric-order',limit:2},pool);assert.deepEqual(metadata.map(row=>row.id),[high,low]);assert.equal(high,'100');assert.equal(low,'99');
+   const legacy=(await pool.query("INSERT INTO audit_logs(user_id,action,details) VALUES($1,'legacy-admin-source',$2) RETURNING id::text",[victim,{marker:'legacy-private-do-not-return'}])).rows[0].id;
+   const deniedLegacy=await read(adminAccess,adminProof,'review','/admin/audit-logs/'+legacy+'/decrypt');assert.equal(deniedLegacy.status,409);assert.ok(!JSON.stringify(deniedLegacy.body).includes('legacy-private-do-not-return'));
+   const saved=(await pool.query('SELECT encryption_auth_tag FROM audit_logs WHERE id=$1',[id])).rows[0].encryption_auth_tag;
+   await pool.query("UPDATE audit_logs SET encryption_auth_tag=repeat('0',32) WHERE id=$1",[id]);
+   try{const denied=await read(adminAccess,adminProof);assert.equal(denied.status,503);assert.ok(!JSON.stringify(denied.body).includes('protected-value-fixture'));}finally{await pool.query('UPDATE audit_logs SET encryption_auth_tag=$2 WHERE id=$1',[id,saved]);}
   });
   await t.test('a real proof-storage outage fails closed without exposing SQL or accepting an old JWT proof',async()=>{
    await pool.query('ALTER TABLE mfa_auth_proofs RENAME TO mfa_auth_proofs_owned_offline');

@@ -128,6 +128,17 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     assert.equal((await fetch(base+'/api/v1/users/me/mfa/recovery-codes',{headers})).status,403);
     const verified=await fetch(base+'/api/v1/users/me/mfa/step-up',{method:'POST',headers:{...headers,'Content-Type':'application/json'},body:JSON.stringify({code:mfaSetup.recoveryCodes[0],scope:'mfa-manage'})});assert.equal(verified.status,200);const proof=(await verified.json()).data.mfaToken;
     assert.equal((await fetch(base+'/api/v1/users/me/mfa/recovery-codes',{headers:{...headers,'x-mfa-token':proof}})).status,200);assert.ok(!user.logs().includes(mfaMaster.toString('hex')));assert.ok(!user.logs().includes(mfaSetup.secret));
+    const preflight=await fetch(base+'/api/admin/audit-logs',{method:'OPTIONS',headers:{Origin:'https://admin.example.invalid','Access-Control-Request-Method':'GET','Access-Control-Request-Headers':'authorization,x-mfa-token,x-audit-reason'}});assert.equal(preflight.status,204);assert.match(preflight.headers.get('access-control-allow-headers'),/X-MFA-Token/);assert.match(preflight.headers.get('access-control-allow-headers'),/X-Audit-Reason/);
+    const readerToken=require('jsonwebtoken').sign({sub:player,roles:['admin'],permissions:['audit:decrypt']},accessKey);
+    const readerHeaders={Authorization:'Bearer '+readerToken,'x-audit-reason':'native gateway audit review'};
+    const proofResponse=await fetch(base+'/api/v1/users/me/mfa/step-up',{method:'POST',headers:{...readerHeaders,'Content-Type':'application/json'},body:JSON.stringify({code:mfaSetup.recoveryCodes[1],scope:'audit-read'})});assert.equal(proofResponse.status,200);readerHeaders['x-mfa-token']=(await proofResponse.json()).data.mfaToken;
+    const target=(await fixture.query("SELECT id::text FROM audit_logs WHERE action='mfa_setup' LIMIT 1")).rows[0].id;
+    for(const prefix of ['/api','/api/v1','/api/v2','/v1']){
+      assert.equal((await fetch(base+prefix+'/admin/audit-logs/'+target+'/decrypt',{headers})).status,403);
+      const response=await fetch(base+prefix+'/admin/audit-logs/'+target+'/decrypt',{headers:readerHeaders});assert.equal(response.status,200);assert.equal(response.headers.get('cache-control'),'no-store');assert.equal((await response.json()).data.action,'mfa_setup');
+      assert.equal((await fetch(base+prefix+'/admin/sensitive-access-logs?user_id='+player,{headers:readerHeaders})).status,200);
+    }
+    assert.ok(!user.logs().includes(mfaSetup.secret));assert.ok(!gateway.logs().includes(mfaSetup.secret));
     // Start a second actual OS gateway process against the same durable journal
     // and Redis namespace; each has its own listener, worker and L1 Map.
     const secondPort=await freePort();const secondBase=`http://127.0.0.1:${secondPort}`;
@@ -144,7 +155,7 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     assert.equal(invalidConfig.status,400);
     for(const [body,status]of [['{',400],['{\"oversized\":\"'+'x'.repeat(65536)+'\"}',413]])assert.equal((await fetch(base+control+'/rules',{method:'POST',headers:{...partitionHeaders,'Content-Type':'application/json'},body})).status,status);
     const profilePath=`/v1/users/${player}/profile`;
-    const readProfile=async(origin,auth=headers,path=profilePath)=>{const response=await fetch(origin+path,{headers:auth});assert.equal(response.status,200);return {cache:response.headers.get('X-Cache'),body:await response.json()};};
+    const readProfile=async(origin,auth=headers,path=profilePath)=>{const response=await fetch(origin+path,{headers:auth});const text=await response.text();if(response.status!==200)await delay(200);assert.equal(response.status,200,text+' ORIGIN '+origin+' GATEWAY '+gateway.logs().slice(-4000)+' SECOND '+(gatewaySecond?gatewaySecond.logs().slice(-10000):'absent'));return {cache:response.headers.get('X-Cache'),body:JSON.parse(text)};};
     const expectHit=async origin=>{
       for(let i=0;i<100;i++){const response=await readProfile(origin);if(response.cache==='HIT')return response;await delay(5);}
       throw new Error(`Actual streaming proxy never populated cache: ${gateway.logs()}`);
@@ -173,7 +184,7 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     for(let i=0;i<100;i++){if((await readProfile(base,partitionHeaders)).body.data.pokemon_count===1){countUpdated=true;break;}await delay(5);}
     assert.ok(countUpdated,'Joined Pokemon count must invalidate public-profile views');
     assert.equal((await fetch(base+`/v1/users/${adminId}/stats`,{headers})).status,403);
-    const ownStats=await fetch(base+`/v1/users/${player}/stats`,{headers});assert.equal(ownStats.status,200);assert.equal((await ownStats.json()).data.id,player);
+    const ownStats=await fetch(base+`/v1/users/${player}/stats`,{headers});const statsBody=await ownStats.text();assert.equal(ownStats.status,200,statsBody+' '+gateway.logs().slice(-4000));assert.equal(JSON.parse(statsBody).data.id,player);
     assert.equal((await fetch(base+control+'/metrics',{headers:partitionHeaders})).status,200);
     const cdcMetrics=await (await fetch(base+'/metrics')).text();assert.match(cdcMetrics,/minego_cdc_events_applied_total/);assert.match(cdcMetrics,/minego_cdc_apply_duration_seconds/);
     await terminate(gatewaySecond);gatewaySecond=null;

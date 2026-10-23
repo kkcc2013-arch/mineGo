@@ -1,6 +1,6 @@
 # mineGo requirement completion plan
 
-Updated: 2026-10-20. Scope: all 658 existing requirement documents in INDEX.md,
+Updated: 2026-10-23. Scope: all 658 existing requirement documents in INDEX.md,
 including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
 Current declarations: 52 P0, 565 P1 and 41 P2; 429 new, 50 in progress; 179 declared done, including one independently verified framework. These counts
@@ -43,9 +43,9 @@ independent authorized work.
    work while genuine external provider/staging/device inputs are unavailable.
 4. Repair remaining legacy contract/API/integration/performance/security/operations
    gates, meet each original numerical target and perform all658 acceptance audit.
-   Main468/native37/migration30 pass at b17ddee, including actual crypto21 and
-   the fresh85 gate. Current additive MFA/state/wall-clock source still
-   requires CI; other legacy workflows remain unaccepted. A partial/source-specific pass never accepts a whole feature.
+   Main471/native40/MFA3 pass at45d1562. Migration33 fails the original
+   throughput ceiling at-6.526500223984499% against-5; full86 remote step skipped.
+   Current protected audit/P0-filter/query source still requires CI; other legacy workflows remain unaccepted. A partial/source-specific pass never accepts a whole feature.
 
 ## Definition of finished
 
@@ -937,3 +937,22 @@ requirements. REQ126's literal forged Bearer test_token still returns401; record
 that acceptance-command conflict without accepting the token or changing its box.
 All658 requirements, external staging/provider/device gates and previous failures
 remain in scope; sole independently verified framework remains REQ619.
+
+
+## Protected audit read batch (2026-10-23)
+
+Actual L2 signed capability plus server MFA now protects admin decrypt/audit-list/
+sensitive-access-list routes and all four gateway namespaces. Access reasons and
+verified accessor/read IDs/context persist encrypted in a transaction before data
+release. Known structured P0/credential fields stay excluded from admin HTTP views;
+original encrypted records remain intact. Bounded authenticated service filtering
+provides numeric keyset progress through nonmatching and byte-limited candidate
+pages; legacy metadata helpers remain metadata and cannot silently decrypt for an
+ordinary caller. Original owner/privacy semantics and all658 criteria remain.
+
+Finish client/admin provisioning, approved L3 exports, all business sensitive
+access/response filtering, unstructured masking/custom rules/scanner and the original
+combined unit/security coverage targets. Continue actual original performance
+profiling/optimization without weakening-5. Preserve prior negative results and
+complete original P0/payment/auth/privacy/minor/anti-cheat/service/client/operations
+requirements; this batch does not accept full REQ38/638/588 or the full goal.

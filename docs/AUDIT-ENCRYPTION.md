@@ -149,18 +149,76 @@ complete atomic-audit requirement.
 Common query helpers and the mounted owner `/gdpr/audit-logs` endpoint return
 bounded metadata with `detailsUnavailable: true`. They do not select historical
 plaintext details, ciphertext or wrapping material. Invalid limits are rejected,
-including partially numeric strings at the route. These responses are explicitly
-incomplete until the actual role/server-MFA decrypt boundary is implemented.
-The legacy system `service` filter is rejected because service is encrypted; its
-full protected-query contract also remains open. This checkpoint does not accept
-metadata-only access as the final admin/decrypt/export requirement.
+including partially numeric strings at the route. Owner helpers remain metadata
+APIs; their legacy `service` argument is rejected rather than decrypting under
+ordinary user authorization. Protected service filtering uses the admin API below.
 
-Metadata selects legacy `created_at::text` so PostgreSQL timestamp-without-time-zone
-values keep their exact historical wall clock and microseconds. A separate genuine
-instant is not inferred from that value. Actual process UTC/Asia-Shanghai and
-PostgreSQL UTC/America-New-York combinations prove this distinction. The
-[canonical MFA state](MFA-STATE.md) now supplies server-verified scoped proof
-prerequisites; the actual protected decrypt/admin business route remains open.
+Metadata selects legacy `created_at::text` so timestamp-without-time-zone values
+keep exact historical wall clocks and microseconds. Genuine instants stay separate.
+SQL orders by qualified native timestamp/int64 columns, not their output text
+aliases; actual IDs99/100 with equal wall clocks verify the numeric tie order.
+
+## Protected admin queries
+
+User-service mounts `/admin/audit-logs/:id/decrypt`, `/admin/audit-logs` and
+`/admin/sensitive-access-logs`. Gateway forwards them below `/api`, `/api/v1`,
+`/api/v2` and `/v1`, with admin rate limits and signed-admin authentication, outside
+generic user response caches. CORS permits `X-MFA-Token` and `X-Audit-Reason`.
+
+Every route independently verifies the access signature, an actual roles array
+containing `admin`, and a permissions array containing `audit:decrypt`. This is
+explicit L2 read capability; a generic/L1 admin claim alone cannot decrypt. The
+capability must come from an authorized identity issuer, never from request body,
+role headers, a setup endpoint or a client-selected admin level. Administrative
+provisioning/role governance and approved L3 exports still need full acceptance.
+
+Enroll the administrator through the [canonical MFA flow](MFA-STATE.md), then obtain
+a five-minute `audit-read` proof bound to that exact access token. Supply it as
+`X-MFA-Token`, with a nonblank3..1024-character `X-Audit-Reason`. Server state checks
+enrollment, banning, expiry, epoch, session/scope and Redis revocation. No caller
+MFA boolean/static-key proof bypass. Merely presenting proof for another signed
+session or scope fails. Responses use `Cache-Control: no-store`.
+
+The handler runs the actual read and encrypted `admin_audit_decrypt` receipt in
+one bounded transaction. The receipt identifies the verified accessor and source
+record IDs, reason, query, IP/agent/request context. It commits before JSON is
+released. Database/audit/key/decrypt/commit failure returns only a fixed code and
+withholds plaintext, historical plaintext columns, wrapping keys and ciphertext.
+Legacy incomplete envelopes get an explicit refusal; they are not a fallback.
+Structured P0 and credential fields are removed recursively from privileged HTTP
+results by the same base classification used by response filtering. Camel-case
+credential aliases and prototype-like keys are removed too; encrypted originals
+are retained. The response reports `p0FieldsRemoved:true`. Cyclic/excessively deep
+payloads refuse a response; genuine timestamps retain their representation. This
+does not establish complete unstructured-log masking/scanner/custom-rule coverage.
+Successful read accountability is implemented; comprehensive denied-attempt audit,
+all sensitive business chains and operational monitoring remain separate work.
+
+Audit list accepts only `user_id`, `action`, `service`, `start_date`, `end_date`,
+`limit` and `before_id`. Dates require an explicit ISO8601 offset and query the
+genuine `timestamp` column, preserving PostgreSQL microseconds rather than
+rounding bounds through JavaScript milliseconds. Reversed microsecond ranges and
+precision beyond six fractional digits are rejected. Legacy internal Date/date-only
+helpers retain genuine Date instants and their documented UTC-midnight date-only
+contract; new HTTP boundaries require explicit offsets. Read DTOs separate raw
+legacy wall-clock text from genuine UTC instants with six fractional digits.
+Limit is1..50. Service is matched after authenticated
+decryption, with a bounded200-candidate scan and a7MiB plaintext page budget.
+Candidate queries load IDs only, then one encrypted row at a time. A nonmatching
+candidate page returns `complete:false` and `nextCursor`; continue with `before_id`
+and the same filters. It never calls an unscanned tail empty. A byte-boundary record
+is available on the next page, with no skipped IDs. Real201-record and large-payload
+cases verify both boundaries. Pagination orders native int64 IDs, not text aliases.
+This is append-only keyset traversal, not a stable snapshot across separate requests.
+
+Sensitive-access list requires `user_id`; optional `accessed_by`, explicit
+`start_date`/`end_date`, and limit1..50 are validated. It decrypts actual canonical
+records and reports `hasMore` from a lookahead row. Narrow dates when more rows
+exist; no total/count or complete export is claimed. An unreadable record refuses
+the response. Raw reasons/fields/IP/agent remain encrypted at rest. Generic replies
+are capped at8MiB. Both APIs require a fresh accountable access reason for each
+request. Frontend permissions/masking controls, all-service response filtering,
+scanner and original combined unit/security coverage requirements remain open.
 
 The general audit middleware persists before sending a buffered response and
 withholds the body and private headers on audit failure. Anonymous actions are

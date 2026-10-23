@@ -7,7 +7,8 @@ const {
   fail,
   seal,
   open,
-  jsonBytes
+  jsonBytes,
+  instant
 } = require('./cryptoPrimitives');
 const {
   providerFromEnvironment
@@ -288,12 +289,14 @@ class EncryptedAuditStore {
   }
   async readEncryptedAuditLog(logId) {
     await this.initialize();
-    const row = (await this.pool.query('SELECT * FROM audit_logs WHERE id=$1::bigint', [id(logId)])).rows;
+    const row = (await this.pool.query(`SELECT *,created_at::text AS audit_wall_clock,to_char(timestamp AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS audit_instant FROM audit_logs WHERE id=$1::bigint`, [id(logId)])).rows;
     if (row.length !== 1) throw fail(row.length ? 'AUDIT_ID_CONFLICT' : 'AUDIT_NOT_FOUND', row.length ? 503 : 404);
     return {
       id: id(row[0].id),
       userId: row[0].user_id,
       action: row[0].action,
+      createdAt: row[0].audit_wall_clock,
+      timestamp: row[0].audit_instant,
       resourceType: row[0].entity_type,
       resourceId: row[0].entity_id,
       data: await this.decryptRow(row[0])
@@ -309,12 +312,10 @@ class EncryptedAuditStore {
       where.push(column + ' IS NOT DISTINCT FROM $' + values.length);
     }
     for (const [key, operator] of [['startDate', '>='], ['endDate', '<=']]) if (filters[key] !== undefined) {
-      const date = new Date(filters[key]);
-      if (!Number.isFinite(date.getTime())) throw fail('AUDIT_DATE_INVALID', 400);
-      values.push(date.toISOString());
+      values.push(instant(filters[key]).sql);
       where.push('timestamp' + operator + '$' + values.length + '::timestamptz');
     }
-    if (filters.startDate && filters.endDate && new Date(filters.startDate) > new Date(filters.endDate)) throw fail('AUDIT_DATE_INVALID', 400);
+    if (filters.startDate && filters.endDate && instant(filters.startDate).microseconds > instant(filters.endDate).microseconds) throw fail('AUDIT_DATE_INVALID', 400);
     values.push(limit);
     await this.initialize();
     const rows = (await this.pool.query('SELECT * FROM audit_logs' + (where.length ? ' WHERE ' + where.join(' AND ') : '') + ' ORDER BY created_at DESC,id DESC LIMIT $' + values.length, values)).rows;
@@ -338,6 +339,38 @@ class EncryptedAuditStore {
       }
     }
     return results;
+  }
+  async queryAuditPage(filters = {}) {
+    const allowed=['user_id','action','service','start_date','end_date','limit','before_id'];
+    if(!filters||Array.isArray(filters)||typeof filters!=='object'||Object.keys(filters).some(key=>!allowed.includes(key))||Object.values(filters).some(value=>typeof value!=='string'))throw fail('AUDIT_FILTER_INVALID',400);
+    const limit=filters.limit===undefined?50:Number(filters.limit);
+    if(filters.limit!==undefined&&!/^[1-9][0-9]*$/.test(filters.limit)||!Number.isSafeInteger(limit)||limit<1||limit>50)throw fail('AUDIT_LIMIT_INVALID',400);
+    const values=[],where=[];
+    if(filters.user_id!==undefined){values.push(user(filters.user_id));where.push('user_id=$'+values.length);}
+    if(filters.action!==undefined){values.push(text(filters.action,100));where.push('action=$'+values.length);}
+    const service=filters.service===undefined?null:text(filters.service,100);
+    for(const [key,op]of [['start_date','>='],['end_date','<=']])if(filters[key]!==undefined){
+      // Only genuine explicit instants filter the absolute timestamp column.
+      values.push(instant(filters[key],{allowDateOnly:false}).sql);where.push('timestamp'+op+'$'+values.length+'::timestamptz');
+    }
+    if(filters.start_date&&filters.end_date&&instant(filters.start_date).microseconds>instant(filters.end_date).microseconds)throw fail('AUDIT_DATE_INVALID',400);
+    if(filters.before_id!==undefined){values.push(id(filters.before_id));where.push('id<$'+values.length+'::bigint');}
+    await this.initialize();
+    // One bounded candidate page. Service stays encrypted and is compared only
+    // after authentication; pagination never claims an unscanned tail is empty.
+    const rows=(await this.pool.query('SELECT id::text FROM audit_logs'+(where.length?' WHERE '+where.join(' AND '):'')+' ORDER BY audit_logs.id DESC LIMIT 201',values)).rows;
+    const seen=new Set();for(const row of rows){const current=id(row.id);if(seen.has(current))throw fail('AUDIT_ID_CONFLICT');seen.add(current);}
+    const items=[];let scanned=0,bytes=0,cursor=null;
+    for(const row of rows.slice(0,200)){
+      const item=await this.readEncryptedAuditLog(row.id);
+      const matching=service===null||item.data.service===service;
+      const size=matching?Buffer.byteLength(JSON.stringify(item)):0;
+      if(matching&&bytes+size>7*1024*1024)break;
+      scanned++;cursor=item.id;
+      if(matching){items.push(item);bytes+=size;if(items.length===limit)break;}
+    }
+    const more=rows.length>scanned;
+    return {items,scanned,nextCursor:more?cursor:null,complete:!more};
   }
   sensitiveBinding(row) {
     return {
@@ -410,15 +443,13 @@ class EncryptedAuditStore {
       where.push('accessed_by=$' + values.length);
     }
     for (const [key, operator] of [['startDate', '>='], ['endDate', '<=']]) if (filters[key] !== undefined) {
-      const date = new Date(filters[key]);
-      if (!Number.isFinite(date.getTime())) throw fail('AUDIT_DATE_INVALID', 400);
-      values.push(date.toISOString());
+      values.push(instant(filters[key]).sql);
       where.push('timestamp' + operator + '$' + values.length + '::timestamptz');
     }
-    if (filters.startDate && filters.endDate && new Date(filters.startDate) > new Date(filters.endDate)) throw fail('AUDIT_DATE_INVALID', 400);
+    if (filters.startDate && filters.endDate && instant(filters.startDate).microseconds > instant(filters.endDate).microseconds) throw fail('AUDIT_DATE_INVALID', 400);
     values.push(limit);
     await this.initialize();
-    const rows = (await this.pool.query('SELECT * FROM sensitive_data_access_logs WHERE ' + where.join(' AND ') + ' ORDER BY timestamp DESC,id DESC LIMIT $' + values.length, values)).rows;
+    const rows = (await this.pool.query(`SELECT *,to_char(timestamp AT TIME ZONE 'UTC','YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS audit_instant FROM sensitive_data_access_logs WHERE ` + where.join(' AND ') + ' ORDER BY timestamp DESC,id DESC LIMIT $' + values.length, values)).rows;
     const results = [];
     for (const row of rows) {
       const metadata = {
@@ -427,7 +458,7 @@ class EncryptedAuditStore {
         accessedBy: row.accessed_by,
         resourceType: row.resource_type,
         resourceId: row.resource_id,
-        timestamp: row.timestamp,
+        timestamp: row.audit_instant,
         retentionDays: row.retention_days
       };
       try {

@@ -677,6 +677,39 @@ test('production audit crypto persists authenticated canonical history and real 
       await pool.query('ALTER TABLE audit_logs DROP CONSTRAINT IF EXISTS refuse_caller_audit');
     }
   });
+  await t.test('bounded authenticated service filtering preserves cursor progress and refuses invalid instants and filters',async()=>{
+    const first=await store.writeEncryptedAuditLog({userId:owner,action:'page-fixture',service:'chosen',actionData:{number:1}});
+    await store.writeEncryptedAuditLog({userId:owner,action:'page-fixture',service:'other',actionData:{number:2}});
+    const last=await store.writeEncryptedAuditLog({userId:owner,action:'page-fixture',service:'chosen',actionData:{number:3}});
+    const page=await store.queryAuditPage({user_id:owner,action:'page-fixture',service:'chosen',limit:'1',start_date:'2000-01-01T00:00:00Z',end_date:'2099-01-01T00:00:00Z'});
+    assert.deepEqual(page.items.map(r=>r.id),[last]);assert.equal(page.complete,false);assert.equal(page.nextCursor,last);assert.equal(page.scanned,1);
+    const next=await store.queryAuditPage({user_id:owner,action:'page-fixture',service:'chosen',before_id:page.nextCursor});
+    assert.deepEqual(next.items.map(r=>r.id),[first]);assert.equal(next.complete,true);assert.equal(next.nextCursor,null);assert.equal(next.scanned,2);
+    const unfiltered=await store.queryAuditPage({action:'page-fixture'});assert.equal(unfiltered.items.length,3);assert.equal(unfiltered.complete,true);
+    await pool.query("UPDATE audit_logs SET timestamp='2020-01-01T01:02:03.123456Z' WHERE id=$1",[first]);
+    const exact=await store.queryAuditPage({action:'page-fixture',end_date:'2020-01-01T01:02:03.123456Z',start_date:'2020-01-01T01:02:03.123455Z'});assert.deepEqual(exact.items.map(row=>row.id),[first]);assert.equal(exact.items[0].timestamp,'2020-01-01T01:02:03.123456Z');
+    await assert.rejects(store.queryAuditPage({start_date:'2020-01-01T01:02:03.123456Z',end_date:'2020-01-01T01:02:03.123455Z'}),error=>error.code==='AUDIT_DATE_INVALID');
+    const empty=await store.queryAuditPage({action:'page-fixture',service:'absent'});assert.equal(empty.items.length,0);assert.equal(empty.complete,true);
+    for(const filter of [null,[],{unknown:'x'},{limit:'0'},{limit:'51'},{limit:'1abc'},{limit:1},{service:''},{before_id:'0'},{start_date:'2020-01-01'},{start_date:'bad'},{start_date:'2020-02-31T00:00:00Z'},{start_date:'2099-01-01T00:00:00Z',end_date:'2000-01-01T00:00:00Z'}])await assert.rejects(store.queryAuditPage(filter),error=>error.status===400);
+  });
+  await t.test('genuine timestamp filters preserve microseconds, offsets and the legacy UTC date-only contract',()=>{
+    const {instant}=require('../../shared/audit/cryptoPrimitives');
+    assert.equal(instant('2020-01-01T01:02:03.123456Z').microseconds,instant('2020-01-01T06:32:03.123456+05:30').microseconds);
+    assert.equal(instant('2020-01-01').sql,'2020-01-01T00:00:00.000Z');assert.equal(instant(new Date('2020-01-01T00:00:00Z')).sql,'2020-01-01T00:00:00.000Z');
+    for(const input of [null,1,new Date('bad'),'2020-01-01T00:00:00.1234567Z','2020-02-31T00:00:00Z'])assert.throws(()=>instant(input),error=>error.code==='AUDIT_DATE_INVALID');
+    assert.throws(()=>instant('2020-01-01',{allowDateOnly:false}),error=>error.code==='AUDIT_DATE_INVALID');
+  });
+  await t.test('a full candidate page does not lose encrypted service matches in the unscanned tail',async()=>{
+    const wanted=await store.writeEncryptedAuditLog({userId:owner,action:'page-scan',service:'tail',actionData:{ok:true}});
+    for(let i=0;i<200;i++)await store.writeEncryptedAuditLog({userId:owner,action:'page-scan',service:'noise',actionData:{i}});
+    const first=await store.queryAuditPage({action:'page-scan',service:'tail'});assert.equal(first.scanned,200);assert.deepEqual(first.items,[]);assert.equal(first.complete,false);assert.ok(first.nextCursor);
+    const next=await store.queryAuditPage({action:'page-scan',service:'tail',before_id:first.nextCursor});assert.deepEqual(next.items.map(row=>row.id),[wanted]);assert.equal(next.complete,true);
+  });
+  await t.test('bounded plaintext pages keep the first unreturned record available after the byte ceiling',async()=>{
+    const ids=[];for(let i=0;i<9;i++)ids.push(await store.writeEncryptedAuditLog({userId:owner,action:'page-bytes',service:'bytes',actionData:{value:'x'.repeat(950000),i}}));
+    const first=await store.queryAuditPage({action:'page-bytes'});assert.ok(first.items.length>0&&first.items.length<9);assert.equal(first.complete,false);assert.ok(Buffer.byteLength(JSON.stringify(first))<8*1024*1024);
+    const next=await store.queryAuditPage({action:'page-bytes',before_id:first.nextCursor});assert.equal(next.complete,true);assert.deepEqual([...first.items,...next.items].map(row=>row.id),ids.reverse());
+  });
   await t.test('canonical partition conversion and int64 IDs preserve authenticated reads and caller-owned pool', async () => {
     await apply(pool, await read('database/pending/20261008_140000__audit_partition_conversion.sql'));
     const sequence = (await pool.query("SELECT pg_get_serial_sequence('audit_logs_default','id') AS name")).rows[0].name;
