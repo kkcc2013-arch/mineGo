@@ -1,0 +1,77 @@
+{
+  "environment": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "architecture": "x64",
+    "database": {
+      "version": "15.8",
+      "synchronous_commit": "on",
+      "shared_preload_libraries": "pg_stat_statements"
+    }
+  },
+  "currentSourceSha256": {
+    "backend/shared/TransactionManager.js": "87d7f3a984e6822739a852833281456fe8d232c94edccbc29e9dd96acd7d6705",
+    "backend/shared/transactionManager.js": "04015c6fb573e724d96c0c2ad3cb1e75d1d5a7b6eb883fa2ea177e6969e67929",
+    "backend/shared/transactionMetrics.js": "bd1664a8cac4140deb86dc9873ad0698845efdec78831ee3951024953082836b",
+    "backend/shared/pgDeadlock.js": "2afdcc6058b8160b05a8eaa6b83fbdfcb8cf89d3c07e3c9c54e713c3e4e10285",
+    "backend/shared/pgCancel.js": "92f0c891d270da29d0fb3769016baa60925c875fd88346b38c3ddc700e3b87ad",
+    "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
+    "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
+    "backend/tests/performance/transaction-throughput.js": "b7ef46c92cddbd60e333323cab09212d4d8be2cdacea4ad0e9c2aea52a90bb92"
+  },
+  "baselineCommit": "43c6b148ccdba62f76af415927f2a86676feaa18",
+  "baselineSourceSha256": "91ab145fdba0a5cb9bd4ef75dc27c1c1f2f860924b3293072ec9603dc30aaaa9",
+  "method": "Alternating paired rounds; median paired throughput change; same V1 resource transfer/owned pool/default metrics; both real registry exposures included in each timed round with exact event counts",
+  "concurrency": 2,
+  "iterationsPerWorker": 200,
+  "rounds": 7,
+  "warmupPerWorker": 50,
+  "results": [
+    {
+      "round": 1,
+      "baselineTps": 2522.274219395697,
+      "currentTps": 2283.775269159759,
+      "changePercent": -9.455710580631449
+    },
+    {
+      "round": 2,
+      "baselineTps": 2331.2728863609077,
+      "currentTps": 2644.721822869227,
+      "changePercent": 13.445398792314256
+    },
+    {
+      "round": 3,
+      "baselineTps": 2212.1963150129723,
+      "currentTps": 2738.7381870433715,
+      "changePercent": 23.801769691823726
+    },
+    {
+      "round": 4,
+      "baselineTps": 2332.4938901634555,
+      "currentTps": 2215.485963301273,
+      "changePercent": -5.0164301546780425
+    },
+    {
+      "round": 5,
+      "baselineTps": 2612.64505707444,
+      "currentTps": 2382.613246754251,
+      "changePercent": -8.80455650480787
+    },
+    {
+      "round": 6,
+      "baselineTps": 2868.7143286579144,
+      "currentTps": 2301.740131651711,
+      "changePercent": -19.76405218680153
+    },
+    {
+      "round": 7,
+      "baselineTps": 2216.19017118994,
+      "currentTps": 2273.775870979226,
+      "changePercent": 2.5984096734066098
+    }
+  ],
+  "medianChangePercent": -5.0164301546780425,
+  "requiredMinimumChangePercent": -5,
+  "dataIntegrity": "all resource deltas exact",
+  "passed": false
+}

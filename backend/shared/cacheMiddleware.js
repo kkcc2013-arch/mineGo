@@ -12,6 +12,7 @@
  */
 
 const cache = require('./cache');
+const crypto = require('node:crypto');
 const { createLogger } = require('./logger');
 
 const logger = createLogger('cache-middleware');
@@ -41,129 +42,105 @@ const DEFAULT_OPTIONS = {
  * @param {Array<number>} options.statusCodeRange - 缓存的状态码范围
  * @returns {Function} Express 中间件
  */
+const MAX_RESPONSE_BYTES = 1024 * 1024;
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const SAFE_HEADERS = ['content-type', 'content-language', 'etag', 'last-modified', 'cache-control'];
+
+function canonical(value) {
+  if (Array.isArray(value)) return value.map(canonical);
+  if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])]));
+  return value;
+}
+
+function defaultKeyGenerator(req) {
+  const pathname = (req.originalUrl || req.path).split('?')[0].split('/').map(segment => {
+    const decoded = decodeURIComponent(segment);
+    return encodeURIComponent(UUID.test(decoded) ? decoded.toLowerCase() : decoded);
+  }).join('/');
+  const parts = [pathname, 'q:' + crypto.createHash('sha256').update(JSON.stringify(canonical(req.query || {}))).digest('hex')];
+  if (req.user) {
+    const subject = req.user.sub ?? req.user.id;
+    if (typeof subject !== 'string' || !subject) throw new Error('Verified cache subject is missing');
+    parts.push('user:' + (UUID.test(subject) ? subject.toLowerCase() : encodeURIComponent(subject)));
+  }
+  const language = String(req.language || req.headers?.['accept-language'] || '');
+  parts.push('lang:' + crypto.createHash('sha256').update(language).digest('hex'));
+  return parts.join(':');
+}
+
+function generateCacheKey(req, config) {
+  return config.keyPrefix + (config.keyGenerator ? config.keyGenerator(req) : defaultKeyGenerator(req));
+}
+
 function cacheMiddleware(options = {}) {
   const config = { ...DEFAULT_OPTIONS, ...options };
-  
   return async (req, res, next) => {
-    // 只缓存 GET 请求
-    if (req.method !== 'GET') {
-      return next();
-    }
-    
-    // 检查跳过条件
-    for (const condition of config.skipConditions) {
-      if (condition(req)) {
-        logger.debug({ path: req.path }, 'Cache skipped by condition');
-        return next();
-      }
-    }
-    
-    // 跳过认证用户特定数据（除非显式允许）
-    if (req.user && !config.cacheUserData) {
-      logger.debug({ path: req.path, userId: req.user.id }, 'Cache skipped for user data');
-      return next();
-    }
-    
-    // 生成缓存键
-    const cacheKey = generateCacheKey(req, config);
-    
+    if (req.method !== 'GET' || (req.user && !config.cacheUserData) || config.skipConditions.some(condition => condition(req))) return next();
     try {
-      // 尝试从缓存获取
-      const cached = await cache.get(cacheKey);
-      
-      if (cached !== null) {
-        logger.debug({ 
-          key: cacheKey, 
-          path: req.path,
-          cached: true 
-        }, 'Cache hit, returning cached response');
-        
-        // 添加缓存命中标记
-        res.set('X-Cache', 'HIT');
-        return res.json(cached);
-      }
-      
-      // 缓存未命中，拦截 res.json 以缓存响应
-      const originalJson = res.json.bind(res);
-      
-      res.json = (data) => {
-        // 检查状态码是否在缓存范围内
-        const [minCode, maxCode] = config.statusCodeRange;
-        const shouldCache = res.statusCode >= minCode && res.statusCode <= maxCode;
-        
-        if (shouldCache) {
-          // 确定缓存 TTL
-          let ttl = config.ttl;
-          
-          // 空响应使用较短的 TTL（防止穿透）
-          if (config.cacheEmpty && isEmptyResponse(data)) {
-            ttl = config.emptyTtl;
-            logger.debug({ key: cacheKey, ttl }, 'Caching empty response');
-          }
-          
-          // 异步设置缓存（不阻塞响应）
-          cache.set(cacheKey, data, ttl).catch(err => {
-            logger.error({ err, key: cacheKey }, 'Cache set failed');
-          });
-          
-          // 添加缓存未命中标记
-          res.set('X-Cache', 'MISS');
+      const key = generateCacheKey(req, config);
+      const entry = await cache.readForFill(key);
+      if (entry.disabled) { res.set('X-Cache', 'BYPASS'); return next(); }
+      if (entry.hit) {
+        const saved = entry.value;
+        if (saved?.cacheEnvelope === 1) {
+          for (const [name, value] of Object.entries(saved.headers)) res.set(name, value);
+          res.status(saved.status);
+          res.set('X-Cache', 'HIT');
+          return res.json(saved.body);
         }
-        
-        return originalJson(data);
+        // Old raw values are not accepted as HTTP responses.
+      }
+      res.set('X-Cache', 'MISS');
+      let captured = false;
+      const save = (body, status, headers) => {
+        if (captured) return;
+        captured = true;
+        const [min, max] = config.statusCodeRange;
+        const type = String(headers['content-type'] || 'application/json');
+        const vary = String(headers.vary || '').toLowerCase().split(',').map(value => value.trim()).filter(Boolean);
+        if (status < min || status > max || headers['set-cookie'] || res.getHeader('set-cookie') ||
+            /(?:^|,)\s*(?:no-store|no-cache)\b/i.test(String(headers['cache-control'] || '')) ||
+            !/^application\/(?:[a-z0-9.-]+\+)?json(?:;|$)/i.test(type) ||
+            vary.some(name => !['accept-encoding', 'accept-language', 'authorization'].includes(name))) return;
+        const empty = isEmptyResponse(body);
+        if (empty && !config.cacheEmpty) return;
+        const encoded = JSON.stringify(body);
+        if (encoded === undefined || Buffer.byteLength(encoded) > MAX_RESPONSE_BYTES) return;
+        const storedHeaders = Object.fromEntries(SAFE_HEADERS.filter(name => headers[name] !== undefined).map(name => [name, headers[name]]));
+        const pending = cache.set(key, {cacheEnvelope: 1, status, headers: storedHeaders, body}, empty ? config.emptyTtl : config.ttl, {token: entry.token});
+        cache.track(pending).catch(() => logger.warn({code: 'CACHE_FILL_FAILED'}, 'Response cache fill failed'));
       };
-      
-      next();
-    } catch (err) {
-      logger.error({ err, key: cacheKey, path: req.path }, 'Cache middleware error');
-      // 缓存错误不应影响请求处理
-      next();
+      const originalJson = res.json.bind(res);
+      res.json = body => {
+        save(body, res.statusCode, res.getHeaders());
+        return originalJson(body);
+      };
+      // http-proxy writes response bytes directly instead of calling res.json.
+      // Observe a bounded identity-encoded stream without delaying its delivery.
+      req.cacheCapture = upstream => {
+        if (upstream.headers['content-encoding'] && upstream.headers['content-encoding'] !== 'identity') return;
+        let chunks = [], bytes = 0, failed = false;
+        upstream.on('data', chunk => {
+          if (failed) return;
+          bytes += chunk.length;
+          if (bytes > MAX_RESPONSE_BYTES) { failed = true; chunks = []; return; }
+          chunks.push(chunk);
+        });
+        upstream.once('error', () => { failed = true; chunks = []; });
+        upstream.once('aborted', () => { failed = true; chunks = []; });
+        upstream.once('end', () => {
+          if (failed || !upstream.complete) return;
+          try { save(JSON.parse(Buffer.concat(chunks).toString('utf8')), upstream.statusCode, upstream.headers); }
+          catch { /* Non-JSON responses continue to stream without a cache fill. */ }
+          chunks = [];
+        });
+      };
+      return next();
+    } catch {
+      logger.warn({code: 'CACHE_MIDDLEWARE_BYPASS'}, 'Response cache unavailable');
+      return next();
     }
   };
-}
-
-/**
- * 生成缓存键
- * @param {Object} req - Express 请求对象
- * @param {Object} config - 配置选项
- * @returns {string} 缓存键
- */
-function generateCacheKey(req, config) {
-  if (config.keyGenerator) {
-    return config.keyPrefix + config.keyGenerator(req);
-  }
-  
-  return config.keyPrefix + defaultKeyGenerator(req);
-}
-
-/**
- * 默认键生成函数
- * @param {Object} req - Express 请求对象
- * @returns {string} 缓存键后缀
- */
-function defaultKeyGenerator(req) {
-  const parts = [req.path];
-  
-  // 添加查询参数
-  if (Object.keys(req.query).length > 0) {
-    const sortedQuery = Object.keys(req.query)
-      .sort()
-      .map(key => `${key}=${req.query[key]}`)
-      .join('&');
-    parts.push(sortedQuery);
-  }
-  
-  // 添加用户 ID（如果缓存用户数据）
-  if (req.user) {
-    parts.push(`user:${req.user.id}`);
-  }
-  
-  // 添加语言偏好
-  if (req.language) {
-    parts.push(`lang:${req.language}`);
-  }
-  
-  return parts.join(':');
 }
 
 /**

@@ -5,9 +5,9 @@
 
 const express = require('express');
 const router = express.Router();
-const { getRedisClient } = require('../../shared/redis');
-const { createTaskQueue, DeadLetterQueue } = require('../../shared/taskQueue');
-const { createLogger } = require('../../shared/logger');
+const { getRedisClient } = require('../../../shared/redis');
+const { createTaskQueue, DeadLetterQueue } = require('../../../shared/taskQueue');
+const { createLogger } = require('../../../shared/logger');
 const authMiddleware = require('../middleware/auth');
 const adminOnlyMiddleware = require('../middleware/adminOnly');
 

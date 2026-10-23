@@ -14,12 +14,7 @@ const logger = createLogger('response-filter');
 // 敏感度级别定义
 // ============================================================
 
-const SENSITIVITY_LEVELS = {
-  P0: ['password', 'payment_token', 'card_number', 'cvv', 'card_cvv', 'ssn', 'id_card_number'],
-  P1: ['email', 'phone', 'real_name', 'address', 'billing_address', 'shipping_address', 'full_name'],
-  P2: ['birthday', 'gender', 'location_history', 'ip_address', 'device_id', 'last_login_ip'],
-  P3: ['user_id', 'username', 'avatar', 'nickname', 'display_name'],
-};
+const {SENSITIVITY_LEVELS}=require('./sensitiveFields');
 
 // 反向映射：字段 -> 敏感度级别
 const FIELD_SENSITIVITY = {};

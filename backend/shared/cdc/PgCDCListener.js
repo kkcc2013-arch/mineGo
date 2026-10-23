@@ -1,313 +1,48 @@
-/**
- * PostgreSQL CDC 监听器 - 基于 LISTEN/NOTIFY 实现数据库变更捕获
- * 
- * REQ-00479: 数据库查询结果缓存自动失效策略系统
- * 
- * 特性：
- * - 监听 PostgreSQL NOTIFY 事件
- * - 解析变更事件 payload
- * - 发送到缓存失效中心
- * - 支持多种数据库表的监听
- */
-
-const { Pool } = require('pg');
-const { createLogger } = require('../logger');
-const EventEmitter = require('events');
-
-const logger = createLogger('pg-cdc-listener');
-
+'use strict';
+const {Client}=require('pg');const crypto=require('node:crypto');const {EventEmitter}=require('node:events');
+const {createLogger}=require('../logger');const logger=createLogger('pg-cdc-listener');
 class PgCDCListener extends EventEmitter {
-  constructor(config = {}) {
-    super();
-    
-    this.config = {
-      // PostgreSQL 连接配置
-      host: config.host || process.env.PG_HOST || 'localhost',
-      port: config.port || process.env.PG_PORT || 5432,
-      database: config.database || process.env.PG_DATABASE || 'minego',
-      user: config.user || process.env.PG_USER || 'postgres',
-      password: config.password || process.env.PG_PASSWORD,
-      
-      // 监听的数据库表
-      tables: config.tables || [
-        'users', 'pokemon', 'catch_records', 'gyms', 
-        'gyms_teams', 'raids', 'friends', 'items', 
-        'inventory', 'reward_records', 'payments'
-      ],
-      
-      // 通道名称前缀
-      channelPrefix: config.channelPrefix || 'cdc_',
-      
-      // 重连延迟
-      reconnectDelay: config.reconnectDelay || 5000,
-      
-      // 最大重连次数
-      maxReconnectAttempts: config.maxReconnectAttempts || 10
-    };
-    
-    this.pool = null;
-    this.listenerClient = null;
-    this.isListening = false;
-    this.reconnectAttempts = 0;
-    
-    // 统计数据
-    this.stats = {
-      eventsReceived: 0,
-      eventsProcessed: 0,
-      parseErrors: 0,
-      reconnects: 0
-    };
+  constructor(config={}){super();this.config=config;this.client=null;this.isListening=false;this.wanted=false;this.timer=null;this.connecting=null;this.attempt=0;this.stats={eventsReceived:0,eventsProcessed:0,parseErrors:0,reconnects:0};}
+  async start(){
+    if(this.wanted)return this.connecting;
+    this.wanted=true;
+    try{await this.open();}catch(error){this.wanted=false;clearTimeout(this.timer);await this.client?.end().catch(()=>{});this.client=null;throw error;}
   }
-  
-  /**
-   * 启动 CDC 监听
-   */
-  async start() {
-    try {
-      // 创建连接池
-      this.pool = new Pool({
-        host: this.config.host,
-        port: this.config.port,
-        database: this.config.database,
-        user: this.config.user,
-        password: this.config.password,
-        max: 5
-      });
-      
-      // 测试连接
-      await this.pool.query('SELECT NOW()');
-      
-      logger.info({ 
-        host: this.config.host,
-        database: this.config.database 
-      }, 'PostgreSQL pool connected');
-      
-      // 创建监听客户端（需要独立连接，LISTEN 会阻塞）
-      await this.createListenerClient();
-      
-      // 订阅所有表的变更通知
-      await this.subscribeToTables();
-      
-      this.isListening = true;
-      
-      logger.info({ 
-        tables: this.config.tables.length 
-      }, 'CDC listener started');
-      
-    } catch (error) {
-      logger.error({ error }, 'Failed to start CDC listener');
-      await this.handleReconnect();
-    }
+  async open(){
+    const options=this.config.pool?.options||{};
+    const client=new Client({...options,...this.config.pg,connectionTimeoutMillis:this.config.connectionTimeoutMillis??1500,keepAlive:true,keepAliveInitialDelayMillis:1000});
+    this.client=client;
+    client.on('error',error=>this.lost(client,error));client.on('end',()=>this.lost(client));
+    client.on('notification',message=>this.handleNotification(message));
+    this.connecting=(async()=>{
+      await client.connect();if(!this.wanted){await client.end();return;}
+      const result=await client.query("SELECT current_schema() AS schema,to_regclass(format('%I.cache_invalidation_outbox',current_schema())) AS journal");
+      if(!result.rows[0].journal)throw Object.assign(new Error('Canonical cache journal is missing'),{code:'CDC_SCHEMA_MISSING'});
+      this.schema=result.rows[0].schema;this.channel='minego_cache_'+crypto.createHash('md5').update(this.schema).digest('hex');
+      this.rulesChannel=this.channel+'_rules';this.processId=client.processID;
+      await client.query(`LISTEN ${this.channel}`);await client.query(`LISTEN ${this.rulesChannel}`);
+      if(!this.wanted){await client.end();return;}
+      this.isListening=true;this.attempt=0;this.emit('connected');
+    })();
+    try{await this.connecting;}catch(error){if(this.client===client)this.client=null;await client.end().catch(()=>{});throw error;}finally{this.connecting=null;}
   }
-  
-  /**
-   * 创建监听客户端
-   */
-  async createListenerClient() {
-    this.listenerClient = await this.pool.connect();
-    
-    // 处理通知消息
-    this.listenerClient.on('notification', (msg) => {
-      this.handleNotification(msg);
-    });
-    
-    // 处理连接错误
-    this.listenerClient.on('error', async (error) => {
-      logger.error({ error }, 'Listener client error');
-      await this.handleReconnect();
-    });
-    
-    logger.info('Listener client created');
+  lost(client,error){
+    if(client!==this.client||!this.isListening||!this.wanted)return;
+    this.isListening=false;this.client=null;this.emit('disconnect',{code:error?.code||'CDC_DISCONNECTED'});client.end().catch(()=>{});this.reconnect();
   }
-  
-  /**
-   * 订阅所有表的变更通知
-   */
-  async subscribeToTables() {
-    for (const table of this.config.tables) {
-      const channel = `${this.config.channelPrefix}${table}`;
-      
-      try {
-        await this.listenerClient.query(`LISTEN ${channel}`);
-        logger.info({ channel, table }, 'Subscribed to table channel');
-      } catch (error) {
-        logger.error({ error, channel, table }, 'Failed to subscribe to channel');
-      }
-    }
+  reconnect(){
+    if(!this.wanted||this.timer)return;
+    const delay=Math.min((this.config.reconnectDelay??50)*2**Math.min(this.attempt++,5),1000);
+    this.timer=setTimeout(async()=>{this.timer=null;if(!this.wanted)return;this.stats.reconnects++;try{await this.open();}catch(error){logger.warn({code:error.code||'CDC_CONNECT_FAILED'},'CDC reconnect failed');this.reconnect();}},delay);
   }
-  
-  /**
-   * 处理通知消息
-   */
-  handleNotification(msg) {
+  handleNotification(message){
+    if(!this.wanted||![this.channel,this.rulesChannel].includes(message.channel))return;
     this.stats.eventsReceived++;
-    
-    try {
-      // 解析通道名获取表名
-      const tableName = msg.channel.replace(this.config.channelPrefix, '');
-      
-      // 解析 payload
-      const payload = this.parsePayload(msg.payload);
-      
-      if (!payload) {
-        this.stats.parseErrors++;
-        logger.warn({ 
-          channel: msg.channel, 
-          payload: msg.payload 
-        }, 'Failed to parse notification payload');
-        return;
-      }
-      
-      // 构造变更事件
-      const changeEvent = {
-        table: tableName,
-        operation: payload.operation,
-        timestamp: payload.timestamp || Date.now(),
-        data: payload.data || {},
-        oldData: payload.oldData || null
-      };
-      
-      // 发出变更事件
-      this.emit('change', changeEvent);
-      
-      this.stats.eventsProcessed++;
-      
-      logger.debug({ 
-        table: tableName,
-        operation: payload.operation,
-        processTime: Date.now() - changeEvent.timestamp 
-      }, 'Change event processed');
-      
-    } catch (error) {
-      this.stats.parseErrors++;
-      logger.error({ error, payload: msg.payload }, 'Error handling notification');
-    }
+    if(message.channel===this.rulesChannel){if(!/^[0-9]{1,20}$/.test(message.payload)){this.stats.parseErrors++;return;}this.emit('rules',message.payload);return;}
+    if(!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/.test(message.payload)){this.stats.parseErrors++;return;}
+    this.stats.eventsProcessed++;this.emit('change',{eventId:message.payload});
   }
-  
-  /**
-   * 解析 payload
-   */
-  parsePayload(payload) {
-    if (!payload) return null;
-    
-    try {
-      // 支持 JSON 格式
-      if (payload.startsWith('{')) {
-        return JSON.parse(payload);
-      }
-      
-      // 支持简单格式: "operation:timestamp:id"
-      const parts = payload.split(':');
-      if (parts.length >= 2) {
-        return {
-          operation: parts[0],
-          timestamp: parseInt(parts[1]) || Date.now(),
-          data: { id: parts[2] }
-        };
-      }
-      
-      return null;
-      
-    } catch (error) {
-      logger.error({ error, payload }, 'Payload parse error');
-      return null;
-    }
-  }
-  
-  /**
-   * 处理重连
-   */
-  async handleReconnect() {
-    if (this.reconnectAttempts >= this.config.maxReconnectAttempts) {
-      logger.error('Max reconnect attempts reached, stopping listener');
-      this.emit('error', new Error('Max reconnect attempts reached'));
-      return;
-    }
-    
-    this.reconnectAttempts++;
-    this.stats.reconnects++;
-    
-    logger.info({ 
-      attempt: this.reconnectAttempts,
-      delay: this.config.reconnectDelay 
-    }, 'Attempting to reconnect');
-    
-    // 清理旧连接
-    if (this.listenerClient) {
-      try {
-        this.listenerClient.release();
-      } catch (e) {
-        // 忽略错误
-      }
-    }
-    
-    // 延迟重连
-    await this.sleep(this.config.reconnectDelay);
-    
-    try {
-      await this.createListenerClient();
-      await this.subscribeToTables();
-      
-      this.reconnectAttempts = 0;
-      this.isListening = true;
-      
-      logger.info('Reconnected successfully');
-      
-    } catch (error) {
-      logger.error({ error }, 'Reconnect failed');
-      await this.handleReconnect();
-    }
-  }
-  
-  /**
-   * 停止监听
-   */
-  async stop() {
-    this.isListening = false;
-    
-    try {
-      // 取消所有订阅
-      for (const table of this.config.tables) {
-        const channel = `${this.config.channelPrefix}${table}`;
-        try {
-          await this.listenerClient.query(`UNLISTEN ${channel}`);
-        } catch (e) {
-          // 忽略错误
-        }
-      }
-      
-      // 释放监听客户端
-      if (this.listenerClient) {
-        this.listenerClient.release();
-      }
-      
-      // 关闭连接池
-      if (this.pool) {
-        await this.pool.end();
-      }
-      
-      logger.info('CDC listener stopped');
-      
-    } catch (error) {
-      logger.error({ error }, 'Error stopping listener');
-    }
-  }
-  
-  /**
-   * 获取统计信息
-   */
-  getStats() {
-    return {
-      ...this.stats,
-      isListening: this.isListening,
-      reconnectAttempts: this.reconnectAttempts,
-      tables: this.config.tables.length
-    };
-  }
-  
-  sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
+  getStats(){return {...this.stats,isListening:this.isListening,processId:this.processId??null};}
+  async stop(){this.wanted=false;clearTimeout(this.timer);this.timer=null;this.isListening=false;const client=this.client;this.client=null;if(client)await client.end().catch(()=>{});if(this.connecting)await this.connecting.catch(()=>{});}
 }
-
-module.exports = PgCDCListener;
+module.exports=PgCDCListener;

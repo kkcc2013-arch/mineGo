@@ -9,6 +9,9 @@
  */
 
 'use strict';
+const _consoleLogger = new (require("./loggingUtils")).ConsoleMigrationHelper(
+  require("./logger").createLogger("shared/distributedLock"), "shared/distributedLock");
+
 
 const Redis = require('ioredis');
 const crypto = require('crypto');
@@ -23,10 +26,10 @@ function getLogger() {
       logger = require('./logger').createLogger('distributed-lock');
     } catch (e) {
       logger = {
-        info: (obj, msg) => console.log(`[INFO] ${msg}`, obj),
-        warn: (obj, msg) => console.warn(`[WARN] ${msg}`, obj),
-        error: (obj, msg) => console.error(`[ERROR] ${msg}`, obj),
-        debug: (obj, msg) => process.env.DEBUG && console.log(`[DEBUG] ${msg}`, obj)
+        info: (obj, msg) => _consoleLogger.log(`[INFO] ${msg}`, obj),
+        warn: (obj, msg) => _consoleLogger.warn(`[WARN] ${msg}`, obj),
+        error: (obj, msg) => _consoleLogger.error(`[ERROR] ${msg}`, obj),
+        debug: (obj, msg) => process.env.DEBUG && _consoleLogger.log(`[DEBUG] ${msg}`, obj)
       };
     }
   }

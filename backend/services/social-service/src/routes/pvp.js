@@ -6,11 +6,11 @@
 const express = require('express');
 const router = express.Router();
 const { v4: uuidv4 } = require('uuid');
-const { query, transaction } = require('../../shared/db');
-const { requireAuth, AppError, successResp } = require('../../shared/auth');
-const { logger } = require('../../shared/logger');
-const pvpMatching = require('../../shared/pvpMatching');
-const { PVPBattleManager } = require('../../shared/pvpBattleRoom');
+const { query, transaction } = require('../../../../shared/db');
+const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
+const { logger } = require('../../../../shared/logger');
+const pvpMatching = require('../../../../shared/pvpMatching');
+const { PVPBattleManager } = require('../../../../shared/pvpBattleRoom');
 
 /**
  * @route   POST /api/pvp/match/join

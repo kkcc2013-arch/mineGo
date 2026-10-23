@@ -219,4 +219,4 @@ const headers = {
 - 客户端 SDK：`frontend/game-client/src/utils/requestSignature.js`
 - 密钥管理 API：`backend/gateway/src/routes/signatureKeyRoutes.js`
 - 单元测试：`backend/tests/unit/requestSignature.test.js`
-- 需求文档：`docs/requirements/REQ-00548-api-request-signature-verification-and-anti-tampering-protection-system.md`
+- 需求文档：`docs/requirements/REQ-00672-api-request-signature-verification-and-anti-tampering-protection-system.md`

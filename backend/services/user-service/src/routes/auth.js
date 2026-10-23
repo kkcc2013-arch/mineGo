@@ -1,5 +1,8 @@
 // user-service/src/routes/auth.js
 'use strict';
+const _consoleLogger = new (require("../../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../../shared/logger").createLogger("services/user-service/src/routes/auth"), "services/user-service/src/routes/auth");
+
 const express  = require('express');
 const bcrypt   = require('bcryptjs');
 const { z }    = require('zod');
@@ -12,6 +15,8 @@ const {
 } = require('../../../../shared/auth');
 
 const router = express.Router();
+const mfaService=require('../../../../shared/mfaService');
+const {issueTokens}=require('../authSessionTokens');
 
 // ── Schemas ───────────────────────────────────────────────────
 const RegisterSchema = z.object({
@@ -56,9 +61,8 @@ router.post('/sms-code', async (req, res, next) => {
     const dailyCount = parseInt(await redis.get(dailyKey) || '0');
     if (dailyCount >= 10) throw new AppError(1007, '今日验证码发送次数已达上限', 429);
 
-    // Generate code (in prod: call SMS provider API)
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(`[SMS] To ${phone}: ${code} (scene: ${scene})`);
+    if(process.env.NODE_ENV==='production'||process.env.SMS_DEV_MODE!=='true')throw new AppError(9002,'SMS provider unavailable',503);
+    const code = require('node:crypto').randomInt(100000,1000000).toString();
 
     // Store with 5min TTL
     await redis.setex(`sms:code:${phone}:${scene}`, 300, code);
@@ -168,7 +172,7 @@ router.post('/register', async (req, res, next) => {
       try {
         await sendParentConsentEmail(result.id, parentEmail, result.nickname);
       } catch (emailError) {
-        console.error('[COPPA] Failed to send parent consent email:', emailError);
+        _consoleLogger.error('[COPPA] Failed to send parent consent email:', emailError);
         // 不中断注册流程，但记录错误
       }
 
@@ -182,7 +186,7 @@ router.post('/register', async (req, res, next) => {
       return;
     }
 
-    const tokens = issueTokens(result, {
+    const tokens = await issueTokens(result, {
       deviceName: req.body.deviceId || 'Unknown',
       deviceType: req.headers['x-device-type'] || 'unknown',
       ip: req.ip || req.connection.remoteAddress,
@@ -208,15 +212,17 @@ router.post('/login', async (req, res, next) => {
 
     await verifySmsCode(phone, smsCode, 'login');
 
+    const mfa=await mfaService.beginLogin(user.id);
+    if(mfa.required)return res.json(successResp({mfaRequired:true,tempToken:mfa.challenge,expiresAt:mfa.expiresAt}));
     // Update last login
     await query('UPDATE users SET last_login_at = NOW() WHERE id = $1', [user.id]);
 
-    const tokens = issueTokens(user, {
+    const tokens = await issueTokens(user, {
       deviceName: req.headers['x-device-name'] || 'Unknown',
       deviceType: req.headers['x-device-type'] || 'unknown',
       ip: req.ip || req.connection.remoteAddress,
       userAgent: req.headers['user-agent']
-    });
+    },mfa.credentialEpoch);
     res.json(successResp({ ...tokens, userId: user.id, nickname: user.nickname, level: user.level, team: user.team }));
   } catch (err) { next(err); }
 });
@@ -232,13 +238,17 @@ router.post('/refresh', async (req, res, next) => {
     catch { throw new AppError(1003, 'Refresh Token 无效或已过期', 401); }
 
     // Check blacklist
-    const blacklisted = await getRedis().get(`token:blacklist:${payload.jti}`);
+    if(typeof payload.jti!=='string'||!payload.jti)throw new AppError(1003,'Refresh session identity missing',401);
+    let blacklisted;
+    try{blacklisted=await getRedis().exists(`blacklist:token:${payload.jti}`);}catch{throw new AppError(9002,'AUTH_SESSION_UNAVAILABLE',503);}
     if (blacklisted) throw new AppError(1003, 'Token 已失效', 401);
 
     const { rows } = await query('SELECT id, nickname, level FROM users WHERE id = $1', [payload.sub]);
     if (!rows[0]) throw new AppError(2003, '用户不存在', 404);
 
-    const tokens = issueTokens(rows[0]);
+    const status=await mfaService.status(rows[0].id);
+    if(status.requiresMigration||((status.credentialEpoch||null)!==(payload.mfa_epoch||null)))throw new AppError(1003,'MFA session changed; sign in again',401);
+    const tokens = await issueTokens(rows[0],{},status.credentialEpoch);
     res.json(successResp(tokens));
   } catch (err) { next(err); }
 });
@@ -280,28 +290,9 @@ router.post('/logout', async (req, res, next) => {
 // ── Helpers ───────────────────────────────────────────────────
 async function verifySmsCode(phone, code, scene) {
   const redis  = getRedis();
-  const stored = await redis.get(`sms:code:${phone}:${scene}`);
-  if (!stored)  throw new AppError(1008, '验证码已过期，请重新获取', 400);
-  if (stored !== code) throw new AppError(1009, '验证码错误', 400);
-  await redis.del(`sms:code:${phone}:${scene}`);  // one-time use
-}
-
-function issueTokens(user, deviceInfo = {}) {
-  const jti = uuidv4();
-  const now = Math.floor(Date.now() / 1000);
-  const accessToken  = signAccess({ sub: user.id, nickname: user.nickname, level: user.level, jti, iat: now, exp: now + 86400 });
-  const refreshToken = signRefresh({ sub: user.id, jti });
-
-  // Register session in blacklist (async, don't wait)
-  const { getJwtBlacklist } = require('../../../../shared/JwtBlacklist');
-  getJwtBlacklist().registerSession(jti, user.id, now + 86400, deviceInfo).catch(() => {});
-
-  return {
-    accessToken,
-    refreshToken,
-    tokenExpireAt: now + 86400,
-    jti
-  };
+  const result=await redis.eval("local v=redis.call('GET',KEYS[1]); if not v then return -1 end; if v~=ARGV[1] then return 0 end; redis.call('DEL',KEYS[1]); return 1",1,`sms:code:${phone}:${scene}`,code);
+  if(result===-1)throw new AppError(1008,'验证码已过期，请重新获取',400);
+  if(result!==1)throw new AppError(1009,'验证码错误',400);
 }
 
 module.exports = router;

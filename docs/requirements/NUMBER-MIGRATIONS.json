@@ -1,0 +1,412 @@
+{
+  "date": "2026-10-06",
+  "policy": "Preserve explicit INDEX.md mappings; otherwise preserve the earliest file introduction in Git. New IDs start above the previous maximum. Exact filename links are migrated. Ambiguous bare historical IDs are retained for traceability.",
+  "migrations": [
+    {
+      "oldId": "REQ-00027",
+      "newId": "REQ-00626",
+      "oldFile": "REQ-00027-database-partitioning-strategy.md",
+      "newFile": "REQ-00626-database-partitioning-strategy.md",
+      "retainedFile": "REQ-00027-pokemon-3d-model-viewer.md"
+    },
+    {
+      "oldId": "REQ-00040",
+      "newId": "REQ-00627",
+      "oldFile": "REQ-00040-implement-rate-limiting-for-api-endpoints.md",
+      "newFile": "REQ-00627-implement-rate-limiting-for-api-endpoints.md",
+      "retainedFile": "REQ-00040-cloud-cost-monitoring-budget-alerting.md"
+    },
+    {
+      "oldId": "REQ-00040",
+      "newId": "REQ-00628",
+      "oldFile": "REQ-00040-offline-cache-consistency-system.md",
+      "newFile": "REQ-00628-offline-cache-consistency-system.md",
+      "retainedFile": "REQ-00040-cloud-cost-monitoring-budget-alerting.md"
+    },
+    {
+      "oldId": "REQ-00040",
+      "newId": "REQ-00629",
+      "oldFile": "REQ-00040-high-performance-pwa-offline-sync.md",
+      "newFile": "REQ-00629-high-performance-pwa-offline-sync.md",
+      "retainedFile": "REQ-00040-cloud-cost-monitoring-budget-alerting.md"
+    },
+    {
+      "oldId": "REQ-00040",
+      "newId": "REQ-00630",
+      "oldFile": "REQ-00040-redis-cache-layer.md",
+      "newFile": "REQ-00630-redis-cache-layer.md",
+      "retainedFile": "REQ-00040-cloud-cost-monitoring-budget-alerting.md"
+    },
+    {
+      "oldId": "REQ-00040",
+      "newId": "REQ-00631",
+      "oldFile": "REQ-00040-implement-prometheus-monitoring.md",
+      "newFile": "REQ-00631-implement-prometheus-monitoring.md",
+      "retainedFile": "REQ-00040-cloud-cost-monitoring-budget-alerting.md"
+    },
+    {
+      "oldId": "REQ-00040",
+      "newId": "REQ-00632",
+      "oldFile": "REQ-00040-i18n-support.md",
+      "newFile": "REQ-00632-i18n-support.md",
+      "retainedFile": "REQ-00040-cloud-cost-monitoring-budget-alerting.md"
+    },
+    {
+      "oldId": "REQ-00041",
+      "newId": "REQ-00633",
+      "oldFile": "REQ-00041-game-client-memory-scanning-protection.md",
+      "newFile": "REQ-00633-game-client-memory-scanning-protection.md",
+      "retainedFile": "REQ-00041-multi-region-disaster-recovery-failover-system.md"
+    },
+    {
+      "oldId": "REQ-00041",
+      "newId": "REQ-00634",
+      "oldFile": "REQ-00041-ar-anti-cheat-system.md",
+      "newFile": "REQ-00634-ar-anti-cheat-system.md",
+      "retainedFile": "REQ-00041-multi-region-disaster-recovery-failover-system.md"
+    },
+    {
+      "oldId": "REQ-00041",
+      "newId": "REQ-00635",
+      "oldFile": "REQ-00041-input-validation-and-sanitization-middleware.md",
+      "newFile": "REQ-00635-input-validation-and-sanitization-middleware.md",
+      "retainedFile": "REQ-00041-multi-region-disaster-recovery-failover-system.md"
+    },
+    {
+      "oldId": "REQ-00042",
+      "newId": "REQ-00636",
+      "oldFile": "REQ-00042-distributed-tracing-log-aggregation.md",
+      "newFile": "REQ-00636-distributed-tracing-log-aggregation.md",
+      "retainedFile": "REQ-00042-infrastructure-security-scanning-and-validation.md"
+    },
+    {
+      "oldId": "REQ-00044",
+      "newId": "REQ-00637",
+      "oldFile": "REQ-00044-implement-gdpr-data-compliance.md",
+      "newFile": "REQ-00637-implement-gdpr-data-compliance.md",
+      "retainedFile": "REQ-00044-api-version-management-backward-compatibility.md"
+    },
+    {
+      "oldId": "REQ-00057",
+      "newId": "REQ-00638",
+      "oldFile": "REQ-00057-multi-factor-authentication-mfa-system.md",
+      "newFile": "REQ-00638-multi-factor-authentication-mfa-system.md",
+      "retainedFile": "REQ-00057-game-event-system-and-limited-time-events.md"
+    },
+    {
+      "oldId": "REQ-00087",
+      "newId": "REQ-00639",
+      "oldFile": "REQ-00087-chaos-engineering-fault-injection.md",
+      "newFile": "REQ-00639-chaos-engineering-fault-injection.md",
+      "retainedFile": "REQ-00087-chaos-engineering-fault-injection-testing-system.md"
+    },
+    {
+      "oldId": "REQ-00096",
+      "newId": "REQ-00640",
+      "oldFile": "REQ-00096-database-transaction-isolation-and-deadlock-detection.md",
+      "newFile": "REQ-00640-database-transaction-isolation-and-deadlock-detection.md",
+      "retainedFile": "REQ-00096-database-transaction-isolation-deadlock-detection.md"
+    },
+    {
+      "oldId": "REQ-00110",
+      "newId": "REQ-00641",
+      "oldFile": "REQ-00110-frontend-lazy-load-and-code-splitting.md",
+      "newFile": "REQ-00641-frontend-lazy-load-and-code-splitting.md",
+      "retainedFile": "REQ-00110-pokemon-bag-capacity-management-and-expansion.md"
+    },
+    {
+      "oldId": "REQ-00166",
+      "newId": "REQ-00642",
+      "oldFile": "REQ-00166-realtime-event-stream-monitoring-system.md",
+      "newFile": "REQ-00642-realtime-event-stream-monitoring-system.md",
+      "retainedFile": "REQ-00166-api-integration-test-coverage-improvement.md"
+    },
+    {
+      "oldId": "REQ-00186",
+      "newId": "REQ-00643",
+      "oldFile": "REQ-00186-data-lineage-and-change-tracking-system.md",
+      "newFile": "REQ-00643-data-lineage-and-change-tracking-system.md",
+      "retainedFile": "REQ-00186-pokemon-historical-data-archiving-system.md"
+    },
+    {
+      "oldId": "REQ-00235",
+      "newId": "REQ-00644",
+      "oldFile": "REQ-00235-user-feedback-and-bug-report-system.md",
+      "newFile": "REQ-00644-user-feedback-and-bug-report-system.md",
+      "retainedFile": "REQ-00235-pokemon-mutation-and-rare-variants.md"
+    },
+    {
+      "oldId": "REQ-00253",
+      "newId": "REQ-00645",
+      "oldFile": "REQ-00253-精灵远征探险系统.md",
+      "newFile": "REQ-00645-精灵远征探险系统.md",
+      "retainedFile": "REQ-00253-pokemon-expedition-system.md"
+    },
+    {
+      "oldId": "REQ-00258",
+      "newId": "REQ-00646",
+      "oldFile": "REQ-00258-deployment-changelog-auto-generation-system.md",
+      "newFile": "REQ-00646-deployment-changelog-auto-generation-system.md",
+      "retainedFile": "REQ-00258-catch-animation-effects-and-particle-optimization.md"
+    },
+    {
+      "oldId": "REQ-00260",
+      "newId": "REQ-00647",
+      "oldFile": "REQ-00260-exploration-region-collection-system.md",
+      "newFile": "REQ-00647-exploration-region-collection-system.md",
+      "retainedFile": "REQ-00260-cicd-pipeline-visualization-dashboard.md"
+    },
+    {
+      "oldId": "REQ-00291",
+      "newId": "REQ-00648",
+      "oldFile": "REQ-00291-api-secret-key-management-and-rotation-system.md",
+      "newFile": "REQ-00648-api-secret-key-management-and-rotation-system.md",
+      "retainedFile": "REQ-00291-pokemon-ecological-food-web-system.md"
+    },
+    {
+      "oldId": "REQ-00327",
+      "newId": "REQ-00649",
+      "oldFile": "REQ-00327-player-profile-stats-dashboard.md",
+      "newFile": "REQ-00649-player-profile-stats-dashboard.md",
+      "retainedFile": "REQ-00327-session-security-hijacking-protection-system.md"
+    },
+    {
+      "oldId": "REQ-00328",
+      "newId": "REQ-00650",
+      "oldFile": "REQ-00328-api-key-leakage-detection-system.md",
+      "newFile": "REQ-00650-api-key-leakage-detection-system.md",
+      "retainedFile": "REQ-00328-websocket-security-message-integrity-system.md"
+    },
+    {
+      "oldId": "REQ-00329",
+      "newId": "REQ-00651",
+      "oldFile": "REQ-00329-websocket-connection-pool-and-message-batch-optimization.md",
+      "newFile": "REQ-00651-websocket-connection-pool-and-message-batch-optimization.md",
+      "retainedFile": "REQ-00329-api-endpoint-naming-convention-linter-and-doc-sync.md"
+    },
+    {
+      "oldId": "REQ-00346",
+      "newId": "REQ-00652",
+      "oldFile": "REQ-00346-game-timezone-smart-conversion-cross-timezone-event-sync.md",
+      "newFile": "REQ-00652-game-timezone-smart-conversion-cross-timezone-event-sync.md",
+      "retainedFile": "REQ-00346-data-lineage-tracking-and-impact-analysis-system.md"
+    },
+    {
+      "oldId": "REQ-00352",
+      "newId": "REQ-00653",
+      "oldFile": "REQ-00352-audio-visual-accessibility-system.md",
+      "newFile": "REQ-00653-audio-visual-accessibility-system.md",
+      "retainedFile": "REQ-00352-microservice-integration-test-framework.md"
+    },
+    {
+      "oldId": "REQ-00361",
+      "newId": "REQ-00654",
+      "oldFile": "REQ-00361-pokemon-inheritance-and-legacy-system.md",
+      "newFile": "REQ-00654-pokemon-inheritance-and-legacy-system.md",
+      "retainedFile": "REQ-00361-pokemon-habitat-preference-and-environment-bonus-system.md"
+    },
+    {
+      "oldId": "REQ-00362",
+      "newId": "REQ-00655",
+      "oldFile": "REQ-00362-pokemon-skill-damage-precompute-cache-system.md",
+      "newFile": "REQ-00655-pokemon-skill-damage-precompute-cache-system.md",
+      "retainedFile": "REQ-00362-connection-pool-intelligent-prediction.md"
+    },
+    {
+      "oldId": "REQ-00370",
+      "newId": "REQ-00656",
+      "oldFile": "REQ-00370-pokemon-training-camp-system.md",
+      "newFile": "REQ-00656-pokemon-training-camp-system.md",
+      "retainedFile": "REQ-00370-translation-missing-detection-and-intelligent-fallback-system.md"
+    },
+    {
+      "oldId": "REQ-00373",
+      "newId": "REQ-00657",
+      "oldFile": "REQ-00373-slo-error-budget-burn-rate-alerting-system.md",
+      "newFile": "REQ-00657-slo-error-budget-burn-rate-alerting-system.md",
+      "retainedFile": "REQ-00373-database-schema-conflict-detection-and-multi-env-consistency-system.md"
+    },
+    {
+      "oldId": "REQ-00375",
+      "newId": "REQ-00658",
+      "oldFile": "REQ-00375-multi-cloud-cost-allocation-and-resource-attribution-system.md",
+      "newFile": "REQ-00658-multi-cloud-cost-allocation-and-resource-attribution-system.md",
+      "retainedFile": "REQ-00375-multi-region-disaster-recovery-automated-failover-system.md"
+    },
+    {
+      "oldId": "REQ-00503",
+      "newId": "REQ-00659",
+      "oldFile": "REQ-00503-screen-reader-aria-support.md",
+      "newFile": "REQ-00659-screen-reader-aria-support.md",
+      "retainedFile": "REQ-00503-game-client-injection-tool-detection-protection-system.md"
+    },
+    {
+      "oldId": "REQ-00507",
+      "newId": "REQ-00660",
+      "oldFile": "REQ-00507-password-strength-policy-and-breach-detection-system.md",
+      "newFile": "REQ-00660-password-strength-policy-and-breach-detection-system.md",
+      "retainedFile": "REQ-00507-test-coverage-automation-and-ci-integration.md"
+    },
+    {
+      "oldId": "REQ-00515",
+      "newId": "REQ-00661",
+      "oldFile": "REQ-00515-game-server-plural-rules-engine.md",
+      "newFile": "REQ-00661-game-server-plural-rules-engine.md",
+      "retainedFile": "REQ-00515-server-side-plural-form-localization-and-smart-plural-rules-system.md"
+    },
+    {
+      "oldId": "REQ-00516",
+      "newId": "REQ-00662",
+      "oldFile": "REQ-00516-chaos-testing-framework.md",
+      "newFile": "REQ-00662-chaos-testing-framework.md",
+      "retainedFile": "REQ-00516-code-complexity-metrics-and-refactoring-priority-recommendation.md"
+    },
+    {
+      "oldId": "REQ-00518",
+      "newId": "REQ-00663",
+      "oldFile": "REQ-00518-monitoring-data-intelligent-summary-and-automated-reporting-system.md",
+      "newFile": "REQ-00663-monitoring-data-intelligent-summary-and-automated-reporting-system.md",
+      "retainedFile": "REQ-00518-api-hateoas-links-and-resource-discovery-system.md"
+    },
+    {
+      "oldId": "REQ-00518",
+      "newId": "REQ-00664",
+      "oldFile": "REQ-00518-api-hypermedia-links-hateoas-and-resource-discovery-system.md",
+      "newFile": "REQ-00664-api-hypermedia-links-hateoas-and-resource-discovery-system.md",
+      "retainedFile": "REQ-00518-api-hateoas-links-and-resource-discovery-system.md"
+    },
+    {
+      "oldId": "REQ-00521",
+      "newId": "REQ-00665",
+      "oldFile": "REQ-00521-pokemon-ar-mode-anti-cheat-system.md",
+      "newFile": "REQ-00665-pokemon-ar-mode-anti-cheat-system.md",
+      "retainedFile": "REQ-00521-game-ar-capture-mode-anti-cheat-and-security-system.md"
+    },
+    {
+      "oldId": "REQ-00529",
+      "newId": "REQ-00666",
+      "oldFile": "REQ-00529-跨境数据传输合规性自动检测与审计系统.md",
+      "newFile": "REQ-00666-跨境数据传输合规性自动检测与审计系统.md",
+      "retainedFile": "REQ-00529-api-request-chain-tracing-and-full-chain-latency-analysis-system.md"
+    },
+    {
+      "oldId": "REQ-00537",
+      "newId": "REQ-00667",
+      "oldFile": "REQ-00537-mutation-testing-and-test-quality-metrics-system.md",
+      "newFile": "REQ-00667-mutation-testing-and-test-quality-metrics-system.md",
+      "retainedFile": "REQ-00537-database-performance-tuning-advisor.md"
+    },
+    {
+      "oldId": "REQ-00538",
+      "newId": "REQ-00668",
+      "oldFile": "REQ-00538-preview-test-environment-auto-reclamation.md",
+      "newFile": "REQ-00668-preview-test-environment-auto-reclamation.md",
+      "retainedFile": "REQ-00538-game-client-high-performance-cache-sync-and-consistency-check-system.md"
+    },
+    {
+      "oldId": "REQ-00538",
+      "newId": "REQ-00669",
+      "oldFile": "REQ-00538-job-execution-status-monitoring-and-alert-system.md",
+      "newFile": "REQ-00669-job-execution-status-monitoring-and-alert-system.md",
+      "retainedFile": "REQ-00538-game-client-high-performance-cache-sync-and-consistency-check-system.md"
+    },
+    {
+      "oldId": "REQ-00544",
+      "newId": "REQ-00670",
+      "oldFile": "REQ-00544-performance-auto-diagnosis-engine.md",
+      "newFile": "REQ-00670-performance-auto-diagnosis-engine.md",
+      "retainedFile": "REQ-00544-test-data-factory-pattern-system.md"
+    },
+    {
+      "oldId": "REQ-00546",
+      "newId": "REQ-00671",
+      "oldFile": "REQ-00546-api-mock-service-and-test-isolation-system.md",
+      "newFile": "REQ-00671-api-mock-service-and-test-isolation-system.md",
+      "retainedFile": "REQ-00546-api-response-latency-jitter-monitoring.md"
+    },
+    {
+      "oldId": "REQ-00548",
+      "newId": "REQ-00672",
+      "oldFile": "REQ-00548-api-request-signature-verification-and-anti-tampering-protection-system.md",
+      "newFile": "REQ-00672-api-request-signature-verification-and-anti-tampering-protection-system.md",
+      "retainedFile": "REQ-00548-database-query-performance-baseline-and-drift-detection.md"
+    },
+    {
+      "oldId": "REQ-00549",
+      "newId": "REQ-00673",
+      "oldFile": "REQ-00549-service-lifecycle-state-machine-and-graceful-transition-system.md",
+      "newFile": "REQ-00673-service-lifecycle-state-machine-and-graceful-transition-system.md",
+      "retainedFile": "REQ-00549-real-time-api-latency-and-jitter-monitoring-system.md"
+    },
+    {
+      "oldId": "REQ-00550",
+      "newId": "REQ-00674",
+      "oldFile": "REQ-00550-game-currency-localization-and-regional-adaptation.md",
+      "newFile": "REQ-00674-game-currency-localization-and-regional-adaptation.md",
+      "retainedFile": "REQ-00550-collaborative-cheating-gang-detection-system.md"
+    },
+    {
+      "oldId": "REQ-00551",
+      "newId": "REQ-00675",
+      "oldFile": "REQ-00551-api-error-code-playground-interactive-docs.md",
+      "newFile": "REQ-00675-api-error-code-playground-interactive-docs.md",
+      "retainedFile": "REQ-00551-cross-language-realtime-chat-translation-system.md"
+    },
+    {
+      "oldId": "REQ-00552",
+      "newId": "REQ-00676",
+      "oldFile": "REQ-00552-websocket-connection-pool-adaptive-scaling-and-resource-optimization.md",
+      "newFile": "REQ-00676-websocket-connection-pool-adaptive-scaling-and-resource-optimization.md",
+      "retainedFile": "REQ-00552-database-query-plan-cache-optimizer.md"
+    },
+    {
+      "oldId": "REQ-00564",
+      "newId": "REQ-00677",
+      "oldFile": "REQ-00564-microservice-contract-test-mock-generator.md",
+      "newFile": "REQ-00677-microservice-contract-test-mock-generator.md",
+      "retainedFile": "REQ-00564-contract-test-mock-server-auto-generation.md"
+    },
+    {
+      "oldId": "REQ-00586",
+      "newId": "REQ-00678",
+      "oldFile": "REQ-00586-nodejs-memory-leak-diagnosis-toolchain.md",
+      "newFile": "REQ-00678-nodejs-memory-leak-diagnosis-toolchain.md",
+      "retainedFile": "REQ-00586-gps-location-spoofing-detection-system.md"
+    },
+    {
+      "oldId": "REQ-00590",
+      "newId": "REQ-00679",
+      "oldFile": "REQ-00590-ci-cd-pipeline-efficiency-analysis-and-bottleneck-detection-system.md",
+      "newFile": "REQ-00679-ci-cd-pipeline-efficiency-analysis-and-bottleneck-detection-system.md",
+      "retainedFile": "REQ-00590-cross-region-data-consistency-verification.md"
+    },
+    {
+      "oldId": "REQ-00601",
+      "newId": "REQ-00680",
+      "oldFile": "REQ-00601-database-schema-change-impact-analysis-and-risk-assessment-system.md",
+      "newFile": "REQ-00680-database-schema-change-impact-analysis-and-risk-assessment-system.md",
+      "retainedFile": "REQ-00601-high-concurrency-api-cache-update-optimization.md"
+    },
+    {
+      "oldId": "REQ-00612",
+      "newId": "REQ-00681",
+      "oldFile": "REQ-00612-pokemon-training-and-specialization-system.md",
+      "newFile": "REQ-00681-pokemon-training-and-specialization-system.md",
+      "retainedFile": "REQ-00612-global-timezone-scheduler.md"
+    },
+    {
+      "oldId": "REQ-00619",
+      "newId": "REQ-00682",
+      "oldFile": "REQ-00619-service-dependency-consolidation-and-initialization-refactoring.md",
+      "newFile": "REQ-00682-service-dependency-consolidation-and-initialization-refactoring.md",
+      "retainedFile": "REQ-00619-core-battle-engine-test-coverage-framework.md"
+    },
+    {
+      "oldId": "REQ-00624",
+      "newId": "REQ-00683",
+      "oldFile": "REQ-00624-console-logging-migration-to-structured-logger.md",
+      "newFile": "REQ-00683-console-logging-migration-to-structured-logger.md",
+      "retainedFile": "REQ-00624-game-rich-content-i18n-version-management-system.md"
+    }
+  ]
+}

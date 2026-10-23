@@ -1,0 +1,8 @@
+{
+  "rootDir": "../..",
+  "testEnvironment": "node",
+  "testMatch": ["<rootDir>/tests/unit/privacy-preferences.test.js"],
+  "collectCoverageFrom": ["shared/privacyPreferences.js"],
+  "coverageDirectory": "coverage/privacy",
+  "coverageThreshold": {"global": {"lines": 80, "statements": 80, "functions": 80}}
+}

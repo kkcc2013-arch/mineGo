@@ -516,22 +516,21 @@ describe('Environment Risk Assessment', () => {
   
   test('should classify risk levels correctly', async () => {
     const testCases = [
-      { total: 0, expected: 'LOW' },
-      { total: 40, expected: 'MEDIUM' },
-      { total: 70, expected: 'HIGH' },
-      { total: 100, expected: 'CRITICAL' }
+      { environment: {}, total: 0, expected: 'LOW' },
+      { environment: { isRooted: true }, total: 40, expected: 'MEDIUM' },
+      { environment: { hasInjection: true }, total: 70, expected: 'HIGH' },
+      { environment: { isRooted: true, hasDebuggerAttached: true }, total: 100, expected: 'CRITICAL' }
     ];
     
     for (const testCase of testCases) {
       const result = await middleware._assessEnvironmentRisk(
         'user-123',
-        { isRooted: testCase.total >= 40 },
+        testCase.environment,
         'fingerprint'
       );
       
-      if (testCase.total > 0) {
-        expect(result.total).toBeGreaterThanOrEqual(testCase.total);
-      }
+      expect(result.total).toBe(testCase.total);
+      expect(result.level).toBe(testCase.expected);
     }
   });
 });

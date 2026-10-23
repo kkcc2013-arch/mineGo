@@ -24,7 +24,7 @@ const gatewayPkg = {
     cors: '^2.8.5',
     helmet: '^7.1.0',
     'express-rate-limit': '^7.1.5',
-    'http-proxy-middleware': '^3.0.0',
+    'http-proxy': '^1.18.1',
   },
 };
 

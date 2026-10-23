@@ -10,8 +10,8 @@
 
 const express = require('express');
 const router = express.Router();
-const kms = require('../../../shared/kms');
-const logger = require('../../../shared/logger');
+const kms = require('../../../../shared/kms');
+const logger = require('../../../../shared/logger');
 
 /**
  * 获取所有密钥列表（不包含值）

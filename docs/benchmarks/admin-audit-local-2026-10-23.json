@@ -1,0 +1,215 @@
+{
+  "date": "2026-10-23",
+  "baseCommit": "45d1562922852dd74e802371064a9a34e9d753dd",
+  "result": "protected_audit_decrypt_query_receipts_p0_projection_pass_full_security_goal_open",
+  "sourceSha256": {
+    "backend/services/user-service/src/routes/adminAudit.js": "f2842600d3642f3d2efea44af338b71dcc87d4bad5ab5205651cfa9a4660edf0",
+    "backend/services/user-service/src/index.js": "dfba6ed38b22ec2218c51a650e6784e42a94b19d2b047ed090a5f7ec4b7029f3",
+    "backend/gateway/src/index.js": "dbeeb60cb0f7daf2d7ebe36276a53fb92aeb80182466c3b1115cca8bf1be25e9",
+    "backend/gateway/src/middleware/ipBan.js": "86865494f9e51f81e9d0c9e3dd7110db6033b296c10e018316427bf5faee6396",
+    "backend/shared/audit/EncryptedAuditStore.js": "09643bfe5963551210670993f1fa83adac23e300a7e78c31a3e1b36408e7bcfd",
+    "backend/shared/audit/cryptoPrimitives.js": "2a9ffa3819101b033c3edb58e1a2b8135b52eefb81f8a8697db7f94bfc1ef3d5",
+    "backend/shared/audit/KeyProviders.js": "e380a04f73ef5e8dea1eaa92165b2f5527e9a1527800eb03766ee38551624aa8",
+    "backend/shared/auditLog.js": "3c267301bbd107eef77dc39c6ed85cf36d0bda991f98758c5bd8dd263716c3be",
+    "backend/shared/auditLogEncrypted.js": "6db1529a78bbfa1d967b898ed453d314a290fdd58e95c2dc8b3cec9fc1d6fb44",
+    "backend/shared/sensitiveFields.js": "9a3a1036faeb7ad590f5b76ecbf30cfdd95b6f3bab8e15f86bb2523c52011926",
+    "backend/shared/responseFilter.js": "f05d2b921fc5da4d478f673860bb04ec4dc8b50b066a9d7f0b9bdb2f2432a57c",
+    "backend/shared/mfa/MFAStore.js": "ef79bb60130c23f958d416001c1ed315a5e258cee93af382dd87e4f6ee2e3bc2",
+    "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
+    "backend/gateway/src/middleware/mfaRequired.js": "896e8fa81c3dd8e39c2ad4a47515203c6bbd7ff8184f02a5a5889edd3314e003",
+    "backend/tests/unit/sensitive-fields.test.js": "40ce1c746e4a8555e4d3b7c5c330df588204d069078fb1af997354115b5d9b27",
+    "backend/tests/regression/audit-crypto-storage.test.js": "ab8434cfb793a9d8d380df6323734538b66a773de000af7873babe40c3999380",
+    "backend/tests/regression/mfa-http-storage.test.js": "97819be08374485412eb73904568f666c3a37e0b38e87e078c9b00e17d62d94c",
+    "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
+    "backend/tests/regression/gateway-startup.test.js": "65b03c6701d5ba6ea0339344f96fc91b839fc137d4349c7324d9b70bdaf877e4",
+    "backend/package.json": "51ace9ea3254dd1427283c287f93d39b65058a53f1791e5c5225e4e145faeb33",
+    "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
+    ".github/workflows/mfa-regression.yml": "8eab2d99cd8a88ba8942111cf791a11aab84c80533287300fde9502bc0b9d7fb",
+    ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
+    ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
+    "docs/AUDIT-ENCRYPTION.md": "227244af459af83941348bd721e952722c8132967833df154eae90b051f5a8a2",
+    "docs/MFA-STATE.md": "70275ac5fd8631f514118e78401abac2cee30dbf4ff752b54c658c35121b495b"
+  },
+  "checks": [
+    {
+      "name": "http",
+      "exit": 0,
+      "logSha256": "208b915476c3c8709816a38b16388b154b7c11f6f45676de3fe1f55e6dbedc37"
+    },
+    {
+      "name": "native",
+      "exit": 0,
+      "logSha256": "8b68416295c375fca5aee0c3dbe00a6631db16bfc74e495ab930bc2959716b3b"
+    },
+    {
+      "name": "unit",
+      "exit": 0,
+      "logSha256": "98291c723a0b610cb9fe81c14bb0b819954f0bbe3a9f9f3edcf80edc1ac0e239"
+    },
+    {
+      "name": "privacy-storage",
+      "exit": 0,
+      "logSha256": "a5a7141fb2b2ca64c2d0e80155d29ef0ee08e9bfd5e562df7271c400292ecc42"
+    },
+    {
+      "name": "privacy-unit",
+      "exit": 0,
+      "logSha256": "1fdbf29095c849a31f512302f654622336695f3854ff1d736001892cc74c8a1c"
+    },
+    {
+      "name": "ip-storage",
+      "exit": 0,
+      "logSha256": "756dfb4393e7fedb06b8056b74a19322d9d7ed8aa7fecd8da3fc3a4eaa50e514"
+    },
+    {
+      "name": "battle-coverage",
+      "exit": 0,
+      "logSha256": "f4acee392a70025954a6aeaa1fd88b7d999f6e2c9d87aa831de375f4ee73e308"
+    },
+    {
+      "name": "policy-coverage",
+      "exit": 0,
+      "logSha256": "ee801903274e3396da53f91a942a35f3666a4c86aa95a3626fb1a4c012970900"
+    },
+    {
+      "name": "syntax",
+      "exit": 0,
+      "logSha256": "2528d9e98e19038305d30d18f4d613a1ca39d2552c1320e18759dd7aa8e15bda"
+    },
+    {
+      "name": "audit-tools",
+      "exit": 0,
+      "logSha256": "9259652a324e612b6417f5e76308d786fa303bcc5e09f4cfe008b178e186e0e8"
+    },
+    {
+      "name": "logging",
+      "exit": 0,
+      "logSha256": "ddc0301849846d3968cce009435bbee760c1cf2e610111fca3f65eb0d14c3843"
+    },
+    {
+      "name": "numbering",
+      "exit": 0,
+      "logSha256": "e6f6b5acb672914b421666a405b351676b766fa4977b3f147bdea0f48229f0d0"
+    },
+    {
+      "name": "health",
+      "exit": 0,
+      "logSha256": "935e0676b0fce53acc2777add185ce74fae012077e69989da4e74b1c80e4d49d"
+    },
+    {
+      "name": "crypto",
+      "result": "passed",
+      "logSha256": "879a119c6e452041b0a9834cb48f770edc3364dca9698313854bd6e4e4ef5dfe"
+    }
+  ],
+  "http": {
+    "nodeReportedTests": 26,
+    "coverage": {
+      "adminAudit.js": {
+        "lines": 100.0,
+        "branches": 93.75,
+        "functions": 100.0
+      },
+      "sensitiveFields.js": {
+        "lines": 100.0,
+        "branches": 85.71,
+        "functions": 100.0
+      },
+      "all files": {
+        "lines": 99.42,
+        "branches": 83.43,
+        "functions": 100.0
+      }
+    },
+    "lineFunctionThreshold": 90,
+    "scope": "Seven MFA/session/admin/policy production modules; original90line/function gate, no90branch/full security acceptance."
+  },
+  "crypto": {
+    "nodeReportedTests": 26,
+    "coverage": {
+      "lines": 98.3,
+      "branches": 90.45,
+      "functions": 95.77
+    },
+    "lineFunctionThreshold": 90,
+    "scope": "Three crypto modules plus facade; actual numeric/candidate/byte pagination and precise genuine-date tests; no all-business/masking/permissions criterion acceptance."
+  },
+  "policy": {
+    "unitTests": 4,
+    "coverage": {
+      "lines": 100,
+      "branches": 100,
+      "functions": 100
+    },
+    "lineFunctionThreshold": 90,
+    "scope": "Only pure known structured P0 classification/projection, not complete response filtering/unstructured masking/custom/scanner acceptance."
+  },
+  "native": {
+    "nodeReportedTests": 2,
+    "measurements": [
+      {
+        "nativeTwoGatewayCacheRecoveryMs": 54.48340400000234,
+        "scope": "real user-service HTTP bytes, two independent OS gateways, PostgreSQL CDC, Redis and independent L1 caches; functional fixture, not capacity acceptance"
+      },
+      {
+        "gatewaySignalShutdownMs": 474.17949800000133,
+        "userSignalShutdownElapsedMs": 5155.763374999999,
+        "scope": "actual native gateway/user processes, isolated PostgreSQL V1/V2/user/title/IP/partition/CDC schema, Redis and Kafka; other registry targets alias the actual user fixture"
+      },
+      {
+        "titleHttpLatencyMs": {
+          "samples": 50,
+          "median": 2.3551330000000235,
+          "p95": 3.278795000000173,
+          "maximum": 3.7796739999994315
+        },
+        "scope": "isolated local service and database, warm sequential HTTP reads"
+      },
+      {
+        "shutdownElapsedMs": 5376.815519999999
+      }
+    ],
+    "fixture": {
+      "postgresPort": 55436,
+      "maxConnections": 40,
+      "maxLocksPerTransaction": 256,
+      "cpuLimit": 1,
+      "memoryMiB": 512,
+      "image": "same image ID as existing owned15.8/PostGIS fixture"
+    },
+    "scope": "Actual OS user+two gateway processes, real SQL/Redis/Kafka, four admin aliases/CORS/decrypt/receipt/request context plus retained privacy/title/IP/cache/CDC/notification/health/signal behavior. Other registry peers alias user fixture. Functional fixture, not capacity/SLO acceptance."
+  },
+  "unitChecks": 746,
+  "jest": {
+    "suites": 26,
+    "tests": 439
+  },
+  "privacy": {
+    "storage": 12,
+    "unit": 40,
+    "originalCoverageGate": 80
+  },
+  "ipStorageTests": 9,
+  "battle": {
+    "tests": 133,
+    "formulaCoveragePercent": 100
+  },
+  "syntaxFiles": 1470,
+  "rawSqlChanges": 0,
+  "rawFiles": 86,
+  "repairManifestChanges": 0,
+  "dependencyManifestChanges": 0,
+  "lockChanges": 0,
+  "developmentFindings": [
+    {
+      "finding": "Text alias ORDER BY id caused numeric pagination error; actual201-record tail assertion failed before native column qualification.",
+      "failureLogSha256": "650bc637690bdb6a6a040cc03fc77833668bdcf4514da21efeeebcb8769edd3f"
+    },
+    {
+      "finding": "Native20-connection fixture exhausted with SQLSTATE53300; fixed safe IP diagnostics identify second gateway blacklist lookup. New owned40-connection native-only fixture measured40, same image/CPU/memory. Original capacity20 Cmd override ignored ALTER SYSTEM thenRESET; no leftover original config change or benchmark-environment alteration.",
+      "failureLogSha256": "0bf1584205aac1e19bd4e05b70e8e610d7bfdb49c20794ae7341892432d1966c"
+    }
+  ],
+  "limits": "All658 intact; only619independentlyverified. Full frontend/admin provisioning/role governance/approvedL3export/allbusiness sensitive access and denied-attempt auditing, fullresponse/unstructured/custommask/scanner/originalcombinedunitsecuritycoverage/liveAWS and originalperformance-5target remain open. Metadata helpers remain metadata; new protected service query requires actual L2/MFA/reason. Sensitive query has lookahead, not a complete export. Historicalwalltimezone not guessed. No fabricated new full86bootstrap run; priorSQL evidence separate from current failed CI.",
+  "execution": "Sequential nice10/UV2/Node concurrency1/JestInBand; noMaven/CPU saturation/subagents/new requirements/merge/deploy/productioncleanup/rekey/recipientmessages. Ownednative40/Redis/Kafka stopped afterchecks; unrelatedcontainers untouched. Current source CI pending."
+}

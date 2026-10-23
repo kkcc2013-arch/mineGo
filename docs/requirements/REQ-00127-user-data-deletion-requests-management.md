@@ -7,7 +7,7 @@
 | 标题 | 用户数据删除请求管理系统 |
 | 类别 | 合规/隐私 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | in_progress |
 | 涉及服务 | user-service、gateway、所有微服务、database、backend/jobs |
 | 创建时间 | 2026-06-11 20:15 |
 
@@ -1310,3 +1310,30 @@ metrics.dataDeletionDuration = new promClient.Histogram({
 - [GDPR Article 17 - Right to erasure ('right to be forgotten')](https://gdpr-info.eu/art-17-gdpr/)
 - [CCPA § 1798.105 - Right to Delete](https://oag.ca.gov/privacy/ccpa)
 - [Data Deletion Best Practices](https://ico.org.uk/for-organisations/guide-to-data-protection/guide-to-the-general-data-protection-regulation-gdpr/individual-rights/right-to-erasure/)
+
+
+## 2026-10-18 实际身份与执行契约复核
+
+已完整阅读原1312行需求及539行旧GDPR需求，原12项标准保持。状态new进入
+in_progress。真实旧data_deletion_requests为SERIAL主键/INTEGER所有者，新提案
+同名UUID请求表被IF NOT EXISTS略过，UUID任务外键随即失败。不存在可信
+旧整数所有者到真实UUID的映射，不转换/复制/捏造旧审批与删除历史。
+
+绑定原始校验和的repair保留旧表/序列/行/视图/FK/共享函数，新增独立的
+data_erasure_*五表模型。请求UUID/主体UUID不可重指派；live_user_id真实FK
+在账户移除时置NULL，历史请求/任务/证明仍保留。原8类定义作为提案配置
+保留，未把错误旧表名当SQL执行计划。验证码存摘要，任务/证明记录真实
+计数；签名载荷与哈希/主体/总量/分类量必须一致，未执行/未完成任务不能
+提交证明。证明期限/密钥需要明确配置，未把7年示例认定为普遍法律要求。
+
+真实18项存储/CLI检查覆盖原错误回滚、旧历史/OID/序列/视图/FK/函数保留、
+主体/并发约束、错误计数/配置拒绝和账户移除后的证明保留。实际删除3只
+自有精灵并保留他人记录，以真实rowCount记账；Ed25519签名移除账户前后
+实际验证。此为SQL存储与密码学检查，不代表现有worker完整删除业务通过。
+完整85链现推进到20260701_110000第1句canary部分唯一约束WHERE语法失败，
+整个pending仍回滚；完整升级/反向迁移尚未验证。
+
+现有service/router/processor仍用旧模型与非规范字段，未接入新模型；
+真实验证码送达/确认、自动与人工审批/延迟、规范资源计划、原子删除/
+重试/通知/权限/令牌失效/指标/证书授权及法律合规仍须实际完成，不把
+存储前置或模拟任务状态等同端到端验收。见[删除存储说明](../DATA-ERASURE.md)。

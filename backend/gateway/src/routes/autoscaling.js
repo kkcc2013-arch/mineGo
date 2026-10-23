@@ -4,8 +4,8 @@
 
 const express = require('express');
 const router = express.Router();
-const { PredictiveScalingEngine } = require('../../shared/predictiveScaling');
-const logger = require('../../shared/logger');
+const { PredictiveScalingEngine } = require('../../../shared/predictiveScaling');
+const logger = require('../../../shared/logger');
 
 const scalingEngine = new PredictiveScalingEngine();
 

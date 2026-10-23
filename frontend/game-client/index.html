@@ -15,6 +15,7 @@
   <link rel="manifest" href="/manifest.json">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link rel="icon" type="image/svg+xml" href="/icons/icon-192.svg">
+  <link rel="stylesheet" href="/src/styles/mfa.css">
   <style>
     :root{
       --bg:#0d0f14;--surface:#13161e;--surface2:#1a1e28;--border:#252938;
@@ -196,6 +197,7 @@
     <div class="logo-title">Pocket Monster Go</div>
     <div class="logo-sub">GPS精灵捕捉手游 · 开启你的冒险</div>
   </div>
+  <div id="primary-login-controls" class="auth-fields">
   <div class="form-group">
     <label class="form-label">手机号</label>
     <input id="inp-phone" class="form-input" type="tel" placeholder="请输入手机号" maxlength="11" inputmode="numeric" data-testid="phone-input" aria-label="手机号">
@@ -205,6 +207,8 @@
     <button class="btn-sms" id="btn-sms" onclick="sendSms()" data-testid="sms-btn">发送验证码</button>
   </div>
   <button class="btn btn-primary" onclick="doLogin()" data-testid="login-btn">登录 / 注册</button>
+  </div>
+  <div id="mfa-login-controls" hidden></div>
 </div>
 
 <!-- ── MAP ───────────────────────────────────────────────────── -->
@@ -283,10 +287,13 @@
       <div class="inv-qty">></div>
     </div>
   </div>
+  <div class="logout-wrap"><button class="btn btn-outline" type="button" onclick="showMfaSettings()">账户二次验证</button></div>
   <div class="logout-wrap">
     <button class="btn btn-outline" onclick="doLogout()" data-testid="logout-btn">退出登录</button>
   </div>
 </div>
+
+<dialog id="mfa-settings-dialog" class="mfa-dialog" aria-label="账户二次验证"><button type="button" class="btn btn-outline" id="mfa-settings-close">关闭</button><div id="mfa-settings-content"></div></dialog>
 
 <!-- ── NAV ───────────────────────────────────────────────────── -->
 <nav id="nav" data-testid="nav-bar" role="navigation" aria-label="主导航">
@@ -332,9 +339,11 @@ if ('serviceWorker' in navigator) {
     }
   });
 
-  // Listen for controller change (after SKIP_WAITING)
+  // An upgrade replaces an existing controller; first installation must not
+  // discard a primary code or an in-memory MFA challenge being entered.
+  const hadController=!!navigator.serviceWorker.controller;let reloadingWorker=false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    window.location.reload();
+    if(!hadController||reloadingWorker)return;reloadingWorker=true;window.location.reload();
   });
 
   // Listen for sync complete messages
@@ -459,6 +468,8 @@ window.addEventListener('appinstalled', () => {
 </script>
 <script type="module">
 import { api, ApiError } from './src/api/client.js';
+import { MFASetup } from './src/components/MFASetup.js';
+import { MFAVerify } from './src/components/MFAVerify.js';
 import { store }         from './src/game/GameStore.js';
 import { LocationManager } from './src/game/LocationManager.js';
 import { CatchEngine }   from './src/game/CatchEngine.js';
@@ -497,7 +508,20 @@ window.exitCatch = function() {
 };
 
 // ── SMS + Login ────────────────────────────────────────────────
-let smsCd = null;
+let smsCd = null,mfaLoginView=null,mfaSettingsView=null,loginBusy=false;
+const primaryControls=document.getElementById('primary-login-controls'),mfaControls=document.getElementById('mfa-login-controls');
+function closeMfaLogin(){mfaLoginView?.destroy();mfaLoginView=null;mfaControls.hidden=true;primaryControls.hidden=false;}
+function showMfaLogin(){
+  document.getElementById('inp-code').value='';
+  closeMfaLogin();primaryControls.hidden=true;mfaControls.hidden=false;
+  mfaLoginView=new MFAVerify(mfaControls,api,{onSuccess:async()=>{const profile=await api.getMe();afterLogin(profile);},onCancel:reason=>{closeMfaLogin();if(reason)toast(reason,'err');}});
+}
+const mfaDialog=document.getElementById('mfa-settings-dialog');
+window.showMfaSettings=()=>{if(!api.hasSession){toast('请先登录','err');return;}if(mfaDialog.open)return;mfaDialog.showModal();mfaSettingsView=new MFASetup(document.getElementById('mfa-settings-content'),api);};
+document.getElementById('mfa-settings-close').addEventListener('click',()=>mfaDialog.close());
+mfaDialog.addEventListener('close',()=>{mfaSettingsView?.destroy();mfaSettingsView=null;});
+window.addEventListener('pmg:logout',()=>{closeMfaLogin();if(mfaDialog.open)mfaDialog.close();store.setUser(null);document.getElementById('nav').classList.remove('show');locMgr.stop();goScreen('login');});
+
 window.sendSms = async function() {
   const phone = document.getElementById('inp-phone').value.trim();
   if (!/^1[3-9]\d{9}$/.test(phone)) { toast('请输入正确的手机号', 'err'); return; }
@@ -513,9 +537,11 @@ window.sendSms = async function() {
 };
 
 window.doLogin = async function() {
+  if(loginBusy)return;
   const phone = document.getElementById('inp-phone').value.trim();
   const code  = document.getElementById('inp-code').value.trim();
   if (!phone || !code) { toast('请填写手机号和验证码', 'err'); return; }
+  loginBusy=true;const loginButton=document.querySelector('[data-testid=login-btn]');loginButton.disabled=true;
   try {
     let user;
     try { user = await api.login(phone, code); }
@@ -525,11 +551,14 @@ window.doLogin = async function() {
         user = await api.register(phone, code, nick);
       } else throw e;
     }
-    afterLogin(user);
-  } catch (e) { toast(e.message || '登录失败', 'err'); }
+    if(user.mfaRequired){showMfaLogin();return;}
+    afterLogin(await api.getMe());
+  } catch (e) { toast(e.message || '登录失败', 'err'); }finally{loginBusy=false;loginButton.disabled=false;}
 };
 
 function afterLogin(u) {
+  document.getElementById('inp-code').value='';
+  closeMfaLogin();
   const user = u.user || u;
   store.setUser(user);
   syncUser(user);

@@ -3,7 +3,7 @@
 - **编号**：REQ-00391
 - **类别**：技术债/重构
 - **优先级**：P1
-- **状态**：done
+- **状态**：in_progress
 - **涉及服务/模块**：backend/shared（190 个模块）、所有微服务、gateway、CI/CD 检查规则
 - **创建时间**：2026-06-30 17:00 UTC
 - **依赖需求**：REQ-00002（结构化日志与 Prometheus 指标集成）
@@ -140,3 +140,16 @@ P1 级别理由：
 - 生产问题排查依赖结构化日志，当前状态导致排查效率低下
 - 技术债积累会随着模块增加而恶化，需尽快治理
 - 相比其他 P1 需求，此需求是基础架构改进，影响所有后续功能开发
+
+## 2026-10-06 重新验收
+
+历史 done 声明仍留下直接 console 调用、注释中的 logger 声明和无绑定 logger 引用，旧替换脚本还会破坏嵌套调用及模板表达式。当前恢复为 in_progress。
+
+- 替换脚本使用 Babel AST 和词法作用域；默认扫描不写文件，写入必须指定单文件，导入位于注释/指令之外，保留全部参数表达式并避免嵌套变量冲突。
+- 本次扫描范围中的 backend/shared、gateway 和所有服务运行时代码直接全局 console 调用为零；CLI、脚本和测试输出按需求排除。
+- shared/logger 的 AsyncLocalStorage 在真实并发 HTTP 测试中隔离 requestId/userId，开发环境共享一个输出 transport。
+- 修复 businessMetrics/spawnMetrics 的注释内声明、ImageProcessor/ageVerification/OptimizedManager 的未定义 logger，以及 ServiceLauncher 的启动失败日志引用。
+- 移除日志中的家长同意令牌/签名 URL，并将未实现邮件发送的记录改为准确的“请求已准备”；邮件投递本身尚未实现/验收。
+- 新增运行时 AST 检查及空基线，CI 拒绝新增直接 console 调用；ESLint no-console 保留明确的 CLI/前端例外。
+- 现有受支持单测命令通过，完整旧集成/E2E 套件仍有独立失败；当前尚未宣称“所有既有测试全部通过”或生产端到端完成。
+- 迁移规范见 docs/LOGGING-MIGRATION.md；真实性能门槛尚未通过，详见 REQ-00683 的证据。

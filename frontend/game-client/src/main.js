@@ -197,10 +197,15 @@ window.pmgGame = {
 
   async login(phone, smsCode) {
     const data = await api.login(phone, smsCode);
+    if(data.mfaRequired)return data;
     const user = await api.getMe();
     store.setUser(user);
     onLoggedIn();
     return data;
+  },
+
+  async completeMfaLogin(code,recovery=false){
+    const data=await api.completeMfaLogin(code,recovery);const user=await api.getMe();store.setUser(user);onLoggedIn();return data;
   },
 
   async register(phone, smsCode, nickname) {

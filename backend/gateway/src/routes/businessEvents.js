@@ -27,8 +27,7 @@ try {
 }
 
 // Redis 客户端
-const Redis = require('ioredis');
-const redis = new Redis(process.env.REDIS_URL);
+const redis = require('../../../shared/redis').getRedis();
 
 /**
  * @route   GET /api/events

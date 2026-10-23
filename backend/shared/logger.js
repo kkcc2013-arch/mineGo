@@ -1,6 +1,13 @@
 // shared/logger.js - 结构化日志模块
 'use strict';
 const pino = require('pino');
+const {AsyncLocalStorage} = require('node:async_hooks');
+const requestContext = new AsyncLocalStorage();
+let prettyTransport;
+function getPrettyTransport() {
+  if (!prettyTransport) prettyTransport = pino.transport({target:'pino-pretty', options:{colorize:true,translateTime:'SYS:standard',ignore:'pid'}});
+  return prettyTransport;
+}
 const { context, trace } = require('@opentelemetry/api');
 
 /**
@@ -8,11 +15,19 @@ const { context, trace } = require('@opentelemetry/api');
  * @param {string} serviceName - 服务名称
  * @returns {pino.Logger} Pino 日志实例
  */
-function createLogger(serviceName) {
+function createLogger(serviceName, options = {}) {
   const isProduction = process.env.NODE_ENV === 'production';
   
   const logger = pino({
     level: process.env.LOG_LEVEL || 'info',
+    mixin() {
+      const req = requestContext.getStore();
+      if (!req) return {};
+      const span = trace.getSpan(context.active());
+      const spanContext = span?.spanContext();
+      return {requestId: req.reqId, userId: req.user?.id ?? req.userId,
+        ...(spanContext ? {traceId: spanContext.traceId, spanId: spanContext.spanId} : {})};
+    },
     base: { 
       service: serviceName,
       pid: process.pid,
@@ -26,21 +41,12 @@ function createLogger(serviceName) {
         return rest;
       }
     },
-    // 生产环境使用 JSON，开发环境使用 pretty
-    transport: isProduction ? undefined : {
-      target: 'pino-pretty',
-      options: {
-        colorize: true,
-        translateTime: 'SYS:standard',
-        ignore: 'pid',
-      }
-    },
     // 红action字段（敏感信息）
     redact: {
       paths: ['req.headers.authorization', 'req.headers.cookie', 'password', 'token'],
       censor: '[REDACTED]'
     }
-  });
+  }, options.destination || (isProduction ? undefined : getPrettyTransport()));
 
   return logger;
 }
@@ -60,7 +66,7 @@ function childLogger(logger, context) {
  * @param {pino.Logger} logger - 日志实例
  */
 function requestLogger(logger) {
-  return (req, res, next) => {
+  return (req, res, next) => requestContext.run(req, () => {
     const startTime = Date.now();
     const reqId = req.headers['x-request-id'] || req.headers['x-trace-id'] || `req-${Date.now()}`;
     
@@ -114,7 +120,7 @@ function requestLogger(logger) {
     });
     
     next();
-  };
+  });
 }
 
 const defaultLogger = createLogger('app');

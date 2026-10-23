@@ -5,13 +5,20 @@ const cors         = require('cors');
 const helmet       = require('helmet');
 const rateLimit    = require('express-rate-limit');
 const { v4: uuidv4 } = require('uuid');
-const { createProxyMiddleware } = require('http-proxy-middleware');
+const { createProxyMiddleware } = require('./proxy');
 const swaggerUi    = require('swagger-ui-express');
 const YAML         = require('yamljs');
 const path         = require('path');
-const { verifyAccess } = require('@pmg/shared/auth');
+const { requireAuth, requireAdmin, errorHandler } = require('@pmg/shared/auth');
+const { ServiceLauncher } = require('@pmg/shared/ServiceLauncher');
+const HealthChecker = require('@pmg/shared/HealthChecker');
+const db = require('@pmg/shared/db');
+const redis = require('@pmg/shared/redis');
+const { getClientIp } = require('@pmg/shared/clientIp');
 const { createLogger, requestLogger } = require('@pmg/shared/logger');
 const metrics = require('@pmg/shared/metrics');
+const { partitionMaintenance } = require('@pmg/shared/partitionMaintenance');
+const partitionRoutes = require('./routes/partitions');
 const { authWithBlacklistMiddleware } = require('./middleware/jwtBlacklist');
 
 // ── Auth middleware for protected routes ──────────────────────
@@ -22,6 +29,9 @@ const authMiddleware = authWithBlacklistMiddleware;
 const cache = require('@pmg/shared/cache');
 const { cacheMiddleware } = require('@pmg/shared/cacheMiddleware');
 const cacheInvalidation = require('@pmg/shared/cacheInvalidation');
+const CacheInvalidationCenter = require('@pmg/shared/cdc/CacheInvalidationCenter');
+const {createCacheInvalidationRoutes} = require('./routes/cacheInvalidationRoutes');
+const cacheCenter = new CacheInvalidationCenter();
 const { cacheRoutes, presets } = require('./cacheConfig');
 
 // REQ-00039: 缓存预热系统
@@ -96,7 +106,11 @@ const logger = createLogger('gateway');
 const SERVICE_NAME = 'gateway';
 
 const app  = express();
-const PORT = process.env.PORT || 8080;
+app.set('trust proxy', process.env.GATEWAY_TRUST_PROXY ? process.env.GATEWAY_TRUST_PROXY.split(',').map(value => value.trim()) : false);
+const PORT = process.env.PORT === undefined ? 8080 : Number(process.env.PORT);
+const healthChecker = new HealthChecker({ serviceName: SERVICE_NAME });
+let ipManager;
+let warmupPromise;
 
 // ── Service registry ─────────────────────────────────────────
 const SERVICES = {
@@ -121,7 +135,7 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization','X-Idempotency-Key','X-Request-ID','X-Trace-ID'],
+  allowedHeaders: ['Content-Type','Authorization','X-Idempotency-Key','X-Request-ID','X-Trace-ID','X-MFA-Token','X-Audit-Reason','X-Client-Ver','X-Platform'],
 }));
 
 // Global rate limit
@@ -131,7 +145,7 @@ app.use(rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { code: 1007, message: '请求过于频繁，请稍后重试' },
-  keyGenerator: (req) => req.headers['x-forwarded-for'] || req.ip,
+  keyGenerator: getClientIp,
 }));
 
 // Request ID & Trace ID injection
@@ -151,6 +165,10 @@ app.use(metrics.httpMetricsMiddleware(SERVICE_NAME));
 
 // REQ-00072: API 响应压缩（在路由之前）
 app.use(createCompressionMiddleware());
+
+// Access control precedes every business and operational route.
+app.use(ipBanMiddleware);
+app.use(ipAccessLogMiddleware);
 
 // ── REQ-00044: API Version Middleware ────────────────────────────
 app.use(apiVersionMiddleware);
@@ -176,17 +194,29 @@ app.use('/api/events', businessEventsRoutes);
 app.use('/api/v1/autoscaling', autoscalingRoutes);
 
 // ── Health ────────────────────────────────────────────────────
-app.get('/health', async (_req, res) => {
-  const checks = await Promise.allSettled(
-    Object.entries(SERVICES).map(async ([name, url]) => {
-      const r = await fetch(`${url}/health`, { signal: AbortSignal.timeout(2000) });
-      return { name, status: r.ok ? 'up' : 'down' };
-    })
-  );
-  const services = checks.map(r => r.status === 'fulfilled' ? r.value : { name: '?', status: 'down' });
-  const allUp = services.every(s => s.status === 'up');
-  res.status(allUp ? 200 : 503).json({ gateway: 'ok', services });
-});
+healthChecker.register('database', () => db.query('SELECT 1').then(() => ({})), { critical: true, timeout: 2000 });
+healthChecker.register('redis', () => redis.getRedis().ping().then(() => ({})), { critical: true, timeout: 2000 });
+healthChecker.register('ipAccessControl', async () => {
+  if (!ipManager?.initialized) throw new Error('IP access control is not initialized');
+  // Connectivity alone cannot prove the access-control schema remains usable.
+  await db.query('SELECT ip_address FROM ip_blacklist LIMIT 0');
+  await db.query('SELECT ip_address FROM ip_whitelist LIMIT 0');
+}, { critical: true, timeout: 2000 });
+for (const [name, url] of Object.entries(SERVICES)) {
+  healthChecker.register(name, async () => {
+    const response = await fetch(`${url}/health`, { signal: AbortSignal.timeout(2000) });
+    if (!response.ok) throw new Error('Downstream service is unavailable');
+  }, { critical: true, timeout: 2500 });
+}
+app.get('/health/live', async (_req, res) => res.json(await healthChecker.livenessCheck()));
+async function healthReport(_req, res) {
+  const report = await healthChecker.runAllChecks();
+  const ready = report.status === 'healthy';
+  res.status(ready ? 200 : 503).json({ ...report, gateway: 'ok', status: ready ? 'ready' : 'not_ready',
+    services: Object.keys(SERVICES).map(name => ({ name, status: report.checks[name].status === 'healthy' ? 'up' : 'down' })) });
+}
+app.get('/health', healthReport);
+app.get('/health/ready', healthReport);
 
 // ── Metrics ────────────────────────────────────────────────────
 app.get('/metrics', async (req, res) => {
@@ -226,32 +256,7 @@ try {
 
 // ── Initialize Cache System (REQ-00031) ───────────────────────
 // ── Initialize Cache Warmup (REQ-00039) ───────────────────────
-const getRedis = require('@pmg/shared/redis').getRedis;
-
-(async () => {
-  try {
-    // 初始化缓存模块
-    cache.init({
-      host: process.env.REDIS_HOST || 'localhost',
-      port: process.env.REDIS_PORT || 6379,
-      password: process.env.REDIS_PASSWORD
-    });
-    
-    logger.info('Cache system initialized');
-    
-    // 初始化缓存预热系统（非阻塞）
-    const redisClient = getRedis();
-    cacheWarmup.initialize({ redis: redisClient })
-      .then(result => {
-        logger.info({ itemsLoaded: result.itemsLoaded }, 'Cache warmup completed');
-      })
-      .catch(err => {
-        logger.error({ err }, 'Cache warmup failed, continuing without warm cache');
-      });
-  } catch (err) {
-    logger.error({ err }, 'Failed to initialize cache system');
-  }
-})();
+// Dependencies are initialized by the service lifecycle before listening.
 
 // ── Proxy factory ─────────────────────────────────────────────
 function proxy(target, pathRewrite) {
@@ -274,7 +279,25 @@ function proxy(target, pathRewrite) {
 // 版本信息 API
 app.use('/api/version', apiVersionRoutes);
 
+// IP appeal endpoints authenticate private operations inside user-service.
+require('./routes/ipAppealProxy').mountIpAppealProxy(app, SERVICES.user);
+const notificationProxy=require('./routes/notificationProxy').mountNotificationProxy(app,SERVICES.user);
+
 // ── v1 API Routes (Legacy) ──────────────────────────────────────────
+// REQ-00638/00126: canonical MFA aliases before generic versioned user routers.
+for(const prefix of ['/api/users/me/mfa','/api/v1/users/me/mfa','/api/v2/users/me/mfa','/v1/users/me/mfa']){
+  app.use(prefix,authMiddleware,proxy(SERVICES.user,url=>'/users/me/mfa'+(url==='/'?'':url)));
+}
+for(const prefix of ['/api/auth/mfa','/api/v1/auth/mfa','/api/v2/auth/mfa','/v1/auth/mfa']){
+  app.use(prefix,authRateLimiter(),proxy(SERVICES.user,url=>'/auth/mfa'+(url==='/'?'':url)));
+}
+
+// Protected audit data is never served through the generic cached user paths.
+for(const resource of ['audit-logs','sensitive-access-logs'])for(const root of ['/api','/api/v1','/api/v2','/v1']){
+  const prefix=root+'/admin/'+resource;
+  app.use(prefix,adminRateLimiter(),requireAuth,requireAdmin,proxy(SERVICES.user,url=>'/admin/'+resource+(url==='/'?'':url)));
+}
+
 // Public (no auth) - REQ-00040: 认证接口限流
 app.use('/api/v1/auth', authRateLimiter(), proxy(SERVICES.user, { '^/api/v1/': '/' }));
 
@@ -289,6 +312,9 @@ app.use('/api/v1/users',
   authMiddleware,
   usersV1Routes
 );
+
+// Privacy routes authenticate private requests inside user-service.
+require('./routes/privacyProxy').mountPrivacyProxy(app, SERVICES.user);
 
 // ── v2 API Routes (Current) ──────────────────────────────────────────
 // Public (no auth) - REQ-00040: 认证接口限流
@@ -314,21 +340,22 @@ app.use('/api/v2/pokemon',
 // ── Legacy Routes (Default to current version) ──────────────────────
 // 以下路由保持向后兼容，默认使用当前版本
 // Public (no auth)
-app.use('/v1/auth',     proxy(SERVICES.user, { '^/v1/': '/auth/' }));
+app.use('/v1/auth', authRateLimiter(), proxy(SERVICES.user,url=>'/auth'+(url==='/'?'':url)));
 
 // Protected with cache (REQ-00031)
 // 用户资料 - 缓存 5 分钟
 app.get('/v1/users/:id/profile',
   authMiddleware,
   cacheMiddleware({ ...presets.userData, keyPrefix: 'api:profile:', ttl: 300 }),
-  proxy(SERVICES.user, { '^/': '/users/' })
+  proxy(SERVICES.user, (url, req) => '/users/' + encodeURIComponent(req.params.id === 'me' ? (req.user.sub ?? req.user.id) : req.params.id) + (url.includes('?') ? url.slice(url.indexOf('?')) : ''))
 );
 
 // 用户统计 - 缓存 5 分钟
 app.get('/v1/users/:id/stats',
   authMiddleware,
+  (req, res, next) => req.params.id === 'me' || req.params.id.toLowerCase() === String(req.user.sub ?? req.user.id).toLowerCase() ? next() : res.status(403).json({code: 1003, message: 'Only your own statistics are available', data: null}),
   cacheMiddleware({ ...presets.userData, keyPrefix: 'api:user-stats:', ttl: 300 }),
-  proxy(SERVICES.user, { '^/': '/users/' })
+  proxy(SERVICES.user, url => '/users/me' + (url.includes('?') ? url.slice(url.indexOf('?')) : ''))
 );
 
 // 其他用户路由（不缓存）
@@ -341,7 +368,7 @@ app.use('/v1/users',
 app.get('/v1/friends',
   authMiddleware,
   cacheMiddleware({ ...presets.list, keyPrefix: 'api:friends:', ttl: 180 }),
-  proxy(SERVICES.social, { '^/': '/friends/' })
+  proxy(SERVICES.social, { '^/v1/': '/' })
 );
 
 // 其他好友路由（不缓存）
@@ -367,17 +394,18 @@ app.use('/v1/location',
   proxy(SERVICES.location, { '^/': '/location/' })
 );
 
-// 精灵图鉴 - 缓存 1 小时（静态数据）
+// Personal Pokédex requires the verified owner in both the route and cache key.
 app.get('/v1/pokemon/pokedex',
-  cacheMiddleware({ ...presets.static, keyPrefix: 'api:pokedex:', ttl: 3600 }),
-  proxy(SERVICES.pokemon, { '^/': '/pokemon/' })
+  authMiddleware,
+  cacheMiddleware({ ...presets.userData, keyPrefix: 'api:pokedex:', ttl: 3600 }),
+  proxy(SERVICES.pokemon, { '^/v1/': '/' })
 );
 
 // 用户精灵列表 - 缓存 2 分钟
 app.get('/v1/pokemon',
   authMiddleware,
   cacheMiddleware({ ...presets.userData, keyPrefix: 'api:pokemon-list:', ttl: 120 }),
-  proxy(SERVICES.pokemon, { '^/': '/pokemon/' })
+  proxy(SERVICES.pokemon, url => '/pokemon/my' + (url.includes('?') ? url.slice(url.indexOf('?')) : ''))
 );
 
 // 其他精灵路由（不缓存）
@@ -403,7 +431,7 @@ app.use('/v1/catch',
 app.get('/v1/gyms/nearby',
   authMiddleware,
   cacheMiddleware({ ...presets.dynamic, keyPrefix: 'api:gyms-nearby:', ttl: 60 }),
-  proxy(SERVICES.gym, { '^/': '/gyms/' })
+  proxy(SERVICES.gym, { '^/v1/': '/' })
 );
 
 // 其他道馆路由（不缓存）
@@ -416,7 +444,7 @@ app.use('/v1/gyms',
 app.get('/v1/raids/nearby',
   authMiddleware,
   cacheMiddleware({ ...presets.dynamic, keyPrefix: 'api:raids-nearby:', ttl: 30 }),
-  proxy(SERVICES.gym, { '^/': '/raids/' })
+  proxy(SERVICES.gym, { '^/v1/': '/' })
 );
 
 // 其他 Raid 路由（不缓存）
@@ -437,9 +465,13 @@ app.use('/v1/payment/webhook',
   proxy(SERVICES.payment, { '^/': '/payment/webhook/' })
 );
 
+// REQ-00060 / REQ-00626: actual protected partition statistics and precreation.
+app.use('/api/partitions', authMiddleware, partitionRoutes);
+app.use('/api/admin/cache-invalidation', authMiddleware, createCacheInvalidationRoutes(cacheCenter));
+
 // ── Cache Warmup Management API (REQ-00039) ────────────────────
 // 获取预热状态
-app.get('/admin/cache/warmup/status', async (req, res) => {
+app.get('/admin/cache/warmup/status', requireAuth, requireAdmin, async (req, res) => {
   try {
     const status = cacheWarmup.getStatus();
     res.json({ success: true, data: status });
@@ -450,7 +482,7 @@ app.get('/admin/cache/warmup/status', async (req, res) => {
 });
 
 // 手动触发预热
-app.post('/admin/cache/warmup/trigger', async (req, res) => {
+app.post('/admin/cache/warmup/trigger', requireAuth, requireAdmin, express.json({ limit: '1mb' }), async (req, res) => {
   try {
     const { name } = req.body;
     await cacheWarmup.triggerWarmup(name);
@@ -489,32 +521,63 @@ app.use('/api/time', timePeriodRoutes);
 
 // ── IP Ban System (REQ-00075) ────────────────────────────
 // 初始化 IP 封禁管理器
-(async () => {
-  try {
-    const redisClient = getRedis();
-    initIpBanManager({
-      db: require('@pmg/shared/db'),
-      redis: redisClient,
-      publisher: redisClient,
-      subscriber: redisClient.duplicate()
-    });
-    logger.info('IP Ban Manager initialized');
-  } catch (err) {
-    logger.error({ err }, 'Failed to initialize IP Ban Manager');
-  }
-})();
 
-// IP 封禁中间件（全局应用，在认证之前）
-app.use(ipBanMiddleware);
-
-// IP 访问日志中间件
-app.use(ipAccessLogMiddleware);
 
 // IP 封禁管理 API（管理员）
 app.use('/api/admin', ipBanAdminRoutes);
 
 // 404 fallback
+app.use(errorHandler);
 app.use((req, res) => res.status(404).json({ code: 1005, message: `路由不存在: ${req.method} ${req.path}`, data: null }));
 
-app.listen(PORT, () => logger.info({ port: PORT }, 'API Gateway started'));
-module.exports = app;
+// Preserve the gateway's streaming middleware and route order while sharing the
+// same initialization, listener draining and signal handling as other services.
+class GatewayLauncher extends ServiceLauncher {
+  createApp() { return app; }
+  finalizeApp() { return app; }
+}
+const service = new GatewayLauncher({
+  serviceName: SERVICE_NAME,
+  port: PORT,
+  onInitialize: async () => {
+    await db.query('SELECT 1');
+    await db.initializeMigrations();
+    const redisClient = redis.getRedis();
+    await redisClient.ping();
+    ipManager = initIpBanManager({ db, redis: redisClient, autoInitialize: false });
+    await ipManager.init();
+    await partitionMaintenance.start({ onError: err => logger.error({ err }, 'Partition precreation failed') });
+    await cacheCenter.start();
+    // Warmup is optional and does not delay the listener. Shutdown awaits its
+    // outcome before removing refresh timers and releasing storage resources.
+    warmupPromise = cacheWarmup.initialize({ redis: redisClient }).catch(err => {
+      logger.error({ err }, 'Cache warmup failed, continuing without warm cache');
+    });
+  },
+  onReady: async () => {
+    notificationProxy.attach(service.server,async req=>{
+      const token=new URL(req.url,'http://localhost').searchParams.get('token');
+      const claims=require('../../shared/auth').verifyAccess(token);const id=claims.sub??claims.id;
+      if(typeof id!=='string'||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id))return false;
+      return !(await ipManager.isBlocked(require('../../shared/clientIp').getUpgradeClientIp(req,app))).blocked;
+    });
+  },
+  onBeforeShutdown: async () => { await partitionMaintenance.stop(); await notificationProxy.close(); },
+  onShutdown: async () => {
+    await partitionMaintenance.stop();
+    await warmupPromise;
+    cacheWarmup.shutdown();
+    await cacheCenter.stop();
+    healthChecker.stopPeriodicCheck();
+    const results = await Promise.allSettled([
+      ipManager ? ipManager.close() : Promise.resolve(), cache.close(), db.closePools(), redis.closeRedis()
+    ]);
+    const failures = results.filter(result => result.status === 'rejected').map(result => result.reason);
+    if (failures.length) throw new AggregateError(failures, 'Gateway cleanup failed');
+  }
+});
+if (require.main === module) service.start().catch(err => {
+  logger.error({ err }, 'Failed to start gateway');
+  process.exitCode = 1;
+});
+module.exports = service;

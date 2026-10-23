@@ -3,7 +3,8 @@
 const express = require('express');
 const cors    = require('cors');
 const helmet  = require('helmet');
-const { query, transaction } = require('../../../shared/db');
+const defaultDb = require('../../../shared/db');
+const { createDailyQuestRouter } = require('./routes/dailyQuests');
 const { getRedis } = require('../../../shared/redis');
 const { requireAuth, AppError, successResp, errorHandler } = require('../../../shared/auth');
 const { createLogger, requestLogger } = require('../../../shared/logger');
@@ -15,8 +16,9 @@ const eventsRouter = require('./routes/events');
 const logger = createLogger('reward-service');
 const SERVICE_NAME = 'reward-service';
 
+function createRewardApp({ db = defaultDb } = {}) {
+const { query, transaction } = db;
 const app  = express();
-const PORT = process.env.PORT || 8087;
 app.use(helmet()); app.use(cors()); app.use(express.json());
 
 // Structured logging & metrics
@@ -122,105 +124,39 @@ app.post('/rewards/daily/claim', requireAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// ── GET /rewards/quests  — today's quest status ──────────────
-app.get('/rewards/quests', requireAuth, async (req, res, next) => {
-  try {
-    const userId = req.user.sub;
-
-    // Upsert today's quest
-    await query(`
-      INSERT INTO daily_quests (user_id, quest_date)
-      VALUES ($1, CURRENT_DATE)
-      ON CONFLICT (user_id, quest_date) DO NOTHING
-    `, [userId]);
-
-    const { rows: [quest] } = await query(`
-      SELECT * FROM daily_quests WHERE user_id=$1 AND quest_date=CURRENT_DATE
-    `, [userId]);
-
-    // Enrich with progress %
-    const progress = {
-      catch: Math.min(100, Math.round(quest.catch_current / quest.catch_target * 100)),
-      spin:  Math.min(100, Math.round(quest.spin_current  / quest.spin_target  * 100)),
-      walk:  Math.min(100, Math.round(Number(quest.walk_current_km) / Number(quest.walk_target_km) * 100)),
-    };
-    const allDone = quest.catch_current >= quest.catch_target &&
-                    quest.spin_current  >= quest.spin_target  &&
-                    Number(quest.walk_current_km) >= Number(quest.walk_target_km);
-
-    res.json(successResp({ ...quest, progress, allDone }));
-  } catch (err) { next(err); }
-});
-
-// ── POST /rewards/quests/claim  — claim completed quest ──────
-app.post('/rewards/quests/claim', requireAuth, async (req, res, next) => {
-  try {
-    const userId = req.user.sub;
-    const { rows: [quest] } = await query(`
-      SELECT * FROM daily_quests WHERE user_id=$1 AND quest_date=CURRENT_DATE
-    `, [userId]);
-
-    if (!quest) throw new AppError(2021, '今日任务不存在', 404);
-    if (quest.reward_claimed) throw new AppError(2022, '今日任务奖励已领取', 400);
-
-    const allDone = quest.catch_current >= quest.catch_target &&
-                    quest.spin_current  >= quest.spin_target  &&
-                    Number(quest.walk_current_km) >= Number(quest.walk_target_km);
-
-    if (!allDone) throw new AppError(2023, '今日任务尚未全部完成', 400);
-
-    // Quest completion reward
-    const reward = { pokeballs: 10, stardust: 1000, xp: 500, coins: 5 };
-
-    await transaction(async (client) => {
-      await client.query(`
-        UPDATE users SET
-          pokeball_count = pokeball_count + $2,
-          stardust       = stardust       + $3,
-          xp             = xp             + $4,
-          coins          = coins          + $5
-        WHERE id=$1
-      `, [userId, reward.pokeballs, reward.stardust, reward.xp, reward.coins]);
-
-      await client.query(`
-        UPDATE daily_quests SET reward_claimed=true, completed_at=NOW()
-        WHERE user_id=$1 AND quest_date=CURRENT_DATE
-      `, [userId]);
-    });
-
-    res.json(successResp({ reward }, '任务奖励已领取！'));
-  } catch (err) { next(err); }
-});
+// Canonical V1 quest claims commit progress validation, balances and claim marker together.
+app.use('/rewards/quests', createDailyQuestRouter(db));
 
 // ── GET /rewards/leaderboard  — global rankings ──────────────
 app.get('/rewards/leaderboard', requireAuth, async (req, res, next) => {
   try {
     const { type = 'xp', team } = req.query;
 
-    const validTypes = { xp: 'u.xp', level: 'u.level', catches: 'u.xp' }; // simplified
-    const orderCol   = validTypes[type] || 'u.xp';
-    const teamFilter = team ? `AND u.team = '${team.toUpperCase()}'` : '';
-
-    const { rows } = await query(`
-      SELECT
-        ROW_NUMBER() OVER (ORDER BY ${orderCol} DESC) AS rank,
-        u.id, u.nickname, u.avatar_url, u.level, u.team,
-        u.xp,
-        (SELECT COUNT(*)::int FROM pokemon_instances WHERE user_id=u.id) AS pokemon_count
-      FROM users u
-      WHERE u.is_banned = false ${teamFilter}
-      ORDER BY ${orderCol} DESC
-      LIMIT 100
-    `);
-
-    // Find current user's rank
-    const { rows: [myRank] } = await query(`
-      SELECT COUNT(*)::int + 1 AS rank
-      FROM users WHERE ${orderCol} > (SELECT ${orderCol} FROM users WHERE id=$1)
-        AND is_banned=false
-    `, [req.user.sub]);
-
-    res.json(successResp({ leaderboard: rows, myRank: myRank?.rank || null }));
+    if (typeof type !== 'string' || !['xp', 'level', 'catches'].includes(type) ||
+        (team !== undefined && (typeof team !== 'string' || !['VALOR', 'MYSTIC', 'INSTINCT'].includes(team.toUpperCase())))) {
+      throw new AppError('INVALID_REQUEST', 'Invalid leaderboard type or team', 400);
+    }
+    const orderCol = { xp: 'xp', level: 'level', catches: 'catch_count' }[type];
+    // Only the validated, fixed column name enters SQL. Both identities are parameters.
+    // One statement keeps the visible top100 and the caller's full rank consistent.
+    const { rows: [result] } = await query(`
+      WITH eligible AS (
+        SELECT u.id,u.nickname,u.avatar_url,u.level,u.team,u.xp,
+          (SELECT COUNT(*)::int FROM pokemon_instances WHERE user_id=u.id) AS pokemon_count,
+          COALESCE((SELECT current_value FROM user_achievements
+            WHERE user_id=u.id AND achievement_id='catch_total'),0) AS catch_count
+        FROM users u WHERE NOT u.is_banned AND ($1::text IS NULL OR u.team::text=$1)
+      ), ranked AS (
+        SELECT *,RANK() OVER(ORDER BY ${orderCol} DESC) AS rank FROM eligible
+      ), top_players AS (
+        SELECT * FROM ranked ORDER BY ${orderCol} DESC,id LIMIT 100
+      )
+      SELECT COALESCE((SELECT jsonb_agg((to_jsonb(p) || jsonb_build_object('xp',p.xp::text)) ORDER BY p.${orderCol} DESC,p.id)
+        FROM top_players p),'[]'::jsonb) AS leaderboard,
+        (SELECT rank::text FROM ranked WHERE id=$2::uuid) AS "myRank"`,
+    [team === undefined ? null : team.toUpperCase(), req.user.id]);
+    // Ranks are bounded by the service population, unlike BIGINT XP in JSON.
+    res.json(successResp({ leaderboard: result.leaderboard, myRank: result.myRank === null ? null : Number(result.myRank) }));
   } catch (err) { next(err); }
 });
 
@@ -308,5 +244,9 @@ app.get('/rewards/season', requireAuth, async (req, res, next) => {
 app.use('/events', eventsRouter);
 
 app.use(errorHandler);
-app.listen(PORT, () => logger.info({ port: PORT }, 'reward-service started'));
+return app;
+}
+const app = createRewardApp();
+if (require.main === module) app.listen(process.env.PORT || 8087, () => logger.info({ port: process.env.PORT || 8087 }, 'reward-service started'));
 module.exports = app;
+module.exports.createRewardApp = createRewardApp;

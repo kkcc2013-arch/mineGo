@@ -4,13 +4,41 @@
 
 const assert = require('assert');
 const path = require('path');
-const { DependencyAnalyzer } = require('../shared/dependencyAnalyzer');
+const { DependencyAnalyzer } = require('../../shared/dependencyAnalyzer');
 
 describe('DependencyAnalyzer', () => {
   let analyzer;
 
   beforeEach(() => {
     analyzer = new DependencyAnalyzer();
+  });
+
+  it('discovers and reads all nine real source trees without an empty false pass', async () => {
+    const result = await analyzer.analyzeAll();
+    assert.strictEqual(result.analyzedServices.length, 9);
+    assert.ok(result.dependencies.some(dep => dep.from === 'gateway' && dep.to === 'user-service'));
+    assert.ok(result.dependencies.some(dep => dep.from === 'catch-service' && dep.to === 'location-service'));
+    assert.strictEqual(Object.keys(JSON.parse(JSON.stringify(result)).healthScores).length, 9);
+    const count = result.dependencies.reduce((sum, dep) => sum + dep.count, 0);
+    const second = await analyzer.analyzeAll();
+    assert.strictEqual(second.dependencies.reduce((sum, dep) => sum + dep.count, 0), count);
+  });
+
+  it('fails when the source tree is missing', async () => {
+    const missing = new DependencyAnalyzer({backendPath: '/nonexistent-minego-source'});
+    await assert.rejects(missing.analyzeAll(), /Service directory unavailable/);
+  });
+
+  it('clears the traversal stack after cycles and detects independent cycles', () => {
+    analyzer.addDependency('user-service', 'social-service', 'sync_http', '/test');
+    analyzer.addDependency('social-service', 'user-service', 'sync_http', '/test');
+    analyzer.addDependency('pokemon-service', 'user-service', 'sync_http', '/test');
+    analyzer.addDependency('location-service', 'catch-service', 'sync_http', '/test');
+    analyzer.addDependency('catch-service', 'location-service', 'sync_http', '/test');
+    const cycles = analyzer.detectCycles();
+    assert.strictEqual(cycles.length, 2);
+    assert.ok(cycles.every(cycle => cycle[0] === cycle[cycle.length - 1]));
+    assert.ok(cycles.every(cycle => !cycle.includes('pokemon-service')));
   });
 
   describe('normalizeServiceName', () => {

@@ -13,6 +13,9 @@
  */
 
 'use strict';
+const _consoleLogger = new (require("./loggingUtils")).ConsoleMigrationHelper(
+  require("./logger").createLogger("shared/dlqMetrics"), "shared/dlqMetrics");
+
 
 const promClient = require('prom-client');
 
@@ -294,7 +297,7 @@ class DLQMetricsManager {
         const stats = await statsCollector();
         this.updateDLQSize(stats);
       } catch (error) {
-        console.error('Failed to collect DLQ metrics:', error);
+        _consoleLogger.error('Failed to collect DLQ metrics:', error);
       }
     }, intervalMs);
   }
