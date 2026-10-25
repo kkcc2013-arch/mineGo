@@ -204,14 +204,10 @@ class ApiClient {
 
   // ── Payment ───────────────────────────────────────────────
   getProducts()                        { return this.get('/payment/products'); }
-  createOrder(productId, channel)      {
-    return this.post('/payment/orders', {
-      productId,
-      paymentChannel: channel,
-      idempotencyKey: crypto.randomUUID(),
-    });
+  createOrder(productId,channel,key=crypto.randomUUID()){
+    return this.post('/payment/orders',{productId,paymentChannel:channel,idempotencyKey:key},{headers:{'X-Idempotency-Key':key},noRefresh:true});
   }
-  verifyPayment(orderId, channelSign)  { return this.post(`/payment/orders/${orderId}/verify`, { channelSign }); }
+  verifyPayment(orderId,channelSign,channelOrderId){return this.post(`/payment/orders/${orderId}/verify`,{channelSign,channelOrderId},{noRefresh:true});}
 }
 
 const MFA_MESSAGES={

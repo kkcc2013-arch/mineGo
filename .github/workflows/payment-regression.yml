@@ -1,0 +1,80 @@
+name: Payment integrity and actual process regression
+on:
+  pull_request:
+    paths:
+      - 'backend/services/payment-service/**'
+      - 'backend/shared/**'
+      - 'backend/gateway/src/index.js'
+      - 'backend/tests/**/*payment*'
+      - 'backend/tests/unit/delay-queue.test.js'
+      - 'backend/package*.json'
+      - 'database/**'
+      - 'frontend/game-client/src/api/client.js'
+      - '.github/workflows/payment-regression.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  payment-integrity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgis/postgis:15-3.4-alpine
+        env:
+          POSTGRES_DB: minego_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U test" --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      UV_THREADPOOL_SIZE: '2'
+      TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
+      TEST_REDIS_URL: redis://localhost:6379
+      TEST_KAFKA_BROKERS: localhost:9092
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Install locked dependencies
+        working-directory: backend
+        run: npm ci
+      - name: Verify retained payment history, owner identity and guarded rollback
+        working-directory: backend
+        run: node --test --test-concurrency=1 tests/regression/payment-migration.test.js
+      - name: Enforce original greater-than90 source coverage with actual SQL, Redis and signed HTTP
+        working-directory: backend
+        run: npm run test:payment:storage
+      - name: Generate HTML and LCOV for the exercised production payment modules
+        working-directory: backend
+        run: npm run test:payment:coverage
+      - name: Preserve actual coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: payment-source-coverage
+          path: backend/coverage/payment/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Start isolated Kafka
+        run: docker run -d --name minego-payment-kafka --memory=1g -p 127.0.0.1:9092:9092 -e KAFKA_HEAP_OPTS='-Xms256m -Xmx512m' apache/kafka:3.9.1
+      - name: Wait for real broker metadata
+        run: |
+          for attempt in $(seq 1 30); do
+            if docker exec minego-payment-kafka /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list; then exit 0; fi
+            sleep 2
+          done
+          exit 1
+      - name: Exercise actual payment and gateway entry points and Kafka timeout consumption
+        working-directory: backend
+        run: node --test --test-concurrency=1 tests/regression/payment-native.test.js
+      - name: Stop owned Kafka
+        if: always()
+        run: docker stop minego-payment-kafka

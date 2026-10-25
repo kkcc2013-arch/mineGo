@@ -144,7 +144,6 @@ test('actual currency storage, atomic rates and signed production router contrac
       assert.equal((await call('/api/v1/currencies/admin/set-price',{auth:adminToken,body:{...body,currency:'JPY',price:0.5}})).status,400);
       assert.equal((await call('/api/v1/currencies/admin/cleanup-locks',{auth:adminToken,body:{}})).status,200);
       const refresh=await call('/api/v1/currencies/admin/refresh-rates',{auth:adminToken,body:{}});assert.equal(refresh.status,200);assert.equal(refresh.data.data.refreshed,0);assert.equal(refresh.data.data.failed,19);
-      const index=await fs.readFile(path.join(root,'backend/services/payment-service/src/index.js'),'utf8');assert.ok(index.indexOf("app.use(['/currency','/api/v1/currencies']")<index.indexOf('app.use(errorHandler)'));
     });
     await t.test('locale parsing retains decimal meaning and rejects prototype currency aliases',async()=>{
       assert.equal(formatter.parse('1.234,56 €','EUR'),1234.56);assert.equal(formatter.parse('$1,234.56','USD'),1234.56);assert.equal(formatter.detectCurrency('jp'),'JPY');

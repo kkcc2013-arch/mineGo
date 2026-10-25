@@ -2467,3 +2467,105 @@ subagents/newrequirements/recipientmessages/productioncleanup/rekey/merge/deploy
 Ownednative40/Redis/Kafkastoppedafterchecks; unrelatedcontainersuntouched. Private
 MEMORY/Oct09remainunstaged. Regenerateinventory AFTERledger and checkbeforepush.
 Publish onlyexistingdraftPR6; this batch's new current-sourceCI still pending.
+
+## 2026-10-25 — real payment integrity, legacy declaration audit and actual lifecycle
+
+Previous goal turn made progress with published0637449. Revalidated clean tracked
+checkout and active all658 goal. Exact063 main473/native42/MFA5/browser1/migration35,
+privacy45/notification30/dependency310 pass, including full86 remote bootstrap.
+Downloaded actual migration job120270101421: throughput-4.035239836601567% versus
+original-5,8measuredsourcehashesmatching,Node24.21/PG15.8. Preserve prior positive
+and negative reports/rounds; no preferred-score retry/causal noise/wholeperformance
+acceptance. Legacy APIcontract102/contract398/performance141/integration448/security431
+failed, E2E135cancelled; all are retained in exact-head CI snapshot.
+
+Read complete original REQ3/4 and actual payment core. Historical32 payment checks
+copied helpers, and old integration app defines substitute routes on incompatible
+storage. They cannot accept production payment. Original runtime used Redis-only
+creation fencing/global keys, read order state before transaction then unconditionally
+credited on retries, parsed JSON before verifying raw callback bytes, referenced an
+absent channel_response column, and put public callbacks behind gateway user auth.
+No actual provider prepay was wired; old generated mock parameters were misleading.
+
+Production protocol/store/router now require the same header/body UUID intent key,
+actual owner/product/quantity1–100/channel and fixed server prices. PostgreSQL owns
+owner/key/request/order/absolute24h binding; advisory+row locks use READCOMMITTED so
+after waiting statements see the committed predecessor. Same intent replays, changed
+payload409, differentownersindependent, no deadline extension, expirycreatesneworder
+retaining old. Redis24hmirror cannot authorize, redirect or duplicate; poisoned,
+missing and disconnected actual Redis cases pass. Legacy raw-key requests explicitly
+refuse uncertain adoption instead of guessing old wall-clock/quantity provenance.
+
+Locked settlement verifies owner/channel/amount/currency/state and exact signed
+bytes, then atomically commits unique order/provider receipt, state, coin grant,
+monthly spend and encrypted audit. Duplicate callbacks/verify return no secondgrant;
+providertransaction reuse/reassignment/failure states refuse. Actual bans/disabled
+payment/under13consent/minor spend allowance checked under owner lock; concurrent
+settlements cannot overspend final allowance. Auditfailure rolls back all writes.
+Whitelist returns no raw callback/signature/channelresponse; denied callback reasons
+also encrypted. Prepay explicitlyproviderReadyfalse/payParamsnull, no fake nonce/URL.
+Full vendor-native/receipt/prepay/paymentUI/financialaudit acceptance remains open.
+
+JSON and retained XML/form transports authenticate originalbytes before sharedbody
+parsers. Strict success/amount/CNY/transaction semantics, XMLduplicate/nesting/DTD/
+entitydeclaration and formduplicate/percent/decimal refusals; no entityresolution.
+All3channel secrets32–4096bytes with no developmentfallback. Client verify binds
+providertransaction to the signed order/amount/product. Client sends same intentkey
+in header/body and accepts explicit retry key; no automatic order/factor refresh/
+replay. Signedpublicwebhook precedes privatepaymentgatewaynamespace, correctrewrites.
+
+Actual payment ServiceLauncher lifecycle waits SQL/Redis/audit/Kafka initialization
+before binding; currencies remain mounted. Actual timeout consumer now cancels an
+expired owned row plus encrypted receipt; old placeholder no longer invents success.
+Queue's nonexistent metric helper imports/mocks replaced with actual registry calls;
+existing34case queue suite is now in mainunitgate. Bounded retriable topicmetadata
+wait and failed producer/consumer cleanup fix first native startup failure. Queue/
+admin transport closes before SQL/audit/Redis; naturalshutdown passes. Missingkeys
+and productionmissingKMS refuse before listener. Fullqueue scheduling/extension/
+cancellation/retry/DLQ/capacity and remaining service/health acceptance still open.
+
+Additive20261025payment migration preserves old UUID/OID/money/states/microseconds/
+views/FKs; validates actual owner FK and schema/status type, oldquantityunknownNULL,
+appends CANCELLED/FULFILLED while retaining FAILED. ActualV1enum mismatch was caught
+by SQL tests. Exact24h constraint retained: one clock CTE/stable defaults avoid two-
+clock microsecond drift. New request/settlement history refuses populated reversal;
+emptydown retains enumlabels instead of rebuilding oldtype. All86previousrawSQL,
+repairmanifest and lockfiles unchanged; only new87thfile+itsdependencyedges added.
+
+Final source validation (localNode24.22.1; bounded/sequential):
+
+- 765 mainunit checks,27Jestsuites473;6 actual purepaymentprotocol tests,11Node
+  APIclientboundary checks and34Jestqueue tests are included (no double counting).
+- Payment22Node-reported checks =6pureprotocol+15actualSQL/Redis/HTTPsubcases+parent1.
+  V8 three-module100line97.86branch100function; NYC98.46statement94.97branch100line/
+  function. Enforced91line/function/statement and80branch, preserving original>90
+  and80gates. HTML+LCOV generated; actualLCOV archived. Integrationcoverage is not
+  originalwholepaymentserviceunit-onlycoverage acceptance.
+- Paymentmigration4 pass, actualcurrency18 pass; fullV1/V2/all87bootstrap3 pass,
+  including installation beside unrelated audit schema. Only this owned test data
+  cleaned. Legacyrows/rawSQLhistories untouched.
+- Newpaymentnative2 pass: actualOSpayment+gateway, full87, signed rawJSON/form without
+  userJWT, actualcurrency/rounding, realKafka timeout receipt, missingsecret/KMS
+  refusal and naturalstop. Gateway115.177025ms/payment281.332858ms in ownedfixture,
+  notproductionSLO. Other gatewaypeers alias paymentfixture.
+- Originalnative2 still pass, actualOSuser+two gateways and priorprivacy/title/IP/
+  cache/CDC/notification/audit/health/signals; localwarmtitlep95=1.491892ms/50reads
+  underunchanged50ms. Other peers alias userfixture, not allservicescompleted.
+- ActualMFAstorageHTTP26/sevenmodules99.42line83.43branch100func/original90line-function
+  gate and actualMFAUI/SWbrowser6 pass. This adds no paymentMFA/riskboundary claim.
+- 1480JS syntax,12audittoolchecks, logging/numbering/health/workflowparse pass. Static
+  healthgate unchanged; explicitnamedrouter mount now recognized alongside realHTTP.
+
+REQ3/4 reopened done->in_progress; original text otherwise identical, all boxes and
+numerical targets preserved. Now177declared done/52progress/429new=658unique;48matching
+source-hashed evidence records, only619verified. Completionplan/README/WORKLOG updated.
+Whole-service unit-onlycoverage, all legalfulfillment/refundbusinesscommands, legacy
+requestadoption, provider/prepay/receipts/paymentUI, all sensitiveMFA/risk boundaries,
+fullqueue/security/filter/scanner/AWS/admin/governance/client/performance/operations
+and allother658 acceptance stay in scope. No new requirement or narrower definition.
+
+Allchecks sequentialnice10/UV2/Nodeconcurrency1/JestInBand. NoMaven/CPUsaturation/
+subagents/recipientmessages/productioncleanup/rekey/merge/deploy. Four owned test
+containers stopped; unrelatedcontainer/performancefixture untouched. PrivateMEMORY/
+Oct09 remainunstaged. New payment-source CI pending publication to sameDraftPR6.
+Regenerateinventory AFTERfinalledger and check immediately before stage/push.

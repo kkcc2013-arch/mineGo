@@ -135,7 +135,7 @@ app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
   origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization','X-Idempotency-Key','X-Request-ID','X-Trace-ID','X-MFA-Token','X-Audit-Reason','X-Client-Ver','X-Platform'],
+  allowedHeaders: ['Content-Type','Authorization','X-Idempotency-Key','X-Request-ID','X-Trace-ID','X-MFA-Token','X-Audit-Reason','X-Client-Ver','X-Platform','X-Signature','X-Pay-Signature'],
 }));
 
 // Global rate limit
@@ -453,17 +453,10 @@ app.use('/v1/raids',
   proxy(SERVICES.gym, { '^/': '/raids/' })
 );
 
-// REQ-00040: 支付接口高风险限流
-app.use('/v1/payment',
-  authMiddleware,
-  highRiskRateLimiter(20), // 支付接口最严格限流
-  proxy(SERVICES.payment, { '^/': '/payment/' })
-);
-
-// Payment webhook (no auth — signed by channel)
-app.use('/v1/payment/webhook',
-  proxy(SERVICES.payment, { '^/': '/payment/webhook/' })
-);
+// Provider callbacks authenticate the original bytes with a channel signature.
+// Mount before the signed-user namespace so callbacks never need a user JWT.
+app.use('/v1/payment/webhook',highRiskRateLimiter(20),proxy(SERVICES.payment,url=>'/payment/webhook'+(url==='/'?'':url)));
+app.use('/v1/payment',authMiddleware,highRiskRateLimiter(20),proxy(SERVICES.payment,url=>'/payment'+(url==='/'?'':url)));
 
 // REQ-00060 / REQ-00626: actual protected partition statistics and precreation.
 app.use('/api/partitions', authMiddleware, partitionRoutes);

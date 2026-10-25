@@ -37,6 +37,10 @@ test('actual browser API client preserves MFA boundaries and identity across asy
   await t.test('session cancellation while a response body is decoding withholds private results',async()=>{
    api.setTokens('body-access','body-refresh');let release,started;const decoding=new Promise(resolve=>{started=resolve;});global.fetch=async()=>({status:200,ok:true,json:async()=>{started();await new Promise(resolve=>{release=resolve;});return{code:0,data:{nickname:'old-body-account'}};}});const pending=api.getMe();await decoding;api.clearTokens();release();await assert.rejects(pending,error=>error.code==='AUTH_CANCELLED');
   });
+  await t.test('payment order intents reuse the same header and body key and never automatically refresh or replay',async()=>{
+   api.setTokens('payment-access','payment-refresh');const key=crypto.randomUUID(),calls=[];global.fetch=async(url,opts)=>{calls.push([url,opts]);return response({code:0,data:{orderId:'owned-order'}},201);};await api.createOrder('coins_60','WECHAT',key);assert.equal(calls[0][1].headers.get('X-Idempotency-Key'),key);assert.equal(JSON.parse(calls[0][1].body).idempotencyKey,key);
+   global.fetch=async(url,opts)=>{calls.push([url,opts]);return response({code:1002,message:'expired'},401);};await assert.rejects(api.createOrder('coins_60','WECHAT',key));assert.equal(calls.length,2);assert.ok(calls.every(([url])=>url.endsWith('/payment/orders')));
+  });
   await t.test('failed storage cannot leave a half-installed token pair',()=>{
    global.localStorage={...storage,setItem:(key,value)=>{if(key==='pmg_refresh_token')throw new Error('owned quota fixture');storage.setItem(key,value);}};
    try{assert.throws(()=>api.setTokens('half-access','half-refresh'),error=>error.code==='AUTH_STORAGE_UNAVAILABLE');assert.deepEqual([...entries],[]);assert.equal(api.hasSession,false);}finally{global.localStorage=storage;}

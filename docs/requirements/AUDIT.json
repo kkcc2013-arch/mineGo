@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 179,
-      "in_progress": 50,
+      "done": 177,
+      "in_progress": 52,
       "new": 429
     },
     "priorityCounts": {
@@ -74,11 +74,11 @@
       "id": "REQ-00003",
       "title": "REQ-00003：支付订单幂等性与签名验证安全加固",
       "priority": "P0",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "安全加固",
       "modules": "payment-service、gateway",
       "createdAt": "2026-06-04 17:00",
-      "sha256": "99620692b745165a54801af38b307f9c5554177bcca68309e0d76a70eb0bf057",
+      "sha256": "a2ff84b2eae154043d49513a0840c93f42f0209265656240e9d527a473df6499",
       "acceptance": [
         "- [ ] 创建订单时，相同 X-Idempotency-Key 返回相同订单，不重复创建",
         "- [ ] 无签名或错误签名的 Webhook 请求返回 401 并记录安全日志",
@@ -87,8 +87,9 @@
         "- [ ] 单元测试覆盖率 > 90%，包含幂等性、签名验证、状态机测试",
         "- [ ] 安全审计日志记录所有关键操作（创建、回调、状态变更）"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_actual_payment_protocol_storage_http_process_verified_whole_acceptance_open",
       "implementationReferences": [
+        "database/pending/20261025_120000__payment_order_integrity.sql",
         "scripts/tests/requirements-audit.test.js"
       ],
       "legacyId": null
@@ -98,11 +99,11 @@
       "id": "REQ-00004",
       "title": "REQ-00004：支付服务单元测试与集成测试覆盖",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "测试覆盖",
       "modules": "payment-service、backend/tests/",
       "createdAt": "2026-06-05 00:30",
-      "sha256": "66ab7eccd15b176bdb234257a81553835055647455a02aa52a10cc229612a7db",
+      "sha256": "4ace3988041cc5c13542baf83f65cbdf8dac4d61e63999f3755da275cf171ae0",
       "acceptance": [
         "- [ ] payment-service 单元测试覆盖率 ≥ 90%",
         "- [ ] 所有单元测试通过（幂等性、签名验证、状态机、脱敏）",
@@ -112,9 +113,9 @@
         "- [ ] CI 配置测试覆盖率门槛 80%",
         "- [ ] README 更新测试运行说明"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_actual_payment_protocol_storage_http_process_verified_whole_acceptance_open",
       "implementationReferences": [
-        "backend/tests/unit/payment.test.js",
+        "database/pending/20261025_120000__payment_order_integrity.sql",
         "scripts/tests/requirements-audit.test.js"
       ],
       "legacyId": null
@@ -959,7 +960,6 @@
       "verificationStatus": "not-audited",
       "implementationReferences": [
         "backend/gateway/src/middleware/ageRestriction.js",
-        "backend/services/payment-service/src/index.js",
         "backend/services/user-service/src/index.js",
         "backend/services/user-service/src/routes/ageVerification.js",
         "backend/services/user-service/src/routes/auth.js",
@@ -1238,7 +1238,6 @@
       "implementationReferences": [
         "backend/gateway/src/index.js",
         "backend/services/gym-service/src/index.js",
-        "backend/services/payment-service/src/index.js",
         "backend/shared/metrics.js",
         "backend/tests/unit/delay-queue.test.js",
         "database/pending/20260609_020000__add_delay_queue_tables.sql"

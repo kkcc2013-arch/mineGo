@@ -25,12 +25,7 @@ jest.mock('kafkajs', () => ({
   })),
 }));
 
-// Mock metrics
-jest.mock('../../shared/metrics', () => ({
-  incrementCounter: jest.fn(),
-  observeHistogram: jest.fn(),
-  gauge: jest.fn(),
-}));
+// Use the actual metrics registry; nonexistent helper mocks hid runtime failures.
 
 describe('DelayQueue', () => {
   let delayQueue;
@@ -92,6 +87,19 @@ describe('DelayQueue', () => {
       await delayQueue.connect();
       await delayQueue.connect();
       expect(delayQueue.isConnected).toBe(true);
+    });
+  });
+
+  describe('transport failure ownership',()=>{
+    it('disconnects its producer after a failed connection',async()=>{
+      const producer=delayQueue.kafka.producer();producer.connect.mockRejectedValueOnce(new Error('owned connect fault'));
+      await expect(delayQueue.connect()).rejects.toThrow('owned connect fault');expect(producer.disconnect).toHaveBeenCalled();expect(delayQueue.isConnected).toBe(false);
+    });
+    it('waits for retriable topic metadata but refuses a permanent subscription failure and closes the consumer',async()=>{
+      const consumer=delayQueue.kafka.consumer();consumer.subscribe.mockRejectedValueOnce(Object.assign(new Error('topic leader not ready'),{retriable:true}));
+      await delayQueue.registerHandler('owned.ready',async()=>{});expect(consumer.subscribe).toHaveBeenCalledTimes(2);
+      await delayQueue.disconnect();delayQueue.isConnected=false;delayQueue.consumers.clear();consumer.subscribe.mockRejectedValueOnce(new Error('owned permanent topic refusal'));
+      await expect(delayQueue.registerHandler('owned.failed',async()=>{})).rejects.toThrow('owned permanent topic refusal');expect(consumer.disconnect).toHaveBeenCalled();
     });
   });
 

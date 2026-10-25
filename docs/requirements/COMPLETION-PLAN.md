@@ -1,9 +1,9 @@
 # mineGo requirement completion plan
 
-Updated: 2026-10-23. Scope: all 658 existing requirement documents in INDEX.md,
+Updated: 2026-10-25. Scope: all 658 existing requirement documents in INDEX.md,
 including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 429 new, 50 in progress; 179 declared done, including one independently verified framework. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 429 new, 52 in progress; 177 declared done, including one independently verified framework. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -28,12 +28,12 @@ independent authorized work.
 
 ## Current batch
 
-1. Isolated V1/V2 plus all86 migrations (85 unchanged originals plus additive MFA state) and the complete installation
-   beside an unrelated audit schema now pass checksums/cleanup. Continue safe
-   upgrades/reversal and actual P0/service/security startup dependencies. Complete
-   canonical encrypted audit/key rotation/MFA/filter/scanner runtime; database
-   privilege/storage checks do not accept the full security requirement. Job monitor
-   registration, authenticated controls/alerts/dashboard also remain unfinished.
+1. V1/V2 plus all87 migrations (the original86 unchanged plus additive payment
+   integrity) and installation beside unrelated audit schemas are exercised by the
+   current bootstrap checks. Continue safe upgrades/reversal and actual P0/service/
+   security startup dependencies. Canonical crypto/MFA/protected audit/P0 filtering
+   and current payment integrity remain partial evidence, not full security acceptance.
+   Job monitoring, scanners, approved exports and other service boundaries remain open.
 2. Inventory/cosmetic storage prerequisites have real preservation/CLI evidence;
    actual inventory projections/confirmed protected transfers/soft-deletion consumers,
    preferences/cache/capacity/UI and cosmetic service/routes/purchase/slots/presets/
@@ -43,12 +43,13 @@ independent authorized work.
    work while genuine external provider/staging/device inputs are unavailable.
 4. Repair remaining legacy contract/API/integration/performance/security/operations
    gates, meet each original numerical target and perform all658 acceptance audit.
-   Exact4abdb82 main472/native41/MFA4/migration34 pass, including the full86
-   remote bootstrap. Its measured throughput is-1.6165389170840427% against the
-   original-5 ceiling; prior failed-5.6653600267481234% and-6.526500223984499%
-   evidence remains. This is not full performance acceptance. Current real MFA
-   client/offline/gateway batch requires CI; legacy contract/integration/security/
-   performance workflows remain unaccepted. A partial pass never accepts a whole feature.
+   Exact0637449 main473/native42/MFA5/browser1/migration35/privacy45/notification30
+   pass, including full86 remote bootstrap. Actual throughput-4.035239836601567%
+   passes the original-5 ceiling with8matching measured hashes; previous positive
+   and negative reports remain. This is not full performance acceptance. Current
+   payment integrity/87-migration/lifecycle/legacy callback source requires its own
+   CI; legacy contract/integration/security/performance workflows remain unaccepted.
+
 
 ## Definition of finished
 
@@ -976,3 +977,19 @@ VERIFICATION/WORKLOG; all original boxes and targets stay unchanged. Next close
 sensitive business boundaries and risk/scanner gaps, continue other real service
 startup and original client/security/performance/operations acceptance. Physical
 Google Authenticator/SMS delivery and seven-day trusted devices remain open.
+
+
+## Payment integrity and legacy declaration audit (2026-10-25)
+
+REQ-00003/00004 are reopened from done to in_progress: copied helper tests and a
+separate mock-route integration app did not prove the production payment boundary.
+The real router/store now bind header/user/request/24h deadline in PostgreSQL,
+mirror Redis, preserve old orders, authenticate exact JSON/XML/form callback bytes,
+lock and settle once with unique provider receipt, coin/spend updates and encrypted
+audit, and run through the actual service lifecycle/gateway/Kafka timeout handler.
+Explicitly unconfigured prepay never emits fake parameters. Actual migration/history,
+SQL/Redis/HTTP, coverage-report and OS-process checks are recorded in VERIFICATION.
+Whole-service unit-only coverage, all legal fulfillment/refund business flows,
+provider-native/prepay/receipt integration, legacy request adoption, every sensitive
+MFA/risk boundary and production drills stay open. Continue all original658 targets;
+only619 is independently verified. No new requirement or acceptance-target edits.

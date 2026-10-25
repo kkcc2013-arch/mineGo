@@ -14,3 +14,6 @@ coverage/
 # Browser test output
 frontend/game-client/playwright-report/
 frontend/game-client/test-results/
+
+# Instrumentation cache; published coverage reports are workflow artifacts.
+.nyc_output/
