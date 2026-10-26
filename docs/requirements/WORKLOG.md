@@ -2569,3 +2569,55 @@ subagents/recipientmessages/productioncleanup/rekey/merge/deploy. Four owned tes
 containers stopped; unrelatedcontainer/performancefixture untouched. PrivateMEMORY/
 Oct09 remainunstaged. New payment-source CI pending publication to sameDraftPR6.
 Regenerateinventory AFTERfinalledger and check immediately before stage/push.
+
+## 2026-10-26 — correct and verify the payment CI cold-database prerequisites
+
+Previous goal turn was progress: published4ad9ac6 and diagnosed its new payment
+workflow. Revalidated active all658 goal, exact HEAD and five owned corrective
+changes. No existing cold-run handle was live; three owned services were already
+running and reused rather than restarted. Current4ad main474/native43/MFA6/browser2/
+migration36/privacy46/notification31/dependency312 pass, including full87 remote.
+Legacy contract399/API103/performance142/integration449/security432 fail, E2E136
+cancelled. Payment1 job121116316637 fails first migration suite:1pass/3fail because
+uuid_generate_v4 is absent in subsequent disposable schemas. Its core/report/
+native steps were skipped, not passed. Missing-report upload and never-created
+Kafka cleanup also produced secondary failures; all retained as negative evidence.
+
+Actual V1 installs uuid-ossp in current search_path by default. The first payment
+migration fixture retained that private schema while later scenarios opened other
+schemas. Warm local public extensions masked this. Historical V1 SQL remains
+unchanged. Shared test helper now installs real uuid-ossp/PostGIS/pgcrypto in public
+under the existing serialized advisory lock; all three payment fixtures call it
+before creating their schemas. The existing UUID-only helper remains compatible.
+No stub function, weaker assertion, alternate business router or threshold change.
+
+Created a NEW owned database from template0 on the same native40 PostGIS fixture.
+Authoritative initial extensions:plpgsql only; uuid-ossp/PostGIS/pgcrypto absent.
+Sequential migration4/core22/report22/paymentnative2/full87bootstrap3/originalnative2/
+mainunit765 all pass in that database. Source coverage gates retained: V8 threecore
+modules100line97.86branch100function; NYC98.46statement94.97branch100line/function,
+91line/function/statement and80branch. Actual payment/gateway/Kafka and old user/
+two-gateway process scenarios retain their assertions. Final extension namespaces
+are all public; UUID function still executes after all disposable schemas are
+cleaned. Owned fresh database dropped after all child processes exited; no force
+or production/other database mutation. Test containers stopped after completion.
+
+Workflow now uploads reports only when their generation step actually ran;
+if a report should exist, missing-file remains an error. Kafka cleanup checks for
+its owned container before stopping it, including partial startup. Service health
+probe names the actual test database. Source coverage commands/gates unchanged.
+1480JS syntax,12audit-tool cases and YAML checks pass. Relevant failure log and
+exact4ad CI snapshot/throughput are archived; never describe skipped steps as pass.
+Actual migration36 throughput is separately retained against original-5 ceiling,
+all8 measured source hashes matching. Prior negative/positive runs remain; no
+preferred-score rerun, gate lowering, noise/causality or fullperformance acceptance.
+
+Updated README/plan and source-hashed partial evidence. Counts remain177done/
+52progress/429new=658unique,48records/sole619verified; original requirement text,
+acceptance boxes and numeric targets unchanged. Full payment unit-only coverage,
+provider/prepay/receipts/UI, legalfulfillment/refund commands, legacy adoption,
+sensitive MFA/risk and every other original security/service/client/performance/
+operations requirement remain open. Current corrected-source CI pending. Same
+DraftPR6 only; privateMEMORY/Oct09 excluded. NoMaven/CPUsaturation/subagents/new
+requirements/recipientmessages/productioncleanup/rekey/merge/deploy. Regenerate
+inventory after final ledger before stage/push; keep full persistent goal active.

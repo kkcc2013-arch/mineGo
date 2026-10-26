@@ -1,0 +1,191 @@
+{
+  "date": "2026-10-26",
+  "baseCommit": "4ad9ac66e0a7536e670c2abdd36124dffb431f14",
+  "result": "cold_template0_database_all_payment_and_retained_regressions_pass_corrected_source_ci_pending",
+  "sourceSha256": {
+    ".github/workflows/payment-regression.yml": "3b53f67416e2841ca5b0cef070a92276adfa1e39dc7ff132e3b358008739edd5",
+    "backend/tests/regression/storageSetup.js": "8d376d5e63627aad5a3f5cf5293fb6bbe6e30690297d9f14465e778d0de70004",
+    "backend/tests/regression/payment-migration.test.js": "c0233489d9b860485061c7cf9e30411022767820534ee0c3de26d8f017ec8d4e",
+    "backend/tests/regression/payment-storage.test.js": "86a63db8768cf50102ba1e17db63afdce220ced2be2e8f4b555b47e3bfd9e324",
+    "backend/tests/regression/payment-native.test.js": "d567bfe0eced95c86bd6b42e2855e57fedf4f49f866e1ec03839422a76f2aef1",
+    "backend/tests/README.md": "b304f1819bb542b3cb0a29a995ea731b15aea269cbc448957971be6093718f22",
+    "docs/PAYMENT-INTEGRITY.md": "2bb5ce384432aef358d119c771bb8aa403ab1d945dd1af0eac704ad3bd6d7147",
+    "backend/services/payment-service/src/index.js": "3d801ec9e2c236686626cd64a757ce988fd8268bb54848cd40b52d0df58270e9",
+    "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
+    "backend/services/payment-service/src/payment/protocol.js": "b0e260dab91b48d5f5a5fb1f1edbb89f37a5589f117f51442b556fc37defff7c",
+    "backend/services/payment-service/src/routes/payment.js": "45625d3e3dc1f3773f48bc4371dfcdd5df6f79c107475541c8f96a86243a17d2",
+    "backend/services/payment-service/src/handlers/orderTimeoutHandler.js": "2c7a03cde2f98eabc699a4e4697c72cfab8755571da1ae7956b4362226b5dd5e",
+    "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+    "backend/shared/DelayQueue.js": "db6e0ea81f5d47eaa86f9ae7a2276d1d2ffb1642cf2b8b9074831b4f55e32f84",
+    "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+    "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
+    "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
+    "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
+    "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
+    "frontend/game-client/src/api/client.js": "8a33ee568983fe0014d0b07c2610902d985c1aed1f555b072e85cb26b0effb04"
+  },
+  "initialDatabase": {
+    "template": "template0",
+    "label": "minego_payment_ci_a9f402bf1efac9c4",
+    "extensions": [
+      {
+        "extname": "plpgsql",
+        "nspname": "pg_catalog"
+      }
+    ],
+    "scope": "New owned database; UUID/PostGIS/pgcrypto genuinely absent, no dropped extensions or mutations in the existing control database."
+  },
+  "checks": [
+    {
+      "name": "migration",
+      "command": "node --test --test-concurrency=1 tests/regression/payment-migration.test.js",
+      "exit": 0,
+      "logSha256": "e6b88cdadcb5b9375ee3ffe315280fbce13bbf0b4fc75271670f7803f992ecce"
+    },
+    {
+      "name": "core",
+      "command": "npm run test:payment:storage",
+      "exit": 0,
+      "logSha256": "cd37084cbf3f755b90e214db2c6a479092697f1addd7f3d9654ed36bb7e60f34"
+    },
+    {
+      "name": "coverage",
+      "command": "npm run test:payment:coverage",
+      "exit": 0,
+      "logSha256": "b84089d8f32ae6aa1cd2b8acdde07e982694198894ae65b09177df3eb61a9a92"
+    },
+    {
+      "name": "native",
+      "command": "node --test --test-concurrency=1 tests/regression/payment-native.test.js",
+      "exit": 0,
+      "logSha256": "b056e312a030e27798f1ee41111093f81981871574d13ff62983adf0e9591a63"
+    },
+    {
+      "name": "bootstrap",
+      "command": "node --test --test-concurrency=1 tests/regression/database-bootstrap.test.js",
+      "exit": 0,
+      "logSha256": "ea824b9e1074d6175b70062a02f88397c8894e5b0e04cc717383acb899a0e6fa"
+    },
+    {
+      "name": "native-original",
+      "command": "node --test --test-concurrency=1 tests/regression/user-startup.test.js tests/regression/gateway-startup.test.js",
+      "exit": 0,
+      "logSha256": "f1dc6f0bad3062a76afda8caf14cba657f6e1c96eecf35b0efb32eddd42e0ea4"
+    },
+    {
+      "name": "unit",
+      "command": "npm run test:unit",
+      "exit": 0,
+      "logSha256": "4f91acc1772b6324a27832ec0017b93dfddc70361fc459d189e42c3615a39138"
+    }
+  ],
+  "finalExtensions": [
+    {
+      "extname": "pgcrypto",
+      "nspname": "public"
+    },
+    {
+      "extname": "plpgsql",
+      "nspname": "pg_catalog"
+    },
+    {
+      "extname": "postgis",
+      "nspname": "public"
+    },
+    {
+      "extname": "uuid-ossp",
+      "nspname": "public"
+    }
+  ],
+  "postFixturePublicUuidQuery": "passed",
+  "cleanup": "owned_fresh_database_dropped",
+  "tests": {
+    "migration": 4,
+    "paymentNodeReported": 22,
+    "pureProtocol": 6,
+    "actualSqlHttpSubcases": 15,
+    "paymentParent": 1,
+    "paymentNative": 2,
+    "full87Bootstrap": 3,
+    "retainedNative": 2,
+    "unit": 765,
+    "jestSuites": 27,
+    "jestTests": 473
+  },
+  "v8Coverage": {
+    "lines": 100,
+    "branches": 97.86,
+    "functions": 100,
+    "modules": 3
+  },
+  "nycCoverage": {
+    "statements": 98.46,
+    "branches": 94.97,
+    "functions": 100,
+    "lines": 100,
+    "modules": 3
+  },
+  "gates": {
+    "lines": 91,
+    "functions": 91,
+    "statements": 91,
+    "branches": 80,
+    "changed": false
+  },
+  "nativeMeasurements": [
+    {
+      "pendingMigrations": 87,
+      "gatewayShutdownMs": 22.268357000000833,
+      "paymentShutdownMs": 369.65301,
+      "scope": "Actual payment+gateway OS entry points, canonical full history, signed spaced JSON bytes through gateway without userJWT, SQL/Redis/Kafka/encrypted receipts and actual timeout consumer; other gateway peers alias payment fixture, no provider/liveAWS/capacity acceptance."
+    },
+    {
+      "nativeTwoGatewayCacheRecoveryMs": 37.01834400000007,
+      "scope": "real user-service HTTP bytes, two independent OS gateways, PostgreSQL CDC, Redis and independent L1 caches; functional fixture, not capacity acceptance"
+    },
+    {
+      "gatewaySignalShutdownMs": 571.7794829999984,
+      "userSignalShutdownElapsedMs": 5417.267184,
+      "scope": "actual native gateway/user processes, isolated PostgreSQL V1/V2/user/title/IP/partition/CDC schema, Redis and Kafka; other registry targets alias the actual user fixture"
+    },
+    {
+      "titleHttpLatencyMs": {
+        "samples": 50,
+        "median": 1.2255590000004304,
+        "p95": 1.5434209999993982,
+        "maximum": 1.6748479999996562
+      },
+      "scope": "isolated local service and database, warm sequential HTTP reads"
+    },
+    {
+      "shutdownElapsedMs": 5362.584165
+    }
+  ],
+  "staticChecks": [
+    {
+      "name": "syntax",
+      "logSha256": "f228435ab2a4a22f672141f8365a5c2cf4892b7b92591ba875b7c650e84ae5ed"
+    },
+    {
+      "name": "tools",
+      "logSha256": "bdafb3a9133f0d67e835b34cc1fa6141e41159a1e43b25ff7f9b534a3a2c994c"
+    },
+    {
+      "name": "workflow",
+      "logSha256": "29dfc1f276a59097b3922f4626f25fff46dea3bcb7ad07a84efc431b7e2d2e57"
+    }
+  ],
+  "syntaxFiles": 1480,
+  "auditTools": 12,
+  "observedFailure": {
+    "commit": "4ad9ac66e0a7536e670c2abdd36124dffb431f14",
+    "run": 40175874225,
+    "job": 121116316637,
+    "result": "migration_1pass_3fail_uuid_extension_in_first_private_schema",
+    "logSha256": "9a3e7676175ab7e29b20619c3befd88a405a8dce8a4261d8f183686536500df5",
+    "laterSteps": "Payment core/report/native skipped; report upload and absent Kafka cleanup also failed. No skipped check is accepted as passed."
+  },
+  "change": "Only payment fixture extension provisioning/shared test helper and conditional report/owned Kafka cleanup plus database-specific health probe. Production business code, all87rawSQL/manifests/locks and every numerical gate unchanged. No fake UUID function or alternate business handler.",
+  "remaining": "All658 original requirements intact,177declared done52progress429new,48partial records/only619verified. Whole payment-service unit-only coverage, complete legal fulfillment/refund business flows, provider/prepay/receipts/UI, legacy adoption, sensitive MFA/risk, full queue/security/AWS/admin/services/client/performance/operations remain open. Old CI failure retained; corrected-source remote CI pending.",
+  "execution": "Sequential nice10/UV2/Nodeconcurrency1/JestInBand. Actual owned PostgreSQL/Redis/Kafka and OS entry points, other peers alias fixtures, no capacity/SLO/provider/liveAWS claim. New database dropped normally and three owned containers stopped; originalSQL20/performance/unrelated containers untouched. NoMaven/CPUsaturation/subagents/newrequirement/messages/merge/deploy/productioncleanup/rekey. SameDraftPR6."
+}

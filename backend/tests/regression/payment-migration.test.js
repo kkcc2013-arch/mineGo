@@ -16,6 +16,7 @@ const {
   {
     migrationStatements
   } = require('../../../database/sqlStatements');
+const {ensureStorageExtensions}=require('./storageSetup');
 const root = path.resolve(__dirname, '../../..');
 test('payment additive migration preserves retained order history and refuses customized identities', {
   timeout: 60000
@@ -27,6 +28,7 @@ test('payment additive migration preserves retained order history and refuses cu
   });
   const raw = await fs.readFile(path.join(root, 'database/pending/20261025_120000__payment_order_integrity.sql'), 'utf8'),
     parsed = parseMigrationFile(raw);
+  await ensureStorageExtensions(admin);
   const schemas = [];
   const setup = async () => {
     const schema = 'payment_migration_' + crypto.randomBytes(8).toString('hex');

@@ -26,7 +26,7 @@ jobs:
           POSTGRES_USER: test
           POSTGRES_PASSWORD: test
         ports: ['5432:5432']
-        options: --health-cmd "pg_isready -U test" --health-interval 10s --health-timeout 5s --health-retries 5
+        options: --health-cmd "pg_isready -U test -d minego_test" --health-interval 10s --health-timeout 5s --health-retries 5
       redis:
         image: redis:7-alpine
         ports: ['6379:6379']
@@ -53,10 +53,11 @@ jobs:
         working-directory: backend
         run: npm run test:payment:storage
       - name: Generate HTML and LCOV for the exercised production payment modules
+        id: coverage
         working-directory: backend
         run: npm run test:payment:coverage
       - name: Preserve actual coverage reports
-        if: always()
+        if: ${{ always() && steps.coverage.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4
         with:
           name: payment-source-coverage
@@ -77,4 +78,7 @@ jobs:
         run: node --test --test-concurrency=1 tests/regression/payment-native.test.js
       - name: Stop owned Kafka
         if: always()
-        run: docker stop minego-payment-kafka
+        run: |
+          if docker container inspect minego-payment-kafka >/dev/null 2>&1; then
+            docker stop minego-payment-kafka
+          fi

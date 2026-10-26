@@ -126,6 +126,14 @@ Coverage from actual SQL/Redis/HTTP integration is reported separately from pure
 protocol unit coverage. It does not establish the original whole-service unit-only
 coverage criterion. The main unit command now runs the existing delay-queue suite
 with the real metrics registry, instead of hiding nonexistent metric functions.
+The payment fixtures install UUID/PostGIS/pgcrypto in the isolated database's
+public schema under the existing advisory lock before creating disposable schemas.
+This prevents a first schema from owning UUID functions that subsequent scenarios
+cannot resolve. A separate blank template0 database, initially without all three
+extensions, passed migration/core/report/native/bootstrap/original-native/unit
+checks; the extensions remained in public after fixture cleanup and that owned
+database was then dropped. This does not alter V1 or relax any acceptance gate.
+
 Native tests launch actual payment/gateway entry points, apply all87 migrations,
 exercise raw signed JSON/form callbacks and a real Kafka timeout consumer, and
 measure natural shutdown. Other gateway peers alias the payment fixture; no

@@ -4071,7 +4071,7 @@
       ]
     },
     "REQ-00007-database-migration-management.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-26",
       "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "034e46d0685cd0216fa145e46909ee1996a4e421c719c4f1cd3cab3eacb47404",
       "sourceSha256": {
@@ -4088,7 +4088,7 @@
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
-        "backend/tests/regression/storageSetup.js": "1a67a27f674d7ef022e266da1ebbd5146870cdc290ebd64a51a799f5843ceaee",
+        "backend/tests/regression/storageSetup.js": "8d376d5e63627aad5a3f5cf5293fb6bbe6e30690297d9f14465e778d0de70004",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
@@ -4189,19 +4189,22 @@
         "backend/tests/unit/payment.test.js": "0bb4881f9683e4ef5b517c64d0bceb375f98f861b3b3223327af78f65411121e",
         "backend/tests/unit/delay-queue.test.js": "0e6660333b07d281a113f2492bf49ee2836459540f62b7e1d9661ba435e553db",
         "backend/tests/unit/mfa-client.test.js": "335a2cdb49ec6dd313cabc84f7b62e6b6a3542af9ceb31a6e2e0d015d2d77ebf",
-        "backend/tests/regression/payment-storage.test.js": "bcb839576f90589f9ef3956cd2b5a53202e62c12405a3d272903f24d32f6e2fc",
-        "backend/tests/regression/payment-migration.test.js": "6c176b36bc075d0caa0cf3280fdfa085c17a9b87a08333dbda098d00e9d2a555",
-        "backend/tests/regression/payment-native.test.js": "292daf13060d1bd79dac592580fa19eb314a7a003871851c8f8db9c62788911c",
+        "backend/tests/regression/payment-storage.test.js": "86a63db8768cf50102ba1e17db63afdce220ced2be2e8f4b555b47e3bfd9e324",
+        "backend/tests/regression/payment-migration.test.js": "c0233489d9b860485061c7cf9e30411022767820534ee0c3de26d8f017ec8d4e",
+        "backend/tests/regression/payment-native.test.js": "d567bfe0eced95c86bd6b42e2855e57fedf4f49f866e1ec03839422a76f2aef1",
         "backend/tests/regression/currency-storage.test.js": "d830e2d74ee4eb2a3c2276c1d51db09ed12ebaf3f0590f681aa925c673481e7f",
         "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
-        "backend/tests/README.md": "8d3db5d8207450de4854b60d3ee5f72d3ebcc2281e459b925307f9a0f5a62833",
+        "backend/tests/README.md": "b304f1819bb542b3cb0a29a995ea731b15aea269cbc448957971be6093718f22",
         "database/pending/20261025_120000__payment_order_integrity.sql": "1be1bc35e9937e1ce4cc7233a9033381e1153df16f52791c8ded534a54a13a1a",
         "frontend/game-client/src/api/client.js": "8a33ee568983fe0014d0b07c2610902d985c1aed1f555b072e85cb26b0effb04",
-        ".github/workflows/payment-regression.yml": "1f4b9667a904bdf3880028a63fac6f74480916cd28bf2f305327041b2298c82c",
-        "docs/PAYMENT-INTEGRITY.md": "6fb70e12dae094c3c0addb6b304528562ffaf3705f95c5510dc4cafe466f749b",
+        ".github/workflows/payment-regression.yml": "3b53f67416e2841ca5b0cef070a92276adfa1e39dc7ff132e3b358008739edd5",
+        "docs/PAYMENT-INTEGRITY.md": "2bb5ce384432aef358d119c771bb8aa403ab1d945dd1af0eac704ad3bd6d7147",
         "docs/benchmarks/payment-integrity-local-2026-10-25.json": "ce5889f7e53c483829d3a477abb3a2383e6fa1a2a1ff4aac6175c1f7a2572e04",
         "docs/benchmarks/ci-0637449-2026-10-25.json": "e9d886e305995df366ca95eb3920c331d882ff0f1d5abc7326e0b31629991e48",
-        "docs/benchmarks/transaction-throughput-ci-0637449-2026-10-25.json": "bb1d3494e81dab84cf43d9c97249c10ec03025c5642988f315f5ba54b0a197cd"
+        "docs/benchmarks/transaction-throughput-ci-0637449-2026-10-25.json": "bb1d3494e81dab84cf43d9c97249c10ec03025c5642988f315f5ba54b0a197cd",
+        "docs/benchmarks/payment-clean-database-2026-10-26.json": "e5b81641075e1c4e4766dbc37f4d48eb4f07745d2e437d75e351536de6f5b9dc",
+        "docs/benchmarks/ci-4ad9ac6-2026-10-26.json": "ea5bbe08b30ffe51e2f02a244112d5f3654aacfbf1fa6a7546549cef06cb5dc6",
+        "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922"
       },
       "evidence": [
         {
@@ -4902,6 +4905,34 @@
           "medianChangePercent": -4.035239836601567,
           "requiredMinimumChangePercent": -5,
           "scope": "Exact063Node24.21/PG15.8,8measuredhashesmatch; original-5 gate/earliernegativeandpositiverounds retained; full86remote step passed. Otherlegacyfailures/E2Ecancelled preserved. No wholeperformance/all658/currentpaymentsourceCI acceptance."
+        },
+        {
+          "date": "2026-10-26",
+          "result": "actual_cold_database_fixture_correction_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/tests/regression/storageSetup.js",
+            "backend/tests/regression/payment-storage.test.js",
+            "backend/tests/regression/payment-migration.test.js",
+            "backend/tests/regression/payment-native.test.js",
+            "backend/tests/README.md",
+            ".github/workflows/payment-regression.yml",
+            "docs/PAYMENT-INTEGRITY.md"
+          ],
+          "artifact": "docs/benchmarks/payment-clean-database-2026-10-26.json",
+          "scope": "Cold-template0 proof: UUID/PostGIS/pgcrypto absent initially, provisioned in public before payment schemas; migration4/core22/report22/paymentnative2/full87bootstrap3/originalnative2/main765unit pass, finalextensionspublic/UUIDstillworks/ownedDBdroppednormally. V8core100line97.86branch100func; NYC98.46stat94.97branch100linefunc, original91/80gates unchanged. Syntax1480/tools12/YAMLpass. Business code/all87SQL/manifests/locks unchanged. Only fixture/harness/common documentation refs refreshed; no wholefeature/provider/financialaudit/production/wholeunit-only/security/performance acceptance."
+        },
+        {
+          "date": "2026-10-26",
+          "result": "blank_database_real_extensions_and_actual_payment_sequence_pass_cold_ci_failure_retained",
+          "artifact": "docs/benchmarks/payment-clean-database-2026-10-26.json",
+          "scope": "Cold-template0 proof: UUID/PostGIS/pgcrypto absent initially, provisioned in public before payment schemas; migration4/core22/report22/paymentnative2/full87bootstrap3/originalnative2/main765unit pass, finalextensionspublic/UUIDstillworks/ownedDBdroppednormally. V8core100line97.86branch100func; NYC98.46stat94.97branch100linefunc, original91/80gates unchanged. Syntax1480/tools12/YAMLpass. Business code/all87SQL/manifests/locks unchanged. Only fixture/harness/common documentation refs refreshed; no wholefeature/provider/financialaudit/production/wholeunit-only/security/performance acceptance."
+        },
+        {
+          "date": "2026-10-26",
+          "commit": "4ad9ac66e0a7536e670c2abdd36124dffb431f14",
+          "result": "exact_prior_main474_native43_mfa6_browser2_migration36_pass_payment1_failed",
+          "artifact": "docs/benchmarks/ci-4ad9ac6-2026-10-26.json",
+          "scope": "Payment1 failed real cold fixture with missing UUID function; core/report/native skipped and not accepted. Main/native/MFA/browser/migration and full87remote pass; originalthroughput-2.5356768476389013% against-5 and8hashesmatch archived. Priorpositive/negative reports retained; otherlegacyfailures preserved. Corrected remote CI pending, no allgreen/wholegoal claim."
         }
       ],
       "remaining": "Complete85-source history now fails20260627_060000 statement13 missing is_deleted. Reconcile canonical inventory/ownership/contracts, all later pending files, data-preserving upgrades/reversal and all-service startup. Exact new remote throughput still unverified; all original acceptance remains open."
@@ -10778,7 +10809,9 @@
         "docs/benchmarks/ci-4abdb82-2026-10-23.json": "7d290418aab99d46a3e59ee17fd1f3c81a4c7a7ac6ac3e326923bbcd379b980b",
         "docs/benchmarks/transaction-throughput-ci-4abdb82-2026-10-23.json": "c66372d68832b4d281c08143b80024d27b2b2299510d4a6cbf33d9bcd03dfade",
         "docs/benchmarks/ci-0637449-2026-10-25.json": "e9d886e305995df366ca95eb3920c331d882ff0f1d5abc7326e0b31629991e48",
-        "docs/benchmarks/transaction-throughput-ci-0637449-2026-10-25.json": "bb1d3494e81dab84cf43d9c97249c10ec03025c5642988f315f5ba54b0a197cd"
+        "docs/benchmarks/transaction-throughput-ci-0637449-2026-10-25.json": "bb1d3494e81dab84cf43d9c97249c10ec03025c5642988f315f5ba54b0a197cd",
+        "docs/benchmarks/ci-4ad9ac6-2026-10-26.json": "ea5bbe08b30ffe51e2f02a244112d5f3654aacfbf1fa6a7546549cef06cb5dc6",
+        "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922"
       },
       "evidence": [
         {
@@ -11223,6 +11256,13 @@
           "medianChangePercent": -4.035239836601567,
           "requiredMinimumChangePercent": -5,
           "scope": "Exact063Node24.21/PG15.8,8measuredhashesmatch; original-5 gate/earliernegativeandpositiverounds retained; full86remote step passed. Otherlegacyfailures/E2Ecancelled preserved. No wholeperformance/all658/currentpaymentsourceCI acceptance."
+        },
+        {
+          "date": "2026-10-26",
+          "commit": "4ad9ac66e0a7536e670c2abdd36124dffb431f14",
+          "result": "exact_prior_main474_native43_mfa6_browser2_migration36_pass_payment1_failed",
+          "artifact": "docs/benchmarks/ci-4ad9ac6-2026-10-26.json",
+          "scope": "Payment1 failed real cold fixture with missing UUID function; core/report/native skipped and not accepted. Main/native/MFA/browser/migration and full87remote pass; originalthroughput-2.5356768476389013% against-5 and8hashesmatch archived. Priorpositive/negative reports retained; otherlegacyfailures preserved. Corrected remote CI pending, no allgreen/wholegoal claim."
         }
       ],
       "remaining": [
@@ -13290,7 +13330,7 @@
       "remaining": "All10 original criteria preserved. All-job actual registration/status reporting, <5s dashboard visibility, real mounted authenticated controls, configured60s delivery/noise10min, >95%zombie accuracy/<10%score error, actual admin dashboard, core aggregator/alerts/health>80% and end-to-end alert delivery remain required. No external recipients contacted or destructive job/control/production cleanup started. Fresh install pass does not accept differing-repair upgrade/reversal/cross-schema audit behavior."
     },
     "REQ-00038-api-sensitive-data-protection.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-26",
       "status": "partial_canonical_crypto_protected_audit_queries_mfa_and_p0_projection_verified_full_security_open",
       "documentSha256": "80a255e29524056b95ee5a8c46bf5862d65ee4f91498df2e2591c3a4ed78ae9e",
       "sourceSha256": {
@@ -13399,18 +13439,22 @@
         "backend/shared/DelayQueue.js": "db6e0ea81f5d47eaa86f9ae7a2276d1d2ffb1642cf2b8b9074831b4f55e32f84",
         "backend/tests/unit/payment.test.js": "0bb4881f9683e4ef5b517c64d0bceb375f98f861b3b3223327af78f65411121e",
         "backend/tests/unit/delay-queue.test.js": "0e6660333b07d281a113f2492bf49ee2836459540f62b7e1d9661ba435e553db",
-        "backend/tests/regression/payment-storage.test.js": "bcb839576f90589f9ef3956cd2b5a53202e62c12405a3d272903f24d32f6e2fc",
-        "backend/tests/regression/payment-migration.test.js": "6c176b36bc075d0caa0cf3280fdfa085c17a9b87a08333dbda098d00e9d2a555",
-        "backend/tests/regression/payment-native.test.js": "292daf13060d1bd79dac592580fa19eb314a7a003871851c8f8db9c62788911c",
+        "backend/tests/regression/payment-storage.test.js": "86a63db8768cf50102ba1e17db63afdce220ced2be2e8f4b555b47e3bfd9e324",
+        "backend/tests/regression/payment-migration.test.js": "c0233489d9b860485061c7cf9e30411022767820534ee0c3de26d8f017ec8d4e",
+        "backend/tests/regression/payment-native.test.js": "d567bfe0eced95c86bd6b42e2855e57fedf4f49f866e1ec03839422a76f2aef1",
         "backend/tests/regression/currency-storage.test.js": "d830e2d74ee4eb2a3c2276c1d51db09ed12ebaf3f0590f681aa925c673481e7f",
         "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
-        "backend/tests/README.md": "8d3db5d8207450de4854b60d3ee5f72d3ebcc2281e459b925307f9a0f5a62833",
+        "backend/tests/README.md": "b304f1819bb542b3cb0a29a995ea731b15aea269cbc448957971be6093718f22",
         "database/pending/20261025_120000__payment_order_integrity.sql": "1be1bc35e9937e1ce4cc7233a9033381e1153df16f52791c8ded534a54a13a1a",
-        ".github/workflows/payment-regression.yml": "1f4b9667a904bdf3880028a63fac6f74480916cd28bf2f305327041b2298c82c",
-        "docs/PAYMENT-INTEGRITY.md": "6fb70e12dae094c3c0addb6b304528562ffaf3705f95c5510dc4cafe466f749b",
+        ".github/workflows/payment-regression.yml": "3b53f67416e2841ca5b0cef070a92276adfa1e39dc7ff132e3b358008739edd5",
+        "docs/PAYMENT-INTEGRITY.md": "2bb5ce384432aef358d119c771bb8aa403ab1d945dd1af0eac704ad3bd6d7147",
         "docs/benchmarks/payment-integrity-local-2026-10-25.json": "ce5889f7e53c483829d3a477abb3a2383e6fa1a2a1ff4aac6175c1f7a2572e04",
         "docs/benchmarks/ci-0637449-2026-10-25.json": "e9d886e305995df366ca95eb3920c331d882ff0f1d5abc7326e0b31629991e48",
-        "docs/benchmarks/transaction-throughput-ci-0637449-2026-10-25.json": "bb1d3494e81dab84cf43d9c97249c10ec03025c5642988f315f5ba54b0a197cd"
+        "docs/benchmarks/transaction-throughput-ci-0637449-2026-10-25.json": "bb1d3494e81dab84cf43d9c97249c10ec03025c5642988f315f5ba54b0a197cd",
+        "backend/tests/regression/storageSetup.js": "8d376d5e63627aad5a3f5cf5293fb6bbe6e30690297d9f14465e778d0de70004",
+        "docs/benchmarks/payment-clean-database-2026-10-26.json": "e5b81641075e1c4e4766dbc37f4d48eb4f07745d2e437d75e351536de6f5b9dc",
+        "docs/benchmarks/ci-4ad9ac6-2026-10-26.json": "ea5bbe08b30ffe51e2f02a244112d5f3654aacfbf1fa6a7546549cef06cb5dc6",
+        "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922"
       },
       "evidence": [
         {
@@ -13660,6 +13704,33 @@
           "medianChangePercent": -4.035239836601567,
           "requiredMinimumChangePercent": -5,
           "scope": "Exact063Node24.21/PG15.8,8measuredhashesmatch; original-5 gate/earliernegativeandpositiverounds retained; full86remote step passed. Otherlegacyfailures/E2Ecancelled preserved. No wholeperformance/all658/currentpaymentsourceCI acceptance."
+        },
+        {
+          "date": "2026-10-26",
+          "result": "actual_cold_database_fixture_correction_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/tests/regression/payment-storage.test.js",
+            "backend/tests/regression/payment-migration.test.js",
+            "backend/tests/regression/payment-native.test.js",
+            "backend/tests/README.md",
+            ".github/workflows/payment-regression.yml",
+            "docs/PAYMENT-INTEGRITY.md"
+          ],
+          "artifact": "docs/benchmarks/payment-clean-database-2026-10-26.json",
+          "scope": "Cold-template0 proof: UUID/PostGIS/pgcrypto absent initially, provisioned in public before payment schemas; migration4/core22/report22/paymentnative2/full87bootstrap3/originalnative2/main765unit pass, finalextensionspublic/UUIDstillworks/ownedDBdroppednormally. V8core100line97.86branch100func; NYC98.46stat94.97branch100linefunc, original91/80gates unchanged. Syntax1480/tools12/YAMLpass. Business code/all87SQL/manifests/locks unchanged. Only fixture/harness/common documentation refs refreshed; no wholefeature/provider/financialaudit/production/wholeunit-only/security/performance acceptance."
+        },
+        {
+          "date": "2026-10-26",
+          "result": "blank_database_real_extensions_and_actual_payment_sequence_pass_cold_ci_failure_retained",
+          "artifact": "docs/benchmarks/payment-clean-database-2026-10-26.json",
+          "scope": "Cold-template0 proof: UUID/PostGIS/pgcrypto absent initially, provisioned in public before payment schemas; migration4/core22/report22/paymentnative2/full87bootstrap3/originalnative2/main765unit pass, finalextensionspublic/UUIDstillworks/ownedDBdroppednormally. V8core100line97.86branch100func; NYC98.46stat94.97branch100linefunc, original91/80gates unchanged. Syntax1480/tools12/YAMLpass. Business code/all87SQL/manifests/locks unchanged. Only fixture/harness/common documentation refs refreshed; no wholefeature/provider/financialaudit/production/wholeunit-only/security/performance acceptance."
+        },
+        {
+          "date": "2026-10-26",
+          "commit": "4ad9ac66e0a7536e670c2abdd36124dffb431f14",
+          "result": "exact_prior_main474_native43_mfa6_browser2_migration36_pass_payment1_failed",
+          "artifact": "docs/benchmarks/ci-4ad9ac6-2026-10-26.json",
+          "scope": "Payment1 failed real cold fixture with missing UUID function; core/report/native skipped and not accepted. Main/native/MFA/browser/migration and full87remote pass; originalthroughput-2.5356768476389013% against-5 and8hashesmatch archived. Priorpositive/negative reports retained; otherlegacyfailures preserved. Corrected remote CI pending, no allgreen/wholegoal claim."
         }
       ],
       "remaining": "Original10criteria unchanged. Actual signedL2+serverMFA+reason protected decrypt/audit-service-query/sensitive-access-query and transactional receipts implemented; known structuredP0aliases filtered. Full frontend/provisioning/admin governance/approvedL3exports, all sensitive business/denied attempts and legacy callers/jobs/ignoredfalse, originalallresponse/unstructured/custommask/atleast10types/scannerfailP0 and fullcombinedunit>=90 remain open. LiveAWS/IAM/keypolicy/CloudTrail/availability/latency unverified. Unknownlegacykeys/tags/timestamp provenance never guessed. Sensitive lookup is bounded lookahead, not complete export; old common helpers remain metadata. No productioncleanup/rekey/merge/deploy."
@@ -13952,7 +14023,9 @@
         "docs/benchmarks/mfa-client-2026-10-23/mfa-enabled-mobile.png": "f802313dd9a007afef3cb0b76cb983a8d44a81e646ac86df049df49c44a19a51",
         "docs/benchmarks/mfa-client-2026-10-23/mfa-enabled-desktop.png": "058144a535885276adefa93e08f2d1d698b5b7458f64b15adf227f8212ba55d2",
         "docs/benchmarks/ci-0637449-2026-10-25.json": "e9d886e305995df366ca95eb3920c331d882ff0f1d5abc7326e0b31629991e48",
-        "docs/benchmarks/transaction-throughput-ci-0637449-2026-10-25.json": "bb1d3494e81dab84cf43d9c97249c10ec03025c5642988f315f5ba54b0a197cd"
+        "docs/benchmarks/transaction-throughput-ci-0637449-2026-10-25.json": "bb1d3494e81dab84cf43d9c97249c10ec03025c5642988f315f5ba54b0a197cd",
+        "docs/benchmarks/ci-4ad9ac6-2026-10-26.json": "ea5bbe08b30ffe51e2f02a244112d5f3654aacfbf1fa6a7546549cef06cb5dc6",
+        "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922"
       },
       "evidence": [
         {
@@ -14046,6 +14119,13 @@
           "medianChangePercent": -4.035239836601567,
           "requiredMinimumChangePercent": -5,
           "scope": "Exact063Node24.21/PG15.8,8measuredhashesmatch; original-5 gate/earliernegativeandpositiverounds retained; full86remote step passed. Otherlegacyfailures/E2Ecancelled preserved. No wholeperformance/all658/currentpaymentsourceCI acceptance."
+        },
+        {
+          "date": "2026-10-26",
+          "commit": "4ad9ac66e0a7536e670c2abdd36124dffb431f14",
+          "result": "exact_prior_main474_native43_mfa6_browser2_migration36_pass_payment1_failed",
+          "artifact": "docs/benchmarks/ci-4ad9ac6-2026-10-26.json",
+          "scope": "Payment1 failed real cold fixture with missing UUID function; core/report/native skipped and not accepted. Main/native/MFA/browser/migration and full87remote pass; originalthroughput-2.5356768476389013% against-5 and8hashesmatch archived. Priorpositive/negative reports retained; otherlegacyfailures preserved. Corrected remote CI pending, no allgreen/wholegoal claim."
         }
       ],
       "remaining": "Original10criteria/targets unchanged. Actualbackendfactors/sessions/locks/epoch/proofs and gameenrollment/login/recovery/regeneration/disable/cancel/browserstoragebounds work. PhysicalGoogleAuthenticatorQRscan/manualinterop and originalend-to-end>=99percentproductsuccess, seven-daytrusteddevices, everysensitivepassword/payment/admin/riskbusinessscope, realSMSprovider, fullmonitoring/metrics/alerts/originalproductimpact and productionacceptance remainopen. Controlled500/500referencewindows and scoped90line/functioncoverage do not accept device/network/allbusinesscriteria. No remembereddeviceflag:serverexplicitlyrefuses whilecontractopen."
@@ -14348,7 +14428,7 @@
       "remaining": "All original4 boxes retained. Actual serverproof/session/scope/role middleware tests are prerequisites only. Legacy separate risk engine still parseInt UUIDs and retains raw verified tokens; actual current gateway risk scoring/geography/device/session policies, cross-service business authorization and encrypted attributable risk-log acceptance/provider delivery remain unverified. No synthetic adapter/caller flags can accept full risk grading."
     },
     "REQ-00003-payment-idempotency-security.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-26",
       "status": "partial_actual_payment_protocol_storage_http_process_verified_whole_acceptance_open",
       "documentSha256": "a2ff84b2eae154043d49513a0840c93f42f0209265656240e9d527a473df6499",
       "sourceSha256": {
@@ -14366,19 +14446,25 @@
         "backend/tests/unit/payment.test.js": "0bb4881f9683e4ef5b517c64d0bceb375f98f861b3b3223327af78f65411121e",
         "backend/tests/unit/delay-queue.test.js": "0e6660333b07d281a113f2492bf49ee2836459540f62b7e1d9661ba435e553db",
         "backend/tests/unit/mfa-client.test.js": "335a2cdb49ec6dd313cabc84f7b62e6b6a3542af9ceb31a6e2e0d015d2d77ebf",
-        "backend/tests/regression/payment-storage.test.js": "bcb839576f90589f9ef3956cd2b5a53202e62c12405a3d272903f24d32f6e2fc",
-        "backend/tests/regression/payment-migration.test.js": "6c176b36bc075d0caa0cf3280fdfa085c17a9b87a08333dbda098d00e9d2a555",
-        "backend/tests/regression/payment-native.test.js": "292daf13060d1bd79dac592580fa19eb314a7a003871851c8f8db9c62788911c",
+        "backend/tests/regression/payment-storage.test.js": "86a63db8768cf50102ba1e17db63afdce220ced2be2e8f4b555b47e3bfd9e324",
+        "backend/tests/regression/payment-migration.test.js": "c0233489d9b860485061c7cf9e30411022767820534ee0c3de26d8f017ec8d4e",
+        "backend/tests/regression/payment-native.test.js": "d567bfe0eced95c86bd6b42e2855e57fedf4f49f866e1ec03839422a76f2aef1",
         "backend/tests/regression/currency-storage.test.js": "d830e2d74ee4eb2a3c2276c1d51db09ed12ebaf3f0590f681aa925c673481e7f",
         "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
-        "backend/tests/README.md": "8d3db5d8207450de4854b60d3ee5f72d3ebcc2281e459b925307f9a0f5a62833",
+        "backend/tests/README.md": "b304f1819bb542b3cb0a29a995ea731b15aea269cbc448957971be6093718f22",
         "database/pending/20261025_120000__payment_order_integrity.sql": "1be1bc35e9937e1ce4cc7233a9033381e1153df16f52791c8ded534a54a13a1a",
         "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
         "frontend/game-client/src/api/client.js": "8a33ee568983fe0014d0b07c2610902d985c1aed1f555b072e85cb26b0effb04",
-        ".github/workflows/payment-regression.yml": "1f4b9667a904bdf3880028a63fac6f74480916cd28bf2f305327041b2298c82c",
-        "docs/PAYMENT-INTEGRITY.md": "6fb70e12dae094c3c0addb6b304528562ffaf3705f95c5510dc4cafe466f749b",
+        ".github/workflows/payment-regression.yml": "3b53f67416e2841ca5b0cef070a92276adfa1e39dc7ff132e3b358008739edd5",
+        "docs/PAYMENT-INTEGRITY.md": "2bb5ce384432aef358d119c771bb8aa403ab1d945dd1af0eac704ad3bd6d7147",
         "docs/benchmarks/payment-integrity-local-2026-10-25.json": "ce5889f7e53c483829d3a477abb3a2383e6fa1a2a1ff4aac6175c1f7a2572e04",
-        "docs/benchmarks/payment-coverage-2026-10-25.lcov": "f0cf30c60e23d06787c6da7b623a4a4b5183c693506170adcf8933d7e469cfea"
+        "docs/benchmarks/payment-coverage-2026-10-25.lcov": "f0cf30c60e23d06787c6da7b623a4a4b5183c693506170adcf8933d7e469cfea",
+        "backend/tests/regression/storageSetup.js": "8d376d5e63627aad5a3f5cf5293fb6bbe6e30690297d9f14465e778d0de70004",
+        "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
+        "docs/benchmarks/payment-clean-database-2026-10-26.json": "e5b81641075e1c4e4766dbc37f4d48eb4f07745d2e437d75e351536de6f5b9dc",
+        "docs/benchmarks/ci-4ad9ac6-2026-10-26.json": "ea5bbe08b30ffe51e2f02a244112d5f3654aacfbf1fa6a7546549cef06cb5dc6",
+        "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922"
       },
       "evidence": [
         {
@@ -14386,12 +14472,39 @@
           "result": "legacy_done_reopened_original_boxes_and_targets_unchanged_actual_partial_checks_pass",
           "artifact": "docs/benchmarks/payment-integrity-local-2026-10-25.json",
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-26",
+          "result": "actual_cold_database_fixture_correction_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/tests/regression/payment-storage.test.js",
+            "backend/tests/regression/payment-migration.test.js",
+            "backend/tests/regression/payment-native.test.js",
+            "backend/tests/README.md",
+            ".github/workflows/payment-regression.yml",
+            "docs/PAYMENT-INTEGRITY.md"
+          ],
+          "artifact": "docs/benchmarks/payment-clean-database-2026-10-26.json",
+          "scope": "Cold-template0 proof: UUID/PostGIS/pgcrypto absent initially, provisioned in public before payment schemas; migration4/core22/report22/paymentnative2/full87bootstrap3/originalnative2/main765unit pass, finalextensionspublic/UUIDstillworks/ownedDBdroppednormally. V8core100line97.86branch100func; NYC98.46stat94.97branch100linefunc, original91/80gates unchanged. Syntax1480/tools12/YAMLpass. Business code/all87SQL/manifests/locks unchanged. Only fixture/harness/common documentation refs refreshed; no wholefeature/provider/financialaudit/production/wholeunit-only/security/performance acceptance."
+        },
+        {
+          "date": "2026-10-26",
+          "result": "blank_database_real_extensions_and_actual_payment_sequence_pass_cold_ci_failure_retained",
+          "artifact": "docs/benchmarks/payment-clean-database-2026-10-26.json",
+          "scope": "Cold-template0 proof: UUID/PostGIS/pgcrypto absent initially, provisioned in public before payment schemas; migration4/core22/report22/paymentnative2/full87bootstrap3/originalnative2/main765unit pass, finalextensionspublic/UUIDstillworks/ownedDBdroppednormally. V8core100line97.86branch100func; NYC98.46stat94.97branch100linefunc, original91/80gates unchanged. Syntax1480/tools12/YAMLpass. Business code/all87SQL/manifests/locks unchanged. Only fixture/harness/common documentation refs refreshed; no wholefeature/provider/financialaudit/production/wholeunit-only/security/performance acceptance."
+        },
+        {
+          "date": "2026-10-26",
+          "commit": "4ad9ac66e0a7536e670c2abdd36124dffb431f14",
+          "result": "exact_prior_main474_native43_mfa6_browser2_migration36_pass_payment1_failed",
+          "artifact": "docs/benchmarks/ci-4ad9ac6-2026-10-26.json",
+          "scope": "Payment1 failed real cold fixture with missing UUID function; core/report/native skipped and not accepted. Main/native/MFA/browser/migration and full87remote pass; originalthroughput-2.5356768476389013% against-5 and8hashesmatch archived. Priorpositive/negative reports retained; otherlegacyfailures preserved. Corrected remote CI pending, no allgreen/wholegoal claim."
         }
       ],
       "remaining": "Historical done declaration reopened. Original criteria unchanged. Actual core/SQL/Redis/HTTP/native and HTML/LCOV integration coverage pass, but original whole-payment-service unit-only coverage target and all legal fulfillment/refund business flows remain unverified. Live prepay/provider-native validation/receipts/paymentUI, explicit legacy request adoption, production key/provider/staging/financial audit, full sensitive MFA/risk and legacy global integration/E2E/contracts/security/performance gates remain open. Generic repository HMAC transport tests are not live vendor acceptance. No merge/deploy or target lowering."
     },
     "REQ-00004-payment-unit-integration-tests.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-26",
       "status": "partial_actual_payment_protocol_storage_http_process_verified_whole_acceptance_open",
       "documentSha256": "4ace3988041cc5c13542baf83f65cbdf8dac4d61e63999f3755da275cf171ae0",
       "sourceSha256": {
@@ -14409,19 +14522,25 @@
         "backend/tests/unit/payment.test.js": "0bb4881f9683e4ef5b517c64d0bceb375f98f861b3b3223327af78f65411121e",
         "backend/tests/unit/delay-queue.test.js": "0e6660333b07d281a113f2492bf49ee2836459540f62b7e1d9661ba435e553db",
         "backend/tests/unit/mfa-client.test.js": "335a2cdb49ec6dd313cabc84f7b62e6b6a3542af9ceb31a6e2e0d015d2d77ebf",
-        "backend/tests/regression/payment-storage.test.js": "bcb839576f90589f9ef3956cd2b5a53202e62c12405a3d272903f24d32f6e2fc",
-        "backend/tests/regression/payment-migration.test.js": "6c176b36bc075d0caa0cf3280fdfa085c17a9b87a08333dbda098d00e9d2a555",
-        "backend/tests/regression/payment-native.test.js": "292daf13060d1bd79dac592580fa19eb314a7a003871851c8f8db9c62788911c",
+        "backend/tests/regression/payment-storage.test.js": "86a63db8768cf50102ba1e17db63afdce220ced2be2e8f4b555b47e3bfd9e324",
+        "backend/tests/regression/payment-migration.test.js": "c0233489d9b860485061c7cf9e30411022767820534ee0c3de26d8f017ec8d4e",
+        "backend/tests/regression/payment-native.test.js": "d567bfe0eced95c86bd6b42e2855e57fedf4f49f866e1ec03839422a76f2aef1",
         "backend/tests/regression/currency-storage.test.js": "d830e2d74ee4eb2a3c2276c1d51db09ed12ebaf3f0590f681aa925c673481e7f",
         "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
-        "backend/tests/README.md": "8d3db5d8207450de4854b60d3ee5f72d3ebcc2281e459b925307f9a0f5a62833",
+        "backend/tests/README.md": "b304f1819bb542b3cb0a29a995ea731b15aea269cbc448957971be6093718f22",
         "database/pending/20261025_120000__payment_order_integrity.sql": "1be1bc35e9937e1ce4cc7233a9033381e1153df16f52791c8ded534a54a13a1a",
         "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
         "frontend/game-client/src/api/client.js": "8a33ee568983fe0014d0b07c2610902d985c1aed1f555b072e85cb26b0effb04",
-        ".github/workflows/payment-regression.yml": "1f4b9667a904bdf3880028a63fac6f74480916cd28bf2f305327041b2298c82c",
-        "docs/PAYMENT-INTEGRITY.md": "6fb70e12dae094c3c0addb6b304528562ffaf3705f95c5510dc4cafe466f749b",
+        ".github/workflows/payment-regression.yml": "3b53f67416e2841ca5b0cef070a92276adfa1e39dc7ff132e3b358008739edd5",
+        "docs/PAYMENT-INTEGRITY.md": "2bb5ce384432aef358d119c771bb8aa403ab1d945dd1af0eac704ad3bd6d7147",
         "docs/benchmarks/payment-integrity-local-2026-10-25.json": "ce5889f7e53c483829d3a477abb3a2383e6fa1a2a1ff4aac6175c1f7a2572e04",
-        "docs/benchmarks/payment-coverage-2026-10-25.lcov": "f0cf30c60e23d06787c6da7b623a4a4b5183c693506170adcf8933d7e469cfea"
+        "docs/benchmarks/payment-coverage-2026-10-25.lcov": "f0cf30c60e23d06787c6da7b623a4a4b5183c693506170adcf8933d7e469cfea",
+        "backend/tests/regression/storageSetup.js": "8d376d5e63627aad5a3f5cf5293fb6bbe6e30690297d9f14465e778d0de70004",
+        "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
+        "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
+        "docs/benchmarks/payment-clean-database-2026-10-26.json": "e5b81641075e1c4e4766dbc37f4d48eb4f07745d2e437d75e351536de6f5b9dc",
+        "docs/benchmarks/ci-4ad9ac6-2026-10-26.json": "ea5bbe08b30ffe51e2f02a244112d5f3654aacfbf1fa6a7546549cef06cb5dc6",
+        "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922"
       },
       "evidence": [
         {
@@ -14429,6 +14548,33 @@
           "result": "legacy_done_reopened_original_boxes_and_targets_unchanged_actual_partial_checks_pass",
           "artifact": "docs/benchmarks/payment-integrity-local-2026-10-25.json",
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-26",
+          "result": "actual_cold_database_fixture_correction_partial_shared_references_refreshed",
+          "changedReferences": [
+            "backend/tests/regression/payment-storage.test.js",
+            "backend/tests/regression/payment-migration.test.js",
+            "backend/tests/regression/payment-native.test.js",
+            "backend/tests/README.md",
+            ".github/workflows/payment-regression.yml",
+            "docs/PAYMENT-INTEGRITY.md"
+          ],
+          "artifact": "docs/benchmarks/payment-clean-database-2026-10-26.json",
+          "scope": "Cold-template0 proof: UUID/PostGIS/pgcrypto absent initially, provisioned in public before payment schemas; migration4/core22/report22/paymentnative2/full87bootstrap3/originalnative2/main765unit pass, finalextensionspublic/UUIDstillworks/ownedDBdroppednormally. V8core100line97.86branch100func; NYC98.46stat94.97branch100linefunc, original91/80gates unchanged. Syntax1480/tools12/YAMLpass. Business code/all87SQL/manifests/locks unchanged. Only fixture/harness/common documentation refs refreshed; no wholefeature/provider/financialaudit/production/wholeunit-only/security/performance acceptance."
+        },
+        {
+          "date": "2026-10-26",
+          "result": "blank_database_real_extensions_and_actual_payment_sequence_pass_cold_ci_failure_retained",
+          "artifact": "docs/benchmarks/payment-clean-database-2026-10-26.json",
+          "scope": "Cold-template0 proof: UUID/PostGIS/pgcrypto absent initially, provisioned in public before payment schemas; migration4/core22/report22/paymentnative2/full87bootstrap3/originalnative2/main765unit pass, finalextensionspublic/UUIDstillworks/ownedDBdroppednormally. V8core100line97.86branch100func; NYC98.46stat94.97branch100linefunc, original91/80gates unchanged. Syntax1480/tools12/YAMLpass. Business code/all87SQL/manifests/locks unchanged. Only fixture/harness/common documentation refs refreshed; no wholefeature/provider/financialaudit/production/wholeunit-only/security/performance acceptance."
+        },
+        {
+          "date": "2026-10-26",
+          "commit": "4ad9ac66e0a7536e670c2abdd36124dffb431f14",
+          "result": "exact_prior_main474_native43_mfa6_browser2_migration36_pass_payment1_failed",
+          "artifact": "docs/benchmarks/ci-4ad9ac6-2026-10-26.json",
+          "scope": "Payment1 failed real cold fixture with missing UUID function; core/report/native skipped and not accepted. Main/native/MFA/browser/migration and full87remote pass; originalthroughput-2.5356768476389013% against-5 and8hashesmatch archived. Priorpositive/negative reports retained; otherlegacyfailures preserved. Corrected remote CI pending, no allgreen/wholegoal claim."
         }
       ],
       "remaining": "Historical done declaration reopened. Original criteria unchanged. Actual core/SQL/Redis/HTTP/native and HTML/LCOV integration coverage pass, but original whole-payment-service unit-only coverage target and all legal fulfillment/refund business flows remain unverified. Live prepay/provider-native validation/receipts/paymentUI, explicit legacy request adoption, production key/provider/staging/financial audit, full sensitive MFA/risk and legacy global integration/E2E/contracts/security/performance gates remain open. Generic repository HMAC transport tests are not live vendor acceptance. No merge/deploy or target lowering."

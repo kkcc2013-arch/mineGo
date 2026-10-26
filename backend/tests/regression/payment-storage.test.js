@@ -19,6 +19,7 @@ const {
   {
     migrationStatements
   } = require('../../../database/sqlStatements');
+const {ensureStorageExtensions}=require('./storageSetup');
 const root = path.resolve(__dirname, '../../..');
 test('actual payment routes, PostgreSQL, Redis, byte signatures and encrypted audit commit once', {
   timeout: 120000
@@ -29,6 +30,7 @@ test('actual payment routes, PostgreSQL, Redis, byte signatures and encrypted au
     connectionString: process.env.TEST_DATABASE_URL,
     max: 1
   });
+  await ensureStorageExtensions(admin);
   await admin.query('CREATE SCHEMA ' + schema);
   const url = new URL(process.env.TEST_DATABASE_URL);
   url.searchParams.set('options', '-c search_path=' + schema + ',public');

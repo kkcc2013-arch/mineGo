@@ -25,6 +25,10 @@ node --test --test-concurrency=1 tests/unit/payment.test.js
 
 ## 支付的实际存储、HTTP 和进程
 
+支付测试会先在隔离数据库的 public schema 安装真实 UUID/PostGIS/pgcrypto 扩展，
+再创建可清理的业务 schema，避免首次场景把公用函数装进即将删除的临时 schema。
+该流程已在三项扩展均不存在的全新 template0 数据库中验证；不修改历史 V1 SQL。
+
 设置 `TEST_DATABASE_URL`、`TEST_REDIS_URL`，原生进程检查还需
 `TEST_KAFKA_BROKERS`。测试创建随机所有权命名空间并清理自己的数据：
 

@@ -18,6 +18,7 @@ const {
   {
     Kafka
   } = require('kafkajs');
+const {ensureStorageExtensions}=require('./storageSetup');
 const root = path.resolve(__dirname, '../../..');
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 async function port() {
@@ -106,6 +107,7 @@ test('actual payment and gateway entry points preserve signed raw bytes, once-on
       max: 1
     }),
     schema = 'payment_native_' + crypto.randomBytes(8).toString('hex');
+  await ensureStorageExtensions(admin);
   await admin.query('CREATE SCHEMA ' + schema);
   const pool = new Pool({
     connectionString: process.env.TEST_DATABASE_URL,
