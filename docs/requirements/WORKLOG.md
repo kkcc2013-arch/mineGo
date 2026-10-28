@@ -2621,3 +2621,72 @@ operations requirement remain open. Current corrected-source CI pending. Same
 DraftPR6 only; privateMEMORY/Oct09 excluded. NoMaven/CPUsaturation/subagents/new
 requirements/recipientmessages/productioncleanup/rekey/merge/deploy. Regenerate
 inventory after final ledger before stage/push; keep full persistent goal active.
+
+## 2026-10-28 — repair actual queue consumption and cache fixture fencing
+
+Previous goal turn was no progress toward implementation: it answered the human's
+status request using actual HEAD/ledger/terminal CI. Revalidated current worktree
+and active full658 goal, then resumed the concrete next action. Only two earlier
+WIP files existed. Reused owned running PostgreSQL40/Redis/Kafka without restarting;
+no live earlier check handle existed. No subagents/Maven/CPU saturation used.
+
+Exact c4b5ca1 main475/MFA7/browser3/migration37/privacy47/notification32/dependency314
+success is now archived. Payment2 migration/core/coverage/report passed; actual
+process timeout assertion failed. Title/native44 title/storage/IP passed but cache
+setup failed on disabled fill token; later user/gateway process steps were SKIPPED,
+never passed. Legacy API104/contract400/performance143/integration450/security433
+failed, E2E137 cancelled. Downloaded exact migration37 log proves full87 remote
+bootstrap passed. Its original throughput test measured -1.969575378030819% against
+unchanged -5 ceiling, all8 measured source hashes matching; every earlier positive
+and negative round retained. No preferred-score rerun, noise/causality inference or
+fullperformance claim.
+
+Strengthened actual payment OS regression with unique owned ready/DLQ topics and
+expired canonical UUID orders published BEFORE payment startup. Old latest-offset
+policy deterministically failed the pre-start backlog assertion. A mistaken local
+working directory prevented the first edit, so one unchanged-source run repeated
+that same failure; no successful result claimed. Earliest-offset correction then
+processed the backlog's SQL cancellation but still failed the next HTTP-created
+order. Sanitized private process diagnostics exposed two additional actual bugs:
+metrics.histogram passed buckets:undefined overriding prom-client defaults, so
+successful handlers entered failure handling; nonexistent logger.alert then crashed
+the consumer. Registry-backed new unit case reproduced this failure as well.
+
+Production fix omits unspecified histogram buckets, retains explicit custom ones,
+uses supported structured error logging for DLQ alert records, consumes preexisting
+work for new groups, keys consumers by topic+taskType and filters unrelated types.
+Existing committed-offset behavior remains normal Kafka behavior. Actual native
+fixture verifies unrelated order remains PENDING and backlog/current orders each
+have real encrypted cancellation receipts. Default production topic names remain;
+fixture prefix also owns its DLQ. No alternate business route or fake metric mock.
+Unit36 exercises separate handler consumers, actual registry durations, exhausted
+failure then successful work and default/custom histogram buckets. Transport stays
+mocked in unit checks and is separately exercised by actual Kafka native checks.
+
+Cache fixture now waits within its SAME existing deadline for a real successful
+fenced fill before testing the intended race. Production CoherentCache is unchanged.
+Actual Redis read held while invalidation arrives still must bypass the fill, miss
+and leave L1 empty; stale tokens remain refused. Original50/100ms gates unchanged.
+Four-suite real cache/CDC/HTTP regression41 passed;12 sequential CDC changes max
+10.696461ms in this healthy isolated fixture, not capacity/load acceptance. Embedded
+measurement schema still has its historical test date; artifact separately records
+this actual observation date without rewriting the emitted measurement.
+
+Final local actual paymentnative2/87migrations, originaluser+gatewaynative2, cache41,
+queueunit36, complete test:unit command (last regression461 vs prior459; all other
+suites passed), syntax1480 and audit-tool12 pass. No skipped checks in actual Node
+storage/native suites. Shared default histogram assertions also run inside existing
+logger/metrics unit case. All three owned test containers stopped normally after
+checks; unrelated OpenClaw/performance fixtures untouched. No production cleanup,
+rekey, provider calls, recipient messages, merge or deployment.
+
+Read full originalREQ43, including all12 unchecked acceptance criteria. Its legacy
+'done' is contradicted by these failures and unfinished whole bucket/scheduler/
+priority/monitor/secondservice/Raid/admin/coverage/architecture work. Reopened ONLY
+status metadata, preserving every acceptance checkbox/numeric target. New partial
+record brings ledger49 with only619 verified;176done53progress429new=658unique.
+Changed shared refs refreshed with exact local evidence, without promoting unrelated
+features. Full payment unit-only90/provider/prepay/receipt/UI/legalfulfill/refund/
+legacyadoption/all sensitiveMFA/risk and remaining original queue/security/service/
+client/performance/operations scopes remain open. New-source CI pending publication
+to SAME draftPR6. Regenerate inventory AFTER ledger and check before stage/push.

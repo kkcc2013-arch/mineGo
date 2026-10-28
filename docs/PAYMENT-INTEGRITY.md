@@ -143,3 +143,25 @@ Remaining scope includes all original legal fulfillment/refund business commands
 full payment-service unit coverage, all sensitive MFA/risk business boundaries,
 provider/prepay/receipt integration, legacy request adoption and production drills.
 All658 original requirements remain the persistent goal.
+
+## 2026-10-28 queue consumption correction (partial)
+
+A real Kafka regression now publishes owned expired orders before starting the
+actual payment process. New groups read existing ready-topic work; committed
+consumer offsets retain their normal Kafka behavior. Consumers are keyed by topic
+and task type, and each handler ignores other types. Fixture ready/DLQ topics have
+an owned namespace; default production topic names remain unchanged.
+
+The new test exposed a second production failure: the histogram convenience
+wrapper passed `buckets: undefined`, overriding the metrics library default.
+Successful handlers then entered failure handling; a nonexistent `logger.alert`
+call could crash the consumer. The wrapper now omits absent buckets and dead-letter
+alerts use structured error logging. Actual registry tests exercise default/custom
+buckets, separate handlers on a shared topic, and an exhausted failure followed by
+a successful task. This does not establish notification delivery or full REQ43.
+
+Actual payment/gateway/Kafka regression2, cache/CDC/HTTP regression41, original
+user/gateway regression2, and the complete unit command pass locally. The cache
+fixture waits within its existing bounded deadline for a successful real fenced
+fill before testing the read/invalidation race; its race assertions and original
+50/100ms CDC gates are unchanged. Exact-source remote CI is still required.

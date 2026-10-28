@@ -1,9 +1,9 @@
 # mineGo requirement completion plan
 
-Updated: 2026-10-26. Scope: all 658 existing requirement documents in INDEX.md,
+Updated: 2026-10-28. Scope: all 658 existing requirement documents in INDEX.md,
 including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 429 new, 52 in progress; 177 declared done, including one independently verified framework. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 429 new, 53 in progress; 176 declared done, including one independently verified framework. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -43,14 +43,15 @@ independent authorized work.
    work while genuine external provider/staging/device inputs are unavailable.
 4. Repair remaining legacy contract/API/integration/performance/security/operations
    gates, meet each original numerical target and perform all658 acceptance audit.
-   Exact4ad9ac6 main474/native43/MFA6/browser2/migration36/privacy46/notification31
-   pass, including full87 remote bootstrap. Payment1 failed cold-database fixture
-   setup (UUID extension was installed inside the first disposable schema).
-   Extension provisioning now targets public under the shared test advisory lock;
-   a blank template0 database passed the entire payment/check/regression sequence.
-   New corrected-source CI remains pending; no failure, coverage gate or original
-   performance ceiling is waived. Legacy global contract/integration/security/
-   performance workflows remain unaccepted.
+   Exactc4b5ca1 main475/MFA7/browser3/migration37/privacy47/notification32
+   pass, including full87 remote bootstrap. Payment2 core/migration/report gates pass
+   but native timeout consumption fails; native44 fails cache test setup before
+   actual process steps, which were skipped. Both failures remain recorded.
+   Real Kafka pre-start backlog now reproduces skipped new-group work; correction
+   also fixes absent histogram defaults and an invalid DLQ logger call that stopped
+   consumption. Local corrected paymentnative2/cache41/originalnative2/fullunit
+   pass; corrected-source CI pending. Legacy global contract/integration/security/
+   performance workflows remain unaccepted. No original gate is waived.
 
 
 ## Definition of finished

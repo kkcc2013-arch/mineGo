@@ -14,7 +14,7 @@ test('actual Redis and independent L1 instances fence fills, broadcast invalidat
     first.setConsistencyReady(true);second.setConsistencyReady(true);other.setConsistencyReady(true);
     const owner=crypto.randomUUID(),foreign=crypto.randomUUID();
     const key=`api:profile:/v1/users/${owner}/profile:user:${owner}`,foreignKey=`api:profile:/v1/users/${foreign}/profile:user:${foreign}`;
-    const fill=async(cache,k,v)=>{const entry=await cache.readForFill(k);assert.ok(!entry.disabled);return cache.set(k,v,60,{token:entry.token});};
+    const fill=async(cache,k,v)=>{await until(async()=>{const entry=await cache.readForFill(k);if(entry.disabled)return false;return cache.set(k,v,60,{token:entry.token});});return true;};
     await t.test('actual Redis-backed values populate independent L1 caches',async()=>{
       assert.equal(await fill(first,key,{revision:'old'}),true);assert.deepEqual(await second.get(key),{revision:'old'});assert.ok(second.memory.has(key));assert.equal(await second.exists(key),true);assert.ok(await second.ttl(key)>0);
       await fill(first,foreignKey,{revision:'unrelated'});await fill(other,key,{revision:'other namespace'});
@@ -26,7 +26,7 @@ test('actual Redis and independent L1 instances fence fills, broadcast invalidat
       const stale=await first.readForFill(key);assert.equal(stale.hit,false);
       await second.invalidatePatternStrict(`api:profile:*user:${owner}`);
       assert.equal(await first.set(key,{revision:'stale late response'},60,{token:stale.token}),false);assert.equal(await first.get(key),null);
-      const current=await first.readForFill(key);assert.equal(await first.set(key,{revision:'current'},60,{token:current.token}),true);assert.deepEqual(await second.get(key),{revision:'current'});
+      assert.equal(await fill(first,key,{revision:'current'}),true);assert.deepEqual(await second.get(key),{revision:'current'});
     });
     await t.test('escaped literal wildcard IDs remain literal and never broaden deletion',async()=>{
       const unusual='api:items:item[ab]*?:literal',near='api:items:itemaXYZ:literal';await fill(first,unusual,{literal:true});await fill(first,near,{retained:true});

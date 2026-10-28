@@ -58,7 +58,9 @@ function createPaymentService() {
       // REQ-00131: retain actual public currency and authenticated preference paths.
       app.use(['/currency', '/api/v1/currencies'], require('./routes/currency'));
       queue = getDelayQueue({
-        clientId: process.env.PAYMENT_QUEUE_CLIENT_ID || 'payment-service'
+        clientId: process.env.PAYMENT_QUEUE_CLIENT_ID || 'payment-service',
+        delayTopicPrefix: process.env.PAYMENT_QUEUE_TOPIC_PREFIX || 'delay-queue',
+        dlqTopic: (process.env.PAYMENT_QUEUE_TOPIC_PREFIX || 'delay-queue') + '-dlq'
       });
       await require('./handlers/orderTimeoutHandler').initOrderTimeoutHandler();
       admin = queue.kafka.admin();

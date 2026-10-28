@@ -67,3 +67,11 @@ node --test --test-concurrency=1 tests/regression/payment-native.test.js
 
 实现、协议及限制见 [PAYMENT-INTEGRITY.md](../../docs/PAYMENT-INTEGRITY.md)。
 所有658项需求仍按 [完成计划](../../docs/requirements/COMPLETION-PLAN.md) 推进。
+
+### 2026-10-28 队列及缓存回归补充
+
+支付原生测试还会先向独立 Kafka topic 写入任务再启动真实消费者，核验积压任务、
+运行中新任务及任务类型隔离。ready/DLQ topic 都使用本次测试的独立前缀。
+队列单测使用真实指标注册表，覆盖无显式 buckets、失败后下一条任务和死信日志路径。
+缓存准备阶段在原有有界期限内取得真实有效的填充令牌，再执行原来的读/失效竞争断言；
+不改变生产缓存实现或原始50/100ms门槛。完整队列、支付及安全验收仍未完成。

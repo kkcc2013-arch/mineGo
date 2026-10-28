@@ -123,7 +123,10 @@ test('actual payment and gateway entry points preserve signed raw bytes, once-on
   const redisUrl = new URL(process.env.TEST_REDIS_URL);
   const Redis = require('ioredis'),
     r = new Redis(process.env.TEST_REDIS_URL);
-  let payment, gateway, migration, kafka;
+  let payment, gateway, migration, kafka, topicAdmin;
+  let createdTopic = false;
+  const queueTopic = schema + '-ready';
+  const dlqTopic = schema + '-dlq';
   const cacheKeys = [];
   const env = {
     NODE_ENV: 'test',
@@ -144,6 +147,7 @@ test('actual payment and gateway entry points preserve signed raw bytes, once-on
     AUDIT_KEY_NAMESPACE: schema,
     KAFKA_BROKERS: process.env.TEST_KAFKA_BROKERS,
     PAYMENT_QUEUE_CLIENT_ID: schema,
+    PAYMENT_QUEUE_TOPIC_PREFIX: schema,
     LOG_LEVEL: 'error',
     UV_THREADPOOL_SIZE: '2',
     OER_API_KEY: '',
@@ -178,6 +182,23 @@ test('actual payment and gateway entry points preserve signed raw bytes, once-on
     } finally {
       await cleanup(refused);
     }
+    const queuedBeforeStart = crypto.randomUUID(), unrelatedTaskOrder = crypto.randomUUID();
+    for (const id of [queuedBeforeStart, unrelatedTaskOrder]) {
+      await pool.query("INSERT INTO orders(id,user_id,idempotency_key,product_id,product_name,amount_fen,premium_coins_grant,payment_channel,quantity,created_at) VALUES($1,$2,$3,'coins_60','owned preexisting queue fixture',600,60,'WECHAT',1,NOW() AT TIME ZONE 'UTC'-INTERVAL '31 minutes')", [id, owner, crypto.randomUUID()]);
+    }
+    const broker = new Kafka({clientId: schema + '-fixture', brokers: process.env.TEST_KAFKA_BROKERS.split(',')});
+    topicAdmin = broker.admin();
+    await topicAdmin.connect();
+    await topicAdmin.createTopics({waitForLeaders: true, topics: [queueTopic, dlqTopic].map(topic => ({topic, numPartitions: 1, replicationFactor: 1}))});
+    createdTopic = true;
+    kafka = broker.producer();
+    await kafka.connect();
+    // A new consumer group must retain work queued before the service starts.
+    await kafka.send({topic: queueTopic, messages: [
+      ['other.fixture', unrelatedTaskOrder], ['order.timeout', queuedBeforeStart]
+    ].map(([type, id]) => ({key: 'owned-' + id, value: JSON.stringify({
+      id: 'owned-' + id, type, payload: {orderId: id}, createdAt: new Date().toISOString(), retries: 0, maxRetries: 1
+    })}))});
     const pp = await port(),
       pb = 'http://127.0.0.1:' + pp;
     payment = launch(path.join(root, 'backend/services/payment-service/src/index.js'), {
@@ -186,6 +207,15 @@ test('actual payment and gateway entry points preserve signed raw bytes, once-on
     });
     await ready(payment, pb);
     assert.equal((await fetchBounded(pb + '/health/ready')).status, 200);
+    let backlogCancelled = false;
+    for (let n = 0; n < 100; n++) {
+      backlogCancelled = (await pool.query('SELECT status FROM orders WHERE id=$1', [queuedBeforeStart])).rows[0].status === 'CANCELLED';
+      if (backlogCancelled) break;
+      await pause(50);
+    }
+    assert.equal(backlogCancelled, true, 'task queued before the actual consumer starts must not be skipped');
+    assert.equal((await pool.query('SELECT status FROM orders WHERE id=$1', [unrelatedTaskOrder])).rows[0].status, 'PENDING', 'another task type must not reach the order-timeout handler');
+
     const catalog = await (await fetchBounded(pb + '/api/v1/currencies')).json();
     assert.equal(catalog.data.count, 20);
     const conversion = await fetchBounded(pb + '/currency/convert', {
@@ -316,13 +346,8 @@ test('actual payment and gateway entry points preserve signed raw bytes, once-on
     assert.equal(pending.status, 201);
     const timed = (await pending.json()).data;
     await pool.query("UPDATE orders SET created_at=NOW() AT TIME ZONE 'UTC'-INTERVAL '31 minutes' WHERE id=$1", [timed.orderId]);
-    kafka = new Kafka({
-      clientId: schema + '-producer',
-      brokers: process.env.TEST_KAFKA_BROKERS.split(',')
-    }).producer();
-    await kafka.connect();
     await kafka.send({
-      topic: 'delay-queue-ready',
+      topic: queueTopic,
       messages: [{
         key: 'owned-' + timed.orderId,
         value: JSON.stringify({
@@ -344,7 +369,7 @@ test('actual payment and gateway entry points preserve signed raw bytes, once-on
       await pause(50);
     }
     assert.equal(cancelled, true, 'real registered Kafka timeout handler must change the owned row');
-    assert.equal((await pool.query("SELECT count(*)::int AS n FROM audit_logs WHERE action='PAYMENT_ORDER_CANCELLED'")).rows[0].n, 1);
+    assert.equal((await pool.query("SELECT count(*)::int AS n FROM audit_logs WHERE action='PAYMENT_ORDER_CANCELLED'")).rows[0].n, 2);
     const begin = performance.now();
     await stop(gateway);
     const gatewayMs = performance.now() - begin;
@@ -363,6 +388,13 @@ test('actual payment and gateway entry points preserve signed raw bytes, once-on
     await cleanup(payment);
     await cleanup(migration);
     if (kafka) await kafka.disconnect();
+    if (topicAdmin) {
+      try {
+        if (createdTopic) await topicAdmin.deleteTopics({topics: [queueTopic, dlqTopic]});
+      } finally {
+        await topicAdmin.disconnect();
+      }
+    }
     for (const key of cacheKeys) await r.del(key).catch(() => {});
     await r.quit();
     await pool.end();

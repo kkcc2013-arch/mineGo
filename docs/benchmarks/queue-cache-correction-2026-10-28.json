@@ -1,0 +1,110 @@
+{
+  "date": "2026-10-28",
+  "baseCommit": "c4b5ca18bb8dba58b24e46ef1fb3a78f2e92ff21",
+  "result": "actual_backlog_and_current_payment_consumption_cache_original_native_and_full_unit_pass_remote_pending",
+  "sourceSha256": {
+    "backend/services/payment-service/src/index.js": "e6c4fc8774c5ae961dddef0ca6fc70283bef93bea0542f966f602c2fc17689c1",
+    "backend/shared/DelayQueue.js": "67f76aca8bb9ac38a630bcaa6362b813633a60133d56e7ec471d1fb79812715b",
+    "backend/shared/metrics.js": "2b2da2ba587fa72b2532faf3c046792c8ff17bdcc2fa5cafd120febff2ecc635",
+    "backend/tests/README.md": "85e09caeb9c51c3b2b6e24e88438ea3d3a030598910e1c991cde7024a6f0c454",
+    "backend/tests/regression/cache-coherence-storage.test.js": "6ce71a497cda6da88097866c6d6c9dc6eda7a5668a2ccfa503e84d5242915ea0",
+    "backend/tests/regression/payment-native.test.js": "271eea4c58c6f7944e6e0de15b47a5f94f75a942b8c22f4549d5b440490f4092",
+    "backend/tests/unit/delay-queue.test.js": "00a468d43c584f9b6ab803d6fce1732ecbdee1394f89f5f5e1a86cfc6dff393f",
+    "backend/tests/unit/logger-metrics.test.js": "6cb0864e8a087e790043b6cef0b094b6527ba5db9fc8a2894830f7f79a5503a0",
+    "docs/PAYMENT-INTEGRITY.md": "355b5fd03a1908660fee91f9c339dd7b6f749029537ca4bf5f81634117563e9b"
+  },
+  "checks": [
+    {
+      "name": "native",
+      "passed": 2,
+      "logSha256": "8f006d0775be68c6d293d56cd692f6fba273959a302db054849ed4c683306c70"
+    },
+    {
+      "name": "cache",
+      "passed": 41,
+      "logSha256": "f15a31fbcec2052f9d72916cf68cded201c7f80a83d1f4eb72c5ec9e4ff62d21"
+    },
+    {
+      "name": "original-native",
+      "passed": 2,
+      "logSha256": "18af3940419c5d2c1bdf696ddc54a695feb86aeac942a37657ce595d34213bcc"
+    },
+    {
+      "name": "tools",
+      "passed": 12,
+      "logSha256": "0dff62ea8b70373840023468e58323fb3e34ed74e8b3532991eff2ab79c692b9"
+    },
+    {
+      "name": "queue-unit",
+      "summary": "36 passed, 36 total",
+      "logSha256": "a087734986d4414dd4b7df22c731709054806edd584b374d7364655b070b2328"
+    },
+    {
+      "name": "main-unit",
+      "summary": "461 passed, 461 total",
+      "logSha256": "049349ccaf6bf58fc59710c77f54a82ad333660500e37f29181fbd6abe6090c4"
+    },
+    {
+      "name": "syntax",
+      "summary": "Checked 1480 JavaScript files; 0 syntax errors.",
+      "logSha256": "f228435ab2a4a22f672141f8365a5c2cf4892b7b92591ba875b7c650e84ae5ed"
+    }
+  ],
+  "negativeEvidence": [
+    {
+      "logSha256": "6d290d7ddd49b1622fa6de120143c265cfece8b3b3ed8ffed01f4ee1cec19080",
+      "result": "old new-group latest-offset policy skips actual work queued before process start"
+    },
+    {
+      "logSha256": "60d405d61dfa8b4f3c73310efdd670380b92089615941cdd84a4630a6df2ce67",
+      "ownedProcessLogSha256": "bea69e11a54fd26de6b6ef1442276ceae859944198c0db6e4f24f0a658154e5c",
+      "result": "earliest offset alone handled backlog business state but histogram undefined buckets caused task failure and invalid logger.alert crashed consumer before next task"
+    },
+    {
+      "logSha256": "01ceeb79d105baf2d04afbb20debbaac33a84e97de5214b945fc0ac8b260b237",
+      "result": "real metrics in routing test reproduced missing buckets and invalid DLQ logger"
+    }
+  ],
+  "native": {
+    "pendingMigrations": 87,
+    "gatewayShutdownMs": 32.01501499999904,
+    "paymentShutdownMs": 5240.768905999999,
+    "scope": "Actual payment+gateway OS entry points, canonical full history, signed spaced JSON bytes through gateway without userJWT, SQL/Redis/Kafka/encrypted receipts and actual timeout consumer; other gateway peers alias payment fixture, no provider/liveAWS/capacity acceptance."
+  },
+  "cacheMeasurement": {
+    "date": "2026-10-19",
+    "runtime": "v24.22.1",
+    "scope": "12 sequential real PostgreSQL writer operations through two independent CDC/cache clients, shared actual Redis and both L1 maps; measured from before UPDATE through observed removal, healthy isolated fixture only; no capacity/database-load acceptance",
+    "samplesMs": [
+      10.696461,
+      6.966424999999958,
+      10.434467999999924,
+      9.011152999999922,
+      8.739569999999958,
+      6.389638999999988,
+      6.041037999999958,
+      3.4642729999999347,
+      7.458592999999951,
+      8.361850000000004,
+      8.398769000000016,
+      6.376160000000027
+    ],
+    "maxMs": 10.696461,
+    "originalGatesMs": {
+      "REQ00479": 100,
+      "REQ00523": 50
+    },
+    "sourceSha256": {
+      "backend/shared/cache/CoherentCache.js": "07679376b7eab5d0b51a3462a54055b99c979c2611629d1f1c7b235533efb978",
+      "backend/shared/cdc/CacheInvalidationCenter.js": "7a814123cf521701622cd8d93cc121b3ff9360695e90c0d63852f208642340ea",
+      "backend/shared/cdc/PgCDCListener.js": "e89725a3447e797376434f7fae4800ee1152da5bfa61db1c0f6fbb040982bf4e",
+      "backend/shared/cdc/ChangeToCacheMapper.js": "f700ff760db31d9aadcccb03ef087007ddce7e0a2ff6c1981c2185787951db8f",
+      "backend/shared/cdc/cache-rules.yml": "84660897aa4d95532fc8dfc713fa1160e0dae9c20acd15643f198622672c58cb",
+      "database/pending/repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "279e7b764797d2ad636f704c3e73c97c504a6077a7c1bc14aa39f30737c7b478",
+      "backend/tests/regression/cdc-cache-runtime.test.js": "080844f0c4635f82c5aa9428bfdd139f440027dc74d9b505870b5a83552d22bf"
+    },
+    "runObservedDate": "2026-10-28"
+  },
+  "ciArtifact": "docs/benchmarks/ci-c4b5ca1-2026-10-28.json",
+  "scope": "Partial corrective proof only. Separate Kafka mock transport unit36 with actual metric registry, actual SQL/Redis/Kafka payment processes2, actual cache/CDC/HTTP41 and original user/gateway2, full main unit command and syntax/tools pass. Fenced fill setup uses existing deadline; race and original50/100ms assertions unchanged. No payment core/gates/original87SQL/locks/requirement acceptance changed. Whole queue scheduling/retries/capacity/notification delivery/provider/risk/security/services/all658 remain open. Exact corrected-source CI pending."
+}

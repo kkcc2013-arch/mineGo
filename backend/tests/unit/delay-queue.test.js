@@ -288,6 +288,53 @@ describe('DelayQueue', () => {
     });
   });
 
+  describe('shared ready topic routing', () => {
+    it('processes only the registered type and creates a group for each handler', async () => {
+      const timeout = jest.fn(), notification = jest.fn();
+      const makeConsumer = () => ({connect: jest.fn().mockResolvedValue(), disconnect: jest.fn().mockResolvedValue(), subscribe: jest.fn().mockResolvedValue(), run: jest.fn().mockResolvedValue()});
+      const timeoutConsumer = makeConsumer(), notificationConsumer = makeConsumer();
+      delayQueue.kafka.consumer.mockReturnValueOnce(timeoutConsumer).mockReturnValueOnce(notificationConsumer);
+      await delayQueue.registerHandler('order.timeout', timeout);
+      const consumeTimeout = timeoutConsumer.run.mock.calls[0][0].eachMessage;
+      await delayQueue.registerHandler('notification.send', notification);
+      const consumeNotification = notificationConsumer.run.mock.calls[0][0].eachMessage;
+      const order = { id: 'owned-order', type: 'order.timeout', payload: { orderId: 'owned' } };
+      const notice = { id: 'owned-notice', type: 'notification.send', payload: { userId: 'owned' } };
+      for (const task of [notice, order]) {
+        const event = { message: { value: Buffer.from(JSON.stringify(task)) } };
+        await consumeTimeout(event);
+        await consumeNotification(event);
+      }
+      expect(timeout).toHaveBeenCalledTimes(1);
+      expect(timeout).toHaveBeenCalledWith(order.payload, order);
+      expect(notification).toHaveBeenCalledTimes(1);
+      expect(notification).toHaveBeenCalledWith(notice.payload, notice);
+      expect(delayQueue.consumers.size).toBe(2);
+      expect(timeoutConsumer.subscribe).toHaveBeenCalledWith({ topic: 'delay-queue-ready', fromBeginning: true });
+      expect(notificationConsumer.subscribe).toHaveBeenCalledWith({ topic: 'delay-queue-ready', fromBeginning: true });
+    });
+  });
+
+  describe('actual metrics and dead-letter logging', () => {
+    it('keeps consuming after an exhausted handler failure and records successful duration', async () => {
+      const handler = jest.fn().mockRejectedValueOnce(new Error('owned handler failure')).mockResolvedValueOnce();
+      await delayQueue.registerHandler('owned.failure', handler);
+      const consumer = delayQueue.kafka.consumer.mock.results[0].value;
+      const consume = consumer.run.mock.calls[0][0].eachMessage;
+      const message = id => ({ message: { value: Buffer.from(JSON.stringify({ id, type: 'owned.failure', payload: { id }, retries: 0, maxRetries: 1 })) } });
+      await consume(message('failed'));
+      await consume(message('successful'));
+      expect(handler).toHaveBeenCalledTimes(2);
+      expect(delayQueue.metrics.tasksDeadLetter).toBe(1);
+      expect(delayQueue.metrics.tasksCompleted).toBe(1);
+      const sent = delayQueue.producer.send.mock.calls[0][0];
+      expect(sent.topic).toBe('delay-queue-dlq');
+      expect(JSON.parse(sent.messages[0].value).error.message).toBe('owned handler failure');
+      const metrics = await require('../../shared/metrics').register.metrics();
+      expect(metrics).toContain('delay_queue_task_duration_seconds_count{task_type="owned.failure",status="success"} 1');
+    });
+  });
+
   describe('getStats', () => {
     it('should return queue statistics', async () => {
       const stats = await delayQueue.getStats();

@@ -4,8 +4,8 @@
     "requirementDocuments": 658,
     "uniqueIds": 658,
     "declaredStatusCounts": {
-      "done": 177,
-      "in_progress": 52,
+      "done": 176,
+      "in_progress": 53,
       "new": 429
     },
     "priorityCounts": {
@@ -1215,11 +1215,11 @@
       "id": "REQ-00043",
       "title": "REQ-00043: 延迟任务队列与可靠重试机制",
       "priority": "P1",
-      "declaredStatus": "done",
+      "declaredStatus": "in_progress",
       "category": "技术债/重构",
       "modules": "所有微服务、backend/shared、Kafka",
       "createdAt": "2026-06-09 02:00",
-      "sha256": "96139899e43f78855f554b39887c62d584f539a11670843a68c25f8a58c13628",
+      "sha256": "3f7b76c161f417b33266a4eb51f3d25072507907694d974c3ffac3c28fd1108e",
       "acceptance": [
         "- [ ] DelayQueue 核心模块实现并集成到 backend/shared",
         "- [ ] 支持延迟任务调度（秒/分/小时/天级）",
@@ -1234,7 +1234,7 @@
         "- [ ] 单元测试覆盖率达到 80% 以上",
         "- [ ] 文档更新：ARCHITECTURE.md 增加延迟队列架构说明"
       ],
-      "verificationStatus": "not-audited",
+      "verificationStatus": "partial_actual_ready_consumption_type_routing_metrics_and_failed_task_logging_verified_full_queue_open",
       "implementationReferences": [
         "backend/gateway/src/index.js",
         "backend/services/gym-service/src/index.js",

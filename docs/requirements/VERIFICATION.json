@@ -4071,7 +4071,7 @@
       ]
     },
     "REQ-00007-database-migration-management.md": {
-      "date": "2026-10-26",
+      "date": "2026-10-28",
       "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "034e46d0685cd0216fa145e46909ee1996a4e421c719c4f1cd3cab3eacb47404",
       "sourceSha256": {
@@ -4179,32 +4179,35 @@
         ".gitignore": "b7c86a9d17b2fd13413aceb23f27c39a16f202022f4d4f757193e8a314c18d25",
         "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
-        "backend/services/payment-service/src/index.js": "3d801ec9e2c236686626cd64a757ce988fd8268bb54848cd40b52d0df58270e9",
+        "backend/services/payment-service/src/index.js": "e6c4fc8774c5ae961dddef0ca6fc70283bef93bea0542f966f602c2fc17689c1",
         "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
         "backend/services/payment-service/src/payment/protocol.js": "b0e260dab91b48d5f5a5fb1f1edbb89f37a5589f117f51442b556fc37defff7c",
         "backend/services/payment-service/src/routes/payment.js": "45625d3e3dc1f3773f48bc4371dfcdd5df6f79c107475541c8f96a86243a17d2",
         "backend/services/payment-service/src/routes/currency.js": "f312b6118c6306ec80c2d8512ec0e866c21d80bace070417917f08e215ba577e",
         "backend/services/payment-service/src/handlers/orderTimeoutHandler.js": "2c7a03cde2f98eabc699a4e4697c72cfab8755571da1ae7956b4362226b5dd5e",
-        "backend/shared/DelayQueue.js": "db6e0ea81f5d47eaa86f9ae7a2276d1d2ffb1642cf2b8b9074831b4f55e32f84",
+        "backend/shared/DelayQueue.js": "67f76aca8bb9ac38a630bcaa6362b813633a60133d56e7ec471d1fb79812715b",
         "backend/tests/unit/payment.test.js": "0bb4881f9683e4ef5b517c64d0bceb375f98f861b3b3223327af78f65411121e",
-        "backend/tests/unit/delay-queue.test.js": "0e6660333b07d281a113f2492bf49ee2836459540f62b7e1d9661ba435e553db",
+        "backend/tests/unit/delay-queue.test.js": "00a468d43c584f9b6ab803d6fce1732ecbdee1394f89f5f5e1a86cfc6dff393f",
         "backend/tests/unit/mfa-client.test.js": "335a2cdb49ec6dd313cabc84f7b62e6b6a3542af9ceb31a6e2e0d015d2d77ebf",
         "backend/tests/regression/payment-storage.test.js": "86a63db8768cf50102ba1e17db63afdce220ced2be2e8f4b555b47e3bfd9e324",
         "backend/tests/regression/payment-migration.test.js": "c0233489d9b860485061c7cf9e30411022767820534ee0c3de26d8f017ec8d4e",
-        "backend/tests/regression/payment-native.test.js": "d567bfe0eced95c86bd6b42e2855e57fedf4f49f866e1ec03839422a76f2aef1",
+        "backend/tests/regression/payment-native.test.js": "271eea4c58c6f7944e6e0de15b47a5f94f75a942b8c22f4549d5b440490f4092",
         "backend/tests/regression/currency-storage.test.js": "d830e2d74ee4eb2a3c2276c1d51db09ed12ebaf3f0590f681aa925c673481e7f",
         "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
-        "backend/tests/README.md": "b304f1819bb542b3cb0a29a995ea731b15aea269cbc448957971be6093718f22",
+        "backend/tests/README.md": "85e09caeb9c51c3b2b6e24e88438ea3d3a030598910e1c991cde7024a6f0c454",
         "database/pending/20261025_120000__payment_order_integrity.sql": "1be1bc35e9937e1ce4cc7233a9033381e1153df16f52791c8ded534a54a13a1a",
         "frontend/game-client/src/api/client.js": "8a33ee568983fe0014d0b07c2610902d985c1aed1f555b072e85cb26b0effb04",
         ".github/workflows/payment-regression.yml": "3b53f67416e2841ca5b0cef070a92276adfa1e39dc7ff132e3b358008739edd5",
-        "docs/PAYMENT-INTEGRITY.md": "2bb5ce384432aef358d119c771bb8aa403ab1d945dd1af0eac704ad3bd6d7147",
+        "docs/PAYMENT-INTEGRITY.md": "355b5fd03a1908660fee91f9c339dd7b6f749029537ca4bf5f81634117563e9b",
         "docs/benchmarks/payment-integrity-local-2026-10-25.json": "ce5889f7e53c483829d3a477abb3a2383e6fa1a2a1ff4aac6175c1f7a2572e04",
         "docs/benchmarks/ci-0637449-2026-10-25.json": "e9d886e305995df366ca95eb3920c331d882ff0f1d5abc7326e0b31629991e48",
         "docs/benchmarks/transaction-throughput-ci-0637449-2026-10-25.json": "bb1d3494e81dab84cf43d9c97249c10ec03025c5642988f315f5ba54b0a197cd",
         "docs/benchmarks/payment-clean-database-2026-10-26.json": "e5b81641075e1c4e4766dbc37f4d48eb4f07745d2e437d75e351536de6f5b9dc",
         "docs/benchmarks/ci-4ad9ac6-2026-10-26.json": "ea5bbe08b30ffe51e2f02a244112d5f3654aacfbf1fa6a7546549cef06cb5dc6",
-        "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922"
+        "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922",
+        "docs/benchmarks/queue-cache-correction-2026-10-28.json": "52571ea80c5c7147fec13c939b65a60552b2e4b455df9de1bfc716773b514a9b",
+        "docs/benchmarks/ci-c4b5ca1-2026-10-28.json": "2128b7d6e1ae226862c3b30c97beac41949114caf31c5b3353f0199e44179cdf",
+        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d"
       },
       "evidence": [
         {
@@ -4933,6 +4936,27 @@
           "result": "exact_prior_main474_native43_mfa6_browser2_migration36_pass_payment1_failed",
           "artifact": "docs/benchmarks/ci-4ad9ac6-2026-10-26.json",
           "scope": "Payment1 failed real cold fixture with missing UUID function; core/report/native skipped and not accepted. Main/native/MFA/browser/migration and full87remote pass; originalthroughput-2.5356768476389013% against-5 and8hashesmatch archived. Priorpositive/negative reports retained; otherlegacyfailures preserved. Corrected remote CI pending, no allgreen/wholegoal claim."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_queue_cache_correction_changed_references_refreshed",
+          "changedReferences": [
+            "backend/services/payment-service/src/index.js",
+            "backend/shared/DelayQueue.js",
+            "backend/tests/unit/delay-queue.test.js",
+            "backend/tests/regression/payment-native.test.js",
+            "backend/tests/README.md",
+            "docs/PAYMENT-INTEGRITY.md"
+          ],
+          "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
+          "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "actual_queue_cache_local_correction_pass_exact_c4b_ci_failures_preserved",
+          "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
+          "ciArtifact": "docs/benchmarks/ci-c4b5ca1-2026-10-28.json",
+          "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
         }
       ],
       "remaining": "Complete85-source history now fails20260627_060000 statement13 missing is_deleted. Reconcile canonical inventory/ownership/contracts, all later pending files, data-preserving upgrades/reversal and all-service startup. Exact new remote throughput still unverified; all original acceptance remains open."
@@ -10529,7 +10553,7 @@
       ]
     },
     "REQ-00051-multi-currency-support-exchange-rate-system.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "dcbacc58410c1b87a56bd1a19e042a673d4e27b4ad309fdb71cfe910dde1b6f8",
       "sourceSha256": {
@@ -10537,7 +10561,7 @@
         "backend/shared/currencyFormatter.js": "f79ccb5eed24155d7a5db303bad8b8775769670084755d218de38f59a476354d",
         "backend/shared/currencyMetrics.js": "7d394c16f98f610b958c2ea0f263d2e3d0ef6924cfcadc26f633cf2371f5719d",
         "backend/services/payment-service/src/routes/currency.js": "f312b6118c6306ec80c2d8512ec0e866c21d80bace070417917f08e215ba577e",
-        "backend/services/payment-service/src/index.js": "3d801ec9e2c236686626cd64a757ce988fd8268bb54848cd40b52d0df58270e9",
+        "backend/services/payment-service/src/index.js": "e6c4fc8774c5ae961dddef0ca6fc70283bef93bea0542f966f602c2fc17689c1",
         "backend/tests/regression/currency-storage.test.js": "d830e2d74ee4eb2a3c2276c1d51db09ed12ebaf3f0590f681aa925c673481e7f",
         "backend/tests/probes/payment-currency-process.js": "2b15d801ae708d3ddc62486827023150ff54daf7c5bf74dad2e7d2fac7311798",
         "backend/tests/unit/currency.test.js": "155a7c7d561b2911a5da8c5a91ec5e054eb283ff8b98deca22779f4fbeb93558",
@@ -10545,7 +10569,10 @@
         "database/pending/repairs/20260624_133000__add_multi_currency_support.sql": "a6f2318807e7824c4c458beb7762ec555e256d97af41405707dafbf8ac24dde2",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
-        "docs/CURRENCIES.md": "02ca61669686acdd8038b3ec185dd96a04a0ed6bc6014493d43120d5940676b7"
+        "docs/CURRENCIES.md": "02ca61669686acdd8038b3ec185dd96a04a0ed6bc6014493d43120d5940676b7",
+        "docs/benchmarks/queue-cache-correction-2026-10-28.json": "52571ea80c5c7147fec13c939b65a60552b2e4b455df9de1bfc716773b514a9b",
+        "docs/benchmarks/ci-c4b5ca1-2026-10-28.json": "2128b7d6e1ae226862c3b30c97beac41949114caf31c5b3353f0199e44179cdf",
+        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d"
       },
       "evidence": [
         {
@@ -10735,6 +10762,22 @@
             "backend/tests/regression/currency-storage.test.js"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_queue_cache_correction_changed_references_refreshed",
+          "changedReferences": [
+            "backend/services/payment-service/src/index.js"
+          ],
+          "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
+          "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "actual_queue_cache_local_correction_pass_exact_c4b_ci_failures_preserved",
+          "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
+          "ciArtifact": "docs/benchmarks/ci-c4b5ca1-2026-10-28.json",
+          "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
         }
       ],
       "remaining": [
@@ -10746,7 +10789,7 @@
       ]
     },
     "REQ-00096-database-transaction-isolation-deadlock-detection.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "f52b3ccedbf89da0463dcc922be42bae33ea20a67249d8501cf075b96e22297b",
       "sourceSha256": {
@@ -10756,7 +10799,7 @@
         "backend/shared/pgDeadlock.js": "2afdcc6058b8160b05a8eaa6b83fbdfcb8cf89d3c07e3c9c54e713c3e4e10285",
         "backend/shared/deadlockDetector.js": "094eb06e5ba53d6bcb02f18cf87630b62edbb04db3952ddbde5af59931914416",
         "backend/shared/transactionMetrics.js": "bd1664a8cac4140deb86dc9873ad0698845efdec78831ee3951024953082836b",
-        "backend/shared/metrics.js": "42d9fc149e871ac0a4623e50b97ad19cdc3df5ca2e5e488b2e4fd3d32cbb572b",
+        "backend/shared/metrics.js": "2b2da2ba587fa72b2532faf3c046792c8ff17bdcc2fa5cafd120febff2ecc635",
         "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
         "backend/tests/unit/transaction-manager.test.js": "2b55c4586aa67168b80d2b1d20b4b7bba6d6c12cdb30fcd988229a9429d9f26c",
         "backend/tests/unit/transactionManager.test.js": "b34eab972bba2244bae16221b4186aae715de3a4fa86ab2907e0e68b0872a45b",
@@ -10811,7 +10854,10 @@
         "docs/benchmarks/ci-0637449-2026-10-25.json": "e9d886e305995df366ca95eb3920c331d882ff0f1d5abc7326e0b31629991e48",
         "docs/benchmarks/transaction-throughput-ci-0637449-2026-10-25.json": "bb1d3494e81dab84cf43d9c97249c10ec03025c5642988f315f5ba54b0a197cd",
         "docs/benchmarks/ci-4ad9ac6-2026-10-26.json": "ea5bbe08b30ffe51e2f02a244112d5f3654aacfbf1fa6a7546549cef06cb5dc6",
-        "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922"
+        "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922",
+        "docs/benchmarks/queue-cache-correction-2026-10-28.json": "52571ea80c5c7147fec13c939b65a60552b2e4b455df9de1bfc716773b514a9b",
+        "docs/benchmarks/ci-c4b5ca1-2026-10-28.json": "2128b7d6e1ae226862c3b30c97beac41949114caf31c5b3353f0199e44179cdf",
+        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d"
       },
       "evidence": [
         {
@@ -11263,6 +11309,22 @@
           "result": "exact_prior_main474_native43_mfa6_browser2_migration36_pass_payment1_failed",
           "artifact": "docs/benchmarks/ci-4ad9ac6-2026-10-26.json",
           "scope": "Payment1 failed real cold fixture with missing UUID function; core/report/native skipped and not accepted. Main/native/MFA/browser/migration and full87remote pass; originalthroughput-2.5356768476389013% against-5 and8hashesmatch archived. Priorpositive/negative reports retained; otherlegacyfailures preserved. Corrected remote CI pending, no allgreen/wholegoal claim."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_queue_cache_correction_changed_references_refreshed",
+          "changedReferences": [
+            "backend/shared/metrics.js"
+          ],
+          "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
+          "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "actual_queue_cache_local_correction_pass_exact_c4b_ci_failures_preserved",
+          "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
+          "ciArtifact": "docs/benchmarks/ci-c4b5ca1-2026-10-28.json",
+          "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
         }
       ],
       "remaining": [
@@ -12824,7 +12886,7 @@
       ]
     },
     "REQ-00479-database-query-result-cache-invalidation-system.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_runtime_storage_verified_load_upgrade_and_ci_open",
       "documentSha256": "83e88ce75dd358f93001aa75340e4032dbfb2174b7a0a37b546de6f1f4fdaf58",
       "sourceSha256": {
@@ -12841,7 +12903,7 @@
         "backend/gateway/src/routes/cacheInvalidationRoutes.js": "85619b0b7a6618f70e21efe29ac6d0db43004a8d0b68922958fd5bec22e31f6e",
         "backend/tests/regression/cdc-invalidation-storage.test.js": "19d4aa4806109909046fca882d55cc2e03f9fd0476d7e0b9e0f237de2c5c364f",
         "backend/tests/regression/cdc-cache-runtime.test.js": "080844f0c4635f82c5aa9428bfdd139f440027dc74d9b505870b5a83552d22bf",
-        "backend/tests/regression/cache-coherence-storage.test.js": "f9c34c3a0ec863cff14bb5fb0d81df7d5453ac30f5e80c604d60eb52d41e35ac",
+        "backend/tests/regression/cache-coherence-storage.test.js": "6ce71a497cda6da88097866c6d6c9dc6eda7a5668a2ccfa503e84d5242915ea0",
         "backend/tests/regression/cache-http-storage.test.js": "5d655fae7c92be4ef595d98e07ab70a27890510781bb0a60eb6d7671ab4f7efb",
         "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "database/pending/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "4a11a1f7e457ea11181580d313097b276582947b3975c4fe67fb4813867b5f39",
@@ -12857,7 +12919,10 @@
         "docs/benchmarks/cache-invalidation-ci-766ad98-2026-10-19.json": "1d05e53c7cd4545007bcd5f86a359e85a24cca37de2c2f7dd976742696105e95",
         "docs/benchmarks/ci-519f880-2026-10-19.json": "093aab6f8e7d49390947aee159e72c0cdf63dfa93742e73d76c0d3d4c35871e6",
         "docs/benchmarks/transaction-throughput-ci-519f880-2026-10-19.json": "3a394fe7b218843aa8faba42c1502acb46d072e3d58a0e5a3c30b11775c64eed",
-        "docs/benchmarks/migration-cross-schema-history-local-2026-10-19.json": "2bfc8d4b712816972131696d4966ba3d4711398b17588c59f60f67e5809d6719"
+        "docs/benchmarks/migration-cross-schema-history-local-2026-10-19.json": "2bfc8d4b712816972131696d4966ba3d4711398b17588c59f60f67e5809d6719",
+        "docs/benchmarks/queue-cache-correction-2026-10-28.json": "52571ea80c5c7147fec13c939b65a60552b2e4b455df9de1bfc716773b514a9b",
+        "docs/benchmarks/ci-c4b5ca1-2026-10-28.json": "2128b7d6e1ae226862c3b30c97beac41949114caf31c5b3353f0199e44179cdf",
+        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d"
       },
       "evidence": [
         {
@@ -13025,12 +13090,28 @@
             "backend/gateway/src/index.js"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_queue_cache_correction_changed_references_refreshed",
+          "changedReferences": [
+            "backend/tests/regression/cache-coherence-storage.test.js"
+          ],
+          "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
+          "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "actual_queue_cache_local_correction_pass_exact_c4b_ci_failures_preserved",
+          "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
+          "ciArtifact": "docs/benchmarks/ci-c4b5ca1-2026-10-28.json",
+          "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
         }
       ],
       "remaining": "Preserve original4 criteria each, including100ms/50ms. Complete production/capacity and no-significant-database-load acceptance are open; all legacy cache consumers and cross-environment/provider/upgrade/reversal behavior are not accepted. Current source CI must be observed. Only original battle framework619 remains independently verified."
     },
     "REQ-00523-database-query-result-cache-invalidation-system.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_runtime_storage_verified_load_upgrade_and_ci_open",
       "documentSha256": "e0c38f15144c9e22186b6d37d24fded63ec9f4b2949a3906b1435a121d31c0aa",
       "sourceSha256": {
@@ -13047,7 +13128,7 @@
         "backend/gateway/src/routes/cacheInvalidationRoutes.js": "85619b0b7a6618f70e21efe29ac6d0db43004a8d0b68922958fd5bec22e31f6e",
         "backend/tests/regression/cdc-invalidation-storage.test.js": "19d4aa4806109909046fca882d55cc2e03f9fd0476d7e0b9e0f237de2c5c364f",
         "backend/tests/regression/cdc-cache-runtime.test.js": "080844f0c4635f82c5aa9428bfdd139f440027dc74d9b505870b5a83552d22bf",
-        "backend/tests/regression/cache-coherence-storage.test.js": "f9c34c3a0ec863cff14bb5fb0d81df7d5453ac30f5e80c604d60eb52d41e35ac",
+        "backend/tests/regression/cache-coherence-storage.test.js": "6ce71a497cda6da88097866c6d6c9dc6eda7a5668a2ccfa503e84d5242915ea0",
         "backend/tests/regression/cache-http-storage.test.js": "5d655fae7c92be4ef595d98e07ab70a27890510781bb0a60eb6d7671ab4f7efb",
         "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "database/pending/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "4a11a1f7e457ea11181580d313097b276582947b3975c4fe67fb4813867b5f39",
@@ -13063,7 +13144,10 @@
         "docs/benchmarks/cache-invalidation-ci-766ad98-2026-10-19.json": "1d05e53c7cd4545007bcd5f86a359e85a24cca37de2c2f7dd976742696105e95",
         "docs/benchmarks/ci-519f880-2026-10-19.json": "093aab6f8e7d49390947aee159e72c0cdf63dfa93742e73d76c0d3d4c35871e6",
         "docs/benchmarks/transaction-throughput-ci-519f880-2026-10-19.json": "3a394fe7b218843aa8faba42c1502acb46d072e3d58a0e5a3c30b11775c64eed",
-        "docs/benchmarks/migration-cross-schema-history-local-2026-10-19.json": "2bfc8d4b712816972131696d4966ba3d4711398b17588c59f60f67e5809d6719"
+        "docs/benchmarks/migration-cross-schema-history-local-2026-10-19.json": "2bfc8d4b712816972131696d4966ba3d4711398b17588c59f60f67e5809d6719",
+        "docs/benchmarks/queue-cache-correction-2026-10-28.json": "52571ea80c5c7147fec13c939b65a60552b2e4b455df9de1bfc716773b514a9b",
+        "docs/benchmarks/ci-c4b5ca1-2026-10-28.json": "2128b7d6e1ae226862c3b30c97beac41949114caf31c5b3353f0199e44179cdf",
+        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d"
       },
       "evidence": [
         {
@@ -13231,6 +13315,22 @@
             "backend/gateway/src/index.js"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_queue_cache_correction_changed_references_refreshed",
+          "changedReferences": [
+            "backend/tests/regression/cache-coherence-storage.test.js"
+          ],
+          "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
+          "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "actual_queue_cache_local_correction_pass_exact_c4b_ci_failures_preserved",
+          "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
+          "ciArtifact": "docs/benchmarks/ci-c4b5ca1-2026-10-28.json",
+          "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
         }
       ],
       "remaining": "Preserve original4 criteria each, including100ms/50ms. Complete production/capacity and no-significant-database-load acceptance are open; all legacy cache consumers and cross-environment/provider/upgrade/reversal behavior are not accepted. Current source CI must be observed. Only original battle framework619 remains independently verified."
@@ -13330,7 +13430,7 @@
       "remaining": "All10 original criteria preserved. All-job actual registration/status reporting, <5s dashboard visibility, real mounted authenticated controls, configured60s delivery/noise10min, >95%zombie accuracy/<10%score error, actual admin dashboard, core aggregator/alerts/health>80% and end-to-end alert delivery remain required. No external recipients contacted or destructive job/control/production cleanup started. Fresh install pass does not accept differing-repair upgrade/reversal/cross-schema audit behavior."
     },
     "REQ-00038-api-sensitive-data-protection.md": {
-      "date": "2026-10-26",
+      "date": "2026-10-28",
       "status": "partial_canonical_crypto_protected_audit_queries_mfa_and_p0_projection_verified_full_security_open",
       "documentSha256": "80a255e29524056b95ee5a8c46bf5862d65ee4f91498df2e2591c3a4ed78ae9e",
       "sourceSha256": {
@@ -13430,31 +13530,34 @@
         "docs/benchmarks/ci-4abdb82-2026-10-23.json": "7d290418aab99d46a3e59ee17fd1f3c81a4c7a7ac6ac3e326923bbcd379b980b",
         "docs/benchmarks/transaction-throughput-ci-4abdb82-2026-10-23.json": "c66372d68832b4d281c08143b80024d27b2b2299510d4a6cbf33d9bcd03dfade",
         ".gitignore": "b7c86a9d17b2fd13413aceb23f27c39a16f202022f4d4f757193e8a314c18d25",
-        "backend/services/payment-service/src/index.js": "3d801ec9e2c236686626cd64a757ce988fd8268bb54848cd40b52d0df58270e9",
+        "backend/services/payment-service/src/index.js": "e6c4fc8774c5ae961dddef0ca6fc70283bef93bea0542f966f602c2fc17689c1",
         "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
         "backend/services/payment-service/src/payment/protocol.js": "b0e260dab91b48d5f5a5fb1f1edbb89f37a5589f117f51442b556fc37defff7c",
         "backend/services/payment-service/src/routes/payment.js": "45625d3e3dc1f3773f48bc4371dfcdd5df6f79c107475541c8f96a86243a17d2",
         "backend/services/payment-service/src/routes/currency.js": "f312b6118c6306ec80c2d8512ec0e866c21d80bace070417917f08e215ba577e",
         "backend/services/payment-service/src/handlers/orderTimeoutHandler.js": "2c7a03cde2f98eabc699a4e4697c72cfab8755571da1ae7956b4362226b5dd5e",
-        "backend/shared/DelayQueue.js": "db6e0ea81f5d47eaa86f9ae7a2276d1d2ffb1642cf2b8b9074831b4f55e32f84",
+        "backend/shared/DelayQueue.js": "67f76aca8bb9ac38a630bcaa6362b813633a60133d56e7ec471d1fb79812715b",
         "backend/tests/unit/payment.test.js": "0bb4881f9683e4ef5b517c64d0bceb375f98f861b3b3223327af78f65411121e",
-        "backend/tests/unit/delay-queue.test.js": "0e6660333b07d281a113f2492bf49ee2836459540f62b7e1d9661ba435e553db",
+        "backend/tests/unit/delay-queue.test.js": "00a468d43c584f9b6ab803d6fce1732ecbdee1394f89f5f5e1a86cfc6dff393f",
         "backend/tests/regression/payment-storage.test.js": "86a63db8768cf50102ba1e17db63afdce220ced2be2e8f4b555b47e3bfd9e324",
         "backend/tests/regression/payment-migration.test.js": "c0233489d9b860485061c7cf9e30411022767820534ee0c3de26d8f017ec8d4e",
-        "backend/tests/regression/payment-native.test.js": "d567bfe0eced95c86bd6b42e2855e57fedf4f49f866e1ec03839422a76f2aef1",
+        "backend/tests/regression/payment-native.test.js": "271eea4c58c6f7944e6e0de15b47a5f94f75a942b8c22f4549d5b440490f4092",
         "backend/tests/regression/currency-storage.test.js": "d830e2d74ee4eb2a3c2276c1d51db09ed12ebaf3f0590f681aa925c673481e7f",
         "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
-        "backend/tests/README.md": "b304f1819bb542b3cb0a29a995ea731b15aea269cbc448957971be6093718f22",
+        "backend/tests/README.md": "85e09caeb9c51c3b2b6e24e88438ea3d3a030598910e1c991cde7024a6f0c454",
         "database/pending/20261025_120000__payment_order_integrity.sql": "1be1bc35e9937e1ce4cc7233a9033381e1153df16f52791c8ded534a54a13a1a",
         ".github/workflows/payment-regression.yml": "3b53f67416e2841ca5b0cef070a92276adfa1e39dc7ff132e3b358008739edd5",
-        "docs/PAYMENT-INTEGRITY.md": "2bb5ce384432aef358d119c771bb8aa403ab1d945dd1af0eac704ad3bd6d7147",
+        "docs/PAYMENT-INTEGRITY.md": "355b5fd03a1908660fee91f9c339dd7b6f749029537ca4bf5f81634117563e9b",
         "docs/benchmarks/payment-integrity-local-2026-10-25.json": "ce5889f7e53c483829d3a477abb3a2383e6fa1a2a1ff4aac6175c1f7a2572e04",
         "docs/benchmarks/ci-0637449-2026-10-25.json": "e9d886e305995df366ca95eb3920c331d882ff0f1d5abc7326e0b31629991e48",
         "docs/benchmarks/transaction-throughput-ci-0637449-2026-10-25.json": "bb1d3494e81dab84cf43d9c97249c10ec03025c5642988f315f5ba54b0a197cd",
         "backend/tests/regression/storageSetup.js": "8d376d5e63627aad5a3f5cf5293fb6bbe6e30690297d9f14465e778d0de70004",
         "docs/benchmarks/payment-clean-database-2026-10-26.json": "e5b81641075e1c4e4766dbc37f4d48eb4f07745d2e437d75e351536de6f5b9dc",
         "docs/benchmarks/ci-4ad9ac6-2026-10-26.json": "ea5bbe08b30ffe51e2f02a244112d5f3654aacfbf1fa6a7546549cef06cb5dc6",
-        "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922"
+        "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922",
+        "docs/benchmarks/queue-cache-correction-2026-10-28.json": "52571ea80c5c7147fec13c939b65a60552b2e4b455df9de1bfc716773b514a9b",
+        "docs/benchmarks/ci-c4b5ca1-2026-10-28.json": "2128b7d6e1ae226862c3b30c97beac41949114caf31c5b3353f0199e44179cdf",
+        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d"
       },
       "evidence": [
         {
@@ -13731,6 +13834,27 @@
           "result": "exact_prior_main474_native43_mfa6_browser2_migration36_pass_payment1_failed",
           "artifact": "docs/benchmarks/ci-4ad9ac6-2026-10-26.json",
           "scope": "Payment1 failed real cold fixture with missing UUID function; core/report/native skipped and not accepted. Main/native/MFA/browser/migration and full87remote pass; originalthroughput-2.5356768476389013% against-5 and8hashesmatch archived. Priorpositive/negative reports retained; otherlegacyfailures preserved. Corrected remote CI pending, no allgreen/wholegoal claim."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_queue_cache_correction_changed_references_refreshed",
+          "changedReferences": [
+            "backend/services/payment-service/src/index.js",
+            "backend/shared/DelayQueue.js",
+            "backend/tests/unit/delay-queue.test.js",
+            "backend/tests/regression/payment-native.test.js",
+            "backend/tests/README.md",
+            "docs/PAYMENT-INTEGRITY.md"
+          ],
+          "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
+          "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "actual_queue_cache_local_correction_pass_exact_c4b_ci_failures_preserved",
+          "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
+          "ciArtifact": "docs/benchmarks/ci-c4b5ca1-2026-10-28.json",
+          "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
         }
       ],
       "remaining": "Original10criteria unchanged. Actual signedL2+serverMFA+reason protected decrypt/audit-service-query/sensitive-access-query and transactional receipts implemented; known structuredP0aliases filtered. Full frontend/provisioning/admin governance/approvedL3exports, all sensitive business/denied attempts and legacy callers/jobs/ignoredfalse, originalallresponse/unstructured/custommask/atleast10types/scannerfailP0 and fullcombinedunit>=90 remain open. LiveAWS/IAM/keypolicy/CloudTrail/availability/latency unverified. Unknownlegacykeys/tags/timestamp provenance never guessed. Sensitive lookup is bounded lookahead, not complete export; old common helpers remain metadata. No productioncleanup/rekey/merge/deploy."
@@ -14428,7 +14552,7 @@
       "remaining": "All original4 boxes retained. Actual serverproof/session/scope/role middleware tests are prerequisites only. Legacy separate risk engine still parseInt UUIDs and retains raw verified tokens; actual current gateway risk scoring/geography/device/session policies, cross-service business authorization and encrypted attributable risk-log acceptance/provider delivery remain unverified. No synthetic adapter/caller flags can accept full risk grading."
     },
     "REQ-00003-payment-idempotency-security.md": {
-      "date": "2026-10-26",
+      "date": "2026-10-28",
       "status": "partial_actual_payment_protocol_storage_http_process_verified_whole_acceptance_open",
       "documentSha256": "a2ff84b2eae154043d49513a0840c93f42f0209265656240e9d527a473df6499",
       "sourceSha256": {
@@ -14436,27 +14560,27 @@
         "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
         "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
-        "backend/services/payment-service/src/index.js": "3d801ec9e2c236686626cd64a757ce988fd8268bb54848cd40b52d0df58270e9",
+        "backend/services/payment-service/src/index.js": "e6c4fc8774c5ae961dddef0ca6fc70283bef93bea0542f966f602c2fc17689c1",
         "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
         "backend/services/payment-service/src/payment/protocol.js": "b0e260dab91b48d5f5a5fb1f1edbb89f37a5589f117f51442b556fc37defff7c",
         "backend/services/payment-service/src/routes/payment.js": "45625d3e3dc1f3773f48bc4371dfcdd5df6f79c107475541c8f96a86243a17d2",
         "backend/services/payment-service/src/routes/currency.js": "f312b6118c6306ec80c2d8512ec0e866c21d80bace070417917f08e215ba577e",
         "backend/services/payment-service/src/handlers/orderTimeoutHandler.js": "2c7a03cde2f98eabc699a4e4697c72cfab8755571da1ae7956b4362226b5dd5e",
-        "backend/shared/DelayQueue.js": "db6e0ea81f5d47eaa86f9ae7a2276d1d2ffb1642cf2b8b9074831b4f55e32f84",
+        "backend/shared/DelayQueue.js": "67f76aca8bb9ac38a630bcaa6362b813633a60133d56e7ec471d1fb79812715b",
         "backend/tests/unit/payment.test.js": "0bb4881f9683e4ef5b517c64d0bceb375f98f861b3b3223327af78f65411121e",
-        "backend/tests/unit/delay-queue.test.js": "0e6660333b07d281a113f2492bf49ee2836459540f62b7e1d9661ba435e553db",
+        "backend/tests/unit/delay-queue.test.js": "00a468d43c584f9b6ab803d6fce1732ecbdee1394f89f5f5e1a86cfc6dff393f",
         "backend/tests/unit/mfa-client.test.js": "335a2cdb49ec6dd313cabc84f7b62e6b6a3542af9ceb31a6e2e0d015d2d77ebf",
         "backend/tests/regression/payment-storage.test.js": "86a63db8768cf50102ba1e17db63afdce220ced2be2e8f4b555b47e3bfd9e324",
         "backend/tests/regression/payment-migration.test.js": "c0233489d9b860485061c7cf9e30411022767820534ee0c3de26d8f017ec8d4e",
-        "backend/tests/regression/payment-native.test.js": "d567bfe0eced95c86bd6b42e2855e57fedf4f49f866e1ec03839422a76f2aef1",
+        "backend/tests/regression/payment-native.test.js": "271eea4c58c6f7944e6e0de15b47a5f94f75a942b8c22f4549d5b440490f4092",
         "backend/tests/regression/currency-storage.test.js": "d830e2d74ee4eb2a3c2276c1d51db09ed12ebaf3f0590f681aa925c673481e7f",
         "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
-        "backend/tests/README.md": "b304f1819bb542b3cb0a29a995ea731b15aea269cbc448957971be6093718f22",
+        "backend/tests/README.md": "85e09caeb9c51c3b2b6e24e88438ea3d3a030598910e1c991cde7024a6f0c454",
         "database/pending/20261025_120000__payment_order_integrity.sql": "1be1bc35e9937e1ce4cc7233a9033381e1153df16f52791c8ded534a54a13a1a",
         "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
         "frontend/game-client/src/api/client.js": "8a33ee568983fe0014d0b07c2610902d985c1aed1f555b072e85cb26b0effb04",
         ".github/workflows/payment-regression.yml": "3b53f67416e2841ca5b0cef070a92276adfa1e39dc7ff132e3b358008739edd5",
-        "docs/PAYMENT-INTEGRITY.md": "2bb5ce384432aef358d119c771bb8aa403ab1d945dd1af0eac704ad3bd6d7147",
+        "docs/PAYMENT-INTEGRITY.md": "355b5fd03a1908660fee91f9c339dd7b6f749029537ca4bf5f81634117563e9b",
         "docs/benchmarks/payment-integrity-local-2026-10-25.json": "ce5889f7e53c483829d3a477abb3a2383e6fa1a2a1ff4aac6175c1f7a2572e04",
         "docs/benchmarks/payment-coverage-2026-10-25.lcov": "f0cf30c60e23d06787c6da7b623a4a4b5183c693506170adcf8933d7e469cfea",
         "backend/tests/regression/storageSetup.js": "8d376d5e63627aad5a3f5cf5293fb6bbe6e30690297d9f14465e778d0de70004",
@@ -14464,7 +14588,10 @@
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "docs/benchmarks/payment-clean-database-2026-10-26.json": "e5b81641075e1c4e4766dbc37f4d48eb4f07745d2e437d75e351536de6f5b9dc",
         "docs/benchmarks/ci-4ad9ac6-2026-10-26.json": "ea5bbe08b30ffe51e2f02a244112d5f3654aacfbf1fa6a7546549cef06cb5dc6",
-        "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922"
+        "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922",
+        "docs/benchmarks/queue-cache-correction-2026-10-28.json": "52571ea80c5c7147fec13c939b65a60552b2e4b455df9de1bfc716773b514a9b",
+        "docs/benchmarks/ci-c4b5ca1-2026-10-28.json": "2128b7d6e1ae226862c3b30c97beac41949114caf31c5b3353f0199e44179cdf",
+        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d"
       },
       "evidence": [
         {
@@ -14499,12 +14626,33 @@
           "result": "exact_prior_main474_native43_mfa6_browser2_migration36_pass_payment1_failed",
           "artifact": "docs/benchmarks/ci-4ad9ac6-2026-10-26.json",
           "scope": "Payment1 failed real cold fixture with missing UUID function; core/report/native skipped and not accepted. Main/native/MFA/browser/migration and full87remote pass; originalthroughput-2.5356768476389013% against-5 and8hashesmatch archived. Priorpositive/negative reports retained; otherlegacyfailures preserved. Corrected remote CI pending, no allgreen/wholegoal claim."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_queue_cache_correction_changed_references_refreshed",
+          "changedReferences": [
+            "backend/services/payment-service/src/index.js",
+            "backend/shared/DelayQueue.js",
+            "backend/tests/unit/delay-queue.test.js",
+            "backend/tests/regression/payment-native.test.js",
+            "backend/tests/README.md",
+            "docs/PAYMENT-INTEGRITY.md"
+          ],
+          "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
+          "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "actual_queue_cache_local_correction_pass_exact_c4b_ci_failures_preserved",
+          "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
+          "ciArtifact": "docs/benchmarks/ci-c4b5ca1-2026-10-28.json",
+          "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
         }
       ],
       "remaining": "Historical done declaration reopened. Original criteria unchanged. Actual core/SQL/Redis/HTTP/native and HTML/LCOV integration coverage pass, but original whole-payment-service unit-only coverage target and all legal fulfillment/refund business flows remain unverified. Live prepay/provider-native validation/receipts/paymentUI, explicit legacy request adoption, production key/provider/staging/financial audit, full sensitive MFA/risk and legacy global integration/E2E/contracts/security/performance gates remain open. Generic repository HMAC transport tests are not live vendor acceptance. No merge/deploy or target lowering."
     },
     "REQ-00004-payment-unit-integration-tests.md": {
-      "date": "2026-10-26",
+      "date": "2026-10-28",
       "status": "partial_actual_payment_protocol_storage_http_process_verified_whole_acceptance_open",
       "documentSha256": "4ace3988041cc5c13542baf83f65cbdf8dac4d61e63999f3755da275cf171ae0",
       "sourceSha256": {
@@ -14512,27 +14660,27 @@
         "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
         "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
-        "backend/services/payment-service/src/index.js": "3d801ec9e2c236686626cd64a757ce988fd8268bb54848cd40b52d0df58270e9",
+        "backend/services/payment-service/src/index.js": "e6c4fc8774c5ae961dddef0ca6fc70283bef93bea0542f966f602c2fc17689c1",
         "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
         "backend/services/payment-service/src/payment/protocol.js": "b0e260dab91b48d5f5a5fb1f1edbb89f37a5589f117f51442b556fc37defff7c",
         "backend/services/payment-service/src/routes/payment.js": "45625d3e3dc1f3773f48bc4371dfcdd5df6f79c107475541c8f96a86243a17d2",
         "backend/services/payment-service/src/routes/currency.js": "f312b6118c6306ec80c2d8512ec0e866c21d80bace070417917f08e215ba577e",
         "backend/services/payment-service/src/handlers/orderTimeoutHandler.js": "2c7a03cde2f98eabc699a4e4697c72cfab8755571da1ae7956b4362226b5dd5e",
-        "backend/shared/DelayQueue.js": "db6e0ea81f5d47eaa86f9ae7a2276d1d2ffb1642cf2b8b9074831b4f55e32f84",
+        "backend/shared/DelayQueue.js": "67f76aca8bb9ac38a630bcaa6362b813633a60133d56e7ec471d1fb79812715b",
         "backend/tests/unit/payment.test.js": "0bb4881f9683e4ef5b517c64d0bceb375f98f861b3b3223327af78f65411121e",
-        "backend/tests/unit/delay-queue.test.js": "0e6660333b07d281a113f2492bf49ee2836459540f62b7e1d9661ba435e553db",
+        "backend/tests/unit/delay-queue.test.js": "00a468d43c584f9b6ab803d6fce1732ecbdee1394f89f5f5e1a86cfc6dff393f",
         "backend/tests/unit/mfa-client.test.js": "335a2cdb49ec6dd313cabc84f7b62e6b6a3542af9ceb31a6e2e0d015d2d77ebf",
         "backend/tests/regression/payment-storage.test.js": "86a63db8768cf50102ba1e17db63afdce220ced2be2e8f4b555b47e3bfd9e324",
         "backend/tests/regression/payment-migration.test.js": "c0233489d9b860485061c7cf9e30411022767820534ee0c3de26d8f017ec8d4e",
-        "backend/tests/regression/payment-native.test.js": "d567bfe0eced95c86bd6b42e2855e57fedf4f49f866e1ec03839422a76f2aef1",
+        "backend/tests/regression/payment-native.test.js": "271eea4c58c6f7944e6e0de15b47a5f94f75a942b8c22f4549d5b440490f4092",
         "backend/tests/regression/currency-storage.test.js": "d830e2d74ee4eb2a3c2276c1d51db09ed12ebaf3f0590f681aa925c673481e7f",
         "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
-        "backend/tests/README.md": "b304f1819bb542b3cb0a29a995ea731b15aea269cbc448957971be6093718f22",
+        "backend/tests/README.md": "85e09caeb9c51c3b2b6e24e88438ea3d3a030598910e1c991cde7024a6f0c454",
         "database/pending/20261025_120000__payment_order_integrity.sql": "1be1bc35e9937e1ce4cc7233a9033381e1153df16f52791c8ded534a54a13a1a",
         "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
         "frontend/game-client/src/api/client.js": "8a33ee568983fe0014d0b07c2610902d985c1aed1f555b072e85cb26b0effb04",
         ".github/workflows/payment-regression.yml": "3b53f67416e2841ca5b0cef070a92276adfa1e39dc7ff132e3b358008739edd5",
-        "docs/PAYMENT-INTEGRITY.md": "2bb5ce384432aef358d119c771bb8aa403ab1d945dd1af0eac704ad3bd6d7147",
+        "docs/PAYMENT-INTEGRITY.md": "355b5fd03a1908660fee91f9c339dd7b6f749029537ca4bf5f81634117563e9b",
         "docs/benchmarks/payment-integrity-local-2026-10-25.json": "ce5889f7e53c483829d3a477abb3a2383e6fa1a2a1ff4aac6175c1f7a2572e04",
         "docs/benchmarks/payment-coverage-2026-10-25.lcov": "f0cf30c60e23d06787c6da7b623a4a4b5183c693506170adcf8933d7e469cfea",
         "backend/tests/regression/storageSetup.js": "8d376d5e63627aad5a3f5cf5293fb6bbe6e30690297d9f14465e778d0de70004",
@@ -14540,7 +14688,10 @@
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "docs/benchmarks/payment-clean-database-2026-10-26.json": "e5b81641075e1c4e4766dbc37f4d48eb4f07745d2e437d75e351536de6f5b9dc",
         "docs/benchmarks/ci-4ad9ac6-2026-10-26.json": "ea5bbe08b30ffe51e2f02a244112d5f3654aacfbf1fa6a7546549cef06cb5dc6",
-        "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922"
+        "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922",
+        "docs/benchmarks/queue-cache-correction-2026-10-28.json": "52571ea80c5c7147fec13c939b65a60552b2e4b455df9de1bfc716773b514a9b",
+        "docs/benchmarks/ci-c4b5ca1-2026-10-28.json": "2128b7d6e1ae226862c3b30c97beac41949114caf31c5b3353f0199e44179cdf",
+        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d"
       },
       "evidence": [
         {
@@ -14575,9 +14726,57 @@
           "result": "exact_prior_main474_native43_mfa6_browser2_migration36_pass_payment1_failed",
           "artifact": "docs/benchmarks/ci-4ad9ac6-2026-10-26.json",
           "scope": "Payment1 failed real cold fixture with missing UUID function; core/report/native skipped and not accepted. Main/native/MFA/browser/migration and full87remote pass; originalthroughput-2.5356768476389013% against-5 and8hashesmatch archived. Priorpositive/negative reports retained; otherlegacyfailures preserved. Corrected remote CI pending, no allgreen/wholegoal claim."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_queue_cache_correction_changed_references_refreshed",
+          "changedReferences": [
+            "backend/services/payment-service/src/index.js",
+            "backend/shared/DelayQueue.js",
+            "backend/tests/unit/delay-queue.test.js",
+            "backend/tests/regression/payment-native.test.js",
+            "backend/tests/README.md",
+            "docs/PAYMENT-INTEGRITY.md"
+          ],
+          "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
+          "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "actual_queue_cache_local_correction_pass_exact_c4b_ci_failures_preserved",
+          "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
+          "ciArtifact": "docs/benchmarks/ci-c4b5ca1-2026-10-28.json",
+          "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
         }
       ],
       "remaining": "Historical done declaration reopened. Original criteria unchanged. Actual core/SQL/Redis/HTTP/native and HTML/LCOV integration coverage pass, but original whole-payment-service unit-only coverage target and all legal fulfillment/refund business flows remain unverified. Live prepay/provider-native validation/receipts/paymentUI, explicit legacy request adoption, production key/provider/staging/financial audit, full sensitive MFA/risk and legacy global integration/E2E/contracts/security/performance gates remain open. Generic repository HMAC transport tests are not live vendor acceptance. No merge/deploy or target lowering."
+    },
+    "REQ-00043-delayed-task-queue-reliable-retry-mechanism.md": {
+      "date": "2026-10-28",
+      "status": "partial_actual_ready_consumption_type_routing_metrics_and_failed_task_logging_verified_full_queue_open",
+      "documentSha256": "3f7b76c161f417b33266a4eb51f3d25072507907694d974c3ffac3c28fd1108e",
+      "sourceSha256": {
+        "backend/shared/DelayQueue.js": "67f76aca8bb9ac38a630bcaa6362b813633a60133d56e7ec471d1fb79812715b",
+        "backend/shared/metrics.js": "2b2da2ba587fa72b2532faf3c046792c8ff17bdcc2fa5cafd120febff2ecc635",
+        "backend/services/payment-service/src/index.js": "e6c4fc8774c5ae961dddef0ca6fc70283bef93bea0542f966f602c2fc17689c1",
+        "backend/services/payment-service/src/handlers/orderTimeoutHandler.js": "2c7a03cde2f98eabc699a4e4697c72cfab8755571da1ae7956b4362226b5dd5e",
+        "backend/tests/unit/delay-queue.test.js": "00a468d43c584f9b6ab803d6fce1732ecbdee1394f89f5f5e1a86cfc6dff393f",
+        "backend/tests/unit/logger-metrics.test.js": "6cb0864e8a087e790043b6cef0b094b6527ba5db9fc8a2894830f7f79a5503a0",
+        "backend/tests/regression/payment-native.test.js": "271eea4c58c6f7944e6e0de15b47a5f94f75a942b8c22f4549d5b440490f4092",
+        "backend/shared/delayBucketScheduler.js": "47d6d480e0a26ce10b691e7eaeb61e4121de9f9106e774d1a22f1281a855f589",
+        "backend/shared/delayQueueMonitor.js": "09a8ed184aa77d8c86df4e3742199e2d70999ffb9e4e1fbfd18f1f0842232f01",
+        "docs/PAYMENT-INTEGRITY.md": "355b5fd03a1908660fee91f9c339dd7b6f749029537ca4bf5f81634117563e9b",
+        "docs/benchmarks/queue-cache-correction-2026-10-28.json": "52571ea80c5c7147fec13c939b65a60552b2e4b455df9de1bfc716773b514a9b",
+        "docs/benchmarks/ci-c4b5ca1-2026-10-28.json": "2128b7d6e1ae226862c3b30c97beac41949114caf31c5b3353f0199e44179cdf"
+      },
+      "evidence": [
+        {
+          "date": "2026-10-28",
+          "result": "legacy_done_reopened_all_original_twelve_criteria_preserved",
+          "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
+          "scope": "Full existing document read. Only status metadata reopened. Actual startup backlog/current ready consumption/foreign type isolation and SQL cancellation receipts proven by real native processes; real registry plus mocked transport unit36 verifies handler isolation and exhausted failure followed by success. Does not prove general seconds-to-days durable scheduling, priority execution, reliable bucket recovery, full monitor/automatic retry/notification delivery, second service/raid rewards, protected admin API, seven metrics and unit-only80percent or architecture. Preserve all12 original checkbox criteria. No new requirements; full queue remains open."
+        }
+      ]
     }
   }
 }

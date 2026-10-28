@@ -68,6 +68,11 @@ async function runTests() {
     
     // Test histogram observe
     metrics.httpRequestDuration.observe({ service: 'test', method: 'GET', path: '/test' }, 50);
+    const defaultBuckets = metrics.histogram('owned_default_histogram_seconds', 'Default bucket regression', ['scope']);
+    defaultBuckets.observe({scope: 'owned'}, 0.125);
+    const customBuckets = metrics.histogram('owned_custom_histogram_seconds', 'Custom bucket regression', [], [0.01, 0.1, 1]);
+    customBuckets.observe(0.25);
+    assert.deepEqual(customBuckets.upperBounds, [0.01, 0.1, 1]);
     console.log('✓ Test 7: Histogram observe - PASSED');
     
     // Test cache helpers

@@ -48,7 +48,7 @@
 | [REQ-00040](REQ-00040-cloud-cost-monitoring-budget-alerting.md) | 云成本监控与预算告警系统 | 成本/资源优化 | P1 | done | infrastructure/k8s、gateway、所有微服务、backend/shared | 2026-06-08 23:30 |
 | [REQ-00041](REQ-00041-multi-region-disaster-recovery-failover-system.md) | 多区域容灾切换与灾备恢复系统 | 容灾/高可用 | P0 | done | gateway、所有微服务、infrastructure/k8s、database、Redis | 2026-06-09 01:00 |
 | [REQ-00042](REQ-00042-infrastructure-security-scanning-and-validation.md) | 基础设施即代码安全扫描与配置验证系统 | 运维/CICD | P1 | done | .github/workflows、infrastructure/k8s、Dockerfile、scripts | 2026-06-09 01:05 |
-| [REQ-00043](REQ-00043-delayed-task-queue-reliable-retry-mechanism.md) | 延迟任务队列与可靠重试机制 | 技术债/重构 | P1 | done | 所有微服务、backend/shared、Kafka | 2026-06-09 02:00 |
+| [REQ-00043](REQ-00043-delayed-task-queue-reliable-retry-mechanism.md) | 延迟任务队列与可靠重试机制 | 技术债/重构 | P1 | in_progress | 所有微服务、backend/shared、Kafka | 2026-06-09 02:00 |
 | [REQ-00044](REQ-00044-api-version-management-backward-compatibility.md) | API 版本管理与向后兼容策略 | API 设计规范 | P1 | done | gateway、所有微服务、docs/api-spec | 2026-06-09 03:00 |
 | [REQ-00045](REQ-00045-device-integrity-and-emulator-detection.md) | 设备完整性与模拟器检测系统 | 反作弊 | P1 | done | gateway、user-service、catch-service、gym-service、game-client、backend/shared | 2026-06-09 07:00 |
 | [REQ-00046](REQ-00046-pokemon-breeding-and-inheritance-system.md) | 精灵培育系统与遗传机制 | 功能增强 | P1 | done | pokemon-service, user-service, social-service, gateway, game-client, database/migrations | 2026-06-09 08:00 |
