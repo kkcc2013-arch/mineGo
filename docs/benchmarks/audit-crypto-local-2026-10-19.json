@@ -1,0 +1,111 @@
+{
+  "date": "2026-10-19",
+  "baseCommit": "f671847fc9a5492446e5752063e8817ad0073764",
+  "result": "actual_durable_crypto_storage_and_local_sdk_protocol_pass_full_requirement_open",
+  "runtime": "Node.js24.19.0 / PostgreSQL15.8 PostGIS / AWS SDK3.1152.0",
+  "nodeReportedTests": 20,
+  "skipped": 0,
+  "coverageScope": "Only backend/shared/audit/{cryptoPrimitives,EncryptedAuditStore,KeyProviders}.js; does not cover complete masking/permissions/MFA/business integration",
+  "coverage": {
+    "cryptoPrimitives.js": {
+      "lines": 100.0,
+      "branches": 88.89,
+      "functions": 100.0
+    },
+    "EncryptedAuditStore.js": {
+      "lines": 98.0,
+      "branches": 86.89,
+      "functions": 97.22
+    },
+    "KeyProviders.js": {
+      "lines": 97.4,
+      "branches": 92.86,
+      "functions": 100.0
+    },
+    "all files": {
+      "lines": 98.04,
+      "branches": 88.98,
+      "functions": 98.31
+    }
+  },
+  "enforcedThresholds": {
+    "lines": 90,
+    "functions": 90
+  },
+  "branchCoverageGateClaimed": false,
+  "liveAwsVerified": false,
+  "mountedProductionAdminMfaRoutesVerified": false,
+  "sourceSha256": {
+    "backend/shared/audit/cryptoPrimitives.js": "ac6df0883e6f92ac0db6dad5ae4707d2c31a835e06ff89cc4aced0c1e517af46",
+    "backend/shared/audit/KeyProviders.js": "e380a04f73ef5e8dea1eaa92165b2f5527e9a1527800eb03766ee38551624aa8",
+    "backend/shared/audit/EncryptedAuditStore.js": "ddb5b811c6857f7bfa78dccb9ccffc4f5e3b968023b45c05d8c002bae0df0a78",
+    "backend/shared/auditLogEncrypted.js": "c59a0103783a89b52b10d19493f6c29adeb046e0bf9a775e8224fc09a4ef2679",
+    "backend/shared/sensitiveDataAudit.js": "02adb2e43bf92cef5f2cd7b69e1b014840718c1f3ece1681bc7038dc04f41c75",
+    "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
+    "backend/tests/regression/audit-crypto-storage.test.js": "097b16ebcb59cae1f11ac029524cfc7d73e43e98c4bf04f92db8c44052566b62",
+    "backend/tests/regression/audit-kms-wire.test.js": "11ca121f3f229022d33c9d469d2e7faf1d2aa3e5db807d2d7aaec91e22b5e9d3",
+    "backend/package.json": "e10991bdb14b6dc5458d002bf687fcb695da898e14562f28eeab99f2cb9aaa90",
+    "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
+    ".github/workflows/migration-regression.yml": "c7161a8762777264b14063dae5a0a01840fa2f6f159cc3e982a8fb7a75a4a0f3",
+    "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
+    "database/seeds/V2__seed_data.sql": "7c85c2d07999a4c8e5bad2d07324456b101a909c0e77fb73f0ff2d31879ed355",
+    "database/pending/20260608_194800__add_sensitive_data_protection_tables.sql": "ab3f8b262f933277624bcc572333e162da01a3909ef694547e93d3a5b58e1340",
+    "database/pending/repairs/20260608_200000__add_sensitive_data_audit_tables.sql": "b80646c039f042b02dcfa0d67f6c04bf5fb7e05bad8100449bc37e9150f3c290",
+    "database/pending/20261008_140000__audit_partition_conversion.sql": "6341c87821de38f68340cbb952b0b393496b52793ddd1c225cb27c221f6b6eaf",
+    "docs/AUDIT-ENCRYPTION.md": "9a80d0f82739764238effcb420f0261bf9b76014c6c559aa6f3a6996f8ad8ef3",
+    "docs/SENSITIVE-AUDIT-STORAGE.md": "62cb045f160582ad6e73e573235c1dae0bc6ee77288e0cbc2590f8e8cff4b69f"
+  },
+  "checks": [
+    {
+      "name": "storage",
+      "exit": 0,
+      "logSha256": "09156ec75a8b9f73c9ac410ea4f5c0871c06c2dcf7dd3588808700b8dd7a11ee"
+    },
+    {
+      "name": "bootstrap",
+      "exit": 0,
+      "logSha256": "ed20a11904ef7a4696d61e5b058f25f8fc0ad5132968120b71d3b69b63b873f6"
+    },
+    {
+      "name": "crypto",
+      "exit": 0,
+      "logSha256": "062f352da9f51330bb57dc37139115f3a1e345ed1cfc1fcd73ce634e150c5008"
+    },
+    {
+      "name": "unit",
+      "exit": 0,
+      "logSha256": "7f09d06830e55d16dfa8d5ada3250e7abb1354d5e677fa79b5258b754e3ee68a"
+    },
+    {
+      "name": "battle-coverage",
+      "exit": 0,
+      "logSha256": "325a1b7e48234e52826aa70b96b6576ccb998ee563f703a02dcc6dd0f03515a9"
+    },
+    {
+      "name": "syntax",
+      "exit": 0,
+      "logSha256": "658e07f014e93099570d82d0304dda79e69c34e43c636adbc649be5a344111ba"
+    }
+  ],
+  "otherCheckResults": {
+    "sensitiveSqlStorage": 16,
+    "fullBootstrap": 3,
+    "rawMigrationsPerInstallation": 85,
+    "unitChecks": 724,
+    "jestSuites": 24,
+    "jestTests": 425,
+    "battleTests": 133,
+    "battleFormulaCoveragePercent": 100,
+    "javascriptSyntaxFiles": 1462,
+    "existingLockPackageVersionChanges": 0,
+    "newLockPackages": 23
+  },
+  "developmentFindings": [
+    "Real SDK requestTimeout originally warned without aborting; enable throwOnRequestTimeout and prove bounded actual HTTP refusal.",
+    "The canonical partition parent does not own the retained BIGSERIAL sequence; set/read the real audit_logs_default-owned sequence for actual int64 verification.",
+    "Initial unit invocation inherited LOG_LEVEL=error and filtered INFO records that the existing logging test asserts. Rerun with normal logging environment; original assertions unchanged.",
+    "First generated SQL test string had a quoting error; corrected before final execution."
+  ],
+  "limits": "Actual SDK requests target a local loopback protocol fixture, not AWS. Missing live key ARN/authorized credentials/IAM/CloudTrail/latency remain open. Existing sensitive MFA boolean/rule helper and common plaintext audit logger, complete access chains, masking/scanning, admin UI and original full combined coverage remain incomplete. No original requirement boxes or thresholds, raw SQL or repair manifest changed; no production cleanup/rekey/merge/deploy.",
+  "execution": "Heavy checks sequential, nice10, UV_THREADPOOL_SIZE2, node test-concurrency1, Jest runInBand. No Maven/CPU saturation; only owned fixture schemas cleaned."
+}

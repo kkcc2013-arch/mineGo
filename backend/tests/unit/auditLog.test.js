@@ -1,419 +1,93 @@
-/**
- * REQ-00202: 审计日志模块单元测试
- * 测试目标：backend/shared/auditLog.js
- */
-
 'use strict';
+const crypto=require('node:crypto');
+jest.mock('../../shared/logger',()=>({info:jest.fn(),error:jest.fn()}));
+jest.mock('../../shared/auditLogEncrypted',()=>({useAuditStore:jest.fn()}));
+const logger=require('../../shared/logger');
+const encrypted=require('../../shared/auditLogEncrypted');
+const {auditLog,getUserAuditLogs,getSystemAuditLogs,auditMiddleware}=require('../../shared/auditLog');
+const {Pool}=require('pg');
+const express=require('express');
+const request=require('supertest');
+const owner=crypto.randomUUID();
+let store;
+beforeEach(()=>{
+ jest.resetAllMocks();store={writeEncryptedAuditLog:jest.fn().mockResolvedValue('9007199254740994'),initialize:jest.fn().mockResolvedValue(),pool:{query:jest.fn().mockResolvedValue({rows:[]})}};
+ encrypted.useAuditStore.mockImplementation(async(options,operation)=>operation(store));
+});
 
-const assert = require('assert');
-const path = require('path');
+test('common writes delegate private values only to durable crypto and log a safe receipt',async()=>{
+ const details={email:'fixture-private@example.invalid',token:'fixture-private-secret'};
+ const transactionClient={query:async()=>{}};
+ expect(await auditLog({userId:owner,action:'privacy',details,transactionClient,req:{ip:'192.0.2.20',id:'request-fixture',headers:{'user-agent':'fixture-private-agent','x-forwarded-for':'untrusted-forwarded'}},service:'user-service',resourceType:'user',resourceId:owner})).toBe(true);
+ expect(encrypted.useAuditStore).toHaveBeenCalledWith({pool:undefined,transactionClient},expect.any(Function));
+ expect(store.writeEncryptedAuditLog).toHaveBeenCalledWith(expect.objectContaining({actionData:details,ipAddress:'192.0.2.20',userAgent:'fixture-private-agent',requestId:'request-fixture'}));
+ expect(logger.info).toHaveBeenCalledWith({code:'AUDIT_WRITE_PERSISTED',auditId:'9007199254740994'},'Audit record persisted');
+ expect(JSON.stringify(logger.info.mock.calls)).not.toContain('fixture-private');
+});
 
-// Mock logger before requiring auditLog
-const mockLogger = {
-  info: () => {},
-  error: () => {},
-  warn: () => {},
-  debug: () => {}
-};
+test('missing optional values still persist through the default store; untrusted forwarding is not an IP source',async()=>{
+ expect(await auditLog({action:'anonymous',req:{headers:{'x-forwarded-for':'fixture-private-spoof'}}})).toBe(true);
+ expect(store.writeEncryptedAuditLog).toHaveBeenCalledWith(expect.objectContaining({actionData:{},userId:undefined,ipAddress:null,userAgent:null,requestId:null,service:'unknown'}));
+});
 
-// Override require to mock logger
-const Module = require('module');
-const originalRequire = Module.prototype.require;
-Module.prototype.require = function(id) {
-  if (id === './logger' || id.endsWith('/logger')) {
-    return mockLogger;
+test('provider refusal and invalid call/database shapes return false without secret-bearing exception logs',async()=>{
+ store.writeEncryptedAuditLog.mockRejectedValue(new Error('fixture-private-database-detail'));
+ expect(await auditLog({userId:owner,action:'refused',details:{private:'fixture-private'}})).toBe(false);
+ for(const value of [null,[],{},'position-call']){
+  if(value&&typeof value==='object'&&!Array.isArray(value))store.writeEncryptedAuditLog.mockRejectedValue(new Error('invalid'));
+  expect(await auditLog(value)).toBe(false);
+ }
+ expect(await auditLog({action:'x',db:{query:()=>{}}})).toBe(false);
+ expect(await auditLog({action:'x',db:{getPool:()=>undefined}})).toBe(false);
+ expect(await auditLog({action:'x',db:{},transactionClient:{query:()=>{}}})).toBe(false);
+ expect(await auditLog('action',owner,{})).toBe(false);
+ expect(JSON.stringify(logger.error.mock.calls)).not.toContain('fixture-private');
+ expect(logger.error).toHaveBeenCalledWith({code:'AUDIT_WRITE_FAILED'},'Audit persistence failed');
+});
+
+test('explicit supported pool adapters are passed through without connection acquisition or ownership changes',async()=>{
+ const pool=new Pool({max:1});
+ try{
+  for(const db of [pool,{getPool:()=>pool},{pool}]){
+   expect(await auditLog({userId:owner,action:'adapter',db})).toBe(true);
+   expect(encrypted.useAuditStore.mock.calls.at(-1)[0].pool).toBe(pool);
   }
-  return originalRequire.apply(this, arguments);
-};
+  const adapter={getClient:jest.fn(),query:jest.fn()};expect(await auditLog({action:'adapter',db:adapter})).toBe(true);
+  expect(adapter.getClient).not.toHaveBeenCalled();
+ }finally{await pool.end();}
+});
 
-const {
-  auditLog,
-  getUserAuditLogs,
-  getSystemAuditLogs,
-  auditMiddleware,
-  AuditActions
-} = require('../../shared/auditLog');
+test('metadata queries use bounded canonical filters and never select payload, wrapping keys or legacy plaintext',async()=>{
+ store.pool.query.mockResolvedValue({rows:[{id:'1',user_id:owner,action:'privacy',encrypted:true}]});
+ const rows=await getUserAuditLogs(owner,{limit:5,action:'privacy',startDate:'2020-01-01',endDate:'2030-01-01'});
+ expect(rows).toEqual([{id:'1',user_id:owner,action:'privacy',encrypted:true,detailsUnavailable:true}]);
+ const [sql,args]=store.pool.query.mock.calls[0];
+ expect(sql).toContain('WHERE user_id=$1 AND action=$2 AND timestamp>=$3::timestamptz AND timestamp<=$4::timestamptz');
+ expect(sql).not.toMatch(/SELECT \*|SELECT[^]*?\bdetails\b/);expect(args).toEqual([owner,'privacy','2020-01-01T00:00:00.000Z','2030-01-01T00:00:00.000Z',5]);
+ await getSystemAuditLogs();expect(store.pool.query.mock.calls.at(-1)[0]).not.toContain(' WHERE ');
+ await getSystemAuditLogs({userId:owner,action:'privacy'});
+});
 
-// Mock 数据库
-class MockDb {
-  constructor() {
-    this.logs = [];
-    this.queryCallCount = 0;
-  }
-  
-  async query(sql, params) {
-    this.queryCallCount++;
-    
-    // INSERT 操作
-    if (sql.includes('INSERT')) {
-      this.logs.push({
-        id: this.logs.length + 1,
-        user_id: params[0],
-        action: params[1],
-        details: JSON.parse(params[2]),
-        ip_address: params[3],
-        user_agent: params[4],
-        service: params[5],
-        created_at: new Date()
-      });
-      return { rowCount: 1 };
-    }
-    
-    // SELECT 操作 - 用户日志
-    if (sql.includes('WHERE user_id = $1')) {
-      let filtered = this.logs.filter(l => l.user_id === params[0]);
-      return { rows: filtered.slice(0, params[params.length - 1]) };
-    }
-    
-    // SELECT 操作 - 系统日志
-    if (sql.includes('WHERE 1=1')) {
-      return { rows: this.logs.slice(0, params[params.length - 1] || 100) };
-    }
-    
-    return { rows: [] };
-  }
-  
-  reset() {
-    this.logs = [];
-    this.queryCallCount = 0;
-  }
+test('query validation rejects unsafe subjects, filters, ranges and limits before touching storage',async()=>{
+ for(const options of [{limit:0},{limit:1001},{limit:'2'},{action:''},{action:'x'.repeat(101)},{startDate:'invalid'},{startDate:'2030-01-01',endDate:'2020-01-01'},{service:'user-service'},{unexpected:true},null,[]])await expect(getSystemAuditLogs(options)).rejects.toBeDefined();
+ for(const [id,options]of [[null,{}],['invalid',{}],[owner,{userId:owner}],[owner,null],[owner,[]]])await expect(getUserAuditLogs(id,options)).rejects.toBeDefined();
+ expect(encrypted.useAuditStore).not.toHaveBeenCalled();
+});
+
+function appWith({fail=false,identity=true,details}={}){
+ const app=express();app.locals.db={getClient:async()=>{},query:async()=>{}};
+ if(fail)store.writeEncryptedAuditLog.mockRejectedValue(new Error('fixture-private-provider'));
+ app.use((req,res,next)=>{if(identity)req.user={sub:owner};next();});
+ app.use(auditMiddleware('fixture',details));
+ app.get('/',(req,res)=>{res.cookie('private-session','fixture-private-cookie');res.json({value:'fixture-private-body'});});return app;
 }
-
-// Mock Express 请求
-function createMockReq(overrides = {}) {
-  return {
-    ip: '127.0.0.1',
-    headers: {
-      'user-agent': 'TestAgent/1.0',
-      'x-forwarded-for': '192.168.1.1'
-    },
-    user: { id: 1 },
-    serviceName: 'test-service',
-    ...overrides
-  };
-}
-
-// Mock Express 响应
-function createMockRes() {
-  const res = {
-    headers: {},
-    endCalled: false,
-    endArgs: null
-  };
-  
-  res.setHeader = function(key, value) {
-    this.headers[key] = value;
-  };
-  
-  res.end = function(...args) {
-    this.endCalled = true;
-    this.endArgs = args;
-  };
-  
-  return res;
-}
-
-// 测试主函数
-async function runTests() {
-  console.log('Testing auditLog.js...');
-  
-  // ── AuditActions 常量测试 ─────────────────────────────────────────────────────
-  console.log('\n[TEST] AuditActions constants');
-  assert.ok(AuditActions.CONSENT_GIVEN, 'Should have CONSENT_GIVEN action');
-  assert.ok(AuditActions.DATA_EXPORTED, 'Should have DATA_EXPORTED action');
-  assert.ok(AuditActions.DELETION_REQUESTED, 'Should have DELETION_REQUESTED action');
-  assert.ok(AuditActions.LOGIN, 'Should have LOGIN action');
-  assert.ok(AuditActions.PAYMENT_CREATED, 'Should have PAYMENT_CREATED action');
-  assert.ok(AuditActions.DATA_REGION_CHANGED, 'Should have DATA_REGION_CHANGED action');
-  console.log('✅ AuditActions constants verified');
-
-  // ── auditLog 函数测试 ─────────────────────────────────────────────────────────
-  console.log('\n[TEST] auditLog function');
-  const mockDb = new MockDb();
-
-  // 测试基本审计日志记录
-  let result = await auditLog({
-    userId: 1,
-    action: AuditActions.LOGIN,
-    details: { method: 'password' },
-    req: createMockReq(),
-    service: 'user-service',
-    db: mockDb
-  });
-  
-  assert.strictEqual(result, true, 'auditLog should return true on success');
-  assert.strictEqual(mockDb.logs.length, 1, 'Should have one log entry');
-  assert.strictEqual(mockDb.logs[0].user_id, 1, 'User ID should be 1');
-  assert.strictEqual(mockDb.logs[0].action, 'login', 'Action should be login');
-  assert.strictEqual(mockDb.logs[0].ip_address, '127.0.0.1', 'IP should be captured');
-  console.log('✅ Basic audit log recording works');
-
-  // 测试无数据库连接时的行为
-  result = await auditLog({
-    userId: 2,
-    action: AuditActions.LOGOUT,
-    details: {},
-    service: 'user-service',
-    db: null
-  });
-  
-  assert.strictEqual(result, true, 'auditLog should return true even without db');
-  console.log('✅ auditLog handles missing db gracefully');
-
-  // 测试 IP 地址提取（x-forwarded-for）
-  const req = createMockReq({ ip: null });
-  await auditLog({
-    userId: 3,
-    action: AuditActions.DATA_VIEWED,
-    details: { resource: 'profile' },
-    req,
-    service: 'user-service',
-    db: mockDb
-  });
-  
-  assert.strictEqual(mockDb.logs[mockDb.logs.length - 1].ip_address, '192.168.1.1', 'Should use x-forwarded-for IP');
-  console.log('✅ IP extraction from x-forwarded-for works');
-
-  // 测试审计日志失败不影响主流程
-  const errorDb = {
-    query: async () => { throw new Error('DB connection failed'); }
-  };
-  
-  result = await auditLog({
-    userId: 4,
-    action: AuditActions.CONSENT_GIVEN,
-    details: { consentType: 'privacy' },
-    service: 'user-service',
-    db: errorDb
-  });
-  
-  assert.strictEqual(result, false, 'auditLog should return false on db error');
-  console.log('✅ auditLog failure does not throw');
-
-  // ── getUserAuditLogs 函数测试 ─────────────────────────────────────────────────
-  console.log('\n[TEST] getUserAuditLogs function');
-  
-  const logs = await getUserAuditLogs(1, { limit: 10 }, mockDb);
-  assert.ok(Array.isArray(logs), 'Should return array');
-  console.log('✅ getUserAuditLogs returns array');
-
-  // ── getSystemAuditLogs 函数测试 ───────────────────────────────────────────────
-  console.log('\n[TEST] getSystemAuditLogs function');
-  
-  const systemLogs = await getSystemAuditLogs({ limit: 100 }, mockDb);
-  assert.ok(Array.isArray(systemLogs), 'Should return array');
-  console.log('✅ getSystemAuditLogs returns array');
-
-  // ── auditMiddleware 测试 ─────────────────────────────────────────────────────
-  console.log('\n[TEST] auditMiddleware function');
-  
-  mockDb.reset();
-  
-  const middleware = auditMiddleware(AuditActions.PAYMENT_CREATED, (req) => ({
-    orderId: req.body?.orderId,
-    amount: req.body?.amount
-  }));
-  
-  const mwReq = createMockReq({
-    body: { orderId: 'ORD-123', amount: 100 },
-    app: { locals: { db: mockDb } }
-  });
-  
-  const mwRes = createMockRes();
-  let nextCalled = false;
-  
-  await middleware(mwReq, mwRes, () => { nextCalled = true; });
-  
-  assert.strictEqual(nextCalled, true, 'next() should be called');
-  
-  // 模拟响应结束
-  mwRes.end();
-  
-  // 等待异步审计日志完成
-  await new Promise(resolve => setTimeout(resolve, 50));
-  
-  console.log('✅ auditMiddleware calls next and triggers audit');
-
-  // 测试无用户时的中间件行为
-  const noUserMiddleware = auditMiddleware(AuditActions.LOGIN);
-  const noUserReq = createMockReq({ user: null });
-  const noUserRes = createMockRes();
-  nextCalled = false;
-  
-  await noUserMiddleware(noUserReq, noUserRes, () => { nextCalled = true; });
-  noUserRes.end();
-  
-  await new Promise(resolve => setTimeout(resolve, 50));
-  
-  assert.strictEqual(nextCalled, true, 'next() should be called even without user');
-  console.log('✅ auditMiddleware handles missing user gracefully');
-
-  // ── GDPR 相关操作测试 ───────────────────────────────────────────────────────
-  console.log('\n[TEST] GDPR-related operations');
-  
-  mockDb.reset();
-  
-  await auditLog({
-    userId: 100,
-    action: AuditActions.DELETION_REQUESTED,
-    details: { requestReason: 'User requested' },
-    service: 'gdpr-service',
-    db: mockDb
-  });
-  
-  await auditLog({
-    userId: 100,
-    action: AuditActions.DATA_EXPORTED,
-    details: { format: 'json', size: '2.5MB' },
-    service: 'gdpr-service',
-    db: mockDb
-  });
-  
-  await auditLog({
-    userId: 100,
-    action: AuditActions.CONSENT_GIVEN,
-    details: { consentType: 'marketing', version: 'v2.0' },
-    service: 'user-service',
-    db: mockDb
-  });
-  
-  assert.strictEqual(mockDb.logs.length, 3, 'Should have 3 GDPR logs');
-  assert.strictEqual(mockDb.logs[0].action, 'deletion_requested', 'First log should be deletion request');
-  console.log('✅ GDPR operations logged correctly');
-
-  // ── 数据跨境传输测试 ─────────────────────────────────────────────────────────
-  console.log('\n[TEST] Cross-border data transfer operations');
-  
-  mockDb.reset();
-  
-  await auditLog({
-    userId: 200,
-    action: AuditActions.DATA_REGION_CHANGED,
-    details: { fromRegion: 'CN', toRegion: 'EU', reason: 'User relocation' },
-    service: 'compliance-service',
-    db: mockDb
-  });
-  
-  await auditLog({
-    userId: 201,
-    action: AuditActions.TRANSFER_APPROVED,
-    details: { requestId: 'TRF-001', approvedBy: 'admin@example.com' },
-    service: 'compliance-service',
-    db: mockDb
-  });
-  
-  assert.strictEqual(mockDb.logs.length, 2, 'Should have 2 transfer logs');
-  console.log('✅ Cross-border transfer operations logged');
-
-  // ── 支付相关操作测试 ─────────────────────────────────────────────────────────
-  console.log('\n[TEST] Payment-related operations');
-  
-  mockDb.reset();
-  
-  await auditLog({
-    userId: 300,
-    action: AuditActions.PAYMENT_CREATED,
-    details: { orderId: 'ORD-456', amount: 99.99, currency: 'CNY' },
-    service: 'payment-service',
-    db: mockDb
-  });
-  
-  await auditLog({
-    userId: 300,
-    action: AuditActions.PAYMENT_COMPLETED,
-    details: { orderId: 'ORD-456', transactionId: 'TXN-789' },
-    service: 'payment-service',
-    db: mockDb
-  });
-  
-  await auditLog({
-    userId: 300,
-    action: AuditActions.PAYMENT_REFUNDED,
-    details: { orderId: 'ORD-456', refundAmount: 99.99, reason: 'User request' },
-    service: 'payment-service',
-    db: mockDb
-  });
-  
-  assert.strictEqual(mockDb.logs.length, 3, 'Should have 3 payment logs');
-  console.log('✅ Payment operations logged correctly');
-
-  // ── 管理操作测试 ─────────────────────────────────────────────────────────────
-  console.log('\n[TEST] Admin operations');
-  
-  mockDb.reset();
-  
-  await auditLog({
-    userId: 999,
-    action: AuditActions.ADMIN_USER_VIEW,
-    details: { targetUserId: 100, reason: 'Support ticket' },
-    service: 'admin-service',
-    db: mockDb
-  });
-  
-  await auditLog({
-    userId: 999,
-    action: AuditActions.ADMIN_USER_MODIFY,
-    details: { targetUserId: 100, changes: { status: 'suspended' } },
-    service: 'admin-service',
-    db: mockDb
-  });
-  
-  assert.strictEqual(mockDb.logs.length, 2, 'Should have 2 admin logs');
-  console.log('✅ Admin operations logged correctly');
-
-  // ── 边界条件测试 ─────────────────────────────────────────────────────────────
-  console.log('\n[TEST] Edge cases');
-  
-  mockDb.reset();
-  
-  // 测试空 details
-  await auditLog({
-    userId: 1,
-    action: AuditActions.LOGIN,
-    details: {},
-    service: 'test',
-    db: mockDb
-  });
-  
-  assert.deepStrictEqual(mockDb.logs[0].details, {}, 'Empty details should work');
-  console.log('✅ Empty details handled');
-  
-  // 测试大型 details 对象
-  const largeDetails = {
-    items: Array(100).fill({ id: 1, name: 'test' }),
-    metadata: { nested: { deep: { value: 'test' } } }
-  };
-  
-  await auditLog({
-    userId: 1,
-    action: AuditActions.DATA_EXPORTED,
-    details: largeDetails,
-    service: 'test',
-    db: mockDb
-  });
-  
-  assert.strictEqual(mockDb.logs[1].details.items.length, 100, 'Large details should be stored');
-  console.log('✅ Large details handled');
-  
-  // 测试特殊字符
-  await auditLog({
-    userId: 1,
-    action: AuditActions.DATA_UPDATED,
-    details: { field: "value with 'quotes' and \"double quotes\" and \n newlines" },
-    service: 'test',
-    db: mockDb
-  });
-  
-  assert.ok(mockDb.logs[2].details.field.includes("quotes"), 'Special characters should be preserved');
-  console.log('✅ Special characters handled');
-
-  console.log('\n========================================');
-  console.log('✅ All auditLog.js tests passed!');
-  console.log('========================================');
-}
-
-// 运行测试
-runTests().catch(err => {
-  console.error('Test failed:', err);
-  process.exit(1);
+test('real HTTP middleware persists before a successful JSON response',async()=>{
+ const response=await request(appWith({details:async()=>({private:'fixture-private-detail'})})).get('/');expect(response.status).toBe(200);expect(response.body.value).toBe('fixture-private-body');expect(store.writeEncryptedAuditLog).toHaveBeenCalledTimes(1);
+});
+test('real HTTP refusal removes private response headers and withholds its body',async()=>{
+ const response=await request(appWith({fail:true})).get('/');expect(response.status).toBe(503);expect(response.body).toEqual({error:'AUDIT_WRITE_FAILED'});expect(response.headers['set-cookie']).toBeUndefined();expect(response.headers.etag).toBeUndefined();expect(response.headers['cache-control']).toBe('no-store');
+});
+test('anonymous actions are durably audited and detail-provider failures withhold the response',async()=>{
+ expect((await request(appWith({identity:false})).get('/')).status).toBe(200);expect(store.writeEncryptedAuditLog.mock.calls[0][0].userId).toBeUndefined();
+ const response=await request(appWith({details:async()=>{throw new Error('fixture-private-detail-failure');}})).get('/');expect(response.status).toBe(503);expect(response.body).toEqual({error:'AUDIT_WRITE_FAILED'});
 });

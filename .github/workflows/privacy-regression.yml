@@ -1,0 +1,55 @@
+name: Privacy route and storage regression
+
+on:
+  pull_request:
+    paths:
+      - 'backend/shared/**'
+      - 'backend/gateway/**'
+      - 'backend/services/user-service/**'
+      - 'backend/tests/**'
+      - 'backend/package*.json'
+      - 'database/pending/**'
+      - '.github/workflows/privacy-regression.yml'
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  privacy-regression:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: minego_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+      - name: Install dependencies
+        working-directory: backend
+        run: npm ci
+      - name: Verify privacy unit tests and measured coverage
+        working-directory: backend
+        run: npm run test:privacy:unit
+      - name: Verify real gateway routes, PostgreSQL and audit rollback
+        working-directory: backend
+        run: npm run test:privacy:storage
+        env:
+          TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
+      - name: Upload privacy coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: privacy-coverage
+          path: backend/coverage/privacy/

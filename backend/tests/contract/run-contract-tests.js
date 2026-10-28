@@ -6,9 +6,9 @@
  */
 
 const path = require('path');
-const ContractTestRunner = require('./ContractTestRunner');
+const ContractTestRunner = require('./ProviderContractTestRunner');
 const ContractReportGenerator = require('./ContractReportGenerator');
-const ContractRegistry = require('../../shared/contract/ContractRegistry');
+const fs = require('fs');
 
 // 加载所有服务契约
 const userContract = require('../../services/user-service/contracts/user.contract');
@@ -17,7 +17,10 @@ const socialContract = require('../../services/social-service/contracts/social.c
 
 async function main() {
   const args = process.argv.slice(2);
-  const baseUrl = process.env.API_BASE_URL || 'http://localhost:8080';
+  const baseUrl = process.env.API_BASE_URL;
+  if (!baseUrl) throw new Error('Set API_BASE_URL to a running test or staging API');
+  const fixtures = process.env.CONTRACT_FIXTURES_PATH
+    ? JSON.parse(fs.readFileSync(process.env.CONTRACT_FIXTURES_PATH, 'utf8')) : {};
   const reportDir = path.join(__dirname, 'reports');
 
   console.log('='.repeat(60));
@@ -29,7 +32,8 @@ async function main() {
   // 创建测试运行器
   const runner = new ContractTestRunner({
     baseUrl,
-    timeout: 30000
+    timeout: 10000,
+    fixtures
   });
 
   // 注册所有契约
@@ -45,7 +49,6 @@ async function main() {
     const generator = new ContractReportGenerator();
     
     // 创建报告目录
-    const fs = require('fs');
     if (!fs.existsSync(reportDir)) {
       fs.mkdirSync(reportDir, { recursive: true });
     }
@@ -66,6 +69,9 @@ async function main() {
       path.join(reportDir, 'junit-contract-tests.xml')
     );
 
+    await fs.promises.writeFile(path.join(reportDir, 'contract-test-report.json'),
+      JSON.stringify(generator.generateReport(results), null, 2));
+
     // 输出结果
     console.log('\n' + '='.repeat(60));
     console.log('Reports generated:');
@@ -75,11 +81,11 @@ async function main() {
     console.log('='.repeat(60));
 
     // 退出码
-    process.exit(results.failed > 0 ? 1 : 0);
+    process.exitCode = results.failed > 0 || results.total === 0 ? 1 : 0;
 
   } catch (error) {
     console.error('Contract test execution failed:', error.message);
-    process.exit(1);
+    process.exitCode = 1;
   }
 }
 
@@ -87,7 +93,7 @@ async function main() {
 if (require.main === module) {
   main().catch(error => {
     console.error('Fatal error:', error);
-    process.exit(1);
+    process.exitCode = 1;
   });
 }
 

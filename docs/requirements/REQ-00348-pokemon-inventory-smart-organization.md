@@ -7,7 +7,7 @@
 | 标题 | 精灵背包智能整理与自动分类系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | done |
+| 状态 | in_progress |
 | 涉及服务 | pokemon-service、user-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-27 06:00 UTC |
 
@@ -843,3 +843,41 @@ export default InventoryOrganizer;
 - [Pokemon GO Inventory Management](https://pokemongohub.net/guide/pokemon-go-inventory-management/)
 - [Material Design Data Tables](https://material.io/components/data-tables)
 - [Ant Design Table Sorting](https://ant.design/components/table-cn/#components-table-demo-head)
+
+
+## 2026-10-16 完整需求与实际契约复核
+
+已完整阅读845行原需求；撤回旧done，原10项标准及80%/95%/<500ms不改。
+完整85迁移实际在本需求20260627_060000第13句is_deleted不存在失败。
+V1精灵实例实际为UUID，cp/caught_at及物种外键；类型/稀有度在物种表，
+糖果在按用户+物种划分的candy_inventory。既有battle_teams为UUID身份/
+UUID数组和最多6只限制，不能被后来的SERIAL/VARCHAR/TEXT数组提案替换。
+
+现有inventory路由已挂载两个路径，实际require成功，但查询仍引用缺失的
+pi.combat_power/level/iv_total/types/rarity/evolution_stage/is_deleted、ps.name/types，
+建议/读取无法等同实际端到端通过。容量仍固定300；批量转移写泛化user_candies
+与真实按物种资源契约不一致，保护/确认/并发和提交后缓存错误语义仍须验证。
+需要保留既有收藏/昵称/战斗队伍/糖果/玩家数据身份，完成规范字段读取、
+原子转移与保护、偏好/排序分组/真实容量/响应时间及移动前端验收。
+此处为审计发现，未宣称功能完成；sources与真实迁移失败见VERIFICATION.json。
+
+
+### 2026-10-17 规范存储前置修复
+
+绑定原始SQL校验和的repair保留真实UUID实例/所有者、已有收藏与30字昵称、
+物种类型/稀有度、按用户+物种划分的糖果和UUID战斗队伍/最多6只约束。
+只增加保护/标签/排序优先级/删除时间、真实cp/caught_at/deleted_at索引及
+UUID偏好/队伍使用时间；不复制虚构实例元数据，不建立全局糖果余额。
+历史删除时间/等级未知则不补造。旧偏好/自定义分组/时间/序列/触发器与函数
+身份和启用状态保留，未知类型/缺失所有权与队伍大小约束/自定义行为/不匹配
+同名索引必须显式处理；失败事务整体回滚，不能用猜测历史数据推进。
+
+真实V1/V2/旧gym队伍SQL、原语句失败回滚、表/数据/视图/FK、旧偏好/nullable
+保护/历史时间、索引计划、实际CLI双校验和与原始源码篡改拒绝均由独立存储
+测试执行。完整85源码链已通过本迁移，下一处为20260630_040000第13句
+pokemon_cosmetics.pokemon_instance_id外键类型不兼容；整体pending仍回滚。
+
+原10条件/80%/95%/<500ms不改。当前路由/建议仍有缺失字段、全局糖果、
+事务/确认/保护/缓存、固定300容量及软删除跨消费者契约问题，尚未实现
+实际端到端功能、客户端/移动端和生产数值验收。已有异版repair升级与完整
+数据保留反向迁移仍未验证。见[存储前置说明](../INVENTORY-ORGANIZATION.md)。

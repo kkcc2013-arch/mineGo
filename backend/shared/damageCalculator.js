@@ -6,7 +6,7 @@
  * Damage = floor(0.5 * Power * (Attack/Defense) * STAB * Type * Random) + 1
  */
 
-const { getTypeMultiplier, getEffectivenessText } = require('./typeChart');
+const { getTypeMultiplier, getEffectivenessText, isValidType } = require('./typeChart');
 
 /**
  * 天气与属性对应关系
@@ -38,7 +38,7 @@ function isWeatherBoosted(type, weather) {
  * @param {Object} params - 伤害计算参数
  * @returns {Object} 伤害结果
  */
-function calculateDamage(params) {
+function calculateDamage(params, random = Math.random) {
   const {
     power,           // 技能威力
     attack,          // 攻击力
@@ -54,30 +54,39 @@ function calculateDamage(params) {
   } = params;
 
   // 参数验证
-  if (!power || !attack || !defense) {
-    throw new Error('Missing required damage parameters: power, attack, defense');
+  if (typeof power !== 'number' || !Number.isFinite(power) || power < 0 || power > 1e6 ||
+      ![attack, defense].every(value => typeof value === 'number' && Number.isFinite(value) && value >= 1 && value <= 1e6)) {
+    throw new TypeError('Invalid damage power, attack or defense');
   }
 
   // 默认值处理
-  const moveType = attackType || 'normal';
-  const attackerType1Value = attackerType1 || 'normal';
-  const defenderType1Value = defenderType1 || 'normal';
+  const moveType = attackType ?? 'normal';
+  const attackerType1Value = attackerType1 ?? 'normal';
+  const defenderType1Value = defenderType1 ?? 'normal';
+  if (![moveType, attackerType1Value, defenderType1Value].every(isValidType) ||
+      (attackerType2 != null && !isValidType(attackerType2)) ||
+      (defenderType2 != null && !isValidType(defenderType2)) ||
+      (weatherBoost !== null && (typeof weatherBoost !== 'string' || !Object.hasOwn(WEATHER_BOOST_MAP, weatherBoost))) ||
+      typeof criticalHit !== 'boolean' || typeof isCharged !== 'boolean') {
+    throw new TypeError('Invalid damage type, weather or flags');
+  }
 
   // 属性克制倍率
   const typeMultiplier = getTypeMultiplier(moveType, defenderType1Value, defenderType2);
 
   // 免疫判定
-  if (typeMultiplier === 0) {
+  if (typeMultiplier === 0 || power === 0) {
     return {
       damage: 0,
-      effectiveness: 'immune',
-      typeMultiplier: 0,
+      effectiveness: getEffectivenessText(typeMultiplier),
+      typeMultiplier,
       stab: 1.0,
       weatherMultiplier: 1.0,
       randomFactor: 0,
-      isImmune: true,
+      isImmune: typeMultiplier === 0,
       isCritical: false,
-      isCharged
+      isCharged,
+      breakdown: { baseDamage: 0.5 * power * (attack / defense), stabBonus: 1, typeBonus: typeMultiplier, weatherBonus: 1, randomFactor: 0, critBonus: 1 }
     };
   }
 
@@ -94,7 +103,10 @@ function calculateDamage(params) {
   }
 
   // 随机因子 (85%-100%)
-  const randomFactor = 0.85 + Math.random() * 0.15;
+  const draw = params.randomFactor === undefined ? random() : null;
+  if (draw !== null && (typeof draw !== 'number' || !Number.isFinite(draw) || draw < 0 || draw >= 1)) throw new TypeError('Invalid damage random draw');
+  const randomFactor = params.randomFactor === undefined ? 0.85 + draw * 0.15 : params.randomFactor;
+  if (typeof randomFactor !== 'number' || !Number.isFinite(randomFactor) || randomFactor < 0.85 || randomFactor > 1) throw new TypeError('Invalid damage random factor');
 
   // 暴击加成
   const critMultiplier = criticalHit ? 1.5 : 1.0;
@@ -143,10 +155,12 @@ function calculateDamageBatch(attacks) {
  * @returns {Object} 平均伤害结果
  */
 function estimateAverageDamage(params) {
-  const result = calculateDamage({ ...params, randomFactor: 0.925 }); // 使用中间值
+  const result = calculateDamage({ ...params, randomFactor: 0.925 });
+  const zero = result.isImmune || params.power === 0;
+  const scaled = result.breakdown.baseDamage * result.stab * result.typeMultiplier * result.weatherMultiplier * result.breakdown.critBonus;
   return {
-    minDamage: Math.max(1, Math.floor(result.breakdown.baseDamage * 0.85 * result.stab * result.typeMultiplier * result.weatherMultiplier) + 1),
-    maxDamage: Math.max(1, Math.floor(result.breakdown.baseDamage * result.stab * result.typeMultiplier * result.weatherMultiplier) + 1),
+    minDamage: zero ? 0 : Math.max(1, Math.floor(scaled * 0.85) + 1),
+    maxDamage: zero ? 0 : Math.max(1, Math.floor(scaled) + 1),
     avgDamage: result.damage,
     effectiveness: result.effectiveness,
     typeMultiplier: result.typeMultiplier

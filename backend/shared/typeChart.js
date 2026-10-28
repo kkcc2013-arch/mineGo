@@ -36,6 +36,9 @@ const TYPE_CHART = {
  * @returns {number} 克制倍率 (0-4)
  */
 function getTypeMultiplier(attackType, defenderType1, defenderType2 = null) {
+  if (!isValidType(attackType) || !isValidType(defenderType1) || (defenderType2 !== null && !isValidType(defenderType2))) {
+    throw new TypeError('Invalid Pokemon type');
+  }
   let multiplier = 1.0;
   const chart = TYPE_CHART[attackType];
   
@@ -82,7 +85,7 @@ function getAllTypes() {
  * @returns {boolean}
  */
 function isValidType(type) {
-  return type in TYPE_CHART;
+  return typeof type === 'string' && Object.hasOwn(TYPE_CHART, type);
 }
 
 /**
@@ -91,7 +94,7 @@ function isValidType(type) {
  * @returns {Object} 克制关系映射
  */
 function getTypeEffectiveness(attackType) {
-  return TYPE_CHART[attackType] || {};
+  return isValidType(attackType) ? TYPE_CHART[attackType] : {};
 }
 
 module.exports = {

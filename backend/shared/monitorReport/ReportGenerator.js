@@ -21,7 +21,7 @@ const logger = createLogger('report-generator');
  * - JSON（适合 API）
  */
 class ReportGenerator {
-  constructor(config) {
+  constructor(config = {}) {
     this.templateDir = config.templateDir || path.join(__dirname, 'templates');
     this.outputDir = config.outputDir || path.join(__dirname, 'reports');
   }

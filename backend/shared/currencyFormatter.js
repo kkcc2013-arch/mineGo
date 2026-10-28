@@ -155,32 +155,22 @@ class CurrencyFormatter {
    * Parse user input to amount
    */
   parse(input, currencyCode) {
-    // Remove currency symbols, spaces, thousand separators
-    let cleaned = String(input)
-      .replace(/[^\d.,\-]/g, '')
-      .replace(/,/g, '');
-
-    // Handle European decimal format (comma as decimal separator)
-    const locale = CURRENCY_LOCALES[currencyCode];
-    if (locale && ['de-DE', 'fr-FR', 'it-IT', 'es-ES'].includes(locale)) {
-      // European format: 1.234,56 -> 1234.56
-      cleaned = cleaned.replace(/\./g, '').replace(',', '.');
-    }
-
-    const amount = parseFloat(cleaned);
-
-    if (isNaN(amount)) {
-      throw new Error(`Invalid amount: ${input}`);
-    }
-
-    return amount;
+    if (!this.isSupported(currencyCode) || typeof input!=='string') throw new Error('Invalid amount');
+    const parts = new Intl.NumberFormat(CURRENCY_LOCALES[currencyCode]).formatToParts(12345.6);
+    const group = parts.find(p=>p.type==='group')?.value;
+    const decimal = parts.find(p=>p.type==='decimal')?.value;
+    let cleaned = input.trim().replaceAll(CURRENCY_CONFIG[currencyCode].symbol,'').replaceAll(currencyCode,'').replace(/\s/g,'');
+    if (group) cleaned=cleaned.replaceAll(group,'');
+    if (decimal && decimal!=='.') cleaned=cleaned.replaceAll(decimal,'.');
+    if (!/^-?\d+(?:\.\d+)?$/.test(cleaned) || !Number.isFinite(Number(cleaned))) throw new Error('Invalid amount');
+    return Number(cleaned);
   }
 
   /**
    * Detect currency by country code
    */
   detectCurrency(countryCode) {
-    return COUNTRY_CURRENCY[countryCode] || 'USD';
+    return typeof countryCode==='string' && Object.hasOwn(COUNTRY_CURRENCY,countryCode.toUpperCase()) ? COUNTRY_CURRENCY[countryCode.toUpperCase()] : 'USD';
   }
 
   /**
@@ -230,9 +220,12 @@ class CurrencyFormatter {
    * Check if currency is supported
    */
   isSupported(currencyCode) {
-    return currencyCode in CURRENCY_CONFIG;
+    return typeof currencyCode==='string' && Object.hasOwn(CURRENCY_CONFIG,currencyCode);
   }
 }
 
 // Export singleton
 module.exports = new CurrencyFormatter();
+
+module.exports.CurrencyFormatter = CurrencyFormatter;
+module.exports.currencyFormatter = module.exports;

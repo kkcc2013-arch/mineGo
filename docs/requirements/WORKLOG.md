@@ -1,0 +1,2784 @@
+# Full backlog implementation worklog
+
+## 2026-10-06 — repository connection and first verification batch
+
+The requested scope is all existing requirement documents. This batch does not
+complete that scope. The repository was cloned from
+`https://github.com/kkcc2013-arch/mineGo`, starting at `5cac6ab`, into the working
+branch `codex/requirements-readiness`.
+
+All requirement files were scanned for metadata, acceptance clauses, and source
+references. The generated [index](INDEX.md) and [audit](AUDIT.md) contain 658
+requirements. Status declarations initially comprise 214 `done` and 444 `new`
+entries; these declarations are not independent proof of acceptance. REQ-00619 is
+now `in_progress`, leaving 443 `new` entries.
+
+58 colliding documents were assigned unique IDs above the previous maximum,
+without deleting requirements or changing their completion claims. Existing index
+mappings were preserved; other collisions retain the earliest Git introduction.
+Exact filename links were updated. [The migration map](NUMBER-MIGRATIONS.md)
+records the old IDs, retained documents, and renamed documents. Bare historical
+IDs can still be ambiguous and must be interpreted using that map.
+
+Implemented and verified locally:
+
+- REQ-00619: injectable battle randomness, clock, and status-service boundary;
+  extracted production formulas; 57 formula tests and 76 business scenarios;
+  independent CI job with 91% line, branch, and function coverage thresholds.
+  Measured formula coverage is 100% in all three dimensions. Regression fixes
+  cover immunity, zero probabilities, HP bounds, defender status targeting,
+  toxic counters, and replay restoration.
+- Service health registration: static checks recognize factory and router registration, with real HTTP health/readiness checks for both shared implementations. Disabled health and unhealthy dependency cases fail correctly.
+- Repository parsing: syntax defects corrected in ten locations; CommonJS,
+  browser ESM, and JSX are checked with their supported grammar. This establishes
+  syntax validity, not frontend bundling or successful service startup.
+- 71 shared-module import paths repaired to resolve existing implementations.
+  Authentication entry points now share canonical JWT verification. Verified
+  `sub` claims supply the `id` and `userId` fields used by service handlers;
+  unauthenticated and non-admin requests remain rejected.
+- Request signatures: restored truncated tests; real metrics API integration;
+  constant-time signature comparison; malformed signature handling; unknown-key
+  rejection; parameterized route matching.
+- Client integrity: asynchronous fingerprint scoring and risk classification
+  aligned with the requirement's specified score bands.
+- Monitoring reports: valid resource queries and constructor defaults; the
+  existing tests run in the selected Jest regression suite.
+- Localized text: atomic placeholder truncation, balanced HTML within the total
+  character budget, intact emoji surrogate pairs, Japanese language detection,
+  and complete English word boundaries. Incorrect test expectations were
+  replaced with assertions matching the documented length and token contracts.
+- Gateway forwarding: replaced the vulnerable glob-dependent proxy package with
+  the static-target `http-proxy` adapter. Local HTTP and WebSocket tests cover
+  mount/path rewrites, query parameters, parsed JSON/form bodies, raw streams,
+  request/response callbacks, Host headers, error responses, and bidirectional
+  WebSocket frames. This also restores consumed JSON body forwarding.
+- Compatible dependency updates and removal of the vulnerable proxy dependency:
+  the npm audit at the high-severity threshold passes. The final audit still
+  reports 25 moderate advisories; no high or critical advisories are reported.
+
+Verification commands:
+
+- `npm test` on Node.js 20.20.2: 95 existing standalone checks, 133 battle checks,
+  and 167 selected Jest regression checks, all passing.
+- `cd backend && npm run test:battle:coverage` on Node.js 24.19.0: passes with
+  100% formula line, branch, and function coverage.
+- `node --test scripts/tests/*.test.js`: audit and syntax checker tests pass.
+- `npm run check:syntax`: repository JavaScript parsing passes.
+- `node scripts/check-req-numbering.js`: 658 documents, 658 unique IDs, zero
+  duplicates; next available ID is REQ-00684.
+- `npm run requirements:audit:check`: generated metadata, hashes, and index match.
+- `cd backend && npm audit --audit-level=high`: passes; moderate findings remain.
+- Changed shared modules were loaded directly, and the gateway/authentication
+  tests exercise real local HTTP requests rather than only checking imports.
+
+Completion limits and next work:
+
+- Remote CI has not run. Per GUIDELINES.md, REQ-00619 remains `in_progress`.
+- The selected suites do not represent all repository tests. The full backlog
+  requires additional service, route, database, client, performance, and recovery
+  verification; existing source references do not establish those outcomes.
+- Some modules still reference missing shared implementations, and some frontend
+  components require build/runtime integration beyond syntax parsing.
+- Docker is available. No Kubernetes context is configured, so live deployment,
+  rollback, and production metric acceptance have not been verified. The user was
+  asked which deployment environment to use; no cluster operations were executed.
+- Continue with the existing P0/P1 backlog using the generated index and migration
+  map. Do not run the requirement-generation prompt or invent maturity scores.
+
+The [verification ledger](VERIFICATION.json) records the exact requirement and
+source hashes associated with REQ-00619's local evidence. Editing those sources
+invalidates that evidence in the next audit.
+
+## Publication access
+
+Publishing the prepared branch was attempted after local verification. HTTPS Git
+push cannot authenticate in this workspace. The connected GitHub integration also
+rejected branch creation with HTTP 403, `Resource not accessible by integration`.
+Installation discovery returned no manageable installations. No remote branch or
+pull request was created. Repository write access must be granted to the GitHub
+integration before publishing and running remote CI. The local commits and clean
+working branch are preserved.
+
+## Publication and CI follow-up (2026-10-06)
+
+The branch was published after the user confirmed repository/workflow access.
+Draft PR: https://github.com/kkcc2013-arch/mineGo/pull/6 . The main CI/CD Pipeline
+and battle regression job passed at commit 05e159922af8d818ede4ca0596e53bd6b3ddd173
+(run 37471947782). This supersedes the earlier publication blocker above. No merge
+or deployment was performed. Other workflows were not all green.
+
+The subsequent batch repairs unavailable/retired actions, adds the frontend npm
+lockfile, and records genuine contract/performance failures instead of suppressing
+them. Contract reports use job summaries and artifacts. The provider Joi contracts
+have their own working HTTP runner; the registry-based runner remains separate.
+Mutating requests require explicit fixtures, and missing/empty/failed verification
+cannot pass. Configure CONTRACT_BASE_URL and CONTRACT_FIXTURES_PATH for the real
+test environment. Existing game contract paths and payloads still require alignment.
+
+Performance measurements now require a real app or API URL, use measured wall time
+for concurrent throughput, detect throughput decreases correctly, and propagate
+storage errors. The baseline migration no longer fabricates demonstration values.
+The baseline manager preserves explicit zero values, parameterizes intervals,
+correctly counts deleted rows, and enforces at least 90 days of retention.
+A new isolated PostgreSQL/Redis storage test verifies these changes against actual
+services; it never modifies an existing application's schema. Unit coverage is
+measured by Jest rather than method-presence assertions. Configure PERF_BASE_URL
+and measured baselines before treating the live game benchmark as verified.
+
+Validation of this batch:
+
+- Node 20 full unit command: 95 standalone + 133 battle + 268 selected Jest tests
+  (496 checks) passed. The selected suites now include real HTTP contract tests,
+  performance tests and schema validation, plus existing contract compatibility tests.
+- Performance suite: 44 tests, 98.31% lines, 91.71% branches, 100% functions; its
+  actual 80% coverage gate passed.
+- PostgreSQL 15 / Redis 7: isolated baseline storage, caching, trend, retention,
+  migration and interval-parameter checks passed.
+- Battle formula coverage on Node 24: 100% lines/branches/functions, 133 checks pass.
+- All workflow YAML parses, 1375 JavaScript files parse, tooling tests pass,
+  numbering has zero duplicates, and npm audit reports zero high/critical findings
+  (25 moderate findings remain).
+- Frontend npm ci succeeds and Playwright discovers 320 tests. Browser download
+  failed mid-transfer; no browser runtime pass is claimed. Generated local browser
+  reports are ignored.
+- kubeconform 0.6.4 validates 142 Kubernetes resources in 27 files: 101 valid,
+  zero invalid/errors, 41 skipped because their custom resource schemas are not
+  available. Native Prometheus/Alertmanager configs and Grafana dashboard data are
+  excluded from Kubernetes resource validation. No cluster is contacted.
+- The legacy integration suite fails under Node 20 in testcontainers/undici startup;
+  it runs under Node 24 but exposes missing imports/dependencies, PostGIS setup,
+  and mock test schema drift. It is NOT declared passed. Its workflow now uses
+  Node 24, consistent with the installed undici runtime requirement. The test-defined
+  routes do not establish production route acceptance.
+
+REQ-00093 and REQ-00490 were reopened from legacy `done` declarations to
+`in_progress`; REQ-00547 started. The audit now reports 212 legacy done declarations,
+442 new requirements and four in progress. The all-requirements objective remains
+unfinished; none of these partial results establishes product-wide completion.
+The user was asked for a live test/staging API and Kubernetes context. Pending
+those details, no external benchmark, recovery drill or production rollout was run.
+
+
+## Dependency analyzer follow-up
+
+At ae68592 the main CI pipeline passed again, and the performance unit/coverage
+and actual PostgreSQL/Redis storage job passed remotely. Live benchmark and
+contract jobs failed because no test API/fixtures were configured; their failure
+is now visible. The broader integration job also remains red.
+
+The dependency workflow now reaches its analyzer and exposed an actual runtime
+error: the logger declaration was inside a comment. Its discovery also pointed
+outside backend/services and omitted backend/gateway. Both are repaired; missing
+source trees now fail explicitly. Repeated analysis clears previous state, JSON
+contains health scores and event topics, and cycle detection clears its traversal
+stack correctly. A real-source scan discovers all nine services and nine static
+synchronous dependencies with no detected cycles. This does not establish 99%
+accuracy or complete Kafka/dynamic call coverage. REQ-00103 is in progress.
+The expanded regression suite passes 295 tests across 13 suites (27 analyzer tests
+added); the earlier standalone and battle checks remain applicable. Requirement
+inventory now has 441 new, five in progress and 212 legacy done declarations.
+
+## Privacy route and preference repair (2026-10-06)
+
+Resumed the all-requirements task after the user asked whether work was continuing.
+The previous final reply did not leave a background worker running. Continued local
+work without waiting for staging access.
+
+REQ-00053's legacy done declaration was reopened. Missing optional preferences and
+new defaults now start disabled, unknown categories cannot acquire permission,
+and default initialization does not manufacture consent timestamps. Explicit
+changes update consent timestamps and persist a real audit record in the same
+transaction. Audit failures roll back both preference changes and policy acceptance.
+Private routes verify JWT locally; admin routes require signed admin roles. Policies
+must exist, be active and effective before acceptance. Current-policy selection and
+public history exclude future effective dates. Gateway proxy mounts and user-service
+initialization are now wired, including the requirement's documented API aliases.
+
+The additive migration preserves existing values, supports both policy table shapes
+found in the repository, and adds compatible audit columns to the initial UUID audit
+schema. It does not overwrite historical choices, invent translations or change
+checksums of existing migrations. Existing consent provenance still requires review.
+The full migration history and every legacy audit/user schema variant have not been
+accepted by these tests.
+
+Checks passed:
+
+- Node 20 full unit command: 95 standalone + 133 battle + 335 Jest = 563 checks.
+- Privacy unit suite: 40 tests; measured 91.78% lines, 89.57% statements, 100%
+  functions and 78.72% branches. The actual 80% line/statement/function gate passes.
+- Privacy PostgreSQL/gateway suite: 11 Node test checks, including upgrades of both
+  real policy schema definitions, preserving existing consent, JWT and admin access,
+  all proxy prefixes, current/future policies, explicit opt-in/withdrawal, invalid
+  updates, stored reports, exported metrics and deliberate audit failure rollback.
+  Production privacy routers and the gateway proxy module are executed; the UUID
+  user identity table is a fixture and this is not a full user-service startup test.
+- Formula coverage remains 100% on Node 24. Workflow YAML and JavaScript syntax pass.
+- A dedicated privacy-regression workflow runs coverage and real PostgreSQL route
+  tests on pull requests. Remote results are pending publication/CI at this point.
+
+Remaining REQ-00053 acceptance includes the complete client interface, applying
+preferences at every data collector, original consent evidence for legacy rows,
+7-day retention, scheduled reports, third-party sharing records, policy-change
+popups and data export. Three existing privacy metric families are connected to
+real successful actions; the data-export metric remains unwired with its workflow.
+No product-wide completion or legal-compliance claim is made.
+
+The inventory remains 658 unique requirements, with 211 legacy done declarations,
+441 new requirements and six in progress. The source-hashed ledger records privacy
+results as partial evidence, separately from complete acceptance.
+
+## Logging migration and runtime repair (2026-10-06)
+
+Privacy CI, the main CI pipeline and dependency checks passed at 739c8ee. The local
+continuation replaces the unsafe regex console converter with Babel AST/scope
+analysis and a default read-only report. Writes require an explicit CommonJS file,
+keep comments/directives/argument expressions, avoid nested name collisions and
+parse the result before writing. ES module rewrites and unsupported console methods
+require review. The runtime scanner finds zero direct global console calls across
+shared, gateway and all service source trees; test and CLI/script output is excluded.
+The empty baseline and CI gate reject newly detected calls. CLI output is preserved.
+
+The migration helper preserves common formatting, structured errors/objects and
+known credential-field redaction without invoking getters or modifying input data.
+Date, Buffer, Map and Set values are covered. Shared loggers now use AsyncLocalStorage
+for actual request identity/trace context; concurrent HTTP tests prove context
+separation. Development loggers share one pretty transport instead of creating a
+worker for each converted module. Disabled log levels avoid object normalization.
+The helper is never installed globally on import; explicit replacement can be undone.
+
+Repaired logger declarations hidden inside comments and genuinely unbound references
+in business/spawn metrics, ImageProcessor, age verification, WebSocket shutdown and
+ServiceLauncher startup failure handling. Removed consent-token/approval-URL log
+output; the parent-consent message now says request prepared because delivery was
+never implemented. This does not validate the email-delivery requirement.
+
+Validation:
+
+- Full unit command on Node20: 95 standalone + 133 battle + 351 Jest = 579 checks.
+- Logging helper/migration suite: 13 tests; 100% lines/functions, 98.57% statements,
+  94.54% branches; the actual 85% coverage gate passes.
+- Actual PostgreSQL/privacy/gateway suite still passes all11 Node checks after the
+  logger changes. Battle formula coverage remains100% on Node24.
+- 1380 JavaScript files parse, logging scan is zero, tool checks and numbering pass.
+  ServiceLauncher loads directly. Full service startup is not claimed.
+- The reproducible production-mode logging microbenchmark FAILED its5% target:
+  median message overhead211.20%, printf196.21%, object167.65% for20000 calls per
+  case. New absolute batch times were21.54ms/26.20ms/59.62ms respectively. The test
+  writes to synchronous in-memory discard streams and does not establish production
+  disk/network throughput. The failure is recorded in VERIFICATION.json; no threshold
+  was weakened and no performance acceptance was checked off.
+
+REQ-00391 is reopened and REQ-00683 is in progress. The inventory now has210 legacy
+done declarations,440 new requirements and8 in progress. The documented logging
+functionality and scanner progress do not imply all requirements or all logging
+performance/adapter conditions are complete. See docs/LOGGING-MIGRATION.md.
+
+## Service initialization and shutdown repair (2026-10-07)
+
+The user asked whether work was still running. No persistent goal or automation was
+active; ordinary prior replies ended their runs. Requested explicit authorization
+for a persistent goal and continued authorized local repository work while waiting.
+
+GitHub checks at 1ad7793: main CI/CD, dependency and privacy workflows passed.
+Contract, API contract, performance, integration and security workflows failed;
+E2E was cancelled. The repository as a whole is not accepted or fully green.
+
+ServiceLauncher previously opened its listener before user-service initialization;
+its 404/error handlers also preceded routes mounted in onReady, and its basic
+/health masked the dependency-aware health router. The new onInitialize hook runs
+before listening and terminal fallbacks. user-service now initializes health/GDPR/
+compliance/deletion/title dependencies there. Its onShutdown hook stops the health
+check interval, including failed startup. onReady remains a post-listen callback
+and is documented as unsuitable for registering routes.
+
+Concurrent starts share initialization, startup/bind/post-listen failures close the
+owned listener and invoke cleanup, and shutdown removes signal listeners, drains
+requests, bounds stalled HTTP connections and permits restart. Explicit port 0
+selects an ephemeral listener. Library shutdown does not exit the host process.
+HealthChecker clears deadlines after completed checks and honors custom critical
+registrations when calculating health. This does not make unknown dependencies
+healthy or implement all recovery requirements.
+
+Validation:
+
+- Full Node20 unit command: 95 standalone + 133 battle + 362 Jest = 590 passed.
+- Added 11 lifecycle/health regressions use actual HTTP listeners and cover deferred
+  initialization, 503/live probes, business/error/404 paths, bind collisions, startup
+  cleanup failures, concurrent starts, in-flight draining, stalled socket closure,
+  shutdown during startup, restart, custom critical checks and cancelled deadlines.
+- Existing standalone ServiceLauncher checks: 26 passed separately.
+- Actual PostgreSQL privacy/router/gateway tests: all 11 Node checks passed again.
+- 1381 JavaScript files parse, runtime logging scan remains zero, 12 tool tests pass,
+  health registration checks find all 9 entry points, and numbering has no duplicates.
+- An initial unit invocation with LOG_LEVEL=silent disabled intentional test logging;
+  a later fake-clock check counted a logger microtask. Corrected invocation and clock
+  isolation (real nextTick/setImmediate) passed the full suite without weakening any
+  production assertion. Completed health deadlines are still explicitly checked.
+
+REQ-00159's old done declaration is reopened; REQ-00682 is in progress. Existing title
+service uses a Knex-style db function although shared/db exports PostgreSQL operations;
+full user-service startup remains unverified and this repair does not claim it works.
+Self-healing, Kafka/Redis/resource coverage, isolation/recovery/diagnostics, seven-dependency
+container, three-service migration, measured startup improvement and coverage target
+remain outstanding. Inventory: 658 unique requirements, 209 legacy done declarations,
+439 new and 10 in progress. Partial evidence is source-hashed in VERIFICATION.json.
+
+Publication: the lifecycle change is committed locally. A normal push was attempted
+with terminal prompts disabled and failed because no GitHub username/sign-in
+credentials are available to this checkout. No token was placed in command text,
+configuration, files or logs. Draft PR #6 still contains earlier published commits;
+this new lifecycle commit has not reached remote CI. The full backlog remains open.
+
+## Completion plan and first implementation batch (2026-10-07)
+
+The user requested a plan and continuation to finish the existing backlog. Created
+COMPLETION-PLAN.md covering all 658 documents, prerequisites/P0 ordering, service,
+security, game/client, measured quality, operations, tooling and final acceptance.
+The plan is open in the app. Requested explicit persistent-goal authorization to
+continue across replies; no Goal has been created without that request.
+
+At 890b779, main, dependency and privacy GitHub workflows passed. Contract/API contract,
+performance and legacy integration workflows still fail. Integration job logs confirm
+production-schema mismatches, missing tables and invalid legacy imports rather than
+accepted production behavior. Publication credentials are available from the
+user-authorized external file; no credential content is copied into repository files.
+
+Correction to earlier startup notes: shared/db DOES export a .db query builder.
+The title service's failing assumptions concern unsupported grouped where callbacks,
+db.fn.now and treating a transaction client as a Knex function. Its initialization
+query can work when the table exists. Actual startup also exposed a bad timezone
+import, title/public path shadowing and asynchronous notification initialization.
+
+Implemented:
+
+- Title service now uses parameterized PostgreSQL operations with injectable database,
+  cache, metrics and event bus. Concurrent duplicate grants are idempotent; concurrent
+  title switching locks the user and leaves one active title. Failed switching rolls
+  back. Expired titles cannot provide bonuses or appear in active/statistics views.
+  Redis invalidation failures do not change authoritative ownership or convert a
+  committed update into an apparent failed mutation. Snapshot caches are not trusted.
+- Title routes restrict manual grants and expiration jobs to signed admin roles,
+  enforce numeric/boolean inputs and typed errors, and register leaderboard/shop
+  before title-ID parameters. The explicit public title/timezone routers are mounted
+  before broad user/session authentication and profile parameters; private title
+  paths still authenticate locally.
+- New additive title bootstrap preserves the old migration and existing definitions,
+  provisions 20 titles, matches users.id's UUID/BIGINT/INTEGER type, enforces one active
+  title, and can rerun its trigger setup. A mismatched existing identity type fails
+  with a request for an explicit mapping; no user-ID conversion is guessed. UUID
+  databases need this bootstrap before the incompatible legacy title migration.
+  This is not acceptance of the full migration history or all legacy title shapes.
+- Timezone import fixed; preference routes verify identity and ownership before reads/
+  writes, validate boolean flags, and use a real Time-Zone header instead of returning
+  a fabricated IP-detection result. Global timezone/DST/event behavior remains open.
+- user-service now awaits all seven notification subscriptions and initializes its
+  configured Kafka producer. Startup health checks exercise PostgreSQL/Redis/Kafka,
+  app.locals.db is initialized, and an explicit PORT (including 0) is honored.
+  Shutdown closes owned database/Redis pools and Kafka resources. EventBus closes
+  consumers concurrently, releases failed subscriptions and admin health connections,
+  and reports cleanup errors. Serial Kafka disconnection caused the measured shutdown
+  failure; concurrent closure resolves it without extending the 15-second test limit.
+
+Validation:
+
+- Full Node20 unit run: 95 standalone + 133 battle + 380 Jest = 608 passed (21 Jest
+  suites). Replaced the old non-executed/broken title mock suite with 8 meaningful
+  failure/validation tests; added 4 timezone, 4 EventBus and 2 subscription regressions.
+- Actual PostgreSQL/Redis/title HTTP suite: 13 checks passed, including UUID/BIGINT
+  migration, input/authentication, concurrent grants and activation, deliberate
+  rollback, expired benefits, public views, limits, cache outage and metric export.
+- Core title storage regression coverage on Node24: 96.67% lines, 81.48% branches,
+  92.86% functions; real 80% line/function gate passes. Unit-only coverage remains
+  a separate outstanding acceptance target.
+- Real user-service process starts on an ephemeral port against an isolated schema
+  using the production users identity DDL, title bootstrap, local Redis and local
+  Apache Kafka 3.9.1 with provisioned topics. Dependency health, signed/unsigned
+  title endpoints, GDPR/deletion route reachability and natural process termination
+  after shutdown are exercised. Final Node20 warm sequential empty-list HTTP sample
+  (50 reads): median 1.864ms, p95 3.359ms, max 4.084ms; shutdown 5677.894ms. This is
+  local evidence, not a production-capacity or representative-population benchmark.
+- Actual privacy/PostgreSQL/router tests still pass all 11 checks. Syntax 1386 files,
+  logging scan zero, health registrations 9, tooling tests 12 and numbering pass.
+- Dedicated title workflow runs unit, real storage/coverage and actual process startup
+  on Node24 with PostgreSQL, Redis and an isolated Kafka container. Remote result
+  remains pending publication and CI at this entry.
+
+REQ-00106 and REQ-00612 are in progress; REQ-00026's old done declaration is reopened.
+Current inventory: 208 legacy done declarations, 437 new, 13 in progress. All 658 IDs
+remain unique. Full UI/profile/game-stat application, automatic achievement cross-
+service schema integration, notification history/preferences/client latency, global
+UTC/DST scheduling and full legacy integration/contracts/production criteria remain
+open. Next batch follows COMPLETION-PLAN.md; no all-requirements completion is claimed.
+
+The workflow's Node24 runtime was checked locally too: title unit8 and actual service
+startup/shutdown1 pass. Current Node24 actual process warm HTTP p95 3.363ms and shutdown
+5402.016ms. Cleanup attempts Kafka/database/Redis closures independently and reports
+aggregate failures. KafkaJS emitted a Node24 negative-timeout warning in one earlier
+successful run; this library warning has not been diagnosed or suppressed. The final
+Node24 run passed and emitted no such warning. No runtime-support or production-SLO
+claim is inferred from these isolated checks.
+
+Published first-plan implementation as c52d5de to draft PR #6. Main CI/CD432,
+dependency236 and privacy4 passed. The first title workflow failed before tests:
+GitHub runner passed the single-quoted health command as separate Docker flags
+(`unknown shorthand flag: U`). Corrected both health commands to runner-compatible
+double quotes and made cleanup conditional on the Kafka container actually existing.
+This fixes test setup; it does not hide any test failure. Follow-up remote run pending.
+
+Follow-up 4afcce9 published. Related remote checks PASS: main CI/CD433
+(run37623349227), dependency237 (37623349416), privacy5 (37623349225), and title
+regression2 (37623349256), including actual Node24 service/storage/Kafka startup and
+shutdown. Contract, API contract, performance and legacy integration still fail;
+security/E2E were still running at the snapshot. Related partial evidence now records
+CI verification; this does not mark any complete requirement done or all 658 finished.
+
+## Persistent-goal continuation: IP appeal runtime (2026-10-08)
+
+The human explicitly started the persistent goal; it is active for all 658 existing
+requirements. The previous goal turn created authoritative goal state (progress).
+Revalidated clean c58888f and current CI: main/dependency/privacy/title workflows pass;
+contracts, performance, integration and security fail, E2E cancelled. No no-progress
+or blocked condition applies: this turn repaired actual P0 user-route dependencies.
+
+REQ-00149 was mounted but depended on a gateway process-local IpBanManager, so user-
+service could not resolve it. Private handlers inspected req.user without verifying
+JWT. REQ-00075 also had a Map used as a Set, unsupported metrics calls, permanent/CIDR
+ban bugs, shared-cache expiry hazards, and gateway enforcement mounted after business
+proxies. Reopened both legacy done declarations and repaired those concrete defects.
+
+User-service now owns/initializes/closes its manager with actual shared database and
+Redis clients. The manager exposes an awaited initialization result, owns only its
+created resources, handles malformed subscription messages, and performs ban/white-
+list/CIDR/expiry authorization reads against PostgreSQL. It no longer wipes shared
+Redis ban maps or treats advisory cached state as permission. Risk cache values must
+be canonical integers0..100 or are read again from authoritative storage. Geo lookup
+uses one connection instead of holding a connection while acquiring another.
+
+Private appeal handlers verify JWT before checking dependency availability, use the
+verified user ID, validate string/length inputs, use production nickname fields and
+release status-query clients on failure. Public check works without authentication.
+Removed an unsupported 24-hour processing promise. Production proxy helpers support
+8 documented/client aliases, overwrite caller forwarding headers with the gateway's
+resolved address, and remove X-Real-IP. Express trust-proxy ranges are explicit and
+disabled by default; docs/IP-APPEALS.md describes network-boundary requirements.
+
+Gateway IP enforcement moved before terminating business proxies. Appeal/health
+paths remain reachable for blocked users. Missing/failed access-control dependencies
+return503 instead of silently granting access. This does not claim the complete
+monolithic gateway process or every admin/ban workflow has been accepted.
+
+Evidence:
+- Node20 fullunit:95 standalone+133 battle+385 Jest=613 passed (22 Jest suites), including
+  5 new tests for proxy-boundary matching, identity verification and trusted addresses.
+- Node24 real PostgreSQL/Redis/ban-middleware/appeal/proxy suite:9 checks passed, including
+  all aliases, permanent/CIDR/expired bans, whitelist precedence, forged forwarding
+  headers, input validation, stored authenticated ownership, reviewer display, corrupt
+  risk cache, failed status-query release and storage outage enforcement.
+- Node24 actual user-service process:1 pass. Uses production UUID users identity DDL,
+  existing title bootstrap, new IP bootstrap, real PostgreSQL/Redis/Kafka; posts and reads
+  an appeal through the production proxy module and checks the persisted verified UUID.
+  Public/check200 and invalid-token/status401 are exercised. Natural shutdown succeeds;
+  local warm title HTTP p95~3.264ms and shutdown~5485.511ms are not production SLO proof.
+- Existing real privacy storage/proxy tests11 and tool tests12 pass; nine health
+  registrations, syntax and logging-zero checks pass. Workflow YAML parses. Targeted
+  title/storage/process workflow now also executes IP appeal regression and includes
+  IP migration/proxy changes in its trigger paths. Publication/remote results pending.
+
+Known remaining scope: full native gateway startup; true caller IPs in an authorized
+multi-hop deployment; automatic-ban time windows and transaction consistency; complete
+admin approval/rejection and CIDR unban semantics; real GeoIP; full Pub/Sub/retention/
+metrics coverage and admin UI. Existing legacy migration checksum is preserved with
+an additive UUID-compatible GiST bootstrap; non-UUID legacy identities and the complete
+migration history still require explicit validation. Both requirements stay in progress.
+
+Published1992fb4 to draft PR6. Remote checks PASS: main435 (37715515569), dependency240
+(37715515562), privacy7 (37715515583), title/IP/storage/process4 (37715515610). Contract,
+API contract, performance and integration remain red; security/E2E were still active
+at the snapshot. Related source-hashed evidence is partial_ci_verified, not complete.
+
+Independent next-step probe: the actual gateway entry point loads/listens but reports
+missing core warmup/IP tables on the unprepared test schema and ioredis connections to
+an unconfigured/default Redis endpoint. Its existing shutdown hooks prevent termination
+on the startup probe's SIGTERM; verified the exact owned node process and timeout parent,
+then killed only that probe. Own PG/Redis/Kafka test containers stopped after verification.
+No production deployment or user-data operation occurred. Next goal continuation should
+fix gateway dependency configuration and lifecycle and run against a fully prepared
+production-compatible schema, then verify actual gateway/user route contracts. Progress
+was made; there is no blocked audit condition and the full goal remains active.
+
+
+## Persistent-goal continuation: native gateway lifecycle (2026-10-08)
+
+Confirmed 343ec57 pushed and working tree clean before implementation. Goal active;
+this turn makes substantive progress. Replaced detached gateway initialization and
+unowned HTTP listen with the existing ServiceLauncher lifecycle, preserving streaming
+proxy middleware order. Before listening: actual PG connectivity, configured Redis,
+then awaited IP manager initialization. Failure cleanup releases subscriptions, cache
+and PG/Redis resources; signal handlers drain HTTP before dependency cleanup. Removed
+a caller-supplied duplicate subscriber so the manager owns and closes its subscription.
+Cache cleanup interval now has a stored handle and is cleared on close. Warmup remains
+nonblocking and shutdown awaits its outcome before removing refresh timers.
+
+Business-events routes use the shared service-owned Redis client instead of a new
+default connection. REDIS_URL is honored before host/port defaults in the singleton
+and independent cache client. Global IP limiting uses the trusted resolved address;
+IP enforcement is now before every business/operational route, including routes that
+previously preceded the business proxy block. Warmup admin operations verify JWT/admin
+roles and parse their own body without consuming all proxy request streams.
+
+Gateway /health/live and /health/ready added; readiness rechecks actual PG, Redis, IP
+table accessibility and all named registry targets; preserves /health services shape.
+Unavailable services remain named, not '?'. No nonexistent Kafka check is claimed for
+a gateway that currently does not initialize/use Kafka itself. Other service/gateway
+admin authentication gaps and JWT revocation fail-open paths remain to be repaired.
+
+Evidence: Node20 npm test613 passes (95 standalone,133 battle,385 Jest/22 suites).
+Node24 actual storage/proxy/title/privacy tests33 pass (IP9,title13,privacy11).
+Native gateway CLI plus real user CLI scenario passes: absent IP schema prevents listen
+and naturally exits1; populated actual UUID users/title/IP DDL permits dependency-first
+listen; public check, invalid status token401, signed POST/status and stored canonical
+IP/user ownership work through production gateway. CIDR blocks business and operational
+routes, but appeals/health remain reachable; forged XFF/X-Real-IP cannot override identity.
+Warmup admin401/403/200 verifies actual role authentication. Renaming the IP table makes
+readiness/business503 while liveness200; stopping the actual user process makes named
+upstream checks unavailable. Gateway SIGTERM ~937ms, user SIGINT~5148ms including an
+outage probe, both natural code0 exit. Conflicting host/port with correct REDIS_URL
+works, including independent cache. Changing forged XFF each request still reaches
+global429. There are no unhandled ioredis/default-endpoint errors.
+
+Fixture contains only actual user/title/IP production DDL and explicit bootstrap;
+missing game warmup data remains reported as failedCount. Seven other registry targets
+point to the actual user fixture to test registry mechanics; their services are not
+accepted. REQ-00039 legacy done reopened: missing description_en in V1 species, full
+game data contracts, refresh correctness, coverage, <2s startup impact and cold-five-
+minute latency remain unverified. Req149/159/682 progress appended; full scopes remain
+open. Syntax1391 files zero errors, workflow YAML parses, diff whitespace clean.
+Targeted title/storage/process workflow now includes native gateway regression.
+No acceptance thresholds lowered, no full requirement promoted, no merge/deployment.
+Publication and new remote CI results pending. Goal stays active.
+
+
+Published d276dbb to draft PR6. Related remote workflows PASS: main437/37716906878,
+dependency243/37716906899, privacy9/37716906894, title/storage/IP/user/native-gateway6/
+37716906946. Native gateway step12 success confirmed via workflow jobs. API contract66
+and performance105 failed; integration412, contract362, security395 and E2E99 remained
+active at the snapshot. Ledger partial records updated with code-commit CI evidence;
+no complete requirement promoted.
+
+Independent next-batch full-schema probe used a new owned PostGIS container matching
+production docker-compose image postgis/postgis:15-3.4-alpine, localhost55433,512MB.
+Full V1 schema succeeds. Transactional full V2 seed fails evolves_to=55 FK, preserving
+zero seed mutations. Standard migration CLI fails pg module resolution. Diagnostic
+NODE_PATH pointing to backend dependencies lets actual runner discover79 files, then
+fails 20260605_180000 moves FK because species25 is absent after seed failure. Transaction
+rolls back all pending changes including new schema_migrations/migration_lock tables;
+lock-release cleanup logs a secondary missing-table error. CLI also has an unconditional
+undefined err on success rather than catch; legacy migrate.test copies logic instead of
+exercising production CLI. REQ00007 reopened (204done/17inprogress/437new), source-hashed
+failure evidence recorded. Next: fix actual CLI lifecycle and complete fresh seed/
+migration contracts, with real PG and checksum/concurrency/rollback checks. No production
+operations, no baseline-deleting resets, no new requirement scope. Goal stays active.
+
+
+## Persistent-goal continuation: actual migration execution (2026-10-08)
+
+Previous goal turn made substantive progress: d276dbb gateway repairs and related CI
+passed,2e2dd2d documentation published. Revalidated clean worktree and active full658
+Goal; no blocker audit condition. This batch repairs the next real database setup path.
+
+Runner now resolves pg from installed backend declarations, uses a proper CLI catch
+and natural pool cleanup/exitCode, and exposes owned pool closure for shared startup.
+Transaction-held PostgreSQL advisory locking is scoped to database/schema, honors
+MIGRATION_LOCK_TIMEOUT_MS as wait limit, and is released by transaction/session end.
+All apply/rollback SQL and source-hashed history stays in one transaction; no stale
+fixed-expiry row lock or secondary missing-lock-table failure. Checksum validation
+precedes up/down; missing applied files, duplicates and invalid names cannot silently
+pass. Actual PostgreSQL lexer handles strings/dollar function bodies/nested comments;
+only top-level section markers split scripts. Legacy whole-body/trailing COMMITs stay
+under runner ownership; internal transaction controls and empty templates are rejected.
+No existing pending migration contents or checksums were changed.
+
+Shared DB startup is memoized, verifies history, optionally runs actual pending SQL
+when AUTO_MIGRATE=true and closes the migration pool. Gateway/user call this before
+business initialization and HTTP listen. Other services still need integration.
+SQL V2 sample seed gained missing evolution targets55/75/76/80, preserving chains.
+New target base stats checked against the fixed PokeMiners game-master snapshot
+8e227be44f288d34463e23bf04e9b564d3c16f79; rarity/catch/biomes are sample balance choices.
+Full original V1 DDL plus revised V2 seed succeeds in owned PostGIS15:32 species,8
+achievements,5 stops,3 gyms and no missing evolution target. This is a sample, not151
+complete species or all game feature acceptance.
+
+Evidence: Node20 npm test619 (95standalone+6actual migration parser+133battle+385Jest)
+passes. Node24 actual migration CLI/storage10 pass: native create/status/up/verify/down
+without NODE_PATH; rejection of blank SQL; durable checksums/data/functions; idempotency;
+tampered/missing/duplicate/invalid scripts; target/last/empty rollback; SQL failure rolls
+back whole batch including legacy wrappers; two processes apply once;100ms configured
+lock wait times out; killed owned CLI's exact PostgreSQL backend eventually ends and
+its lock is released; actual AUTO_MIGRATE shared startup runs once and exits naturally.
+In-flight pg_sleep may finish before client loss is detected: initial3s observation
+failed, then test was corrected to wait for authoritative exact-session termination
+(~10s fixture), not to expire/steal its lock or claim immediate recovery.
+
+Native gateway/user process scenarios both pass after migration initialization changes.
+An initial concurrent fixture run exposed uuid-ossp installed in disposable schemas;
+serial/shared-public extension ownership repaired (storageSetup.js), rerun passes.
+Business PostgreSQL/Redis/privacy/title/IP suites33 pass. Full-history gate runs actual
+V1 and seed, then all79 default pending scripts; seed passes, pending run fails missing
+items in20260609_124500. Earlier dependency/seed failures are repaired; no missing table
+faked or bad migration skipped. New migration workflow executes both tool/storage and
+full-history gate, with the final real failure retained. README and migration guide
+explain commands, lock/rollback semantics and acceptance limits. Remote results pending.
+
+Next goal turn: reconcile legacy prerequisite/table contracts through an audited
+ordering/catalog/bootstrap path, preserve applied pending file checksums, then rerun
+whole history and warmup. Complete requirements7/39/306 and remaining service scopes
+remain open. No new requirements, no merge/deploy, no production data operations.
+
+
+## Persistent-goal continuation: migration dependency and catalog contracts (2026-10-08)
+
+Previous turn made authoritative progress in07248db, published to draftPR6. Revalidated
+clean worktree and remote CI: main439/37719050021,dependency246/37719050047,privacy11/
+37719050042,title/storage/nativeprocess8/37719049932 pass. Migration1/37719050130 passed
+parser/storage then failed actual full history at items (expected open defect). Contracts,
+API contracts, performance, integration and security fail; E2E101 was active at snapshot.
+No Goal blocked condition: this turn repairs the next concrete schema execution paths.
+
+Added dependency manifest/topological plan and tracked actual execution_order. Applied
+source/dependency/executed-SQL checksums are distinct; up/down/verify reject drift and
+invalid/missing/cyclic references. Legacy history adoption preserves source hashes/data,
+backfills old time/version order before adding uniqueness, and leaves unknown execution
+hashes NULL. Storage test deliberately reverses physical legacy row insertion to expose
+and prevent unique-order backfill collisions. Rollback uses real execution order.
+
+Added owned item catalog prerequisite based on the repository localization table
+contract, plus UUID Pokedex statistics cache prerequisite. Ownership/OID state prevents
+rollback from deleting a preexisting table or a replacement relation; existing incompatible
+identity is rejected rather than cast. Both execute before their legacy consumers.
+
+Actual full run exposed invalid legacy SQL beyond missing prerequisites: partial UNIQUE
+constraints embedded in CREATE TABLE, missing inet_ops, six trailing spawn VALUES commas,
+DECIMAL5,4 unable to hold seeded weight15, and V1 UUID foreign-key mismatches. Originals
+remain byte-identical. Explicit repairs.json binds each exact originalSHA to a complete
+reviewable SQL correction and reason, with guarded paths and separately persisted
+execution hash. Logs say which correction runs; no migration or intended data silently
+skipped. Guild seed uses actual guild IDs instead of nonexistent guild0. Repair fields
+align the canonical V1 UUID identities; undocumented historic schemas remain unaccepted.
+
+Real inventory SQL then exposed integer capacity arguments, unnamed default records,
+OUT/column ambiguity, a BIGINT remaining value returned as INTEGER, and expiry writing
+zero against a positive constraint. Corrected capacity takes UUID, validates positive
+addition, uses named defaults/qualified aggregates and typed nonnegative remaining.
+Expiry deletes expired rows and updates capacity while preserving valid inventory and
+the positive-quantity check. Actual storage tests verify >=20 catalog items, ownerUUID,
+default/over-capacity, expiry cleanup, FK/quantity rejection and safe catalog rollback;
+these do not accept every HTTP/service/client/event/cache requirement.
+
+Evidence: full unit621 (95standalone+8runner+133battle+385Jest), actual CLI13, actual
+prerequisite/inventory2, business PostgreSQL/Redis33 and native gateway/user process2
+pass. JS syntax now covers database too:1413 files zero errors. Workflow YAML and diff
+checks pass. Full original V1+V2 sample seed passes; all81 pending (79original+2new)
+remain gated and source-hash checked. Execution advances to20260610_100000 audit partition
+conflict: resource_type absent, audit_logs still an ordinary V1 table, IF NOT EXISTS
+did not perform conversion. The whole migration transaction rolls back on this failure.
+
+Reopened req47/56/60 (201legacydone/20inprogress/437new), preserving historical claims
+and appending evidence. New tests added to migration CI and metadata paths to native
+process CI. No complete requirement promoted, no numeric gate reduced, no prod operation.
+Next: proper audit partition conversion preserving ID/all existing fields/data/constraints/
+sequence/index/trigger and reference behavior, then actual writes/queries/rollback and
+remaining full migration conflicts. Goal remains active with all658 scope.
+
+
+Published f79d55f to draftPR6. Remote main440/37721852020,dependency248/37721852033,
+privacy12/37721852024 pass. Migration2/37721852054 parser8/CLI13/catalog-inventory2
+steps pass; full-history step9 fails20260610_100000 statement21 resource_type absent,
+confirmed via job113131064031 logs. Native title/process9 was still active at the
+snapshot. Partial evidence recorded, no full requirement promoted. Own PG/Redis/Kafka/
+PostGIS containers stopped after tests; no live owned local process remains. Goal
+continues next with actual audit partition conversion, all658 scope unchanged.
+
+
+## 2026-10-08 — Audit partition conversion and full-history advancement
+
+Previous goal turn: progress (actual dependency/catalog SQL, runner history tests,
+published reviewable source and authoritative CI failures). This turn: progress.
+No missing input or repeated blocker prevents continued implementation. Full658
+requirements remain the goal; no new numbered scope or requirement is accepted done.
+
+Added transactional audit prerequisite ahead of the legacy partition consumer. V1
+BIGSERIAL/UUID owner/types/rows/ciphertext/sequence survive; original storage becomes
+DEFAULT. Copies outbound FKs, expression/include/predicate indexes, ordinary views,
+triggers+enabled states and original grants. Registry/AFTER triggers enforce logical
+ID uniqueness across partitions while allowing date/ID movement and deletion.
+Rollback restores original relation OID/idPK and retains old+new rows/additivefields.
+Prototype exposed inherited composite PK on DETACH; actual rollback fixed and verified.
+
+Schema-scoped time helper validates parent/bounds/owned names, moves matching default
+rows transactionally before attachment and restores trigger states without duplicate
+side effects. Concurrent creators recheck target after parent locking. Invalid bounds/
+overlaps/name collisions preserve rows/triggers, and unsupported forcedRLS/incomingFK/
+extrauniqueness/materializedview/customidentity cases fail explicitly. Existing range
+audit parent is preserved through up/down. Full original81 pending sources byte-identical;
+third prerequisite yields82 total. Guarded whole-source repairs also fix partition
+function, two invalid inline MySQL INDEX declarations and four UUID achievement owners.
+
+Evidence: actual PostGIS partition23pass (including five real parent SQL writes/row
+routing, not five complete service workflows); fullunit621pass; migration CLI13 and
+prerequisite2pass; actual businessstorage33/nativeprocess2pass; syntax1414files zero
+errors. Full V1+V2 passes, but complete82history fails20260611_000000 statement7 completed
+missing after successfully traversing audit/analysis SQL. V1 user_achievements has
+current_value/current_tier and FK to achievement_definitions; newer service expects
+progress/target/completed and achievements. UUID repair is partial. Do not drop old
+progress/FKs or add columns and infer unified rewards. Full-history gate remains red.
+
+Migration CI now runs audit storage checks before full history. Req76 moves new->
+in_progress, all201legacydone/21inprogress/436new kept distinct from0 independently
+verified requirements. Req7/60 records append partial source-hashed evidence. Future
+three-month runtime partitioning, subsequent duplicate parents, all service contracts,
+archive/restore/retention/metrics/API/coverage/performance remain open. Prior f79 CI
+main440/dependency248/privacy12/titleprocess9pass, migration/contract/API/integration/
+performance/securityfail, E2E102cancelled; new source CI pending. Next: achievement
+catalog/progress/reward reconciliation and remaining full-history/schema service work,
+then all original stages. No production migration, merge or deployment performed.
+
+Shared migration metadata hashes in other partial records refreshed only after
+matching runner/storage/native tests above; old evidence retained and current full
+history failure explicit. Req47/56 current status partial_verified_full_history_failed,
+not complete. Owned local test services stopped after terminal probes; no background
+fixture process left running or production data touched.
+
+Final staged review found whitespace inherited in the three new whole SQL repair
+copies. Cleaned those copies before publication, keeping original files unchanged.
+Matching actual SQL tests repeated: audit23/fullV1V2pass, full82history still red at
+achievementcompleted (combined24pass/1fail). Only changed repair execution hashes
+refreshed. Full change diff check now passes.
+
+
+## 2026-10-08 — Achievement catalog/progress bridge and actual reward grants
+
+Previous goal turn: progress (published audit conversion and matching real data tests).
+Current turn: progress. Full658 goal remains active,201legacydone/21inprogress/436new,
+independentlyverified0. No repeated external blocker prevents implementation.
+
+New fourth prerequisite reconciles the canonical V1 tiered table with the modern
+achievement catalog. Keeps relation OID/compositePK/originalFK/old8definitions/progress/
+tiers/dates; explicitmodern marker+definitionlink adds31seeded definitions without
+overwriting oldIDs. Collisions fail atomically. Existing counter writes remain valid;
+modern numeric progress/one-stage tier projection use a separate definition reference
+on the same record. Unknown historic dates remain null, completed progress and claims
+cannot reset. Unused bridge reverses; existing modern data blocks lossy down. Existing
+title bootstrap now executes before the legacy consumer. Published82sources byte-identical;
+current83 all included in complete gate. No arbitrary datatype casts or originalSQL edits.
+
+Production achievement service now serializes owner updates/snapshot/claims, uses real
+PostgreSQL numeric arithmetic and accurate completed-only point/category aggregates.
+Removed string-concatenation/fraction truncation/lost updates, partial point inflation
+and duplicate completion. Claim transaction actually credits coins, canonical gameplay
+balls, validated nonball inventory/stacks/capacity and matched canonical title before
+marker. Missing/unknown/unsupported resources/configurations roll back every grant.
+Balls get one balance, not duplicate inventory credit. Full general inventory/catch
+synchronization is still open. Found old reward method previously returned metadata
+and marked claimed without granting anything; this false-success path is removed.
+
+Static/category/leaderboard/title routes now precede ID route; strict integer pagination,
+hidden-until-completed visibility, owned/valid title activation/cancellation and one
+entry-point mount. Actual existing user router works with V1 and new fractional fields,
+and uses normalized verified subject/id rather than a possibly absent raw sub claim.
+Actual launcher registry exposes committed unlock/claim counters and real update latency.
+A numeric0.1+0.2 regression led to moving all progress arithmetic into PostgreSQL; latest
+source tests include that correction rather than relying on exact-binary fractions alone.
+
+Evidence: new real V1/PostGIS/production class/signed HTTP/launcher metrics41pass; final
+unit621pass (95standalone+8runner+133battle+385Jest); migrationCLI13+prereq2+audit23=38pass;
+actual businessstorage33+nativeprocess2=35pass; syntax1415pass; actual modules load/YAML
+parse/diff checks pass. FullV1V2pass; all83pending history now fails20260611_020000 statement2
+notification_type missing, after title/bootstrap/achievement consumer success. Fullbatch
+rolls back. History gate remains red and added achievement CI precedes it.
+
+Remote previous1ec9e09: main442/dependency251/privacy14/title-process11pass. Migration4
+job113192750861 actual23audit pass, full82history completed-column failure confirmed in
+logs. Contract367/API71/performance110/integration417fail; E2E104cancelled; security400
+still running at snapshot. Current uncommitted-source CI pending publication.
+
+Remaining achievement work: complete catalog/title contracts and exclusivePokemon;
+replay/durable event delivery/automaticgrant/all trigger types; management CRUD/admin
+permissions and catalog-edit snapshot policy; oldunitfixture; client/nativepokemon/
+gateway; query100ms/update50ms performance. Typed grant failures stay visible rather
+than pretending missing resources were delivered. Next fullhistory step: reconcile
+notification_history/message-center and later partitions before complete upgrade/rollback
+and all-service acceptance. No requirement marked done, no production migration/merge.
+
+
+## 2026-10-08 — Actual notification storage, realtime routes and browser components
+
+Previous and current goal turns: progress. Full658 remains active;199 legacydone/
+24inprogress/435new after reopening req32/120 and starting99. Independentlyverified0.
+
+New fifth prerequisite preserves original notification history OID/IDs/sequence/type/
+data/read while adding canonical type/real metadata and owner/type/event receipts.
+Dedup survives user deletion and per-owner50 retention for90 days. Unknown read times
+stay null; unused down preserves originals, actual modern metadata/receipts reject lossy
+reversal. Fixed original global-offset cleanup to rank per owner; actual helper UUID/
+INTEGER-ID predicates and schema scope repaired. Raw83 published SQL sources unchanged.
+Canary partial uniqueness becomes its intended index; friendship species lookup uses
+canonical id. Missing sample evolution targets remain unaccepted.
+
+Actual singleton service replaces duplicated incompatible route SQL, handles real
+ownership, first-save preferences, type/category pagination/count snapshots, read/batch/
+delete/stats and committed metrics. Real quiet hours respect IANA zones; missing prefs/
+storage fail closed; channel attempts log actual results. Fixed push wrapper exporting
+object/new crash. Native upgrade authenticates UUID JWT/IP before accepting, preserves
+private recipient frames and actual stored IDs; forwarded headers are rebuilt from real
+trust policy. Owned shutdown hook closes active sockets before HTTP drain. Tests publish
+all seven Kafka event types through actual user/gateway. Other seven peer processes are
+still aliases, not independently accepted services.
+
+Browser component uses real numeric IDs, escapes all notification HTML, preserves
+zero latitude and server-first read outcomes, authoritative badges and separate per-user
+IndexedDB/localStorage. Offline categories paginate retained owned records. Actual module
+load exposed missing i18n getCurrentLocale named export; now backed by real language getter.
+Real component/storage browser probes pass; no complete game app or numeric performance
+claim. Req120 historical Bearer test is401 by design; positive probe uses signed UUIDJWT.
+
+Final local evidence:623unit (95standalone+8migration+133battle+387Jest),114storage
+(35notification+41achievement+23audit+13CLI+2prerequisite),35business/native and10Chromium
+pass. Syntax1420, module loading, workflow YAML, numbering/audit/source-hash and staged
+checks required before publication. Full V1/V2pass; all84pending fail20260611_131000stmt20
+pokemon_instance_id absent, entire pending batch rolled back. Gate unchanged/red.
+
+Previous ac66 CI terminal:main443/dependency253/privacy15/title-native12 pass; migration5
+runner8/CLI13/prereq2/audit23/achievement41 steps pass, full83history notification_type
+fails (run37746100869 job113207844536). Contract368/API72/performance111/integration418/
+security401 fail; E2E105cancelled. Current-source CI pending publication.
+
+Remaining: durable outbox/retry after committed storage, all publishers/multi-instance
+socket routing/FCM/APNs/devices/adaptercoverage80%, full game/details/actions/preferences/
+a11y/incrementalsync/reconnect/virtualscroll1000/FPS60 and every numeric latency/survey/
+reach/retention target. Next reconcile true friendship table/schema and later history
+before full upgrade/rollback/allservice acceptance, then all original plan stages.
+No production migration, merge or deployment. Owned services stop after terminal checks.
+
+
+## 2026-10-08 — Friendship identity/history and privacy consumer ordering
+
+Previous goal turn: progress (published31dd217 notification batch). Current turn:
+progress. All658 remains active;198legacydone/26inprogress/434new, independentlyverified0.
+Req67 old done reopened,79 started. No repeated external blocker prevents implementation.
+
+Sixth prerequisite retains actual UUID trainer bond table/OID/key/FKs/rows/mood/counters/
+levels/timestamps and distinct old/current trainer rows. Exact generated instance UUID
+and named affinity are projections; numeric bond levels and historic values stay intact.
+Unknown first trainer date/days stayNULL, no original acquisition history fabricated.
+Original logtrigger wrote invalid system_update and negative amounts into a five-action/
+positive-only table, blocking real updates. Its function identity remains; sink now writes
+actual before/after signed history in its own schema. Concurrent changes form realchain,
+rollback leaves no phantom event. Existing update function/trigger/disabled states kept;
+final review removed legacy consumer's unnecessary DROP/recreate/replace of that trigger.
+Custom logging/additional consumers/integer identities/priorbridge collisions reject
+atomically. Unused down exactly restores original rows/functions/triggers; realmetadata/
+history refusesloss. Fullbridge is storage scope, not service/game completion.
+
+Existing privacy compatibility/default source now runs before legacyconsumer. SHA-bound
+whole correction sets newoptionaldefaultfalse and fills legacy title/content/published_at
+only from actual originalseedtext/date. ExistingversionDONOTHING, originalchoice/active/
+text/date/consent preserved; unknowntranslationsnotfabricated. ActualCLIdurableorder and
+both missing/preexistingversion cases pass. No original84 pending rawSQL edits, total85.
+
+Final evidence:147 actual storagecases (13CLI+4prereq+23audit+41achievement+35notification+
+20friendship+11privacy)pass; parser/graph8 pass. Finalfriendship20 repeatedaftertrigger
+preservation; fullV1/V2pass, complete85history fails20260612_070000stmt6 catch_sessions
+catch_timestamp missing, entirebatchrollsback. Syntax1421/YAML21/numbering658/source-hash/
+diff checks requiredbeforepublish. One preservation assertion initially included intended
+newconstraints asiforiginals; corrected to demand original constraintOIDs/definitions
+unchanged whiletestingnewchecks separately. Date assertion now reads actualSQLDATE/text,
+avoiding JS local-midnight→UTCday drift; acceptance/datevalues notchanged.
+
+Published31ddremote:main444/dependency255/privacy16/title-native13/notification-browser1
+pass. Migration6 parser8/CLI13/prereq2/audit23/achievement41/notification35 pass thenfull84
+friendshipfails. Actual job113264600706 logs confirm35pass+exactcolumnfailure. Contract369/
+API73/performance112/integration419 fail; security402/E2E106 live atlastsnapshot. Current
+source CI pendingpublication. No full requirement promoted verified.
+
+Remain friendship service nonexistent getDb/logger/metrics adapters, UUID/auth route
+bugs and caller X-User-Id trust, oldbond alternatepokemontable/nontransactionalresources/
+cooldowns; all original actions/events/initialcapture/trade/walking/gym/client/evolution/
+metrics/coverage80/85%/numericalacceptance. Sampleevolutiontargets missing means0seedrules
+is unaccepted; nofakecatalogdata. Next preserveactualcatch_sessions contract/data andlater
+migrationconflicts; fullhistory/rollback/allservices/P0auth thenallremainingplanstages.
+No production migration/merge/deploy. StopownedPostGIS afterterminalprobes; unrelated
+openclawgateway untouched. Goalactiveprogress, no blocked audit applies.
+
+
+## 2026-10-08 — Actual catch risk telemetry and observation storage
+
+Previous goal turn: progress (friendship/privacy9298ab5 published). Current turn:
+progress. Full658 active;198legacydone/27inprogress/433new, independentlyverified0.
+REQ82 started, not accepted complete. No external blocker prevents independent work.
+
+Whole source-SHA-bound catch repair preserves original UUID gameplay sessions/throws,
+all fields/rewards/keys/FKs/rows/OIDs/dependent views. Telemetry is a distinct risk record;
+no synthetic wild/session/UUID created. Original base-rate seeds become configuration,
+not fake system user statistics. Existing unknown risk tables/integer IDs requireexplicit
+upgrade. Unused down preservesoriginaldata;actualriskdata/config changes/replacedOID
+refuse loss. All85raw sources unchanged; count85same, no skippedhistory or newrequirement.
+
+Production recorder now commits actualriskUUID/telemetry/observations/usercounters in
+one transaction. Stops returningfake savedIDs on failure. Observed success/fail/escape
+requires real owned throw/session/wild evidence; probability/rarity/ball/rating/curve/time
+come from actualgameplay, notclientclaims. Foreign/nonexistent/contradictory outcomes
+fail; unobserved/blocked staysNULL and does notincreasecatchcount. Unknown quantity/
+probability/integrity remainunknown. DurableauditID+snapshot comparesowner/identity on
+replay/concurrentwrite; uniqueactualthrow preventsduplicateeffects. Updates immutable;
+delete/retention/GDPR lifecycle stillopen. Actualdecision provided, classifierunaccepted.
+
+Analyzer nowone atomic hourlyupsert countsfirstonce, preservesconcurrentcounts, exact
+numeric probabilitysums and updatedratio. Weightedmean usesrealcounts, intervalsbound
+parameters, missingdata NULL, storageoutage propagates. Real evidence buckets by actual
+native throwtime and DBTimeZone, avoidsmarkingoldrecordsasrecent; latestcatchMAX won't
+regress on out-of-order evidence. Historicaltimezone reconciliation remainsopen. Context
+identity UUIDcase normalized. Signaturevalidationcontext keeps caller-supplieduser over
+bodyuserid, but validator/admission andservicewiringremainunfinished.
+
+Initial actualSQL probe exposedmixedinteger/numericparameter inference; explicitcasts
+fixedupsert. Rarityassertion correctedtoactualcatalog RARE. Finalcatch34 pass; broad
+storage181(13CLI+4prereq+23audit+41achieve+35notif+20friend+11privacy+34catch)pass, final
+unit623pass(95standalone+8migration+133battle+387Jest), syntax1422pass. Initialbroadunit
+unchangedHTTPfixtureexceeded5s; isolated44/full623rerunpass withoriginallimit. Initial
+179storagepass precededlatesttimecorrection;181re-run matchesfinalsource. No faux timing
+or thresholdrelaxation. FullV1/V2pass; all85history now fails20260613_160000stmt17 missing
+created_at special-IVconsumer, wholependingbatchrollback. NewCIcatchstep precedesfullgate.
+
+Oldsystemreview approvedls/filepresence, fake slidingwindow/location/inventory/security/
+coverage and unmeasured90%blocking/0.5%falsepositives/compliance. Historictext retained
+with visiblecurrentpartialnotice+appendcorrection. Exactrequiredreviewfilename now
+containscurrentindependentacceptance boundaries, notfullapproval. Req82 remainsopen.
+
+Prior9298CI allterminal:main445/dependency257/privacy17/title-native14/browser2pass.
+Migration7 runner8/CLI13/prereq4/audit23/achievement41/notif35/friend20pass thenfull85
+catch_timestamp fails. Job113273037341 actual logs confirm4/20pass+columnfailure.
+Contract370/API74/performance113/integration420/security403fail;E2E107cancelled. Current
+sourceCIpendingpublication. No fullrequirementpromotedverified.
+
+Next: actualspecial-IV spawn/time/columncontracts andlaterhistoryconflicts, complete
+upgrade/rollback/nativeallservices, P0service/auth/security andallremainingoriginalstages.
+Catchremaining: realflow/sixAPIs/JWT/admin; signaturekey/padding/mandatorychecks/nonces/
+real inventory/location/item/device/truewindows/scoring/Bayesian/failclosed/shared5metrics;
+oldunits/coverage80%, client/reports/deletion/retention, actual50ms/99.9%/90%/0.5% targets.
+No production migration, merge or deployment. StopownedPostGIS afterterminalprobes;
+unrelatedopenclawgateway untouched. Goalactiveprogress; no blocked audit applies.
+
+
+## 2026-10-08 — Special IV genotype/storage and equipment prerequisites
+
+Previous goal turn: progress (catch c5ecbfc published). Current turn: progress.
+All658active;197legacydone/29inprogress/432new, independentlyverified0. Req160 olddone
+reopened,91 started. No repeated external blocker prevents meaningful implementation.
+
+Whole SHA-bound IV repair retains originalUUIDs/keys/FKs/genotypes/lucky/dates/metadata.
+Actual spawned_at replaces nonexistentcreated_at; derivedflags backfillwithoutreplaying
+oldusertriggers, originalOIDs/enablements preserved. Current-owner counts onmutation/
+transfer/delete/concurrency/rollback/cascade nowaccurate; existinguserdeletiondoesn't
+recreatecache. Configstable/defaults preserveoperatorvalues/dates, explicitNOW handles
+oldtablewithoutdefault, schemaqualifiedcreation avoidsadoptingsearchpathdecoy. Reverse
+keepscurrentoriginaldata whiledroppingonlyderivedownedflags/cache; changedconfig/relation/
+customcachefields/functionsrefuse. InvalidhistoricIV/contradictoryflags rejectwithout
+clamping/overwriting. Historical lucky-floor violations not fabricated into newvalues.
+
+Productiongenerator exclusive0.01%zero/0.09%perfect intervals, ordinary/bonus extremes
+redrawn insteadofinflatingcategories. BoundedbadRNG/config failsinsteadofhang. Actual
+locationuseshelperand nowINSERTs/returns/cache-stores tupleflags; beforeonlycomputed
+flagsinpayload, DBkeptdefaultfalse. SourceINSERT realSQLtested.100000 actualhelpercalls
+latest7zero/101perfect/99892ordinary(0.007%/0.101%); earlier12/88/99900. Raw observations
+retained, notfalse nativeprobabilityacceptance. Whole authenticatedspawn/catch/trade/
+client/probability/lucky5%/config/cache/refreshruntime remainopen.
+
+Next equipmentlegacyinlinepartialUNIQUE repairedexactlyasactive(Pokemon,template)index;
+helper BIGINT→canonicalUUID. Realfourtable/cat33seed/inactive-activeuniqueness/helper/
+FKcases pass. Allseedvaluesunchanged. Required50catalog, fullone-per-type slots andall
+APIs/resources/upgrades/rewards/battle/client/metrics/coverage80%/40case stayunaccepted.
+No newrequirement, raw85SQLimmutable; changedexecutedrepairhashes tracked separately.
+
+Evidence:combined215actualstoragepass(181prior+34initialIV/equipment); final36 repeated
+after namespace/producersource fix. Unit623pass, syntax1424pass, modifiedlocation
+actualrequire-only smoke0 with explicitownedtestprocessexit. Initialliveimportmodule
+probe3s+SIGTERM10swaitexpired; laterauthoritativeexactPIDinspectionfoundnone. No native
+readiness/naturalsignalcleanup claimed from that probe. NewCI IV/equipstepbeforefullgate.
+FullV1/V2pass; all85history reaches20260614_090500stmt2 invalid::syntax, wholepending
+batchrolledback. No ignoredscripts/relaxedtargets/fakeoldtimestamps or syntheticmetrics.
+
+Early IV tests found assertions excluding originalbaseupdate-trigger and configINSERT
+relyingonadefaultthatoldtablelacks. CorrectedoriginaltriggerOID comparison and supply
+realNOW fornewdefaults, leavingoldrowsunchanged; finalcasespass. Scope remainspartial.
+Priorc5ec allterminal remote:main446/dependency259/privacy18/title-native15/browser3pass;
+migration8 allstorageinclcatch34pass thenfull85special-IVcreated_atfailure. Actualjob
+113324131127 logsconfirm34pass+columnfailure. Contract371/API75/performance114/integration
+421/security404fail;E2E108cancelled. CurrentCIpendingpublication, no reqpromotedverified.
+
+Next: dailyquestDate/identity/sourcecontracts andlatermigrationconflicts, fullupgrade/
+rollback/nativeallservices, thenalloriginalP0security/game/client/quality/ops stages.
+No production migration, merge or deployment. StopownedPostGIS afterallterminalprobes;
+unrelatedopenclawgateway untouched. Goalactiveprogress; blocked threshold notapplicable.
+
+
+## Daily quest storage and atomic legacy claim batch (2026-10-08)
+
+Original22seeds/7categories/date semantics preserved; invalid inline::date uniqueness
+and two indexes repaired through whole source-bound copy. Canonical V1daily_quests
+remains separate/unchanged. Actual reward-service mounted route now owner/quest-locks,
+checks real progress afterlock and commits four real balances/claim/completion markers
+together. Replays/foreignJWT/bodyID/invalidtargets/deletedowners cannot grant; failure
+rollsback and original completion timestamp preserved. Actualappfactory permits safe
+HTTP tests; directlisten retained, no native lifecycle acceptance.18actualcases pass
+including24simultaneousclaims andcurl. ModerntransactionAPI/delKey/grants/events/auth/
+streak/date/cache/history failures documented; req97false done reopened. Inventory
+196done30progress432new/658original, independentverified0.
+
+Broaderstorage235passed; title/IP preconditionfailed without TEST_REDIS_URL, corrected
+fixtureenvironment then22pass (257successful actualchecks across scopes). Unit623pass,
+syntax1426pass, raw85sources unchanged. Initial quest assertions incorrectly treated
+BIGINT XP asnumber and local TIMESTAMP asUTCdate; corrected exactBigInt/SQLtext assertion,
+18finalpass. FullV1/V2pass; all85history reaches20260615_170500stmt16 existingtitletrigger
+collision and pendingbatch rollsback. Original modern criteria/thresholds remainopen.
+Previousbe551CI main447/dependency261/privacy19/title-native16/browser4pass; migration9
+actualIV36pass (job113354989868 logs) thenquest::failure. Contract372/API76/perf115/
+integration422/security405fail; E2E109in_progress atread, no inventedterminalstate.
+Next modern quest atomicstorage/grants/events/security/datecontracts and titleupgrade
+collision, rewardleaderboardSQL injection/rank alias and otherP0/service prerequisites,
+then all original game/client/numerical/ops requirements. No new requirement, production
+migration, merge or deployment. Goal remains active; progress and no external impasse.
+
+
+## Title upgrade and reward ranking batch (2026-10-13)
+
+Earlier title bootstrap and later consumer now guarded via complete source-bound copies;
+matching update function/trigger OIDs/enabled state, catalog/operator values and owned
+rows/keys/views survive. Unknown body/security/searchpath/volatility/event/condition
+metadata refuses atomically in both stages. Original85raw SQL unchanged.13upgrade cases
+pass. Changing applied executed hashes remains an error; no hidden history rewrite or
+production upgrade. Full85V1/V2history advances to20260615_221000stmt3 missing moves.name
+in damage consumer; rawmoves has canonicaluppercaseID/requirednames/type/category/
+energy/duration fields. Complete pending transaction rollsback, no omittedfiles.
+
+Mounted rewardranking SQL no longerinterpolates team input; signedowner/team parameters,
+fixedscore allowlist/scalarenumchecks andone actualsnapshot forlist+rank. Realcanonical
+catch_total replacesfakeXP score; ownedPokemoncountseparate. BIGINT XP JSONtext preserves
+precision; competitionties/UUIDdisplayorder/scope/top100/fullrank consistent.9realcases
+pass, includingattack/object/array/prototype rejection beforeSQL.18legacyclaim checks
+repeat afterapplicationchange. Full7socialtypes/seasons/events/rewards/cache/client/
+metrics/numerical scope remainsopen. Req255false done reopened; priorreview's fabricated
+measurements/regextoacceptance withdrawn. Inventory195done31progress432new/658; full
+independentverified0. Full658 goal unchanged and active; genuine progress.
+
+Prior279storage/unit623passed in authoritative terminalhandles; after earlierbootstrap
+repair, sequential40(title13/rank9/quest18)pass. Syntax1428pass; actual rewardrequire
+exitsnaturally withoutlistener, load-only notnative readiness proof. Prior55fCIterminal:
+main448/dependency263/privacy20/title-native17/browser5pass; migration10quest18pass
+(job113364721383logs) thenexistingtitletriggerfail. Contract373/API77/perf116/integration
+423/security406fail;E2E110cancelled. CurrentbatchCIpendingpublication.
+
+Next reconcile actual move identities/requiredfields/operatorvalues, fullhistory/rollback/
+native services; modern quest realtransactions/snapshots/grants/events/security/date
+contracts andalloriginalP0/game/client/quality/ops stages. No new requirement, merge or
+deployment. Test concurrencylimited; no Maven builds. Personal preference memory files
+remain local. Owned test fixtures cleaned; stopownedPostGIS/Redis afterterminalchecks,
+unrelatedgatewayuntouched.
+
+
+## Canonical move and damage batch (2026-10-13)
+
+Actual uppercase IDs/localization/types/power/energy/duration/rows/FKs/TM/learnset and
+relation identity preserved. Fullsource-bound damage repair provides read-only lowercase
+identity and BIGINT consumed-energy projections, uniqueness, explicit base dependency
+and all24 original proposed defaults as configuration, not active-catalog replacement.
+Unknown writable aliases/identity ambiguity and modified defaults/comment/index/OID/
+dependent-view reversal refuse. Exact preexisting projections stay operator-owned.
+Exclusive reversal locks protect comparison/removal. Original85 rawSQL unchanged.
+
+Real MoveService adapter and owner/instance/inventory locks fix concurrent TM spend,
+stale selection/ownership; actual learning/switch/forget and rollback cases pass. Existing
+move router's parseInt(UUID) bug corrected, typed query/body/UUIDs and signed ownership
+validated, every named production-router read/action endpoint tested; unexpected DB
+errors remain server errors. Damage canonical queries replace nonexistent name fields
+and fakefallback. Both mounted aliases and root damage_multiplier support original
+command. Actual damageEngine used; deterministic midpoint/ranges includecrit, immune/
+zero-power returns0 estimates, strictfinite/own-key/random validation.58 oldassertions
+and5newcontracts integrated into main gate; local battle/damage checks sequential.
+
+Final32 real storage/HTTP and17CLI/prereq checks pass; main686 andsyntax1432pass. Native
+gym actualentrypoint HTTP200/multiplier0.5/EMBER observed; ownedKafka unavailable. Child
+didn't stop within diagnostic3s SIGTERM observation, force-killed and terminalSIGKILL
+observed/schema cleaned; durable diagnostic exits1.3s is observation limit, not new
+acceptance threshold; no natural/graceful shutdown/readiness claim. Full V1/V2pass,
+all85 reaches voice20260618_160000stmt18 mutableindexpredicate and pendingbatchrollsback.
+Originalgame/client/livebattle/native/GO-wording/coverage/metrics/numerical/ops stayopen.
+Req19/146old done reopened:193done33progress432new/658; independentlyverified0.
+
+Earlytests exposed PLpgSQL CASE predicate syntax, incorrect expected generated-column
+error text and a single-item query array that serialized as scalar. Fixed CASE grouping,
+assert actual SQLSTATE428C9, test repeated differing query values.32finalpass, no relaxed
+thresholds. Previous main test handle later missing; authoritative completed summaries
+and no matching active job observed, not restarted from observation timeout.
+Prior6e13CI main449/dependency265/privacy21/title-native18/browser6pass; migration11
+combinedtitle/rank22pass (job115067740964logs) thenoldmoves.namefailure. Contract374/
+API78/perf117/integration424fail; E2E111cancelled; security407 stillin_progress atread.
+No inventedterminalstate. CurrentbatchCIpendingpublication; no fullrequirement accepted.
+
+Next voice-chat mutableindex/fullhistory and native gym provider/socket/timer shutdown,
+then all original P0/security/game/client/quality/ops and remaining modernquests. No new
+requirement, production upgrade, journal rewrite, merge or deployment. Personal memory
+preference files remain local; no Maven or all-core jobs. Goalactive with genuineprogress.
+
+
+## Voice index prerequisite and next partition conflict (2026-10-13)
+
+Published move/damage batch d87da14f948c05615eca777737eb35444ed898d4 to draft PR6;
+verified remote head/draft state. Main CI450, dependency267, privacy22, title19 and
+notification7 succeed. Actual move storage32 succeeds in migration job115247597349;
+whole migration12 fails the source-specific voice NOW() predicate. Contract375,
+API79, performance118 and integration425 fail; E2E112/security408 were still running.
+No complete requirement is accepted from these scoped successes.
+
+Reopened legacy done REQ-00116 after reading original16 criteria, retaining every
+threshold. Source-bound voice repair uses (user_id,expires_at) with revoked_at IS NULL;
+queries evaluate current-time expiry. It never mislabels NOW() IMMUTABLE or deletes
+history. Exact operator index is reused preserving OID/comment; unknown definition
+refuses atomically. Six actual PostGIS/CLI cases pass, including original42P17 failure,
+membership histories, real EXPLAIN/filtering, expired/revoked audit retention, preexisting
+views/FKs/OIDs and actual original/executed checksums/idempotent rerun. First CLI test
+wrongly expected a raw-file execution digest; corrected to the actual documented
+runner digest of parsed up/down JSON, then all6 passed. CLI/prerequisites17 pass;
+syntax1433 and actual TURN-manager load pass. No Maven or CPU saturation.
+
+Complete85 original source files remain unchanged. V1/V2 passes; full history now
+fails20260619_000000 statement17: duplicate partition helper changes BOOLEAN to VOID.
+Earlier canonical partition conversion/helper must retain data, identity and behavior;
+later duplicate shadow layouts also have conflicting child names/time bounds. Next
+work reconciles these with actual canonical parents and real storage, rather than
+replacing functions, losing data or skipping migrations. Full-chain rollback still open.
+
+Voice HTTP routes remain unmounted; signaling identity is random placeholder. TURN
+validator ignores revocation and uses absent usage columns; routes fail to await
+credentials/call absent ICE method; room service references absent fields. These are
+recorded as unfinished, alongside original real audio/provider/game/permission/numerical/
+client/operation criteria. Audit declarations now192done/34in_progress/432new, total658;
+independently verified0. Persistent all658 goal stays active.
+
+
+## Canonical duplicate partition history repair (2026-10-13)
+
+Voice commitceaf5b0dd4306a389bc36a9b764addd214008727 pushed; origin ref and exact
+GitHub CI prove publication. PR description update hit transient TLS EOF; no secret
+printed. Host restart stopped owned PostGIS: first fullgate ended ECONNREFUSED.
+Restarted only owned PostGIS, checked actual readiness, then repeated fullgate.
+Unrelated containers untouched. No process restarted merely on observation timeout.
+
+Source-bound duplicate partition repair declares dependency to actual earlier
+conversion. Original raw42P13 helper BOOLEAN-to-VOID failure is reproduced. Preserve
+five real parent OIDs/data and helper definition/ACL/config/comments, actual views,
+canonical June9 weekly phase and actual DEFAULT-to-range movement; no empty shadows.
+LaterJune8 proposal overlaps existing ranges: preserve old boundaries and addJune2-9
+range. Actual status follows current-schema inheritance; exact view reuses OID,
+custom shadow/regular-parent/status definition refuses atomically. Original raw SQL
+unchanged, later shadow management still unreconciled.
+
+4 new actual history checks +23 audit checks pass27; CLI/prereqs17 and syntax1434
+pass. V1/V2 passes. Full85-source gate now fails20260624_133000 statement16 missing
+payment_orders; real payments use V1 orders/amount_fen/currency/UUID/idempotency enum.
+Next implement original REQ-00051 against real money/order contracts, preserving
+identity and values, then full P0/security/runtime/game/client/numerical/operations.
+No weakened criteria/threshold/checksum, skipped file, Maven/highCPU job, production
+mutation, merge or deployment. First ledger edit encountered an existing string
+remaining field and exited before writing; corrected by preserving it as a list item.
+
+Voice exactCI451/dependency269/privacy23/title20/notification8 pass. Migration13
+job115289087384 confirms voice6 pass, then source-specific partition failure; latest
+local boundary is currency. Contract376/API80/performance119/integration426 fail;
+E2E113/security409 observed running. No full requirement accepted. Source-hashed
+partial ledger/progress updated; all658 persistent goal remains active/unbudgeted.
+
+
+## Canonical currency foundation and observed native lifecycle (2026-10-14)
+
+Read full REQ-00051; reopened old done declaration without changing10 criteria or
+30min/15min/90%/80%/100ms thresholds. Real orders/UUID/minor-unit money/status/
+idempotency/old views/FKs remain. Add nullable quote metadata, never infer historical
+USD conversions; keep20 currency+20 price seed values. Source-bound repair refuses
+parallel payment_orders and owner FKs targeting another user alias instead of ID.
+
+Actual rate service now uses real transactions/advisory pair locks for one current
+quote and full snapshot/UTC daily histories; failures preserve old quote/cache.
+Cache stops at real expiry, and provider failure never invents mock/default1 rates.
+NUMERIC conversions retain exact amount/audit; owned15min locks freeze real quotes,
+reject foreign/expired/double consumption and share outer order rollback. Used-lock
+cleanup preserves history. Actual public/typed/signed owner/admin routers use both
+existing mounts before error handling; GET/POST detection and locale parsing fixed.
+Actual counters replace missing metrics.increment, found by first real-storage run.
+
+Final actual currency18 (including parent), CLI/prereq17, unit686 (22Jest suites),
+syntax1437 and changed module loads pass. Owned HTTP server verifies all3 actual
+provider adapters against documented response bases, not live providers. Consulted
+official OER/ExchangeRate-API/vendor Fixer contracts; full credentials/freshness/live
+provider acceptance remains open. Last host restart stopped owned PostGIS; test
+ECONNREFUSED was terminal, restarted only owned DB/Redis and revalidated readiness.
+No processes restarted merely on timeout; unrelated containers untouched.
+
+Actual native payment process in production mode with fixture JWT/channel keys,
+isolated PostGIS/Redis and provider keys explicitly disabled returns4 expected200
+responses:20 currencies, CNYprice6.00, signed preference, exact USD1.01 from1.005.
+It remains alive during3s SIGTERM observation; ownedSIGKILL termination observed,
+schema/pools cleaned, diagnostic exit1. Not graceful/readiness acceptance; bounded
+observation is not a new threshold. Kafka unavailable and provider acceptance absent.
+
+V1/V2 passes; all85 raw sources unchanged. Full chain now fails20260626_040000 stmt1
+JavaScript-style //header and rolls back. Native checkout still fixed CNY/mockprepay;
+coins_1200 seed108 and checkout98 disagree. Missing multiCurrencyPayment module,
+trusted provider/currency/bill binding, idempotency, minor-spend error handling,
+30min owned scheduler, complete audit, representative performance/coverage, actual
+gateway/client/all-feature/operations acceptance remain. Prioritize P0 billing/
+identity/minor/lifecycle and remaining database prerequisite, then full original scope.
+
+Published partition ef1bc74 exact CI452/dependency271/privacy24/title21/notification9
+pass; migration14 canonical step9 succeeds (job115292180276), full gate fails prior
+payment_orders at that source. API81/contract377/performance120/integration427/
+security410 fail, E2E114 cancelled. Security dependency scan passes, K8s archive
+extract fails before policy checks; secret scan fails but log fetch unavailable.
+Also static K8s schema gate skips41 resources, and policy step only warns via grep;
+these cannot prove operation/security acceptance and need real gates, not green claims.
+
+No new requirement, lower threshold, fabricated pass, Maven/maxCPU work, merge,
+production migration or deployment. Source-hashed partial ledger/current notes updated;
+inventory191done/35in_progress/432new,total658,independently verified0. Persistent
+all658 goal stays active/unbudgeted. Personal MEMORY.md and Oct09 notes remain local.
+
+
+Final currency correction before publication: preserve exact submitted input in nullable
+TEXT input_amount beside historical normalized amount columns, without inventing old
+inputs. Actual0.10/1.005 checks pass. First INSERT reused a NUMERIC parameter in TEXT
+context and real PostgreSQL rejected inconsistent types; use an independent TEXT
+parameter and repeat actual18 successfully. Final source unit686/syntax1437 pass;
+native catalog/price/preference/conversion again200 but diagnostic1/ownedSIGKILL;
+full-chain again malformed20260626_040000 stmt1. Source hashes refreshed only after
+these observations. No fabricated success or complete feature acceptance.
+
+
+## Owned shared transactions and actual contention evidence (2026-10-15)
+
+Read complete REQ-00096. Reopen old done declaration without changing its seven
+criteria,20+ unit cases, default three retries or original5% throughput ceiling.
+Both old helpers and no-options db.transaction now share a pool-owned core. It
+validates3 isolation choices before checkout, owns BEGIN/COMMIT/ROLLBACK, bounds
+checkout/callback/query/backoff/audit, protects late work and leases, destroys busy
+failed connections and handles uncertain COMMIT without repeating business work.
+Only real40P01/40001 aborts trigger automatic retry; broad old diagnostic classifiers
+retain compatibility. Metrics use real shared registry collectors, not nonexistent
+instrumentation methods. Contention rows persist through a separate bounded owned
+transaction and never mask the original business error if auditing fails.
+
+Actual production bugs found/fixed include nonexistent metrics and checkout leaks,
+timeout releasing an open transaction and late callbacks writing through a reused
+lease, implicit ROLLBACK misreported as success, and uncaught checked-out connection
+errors after COMMIT disconnect. First query-control guard incorrectly reused a
+migration-only parser that drops trailing COMMIT; a real regression exposed the
+bypass and it now uses raw splitStatements with nested leading-comment handling.
+An accidental replacement of existing distributed deadlockDetector was detected
+in review, restored from HEAD and reduced to additive pure-helper exports; its
+existing wait graph/alert API remains intact. Unit fixtures had wrong module paths,
+an error never reached because BEGIN consumed its attempt counter, missing real
+COMMIT result metadata and a wrong3*(BEGIN+query+ROLLBACK)=6 assertion. Corrected
+semantic business/audit query accounting preserves the intended failure coverage.
+
+Explicit source-bound repair corrects only the malformed initial header plus the
+necessary additive legacy context-only bridge/type checks. Table/sequence OIDs,
+old data/views/FKs remain, unknown historical retry count/name stay NULL; no fake
+backfill. Original85 root pending SQL sources remain byte-identical.
+
+Original38 transaction unit cases are now in the main gate. Actual transaction
+PostGIS suite22 passes (including parent), covering genuine2-session40P01, four
+actual40001 aborts/three retries, durable rows/participant IDs, blocked audit,
+late checkout/callback/query deadlines,55P03 exclusion, real active/retry/duration
+metrics, uncertain COMMIT disconnect and default ExchangeRateService transaction.
+All17 affected actual storage/CLI suites pass339 checks sequentially with Node24;
+full unit724/24Jest suites, battle133/formula100%, syntax1441 and six actual shared
+module loads pass. An initial observation used system Node18 and its coverage
+flags failed; corrected to bundled24.19.0 and repeated affected storage plus unit/
+coverage/full-history gates with supported runtime, without lowering any gate.
+
+Immutable published43c6b148 working helper versus current core uses identical
+actual V1 resource transfers, same owned pool and default metrics, two workers,
+50 warmup/worker, seven alternating paired rounds,200 transfers/worker/round.
+Final exact-source median change+0.0549274192291227% passes original-5% gate; all
+resource balances exact and before/after source hashes match. Archived raw report
+in docs/benchmarks. This limited local comparison does not establish production
+capacity. CI adds actual transaction storage and fixed throughput gate before the
+existing full-history check. V1/V2 passes; full85 history still rolls back at
+20260627_041000 statement14 round(double precision,integer). Complete migration,
+upgrades/reversal, all business callers and exact new-source CI remain open.
+
+REQ-00619 now references actual current production paths and a design/test-boundary
+document, with original3 criteria/>90%/50 scenarios unchanged. Exact prior43c6b148
+main453 job115638282796 independently confirms133/100% coverage; new commit CI
+must be observed separately. Current local133/100% repeats. Injection of external
+status service does not accept real storage/full gameplay or mix damage models.
+
+Latest observed43c6b148 CI453/dependency273/privacy25/title22/notification10 pass.
+Migration15/API82/contract378/performance121/integration428/security411 fail;
+E2E115 cancelled. These source-specific observations do not imply current green.
+No new requirement, lowered threshold, skipped history, fabricated result, Maven
+build, CPU saturation, production mutation, merge or deployment. Personal memory
+and Oct09 preference notes stay local. Inventory190done/36in_progress/432new,total658;
+independently accepted0. Persistent all658 goal remains active/unbudgeted. Next:
+actual slow-query migration compatibility, P0 money/provider/idempotency/minor and
+lifecycle gaps, then all remaining original stages; keep publishing reviewable work.
+
+
+Current-source bae401eb publication confirmed on existing draftPR6. MainCI454 and
+dependency275 complete success. Downloaded exact battle job116334921896 confirms
+133 pass/0 fail, formula lines/branches/functions100% with original91% gates. All
+three REQ-00619 framework criteria satisfied; mark only that framework done/verified.
+Its production code/scenario hashes are unchanged in this documentation follow-up.
+Inventory191done/35in_progress/432new,total658,independently verified1. Other battle/
+status persistence/HTTP/client/production numerical and full migration acceptance
+remain open. Current migration16 and other workflows still running at observation;
+no terminal result invented. Persistent goal active; continue next actual prerequisite.
+
+
+## Remote throughput failure, bounded optimization and slow-query SQL (2026-10-15)
+
+Exact bae401eb migration16 job116334922847 confirms all actual storage/correctness
+steps through transaction22 succeed, then the unchanged throughput gate fails at
+-5.624629685951888% against original-5%. Full-history step is skipped there, never
+reported green. Downloaded actual failed report/source hashes are archived. Main
+CI454/dependency275/battle133/100% pass independently, and the framework acceptance
+remains restricted to REQ-00619. Local earlier+0.054927% cannot override CI failure.
+
+Remove success-path timeout Error stack creation and empty pending-query Promise
+work; retain all deadline/rollback/late-lease/control/retry/metric/COMMIT semantics.
+Same original baseline/workload/threshold/source checks, final local paired result
+-3.2443239972000937% passes, exact balances. This is not proof remote regression
+resolved. Repeat actual339 checks in17 suites, unit724/24Jest suites, syntax1442 and
+actual optimized module load; pass. YAML check initially assumed every step had a
+name; fixed observation to handle uses-only steps, workflow parses. No gate lowered.
+
+Read complete REQ-00077, reopen old done preserving10 standards/3 suggestion types/
+6 panels/4 alerts/>80% threshold. Source-bound SQL repair preserves two-decimal
+NUMERIC index ratios, binds both existing helpers to PostgreSQL15 execution columns,
+keeps table/sequence/history/view/FK/function identities and original85 raw sources.
+Official PostgreSQL15 statement/math contracts checked. Additional owned PostGIS
+instance preloads real statistics, capped one CPU/512MiB; existing DB/unrelated
+containers unchanged. Seven actual cases pass, including live pg_sleep statement
+observed through real extension/helpers/snapshot, original failure rollback and
+old data/OIDs. No fake stats/global reset. Original30-day snapshot vs90-day config
+conflict stays explicit; JS collector missing metrics, invalid/unmounted router,
+admin/constrained SQL, real dashboard/alert/coverage/lifecycle/operations stay open.
+
+CI enables/restarts only its disposable service for preloading and readiness, then
+runs real slow-query schema suite. Full V1/V2 passes; complete unchanged85 history
+now fails20260627_060000 statement13 missing is_deleted and rolls back. Next align
+canonical inventory/UUID ownership/candy/team semantics, continue P0 money/provider/
+idempotency/minor/lifecycle and all original stages. Latest remote optimized-source
+performance pending; no fabricated pass. Ledger hashes current, inventory190done/
+36in_progress/432new,total658,independently verified1. Persistent goal active, no
+new requirement/Maven/CPU saturation/production migration/merge/deployment.
+
+
+## Repeated slow-query scope finding and actual isolation (2026-10-16)
+
+Previous goal turn made concrete progress: transaction and framework commits were
+published, one framework independently accepted, and exact remote performance
+failure recorded. The subsequent SQL/optimization batch83e3381 remained unpublished.
+Final whitespace check failed on inherited raw SQL trailing spaces; an unguarded
+multiline shell continued into an own commit. Correct repair whitespace and guard
+subsequent mutations on successful checked subprocesses before publication; no raw
+history rewrite. Repeated7-case check then exposed a real missing live probe in
+shared historical top50, so do not treat the first pass as final source acceptance.
+
+Both SQL helpers now constrain current_database. The fixture owns and drops a fresh
+database rather than competing with earlier schemas, and executes a real qualifying
+foreign-database slow query to prove it enters neither analysis nor history. Current
+probe still captured through actual extension/helper/snapshot. Final7 pass (including
+parent), repeated without global resets or weakened assertions.1442 syntax checks
+pass; exact full V1/V2 passes and85 unchanged-source history still fails inventory
+20260627_060000 statement13 missing is_deleted, pending transaction rolls back.
+
+Host state showed owned test containers stopped and no active test process; restarted
+only the owned preloaded PostGIS oneCPU/512MiB and verified actual settings/readiness.
+Unrelated gateway untouched. Transaction optimized sources/paired benchmark hashes
+unchanged from the prior verified local result; original remote throughput failure
+remains, exact optimized CI still required. Ledger refreshed only on actual exercised
+references;190done/36in_progress/432new,total658,independently verified1. Persistent
+all658 goal active/unbudgeted; no Maven/maxCPU/new requirement/merge/deployment.
+
+
+## Whole-operation deadline and another verified negative gate (2026-10-16)
+
+5864a4a mainCI456 and battle pass, but migration18 job116881319622 again fails
+original throughput at-5.691201189980399%. Actual setup/correctness succeed;
+slow-query/history steps skipped there, never claimed remotely passed. Archive
+second negative report with source hashes. Do not dismiss it as noise or change
+the fixed baseline/workload/threshold.
+
+Use one owned-operation race against one deadline/connection abort signal, with
+checks before every continuation that may execute more work. Late checkout returns
+its lease; expired BEGIN cannot invoke a callback; late callback/SQL cannot commit
+through a returned connection. Retain unique backend tag/local server timeout,
+real metrics, retry, bounded audit/cleanup and unknown-COMMIT behavior. Two new
+actual pending-query cases verify queued SQL finishes before reported commit and
+failure rolls back preceding writes. Initial positive case incorrectly combined
+parameterized commands, which PostgreSQL rejected; correct it to one materialized
+CTE preserving actual delay+write and genuine promise observation. No assertion
+weakened or fake successful SQL. Actual transaction suite now24 passes.
+
+All18 actual suites repeat348 checks on the owned oneCPU preloaded DB;724 units/
+24Jest suites and syntax1442 pass. Actual modules/router load and workflow parses.
+Original fixed paired benchmark local+0.5400157583078435%, exact balances/hashes;
+record real Node/architecture/server/synchronous_commit=on/preload before timing.
+Only environment metadata added, no timing workload/threshold/baseline change.
+Exact new remote performance still unverified. Move independent slow-query case
+before throughput; full history runs after earlier success/failure while any
+failure still fails the job. No continue-on-error or waiver.
+
+Read all845 original REQ348 lines and actual mounted router/advisor/canonical schema;
+reopen legacy done without changing10 criteria/80/95percent/<500ms. Existing V1
+UUID instances/cp/caught_at/species metadata and per-species candy conflict with
+shadow columns/global candy; existing UUID teams/arrays/max6 must not be replaced.
+Mounted module loads do not prove broken data queries or fixed300-capacity behavior
+work. Carry actual owner/protection/confirmed atomic transfer/cache/prefs/sort/group/
+capacity/UI/mobile/performance and data-preserving upgrade acceptance forward.
+No new requirement or fake backfill. Inventory189done/37in_progress/432new,total658,
+independently verified1. Persistent all658 active; no Maven/maxCPU/merge/deployment.
+
+
+## Owned wire cancellation and exact metric observation (2026-10-17)
+
+Observed exact2b5ab77 mainCI457 success and battle success. Migration19
+job116887975018 passes actual transaction24 and slow-query7, then original throughput
+fails-7.838354232137334%. Independent full history now executes and fails inventory
+20260627_060000 stmt13 is_deleted; no continue-on-error or fabricated green result.
+Third exact remote negative report retained beside the preceding two failures.
+
+Actual pg_stat_statements reveals per-transaction UUID application_name utility
+entries and evictions; PostgreSQL protocol also emits name-change status packets.
+Replace display-name mutation with bounded CancelRequest using the exact owned
+backend's private startup PID/key, before quarantining/destroying the failed lease.
+Keep local statement_timeout in BEGIN and verify restoration/original backend name.
+Cancellation inherits original CA/TLS, waits secureConnect before sending and
+refuses plaintext fallback. Transport close is not database success; genuine blocked
+row lock releases, writes roll back and another backend stays alive. Keys never
+reach callback/log/artifact. Callback/config custom submit hooks and mutable SQL
+getters cannot escape ownership; comment-separated controls/CR/batches rejected,
+prepared queries and savepoints retained. Initial added test had a SQL quoting typo;
+correct syntax and rerun actual operations, no weakened assertion.
+
+Metrics reuse bounded label sets, accumulate exact producer deltas and flush using
+public Counter API when observed; reset clears queued/published counts. Real active
+leases with metrics enabled feed the observed gauge. Actual started/attempts/
+completed/failed/reset/disabled cases pass. Both real registries are exposed inside
+benchmark timing and exact counts must match every actual operation.
+
+Current unit gate724/24Jest suites425 and19 actual sequential storage suites355 pass,
+including transaction27/slow-query8/TLS3. All original assertions/criteria retained.
+Owned fast diagnostic DB is capped1CPU/512MiB/tmpfs256MiB with synchronous_commit on;
+not production/durable storage evidence. Intermediate normalized-setting disk+0.259%
+and fast-6.914%, buffered fast-10.019%, and wire short-window-5.016% measurements
+identify their own exploratory source hashes only; failures retained. Short samples
+were about0.17s with broad variation. Increase actual sample200 to2000 transfers per
+worker and warmup50 to500, preserving predecessor43c6b148/real V1 workload/two workers/
+seven alternating rounds/original-5% limit. Long-window fast diagnostic-2.965% passes
+with exact29000 events per producer/balances/source hashes. Regular-disk run is next;
+new exact remote CI still required and REQ96/77/full history remain incomplete.
+
+TLS fixture lesson: docker cp into the running container tmpfs reported success
+without visible destination files. Use explicit owned-container exec stdin, root
+only for installation/chown, postgres-owned0600 key; enable SSL in a separate SQL
+command/reload. Host private key removed after install; public certificate alone
+is retained for validation. CI uses the same stdin installation during its existing
+owned preload restart. No unrelated container or production config changed.
+
+Continuity: no Maven or CPU saturation; heavy jobs sequential/nice/UV2, two workers
+only for actual required contention/comparison. All658 persistent goal remains active;
+189declared done/37in_progress/432new, independently verified1. Next actual inventory
+canonical/UUID/team/species-candy/bond prerequisite and all original plan stages.
+
+Final regular-disk long-window benchmark exits0 at+0.22104147149817344%, original
+-5% gate, exact balances/29000 events per producer/source hashes/synchronous_commit
+on. Report retained separately from tmpfs. TLS fixture additionally pre-establishes
+its verified connection before blocked-query cancellation deadline; original actual
+checkout/connection-timeout cases remain. This changes only fixture setup and final
+TLS3 is repeated. New exact remote CI still required; full all658 remains open.
+
+
+## Inventory organization prerequisite and genuine remote throughput pass (2026-10-17)
+
+The preceding goal turn is progress: published checked25-file26f553f,724 unit/355
+actual storage cases and matched local ordinary/tmpfs measurements. Confirm exact
+main458 succeeds. Migration20 job117273205599 passes transaction27/slow-query8/TLS3
+and unchanged-5percent throughput at-1.1060183236359267% with actual Node24.21.0;
+downloaded report matches all8 measured current sources. Keep preceding three exact
+CI negative reports. Full job fails original inventory20260627_060000 stmt13; do not
+claim CI generally green. Related privacy/title/notification/dependency pass while
+legacy contract/API/integration/performance/security remain failed; E2E cancelled.
+
+Read actual current full inventory requirement/SQL/schema/advisor/routes and
+GUIDELINES before implementation. Add source-bound inventory repair, leaving raw85
+SQL byte-identical. Canonical UUID instance/favorite/30-character nickname/history/
+views/FKs, true species metadata, per-species candy and prior UUID teams/constraints
+remain. Add actual deleted_at/protection/tags/priority/CP-time indexes/UUID preferences
+and nullable team used_at. Do not create fake per-instance type/rarity/level/IV sums,
+a global candy balance or a second writable deletion flag. Unknown historic deletion
+times/resource attribution require explicit adoption, never invented values.
+
+Known old preference function/trigger OIDs/definitions/enabled state and exact saved
+choices/custom groups/timestamps/sequence remain, including nullable protection and
+unrelated user UPDATE trigger behavior. Validate existing owner/size constraints and
+index definitions instead of silently accepting incompatible same-named objects.
+Unsupported layouts fail in the owned transaction with data/OIDs preserved. Default
+preference inserts run only after all guards and exclude already seeded owners.
+
+New actual24-case storage/CLI suite uses real V1/V2 and extracted authentic prior gym
+team DDL. First fixture lookup was incorrectly anchored before leading SQL comments;
+fix lookup to select the genuine statement, never replace SQL execution with a mock.
+Actual original SQL fails/rolls back; repaired rows/OIDs/views/FKs/choices/sequence/
+triggers preserved; real query plan uses live-row index, CLI journals separate raw
+and exact repaired checksums, tampered immutable source rejected. Missing/wrong
+constraints/custom triggers/global candy/writable deletion flags/wrong columns/index
+layouts reject atomically. New gate enrolled in actual migration workflow.
+
+Full V1/V2 passes; complete85-source history advances past inventory and fails next
+20260630_040000 stmt13 cosmetic pokemon_instance_id FK type. Whole pending batch
+rolls back. No skipped file, lowered numerical target or rewritten acceptance.
+Original10 REQ348 criteria/80%/95%/<500ms remain; routes/canonical projections/real
+level-bond-evolution metadata/protected confirmed per-species transfer/soft-delete
+consumers/preferences/cache/capacity/clients/mobile/performance need implementation.
+Original up-only proposal, existing applied-repair upgrades and complete reverse
+still open. Broad20-suite repeat and final unit/syntax/evidence checks follow.
+
+Security416 actual failed step evidence retained privately; report8934 finding
+classes are4442 WeChat/4472 Aliyun/20 database-password. Unscoped custom patterns match
+checksum metadata; DB findings identify workflow fixtures. Classification is ongoing,
+not an asserted clean scan. Do not display matched secret values or weaken detection
+with broad file exclusions. K8s kubesec step also fails. Carry original security/P0
+stages forward alongside actual inventory/cosmetic prerequisites. All658 active,
+189done/37in_progress/432new, independently verified1. No Maven/maxCPU/merge/deploy.
+
+Final current-source repeat:724 unit checks/24Jest suites425,379 actual checks in20
+sequential storage/CLI suites/no skips,1445 syntax checks and actual inventory module/
+workflow/new gate loads pass. Original10 acceptance checkboxes and85 raw SQL bytes
+remain exact. Measured transaction core/benchmark8 hashes still match the genuine
+26f553f remote pass; no redundant unchanged local performance rerun. Full-chain
+cosmetic20260630_040000 stmt13 remains failed; new exact-source CI pending. All20
+historical database-password findings were individually verified against their
+actual commit/file/line as test:test on localhost/127.0.0.1:5432; no values exposed.
+Provider-pattern findings still need complete assessment; no clean scan claimed.
+
+
+## Cosmetic identities, preserved pricing/history and next deletion prerequisite (2026-10-17)
+
+Classify previous turn as progress: source-bound inventory repair/24 real cases and
+source-hashed evidence publisheda769b0d. Exact migration21 job117376047375/run39025669947
+confirms new24 passes and original throughput-1.6979621741050943% passes unchanged-5%
+with all8 current measured hashes; full job fails cosmetic FKey as expected. Preserve
+this actual remote report alongside26f pass and all three older negative reports.
+
+Read full original1307-line REQ125, current SQL/repair/V1 and GUIDELINES. Actual search
+finds no production cosmetic service/router/metrics/client from embedded examples.
+Keep all15 criteria and≥90% coverage; move new toin_progress. Earlier repair changed3
+user FK types but missed VARCHAR pokemon_instance_id against UUID canonical Pokemon.
+Fix all4 references; verify actual7 FK contracts and refuse unmapped legacy identities
+without casting/fabricating old ownership. Retain five tables, existing rows/OIDs/
+views/FKs/comments/sequences,13 complete multilingual definitions/new-item prices.
+Original global gem UPDATE would overwrite operator prices; set intended gem values
+only on new seed insertion, preserving old catalog/price/position/custom metadata.
+
+Original statistics seeding would invent zero old purchases/revenue. Preserve recorded
+statistics, derive only real active distinct owners/stored equipment for missing old
+rows and leave historical counters/revenues NULL; new definitions start0. No cleanup
+or telemetry correctness claim. Compare database JSON as text to avoid silently
+rounding BIGINT revenue near64-bit limits in JS assertions. Actual V1/V2/old failures/
+rollback, every seed field against minimally UUID-corrected original, real owner/FK
+constraints, grants/presets/prices/history/comments/OIDs/sequence/view preservation,
+unknown layout rejection and actual CLI raw/execution checksums are exercised.
+New native suite enrolled in migration workflow; no mocked SQL or threshold waiver.
+
+Full V1/V2 passes; unchanged85-source history now passes cosmetics and fails next
+20260630_050000 stmt2 data_deletion_tasks.request_id FK against earlier request
+identity. Whole pending batch rolls back. Next deletion workflow prerequisite (declared P1) must preserve
+actual existing request identity/status/history rather than blindly changing IDs.
+Cosmetic APIs/service/slot concurrency/atomic presets/expiry/events/cache/metrics/
+client/assets/≥90% coverage/full purchase flow remain open; canonical users have
+coins/premium_coins, not proposal gems. Existing applied-repair upgrade/full reversal
+remain open. All658 scope retained,189done/38in_progress/431new, verified1. No Maven/
+CPU saturation/merge/deploy. Broad sequential current-source gates follow.
+
+The stronger all13-field comparison initially failed because nested owned schemas
+could not see uuid_generate_v4 installed in the first schema. Keep the full assertion
+and install actual V1 uuid-ossp/PostGIS/pgcrypto APIs in the owned fixture public
+schema before comparing independent schemas. Focused15 cases then pass; repeat the
+full21-suite gate on the final shared-extension setup. Production SQL and original
+assertions remain intact. Actual REQ127 and its older GDPR parent are declaredP1,
+not P0; they block the shared installation needed by P0 services. Keep priority
+metadata accurate and retain all original P0 work in the plan.
+
+Final current-source validation:724 unit checks/24Jest suites425,394 actual checks in21
+sequential storage/CLI suites/no skips,1446 syntax checks and actual migration module/
+workflow/new cosmetic gate parse pass. The final15 cosmetic cases retain full13-row
+seed equivalence and exact BIGINT comparison after proper shared-extension setup.
+V1/V2 passes; entire85-source history still fails deletion20260630_050000 stmt2 and
+rolls back. All15 original cosmetic criteria/≥90% and85 original SQL bytes remain
+exact. Exacta769b0d main459/inventory24/throughput-1.6979621741050943% pass; new full
+source CI remains to be observed. No new local benchmark rerun for unchanged8
+measured transaction sources. Full runtime/client/numerical/upgrade/reverse remains
+open. Current declarations189done/38in_progress/431new,total658, verified1.
+
+
+## Preserved legacy erasure history and accountable UUID storage (2026-10-18)
+
+Previous turn is progress: published checked5c1ddd5 cosmetic repair/15 real cases and
+evidence. Exact migration22 job117378639218 confirms cosmetic15 and all prior actual
+correctness steps pass; original throughput-4.0321937222349895% passes original-5%.
+Actual downloaded report/source hashes retained; full job fails deletion request
+UUID FK as expected. This is not overall CI or full cosmetic feature acceptance.
+
+Read full original1312-line REQ127 and539-line GDPR16 plus actual legacy/new SQL,
+service/routes/processor/mounts. New127 entersin_progress; withdraw old16done with
+both original12 criteria and GDPR≥80%/legal review unchanged. Actual mounted legacy
+GDPR module submits canonical UUID into INTEGER owner and fails22P02, exports fail
+42703 on missing V1 fields. Logger facade and actual module imports work; do not
+report an invented module/load failure. Retain full feature/operation boundaries.
+
+Source-bound repair separates new UUID data_erasure_*5 tables from untouched legacy
+SERIAL/numeric-owner requests. Do not guess cast/owner mapping or synthesize old
+verifications/approval/task/proof rows. Preserve old IDs/status/times/tokens/sequence/
+views/FKs/shared timestamp function. New UUID subject/request identity is immutable;
+real live FK clears only when account disappears, preserving workflow/receipt history.
+Challenge storage uses digest, task rows use compiled resource/plan codes rather than
+raw SQL templates;8 old category proposals/retention numbers remain metadata, not
+execution authority or legal approval. Exact payload/hash/request/subject/counts/
+category totals and deferred completion accounting prevent inconsistent receipt rows.
+Require explicit retention/key/algorithm; no default HMAC mislabeled as RSA.
+
+Native18 checks run actual V1/legacy DDL/PG/CLI, including actual deletion of3 owned
+canonical Pokemon rows, preservation of another owner, genuine Ed25519 verification
+before/after fixture account removal and request/receipt history/OID/config reruns.
+This is SQL storage/crypto evidence, not the production worker or legal compliance.
+Initial receipt SQL reused one parameter for JSONB/text, causing42P08; explicitly
+bind original text before deriving JSONB/digest, retaining exact signed bytes and
+all failure assertions. Move unknown new-identity guard before dependent FK DDL.
+Stronger live-FK/disabled-trigger/changed-index profiles expose PostgreSQL15's actual
+serialized predicate casts; observe exact catalog expression on an owned TEMP table
+and retain precise adoption checking rather than dropping the guard. Final18 pass.
+
+Full original85 chain passes erasure storage, then fails20260701_110000 stmt1 inline
+partial UNIQUE WHERE; entire pending batch rolls back. No raw SQL rewrite, skipped
+source, fake journal or lowered criterion. All previous repair entries and existing
+production JS/migrator inputs stay byte-identical. Preserve prior394 scoped storage
+checks/source hashes; do not pretend those21 suites were rerun in this narrower batch.
+New18/CLI/full-history gates plus main unit/syntax checks exercise current changes;
+new complete CI still must be observed.
+
+Current routes/service/worker still target legacy models and need real namespace/
+owner/admin/channel/verification/approval/delay/canonical-resource/atomic deletion/
+retry/outbox/metrics/certificate-access/token-revocation work. Old export/encryption/
+consent/retention/audit/coverage and formal privacy-policy review remain. Official
+European Commission/California DOJ sources checked; retention purpose/obligations
+and erasure exceptions do not establish the repo's blanket7-year proof policy. Some
+EUR-Lex/leginfo direct pages are robot/403 blocked; no legal sign-off fabricated.
+Continue canary installation prerequisite, actual P0/service/runtime and all original
+658 stages. Current188done/40in_progress/430new, independently verified1. No Maven/
+CPU saturation/production deletion/merge/deploy or external recipient messages.
+
+
+## 2026-10-18 — published erasure CI; preserve repeated canary storage
+
+Published40a98d34ebe7d3fa800c02d2f346b6e3796ce99b to existing draftPR6 (19 project
+files, personal memory/credentials excluded). Exact main461 unit/syntax/audit and
+battle jobs pass. Migration23 run39100238639/job117594848091 downloaded log confirms
+erasure18 and all existing correctness gates pass; throughput-2.76910724385816%
+passes original-5%, all8 measured source hashes match, report archived. Full job
+fails old canary110000 stmt1 WHERE syntax; not an overall migration success.
+
+Read all original1074 lines ofREQ78 and both65/104-line SQL proposals, earlier
+checksummed repair and actual manager/router/API/metric/CLI/workflow consumers.
+Requirement ends at a truncated11th checkbox; preserve every original criterion
+verbatim and reopen legacydone. Earlier canonical SERIAL deployments/history/
+snapshots already exist. New source-bound repair keeps original85 SQL unchanged
+and retains all IDs/rows/choices/history/sequences/views/FKs/comments/indexes. Add
+actual request logs and one-active-service uniqueness across active/promoting; refuse
+ambiguous history rather than discard or fake completion. Old unknown created_at
+isNULL; new rows get real current timestamp and operator default survives rerun.
+Owned update function/trigger/index definitions/enabled state are guarded, not reset.
+
+Initial runtime diagnostic wrongly assumed destructured db absent. Actual db.db
+compatibility alias exists; native query opened a real pool instead of throwing
+TypeError, leaving its metrics timer alive. Stop only owned test processes, replace
+that assumption with child-process probes using actual isolated DATABASE_URL,
+max2 pool and finally closePools. Final test exits naturally. Actual manager read
+works, but create persists rows/history then throws static EventBus.publish; absent
+samples become healthy defaults and an all503 sample incorrectly returns success1;
+API fails missing requireAdmin and actual metric helper fails Counter.increment.
+No gateway mount/upstream version selection or actual rollback/staging accepted.
+
+Review found a NULL predicate makes old comparison unknown rather than rejecting
+a nonpartial unique index. Both erasure/canary comparisons now use IS DISTINCT FROM,
+and actual all-status unique-index fixtures must fail atomically. The first canary
+fixture could not create that deliberately wrong index because two historical rows
+shared a service; give those fixture rows distinct service names before constructing
+the incompatible index, then retain the complete pre-repair snapshot/atomic refusal
+assertion. No historical row is removed. Final19 erasure
+and18 canary checks (37 total/no skips) pass sequentially against real PostgreSQL.
+Include original failures, real two-caller race/unique enforcement, exact retained
+rows/OIDs/sequences/functions/triggers/defaults, parent/cascade checks and genuine
+CLI raw/executed checksum/up/up/verify. Earlier394 business checks remain prior
+source-specific evidence, not a fictitious new total. Production JavaScript/runner/
+all older repair-manifest entries and8 measured transaction sources unchanged.
+
+Full V1/V2 passes; complete85 history now passes canary and fails partition
+20260707_060000 stmt6: cannot change view column size_bytes to size. Entire pending
+transaction rolls back. Next reconcile original partition-view contract/history,
+then actual P0/startup/security/runtime/client/operations and all658 stages. Current
+187done/41progress/430new, sole independently verified619 unchanged. Full new CI,
+canary runtime/auth/proxy/metrics/promotion/rollback/upgrade/reversal, erasure worker/
+API/key lifecycle/legal review and all original thresholds remain open. No Maven,
+CPU saturation, production release, deployment, merge or recipient messages.
+
+
+## 2026-10-18 — actual canonical partition operations and native gateway integration
+
+Previous turn is concrete progress: published2e5fc2b9ec96def82a84c673f55a7cadd6d93586
+to draftPR6. Exact main462 passes. Migration24 run39100627589/job117595987123
+passes canary18/erasure19/all existing correctness, but original throughput-5%
+gate fails at-6.352968581797381%. Downloaded actual report archived; all8 measured
+transaction hashes still match. Full job fails partition view size_bytes→size.
+Retain this negative result; earlier passing reports are not a waiver or new pass.
+
+Read complete788-lineREQ60 (9 original criteria),1089-lineREQ626 (12) and478-line
+raw management proposal, existing conversion/duplicate repairs and actual manager/
+API/job/caller sources.626 legacydone reopened; all criteria and50%/60%/P95/80%/
+Parquet>70%/backup>70%/<30s targets unchanged. Old manager has incompatible fields,
+Redis1-hour temporary export/count-only verification and DROP, not durable S3/
+Parquet recovery. Existing route called nonexistent methods and lacked access
+checks. Preserve original five canonical created_at parents and view/helper/row/
+sequence/FK/trigger/comment/ACL identities; never manufacture archives or new
+shadow parents. New source-bound repair uses actual UTC monthly/daily/established
+Tuesday-weekly current+three-future-month ranges, parent locks, exact old-bound
+reuse and checked physical postconditions. Actual live child counts/total bytes and
+missing-range/default-row health are schema-scoped, with no fake catalog counts or
+healthy defaults. partition_stats/custom definitions/dependent view stay untouched.
+
+Actual gateway now mounts signed-admin routes, preserves legacy count alias and
+no-body default creation, records exact BIGINT API totals and genuine Prometheus
+observations/counters/timings, and removes stale labels. Gateway startup awaits
+real precreation; a daily sequential refresh owns its timer, records database
+failures and naturally drains on signal/startup-failure cleanup. No unverified
+archive/drop cron jobs, absent hardcoded archive tables or implemented notice.
+
+Initial new module used nonexistent metrics.registry; actual module exports
+register, corrected before acceptance. Actual rerun guard first compared raw
+PostgreSQL default parse trees (source locations differ under a temporary function
+name); use pg_get_expr semantic default comparison while retaining all argument/
+return/body/configuration guards. First false-success fixture omitted original
+input parameter names and PostgreSQL refused setup; retain exact names. First
+overlap fixture was in an already past week of the month, so no conflict existed;
+use actual current canonical week+one-day phase shift and retain rejection/rollback.
+Final22 real storage/router/CLI cases pass/no skips. Native coverage of actual
+new maintenance module100% line/94% branch/90.48% function passes80% line/function
+gates; no whole legacy/archive/optimizer/UI coverage acceptance. Preserve exact
+historical/current rows of all5 parents including geometry/JSON/payment and global
+audit IDs, actual DEFAULT movement/real counts/bytes, UTC/leap-month/week/cross-
+schema bounds, concurrent creation, signed HTTP negatives/summary totals, live
+periodic refresh and real database-fault observation, CLI raw/executed checksums and
+atomic shadow/custom-function/overlap/wrong-config/false-creator refusal.
+
+Final724 unit checks (24Jest425), native actual gateway/user entrypoint HTTP/admin/
+metrics/readiness/old notifications/IP flows/natural shutdown and1450 syntax pass.
+Native fixtures use authentic V1 audit/partition SQL and PostGIS; CI title image
+updated accordingly, migration CI adds actual module80% gate. One earlier local
+coverage/native invocation overlapped briefly; subsequent final heavy validations
+run sequentially. Owned Redis/Kafka fixtures receive1CPU caps, Redis256MiB/Kafka1GiB,
+and are stopped after final checks. Unrelated running containers are unchanged.
+Prior business394/earlier partition27 checks remain prior source-specific evidence,
+not a fabricated larger rerun. All85 raw SQL, older manifest entries and8 measured
+transaction sources unchanged. Full V1/V2 passes;85-chain passes partition/weather
+then fails CDC20260707_100000 stmt5, nonexistent pokemon; entire pending rollback.
+
+Continue real CDC resource/key/transaction/subscription/privacy integration, actual
+P0/services and all658 stages. Durable S3/Parquet/archive/restore/backups/retention/
+delete/alerts/UI/caller/query performance and all original complete criteria stay
+open. Current186done/42progress/430new, sole independently verified619 unchanged.
+Latest full-source CI still needs observation. No Maven, CPU saturation, new
+requirements, credentials in project files, production deletion, merge/deploy or
+external recipient messages.
+
+
+## Durable cache invalidation checkpoint (2026-10-19)
+
+Read complete original REQ479/523 and retain all4+4 criteria and100ms/50ms gates.
+479 legacy done is reopened;523 moves new→in_progress. Current185done/44progress/
+429new,658 unique original documents,40 source-matching evidence records and sole
+verified619 remain. Real gateway caches now use commit-driven invalidation across
+18 canonical sources, approved bounded identity-only PG outbox/UUID hints, durable
+retry/reconnect/worker restart, per-namespace Redis+independent L1 broadcasts, CAS
+fill fences, signed-admin durable revision config, original baseline YAML plus
+validated glob/bounded-regex additions, and actual processing/backlog/error metrics.
+Actual proxy streams now fill bounded JSON envelopes; keys separate full target,
+verified subject/language/structured queries. Existing own-statistics/public-profile
+routes are mapped to real upstream paths, and personal Pokédex authenticates.
+Joined Pokemon profile counts/species/candy/friend dependencies invalidate too.
+
+Final40 actual SQL/Redis/worker/streaming HTTP cases pass/no skips. Diagnostic
+selected-module coverage90.48line/71.68branch/79.02function; no whole-feature coverage
+claim or reduced gate. Actual two-OS-gateway+user native suite passes existing
+Kafka/notification/WS/IP/readiness/admin/signal/RedisURL cases and new streamed-cache
+MISS/HIT/committed-update/joined-count/config/400/413/ownership cases. Final native
+observed45.31109ms functional recovery is not capacity acceptance.724 existing unit
+checks/24Jest425 and1455 syntax pass; heavy checks sequential UV2/nice10. Owned
+Redis/Kafka1CPU fixtures stopped afterward; unrelated containers unchanged.
+
+Repeated native coverage latency exposed53.273283ms > original50ms. Preserve that
+negative source-hashed artifact. Reduce real Redis round trips by matching up to
+100 source rules during shared owned data/fence scans, rather than rescanning for
+each entity rule. Final12 writer→bothL1+Redis measurements max13.414005ms, original
+50/100 gates unchanged; real source hashes match report. First late-commit fixture
+incorrectly rewrote L2 then expected another L1 to change without invalidation;
+isolate a fresh key, retain the actual late-commit/rollback requirements and rerun.
+Prior latency-positive/overall-fixture-failure report is retained with that scope.
+No production load/no-significant-database-load or long-outage acceptance claimed.
+
+All85 original raw SQL and every previous manifest entry remain unchanged. Guarded
+new repair retains compatible trigger/function/outbox/settings contracts and refuses
+customized/privacy/primary/singleton/revision changes. Genuine CLI up/up/verify
+retains raw/executed hashes. Full V1/V2 passes;85-chain now passes CDC and fails
+job-monitoring20260711_120000 statement6: created_time absent. Entire pending batch
+rolls back. Full upgrade/reversal, all cache consumers and all original P0/service/
+client/security/operations stages remain open. Current-source CI must be observed.
+
+Exact prior2df7d22 main463/battle and native32 pass; migration25/job117672875464
+passes partition22/original80% gate/all other correctness and actual throughput
+-2.7440245081718717% meets original-5%, with all8 measured hashes matching. Migration
+job still fails oldCDC trigger. Archive its actual report alongside prior2e5
+-6.352968581797381% failed gate; no waiver/cherrypicking, no new local throughput
+rerun for unchanged8 sources. Never mark all658 achieved from partial checkpoints.
+
+
+## Job history and fresh installation checkpoint (2026-10-19)
+
+Previous goal turn made concrete progress: published766ad98 actual CDC/gateway
+runtime and40 genuine storage tests. Exact-source main464 passed. Title/native33
+run39179749635/job117829780788 then failed cache37pass/3fail (two children+parent),
+so its native step was skipped. Remote12 latency samples max15.145301ms pass original
+50ms; that does not waive functional failure. Real invalidation advanced the local
+generation while a setup Redis read was in flight, correctly returning disabled.
+New deterministic held-real-Redis-read case verifies bypass/miss/no stale L1 fill;
+seed only after a genuinely successful fenced fill. Production cache/gateway code
+unchanged. Final41 real cache/CDC/HTTP cases pass/no skips; final12 latency samples
+max12.950595ms with matching hashes. Preserve original50/100ms gates and archived
+source-specific CI failure, earlier53.273ms failure and prior diagnostic scopes.
+
+REQ669 original document fully read,10 criteria retained; its conflicting topdone/
+footernew metadata both becomein_progress.185→184done,44→45progress,429new;658 unique,
+41 source-matching records and verified619 only. Its canonical source-bound existing
+job repair corrects created_time to realcreated_at, preserves four operational
+histories/SERIAL IDs/sequences/operator comments/indexes/views/dependents and UUID
+acknowledger FK, and atomically rejects incompatible contracts. TEMP probes cannot
+reference permanent users via FK (actual42P16); check actual UUID target/action/
+validation/column contract separately, with no disabled FK or fabricated link.
+Genuine CLI up/up/verify preserves raw/execution hashes. All85 raw sources remain
+unchanged; only the existing20260711_120000 repair entry/executed content changes,
+never a recorded journal. Differing-repair upgrade still needs explicit handling.
+
+Production JobExecutionLogger now lazily shares configured DATABASE_URL pool and
+verifies canonical migrated storage rather than auto-DDL/default credentials.
+Supplied shared pools remain usable; explicitly owned dedicated pools close.
+Scoped atomic completion gives one actual winner/conflicting status409, matching
+replay preserves result; negative time/invalid input cannot rewrite execution.
+Real parameterized history/filters/metadata/rates include null success for no runs.
+New UTC start/end/created_at clocks survive real UTC/Shanghai process and NewYork
+session timezone differences. Historical types/values remain; unknown timezone
+provenance is not reconstructed. Retention >=90days deletes only old completed
+records, preserving running/recent/unknown states; no production cleanup/timer starts.
+Final24 actual job SQL/CLI/logger/storage/native-TZ/pool/race cases pass/no skips,
+module100line/94.50branch/95.65function at80% line/function gate. Original669 core
+aggregator/alert/health>80% remains separate and unmet. First timezone child used
+root require(pg), corrected actual backend dependency path; no fake dependency.
+
+Full85 chain initially reached all85 raw-matching journal entries but final owned
+2574-object schema DROP failed53200 under default max_locks_per_transaction64.
+Raise only owned PostGIS fixture/isolated migrationCI to256 before restart, preserving
+whole atomic migration and checksum gates. Confirm original85 raw hashes in the
+retained fixture before removing that owned schema. It exposed an older audit
+migration's unscoped information_schema lookup: another schema's encryption_auth_tag
+caused new schema skip/failure. That cross-schema case is explicitly unresolved.
+After confirmed owned diagnostic cleanup, real full V1/V2+all85/checksums/cleanup
+passes2/2/no skips. PostgreSQL15 official lock docs linked in JOB-MONITORING.md;
+no production config/data change, no benchmark threshold or immutable baseline change.
+Fresh install is a prerequisite pass, not all upgrade/reverse/service acceptance.
+
+Final current checks: job24/cache41, full bootstrap2,724 unit/24Jest425,1456 syntax,
+workflow parsing and audit. First unit invocation wrongly forcedLOG_LEVEL=error
+and correctly failed a logger-context assertion; rerun with normal environment
+passes unchanged tests. Heavy checks sequential nice10/UV2; no Maven/CPU saturation.
+Owned Redis stopped after tests; Kafka remains stopped; unrelated containers intact.
+Exact prior766 migration26/run39179749602/job117829780475 correctness/CDC17/TLS/
+partition80% and actual throughput-2.715739325993871% pass original-5%, all8 source
+hashes match. Full prior migration fails old jobcreated_time. Archive actual report
+alongside earlier negatives; no new local throughput rerun for unchanged8 sources.
+New full-source CI still must be observed; do not claim all green.
+
+All original P0/service/client/security/operations stages and669 registration/
+<5s realtime/90dayhistory/60sactualalert/10minsuppression/>95%zombie/<10%scoreerror/
+adminUI/corecoverage/E2E remain required. Job routes remain unmounted/unauthenticated
+with lazy resources and placeholder restart/skip, and no jobs register into current
+aggregator. Next prioritize actual P0 services/security dependencies and the scoped
+audit installation defect; finish full monitor runtime safely, with actual auth,
+job ownership and real delivery before accepting669. No external recipients,
+production deletion, merge/deploy, new requirements or reduced targets.
+
+
+## Scoped sensitive audit storage checkpoint (2026-10-19)
+
+Previous goal turn made concrete progress:20project files published519f880, actual
+job logger24/cache41/fullfresh85 gate2 and source-hashed evidence. Independently
+observed exact519 main465/run39205897731, title/native34/run39205897769/job117908550436
+and migration27/run39205897816/job117908550452 all completedSUCCESS. Downloaded logs
+confirm actual native gateway/user and cache41, job24/original80% module gates and
+complete fresh85. Actual transaction throughput-2.517669437114245% meets unchanged
+-5%; all8 measured source hashes match. Archive report and sanitized three-gate
+metadata/log hashes. Other legacy workflows/full658 acceptance remain separate.
+
+Read complete originalREQ38(331lines/10criteria) and both sensitive-audit rawSQL
+194800/200000. Legacydone is reopened, retaining every original criterion including
+AES256GCM rotation/KMS, complete access chain, ≥10masktypes, allendpointscanner/MFA,
+≥90%crypto/mask/permissionscoverage/integration/CI/docs. Current183done46progress
+429new/658unique,42 source-matching records, independently verified619 only.
+
+New source-bound200000repair fixes four global information_schema existence checks
+and temporarily isolates relation lookup to actual target schema; restores exact
+caller search_path. Preserve actual BIGSERIAL audit/data, encrypted cipher/tag/IV/
+wrapped-key bytes, operator comments, statistics/dependents and previous key choices.
+New historical timestamps stayNULL for canonical V1 TIMESTAMP WITHOUT TIME ZONE;
+only genuine timestamptz creation instants can populate them. Initial fixture exposed
+an8-hour implicit timezone assumption; corrected to preserve unknown provenance.
+Old missing key versions stayNULL; defaults apply to future keys. No guessed tags,
+key rewrap or fake historical clock/version. Crypto/storage incompatibilities and
+custom functions/config/views require explicit adoption; guards NULL-safe.
+
+Both known cleanup functions retainOID but move fromSECURITYDEFINER/publicexecute
+toSECURITYINVOKER, schema-qualified targets and pinnedpg_catalogpath. Migration
+never invokes cleanup. A real ephemeral read-only fixture role is denied without
+PUBLICexecute and still denied ownerDELETE escalation after explicitEXECUTE grant;
+role/grants and fixture schemas are cleaned up. No privileged cleanup/job, global
+shared function replacement, production deletion, recipient or rekey operation.
+
+Final16 actual target+outsider PostgreSQL/V1/V2/SQL/CLI/real-role cases pass/no skips.
+Reproduce original42703 and atomic rollback, retain four columns/settings/outsider,
+unknown+known history, real fixtureGCM bytes/wrappedkeys/serial IDs/comments/views,
+actual rootCLIup/up/verify/raw+executionhash, and custom tag/timestamp/body/config/
+view refusals. Fixture crypto validates preserved bytes, not production encryption.
+Full bootstrap now3/3/no skips:V1/V2 plus original isolated85 and complete85 beside
+an unrelated schema with matching4 audit columns and unchanged OID/marker. Every
+raw checksum and schema cleanup retained; max_locks256 from previous checkpoint.
+Final724 unit/24Jest425 and1457 syntax/workflow/audit pass. All85 rawfiles and every
+older repair entry unchanged; one new audit entry. No fresh rerun of prior broad
+business/native suites claimed; new current-source CI still must be observed.
+
+The actual runtime encryption helpers remain incomplete and unmounted in current
+native gateway/user entry points. AuditLogEncrypted fullsource reviewed: temporary/
+development/plaintext fallback, BYTEA encryptedKey.split type mismatch, writer drops
+GCM authTag and names resource_type/id instead of canonical entity_type/id, query
+passes wrong decryption arguments, rotationgetOrCreate mayreuseactivekey. Sensitive
+DataAudit complete415lines reviewed: dropsIV/tag, no accessor-role enforcement,
+suppliedhasMFAboolean, unknownruleallow, truthyfieldaccessdetection/identitymismatch,
+res.jsonaudit failure returns data. Common auditLog firstfunction stillplainSQL/logs.
+No claim of real crypto decryptability, MFA, complete role filtering/scanner or
+compliance. Finish actual canonical crypto/provider/keypurpose/rotation/history
+and durable access semantics before mounting authorized MFA/decrypt routes.
+Remaining original P0/services/client/security/operations and all658 goal persist.
+No Maven/CPU saturation/new requirements/merge/deploy/production cleanup. Heavy
+checks sequentialnice10/UV2; Redis/Kafka remain stopped and unrelated containers intact.
+
+Final staging whitespace check caught trailing whitespace inherited by the new repair. Encode known historical function prosrc as SQL E-string literals to preserve exact legacy whitespace, then remove outer trailing whitespace. Final rerun16 sensitive/3 fullbootstrap/724 unit/1457 syntax passes; refresh only actual changed repair/artifact references. No raw migration or functional gate changed.
+
+## Durable audit encryption checkpoint (2026-10-19)
+
+Continued the existing 658-requirement goal and read the actual audit, local KMS
+and MFA interfaces. The old encrypted helper lost tags, mishandled BYTEA keys,
+used incorrect canonical columns/decrypt arguments, and could reuse an active key
+on rotation. The existing KMS directory is a local vault, with development
+fallbacks; it does not establish external production KMS or verified admin MFA.
+
+The lazy encrypted-audit facade now uses three production modules for bounded
+AES-256-GCM primitives, explicit environment/AWS KMS providers, and durable
+canonical PostgreSQL storage. Audit rows commit their cipher/key/IV/auth tag
+atomically, bind row identity/subject/action/resource metadata with AAD, and keep
+private details/IP/agent out of plaintext columns. BIGSERIAL remains a string,
+including genuine IDs above 2^53 after actual partition conversion. Initialization
+refuses schema shadows instead of borrowing another search-path schema's tables.
+There is no runtime DDL, master/key file, generated-master or plaintext fallback.
+Caller-owned pools/providers survive close; imports start no timers or clients.
+
+Audit-owned work keys are purpose-separated in the existing canonical table.
+Actual row/advisory locking supports first-use contention and overlapping rotation
+with writes, without shared-row-lock upgrade deadlock. Original 90-day expiry,
+forced and changed-master rotation create new keys; versions/lineage and old
+wrapped history remain. Provider/storage failure rolls back key and audit changes;
+actual generated work-key buffers are cleared after failed insertion. Historical
+legacy wrapping requires an explicitly retained master and authentic IV/tag;
+missing historical data is reported unavailable, never reconstructed as success.
+
+The sensitive-access adapter now stores its full versioned envelope in existing
+BYTEA storage, keeping fields/reason/IP/agent encrypted and preserving 90-day
+retention. Reads report old incomplete records explicitly. Its middleware detects
+present zero-valued fields, recognizes the upstream sub identity and withholds the
+private HTTP response on audit failure. The actual fresh-process HTTP fixture
+injects trusted identity; it does not prove production authentication or MFA.
+
+Production requires stable namespace and a full regional AWS KMS key ARN, with an
+explicit historical decrypt allowlist and SDK credential chain. The pinned SDK
+adds 23 packages without changing any existing locked package version. Real signed
+SDK HTTP requests verify GenerateDataKey/Decrypt/context and failure handling
+against a loopback fixture. This exposed a requestTimeout option that only warned;
+throwOnRequestTimeout now aborts and the real timeout test passes. It is not live
+AWS IAM/key-policy/CloudTrail/availability/latency acceptance. No real AWS key or
+credential was supplied, no provider-family conversion or rewrap is performed.
+
+Final current-source crypto20/20/no skips passes with three-module coverage:
+98.04% lines, 88.98% branches, 98.31% functions. The new CI gate enforces 90% lines
+and functions for that scope; a 90% branch/full combined-scope pass is not claimed.
+Also pass actual sensitive SQL16, complete bootstrap3 (V1/V2 plus both isolated
+and cross-schema all85 histories), 724 unit checks/24Jest425, battle133 with
+100% formula coverage, and 1462 syntax files. Initial broad unit invocation
+incorrectly inherited LOG_LEVEL=error, suppressing INFO records asserted by the
+existing logging test; rerun under normal logging passes without changing its
+assertions. Initial fixture SQL quoting and partition sequence ownership mistakes
+were corrected; the canonical default child retains sequence ownership. Heavy
+checks remain sequential/nice10/UV2/node concurrency1/Jest runInBand, without Maven.
+
+Independently observed exact previous f671847 main466/run39239346368,
+title-native35/run39239346234 and migration28/run39239346302 all SUCCESS.
+Downloaded migration job118016095205 confirms actual SQL16 and complete85;
+paired throughput -2.5227292689284586% passes the unchanged -5% ceiling, with all
+eight measured hashes matching. Archive metadata/log hash/report. Earlier negative
+cache/throughput evidence remains unwaived. Other legacy contract/API/security/
+integration/performance/E2E workflows remain separate; new crypto-source CI still
+requires observation after publication.
+
+REQ38 remains in progress and all ten original criteria/numerical targets are
+unchanged. Common auditLog still writes plaintext; full business/transaction
+access coverage, actual roles/server-verified admin MFA, response filters/scanner,
+UI and original combined >=90% crypto/mask/permission coverage remain open. The
+old sensitive-rule helper still trusts hasMFA, and no new native admin decrypt
+route is mounted. Do not accept the full feature from this crypto checkpoint.
+
+All85 raw migrations and repair manifest unchanged. No new requirement, merge,
+deploy, production cleanup/rekey or recipient delivery. Inventory remains
+183 declared done/46 in progress/429 new, 658 unique documents,42 matching
+source-hashed records; independently verified1 remains the original REQ619 battle
+framework. Continue common audit/real authorization integration and all remaining
+P0/services/clients/security/operations work in the persistent goal.
+
+## Common audit transactions and actual native privacy (2026-10-20)
+
+Previous ac53b06 made substantive progress:19files published, real crypto20 and
+scoped90line/function gate. Independently observe exactac53 main467/run39242272932,
+title-native36/run39242273009 and migration29/run39242273002 SUCCESS. Downloaded
+migration job118025695411 confirms crypto20, original90gates and whole85. Actual
+paired throughput -4.494916657640657% meets unchanged -5% with8 matching measured
+hashes. Archive exact metadata/log hash/report; retain earlier negative evidence.
+Other legacy workflows are separate and current common-audit source needs CI.
+
+Read full originalREQ16(558lines/12criteria), REQ53(441lines/13criteria),
+REQ202(266lines/7criteria). Common logger still used plaintext SQL and duplicated
+private details/IP/agent into application logs; no-db writes returned success.
+Policy/preference callers already required audit success inside their transaction.
+Legacy unit mocks used INTEGER users/plaintext SQL and did not prove encryption or
+transaction safety. Reopen202's unsupported done declaration. Differently named
+lock/response tests exist: exact filename counts are discovery, not proof of missing
+coverage. Original11module85/90targets/fullnpmtest/CI/<30s still need independent
+verification. Preserve every original checkbox/numerical target and all658 scope.
+
+Common audit now uses the durable encrypted provider/store, records only a fixed
+code/opaque audit ID explicitly in its application receipt, and returns false with
+fixed failure code on key/storage/invalid-call failure. No plaintext/no-storage
+success fallback. Public Pool/shared getPool/getClient adapters are explicit;
+bare clients cannot silently become a new transaction. Caller transactionClient
+uses a random-name SAVEPOINT, same-connection schema verification and complete
+cipher write; it never BEGIN/COMMIT/releases the caller or closes its provider.
+An error rolls back to the savepoint, leaving the outer transaction usable so its
+caller can roll back the business action. Real sessions prove outside-session
+invisibility, caller rollback/commit, error recovery and ownership. Request IDs
+join encrypted audit payloads. The tested partition conversion retains actual
+int64/sequence/global identity behavior.
+
+Mounted policy-acceptance/preference writes use transactionClient and pass trusted
+request context for encrypted IP/agent/request ID. Final review caught the missing
+preference context; route and service now pass it, with real agent/IP assertions. Actual gateway/
+privacy routes and the production user-service OS process verify private columns
+null, stored tags, independent authentic decryption and failure rollback. Native
+owner audit metadata routes reject anonymous/partly numeric limits and return
+explicit detailsUnavailable without cipher or legacy plaintext. Common metadata
+queries do not accept encrypted service filtering or claim completed decrypt access;
+implement full protected query/roles/server-MFA, not metadata-only as final success.
+Common buffered-response middleware withholds private body/headers on recording
+failure, including anonymous actions. Streaming callers must record before first
+write; already sent bytes cannot be retracted. Full access coverage remains open.
+Service owner closes its managed provider after HTTP drains; caller resources survive.
+
+Final checks, all no-skips where applicable:
+
+- Actual crypto/PostgreSQL/SDK21 pass. Four-module crypto+facade scope is98.21%lines,
+  89.56%branches,95.52%functions; original90line/function gate retained. Facade
+  itself100line/function, underlying store92.5function. No90branch/full combined
+  mask/permission acceptance.
+- Common wrapper9 unit tests pass in under one second, actual98.7line/96.96statement/
+  96.84branch/93.75function at original85line/statement/function gates. This gate is
+  now in test:unit; other security modules are not accepted from it.
+- Existing privacy40 unit tests retain91.78line/89.57statement/78.94branch/
+  100function at unchanged80line/statement/function gates. Audit dependency is
+  explicitly isolated there; actual storage is independently tested.
+- Real privacy12 SQL/JWT/gateway route checks pass, now with original canonical
+  audit prerequisites and actual decryptability/atomic rejection assertions.
+- Both actual native user/gateway scenarios pass. User explicitly exercises the
+  mounted privacy flow, owner metadata and rollback plus old title/IP/health and
+  natural cleanup. The unchanged50ms titlep95 gate passes; independent gateway
+  checks retain CDC/cache/notifications/IP/health/signals. Exact local latency and
+  shutdown observations are archived in the current common-audit benchmark. These fixture observations are not production SLO acceptance.
+- Full733 unit checks pass:common1Jest9 plus prior24Jest425, with battle133 and
+  separate100%formula coverage.1462JS syntax/workflow/audit/number/health/console
+  checks pass. Full85/raw storage16 remain previous exact-source CI evidence;
+  no fabricated fresh broad rerun is claimed.
+
+A new borrowed-client failure test initially left its owned NOT VALID rejection
+constraint in place, causing the later independent partition conversion to reject
+it. Remove that temporary constraint in finally after proving rollback; preserve
+the original partition assertions. All85 raw SQL, repair manifest and lockfile
+unchanged. Heavy checks sequential/nice10/UV2/node concurrency1/Jest runInBand;
+owned Redis/Kafka stopped after native tests, unrelated containers untouched.
+
+Current182declared done47inprogress429new,658unique,43source-hashed records;
+sole independently verified requirement remains619. REQ38/16/53/202 and all full
+business/transaction callers, positional interfaces/jobs/ignoredfalse, authenticated
+admin/serverMFA/decrypt/service-filter contracts, complete export/delete/retention,
+masking/scanner/UI/liveAWS/original combined coverage remain open. No all-service,
+11-module, compliance or full-goal claim. No new requirement/Maven/maxCPU/subagents/
+merge/deploy/productioncleanup/rekey/recipient messages. Continue the full persistent
+P0/service/client/security/operations objective after this published checkpoint.
+
+## Canonical MFA factor/session prerequisites and historical audit time (2026-10-20)
+
+Read all original REQ638/126/588 and original MFA implementation/routes/guard.
+Unsupported done declarations reopened to in_progress; all10/4/4 original boxes
+and thresholds preserved verbatim. REQ126's literal Bearer test_token is invalid
+and correctly returns401, so its curl -sf command cannot pass securely as written.
+Keep this conflict visible without accepting forged credentials or changing the
+criterion. Three static/load/mount commands pass; authenticated native aliases
+are separately exercised. Full658 scope and sole verified619 stay unchanged.
+
+Prior exact b17ddee CI main468/native37/migration30 succeeded. Downloaded migration
+job118367742787 retains audit21 at original90line/function and full85. Actual
+transaction throughput-1.9117597094924332% meets unchanged-5% ceiling with all8
+measured hashes matching. Snapshot and report archived; earlier negative reports
+and other legacy contract/API/integration/performance/security failures remain.
+This result does not establish the current MFA source's remote CI.
+
+Old MFA facade imports logger/metrics values absent from the shared export,
+has a hardcoded development master, non-atomic recovery/failure handling and
+updates nonexistent users.mfa_enabled; source places a logger call after setup
+commit. Guard trusts missing/false JWT mfaEnabled and uses a static signing-key
+fallback. Routes are in the wrong management namespace and old public verify
+accepts body userId. These source findings do not claim a measured old setup
+commit/failure reproduction. Replace with the actual canonical store, dedicated
+key provider, real signed session boundary and bounded managed transactions.
+
+One additive raw migration creates durable credential epochs/replay counters,
+absolute lock timestamps and hashed five-minute login/step-up proofs. Existing
+85 raw SQL, repair manifest and lockfile are unchanged. Full86 production history
+passes fresh and beside an unrelated audit schema. Actual migration checks prove
+empty reversal, populated reversal refusal/history preservation, UUID mismatch
+and fallback-schema refusal without adopting unrelated tables/ciphertext.
+Legacy state/unknown keys/timezone need explicit review and never authorize by guess.
+
+Fresh AES-256-GCM secret envelopes bind namespace/database/schema, subject hash,
+epoch and purpose, with complete wrapped key/IV/tag and distinct audit/MFA keys.
+Production requires actual AWS provider configuration and explicit JWT signing
+keys; KMS_ENABLED cannot select known sync fallback keys. No live AWS authorization
+claim. Setup yields160bitBase32, explicit issuer/SHA1/six digits/30sec QR and eight
+unique cryptographic4-4 recovery codes, only hashes retained. Initial real URI
+check caught Speakeasy ignoring issuer; append explicit URI parameters rather
+than weakening the assertion. TOTP exact +/-2 window rejects repeated counters;
+real simultaneous recovery/login completion has one winner. Five failures lock
+15minutes, early correct factors and setup reset denied; owned fixture expiry
+checks the boundary without claiming a real15minute wait.
+
+Encrypted audit is required in the same transaction for successful/denied factor
+changes; failure rolls enrollment back. Real held locks enforce whole-operation
+deadlines; close drains actual in-flight work and keeps caller resources usable.
+No runtime DDL/timer/defaultmaster. Sensitive guards independently verify JWT,
+Redis revocation, actual enrollment and exact session/scope/epoch-bound proof.
+Proof outage returns fixed503; false/missing JWT flags and old static-key proofs
+cannot bypass it. Management routes also reject revoked sessions. Final review
+caught refresh checking token:blacklist instead of real blacklist:token; correct
+key and actual revoked-refresh test now pass. Refresh epochs rotate with factor
+state. Public login challenge cannot select a body userId, is single-use, and only
+a completed actual factor invokes the awaited real issuer. Redis MULTI command
+errors cannot return successful login tokens. Primary SMS verification uses atomic
+compare/delete. Without real SMS provider return503; explicit nonproduction dev
+fixture is the only code-generation option. No recipient messages/code logs.
+
+User-service mounts /users/me/mfa and /auth/mfa; gateway /api,/api/v1,/api/v2,/v1
+aliases precede generic proxies. Actual native user/gateway processes prove aliases,
+setup/enable/protected counts/step-up, no-store and no keys/secrets in captured logs;
+prior privacy/title/IP/CDC/cache/notification/health/signal checks remain. Service
+shutdown drains MFA before its audit provider/database/Redis. Production ready
+checks canonical state and audit/provider configuration; no live KMS call implied.
+
+Historical audit metadata used pg Date conversion on timestamp-without-time-zone,
+losing microseconds and inventing an instant. Actual prior test failed with a
+fabricated UTC suffix. Select created_at::text; final real UTC/Shanghai process
+cross UTC/NewYork database cases keep exact wall text and distinct genuine instant.
+Do not guess old timestamp provenance or rewrite history.
+
+Final source-specific checks all pass without skips where applicable:
+
+- Actual MFA storage/HTTP25: five production modules99.35line80.83branch100function,
+  original90line/function gate unchanged; facade Jest5 at100all metrics. RFC/unit4
+  include500/500 controlled valid-window samples (>=99% for these inputs only),
+  beyond2038/epoch0, recovery formatting and production key refusal. Controlled
+  samples do not establish real authenticator/device/NTP/network availability.
+- Actual crypto22 at98.21line89.56branch95.52function, original90line/function gate;
+  common audit9/85gate retained; privacy12 storage plus40unit/80gates pass.
+- Complete742 unit checks include original24Jest425 plus audit9 and MFA5/4;
+  battle133 plus separate100% formula coverage pass.1467 JS syntax and audit-tool,
+  inventory, numbering, health, console and original three MFA static commands pass.
+- Both native process cases pass with actual PostgreSQL/Redis/Kafka; original
+  title50ms p95 gate retained. Exact timings/log hashes in current MFA benchmark,
+  not production SLO/capacity acceptance. Other peers alias actual user fixture.
+- Full86 migration bootstrap3 passes, including schema isolation; no original
+  SQL/repair/lock/check-box/numerical-gate rewrites. Dedicated MFA CI added, related
+  native workflow paths updated; current remote execution remains pending.
+
+179declared done50inprogress429new=658unique;46source-hashed records, verified1=619.
+MFA server proof is a prerequisite, not completed password/payment/asset business
+mounts, seven-day trusted devices, frontend setup/login or Google scan/manual
+interoperability. Full metrics/alerts/product impact, risk engine canonicalUUID/
+actual gateway integration/cross-service proofs/encrypted risk-log criteria remain
+open. Separate old risk source still parseInt UUIDs and stores raw verified tokens;
+source review is not an acceptance run. Protected HTTP adapter uses real roles/
+MFA but does not implement admin audit query/decrypt/service filtering. Complete
+those actual business routes next, then remaining original P0/services/client/
+performance/operations and all658 acceptance. Heavy checks sequential nice10/UV2/
+node concurrency1/JestInBand; no Maven, CPU saturation, subagents, new requirement,
+production cleanup/rekey, recipient delivery, merge or deployment. Owned Redis/Kafka
+stopped after final native checks; unrelated containers unchanged. Draft PR6 only.
+
+MFA source d2daf86119c698544b2e95dc8acfaca789db216b published to existing draftPR6
+(39files). DedicatedMFA CI1 succeeds at that exact source; downloaded actual job
+118581814475 proves primitive4/facade5/storage25 and99.35line80.83branch100func at
+unchanged90line/function gate. Native38 also succeeds. Migration31 still running
+at this observation; do not cancel or restart it. Main469 fails the generated
+inventory check before unit tests: I regenerated inventory before updating the
+source-hash ledger, leaving AUDIT.json stale. Reproduce locally, regenerate after
+the final ledger, and rerun the check; no acceptance criterion or gate changed.
+This follow-up only synchronizes generated evidence and records the failure.
+Every future publication preflight must regenerate/check inventory after ledger
+updates and immediately before staging. Preserve the failed run; main/broad CI
+is not accepted from a dedicated MFA pass. Full658 objective remains active.
+
+Post-ledger inventory follow-up89caae147261fe86d09bed670cc7d85f6ebd6411 published
+(5metadatafiles); exact main470 and dedicatedMFA2 now succeed. Runtime/module hashes
+unchanged; original failed main469 retained. Native39/migration32 still running at
+the saved89snapshot. The prior d2 migration31 completed with failure at unchanged
+transaction-throughput gate: actual median-5.6653600267481234% below original-5.
+All8 measured source hashes match priorb17's passing report. The runner now reports
+Node24.22 vs prior24.21 and higher absolute TPS; neither fact establishes causality
+or excuses failure. Archive every actual pair/round/log hash and preserve the
+negative result. Do not lower the threshold or blindly retry for a preferred score.
+Full86 remote bootstrap was skipped after that gate; local normal/isolated full86
+three tests remain independently passed. REQ96/performance remains open for actual
+profiling/optimization and the original target. Publisher preflight now verifies
+current inventory before push. Next functional work: real admin audit decrypt/
+service filtering using verified role/MFA; continue client/trusted-device/sensitive
+business/risk, performance, all remaining P0/services/operations and all658 scope.
+
+## Protected audit reads, numeric pagination and P0 projection (2026-10-23)
+
+Previous goal turn classified as progress: published45d1562 and independently
+retained both successful MFA/runtime CI and actual original throughput failures.
+Revalidated current checkout/PR context and complete original REQ38 before this
+batch; all658 scope remains. Exact45 main471/native40/MFA3 succeeded, migration33
+failed its original throughput gate at-6.526500223984499% against-5, Node24.21.
+All8 measured hashes match current transaction sources; cause is unproven and the
+negative report/all rounds/log hash remain evidence. Full86 remote step skipped.
+No threshold changes, preferred-score reruns or full performance acceptance.
+
+Actual user-service now mounts admin audit decrypt, audit query and sensitive-access
+query. All four gateway namespaces forward them with signed-admin controls and
+admin rate limits, outside generic cached profiles. CORS permits the actual MFA
+and access-reason headers. The user service independently verifies actual roles/
+permissions arrays (admin plus explicit audit:decrypt L2 capability), actual server
+MFA audit-read proof bound to the exact session/epoch/scope, revocation/banning and
+expiry. Generic/L1 admin, string-shaped roles/permissions, caller flags, wrong
+proofs and literal invalid tokens cannot decrypt. Reason3..1024 is required and
+kept encrypted. Trusted issuer/provisioning/governance and L3 approval remain open.
+
+Actual reads and encrypted admin_audit_decrypt receipt commit in the same bounded
+transaction before JSON release. Receipt records verified accessor, source IDs,
+reason/query/IP/agent/request correlation. Native read of its own receipt proves
+the real ServiceLauncher reqId context, now supported by common audit too. Real
+constraint refusal withholds plaintext and rolls receipt back; tampered tags and
+legacy incomplete ciphertext refuse rather than using old plaintext. Sensitive
+query uses real canonical records and explicit user/accessor/date/limit validation,
+lookahead hasMore and refusal of unreadable data. No total/export claim.
+
+Known structured P0/credential aliases are removed recursively from authorized
+admin HTTP output, including nested arrays and prototype-like keys; P1 remains
+available only with authorized L2 plus MFA. Cipher originals retained. Extract the
+unchanged base classifications from old responseFilter into pure sensitiveFields,
+so the new view does not start the legacy filter's timer/access-buffer machinery.
+Four real unit cases prove no input mutation, original/alias P0 removal, prototype
+refusal, genuine timestamps/primitives and bounded cyclic/deep refusal. Arbitrary
+unstructured secrets, custom policy governance, all response chains/masking/scanner
+and original full combined coverage remain open; scoped100% is not full acceptance.
+
+Audit query matches encrypted service only after authenticated decryption, with
+limit1..50, numeric int64 keyset cursor, bounded200 candidates and7MiB plaintext
+page; generic responses capped8MiB. Fetch candidate IDs then one cipher at a time,
+not200 large payloads at once. Full nonmatching candidate pages report incomplete
+with cursor; byte-boundary records stay available next page. Actual201-record and
+nine-large-payload cases prove progress/no skipped IDs. First boundary test failed:
+SELECT id::text ORDER BY id sorted aliases lexically. Qualify native audit_logs.id,
+and native created_at/id in owner metadata. Real99/100 equal-wall-clock rows prove
+numeric tie order. Preserve the failed result in development evidence.
+
+Date filters retain explicit offsets and PostgreSQL six-digit microseconds, not
+JavaScript-rounded bounds. Exact fractional inclusion/exclusion and reversed
+microsecond ranges are tested; excessive precision/invalid dates refuse. Existing
+internal genuine Date and UTC-midnight date-only contracts remain; new HTTP needs
+explicit offsets. DTOs separate legacy wall-clock text from genuine UTC instants
+with six fractional digits, preserving unknown historical timezone provenance.
+
+Native diagnostics retained original cache/profile assertions. Initial native
+scenarios failed503; safe structured IP-guard phase/code tracing identified actual
+53300 connection exhaustion in the second gateway. The owned slow-query container
+forces max_connections20 via command line; attempted ALTER SYSTEM was ineffective
+and RESET, with original config restored. Use a NEW owned native-only PostGIS of
+the exact same image,1CPU/512MiB/40connections/locks256, measured40, port55436.
+User+two gateways+fixture clients fit; no weaker assertions. Other SQL/HTTP tests
+still use55434/20connections. Performance55435/environment/5% gate unchanged.
+IP errors now emit fixed safe phase/code instead of raw address/SQL/stack payload.
+This is functional capacity provisioning, not a production capacity/performance pass.
+
+Final current-source results, no skips where applicable:
+
+- Audit/crypto26 pass: four-module98.30line90.45branch95.77function, original90line/
+  function gate retained; no complete mask/permission/all-security coverage claim.
+- Actual MFA/admin PostgreSQL/Redis/HTTP26 pass: seven scoped modules99.42line/
+  83.43branch/100function at unchanged90line/function gate; adminAudit100line/
+  93.75branch/100function. Pure P0 policy4 separately100line/branch/function at90gate.
+- Both actual native gateway/user scenarios pass, including all four admin aliases,
+  actual decrypt/receipt/context/CORS, source privacy/title/IP/cache/CDC/notification/
+  health and natural shutdown. Original50ms titlep95 preserved; exact local fixture
+  timings/log hashes archived, not production SLO. Other peers alias user fixture.
+- All746 unit checks (original26Jest439 plus Node/legacy checks including newpolicy4),
+  privacy12 storage+40unit/80gates, IP9 storage and battle133/formula100 pass.
+- 1470JS syntax, audit tools12, numbering/health/console checks pass. Original86raw
+  SQL, manifests/dependencies and lock unchanged; no fabricated fresh full86 rerun.
+  Previous SQL-specific full bootstrap evidence stays separate from failed remote CI.
+
+Still179 declared done50progress429new=658unique;46matching records/sole619verified.
+Original REQ38/638/588 acceptance boxes and all numerical targets unchanged. Client/
+admin governance/approved exports/all business sensitive fields/access/denied audit,
+all-service response/masking/scanner/full combined security coverage/liveAWS and
+all other existing P0/services/game/client/performance/operations remain in scope.
+Checks sequential nice10/UV2/Nodeconcurrency1/JestInBand; no Maven/CPU saturation/
+subagents/new requirement/recipient delivery/production cleanup/rekey/merge/deploy.
+Owned native40/Redis/Kafka stopped after tests; unrelated containers untouched.
+Publish only existing draftPR6. Regenerate inventory AFTER final ledger update and
+check it immediately before staging/publishing; keep persistent goal active.
+
+## 2026-10-23 — actual game-client MFA, offline factor boundaries and legacy gateway login
+
+Persistent goal remains all658 originals, not this batch. Prior published4abdb82
+now has exact main472/native41/MFA4/migration34 SUCCESS; migration34 also ran the
+full86 bootstrap successfully. Actual original throughput ceiling result is
+-1.6165389170840427% versus unchanged-5, with all8 measured source hashes matching,
+Node24.21.0/PG15.8. Archived complete report/CI snapshot and logSHA. Previous failed
+-5.6653600267481234/-6.526500223984499% reports/rounds remain; no preferred-score
+rerun, gate lowering, causal/noise conclusion or fullperformance acceptance. Other
+legacy contract/integration/security/performance jobs remain red/E2Ecancelled.
+
+Actual client previously stored literal undefined tokens from a challenge response,
+entered gameplay early, required code0 despite MFA's success envelope, refreshed/
+retried one-time failures, used a different token key and had no working factor
+login/settings integration. Replaced the legacy setup widget with actual API/DOM
+screens: QR/manual key/TOTP enable, explicit eight-code download/acknowledgement
+clearance, recovery login, cancellation, fresh-factor regenerate/disable and real
+status. Transient challenge/secrets/codes never enter localStorage/CacheStorage;
+close/logout aborts and clears DOM/material/objectURLs. Both complete JWTs required;
+rotated refresh pair and identity epochs reject stale login/private responses,
+including logout while JSON body decodes. Actual access/refresh storage remains the
+existinglocalStorage protocol; no complete encryptedstorage/XSS protection claim.
+
+All APIclient requests no-store. Actual SW bypasses caches/queue for auth/MFA/admin
+reads/proof/reason/private bearer/no-store requests, returns503offline instead of
+queued-success, purges legacy factor/proof/audit queue entries and filters replay
+again. Cached/poisoned MFAstatus cannot authorize offline/online. Versioned-cache
+cleanup narrowed to ownednames. First browser attempt failed because fresh SW
+install reloaded login; real production install now avoids first-controller reload.
+First failure logSHA retained. Legacy /v1/auth rewrite fixed /auth/auth/login and
+now has actual auth limiter; CORS permits actual X-Client-Ver/X-Platform.
+
+Final source checks, all applicable no skips:
+
+- 756 unit checks, including10 Node-reported production API client boundary checks
+  and4 pure P0policy checks, original26Jest439; single factor attempt, completion
+  dedupe, malformed/queued refusal, delayed login/refresh/private body cancellation,
+  full refresh pair and failed storage rollback. This is separate from browser tests.
+- 6 actual Chromium145 browser checks using production entry/API/widgets/SW/auth/
+  user/MFArouters, canonicalV1+audit+MFA migrations and real PG/Redis. Owned Redis
+  one-time SMS codes only; externaloriginsblocked, syntheticlocation. Real setup/
+  natural300pxQR/TOTP/8codes/explicitdownload/ackclear, cancel, invalidfactoronce,
+  offlinefactornoqueue/network, actual recovery consumption/signedsession, regen/
+  disable, legacyqueuepurge/replay and poisonedcache refusal. Mobile390x844 and
+  desktop1280x900 factor/token-free screens visually reviewed and archived.
+- Actual MFA/adminHTTP/storage26 still99.42line83.43branch100function across7scoped
+  productionmodules at unchanged90line/functiongate. No fullsecurity/clientcoverage.
+- Both native OSuser+two-gateway scenarios pass with actualPG/Redis/Kafka, legacy
+  primary challenge then real recovery/signedsub/epoch, clientheaderpreflight and
+  retained adminreceipts/privacy/title/IP/cache/CDC/notification/health/signals.
+  Same separateowned40connectionnativefixture, original20connectionSQLfixture and
+  untouched performancefixture. Warmtitlep95=3.139078ms over50localreads<original50ms;
+  gatewaySIGTERM788.753410ms/user5371.650496ms separately measured; no productionSLO.
+- 1474 JS syntax,12audittoolchecks, logging/numbering/health and workflowYAML pass.
+  LockedPlaywright1.63.0 unchanged; dedicatedCI installs matchingChromium and runs
+  actualbrowser/storage. All86rawSQL/manifests/dependencies/locks unchanged; no fresh
+  full86localbootstrap claim (exact prior4abremote result archived separately).
+
+Source-hashed artifact docs/benchmarks/mfa-client-local-2026-10-23.json; refreshed
+only exercised changed refs in46records, sole619verified. Still179declared done/
+50progress/429new=658unique; original requirement text/acceptanceboxes/targets intact.
+PhysicalGoogleAuthenticatorQR/manualinterop, seven-daytrusteddevices, realSMSdelivery,
+everysensitivepassword/payment/riskboundary, adminprovisioning/governance/L3exports,
+allresponse/unstructured/custommask/scanner/combinedsecuritycoverage/liveAWS,
+encrypted/account-boundofflinebusinessqueue/fullPWAassets/registrationconsent,
+other services/game/client/performance/operations and full658 acceptance remainopen.
+
+Checks sequentialnice10/UV2/Nodeconcurrency1/JestInBand; noMaven/CPUsaturation/
+subagents/newrequirements/recipientmessages/productioncleanup/rekey/merge/deploy.
+Ownednative40/Redis/Kafkastoppedafterchecks; unrelatedcontainersuntouched. Private
+MEMORY/Oct09remainunstaged. Regenerateinventory AFTERledger and checkbeforepush.
+Publish onlyexistingdraftPR6; this batch's new current-sourceCI still pending.
+
+## 2026-10-25 — real payment integrity, legacy declaration audit and actual lifecycle
+
+Previous goal turn made progress with published0637449. Revalidated clean tracked
+checkout and active all658 goal. Exact063 main473/native42/MFA5/browser1/migration35,
+privacy45/notification30/dependency310 pass, including full86 remote bootstrap.
+Downloaded actual migration job120270101421: throughput-4.035239836601567% versus
+original-5,8measuredsourcehashesmatching,Node24.21/PG15.8. Preserve prior positive
+and negative reports/rounds; no preferred-score retry/causal noise/wholeperformance
+acceptance. Legacy APIcontract102/contract398/performance141/integration448/security431
+failed, E2E135cancelled; all are retained in exact-head CI snapshot.
+
+Read complete original REQ3/4 and actual payment core. Historical32 payment checks
+copied helpers, and old integration app defines substitute routes on incompatible
+storage. They cannot accept production payment. Original runtime used Redis-only
+creation fencing/global keys, read order state before transaction then unconditionally
+credited on retries, parsed JSON before verifying raw callback bytes, referenced an
+absent channel_response column, and put public callbacks behind gateway user auth.
+No actual provider prepay was wired; old generated mock parameters were misleading.
+
+Production protocol/store/router now require the same header/body UUID intent key,
+actual owner/product/quantity1–100/channel and fixed server prices. PostgreSQL owns
+owner/key/request/order/absolute24h binding; advisory+row locks use READCOMMITTED so
+after waiting statements see the committed predecessor. Same intent replays, changed
+payload409, differentownersindependent, no deadline extension, expirycreatesneworder
+retaining old. Redis24hmirror cannot authorize, redirect or duplicate; poisoned,
+missing and disconnected actual Redis cases pass. Legacy raw-key requests explicitly
+refuse uncertain adoption instead of guessing old wall-clock/quantity provenance.
+
+Locked settlement verifies owner/channel/amount/currency/state and exact signed
+bytes, then atomically commits unique order/provider receipt, state, coin grant,
+monthly spend and encrypted audit. Duplicate callbacks/verify return no secondgrant;
+providertransaction reuse/reassignment/failure states refuse. Actual bans/disabled
+payment/under13consent/minor spend allowance checked under owner lock; concurrent
+settlements cannot overspend final allowance. Auditfailure rolls back all writes.
+Whitelist returns no raw callback/signature/channelresponse; denied callback reasons
+also encrypted. Prepay explicitlyproviderReadyfalse/payParamsnull, no fake nonce/URL.
+Full vendor-native/receipt/prepay/paymentUI/financialaudit acceptance remains open.
+
+JSON and retained XML/form transports authenticate originalbytes before sharedbody
+parsers. Strict success/amount/CNY/transaction semantics, XMLduplicate/nesting/DTD/
+entitydeclaration and formduplicate/percent/decimal refusals; no entityresolution.
+All3channel secrets32–4096bytes with no developmentfallback. Client verify binds
+providertransaction to the signed order/amount/product. Client sends same intentkey
+in header/body and accepts explicit retry key; no automatic order/factor refresh/
+replay. Signedpublicwebhook precedes privatepaymentgatewaynamespace, correctrewrites.
+
+Actual payment ServiceLauncher lifecycle waits SQL/Redis/audit/Kafka initialization
+before binding; currencies remain mounted. Actual timeout consumer now cancels an
+expired owned row plus encrypted receipt; old placeholder no longer invents success.
+Queue's nonexistent metric helper imports/mocks replaced with actual registry calls;
+existing34case queue suite is now in mainunitgate. Bounded retriable topicmetadata
+wait and failed producer/consumer cleanup fix first native startup failure. Queue/
+admin transport closes before SQL/audit/Redis; naturalshutdown passes. Missingkeys
+and productionmissingKMS refuse before listener. Fullqueue scheduling/extension/
+cancellation/retry/DLQ/capacity and remaining service/health acceptance still open.
+
+Additive20261025payment migration preserves old UUID/OID/money/states/microseconds/
+views/FKs; validates actual owner FK and schema/status type, oldquantityunknownNULL,
+appends CANCELLED/FULFILLED while retaining FAILED. ActualV1enum mismatch was caught
+by SQL tests. Exact24h constraint retained: one clock CTE/stable defaults avoid two-
+clock microsecond drift. New request/settlement history refuses populated reversal;
+emptydown retains enumlabels instead of rebuilding oldtype. All86previousrawSQL,
+repairmanifest and lockfiles unchanged; only new87thfile+itsdependencyedges added.
+
+Final source validation (localNode24.22.1; bounded/sequential):
+
+- 765 mainunit checks,27Jestsuites473;6 actual purepaymentprotocol tests,11Node
+  APIclientboundary checks and34Jestqueue tests are included (no double counting).
+- Payment22Node-reported checks =6pureprotocol+15actualSQL/Redis/HTTPsubcases+parent1.
+  V8 three-module100line97.86branch100function; NYC98.46statement94.97branch100line/
+  function. Enforced91line/function/statement and80branch, preserving original>90
+  and80gates. HTML+LCOV generated; actualLCOV archived. Integrationcoverage is not
+  originalwholepaymentserviceunit-onlycoverage acceptance.
+- Paymentmigration4 pass, actualcurrency18 pass; fullV1/V2/all87bootstrap3 pass,
+  including installation beside unrelated audit schema. Only this owned test data
+  cleaned. Legacyrows/rawSQLhistories untouched.
+- Newpaymentnative2 pass: actualOSpayment+gateway, full87, signed rawJSON/form without
+  userJWT, actualcurrency/rounding, realKafka timeout receipt, missingsecret/KMS
+  refusal and naturalstop. Gateway115.177025ms/payment281.332858ms in ownedfixture,
+  notproductionSLO. Other gatewaypeers alias paymentfixture.
+- Originalnative2 still pass, actualOSuser+two gateways and priorprivacy/title/IP/
+  cache/CDC/notification/audit/health/signals; localwarmtitlep95=1.491892ms/50reads
+  underunchanged50ms. Other peers alias userfixture, not allservicescompleted.
+- ActualMFAstorageHTTP26/sevenmodules99.42line83.43branch100func/original90line-function
+  gate and actualMFAUI/SWbrowser6 pass. This adds no paymentMFA/riskboundary claim.
+- 1480JS syntax,12audittoolchecks, logging/numbering/health/workflowparse pass. Static
+  healthgate unchanged; explicitnamedrouter mount now recognized alongside realHTTP.
+
+REQ3/4 reopened done->in_progress; original text otherwise identical, all boxes and
+numerical targets preserved. Now177declared done/52progress/429new=658unique;48matching
+source-hashed evidence records, only619verified. Completionplan/README/WORKLOG updated.
+Whole-service unit-onlycoverage, all legalfulfillment/refundbusinesscommands, legacy
+requestadoption, provider/prepay/receipts/paymentUI, all sensitiveMFA/risk boundaries,
+fullqueue/security/filter/scanner/AWS/admin/governance/client/performance/operations
+and allother658 acceptance stay in scope. No new requirement or narrower definition.
+
+Allchecks sequentialnice10/UV2/Nodeconcurrency1/JestInBand. NoMaven/CPUsaturation/
+subagents/recipientmessages/productioncleanup/rekey/merge/deploy. Four owned test
+containers stopped; unrelatedcontainer/performancefixture untouched. PrivateMEMORY/
+Oct09 remainunstaged. New payment-source CI pending publication to sameDraftPR6.
+Regenerateinventory AFTERfinalledger and check immediately before stage/push.
+
+## 2026-10-26 — correct and verify the payment CI cold-database prerequisites
+
+Previous goal turn was progress: published4ad9ac6 and diagnosed its new payment
+workflow. Revalidated active all658 goal, exact HEAD and five owned corrective
+changes. No existing cold-run handle was live; three owned services were already
+running and reused rather than restarted. Current4ad main474/native43/MFA6/browser2/
+migration36/privacy46/notification31/dependency312 pass, including full87 remote.
+Legacy contract399/API103/performance142/integration449/security432 fail, E2E136
+cancelled. Payment1 job121116316637 fails first migration suite:1pass/3fail because
+uuid_generate_v4 is absent in subsequent disposable schemas. Its core/report/
+native steps were skipped, not passed. Missing-report upload and never-created
+Kafka cleanup also produced secondary failures; all retained as negative evidence.
+
+Actual V1 installs uuid-ossp in current search_path by default. The first payment
+migration fixture retained that private schema while later scenarios opened other
+schemas. Warm local public extensions masked this. Historical V1 SQL remains
+unchanged. Shared test helper now installs real uuid-ossp/PostGIS/pgcrypto in public
+under the existing serialized advisory lock; all three payment fixtures call it
+before creating their schemas. The existing UUID-only helper remains compatible.
+No stub function, weaker assertion, alternate business router or threshold change.
+
+Created a NEW owned database from template0 on the same native40 PostGIS fixture.
+Authoritative initial extensions:plpgsql only; uuid-ossp/PostGIS/pgcrypto absent.
+Sequential migration4/core22/report22/paymentnative2/full87bootstrap3/originalnative2/
+mainunit765 all pass in that database. Source coverage gates retained: V8 threecore
+modules100line97.86branch100function; NYC98.46statement94.97branch100line/function,
+91line/function/statement and80branch. Actual payment/gateway/Kafka and old user/
+two-gateway process scenarios retain their assertions. Final extension namespaces
+are all public; UUID function still executes after all disposable schemas are
+cleaned. Owned fresh database dropped after all child processes exited; no force
+or production/other database mutation. Test containers stopped after completion.
+
+Workflow now uploads reports only when their generation step actually ran;
+if a report should exist, missing-file remains an error. Kafka cleanup checks for
+its owned container before stopping it, including partial startup. Service health
+probe names the actual test database. Source coverage commands/gates unchanged.
+1480JS syntax,12audit-tool cases and YAML checks pass. Relevant failure log and
+exact4ad CI snapshot/throughput are archived; never describe skipped steps as pass.
+Actual migration36 throughput is separately retained against original-5 ceiling,
+all8 measured source hashes matching. Prior negative/positive runs remain; no
+preferred-score rerun, gate lowering, noise/causality or fullperformance acceptance.
+
+Updated README/plan and source-hashed partial evidence. Counts remain177done/
+52progress/429new=658unique,48records/sole619verified; original requirement text,
+acceptance boxes and numeric targets unchanged. Full payment unit-only coverage,
+provider/prepay/receipts/UI, legalfulfillment/refund commands, legacy adoption,
+sensitive MFA/risk and every other original security/service/client/performance/
+operations requirement remain open. Current corrected-source CI pending. Same
+DraftPR6 only; privateMEMORY/Oct09 excluded. NoMaven/CPUsaturation/subagents/new
+requirements/recipientmessages/productioncleanup/rekey/merge/deploy. Regenerate
+inventory after final ledger before stage/push; keep full persistent goal active.
+
+## 2026-10-28 — repair actual queue consumption and cache fixture fencing
+
+Previous goal turn was no progress toward implementation: it answered the human's
+status request using actual HEAD/ledger/terminal CI. Revalidated current worktree
+and active full658 goal, then resumed the concrete next action. Only two earlier
+WIP files existed. Reused owned running PostgreSQL40/Redis/Kafka without restarting;
+no live earlier check handle existed. No subagents/Maven/CPU saturation used.
+
+Exact c4b5ca1 main475/MFA7/browser3/migration37/privacy47/notification32/dependency314
+success is now archived. Payment2 migration/core/coverage/report passed; actual
+process timeout assertion failed. Title/native44 title/storage/IP passed but cache
+setup failed on disabled fill token; later user/gateway process steps were SKIPPED,
+never passed. Legacy API104/contract400/performance143/integration450/security433
+failed, E2E137 cancelled. Downloaded exact migration37 log proves full87 remote
+bootstrap passed. Its original throughput test measured -1.969575378030819% against
+unchanged -5 ceiling, all8 measured source hashes matching; every earlier positive
+and negative round retained. No preferred-score rerun, noise/causality inference or
+fullperformance claim.
+
+Strengthened actual payment OS regression with unique owned ready/DLQ topics and
+expired canonical UUID orders published BEFORE payment startup. Old latest-offset
+policy deterministically failed the pre-start backlog assertion. A mistaken local
+working directory prevented the first edit, so one unchanged-source run repeated
+that same failure; no successful result claimed. Earliest-offset correction then
+processed the backlog's SQL cancellation but still failed the next HTTP-created
+order. Sanitized private process diagnostics exposed two additional actual bugs:
+metrics.histogram passed buckets:undefined overriding prom-client defaults, so
+successful handlers entered failure handling; nonexistent logger.alert then crashed
+the consumer. Registry-backed new unit case reproduced this failure as well.
+
+Production fix omits unspecified histogram buckets, retains explicit custom ones,
+uses supported structured error logging for DLQ alert records, consumes preexisting
+work for new groups, keys consumers by topic+taskType and filters unrelated types.
+Existing committed-offset behavior remains normal Kafka behavior. Actual native
+fixture verifies unrelated order remains PENDING and backlog/current orders each
+have real encrypted cancellation receipts. Default production topic names remain;
+fixture prefix also owns its DLQ. No alternate business route or fake metric mock.
+Unit36 exercises separate handler consumers, actual registry durations, exhausted
+failure then successful work and default/custom histogram buckets. Transport stays
+mocked in unit checks and is separately exercised by actual Kafka native checks.
+
+Cache fixture now waits within its SAME existing deadline for a real successful
+fenced fill before testing the intended race. Production CoherentCache is unchanged.
+Actual Redis read held while invalidation arrives still must bypass the fill, miss
+and leave L1 empty; stale tokens remain refused. Original50/100ms gates unchanged.
+Four-suite real cache/CDC/HTTP regression41 passed;12 sequential CDC changes max
+10.696461ms in this healthy isolated fixture, not capacity/load acceptance. Embedded
+measurement schema still has its historical test date; artifact separately records
+this actual observation date without rewriting the emitted measurement.
+
+Final local actual paymentnative2/87migrations, originaluser+gatewaynative2, cache41,
+queueunit36, complete test:unit command (last regression461 vs prior459; all other
+suites passed), syntax1480 and audit-tool12 pass. No skipped checks in actual Node
+storage/native suites. Shared default histogram assertions also run inside existing
+logger/metrics unit case. All three owned test containers stopped normally after
+checks; unrelated OpenClaw/performance fixtures untouched. No production cleanup,
+rekey, provider calls, recipient messages, merge or deployment.
+
+Read full originalREQ43, including all12 unchecked acceptance criteria. Its legacy
+'done' is contradicted by these failures and unfinished whole bucket/scheduler/
+priority/monitor/secondservice/Raid/admin/coverage/architecture work. Reopened ONLY
+status metadata, preserving every acceptance checkbox/numeric target. New partial
+record brings ledger49 with only619 verified;176done53progress429new=658unique.
+Changed shared refs refreshed with exact local evidence, without promoting unrelated
+features. Full payment unit-only90/provider/prepay/receipt/UI/legalfulfill/refund/
+legacyadoption/all sensitiveMFA/risk and remaining original queue/security/service/
+client/performance/operations scopes remain open. New-source CI pending publication
+to SAME draftPR6. Regenerate inventory AFTER ledger and check before stage/push.
+
+## 2026-10-28 — canonical server-session risk gating on actual payment paths
+
+Previous goal turn was progress: published85457de and independently observed its
+payment3/native45/main476/MFA8/privacy48/notification33 successes. Revalidated that
+HEAD, clean tracked tree and full active658 objective before continuing. Remaining
+exact854 jobs are now terminal: browser4/migration38 and full87 remote bootstrap
+also succeeded; dependencies315/316 passed. Legacy API105/contract401/performance144/
+integration451/security434 failed, E2E138 cancelled. These failures are retained.
+Migration38's actual original throughput report is -2.221436195290616% against
+unchanged-5 ceiling with8matching measured hashes; every earlier positive/negative
+round stays archived. This is prior-source evidence, not newrisk CI/fullperformance.
+
+Read originalREQ588 and REQ200 and followed their actual server/factor prerequisites.
+Old RiskEvaluator/SensitiveOperationGuard remain unmounted: they trust claimed
+verification headers, client location, stale paths and flawed history/results.
+Actual payment previously checked only JWT signature; revoke/session/epoch checks
+were absent at its private business routes. New canonical shared riskVerifier
+checks UUID server registrations, revocation, current user/MFA state and canonical
+schema ownership at gateway and independently at payment. Missing or obsolete
+registrations require new login; unavailable dependencies refuse the operation.
+The gateway verifies session; actual service scores before create/owned verify.
+No provider callback risk bypass: public raw callbacks still require channelHMAC.
+
+Five bounded server contributions30/25/20/15/10 use current authenticated session
+context, observed-vs-registered address, atomic realRedis-time request counts,
+recent refusal history and signed session age. Total0–100; >=50 requires a real
+purpose proof and >=80 blocks even a validproof. Explicit server-policy large tier
+(default10000fen, positiveintegerPAYMENT_LARGE_TRANSACTION_FEN) derives from catalog
+price*validatedquantity and always requires large-transaction; elevated normal tier
+uses payment-purchase. Client declared amount/geo/device/verified/risk headers do
+not lower the score. This is not full REQ200's operation/method policy system or
+physical trusted-device/GeoIP/history-provider acceptance. UA and IP comparisons
+are conservative current-session signals with these limitations explicitly recorded.
+
+A code review found that canonical credential epoch alone did NOT prove this
+session completed MFA: a primary-only session could be issued during pending setup
+and share the epoch later enabled. Actual completed-factor login now records an
+immutable server mfaAuthenticated flag; it cannot be set through caller headers or
+device metadata. Refresh requires its registered session and same current epoch,
+rejects primary-only enabled-MFA sessions and inherits the server assurance only.
+Separate server refreshExpiresAt matches the signed refresh expiry so access expiry
+does not truncate refresh lifetime. Changed factors/old registrations need re-login.
+Actual user HTTP minting and payment HTTP verification test this across services.
+
+Every authorization decision needs a canonical encrypted traced audit receipt before
+business execution. Payload contains bounded factors/policy/decision and only hashes
+of address/agent/session; no raw bearer, proof, factor or key. Missing audit/state
+refuses without creating an order. SQL owner/idempotency/settlement locking remains
+unchanged. Actual user MFA proofs must match owner, exact bearer, scope, current
+epoch and absolute<=5minutes; wrongscope/session, expiry and criticalcontext refuse.
+The API client explicitly supplies an optional transient per-request proof, retains
+only whitelisted challenge scope and never persists proof/redirect or automatically
+replays/refreshes payments. Complete purchase/verification UI remains open.
+
+Service ingress now trusts only configured SERVICE_TRUST_PROXY peers (defaultfalse).
+Gateway trust is independently explicit; its HTTP proxy overwrites forwarded and
+real-IP claims with its own resolved client address and removes Forwarded. Actual
+native payment through trusted loopback ingress proves a forged caller forwarding
+header cannot alter risk source. Gateway/payment initialization and readiness check
+canonical risk tables. Old user/gateway startup/shutdown boundaries still pass.
+Operational production peer configuration and all other original ops remain open.
+
+Final sequential nice10/UV2 checks: risk17(no skips) at96.88line88.52branch100function
+with91line/90function/80branch gates; original payment22 at100line97.02branch100func;
+NYC97.76stat93.69branch100line/function with91/80gates; canonicalMFA26 at99.42line
+83.48branch100func with90line/functiongates. Main unit command passed, lastJest463
+plus9audit/5MFA (27Jest477), combined client/projection16Node checks (client12
+including parent and4projection), gatewayproxy two new
+trusted/untrusted cases. Combined real payment2+old user/gateway2=4native/full87
+pass. Browser first failed before any UI scenario because default executable1243
+was absent; explicitly selected EXISTING Chrome145.0.7632.6 and all6 actual game/
+serviceworker/SQL/Redis cases pass. Missing-executable negative log retained, no
+browser skips/fake pass. New risk's first run13pass/2fail(parent included) was a
+fixture assertion using resource_id instead of canonicalentity_id; fixed query,
+original encrypted/trace assertions retained, no schema alteration. Syntax1482,
+audit-tool12 and direct-runtime-logging/workflow parse checks pass. Wrong-root npm
+invocation never ran its suite; corrected --prefix command did, with no pass claimed
+for the failed invocation. All87original pending SQL/locks/V1/manifests unchanged.
+
+All three owned PG40/Redis/Kafka test containers stopped normally; unrelated OpenClaw
+and existing performance/slowquery fixtures untouched. No Maven/CPU saturation/
+subagents/new requirements/provider or recipient messages/production cleanup/rekey/
+merge/deploy. OriginalREQ200 status ONLY new->in_progress; all10 boxes and targets
+preserved. Ledger50 source-matching partial/verified records, sole619verified;
+176done54progress428new=658originals. OriginalREQ588fourboxes, REQ638ten and all
+other original criteria remain open where full scope is not independently proven.
+Current newrisk-source CI pending sameDraftPR6 publication. Continue remaining
+P0sensitiveAPI/password/payment-binding/asset/privacy/admin risk policies, full
+operation/method/verification/UI flows, physicaldevice/provider, queue/service/
+client/security/performance/operations and final658 audit. Regenerate inventory
+AFTER final ledger and check immediately before staging/publishing.

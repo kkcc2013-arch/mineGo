@@ -3,6 +3,9 @@
  * REQ-00505: 插件生命周期管理与热插拔系统
  */
 
+
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/plugins/ChaosEnginePlugin"), "shared/plugins/ChaosEnginePlugin");
 const BasePlugin = require('../pluginSystem/BasePlugin');
 const ChaosEngine = require('../ChaosEngine');
 
@@ -70,7 +73,7 @@ class ChaosEnginePlugin extends BasePlugin {
   }
 
   log(message) {
-    console.log(message);
+    _consoleLogger.log(message);
   }
 }
 

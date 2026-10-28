@@ -8,6 +8,9 @@
  * - 生成优化建议
  */
 
+
+const _consoleLogger = new (require("./loggingUtils")).ConsoleMigrationHelper(
+  require("./logger").createLogger("shared/PerformanceAnalyzer"), "shared/PerformanceAnalyzer");
 const fs = require('fs').promises;
 const path = require('path');
 
@@ -319,7 +322,7 @@ class PerformanceAnalyzer {
       
       return filepath;
     } catch (error) {
-      console.error('Failed to save performance report:', error);
+      _consoleLogger.error('Failed to save performance report:', error);
       throw error;
     }
   }
@@ -345,7 +348,7 @@ class PerformanceAnalyzer {
       
       return reports.slice(0, days);
     } catch (error) {
-      console.error('Failed to load history reports:', error);
+      _consoleLogger.error('Failed to load history reports:', error);
       return [];
     }
   }

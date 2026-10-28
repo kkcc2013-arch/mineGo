@@ -41,7 +41,7 @@ async function checkCycles() {
       console.log(`  ${i + 1}. ${service}`);
     });
     
-    console.log('\n✨ All dependencies are healthy!');
+    console.log('\nNo synchronous cycles found by the configured static analysis rules.');
     process.exit(0);
   }
 }

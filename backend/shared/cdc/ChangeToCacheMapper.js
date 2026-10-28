@@ -1,361 +1,58 @@
-/**
- * 数据库变更到缓存键映射器
- * 
- * REQ-00479: 数据库查询结果缓存自动失效策略系统
- * 
- * 特性：
- * - 自动将数据库表变更映射到缓存键模式
- * - 支持多表多字段的复杂映射
- * - 提供灵活的映射规则配置
- */
-
-const { createLogger } = require('../logger');
-
-const logger = createLogger('change-to-cache-mapper');
-
-// 默认映射规则：表名 -> 缓存键模式
-const DEFAULT_MAPPING_RULES = {
-  // 用户表
-  users: {
-    // INSERT 操作
-    insert: [
-      'api:/users:list:*',
-      'api:/users/stats:*'
-    ],
-    // UPDATE 操作
-    update: [
-      'api:/users:{id}:*',
-      'api:/users:{id}/profile:*',
-      'api:/friends:*user:{id}*',
-      'api:/users:list:*'
-    ],
-    // DELETE 操作
-    delete: [
-      'api:/users:{id}:*',
-      'api:/friends:*user:{id}*',
-      'api:/users:list:*'
-    ],
-    
-    // 字段级映射
-    fields: {
-      username: ['api:/users:list:*', 'api:/users/search:*'],
-      email: ['api:/users:{id}:*'],
-      coins: ['api:/users:{id}/balance:*', 'api:/users:{id}/stats:*'],
-      level: ['api:/users:{id}/stats:*', 'api:/leaderboard:*'],
-      xp: ['api:/users:{id}/stats:*']
-    }
-  },
-  
-  // 精灵表
-  pokemon: {
-    insert: [
-      'api:/pokemon:{owner_id}:*',
-      'api:/pokemon:{owner_id}/inventory:*',
-      'api:/users:{owner_id}/stats:*'
-    ],
-    update: [
-      'api:/pokemon:{id}:*',
-      'api:/pokemon:{owner_id}:*',
-      'api:/pokemon:{owner_id}/inventory:*'
-    ],
-    delete: [
-      'api:/pokemon:{id}:*',
-      'api:/pokemon:{owner_id}/inventory:*',
-      'api:/users:{owner_id}/stats:*'
-    ],
-    
-    fields: {
-      cp: ['api:/pokemon:{id}:*', 'api:/leaderboard:*'],
-      level: ['api:/pokemon:{id}:*'],
-      is_favorite: ['api:/pokemon:{owner_id}/favorites:*']
-    }
-  },
-  
-  // 捕捉记录表
-  catch_records: {
-    insert: [
-      'api:/catch:{user_id}:*',
-      'api:/users:{user_id}/stats:*',
-      'api:/pokemon:{user_id}:*'
-    ],
-    update: [],
-    delete: []
-  },
-  
-  // 道馆表
-  gyms: {
-    insert: [
-      'api:/gyms:list:*',
-      'api:/gyms/nearby:*'
-    ],
-    update: [
-      'api:/gyms:{id}:*',
-      'api:/gyms:{id}/details:*',
-      'api:/gyms/nearby:*'
-    ],
-    delete: [
-      'api:/gyms:{id}:*',
-      'api:/gyms:list:*',
-      'api:/gyms/nearby:*'
-    ],
-    
-    fields: {
-      team_id: ['api:/gyms:{id}/team:*', 'api:/gyms/nearby:*team*'],
-      name: ['api:/gyms:{id}:*', 'api:/gyms/search:*']
-    }
-  },
-  
-  // 道馆队伍表
-  gyms_teams: {
-    insert: [
-      'api:/gyms:{gym_id}:*',
-      'api:/gyms/{gym_id}/team:*'
-    ],
-    update: [
-      'api:/gyms:{gym_id}/team:*',
-      'api:/gyms:{gym_id}/slots:*'
-    ],
-    delete: [
-      'api:/gyms:{gym_id}/team:*',
-      'api:/gyms:{gym_id}/slots:*'
-    ]
-  },
-  
-  // Raid 表
-  raids: {
-    insert: [
-      'api:/raids:list:*',
-      'api:/raids/nearby:*',
-      'api:/gyms:{gym_id}:*'
-    ],
-    update: [
-      'api:/raids:{gym_id}:*',
-      'api:/raids:{gym_id}/participants:*'
-    ],
-    delete: [
-      'api:/raids:{gym_id}:*',
-      'api:/raids/list:*'
-    ]
-  },
-  
-  // 好友表
-  friends: {
-    insert: [
-      'api:/friends:{user_id}:*',
-      'api:/friends/{user_id}/list:*',
-      'api:/users:{user_id}/friends:*'
-    ],
-    update: [
-      'api:/friends:{user_id}:*',
-      'api:/friends:{friend_id}:*'
-    ],
-    delete: [
-      'api:/friends:{user_id}:*',
-      'api:/friends:{friend_id}:*',
-      'api:/users:{user_id}/friends:*'
-    ]
-  },
-  
-  // 道具表
-  items: {
-    insert: [
-      'api:/items:list:*'
-    ],
-    update: [
-      'api:/items:{id}:*'
-    ],
-    delete: [
-      'api:/items:{id}:*',
-      'api:/items:list:*'
-    ]
-  },
-  
-  // 用户背包表
-  inventory: {
-    insert: [
-      'api:/inventory:{user_id}:*',
-      'api:/users:{user_id}/items:*'
-    ],
-    update: [
-      'api:/inventory:{user_id}:*',
-      'api:/users:{user_id}/items:{item_id}*'
-    ],
-    delete: [
-      'api:/inventory:{user_id}:*',
-      'api:/users:{user_id}/items:*'
-    ]
-  },
-  
-  // 奖励记录表
-  reward_records: {
-    insert: [
-      'api:/rewards:{user_id}:*',
-      'api:/users:{user_id}/rewards:*'
-    ],
-    update: [
-      'api:/rewards:{id}:*'
-    ],
-    delete: []
-  },
-  
-  // 支付记录表
-  payments: {
-    insert: [
-      'api:/payments:{user_id}:*',
-      'api:/users:{user_id}/purchases:*',
-      'api:/inventory:{user_id}:*'
-    ],
-    update: [
-      'api:/payments:{id}:*',
-      'api:/payments:{user_id}:*'
-    ],
-    delete: []
-  }
-};
-
-class ChangeToCacheMapper {
-  constructor(customRules = {}) {
-    // 合并默认规则和自定义规则
-    this.mappingRules = { ...DEFAULT_MAPPING_RULES, ...customRules };
-    
-    logger.info({ 
-      tables: Object.keys(this.mappingRules).length 
-    }, 'Change-to-cache mapper initialized');
-  }
-  
-  /**
-   * 将数据库变更事件映射到缓存键模式
-   * @param {Object} changeEvent - 变更事件
-   * @returns {Array<string>} 缓存键模式列表
-   */
-  map(changeEvent) {
-    const { table, operation, data, oldData } = changeEvent;
-    
-    const tableRules = this.mappingRules[table];
-    
-    if (!tableRules) {
-      logger.warn({ table }, 'No mapping rules for table');
-      return [];
-    }
-    
-    const patterns = [];
-    
-    // 操作级映射
-    const operationPatterns = tableRules[operation] || [];
-    patterns.push(...operationPatterns);
-    
-    // 字段级映射（仅 UPDATE）
-    if (operation === 'update' && tableRules.fields) {
-      const changedFields = this.detectChangedFields(data, oldData);
-      
-      for (const field of changedFields) {
-        const fieldPatterns = tableRules.fields[field] || [];
-        patterns.push(...fieldPatterns);
-      }
-    }
-    
-    // 替换模式中的变量
-    const resolvedPatterns = this.resolvePatterns(patterns, data);
-    
-    // 去重
-    const uniquePatterns = [...new Set(resolvedPatterns)];
-    
-    logger.debug({ 
-      table, 
-      operation, 
-      patterns: uniquePatterns.length 
-    }, 'Cache patterns mapped');
-    
-    return uniquePatterns;
-  }
-  
-  /**
-   * 检测变更的字段
-   */
-  detectChangedFields(newData, oldData) {
-    if (!newData || !oldData) return [];
-    
-    const changedFields = [];
-    
-    for (const [key, newValue] of Object.entries(newData)) {
-      const oldValue = oldData[key];
-      
-      if (newValue !== oldValue) {
-        changedFields.push(key);
-      }
-    }
-    
-    return changedFields;
-  }
-  
-  /**
-   * 替换模式中的变量
-   */
-  resolvePatterns(patterns, data) {
-    return patterns.map(pattern => {
-      return pattern
-        .replace(/{id}/g, data.id || '*')
-        .replace(/{user_id}/g, data.user_id || '*')
-        .replace(/{owner_id}/g, data.owner_id || data.user_id || '*')
-        .replace(/{gym_id}/g, data.gym_id || '*')
-        .replace(/{friend_id}/g, data.friend_id || '*')
-        .replace(/{item_id}/g, data.item_id || '*');
-    });
-  }
-  
-  /**
-   * 添加自定义映射规则
-   */
-  addTableMapping(table, rules) {
-    if (!this.mappingRules[table]) {
-      this.mappingRules[table] = {};
-    }
-    
-    // 合并规则
-    for (const [operation, patterns] of Object.entries(rules)) {
-      if (!this.mappingRules[table][operation]) {
-        this.mappingRules[table][operation] = [];
-      }
-      this.mappingRules[table][operation].push(...patterns);
-    }
-    
-    logger.info({ table, operations: Object.keys(rules) }, 'Table mapping added');
-  }
-  
-  /**
-   * 添加字段映射
-   */
-  addFieldMapping(table, field, patterns) {
-    if (!this.mappingRules[table]) {
-      this.mappingRules[table] = {};
-    }
-    
-    if (!this.mappingRules[table].fields) {
-      this.mappingRules[table].fields = {};
-    }
-    
-    if (!this.mappingRules[table].fields[field]) {
-      this.mappingRules[table].fields[field] = [];
-    }
-    
-    this.mappingRules[table].fields[field].push(...patterns);
-    
-    logger.info({ table, field }, 'Field mapping added');
-  }
-  
-  /**
-   * 获取所有映射规则
-   */
-  getMappingRules() {
-    return { ...this.mappingRules };
-  }
-  
-  /**
-   * 获取表的映射规则
-   */
-  getTableMapping(table) {
-    return this.mappingRules[table] || null;
-  }
+'use strict';
+const fs=require('node:fs');const path=require('node:path');const yaml=require('js-yaml');
+const {globRegex,patternMatcher}=require('../cache/CoherentCache');
+const KEY_FIELDS=Object.freeze({users:['id'],pokemon_species:['id'],pokemon_instances:['id','user_id','species_id'],candy_inventory:['user_id','species_id'],pokedex_entries:['user_id','species_id'],catch_records:['id','user_id'],gyms:['id'],gym_defenders:['id','gym_id','user_id','pokemon_id'],raids:['id','gym_id'],raid_participants:['id','raid_id','user_id'],friendships:['id','user_a','user_b'],friend_gifts:['id','sender_id','receiver_id'],pokemon_trades:['id','initiator_id','receiver_id','offered_pokemon','received_pokemon'],items:['id','item_id'],player_inventory:['id','user_id','item_id'],daily_quests:['id','user_id'],user_achievements:['user_id','achievement_id'],orders:['id','user_id']});
+const clone=value=>JSON.parse(JSON.stringify(value));
+const escapeGlob=value=>String(value).replace(/[\\*?\[\]]/g,'\\$&');
+const escapeRegex=value=>String(value).replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+const invalid=message=>Object.assign(new Error(message),{status:400,code:'INVALID_CACHE_RULE'});
+function normalizeRule(rule,table){
+  if(typeof rule==='string')rule={type:'glob',pattern:rule};
+  if(!rule||Object.keys(rule).some(k=>!['type','pattern'].includes(k))||!['glob','regex'].includes(rule.type)||typeof rule.pattern!=='string'||rule.pattern.length>512)throw invalid('Invalid cache rule');
+  const placeholders=[...rule.pattern.matchAll(/\{([a-z_]+)\}/g)].map(x=>x[1]);
+  if(placeholders.some(field=>!KEY_FIELDS[table].includes(field)))throw invalid('Rule uses an unavailable identity field');
+  const example=rule.pattern.replace(/\{([a-z_]+)\}/g,'identity');
+  if(!/^(\^)?(?:api:|pokemon:|stamina:|user:|gym:|item:|items:|query:)/.test(example))throw invalid('Rule must target a supported data-cache prefix');
+  try{patternMatcher({...rule,pattern:example});}catch(error){throw invalid(error.message);}
+  return {type:rule.type,pattern:rule.pattern};
 }
-
-module.exports = ChangeToCacheMapper;
+class ChangeToCacheMapper {
+  constructor(document={version:1,customRules:{}},{file=path.join(__dirname,'cache-rules.yml')}={}){
+    const baseline=yaml.load(fs.readFileSync(file,'utf8'),{schema:yaml.JSON_SCHEMA});
+    if(baseline?.version!==1||!baseline.rules||Object.keys(baseline.rules).sort().join()!==Object.keys(KEY_FIELDS).sort().join())throw invalid('Canonical cache rules are incomplete');
+    this.defaults={};for(const [table,rules]of Object.entries(baseline.rules))this.defaults[table]=rules.map(rule=>normalizeRule(rule,table));
+    this.document=ChangeToCacheMapper.validate(document);this.mappingRules={};
+    for(const table of Object.keys(KEY_FIELDS))this.mappingRules[table]=[...this.defaults[table],...(this.document.customRules[table]||[])];
+  }
+  static validate(document){
+    if(!document||document.version!==1||!document.customRules||Array.isArray(document.customRules)||typeof document.customRules!=='object'||Object.keys(document).some(k=>!['version','customRules'].includes(k)))throw invalid('Invalid cache configuration');
+    const customRules={};
+    for(const [table,rules]of Object.entries(document.customRules)){
+      if(!Object.hasOwn(KEY_FIELDS,table)||!Array.isArray(rules)||rules.length>32)throw invalid('Invalid canonical cache rule table');
+      customRules[table]=rules.map(rule=>normalizeRule(rule,table));
+    }
+    return {version:1,customRules};
+  }
+  map(event){
+    const table=event.table_name||event.table;
+    if(!Object.hasOwn(KEY_FIELDS,table)||!['insert','update','delete'].includes(event.operation))throw invalid('Invalid canonical cache event');
+    const results=new Map();
+    for(const values of [event.old_keys||event.oldData||{},event.new_keys||event.data||{}]){
+      if(!values||Array.isArray(values)||typeof values!=='object')throw invalid('Invalid event identities');
+      for(const [key,value]of Object.entries(values))if(!KEY_FIELDS[table].includes(key)||value!==null&&(typeof value!=='string'||value.length>128))throw invalid('Invalid event identity');
+      if(!Object.keys(values).length)continue;
+      const primary=KEY_FIELDS[table].includes('id')?['id']:KEY_FIELDS[table];if(primary.some(key=>!values[key]))throw invalid('Event primary identity is missing');
+      for(const rule of this.mappingRules[table]){
+        let usable=true;
+        const pattern=rule.pattern.replace(/\{([a-z_]+)\}/g,(_,key)=>{if(values[key]===null||values[key]===undefined){usable=false;return '';}return rule.type==='regex'?escapeRegex(values[key]):escapeGlob(values[key]);});
+        if(usable){const resolved={type:rule.type,pattern};results.set(JSON.stringify(resolved),resolved);}
+      }
+    }
+    return [...results.values()];
+  }
+  getMappingRules(){return clone({defaults:this.defaults,customRules:this.document.customRules});}
+  getTableMapping(table){return clone(this.mappingRules[table]||[]);}
+}
+module.exports=ChangeToCacheMapper;
+module.exports.KEY_FIELDS=KEY_FIELDS;
+module.exports.escapeGlob=escapeGlob;

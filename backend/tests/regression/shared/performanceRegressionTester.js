@@ -10,7 +10,7 @@
 'use strict';
 
 const { performance } = require('perf_hooks');
-const { createLogger } = require('../../shared/logger');
+const { createLogger } = require('../../../shared/logger');
 
 const logger = createLogger('performance-regression');
 
@@ -139,7 +139,15 @@ class PerformanceRegressionTester {
   async _executePerformanceTest(endpoint, config) {
     const iterations = config.iterations || this.config.iterations;
     const concurrency = config.concurrency || this.config.concurrency;
-    const warmupIterations = config.warmupIterations || this.config.warmupIterations;
+    const warmupIterations = config.warmupIterations ?? this.config.warmupIterations;
+    if (!config.app && !config.baseUrl) {
+      throw new Error('A real app or baseUrl is required for performance measurements');
+    }
+    if (!Number.isInteger(iterations) || iterations < 1 ||
+        !Number.isInteger(concurrency) || concurrency < 1 ||
+        !Number.isInteger(warmupIterations) || warmupIterations < 0) {
+      throw new Error('Invalid performance sample configuration');
+    }
     
     const results = [];
     
@@ -150,6 +158,7 @@ class PerformanceRegressionTester {
     }
     
     // 正式测试 - 分批并发执行
+    const measuredStart = performance.now();
     const batches = Math.ceil(iterations / concurrency);
     
     for (let batch = 0; batch < batches; batch++) {
@@ -171,7 +180,7 @@ class PerformanceRegressionTester {
     }
     
     // 计算统计数据
-    return this._calculateMetrics(results);
+    return this._calculateMetrics(results, performance.now() - measuredStart);
   }
 
   /**
@@ -207,6 +216,9 @@ class PerformanceRegressionTester {
    * @private
    */
   async _makeRequest(endpoint, config) {
+    if (!/^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS) \/\S*$/.test(endpoint)) {
+      throw new Error('Endpoint must contain an HTTP method and absolute path');
+    }
     // 如果有 app 实例，使用 supertest
     if (config.app) {
       const request = require('supertest');
@@ -216,29 +228,24 @@ class PerformanceRegressionTester {
       const resolvedPath = this._resolvePath(path);
       
       const methodLower = method.toLowerCase();
-      
-      if (methodLower === 'get') {
-        return await agent.get(resolvedPath);
-      } else if (methodLower === 'post') {
-        return await agent.post(resolvedPath).send(config.body || {});
-      } else if (methodLower === 'put') {
-        return await agent.put(resolvedPath).send(config.body || {});
-      } else if (methodLower === 'delete') {
-        return await agent.delete(resolvedPath);
-      }
+      let pending = agent[methodLower](resolvedPath).set(config.headers || {});
+      if (config.body !== undefined) pending = pending.send(config.body);
+      return await pending;
     }
     
     // 使用 axios 进行实际 HTTP 请求
     if (config.baseUrl) {
       const axios = require('axios');
       const [method, path] = endpoint.split(' ');
-      const url = `${config.baseUrl}${path}`;
+      const url = `${config.baseUrl.replace(/\/$/, '')}${this._resolvePath(path)}`;
       
       const response = await axios({
         method: method.toLowerCase(),
         url,
         timeout: 30000,
-        headers: config.headers || {}
+        headers: config.headers || {},
+        data: config.body,
+        validateStatus: () => true
       });
       
       return {
@@ -247,9 +254,7 @@ class PerformanceRegressionTester {
       };
     }
     
-    // 模拟请求（用于测试框架本身）
-    await new Promise(resolve => setTimeout(resolve, Math.random() * 50 + 30));
-    return { status: 200 };
+    throw new Error('A real app or baseUrl is required for performance measurements');
   }
 
   /**
@@ -267,7 +272,7 @@ class PerformanceRegressionTester {
    * 计算性能指标
    * @private
    */
-  _calculateMetrics(results) {
+  _calculateMetrics(results, elapsedMs) {
     const responseTimes = results.map(r => r.responseTime).sort((a, b) => a - b);
     const successCount = results.filter(r => r.statusCode >= 200 && r.statusCode < 300).length;
     const errorCount = results.length - successCount;
@@ -292,7 +297,7 @@ class PerformanceRegressionTester {
       stdDev: this._standardDeviation(filteredTimes),
       
       // 吞吐量（每秒请求数）
-      throughput: this._calculateThroughput(results),
+      throughput: this._calculateThroughput(results, elapsedMs),
       
       // 样本统计
       samples: filteredTimes.length,
@@ -375,10 +380,10 @@ class PerformanceRegressionTester {
           last_updated
         FROM api_performance_baselines
         WHERE endpoint = $1
-          AND last_updated > NOW() - INTERVAL '${this.config.baselineWindowDays} days'
+          AND last_updated > NOW() - ($2 * INTERVAL '1 day')
         ORDER BY last_updated DESC
         LIMIT 1
-      `, [endpoint]);
+      `, [endpoint, this.config.baselineWindowDays]);
       
       if (result.rows.length === 0) {
         logger.debug('No baseline found', { endpoint });
@@ -401,7 +406,7 @@ class PerformanceRegressionTester {
       
       // 缓存基准线
       try {
-        await this.redis.set(cacheKey, JSON.stringify(baseline), 300);
+        await this.redis.set(cacheKey, JSON.stringify(baseline), 'EX', 300);
       } catch (e) {
         logger.warn('Redis cache write failed', { error: e.message });
       }
@@ -411,7 +416,7 @@ class PerformanceRegressionTester {
       
     } catch (e) {
       logger.error('Database query failed', { error: e.message });
-      return null;
+      throw e;
     }
   }
 
@@ -487,14 +492,14 @@ class PerformanceRegressionTester {
         baseline: baseline.errorRate,
         current: current.errorRate,
         change: errorRateChange * 100,
-        severity: this._getSeverity(errorRateChange, 0.05, 'critical')
+        severity: errorRateChange > 0.05 ? 'critical' : 'high'
       });
     }
     
     // 4. 吞吐量分析
     const throughputChange = this._calculateChange(
-      baseline.throughput,
       current.throughput,
+      baseline.throughput,
       true // 吞吐量下降是退化
     );
     
@@ -701,6 +706,7 @@ class PerformanceRegressionTester {
       
     } catch (e) {
       logger.error('Failed to update baseline', { error: e.message });
+      throw e;
     }
   }
 
@@ -726,7 +732,7 @@ class PerformanceRegressionTester {
       
     } catch (e) {
       logger.error('Failed to store test result', { error: e.message });
-      return { id: `fallback-${Date.now()}` };
+      throw e;
     }
   }
 
@@ -858,9 +864,11 @@ class PerformanceRegressionTester {
     return Math.sqrt(this._average(squareDiffs));
   }
 
-  _calculateThroughput(results) {
-    if (!results || results.length < 2) return 0;
-    
+  _calculateThroughput(results, elapsedMs) {
+    if (!results || results.length === 0) return 0;
+    if (Number.isFinite(elapsedMs) && elapsedMs > 0) {
+      return results.length / elapsedMs * 1000;
+    }
     const times = results.map(r => r.responseTime);
     const totalTimeMs = times.reduce((a, b) => a + b, 0);
     

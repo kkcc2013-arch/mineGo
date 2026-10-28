@@ -2,6 +2,9 @@
 // REQ-00116: 语音聊天 API 路由
 
 'use strict';
+const _consoleLogger = new (require("../../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../../shared/logger").createLogger("services/social-service/src/routes/voice"), "services/social-service/src/routes/voice");
+
 
 const express = require('express');
 const router = express.Router();
@@ -53,7 +56,7 @@ router.post('/rooms',
         data: room
       });
     } catch (error) {
-      console.error('Failed to create voice room:', error);
+      _consoleLogger.error('Failed to create voice room:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to create room'
@@ -96,7 +99,7 @@ router.get('/rooms/:roomId',
         data: room
       });
     } catch (error) {
-      console.error('Failed to get voice room:', error);
+      _consoleLogger.error('Failed to get voice room:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to get room'
@@ -153,7 +156,7 @@ router.post('/rooms/:roomId/join',
         }
       });
     } catch (error) {
-      console.error('Failed to join voice room:', error);
+      _consoleLogger.error('Failed to join voice room:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to join room'
@@ -190,7 +193,7 @@ router.post('/rooms/:roomId/leave',
         data: result
       });
     } catch (error) {
-      console.error('Failed to leave voice room:', error);
+      _consoleLogger.error('Failed to leave voice room:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to leave room'
@@ -239,7 +242,7 @@ router.post('/rooms/:roomId/kick',
         message: 'Member kicked successfully'
       });
     } catch (error) {
-      console.error('Failed to kick member:', error);
+      _consoleLogger.error('Failed to kick member:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to kick member'
@@ -287,7 +290,7 @@ router.post('/rooms/:roomId/password',
         message: 'Password updated'
       });
     } catch (error) {
-      console.error('Failed to set room password:', error);
+      _consoleLogger.error('Failed to set room password:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to set password'
@@ -337,7 +340,7 @@ router.patch('/rooms/:roomId/config',
         data: result.config
       });
     } catch (error) {
-      console.error('Failed to update room config:', error);
+      _consoleLogger.error('Failed to update room config:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to update config'
@@ -362,7 +365,7 @@ router.get('/turn-credentials',
         data: credentials
       });
     } catch (error) {
-      console.error('Failed to get TURN credentials:', error);
+      _consoleLogger.error('Failed to get TURN credentials:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to get credentials'
@@ -387,7 +390,7 @@ router.get('/current-room',
         data: room || null
       });
     } catch (error) {
-      console.error('Failed to get current room:', error);
+      _consoleLogger.error('Failed to get current room:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to get current room'
@@ -427,7 +430,7 @@ router.get('/public-rooms',
         data: rooms
       });
     } catch (error) {
-      console.error('Failed to get public rooms:', error);
+      _consoleLogger.error('Failed to get public rooms:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to get public rooms'
@@ -463,7 +466,7 @@ router.get('/rooms/:roomId/members',
         data: members
       });
     } catch (error) {
-      console.error('Failed to get room members:', error);
+      _consoleLogger.error('Failed to get room members:', error);
       res.status(500).json({
         success: false,
         error: 'Failed to get members'
@@ -488,7 +491,7 @@ router.get('/turn-health',
         data: health
       });
     } catch (error) {
-      console.error('TURN health check failed:', error);
+      _consoleLogger.error('TURN health check failed:', error);
       res.status(500).json({
         success: false,
         error: 'Health check failed'

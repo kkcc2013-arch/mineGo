@@ -3,6 +3,9 @@
  * 支持多渠道告警发送
  */
 
+
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/cost-alerting/CostAlertChannel"), "shared/cost-alerting/CostAlertChannel");
 const fetch = require('node-fetch');
 
 class CostAlertChannel {
@@ -34,7 +37,7 @@ class CostAlertChannel {
     for (const channelName of targetChannels) {
       const channel = this.channels[channelName];
       if (!channel) {
-        console.warn(`[CostAlert] Unknown channel: ${channelName}`);
+        _consoleLogger.warn(`[CostAlert] Unknown channel: ${channelName}`);
         continue;
       }
       
@@ -42,7 +45,7 @@ class CostAlertChannel {
         await channel.send(alert);
         results.push({ channel: channelName, success: true });
       } catch (error) {
-        console.error(`[CostAlert] Failed to send via ${channelName}:`, error.message);
+        _consoleLogger.error(`[CostAlert] Failed to send via ${channelName}:`, error.message);
         results.push({ channel: channelName, success: false, error: error.message });
       }
     }
@@ -136,9 +139,9 @@ class EmailChannel {
 
     // 这里调用现有的邮件服务
     // 实际部署时需要集成邮件发送服务
-    console.log(`[CostAlert] Email would be sent to ${this.recipients.join(', ')}`);
-    console.log(`Subject: ${subject}`);
-    console.log(body);
+    _consoleLogger.log(`[CostAlert] Email would be sent to ${this.recipients.join(', ')}`);
+    _consoleLogger.log(`Subject: ${subject}`);
+    _consoleLogger.log(body);
 
     return { sent: true, recipients: this.recipients };
   }

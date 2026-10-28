@@ -2,69 +2,70 @@
 // Unified API client with auth, retry, and error handling
 'use strict';
 
-const BASE_URL = window.PMG_CONFIG?.apiBase || 'https://api.pocketmonstergo.com/v1';
+const BASE_URL = (window.PMG_CONFIG?.apiBase || '/v1').replace(/\/$/,'');
 
 class ApiClient {
   constructor() {
     this._accessToken  = localStorage.getItem('pmg_access_token');
     this._refreshToken = localStorage.getItem('pmg_refresh_token');
     this._refreshing   = null; // Promise de-dup
+    this._authEpoch=0;
+    this._pendingMfa=null;
+    this._mfaCompleting=null;
+    if([this._accessToken,this._refreshToken].some(value=>value==='undefined'||value==='null'))this.clearTokens({notify:false});
   }
 
   // ── Token management ────────────────────────────────────
   setTokens(accessToken, refreshToken) {
-    this._accessToken  = accessToken;
-    this._refreshToken = refreshToken;
-    localStorage.setItem('pmg_access_token',  accessToken);
-    localStorage.setItem('pmg_refresh_token', refreshToken);
+    if(![accessToken,refreshToken].every(value=>typeof value==='string'&&value.trim()&&!['undefined','null'].includes(value)))throw new ApiError('AUTH_RESPONSE_INVALID','登录响应不完整，请重试',503);
+    try{localStorage.setItem('pmg_access_token',accessToken);localStorage.setItem('pmg_refresh_token',refreshToken);}
+    catch{this._accessToken=this._refreshToken=null;try{localStorage.removeItem('pmg_access_token');localStorage.removeItem('pmg_refresh_token');}catch{}throw new ApiError('AUTH_STORAGE_UNAVAILABLE','无法保存登录状态，请重试',503);}
+    this._accessToken=accessToken;this._refreshToken=refreshToken;
   }
-
-  clearTokens() {
-    this._accessToken = this._refreshToken = null;
-    localStorage.removeItem('pmg_access_token');
-    localStorage.removeItem('pmg_refresh_token');
-    window.dispatchEvent(new Event('pmg:logout'));
+  clearTokens({notify=true}={}) {
+    this._authEpoch++;
+    this._accessToken=this._refreshToken=null;
+    this._pendingMfa=null;this._mfaCompleting=null;this._refreshing=null;
+    localStorage.removeItem('pmg_access_token');localStorage.removeItem('pmg_refresh_token');
+    if(notify)window.dispatchEvent(new Event('pmg:logout'));
   }
-
+  cancelMfaLogin(){this._authEpoch++;this._pendingMfa=null;this._mfaCompleting=null;}
+  get hasSession(){return typeof this._accessToken==='string'&&!!this._accessToken;}
+  get mfaPending(){return !!this._pendingMfa;}
   async refreshAccessToken() {
-    if (this._refreshing) return this._refreshing;
-
-    this._refreshing = (async () => {
-      if (!this._refreshToken) throw new Error('No refresh token');
-      const res  = await fetch(`${BASE_URL}/auth/refresh`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ refreshToken: this._refreshToken }),
-      });
-      const data = await res.json();
-      if (!res.ok || data.code !== 0) {
-        this.clearTokens();
-        throw new Error('Token refresh failed');
-      }
-      this._accessToken = data.data.accessToken;
-      localStorage.setItem('pmg_access_token', this._accessToken);
+    if(this._refreshing)return this._refreshing;
+    const epoch=this._authEpoch,refreshToken=this._refreshToken;
+    const pending=(async()=>{
+      if(!refreshToken)throw new ApiError(1002,'请重新登录',401);
+      const response=await fetch(`${BASE_URL}/auth/refresh`,{method:'POST',cache:'no-store',headers:{'Content-Type':'application/json'},body:JSON.stringify({refreshToken}),signal:AbortSignal.timeout(10000)});
+      const envelope=await response.json();
+      if(epoch!==this._authEpoch||refreshToken!==this._refreshToken)throw new ApiError('AUTH_CANCELLED','登录状态已改变',401);
+      if(!response.ok||envelope.code!==0)throw new ApiError(1002,'请重新登录',401);
+      this.setTokens(envelope.data?.accessToken,envelope.data?.refreshToken);
       return this._accessToken;
-    })().finally(() => { this._refreshing = null; });
-
-    return this._refreshing;
+    })().finally(()=>{if(this._refreshing===pending)this._refreshing=null;});
+    this._refreshing=pending;return pending;
   }
 
   // ── Core request ─────────────────────────────────────────
   async request(method, path, body, opts = {}) {
     const url     = `${BASE_URL}${path}`;
-    const headers = {
+    const epoch=this._authEpoch;
+    const headers = new Headers({
       'Content-Type':   'application/json',
       'X-Request-ID':   crypto.randomUUID(),
       'X-Client-Ver':   '1.0.0',
       'X-Platform':     'web',
-    };
+      ...opts.headers
+    });
 
     if (this._accessToken && !opts.noAuth) {
-      headers['Authorization'] = `Bearer ${this._accessToken}`;
-    }
+      headers.set('Authorization',`Bearer ${this._accessToken}`);
+    }else headers.delete('Authorization');
 
     const fetchOpts = {
       method,
+      cache: 'no-store',
       headers,
       signal: opts.signal || AbortSignal.timeout(opts.timeout || 10000),
     };
@@ -73,25 +74,29 @@ class ApiClient {
     let res = await fetch(url, fetchOpts);
 
     // Auto-refresh on 401
-    if (res.status === 401 && !opts.noAuth && !opts._retried) {
+    if (res.status === 401 && !opts.noAuth && !opts.noRefresh && !opts._retried) {
       try {
+        if(epoch!==this._authEpoch)throw new ApiError('AUTH_CANCELLED','登录状态已改变',401);
         await this.refreshAccessToken();
-        headers['Authorization'] = `Bearer ${this._accessToken}`;
+        headers.set('Authorization',`Bearer ${this._accessToken}`);
         res = await fetch(url, { ...fetchOpts, headers, signal: AbortSignal.timeout(10000) });
       } catch {
-        this.clearTokens();
+        if(epoch===this._authEpoch)this.clearTokens();
         throw new ApiError(1002, '请重新登录', 401);
       }
     }
 
+    if(!opts.noAuth&&epoch!==this._authEpoch)throw new ApiError('AUTH_CANCELLED','登录状态已改变',401);
     const data = await res.json();
+    if(!opts.noAuth&&epoch!==this._authEpoch)throw new ApiError('AUTH_CANCELLED','登录状态已改变',401);
 
-    if (!res.ok || data.code !== 0) {
+    if (!res.ok || !(data.code===0||data.success===true&&data.code===undefined)) {
       // Handle offline response from service worker
       if (data.offline || data.code === 9999) {
         throw new ApiError(9999, data.message || '当前离线，请检查网络连接', 503);
       }
-      throw new ApiError(data.code || res.status, data.message || '请求失败', res.status);
+      const code=data.code??(typeof data.error==='string'?data.error:data.error?.code)??res.status;
+      throw new ApiError(code, MFA_MESSAGES[code]||data.message||data.error?.message||'请求失败',res.status,data.data);
     }
 
     return data.data;
@@ -108,21 +113,45 @@ class ApiClient {
   }
 
   async register(phone, smsCode, nickname) {
-    const data = await this.post('/auth/register', { phone, smsCode, nickname }, { noAuth: true });
-    this.setTokens(data.accessToken, data.refreshToken);
-    return data;
+    this.clearTokens({notify:false});const epoch=this._authEpoch;
+    const data=await this.post('/auth/register',{phone,smsCode,nickname},{noAuth:true});
+    if(epoch!==this._authEpoch)throw new ApiError('AUTH_CANCELLED','登录已取消',401);
+    this.setTokens(data.accessToken,data.refreshToken);return data;
   }
-
-  async login(phone, smsCode) {
-    const data = await this.post('/auth/login', { phone, smsCode }, { noAuth: true });
-    this.setTokens(data.accessToken, data.refreshToken);
-    return data;
+  async login(phone,smsCode) {
+    this.clearTokens({notify:false});const epoch=this._authEpoch;
+    const data=await this.post('/auth/login',{phone,smsCode},{noAuth:true});
+    if(epoch!==this._authEpoch)throw new ApiError('AUTH_CANCELLED','登录已取消',401);
+    if(data.mfaRequired===true){
+      if(typeof data.tempToken!=='string'||!/^[A-Za-z0-9_-]{43}$/.test(data.tempToken))throw new ApiError('AUTH_RESPONSE_INVALID','验证请求无效，请重新登录',503);
+      this._pendingMfa={challenge:data.tempToken,deadline:performance.now()+300000};
+      return {mfaRequired:true,expiresAt:data.expiresAt};
+    }
+    this.setTokens(data.accessToken,data.refreshToken);return data;
   }
-
+  completeMfaLogin(code,recovery=false,opts={}) {
+    if(this._mfaCompleting)return this._mfaCompleting;
+    const epoch=this._authEpoch,pending=this._pendingMfa;
+    if(!pending||performance.now()>=pending.deadline){this.cancelMfaLogin();return Promise.reject(new ApiError('MFA_CHALLENGE_INVALID','验证请求已过期，请重新登录',401));}
+    const operation=(async()=>{
+      try{
+        const data=await this.post(recovery?'/auth/mfa/recovery':'/auth/mfa/verify',{challenge:pending.challenge,code},{...opts,noAuth:true,noRefresh:true});
+        if(epoch!==this._authEpoch||this._pendingMfa!==pending)throw new ApiError('AUTH_CANCELLED','登录已取消',401);
+        this.setTokens(data.accessToken,data.refreshToken);this._pendingMfa=null;return data;
+      }catch(error){if(error.code==='MFA_CHALLENGE_INVALID'&&epoch===this._authEpoch)this.cancelMfaLogin();throw error;}
+    })().finally(()=>{if(this._mfaCompleting===operation)this._mfaCompleting=null;});
+    this._mfaCompleting=operation;return operation;
+  }
   async logout() {
-    try { await this.post('/auth/logout'); } catch {}
-    this.clearTokens();
+    const token=this._accessToken;this.clearTokens();
+    if(token){try{await fetch(`${BASE_URL}/auth/logout`,{method:'POST',cache:'no-store',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:'{}',signal:AbortSignal.timeout(10000)});}catch{}}
   }
+  getMfaStatus(opts={}){return this.get('/users/me/mfa/status',opts);}
+  setupMfa(opts={}){return this.post('/users/me/mfa/setup',{}, {...opts,noRefresh:true});}
+  enableMfa(code,opts={}){return this.post('/users/me/mfa/enable',{code},{...opts,noRefresh:true});}
+  disableMfa(code,opts={}){return this.post('/users/me/mfa/disable',{code},{...opts,noRefresh:true});}
+  regenerateMfaCodes(code,opts={}){return this.post('/users/me/mfa/recovery-codes/regenerate',{code},{...opts,noRefresh:true});}
+  verifyMfa(code,scope,opts={}){return this.post('/users/me/mfa/step-up',{code,scope},{...opts,noRefresh:true});}
 
   // ── User ─────────────────────────────────────────────────
   getMe()                              { return this.get('/users/me'); }
@@ -175,22 +204,41 @@ class ApiClient {
 
   // ── Payment ───────────────────────────────────────────────
   getProducts()                        { return this.get('/payment/products'); }
-  createOrder(productId, channel)      {
-    return this.post('/payment/orders', {
-      productId,
-      paymentChannel: channel,
-      idempotencyKey: crypto.randomUUID(),
-    });
+  createOrder(productId,channel,key=crypto.randomUUID(),{mfaToken,signal}={}){
+    return this.post('/payment/orders',{productId,paymentChannel:channel,idempotencyKey:key},{headers:{'X-Idempotency-Key':key,...(mfaToken?{'X-MFA-Token':mfaToken}:{})},signal,noRefresh:true});
   }
-  verifyPayment(orderId, channelSign)  { return this.post(`/payment/orders/${orderId}/verify`, { channelSign }); }
+  verifyPayment(orderId,channelSign,channelOrderId,{mfaToken,signal}={}){return this.post(`/payment/orders/${orderId}/verify`,{channelSign,channelOrderId},{headers:mfaToken?{'X-MFA-Token':mfaToken}:{},signal,noRefresh:true});}
 }
 
+const MFA_MESSAGES={
+  MFA_INVALID_FACTOR:'验证码无效或已使用，请输入新的验证码',
+  MFA_FACTOR_INVALID:'请输入六位验证码或 XXXX-XXXX 格式的恢复码',
+  MFA_LOCKED:'验证失败次数过多，账户验证已锁定十五分钟',
+  MFA_CHALLENGE_INVALID:'验证请求已过期或已使用，请重新登录',
+  MFA_UNAVAILABLE:'暂时无法验证，请稍后重试',
+  MFA_LEGACY_PROFILE_REVIEW:'此账户需要管理员协助恢复验证设置',
+  MFA_ALREADY_ENABLED:'此账户已启用验证，请刷新状态',
+  MFA_SETUP_REQUIRED:'请重新开始验证器设置',
+  MFA_ENROLLMENT_REQUIRED:'请先在账户设置中启用验证器，再重新进行本次操作',
+  MFA_PROOF_REQUIRED:'请完成本次操作的二次验证',
+  RISK_SESSION_INVALID:'登录会话无效，请重新登录',
+  RISK_SESSION_REVOKED:'登录会话已撤销，请重新登录',
+  RISK_SESSION_CHANGED:'账户验证状态已改变，请重新登录',
+  RISK_SUBJECT_BLOCKED:'此账户暂时无法进行该操作',
+  RISK_LIMIT_EXCEEDED:'当前操作风险较高，请稍后重试',
+  RISK_UNAVAILABLE:'暂时无法完成安全检查，请稍后重试',
+  RISK_AUDIT_UNAVAILABLE:'暂时无法完成安全检查，请稍后重试',
+};
+
 class ApiError extends Error {
-  constructor(code, message, httpStatus) {
+  constructor(code, message, httpStatus, data) {
     super(message);
     this.name       = 'ApiError';
     this.code       = code;
     this.httpStatus = httpStatus;
+    if(['MFA_PROOF_REQUIRED','MFA_ENROLLMENT_REQUIRED'].includes(code)&&data?.mfaRequired===true&&['payment-purchase','large-transaction'].includes(data.scope)) {
+      this.verification=Object.freeze({scope:data.scope,mfaRequired:true});
+    }
   }
 }
 

@@ -1,3 +1,6 @@
+
+const _consoleLogger = new (require("../../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../../shared/logger").createLogger("services/gym-service/src/routes/season"), "services/gym-service/src/routes/season");
 const express = require('express');
 const router = express.Router();
 const SeasonManager = require('../services/SeasonManager');
@@ -24,7 +27,7 @@ router.get('/current', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get current season error:', error);
+    _consoleLogger.error('Get current season error:', error);
     res.status(500).json({ error: 'INTERNAL_ERROR', message: '获取赛季信息失败' });
   }
 });
@@ -47,7 +50,7 @@ router.get('/rank', requireAuth, async (req, res) => {
       progress: RankManager.getProgressToNextTier(rank)
     });
   } catch (error) {
-    console.error('Get player rank error:', error);
+    _consoleLogger.error('Get player rank error:', error);
     res.status(500).json({ error: 'INTERNAL_ERROR', message: '获取段位信息失败' });
   }
 });
@@ -76,7 +79,7 @@ router.get('/leaderboard', async (req, res) => {
     
     res.json({ leaderboard, season: season.id });
   } catch (error) {
-    console.error('Get leaderboard error:', error);
+    _consoleLogger.error('Get leaderboard error:', error);
     res.status(500).json({ error: 'INTERNAL_ERROR', message: '获取排行榜失败' });
   }
 });
@@ -106,7 +109,7 @@ router.post('/placement/match', requireAuth, async (req, res) => {
     
     res.json({ match, placementProgress: rank.placement_matches + 1 });
   } catch (error) {
-    console.error('Placement match error:', error);
+    _consoleLogger.error('Placement match error:', error);
     res.status(500).json({ error: 'INTERNAL_ERROR', message: '匹配失败' });
   }
 });
@@ -138,7 +141,7 @@ router.post('/ranked/match', requireAuth, async (req, res) => {
     
     res.json({ match, estimatedWaitTime: match.estimatedWaitTime });
   } catch (error) {
-    console.error('Ranked match error:', error);
+    _consoleLogger.error('Ranked match error:', error);
     res.status(500).json({ error: 'INTERNAL_ERROR', message: '匹配失败' });
   }
 });
@@ -166,7 +169,7 @@ router.post('/ranked/result', requireAuth, async (req, res) => {
       rewards: rankChange.rewards
     });
   } catch (error) {
-    console.error('Report ranked result error:', error);
+    _consoleLogger.error('Report ranked result error:', error);
     res.status(500).json({ error: 'INTERNAL_ERROR', message: '上报结果失败' });
   }
 });
@@ -186,7 +189,7 @@ router.get('/history', requireAuth, async (req, res) => {
     
     res.json({ history });
   } catch (error) {
-    console.error('Get season history error:', error);
+    _consoleLogger.error('Get season history error:', error);
     res.status(500).json({ error: 'INTERNAL_ERROR', message: '获取历史失败' });
   }
 });
@@ -206,7 +209,7 @@ router.post('/rewards/:seasonId/claim', requireAuth, async (req, res) => {
     
     res.json({ rewards, claimed: true });
   } catch (error) {
-    console.error('Claim season rewards error:', error);
+    _consoleLogger.error('Claim season rewards error:', error);
     res.status(500).json({ error: 'INTERNAL_ERROR', message: '领取奖励失败' });
   }
 });

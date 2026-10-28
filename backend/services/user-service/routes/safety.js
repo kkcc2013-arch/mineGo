@@ -6,7 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const { query } = require('../database/connection');
-const logger = require('../shared/logger');
+const logger = require('../../../shared/logger');
 
 /**
  * GET /api/safety/preferences

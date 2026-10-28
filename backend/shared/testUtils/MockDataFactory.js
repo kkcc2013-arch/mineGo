@@ -1,5 +1,8 @@
 // backend/shared/testUtils/MockDataFactory.js
 'use strict';
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/testUtils/MockDataFactory"), "shared/testUtils/MockDataFactory");
+
 
 const { v4: uuidv4 } = require('uuid');
 const mockRepo = require('./mockRepository').defaultRepository;
@@ -452,7 +455,7 @@ class MockDataFactory {
       return mockRepo.get(key, overrides);
     } catch (err) {
       // 如果找不到，生成一个新的
-      console.warn(`Mock data not found for key: ${key}, generating new data`);
+      _consoleLogger.warn(`Mock data not found for key: ${key}, generating new data`);
       return this.generateFromKey(key, overrides);
     }
   }

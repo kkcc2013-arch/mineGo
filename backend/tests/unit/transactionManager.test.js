@@ -11,8 +11,9 @@ const {
 // Mock db module
 jest.mock('../../shared/db', () => ({
   getPool: jest.fn(() => ({
+    query: jest.fn().mockResolvedValue({rows:[]}),
     connect: jest.fn(() => Promise.resolve({
-      query: jest.fn(),
+      query: jest.fn().mockResolvedValue({command:'COMMIT'}),
       release: jest.fn(),
     })),
   })),
@@ -25,17 +26,17 @@ describe('TransactionManager', () => {
       expect(isDeadlockError(err)).toBe(true);
     });
 
-    test('should detect lock not available error code 55P03', () => {
+    test('legacy diagnostic detects lock-not-available (not the retry policy)', () => {
       const err = { code: '55P03', message: 'lock not available' };
       expect(isDeadlockError(err)).toBe(true);
     });
 
-    test('should detect deadlock in message', () => {
+    test('legacy diagnostic recognizes a deadlock message', () => {
       const err = { message: 'ERROR: deadlock detected in transaction' };
       expect(isDeadlockError(err)).toBe(true);
     });
 
-    test('should detect could not obtain lock in message', () => {
+    test('legacy diagnostic recognizes lock acquisition messages', () => {
       const err = { message: 'could not obtain lock on relation' };
       expect(isDeadlockError(err)).toBe(true);
     });
@@ -89,11 +90,12 @@ describe('TransactionManager', () => {
         query: jest.fn()
           .mockResolvedValueOnce({}) // BEGIN
           .mockResolvedValueOnce({ rows: [{ id: 1 }] }) // callback query
-          .mockResolvedValueOnce({}), // COMMIT
+          .mockResolvedValueOnce({command:'COMMIT'}), // COMMIT
         release: jest.fn(),
       };
 
       const mockPool = {
+        query: jest.fn().mockResolvedValue({rows:[]}),
         connect: jest.fn(() => Promise.resolve(mockClient)),
       };
 
@@ -115,11 +117,12 @@ describe('TransactionManager', () => {
         query: jest.fn()
           .mockResolvedValueOnce({}) // BEGIN
           .mockResolvedValueOnce({ rows: [{ id: 1 }] }) // callback query
-          .mockResolvedValueOnce({}), // COMMIT
+          .mockResolvedValueOnce({command:'COMMIT'}), // COMMIT
         release: jest.fn(),
       };
 
       const mockPool = {
+        query: jest.fn().mockResolvedValue({rows:[]}),
         connect: jest.fn(() => Promise.resolve(mockClient)),
       };
 
@@ -148,6 +151,7 @@ describe('TransactionManager', () => {
       };
 
       const mockPool = {
+        query: jest.fn().mockResolvedValue({rows:[]}),
         connect: jest.fn(() => Promise.resolve(mockClient)),
       };
 
@@ -156,7 +160,7 @@ describe('TransactionManager', () => {
 
       await expect(
         transactionWithIsolation(async (client) => {
-          throw new Error('Query failed');
+          return await client.query('SELECT 1');
         })
       ).rejects.toThrow('Query failed');
 
@@ -171,12 +175,15 @@ describe('TransactionManager', () => {
       let attempt = 0;
       const mockClient = {
         query: jest.fn((sql) => {
-          attempt++;
           if (sql.includes('BEGIN')) {
             return Promise.resolve({});
           } else if (sql.includes('ROLLBACK')) {
             return Promise.resolve({});
-          } else if (attempt === 1) {
+          } else if (sql.includes('COMMIT')) {
+            return Promise.resolve({command:'COMMIT'});
+          } else if (sql.includes('INSERT INTO deadlock_log')) {
+            return Promise.resolve({rows:[]});
+          } else if (++attempt === 1) {
             // First attempt: fail with deadlock
             return Promise.reject(deadlockError);
           } else {
@@ -188,6 +195,7 @@ describe('TransactionManager', () => {
       };
 
       const mockPool = {
+        query: jest.fn().mockResolvedValue({rows:[]}),
         connect: jest.fn(() => Promise.resolve(mockClient)),
       };
 
@@ -201,8 +209,10 @@ describe('TransactionManager', () => {
         { maxRetries: 3, retryDelay: 10 }
       );
 
-      // Should have called connect twice (2 attempts)
-      expect(mockPool.connect).toHaveBeenCalledTimes(2);
+      // Two business attempts plus one separately owned contention-audit transaction.
+      expect(mockPool.connect).toHaveBeenCalledTimes(3);
+      expect(mockClient.query.mock.calls.filter(([sql])=>sql==='INSERT INTO test VALUES (1)')).toHaveLength(2);
+      expect(mockClient.query.mock.calls.filter(([sql])=>sql.includes('INSERT INTO deadlock_log'))).toHaveLength(1);
     });
   });
 });

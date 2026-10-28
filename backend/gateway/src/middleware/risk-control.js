@@ -1,14 +1,14 @@
 // gateway/src/middleware/risk-control.js - Risk Control Middleware
 'use strict';
 
-const { createLogger } = require('../../shared/logger');
-const { getRedis, getJSON, setJSON } = require('../../shared/redis');
-const RiskScorer = require('../../shared/risk-engine/risk-scorer');
+const { createLogger } = require('../../../shared/logger');
+const { getRedis, getJSON, setJSON } = require('../../../shared/redis');
+const RiskScorer = require('../../../shared/risk-engine/risk-scorer');
 const {
   evaluateTransactionRules,
   evaluateRewardRules,
   evaluatePaymentRules
-} = require('../../shared/risk-engine/rules/transaction-rules');
+} = require('../../../shared/risk-engine/rules/transaction-rules');
 
 const logger = createLogger('risk-control');
 
@@ -308,7 +308,7 @@ class RiskControlMiddleware {
 
 // Simple query wrapper
 async function query(sql, params) {
-  const { query: _query } = require('../../shared/db');
+  const { query: _query } = require('../../../shared/db');
   return _query(sql, params);
 }
 

@@ -13,10 +13,10 @@
 
 const fs = require('fs');
 const path = require('path');
-const { SchemaValidator, getSchemaValidator } = require('../schemaValidator');
+const { SchemaValidator, getSchemaValidator } = require('../../shared/schemaValidator');
 
 // Mock logger
-jest.mock('../logger', () => ({
+jest.mock('../../shared/logger', () => ({
   createLogger: () => ({
     info: jest.fn(),
     warn: jest.fn(),
