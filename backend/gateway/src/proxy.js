@@ -3,6 +3,7 @@
 const httpProxy = require('http-proxy');
 const { Readable } = require('node:stream');
 const querystring = require('node:querystring');
+const {getClientIp} = require('../../shared/clientIp');
 
 function rewritePath(req, rewrite) {
   if (typeof rewrite === 'function') return rewrite(req.url, req);
@@ -44,6 +45,16 @@ function createProxyMiddleware(options) {
     timeout: options.timeout || 30000
   });
   proxy.on('proxyReq', (upstream, req) => {
+    // Replace caller claims with Express's trusted-peer resolution at ingress.
+    const address = getClientIp(req);
+    upstream.removeHeader('forwarded');
+    if (address) {
+      upstream.setHeader('x-forwarded-for', address);
+      upstream.setHeader('x-real-ip', address);
+    } else {
+      upstream.removeHeader('x-forwarded-for');
+      upstream.removeHeader('x-real-ip');
+    }
     if (req.cacheCapture) upstream.setHeader('accept-encoding', 'identity');
   });
   proxy.on('proxyRes', (upstream, req) => {

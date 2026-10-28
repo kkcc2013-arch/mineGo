@@ -96,7 +96,7 @@ function createLoginRouter(service = mfaService, {
       ...(await issueTokens(result.user, {
         ip: req.ip,
         userAgent: req.headers['user-agent']
-      }, result.credentialEpoch)),
+      }, result.credentialEpoch, {mfaAuthenticated:true})),
       userId: result.user.id
     };
   }));

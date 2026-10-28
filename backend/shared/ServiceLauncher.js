@@ -117,6 +117,8 @@ class ServiceLauncher {
    */
   createApp({ finalize = true } = {}) {
     const app = express();
+    // Only configured ingress peers may supply the resolved client address.
+    app.set('trust proxy', process.env.SERVICE_TRUST_PROXY ? process.env.SERVICE_TRUST_PROXY.split(',').map(value => value.trim()) : false);
 
     // ── 安全中间件 ─────────────────────────────────────────────
     app.use(helmet(this.helmetConfig));

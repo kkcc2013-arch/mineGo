@@ -148,6 +148,7 @@ test('actual payment and gateway entry points preserve signed raw bytes, once-on
     KAFKA_BROKERS: process.env.TEST_KAFKA_BROKERS,
     PAYMENT_QUEUE_CLIENT_ID: schema,
     PAYMENT_QUEUE_TOPIC_PREFIX: schema,
+    SERVICE_TRUST_PROXY: 'loopback',
     LOG_LEVEL: 'error',
     UV_THREADPOOL_SIZE: '2',
     OER_API_KEY: '',
@@ -248,10 +249,16 @@ test('actual payment and gateway entry points preserve signed raw bytes, once-on
       body: '{}'
     })).status, 401);
     const token = jwt.sign({
-      sub: owner
+      sub: owner,
+      jti: crypto.randomUUID()
     }, access, {
       expiresIn: '5m'
     });
+    const claims = jwt.decode(token);
+    await r.hset('sessions:user:' + owner, claims.jti, JSON.stringify({jti: claims.jti, createdAt: claims.iat, expiresAt: claims.exp, ip: '127.0.0.1', userAgent: 'node', mfaEpoch: null}));
+    cacheKeys.push('sessions:user:' + owner);
+    const riskNamespace = 'risk:v1:' + crypto.createHash('sha256').update(JSON.stringify([(await pool.query('SELECT current_database() AS name')).rows[0].name, schema])).digest('hex') + ':';
+    for (const [kind, value] of [['ip', '127.0.0.1'], ['user', owner], ['failures', owner]]) cacheKeys.push(riskNamespace + kind + ':' + crypto.createHash('sha256').update(value).digest('hex'));
     const key = crypto.randomUUID();
     cacheKeys.push('payment:create:' + owner + ':' + key);
     const create = await fetchBounded(gb + '/v1/payment/orders', {
@@ -259,7 +266,8 @@ test('actual payment and gateway entry points preserve signed raw bytes, once-on
       headers: {
         Authorization: 'Bearer ' + token,
         'Content-Type': 'application/json',
-        'X-Idempotency-Key': key
+        'X-Idempotency-Key': key,
+        'X-Forwarded-For': '198.51.100.42'
       },
       body: JSON.stringify({
         productId: 'coins_60',

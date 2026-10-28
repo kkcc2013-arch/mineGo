@@ -165,3 +165,15 @@ user/gateway regression2, and the complete unit command pass locally. The cache
 fixture waits within its existing bounded deadline for a successful real fenced
 fill before testing the read/invalidation race; its race assertions and original
 50/100ms CDC gates are unchanged. Exact-source remote CI is still required.
+
+## Sensitive payment authorization (2026-10-28, partial)
+
+Private gateway payment access now requires a registered current server session;
+the payment service independently repeats that check. Actual creation and owned
+verification use server-priced risk policy and canonical purpose/session/epoch-bound
+MFA proofs. Normal elevated-risk requests need `payment-purchase`; large purchases
+need `large-transaction`, and critical context refuses even a valid proof. Caller
+verification flags do not authorize these paths. Every risk decision must persist
+an encrypted trace before business execution. Provider HMAC callbacks retain their
+separate signature boundary. Full policy, trusted-ingress configuration, integration
+scope and remaining original criteria are in [SENSITIVE-OPERATION-RISK.md](SENSITIVE-OPERATION-RISK.md).

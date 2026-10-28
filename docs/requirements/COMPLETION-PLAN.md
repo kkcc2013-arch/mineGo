@@ -3,7 +3,7 @@
 Updated: 2026-10-28. Scope: all 658 existing requirement documents in INDEX.md,
 including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
-Current declarations: 52 P0, 565 P1 and 41 P2; 429 new, 53 in progress; 176 declared done, including one independently verified framework. These counts
+Current declarations: 52 P0, 565 P1 and 41 P2; 428 new, 54 in progress; 176 declared done, including one independently verified framework. These counts
 are inventory, not verified delivery. AUDIT.json and VERIFICATION.json are authoritative
 for source hashes and evidence; WORKLOG.md records execution and failures.
 
@@ -43,14 +43,15 @@ independent authorized work.
    work while genuine external provider/staging/device inputs are unavailable.
 4. Repair remaining legacy contract/API/integration/performance/security/operations
    gates, meet each original numerical target and perform all658 acceptance audit.
-   Exactc4b5ca1 main475/MFA7/browser3/migration37/privacy47/notification32
-   pass, including full87 remote bootstrap. Payment2 core/migration/report gates pass
-   but native timeout consumption fails; native44 fails cache test setup before
-   actual process steps, which were skipped. Both failures remain recorded.
-   Real Kafka pre-start backlog now reproduces skipped new-group work; correction
-   also fixes absent histogram defaults and an invalid DLQ logger call that stopped
-   consumption. Local corrected paymentnative2/cache41/originalnative2/fullunit
-   pass; corrected-source CI pending. Legacy global contract/integration/security/
+   Exact85457de main476/payment3/native45/MFA8/browser4/migration38/privacy48/
+   notification33 pass, including the previously failed actual payment consumer,
+   cache preparation and full87 remote bootstrap. Original failures remain archived.
+   Current batch adds real server-session risk gating to payment, canonical scoped
+   cross-service MFA and encrypted decision traces; explicit trusted ingress prevents
+   forwarded-header spoofing. MFA-authenticated session assurance is server recorded
+   and retained through registered refresh, not inferred from an account epoch.
+   Complete all other original sensitive APIs, operation/method policies and UI.
+   New-source CI remains required. Legacy global contract/integration/security/
    performance workflows remain unaccepted. No original gate is waived.
 
 

@@ -6,6 +6,10 @@ on:
       - 'backend/shared/**'
       - 'backend/gateway/src/index.js'
       - 'backend/tests/**/*payment*'
+      - 'backend/tests/regression/sensitive-risk-storage.test.js'
+      - 'backend/services/user-service/src/authSessionTokens.js'
+      - 'backend/services/user-service/src/routes/mfa.js'
+      - 'backend/gateway/src/middleware/mfaRequired.js'
       - 'backend/tests/unit/delay-queue.test.js'
       - 'backend/package*.json'
       - 'database/**'
@@ -56,6 +60,9 @@ jobs:
         id: coverage
         working-directory: backend
         run: npm run test:payment:coverage
+      - name: Verify server-derived risk, actual cross-service MFA and encrypted decisions
+        working-directory: backend
+        run: npm run test:risk:storage
       - name: Preserve actual coverage reports
         if: ${{ always() && steps.coverage.outcome != 'skipped' }}
         uses: actions/upload-artifact@v4

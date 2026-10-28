@@ -75,3 +75,17 @@ node --test --test-concurrency=1 tests/regression/payment-native.test.js
 队列单测使用真实指标注册表，覆盖无显式 buckets、失败后下一条任务和死信日志路径。
 缓存准备阶段在原有有界期限内取得真实有效的填充令牌，再执行原来的读/失效竞争断言；
 不改变生产缓存实现或原始50/100ms门槛。完整队列、支付及安全验收仍未完成。
+
+### 敏感支付风控与跨服务 MFA（部分验证）
+
+```sh
+npm run test:risk:storage
+```
+
+该命令使用真实用户 MFA/auth 与支付 HTTP 路由、PostgreSQL、Redis 和加密审计；
+验证服务器会话撤销/时代变更、伪造验证头、跨用途/跨会话/过期凭证、临界风险拒绝，
+以及存储/审计失效时不执行下单。新模块保留91%行、90%函数和80%分支门槛；
+这是实际集成覆盖，不能代替 REQ200 的原始单元覆盖要求。
+网关代理测试核验可信来源解析；原生支付检查还通过真实网关测试伪造转发头。
+详细策略、服务器配置和仍缺少的完整多步骤/多操作验收见
+[SENSITIVE-OPERATION-RISK.md](../../docs/SENSITIVE-OPERATION-RISK.md)。

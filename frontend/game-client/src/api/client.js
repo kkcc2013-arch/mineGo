@@ -96,7 +96,7 @@ class ApiClient {
         throw new ApiError(9999, data.message || '当前离线，请检查网络连接', 503);
       }
       const code=data.code??(typeof data.error==='string'?data.error:data.error?.code)??res.status;
-      throw new ApiError(code, data.message||data.error?.message||MFA_MESSAGES[code]||'请求失败',res.status);
+      throw new ApiError(code, MFA_MESSAGES[code]||data.message||data.error?.message||'请求失败',res.status,data.data);
     }
 
     return data.data;
@@ -204,10 +204,10 @@ class ApiClient {
 
   // ── Payment ───────────────────────────────────────────────
   getProducts()                        { return this.get('/payment/products'); }
-  createOrder(productId,channel,key=crypto.randomUUID()){
-    return this.post('/payment/orders',{productId,paymentChannel:channel,idempotencyKey:key},{headers:{'X-Idempotency-Key':key},noRefresh:true});
+  createOrder(productId,channel,key=crypto.randomUUID(),{mfaToken,signal}={}){
+    return this.post('/payment/orders',{productId,paymentChannel:channel,idempotencyKey:key},{headers:{'X-Idempotency-Key':key,...(mfaToken?{'X-MFA-Token':mfaToken}:{})},signal,noRefresh:true});
   }
-  verifyPayment(orderId,channelSign,channelOrderId){return this.post(`/payment/orders/${orderId}/verify`,{channelSign,channelOrderId},{noRefresh:true});}
+  verifyPayment(orderId,channelSign,channelOrderId,{mfaToken,signal}={}){return this.post(`/payment/orders/${orderId}/verify`,{channelSign,channelOrderId},{headers:mfaToken?{'X-MFA-Token':mfaToken}:{},signal,noRefresh:true});}
 }
 
 const MFA_MESSAGES={
@@ -219,14 +219,26 @@ const MFA_MESSAGES={
   MFA_LEGACY_PROFILE_REVIEW:'此账户需要管理员协助恢复验证设置',
   MFA_ALREADY_ENABLED:'此账户已启用验证，请刷新状态',
   MFA_SETUP_REQUIRED:'请重新开始验证器设置',
+  MFA_ENROLLMENT_REQUIRED:'请先在账户设置中启用验证器，再重新进行本次操作',
+  MFA_PROOF_REQUIRED:'请完成本次操作的二次验证',
+  RISK_SESSION_INVALID:'登录会话无效，请重新登录',
+  RISK_SESSION_REVOKED:'登录会话已撤销，请重新登录',
+  RISK_SESSION_CHANGED:'账户验证状态已改变，请重新登录',
+  RISK_SUBJECT_BLOCKED:'此账户暂时无法进行该操作',
+  RISK_LIMIT_EXCEEDED:'当前操作风险较高，请稍后重试',
+  RISK_UNAVAILABLE:'暂时无法完成安全检查，请稍后重试',
+  RISK_AUDIT_UNAVAILABLE:'暂时无法完成安全检查，请稍后重试',
 };
 
 class ApiError extends Error {
-  constructor(code, message, httpStatus) {
+  constructor(code, message, httpStatus, data) {
     super(message);
     this.name       = 'ApiError';
     this.code       = code;
     this.httpStatus = httpStatus;
+    if(['MFA_PROOF_REQUIRED','MFA_ENROLLMENT_REQUIRED'].includes(code)&&data?.mfaRequired===true&&['payment-purchase','large-transaction'].includes(data.scope)) {
+      this.verification=Object.freeze({scope:data.scope,mfaRequired:true});
+    }
   }
 }
 

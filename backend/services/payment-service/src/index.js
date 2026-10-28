@@ -26,6 +26,7 @@ const {
 class PaymentLauncher extends ServiceLauncher {
   createApp(options) {
     const app = express();
+    app.set('trust proxy', process.env.SERVICE_TRUST_PROXY ? process.env.SERVICE_TRUST_PROXY.split(',').map(value => value.trim()) : false);
     // The signed byte stream must be captured before the shared JSON parser.
     app.use('/payment/webhook', express.raw({
       type: () => true,
@@ -50,10 +51,13 @@ function createPaymentService() {
       await db.initializeMigrations();
       store = new PaymentStore();
       await store.ready();
+      const risk = new (require('../../../shared/riskVerifier').RiskVerifier)({database: store.db, cache: store.cache});
+      await risk.ready();
       await redis.getRedis().ping();
       app.use('/payment', createPaymentRouter({
         store,
-        secrets
+        secrets,
+        risk
       }));
       // REQ-00131: retain actual public currency and authenticated preference paths.
       app.use(['/currency', '/api/v1/currencies'], require('./routes/currency'));
@@ -76,6 +80,7 @@ function createPaymentService() {
       }, {
         critical: true
       });
+      health.register('risk-state', async () => {await risk.ready();return {status:'healthy'};}, {critical:true});
       health.register('redis', async () => {
         await redis.getRedis().ping();
         return {
@@ -104,6 +109,7 @@ function createPaymentService() {
     onShutdown: async () => {
       health?.stopPeriodicCheck();
       const transport = await Promise.allSettled([admin?.disconnect(), queue?.disconnect()]);
+      await require('../../../shared/mfaService').closeMFA();
       const result = [...transport, ...(await Promise.allSettled([audit.closeAuditEncryption(), db.closePools(), redis.closeRedis()]))];
       const failed = result.filter(r => r.status === 'rejected');
       if (failed.length) throw new AggregateError(failed.map(r => r.reason), 'Payment cleanup failed');

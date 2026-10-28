@@ -2690,3 +2690,95 @@ features. Full payment unit-only90/provider/prepay/receipt/UI/legalfulfill/refun
 legacyadoption/all sensitiveMFA/risk and remaining original queue/security/service/
 client/performance/operations scopes remain open. New-source CI pending publication
 to SAME draftPR6. Regenerate inventory AFTER ledger and check before stage/push.
+
+## 2026-10-28 — canonical server-session risk gating on actual payment paths
+
+Previous goal turn was progress: published85457de and independently observed its
+payment3/native45/main476/MFA8/privacy48/notification33 successes. Revalidated that
+HEAD, clean tracked tree and full active658 objective before continuing. Remaining
+exact854 jobs are now terminal: browser4/migration38 and full87 remote bootstrap
+also succeeded; dependencies315/316 passed. Legacy API105/contract401/performance144/
+integration451/security434 failed, E2E138 cancelled. These failures are retained.
+Migration38's actual original throughput report is -2.221436195290616% against
+unchanged-5 ceiling with8matching measured hashes; every earlier positive/negative
+round stays archived. This is prior-source evidence, not newrisk CI/fullperformance.
+
+Read originalREQ588 and REQ200 and followed their actual server/factor prerequisites.
+Old RiskEvaluator/SensitiveOperationGuard remain unmounted: they trust claimed
+verification headers, client location, stale paths and flawed history/results.
+Actual payment previously checked only JWT signature; revoke/session/epoch checks
+were absent at its private business routes. New canonical shared riskVerifier
+checks UUID server registrations, revocation, current user/MFA state and canonical
+schema ownership at gateway and independently at payment. Missing or obsolete
+registrations require new login; unavailable dependencies refuse the operation.
+The gateway verifies session; actual service scores before create/owned verify.
+No provider callback risk bypass: public raw callbacks still require channelHMAC.
+
+Five bounded server contributions30/25/20/15/10 use current authenticated session
+context, observed-vs-registered address, atomic realRedis-time request counts,
+recent refusal history and signed session age. Total0–100; >=50 requires a real
+purpose proof and >=80 blocks even a validproof. Explicit server-policy large tier
+(default10000fen, positiveintegerPAYMENT_LARGE_TRANSACTION_FEN) derives from catalog
+price*validatedquantity and always requires large-transaction; elevated normal tier
+uses payment-purchase. Client declared amount/geo/device/verified/risk headers do
+not lower the score. This is not full REQ200's operation/method policy system or
+physical trusted-device/GeoIP/history-provider acceptance. UA and IP comparisons
+are conservative current-session signals with these limitations explicitly recorded.
+
+A code review found that canonical credential epoch alone did NOT prove this
+session completed MFA: a primary-only session could be issued during pending setup
+and share the epoch later enabled. Actual completed-factor login now records an
+immutable server mfaAuthenticated flag; it cannot be set through caller headers or
+device metadata. Refresh requires its registered session and same current epoch,
+rejects primary-only enabled-MFA sessions and inherits the server assurance only.
+Separate server refreshExpiresAt matches the signed refresh expiry so access expiry
+does not truncate refresh lifetime. Changed factors/old registrations need re-login.
+Actual user HTTP minting and payment HTTP verification test this across services.
+
+Every authorization decision needs a canonical encrypted traced audit receipt before
+business execution. Payload contains bounded factors/policy/decision and only hashes
+of address/agent/session; no raw bearer, proof, factor or key. Missing audit/state
+refuses without creating an order. SQL owner/idempotency/settlement locking remains
+unchanged. Actual user MFA proofs must match owner, exact bearer, scope, current
+epoch and absolute<=5minutes; wrongscope/session, expiry and criticalcontext refuse.
+The API client explicitly supplies an optional transient per-request proof, retains
+only whitelisted challenge scope and never persists proof/redirect or automatically
+replays/refreshes payments. Complete purchase/verification UI remains open.
+
+Service ingress now trusts only configured SERVICE_TRUST_PROXY peers (defaultfalse).
+Gateway trust is independently explicit; its HTTP proxy overwrites forwarded and
+real-IP claims with its own resolved client address and removes Forwarded. Actual
+native payment through trusted loopback ingress proves a forged caller forwarding
+header cannot alter risk source. Gateway/payment initialization and readiness check
+canonical risk tables. Old user/gateway startup/shutdown boundaries still pass.
+Operational production peer configuration and all other original ops remain open.
+
+Final sequential nice10/UV2 checks: risk17(no skips) at96.88line88.52branch100function
+with91line/90function/80branch gates; original payment22 at100line97.02branch100func;
+NYC97.76stat93.69branch100line/function with91/80gates; canonicalMFA26 at99.42line
+83.48branch100func with90line/functiongates. Main unit command passed, lastJest463
+plus9audit/5MFA (27Jest477), combined client/projection16Node checks (client12
+including parent and4projection), gatewayproxy two new
+trusted/untrusted cases. Combined real payment2+old user/gateway2=4native/full87
+pass. Browser first failed before any UI scenario because default executable1243
+was absent; explicitly selected EXISTING Chrome145.0.7632.6 and all6 actual game/
+serviceworker/SQL/Redis cases pass. Missing-executable negative log retained, no
+browser skips/fake pass. New risk's first run13pass/2fail(parent included) was a
+fixture assertion using resource_id instead of canonicalentity_id; fixed query,
+original encrypted/trace assertions retained, no schema alteration. Syntax1482,
+audit-tool12 and direct-runtime-logging/workflow parse checks pass. Wrong-root npm
+invocation never ran its suite; corrected --prefix command did, with no pass claimed
+for the failed invocation. All87original pending SQL/locks/V1/manifests unchanged.
+
+All three owned PG40/Redis/Kafka test containers stopped normally; unrelated OpenClaw
+and existing performance/slowquery fixtures untouched. No Maven/CPU saturation/
+subagents/new requirements/provider or recipient messages/production cleanup/rekey/
+merge/deploy. OriginalREQ200 status ONLY new->in_progress; all10 boxes and targets
+preserved. Ledger50 source-matching partial/verified records, sole619verified;
+176done54progress428new=658originals. OriginalREQ588fourboxes, REQ638ten and all
+other original criteria remain open where full scope is not independently proven.
+Current newrisk-source CI pending sameDraftPR6 publication. Continue remaining
+P0sensitiveAPI/password/payment-binding/asset/privacy/admin risk policies, full
+operation/method/verification/UI flows, physicaldevice/provider, queue/service/
+client/security/performance/operations and final658 audit. Regenerate inventory
+AFTER final ledger and check immediately before staging/publishing.

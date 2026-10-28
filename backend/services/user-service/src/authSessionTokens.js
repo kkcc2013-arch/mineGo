@@ -5,9 +5,10 @@ const {
   signAccess,
   signRefresh,
   verifyAccess,
+  verifyRefresh,
   AppError
 } = require('../../../shared/auth');
-async function issueTokens(user, deviceInfo = {}, credentialEpoch = null) {
+async function issueTokens(user, deviceInfo = {}, credentialEpoch = null, {mfaAuthenticated = false} = {}) {
   const jti = crypto.randomUUID(),
     now = Math.floor(Date.now() / 1000);
   const epoch = credentialEpoch ? {
@@ -27,8 +28,9 @@ async function issueTokens(user, deviceInfo = {}, credentialEpoch = null) {
     ...epoch
   });
   const expiresAt = verifyAccess(accessToken).exp;
+  const refreshExpiresAt = verifyRefresh(refreshToken).exp;
   try {
-    await require('../../../shared/JwtBlacklist').getJwtBlacklist().registerSession(jti, user.id, expiresAt, deviceInfo);
+    await require('../../../shared/JwtBlacklist').getJwtBlacklist().registerSession(jti, user.id, expiresAt, {...deviceInfo, refreshExpiresAt, mfaEpoch: credentialEpoch, mfaAuthenticated: Boolean(mfaAuthenticated && credentialEpoch)});
   } catch {
     throw new AppError(9002, 'AUTH_SESSION_UNAVAILABLE', 503);
   }

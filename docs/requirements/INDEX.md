@@ -205,7 +205,7 @@
 | [REQ-00197](REQ-00197-pokemon-talent-and-hidden-attribute-system.md) | 精灵天赋系统与隐藏属性机制 | 功能增强 | P1 | new | pokemon-service、catch-service、gym-service、gateway、game-client、database/migrations | 2026-06-14 14:00 |
 | [REQ-00198](REQ-00198-game-pace-control-and-slow-motion-system.md) | 游戏节奏控制与慢速模式系统 | 无障碍(a11y) | P2 | new | game-client、frontend/game-client/src/game、frontend/game-client/src/accessibility、gateway | 2026-06-14 14:00 |
 | [REQ-00199](REQ-00199-data-lineage-tracking-and-impact-analysis.md) | 数据血缘追踪与影响分析系统 | 数据库/数据治理 | P1 | new | gateway、所有微服务、backend/shared、database、infrastructure/k8s/monitoring | 2026-06-14 15:00 |
-| [REQ-00200](REQ-00200-sensitive-operation-risk-verification-system.md) | 敏感操作二次验证与风险分级验证系统 | 安全加固 | P1 | new | gateway、user-service、payment-service、social-service、backend/shared/riskVerifier.js、game-client | 2026-06-14 15:05 |
+| [REQ-00200](REQ-00200-sensitive-operation-risk-verification-system.md) | 敏感操作二次验证与风险分级验证系统 | 安全加固 | P1 | in_progress | gateway、user-service、payment-service、social-service、backend/shared/riskVerifier.js、game-client | 2026-06-14 15:05 |
 | [REQ-00201](REQ-00201-api-contract-version-negotiation-system.md) | API 契约版本协商与灰度兼容系统 | API 设计规范 | P1 | new | gateway、所有微服务、backend/shared、docs/api-spec | 2026-06-14 16:00 |
 | [REQ-00202](REQ-00202-security-modules-unit-test-coverage.md) | 安全模块单元测试覆盖率提升系统 | 测试覆盖 | P1 | in_progress | backend/shared、backend/tests/unit、所有微服务 | 2026-06-14 16:05 |
 | [REQ-00203](REQ-00203-distributed-tracing-opentelemetry-integration.md) | 分布式追踪与 OpenTelemetry 集成系统 | 可观测性/监控 | P1 | new | gateway、所有微服务、backend/shared/tracing、infrastructure/k8s/monitoring | 2026-06-14 17:00 |

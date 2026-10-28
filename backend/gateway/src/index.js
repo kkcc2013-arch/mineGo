@@ -456,7 +456,9 @@ app.use('/v1/raids',
 // Provider callbacks authenticate the original bytes with a channel signature.
 // Mount before the signed-user namespace so callbacks never need a user JWT.
 app.use('/v1/payment/webhook',highRiskRateLimiter(20),proxy(SERVICES.payment,url=>'/payment/webhook'+(url==='/'?'':url)));
-app.use('/v1/payment',authMiddleware,highRiskRateLimiter(20),proxy(SERVICES.payment,url=>'/payment'+(url==='/'?'':url)));
+const paymentRisk = new (require('../../shared/riskVerifier').RiskVerifier)();
+healthChecker.register('payment-risk-state', async () => {await paymentRisk.ready();return {status:'healthy'};}, {critical:true});
+app.use('/v1/payment',authMiddleware,highRiskRateLimiter(20),paymentRisk.middleware(),proxy(SERVICES.payment,url=>'/payment'+(url==='/'?'':url)));
 
 // REQ-00060 / REQ-00626: actual protected partition statistics and precreation.
 app.use('/api/partitions', authMiddleware, partitionRoutes);
@@ -535,6 +537,7 @@ const service = new GatewayLauncher({
   onInitialize: async () => {
     await db.query('SELECT 1');
     await db.initializeMigrations();
+    await paymentRisk.ready();
     const redisClient = redis.getRedis();
     await redisClient.ping();
     ipManager = initIpBanManager({ db, redis: redisClient, autoInitialize: false });

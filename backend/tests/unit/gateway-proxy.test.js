@@ -32,8 +32,9 @@ afterAll(async () => {
   await new Promise(resolve => upstream.close(resolve));
 });
 
-function gateway(options = {}, parse = true) {
+function gateway(options = {}, parse = true, trustProxy = false) {
   const server = express();
+  server.set('trust proxy', trustProxy);
   if (parse) {
     server.use(express.json());
     server.use(express.urlencoded({ extended: false }));
@@ -55,6 +56,19 @@ test('mount-relative paths and query parameters reach the static upstream', asyn
 test('a legacy rule naming the full mount prefix uses the original URL', async () => {
   const result = await request(gateway({ pathRewrite: { '^/api/v1/': '/' } })).get('/api/v1/users/123');
   expect(result.body.path).toBe('/users/123');
+});
+
+test('untrusted forwarding claims are replaced with the actual ingress peer', async () => {
+  const result = await request(gateway()).get('/api/v1/users/123').set('X-Forwarded-For','198.51.100.42').set('X-Real-IP','203.0.113.9').set('Forwarded','for=203.0.113.9');
+  expect(result.body.headers['x-forwarded-for']).toBe('127.0.0.1');
+  expect(result.body.headers['x-real-ip']).toBe('127.0.0.1');
+  expect(result.body.headers.forwarded).toBeUndefined();
+});
+
+test('explicitly trusted ingress resolves the upstream address before forwarding', async () => {
+  const result = await request(gateway({},true,'loopback')).get('/api/v1/users/123').set('X-Forwarded-For','198.51.100.42').set('X-Real-IP','203.0.113.9');
+  expect(result.body.headers['x-forwarded-for']).toBe('198.51.100.42');
+  expect(result.body.headers['x-real-ip']).toBe('198.51.100.42');
 });
 
 test('parsed JSON bodies are replayed with the correct content length', async () => {

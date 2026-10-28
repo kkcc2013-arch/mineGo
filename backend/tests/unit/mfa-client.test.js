@@ -41,6 +41,14 @@ test('actual browser API client preserves MFA boundaries and identity across asy
    api.setTokens('payment-access','payment-refresh');const key=crypto.randomUUID(),calls=[];global.fetch=async(url,opts)=>{calls.push([url,opts]);return response({code:0,data:{orderId:'owned-order'}},201);};await api.createOrder('coins_60','WECHAT',key);assert.equal(calls[0][1].headers.get('X-Idempotency-Key'),key);assert.equal(JSON.parse(calls[0][1].body).idempotencyKey,key);
    global.fetch=async(url,opts)=>{calls.push([url,opts]);return response({code:1002,message:'expired'},401);};await assert.rejects(api.createOrder('coins_60','WECHAT',key));assert.equal(calls.length,2);assert.ok(calls.every(([url])=>url.endsWith('/payment/orders')));
   });
+  await t.test('payment step-up proofs are explicit per request and challenge metadata cannot redirect or persist factors',async()=>{
+   const calls=[];global.fetch=async(url,opts)=>{calls.push([url,opts]);return response({code:'MFA_PROOF_REQUIRED',message:'MFA_PROOF_REQUIRED',data:{mfaRequired:true,scope:'large-transaction',verificationEndpoint:'https://untrusted.invalid',mfaToken:'must-not-retain'}},403);};
+   await assert.rejects(api.createOrder('coins_2500','WECHAT',crypto.randomUUID()),error=>error.message==='请完成本次操作的二次验证'&&JSON.stringify(error.verification)==='{"scope":"large-transaction","mfaRequired":true}');
+   global.fetch=async(url,opts)=>{calls.push([url,opts]);return response({code:0,data:{orderId:'owned'}});};
+   await api.createOrder('coins_2500','WECHAT',crypto.randomUUID(),{mfaToken:'owned-step-up'});assert.equal(calls.at(-1)[1].headers.get('X-MFA-Token'),'owned-step-up');
+   await api.verifyPayment('owned','signed','transaction',{mfaToken:'owned-step-up'});assert.equal(calls.at(-1)[1].headers.get('X-MFA-Token'),'owned-step-up');
+   await api.createOrder('coins_60','WECHAT');assert.equal(calls.at(-1)[1].headers.has('X-MFA-Token'),false);assert.ok(!JSON.stringify([...entries]).includes('owned-step-up'));assert.equal(calls.length,4);
+  });
   await t.test('failed storage cannot leave a half-installed token pair',()=>{
    global.localStorage={...storage,setItem:(key,value)=>{if(key==='pmg_refresh_token')throw new Error('owned quota fixture');storage.setItem(key,value);}};
    try{assert.throws(()=>api.setTokens('half-access','half-refresh'),error=>error.code==='AUTH_STORAGE_UNAVAILABLE');assert.deepEqual([...entries],[]);assert.equal(api.hasSession,false);}finally{global.localStorage=storage;}

@@ -89,13 +89,27 @@ test('actual payment routes, PostgreSQL, Redis, byte signatures and encrypted au
   };
   try {
     await pool.query(await fs.readFile(path.join(root, 'database/migrations/V1__initial_schema.sql'), 'utf8'));
-    for (const file of ['20260608_194800__add_sensitive_data_protection_tables.sql', 'repairs/20260608_200000__add_sensitive_data_audit_tables.sql', '20260607_211500__add_age_verification_coppa_tables.sql', '20261025_120000__payment_order_integrity.sql']) await apply(file);
+    for (const file of ['20260608_194800__add_sensitive_data_protection_tables.sql', 'repairs/20260608_200000__add_sensitive_data_audit_tables.sql', '20260607_211500__add_age_verification_coppa_tables.sql', '20261025_120000__payment_order_integrity.sql', '20260610_000000__add_mfa_system.sql', '20261020_120000__mfa_verification_state.sql']) await apply(file);
     await pool.query('INSERT INTO users(id,nickname,premium_coins,is_banned) VALUES($1,$2,0,false),($3,$4,0,false),($5,$6,0,false),($7,$8,0,true)', [owner, 'owned-payment', other, 'other-payment', teen, 'teen-payment', blocked, 'blocked-payment']);
     store = new PaymentStore();
     await store.ready();
+    const {RiskVerifier} = require('../../shared/riskVerifier');
+    const risk = new RiskVerifier();
+    await risk.ready();
+    const blacklist = new (require('../../shared/JwtBlacklist').JwtBlacklist)(r);
+    const tokens = new Map();
+    for (const id of [owner, other, teen, blocked]) {
+      const jti = crypto.randomUUID();
+      const signed = jwt.sign({sub: id, jti}, process.env.JWT_ACCESS_SECRET, {expiresIn: '5m'});
+      await blacklist.registerSession(jti, id, jwt.decode(signed).exp, {ip: '127.0.0.1', userAgent: 'node', mfaEpoch: null});
+      tokens.set(id, signed);
+      cacheKeys.add('sessions:user:' + id); cacheKeys.add('blacklist:user:' + id);
+      for (const key of Object.values(risk.keys(id, '127.0.0.1'))) cacheKeys.add(key);
+    }
     const app = express();
     app.use('/payment', createPaymentRouter({
       store,
+      risk,
       secrets: {
         WECHAT: secret,
         ALIPAY: secret,
@@ -106,11 +120,7 @@ test('actual payment routes, PostgreSQL, Redis, byte signatures and encrypted au
     server = http.createServer(app);
     await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
     const base = 'http://127.0.0.1:' + server.address().port;
-    const token = id => jwt.sign({
-      sub: id
-    }, process.env.JWT_ACCESS_SECRET, {
-      expiresIn: '5m'
-    });
+    const token = id => tokens.get(id);
     const call = async (route, {
       body,
       raw,

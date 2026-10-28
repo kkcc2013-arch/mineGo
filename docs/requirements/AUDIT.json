@@ -5,8 +5,8 @@
     "uniqueIds": 658,
     "declaredStatusCounts": {
       "done": 176,
-      "in_progress": 53,
-      "new": 429
+      "in_progress": 54,
+      "new": 428
     },
     "priorityCounts": {
       "P0": 52,
@@ -5807,11 +5807,11 @@
       "id": "REQ-00200",
       "title": "REQ-00200：敏感操作二次验证与风险分级验证系统",
       "priority": "P1",
-      "declaredStatus": "new",
+      "declaredStatus": "in_progress",
       "category": "安全加固",
       "modules": "gateway、user-service、payment-service、social-service、backend/shared/riskVerifier.js、game-client",
       "createdAt": "2026-06-14 15:05",
-      "sha256": "38e9d46688942c2ab7093154ea6eca69242469875fe4a65f7bc451784119c1ba",
+      "sha256": "e73a20597843761b500116251c243ee56841da6bf8eede11052d1bf680dc457d",
       "acceptance": [
         "- [ ] 敏感操作配置表完整，覆盖交易、支付、账号、精灵释放等核心场景",
         "- [ ] 用户风险画像计算准确，5 个风险因子权重正确，总分范围 0-100",
@@ -5824,8 +5824,10 @@
         "- [ ] 单元测试覆盖 riskVerifier.js 核心逻辑 ≥ 90%",
         "- [ ] 集成测试覆盖完整验证流程：触发 → 验证 → 通过 → 执行操作"
       ],
-      "verificationStatus": "not-audited",
-      "implementationReferences": [],
+      "verificationStatus": "partial_server_session_five_factor_bounds_payment_risk_mfa_verified_all_operation_methods_ui_open",
+      "implementationReferences": [
+        "backend/shared/riskVerifier.js"
+      ],
       "legacyId": null
     },
     {
@@ -15783,10 +15785,11 @@
         "- [ ] 风控系统能够有效拦截高风险行为调用。",
         "- [ ] 相关的风控日志需加密存储并支持溯源。"
       ],
-      "verificationStatus": "partial_server_verified_factor_prerequisite_pass_canonical_risk_engine_business_integration_open",
+      "verificationStatus": "partial_actual_payment_risk_cross_service_mfa_server_sessions_and_encrypted_decisions_verified_other_sensitive_apis_open",
       "implementationReferences": [
         "backend/security/src/sensitiveApiMfa.js",
         "backend/security/tests/sensitiveApiMfa.test.js",
+        "backend/shared/riskVerifier.js",
         "database/migrations/055_sensitive_api_mfa_system.sql"
       ],
       "legacyId": null

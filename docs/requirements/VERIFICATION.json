@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "requirements": {
     "REQ-00619-core-battle-engine-test-coverage-framework.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "verified",
       "documentSha256": "d92a32cc5117dfb1c20d00fec4f135f4b93c329afde1497eb97b55557bf21884",
       "sourceSha256": {
@@ -11,7 +11,7 @@
         "backend/tests/battle/context.js": "4e815529a4ba1ba8d02657bc1e8798af1c481cd277e9f64e04a2ea2be595f7c3",
         "backend/tests/battle/formulas.test.js": "40300e85e1cba36f1e9994e9cc5aa2a9af4f256b4a45b83c6fa1bb2d05b745ad",
         "backend/tests/battle/scenarios.test.js": "82ee33f17c3b2eaca95592d20d75763a2f527ae5bb238a9b6e788955fb584aad",
-        "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
         ".github/workflows/ci-cd.yml": "1572b966bb2c9c4ee3f8d2de41334552e4a63878cf604113f316e5088ce75b3a",
         "docs/api-spec/battle-engine-design.md": "bb832c9cb72847ab8a823d62022295da1e2bdee49c26f15f8eb51b10ace7b4ed"
       },
@@ -143,11 +143,20 @@
             "backend/package.json"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ]
     },
     "REQ-00053-user-privacy-preference-center-data-transparency.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "e0fe55e25b877f1dde7a97fb7953c3515be042e3501d29d3d650e66dd29f7f2a",
       "sourceSha256": {
@@ -156,11 +165,11 @@
         "backend/services/user-service/src/routes/privacy.js": "ce9bdca099991fab6397437c80bf16d38a26cc3283fe8265bf503404aa65efa6",
         "backend/services/user-service/src/index.js": "dfba6ed38b22ec2218c51a650e6784e42a94b19d2b047ed090a5f7ec4b7029f3",
         "backend/gateway/src/routes/privacyProxy.js": "b692098d7858fc7069cd5a557f941f164ec9f2d00667623a1b51ee665a19a483",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
         "backend/tests/unit/privacy-preferences.test.js": "ff1e6f9920d3b003c3284bd353d6f8138482d8700652e2b750375e06e900eab1",
         "backend/tests/regression/privacy-storage.test.js": "5e166b9018051b20b74988426d04e588823feb6f473600beeefe54b00041cc97",
         "backend/tests/regression/privacy.jest.config.json": "cd80c47f4be46595f151bdf850571e7e0bd599d5bd2e9897550999b031b7e490",
-        "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
         ".github/workflows/privacy-regression.yml": "b730aa2c9c5c6d6379f7047ed8c86f9f5a6781c1d0c619989482478e9031b79a",
         "database/pending/20261006_150000__privacy_preference_defaults_and_policy_fields.sql": "3d21e729219b771c0b94f8474e11e6adcc222b0fbfc064beeddaed3d08849c78",
         "backend/shared/logger.js": "4fd8f577c9db1860aa011216eadd9523a46a2214a80de1e0c44ff9310fb5e457",
@@ -175,7 +184,7 @@
         "backend/shared/audit/EncryptedAuditStore.js": "09643bfe5963551210670993f1fa83adac23e300a7e78c31a3e1b36408e7bcfd",
         "backend/shared/audit/cryptoPrimitives.js": "2a9ffa3819101b033c3edb58e1a2b8135b52eefb81f8a8697db7f94bfc1ef3d5",
         "backend/shared/audit/KeyProviders.js": "e380a04f73ef5e8dea1eaa92165b2f5527e9a1527800eb03766ee38551624aa8",
-        "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
         "backend/services/user-service/src/routes/gdpr.js": "5603ea37f1ab0df32b7d2bfa462f95c282fa8a2eae08f5b0e7a63bf9902f8266",
         "backend/tests/regression/audit-crypto-storage.test.js": "ab8434cfb793a9d8d380df6323734538b66a773de000af7873babe40c3999380",
         "backend/tests/regression/audit-kms-wire.test.js": "11ca121f3f229022d33c9d469d2e7faf1d2aa3e5db807d2d7aaec91e22b5e9d3",
@@ -580,12 +589,23 @@
             "database/pending/dependencies.json"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/package.json",
+            "backend/shared/ServiceLauncher.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
     },
     "REQ-00683-console-logging-migration-to-structured-logger.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "d725714839a4dcd1b92df697d7f9f2c4ff526b8b3890528511472252b3ef104a",
       "sourceSha256": {
@@ -596,7 +616,7 @@
         "backend/tests/unit/logging-migration.test.js": "880a3f2ce8660e66a951cf8ac73b617e1396ce765fb92e2d135e5bdce711dde3",
         "backend/tests/performance/logging-benchmark.js": "a9fb82d16c779c4331e6aa2e8b5b08ee081def225de421e0e67ec3c660fef255",
         "backend/tests/regression/logging.jest.config.json": "45932a32192ebfadc2c131a9b8ba6877d8b4fbae7616fe9d98958a63a57d60b2",
-        "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
         ".github/workflows/ci-cd.yml": "1572b966bb2c9c4ee3f8d2de41334552e4a63878cf604113f316e5088ce75b3a"
       },
       "evidence": [
@@ -731,16 +751,25 @@
             "backend/package.json"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "remaining": "The 5% overhead target, production output/adapters and complete legacy integration/E2E acceptance are not verified"
     },
     "REQ-00159-service-health-self-healing-and-auto-recovery-system.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "702f723e90c498db5a6d23b2e986b96c749e92229580af3542fc6972344f5f4d",
       "sourceSha256": {
-        "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
         "backend/shared/HealthChecker.js": "34983df1a723fc4bb4608f96e4fd98b75f4daca8158d075a78c4261f3860fbef",
         "backend/services/user-service/src/index.js": "dfba6ed38b22ec2218c51a650e6784e42a94b19d2b047ed090a5f7ec4b7029f3",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
@@ -748,7 +777,7 @@
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/services/user-service/src/handlers/notificationHandler.js": "542e893148bbc7ceae4aaf5764be992667cd004f54acafc7e681603236fd611a",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
         "backend/gateway/src/routes/businessEvents.js": "c7487f18ddfa60587b8f318cf1b536b08d037d8c5a57d93545b473d250c918b7",
         "backend/shared/cache.js": "1e02ac9cf3f507263f89b64f1158d339530d56c7bcd69ec9738a0e54b5d1f27e",
         "backend/shared/redis.js": "087d67b984d22a1345097105f10513df84fa874c395010167964e6b3dcc7ea4b",
@@ -1148,15 +1177,25 @@
             "database/pending/dependencies.json"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/shared/ServiceLauncher.js",
+            "backend/gateway/src/index.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ]
     },
     "REQ-00682-service-dependency-consolidation-and-initialization-refactoring.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "47013c4163012c1b6ea9d55b496c004b1e900b1b980e4192514dc78ee8b87490",
       "sourceSha256": {
-        "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
         "backend/shared/HealthChecker.js": "34983df1a723fc4bb4608f96e4fd98b75f4daca8158d075a78c4261f3860fbef",
         "backend/services/user-service/src/index.js": "dfba6ed38b22ec2218c51a650e6784e42a94b19d2b047ed090a5f7ec4b7029f3",
         "backend/tests/unit/service-launcher-lifecycle.test.js": "348b50881a1a1bb155a2448a551e6177d67040eedd4352662b27c562fbf76262",
@@ -1164,7 +1203,7 @@
         "backend/shared/EventBus.js": "917c1856044f572ba26e34468e700c70e490ebe7f835ff5c786a9baf6c127b12",
         "backend/services/user-service/src/handlers/notificationHandler.js": "542e893148bbc7ceae4aaf5764be992667cd004f54acafc7e681603236fd611a",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
         "backend/gateway/src/routes/businessEvents.js": "c7487f18ddfa60587b8f318cf1b536b08d037d8c5a57d93545b473d250c918b7",
         "backend/shared/cache.js": "1e02ac9cf3f507263f89b64f1158d339530d56c7bcd69ec9738a0e54b5d1f27e",
         "backend/shared/redis.js": "087d67b984d22a1345097105f10513df84fa874c395010167964e6b3dcc7ea4b",
@@ -1564,11 +1603,21 @@
             "database/pending/dependencies.json"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/shared/ServiceLauncher.js",
+            "backend/gateway/src/index.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ]
     },
     "REQ-00106-player-title-system-and-personalization.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "7148fc5066354e7354adeb16eca4e2742c67125c7620a1dc27cb1d739feb8327",
       "sourceSha256": {
@@ -1585,7 +1634,7 @@
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
         "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
-        "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
@@ -2012,11 +2061,20 @@
             "database/pending/dependencies.json"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ]
     },
     "REQ-00612-global-timezone-scheduler.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "acb67d84c7ef83a0335a5874fbf4809ff95c8239c95cbac5f00a409a48223dd2",
       "sourceSha256": {
@@ -2033,7 +2091,7 @@
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
         "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
-        "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
@@ -2441,11 +2499,20 @@
             "database/pending/dependencies.json"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ]
     },
     "REQ-00026-in-game-push-notification-system.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "344fb5b9107fd20457cfbd66b11d8c25d6a261cdc36cfb51e086661b4c70a6df",
       "sourceSha256": {
@@ -2462,7 +2529,7 @@
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
         "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
-        "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
@@ -2478,9 +2545,9 @@
         "backend/shared/notification/pushNotificationService.js": "e493d5d65d4cfa341538a54a2ad48236b428486e6ac90ce54b2508686c92f19e",
         "backend/shared/notification/plugins/WebSocketPlugin.js": "cbba503ca8549008a3ddd5acaba20395a4bb476ea56b107f47bffc0c66a25e17",
         "backend/shared/NotificationWebSocket.js": "bc1e9eff0386d83b4b31553e26521e36809ddee344328f3e556581a968f8ee57",
-        "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
         "backend/gateway/src/routes/notificationProxy.js": "a7e03edf9fd81343a0cad94590a26600b64fee14306d19665fed421b2f9497bd",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "backend/tests/regression/notification-client.test.js": "9a56b0116debb82aa313d0d0bf9963c247760d9763a01828755122283329ffda",
@@ -2996,6 +3063,17 @@
             "backend/gateway/src/index.js"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/package.json",
+            "backend/shared/ServiceLauncher.js",
+            "backend/gateway/src/index.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "remainingAcceptance": [
@@ -3008,7 +3086,7 @@
       ]
     },
     "REQ-00075-ip-blacklist-and-auto-ban-system.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "5f0f24eee768a901be3d6cb06e4e2907e72dca7e4db43398fe8da7e695677a8e",
       "sourceSha256": {
@@ -3016,7 +3094,7 @@
         "backend/services/user-service/src/routes/ipAppeal.js": "32bc089a25a51e5ef015eebdd4440534365b93873a53c5fcd06ad13d13c718c4",
         "backend/shared/IpBanManager.js": "8baf542bcfc6d35106433e07dd0eee25e005ad48550ca04e92ec674af043ce34",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
         "backend/gateway/src/middleware/ipBan.js": "86865494f9e51f81e9d0c9e3dd7110db6033b296c10e018316427bf5faee6396",
         "backend/gateway/src/routes/ipAppealProxy.js": "4fa6f1dc2f23739aa4274dc9a0fa9ec9f21958e289cbbe322168481105001a3d",
         "backend/tests/unit/ip-appeal.test.js": "7aa02dc701586d2922d4ba958d72e3a806e8c8b60c9c98db14246f225b101c18",
@@ -3380,11 +3458,20 @@
             "database/pending/dependencies.json"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ]
     },
     "REQ-00149-user-service-ipAppeal-route-mounting.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "1908c2353ef4f102148e015a49a26726f793d9b6daf1371ec6fb018f3f5f0bfb",
       "sourceSha256": {
@@ -3392,7 +3479,7 @@
         "backend/services/user-service/src/routes/ipAppeal.js": "32bc089a25a51e5ef015eebdd4440534365b93873a53c5fcd06ad13d13c718c4",
         "backend/shared/IpBanManager.js": "8baf542bcfc6d35106433e07dd0eee25e005ad48550ca04e92ec674af043ce34",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
         "backend/gateway/src/middleware/ipBan.js": "86865494f9e51f81e9d0c9e3dd7110db6033b296c10e018316427bf5faee6396",
         "backend/gateway/src/routes/ipAppealProxy.js": "4fa6f1dc2f23739aa4274dc9a0fa9ec9f21958e289cbbe322168481105001a3d",
         "backend/tests/unit/ip-appeal.test.js": "7aa02dc701586d2922d4ba958d72e3a806e8c8b60c9c98db14246f225b101c18",
@@ -3756,17 +3843,26 @@
             "database/pending/dependencies.json"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ]
     },
     "REQ-00039-hot-data-cache-warmup-system.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "b6be313ab0b1611e495be4a8a86eee54210caaa359f0b2dd978c097f556fa696",
       "sourceSha256": {
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
         "backend/gateway/src/routes/businessEvents.js": "c7487f18ddfa60587b8f318cf1b536b08d037d8c5a57d93545b473d250c918b7",
-        "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
         "backend/shared/cache.js": "1e02ac9cf3f507263f89b64f1158d339530d56c7bcd69ec9738a0e54b5d1f27e",
         "backend/shared/redis.js": "087d67b984d22a1345097105f10513df84fa874c395010167964e6b3dcc7ea4b",
         "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
@@ -4067,6 +4163,16 @@
             "database/pending/dependencies.json"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/shared/ServiceLauncher.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ]
     },
@@ -4084,7 +4190,7 @@
         "database/pending/20260609_124500__add_item_inventory_system.sql": "99c96061defc0b502f87147c491889266f53b9e5c8ae8cfbdcdda6892c09969e",
         "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
         "backend/services/user-service/src/index.js": "dfba6ed38b22ec2218c51a650e6784e42a94b19d2b047ed090a5f7ec4b7029f3",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
         "backend/tests/unit/migration-runner.test.js": "3ab546da820734c2961658bd75ce1d3cbe5ccfb4946f0edae9b8e1d59250a536",
         "backend/tests/regression/migration-storage.test.js": "9ceb52bb22eefe673e346ef6500302bafd18ac610c7e6fe72ad6397fba939e98",
         "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
@@ -4177,28 +4283,28 @@
         "docs/benchmarks/ci-4abdb82-2026-10-23.json": "7d290418aab99d46a3e59ee17fd1f3c81a4c7a7ac6ac3e326923bbcd379b980b",
         "docs/benchmarks/transaction-throughput-ci-4abdb82-2026-10-23.json": "c66372d68832b4d281c08143b80024d27b2b2299510d4a6cbf33d9bcd03dfade",
         ".gitignore": "b7c86a9d17b2fd13413aceb23f27c39a16f202022f4d4f757193e8a314c18d25",
-        "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
-        "backend/services/payment-service/src/index.js": "e6c4fc8774c5ae961dddef0ca6fc70283bef93bea0542f966f602c2fc17689c1",
+        "backend/services/payment-service/src/index.js": "13723856daaef5debd9f0a25b004a17b57c83cb1febc4befbf167afa77c62992",
         "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
         "backend/services/payment-service/src/payment/protocol.js": "b0e260dab91b48d5f5a5fb1f1edbb89f37a5589f117f51442b556fc37defff7c",
-        "backend/services/payment-service/src/routes/payment.js": "45625d3e3dc1f3773f48bc4371dfcdd5df6f79c107475541c8f96a86243a17d2",
+        "backend/services/payment-service/src/routes/payment.js": "82af427dd5ec64fc4249ff274cb8bf550c6dd7fbcb3bbd7d76647a9dbe5eace2",
         "backend/services/payment-service/src/routes/currency.js": "f312b6118c6306ec80c2d8512ec0e866c21d80bace070417917f08e215ba577e",
         "backend/services/payment-service/src/handlers/orderTimeoutHandler.js": "2c7a03cde2f98eabc699a4e4697c72cfab8755571da1ae7956b4362226b5dd5e",
         "backend/shared/DelayQueue.js": "67f76aca8bb9ac38a630bcaa6362b813633a60133d56e7ec471d1fb79812715b",
         "backend/tests/unit/payment.test.js": "0bb4881f9683e4ef5b517c64d0bceb375f98f861b3b3223327af78f65411121e",
         "backend/tests/unit/delay-queue.test.js": "00a468d43c584f9b6ab803d6fce1732ecbdee1394f89f5f5e1a86cfc6dff393f",
-        "backend/tests/unit/mfa-client.test.js": "335a2cdb49ec6dd313cabc84f7b62e6b6a3542af9ceb31a6e2e0d015d2d77ebf",
-        "backend/tests/regression/payment-storage.test.js": "86a63db8768cf50102ba1e17db63afdce220ced2be2e8f4b555b47e3bfd9e324",
+        "backend/tests/unit/mfa-client.test.js": "25ce74b9b7d609082e880495444f62084450b987fb7926478d26dc435005f4f7",
+        "backend/tests/regression/payment-storage.test.js": "a61748804aba0a9fe34a02cc4d0e489749ceb9dc9e3de33c0493288b6ff5e369",
         "backend/tests/regression/payment-migration.test.js": "c0233489d9b860485061c7cf9e30411022767820534ee0c3de26d8f017ec8d4e",
-        "backend/tests/regression/payment-native.test.js": "271eea4c58c6f7944e6e0de15b47a5f94f75a942b8c22f4549d5b440490f4092",
+        "backend/tests/regression/payment-native.test.js": "c1f9a58d6a5e3451f8ebf87612f5c7fe6893c0408096708dd21380459fd8d335",
         "backend/tests/regression/currency-storage.test.js": "d830e2d74ee4eb2a3c2276c1d51db09ed12ebaf3f0590f681aa925c673481e7f",
         "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
-        "backend/tests/README.md": "85e09caeb9c51c3b2b6e24e88438ea3d3a030598910e1c991cde7024a6f0c454",
+        "backend/tests/README.md": "0cf3d46a9c8ed9ecb40c94ac5e16a800461f9b270111e965197219165128f1f0",
         "database/pending/20261025_120000__payment_order_integrity.sql": "1be1bc35e9937e1ce4cc7233a9033381e1153df16f52791c8ded534a54a13a1a",
-        "frontend/game-client/src/api/client.js": "8a33ee568983fe0014d0b07c2610902d985c1aed1f555b072e85cb26b0effb04",
-        ".github/workflows/payment-regression.yml": "3b53f67416e2841ca5b0cef070a92276adfa1e39dc7ff132e3b358008739edd5",
-        "docs/PAYMENT-INTEGRITY.md": "355b5fd03a1908660fee91f9c339dd7b6f749029537ca4bf5f81634117563e9b",
+        "frontend/game-client/src/api/client.js": "82956912223bec6b541f8e4e0c98363f409aaf2d4296cede017d116412be1b76",
+        ".github/workflows/payment-regression.yml": "9518e4a5923ddeede76cef598b87bd75f6b29cedd17ca6713f5e18a71649e2b2",
+        "docs/PAYMENT-INTEGRITY.md": "337adfdf4286294b866f44a94e5adf0bdc7dccc656d1591fbce49fbb9da53793",
         "docs/benchmarks/payment-integrity-local-2026-10-25.json": "ce5889f7e53c483829d3a477abb3a2383e6fa1a2a1ff4aac6175c1f7a2572e04",
         "docs/benchmarks/ci-0637449-2026-10-25.json": "e9d886e305995df366ca95eb3920c331d882ff0f1d5abc7326e0b31629991e48",
         "docs/benchmarks/transaction-throughput-ci-0637449-2026-10-25.json": "bb1d3494e81dab84cf43d9c97249c10ec03025c5642988f315f5ba54b0a197cd",
@@ -4207,7 +4313,23 @@
         "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922",
         "docs/benchmarks/queue-cache-correction-2026-10-28.json": "52571ea80c5c7147fec13c939b65a60552b2e4b455df9de1bfc716773b514a9b",
         "docs/benchmarks/ci-c4b5ca1-2026-10-28.json": "2128b7d6e1ae226862c3b30c97beac41949114caf31c5b3353f0199e44179cdf",
-        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d"
+        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d",
+        "backend/shared/riskVerifier.js": "fe0f2fa1cfd8654e42576b2cbea02369e274c8712cafa5d4252a35a81ab17c3c",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
+        "backend/gateway/src/proxy.js": "481e7d436b0747f0c75f489efb856aad3ab20b7f27c0067d168af6d53c1205cd",
+        "backend/gateway/src/middleware/mfaRequired.js": "13eb017acccaf406f598ab17af03dab2651a971b8cf34d50207cff348107ac67",
+        "backend/services/user-service/src/authSessionTokens.js": "6aef57a343e6cdfcaaa428f29e33c0b9b988c99cd64c9e6c0db21682db639008",
+        "backend/services/user-service/src/routes/auth.js": "15ba5f0d75ed987119b16f05e0790dd8d23d049b227d53d06a68751e96366bb9",
+        "backend/services/user-service/src/routes/mfa.js": "b7d70e0f09f302d0483e48f17ecebe728d5ad09708f284454417a98c4e0016ea",
+        "backend/shared/mfa/MFAStore.js": "ef79bb60130c23f958d416001c1ed315a5e258cee93af382dd87e4f6ee2e3bc2",
+        "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
+        "backend/shared/auditLog.js": "3c267301bbd107eef77dc39c6ed85cf36d0bda991f98758c5bd8dd263716c3be",
+        "backend/tests/regression/sensitive-risk-storage.test.js": "ff1f3cc741349e6cc0fd1862906c2cfb0bd98c30c6c26cd0b6116ca60a4b2e5b",
+        "backend/tests/unit/gateway-proxy.test.js": "0fe6de71ad60276705d8f6eaf3acb44ca9e8eeccf397fec731d7058536b9948d",
+        "docs/SENSITIVE-OPERATION-RISK.md": "aacf3a3649d9345e48412dd4c1b0af6c1599e42250258225370fcc64e80a31df",
+        "docs/benchmarks/sensitive-payment-risk-2026-10-28.json": "263ddb118dab8922d2ad1394c2bd22f067e60660131b49917676fbdc581b32f1",
+        "docs/benchmarks/ci-85457de-2026-10-28.json": "7f8a36faf033d770d13f640db6456357aada0836380b2b6ec634b4e8b3ad47a7",
+        "docs/benchmarks/transaction-throughput-ci-85457de-2026-10-28.json": "37e1a58db885f45bb2263de00091ce732c0691fd32f666279382439a6a94384f"
       },
       "evidence": [
         {
@@ -4957,6 +5079,32 @@
           "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
           "ciArtifact": "docs/benchmarks/ci-c4b5ca1-2026-10-28.json",
           "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/package.json",
+            "backend/services/payment-service/src/index.js",
+            "backend/services/payment-service/src/routes/payment.js",
+            "backend/tests/unit/mfa-client.test.js",
+            "backend/tests/regression/payment-storage.test.js",
+            "backend/tests/regression/payment-native.test.js",
+            "backend/tests/README.md",
+            "frontend/game-client/src/api/client.js",
+            ".github/workflows/payment-regression.yml",
+            "docs/PAYMENT-INTEGRITY.md"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_server_session_scoped_mfa_payment_risk_business_http_crypto_pass",
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "priorCIArtifact": "docs/benchmarks/ci-85457de-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "remaining": "Complete85-source history now fails20260627_060000 statement13 missing is_deleted. Reconcile canonical inventory/ownership/contracts, all later pending files, data-preserving upgrades/reversal and all-service startup. Exact new remote throughput still unverified; all original acceptance remains open."
@@ -5756,7 +5904,7 @@
       ]
     },
     "REQ-00060-database-partitioning-for-large-tables.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "977f5774653c6250eb0e796ac0e6243512d045f17252df04c009d8ae21dce7a5",
       "sourceSha256": {
@@ -5820,7 +5968,7 @@
         "backend/shared/partitionMaintenance.js": "eb2a2169cc22fb12a54448a4c23dcfd671a8034110d15b4f7a4ae1add8fc3786",
         "backend/shared/partitionManager.js": "6cd34c463fffa999c33e7cf1c6affe11f7ed840fe55b7a34059d893aa9578a0a",
         "backend/gateway/src/routes/partitions.js": "2a0368052e9cbc616aa54065da4d982edbb049b99dbd162d2f8e992316c218d0",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
         "backend/tests/regression/partition-maintenance-storage.test.js": "56fc446bc42f1189161d5993129756a498924c14feb154470c488e9f2710102b",
         "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
@@ -6320,6 +6468,15 @@
             "backend/gateway/src/index.js"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "remaining": [
@@ -7060,6 +7217,16 @@
             "database/pending/dependencies.json"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/shared/ServiceLauncher.js",
+            "backend/gateway/src/index.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "sourceSha256": {
@@ -7074,9 +7241,9 @@
         "backend/shared/notification/pushNotificationService.js": "e493d5d65d4cfa341538a54a2ad48236b428486e6ac90ce54b2508686c92f19e",
         "backend/shared/notification/plugins/WebSocketPlugin.js": "cbba503ca8549008a3ddd5acaba20395a4bb476ea56b107f47bffc0c66a25e17",
         "backend/shared/NotificationWebSocket.js": "bc1e9eff0386d83b4b31553e26521e36809ddee344328f3e556581a968f8ee57",
-        "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
         "backend/gateway/src/routes/notificationProxy.js": "a7e03edf9fd81343a0cad94590a26600b64fee14306d19665fed421b2f9497bd",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "backend/tests/regression/notification-client.test.js": "9a56b0116debb82aa313d0d0bf9963c247760d9763a01828755122283329ffda",
@@ -7097,7 +7264,7 @@
         "database/pending/repairs/20260611_102500__add_canary_deployment_tables.sql": "af806cc8d46faf2228134f5cc1f80cdc1f7258d29cf78492ad511664b790366d",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2"
       },
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "66fc18d71bb143c4e292fb1704d11eac9c242fa4f11c4a17a5a4aec1a9459ea7",
       "remainingAcceptance": [
@@ -7448,6 +7615,16 @@
             "database/pending/dependencies.json"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/shared/ServiceLauncher.js",
+            "backend/gateway/src/index.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "sourceSha256": {
@@ -7462,9 +7639,9 @@
         "backend/shared/notification/pushNotificationService.js": "e493d5d65d4cfa341538a54a2ad48236b428486e6ac90ce54b2508686c92f19e",
         "backend/shared/notification/plugins/WebSocketPlugin.js": "cbba503ca8549008a3ddd5acaba20395a4bb476ea56b107f47bffc0c66a25e17",
         "backend/shared/NotificationWebSocket.js": "bc1e9eff0386d83b4b31553e26521e36809ddee344328f3e556581a968f8ee57",
-        "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
         "backend/gateway/src/routes/notificationProxy.js": "a7e03edf9fd81343a0cad94590a26600b64fee14306d19665fed421b2f9497bd",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "backend/tests/regression/notification-client.test.js": "9a56b0116debb82aa313d0d0bf9963c247760d9763a01828755122283329ffda",
@@ -7485,7 +7662,7 @@
         "database/pending/repairs/20260611_102500__add_canary_deployment_tables.sql": "af806cc8d46faf2228134f5cc1f80cdc1f7258d29cf78492ad511664b790366d",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2"
       },
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "89d0bb9cb00333bd1dbbc2e36bfa1b460b7ac8fa721da032b1361ba9d22efecd",
       "remainingAcceptance": [
@@ -7836,6 +8013,16 @@
             "database/pending/dependencies.json"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/shared/ServiceLauncher.js",
+            "backend/gateway/src/index.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "sourceSha256": {
@@ -7850,9 +8037,9 @@
         "backend/shared/notification/pushNotificationService.js": "e493d5d65d4cfa341538a54a2ad48236b428486e6ac90ce54b2508686c92f19e",
         "backend/shared/notification/plugins/WebSocketPlugin.js": "cbba503ca8549008a3ddd5acaba20395a4bb476ea56b107f47bffc0c66a25e17",
         "backend/shared/NotificationWebSocket.js": "bc1e9eff0386d83b4b31553e26521e36809ddee344328f3e556581a968f8ee57",
-        "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
         "backend/shared/clientIp.js": "e41b965f6c01bba902686c2bd3a107b55d676090aabf6c6fc1e75d4f6b47d3e1",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
         "backend/gateway/src/routes/notificationProxy.js": "a7e03edf9fd81343a0cad94590a26600b64fee14306d19665fed421b2f9497bd",
         "backend/tests/regression/notification-storage.test.js": "6376d81716c6baf634f901c0488826accd6c9d83f9837d1eddb2ad9f2b910506",
         "backend/tests/regression/notification-client.test.js": "9a56b0116debb82aa313d0d0bf9963c247760d9763a01828755122283329ffda",
@@ -7873,7 +8060,7 @@
         "database/pending/repairs/20260611_102500__add_canary_deployment_tables.sql": "af806cc8d46faf2228134f5cc1f80cdc1f7258d29cf78492ad511664b790366d",
         "database/pending/repairs/20260611_131000__add_friendship_system.sql": "d02842a8c5a04a510e075b01bc183975a06c296e3980bf54737d921519858cf2"
       },
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "afb2654ccb86284242fcdf8f78d87e756f4d990a08cb627642a296e9a9331d92",
       "remainingAcceptance": [
@@ -9777,7 +9964,7 @@
       ]
     },
     "REQ-00019-pokemon-moves-learning-system.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "4ff8ac9492012c4e20f34d249935eddc559d7eedf7010351d3084ada011a63fb",
       "sourceSha256": {
@@ -9797,7 +9984,7 @@
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
-        "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
@@ -10045,6 +10232,15 @@
             "backend/package.json"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "remainingAcceptance": [
@@ -10056,7 +10252,7 @@
       ]
     },
     "REQ-00146-gym-battle-damage-formula-and-type-chart.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "7927ead7a5ef1fe606c4cd75abb2c8a8b5798c237835abb02923c072527f3e83",
       "sourceSha256": {
@@ -10076,7 +10272,7 @@
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
-        "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
@@ -10324,6 +10520,15 @@
             "backend/package.json"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "remainingAcceptance": [
@@ -10561,7 +10766,7 @@
         "backend/shared/currencyFormatter.js": "f79ccb5eed24155d7a5db303bad8b8775769670084755d218de38f59a476354d",
         "backend/shared/currencyMetrics.js": "7d394c16f98f610b958c2ea0f263d2e3d0ef6924cfcadc26f633cf2371f5719d",
         "backend/services/payment-service/src/routes/currency.js": "f312b6118c6306ec80c2d8512ec0e866c21d80bace070417917f08e215ba577e",
-        "backend/services/payment-service/src/index.js": "e6c4fc8774c5ae961dddef0ca6fc70283bef93bea0542f966f602c2fc17689c1",
+        "backend/services/payment-service/src/index.js": "13723856daaef5debd9f0a25b004a17b57c83cb1febc4befbf167afa77c62992",
         "backend/tests/regression/currency-storage.test.js": "d830e2d74ee4eb2a3c2276c1d51db09ed12ebaf3f0590f681aa925c673481e7f",
         "backend/tests/probes/payment-currency-process.js": "2b15d801ae708d3ddc62486827023150ff54daf7c5bf74dad2e7d2fac7311798",
         "backend/tests/unit/currency.test.js": "155a7c7d561b2911a5da8c5a91ec5e054eb283ff8b98deca22779f4fbeb93558",
@@ -10572,7 +10777,36 @@
         "docs/CURRENCIES.md": "02ca61669686acdd8038b3ec185dd96a04a0ed6bc6014493d43120d5940676b7",
         "docs/benchmarks/queue-cache-correction-2026-10-28.json": "52571ea80c5c7147fec13c939b65a60552b2e4b455df9de1bfc716773b514a9b",
         "docs/benchmarks/ci-c4b5ca1-2026-10-28.json": "2128b7d6e1ae226862c3b30c97beac41949114caf31c5b3353f0199e44179cdf",
-        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d"
+        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d",
+        "backend/shared/riskVerifier.js": "fe0f2fa1cfd8654e42576b2cbea02369e274c8712cafa5d4252a35a81ab17c3c",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
+        "backend/gateway/src/proxy.js": "481e7d436b0747f0c75f489efb856aad3ab20b7f27c0067d168af6d53c1205cd",
+        "backend/gateway/src/middleware/mfaRequired.js": "13eb017acccaf406f598ab17af03dab2651a971b8cf34d50207cff348107ac67",
+        "backend/services/payment-service/src/routes/payment.js": "82af427dd5ec64fc4249ff274cb8bf550c6dd7fbcb3bbd7d76647a9dbe5eace2",
+        "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
+        "backend/services/payment-service/src/payment/protocol.js": "b0e260dab91b48d5f5a5fb1f1edbb89f37a5589f117f51442b556fc37defff7c",
+        "backend/services/user-service/src/authSessionTokens.js": "6aef57a343e6cdfcaaa428f29e33c0b9b988c99cd64c9e6c0db21682db639008",
+        "backend/services/user-service/src/routes/auth.js": "15ba5f0d75ed987119b16f05e0790dd8d23d049b227d53d06a68751e96366bb9",
+        "backend/services/user-service/src/routes/mfa.js": "b7d70e0f09f302d0483e48f17ecebe728d5ad09708f284454417a98c4e0016ea",
+        "backend/shared/mfa/MFAStore.js": "ef79bb60130c23f958d416001c1ed315a5e258cee93af382dd87e4f6ee2e3bc2",
+        "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
+        "backend/shared/auditLog.js": "3c267301bbd107eef77dc39c6ed85cf36d0bda991f98758c5bd8dd263716c3be",
+        "backend/tests/regression/payment-native.test.js": "c1f9a58d6a5e3451f8ebf87612f5c7fe6893c0408096708dd21380459fd8d335",
+        "backend/tests/regression/payment-storage.test.js": "a61748804aba0a9fe34a02cc4d0e489749ceb9dc9e3de33c0493288b6ff5e369",
+        "backend/tests/regression/sensitive-risk-storage.test.js": "ff1f3cc741349e6cc0fd1862906c2cfb0bd98c30c6c26cd0b6116ca60a4b2e5b",
+        "backend/tests/unit/gateway-proxy.test.js": "0fe6de71ad60276705d8f6eaf3acb44ca9e8eeccf397fec731d7058536b9948d",
+        "backend/tests/unit/mfa-client.test.js": "25ce74b9b7d609082e880495444f62084450b987fb7926478d26dc435005f4f7",
+        "frontend/game-client/src/api/client.js": "82956912223bec6b541f8e4e0c98363f409aaf2d4296cede017d116412be1b76",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
+        "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
+        ".github/workflows/payment-regression.yml": "9518e4a5923ddeede76cef598b87bd75f6b29cedd17ca6713f5e18a71649e2b2",
+        "backend/tests/README.md": "0cf3d46a9c8ed9ecb40c94ac5e16a800461f9b270111e965197219165128f1f0",
+        "docs/SENSITIVE-OPERATION-RISK.md": "aacf3a3649d9345e48412dd4c1b0af6c1599e42250258225370fcc64e80a31df",
+        "docs/PAYMENT-INTEGRITY.md": "337adfdf4286294b866f44a94e5adf0bdc7dccc656d1591fbce49fbb9da53793",
+        "docs/benchmarks/sensitive-payment-risk-2026-10-28.json": "263ddb118dab8922d2ad1394c2bd22f067e60660131b49917676fbdc581b32f1",
+        "docs/benchmarks/ci-85457de-2026-10-28.json": "7f8a36faf033d770d13f640db6456357aada0836380b2b6ec634b4e8b3ad47a7",
+        "docs/benchmarks/transaction-throughput-ci-85457de-2026-10-28.json": "37e1a58db885f45bb2263de00091ce732c0691fd32f666279382439a6a94384f"
       },
       "evidence": [
         {
@@ -10778,6 +11012,22 @@
           "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
           "ciArtifact": "docs/benchmarks/ci-c4b5ca1-2026-10-28.json",
           "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/services/payment-service/src/index.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_server_session_scoped_mfa_payment_risk_business_http_crypto_pass",
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "priorCIArtifact": "docs/benchmarks/ci-85457de-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "remaining": [
@@ -10857,7 +11107,37 @@
         "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922",
         "docs/benchmarks/queue-cache-correction-2026-10-28.json": "52571ea80c5c7147fec13c939b65a60552b2e4b455df9de1bfc716773b514a9b",
         "docs/benchmarks/ci-c4b5ca1-2026-10-28.json": "2128b7d6e1ae226862c3b30c97beac41949114caf31c5b3353f0199e44179cdf",
-        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d"
+        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d",
+        "backend/shared/riskVerifier.js": "fe0f2fa1cfd8654e42576b2cbea02369e274c8712cafa5d4252a35a81ab17c3c",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
+        "backend/gateway/src/proxy.js": "481e7d436b0747f0c75f489efb856aad3ab20b7f27c0067d168af6d53c1205cd",
+        "backend/gateway/src/middleware/mfaRequired.js": "13eb017acccaf406f598ab17af03dab2651a971b8cf34d50207cff348107ac67",
+        "backend/services/payment-service/src/index.js": "13723856daaef5debd9f0a25b004a17b57c83cb1febc4befbf167afa77c62992",
+        "backend/services/payment-service/src/routes/payment.js": "82af427dd5ec64fc4249ff274cb8bf550c6dd7fbcb3bbd7d76647a9dbe5eace2",
+        "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
+        "backend/services/payment-service/src/payment/protocol.js": "b0e260dab91b48d5f5a5fb1f1edbb89f37a5589f117f51442b556fc37defff7c",
+        "backend/services/user-service/src/authSessionTokens.js": "6aef57a343e6cdfcaaa428f29e33c0b9b988c99cd64c9e6c0db21682db639008",
+        "backend/services/user-service/src/routes/auth.js": "15ba5f0d75ed987119b16f05e0790dd8d23d049b227d53d06a68751e96366bb9",
+        "backend/services/user-service/src/routes/mfa.js": "b7d70e0f09f302d0483e48f17ecebe728d5ad09708f284454417a98c4e0016ea",
+        "backend/shared/mfa/MFAStore.js": "ef79bb60130c23f958d416001c1ed315a5e258cee93af382dd87e4f6ee2e3bc2",
+        "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
+        "backend/shared/auditLog.js": "3c267301bbd107eef77dc39c6ed85cf36d0bda991f98758c5bd8dd263716c3be",
+        "backend/tests/regression/payment-native.test.js": "c1f9a58d6a5e3451f8ebf87612f5c7fe6893c0408096708dd21380459fd8d335",
+        "backend/tests/regression/payment-storage.test.js": "a61748804aba0a9fe34a02cc4d0e489749ceb9dc9e3de33c0493288b6ff5e369",
+        "backend/tests/regression/sensitive-risk-storage.test.js": "ff1f3cc741349e6cc0fd1862906c2cfb0bd98c30c6c26cd0b6116ca60a4b2e5b",
+        "backend/tests/unit/gateway-proxy.test.js": "0fe6de71ad60276705d8f6eaf3acb44ca9e8eeccf397fec731d7058536b9948d",
+        "backend/tests/unit/mfa-client.test.js": "25ce74b9b7d609082e880495444f62084450b987fb7926478d26dc435005f4f7",
+        "frontend/game-client/src/api/client.js": "82956912223bec6b541f8e4e0c98363f409aaf2d4296cede017d116412be1b76",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
+        "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
+        ".github/workflows/payment-regression.yml": "9518e4a5923ddeede76cef598b87bd75f6b29cedd17ca6713f5e18a71649e2b2",
+        "backend/tests/README.md": "0cf3d46a9c8ed9ecb40c94ac5e16a800461f9b270111e965197219165128f1f0",
+        "docs/SENSITIVE-OPERATION-RISK.md": "aacf3a3649d9345e48412dd4c1b0af6c1599e42250258225370fcc64e80a31df",
+        "docs/PAYMENT-INTEGRITY.md": "337adfdf4286294b866f44a94e5adf0bdc7dccc656d1591fbce49fbb9da53793",
+        "docs/benchmarks/sensitive-payment-risk-2026-10-28.json": "263ddb118dab8922d2ad1394c2bd22f067e60660131b49917676fbdc581b32f1",
+        "docs/benchmarks/ci-85457de-2026-10-28.json": "7f8a36faf033d770d13f640db6456357aada0836380b2b6ec634b4e8b3ad47a7",
+        "docs/benchmarks/transaction-throughput-ci-85457de-2026-10-28.json": "37e1a58db885f45bb2263de00091ce732c0691fd32f666279382439a6a94384f"
       },
       "evidence": [
         {
@@ -11325,6 +11605,13 @@
           "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
           "ciArtifact": "docs/benchmarks/ci-c4b5ca1-2026-10-28.json",
           "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_server_session_scoped_mfa_payment_risk_business_http_crypto_pass",
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "priorCIArtifact": "docs/benchmarks/ci-85457de-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "remaining": [
@@ -12231,7 +12518,7 @@
       ]
     },
     "REQ-00016-gdpr-compliance.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_sql_verified_runtime_and_fresh_history_pass_full_acceptance_open",
       "documentSha256": "0e4b74e6e33e9e38b1b6b1acb60df77071ee8d8ed4f57f085fefbaf1f8ce6bb9",
       "sourceSha256": {
@@ -12262,7 +12549,7 @@
         "backend/shared/audit/cryptoPrimitives.js": "2a9ffa3819101b033c3edb58e1a2b8135b52eefb81f8a8697db7f94bfc1ef3d5",
         "backend/shared/audit/KeyProviders.js": "e380a04f73ef5e8dea1eaa92165b2f5527e9a1527800eb03766ee38551624aa8",
         "backend/shared/privacyPreferences.js": "b53545398ecaae442a160761d66626fce664f1f10461c49a193c147d7f2b84cf",
-        "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
         "backend/services/user-service/src/routes/privacy.js": "ce9bdca099991fab6397437c80bf16d38a26cc3283fe8265bf503404aa65efa6",
         "backend/tests/regression/audit-crypto-storage.test.js": "ab8434cfb793a9d8d380df6323734538b66a773de000af7873babe40c3999380",
         "backend/tests/regression/audit-kms-wire.test.js": "11ca121f3f229022d33c9d469d2e7faf1d2aa3e5db807d2d7aaec91e22b5e9d3",
@@ -12273,7 +12560,7 @@
         "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "backend/tests/unit/auditLog.test.js": "129d92b8c127d8cb0be99971b3c438560bb3d6714b9e91cdaf2e5d0f1008adf9",
         "backend/tests/unit/privacy-preferences.test.js": "ff1e6f9920d3b003c3284bd353d6f8138482d8700652e2b750375e06e900eab1",
-        "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "docs/AUDIT-ENCRYPTION.md": "227244af459af83941348bd721e952722c8132967833df154eae90b051f5a8a2",
         "docs/SENSITIVE-AUDIT-STORAGE.md": "3d9f2b933a804a7831f51d818cccbb08f3d633e623e6890360d4a3694b2deddf",
@@ -12435,6 +12722,16 @@
             "backend/package.json"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/shared/ServiceLauncher.js",
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ]
     },
@@ -12587,7 +12884,7 @@
       ]
     },
     "REQ-00078-canary-deployment-and-traffic-splitting.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_sql_verified_runtime_and_fresh_history_pass_full_acceptance_open",
       "documentSha256": "25823b679de8a6833cf0a3949ad00123769eda8419fdff1141be31bec2981994",
       "sourceSha256": {
@@ -12607,7 +12904,7 @@
         "backend/gateway/src/middleware/auth.js": "7679c07044463a6aacf085eab04abefdf3f1f11dc1f47dacb0ff83bad03fdcce",
         "backend/gateway/src/middleware/canaryRouter.js": "8e06cc373a594a3a0f464f9052cf4f447a97a6957af3c4ae10948f7cd86453ed",
         "backend/gateway/src/routes/canary.js": "2919433b6ed012125b58bb522e497c9a574d7e488127bf562dac4b2e390a169d",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
         "scripts/canary-cli.js": "55af26b715eee3c508a85e1be6909a39b923267b936860edbcf590d356c9b815",
         ".github/workflows/canary-deploy.yml": "873f89716acd7d2632999c14a8155594668f1b522c4fb46db1186eefd4a74b29",
         "backend/tests/regression/canary-schema-storage.test.js": "18bc7caffb2b93568aff590318e2fdbc3874f183c29b7d80efd14be1a15d7ffc",
@@ -12726,11 +13023,20 @@
             "backend/gateway/src/index.js"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ]
     },
     "REQ-00626-database-partitioning-strategy.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_runtime_storage_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "e5cc8dcac57ef88b0bfe924ac96b99a543c5dfa8c32a2c6db02659dd4dda5c1c",
       "sourceSha256": {
@@ -12743,7 +13049,7 @@
         "backend/shared/partitionMaintenance.js": "eb2a2169cc22fb12a54448a4c23dcfd671a8034110d15b4f7a4ae1add8fc3786",
         "backend/shared/partitionManager.js": "6cd34c463fffa999c33e7cf1c6affe11f7ed840fe55b7a34059d893aa9578a0a",
         "backend/gateway/src/routes/partitions.js": "2a0368052e9cbc616aa54065da4d982edbb049b99dbd162d2f8e992316c218d0",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
         "backend/tests/regression/partition-maintenance-storage.test.js": "56fc446bc42f1189161d5993129756a498924c14feb154470c488e9f2710102b",
         "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
@@ -12882,6 +13188,15 @@
             "backend/gateway/src/index.js"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ]
     },
@@ -12898,8 +13213,8 @@
         "backend/shared/cdc/PgCDCListener.js": "e89725a3447e797376434f7fae4800ee1152da5bfa61db1c0f6fbb040982bf4e",
         "backend/shared/cdc/index.js": "fde729fafa94217faee27e1675f22ef3fd0cef6eb95925b448102a4bfbec3875",
         "backend/shared/cdc/cache-rules.yml": "84660897aa4d95532fc8dfc713fa1160e0dae9c20acd15643f198622672c58cb",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
-        "backend/gateway/src/proxy.js": "619d307da0e4e8531c54f4abfa8feaed8a86b930b01c5cdc07cb0c081c477db1",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
+        "backend/gateway/src/proxy.js": "481e7d436b0747f0c75f489efb856aad3ab20b7f27c0067d168af6d53c1205cd",
         "backend/gateway/src/routes/cacheInvalidationRoutes.js": "85619b0b7a6618f70e21efe29ac6d0db43004a8d0b68922958fd5bec22e31f6e",
         "backend/tests/regression/cdc-invalidation-storage.test.js": "19d4aa4806109909046fca882d55cc2e03f9fd0476d7e0b9e0f237de2c5c364f",
         "backend/tests/regression/cdc-cache-runtime.test.js": "080844f0c4635f82c5aa9428bfdd139f440027dc74d9b505870b5a83552d22bf",
@@ -13106,6 +13421,16 @@
           "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
           "ciArtifact": "docs/benchmarks/ci-c4b5ca1-2026-10-28.json",
           "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/gateway/src/proxy.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "remaining": "Preserve original4 criteria each, including100ms/50ms. Complete production/capacity and no-significant-database-load acceptance are open; all legacy cache consumers and cross-environment/provider/upgrade/reversal behavior are not accepted. Current source CI must be observed. Only original battle framework619 remains independently verified."
@@ -13123,8 +13448,8 @@
         "backend/shared/cdc/PgCDCListener.js": "e89725a3447e797376434f7fae4800ee1152da5bfa61db1c0f6fbb040982bf4e",
         "backend/shared/cdc/index.js": "fde729fafa94217faee27e1675f22ef3fd0cef6eb95925b448102a4bfbec3875",
         "backend/shared/cdc/cache-rules.yml": "84660897aa4d95532fc8dfc713fa1160e0dae9c20acd15643f198622672c58cb",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
-        "backend/gateway/src/proxy.js": "619d307da0e4e8531c54f4abfa8feaed8a86b930b01c5cdc07cb0c081c477db1",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
+        "backend/gateway/src/proxy.js": "481e7d436b0747f0c75f489efb856aad3ab20b7f27c0067d168af6d53c1205cd",
         "backend/gateway/src/routes/cacheInvalidationRoutes.js": "85619b0b7a6618f70e21efe29ac6d0db43004a8d0b68922958fd5bec22e31f6e",
         "backend/tests/regression/cdc-invalidation-storage.test.js": "19d4aa4806109909046fca882d55cc2e03f9fd0476d7e0b9e0f237de2c5c364f",
         "backend/tests/regression/cdc-cache-runtime.test.js": "080844f0c4635f82c5aa9428bfdd139f440027dc74d9b505870b5a83552d22bf",
@@ -13331,6 +13656,16 @@
           "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
           "ciArtifact": "docs/benchmarks/ci-c4b5ca1-2026-10-28.json",
           "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/gateway/src/proxy.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "remaining": "Preserve original4 criteria each, including100ms/50ms. Complete production/capacity and no-significant-database-load acceptance are open; all legacy cache consumers and cross-environment/provider/upgrade/reversal behavior are not accepted. Current source CI must be observed. Only original battle framework619 remains independently verified."
@@ -13452,7 +13787,7 @@
         "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
         "backend/tests/regression/audit-crypto-storage.test.js": "ab8434cfb793a9d8d380df6323734538b66a773de000af7873babe40c3999380",
         "backend/tests/regression/audit-kms-wire.test.js": "11ca121f3f229022d33c9d469d2e7faf1d2aa3e5db807d2d7aaec91e22b5e9d3",
-        "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/seeds/V2__seed_data.sql": "7c85c2d07999a4c8e5bad2d07324456b101a909c0e77fb73f0ff2d31879ed355",
@@ -13462,7 +13797,7 @@
         "docs/benchmarks/ci-f671847-2026-10-19.json": "1be0d29197bd56c322328f8a4b342183b2c89c99947f073e490e1994709b7c37",
         "docs/benchmarks/transaction-throughput-ci-f671847-2026-10-19.json": "d7deb161b24b904fb2263e2a3697edb3a6b886c4e70b22b370bfb529e4b6f834",
         "backend/shared/privacyPreferences.js": "b53545398ecaae442a160761d66626fce664f1f10461c49a193c147d7f2b84cf",
-        "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
         "backend/services/user-service/src/routes/privacy.js": "ce9bdca099991fab6397437c80bf16d38a26cc3283fe8265bf503404aa65efa6",
         "backend/services/user-service/src/routes/gdpr.js": "5603ea37f1ab0df32b7d2bfa462f95c282fa8a2eae08f5b0e7a63bf9902f8266",
         "backend/services/user-service/src/index.js": "dfba6ed38b22ec2218c51a650e6784e42a94b19d2b047ed090a5f7ec4b7029f3",
@@ -13480,11 +13815,11 @@
         "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
         "backend/shared/auth.js": "f97ba49f230a9ac6b5c6ce51583b7f41a0178775d9da85cda47b1ddfd670dfe0",
         "backend/shared/JwtBlacklist.js": "6749c600e8f5f8e2a52a3c19feddcc36a7614f89a7fcd351e99f5792958b545f",
-        "backend/gateway/src/middleware/mfaRequired.js": "896e8fa81c3dd8e39c2ad4a47515203c6bbd7ff8184f02a5a5889edd3314e003",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
-        "backend/services/user-service/src/routes/mfa.js": "85c97f4d8c0641c5e366264f0e87f0645b001bdcb682a25c16b99735e069d79e",
-        "backend/services/user-service/src/routes/auth.js": "029a6d23d3a91eea263f0ece6ade96105a9f4d47f99c836285ad6294e18649ad",
-        "backend/services/user-service/src/authSessionTokens.js": "7044dd0b8e925a4149440a5c15f942abdc0f8aaa9d192ae251fe5bb5cad889a8",
+        "backend/gateway/src/middleware/mfaRequired.js": "13eb017acccaf406f598ab17af03dab2651a971b8cf34d50207cff348107ac67",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
+        "backend/services/user-service/src/routes/mfa.js": "b7d70e0f09f302d0483e48f17ecebe728d5ad09708f284454417a98c4e0016ea",
+        "backend/services/user-service/src/routes/auth.js": "15ba5f0d75ed987119b16f05e0790dd8d23d049b227d53d06a68751e96366bb9",
+        "backend/services/user-service/src/authSessionTokens.js": "6aef57a343e6cdfcaaa428f29e33c0b9b988c99cd64c9e6c0db21682db639008",
         "backend/tests/unit/mfa.test.js": "6f20346e13fdb2cb0d8fdcc84b3fce54891993e994afc177d08278cb2f6b23c5",
         "backend/tests/unit/mfa-primitives.test.js": "b8bc21558e189addcd8ab87384cbeef34e6763a61056c7a269a2b936e52c8ea5",
         "backend/tests/regression/mfa.jest.config.json": "46e35a51ba45004a8be7ba10faf863bd2f8dc057ca15d08714c398282a299fdb",
@@ -13511,7 +13846,7 @@
         "docs/benchmarks/ci-45d1562-2026-10-23.json": "8bbf0ad2748b942dfbd2078871f244e6805b878e3ade10bf2ff5231e6cde8c62",
         "docs/benchmarks/transaction-throughput-ci-45d1562-2026-10-23.json": "c7b30d84408128f4f5b8cd9d70442d4628dea55c33e54a9609a6b02aa5c0bd9a",
         "frontend/game-client/index.html": "cbee53edcbb8d641308a4d63ea048b3c269329120cf8fb3ca1141077cb645658",
-        "frontend/game-client/src/api/client.js": "8a33ee568983fe0014d0b07c2610902d985c1aed1f555b072e85cb26b0effb04",
+        "frontend/game-client/src/api/client.js": "82956912223bec6b541f8e4e0c98363f409aaf2d4296cede017d116412be1b76",
         "frontend/game-client/src/main.js": "3a0699afed0f1388e03ef287f817b2e2ec6b32d7bd9ce32d78d7313e92eb745e",
         "frontend/game-client/src/components/MFASetup.js": "c813d3aa630237014c5e7a1839b67048642c144b9e61a0c0107d7151f294ee2c",
         "frontend/game-client/src/components/MFAVerify.js": "9fc2ac91dc14a5869568788e043d6d9ea481c0338c65f235c8b48e58c03a31f0",
@@ -13521,7 +13856,7 @@
         "frontend/game-client/package.json": "aa41d55f80d83376dd765b0fae2594855a94c227695e8999adbb43fd112ee9ab",
         "frontend/game-client/package-lock.json": "7f700cdab2c54920fe1623c61176e0937005b608759141975b8a84d4b38f07dd",
         "backend/tests/regression/mfa-browser-storage.test.js": "89e74251add694837494094415b47d07eaa9e9cfddaa70ff7ef39febf8783db0",
-        "backend/tests/unit/mfa-client.test.js": "335a2cdb49ec6dd313cabc84f7b62e6b6a3542af9ceb31a6e2e0d015d2d77ebf",
+        "backend/tests/unit/mfa-client.test.js": "25ce74b9b7d609082e880495444f62084450b987fb7926478d26dc435005f4f7",
         ".github/workflows/mfa-client-regression.yml": "c6058109906220dc6c589ac720670cca9ecf69f9cf618097dba4157f078a220e",
         "docs/benchmarks/mfa-client-local-2026-10-23.json": "d566048016ec4b291afe93b6061b2c6fbf896120bcc943d6fb9513ae560493fc",
         "docs/benchmarks/mfa-client-2026-10-23/mfa-login-mobile.png": "6a5b237b02810bda64ef1faa25dc056aab7db6a89892e397c8cd122d6efd8e5b",
@@ -13530,24 +13865,24 @@
         "docs/benchmarks/ci-4abdb82-2026-10-23.json": "7d290418aab99d46a3e59ee17fd1f3c81a4c7a7ac6ac3e326923bbcd379b980b",
         "docs/benchmarks/transaction-throughput-ci-4abdb82-2026-10-23.json": "c66372d68832b4d281c08143b80024d27b2b2299510d4a6cbf33d9bcd03dfade",
         ".gitignore": "b7c86a9d17b2fd13413aceb23f27c39a16f202022f4d4f757193e8a314c18d25",
-        "backend/services/payment-service/src/index.js": "e6c4fc8774c5ae961dddef0ca6fc70283bef93bea0542f966f602c2fc17689c1",
+        "backend/services/payment-service/src/index.js": "13723856daaef5debd9f0a25b004a17b57c83cb1febc4befbf167afa77c62992",
         "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
         "backend/services/payment-service/src/payment/protocol.js": "b0e260dab91b48d5f5a5fb1f1edbb89f37a5589f117f51442b556fc37defff7c",
-        "backend/services/payment-service/src/routes/payment.js": "45625d3e3dc1f3773f48bc4371dfcdd5df6f79c107475541c8f96a86243a17d2",
+        "backend/services/payment-service/src/routes/payment.js": "82af427dd5ec64fc4249ff274cb8bf550c6dd7fbcb3bbd7d76647a9dbe5eace2",
         "backend/services/payment-service/src/routes/currency.js": "f312b6118c6306ec80c2d8512ec0e866c21d80bace070417917f08e215ba577e",
         "backend/services/payment-service/src/handlers/orderTimeoutHandler.js": "2c7a03cde2f98eabc699a4e4697c72cfab8755571da1ae7956b4362226b5dd5e",
         "backend/shared/DelayQueue.js": "67f76aca8bb9ac38a630bcaa6362b813633a60133d56e7ec471d1fb79812715b",
         "backend/tests/unit/payment.test.js": "0bb4881f9683e4ef5b517c64d0bceb375f98f861b3b3223327af78f65411121e",
         "backend/tests/unit/delay-queue.test.js": "00a468d43c584f9b6ab803d6fce1732ecbdee1394f89f5f5e1a86cfc6dff393f",
-        "backend/tests/regression/payment-storage.test.js": "86a63db8768cf50102ba1e17db63afdce220ced2be2e8f4b555b47e3bfd9e324",
+        "backend/tests/regression/payment-storage.test.js": "a61748804aba0a9fe34a02cc4d0e489749ceb9dc9e3de33c0493288b6ff5e369",
         "backend/tests/regression/payment-migration.test.js": "c0233489d9b860485061c7cf9e30411022767820534ee0c3de26d8f017ec8d4e",
-        "backend/tests/regression/payment-native.test.js": "271eea4c58c6f7944e6e0de15b47a5f94f75a942b8c22f4549d5b440490f4092",
+        "backend/tests/regression/payment-native.test.js": "c1f9a58d6a5e3451f8ebf87612f5c7fe6893c0408096708dd21380459fd8d335",
         "backend/tests/regression/currency-storage.test.js": "d830e2d74ee4eb2a3c2276c1d51db09ed12ebaf3f0590f681aa925c673481e7f",
         "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
-        "backend/tests/README.md": "85e09caeb9c51c3b2b6e24e88438ea3d3a030598910e1c991cde7024a6f0c454",
+        "backend/tests/README.md": "0cf3d46a9c8ed9ecb40c94ac5e16a800461f9b270111e965197219165128f1f0",
         "database/pending/20261025_120000__payment_order_integrity.sql": "1be1bc35e9937e1ce4cc7233a9033381e1153df16f52791c8ded534a54a13a1a",
-        ".github/workflows/payment-regression.yml": "3b53f67416e2841ca5b0cef070a92276adfa1e39dc7ff132e3b358008739edd5",
-        "docs/PAYMENT-INTEGRITY.md": "355b5fd03a1908660fee91f9c339dd7b6f749029537ca4bf5f81634117563e9b",
+        ".github/workflows/payment-regression.yml": "9518e4a5923ddeede76cef598b87bd75f6b29cedd17ca6713f5e18a71649e2b2",
+        "docs/PAYMENT-INTEGRITY.md": "337adfdf4286294b866f44a94e5adf0bdc7dccc656d1591fbce49fbb9da53793",
         "docs/benchmarks/payment-integrity-local-2026-10-25.json": "ce5889f7e53c483829d3a477abb3a2383e6fa1a2a1ff4aac6175c1f7a2572e04",
         "docs/benchmarks/ci-0637449-2026-10-25.json": "e9d886e305995df366ca95eb3920c331d882ff0f1d5abc7326e0b31629991e48",
         "docs/benchmarks/transaction-throughput-ci-0637449-2026-10-25.json": "bb1d3494e81dab84cf43d9c97249c10ec03025c5642988f315f5ba54b0a197cd",
@@ -13557,7 +13892,15 @@
         "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922",
         "docs/benchmarks/queue-cache-correction-2026-10-28.json": "52571ea80c5c7147fec13c939b65a60552b2e4b455df9de1bfc716773b514a9b",
         "docs/benchmarks/ci-c4b5ca1-2026-10-28.json": "2128b7d6e1ae226862c3b30c97beac41949114caf31c5b3353f0199e44179cdf",
-        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d"
+        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d",
+        "backend/shared/riskVerifier.js": "fe0f2fa1cfd8654e42576b2cbea02369e274c8712cafa5d4252a35a81ab17c3c",
+        "backend/gateway/src/proxy.js": "481e7d436b0747f0c75f489efb856aad3ab20b7f27c0067d168af6d53c1205cd",
+        "backend/tests/regression/sensitive-risk-storage.test.js": "ff1f3cc741349e6cc0fd1862906c2cfb0bd98c30c6c26cd0b6116ca60a4b2e5b",
+        "backend/tests/unit/gateway-proxy.test.js": "0fe6de71ad60276705d8f6eaf3acb44ca9e8eeccf397fec731d7058536b9948d",
+        "docs/SENSITIVE-OPERATION-RISK.md": "aacf3a3649d9345e48412dd4c1b0af6c1599e42250258225370fcc64e80a31df",
+        "docs/benchmarks/sensitive-payment-risk-2026-10-28.json": "263ddb118dab8922d2ad1394c2bd22f067e60660131b49917676fbdc581b32f1",
+        "docs/benchmarks/ci-85457de-2026-10-28.json": "7f8a36faf033d770d13f640db6456357aada0836380b2b6ec634b4e8b3ad47a7",
+        "docs/benchmarks/transaction-throughput-ci-85457de-2026-10-28.json": "37e1a58db885f45bb2263de00091ce732c0691fd32f666279382439a6a94384f"
       },
       "evidence": [
         {
@@ -13855,12 +14198,43 @@
           "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
           "ciArtifact": "docs/benchmarks/ci-c4b5ca1-2026-10-28.json",
           "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/package.json",
+            "backend/shared/ServiceLauncher.js",
+            "backend/gateway/src/middleware/mfaRequired.js",
+            "backend/gateway/src/index.js",
+            "backend/services/user-service/src/routes/mfa.js",
+            "backend/services/user-service/src/routes/auth.js",
+            "backend/services/user-service/src/authSessionTokens.js",
+            "frontend/game-client/src/api/client.js",
+            "backend/tests/unit/mfa-client.test.js",
+            "backend/services/payment-service/src/index.js",
+            "backend/services/payment-service/src/routes/payment.js",
+            "backend/tests/regression/payment-storage.test.js",
+            "backend/tests/regression/payment-native.test.js",
+            "backend/tests/README.md",
+            ".github/workflows/payment-regression.yml",
+            "docs/PAYMENT-INTEGRITY.md"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_server_session_scoped_mfa_payment_risk_business_http_crypto_pass",
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "priorCIArtifact": "docs/benchmarks/ci-85457de-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "remaining": "Original10criteria unchanged. Actual signedL2+serverMFA+reason protected decrypt/audit-service-query/sensitive-access-query and transactional receipts implemented; known structuredP0aliases filtered. Full frontend/provisioning/admin governance/approvedL3exports, all sensitive business/denied attempts and legacy callers/jobs/ignoredfalse, originalallresponse/unstructured/custommask/atleast10types/scannerfailP0 and fullcombinedunit>=90 remain open. LiveAWS/IAM/keypolicy/CloudTrail/availability/latency unverified. Unknownlegacykeys/tags/timestamp provenance never guessed. Sensitive lookup is bounded lookahead, not complete export; old common helpers remain metadata. No productioncleanup/rekey/merge/deploy."
     },
     "REQ-00202-security-modules-unit-test-coverage.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_common_and_encrypted_audit_coverage_verified_other_security_modules_open",
       "documentSha256": "d021da3f49a98fa1dd9649a99f2bfb8e9905bc16a356823679dcf051ddbc1e06",
       "sourceSha256": {
@@ -13870,7 +14244,7 @@
         "backend/shared/audit/cryptoPrimitives.js": "2a9ffa3819101b033c3edb58e1a2b8135b52eefb81f8a8697db7f94bfc1ef3d5",
         "backend/shared/audit/KeyProviders.js": "e380a04f73ef5e8dea1eaa92165b2f5527e9a1527800eb03766ee38551624aa8",
         "backend/shared/privacyPreferences.js": "b53545398ecaae442a160761d66626fce664f1f10461c49a193c147d7f2b84cf",
-        "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
         "backend/services/user-service/src/routes/privacy.js": "ce9bdca099991fab6397437c80bf16d38a26cc3283fe8265bf503404aa65efa6",
         "backend/services/user-service/src/routes/gdpr.js": "5603ea37f1ab0df32b7d2bfa462f95c282fa8a2eae08f5b0e7a63bf9902f8266",
         "backend/services/user-service/src/index.js": "dfba6ed38b22ec2218c51a650e6784e42a94b19d2b047ed090a5f7ec4b7029f3",
@@ -13883,7 +14257,7 @@
         "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "backend/tests/unit/auditLog.test.js": "129d92b8c127d8cb0be99971b3c438560bb3d6714b9e91cdaf2e5d0f1008adf9",
         "backend/tests/unit/privacy-preferences.test.js": "ff1e6f9920d3b003c3284bd353d6f8138482d8700652e2b750375e06e900eab1",
-        "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
         "docs/AUDIT-ENCRYPTION.md": "227244af459af83941348bd721e952722c8132967833df154eae90b051f5a8a2",
@@ -13893,11 +14267,11 @@
         "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
         "backend/shared/auth.js": "f97ba49f230a9ac6b5c6ce51583b7f41a0178775d9da85cda47b1ddfd670dfe0",
         "backend/shared/JwtBlacklist.js": "6749c600e8f5f8e2a52a3c19feddcc36a7614f89a7fcd351e99f5792958b545f",
-        "backend/gateway/src/middleware/mfaRequired.js": "896e8fa81c3dd8e39c2ad4a47515203c6bbd7ff8184f02a5a5889edd3314e003",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
-        "backend/services/user-service/src/routes/mfa.js": "85c97f4d8c0641c5e366264f0e87f0645b001bdcb682a25c16b99735e069d79e",
-        "backend/services/user-service/src/routes/auth.js": "029a6d23d3a91eea263f0ece6ade96105a9f4d47f99c836285ad6294e18649ad",
-        "backend/services/user-service/src/authSessionTokens.js": "7044dd0b8e925a4149440a5c15f942abdc0f8aaa9d192ae251fe5bb5cad889a8",
+        "backend/gateway/src/middleware/mfaRequired.js": "13eb017acccaf406f598ab17af03dab2651a971b8cf34d50207cff348107ac67",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
+        "backend/services/user-service/src/routes/mfa.js": "b7d70e0f09f302d0483e48f17ecebe728d5ad09708f284454417a98c4e0016ea",
+        "backend/services/user-service/src/routes/auth.js": "15ba5f0d75ed987119b16f05e0790dd8d23d049b227d53d06a68751e96366bb9",
+        "backend/services/user-service/src/authSessionTokens.js": "6aef57a343e6cdfcaaa428f29e33c0b9b988c99cd64c9e6c0db21682db639008",
         "backend/tests/unit/mfa.test.js": "6f20346e13fdb2cb0d8fdcc84b3fce54891993e994afc177d08278cb2f6b23c5",
         "backend/tests/unit/mfa-primitives.test.js": "b8bc21558e189addcd8ab87384cbeef34e6763a61056c7a269a2b936e52c8ea5",
         "backend/tests/regression/mfa.jest.config.json": "46e35a51ba45004a8be7ba10faf863bd2f8dc057ca15d08714c398282a299fdb",
@@ -13921,7 +14295,7 @@
         "backend/tests/unit/sensitive-fields.test.js": "40ce1c746e4a8555e4d3b7c5c330df588204d069078fb1af997354115b5d9b27",
         "docs/benchmarks/admin-audit-local-2026-10-23.json": "f6e182768943e7e8d30ccfd2ccad3312728c8656bd3f669a76edaf5afc14b94c",
         "frontend/game-client/index.html": "cbee53edcbb8d641308a4d63ea048b3c269329120cf8fb3ca1141077cb645658",
-        "frontend/game-client/src/api/client.js": "8a33ee568983fe0014d0b07c2610902d985c1aed1f555b072e85cb26b0effb04",
+        "frontend/game-client/src/api/client.js": "82956912223bec6b541f8e4e0c98363f409aaf2d4296cede017d116412be1b76",
         "frontend/game-client/src/main.js": "3a0699afed0f1388e03ef287f817b2e2ec6b32d7bd9ce32d78d7313e92eb745e",
         "frontend/game-client/src/components/MFASetup.js": "c813d3aa630237014c5e7a1839b67048642c144b9e61a0c0107d7151f294ee2c",
         "frontend/game-client/src/components/MFAVerify.js": "9fc2ac91dc14a5869568788e043d6d9ea481c0338c65f235c8b48e58c03a31f0",
@@ -13931,7 +14305,7 @@
         "frontend/game-client/package.json": "aa41d55f80d83376dd765b0fae2594855a94c227695e8999adbb43fd112ee9ab",
         "frontend/game-client/package-lock.json": "7f700cdab2c54920fe1623c61176e0937005b608759141975b8a84d4b38f07dd",
         "backend/tests/regression/mfa-browser-storage.test.js": "89e74251add694837494094415b47d07eaa9e9cfddaa70ff7ef39febf8783db0",
-        "backend/tests/unit/mfa-client.test.js": "335a2cdb49ec6dd313cabc84f7b62e6b6a3542af9ceb31a6e2e0d015d2d77ebf",
+        "backend/tests/unit/mfa-client.test.js": "25ce74b9b7d609082e880495444f62084450b987fb7926478d26dc435005f4f7",
         ".github/workflows/mfa-client-regression.yml": "c6058109906220dc6c589ac720670cca9ecf69f9cf618097dba4157f078a220e",
         "docs/benchmarks/mfa-client-local-2026-10-23.json": "d566048016ec4b291afe93b6061b2c6fbf896120bcc943d6fb9513ae560493fc",
         "docs/benchmarks/mfa-client-2026-10-23/mfa-login-mobile.png": "6a5b237b02810bda64ef1faa25dc056aab7db6a89892e397c8cd122d6efd8e5b",
@@ -14075,12 +14449,29 @@
             "backend/tests/unit/mfa-client.test.js"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/shared/ServiceLauncher.js",
+            "backend/package.json",
+            "backend/gateway/src/middleware/mfaRequired.js",
+            "backend/gateway/src/index.js",
+            "backend/services/user-service/src/routes/mfa.js",
+            "backend/services/user-service/src/routes/auth.js",
+            "backend/services/user-service/src/authSessionTokens.js",
+            "frontend/game-client/src/api/client.js",
+            "backend/tests/unit/mfa-client.test.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "remaining": "All11 security modules eachoriginal85/90coverage, correctmock/stub isolation, retainedcleanup, whole npmtest/CI and completeunitexecution<30s still need independent evidence. Partialnewaudit gates do not accept this framework."
     },
     "REQ-00638-multi-factor-authentication-mfa-system.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_canonical_mfa_sessions_http_game_client_and_offline_boundaries_verified",
       "documentSha256": "0ebe2ef64ee0c2654b6dc5ebc598e306ffce9e341439a8123335ab4b557c701e",
       "sourceSha256": {
@@ -14088,12 +14479,12 @@
         "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
         "backend/shared/auth.js": "f97ba49f230a9ac6b5c6ce51583b7f41a0178775d9da85cda47b1ddfd670dfe0",
         "backend/shared/JwtBlacklist.js": "6749c600e8f5f8e2a52a3c19feddcc36a7614f89a7fcd351e99f5792958b545f",
-        "backend/gateway/src/middleware/mfaRequired.js": "896e8fa81c3dd8e39c2ad4a47515203c6bbd7ff8184f02a5a5889edd3314e003",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+        "backend/gateway/src/middleware/mfaRequired.js": "13eb017acccaf406f598ab17af03dab2651a971b8cf34d50207cff348107ac67",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
         "backend/services/user-service/src/index.js": "dfba6ed38b22ec2218c51a650e6784e42a94b19d2b047ed090a5f7ec4b7029f3",
-        "backend/services/user-service/src/routes/mfa.js": "85c97f4d8c0641c5e366264f0e87f0645b001bdcb682a25c16b99735e069d79e",
-        "backend/services/user-service/src/routes/auth.js": "029a6d23d3a91eea263f0ece6ade96105a9f4d47f99c836285ad6294e18649ad",
-        "backend/services/user-service/src/authSessionTokens.js": "7044dd0b8e925a4149440a5c15f942abdc0f8aaa9d192ae251fe5bb5cad889a8",
+        "backend/services/user-service/src/routes/mfa.js": "b7d70e0f09f302d0483e48f17ecebe728d5ad09708f284454417a98c4e0016ea",
+        "backend/services/user-service/src/routes/auth.js": "15ba5f0d75ed987119b16f05e0790dd8d23d049b227d53d06a68751e96366bb9",
+        "backend/services/user-service/src/authSessionTokens.js": "6aef57a343e6cdfcaaa428f29e33c0b9b988c99cd64c9e6c0db21682db639008",
         "backend/shared/auditLog.js": "3c267301bbd107eef77dc39c6ed85cf36d0bda991f98758c5bd8dd263716c3be",
         "backend/shared/auditLogEncrypted.js": "6db1529a78bbfa1d967b898ed453d314a290fdd58e95c2dc8b3cec9fc1d6fb44",
         "backend/shared/audit/EncryptedAuditStore.js": "09643bfe5963551210670993f1fa83adac23e300a7e78c31a3e1b36408e7bcfd",
@@ -14109,7 +14500,7 @@
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
         "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
-        "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
         "database/pending/20260610_000000__add_mfa_system.sql": "652b95497f7f28727a4dc07f9469a8a6f5c51b3c4fb58917a2a8c071b4720a65",
@@ -14130,7 +14521,7 @@
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
         "docs/benchmarks/admin-audit-local-2026-10-23.json": "f6e182768943e7e8d30ccfd2ccad3312728c8656bd3f669a76edaf5afc14b94c",
         "frontend/game-client/index.html": "cbee53edcbb8d641308a4d63ea048b3c269329120cf8fb3ca1141077cb645658",
-        "frontend/game-client/src/api/client.js": "8a33ee568983fe0014d0b07c2610902d985c1aed1f555b072e85cb26b0effb04",
+        "frontend/game-client/src/api/client.js": "82956912223bec6b541f8e4e0c98363f409aaf2d4296cede017d116412be1b76",
         "frontend/game-client/src/main.js": "3a0699afed0f1388e03ef287f817b2e2ec6b32d7bd9ce32d78d7313e92eb745e",
         "frontend/game-client/src/components/MFASetup.js": "c813d3aa630237014c5e7a1839b67048642c144b9e61a0c0107d7151f294ee2c",
         "frontend/game-client/src/components/MFAVerify.js": "9fc2ac91dc14a5869568788e043d6d9ea481c0338c65f235c8b48e58c03a31f0",
@@ -14140,7 +14531,7 @@
         "frontend/game-client/package.json": "aa41d55f80d83376dd765b0fae2594855a94c227695e8999adbb43fd112ee9ab",
         "frontend/game-client/package-lock.json": "7f700cdab2c54920fe1623c61176e0937005b608759141975b8a84d4b38f07dd",
         "backend/tests/regression/mfa-browser-storage.test.js": "89e74251add694837494094415b47d07eaa9e9cfddaa70ff7ef39febf8783db0",
-        "backend/tests/unit/mfa-client.test.js": "335a2cdb49ec6dd313cabc84f7b62e6b6a3542af9ceb31a6e2e0d015d2d77ebf",
+        "backend/tests/unit/mfa-client.test.js": "25ce74b9b7d609082e880495444f62084450b987fb7926478d26dc435005f4f7",
         ".github/workflows/mfa-client-regression.yml": "c6058109906220dc6c589ac720670cca9ecf69f9cf618097dba4157f078a220e",
         "docs/benchmarks/mfa-client-local-2026-10-23.json": "d566048016ec4b291afe93b6061b2c6fbf896120bcc943d6fb9513ae560493fc",
         "docs/benchmarks/mfa-client-2026-10-23/mfa-login-mobile.png": "6a5b237b02810bda64ef1faa25dc056aab7db6a89892e397c8cd122d6efd8e5b",
@@ -14149,7 +14540,25 @@
         "docs/benchmarks/ci-0637449-2026-10-25.json": "e9d886e305995df366ca95eb3920c331d882ff0f1d5abc7326e0b31629991e48",
         "docs/benchmarks/transaction-throughput-ci-0637449-2026-10-25.json": "bb1d3494e81dab84cf43d9c97249c10ec03025c5642988f315f5ba54b0a197cd",
         "docs/benchmarks/ci-4ad9ac6-2026-10-26.json": "ea5bbe08b30ffe51e2f02a244112d5f3654aacfbf1fa6a7546549cef06cb5dc6",
-        "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922"
+        "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922",
+        "backend/shared/riskVerifier.js": "fe0f2fa1cfd8654e42576b2cbea02369e274c8712cafa5d4252a35a81ab17c3c",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
+        "backend/gateway/src/proxy.js": "481e7d436b0747f0c75f489efb856aad3ab20b7f27c0067d168af6d53c1205cd",
+        "backend/services/payment-service/src/index.js": "13723856daaef5debd9f0a25b004a17b57c83cb1febc4befbf167afa77c62992",
+        "backend/services/payment-service/src/routes/payment.js": "82af427dd5ec64fc4249ff274cb8bf550c6dd7fbcb3bbd7d76647a9dbe5eace2",
+        "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
+        "backend/services/payment-service/src/payment/protocol.js": "b0e260dab91b48d5f5a5fb1f1edbb89f37a5589f117f51442b556fc37defff7c",
+        "backend/tests/regression/payment-native.test.js": "c1f9a58d6a5e3451f8ebf87612f5c7fe6893c0408096708dd21380459fd8d335",
+        "backend/tests/regression/payment-storage.test.js": "a61748804aba0a9fe34a02cc4d0e489749ceb9dc9e3de33c0493288b6ff5e369",
+        "backend/tests/regression/sensitive-risk-storage.test.js": "ff1f3cc741349e6cc0fd1862906c2cfb0bd98c30c6c26cd0b6116ca60a4b2e5b",
+        "backend/tests/unit/gateway-proxy.test.js": "0fe6de71ad60276705d8f6eaf3acb44ca9e8eeccf397fec731d7058536b9948d",
+        ".github/workflows/payment-regression.yml": "9518e4a5923ddeede76cef598b87bd75f6b29cedd17ca6713f5e18a71649e2b2",
+        "backend/tests/README.md": "0cf3d46a9c8ed9ecb40c94ac5e16a800461f9b270111e965197219165128f1f0",
+        "docs/SENSITIVE-OPERATION-RISK.md": "aacf3a3649d9345e48412dd4c1b0af6c1599e42250258225370fcc64e80a31df",
+        "docs/PAYMENT-INTEGRITY.md": "337adfdf4286294b866f44a94e5adf0bdc7dccc656d1591fbce49fbb9da53793",
+        "docs/benchmarks/sensitive-payment-risk-2026-10-28.json": "263ddb118dab8922d2ad1394c2bd22f067e60660131b49917676fbdc581b32f1",
+        "docs/benchmarks/ci-85457de-2026-10-28.json": "7f8a36faf033d770d13f640db6456357aada0836380b2b6ec634b4e8b3ad47a7",
+        "docs/benchmarks/transaction-throughput-ci-85457de-2026-10-28.json": "37e1a58db885f45bb2263de00091ce732c0691fd32f666279382439a6a94384f"
       },
       "evidence": [
         {
@@ -14250,12 +14659,35 @@
           "result": "exact_prior_main474_native43_mfa6_browser2_migration36_pass_payment1_failed",
           "artifact": "docs/benchmarks/ci-4ad9ac6-2026-10-26.json",
           "scope": "Payment1 failed real cold fixture with missing UUID function; core/report/native skipped and not accepted. Main/native/MFA/browser/migration and full87remote pass; originalthroughput-2.5356768476389013% against-5 and8hashesmatch archived. Priorpositive/negative reports retained; otherlegacyfailures preserved. Corrected remote CI pending, no allgreen/wholegoal claim."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/middleware/mfaRequired.js",
+            "backend/gateway/src/index.js",
+            "backend/services/user-service/src/routes/mfa.js",
+            "backend/services/user-service/src/routes/auth.js",
+            "backend/services/user-service/src/authSessionTokens.js",
+            "backend/package.json",
+            "frontend/game-client/src/api/client.js",
+            "backend/tests/unit/mfa-client.test.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_server_session_scoped_mfa_payment_risk_business_http_crypto_pass",
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "priorCIArtifact": "docs/benchmarks/ci-85457de-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
-      "remaining": "Original10criteria/targets unchanged. Actualbackendfactors/sessions/locks/epoch/proofs and gameenrollment/login/recovery/regeneration/disable/cancel/browserstoragebounds work. PhysicalGoogleAuthenticatorQRscan/manualinterop and originalend-to-end>=99percentproductsuccess, seven-daytrusteddevices, everysensitivepassword/payment/admin/riskbusinessscope, realSMSprovider, fullmonitoring/metrics/alerts/originalproductimpact and productionacceptance remainopen. Controlled500/500referencewindows and scoped90line/functioncoverage do not accept device/network/allbusinesscriteria. No remembereddeviceflag:serverexplicitlyrefuses whilecontractopen."
+      "remaining": "Original10criteria/targets unchanged. Actualbackendfactors/sessions/locks/epoch/proofs and gameenrollment/login/recovery/regeneration/disable/cancel/browserstoragebounds work. PhysicalGoogleAuthenticatorQRscan/manualinterop and originalend-to-end>=99percentproductsuccess, seven-daytrusteddevices, everysensitivepassword/payment/admin/riskbusinessscope, realSMSprovider, fullmonitoring/metrics/alerts/originalproductimpact and productionacceptance remainopen. Controlled500/500referencewindows and scoped90line/functioncoverage do not accept device/network/allbusinesscriteria. No remembereddeviceflag:serverexplicitlyrefuses whilecontractopen. Current payment creation/verification now uses canonical session/purpose proofs with server factor assurance and independent refresh expiry; complete all other sensitive paths/password/payment binding and product/device/provider criteria remain open."
     },
     "REQ-00126-user-service-mfa-route-mounting.md": {
-      "date": "2026-10-25",
+      "date": "2026-10-28",
       "status": "partial_actual_native_aliases_and_original_three_static_commands_pass_literal_forged_token_curl_conflict_open",
       "documentSha256": "de911ca6abd25dc8c3bb84811c8ecedd21025ac32adc898d3b47776fb0153dba",
       "sourceSha256": {
@@ -14263,12 +14695,12 @@
         "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
         "backend/shared/auth.js": "f97ba49f230a9ac6b5c6ce51583b7f41a0178775d9da85cda47b1ddfd670dfe0",
         "backend/shared/JwtBlacklist.js": "6749c600e8f5f8e2a52a3c19feddcc36a7614f89a7fcd351e99f5792958b545f",
-        "backend/gateway/src/middleware/mfaRequired.js": "896e8fa81c3dd8e39c2ad4a47515203c6bbd7ff8184f02a5a5889edd3314e003",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+        "backend/gateway/src/middleware/mfaRequired.js": "13eb017acccaf406f598ab17af03dab2651a971b8cf34d50207cff348107ac67",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
         "backend/services/user-service/src/index.js": "dfba6ed38b22ec2218c51a650e6784e42a94b19d2b047ed090a5f7ec4b7029f3",
-        "backend/services/user-service/src/routes/mfa.js": "85c97f4d8c0641c5e366264f0e87f0645b001bdcb682a25c16b99735e069d79e",
-        "backend/services/user-service/src/routes/auth.js": "029a6d23d3a91eea263f0ece6ade96105a9f4d47f99c836285ad6294e18649ad",
-        "backend/services/user-service/src/authSessionTokens.js": "7044dd0b8e925a4149440a5c15f942abdc0f8aaa9d192ae251fe5bb5cad889a8",
+        "backend/services/user-service/src/routes/mfa.js": "b7d70e0f09f302d0483e48f17ecebe728d5ad09708f284454417a98c4e0016ea",
+        "backend/services/user-service/src/routes/auth.js": "15ba5f0d75ed987119b16f05e0790dd8d23d049b227d53d06a68751e96366bb9",
+        "backend/services/user-service/src/authSessionTokens.js": "6aef57a343e6cdfcaaa428f29e33c0b9b988c99cd64c9e6c0db21682db639008",
         "backend/shared/auditLog.js": "3c267301bbd107eef77dc39c6ed85cf36d0bda991f98758c5bd8dd263716c3be",
         "backend/shared/auditLogEncrypted.js": "6db1529a78bbfa1d967b898ed453d314a290fdd58e95c2dc8b3cec9fc1d6fb44",
         "backend/shared/audit/EncryptedAuditStore.js": "09643bfe5963551210670993f1fa83adac23e300a7e78c31a3e1b36408e7bcfd",
@@ -14284,7 +14716,7 @@
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
         "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
-        "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
         "database/pending/20260610_000000__add_mfa_system.sql": "652b95497f7f28727a4dc07f9469a8a6f5c51b3c4fb58917a2a8c071b4720a65",
@@ -14298,7 +14730,7 @@
         "docs/benchmarks/ci-89caae1-2026-10-20.json": "14e30ad105edf8d9c3baa3aecceb6ea8e8925ca3ea2f316082978eac928ba2a9",
         "docs/benchmarks/transaction-throughput-ci-d2daf86-2026-10-20.json": "d888a4fdea28111f6f2cd7f85d88a9e0a431df7f5de355032938cbaa3a5b9183",
         "frontend/game-client/index.html": "cbee53edcbb8d641308a4d63ea048b3c269329120cf8fb3ca1141077cb645658",
-        "frontend/game-client/src/api/client.js": "8a33ee568983fe0014d0b07c2610902d985c1aed1f555b072e85cb26b0effb04",
+        "frontend/game-client/src/api/client.js": "82956912223bec6b541f8e4e0c98363f409aaf2d4296cede017d116412be1b76",
         "frontend/game-client/src/main.js": "3a0699afed0f1388e03ef287f817b2e2ec6b32d7bd9ce32d78d7313e92eb745e",
         "frontend/game-client/src/components/MFASetup.js": "c813d3aa630237014c5e7a1839b67048642c144b9e61a0c0107d7151f294ee2c",
         "frontend/game-client/src/components/MFAVerify.js": "9fc2ac91dc14a5869568788e043d6d9ea481c0338c65f235c8b48e58c03a31f0",
@@ -14308,7 +14740,7 @@
         "frontend/game-client/package.json": "aa41d55f80d83376dd765b0fae2594855a94c227695e8999adbb43fd112ee9ab",
         "frontend/game-client/package-lock.json": "7f700cdab2c54920fe1623c61176e0937005b608759141975b8a84d4b38f07dd",
         "backend/tests/regression/mfa-browser-storage.test.js": "89e74251add694837494094415b47d07eaa9e9cfddaa70ff7ef39febf8783db0",
-        "backend/tests/unit/mfa-client.test.js": "335a2cdb49ec6dd313cabc84f7b62e6b6a3542af9ceb31a6e2e0d015d2d77ebf",
+        "backend/tests/unit/mfa-client.test.js": "25ce74b9b7d609082e880495444f62084450b987fb7926478d26dc435005f4f7",
         ".github/workflows/mfa-client-regression.yml": "c6058109906220dc6c589ac720670cca9ecf69f9cf618097dba4157f078a220e",
         "docs/benchmarks/mfa-client-local-2026-10-23.json": "d566048016ec4b291afe93b6061b2c6fbf896120bcc943d6fb9513ae560493fc",
         "docs/benchmarks/mfa-client-2026-10-23/mfa-login-mobile.png": "6a5b237b02810bda64ef1faa25dc056aab7db6a89892e397c8cd122d6efd8e5b",
@@ -14392,25 +14824,41 @@
             "backend/tests/unit/mfa-client.test.js"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/middleware/mfaRequired.js",
+            "backend/gateway/src/index.js",
+            "backend/services/user-service/src/routes/mfa.js",
+            "backend/services/user-service/src/routes/auth.js",
+            "backend/services/user-service/src/authSessionTokens.js",
+            "backend/package.json",
+            "frontend/game-client/src/api/client.js",
+            "backend/tests/unit/mfa-client.test.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "remaining": "All original4 boxes retained. Syntax/grep/load commands pass; authenticated native aliases reachable. Original curl -sf with literal forged Bearer test_token gets401 as required by signed authentication; command cannot securely succeed as written. Preserve conflict, do not whitelist token or silently rewrite criterion. Native38 and dedicatedMFA1 pass at d2daf86; main469 inventory failure retained; corrected main470 and dedicatedMFA2 passed at89caae1; separate migration31 throughput failed."
     },
     "REQ-00588-sensitive-api-mfa-risk-grading.md": {
-      "date": "2026-10-25",
-      "status": "partial_server_verified_factor_prerequisite_pass_canonical_risk_engine_business_integration_open",
+      "date": "2026-10-28",
+      "status": "partial_actual_payment_risk_cross_service_mfa_server_sessions_and_encrypted_decisions_verified_other_sensitive_apis_open",
       "documentSha256": "2993073cb0a0038363a2d4ea93f847c7dac3660aecfddef204e0565305384742",
       "sourceSha256": {
         "backend/shared/mfa/MFAStore.js": "ef79bb60130c23f958d416001c1ed315a5e258cee93af382dd87e4f6ee2e3bc2",
         "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
         "backend/shared/auth.js": "f97ba49f230a9ac6b5c6ce51583b7f41a0178775d9da85cda47b1ddfd670dfe0",
         "backend/shared/JwtBlacklist.js": "6749c600e8f5f8e2a52a3c19feddcc36a7614f89a7fcd351e99f5792958b545f",
-        "backend/gateway/src/middleware/mfaRequired.js": "896e8fa81c3dd8e39c2ad4a47515203c6bbd7ff8184f02a5a5889edd3314e003",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+        "backend/gateway/src/middleware/mfaRequired.js": "13eb017acccaf406f598ab17af03dab2651a971b8cf34d50207cff348107ac67",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
         "backend/services/user-service/src/index.js": "dfba6ed38b22ec2218c51a650e6784e42a94b19d2b047ed090a5f7ec4b7029f3",
-        "backend/services/user-service/src/routes/mfa.js": "85c97f4d8c0641c5e366264f0e87f0645b001bdcb682a25c16b99735e069d79e",
-        "backend/services/user-service/src/routes/auth.js": "029a6d23d3a91eea263f0ece6ade96105a9f4d47f99c836285ad6294e18649ad",
-        "backend/services/user-service/src/authSessionTokens.js": "7044dd0b8e925a4149440a5c15f942abdc0f8aaa9d192ae251fe5bb5cad889a8",
+        "backend/services/user-service/src/routes/mfa.js": "b7d70e0f09f302d0483e48f17ecebe728d5ad09708f284454417a98c4e0016ea",
+        "backend/services/user-service/src/routes/auth.js": "15ba5f0d75ed987119b16f05e0790dd8d23d049b227d53d06a68751e96366bb9",
+        "backend/services/user-service/src/authSessionTokens.js": "6aef57a343e6cdfcaaa428f29e33c0b9b988c99cd64c9e6c0db21682db639008",
         "backend/shared/auditLog.js": "3c267301bbd107eef77dc39c6ed85cf36d0bda991f98758c5bd8dd263716c3be",
         "backend/shared/auditLogEncrypted.js": "6db1529a78bbfa1d967b898ed453d314a290fdd58e95c2dc8b3cec9fc1d6fb44",
         "backend/shared/audit/EncryptedAuditStore.js": "09643bfe5963551210670993f1fa83adac23e300a7e78c31a3e1b36408e7bcfd",
@@ -14426,7 +14874,7 @@
         "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
         "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
         "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
-        "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
         "database/pending/20260610_000000__add_mfa_system.sql": "652b95497f7f28727a4dc07f9469a8a6f5c51b3c4fb58917a2a8c071b4720a65",
@@ -14447,7 +14895,7 @@
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
         "docs/benchmarks/admin-audit-local-2026-10-23.json": "f6e182768943e7e8d30ccfd2ccad3312728c8656bd3f669a76edaf5afc14b94c",
         "frontend/game-client/index.html": "cbee53edcbb8d641308a4d63ea048b3c269329120cf8fb3ca1141077cb645658",
-        "frontend/game-client/src/api/client.js": "8a33ee568983fe0014d0b07c2610902d985c1aed1f555b072e85cb26b0effb04",
+        "frontend/game-client/src/api/client.js": "82956912223bec6b541f8e4e0c98363f409aaf2d4296cede017d116412be1b76",
         "frontend/game-client/src/main.js": "3a0699afed0f1388e03ef287f817b2e2ec6b32d7bd9ce32d78d7313e92eb745e",
         "frontend/game-client/src/components/MFASetup.js": "c813d3aa630237014c5e7a1839b67048642c144b9e61a0c0107d7151f294ee2c",
         "frontend/game-client/src/components/MFAVerify.js": "9fc2ac91dc14a5869568788e043d6d9ea481c0338c65f235c8b48e58c03a31f0",
@@ -14457,12 +14905,30 @@
         "frontend/game-client/package.json": "aa41d55f80d83376dd765b0fae2594855a94c227695e8999adbb43fd112ee9ab",
         "frontend/game-client/package-lock.json": "7f700cdab2c54920fe1623c61176e0937005b608759141975b8a84d4b38f07dd",
         "backend/tests/regression/mfa-browser-storage.test.js": "89e74251add694837494094415b47d07eaa9e9cfddaa70ff7ef39febf8783db0",
-        "backend/tests/unit/mfa-client.test.js": "335a2cdb49ec6dd313cabc84f7b62e6b6a3542af9ceb31a6e2e0d015d2d77ebf",
+        "backend/tests/unit/mfa-client.test.js": "25ce74b9b7d609082e880495444f62084450b987fb7926478d26dc435005f4f7",
         ".github/workflows/mfa-client-regression.yml": "c6058109906220dc6c589ac720670cca9ecf69f9cf618097dba4157f078a220e",
         "docs/benchmarks/mfa-client-local-2026-10-23.json": "d566048016ec4b291afe93b6061b2c6fbf896120bcc943d6fb9513ae560493fc",
         "docs/benchmarks/mfa-client-2026-10-23/mfa-login-mobile.png": "6a5b237b02810bda64ef1faa25dc056aab7db6a89892e397c8cd122d6efd8e5b",
         "docs/benchmarks/mfa-client-2026-10-23/mfa-enabled-mobile.png": "f802313dd9a007afef3cb0b76cb983a8d44a81e646ac86df049df49c44a19a51",
-        "docs/benchmarks/mfa-client-2026-10-23/mfa-enabled-desktop.png": "058144a535885276adefa93e08f2d1d698b5b7458f64b15adf227f8212ba55d2"
+        "docs/benchmarks/mfa-client-2026-10-23/mfa-enabled-desktop.png": "058144a535885276adefa93e08f2d1d698b5b7458f64b15adf227f8212ba55d2",
+        "backend/shared/riskVerifier.js": "fe0f2fa1cfd8654e42576b2cbea02369e274c8712cafa5d4252a35a81ab17c3c",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
+        "backend/gateway/src/proxy.js": "481e7d436b0747f0c75f489efb856aad3ab20b7f27c0067d168af6d53c1205cd",
+        "backend/services/payment-service/src/index.js": "13723856daaef5debd9f0a25b004a17b57c83cb1febc4befbf167afa77c62992",
+        "backend/services/payment-service/src/routes/payment.js": "82af427dd5ec64fc4249ff274cb8bf550c6dd7fbcb3bbd7d76647a9dbe5eace2",
+        "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
+        "backend/services/payment-service/src/payment/protocol.js": "b0e260dab91b48d5f5a5fb1f1edbb89f37a5589f117f51442b556fc37defff7c",
+        "backend/tests/regression/payment-native.test.js": "c1f9a58d6a5e3451f8ebf87612f5c7fe6893c0408096708dd21380459fd8d335",
+        "backend/tests/regression/payment-storage.test.js": "a61748804aba0a9fe34a02cc4d0e489749ceb9dc9e3de33c0493288b6ff5e369",
+        "backend/tests/regression/sensitive-risk-storage.test.js": "ff1f3cc741349e6cc0fd1862906c2cfb0bd98c30c6c26cd0b6116ca60a4b2e5b",
+        "backend/tests/unit/gateway-proxy.test.js": "0fe6de71ad60276705d8f6eaf3acb44ca9e8eeccf397fec731d7058536b9948d",
+        ".github/workflows/payment-regression.yml": "9518e4a5923ddeede76cef598b87bd75f6b29cedd17ca6713f5e18a71649e2b2",
+        "backend/tests/README.md": "0cf3d46a9c8ed9ecb40c94ac5e16a800461f9b270111e965197219165128f1f0",
+        "docs/SENSITIVE-OPERATION-RISK.md": "aacf3a3649d9345e48412dd4c1b0af6c1599e42250258225370fcc64e80a31df",
+        "docs/PAYMENT-INTEGRITY.md": "337adfdf4286294b866f44a94e5adf0bdc7dccc656d1591fbce49fbb9da53793",
+        "docs/benchmarks/sensitive-payment-risk-2026-10-28.json": "263ddb118dab8922d2ad1394c2bd22f067e60660131b49917676fbdc581b32f1",
+        "docs/benchmarks/ci-85457de-2026-10-28.json": "7f8a36faf033d770d13f640db6456357aada0836380b2b6ec634b4e8b3ad47a7",
+        "docs/benchmarks/transaction-throughput-ci-85457de-2026-10-28.json": "37e1a58db885f45bb2263de00091ce732c0691fd32f666279382439a6a94384f"
       },
       "evidence": [
         {
@@ -14547,9 +15013,32 @@
             "backend/tests/unit/mfa-client.test.js"
           ],
           "scope": "Only exercised changed integration references refreshed:765unit(27Jest473, actualprotocol6/client11/queue34), payment22 actualcore/pure+SQLRedisHTTP JSONXMLform atV8 100line97.86branch100func and NYC98.46statement94.97branch100line/function with unchanged-original-derived91line/function/statement80branch gates; migration4/history87/fullbootstrap3; actualnewnative2(payment+gateway/Kafka/refusal/naturalshutdown) plus retainednative2, currency18, actualMFAstorage26/browser6, syntax1480/audittools12/logging/numbering/health/workflow pass. Full service unit-only coverage/provider/paymentUI/legalfulfillmentrefund/MFA-risk/allqueue/security/performance/operations acceptance not claimed."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/middleware/mfaRequired.js",
+            "backend/gateway/src/index.js",
+            "backend/services/user-service/src/routes/mfa.js",
+            "backend/services/user-service/src/routes/auth.js",
+            "backend/services/user-service/src/authSessionTokens.js",
+            "backend/package.json",
+            "frontend/game-client/src/api/client.js",
+            "backend/tests/unit/mfa-client.test.js"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_server_session_scoped_mfa_payment_risk_business_http_crypto_pass",
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "priorCIArtifact": "docs/benchmarks/ci-85457de-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
-      "remaining": "All original4 boxes retained. Actual serverproof/session/scope/role middleware tests are prerequisites only. Legacy separate risk engine still parseInt UUIDs and retains raw verified tokens; actual current gateway risk scoring/geography/device/session policies, cross-service business authorization and encrypted attributable risk-log acceptance/provider delivery remain unverified. No synthetic adapter/caller flags can accept full risk grading."
+      "remaining": "All original4 criteria retained. Actual gateway session authorization and service payment scoring/create/verify enforce server registration/revocation/epoch/MFA-assurance, bounded five-factor context, scoped cross-service proofs and encrypted decision traces. Other sensitive APIs, dedicated gateway scoring, full server geography/device/history sources, policy/admin governance and complete original risk acceptance remain open. UA/IP comparison is not physical-device/GeoIP acceptance; old fake-header and security stub engines remain unmounted."
     },
     "REQ-00003-payment-idempotency-security.md": {
       "date": "2026-10-28",
@@ -14557,30 +15046,30 @@
       "documentSha256": "a2ff84b2eae154043d49513a0840c93f42f0209265656240e9d527a473df6499",
       "sourceSha256": {
         ".gitignore": "b7c86a9d17b2fd13413aceb23f27c39a16f202022f4d4f757193e8a314c18d25",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
-        "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
-        "backend/services/payment-service/src/index.js": "e6c4fc8774c5ae961dddef0ca6fc70283bef93bea0542f966f602c2fc17689c1",
+        "backend/services/payment-service/src/index.js": "13723856daaef5debd9f0a25b004a17b57c83cb1febc4befbf167afa77c62992",
         "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
         "backend/services/payment-service/src/payment/protocol.js": "b0e260dab91b48d5f5a5fb1f1edbb89f37a5589f117f51442b556fc37defff7c",
-        "backend/services/payment-service/src/routes/payment.js": "45625d3e3dc1f3773f48bc4371dfcdd5df6f79c107475541c8f96a86243a17d2",
+        "backend/services/payment-service/src/routes/payment.js": "82af427dd5ec64fc4249ff274cb8bf550c6dd7fbcb3bbd7d76647a9dbe5eace2",
         "backend/services/payment-service/src/routes/currency.js": "f312b6118c6306ec80c2d8512ec0e866c21d80bace070417917f08e215ba577e",
         "backend/services/payment-service/src/handlers/orderTimeoutHandler.js": "2c7a03cde2f98eabc699a4e4697c72cfab8755571da1ae7956b4362226b5dd5e",
         "backend/shared/DelayQueue.js": "67f76aca8bb9ac38a630bcaa6362b813633a60133d56e7ec471d1fb79812715b",
         "backend/tests/unit/payment.test.js": "0bb4881f9683e4ef5b517c64d0bceb375f98f861b3b3223327af78f65411121e",
         "backend/tests/unit/delay-queue.test.js": "00a468d43c584f9b6ab803d6fce1732ecbdee1394f89f5f5e1a86cfc6dff393f",
-        "backend/tests/unit/mfa-client.test.js": "335a2cdb49ec6dd313cabc84f7b62e6b6a3542af9ceb31a6e2e0d015d2d77ebf",
-        "backend/tests/regression/payment-storage.test.js": "86a63db8768cf50102ba1e17db63afdce220ced2be2e8f4b555b47e3bfd9e324",
+        "backend/tests/unit/mfa-client.test.js": "25ce74b9b7d609082e880495444f62084450b987fb7926478d26dc435005f4f7",
+        "backend/tests/regression/payment-storage.test.js": "a61748804aba0a9fe34a02cc4d0e489749ceb9dc9e3de33c0493288b6ff5e369",
         "backend/tests/regression/payment-migration.test.js": "c0233489d9b860485061c7cf9e30411022767820534ee0c3de26d8f017ec8d4e",
-        "backend/tests/regression/payment-native.test.js": "271eea4c58c6f7944e6e0de15b47a5f94f75a942b8c22f4549d5b440490f4092",
+        "backend/tests/regression/payment-native.test.js": "c1f9a58d6a5e3451f8ebf87612f5c7fe6893c0408096708dd21380459fd8d335",
         "backend/tests/regression/currency-storage.test.js": "d830e2d74ee4eb2a3c2276c1d51db09ed12ebaf3f0590f681aa925c673481e7f",
         "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
-        "backend/tests/README.md": "85e09caeb9c51c3b2b6e24e88438ea3d3a030598910e1c991cde7024a6f0c454",
+        "backend/tests/README.md": "0cf3d46a9c8ed9ecb40c94ac5e16a800461f9b270111e965197219165128f1f0",
         "database/pending/20261025_120000__payment_order_integrity.sql": "1be1bc35e9937e1ce4cc7233a9033381e1153df16f52791c8ded534a54a13a1a",
         "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
-        "frontend/game-client/src/api/client.js": "8a33ee568983fe0014d0b07c2610902d985c1aed1f555b072e85cb26b0effb04",
-        ".github/workflows/payment-regression.yml": "3b53f67416e2841ca5b0cef070a92276adfa1e39dc7ff132e3b358008739edd5",
-        "docs/PAYMENT-INTEGRITY.md": "355b5fd03a1908660fee91f9c339dd7b6f749029537ca4bf5f81634117563e9b",
+        "frontend/game-client/src/api/client.js": "82956912223bec6b541f8e4e0c98363f409aaf2d4296cede017d116412be1b76",
+        ".github/workflows/payment-regression.yml": "9518e4a5923ddeede76cef598b87bd75f6b29cedd17ca6713f5e18a71649e2b2",
+        "docs/PAYMENT-INTEGRITY.md": "337adfdf4286294b866f44a94e5adf0bdc7dccc656d1591fbce49fbb9da53793",
         "docs/benchmarks/payment-integrity-local-2026-10-25.json": "ce5889f7e53c483829d3a477abb3a2383e6fa1a2a1ff4aac6175c1f7a2572e04",
         "docs/benchmarks/payment-coverage-2026-10-25.lcov": "f0cf30c60e23d06787c6da7b623a4a4b5183c693506170adcf8933d7e469cfea",
         "backend/tests/regression/storageSetup.js": "8d376d5e63627aad5a3f5cf5293fb6bbe6e30690297d9f14465e778d0de70004",
@@ -14591,7 +15080,23 @@
         "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922",
         "docs/benchmarks/queue-cache-correction-2026-10-28.json": "52571ea80c5c7147fec13c939b65a60552b2e4b455df9de1bfc716773b514a9b",
         "docs/benchmarks/ci-c4b5ca1-2026-10-28.json": "2128b7d6e1ae226862c3b30c97beac41949114caf31c5b3353f0199e44179cdf",
-        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d"
+        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d",
+        "backend/shared/riskVerifier.js": "fe0f2fa1cfd8654e42576b2cbea02369e274c8712cafa5d4252a35a81ab17c3c",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
+        "backend/gateway/src/proxy.js": "481e7d436b0747f0c75f489efb856aad3ab20b7f27c0067d168af6d53c1205cd",
+        "backend/gateway/src/middleware/mfaRequired.js": "13eb017acccaf406f598ab17af03dab2651a971b8cf34d50207cff348107ac67",
+        "backend/services/user-service/src/authSessionTokens.js": "6aef57a343e6cdfcaaa428f29e33c0b9b988c99cd64c9e6c0db21682db639008",
+        "backend/services/user-service/src/routes/auth.js": "15ba5f0d75ed987119b16f05e0790dd8d23d049b227d53d06a68751e96366bb9",
+        "backend/services/user-service/src/routes/mfa.js": "b7d70e0f09f302d0483e48f17ecebe728d5ad09708f284454417a98c4e0016ea",
+        "backend/shared/mfa/MFAStore.js": "ef79bb60130c23f958d416001c1ed315a5e258cee93af382dd87e4f6ee2e3bc2",
+        "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
+        "backend/shared/auditLog.js": "3c267301bbd107eef77dc39c6ed85cf36d0bda991f98758c5bd8dd263716c3be",
+        "backend/tests/regression/sensitive-risk-storage.test.js": "ff1f3cc741349e6cc0fd1862906c2cfb0bd98c30c6c26cd0b6116ca60a4b2e5b",
+        "backend/tests/unit/gateway-proxy.test.js": "0fe6de71ad60276705d8f6eaf3acb44ca9e8eeccf397fec731d7058536b9948d",
+        "docs/SENSITIVE-OPERATION-RISK.md": "aacf3a3649d9345e48412dd4c1b0af6c1599e42250258225370fcc64e80a31df",
+        "docs/benchmarks/sensitive-payment-risk-2026-10-28.json": "263ddb118dab8922d2ad1394c2bd22f067e60660131b49917676fbdc581b32f1",
+        "docs/benchmarks/ci-85457de-2026-10-28.json": "7f8a36faf033d770d13f640db6456357aada0836380b2b6ec634b4e8b3ad47a7",
+        "docs/benchmarks/transaction-throughput-ci-85457de-2026-10-28.json": "37e1a58db885f45bb2263de00091ce732c0691fd32f666279382439a6a94384f"
       },
       "evidence": [
         {
@@ -14647,6 +15152,32 @@
           "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
           "ciArtifact": "docs/benchmarks/ci-c4b5ca1-2026-10-28.json",
           "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/package.json",
+            "backend/services/payment-service/src/index.js",
+            "backend/services/payment-service/src/routes/payment.js",
+            "backend/tests/unit/mfa-client.test.js",
+            "backend/tests/regression/payment-storage.test.js",
+            "backend/tests/regression/payment-native.test.js",
+            "backend/tests/README.md",
+            "frontend/game-client/src/api/client.js",
+            ".github/workflows/payment-regression.yml",
+            "docs/PAYMENT-INTEGRITY.md"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_server_session_scoped_mfa_payment_risk_business_http_crypto_pass",
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "priorCIArtifact": "docs/benchmarks/ci-85457de-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "remaining": "Historical done declaration reopened. Original criteria unchanged. Actual core/SQL/Redis/HTTP/native and HTML/LCOV integration coverage pass, but original whole-payment-service unit-only coverage target and all legal fulfillment/refund business flows remain unverified. Live prepay/provider-native validation/receipts/paymentUI, explicit legacy request adoption, production key/provider/staging/financial audit, full sensitive MFA/risk and legacy global integration/E2E/contracts/security/performance gates remain open. Generic repository HMAC transport tests are not live vendor acceptance. No merge/deploy or target lowering."
@@ -14657,30 +15188,30 @@
       "documentSha256": "4ace3988041cc5c13542baf83f65cbdf8dac4d61e63999f3755da275cf171ae0",
       "sourceSha256": {
         ".gitignore": "b7c86a9d17b2fd13413aceb23f27c39a16f202022f4d4f757193e8a314c18d25",
-        "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
-        "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
-        "backend/services/payment-service/src/index.js": "e6c4fc8774c5ae961dddef0ca6fc70283bef93bea0542f966f602c2fc17689c1",
+        "backend/services/payment-service/src/index.js": "13723856daaef5debd9f0a25b004a17b57c83cb1febc4befbf167afa77c62992",
         "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
         "backend/services/payment-service/src/payment/protocol.js": "b0e260dab91b48d5f5a5fb1f1edbb89f37a5589f117f51442b556fc37defff7c",
-        "backend/services/payment-service/src/routes/payment.js": "45625d3e3dc1f3773f48bc4371dfcdd5df6f79c107475541c8f96a86243a17d2",
+        "backend/services/payment-service/src/routes/payment.js": "82af427dd5ec64fc4249ff274cb8bf550c6dd7fbcb3bbd7d76647a9dbe5eace2",
         "backend/services/payment-service/src/routes/currency.js": "f312b6118c6306ec80c2d8512ec0e866c21d80bace070417917f08e215ba577e",
         "backend/services/payment-service/src/handlers/orderTimeoutHandler.js": "2c7a03cde2f98eabc699a4e4697c72cfab8755571da1ae7956b4362226b5dd5e",
         "backend/shared/DelayQueue.js": "67f76aca8bb9ac38a630bcaa6362b813633a60133d56e7ec471d1fb79812715b",
         "backend/tests/unit/payment.test.js": "0bb4881f9683e4ef5b517c64d0bceb375f98f861b3b3223327af78f65411121e",
         "backend/tests/unit/delay-queue.test.js": "00a468d43c584f9b6ab803d6fce1732ecbdee1394f89f5f5e1a86cfc6dff393f",
-        "backend/tests/unit/mfa-client.test.js": "335a2cdb49ec6dd313cabc84f7b62e6b6a3542af9ceb31a6e2e0d015d2d77ebf",
-        "backend/tests/regression/payment-storage.test.js": "86a63db8768cf50102ba1e17db63afdce220ced2be2e8f4b555b47e3bfd9e324",
+        "backend/tests/unit/mfa-client.test.js": "25ce74b9b7d609082e880495444f62084450b987fb7926478d26dc435005f4f7",
+        "backend/tests/regression/payment-storage.test.js": "a61748804aba0a9fe34a02cc4d0e489749ceb9dc9e3de33c0493288b6ff5e369",
         "backend/tests/regression/payment-migration.test.js": "c0233489d9b860485061c7cf9e30411022767820534ee0c3de26d8f017ec8d4e",
-        "backend/tests/regression/payment-native.test.js": "271eea4c58c6f7944e6e0de15b47a5f94f75a942b8c22f4549d5b440490f4092",
+        "backend/tests/regression/payment-native.test.js": "c1f9a58d6a5e3451f8ebf87612f5c7fe6893c0408096708dd21380459fd8d335",
         "backend/tests/regression/currency-storage.test.js": "d830e2d74ee4eb2a3c2276c1d51db09ed12ebaf3f0590f681aa925c673481e7f",
         "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
-        "backend/tests/README.md": "85e09caeb9c51c3b2b6e24e88438ea3d3a030598910e1c991cde7024a6f0c454",
+        "backend/tests/README.md": "0cf3d46a9c8ed9ecb40c94ac5e16a800461f9b270111e965197219165128f1f0",
         "database/pending/20261025_120000__payment_order_integrity.sql": "1be1bc35e9937e1ce4cc7233a9033381e1153df16f52791c8ded534a54a13a1a",
         "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
-        "frontend/game-client/src/api/client.js": "8a33ee568983fe0014d0b07c2610902d985c1aed1f555b072e85cb26b0effb04",
-        ".github/workflows/payment-regression.yml": "3b53f67416e2841ca5b0cef070a92276adfa1e39dc7ff132e3b358008739edd5",
-        "docs/PAYMENT-INTEGRITY.md": "355b5fd03a1908660fee91f9c339dd7b6f749029537ca4bf5f81634117563e9b",
+        "frontend/game-client/src/api/client.js": "82956912223bec6b541f8e4e0c98363f409aaf2d4296cede017d116412be1b76",
+        ".github/workflows/payment-regression.yml": "9518e4a5923ddeede76cef598b87bd75f6b29cedd17ca6713f5e18a71649e2b2",
+        "docs/PAYMENT-INTEGRITY.md": "337adfdf4286294b866f44a94e5adf0bdc7dccc656d1591fbce49fbb9da53793",
         "docs/benchmarks/payment-integrity-local-2026-10-25.json": "ce5889f7e53c483829d3a477abb3a2383e6fa1a2a1ff4aac6175c1f7a2572e04",
         "docs/benchmarks/payment-coverage-2026-10-25.lcov": "f0cf30c60e23d06787c6da7b623a4a4b5183c693506170adcf8933d7e469cfea",
         "backend/tests/regression/storageSetup.js": "8d376d5e63627aad5a3f5cf5293fb6bbe6e30690297d9f14465e778d0de70004",
@@ -14691,7 +15222,23 @@
         "docs/benchmarks/transaction-throughput-ci-4ad9ac6-2026-10-26.json": "ef4917342934be342374741cdea9af727be0c825857de9832dad0d4a5179e922",
         "docs/benchmarks/queue-cache-correction-2026-10-28.json": "52571ea80c5c7147fec13c939b65a60552b2e4b455df9de1bfc716773b514a9b",
         "docs/benchmarks/ci-c4b5ca1-2026-10-28.json": "2128b7d6e1ae226862c3b30c97beac41949114caf31c5b3353f0199e44179cdf",
-        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d"
+        "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json": "cdd417a7502ecb39738d921918eb1500d768585d12bca97f0968669a13889f1d",
+        "backend/shared/riskVerifier.js": "fe0f2fa1cfd8654e42576b2cbea02369e274c8712cafa5d4252a35a81ab17c3c",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
+        "backend/gateway/src/proxy.js": "481e7d436b0747f0c75f489efb856aad3ab20b7f27c0067d168af6d53c1205cd",
+        "backend/gateway/src/middleware/mfaRequired.js": "13eb017acccaf406f598ab17af03dab2651a971b8cf34d50207cff348107ac67",
+        "backend/services/user-service/src/authSessionTokens.js": "6aef57a343e6cdfcaaa428f29e33c0b9b988c99cd64c9e6c0db21682db639008",
+        "backend/services/user-service/src/routes/auth.js": "15ba5f0d75ed987119b16f05e0790dd8d23d049b227d53d06a68751e96366bb9",
+        "backend/services/user-service/src/routes/mfa.js": "b7d70e0f09f302d0483e48f17ecebe728d5ad09708f284454417a98c4e0016ea",
+        "backend/shared/mfa/MFAStore.js": "ef79bb60130c23f958d416001c1ed315a5e258cee93af382dd87e4f6ee2e3bc2",
+        "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
+        "backend/shared/auditLog.js": "3c267301bbd107eef77dc39c6ed85cf36d0bda991f98758c5bd8dd263716c3be",
+        "backend/tests/regression/sensitive-risk-storage.test.js": "ff1f3cc741349e6cc0fd1862906c2cfb0bd98c30c6c26cd0b6116ca60a4b2e5b",
+        "backend/tests/unit/gateway-proxy.test.js": "0fe6de71ad60276705d8f6eaf3acb44ca9e8eeccf397fec731d7058536b9948d",
+        "docs/SENSITIVE-OPERATION-RISK.md": "aacf3a3649d9345e48412dd4c1b0af6c1599e42250258225370fcc64e80a31df",
+        "docs/benchmarks/sensitive-payment-risk-2026-10-28.json": "263ddb118dab8922d2ad1394c2bd22f067e60660131b49917676fbdc581b32f1",
+        "docs/benchmarks/ci-85457de-2026-10-28.json": "7f8a36faf033d770d13f640db6456357aada0836380b2b6ec634b4e8b3ad47a7",
+        "docs/benchmarks/transaction-throughput-ci-85457de-2026-10-28.json": "37e1a58db885f45bb2263de00091ce732c0691fd32f666279382439a6a94384f"
       },
       "evidence": [
         {
@@ -14747,6 +15294,32 @@
           "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
           "ciArtifact": "docs/benchmarks/ci-c4b5ca1-2026-10-28.json",
           "scope": "Only changed shared references refreshed from actual queue36/registry, paymentnative2/Kafka/full87, cache41/realRedisPGHTTP, originalnative2 and complete main unit461regression+remaining suites, syntax1480/tools12. Pre-start latest offset loss reproduced; earliest alone exposed undefined histogram buckets and invalid DLQ logger causing consumer crash. Fixes validated locally; exact new-source remoteCI pending. Original cache race/50-100ms targets and all wholefeature/provider/risk/queue/capacity/security/performance acceptance remain open."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/gateway/src/index.js",
+            "backend/package.json",
+            "backend/services/payment-service/src/index.js",
+            "backend/services/payment-service/src/routes/payment.js",
+            "backend/tests/unit/mfa-client.test.js",
+            "backend/tests/regression/payment-storage.test.js",
+            "backend/tests/regression/payment-native.test.js",
+            "backend/tests/README.md",
+            "frontend/game-client/src/api/client.js",
+            ".github/workflows/payment-regression.yml",
+            "docs/PAYMENT-INTEGRITY.md"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_server_session_scoped_mfa_payment_risk_business_http_crypto_pass",
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "priorCIArtifact": "docs/benchmarks/ci-85457de-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ],
       "remaining": "Historical done declaration reopened. Original criteria unchanged. Actual core/SQL/Redis/HTTP/native and HTML/LCOV integration coverage pass, but original whole-payment-service unit-only coverage target and all legal fulfillment/refund business flows remain unverified. Live prepay/provider-native validation/receipts/paymentUI, explicit legacy request adoption, production key/provider/staging/financial audit, full sensitive MFA/risk and legacy global integration/E2E/contracts/security/performance gates remain open. Generic repository HMAC transport tests are not live vendor acceptance. No merge/deploy or target lowering."
@@ -14758,14 +15331,14 @@
       "sourceSha256": {
         "backend/shared/DelayQueue.js": "67f76aca8bb9ac38a630bcaa6362b813633a60133d56e7ec471d1fb79812715b",
         "backend/shared/metrics.js": "2b2da2ba587fa72b2532faf3c046792c8ff17bdcc2fa5cafd120febff2ecc635",
-        "backend/services/payment-service/src/index.js": "e6c4fc8774c5ae961dddef0ca6fc70283bef93bea0542f966f602c2fc17689c1",
+        "backend/services/payment-service/src/index.js": "13723856daaef5debd9f0a25b004a17b57c83cb1febc4befbf167afa77c62992",
         "backend/services/payment-service/src/handlers/orderTimeoutHandler.js": "2c7a03cde2f98eabc699a4e4697c72cfab8755571da1ae7956b4362226b5dd5e",
         "backend/tests/unit/delay-queue.test.js": "00a468d43c584f9b6ab803d6fce1732ecbdee1394f89f5f5e1a86cfc6dff393f",
         "backend/tests/unit/logger-metrics.test.js": "6cb0864e8a087e790043b6cef0b094b6527ba5db9fc8a2894830f7f79a5503a0",
-        "backend/tests/regression/payment-native.test.js": "271eea4c58c6f7944e6e0de15b47a5f94f75a942b8c22f4549d5b440490f4092",
+        "backend/tests/regression/payment-native.test.js": "c1f9a58d6a5e3451f8ebf87612f5c7fe6893c0408096708dd21380459fd8d335",
         "backend/shared/delayBucketScheduler.js": "47d6d480e0a26ce10b691e7eaeb61e4121de9f9106e774d1a22f1281a855f589",
         "backend/shared/delayQueueMonitor.js": "09a8ed184aa77d8c86df4e3742199e2d70999ffb9e4e1fbfd18f1f0842232f01",
-        "docs/PAYMENT-INTEGRITY.md": "355b5fd03a1908660fee91f9c339dd7b6f749029537ca4bf5f81634117563e9b",
+        "docs/PAYMENT-INTEGRITY.md": "337adfdf4286294b866f44a94e5adf0bdc7dccc656d1591fbce49fbb9da53793",
         "docs/benchmarks/queue-cache-correction-2026-10-28.json": "52571ea80c5c7147fec13c939b65a60552b2e4b455df9de1bfc716773b514a9b",
         "docs/benchmarks/ci-c4b5ca1-2026-10-28.json": "2128b7d6e1ae226862c3b30c97beac41949114caf31c5b3353f0199e44179cdf"
       },
@@ -14775,8 +15348,64 @@
           "result": "legacy_done_reopened_all_original_twelve_criteria_preserved",
           "artifact": "docs/benchmarks/queue-cache-correction-2026-10-28.json",
           "scope": "Full existing document read. Only status metadata reopened. Actual startup backlog/current ready consumption/foreign type isolation and SQL cancellation receipts proven by real native processes; real registry plus mocked transport unit36 verifies handler isolation and exhausted failure followed by success. Does not prove general seconds-to-days durable scheduling, priority execution, reliable bucket recovery, full monitor/automatic retry/notification delivery, second service/raid rewards, protected admin API, seven metrics and unit-only80percent or architecture. Preserve all12 original checkbox criteria. No new requirements; full queue remains open."
+        },
+        {
+          "date": "2026-10-28",
+          "result": "partial_actual_sensitive_payment_risk_changed_shared_references_refreshed",
+          "changedReferences": [
+            "backend/services/payment-service/src/index.js",
+            "backend/tests/regression/payment-native.test.js",
+            "docs/PAYMENT-INTEGRITY.md"
+          ],
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
         }
       ]
+    },
+    "REQ-00200-sensitive-operation-risk-verification-system.md": {
+      "date": "2026-10-28",
+      "status": "partial_server_session_five_factor_bounds_payment_risk_mfa_verified_all_operation_methods_ui_open",
+      "documentSha256": "e73a20597843761b500116251c243ee56841da6bf8eede11052d1bf680dc457d",
+      "sourceSha256": {
+        "backend/shared/riskVerifier.js": "fe0f2fa1cfd8654e42576b2cbea02369e274c8712cafa5d4252a35a81ab17c3c",
+        "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
+        "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
+        "backend/gateway/src/proxy.js": "481e7d436b0747f0c75f489efb856aad3ab20b7f27c0067d168af6d53c1205cd",
+        "backend/gateway/src/middleware/mfaRequired.js": "13eb017acccaf406f598ab17af03dab2651a971b8cf34d50207cff348107ac67",
+        "backend/services/payment-service/src/index.js": "13723856daaef5debd9f0a25b004a17b57c83cb1febc4befbf167afa77c62992",
+        "backend/services/payment-service/src/routes/payment.js": "82af427dd5ec64fc4249ff274cb8bf550c6dd7fbcb3bbd7d76647a9dbe5eace2",
+        "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
+        "backend/services/payment-service/src/payment/protocol.js": "b0e260dab91b48d5f5a5fb1f1edbb89f37a5589f117f51442b556fc37defff7c",
+        "backend/services/user-service/src/authSessionTokens.js": "6aef57a343e6cdfcaaa428f29e33c0b9b988c99cd64c9e6c0db21682db639008",
+        "backend/services/user-service/src/routes/auth.js": "15ba5f0d75ed987119b16f05e0790dd8d23d049b227d53d06a68751e96366bb9",
+        "backend/services/user-service/src/routes/mfa.js": "b7d70e0f09f302d0483e48f17ecebe728d5ad09708f284454417a98c4e0016ea",
+        "backend/shared/mfa/MFAStore.js": "ef79bb60130c23f958d416001c1ed315a5e258cee93af382dd87e4f6ee2e3bc2",
+        "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
+        "backend/shared/auditLog.js": "3c267301bbd107eef77dc39c6ed85cf36d0bda991f98758c5bd8dd263716c3be",
+        "backend/tests/regression/payment-native.test.js": "c1f9a58d6a5e3451f8ebf87612f5c7fe6893c0408096708dd21380459fd8d335",
+        "backend/tests/regression/payment-storage.test.js": "a61748804aba0a9fe34a02cc4d0e489749ceb9dc9e3de33c0493288b6ff5e369",
+        "backend/tests/regression/sensitive-risk-storage.test.js": "ff1f3cc741349e6cc0fd1862906c2cfb0bd98c30c6c26cd0b6116ca60a4b2e5b",
+        "backend/tests/unit/gateway-proxy.test.js": "0fe6de71ad60276705d8f6eaf3acb44ca9e8eeccf397fec731d7058536b9948d",
+        "backend/tests/unit/mfa-client.test.js": "25ce74b9b7d609082e880495444f62084450b987fb7926478d26dc435005f4f7",
+        "frontend/game-client/src/api/client.js": "82956912223bec6b541f8e4e0c98363f409aaf2d4296cede017d116412be1b76",
+        "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
+        "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
+        ".github/workflows/payment-regression.yml": "9518e4a5923ddeede76cef598b87bd75f6b29cedd17ca6713f5e18a71649e2b2",
+        "backend/tests/README.md": "0cf3d46a9c8ed9ecb40c94ac5e16a800461f9b270111e965197219165128f1f0",
+        "docs/SENSITIVE-OPERATION-RISK.md": "aacf3a3649d9345e48412dd4c1b0af6c1599e42250258225370fcc64e80a31df",
+        "docs/PAYMENT-INTEGRITY.md": "337adfdf4286294b866f44a94e5adf0bdc7dccc656d1591fbce49fbb9da53793",
+        "docs/benchmarks/sensitive-payment-risk-2026-10-28.json": "263ddb118dab8922d2ad1394c2bd22f067e60660131b49917676fbdc581b32f1",
+        "docs/benchmarks/ci-85457de-2026-10-28.json": "7f8a36faf033d770d13f640db6456357aada0836380b2b6ec634b4e8b3ad47a7"
+      },
+      "evidence": [
+        {
+          "date": "2026-10-28",
+          "result": "actual_payment_scoped_risk_and_mfa_prerequisites_partial_original_ten_criteria_open",
+          "artifact": "docs/benchmarks/sensitive-payment-risk-2026-10-28.json",
+          "scope": "Changed shared references refreshed only: actual payment/user cross-service risk17, originalpayment22/core100line97.02branch100function/NYC97.76stat93.69branch100linefunc, MFA26/99.42line83.48branch100func, original+paymentnative4/full87, browser6/Chrome145, fullunit(lastJest463+9+5), syntax1482/tools12/logging passed. Prior854 selectedremote gates and full87 pass; new risk-source remote CI pending. Registered epoch is not factor assurance; server flag plus independent refresh expiry tested. Trusted ingress/spoofed forwarding claims and transient proof API tested. No all-sensitive-operation/provider/physicaldevice/GeoIP/method-combination/UI/unit-only90/fullperformance/all658 promotion."
+        }
+      ],
+      "remaining": "Full original document read, only status new->in_progress changed. All10 acceptance boxes/targets preserved. Does not complete all15 operation policies, password/PIN/SMS/email combinations, actual geography/physical-device/global history providers, P0/P1/P2 verification API/TTL/revocation, front-end multi-step UI, or originalunit-only90. Current normal/large payment policy and >90 actual integration coverage are partial prerequisites. REQ588 P0 remains primary and partial; all658 originals remain scope."
     }
   }
 }

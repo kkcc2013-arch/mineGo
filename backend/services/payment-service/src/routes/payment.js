@@ -9,9 +9,11 @@ const p = require('../payment/protocol');
 const {
   PaymentStore
 } = require('../payment/PaymentStore');
+const {RiskVerifier, paymentPolicy} = require('../../../../shared/riskVerifier');
 function createPaymentRouter({
   store = new PaymentStore(),
-  secrets = p.loadSecrets()
+  secrets = p.loadSecrets(),
+  risk = new RiskVerifier({database: store.db, cache: store.cache})
 } = {}) {
   const router = express.Router();
   const context = req => ({
@@ -65,8 +67,12 @@ function createPaymentRouter({
     ...v,
     amountYuan: (v.amountFen / 100).toFixed(2)
   }))))));
-  router.post('/orders', requireAuth, handler(async (req, res) => {
-    const input = p.requestInput(req.body, req.headers['x-idempotency-key']);
+  router.use('/orders', requireAuth, risk.middleware());
+  router.post('/orders', risk.middleware(req => {
+    req.paymentInput = p.requestInput(req.body, req.headers['x-idempotency-key']);
+    return paymentPolicy(req.paymentInput.amountFen, risk.largeTransactionFen);
+  }), handler(async (req, res) => {
+    const input = req.paymentInput;
     const result = await store.create(req.user.sub, input, context(req));
     res.status(result.replayed ? 200 : 201).json(successResp({
       ...p.orderView(result.order),
@@ -76,7 +82,12 @@ function createPaymentRouter({
     }));
   }));
   router.get('/orders', requireAuth, handler(async (req, res) => res.json(successResp((await store.list(req.user.sub)).map(p.orderView)))));
-  router.post('/orders/:id/verify', requireAuth, handler(async (req, res) => {
+  router.post('/orders/:id/verify', risk.middleware(async req => {
+    const id = p.identity(req.params.id);
+    const order = (await store.db.query('SELECT amount_fen FROM orders WHERE id=$1 AND user_id=$2', [id, req.user.sub])).rows[0];
+    if (!order) throw p.fail('PAYMENT_ORDER_NOT_FOUND', 404);
+    return paymentPolicy(order.amount_fen, risk.largeTransactionFen);
+  }), handler(async (req, res) => {
     const id = p.identity(req.params.id),
       body = req.body;
     if (!body || Object.keys(body).some(k => !['channelOrderId', 'channelSign'].includes(k))) throw p.fail('PAYMENT_INPUT_INVALID');

@@ -239,16 +239,23 @@ router.post('/refresh', async (req, res, next) => {
 
     // Check blacklist
     if(typeof payload.jti!=='string'||!payload.jti)throw new AppError(1003,'Refresh session identity missing',401);
-    let blacklisted;
-    try{blacklisted=await getRedis().exists(`blacklist:token:${payload.jti}`);}catch{throw new AppError(9002,'AUTH_SESSION_UNAVAILABLE',503);}
+    let blacklisted, registered;
+    try{
+      blacklisted=await getRedis().exists(`blacklist:token:${payload.jti}`);
+      const raw=await getRedis().hget('sessions:user:'+payload.sub,payload.jti);
+      try{registered=JSON.parse(raw);}catch{}
+    }catch{throw new AppError(9002,'AUTH_SESSION_UNAVAILABLE',503);}
     if (blacklisted) throw new AppError(1003, 'Token 已失效', 401);
+    if(!registered||registered.jti!==payload.jti||registered.revokedAt||!Number.isSafeInteger(registered.refreshExpiresAt)||registered.refreshExpiresAt!==payload.exp||registered.refreshExpiresAt<=Date.now()/1000||
+      (registered.mfaEpoch??null)!==(payload.mfa_epoch??null))throw new AppError(1003,'Refresh session changed; sign in again',401);
 
     const { rows } = await query('SELECT id, nickname, level FROM users WHERE id = $1', [payload.sub]);
     if (!rows[0]) throw new AppError(2003, '用户不存在', 404);
 
     const status=await mfaService.status(rows[0].id);
     if(status.requiresMigration||((status.credentialEpoch||null)!==(payload.mfa_epoch||null)))throw new AppError(1003,'MFA session changed; sign in again',401);
-    const tokens = await issueTokens(rows[0],{},status.credentialEpoch);
+    if(status.enabled&&registered.mfaAuthenticated!==true)throw new AppError(1003,'MFA login required',401);
+    const tokens = await issueTokens(rows[0],{ip:req.ip,userAgent:req.headers['user-agent']},status.credentialEpoch,{mfaAuthenticated:registered.mfaAuthenticated===true});
     res.json(successResp(tokens));
   } catch (err) { next(err); }
 });
