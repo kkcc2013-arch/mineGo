@@ -19,7 +19,7 @@ class ErasureRequestStore {
     this.database=database||require('../db');this.provider=provider;this.ownsProvider=!provider;this.env=env;this.operations=new Set();this.closed=false;
     const metrics=require('../metrics'),Counter=require('prom-client').Counter;
     const counter=(name,labels=[])=>{const existing=metrics.register.getSingleMetric(name);if(existing){if(!(existing instanceof Counter)||JSON.stringify(existing.labelNames)!==JSON.stringify(labels))throw fail('ERASURE_METRICS_CONFLICT',503);return existing;}return metrics.counter(name,name,labels);};
-    this.metrics={created:counter('data_deletion_requests_created_total',['request_type']),verified:counter('data_deletion_requests_verified_total'),approved:counter('data_deletion_requests_approved_total',['approval_type']),rejected:counter('data_deletion_requests_rejected_total'),cancelled:counter('data_deletion_requests_cancelled_total'),prepared:counter('data_deletion_verification_prepared_total')};
+    this.metrics={created:counter('data_deletion_requests_created_total',['request_type']),verified:counter('data_deletion_requests_verified_total'),approved:counter('data_deletion_requests_approved_total',['approval_type']),rejected:counter('data_deletion_requests_rejected_total'),cancelled:counter('data_deletion_requests_cancelled_total'),prepared:counter('data_deletion_verification_prepared_total'),reviewed:counter('data_deletion_resource_reviews_total')};
   }
   async ready(client=this.database) {
     if(this.closed)throw fail('ERASURE_STORE_CLOSED',503);
@@ -33,13 +33,13 @@ class ErasureRequestStore {
     if(!this.provider)this.provider=providerFromEnvironment(this.env);
     if(this.env.NODE_ENV==='production'&&this.provider.kind!=='aws-kms')throw fail('ERASURE_KEY_CONFIGURATION',503);
   }
-  async transaction(work) {
+  async transaction(work, {isolationLevel='READ COMMITTED'}={}) {
     if(this.closed)throw fail('ERASURE_STORE_CLOSED',503);
     const pool=typeof this.database.getPool==='function'?this.database.getPool():this.database;
     const task=require('../TransactionManager').getManager(pool).execute(async client=>{
       if(!this.namespace)await this.ready(client);
       return work(client);
-    },{isolationLevel:'READ COMMITTED',timeout:10000,maxRetries:0,retryOnDeadlock:false,transactionName:'erasure-requests'});
+    },{isolationLevel,timeout:10000,maxRetries:0,retryOnDeadlock:false,transactionName:'erasure-requests'});
     this.operations.add(task);try{return await task;}finally{this.operations.delete(task);}
   }
   context(row,field) {return {purpose:'minego-erasure-fields-v1',namespace:this.namespace,requestId:row.id,subject:crypto.createHash('sha256').update(row.user_id).digest('hex'),field};}
@@ -195,6 +195,17 @@ class ErasureRequestStore {
     });
   }
   async statistics() {return this.transaction(async client=>(await client.query('SELECT status,count(*)::int AS count FROM data_erasure_requests GROUP BY status ORDER BY status')).rows);}
+  async planRequest(id,admin) {
+    identity(id);identity(admin);
+    const result=await this.transaction(async client=>{
+      const row=await this.locked(client,id,null,admin);
+      const {ErasureResourcePlanner}=require('./ErasureResourcePlanner');
+      const plan=await new ErasureResourcePlanner().inspect(client,row);
+      await this.record(client,'ERASURE_RESOURCE_PLAN_REVIEWED',row,admin,{catalogSha256:plan.catalogSha256,fingerprint:plan.fingerprint,executionReady:plan.executionReady,counts:plan.counts});
+      return plan;
+    },{isolationLevel:'REPEATABLE READ'});
+    this.metrics.reviewed.inc();return result;
+  }
   async close() {if(this.closePromise)return this.closePromise;this.closed=true;this.closePromise=(async()=>{await Promise.allSettled([...this.operations]);if(this.ownsProvider)this.provider?.close();})();return this.closePromise;}
 }
 let store;

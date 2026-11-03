@@ -190,3 +190,60 @@ node --test --test-concurrency=1 tests/regression/erasure-schema-storage.test.js
 
 The dedicated erasure workflow runs these actual HTTP/storage/crypto checks. Original
 user/gateway native checks and browser/offline boundaries remain separate evidence.
+
+## 2026-11-03 — actual resource inventory before execution
+
+`GET /data-deletion/admin/requests/:id/plan` now runs through the mounted erasure
+router and the existing signed-admin/current-session/`erasure-admin` MFA controls.
+The store locks the real subject, actor and request, and reads the catalog and
+subject associations in one `REPEATABLE READ` transaction. The encrypted audit
+receipt must commit before the response is returned; the resource-review counter
+advances after commit. An unavailable audit rolls back the review and does not
+increment the counter. Requests, business rows and tasks are not modified.
+
+The inventory reads actual PostgreSQL relations, column contracts, constraints,
+incoming and outgoing foreign keys (including other schemas), partition/inheritance
+edges, triggers and function hashes, rewrite rules and row-security policies. It
+returns every local table/view/materialized/foreign relation for explicit review.
+It does not execute views or foreign-table scans. Counts use only bound subject UUID
+parameters and catalog-derived quoted identifiers; proposal table names, SQL and
+retention days are never used as instructions. No data-row contents, function bodies,
+reason envelopes or verification secrets appear in this response.
+
+`associatedRows` means rows with a direct UUID association in the observed snapshot.
+A foreign key to `users(id)` establishes an association, not ownership or permission
+to erase another user's comment, gift, equipment or financial record. Name-matched
+UUID fields without a canonical FK are explicitly unresolved. Integer, text, array
+and JSON identities need mapping; they are not guessed or cast to current owners.
+RLS, missing SELECT privileges, views/FDW and inheritance children produce unknown
+counts (`null`), rather than a misleading zero. Root counts include inherited rows
+once; an unsafe descendant also prevents its root from claiming full counts. Counts
+are per resource and must not be summed into a deletion receipt.
+
+The catalog digest includes the observed structural contracts and trigger bodies.
+The inventory fingerprint also binds database/schema namespace, request, subject,
+intent, approval, execution time and observed counts. Concurrent writes remain
+outside an existing snapshot and appear in a fresh one. These hashes identify an
+observation; they are not an execution authorization, persisted legal-policy approval
+or complete inventory of objects outside PostgreSQL. The response always states
+`executionReady: false`, lists resource review requirements and creates no tasks.
+The existing execution endpoint continues to refuse unconfigured execution.
+
+The original full-schema probe found 507 tables/partitions and 22 incoming references
+to `pokemon_instances`. The regression installs the actual unchanged V1/V2 and all87
+migrations, then adds owned adversarial fixtures. Its observed 552 relations include
+those fixtures and views; 311 FKs/109 triggers are the corresponding fixture catalog,
+not a new production-table count. Tests verify canonical and unbound UUID associations,
+quoted identifiers, another owner's retained rows, actual external cascading refs,
+legacy integer/embedded identities, partitions, RLS and limited-role reads, an
+exception-raising view that must never execute, concurrent writes and changed trigger
+bodies/columns. PostgreSQL's catalog `name[]` is explicitly converted to `text[]` so
+the real driver returns field arrays; an initial test exposed and corrected that
+otherwise-missed association. No acceptance threshold or original requirement changed.
+
+Run `npm run test:erasure:plan` from `backend` with an isolated `TEST_DATABASE_URL`.
+The dedicated erasure CI runs it sequentially after the existing schema and HTTP
+checks. Actual resource operators, category-complete ownership/retention policies,
+external-storage/cache/backup removal, scheduler/retry/outbox/delivery, production
+signer/post-account receipt access, UI/export and full privacy/legal acceptance
+remain open. This discovery stage is a prerequisite to those original requirements.

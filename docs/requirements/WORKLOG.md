@@ -2886,3 +2886,75 @@ Precommit hygiene: staged check found trailing spaces on three otherwise empty n
 store lines112/125/156. Removed only those spaces; asserted same line count and all
 non-whitespace source bytes, recorded pre/post hashes in artifact and refreshed
 only corresponding ledger refs. No executable/SQL token or acceptance gate changed.
+
+## 2026-11-03 — actual schema-wide erasure resource review
+
+Previous goal turn was a status report only and is classified as no progress. This
+turn revalidated the current2af2750 worktree and advanced the authorized original
+resource-plan prerequisite. All658 originals, priorities, acceptance boxes and
+thresholds remain unchanged; no task/feature/legal completion is inferred from it.
+
+Exact published2af2750 remote main478/native47/payment5/MFA10/browser6/migration40/
+erasure1/privacy50/notification35/dependency319-320 passed. Legacy contract403/
+API107/integration453/performance146 failed. Security436 and E2E140 were still live
+at the recorded API observation; they were not restarted or treated as terminal
+because an earlier detailed observation timed out. Their original gates remain open.
+
+An owned full-schema probe applied unchanged V1/V2/all87 actual migrations and
+inspected507 tables/partitions. Actual pokemon_instances has22 incoming FKs, including
+CASCADE into comments/likes/breeding and SET NULL into equipment/lineage; ownership
+cannot be inferred from the root row. Proposal table names and proposed retention
+periods are not a safe execution plan. The probe schema was removed normally.
+
+Added ErasureResourcePlanner and mounted GET admin/requests/:id/plan. Actual signed
+admin/current-session/erasure-admin proof controls apply before discovery. Store
+locks the real actor/subject/request and inventories every local relation, column
+contracts, actual FKs (both directions/other schemas), inheritance, constraints,
+triggers/function hashes, rules and RLS in REPEATABLE READ. Direct UUID association
+counts bind the real subject with a query parameter and quote catalog identifiers;
+no field values, reasons, nonces, function bodies or proposed SQL are returned.
+A user FK is an association, not proof of ownership. Names without a FK, legacy
+integers, arrays/JSON, RLS, missing SELECT access, views/FDW, cross-schema effects
+and inheritance have explicit review requirements. Counts remain null when unknown;
+unsafe descendants also prevent apparent full root counts. No per-resource counts
+are summed into an invented receipt. Hashes bind observed metadata/trigger bodies,
+namespace, request/subject/intent/approval/execution time and snapshot counts.
+They identify an observation; this is not an executable/legal-policy approval.
+
+The report explicitly remains executionReady=false and creates no tasks or request/
+business-state changes. It commits its encrypted review receipt before returning;
+new Prometheus review count advances only after commit. Audit failure refuses the
+response and leaves the count unchanged. Existing execute continues to return503
+ERASURE_RESOURCE_PLAN_REQUIRED. No deletion operator, delivery or empty completion
+was substituted for the full original workflow.
+
+Actual full87 regression plus adversarial fixtures inventories552 relations,
+311FKs/109triggers (fixture catalog counts, including views; not a production-table
+claim). Nine real storage/snapshot checks cover another owner, quoted identifiers,
+canonical oddly-named FK columns, external cascade refs, retained integer/embedded
+identities, partitions/RLS/limited-role reads, a view that throws if executed,
+concurrent writes and changed trigger bodies/columns. First run exposed pg catalog
+name[] not becoming a JavaScript array; explicit attname::text fixes association
+recognition. Failed evidence is retained alongside the exact successful rerun.
+
+Final sequential nice10/UV2 checks: plan9 at100line95.79branch100function (new90/90/80
+gates), actual erasureHTTP17 at99.62line88.07branch98.57function (original90/90/80),
+original erasureSQL19, complete main units (last25Jest463 plus audit9/MFA5 =27suites477
+and all other Node/custom checks), original battle133 at100/100/100 with91gates,
+syntax1486, alltools12, runtime logging0, read-only workflow parses and includes
+new sequential plan gate. One local verification-script typo named nonexistent
+logging/check-syntax files; corrected by running the real documented logging
+command and all actual scripts/tests files. No application gate was waived and
+no business source changed for this harness correction. No skipped storage cases.
+All existing npm commands/thresholds,87SQL/V1/V2/lock/dependency/repair manifests
+remain byte-identical to2af2750; only the new plan command was added.
+
+Source hashes and positive/negative exact-commit CI evidence are recorded in the
+ledger/artifacts. Still176declared done54progress428new=658,50evidence records,
+onlyREQ619 independently accepted. New-source CI pending publication on existing
+draftPR6. Actual category-complete resource operators/ownership/retention policies,
+external cache/backup/object data, automatic scheduler/retry/outbox/real delivery,
+production signing/post-account receipts/UI/export/legal scope remain open. Continue
+all remaining original services/P0/client/security/performance/operations and final
+658audit. No Maven, CPU saturation, subagents, new requirement, recipient/provider
+message, production cleanup/rekey, merge or deployment was performed.

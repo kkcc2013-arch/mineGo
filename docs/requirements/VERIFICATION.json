@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "requirements": {
     "REQ-00619-core-battle-engine-test-coverage-framework.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "verified",
       "documentSha256": "d92a32cc5117dfb1c20d00fec4f135f4b93c329afde1497eb97b55557bf21884",
       "sourceSha256": {
@@ -11,7 +11,7 @@
         "backend/tests/battle/context.js": "4e815529a4ba1ba8d02657bc1e8798af1c481cd277e9f64e04a2ea2be595f7c3",
         "backend/tests/battle/formulas.test.js": "40300e85e1cba36f1e9994e9cc5aa2a9af4f256b4a45b83c6fa1bb2d05b745ad",
         "backend/tests/battle/scenarios.test.js": "82ee33f17c3b2eaca95592d20d75763a2f527ae5bb238a9b6e788955fb584aad",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         ".github/workflows/ci-cd.yml": "1572b966bb2c9c4ee3f8d2de41334552e4a63878cf604113f316e5088ce75b3a",
         "docs/api-spec/battle-engine-design.md": "bb832c9cb72847ab8a823d62022295da1e2bdee49c26f15f8eb51b10ace7b4ed"
       },
@@ -161,11 +161,21 @@
           ],
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ]
     },
     "REQ-00053-user-privacy-preference-center-data-transparency.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "e0fe55e25b877f1dde7a97fb7953c3515be042e3501d29d3d650e66dd29f7f2a",
       "sourceSha256": {
@@ -178,7 +188,7 @@
         "backend/tests/unit/privacy-preferences.test.js": "ff1e6f9920d3b003c3284bd353d6f8138482d8700652e2b750375e06e900eab1",
         "backend/tests/regression/privacy-storage.test.js": "5e166b9018051b20b74988426d04e588823feb6f473600beeefe54b00041cc97",
         "backend/tests/regression/privacy.jest.config.json": "cd80c47f4be46595f151bdf850571e7e0bd599d5bd2e9897550999b031b7e490",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         ".github/workflows/privacy-regression.yml": "b730aa2c9c5c6d6379f7047ed8c86f9f5a6781c1d0c619989482478e9031b79a",
         "database/pending/20261006_150000__privacy_preference_defaults_and_policy_fields.sql": "3d21e729219b771c0b94f8474e11e6adcc222b0fbfc064beeddaed3d08849c78",
         "backend/shared/logger.js": "4fd8f577c9db1860aa011216eadd9523a46a2214a80de1e0c44ff9310fb5e457",
@@ -623,12 +633,22 @@
           ],
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ],
       "remaining": "Frontend, collector enforcement, legacy consent provenance, retention/scheduling, third-party shares, popup and export remain unverified"
     },
     "REQ-00683-console-logging-migration-to-structured-logger.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "d725714839a4dcd1b92df697d7f9f2c4ff526b8b3890528511472252b3ef104a",
       "sourceSha256": {
@@ -639,7 +659,7 @@
         "backend/tests/unit/logging-migration.test.js": "880a3f2ce8660e66a951cf8ac73b617e1396ce765fb92e2d135e5bdce711dde3",
         "backend/tests/performance/logging-benchmark.js": "a9fb82d16c779c4331e6aa2e8b5b08ee081def225de421e0e67ec3c660fef255",
         "backend/tests/regression/logging.jest.config.json": "45932a32192ebfadc2c131a9b8ba6877d8b4fbae7616fe9d98958a63a57d60b2",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         ".github/workflows/ci-cd.yml": "1572b966bb2c9c4ee3f8d2de41334552e4a63878cf604113f316e5088ce75b3a"
       },
       "evidence": [
@@ -792,12 +812,22 @@
           ],
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ],
       "remaining": "The 5% overhead target, production output/adapters and complete legacy integration/E2E acceptance are not verified"
     },
     "REQ-00159-service-health-self-healing-and-auto-recovery-system.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "702f723e90c498db5a6d23b2e986b96c749e92229580af3542fc6972344f5f4d",
       "sourceSha256": {
@@ -818,18 +848,18 @@
         "database/migrationGraph.js": "2c79fd234d73f6125dc2c52a57544043ca563c9acc002875cbd055cfbbe76b87",
         "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
-        ".github/workflows/erasure-regression.yml": "f51a9d33cb5df6218fc24e18df7283bb2b94812996a05b0a9c13eb295ba013d9",
+        ".github/workflows/erasure-regression.yml": "1ab36faa6175869b8f00a809e7e00e897213bf3b4b5e276c1136eb7bceed5277",
         "backend/gateway/src/middleware/mfaRequired.js": "07a85e9e49531c97df7f7e5aa4160b1251b6445c077568bde52c75107d50733a",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
-        "backend/services/user-service/src/routes/dataDeletion.js": "578f6354de06558c0c09e2ee7537f9ea260fa90bd1eeedfdf1c63476a596316a",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
+        "backend/services/user-service/src/routes/dataDeletion.js": "ad3ff9dc3e34b41b769675de1acdff70c4dc86745ef367ce0031f9c44990f130",
         "backend/services/user-service/src/routes/gdpr.js": "5be048126f32b90f10a35f6657e711739cf78ca16aeb41f99058e2c30fbee305",
         "backend/shared/dataDeletionService.js": "29e9b4666dbd8f980094ae97d964c4c9597f543a5f6352cca5c43ca6bfb04145",
-        "backend/shared/erasure/ErasureRequestStore.js": "8cd884fcdd06d67b47e434de69241f7a190b9018cc9ba8f639b6d39871f13708",
+        "backend/shared/erasure/ErasureRequestStore.js": "b43656f02d99c6e5a8bdade44d420aedfe917d3546f4a03850ca9e73f8035f97",
         "backend/tests/README.md": "239290efa2f98c06077b75234e42bda222e92ab527cd03fcef22ffd76f09d032",
-        "backend/tests/regression/erasure-request-storage.test.js": "4dfb10fd8be3266fa217efb41ede8a239cacf28f7b33e6728955ae18ab2c4c81",
+        "backend/tests/regression/erasure-request-storage.test.js": "d19ffe64aaecfbe251dba9176e7e717f86d86f0690aeda2a3d6832f2fbb1e332",
         "backend/tests/regression/mfa-browser-storage.test.js": "4b1c266ec8f83bf068cedf1e77589c00210a90491b19ac4c3e9e50d6d0966da7",
         "backend/tests/unit/mfa-client.test.js": "a96e807b1049ef199dfe092d353763e1aac1f816f1babac8a3ef5df89c17a1ec",
-        "docs/DATA-ERASURE.md": "b1514e64b8900c6d4ce88f6b1242f7f727feacdec2928b942422e8442c9883fd",
+        "docs/DATA-ERASURE.md": "d25218be364afb55cf806b5343339efcd926a02496e49506890bcfadcaa56094",
         "docs/SENSITIVE-OPERATION-RISK.md": "e6a42331ea49449c1075e1bdc74abb4ea31371982948f9188566abd96b9b577a",
         "frontend/game-client/src/api/client.js": "d10fba65a1ac6f2ab88a55bfe42d27de48c46e591fe21793ac85e47af070a3a3",
         "frontend/game-client/sw.js": "929e7a1a3ec879927f6fa1f09add635149f6aa5a7ea8dc6bde9352ced8bddea0",
@@ -1256,6 +1286,21 @@
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "priorCIArtifact": "docs/benchmarks/ci-9f13a62-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            ".github/workflows/erasure-regression.yml",
+            "backend/package.json",
+            "backend/services/user-service/src/routes/dataDeletion.js",
+            "backend/shared/erasure/ErasureRequestStore.js",
+            "backend/tests/regression/erasure-request-storage.test.js",
+            "docs/DATA-ERASURE.md"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ]
     },
@@ -1698,7 +1743,7 @@
       ]
     },
     "REQ-00106-player-title-system-and-personalization.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "7148fc5066354e7354adeb16eca4e2742c67125c7620a1dc27cb1d739feb8327",
       "sourceSha256": {
@@ -1715,7 +1760,7 @@
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
         "backend/tests/regression/user-startup.test.js": "11ca95b289bb822884cf7b4888f3356f0e79ec6bee3fd0726662c72d1a08538f",
         "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "backend/tests/regression/gateway-startup.test.js": "6ed7a0e9404ebb8ad2c380a81f70330b300c3b98f54e966287331a45353b8111",
@@ -2163,11 +2208,21 @@
           ],
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ]
     },
     "REQ-00612-global-timezone-scheduler.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "acb67d84c7ef83a0335a5874fbf4809ff95c8239c95cbac5f00a409a48223dd2",
       "sourceSha256": {
@@ -2184,7 +2239,7 @@
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
         "backend/tests/regression/user-startup.test.js": "11ca95b289bb822884cf7b4888f3356f0e79ec6bee3fd0726662c72d1a08538f",
         "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "backend/tests/regression/gateway-startup.test.js": "6ed7a0e9404ebb8ad2c380a81f70330b300c3b98f54e966287331a45353b8111",
@@ -2613,11 +2668,21 @@
           ],
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ]
     },
     "REQ-00026-in-game-push-notification-system.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "344fb5b9107fd20457cfbd66b11d8c25d6a261cdc36cfb51e086661b4c70a6df",
       "sourceSha256": {
@@ -2634,7 +2699,7 @@
         "backend/tests/regression/title-storage.test.js": "b7100f019a5030100be943231329e8b163dc2de72233f8f931d4d74e7654105c",
         "backend/tests/regression/user-startup.test.js": "11ca95b289bb822884cf7b4888f3356f0e79ec6bee3fd0726662c72d1a08538f",
         "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         "database/pending/20261007_120000__title_identity_compatibility.sql": "fccab4810e3daa7b2ff7737623c44e93e3d86ab81230b0640eb6517ce8fc9614",
         ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
         "backend/tests/regression/gateway-startup.test.js": "6ed7a0e9404ebb8ad2c380a81f70330b300c3b98f54e966287331a45353b8111",
@@ -3192,6 +3257,16 @@
           ],
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ],
       "remainingAcceptance": [
@@ -4329,7 +4404,7 @@
       ]
     },
     "REQ-00007-database-migration-management.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "034e46d0685cd0216fa145e46909ee1996a4e421c719c4f1cd3cab3eacb47404",
       "sourceSha256": {
@@ -4403,7 +4478,7 @@
         "database/pending/20260630_050000__add_data_deletion_request_tables.sql": "4e8a931542163151277c85582a75caa1335dd6885913f6cb3ef35892077baee3",
         "database/pending/repairs/20260630_050000__add_data_deletion_request_tables.sql": "18af611ad1688d68200770e0b3ad2e395e6b1c069052d8f73af8ce87e393502a",
         "backend/tests/regression/erasure-schema-storage.test.js": "4c54f92e9492772d096201675ffe7b0d0594c609bc64e1395b9b910feeda535b",
-        "docs/DATA-ERASURE.md": "b1514e64b8900c6d4ce88f6b1242f7f727feacdec2928b942422e8442c9883fd",
+        "docs/DATA-ERASURE.md": "d25218be364afb55cf806b5343339efcd926a02496e49506890bcfadcaa56094",
         "docs/benchmarks/transaction-throughput-ci-5c1ddd5-2026-10-17.json": "da6ec93efd94f88465cc156434b19c48c78235961be425ef2fa9711377132300",
         "database/pending/20260701_110000__add_canary_deployment_tables.sql": "f96b82ee32401a2995bf18e461f0359e2273def1d189c219b630b1719167edc4",
         "database/pending/repairs/20260701_110000__add_canary_deployment_tables.sql": "66ca1c9bcefe9a5bb36a6b8fee01b305a2626040ea6b4a1f6b089dadd52897a3",
@@ -4435,7 +4510,7 @@
         "docs/benchmarks/ci-4abdb82-2026-10-23.json": "7d290418aab99d46a3e59ee17fd1f3c81a4c7a7ac6ac3e326923bbcd379b980b",
         "docs/benchmarks/transaction-throughput-ci-4abdb82-2026-10-23.json": "c66372d68832b4d281c08143b80024d27b2b2299510d4a6cbf33d9bcd03dfade",
         ".gitignore": "b7c86a9d17b2fd13413aceb23f27c39a16f202022f4d4f757193e8a314c18d25",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "backend/services/payment-service/src/index.js": "13723856daaef5debd9f0a25b004a17b57c83cb1febc4befbf167afa77c62992",
         "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
@@ -4482,12 +4557,12 @@
         "docs/benchmarks/sensitive-payment-risk-2026-10-28.json": "263ddb118dab8922d2ad1394c2bd22f067e60660131b49917676fbdc581b32f1",
         "docs/benchmarks/ci-85457de-2026-10-28.json": "7f8a36faf033d770d13f640db6456357aada0836380b2b6ec634b4e8b3ad47a7",
         "docs/benchmarks/transaction-throughput-ci-85457de-2026-10-28.json": "37e1a58db885f45bb2263de00091ce732c0691fd32f666279382439a6a94384f",
-        ".github/workflows/erasure-regression.yml": "f51a9d33cb5df6218fc24e18df7283bb2b94812996a05b0a9c13eb295ba013d9",
-        "backend/services/user-service/src/routes/dataDeletion.js": "578f6354de06558c0c09e2ee7537f9ea260fa90bd1eeedfdf1c63476a596316a",
+        ".github/workflows/erasure-regression.yml": "1ab36faa6175869b8f00a809e7e00e897213bf3b4b5e276c1136eb7bceed5277",
+        "backend/services/user-service/src/routes/dataDeletion.js": "ad3ff9dc3e34b41b769675de1acdff70c4dc86745ef367ce0031f9c44990f130",
         "backend/services/user-service/src/routes/gdpr.js": "5be048126f32b90f10a35f6657e711739cf78ca16aeb41f99058e2c30fbee305",
         "backend/shared/dataDeletionService.js": "29e9b4666dbd8f980094ae97d964c4c9597f543a5f6352cca5c43ca6bfb04145",
-        "backend/shared/erasure/ErasureRequestStore.js": "8cd884fcdd06d67b47e434de69241f7a190b9018cc9ba8f639b6d39871f13708",
-        "backend/tests/regression/erasure-request-storage.test.js": "4dfb10fd8be3266fa217efb41ede8a239cacf28f7b33e6728955ae18ab2c4c81",
+        "backend/shared/erasure/ErasureRequestStore.js": "b43656f02d99c6e5a8bdade44d420aedfe917d3546f4a03850ca9e73f8035f97",
+        "backend/tests/regression/erasure-request-storage.test.js": "d19ffe64aaecfbe251dba9176e7e717f86d86f0690aeda2a3d6832f2fbb1e332",
         "backend/tests/regression/gateway-startup.test.js": "6ed7a0e9404ebb8ad2c380a81f70330b300c3b98f54e966287331a45353b8111",
         "backend/tests/regression/mfa-browser-storage.test.js": "4b1c266ec8f83bf068cedf1e77589c00210a90491b19ac4c3e9e50d6d0966da7",
         "backend/tests/regression/user-startup.test.js": "11ca95b289bb822884cf7b4888f3356f0e79ec6bee3fd0726662c72d1a08538f",
@@ -5294,6 +5369,21 @@
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "priorCIArtifact": "docs/benchmarks/ci-9f13a62-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "docs/DATA-ERASURE.md",
+            "backend/package.json",
+            ".github/workflows/erasure-regression.yml",
+            "backend/services/user-service/src/routes/dataDeletion.js",
+            "backend/shared/erasure/ErasureRequestStore.js",
+            "backend/tests/regression/erasure-request-storage.test.js"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ],
       "remaining": "Complete85-source history now fails20260627_060000 statement13 missing is_deleted. Reconcile canonical inventory/ownership/contracts, all later pending files, data-preserving upgrades/reversal and all-service startup. Exact new remote throughput still unverified; all original acceptance remains open."
@@ -10199,7 +10289,7 @@
       ]
     },
     "REQ-00019-pokemon-moves-learning-system.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "4ff8ac9492012c4e20f34d249935eddc559d7eedf7010351d3084ada011a63fb",
       "sourceSha256": {
@@ -10219,7 +10309,7 @@
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
@@ -10485,6 +10575,16 @@
           ],
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ],
       "remainingAcceptance": [
@@ -10496,7 +10596,7 @@
       ]
     },
     "REQ-00146-gym-battle-damage-formula-and-type-chart.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_local_verified_ci_pending",
       "documentSha256": "7927ead7a5ef1fe606c4cd75abb2c8a8b5798c237835abb02923c072527f3e83",
       "sourceSha256": {
@@ -10516,7 +10616,7 @@
         "database/pending/repairs/20260615_221000__add_damage_system.sql": "4ba94956a2647cdf316767c083d4f6bafa9bfaa970b4b082b6b5661a5fd5b17e",
         "database/pending/repairs.json": "9a4f66750b1bf47123d6187691a41e9f8e936d7ec5145f097c3544a1706ded7b",
         "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
         "docs/MOVE-DAMAGE.md": "1672f1dae533787bf62df755bb90d36d40f233e6401d389fd7d42ae8a9d7ef4f"
       },
@@ -10782,6 +10882,16 @@
           ],
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ],
       "remainingAcceptance": [
@@ -11011,7 +11121,7 @@
       ]
     },
     "REQ-00051-multi-currency-support-exchange-rate-system.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "dcbacc58410c1b87a56bd1a19e042a673d4e27b4ad309fdb71cfe910dde1b6f8",
       "sourceSha256": {
@@ -11051,7 +11161,7 @@
         "backend/tests/unit/gateway-proxy.test.js": "0fe6de71ad60276705d8f6eaf3acb44ca9e8eeccf397fec731d7058536b9948d",
         "backend/tests/unit/mfa-client.test.js": "a96e807b1049ef199dfe092d353763e1aac1f816f1babac8a3ef5df89c17a1ec",
         "frontend/game-client/src/api/client.js": "d10fba65a1ac6f2ab88a55bfe42d27de48c46e591fe21793ac85e47af070a3a3",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         ".github/workflows/payment-regression.yml": "9518e4a5923ddeede76cef598b87bd75f6b29cedd17ca6713f5e18a71649e2b2",
         "backend/tests/README.md": "239290efa2f98c06077b75234e42bda222e92ab527cd03fcef22ffd76f09d032",
@@ -11060,17 +11170,17 @@
         "docs/benchmarks/sensitive-payment-risk-2026-10-28.json": "263ddb118dab8922d2ad1394c2bd22f067e60660131b49917676fbdc581b32f1",
         "docs/benchmarks/ci-85457de-2026-10-28.json": "7f8a36faf033d770d13f640db6456357aada0836380b2b6ec634b4e8b3ad47a7",
         "docs/benchmarks/transaction-throughput-ci-85457de-2026-10-28.json": "37e1a58db885f45bb2263de00091ce732c0691fd32f666279382439a6a94384f",
-        ".github/workflows/erasure-regression.yml": "f51a9d33cb5df6218fc24e18df7283bb2b94812996a05b0a9c13eb295ba013d9",
+        ".github/workflows/erasure-regression.yml": "1ab36faa6175869b8f00a809e7e00e897213bf3b4b5e276c1136eb7bceed5277",
         "backend/services/user-service/src/index.js": "e894b853967a4eb5f9854c6e18756f74a421d12d2c34c0785f3673d0d1ab1684",
-        "backend/services/user-service/src/routes/dataDeletion.js": "578f6354de06558c0c09e2ee7537f9ea260fa90bd1eeedfdf1c63476a596316a",
+        "backend/services/user-service/src/routes/dataDeletion.js": "ad3ff9dc3e34b41b769675de1acdff70c4dc86745ef367ce0031f9c44990f130",
         "backend/services/user-service/src/routes/gdpr.js": "5be048126f32b90f10a35f6657e711739cf78ca16aeb41f99058e2c30fbee305",
         "backend/shared/dataDeletionService.js": "29e9b4666dbd8f980094ae97d964c4c9597f543a5f6352cca5c43ca6bfb04145",
-        "backend/shared/erasure/ErasureRequestStore.js": "8cd884fcdd06d67b47e434de69241f7a190b9018cc9ba8f639b6d39871f13708",
-        "backend/tests/regression/erasure-request-storage.test.js": "4dfb10fd8be3266fa217efb41ede8a239cacf28f7b33e6728955ae18ab2c4c81",
+        "backend/shared/erasure/ErasureRequestStore.js": "b43656f02d99c6e5a8bdade44d420aedfe917d3546f4a03850ca9e73f8035f97",
+        "backend/tests/regression/erasure-request-storage.test.js": "d19ffe64aaecfbe251dba9176e7e717f86d86f0690aeda2a3d6832f2fbb1e332",
         "backend/tests/regression/gateway-startup.test.js": "6ed7a0e9404ebb8ad2c380a81f70330b300c3b98f54e966287331a45353b8111",
         "backend/tests/regression/mfa-browser-storage.test.js": "4b1c266ec8f83bf068cedf1e77589c00210a90491b19ac4c3e9e50d6d0966da7",
         "backend/tests/regression/user-startup.test.js": "11ca95b289bb822884cf7b4888f3356f0e79ec6bee3fd0726662c72d1a08538f",
-        "docs/DATA-ERASURE.md": "b1514e64b8900c6d4ce88f6b1242f7f727feacdec2928b942422e8442c9883fd",
+        "docs/DATA-ERASURE.md": "d25218be364afb55cf806b5343339efcd926a02496e49506890bcfadcaa56094",
         "frontend/game-client/sw.js": "929e7a1a3ec879927f6fa1f09add635149f6aa5a7ea8dc6bde9352ced8bddea0",
         "docs/benchmarks/erasure-request-runtime-2026-10-31.json": "ca4192fe0bef668999409ad9c0a7b98b3d879120537b4393091ad6a25059c63b",
         "docs/benchmarks/ci-9f13a62-2026-10-31.json": "89bc783df410a0234df0f47a1d5dd9322466e025f40e2d5d41ab983a867748b0",
@@ -11318,6 +11428,21 @@
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "priorCIArtifact": "docs/benchmarks/ci-9f13a62-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/package.json",
+            ".github/workflows/erasure-regression.yml",
+            "backend/services/user-service/src/routes/dataDeletion.js",
+            "backend/shared/erasure/ErasureRequestStore.js",
+            "backend/tests/regression/erasure-request-storage.test.js",
+            "docs/DATA-ERASURE.md"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ],
       "remaining": [
@@ -11329,7 +11454,7 @@
       ]
     },
     "REQ-00096-database-transaction-isolation-deadlock-detection.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_verified_fresh_history_pass_full_acceptance_open",
       "documentSha256": "f52b3ccedbf89da0463dcc922be42bae33ea20a67249d8501cf075b96e22297b",
       "sourceSha256": {
@@ -11419,7 +11544,7 @@
         "backend/tests/unit/gateway-proxy.test.js": "0fe6de71ad60276705d8f6eaf3acb44ca9e8eeccf397fec731d7058536b9948d",
         "backend/tests/unit/mfa-client.test.js": "a96e807b1049ef199dfe092d353763e1aac1f816f1babac8a3ef5df89c17a1ec",
         "frontend/game-client/src/api/client.js": "d10fba65a1ac6f2ab88a55bfe42d27de48c46e591fe21793ac85e47af070a3a3",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         ".github/workflows/payment-regression.yml": "9518e4a5923ddeede76cef598b87bd75f6b29cedd17ca6713f5e18a71649e2b2",
         "backend/tests/README.md": "239290efa2f98c06077b75234e42bda222e92ab527cd03fcef22ffd76f09d032",
@@ -11917,6 +12042,16 @@
           ],
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ],
       "remaining": [
@@ -12823,7 +12958,7 @@
       ]
     },
     "REQ-00016-gdpr-compliance.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_actual_uuid_erasure_intake_and_mfa_boundaries_verified_full_privacy_export_execution_legal_open",
       "documentSha256": "0e4b74e6e33e9e38b1b6b1acb60df77071ee8d8ed4f57f085fefbaf1f8ce6bb9",
       "sourceSha256": {
@@ -12839,12 +12974,12 @@
         "backend/services/user-service/src/gdprService.js": "5f482f9e8651acbf3743d039b2458f6474a62b65c837dc68e9ee5c25fbd94c52",
         "backend/services/user-service/src/routes/gdpr.js": "5be048126f32b90f10a35f6657e711739cf78ca16aeb41f99058e2c30fbee305",
         "backend/services/user-service/src/routes/gdprService.js": "92277df82b37fa90a6e47d3052d81380ae606a9ffa5051a086bfc4f3adcabf24",
-        "backend/services/user-service/src/routes/dataDeletion.js": "578f6354de06558c0c09e2ee7537f9ea260fa90bd1eeedfdf1c63476a596316a",
+        "backend/services/user-service/src/routes/dataDeletion.js": "ad3ff9dc3e34b41b769675de1acdff70c4dc86745ef367ce0031f9c44990f130",
         "backend/services/user-service/src/index.js": "e894b853967a4eb5f9854c6e18756f74a421d12d2c34c0785f3673d0d1ab1684",
         "backend/jobs/dataDeletionProcessor.js": "966f12addfaf5a97f68b329e155173c2dae85699c2d818e8996d48ffcfb52244",
         "backend/tests/regression/erasure-schema-storage.test.js": "4c54f92e9492772d096201675ffe7b0d0594c609bc64e1395b9b910feeda535b",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
-        "docs/DATA-ERASURE.md": "b1514e64b8900c6d4ce88f6b1242f7f727feacdec2928b942422e8442c9883fd",
+        "docs/DATA-ERASURE.md": "d25218be364afb55cf806b5343339efcd926a02496e49506890bcfadcaa56094",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json": "fa441fdcf8f5471c1a0d5c74082467f4bf92777d547989df6ddd08c42c68b765",
         "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297",
@@ -12865,17 +13000,17 @@
         "backend/tests/regression/gateway-startup.test.js": "6ed7a0e9404ebb8ad2c380a81f70330b300c3b98f54e966287331a45353b8111",
         "backend/tests/unit/auditLog.test.js": "129d92b8c127d8cb0be99971b3c438560bb3d6714b9e91cdaf2e5d0f1008adf9",
         "backend/tests/unit/privacy-preferences.test.js": "ff1e6f9920d3b003c3284bd353d6f8138482d8700652e2b750375e06e900eab1",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "docs/AUDIT-ENCRYPTION.md": "227244af459af83941348bd721e952722c8132967833df154eae90b051f5a8a2",
         "docs/SENSITIVE-AUDIT-STORAGE.md": "3d9f2b933a804a7831f51d818cccbb08f3d633e623e6890360d4a3694b2deddf",
         "docs/benchmarks/common-audit-local-2026-10-20.json": "90e78ca8be2327b3ded7fb24550300c6061fa43643c20187a2efbef8e8e20ad7",
-        ".github/workflows/erasure-regression.yml": "f51a9d33cb5df6218fc24e18df7283bb2b94812996a05b0a9c13eb295ba013d9",
+        ".github/workflows/erasure-regression.yml": "1ab36faa6175869b8f00a809e7e00e897213bf3b4b5e276c1136eb7bceed5277",
         "backend/gateway/src/index.js": "5de453b2760fbd0027d3543eef003ef793e64d0d19ae17532ba6030730b03242",
         "backend/gateway/src/middleware/mfaRequired.js": "07a85e9e49531c97df7f7e5aa4160b1251b6445c077568bde52c75107d50733a",
-        "backend/shared/erasure/ErasureRequestStore.js": "8cd884fcdd06d67b47e434de69241f7a190b9018cc9ba8f639b6d39871f13708",
+        "backend/shared/erasure/ErasureRequestStore.js": "b43656f02d99c6e5a8bdade44d420aedfe917d3546f4a03850ca9e73f8035f97",
         "backend/tests/README.md": "239290efa2f98c06077b75234e42bda222e92ab527cd03fcef22ffd76f09d032",
-        "backend/tests/regression/erasure-request-storage.test.js": "4dfb10fd8be3266fa217efb41ede8a239cacf28f7b33e6728955ae18ab2c4c81",
+        "backend/tests/regression/erasure-request-storage.test.js": "d19ffe64aaecfbe251dba9176e7e717f86d86f0690aeda2a3d6832f2fbb1e332",
         "backend/tests/regression/mfa-browser-storage.test.js": "4b1c266ec8f83bf068cedf1e77589c00210a90491b19ac4c3e9e50d6d0966da7",
         "backend/tests/unit/mfa-client.test.js": "a96e807b1049ef199dfe092d353763e1aac1f816f1babac8a3ef5df89c17a1ec",
         "docs/SENSITIVE-OPERATION-RISK.md": "e6a42331ea49449c1075e1bdc74abb4ea31371982948f9188566abd96b9b577a",
@@ -12883,7 +13018,13 @@
         "frontend/game-client/sw.js": "929e7a1a3ec879927f6fa1f09add635149f6aa5a7ea8dc6bde9352ced8bddea0",
         "docs/benchmarks/erasure-request-runtime-2026-10-31.json": "ca4192fe0bef668999409ad9c0a7b98b3d879120537b4393091ad6a25059c63b",
         "docs/benchmarks/ci-9f13a62-2026-10-31.json": "89bc783df410a0234df0f47a1d5dd9322466e025f40e2d5d41ab983a867748b0",
-        "docs/benchmarks/transaction-throughput-ci-9f13a62-2026-10-31.json": "7e064c274250dc179501a578ba53ee67d3cc02853635ea372105f0e5c87ca2cb"
+        "docs/benchmarks/transaction-throughput-ci-9f13a62-2026-10-31.json": "7e064c274250dc179501a578ba53ee67d3cc02853635ea372105f0e5c87ca2cb",
+        "backend/shared/erasure/ErasureResourcePlanner.js": "51d41fc7e0eb3b048ba30834bafe9557153d3a06f8a81a1e83b047a861089fc9",
+        "backend/tests/regression/erasure-resource-plan-storage.test.js": "a14e4ef16c61d73bb54d59b5bcd266abd11ee48f597e79d90174ab7055138988",
+        "docs/requirements/COMPLETION-PLAN.md": "a8cfca9515049d8fea146a1e995fbc2ed242fd3dba32ae3bb41937435d0240b3",
+        "docs/requirements/WORKLOG.md": "53d246f7908f28a0282edf30479ded0d03b543def188e1591251a32e1426cbf9",
+        "docs/benchmarks/ci-2af2750-2026-11-03.json": "25f5adc54a6b657cbf1e9b12c80977cd0939854202f95ddcfbba203897bd2191",
+        "docs/benchmarks/erasure-resource-review-2026-11-03.json": "e7d71e942767732331d6a425696758e3b2dbcd68eb159b183f7333e244e1910c"
       },
       "evidence": [
         {
@@ -13074,13 +13215,35 @@
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "priorCIArtifact": "docs/benchmarks/ci-9f13a62-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/services/user-service/src/routes/dataDeletion.js",
+            "docs/DATA-ERASURE.md",
+            "backend/package.json",
+            ".github/workflows/erasure-regression.yml",
+            "backend/shared/erasure/ErasureRequestStore.js",
+            "backend/tests/regression/erasure-request-storage.test.js"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "actual_complete_schema_inventory_admin_mfa_and_audited_snapshot_review_partial",
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ],
       "remaining": "All original12 criteria and whole-scope80coverage preserved. UUID delete/confirm/status/withdraw aliases now use actual modern owner/admin/session/MFA workflow and encrypted transitions, preserving unrelated consent/legacy history. Original JSON/CSV export implementation remains unported, now separately purpose gated. No real delivery or complete erasure/retention/executor/signing/optional-consent-model/UI/privacy/security/legal acceptance. Scoped integration90 gates and actual certificate fixture are not complete GDPR feature or legal proof."
     },
     "REQ-00127-user-data-deletion-requests-management.md": {
-      "date": "2026-10-31",
-      "status": "partial_actual_uuid_request_mfa_approval_encrypted_reads_and_certificate_verification_full_erasure_open",
+      "date": "2026-11-03",
+      "status": "partial_actual_uuid_workflow_and_schema_resource_review_verified_execution_delivery_full_acceptance_open",
       "documentSha256": "bcf8bb3d4bc6480129a8b7936a79136d897f4ed3f7f4c6c704aa391088d07dee",
       "sourceSha256": {
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
@@ -13095,22 +13258,22 @@
         "backend/services/user-service/src/gdprService.js": "5f482f9e8651acbf3743d039b2458f6474a62b65c837dc68e9ee5c25fbd94c52",
         "backend/services/user-service/src/routes/gdpr.js": "5be048126f32b90f10a35f6657e711739cf78ca16aeb41f99058e2c30fbee305",
         "backend/services/user-service/src/routes/gdprService.js": "92277df82b37fa90a6e47d3052d81380ae606a9ffa5051a086bfc4f3adcabf24",
-        "backend/services/user-service/src/routes/dataDeletion.js": "578f6354de06558c0c09e2ee7537f9ea260fa90bd1eeedfdf1c63476a596316a",
+        "backend/services/user-service/src/routes/dataDeletion.js": "ad3ff9dc3e34b41b769675de1acdff70c4dc86745ef367ce0031f9c44990f130",
         "backend/services/user-service/src/index.js": "e894b853967a4eb5f9854c6e18756f74a421d12d2c34c0785f3673d0d1ab1684",
         "backend/jobs/dataDeletionProcessor.js": "966f12addfaf5a97f68b329e155173c2dae85699c2d818e8996d48ffcfb52244",
         "backend/tests/regression/erasure-schema-storage.test.js": "4c54f92e9492772d096201675ffe7b0d0594c609bc64e1395b9b910feeda535b",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
-        "docs/DATA-ERASURE.md": "b1514e64b8900c6d4ce88f6b1242f7f727feacdec2928b942422e8442c9883fd",
+        "docs/DATA-ERASURE.md": "d25218be364afb55cf806b5343339efcd926a02496e49506890bcfadcaa56094",
         "docs/DATABASE-MIGRATIONS.md": "b9d8114ee0ea2f09fcad0f90999c800dd9a1fc408c24e9e0fecdc062a054adf0",
         "docs/benchmarks/transaction-throughput-ci-40a98d3-2026-10-18.json": "fa441fdcf8f5471c1a0d5c74082467f4bf92777d547989df6ddd08c42c68b765",
         "docs/benchmarks/transaction-throughput-ci-2e5fc2b-2026-10-18.json": "c210270fac7f03d3d5932a49188cdee68cdb4990345d28dea12dcc7eabdc9297",
-        ".github/workflows/erasure-regression.yml": "f51a9d33cb5df6218fc24e18df7283bb2b94812996a05b0a9c13eb295ba013d9",
+        ".github/workflows/erasure-regression.yml": "1ab36faa6175869b8f00a809e7e00e897213bf3b4b5e276c1136eb7bceed5277",
         "backend/gateway/src/index.js": "5de453b2760fbd0027d3543eef003ef793e64d0d19ae17532ba6030730b03242",
         "backend/gateway/src/middleware/mfaRequired.js": "07a85e9e49531c97df7f7e5aa4160b1251b6445c077568bde52c75107d50733a",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
-        "backend/shared/erasure/ErasureRequestStore.js": "8cd884fcdd06d67b47e434de69241f7a190b9018cc9ba8f639b6d39871f13708",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
+        "backend/shared/erasure/ErasureRequestStore.js": "b43656f02d99c6e5a8bdade44d420aedfe917d3546f4a03850ca9e73f8035f97",
         "backend/tests/README.md": "239290efa2f98c06077b75234e42bda222e92ab527cd03fcef22ffd76f09d032",
-        "backend/tests/regression/erasure-request-storage.test.js": "4dfb10fd8be3266fa217efb41ede8a239cacf28f7b33e6728955ae18ab2c4c81",
+        "backend/tests/regression/erasure-request-storage.test.js": "d19ffe64aaecfbe251dba9176e7e717f86d86f0690aeda2a3d6832f2fbb1e332",
         "backend/tests/regression/gateway-startup.test.js": "6ed7a0e9404ebb8ad2c380a81f70330b300c3b98f54e966287331a45353b8111",
         "backend/tests/regression/mfa-browser-storage.test.js": "4b1c266ec8f83bf068cedf1e77589c00210a90491b19ac4c3e9e50d6d0966da7",
         "backend/tests/regression/user-startup.test.js": "11ca95b289bb822884cf7b4888f3356f0e79ec6bee3fd0726662c72d1a08538f",
@@ -13120,7 +13283,13 @@
         "frontend/game-client/sw.js": "929e7a1a3ec879927f6fa1f09add635149f6aa5a7ea8dc6bde9352ced8bddea0",
         "docs/benchmarks/erasure-request-runtime-2026-10-31.json": "ca4192fe0bef668999409ad9c0a7b98b3d879120537b4393091ad6a25059c63b",
         "docs/benchmarks/ci-9f13a62-2026-10-31.json": "89bc783df410a0234df0f47a1d5dd9322466e025f40e2d5d41ab983a867748b0",
-        "docs/benchmarks/transaction-throughput-ci-9f13a62-2026-10-31.json": "7e064c274250dc179501a578ba53ee67d3cc02853635ea372105f0e5c87ca2cb"
+        "docs/benchmarks/transaction-throughput-ci-9f13a62-2026-10-31.json": "7e064c274250dc179501a578ba53ee67d3cc02853635ea372105f0e5c87ca2cb",
+        "backend/shared/erasure/ErasureResourcePlanner.js": "51d41fc7e0eb3b048ba30834bafe9557153d3a06f8a81a1e83b047a861089fc9",
+        "backend/tests/regression/erasure-resource-plan-storage.test.js": "a14e4ef16c61d73bb54d59b5bcd266abd11ee48f597e79d90174ab7055138988",
+        "docs/requirements/COMPLETION-PLAN.md": "a8cfca9515049d8fea146a1e995fbc2ed242fd3dba32ae3bb41937435d0240b3",
+        "docs/requirements/WORKLOG.md": "53d246f7908f28a0282edf30479ded0d03b543def188e1591251a32e1426cbf9",
+        "docs/benchmarks/ci-2af2750-2026-11-03.json": "25f5adc54a6b657cbf1e9b12c80977cd0939854202f95ddcfbba203897bd2191",
+        "docs/benchmarks/erasure-resource-review-2026-11-03.json": "e7d71e942767732331d6a425696758e3b2dbcd68eb159b183f7333e244e1910c"
       },
       "evidence": [
         {
@@ -13260,9 +13429,31 @@
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "priorCIArtifact": "docs/benchmarks/ci-9f13a62-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/services/user-service/src/routes/dataDeletion.js",
+            "docs/DATA-ERASURE.md",
+            ".github/workflows/erasure-regression.yml",
+            "backend/package.json",
+            "backend/shared/erasure/ErasureRequestStore.js",
+            "backend/tests/regression/erasure-request-storage.test.js"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "actual_complete_schema_inventory_admin_mfa_and_audited_snapshot_review_partial",
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ],
-      "remaining": "All original12 criteria unchanged. Actual UUID intake/owner nonce verification/auto30day or manual approval/cancel/read/admin/statistics/atomic UUID consent withdrawal and configured certificate signature reads work with real MFA/session/audit/metrics. No real confirmation delivery; internal preparation only. Actual resource/retention plans, executor/task creation/worker scheduling/retry/outbox/notifications/production signer/key lifecycle/postaccount receipt access/UI/legal review and complete original acceptance remain open. Legacy processor unported/unmounted; facade explicitly refuses raw-plan execution. Fixture actual2row removal/signature does not establish production worker completion."
+      "remaining": "Original12 criteria/targets unchanged. Actual UUID request/nonce/approval30day/cancel/reads/signature verification and admin-MFA schema-wide snapshot resource inventory now work with encrypted transactional audit and postcommit metrics. Inventory reports unknown ownership/legacy/embedded/RLS/privilege/external effects and executionReady=false; it is not an executable plan. Real category-complete resource operators/ownership and retention policy, external data/cache/backup coverage, task executor/worker scheduling/retry/outbox/transport/recipient delivery, production signer/key lifecycle/postaccount receipts/UI and legal review remain open. Legacy processor is still unported/unmounted; execute refuses unconfigured plan without state/data mutation. Original complete GDPR/CCPA acceptance is not claimed."
     },
     "REQ-00078-canary-deployment-and-traffic-splitting.md": {
       "date": "2026-10-31",
@@ -14185,7 +14376,7 @@
       "remaining": "All10 original criteria preserved. All-job actual registration/status reporting, <5s dashboard visibility, real mounted authenticated controls, configured60s delivery/noise10min, >95%zombie accuracy/<10%score error, actual admin dashboard, core aggregator/alerts/health>80% and end-to-end alert delivery remain required. No external recipients contacted or destructive job/control/production cleanup started. Fresh install pass does not accept differing-repair upgrade/reversal/cross-schema audit behavior."
     },
     "REQ-00038-api-sensitive-data-protection.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_canonical_crypto_protected_audit_queries_mfa_and_p0_projection_verified_full_security_open",
       "documentSha256": "80a255e29524056b95ee5a8c46bf5862d65ee4f91498df2e2591c3a4ed78ae9e",
       "sourceSha256": {
@@ -14207,7 +14398,7 @@
         "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
         "backend/tests/regression/audit-crypto-storage.test.js": "ab8434cfb793a9d8d380df6323734538b66a773de000af7873babe40c3999380",
         "backend/tests/regression/audit-kms-wire.test.js": "11ca121f3f229022d33c9d469d2e7faf1d2aa3e5db807d2d7aaec91e22b5e9d3",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "database/migrations/V1__initial_schema.sql": "4fb78dfdeffa245746d94c6e576c35a3b480066992b07390c82977623c27ea08",
         "database/seeds/V2__seed_data.sql": "7c85c2d07999a4c8e5bad2d07324456b101a909c0e77fb73f0ff2d31879ed355",
@@ -14321,15 +14512,21 @@
         "docs/benchmarks/sensitive-payment-risk-2026-10-28.json": "263ddb118dab8922d2ad1394c2bd22f067e60660131b49917676fbdc581b32f1",
         "docs/benchmarks/ci-85457de-2026-10-28.json": "7f8a36faf033d770d13f640db6456357aada0836380b2b6ec634b4e8b3ad47a7",
         "docs/benchmarks/transaction-throughput-ci-85457de-2026-10-28.json": "37e1a58db885f45bb2263de00091ce732c0691fd32f666279382439a6a94384f",
-        ".github/workflows/erasure-regression.yml": "f51a9d33cb5df6218fc24e18df7283bb2b94812996a05b0a9c13eb295ba013d9",
-        "backend/services/user-service/src/routes/dataDeletion.js": "578f6354de06558c0c09e2ee7537f9ea260fa90bd1eeedfdf1c63476a596316a",
+        ".github/workflows/erasure-regression.yml": "1ab36faa6175869b8f00a809e7e00e897213bf3b4b5e276c1136eb7bceed5277",
+        "backend/services/user-service/src/routes/dataDeletion.js": "ad3ff9dc3e34b41b769675de1acdff70c4dc86745ef367ce0031f9c44990f130",
         "backend/shared/dataDeletionService.js": "29e9b4666dbd8f980094ae97d964c4c9597f543a5f6352cca5c43ca6bfb04145",
-        "backend/shared/erasure/ErasureRequestStore.js": "8cd884fcdd06d67b47e434de69241f7a190b9018cc9ba8f639b6d39871f13708",
-        "backend/tests/regression/erasure-request-storage.test.js": "4dfb10fd8be3266fa217efb41ede8a239cacf28f7b33e6728955ae18ab2c4c81",
-        "docs/DATA-ERASURE.md": "b1514e64b8900c6d4ce88f6b1242f7f727feacdec2928b942422e8442c9883fd",
+        "backend/shared/erasure/ErasureRequestStore.js": "b43656f02d99c6e5a8bdade44d420aedfe917d3546f4a03850ca9e73f8035f97",
+        "backend/tests/regression/erasure-request-storage.test.js": "d19ffe64aaecfbe251dba9176e7e717f86d86f0690aeda2a3d6832f2fbb1e332",
+        "docs/DATA-ERASURE.md": "d25218be364afb55cf806b5343339efcd926a02496e49506890bcfadcaa56094",
         "docs/benchmarks/erasure-request-runtime-2026-10-31.json": "ca4192fe0bef668999409ad9c0a7b98b3d879120537b4393091ad6a25059c63b",
         "docs/benchmarks/ci-9f13a62-2026-10-31.json": "89bc783df410a0234df0f47a1d5dd9322466e025f40e2d5d41ab983a867748b0",
-        "docs/benchmarks/transaction-throughput-ci-9f13a62-2026-10-31.json": "7e064c274250dc179501a578ba53ee67d3cc02853635ea372105f0e5c87ca2cb"
+        "docs/benchmarks/transaction-throughput-ci-9f13a62-2026-10-31.json": "7e064c274250dc179501a578ba53ee67d3cc02853635ea372105f0e5c87ca2cb",
+        "backend/shared/erasure/ErasureResourcePlanner.js": "51d41fc7e0eb3b048ba30834bafe9557153d3a06f8a81a1e83b047a861089fc9",
+        "backend/tests/regression/erasure-resource-plan-storage.test.js": "a14e4ef16c61d73bb54d59b5bcd266abd11ee48f597e79d90174ab7055138988",
+        "docs/requirements/COMPLETION-PLAN.md": "a8cfca9515049d8fea146a1e995fbc2ed242fd3dba32ae3bb41937435d0240b3",
+        "docs/requirements/WORKLOG.md": "53d246f7908f28a0282edf30479ded0d03b543def188e1591251a32e1426cbf9",
+        "docs/benchmarks/ci-2af2750-2026-11-03.json": "25f5adc54a6b657cbf1e9b12c80977cd0939854202f95ddcfbba203897bd2191",
+        "docs/benchmarks/erasure-resource-review-2026-11-03.json": "e7d71e942767732331d6a425696758e3b2dbcd68eb159b183f7333e244e1910c"
       },
       "evidence": [
         {
@@ -14686,12 +14883,34 @@
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "priorCIArtifact": "docs/benchmarks/ci-9f13a62-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/package.json",
+            ".github/workflows/erasure-regression.yml",
+            "backend/services/user-service/src/routes/dataDeletion.js",
+            "backend/shared/erasure/ErasureRequestStore.js",
+            "backend/tests/regression/erasure-request-storage.test.js",
+            "docs/DATA-ERASURE.md"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "actual_complete_schema_inventory_admin_mfa_and_audited_snapshot_review_partial",
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ],
       "remaining": "Original10criteria unchanged. Actual signedL2+serverMFA+reason protected decrypt/audit-service-query/sensitive-access-query and transactional receipts implemented; known structuredP0aliases filtered. Full frontend/provisioning/admin governance/approvedL3exports, all sensitive business/denied attempts and legacy callers/jobs/ignoredfalse, originalallresponse/unstructured/custommask/atleast10types/scannerfailP0 and fullcombinedunit>=90 remain open. LiveAWS/IAM/keypolicy/CloudTrail/availability/latency unverified. Unknownlegacykeys/tags/timestamp provenance never guessed. Sensitive lookup is bounded lookahead, not complete export; old common helpers remain metadata. No productioncleanup/rekey/merge/deploy."
     },
     "REQ-00202-security-modules-unit-test-coverage.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_common_and_encrypted_audit_coverage_verified_other_security_modules_open",
       "documentSha256": "d021da3f49a98fa1dd9649a99f2bfb8e9905bc16a356823679dcf051ddbc1e06",
       "sourceSha256": {
@@ -14714,7 +14933,7 @@
         "backend/tests/regression/gateway-startup.test.js": "6ed7a0e9404ebb8ad2c380a81f70330b300c3b98f54e966287331a45353b8111",
         "backend/tests/unit/auditLog.test.js": "129d92b8c127d8cb0be99971b3c438560bb3d6714b9e91cdaf2e5d0f1008adf9",
         "backend/tests/unit/privacy-preferences.test.js": "ff1e6f9920d3b003c3284bd353d6f8138482d8700652e2b750375e06e900eab1",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
         "docs/AUDIT-ENCRYPTION.md": "227244af459af83941348bd721e952722c8132967833df154eae90b051f5a8a2",
@@ -14942,12 +15161,22 @@
           ],
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ],
       "remaining": "All11 security modules eachoriginal85/90coverage, correctmock/stub isolation, retainedcleanup, whole npmtest/CI and completeunitexecution<30s still need independent evidence. Partialnewaudit gates do not accept this framework."
     },
     "REQ-00638-multi-factor-authentication-mfa-system.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_canonical_mfa_sessions_http_game_client_and_offline_boundaries_verified",
       "documentSha256": "0ebe2ef64ee0c2654b6dc5ebc598e306ffce9e341439a8123335ab4b557c701e",
       "sourceSha256": {
@@ -14976,7 +15205,7 @@
         "backend/tests/regression/user-startup.test.js": "11ca95b289bb822884cf7b4888f3356f0e79ec6bee3fd0726662c72d1a08538f",
         "backend/tests/regression/gateway-startup.test.js": "6ed7a0e9404ebb8ad2c380a81f70330b300c3b98f54e966287331a45353b8111",
         "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
         "database/pending/20260610_000000__add_mfa_system.sql": "652b95497f7f28727a4dc07f9469a8a6f5c51b3c4fb58917a2a8c071b4720a65",
@@ -15035,13 +15264,13 @@
         "docs/benchmarks/sensitive-payment-risk-2026-10-28.json": "263ddb118dab8922d2ad1394c2bd22f067e60660131b49917676fbdc581b32f1",
         "docs/benchmarks/ci-85457de-2026-10-28.json": "7f8a36faf033d770d13f640db6456357aada0836380b2b6ec634b4e8b3ad47a7",
         "docs/benchmarks/transaction-throughput-ci-85457de-2026-10-28.json": "37e1a58db885f45bb2263de00091ce732c0691fd32f666279382439a6a94384f",
-        ".github/workflows/erasure-regression.yml": "f51a9d33cb5df6218fc24e18df7283bb2b94812996a05b0a9c13eb295ba013d9",
-        "backend/services/user-service/src/routes/dataDeletion.js": "578f6354de06558c0c09e2ee7537f9ea260fa90bd1eeedfdf1c63476a596316a",
+        ".github/workflows/erasure-regression.yml": "1ab36faa6175869b8f00a809e7e00e897213bf3b4b5e276c1136eb7bceed5277",
+        "backend/services/user-service/src/routes/dataDeletion.js": "ad3ff9dc3e34b41b769675de1acdff70c4dc86745ef367ce0031f9c44990f130",
         "backend/services/user-service/src/routes/gdpr.js": "5be048126f32b90f10a35f6657e711739cf78ca16aeb41f99058e2c30fbee305",
         "backend/shared/dataDeletionService.js": "29e9b4666dbd8f980094ae97d964c4c9597f543a5f6352cca5c43ca6bfb04145",
-        "backend/shared/erasure/ErasureRequestStore.js": "8cd884fcdd06d67b47e434de69241f7a190b9018cc9ba8f639b6d39871f13708",
-        "backend/tests/regression/erasure-request-storage.test.js": "4dfb10fd8be3266fa217efb41ede8a239cacf28f7b33e6728955ae18ab2c4c81",
-        "docs/DATA-ERASURE.md": "b1514e64b8900c6d4ce88f6b1242f7f727feacdec2928b942422e8442c9883fd",
+        "backend/shared/erasure/ErasureRequestStore.js": "b43656f02d99c6e5a8bdade44d420aedfe917d3546f4a03850ca9e73f8035f97",
+        "backend/tests/regression/erasure-request-storage.test.js": "d19ffe64aaecfbe251dba9176e7e717f86d86f0690aeda2a3d6832f2fbb1e332",
+        "docs/DATA-ERASURE.md": "d25218be364afb55cf806b5343339efcd926a02496e49506890bcfadcaa56094",
         "docs/benchmarks/erasure-request-runtime-2026-10-31.json": "ca4192fe0bef668999409ad9c0a7b98b3d879120537b4393091ad6a25059c63b",
         "docs/benchmarks/ci-9f13a62-2026-10-31.json": "89bc783df410a0234df0f47a1d5dd9322466e025f40e2d5d41ab983a867748b0",
         "docs/benchmarks/transaction-throughput-ci-9f13a62-2026-10-31.json": "7e064c274250dc179501a578ba53ee67d3cc02853635ea372105f0e5c87ca2cb"
@@ -15195,12 +15424,27 @@
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "priorCIArtifact": "docs/benchmarks/ci-9f13a62-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/package.json",
+            ".github/workflows/erasure-regression.yml",
+            "backend/services/user-service/src/routes/dataDeletion.js",
+            "backend/shared/erasure/ErasureRequestStore.js",
+            "backend/tests/regression/erasure-request-storage.test.js",
+            "docs/DATA-ERASURE.md"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ],
       "remaining": "Original10criteria/targets unchanged. Actualbackendfactors/sessions/locks/epoch/proofs and gameenrollment/login/recovery/regeneration/disable/cancel/browserstoragebounds work. PhysicalGoogleAuthenticatorQRscan/manualinterop and originalend-to-end>=99percentproductsuccess, seven-daytrusteddevices, everysensitivepassword/payment/admin/riskbusinessscope, realSMSprovider, fullmonitoring/metrics/alerts/originalproductimpact and productionacceptance remainopen. Controlled500/500referencewindows and scoped90line/functioncoverage do not accept device/network/allbusinesscriteria. No remembereddeviceflag:serverexplicitlyrefuses whilecontractopen. Current payment creation/verification now uses canonical session/purpose proofs with server factor assurance and independent refresh expiry; complete all other sensitive paths/password/payment binding and product/device/provider criteria remain open."
     },
     "REQ-00126-user-service-mfa-route-mounting.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_actual_native_aliases_and_original_three_static_commands_pass_literal_forged_token_curl_conflict_open",
       "documentSha256": "de911ca6abd25dc8c3bb84811c8ecedd21025ac32adc898d3b47776fb0153dba",
       "sourceSha256": {
@@ -15229,7 +15473,7 @@
         "backend/tests/regression/user-startup.test.js": "11ca95b289bb822884cf7b4888f3356f0e79ec6bee3fd0726662c72d1a08538f",
         "backend/tests/regression/gateway-startup.test.js": "6ed7a0e9404ebb8ad2c380a81f70330b300c3b98f54e966287331a45353b8111",
         "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
         "database/pending/20260610_000000__add_mfa_system.sql": "652b95497f7f28727a4dc07f9469a8a6f5c51b3c4fb58917a2a8c071b4720a65",
@@ -15371,12 +15615,22 @@
           ],
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ],
       "remaining": "All original4 boxes retained. Syntax/grep/load commands pass; authenticated native aliases reachable. Original curl -sf with literal forged Bearer test_token gets401 as required by signed authentication; command cannot securely succeed as written. Preserve conflict, do not whitelist token or silently rewrite criterion. Native38 and dedicatedMFA1 pass at d2daf86; main469 inventory failure retained; corrected main470 and dedicatedMFA2 passed at89caae1; separate migration31 throughput failed."
     },
     "REQ-00588-sensitive-api-mfa-risk-grading.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_actual_payment_erasure_risk_and_cross_service_mfa_verified_other_sensitive_apis_open",
       "documentSha256": "2993073cb0a0038363a2d4ea93f847c7dac3660aecfddef204e0565305384742",
       "sourceSha256": {
@@ -15405,7 +15659,7 @@
         "backend/tests/regression/user-startup.test.js": "11ca95b289bb822884cf7b4888f3356f0e79ec6bee3fd0726662c72d1a08538f",
         "backend/tests/regression/gateway-startup.test.js": "6ed7a0e9404ebb8ad2c380a81f70330b300c3b98f54e966287331a45353b8111",
         "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
         "database/pending/20260610_000000__add_mfa_system.sql": "652b95497f7f28727a4dc07f9469a8a6f5c51b3c4fb58917a2a8c071b4720a65",
@@ -15460,16 +15714,22 @@
         "docs/benchmarks/sensitive-payment-risk-2026-10-28.json": "263ddb118dab8922d2ad1394c2bd22f067e60660131b49917676fbdc581b32f1",
         "docs/benchmarks/ci-85457de-2026-10-28.json": "7f8a36faf033d770d13f640db6456357aada0836380b2b6ec634b4e8b3ad47a7",
         "docs/benchmarks/transaction-throughput-ci-85457de-2026-10-28.json": "37e1a58db885f45bb2263de00091ce732c0691fd32f666279382439a6a94384f",
-        ".github/workflows/erasure-regression.yml": "f51a9d33cb5df6218fc24e18df7283bb2b94812996a05b0a9c13eb295ba013d9",
-        "backend/services/user-service/src/routes/dataDeletion.js": "578f6354de06558c0c09e2ee7537f9ea260fa90bd1eeedfdf1c63476a596316a",
+        ".github/workflows/erasure-regression.yml": "1ab36faa6175869b8f00a809e7e00e897213bf3b4b5e276c1136eb7bceed5277",
+        "backend/services/user-service/src/routes/dataDeletion.js": "ad3ff9dc3e34b41b769675de1acdff70c4dc86745ef367ce0031f9c44990f130",
         "backend/services/user-service/src/routes/gdpr.js": "5be048126f32b90f10a35f6657e711739cf78ca16aeb41f99058e2c30fbee305",
         "backend/shared/dataDeletionService.js": "29e9b4666dbd8f980094ae97d964c4c9597f543a5f6352cca5c43ca6bfb04145",
-        "backend/shared/erasure/ErasureRequestStore.js": "8cd884fcdd06d67b47e434de69241f7a190b9018cc9ba8f639b6d39871f13708",
-        "backend/tests/regression/erasure-request-storage.test.js": "4dfb10fd8be3266fa217efb41ede8a239cacf28f7b33e6728955ae18ab2c4c81",
-        "docs/DATA-ERASURE.md": "b1514e64b8900c6d4ce88f6b1242f7f727feacdec2928b942422e8442c9883fd",
+        "backend/shared/erasure/ErasureRequestStore.js": "b43656f02d99c6e5a8bdade44d420aedfe917d3546f4a03850ca9e73f8035f97",
+        "backend/tests/regression/erasure-request-storage.test.js": "d19ffe64aaecfbe251dba9176e7e717f86d86f0690aeda2a3d6832f2fbb1e332",
+        "docs/DATA-ERASURE.md": "d25218be364afb55cf806b5343339efcd926a02496e49506890bcfadcaa56094",
         "docs/benchmarks/erasure-request-runtime-2026-10-31.json": "ca4192fe0bef668999409ad9c0a7b98b3d879120537b4393091ad6a25059c63b",
         "docs/benchmarks/ci-9f13a62-2026-10-31.json": "89bc783df410a0234df0f47a1d5dd9322466e025f40e2d5d41ab983a867748b0",
-        "docs/benchmarks/transaction-throughput-ci-9f13a62-2026-10-31.json": "7e064c274250dc179501a578ba53ee67d3cc02853635ea372105f0e5c87ca2cb"
+        "docs/benchmarks/transaction-throughput-ci-9f13a62-2026-10-31.json": "7e064c274250dc179501a578ba53ee67d3cc02853635ea372105f0e5c87ca2cb",
+        "backend/shared/erasure/ErasureResourcePlanner.js": "51d41fc7e0eb3b048ba30834bafe9557153d3a06f8a81a1e83b047a861089fc9",
+        "backend/tests/regression/erasure-resource-plan-storage.test.js": "a14e4ef16c61d73bb54d59b5bcd266abd11ee48f597e79d90174ab7055138988",
+        "docs/requirements/COMPLETION-PLAN.md": "a8cfca9515049d8fea146a1e995fbc2ed242fd3dba32ae3bb41937435d0240b3",
+        "docs/requirements/WORKLOG.md": "53d246f7908f28a0282edf30479ded0d03b543def188e1591251a32e1426cbf9",
+        "docs/benchmarks/ci-2af2750-2026-11-03.json": "25f5adc54a6b657cbf1e9b12c80977cd0939854202f95ddcfbba203897bd2191",
+        "docs/benchmarks/erasure-resource-review-2026-11-03.json": "e7d71e942767732331d6a425696758e3b2dbcd68eb159b183f7333e244e1910c"
       },
       "evidence": [
         {
@@ -15604,18 +15864,40 @@
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "priorCIArtifact": "docs/benchmarks/ci-9f13a62-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/package.json",
+            ".github/workflows/erasure-regression.yml",
+            "backend/services/user-service/src/routes/dataDeletion.js",
+            "backend/shared/erasure/ErasureRequestStore.js",
+            "backend/tests/regression/erasure-request-storage.test.js",
+            "docs/DATA-ERASURE.md"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "actual_complete_schema_inventory_admin_mfa_and_audited_snapshot_review_partial",
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ],
       "remaining": "All original4 criteria preserved. Actual payment plus erasure owner/admin mutation and read boundaries, encrypted decisions/transitions, purpose/epoch/session proofs and actual native aliases verified. Other sensitive APIs/password/payment binding/trade/full admin governance, dedicated gateway scoring, real physical-device/GeoIP/history providers, every intended path and complete original risk acceptance remain open. Generic session UA/IP signals are not physical-device/GeoIP acceptance; old fake-header engines remain unmounted."
     },
     "REQ-00003-payment-idempotency-security.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_actual_payment_protocol_storage_http_process_verified_whole_acceptance_open",
       "documentSha256": "a2ff84b2eae154043d49513a0840c93f42f0209265656240e9d527a473df6499",
       "sourceSha256": {
         ".gitignore": "b7c86a9d17b2fd13413aceb23f27c39a16f202022f4d4f757193e8a314c18d25",
         "backend/gateway/src/index.js": "5de453b2760fbd0027d3543eef003ef793e64d0d19ae17532ba6030730b03242",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "backend/services/payment-service/src/index.js": "13723856daaef5debd9f0a25b004a17b57c83cb1febc4befbf167afa77c62992",
         "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
@@ -15761,18 +16043,28 @@
           ],
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ],
       "remaining": "Historical done declaration reopened. Original criteria unchanged. Actual core/SQL/Redis/HTTP/native and HTML/LCOV integration coverage pass, but original whole-payment-service unit-only coverage target and all legal fulfillment/refund business flows remain unverified. Live prepay/provider-native validation/receipts/paymentUI, explicit legacy request adoption, production key/provider/staging/financial audit, full sensitive MFA/risk and legacy global integration/E2E/contracts/security/performance gates remain open. Generic repository HMAC transport tests are not live vendor acceptance. No merge/deploy or target lowering."
     },
     "REQ-00004-payment-unit-integration-tests.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_actual_payment_protocol_storage_http_process_verified_whole_acceptance_open",
       "documentSha256": "4ace3988041cc5c13542baf83f65cbdf8dac4d61e63999f3755da275cf171ae0",
       "sourceSha256": {
         ".gitignore": "b7c86a9d17b2fd13413aceb23f27c39a16f202022f4d4f757193e8a314c18d25",
         "backend/gateway/src/index.js": "5de453b2760fbd0027d3543eef003ef793e64d0d19ae17532ba6030730b03242",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         "backend/services/payment-service/src/index.js": "13723856daaef5debd9f0a25b004a17b57c83cb1febc4befbf167afa77c62992",
         "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
@@ -15918,6 +16210,16 @@
           ],
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/package.json"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ],
       "remaining": "Historical done declaration reopened. Original criteria unchanged. Actual core/SQL/Redis/HTTP/native and HTML/LCOV integration coverage pass, but original whole-payment-service unit-only coverage target and all legal fulfillment/refund business flows remain unverified. Live prepay/provider-native validation/receipts/paymentUI, explicit legacy request adoption, production key/provider/staging/financial audit, full sensitive MFA/risk and legacy global integration/E2E/contracts/security/performance gates remain open. Generic repository HMAC transport tests are not live vendor acceptance. No merge/deploy or target lowering."
@@ -15961,7 +16263,7 @@
       ]
     },
     "REQ-00200-sensitive-operation-risk-verification-system.md": {
-      "date": "2026-10-31",
+      "date": "2026-11-03",
       "status": "partial_server_session_five_factor_bounds_payment_risk_mfa_verified_all_operation_methods_ui_open",
       "documentSha256": "e73a20597843761b500116251c243ee56841da6bf8eede11052d1bf680dc457d",
       "sourceSha256": {
@@ -15986,7 +16288,7 @@
         "backend/tests/unit/gateway-proxy.test.js": "0fe6de71ad60276705d8f6eaf3acb44ca9e8eeccf397fec731d7058536b9948d",
         "backend/tests/unit/mfa-client.test.js": "a96e807b1049ef199dfe092d353763e1aac1f816f1babac8a3ef5df89c17a1ec",
         "frontend/game-client/src/api/client.js": "d10fba65a1ac6f2ab88a55bfe42d27de48c46e591fe21793ac85e47af070a3a3",
-        "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+        "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
         "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
         ".github/workflows/payment-regression.yml": "9518e4a5923ddeede76cef598b87bd75f6b29cedd17ca6713f5e18a71649e2b2",
         "backend/tests/README.md": "239290efa2f98c06077b75234e42bda222e92ab527cd03fcef22ffd76f09d032",
@@ -15994,21 +16296,27 @@
         "docs/PAYMENT-INTEGRITY.md": "337adfdf4286294b866f44a94e5adf0bdc7dccc656d1591fbce49fbb9da53793",
         "docs/benchmarks/sensitive-payment-risk-2026-10-28.json": "263ddb118dab8922d2ad1394c2bd22f067e60660131b49917676fbdc581b32f1",
         "docs/benchmarks/ci-85457de-2026-10-28.json": "7f8a36faf033d770d13f640db6456357aada0836380b2b6ec634b4e8b3ad47a7",
-        ".github/workflows/erasure-regression.yml": "f51a9d33cb5df6218fc24e18df7283bb2b94812996a05b0a9c13eb295ba013d9",
+        ".github/workflows/erasure-regression.yml": "1ab36faa6175869b8f00a809e7e00e897213bf3b4b5e276c1136eb7bceed5277",
         "backend/services/user-service/src/index.js": "e894b853967a4eb5f9854c6e18756f74a421d12d2c34c0785f3673d0d1ab1684",
-        "backend/services/user-service/src/routes/dataDeletion.js": "578f6354de06558c0c09e2ee7537f9ea260fa90bd1eeedfdf1c63476a596316a",
+        "backend/services/user-service/src/routes/dataDeletion.js": "ad3ff9dc3e34b41b769675de1acdff70c4dc86745ef367ce0031f9c44990f130",
         "backend/services/user-service/src/routes/gdpr.js": "5be048126f32b90f10a35f6657e711739cf78ca16aeb41f99058e2c30fbee305",
         "backend/shared/dataDeletionService.js": "29e9b4666dbd8f980094ae97d964c4c9597f543a5f6352cca5c43ca6bfb04145",
-        "backend/shared/erasure/ErasureRequestStore.js": "8cd884fcdd06d67b47e434de69241f7a190b9018cc9ba8f639b6d39871f13708",
-        "backend/tests/regression/erasure-request-storage.test.js": "4dfb10fd8be3266fa217efb41ede8a239cacf28f7b33e6728955ae18ab2c4c81",
+        "backend/shared/erasure/ErasureRequestStore.js": "b43656f02d99c6e5a8bdade44d420aedfe917d3546f4a03850ca9e73f8035f97",
+        "backend/tests/regression/erasure-request-storage.test.js": "d19ffe64aaecfbe251dba9176e7e717f86d86f0690aeda2a3d6832f2fbb1e332",
         "backend/tests/regression/gateway-startup.test.js": "6ed7a0e9404ebb8ad2c380a81f70330b300c3b98f54e966287331a45353b8111",
         "backend/tests/regression/mfa-browser-storage.test.js": "4b1c266ec8f83bf068cedf1e77589c00210a90491b19ac4c3e9e50d6d0966da7",
         "backend/tests/regression/user-startup.test.js": "11ca95b289bb822884cf7b4888f3356f0e79ec6bee3fd0726662c72d1a08538f",
-        "docs/DATA-ERASURE.md": "b1514e64b8900c6d4ce88f6b1242f7f727feacdec2928b942422e8442c9883fd",
+        "docs/DATA-ERASURE.md": "d25218be364afb55cf806b5343339efcd926a02496e49506890bcfadcaa56094",
         "frontend/game-client/sw.js": "929e7a1a3ec879927f6fa1f09add635149f6aa5a7ea8dc6bde9352ced8bddea0",
         "docs/benchmarks/erasure-request-runtime-2026-10-31.json": "ca4192fe0bef668999409ad9c0a7b98b3d879120537b4393091ad6a25059c63b",
         "docs/benchmarks/ci-9f13a62-2026-10-31.json": "89bc783df410a0234df0f47a1d5dd9322466e025f40e2d5d41ab983a867748b0",
-        "docs/benchmarks/transaction-throughput-ci-9f13a62-2026-10-31.json": "7e064c274250dc179501a578ba53ee67d3cc02853635ea372105f0e5c87ca2cb"
+        "docs/benchmarks/transaction-throughput-ci-9f13a62-2026-10-31.json": "7e064c274250dc179501a578ba53ee67d3cc02853635ea372105f0e5c87ca2cb",
+        "backend/shared/erasure/ErasureResourcePlanner.js": "51d41fc7e0eb3b048ba30834bafe9557153d3a06f8a81a1e83b047a861089fc9",
+        "backend/tests/regression/erasure-resource-plan-storage.test.js": "a14e4ef16c61d73bb54d59b5bcd266abd11ee48f597e79d90174ab7055138988",
+        "docs/requirements/COMPLETION-PLAN.md": "a8cfca9515049d8fea146a1e995fbc2ed242fd3dba32ae3bb41937435d0240b3",
+        "docs/requirements/WORKLOG.md": "53d246f7908f28a0282edf30479ded0d03b543def188e1591251a32e1426cbf9",
+        "docs/benchmarks/ci-2af2750-2026-11-03.json": "25f5adc54a6b657cbf1e9b12c80977cd0939854202f95ddcfbba203897bd2191",
+        "docs/benchmarks/erasure-resource-review-2026-11-03.json": "e7d71e942767732331d6a425696758e3b2dbcd68eb159b183f7333e244e1910c"
       },
       "evidence": [
         {
@@ -16038,6 +16346,28 @@
           "artifact": "docs/benchmarks/erasure-request-runtime-2026-10-31.json",
           "priorCIArtifact": "docs/benchmarks/ci-9f13a62-2026-10-31.json",
           "scope": "Changed shared refs refreshed only with actual erasure16/legacySQL19/MFA26/risk17/payment22+report22/native4(full87 + actual gateway request)/browser6(Chrome145)/bootstrap3/fullmain(lastJest463+9+5 and combinedclientprojection17)/syntax1484/tools12/logging/workflow checks. New request scope99.60line87.66branch98.51func at90/90/80; original targets untouched. Prior9f remote selected gates/full87 pass with originalthroughput-2.9144348991186786% >=-5,8hashesmatch. New source CI pending. No real delivery, full executor/retention/retry/receipt production/UI/export/legal/globalsecurity/performance/complete658 promotion."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "partial_actual_resource_review_changed_references_verified",
+          "changedReferences": [
+            "backend/package.json",
+            ".github/workflows/erasure-regression.yml",
+            "backend/services/user-service/src/routes/dataDeletion.js",
+            "backend/shared/erasure/ErasureRequestStore.js",
+            "backend/tests/regression/erasure-request-storage.test.js",
+            "docs/DATA-ERASURE.md"
+          ],
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
+        },
+        {
+          "date": "2026-11-03",
+          "result": "actual_complete_schema_inventory_admin_mfa_and_audited_snapshot_review_partial",
+          "artifact": "docs/benchmarks/erasure-resource-review-2026-11-03.json",
+          "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+          "scope": "Actual erasure plan9/full87/HTTP17/SQL19/fullmain(27Jest477 plus originalNode/custom)/originalbattle133 at100/100/100/syntax1486/tools12/logging0 passed. New inventory100line95.79branch100func90/90/80 and HTTP99.62line88.07branch98.57func90/90/80; all prior targets unchanged. Exact2af selected remote gates pass; original legacy failures/live handles retained. Refreshed changed references only; no new acceptance. Namespace/request-bound readonly snapshot inventory and encrypted admin/MFA review, not executable ownership/retention policy. All original658, real operators/worker/delivery/retry/UI/export/legal/global quality scope remains open. Current new-source CI pending."
         }
       ],
       "remaining": "Full original document read, only status new->in_progress changed. All10 acceptance boxes/targets preserved. Does not complete all15 operation policies, password/PIN/SMS/email combinations, actual geography/physical-device/global history providers, P0/P1/P2 verification API/TTL/revocation, front-end multi-step UI, or originalunit-only90. Current normal/large payment policy and >90 actual integration coverage are partial prerequisites. REQ588 P0 remains primary and partial; all658 originals remain scope."

@@ -109,6 +109,21 @@ test('actual UUID erasure HTTP requests preserve legacy history, enforce owner/a
       const decision=await call('POST','/data-deletion/admin/requests/'+requestId+'/approve',{},reviewer,proof(reviewer));assert.equal(decision.status,200);assert.equal(decision.body.data.approvalStatus,'manual_approved');
       assert.equal((await call('POST','/data-deletion/admin/requests/'+requestId+'/approve',{},reviewer,proof(reviewer))).status,409);
     });
+    await t.test('resource review requires actual admin purpose proof and preserves the request and data',async()=>{
+      const route='/data-deletion/admin/requests/'+requestId+'/plan';
+      const metricBefore=(await store.metrics.reviewed.get()).values[0].value;
+      assert.equal((await call('GET',route,undefined,null)).status,401);
+      assert.equal((await call('GET',route,undefined,owner,proof(owner))).status,403);
+      assert.equal((await call('GET',route,undefined,reviewer)).status,403);
+      const before=(await pool.query('SELECT to_jsonb(r) AS row FROM data_erasure_requests r WHERE id=$1',[requestId])).rows;
+      const planned=await call('GET',route,undefined,reviewer,proof(reviewer));assert.equal(planned.status,200);assert.equal(planned.headers.get('cache-control'),'no-store');
+      assert.equal(planned.body.data.executionReady,false);assert.equal(planned.body.data.isolation,'repeatable read');assert.equal(planned.body.data.requestId,requestId);
+      assert.equal(planned.body.data.resources.find(r=>r.name==='users').associatedRows,'1');assert.equal(planned.body.data.resources.find(r=>r.name==='orders').associatedRows,'1');
+      assert.deepEqual((await pool.query('SELECT to_jsonb(r) AS row FROM data_erasure_requests r WHERE id=$1',[requestId])).rows,before);assert.equal((await pool.query('SELECT id FROM data_erasure_tasks WHERE request_id=$1',[requestId])).rowCount,0);
+      assert.equal((await call('GET','/data-deletion/admin/requests/'+crypto.randomUUID()+'/plan',undefined,reviewer,proof(reviewer))).status,404);
+      assert.equal((await call('GET','/data-deletion/admin/requests/no-uuid/plan',undefined,reviewer,proof(reviewer))).status,400);
+      assert.equal((await store.metrics.reviewed.get()).values[0].value,metricBefore+1);
+    });
     await t.test('unconfigured resource execution never reports a deletion or mutates user/game/history rows',async()=>{
       const beforeUsers=(await pool.query('SELECT id FROM users ORDER BY id')).rows;const response=await call('POST','/data-deletion/admin/requests/'+requestId+'/execute',{},reviewer,proof(reviewer));assert.equal(response.status,503);assert.equal(response.body.code,'ERASURE_RESOURCE_PLAN_REQUIRED');assert.deepEqual((await pool.query('SELECT id FROM users ORDER BY id')).rows,beforeUsers);assert.equal((await pool.query('SELECT status FROM data_erasure_requests WHERE id=$1',[requestId])).rows[0].status,'approved');
       const facade=new(require('../../shared/dataDeletionService').DataDeletionService)(db);try{await assert.rejects(facade.executeDeletion(requestId),error=>error.code==='ERASURE_RESOURCE_PLAN_REQUIRED');await assert.rejects(facade.getRequest(requestId),error=>error.code==='ERASURE_ID_INVALID');}finally{await facade.close();}
@@ -145,7 +160,7 @@ test('actual UUID erasure HTTP requests preserve legacy history, enforce owner/a
       const original=(await pool.query('SELECT reason FROM data_erasure_requests WHERE id=$1',[otherId])).rows[0].reason;
       const wrong=(await pool.query('SELECT reason FROM data_erasure_requests WHERE id=$1',[requestId])).rows[0].reason;
       await pool.query('UPDATE data_erasure_requests SET reason=$2 WHERE id=$1',[otherId,wrong]);try{assert.equal((await call('GET','/data-deletion/requests/'+otherId,undefined,other)).status,503);}finally{await pool.query('UPDATE data_erasure_requests SET reason=$2 WHERE id=$1',[otherId,original]);}
-      const n=await count(),metricBefore=await store.metrics.created.get();await pool.query('ALTER TABLE audit_logs RENAME TO erasure_owned_audit_offline');try{await assert.rejects(store.createRequest(owner,{reason:'audit rollback'}),error=>error.code==='ERASURE_AUDIT_UNAVAILABLE');}finally{await pool.query('ALTER TABLE erasure_owned_audit_offline RENAME TO audit_logs');}assert.equal(await count(),n);assert.deepEqual(await store.metrics.created.get(),metricBefore);
+      const n=await count(),metricBefore=await store.metrics.created.get(),reviewBefore=await store.metrics.reviewed.get();await pool.query('ALTER TABLE audit_logs RENAME TO erasure_owned_audit_offline');try{await assert.rejects(store.createRequest(owner,{reason:'audit rollback'}),error=>error.code==='ERASURE_AUDIT_UNAVAILABLE');await assert.rejects(store.planRequest(otherId,reviewer),error=>error.code==='ERASURE_AUDIT_UNAVAILABLE');}finally{await pool.query('ALTER TABLE erasure_owned_audit_offline RENAME TO audit_logs');}assert.equal(await count(),n);assert.deepEqual(await store.metrics.created.get(),metricBefore);assert.deepEqual(await store.metrics.reviewed.get(),reviewBefore);
     });
     await t.test('certificate reads check owner and actual configured signature math against real fixture deletions',async()=>{
       const created=await store.createRequest(owner,{requestType:'partial',dataTypes:['pokemon']});const nonce=await store.issueVerification(created.id);await store.verifyRequest(owner,created.id,nonce.verificationCode);await store.decide(created.id,reviewer,'approve');

@@ -1,6 +1,6 @@
 # mineGo requirement completion plan
 
-Updated: 2026-10-31. Scope: all 658 existing requirement documents in INDEX.md,
+Updated: 2026-11-03. Scope: all 658 existing requirement documents in INDEX.md,
 including legacy done declarations that still need independent acceptance.
 Do not run the hourly requirement generator or create additional feature scope.
 Current declarations: 52 P0, 565 P1 and 41 P2; 428 new, 54 in progress; 176 declared done, including one independently verified framework. These counts
@@ -53,7 +53,17 @@ independent authorized work.
    Real delivery, canonical resource/retention execution plans and worker/scheduler/
    signing/UI/export/legal scope remain unfinished; no completion is fabricated.
    Continue all other original sensitive APIs and multi-method verification flows.
-   New-source CI remains required. No original gate is waived.
+   Exact2af2750 main478/payment5/native47/MFA10/browser6/migration40/erasure1/
+   privacy50/notification35/dependency319-320 passed. Legacy contract403/API107/
+   integration453/performance146 failed; security436/E2E140 were still live at
+   observation. New resource-review source CI remains required. The admin/MFA
+   review endpoint now inventories actual relations, direct UUID associations,
+   incoming/cross-schema references, triggers, policies, rules and inheritance in
+   a repeatable-read snapshot. Counts are subject associations, never deletion
+   estimates; UUID, legacy integer and embedded identities are not equated.
+   Classification, retention, resource operators and external storage still need
+   explicit adoption. Execution remains unavailable until that work is real.
+   No original gate is waived.
 
 
 ## Definition of finished

@@ -35,6 +35,7 @@ function createErasureRouter({store=getErasureStore(),risk=new RiskVerifier()}={
   router.get('/admin/requests',respond(async(req,res)=>res.json({success:true,data:await store.list(null,req.query)})));
   router.get('/admin/statistics',respond(async(req,res)=>res.json({success:true,data:await store.statistics()})));
   router.get('/admin/requests/:id',respond(async(req,res)=>res.json({success:true,data:await store.detail(req.user.sub,req.params.id,{admin:true})})));
+  router.get('/admin/requests/:id/plan',respond(async(req,res)=>res.json({success:true,data:await store.planRequest(req.params.id,req.user.sub)})));
   router.post('/admin/requests/:id/approve',respond(async(req,res)=>res.json({success:true,data:await store.decide(req.params.id,req.user.sub,'approve')})));
   router.post('/admin/requests/:id/reject',respond(async(req,res)=>res.json({success:true,data:await store.decide(req.params.id,req.user.sub,'reject',req.body?.reason)})));
   router.post('/admin/requests/:id/execute',respond(async(req,res)=>{

@@ -50,3 +50,6 @@ jobs:
       - name: Verify actual owner/admin HTTP, nonce use, approval, encrypted audit and signature reads
         working-directory: backend
         run: npm run test:erasure:storage
+      - name: Inspect actual complete-schema ownership, cascades, triggers and review blockers
+        working-directory: backend
+        run: npm run test:erasure:plan

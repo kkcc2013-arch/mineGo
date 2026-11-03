@@ -3873,7 +3873,7 @@
         "- [ ] 满足 GDPR 第17条\"被遗忘权\"要求",
         "- [ ] 满足 CCPA 第1798.105条\"删除权\"要求"
       ],
-      "verificationStatus": "partial_actual_uuid_request_mfa_approval_encrypted_reads_and_certificate_verification_full_erasure_open",
+      "verificationStatus": "partial_actual_uuid_workflow_and_schema_resource_review_verified_execution_delivery_full_acceptance_open",
       "implementationReferences": [
         "backend/jobs/dataDeletionProcessor.js",
         "backend/services/user-service/src/index.js",
