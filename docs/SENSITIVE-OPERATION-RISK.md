@@ -89,3 +89,18 @@ physical authenticator/trusted-device and other original criteria remain open.
 The old `RiskEvaluator`/`SensitiveOperationGuard` and security verification stubs
 remain unmounted and must not be treated as canonical authenticated decisions.
 All658 original requirements and their acceptance boxes/targets remain unchanged.
+
+## Erasure entry points (2026-10-31, still partial)
+
+Actual UUID request creation/confirmation/cancellation and GDPR deletion/withdrawal
+aliases now use the same server-session risk boundary with `delete-account` proofs.
+Administrative review requires the canonical admin role plus `erasure-admin`; export
+has a separate `export-data` purpose gate. Owner reads are scoped and risk evaluated;
+certificate reads additionally verify the configured signature. The gateway exposes
+explicit protected aliases before generic routers, and actual native user/gateway
+checks exercise real login/proof/request/cancel. User-specific trusted ingress no
+longer discards an explicitly configured common service trust setting.
+
+This does not complete other sensitive APIs, real confirmation delivery, the erasure
+executor, export business logic, multi-method policies or full front-end flows. See
+[DATA-ERASURE.md](DATA-ERASURE.md) for exact current behavior and missing inputs.

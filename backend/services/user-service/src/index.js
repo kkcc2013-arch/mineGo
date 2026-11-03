@@ -153,9 +153,11 @@ const service = new ServiceLauncher({
   // Service initialization
   onInitialize: async (app) => {
     await db.initializeMigrations();
+    await require('../../../shared/erasure/ErasureRequestStore').getErasureStore().ready();
     if(process.env.NODE_ENV==='production')await require('../../../shared/mfaService').ready();
     app.locals.db = db;
-    app.set('trust proxy', process.env.USER_SERVICE_TRUST_PROXY ? process.env.USER_SERVICE_TRUST_PROXY.split(',').map(value => value.trim()) : false);
+    const trustedIngress=process.env.USER_SERVICE_TRUST_PROXY||process.env.SERVICE_TRUST_PROXY;
+    app.set('trust proxy', trustedIngress ? trustedIngress.split(',').map(value => value.trim()) : false);
     const IpBanManager = require('../../../shared/IpBanManager');
     ipBanManager = new IpBanManager({ db, redis: redis.getRedis(), autoInitialize: false });
     ipAppealRouter.initIpAppealRoutes(ipBanManager);
@@ -175,6 +177,7 @@ const service = new ServiceLauncher({
       const latency = Date.now() - start;
       return { status: 'healthy', latency_ms: latency };
     }, { critical: true });
+    healthChecker.register('erasure-state', async () => {await require('../../../shared/erasure/ErasureRequestStore').getErasureStore().ready();return {status:'healthy'};}, {critical:true});
     
     healthChecker.register('redis', async () => {
       await redis.getRedis().ping();
@@ -238,7 +241,7 @@ const service = new ServiceLauncher({
   },
   onShutdown: async () => {
     healthChecker?.stopPeriodicCheck();
-    const mfaCleanup=await Promise.allSettled([require('../../../shared/mfaService').closeMFA()]);
+    const mfaCleanup=await Promise.allSettled([require('../../../shared/mfaService').closeMFA(),require('../../../shared/erasure/ErasureRequestStore').closeErasureStore()]);
     const results = await Promise.allSettled([
       eventBus ? eventBus.disconnect() : Promise.resolve(),
       ipBanManager ? ipBanManager.close() : Promise.resolve(), require('../../../shared/auditLogEncrypted').closeAuditEncryption(), db.closePools(), redis.closeRedis()

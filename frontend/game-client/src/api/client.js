@@ -208,6 +208,14 @@ class ApiClient {
     return this.post('/payment/orders',{productId,paymentChannel:channel,idempotencyKey:key},{headers:{'X-Idempotency-Key':key,...(mfaToken?{'X-MFA-Token':mfaToken}:{})},signal,noRefresh:true});
   }
   verifyPayment(orderId,channelSign,channelOrderId,{mfaToken,signal}={}){return this.post(`/payment/orders/${orderId}/verify`,{channelSign,channelOrderId},{headers:mfaToken?{'X-MFA-Token':mfaToken}:{},signal,noRefresh:true});}
+  // Erasure confirmations are explicit operations; factors are never retained or replayed.
+  erasureRequest(method,path,body,{mfaToken,signal}={}) {return this.request(method,path,body,{headers:mfaToken?{'X-MFA-Token':mfaToken}:{},signal,noRefresh:true});}
+  requestErasure(data={},opts={}) {return this.erasureRequest('POST','/data-deletion/requests',data,opts);}
+  verifyErasure(requestId,verificationCode,opts={}) {return this.erasureRequest('POST',`/data-deletion/requests/${encodeURIComponent(requestId)}/verify`,{verificationCode},opts);}
+  cancelErasure(requestId,opts={}) {return this.erasureRequest('POST',`/data-deletion/requests/${encodeURIComponent(requestId)}/cancel`,{},opts);}
+  getErasureRequests(opts={}) {return this.erasureRequest('GET','/data-deletion/requests',null,opts);}
+  getErasureRequest(requestId,opts={}) {return this.erasureRequest('GET',`/data-deletion/requests/${encodeURIComponent(requestId)}`,null,opts);}
+  getErasureCertificate(number,opts={}) {return this.erasureRequest('GET',`/data-deletion/certificates/${encodeURIComponent(number)}`,null,opts);}
 }
 
 const MFA_MESSAGES={
@@ -228,6 +236,11 @@ const MFA_MESSAGES={
   RISK_LIMIT_EXCEEDED:'当前操作风险较高，请稍后重试',
   RISK_UNAVAILABLE:'暂时无法完成安全检查，请稍后重试',
   RISK_AUDIT_UNAVAILABLE:'暂时无法完成安全检查，请稍后重试',
+  ERASURE_VERIFICATION_INVALID:'确认凭证无效、过期或已使用',
+  ERASURE_ACTIVE_REQUEST_EXISTS:'已有进行中的删除请求，请先查看进度',
+  ERASURE_ACTIVE_PARTIAL_REQUEST_EXISTS:'请先取消进行中的部分删除请求，再提交完整删除',
+  ERASURE_STATE_CONFLICT:'请求状态已改变，请刷新后再试',
+  ERASURE_UNAVAILABLE:'暂时无法处理删除请求，请稍后重试',
 };
 
 class ApiError extends Error {
@@ -236,7 +249,7 @@ class ApiError extends Error {
     this.name       = 'ApiError';
     this.code       = code;
     this.httpStatus = httpStatus;
-    if(['MFA_PROOF_REQUIRED','MFA_ENROLLMENT_REQUIRED'].includes(code)&&data?.mfaRequired===true&&['payment-purchase','large-transaction'].includes(data.scope)) {
+    if(['MFA_PROOF_REQUIRED','MFA_ENROLLMENT_REQUIRED'].includes(code)&&data?.mfaRequired===true&&['payment-purchase','large-transaction','delete-account','erasure-admin','export-data'].includes(data.scope)) {
       this.verification=Object.freeze({scope:data.scope,mfaRequired:true});
     }
   }

@@ -231,7 +231,7 @@ function isStaticResource(pathname) {
          pathname === '/index.html';
 }
 
-function isAuthenticationPath(pathname){return /(?:^|\/)(?:auth|mfa)(?:\/|$)|\/admin\/(?:audit-logs|sensitive-access-logs)(?:\/|$)/.test(pathname);}
+function isAuthenticationPath(pathname){return /(?:^|\/)(?:auth|mfa|data-deletion|gdpr)(?:\/|$)|\/admin\/(?:audit-logs|sensitive-access-logs)(?:\/|$)/.test(pathname);}
 
 function shouldQueueForSync(pathname) {
   return !isAuthenticationPath(pathname)&&NO_CACHE_PATHS.some(p => pathname.startsWith(p));

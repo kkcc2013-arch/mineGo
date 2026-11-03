@@ -107,3 +107,86 @@ pass, but original throughput gate fails at-6.352968581797381% against unchanged
 is retained with all8 measured hashes still matching. Earlier passes do not waive
 this failure. New full-source CI and all original full-feature criteria remain open.
 Current186done/42in_progress/430new,658 documents, independently verified1.
+
+## Actual request/runtime checkpoint (2026-10-31)
+
+The dated installation failures above are retained history. Exact prior9f13a62
+migration39 now passes all87 pending migrations and V1/V2, including installation
+beside unrelated audit schemas. No original SQL, repair/dependency manifest or
+lockfile is modified by this runtime update.
+
+The mounted `/data-deletion` request API and GDPR deletion/status/withdrawal aliases
+now use `shared/erasure/ErasureRequestStore.js`. The legacy service entry point is a
+compatibility facade; it cannot execute raw table-name tasks or fabricate an empty
+completion. Legacy SERIAL requests, numeric-owner tracking, tokens, sequence, views
+and references remain untouched. Actual `user_consents` owners are UUIDs; withdrawal
+updates only the authenticated owner's current consent rows, in the same transaction
+as creation/reuse of a full erasure request. A live partial request cannot silently
+stand in for full withdrawal: the transaction refuses and leaves consent unchanged
+until the caller cancels that partial request and explicitly resubmits.
+
+Owner writes require a registered current server session and fresh `delete-account`
+MFA proof. Administrative review requires the canonical signed admin role and its
+own `erasure-admin` proof; an `isAdmin` flag or caller verification headers do not
+substitute. Public confirmation-by-token and public certificate lookup are removed.
+All request IDs and owners are explicit UUIDs, independently checked in the SQL
+query/lock. A foreign owner's request is not found, rather than returned and then
+filtered. User-facing projections omit nonce digests, encryption envelopes, address,
+agent and raw task instructions. Admin projections add the subject UUID only after
+authorization. Reasons/rejection notes use authenticated envelope encryption bound
+to database/schema, subject, request and field; production requires the managed KMS
+provider already used by canonical encryption. No plaintext fallback is permitted.
+
+Creation returns an actual durable `pending` request with `verificationDelivery:
+pending`; it does not return a code or claim email/SMS delivery. Internal delivery
+preparation generates a real random128-bit nonce, stores only its subject/request/
+type/category-bound digest and an absolute24-hour expiry, and returns the transient
+nonce only to the internal delivery caller. It has no public preparation endpoint.
+Reissue invalidates the prior nonce; verification checks owner, intent, expiry and
+one-use state under the real request/user locks. Canonical order history requires
+manual review; automatic approvals retain the original30-day grace. Every transition
+and approval-history row commits with an encrypted audit receipt. Cancellation is
+idempotent. Creation/verification/approval/rejection/cancellation/preparation metrics
+advance after commit, so an audit failure does not leave a successful count.
+
+Certificate reads require owner or separately authorized admin access, a configured
+`ERASURE_SIGNING_PUBLIC_KEYS_JSON` map of trusted public keys and actual signature
+verification. The reader preserves historical hex signatures and also supports
+base64; there is no generated fallback key. It returns `signatureVerified: true`
+only after checking the exact signed payload with the recorded algorithm/key.
+The regression's signed fixture deletes two actual owned canonical Pokémon rows,
+retains a different owner's row and records the real returned count. This validates
+storage/crypto/read authorization; it is not the production erasure executor.
+
+The actual native user/gateway entry points now create, list and cancel a request
+using real login/MFA and the canonical gateway aliases. Readiness checks the modern
+request storage. Explicit service ingress retains its existing user-specific trust
+setting or the configured common setting. The client API transmits transient per-call
+proofs/confirmation bodies without automatic refresh/replay; service-worker replay
+purges/refuses legacy GDPR/erasure operations, including entries without MFA headers.
+
+### Required next work
+
+A real configured notification transport/recipient binding and delivery worker are
+still needed: no message has been sent and the verification-delivery criterion is
+not accepted. The canonical resource/retention plans, actual executor and scheduler,
+retry/outbox/notification lifecycle, production signing-key lifecycle, post-account-
+removal receipt access, full UI/export and remaining privacy/security criteria are
+also unfinished. The execution endpoint returns `ERASURE_RESOURCE_PLAN_REQUIRED`
+without modifying status/data; it never reports completion for an empty plan.
+The old unmounted processor still needs canonical scheduling and retention work.
+`/gdpr/export` now has a purpose MFA gate, but its old export implementation is not
+accepted as canonical JSON/CSV export. Withdrawal of additional optional-preference
+or policy models and complete legal/privacy review remain open. This request batch
+preserves all original criteria, including GDPR's original80% whole-scope coverage;
+its stronger scoped integration gate does not accept the unfinished whole feature.
+
+Run from `backend` with owned PostgreSQL/Redis:
+
+```sh
+npm run test:erasure:storage
+node --test --test-concurrency=1 tests/regression/erasure-schema-storage.test.js
+```
+
+The dedicated erasure workflow runs these actual HTTP/storage/crypto checks. Original
+user/gateway native checks and browser/offline boundaries remain separate evidence.

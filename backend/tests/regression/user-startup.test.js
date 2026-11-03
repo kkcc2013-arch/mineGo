@@ -11,7 +11,7 @@ const {performance} = require('node:perf_hooks');
 const http = require('node:http');
 const express = require('express');
 const {mountIpAppealProxy} = require('../../gateway/src/routes/ipAppealProxy');
-const {ensureUuidExtension} = require('./storageSetup');
+const {ensureStorageExtensions} = require('./storageSetup');
 const {parseMigrationFile}=require('../../../database/migrate');
 const {migrationStatements}=require('../../../database/sqlStatements');
 
@@ -29,7 +29,7 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
   } finally { await kafkaAdmin.disconnect(); }
   const schema=`user_start_${crypto.randomBytes(8).toString('hex')}`;
   const admin=new Pool({connectionString:process.env.TEST_DATABASE_URL});
-  await ensureUuidExtension(admin);
+  await ensureStorageExtensions(admin);
   await admin.query(`CREATE SCHEMA ${schema}`);
   const fixture=new Pool({connectionString:process.env.TEST_DATABASE_URL,options:`-c search_path=${schema},public`});
   let child;
@@ -44,7 +44,9 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
     await fixture.query(initial.match(/CREATE TYPE team_enum[^;]*;/)[0]);
     await fixture.query(initial.match(/CREATE TABLE users \([\s\S]*?\n\);/)[0]);
     await fixture.query(initial.match(/CREATE TABLE audit_logs \([\s\S]*?\n\);/)[0]);
-    for(const file of ['20260608_194800__add_sensitive_data_protection_tables.sql','repairs/20260608_200000__add_sensitive_data_audit_tables.sql','20261006_150000__privacy_preference_defaults_and_policy_fields.sql','20260610_000000__add_mfa_system.sql','20261020_120000__mfa_verification_state.sql']){
+    await fixture.query(initial.match(/CREATE TYPE order_status_enum[^;]*;/)[0]);
+    await fixture.query(initial.match(/CREATE TABLE orders \([\s\S]*?\n\);/)[0]);
+    for(const file of ['20260608_194800__add_sensitive_data_protection_tables.sql','repairs/20260608_200000__add_sensitive_data_audit_tables.sql','20261006_150000__privacy_preference_defaults_and_policy_fields.sql','20260610_000000__add_mfa_system.sql','20261020_120000__mfa_verification_state.sql','repairs/20260630_050000__add_data_deletion_request_tables.sql']){
       const migration=parseMigrationFile(await fs.readFile(path.resolve(__dirname,'../../../database/pending',file),'utf8'));
       for(const statement of migrationStatements(migration.up))await fixture.query(statement);
     }

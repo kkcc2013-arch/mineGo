@@ -89,3 +89,18 @@ npm run test:risk:storage
 网关代理测试核验可信来源解析；原生支付检查还通过真实网关测试伪造转发头。
 详细策略、服务器配置和仍缺少的完整多步骤/多操作验收见
 [SENSITIVE-OPERATION-RISK.md](../../docs/SENSITIVE-OPERATION-RISK.md)。
+
+### 规范 UUID 删除请求、审批与读取（部分验证）
+
+```sh
+npm run test:erasure:storage
+node --test --test-concurrency=1 tests/regression/erasure-schema-storage.test.js
+```
+
+新增命令使用实际用户 MFA、删除/GDPR HTTP 路由、PostgreSQL、Redis、加密审计和
+真实签名校验。验证并发唯一请求、所有者/管理员用途凭证、一次性确认、审批与30天
+宽限期、撤回同意原子性、加密字段绑定、审计回滚不计成功、遗留身份/历史保留。
+作用域覆盖门槛为90%行/函数、80%分支，不能替代原始整个 GDPR 功能80%的验收。
+原生用户/网关检查另行验证实际登录、用途凭证及请求创建/查询/取消；浏览器检查
+还验证旧 GDPR/删除操作不会进入离线重放。没有发送真实验证码或证明生产 worker
+已执行删除；规范执行计划、发送/任务调度、完整导出/UI/合规仍未完成。

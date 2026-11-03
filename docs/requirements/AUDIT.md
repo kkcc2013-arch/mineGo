@@ -136,7 +136,7 @@ Status declarations and implementation references are discovery data, not proof 
 | [REQ-00124-message-center-unit-test-coverage.md](REQ-00124-message-center-unit-test-coverage.md) | P1 | done | 8 | 1 |
 | [REQ-00125-pokemon-cosmetic-customization-system.md](REQ-00125-pokemon-cosmetic-customization-system.md) | P1 | in_progress | 15 | 2 |
 | [REQ-00126-user-service-mfa-route-mounting.md](REQ-00126-user-service-mfa-route-mounting.md) | P0 | in_progress | 4 | 0 |
-| [REQ-00127-user-data-deletion-requests-management.md](REQ-00127-user-data-deletion-requests-management.md) | P1 | in_progress | 12 | 7 |
+| [REQ-00127-user-data-deletion-requests-management.md](REQ-00127-user-data-deletion-requests-management.md) | P1 | in_progress | 12 | 6 |
 | [REQ-00128-social-service-pvp-route-mounting.md](REQ-00128-social-service-pvp-route-mounting.md) | P0 | done | 5 | 1 |
 | [REQ-00129-pokemon-data-backup-and-restore-system.md](REQ-00129-pokemon-data-backup-and-restore-system.md) | P1 | new | 12 | 7 |
 | [REQ-00130-realtime-business-event-stream-monitoring.md](REQ-00130-realtime-business-event-stream-monitoring.md) | P1 | new | 12 | 1 |

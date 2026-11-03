@@ -2782,3 +2782,107 @@ P0sensitiveAPI/password/payment-binding/asset/privacy/admin risk policies, full
 operation/method/verification/UI flows, physicaldevice/provider, queue/service/
 client/security/performance/operations and final658 audit. Regenerate inventory
 AFTER final ledger and check immediately before staging/publishing.
+
+## 2026-10-31 — actual UUID erasure request/review and sensitive aliases
+
+Previous goal turn was progress:9f13a62 published actual server-session/payment-risk
+and canonical MFA boundaries. Revalidated that HEAD, tracked-clean tree,50records
+and active all658 goal. Exact9f jobs are terminal: main477/payment4/native46/MFA9/
+browser5/migration39/privacy49/notification34/dependency317-318 success; full87 remote
+bootstrap passed. Legacy API106/contract402/performance145/integration452/security435
+failed, E2E139 cancelled. Exact39 throughput -2.9144348991186786% against original-5
+with8matching measured source hashes archived; earlier positive/negative reports
+retained. Prior-source CI is not new erasure-source acceptance or fullperformance.
+
+Read the actual mounted deletion/GDPR consumers and their earlier erasure SQL proof.
+OriginalREQ16/127 criteria remain unchanged. Legacy routers still queried the
+incompatible SERIAL/integer-owner deletion model; creation exposed the nonce and
+confirmation could execute without owner authentication. New shared ErasureRequestStore
+uses existing canonical data_erasure_* tables and explicit UUID owners. Legacy service
+entry is now a compatibility facade; no raw table-name deletion, unsupported signing
+fallback or empty-task completion remains available through that entry. The old
+unmounted processor still needs canonical scheduling/resource/retention work.
+
+Actual owner/admin HTTP routes now enforce registered current sessions, owner scopes,
+real delete-account proofs and canonical admin role plus erasure-admin proof. Reads
+are projected before release; foreign owners get404 rather than another owner's row.
+Creation is serialized on actual user locks, audited atomically and unique for active
+subject requests. Reason/rejection envelopes bind field/request/subject/database/schema
+and require configured managed production crypto; no plaintext fallback. Public results
+never contain verification digests, envelopes, raw task SQL, IP/agent or nonce values.
+Admin list adds a subject UUID only after role/MFA. Strict IDs/categories/pagination
+and unsupported custom/unknown storage fail without business mutation.
+
+Internal delivery preparation issues actual random128-bit nonce, stores only its
+request/subject/type/category-bound digest and absolute24-hour expiry, and has no
+public nonce endpoint. APIs report pending/prepared, never sent. No real recipient or
+provider delivery performed/accepted. Reissue/expiry/replay and changed-intent refusal
+are independently exercised. Verification and approval-history/audit are one durable
+transaction. Canonical order history enters manual review; automatic approval retains
+original30daygrace. Cancellation is idempotent. Prepared/created/verified/approved/
+rejected/cancelled metrics advance AFTER commit; failed audit does not count success.
+
+An initial fixture assumption about integer user_consents was WRONG: actual source
+DDL uses UUID owners. Its first run failed before any HTTP case. Corrected the fixture
+from actual immutable DDL and implemented atomic UUID consent withdrawal with erasure
+creation/reuse, instead of retaining the mistaken adoption-only refusal. Unrelated
+consent history stays unchanged. Existing partial requests cannot silently become
+full withdrawal: conflict rolls back consent change; explicit cancel/resubmit works.
+The SERIAL/numeric-owner deletion requests still retain exact rows/tokens/sequence/
+views/FKs; no integer-to-UUID mapping was manufactured. Additional optional-consent/
+policy-model and full privacy/legal semantics remain unaccepted.
+
+Certificate download now requires owner or authenticated admin and configured trusted
+public key map, then verifies exact payload/signature mathematics. Historical hex and
+base64 are supported without changing stored signatures; missing keys/bad signatures
+refuse. A fixture actually removes2owned canonical Pokémon rows, retains another
+owner's row and records actual rowCount before signing/verifying a receipt. This proves
+read/storage/crypto boundaries only, not the production worker, full erasure or legal
+receipt lifecycle. Public post-account-removal receipt access and production signing
+key lifecycle are still open. Execution without a canonical resource plan returns
+ERASURE_RESOURCE_PLAN_REQUIRED, leaves state/data intact and reports no completion.
+
+GDPR delete/confirm/status/withdraw now use modern workflow; confirmation is owner/MFA
+bound and does not run the old destructive service. Export receives a separate
+export-data MFA gate, but the old export implementation remains noncanonical and is
+not accepted for JSON/CSV. Gateway aliases are mounted before generic routers. Native
+actual user/gateway processes complete real login/proof and request create/list/cancel
+through aliases, reject anonymous confirmation and retain clean logs. User ingress
+now honors an explicit common SERVICE_TRUST_PROXY when no user-specific override is
+set. Readiness checks modern tables and shutdown drains the store/provider. Fixtures
+install real source erasure storage/orders/required extensions, not fake columns.
+
+The client exposes transient explicit erasure calls with no automatic refresh/replay,
+no proof/nonce persistence and encoded request IDs. The actual service worker purges
+and refuses legacy GDPR/erasure writes even without an MFA header. Browser6 verifies
+this alongside existing MFA/offline widgets using existing Chrome145.0.7632.6. No
+new full request/status UI or genuine delivery flow is claimed.
+
+After adding nonce-intent and partial/full withdrawal edge guards, reran the exact
+final source sequentially nice10/UV2: erasure16 at99.60line87.66branch98.51function
+with90line/90function/80branch gates; legacyerasureSQL19; fullmainunits(lastJest463+
+9audit+5MFA and combined client/projection17); MFA26 at99.42line83.48branch100func;
+risk17 at96.88line88.52branch100func; payment22 V8100line97.02branch100func and NYC22
+97.76stat93.69branch100line/func with original91/80gates; native4 actual payment plus
+user/gateway/full87; browser6; fullbootstrap3 including unrelated audit schema;
+syntax1484; tools12; direct-runtime-logging0; new read-only erasure workflow parses.
+Every final command exited0, no skipped Node storage/native/browser cases. Original
+whole GDPR80coverage, unit-only and all feature numerical targets remain unchanged.
+All87pending SQL/V1/lockfiles/dependency/repair manifests are byte-identical to9f.
+
+All three owned PG40/Redis/Kafka containers stopped normally after checks; unrelated
+OpenClaw/performance fixtures untouched. No Maven/CPU saturation/subagents/new
+requirements/provider/recipient messages/production cleanup/rekey/merge/deploy.
+Still176declared done54progress428new=658unique,50source-hashed records/only619verified.
+Refreshed affected shared refs with scoped evidence; no unrelated feature promoted.
+Current source CI pending sameDraftPR6 publication. Continue genuine delivery transport
+and recipient source, canonical per-resource retention/execution/worker/retry/outbox,
+production signing/post-account receipts, full UI/export/optional-consent/legal work,
+all other P0 sensitive APIs/multi-method verification, remaining services/client/
+security/performance/operations and final658 audit. Regenerate inventory AFTER final
+ledger and check immediately before staging/pushing.
+
+Precommit hygiene: staged check found trailing spaces on three otherwise empty new
+store lines112/125/156. Removed only those spaces; asserted same line count and all
+non-whitespace source bytes, recorded pre/post hashes in artifact and refreshed
+only corresponding ledger refs. No executable/SQL token or acceptance gate changed.

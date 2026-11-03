@@ -434,7 +434,7 @@
         "- [ ] 集成测试验证完整删除流程",
         "- [ ] 法律审核通过（隐私政策）"
       ],
-      "verificationStatus": "partial_sql_verified_runtime_and_fresh_history_pass_full_acceptance_open",
+      "verificationStatus": "partial_actual_uuid_erasure_intake_and_mfa_boundaries_verified_full_privacy_export_execution_legal_open",
       "implementationReferences": [
         "backend/services/user-service/src/gdprService.js",
         "backend/services/user-service/src/routes/auth.js",
@@ -3873,11 +3873,10 @@
         "- [ ] 满足 GDPR 第17条\"被遗忘权\"要求",
         "- [ ] 满足 CCPA 第1798.105条\"删除权\"要求"
       ],
-      "verificationStatus": "partial_sql_verified_runtime_and_fresh_history_pass_full_acceptance_open",
+      "verificationStatus": "partial_actual_uuid_request_mfa_approval_encrypted_reads_and_certificate_verification_full_erasure_open",
       "implementationReferences": [
         "backend/jobs/dataDeletionProcessor.js",
         "backend/services/user-service/src/index.js",
-        "backend/services/user-service/src/routes/dataDeletion.js",
         "backend/shared/dataDeletionService.js",
         "database/migrations/20260614220000_data_deletion_request_system.sql",
         "database/pending/20260630_050000__add_data_deletion_request_tables.sql",
@@ -15785,7 +15784,7 @@
         "- [ ] 风控系统能够有效拦截高风险行为调用。",
         "- [ ] 相关的风控日志需加密存储并支持溯源。"
       ],
-      "verificationStatus": "partial_actual_payment_risk_cross_service_mfa_server_sessions_and_encrypted_decisions_verified_other_sensitive_apis_open",
+      "verificationStatus": "partial_actual_payment_erasure_risk_and_cross_service_mfa_verified_other_sensitive_apis_open",
       "implementationReferences": [
         "backend/security/src/sensitiveApiMfa.js",
         "backend/security/tests/sensitiveApiMfa.test.js",

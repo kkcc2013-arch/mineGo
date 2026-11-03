@@ -57,6 +57,8 @@ const SENSITIVE_OPERATIONS = Object.freeze({
   UNBIND_PAYMENT: 'unbind-payment',
   LARGE_TRANSACTION: 'large-transaction',
   PAYMENT_PURCHASE: 'payment-purchase',
+  ERASURE_ADMIN: 'erasure-admin',
+  EXPORT_DATA: 'export-data',
   DELETE_ACCOUNT: 'delete-account',
   DISABLE_MFA: 'disable-mfa',
   REGENERATE_RECOVERY_CODES: 'regenerate-recovery-codes',

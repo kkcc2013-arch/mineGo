@@ -285,6 +285,14 @@ const notificationProxy=require('./routes/notificationProxy').mountNotificationP
 
 // ── v1 API Routes (Legacy) ──────────────────────────────────────────
 // REQ-00638/00126: canonical MFA aliases before generic versioned user routers.
+const erasureSession = new (require('../../shared/riskVerifier').RiskVerifier)();
+for(const prefix of ['/api/v1/data-deletion','/api/v2/data-deletion','/v1/data-deletion']) {
+  app.use(prefix,authMiddleware,erasureSession.middleware(),proxy(SERVICES.user,url=>'/data-deletion'+(url==='/'?'':url)));
+}
+for(const prefix of ['/api/gdpr','/api/v1/gdpr','/api/v2/gdpr','/v1/gdpr']) {
+  app.get(prefix+'/privacy-policy',proxy(SERVICES.user,()=>'/gdpr/privacy-policy'));
+  app.use(prefix,authMiddleware,erasureSession.middleware(),proxy(SERVICES.user,url=>'/gdpr'+(url==='/'?'':url)));
+}
 for(const prefix of ['/api/users/me/mfa','/api/v1/users/me/mfa','/api/v2/users/me/mfa','/v1/users/me/mfa']){
   app.use(prefix,authMiddleware,proxy(SERVICES.user,url=>'/users/me/mfa'+(url==='/'?'':url)));
 }

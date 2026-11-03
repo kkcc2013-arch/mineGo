@@ -49,6 +49,13 @@ test('actual browser API client preserves MFA boundaries and identity across asy
    await api.verifyPayment('owned','signed','transaction',{mfaToken:'owned-step-up'});assert.equal(calls.at(-1)[1].headers.get('X-MFA-Token'),'owned-step-up');
    await api.createOrder('coins_60','WECHAT');assert.equal(calls.at(-1)[1].headers.has('X-MFA-Token'),false);assert.ok(!JSON.stringify([...entries]).includes('owned-step-up'));assert.equal(calls.length,4);
   });
+  await t.test('erasure factors stay in the explicit request body/header and never refresh, replay or persist',async()=>{
+   const calls=[];global.fetch=async(url,opts)=>{calls.push([url,opts]);return response({success:true,data:{status:'pending'}});};
+   await api.requestErasure({reason:'owned request'},{mfaToken:'owned-erasure-proof'});assert.equal(calls[0][1].headers.get('X-MFA-Token'),'owned-erasure-proof');
+   await api.verifyErasure('owned/id','owned-confirmation',{mfaToken:'owned-erasure-proof'});assert.match(calls[1][0],/owned%2Fid\/verify$/);assert.equal(JSON.parse(calls[1][1].body).verificationCode,'owned-confirmation');assert.ok(!calls[1][0].includes('owned-confirmation'));
+   await api.getErasureRequests();assert.equal(calls.at(-1)[1].headers.has('X-MFA-Token'),false);assert.ok(!JSON.stringify([...entries]).includes('owned-erasure-proof'));
+   global.fetch=async(url,opts)=>{calls.push([url,opts]);return response({code:'RISK_SESSION_CHANGED'},401);};await assert.rejects(api.cancelErasure('owned'));assert.equal(calls.length,4);assert.ok(calls.every(([url,opts])=>!url.includes('/auth/refresh')&&opts.cache==='no-store'));
+  });
   await t.test('failed storage cannot leave a half-installed token pair',()=>{
    global.localStorage={...storage,setItem:(key,value)=>{if(key==='pmg_refresh_token')throw new Error('owned quota fixture');storage.setItem(key,value);}};
    try{assert.throws(()=>api.setTokens('half-access','half-refresh'),error=>error.code==='AUTH_STORAGE_UNAVAILABLE');assert.deepEqual([...entries],[]);assert.equal(api.hasSession,false);}finally{global.localStorage=storage;}

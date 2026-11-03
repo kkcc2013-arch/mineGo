@@ -10,7 +10,7 @@ const {Kafka} = require('kafkajs');
 const WebSocket=require('ws');
 const http = require('node:http');
 const {performance} = require('node:perf_hooks');
-const {ensureUuidExtension} = require('./storageSetup');
+const {ensureStorageExtensions} = require('./storageSetup');
 const {parseMigrationFile}=require('../../../database/migrate');
 const {migrationStatements}=require('../../../database/sqlStatements');
 
@@ -54,7 +54,7 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     if(topics.length)await kafka.createTopics({waitForLeaders:true,topics});
   }finally{await kafka.disconnect();}
   const schema=`gateway_start_${crypto.randomBytes(8).toString('hex')}`;
-  const admin=new Pool({connectionString:process.env.TEST_DATABASE_URL});await ensureUuidExtension(admin);await admin.query(`CREATE SCHEMA ${schema}`);
+  const admin=new Pool({connectionString:process.env.TEST_DATABASE_URL});await ensureStorageExtensions(admin);await admin.query(`CREATE SCHEMA ${schema}`);
   const fixture=new Pool({connectionString:process.env.TEST_DATABASE_URL,options:`-c search_path=${schema},public`});
   let user,gateway,gatewaySecond,failed;
   let notificationSocket,notificationProducer;
@@ -69,7 +69,7 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     await fixture.query('INSERT INTO users(id,nickname) VALUES ($1,$2),($3,$4)',[player,'gateway-player',adminId,'gateway-admin']);
     await fixture.query(await migration('pending/20261007_120000__title_identity_compatibility.sql'));
     // Full authentic V1/V2 storage, canonical partitions and durable CDC.
-    for(const file of ['20260608_194800__add_sensitive_data_protection_tables.sql','repairs/20260608_200000__add_sensitive_data_audit_tables.sql','20260610_000000__add_mfa_system.sql','20261020_120000__mfa_verification_state.sql','20261008_140000__audit_partition_conversion.sql','repairs/20260610_100000__add_table_partitioning_system.sql','repairs/20260619_000000__add_table_partitioning.sql','repairs/20260707_060000__complete_partition_management.sql','20261008_130000__item_catalog_prerequisite.sql','repairs/20260609_124500__add_item_inventory_system.sql','repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql']){
+    for(const file of ['20260608_194800__add_sensitive_data_protection_tables.sql','repairs/20260608_200000__add_sensitive_data_audit_tables.sql','20260610_000000__add_mfa_system.sql','20261020_120000__mfa_verification_state.sql','repairs/20260630_050000__add_data_deletion_request_tables.sql','20261008_140000__audit_partition_conversion.sql','repairs/20260610_100000__add_table_partitioning_system.sql','repairs/20260619_000000__add_table_partitioning.sql','repairs/20260707_060000__complete_partition_management.sql','20261008_130000__item_catalog_prerequisite.sql','repairs/20260609_124500__add_item_inventory_system.sql','repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql']){
       const parsed=parseMigrationFile(await migration('pending/'+file));
       for(const statement of migrationStatements(parsed.up))await fixture.query(statement);
     }
@@ -144,7 +144,16 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
     try{
       await loginRedis.set('sms:code:'+loginPhone+':login','123456','EX',300);
       const primary=await fetch(base+'/v1/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:loginPhone,smsCode:'123456'})});assert.equal(primary.status,200);const primaryData=(await primary.json()).data;assert.equal(primaryData.mfaRequired,true);assert.ok(!primaryData.accessToken);
-      const completed=await fetch(base+'/v1/auth/mfa/recovery',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({challenge:primaryData.tempToken,code:mfaSetup.recoveryCodes[2]})});assert.equal(completed.status,200);const claims=require('jsonwebtoken').verify((await completed.json()).data.accessToken,accessKey);assert.equal(claims.sub,player);assert.ok(claims.mfa_epoch);
+      const completed=await fetch(base+'/v1/auth/mfa/recovery',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({challenge:primaryData.tempToken,code:mfaSetup.recoveryCodes[2]})});assert.equal(completed.status,200);const session=(await completed.json()).data;const claims=require('jsonwebtoken').verify(session.accessToken,accessKey);assert.equal(claims.sub,player);assert.ok(claims.mfa_epoch);
+      const privateHeaders={Authorization:'Bearer '+session.accessToken,'Content-Type':'application/json'};
+      const erasureStep=await fetch(base+'/v1/users/me/mfa/step-up',{method:'POST',headers:privateHeaders,body:JSON.stringify({scope:'delete-account',code:mfaSetup.recoveryCodes[3]})});assert.equal(erasureStep.status,200);const erasureProof=(await erasureStep.json()).data.mfaToken;
+      assert.equal((await fetch(base+'/v1/data-deletion/requests',{method:'POST',headers:privateHeaders,body:'{}'})).status,403);
+      const submitted=await fetch(base+'/v1/data-deletion/requests',{method:'POST',headers:{...privateHeaders,'x-mfa-token':erasureProof},body:JSON.stringify({reason:'owned native request'})});assert.equal(submitted.status,201);const erasure=(await submitted.json()).data;assert.equal(erasure.verificationDelivery,'pending');assert.equal(erasure.status,'pending');
+      const listed=await fetch(base+'/api/v2/data-deletion/requests',{headers:privateHeaders});assert.equal(listed.status,200);assert.ok((await listed.json()).data.some(row=>row.id===erasure.id));
+      const erasureStatus=await fetch(base+'/v1/gdpr/status',{headers:privateHeaders});assert.equal(erasureStatus.status,200);assert.equal((await erasureStatus.json()).id,erasure.id);
+      assert.equal((await fetch(base+'/v1/data-deletion/requests/'+erasure.id+'/cancel',{method:'POST',headers:{...privateHeaders,'x-mfa-token':erasureProof},body:'{}'})).status,200);
+      assert.equal((await fetch(base+'/v1/gdpr/delete/confirm',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:'unowned'})})).status,401);
+      assert.ok(!user.logs().includes(erasureProof)&&!gateway.logs().includes(erasureProof));
     }finally{await loginRedis.del('sms:code:'+loginPhone+':login');await loginRedis.quit();}
     // Start a second actual OS gateway process against the same durable journal
     // and Redis namespace; each has its own listener, worker and L1 Map.
@@ -287,6 +296,11 @@ test('native gateway and user processes enforce IP appeals, report dependencies 
   }finally{
     if(notificationSocket)notificationSocket.terminate();if(notificationProducer)await notificationProducer.disconnect();
     await Promise.all([cleanupProcess(user),cleanupProcess(gateway),cleanupProcess(gatewaySecond),cleanupProcess(failed)]);
+    const cleanupRedis=new(require('ioredis'))(process.env.TEST_REDIS_URL);
+    try{
+      const namespace='risk:v1:'+crypto.createHash('sha256').update(JSON.stringify([(await fixture.query('SELECT current_database() AS name')).rows[0].name,schema])).digest('hex')+':';
+      await cleanupRedis.del('sessions:user:'+player,'blacklist:user:'+player,...[['ip','127.0.0.1'],['user',player],['failures',player]].map(([kind,value])=>namespace+kind+':'+crypto.createHash('sha256').update(value).digest('hex')));
+    }finally{await cleanupRedis.quit();}
     auditMaster.fill(0);mfaMaster.fill(0);
     await fixture.end();await admin.query(`DROP SCHEMA ${schema} CASCADE`);await admin.end();
   }

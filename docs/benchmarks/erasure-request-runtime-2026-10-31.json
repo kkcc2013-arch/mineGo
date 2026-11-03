@@ -1,0 +1,249 @@
+{
+  "date": "2026-10-31",
+  "baseCommit": "9f13a62ec86164ea9487f3c633b6dd89d0c4a5c0",
+  "result": "actual_uuid_request_approval_owner_admin_mfa_and_encrypted_crypto_read_pass_current_source_ci_pending",
+  "sourceSha256": {
+    ".github/workflows/erasure-regression.yml": "f51a9d33cb5df6218fc24e18df7283bb2b94812996a05b0a9c13eb295ba013d9",
+    "backend/gateway/src/index.js": "5de453b2760fbd0027d3543eef003ef793e64d0d19ae17532ba6030730b03242",
+    "backend/gateway/src/middleware/mfaRequired.js": "07a85e9e49531c97df7f7e5aa4160b1251b6445c077568bde52c75107d50733a",
+    "backend/package.json": "8b9366399cfd40fc5209258aeddbcd9505419921af78701f68728289ae5bcbf7",
+    "backend/services/user-service/src/index.js": "e894b853967a4eb5f9854c6e18756f74a421d12d2c34c0785f3673d0d1ab1684",
+    "backend/services/user-service/src/routes/dataDeletion.js": "578f6354de06558c0c09e2ee7537f9ea260fa90bd1eeedfdf1c63476a596316a",
+    "backend/services/user-service/src/routes/gdpr.js": "5be048126f32b90f10a35f6657e711739cf78ca16aeb41f99058e2c30fbee305",
+    "backend/shared/dataDeletionService.js": "29e9b4666dbd8f980094ae97d964c4c9597f543a5f6352cca5c43ca6bfb04145",
+    "backend/shared/erasure/ErasureRequestStore.js": "8cd884fcdd06d67b47e434de69241f7a190b9018cc9ba8f639b6d39871f13708",
+    "backend/tests/README.md": "239290efa2f98c06077b75234e42bda222e92ab527cd03fcef22ffd76f09d032",
+    "backend/tests/regression/erasure-request-storage.test.js": "4dfb10fd8be3266fa217efb41ede8a239cacf28f7b33e6728955ae18ab2c4c81",
+    "backend/tests/regression/gateway-startup.test.js": "6ed7a0e9404ebb8ad2c380a81f70330b300c3b98f54e966287331a45353b8111",
+    "backend/tests/regression/mfa-browser-storage.test.js": "4b1c266ec8f83bf068cedf1e77589c00210a90491b19ac4c3e9e50d6d0966da7",
+    "backend/tests/regression/user-startup.test.js": "11ca95b289bb822884cf7b4888f3356f0e79ec6bee3fd0726662c72d1a08538f",
+    "backend/tests/unit/mfa-client.test.js": "a96e807b1049ef199dfe092d353763e1aac1f816f1babac8a3ef5df89c17a1ec",
+    "docs/DATA-ERASURE.md": "b1514e64b8900c6d4ce88f6b1242f7f727feacdec2928b942422e8442c9883fd",
+    "docs/SENSITIVE-OPERATION-RISK.md": "e6a42331ea49449c1075e1bdc74abb4ea31371982948f9188566abd96b9b577a",
+    "frontend/game-client/src/api/client.js": "d10fba65a1ac6f2ab88a55bfe42d27de48c46e591fe21793ac85e47af070a3a3",
+    "frontend/game-client/sw.js": "929e7a1a3ec879927f6fa1f09add635149f6aa5a7ea8dc6bde9352ced8bddea0"
+  },
+  "checks": [
+    {
+      "name": "erasure",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:erasure:storage"
+      ],
+      "exit": 0,
+      "logSha256": "85d696630609d8ca32ed34b2db1109a9a0f5dd202974066b58fd4c7423fb0409"
+    },
+    {
+      "name": "erasure-schema",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "backend/tests/regression/erasure-schema-storage.test.js"
+      ],
+      "exit": 0,
+      "logSha256": "22aca3c2bbb051593e96e8d662bbf60ca1605e9b98e4f4d1be58e46f2e992d1f"
+    },
+    {
+      "name": "main-unit",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:unit"
+      ],
+      "exit": 0,
+      "logSha256": "71dea2c58532100d13744a02eb35e3e4971d2298eda744e8b6265b5f99e5f25b"
+    },
+    {
+      "name": "mfa",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:mfa:storage"
+      ],
+      "exit": 0,
+      "logSha256": "a7b89eac73a085551d701d2e8e3d69eed80875a4791d373bf53aa4b88bfb1c7c"
+    },
+    {
+      "name": "risk",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:risk:storage"
+      ],
+      "exit": 0,
+      "logSha256": "5c5e5c4b279d562a99cb39452840de443dcec52761a8c4037a1d83ed3adaea8b"
+    },
+    {
+      "name": "payment-core",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:payment:storage"
+      ],
+      "exit": 0,
+      "logSha256": "3a34d6be183dc8d030b562f9d9ab6ec04bb815acac694e9f32ff1a8ba181cddd"
+    },
+    {
+      "name": "payment-report",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:payment:coverage"
+      ],
+      "exit": 0,
+      "logSha256": "fc46fe0e2e9ba0af36e4625ce51850a1b6ac8bad648464e43f395bdf9960ef28"
+    },
+    {
+      "name": "native",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "backend/tests/regression/user-startup.test.js",
+        "backend/tests/regression/gateway-startup.test.js",
+        "backend/tests/regression/payment-native.test.js"
+      ],
+      "exit": 0,
+      "logSha256": "027602f193071e0efc4c5af9cc698bf3ec3244574d050d73217ce3242849fbbe"
+    },
+    {
+      "name": "browser",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "backend/tests/regression/mfa-browser-storage.test.js"
+      ],
+      "exit": 0,
+      "logSha256": "16eaa986318a3c66175439be96b409883656031441a814a6b71c5aadd86f8231"
+    },
+    {
+      "name": "bootstrap",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "backend/tests/regression/database-bootstrap.test.js"
+      ],
+      "exit": 0,
+      "logSha256": "72701337bebd695929dd39fbdb62cbd1015b3d392c73e29522d07a541a977625"
+    },
+    {
+      "name": "syntax",
+      "command": [
+        "node",
+        "scripts/check-js-syntax.js"
+      ],
+      "exit": 0,
+      "logSha256": "a1fd9fb364d399351abd47761d4d6b3f3c1adee8e5885d71c76480da746780ff"
+    },
+    {
+      "name": "tools",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "scripts/tests/check-health-routes.test.js",
+        "scripts/tests/check-js-syntax.test.js",
+        "scripts/tests/requirements-audit.test.js"
+      ],
+      "exit": 0,
+      "logSha256": "ef82d216830af74da83beb830d7f44cff1317eae1bbd3ab01100189c134a6cca"
+    },
+    {
+      "name": "logging",
+      "command": [
+        "node",
+        "scripts/replace-console-with-logger.js",
+        "--check"
+      ],
+      "exit": 0,
+      "logSha256": "ddc0301849846d3968cce009435bbee760c1cf2e610111fca3f65eb0d14c3843"
+    }
+  ],
+  "coverage": {
+    "erasureIntegration": {
+      "lines": 99.6,
+      "branches": 87.66,
+      "functions": 98.51,
+      "gates": {
+        "lines": 90,
+        "functions": 90,
+        "branches": 80
+      }
+    },
+    "canonicalMFA": {
+      "lines": 99.42,
+      "branches": 83.48,
+      "functions": 100,
+      "gates": {
+        "lines": 90,
+        "functions": 90
+      }
+    },
+    "riskIntegration": {
+      "lines": 96.88,
+      "branches": 88.52,
+      "functions": 100
+    },
+    "paymentCore": {
+      "lines": 100,
+      "branches": 97.02,
+      "functions": 100
+    },
+    "paymentNYC": {
+      "statements": 97.76,
+      "branches": 93.69,
+      "lines": 100,
+      "functions": 100
+    }
+  },
+  "native": {
+    "pendingMigrations": 87,
+    "gatewayShutdownMs": 239.88859899999989,
+    "paymentShutdownMs": 4858.339705,
+    "scope": "Actual payment+gateway OS entry points, canonical full history, signed spaced JSON bytes through gateway without userJWT, SQL/Redis/Kafka/encrypted receipts and actual timeout consumer; other gateway peers alias payment fixture, no provider/liveAWS/capacity acceptance."
+  },
+  "browser": {
+    "browser": "145.0.7632.6",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "artifacts": "/tmp/minego-erasure-browser-2026-10-31",
+    "scope": "Actual production HTML/API/MFA widgets/service worker and canonical PostgreSQL/Redis; primary SMS codes seeded in owned keys, no SMS delivery/authenticator-device/gameplay acceptance."
+  },
+  "negativeEvidence": [
+    {
+      "logSha256": "1bf498f091e2b16d84c09e871114ef27289d967c7a554ede5ed1e66a1ee1b914",
+      "result": "Initial fixture incorrectly inserted an integer owner into actual UUID user_consents; failed before any HTTP case. Corrected fixture and implemented atomic UUID withdrawal/request against actual SQL; original SQL unchanged."
+    }
+  ],
+  "priorCIArtifact": "docs/benchmarks/ci-9f13a62-2026-10-31.json",
+  "scope": "All original87SQL/locks/manifests retained; legacy numeric-owner request rows/tokens/OIDs/FK/view/sequence and unrelated UUID consent history unchanged. Actual request16 includes type/category/subject bound real32char nonce, reissue/expiry/replay, manual financial review and30day auto grace, encrypted notes/AAD tamper refusal, atomic consent/request and audit rollback, postcommit metric semantics, owner/admin RBAC+MFA, configured signature verification. Internal nonce preparation is not delivery; no real message/provider calls. Crypto receipt fixture removes actual2owned canonicalPokemon rows, leaves otherowner row, uses real returned count/signature; does not prove production executor. Native4 includes actual entrypoint login/proof/created/listed/cancelled through gateway aliases. Browser6 purges old erasure/GDPR replay; no factor/proof persistence or automatic client replay. Unconfigured resource-plan execution refuses without mutating data/status. Actual erasure executor/delivery/worker/retention/retry/outbox/signingkey lifecycle/postaccountaccess/full UI/export/legal/wholeGDPR80 acceptance remain open. Integration gate is scoped, not full feature or unit-only acceptance.",
+  "postMeasurementFormattingOnly": {
+    "path": "backend/shared/erasure/ErasureRequestStore.js",
+    "measuredSha256": "89dba0e69835ab43512f9f6548c5beeee48340d5b8c9e36bcffea34adb669813",
+    "currentSha256": "8cd884fcdd06d67b47e434de69241f7a190b9018cc9ba8f639b6d39871f13708",
+    "lines": [
+      112,
+      125,
+      156
+    ],
+    "proof": "Only trailing spaces on three empty lines removed; line count and all non-whitespace source bytes identical; no executable/SQL tokens changed."
+  }
+}
