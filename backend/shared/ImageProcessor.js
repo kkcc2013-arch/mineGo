@@ -8,6 +8,9 @@
  */
 
 'use strict';
+const {createLogger} = require('./logger');
+const logger = createLogger('ImageProcessor');
+
 
 const EventEmitter = require('events');
 const path = require('path');

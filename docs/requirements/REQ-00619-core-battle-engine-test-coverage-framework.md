@@ -7,7 +7,7 @@
 | 标题 | 核心战斗引擎业务测试覆盖框架 |
 | 类别 | 测试覆盖 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | done |
 | 涉及服务 | gym-service, battle-engine-module |
 | 创建时间 | 2026-07-21 00:00 |
 
@@ -27,15 +27,46 @@
 
 ## 验收标准
 
-- [ ] 实现针对战斗公式的单元测试覆盖率 > 90%
-- [ ] 完成战斗引擎集成测试套件，涵盖至少 50 个典型业务场景
-- [ ] 战斗引擎回归测试流水线集成到 CI/CD
+- [x] 实现针对战斗公式的单元测试覆盖率 > 90%
+- [x] 完成战斗引擎集成测试套件，涵盖至少 50 个典型业务场景
+- [x] 战斗引擎回归测试流水线集成到 CI/CD
+
+### 2026-10-06 本地验收证据
+
+- `cd backend && npm run test:battle`：Node.js 20.20.2 下通过。
+- `cd backend && npm run test:battle:coverage`：Node.js 24.19.0 下通过；57 个公式用例、76 个业务场景，共 133 个用例。
+- `battleFormulas.js` 行、分支、函数覆盖率均为 100%，CI 门禁均设置为至少 91%。
+- `.github/workflows/ci-cd.yml` 新增独立 battle-regression 作业，并加入构建前置条件。
+- 按 GUIDELINES.md 完成定义，远程 CI 尚未运行；保留 `in_progress`，未声明整体完成。场景套件使用可注入状态服务边界；数据库、Redis 及生产性能验收不由该套件代替。
 
 ## 影响范围
 
-- /data/mineGo/gym-service/battle-engine/
-- /data/mineGo/tests/gym-service-integration/
+- `backend/services/gym-service/src/battleEngine.js` 与 `battleFormulas.js`（历史 `/data/mineGo/gym-service/battle-engine/` 的当前仓库映射）
+- `backend/tests/battle/`（历史 `/data/mineGo/tests/gym-service-integration/` 的当前仓库映射）
 
 ## 参考
 
-- [核心战斗引擎设计规范](/data/mineGo/docs/api-spec/battle-engine-design.md)
+- [核心战斗引擎设计规范](../api-spec/battle-engine-design.md)
+
+
+## 2026-10-15 来源复核
+
+原3项标准与>90%/50场景阈值不改。真实仓库影响路径与缺失的历史绝对引用已映射
+到当前生产模块/测试目录，并补充基于现有实现的设计/测试边界文档。已读取确切
+43c6b148源码CI453的独立battle job115638282796：133通过、公式行/分支/函数
+100%。这是此前源码的证据；本轮共享事务依赖仍在修改，需要当前源码相关CI
+再次核验后才更新最终状态。框架模拟的外部状态边界不代替实际持久化/完整战斗
+功能验收，尤其不混用另一damage simulation的倍率模型。
+
+
+## 2026-10-15 当前源码最终验收（仅本测试框架）
+
+当前发布源码bae401eb83c7ad1db2d98e7db6e16b713c8f98dd的
+[主CI454](https://github.com/kkcc2013-arch/mineGo/actions/runs/38708847414)
+已完成success；独立battle job116334921896日志实际确认133通过/0失败、
+公式行/分支/函数均100%，原91%门禁仍执行。76个Given/When/Then场景
+直接调用生产BattleEngine，外部状态/时钟/随机数按本需求技术方案注入。
+
+原3项标准均满足，状态改done，来源哈希及确切CI证据记录在VERIFICATION.json。
+本次完成仅涵盖测试覆盖框架；其他战斗/状态持久化/HTTP/客户端/性能需求
+及全85迁移门禁仍须独立验收，不因该框架完成而升级状态。

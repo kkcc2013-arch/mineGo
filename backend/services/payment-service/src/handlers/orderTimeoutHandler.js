@@ -2,7 +2,8 @@
 
 const { getDelayQueue } = require('../../../../shared/DelayQueue');
 const { createLogger } = require('../../../../shared/logger');
-const { incrementCounter } = require('../../../../shared/metrics');
+const metrics=require('../../../../shared/metrics');
+const cancelledCounter=metrics.register.getSingleMetric('payment_orders_timeout_cancelled_total')||metrics.counter('payment_orders_timeout_cancelled_total','Actual expired payment orders cancelled',['reason']);
 
 const logger = createLogger('order-timeout-handler');
 
@@ -21,9 +22,7 @@ async function initOrderTimeoutHandler() {
       const result = await cancelExpiredOrder(payload.orderId);
       
       if (result.cancelled) {
-        incrementCounter('payment_orders_timeout_cancelled_total', 1, {
-          reason: 'timeout',
-        });
+        cancelledCounter.inc({reason:'timeout'});
         
         logger.info({ 
           orderId: payload.orderId,
@@ -83,24 +82,8 @@ async function scheduleOrderTimeout(orderId, timeoutMs = 30 * 60 * 1000) {
  * This would integrate with payment-service order management
  */
 async function cancelExpiredOrder(orderId) {
-  // This is a placeholder - actual implementation would:
-  // 1. Check order status in database
-  // 2. If still pending, cancel it
-  // 3. Release any held inventory/reservations
-  // 4. Send notification to user
-  
-  logger.debug({ orderId }, 'Checking order for timeout cancellation');
-  
-  // Simulate order check
-  // In production, this would call:
-  // const order = await orderRepository.findById(orderId);
-  // if (order.status === 'pending') {
-  //   await orderRepository.update(orderId, { status: 'cancelled', cancelledAt: new Date() });
-  //   return { cancelled: true };
-  // }
-  // return { cancelled: false, reason: 'already_processed' };
-  
-  return { cancelled: true, orderId };
+  const {PaymentStore}=require('../payment/PaymentStore');
+  return new PaymentStore().cancelExpired(orderId);
 }
 
 /**

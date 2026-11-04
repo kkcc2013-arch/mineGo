@@ -3,7 +3,7 @@
 - **编号**：REQ-00060
 - **类别**：数据库/数据治理
 - **优先级**：P1
-- **状态**：done
+- **状态**：in_progress
 - **涉及服务/模块**：database/migrations、所有微服务、backend/shared、PostgreSQL
 - **创建时间**：2026-06-09 18:05
 - **依赖需求**：REQ-00007（数据库迁移管理）
@@ -728,3 +728,88 @@ describe('PartitionManager', () => {
 3. 早期实现可避免后期数据迁移的巨大成本
 4. 对"项目可用"贡献显著：提升性能、降低运维成本、支持数据生命周期管理
 5. 依赖 REQ-00007（数据库迁移管理）已完成，条件成熟
+
+
+## 真实迁移验收复核（2026-10-08）
+
+旧 done 声明重开。完整 V1+种子+legacy 迁移链到本需求时失败：audit_logs 原本
+是 V1 的普通表，CREATE TABLE IF NOT EXISTS 没有把它变成分区父表，也没有补齐
+resource_type/resource_id 字段。真实执行在建资源索引时失败。仅添加字段或忽略
+分区创建错误不能满足五个表的分区目标，因此全历史 CI 失败被保留。
+
+下一批实现保持原 ID、完整列、历史数据、约束、序列/索引/触发器和引用对象的
+迁移路径，并验证真实写入/查询、当前分区、回滚和数值性能。尚未证明50%性能
+提升、留存/归档/自动调度与备份恢复；本批没有假称分区目标完成。
+
+
+## 审计表转换与实际五表存储进展（2026-10-08）
+
+新增独立 prerequisite，在旧分区脚本之前事务性转换真实 V1 audit_logs。保留
+BIGSERIAL ID/原序列、全部列类型和历史数据；原 relation 作为 DEFAULT 分区继续
+保存。复制外键、索引表达式/INCLUDE/条件、普通视图绑定、触发器/启停状态和
+权限。全局身份表和事务触发器防止跨时间分区重复 ID；日期/ID 更新与删除保持
+一致。回滚恢复原 OID/主键，保留迁移后新增的记录及字段，不丢弃新数据。
+
+时间分区函数按当前 schema 验证真实父子关系和精确边界，事务移动 DEFAULT 中
+对应时间的数据后再 ATTACH，不重复业务触发器副作用。并发创建在获得锁后重新
+核实已提交的分区，UTC 边界不受调用方时区影响。失败的重叠/名称冲突回滚全部
+变化。已有分区表不会被回滚强制改成普通表。
+
+实际 PostGIS15 存储23项通过：上述审计转换/并发/权限/回滚，且旧修复脚本创建的
+五个实际业务父表均为分区表，历史/当前写入和 DEFAULT->范围分区移动保持行值。
+这是实际 SQL 存储证据，不替代五个微服务的实际业务写入，也不证明其它历史表
+布局的转换。强制 RLS、入向外键、额外唯一索引、物化视图和未持有的名称冲突
+明确阻断且保留原表；这些定制升级路径还需要独立方案。
+
+82个 pending 全历史 gate 已越过本次转换，随后失败于成就表 completed 字段
+缺失。后续重复 *_partitioned 脚本、运行时调度、未来三个月动态分区、归档/删除/
+恢复、Prometheus/API、80%覆盖率及50%性能目标仍待实际验收；保持 in_progress。
+
+
+## 重复分区迁移与身份保留复核（2026-10-13）
+
+20260619_000000 原脚本在实际生产链尝试把已存在 BOOLEAN 分区函数改为 VOID，
+真实 PostgreSQL 报42P13；整批回滚。其 *_partitioned 影子表和既有子表名称也冲突。
+独立 source-bound repair 使用已存在的五个真实 created_at RANGE 父表，保留原表/
+函数 OID、数据、序列、视图引用、注释和函数权限/配置；不替换原 helper，也不
+创建空影子表来宣称转换成功。新增显式依赖到较早的真实分区转换。
+
+月/日范围保持原提案；event_logs 旧数据已采用6月9日起的周范围，重复提案的
+6月8日起范围会重叠，因此保持既有周相位和原子验证，补6月2日至9日的前一周。
+没有改写既有分区边界或重新解释历史时间。统计视图使用当前 schema 的实际
+父子关系；精确匹配既有视图保留身份，自定义定义及影子布局明确拒绝采用。
+
+partition-history-storage4项和原audit-partition-storage23项真实 PostGIS15 合计
+27项通过：原错误回滚、五表完整值/身份/引用保留、新范围实际数据移动、重复
+调用、已有函数元数据/周边界不改、自定义表/视图原子拒绝。全 V1/V2 通过；
+完整85原始源迁移链越过重复分区，现失败20260624_133000 statement16，缺少
+payment_orders。全链仍红，未跳过文件。此证据不替代真实服务写入、50%性能、
+80%覆盖率、调度/归档/恢复/删除、未来动态范围、统计API或全链回滚的原验收。
+较晚20260707_060000仍引用影子表/不一致管理规则，需要后续完整实现。
+
+
+## Actual operational partition maintenance (2026-10-18)
+
+Read all788 existing lines and preserve all9 original acceptance criteria,50% query
+gain and≥80% coverage target. The later20260707_060000 proposal used different shadow
+parents and tried to replace partition_stats column size_bytes with size. A new
+source-bound repair preserves canonical five parent/view/helper identities, complete
+existing columns/rows/geometry/JSON/payment/audit values, bounds/dependents/comments/
+sequences/ACLs and operator choices. Use guarded real UTC current+three-future-month
+creation with canonical monthly/daily/existing Tuesday-weekly phase; verify physical
+postconditions, reuse matching ranges and reject overlaps/false creator success.
+Statistics count actual rows/bytes in current-schema children; health reports real
+missing ranges/default rows. No unverified cron archive/drop or fake archive table.
+
+Production gateway mounts protected signed-admin statistics/precreate routes, exposes
+actual metrics and refreshes coverage daily with owned timer/error/cleanup behavior.
+22 actual storage/router/CLI checks pass/no skips; new maintenance module coverage
+100% lines/94% branches/90.48% functions at80% line/function gates. That is scoped to
+the new module, not entire original manager/archive/optimizer/UI acceptance. Actual
+native gateway/user processes, signed-admin/ordinary/anonymous HTTP, readiness and
+natural shutdown pass;724 units/24Jest425 and1450 syntax checks pass. All85 raw SQL
+and every prior repair-manifest entry unchanged. Complete history now passes this
+and weather, then fails CDC20260707_100000 stmt5 nonexistent pokemon; batch rolls
+back. Fresh full history, upgrades/reversal, true production caller/query targets,
+archive/delete/restore/backup/S3/retention/alerts/UI and all original numerical
+criteria remain open. See [scope](../PARTITION-MAINTENANCE.md), VERIFICATION and plan.

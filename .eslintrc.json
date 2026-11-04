@@ -3,21 +3,31 @@
     "node": true,
     "es2021": true
   },
-  "extends": ["eslint:recommended"],
+  "extends": [
+    "eslint:recommended"
+  ],
   "parserOptions": {
     "ecmaVersion": 2021,
     "sourceType": "module"
   },
   "rules": {
-    "no-console": ["error", {
-      "allow": ["info", "debug", "trace"]
-    }],
+    "no-console": [
+      "error"
+    ],
     "no-unused-vars": "warn",
     "prefer-const": "warn"
   },
   "overrides": [
     {
-      "files": ["**/migrations/*.js", "**/scripts/*.js", "**/frontend/**/*.js"],
+      "files": [
+        "**/migrations/*.js",
+        "**/scripts/*.js",
+        "**/frontend/**/*.js",
+        "**/cli.js",
+        "**/*.cli.js",
+        "**/cli/**/*.js",
+        "**/scripts/**/*.js"
+      ],
       "rules": {
         "no-console": "off"
       }

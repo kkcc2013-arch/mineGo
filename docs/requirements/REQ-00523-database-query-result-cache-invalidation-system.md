@@ -7,7 +7,7 @@
 | 标题 | 数据库查询结果缓存失效智能同步系统 |
 | 类别 | 性能优化 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | in_progress |
 | 涉及服务 | backend/shared/cache, database/cdc, gateway |
 | 创建时间 | 2026-07-09 14:00 |
 

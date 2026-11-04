@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-19",
+  "runtime": "v24.19.0",
+  "scope": "12 sequential real PostgreSQL writer operations through two independent CDC/cache clients, shared actual Redis and both L1 maps; measured from before UPDATE through observed removal, healthy isolated fixture only; no capacity/database-load acceptance",
+  "samplesMs": [
+    12.590193,
+    11.929577999999992,
+    12.830547000000024,
+    8.81776600000012,
+    9.100419000000102,
+    12.950595000000021,
+    11.267741999999998,
+    10.24143499999991,
+    8.62182000000007,
+    10.827772000000095,
+    9.578158999999914,
+    11.527556000000004
+  ],
+  "maxMs": 12.950595000000021,
+  "originalGatesMs": {
+    "REQ00479": 100,
+    "REQ00523": 50
+  },
+  "sourceSha256": {
+    "backend/shared/cache/CoherentCache.js": "07679376b7eab5d0b51a3462a54055b99c979c2611629d1f1c7b235533efb978",
+    "backend/shared/cdc/CacheInvalidationCenter.js": "7a814123cf521701622cd8d93cc121b3ff9360695e90c0d63852f208642340ea",
+    "backend/shared/cdc/PgCDCListener.js": "e89725a3447e797376434f7fae4800ee1152da5bfa61db1c0f6fbb040982bf4e",
+    "backend/shared/cdc/ChangeToCacheMapper.js": "f700ff760db31d9aadcccb03ef087007ddce7e0a2ff6c1981c2185787951db8f",
+    "backend/shared/cdc/cache-rules.yml": "84660897aa4d95532fc8dfc713fa1160e0dae9c20acd15643f198622672c58cb",
+    "database/pending/repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "279e7b764797d2ad636f704c3e73c97c504a6077a7c1bc14aa39f30737c7b478",
+    "backend/tests/regression/cdc-cache-runtime.test.js": "080844f0c4635f82c5aa9428bfdd139f440027dc74d9b505870b5a83552d22bf"
+  }
+}

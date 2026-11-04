@@ -3,7 +3,7 @@
 - **编号**：REQ-00160
 - **类别**：功能增强
 - **优先级**：P1
-- **状态**：done
+- **状态**：in_progress
 - **涉及服务/模块**：pokemon-service、catch-service、location-service、gateway、game-client、database/migrations
 - **创建时间**：2026-06-13 15:00
 - **依赖需求**：无
@@ -154,3 +154,24 @@ CREATE INDEX IF NOT EXISTS idx_pokemon_perfect_iv ON pokemon_instances(is_perfec
 3. **社交系统联动**：幸运精灵促进玩家交换互动
 4. **实现成本低**：基于现有架构，修改量小
 5. **对项目可用贡献**：完善核心游戏机制，提升玩家满意度
+
+
+## Independent review (2026-10-08)
+
+Reopened the old done claim. Actual migration failed on nonexistent spawn created_at;
+flags were not persisted by the production spawn INSERT and counts handled only inserts.
+Whole original-source-bound repair now uses spawned_at, derives flags from retained
+actual IVs, backfills without replaying old triggers and maintains current-owner counts
+on mutation/transfer/delete. Preserves original UUID data/lucky flags/dates; config and
+custom schema/rollback safeguards are exercised. Production location generation now
+uses exclusive categories and persists/returns/cache-stores actual flags/tuple.
+36 actual storage/generator/source-SQL cases pass. A100000 real local helper probe
+observed7zero/101perfect/99892ordinary; no native probability or lucky-distribution
+acceptance is fabricated. Actual trade-floor SQL fragment passes; full trade flow is open.
+Complete85 history still fails later at daily-quest :: syntax; no scripts are skipped.
+
+Full native startup/readiness/shutdown/spawn/catch/social/gateway, statistical protocol/
+original probability targets, lucky5%, badges/detail/Pokedex client/UI/API authorization,
+config consumption/cache refresh and all remaining original acceptance stay open.
+See [IV guide](../SPECIAL-IV.md), VERIFICATION.json and WORKLOG.md. No full requirement
+is independently accepted from these slices.

@@ -11,9 +11,35 @@ const {
   ArabicStrategy,
   ThaiStrategy,
   KoreanStrategy
-} = require('../../shared/i18n/textTruncator');
+} = require('../shared/i18n/textTruncator');
 
 describe('SmartTextTruncator', () => {
+  test('HTML stays balanced within the total character budget', () => {
+    const result = textTruncator.truncate('<b>Hello world, a much longer text</b>', { maxLength: 20, locale: 'en' });
+    expect(result.truncated).toBe('<b>Hello...</b>');
+    expect(result.truncated.length).toBeLessThanOrEqual(20);
+    expect(result.truncated).not.toContain('__HTML_');
+  });
+
+  test('a quoted greater-than sign inside an HTML attribute is not a tag boundary', () => {
+    const result = textTruncator.truncate('<b title=">">Hello world with extra words</b>', { maxLength: 28, locale: 'en' });
+    expect(result.truncated).toContain('</b>');
+    expect(result.truncated.length).toBeLessThanOrEqual(28);
+  });
+
+  test('a placeholder crossing the cut point is omitted atomically', () => {
+    const result = textTruncator.truncate('Hi {longPlaceholder} welcome!', { maxLength: 10, locale: 'en' });
+    expect(result.truncated).toBe('Hi...');
+    expect(result.warnings).toEqual(['Placeholder truncated: {longPlaceholder}']);
+    expect(result.truncated).not.toContain('__PH_');
+  });
+
+  test('hard cuts do not leave a lone emoji surrogate', () => {
+    const result = textTruncator.truncate('abcdef😀abcdefgh', { maxLength: 10, locale: 'zh' });
+    expect(result.truncated).toBe('abcdef...');
+    expect(result.truncated).not.toMatch(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/);
+  });
+
   describe('基本截断功能', () => {
     test('短文本不应被截断', () => {
       const result = textTruncator.truncate('Hello World', { maxLength: 20 });
@@ -45,7 +71,7 @@ describe('SmartTextTruncator', () => {
 
     test('应在标点符号后截断', () => {
       const text = '这是一段很长的中文描述文字，需要在逗号处截断。';
-      const result = textTruncator.truncate(text, { maxLength: 18, locale: 'zh' });
+      const result = textTruncator.truncate(text, { maxLength: 18, locale: 'zh', ellipsis: '…' });
       expect(result.truncated).toMatch(/[，。！？、]…$/);
     });
 
@@ -69,15 +95,14 @@ describe('SmartTextTruncator', () => {
       const text = 'Catch the legendary Pokemon Mewtwo in the wild';
       const result = textTruncator.truncate(text, { maxLength: 22, locale: 'en' });
       expect(result.wasTruncated).toBe(true);
-      expect(result.truncated).not.toMatch(/\w\.\.\.$/); // 不应以字母+省略符结尾
-      expect(result.truncated).toMatch(/\s?\.\.\.$/); // 应以空格+省略符或省略符结尾
+      expect(result.truncated).toBe('Catch the legendary...');
     });
 
     test('无空格时应硬截断', () => {
       const text = 'Supercalifragilisticexpialidocious';
       const result = textTruncator.truncate(text, { maxLength: 15, locale: 'en' });
       expect(result.wasTruncated).toBe(true);
-      expect(result.truncated.length).toBe(18);
+      expect(result.truncated.length).toBe(15);
     });
   });
 
@@ -93,8 +118,9 @@ describe('SmartTextTruncator', () => {
     test('应保护占位符不被破坏', () => {
       const text = 'Welcome {userName}! You have {count} new messages waiting for you.';
       const result = textTruncator.truncate(text, { maxLength: 30, locale: 'en' });
-      expect(result.truncated).not.toContain('{user');
-      expect(result.truncated).not.toContain('{cou');
+      expect(result.truncated).not.toMatch(/\{[^}]*$/);
+      expect(result.truncated).toContain('{userName}');
+      expect(result.truncated.length).toBeLessThanOrEqual(30);
     });
 
     test('完整占位符应被保留', () => {
@@ -132,7 +158,7 @@ describe('SmartTextTruncator', () => {
       const texts = [
         'Short text',
         'This is a longer text that will be truncated',
-        'Another short one'
+        'Another short'
       ];
       const results = textTruncator.truncateBatch(texts, { maxLength: 15, locale: 'en' });
       
@@ -242,7 +268,7 @@ describe('各语言策略独立测试', () => {
   test('EnglishStrategy 应在空格处截断', () => {
     const strategy = new EnglishStrategy();
     const result = strategy.truncate('Hello world test', 8);
-    expect(result).not.toMatch(/\w$/);
+    expect(result).toBe('Hello');
   });
 
   test('JapaneseStrategy 应正确处理日语', () => {

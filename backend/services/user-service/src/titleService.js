@@ -1,479 +1,210 @@
 'use strict';
 
-/**
- * 称号服务 - 管理玩家称号的解锁、激活、查询
- * REQ-00106: 玩家称号系统与个性化展示
- */
-
-const { db } = require('../../../shared/db');
+const db = require('../../../shared/db');
 const { createLogger } = require('../../../shared/logger');
-const { metrics } = require('../../../shared/metrics');
-const { getJSON, setJSON, del, keys } = require('../../../shared/redis');
-
+const { getRedis } = require('../../../shared/redis');
+const { AppError } = require('../../../shared/auth');
+const prom = require('prom-client');
+const { register } = require('../../../shared/metrics');
 const logger = createLogger('title-service');
 
+function counter(name, help, labelNames = []) {
+  return register.getSingleMetric(name) || new prom.Counter({ name, help, labelNames, registers: [register] });
+}
+const titleMetrics = {
+  unlocked: counter('minego_titles_unlocked_total', 'Total titles unlocked', ['rarity', 'category', 'source_type']),
+  activated: counter('minego_titles_activated_total', 'Total title activations'),
+  expired: counter('minego_titles_expired_total', 'Total active titles expired'),
+  leaderboard: counter('minego_title_leaderboard_views_total', 'Total title leaderboard views')
+};
+const json = value => typeof value === 'string' ? JSON.parse(value) : value;
+const failure = (code, message, status = 400) => new AppError(code, message, status);
+function publicTitle(row) {
+  return {
+    titleId: row.title_id, name: json(row.name), description: json(row.description),
+    category: row.category, rarity: row.rarity, iconUrl: row.icon_url,
+    statBonuses: json(row.stat_bonuses) || {}, specialEffects: json(row.special_effects) || {}
+  };
+}
+function pageLimit(value, max = 100) {
+  const limit = Number(value);
+  if (!Number.isSafeInteger(limit) || limit < 1 || limit > max) throw failure('TITLE_INVALID_LIMIT', `limit must be between 1 and ${max}`);
+  return limit;
+}
+
 class TitleService {
-  constructor() {
+  constructor(options = {}) {
+    this.db = options.db || db;
+    this.cache = options.cache === undefined ? { del: key => getRedis().del(key) } : options.cache;
+    this.metrics = options.metrics || titleMetrics;
+    this.eventBus = options.eventBus || null;
     this.titleDefinitions = new Map();
     this.initialized = false;
   }
 
-  /**
-   * 初始化称号定义缓存
-   */
   async initialize() {
-    try {
-      const titles = await db('title_definitions')
-        .where({ is_active: true })
-        .orderBy('display_order', 'asc');
-      
-      this.titleDefinitions.clear();
-      for (const title of titles) {
-        this.titleDefinitions.set(title.title_id, {
-          ...title,
-          name: typeof title.name === 'string' ? JSON.parse(title.name) : title.name,
-          description: typeof title.description === 'string' ? JSON.parse(title.description) : title.description,
-          stat_bonuses: typeof title.stat_bonuses === 'string' ? JSON.parse(title.stat_bonuses) : title.stat_bonuses,
-          special_effects: typeof title.special_effects === 'string' ? JSON.parse(title.special_effects) : title.special_effects,
-          unlock_criteria: typeof title.unlock_criteria === 'string' ? JSON.parse(title.unlock_criteria) : title.unlock_criteria
-        });
-      }
-      
-      this.initialized = true;
-      logger.info(`Loaded ${this.titleDefinitions.size} title definitions`);
-    } catch (error) {
-      logger.error({ error: error.message }, 'Failed to initialize title definitions');
-      throw error;
-    }
+    const { rows } = await this.db.query('SELECT * FROM title_definitions WHERE is_active = true ORDER BY display_order, title_id');
+    const definitions = new Map(rows.map(title => [title.title_id, {
+      ...title, name: json(title.name), description: json(title.description),
+      stat_bonuses: json(title.stat_bonuses) || {}, special_effects: json(title.special_effects) || {},
+      unlock_criteria: json(title.unlock_criteria) || {}
+    }]));
+    this.titleDefinitions = definitions;
+    this.initialized = true;
+    logger.info({ count: definitions.size }, 'Title definitions initialized');
   }
 
-  /**
-   * 解锁称号
-   */
+  async transaction(fn) {
+    const client = await this.db.getClient();
+    try {
+      await client.query('BEGIN');
+      const result = await fn(client);
+      await client.query('COMMIT');
+      return result;
+    } catch (err) {
+      try { await client.query('ROLLBACK'); } catch (rollbackError) { logger.error({ err: rollbackError }, 'Title rollback failed'); }
+      throw err;
+    } finally { client.release(); }
+  }
+
+  async invalidate(userId) {
+    // Reads below use authoritative storage: a failed cache cannot change ownership,
+    // activation or expiration, nor turn a committed update into a failed response.
+    if (!this.cache) return;
+    try {
+      await Promise.all([`user:active_title:${userId}`, `user:stat_bonuses:${userId}`].map(key => this.cache.del(key)));
+    } catch (err) { logger.warn({ err }, 'Title cache invalidation failed'); }
+  }
+
   async unlockTitle(userId, titleId, sourceType, sourceId = null) {
     const title = this.titleDefinitions.get(titleId);
-    if (!title) {
-      throw new Error(`Title ${titleId} not found`);
-    }
-
-    // 检查是否已解锁
-    const existing = await db('user_titles')
-      .where({ user_id: userId, title_id: titleId })
-      .first();
-
-    if (existing) {
-      logger.info({ userId, titleId }, 'Title already unlocked');
-      return { alreadyUnlocked: true, title };
-    }
-
-    // 检查限时称号是否已过期
-    if (title.is_limited && title.available_until) {
-      if (new Date() > new Date(title.available_until)) {
-        throw new Error('Title is no longer available');
-      }
-    }
-
-    // 解锁称号
-    const [userTitle] = await db('user_titles')
-      .insert({
-        user_id: userId,
-        title_id: titleId,
-        source_type: sourceType,
-        source_id: sourceId,
-        expires_at: title.is_limited ? this.calculateExpiry(title) : null
-      })
-      .returning('*');
-
-    // 发布称号解锁事件
+    if (!title) throw failure('TITLE_NOT_FOUND', 'Title not found', 404);
+    if (title.is_limited && title.available_until && new Date(title.available_until) <= new Date()) throw failure('TITLE_EXPIRED', 'Title is no longer available');
+    if (typeof sourceType !== 'string' || !sourceType.length || sourceType.length > 30 ||
+        (sourceId != null && (typeof sourceId !== 'string' || sourceId.length > 100))) throw failure('TITLE_INVALID_SOURCE', 'Invalid title source');
+    const inserted = await this.db.query(`INSERT INTO user_titles (user_id,title_id,source_type,source_id,expires_at)
+      VALUES ($1,$2,$3,$4,$5) ON CONFLICT (user_id,title_id) DO NOTHING RETURNING *`,
+    [userId, titleId, sourceType, sourceId, title.is_limited ? this.calculateExpiry(title) : null]);
+    if (!inserted.rowCount) return { alreadyUnlocked: true, title };
+    this.metrics.unlocked.inc({ rarity: title.rarity, category: title.category, source_type: sourceType });
     await this.publishTitleUnlocked(userId, title);
-
-    // 记录指标
-    if (metrics && metrics.increment) {
-      metrics.increment('titles_unlocked_total', { 
-        rarity: title.rarity, 
-        category: title.category,
-        source_type: sourceType
-      });
-    }
-
-    logger.info({ userId, titleId, rarity: title.rarity }, 'Title unlocked');
-
-    return { alreadyUnlocked: false, title, userTitle };
+    return { alreadyUnlocked: false, title, userTitle: inserted.rows[0] };
   }
 
-  /**
-   * 设置激活称号
-   */
   async setActiveTitle(userId, titleId) {
-    // 验证用户拥有该称号
-    const userTitle = await db('user_titles')
-      .where({ user_id: userId, title_id: titleId })
-      .first();
-
-    if (!userTitle) {
-      throw new Error('Title not owned by user');
-    }
-
-    // 检查是否已过期
-    if (userTitle.expires_at && new Date() > new Date(userTitle.expires_at)) {
-      throw new Error('Title has expired');
-    }
-
-    // 使用事务更新
-    await db.transaction(async (trx) => {
-      // 取消所有激活称号
-      await trx('user_titles')
-        .where({ user_id: userId })
-        .update({ is_active: false });
-
-      // 激活指定称号
-      await trx('user_titles')
-        .where({ user_id: userId, title_id: titleId })
-        .update({ is_active: true });
-    });
-
-    // 清除用户称号缓存
-    await del(`user:active_title:${userId}`);
-    await del(`user:stat_bonuses:${userId}`);
-
     const title = this.titleDefinitions.get(titleId);
-    logger.info({ userId, titleId }, 'Active title set');
-
-    // 记录指标
-    if (metrics && metrics.increment) {
-      metrics.increment('titles_activated_total');
-    }
-
-    return title;
+    if (!title) throw failure('TITLE_NOT_FOUND', 'Title not found', 404);
+    await this.transaction(async client => {
+      // Lock the user, not only one title, so simultaneous switches serialize.
+      const user = await client.query('SELECT id FROM users WHERE id = $1 FOR UPDATE', [userId]);
+      if (!user.rowCount) throw failure('TITLE_USER_NOT_FOUND', 'User not found', 404);
+      const owned = await client.query(`SELECT ut.title_id FROM user_titles ut JOIN title_definitions td USING (title_id)
+        WHERE ut.user_id=$1 AND ut.title_id=$2 AND td.is_active=true
+          AND (ut.expires_at IS NULL OR ut.expires_at > NOW()) FOR UPDATE OF ut`, [userId, titleId]);
+      if (!owned.rowCount) throw failure('TITLE_NOT_OWNED', 'Title is not owned or has expired', 403);
+      await client.query('UPDATE user_titles SET is_active=false WHERE user_id=$1 AND is_active=true', [userId]);
+      await client.query('UPDATE user_titles SET is_active=true WHERE user_id=$1 AND title_id=$2', [userId, titleId]);
+    });
+    await this.invalidate(userId);
+    this.metrics.activated.inc();
+    return publicTitle(title);
   }
 
-  /**
-   * 获取用户所有称号
-   */
-  async getUserTitles(userId, options = {}) {
-    const { category, rarity, includeExpired = false } = options;
-
-    let query = db('user_titles')
-      .join('title_definitions', 'user_titles.title_id', 'title_definitions.title_id')
-      .where('user_titles.user_id', userId)
-      .select(
-        'user_titles.title_id',
-        'user_titles.is_active',
-        'user_titles.is_favorite',
-        'user_titles.unlocked_at',
-        'user_titles.expires_at',
-        'user_titles.source_type',
-        'title_definitions.name',
-        'title_definitions.description',
-        'title_definitions.category',
-        'title_definitions.rarity',
-        'title_definitions.icon_url',
-        'title_definitions.stat_bonuses',
-        'title_definitions.special_effects'
-      );
-
-    if (category) {
-      query = query.where('title_definitions.category', category);
+  async getUserTitles(userId, { category, rarity, includeExpired = false } = {}) {
+    if (typeof includeExpired !== 'boolean') throw failure('TITLE_INVALID_EXPIRY_FILTER', 'includeExpired must be a boolean');
+    const params = [userId];
+    const clauses = ['ut.user_id=$1', 'td.is_active=true'];
+    if (!includeExpired) clauses.push('(ut.expires_at IS NULL OR ut.expires_at > NOW())');
+    for (const [column, value] of [['category',category],['rarity',rarity]]) {
+      if (value !== undefined) {
+        if (typeof value !== 'string' || value.length > 30) throw failure('TITLE_INVALID_FILTER', 'Invalid title filter');
+        params.push(value); clauses.push(`td.${column}=$${params.length}`);
+      }
     }
-
-    if (rarity) {
-      query = query.where('title_definitions.rarity', rarity);
-    }
-
-    if (!includeExpired) {
-      query = query.where(function() {
-        this.whereNull('user_titles.expires_at')
-            .orWhere('user_titles.expires_at', '>', db.fn.now());
-      });
-    }
-
-    const titles = await query.orderBy('user_titles.unlocked_at', 'desc');
-
-    return titles.map(t => ({
-      titleId: t.title_id,
-      name: typeof t.name === 'string' ? JSON.parse(t.name) : t.name,
-      description: typeof t.description === 'string' ? JSON.parse(t.description) : t.description,
-      category: t.category,
-      rarity: t.rarity,
-      iconUrl: t.icon_url,
-      statBonuses: typeof t.stat_bonuses === 'string' ? JSON.parse(t.stat_bonuses) : t.stat_bonuses,
-      specialEffects: typeof t.special_effects === 'string' ? JSON.parse(t.special_effects) : t.special_effects,
-      isActive: t.is_active,
-      isFavorite: t.is_favorite,
-      unlockedAt: t.unlocked_at,
-      expiresAt: t.expires_at,
-      sourceType: t.source_type
-    }));
+    const { rows } = await this.db.query(`SELECT td.*,ut.is_active AS user_active,ut.is_favorite,ut.unlocked_at,
+      ut.expires_at,ut.source_type FROM user_titles ut JOIN title_definitions td USING (title_id)
+      WHERE ${clauses.join(' AND ')} ORDER BY ut.unlocked_at DESC,ut.title_id`, params);
+    return rows.map(row => ({ ...publicTitle(row), isActive: row.user_active, isFavorite: row.is_favorite,
+      unlockedAt: row.unlocked_at, expiresAt: row.expires_at, sourceType: row.source_type }));
   }
 
-  /**
-   * 获取用户激活称号
-   */
   async getActiveTitle(userId) {
-    // 尝试从缓存获取
-    const cacheKey = `user:active_title:${userId}`;
-    const cached = await getJSON(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
-    const result = await db('user_titles')
-      .join('title_definitions', 'user_titles.title_id', 'title_definitions.title_id')
-      .where({
-        'user_titles.user_id': userId,
-        'user_titles.is_active': true
-      })
-      .where(function() {
-        this.whereNull('user_titles.expires_at')
-            .orWhere('user_titles.expires_at', '>', db.fn.now());
-      })
-      .select(
-        'user_titles.title_id',
-        'title_definitions.*'
-      )
-      .first();
-
-    if (!result) {
-      return null;
-    }
-
-    const title = {
-      titleId: result.title_id,
-      name: typeof result.name === 'string' ? JSON.parse(result.name) : result.name,
-      description: typeof result.description === 'string' ? JSON.parse(result.description) : result.description,
-      category: result.category,
-      rarity: result.rarity,
-      iconUrl: result.icon_url,
-      statBonuses: typeof result.stat_bonuses === 'string' ? JSON.parse(result.stat_bonuses) : result.stat_bonuses,
-      specialEffects: typeof result.special_effects === 'string' ? JSON.parse(result.special_effects) : result.special_effects
-    };
-
-    // 缓存 5 分钟
-    await setJSON(cacheKey, title, 300);
-
-    return title;
+    const { rows } = await this.db.query(`SELECT td.* FROM user_titles ut JOIN title_definitions td USING (title_id)
+      WHERE ut.user_id=$1 AND ut.is_active=true AND td.is_active=true
+        AND (ut.expires_at IS NULL OR ut.expires_at > NOW())`, [userId]);
+    return rows[0] ? publicTitle(rows[0]) : null;
   }
-
-  /**
-   * 获取用户属性加成
-   */
-  async getUserStatBonuses(userId) {
-    const cacheKey = `user:stat_bonuses:${userId}`;
-    const cached = await getJSON(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
-    const activeTitle = await this.getActiveTitle(userId);
-    if (!activeTitle || !activeTitle.statBonuses) {
-      return {};
-    }
-
-    // 缓存 5 分钟
-    await setJSON(cacheKey, activeTitle.statBonuses, 300);
-
-    return activeTitle.statBonuses;
+  async getUserStatBonuses(userId) { return (await this.getActiveTitle(userId))?.statBonuses || {}; }
+  getTitleDefinition(titleId) { return this.titleDefinitions.get(titleId); }
+  getAllTitleDefinitions({ category, rarity } = {}) {
+    return [...this.titleDefinitions.values()].filter(t => (!category || t.category===category) && (!rarity || t.rarity===rarity))
+      .sort((a,b) => a.display_order-b.display_order || a.title_id.localeCompare(b.title_id));
   }
-
-  /**
-   * 获取称号定义
-   */
-  getTitleDefinition(titleId) {
-    return this.titleDefinitions.get(titleId);
-  }
-
-  /**
-   * 获取所有称号定义
-   */
-  getAllTitleDefinitions(options = {}) {
-    const { category, rarity } = options;
-    let titles = Array.from(this.titleDefinitions.values());
-    
-    if (category) {
-      titles = titles.filter(t => t.category === category);
+  async unlockMatching(userId, predicate, sourceType, sourceId) {
+    const unlocked = [];
+    for (const [id,title] of this.titleDefinitions) {
+      if (predicate(title) && !(await this.unlockTitle(userId,id,sourceType,sourceId)).alreadyUnlocked) unlocked.push(title);
     }
-    
-    if (rarity) {
-      titles = titles.filter(t => t.rarity === rarity);
-    }
-    
-    return titles.sort((a, b) => a.display_order - b.display_order);
+    return unlocked;
   }
-
-  /**
-   * 根据成就解锁称号
-   */
-  async unlockTitleByAchievement(userId, achievementId) {
-    const unlockedTitles = [];
-    
-    for (const [titleId, title] of this.titleDefinitions) {
-      if (title.unlock_type === 'achievement' && 
-          title.unlock_criteria.achievement_id === achievementId) {
-        const result = await this.unlockTitle(userId, titleId, 'achievement', achievementId);
-        if (!result.alreadyUnlocked) {
-          unlockedTitles.push(result.title);
-        }
-      }
-    }
-    
-    return unlockedTitles;
+  unlockTitleByAchievement(userId,id) { return this.unlockMatching(userId,t=>t.unlock_type==='achievement'&&t.unlock_criteria.achievement_id===id,'achievement',id); }
+  unlockTitleByEvent(userId,id) { return this.unlockMatching(userId,t=>t.unlock_type==='event'&&t.unlock_criteria.event_id===id,'event',id); }
+  unlockTitleByRank(userId,rank) {
+    if (!Number.isSafeInteger(rank) || rank < 1) throw failure('TITLE_INVALID_RANK','Invalid rank');
+    return this.unlockMatching(userId,t=>t.unlock_type==='milestone'&&Number.isFinite(t.unlock_criteria.rank_requirement)&&rank<=t.unlock_criteria.rank_requirement,'milestone',`rank_${rank}`);
   }
-
-  /**
-   * 根据活动解锁称号
-   */
-  async unlockTitleByEvent(userId, eventId) {
-    const unlockedTitles = [];
-    
-    for (const [titleId, title] of this.titleDefinitions) {
-      if (title.unlock_type === 'event' && 
-          title.unlock_criteria.event_id === eventId) {
-        const result = await this.unlockTitle(userId, titleId, 'event', eventId);
-        if (!result.alreadyUnlocked) {
-          unlockedTitles.push(result.title);
-        }
-      }
-    }
-    
-    return unlockedTitles;
+  async setFavorite(userId,titleId,isFavorite=true) {
+    if (typeof isFavorite !== 'boolean') throw failure('TITLE_INVALID_FAVORITE','isFavorite must be a boolean');
+    return (await this.db.query('UPDATE user_titles SET is_favorite=$3 WHERE user_id=$1 AND title_id=$2 RETURNING title_id',[userId,titleId,isFavorite])).rowCount>0;
   }
-
-  /**
-   * 根据排名解锁称号
-   */
-  async unlockTitleByRank(userId, rank) {
-    const unlockedTitles = [];
-    
-    for (const [titleId, title] of this.titleDefinitions) {
-      if (title.unlock_type === 'milestone' && 
-          title.unlock_criteria.rank_requirement && 
-          rank <= title.unlock_criteria.rank_requirement) {
-        const result = await this.unlockTitle(userId, titleId, 'milestone', `rank_${rank}`);
-        if (!result.alreadyUnlocked) {
-          unlockedTitles.push(result.title);
-        }
-      }
-    }
-    
-    return unlockedTitles;
-  }
-
-  /**
-   * 收藏/取消收藏称号
-   */
-  async setFavorite(userId, titleId, isFavorite = true) {
-    const result = await db('user_titles')
-      .where({ user_id: userId, title_id: titleId })
-      .update({ is_favorite: isFavorite })
-      .returning('*');
-    
-    return result.length > 0;
-  }
-
-  /**
-   * 检查并处理限时称号过期
-   */
   async processExpiredTitles() {
-    const expiredTitles = await db('user_titles')
-      .where('expires_at', '<', db.fn.now())
-      .where('is_active', true)
-      .update({ is_active: false })
-      .returning(['user_id', 'title_id']);
-
-    for (const expired of expiredTitles) {
-      await del(`user:active_title:${expired.user_id}`);
-      await del(`user:stat_bonuses:${expired.user_id}`);
-      logger.info({ userId: expired.user_id, titleId: expired.title_id }, 'Title expired');
-      
-      if (metrics && metrics.increment) {
-        metrics.increment('titles_expired_total');
-      }
-    }
-
-    return expiredTitles.length;
+    const { rows } = await this.db.query('UPDATE user_titles SET is_active=false WHERE is_active=true AND expires_at <= NOW() RETURNING user_id,title_id');
+    await Promise.all([...new Set(rows.map(t=>t.user_id))].map(id=>this.invalidate(id)));
+    if (rows.length) this.metrics.expired.inc(rows.length);
+    return rows.length;
   }
-
-  /**
-   * 获取称号排行榜（按稀有度）
-   */
-  async getTitleLeaderboard(limit = 100) {
-    const results = await db('user_title_stats')
-      .join('users', 'user_title_stats.user_id', 'users.id')
-      .select(
-        'users.id as user_id',
-        'users.username',
-        'users.avatar_url',
-        'user_title_stats.total_titles',
-        'user_title_stats.legendary_count',
-        'user_title_stats.mythic_count',
-        'user_title_stats.active_title_id'
-      )
-      .orderBy('mythic_count', 'desc')
-      .orderBy('legendary_count', 'desc')
-      .orderBy('total_titles', 'desc')
-      .limit(limit);
-
-    return results.map((r, index) => ({
-      rank: index + 1,
-      ...r
-    }));
+  async getTitleLeaderboard(limit=100) {
+    limit=pageLimit(limit);
+    const { rows } = await this.db.query(`SELECT u.id AS user_id,u.nickname,u.avatar_url,
+      COUNT(ut.id)::int AS total_titles,
+      COUNT(ut.id) FILTER (WHERE td.rarity='legendary')::int AS legendary_count,
+      COUNT(ut.id) FILTER (WHERE td.rarity='mythic')::int AS mythic_count,
+      MAX(ut.title_id) FILTER (WHERE ut.is_active) AS active_title_id
+      FROM users u JOIN user_titles ut ON ut.user_id=u.id JOIN title_definitions td USING (title_id)
+      WHERE td.is_active=true AND (ut.expires_at IS NULL OR ut.expires_at>NOW())
+      GROUP BY u.id ORDER BY mythic_count DESC,legendary_count DESC,total_titles DESC,u.id LIMIT $1`,[limit]);
+    this.metrics.leaderboard.inc();
+    return rows.map((row,index)=>({rank:index+1,...row}));
   }
-
-  /**
-   * 获取称号统计
-   */
   async getUserTitleStats(userId) {
-    const stats = await db('user_title_stats')
-      .where('user_id', userId)
-      .first();
-    
-    return stats || {
-      user_id: userId,
-      total_titles: 0,
-      legendary_count: 0,
-      mythic_count: 0,
-      active_title_id: null
-    };
+    const { rows } = await this.db.query(`SELECT COUNT(ut.id)::int AS total_titles,
+      COUNT(ut.id) FILTER (WHERE td.rarity='legendary')::int AS legendary_count,
+      COUNT(ut.id) FILTER (WHERE td.rarity='mythic')::int AS mythic_count,
+      MAX(ut.title_id) FILTER (WHERE ut.is_active) AS active_title_id
+      FROM user_titles ut JOIN title_definitions td USING (title_id)
+      WHERE ut.user_id=$1 AND td.is_active=true AND (ut.expires_at IS NULL OR ut.expires_at>NOW())`,[userId]);
+    return { user_id:userId,...rows[0] };
   }
-
-  /**
-   * 计算称号过期时间
-   */
+  async getShopTitles({ page=1,limit=20 }={}) {
+    limit=pageLimit(limit);
+    page=pageLimit(page,1000000);
+    const { rows }=await this.db.query(`SELECT * FROM title_definitions WHERE is_active=true AND unlock_type='purchase'
+      AND (available_until IS NULL OR available_until>NOW()) ORDER BY display_order,title_id LIMIT $1 OFFSET $2`,[limit,(page-1)*limit]);
+    return rows.map(t=>({...publicTitle(t),price:json(t.unlock_criteria).price||0,currency:json(t.unlock_criteria).currency||'coins'}));
+  }
   calculateExpiry(title) {
-    if (title.unlock_criteria && title.unlock_criteria.duration_days) {
-      const expiry = new Date();
-      expiry.setDate(expiry.getDate() + title.unlock_criteria.duration_days);
-      return expiry;
-    }
-    return title.available_until;
+    const days=title.unlock_criteria?.duration_days;
+    let expiry=days?new Date(Date.now()+days*86400000):null;
+    if (title.available_until && (!expiry || new Date(title.available_until)<expiry)) expiry=new Date(title.available_until);
+    return expiry;
   }
-
-  /**
-   * 发布称号解锁事件
-   */
-  async publishTitleUnlocked(userId, title) {
-    try {
-      const { EventBus, EVENTS } = require('../../../shared/EventBus');
-      if (EventBus && EVENTS && EVENTS.TITLE_UNLOCKED) {
-        await EventBus.publish(EVENTS.TITLE_UNLOCKED, {
-          userId,
-          titleId: title.title_id,
-          titleName: title.name,
-          rarity: title.rarity
-        });
-      }
-    } catch (error) {
-      logger.debug('EventBus not available');
-    }
+  async publishTitleUnlocked(userId,title) {
+    // Delivery is optional here; no event is claimed when no bus was configured.
+    if (!this.eventBus) return;
+    try { await this.eventBus.publish('title.unlocked',{userId,titleId:title.title_id,titleName:title.name,rarity:title.rarity}); }
+    catch (err) { logger.error({err,userId,titleId:title.title_id},'Title event delivery failed after persistence'); }
   }
-
-  /**
-   * 重新加载称号定义
-   */
-  async reload() {
-    await this.initialize();
-  }
+  reload() { return this.initialize(); }
 }
 
-// 导出单例实例
-module.exports = { TitleService: new TitleService() };
+module.exports = { TitleService: new TitleService(), TitleServiceClass: TitleService, titleMetrics };

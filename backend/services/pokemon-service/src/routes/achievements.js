@@ -6,12 +6,13 @@
 'use strict';
 
 const express = require('express');
-const router = express.Router();
 const { achievementService, ACHIEVEMENT_CATEGORIES } = require('../achievementService');
 const { requireAuth, successResp, AppError } = require('../../../../shared/auth');
 const { createLogger } = require('../../../../shared/logger');
 
 const logger = createLogger('achievement-routes');
+function createAchievementRouter(achievementService) {
+const router = express.Router();
 
 /**
  * GET /achievements/my - 获取用户成就列表
@@ -19,18 +20,18 @@ const logger = createLogger('achievement-routes');
 router.get('/my', requireAuth, async (req, res, next) => {
   try {
     const { category, include_hidden, include_completed } = req.query;
-    
+
     // 验证类别
     if (category && !Object.values(ACHIEVEMENT_CATEGORIES).includes(category)) {
       throw new AppError('INVALID_REQUEST', 'Invalid category', 400);
     }
-    
+
     const achievements = await achievementService.getUserAchievements(req.user.id, {
       category,
       includeHidden: include_hidden === 'true',
       includeCompleted: include_completed !== 'false'
     });
-    
+
     res.json(successResp(achievements));
   } catch (err) {
     next(err);
@@ -50,32 +51,14 @@ router.get('/my/progress', requireAuth, async (req, res, next) => {
 });
 
 /**
- * GET /achievements/:achievementId - 获取成就详情
- */
-router.get('/:achievementId', requireAuth, async (req, res, next) => {
-  try {
-    const achievements = await achievementService.getUserAchievements(req.user.id);
-    const achievement = achievements.find(a => a.achievement_id === req.params.achievementId);
-    
-    if (!achievement) {
-      throw new AppError('NOT_FOUND', 'Achievement not found', 404);
-    }
-    
-    res.json(successResp(achievement));
-  } catch (err) {
-    next(err);
-  }
-});
-
-/**
  * POST /achievements/:achievementId/claim - 领取成就奖励
  */
 router.post('/:achievementId/claim', requireAuth, async (req, res, next) => {
   try {
     const rewards = await achievementService.claimRewards(req.user.id, req.params.achievementId);
-    
+
     logger.info({ userId: req.user.id, achievementId: req.params.achievementId }, 'Rewards claimed');
-    
+
     res.json(successResp({ rewards }));
   } catch (err) {
     if (err.message === 'Achievement not completed') {
@@ -91,15 +74,15 @@ router.post('/:achievementId/claim', requireAuth, async (req, res, next) => {
 /**
  * GET /achievements/leaderboard - 获取成就排行榜
  */
-router.get('/leaderboard', async (req, res, next) => {
+router.get(['/leaderboard', '/leaderboard/global'], async (req, res, next) => {
   try {
     const { limit = 100, offset = 0 } = req.query;
-    
+
     const leaderboard = await achievementService.getLeaderboard(
-      parseInt(limit),
-      parseInt(offset)
+      /^\d+$/.test(String(limit)) ? Number(limit) : NaN,
+      /^\d+$/.test(String(offset)) ? Number(offset) : NaN
     );
-    
+
     res.json(successResp(leaderboard));
   } catch (err) {
     next(err);
@@ -145,8 +128,33 @@ router.get('/categories', (req, res) => {
       en: cat.charAt(0).toUpperCase() + cat.slice(1)
     }
   }));
-  
+
   res.json(successResp(categories));
 });
 
-module.exports = router;
+router.delete('/titles/active', requireAuth, async (req, res, next) => {
+  try { await achievementService.setActiveTitle(req.user.id, null); res.json(successResp({message:'Title deactivated'})); }
+  catch (error) { next(error); }
+});
+/**
+ * GET /achievements/:achievementId - 获取成就详情
+ */
+router.get('/:achievementId', requireAuth, async (req, res, next) => {
+  try {
+    const achievements = await achievementService.getUserAchievements(req.user.id);
+    const achievement = achievements.find(a => a.achievement_id === req.params.achievementId);
+
+    if (!achievement) {
+      throw new AppError('NOT_FOUND', 'Achievement not found', 404);
+    }
+
+    res.json(successResp(achievement));
+  } catch (err) {
+    next(err);
+  }
+});
+
+return router;
+}
+module.exports = createAchievementRouter(achievementService);
+module.exports.createAchievementRouter = createAchievementRouter;

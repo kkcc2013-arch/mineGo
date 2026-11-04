@@ -8,6 +8,9 @@
  * - 自动生成性能热点分析报告
  */
 
+
+const _consoleLogger = new (require("./loggingUtils")).ConsoleMigrationHelper(
+  require("./logger").createLogger("shared/PerformanceSampler"), "shared/PerformanceSampler");
 const { v4: uuidv4 } = require('uuid');
 const { Client: PrometheusClient } = require('prom-client');
 
@@ -443,7 +446,7 @@ class PerformanceSampler {
   setSamplingRate(rate) {
     if (rate >= 0 && rate <= 1) {
       this.samplingRate = rate;
-      console.log(`Performance sampling rate updated to ${(rate * 100).toFixed(2)}%`);
+      _consoleLogger.log(`Performance sampling rate updated to ${(rate * 100).toFixed(2)}%`);
     }
   }
 

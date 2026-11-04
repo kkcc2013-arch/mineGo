@@ -5,8 +5,8 @@
  * 网关层超时中间件
  */
 
-const { createLogger } = require('../../shared/logger');
-const { timeoutPolicyManager } = require('../../shared/TimeoutPolicyManager');
+const { createLogger } = require('../../../shared/logger');
+const { timeoutPolicyManager } = require('../../../shared/TimeoutPolicyManager');
 
 const logger = createLogger('timeout-middleware');
 

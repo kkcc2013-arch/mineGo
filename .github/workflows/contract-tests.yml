@@ -55,13 +55,13 @@ jobs:
       - name: Check API compatibility
         working-directory: backend
         run: npm run contract:check
-        continue-on-error: true
 
       - name: Run contract tests
         working-directory: backend
-        run: npm run test:contract || true
+        run: npm run test:contract
         env:
-          API_BASE_URL: http://localhost:8080
+          API_BASE_URL: ${{ vars.CONTRACT_BASE_URL }}
+          CONTRACT_FIXTURES_PATH: ${{ vars.CONTRACT_FIXTURES_PATH }}
           DATABASE_URL: postgresql://test:test@localhost:5432/minego_test
           REDIS_URL: redis://localhost:6379
 
@@ -75,11 +75,10 @@ jobs:
             backend/tests/contract/contract-history.json
           retention-days: 30
 
-      - name: Comment PR with results
-        uses: actions/github-script@v7
+      - name: Publish contract report summary
         if: github.event_name == 'pull_request' && always()
-        with:
-          script: |
+        run: |
+          node <<'JS'
             const fs = require('fs');
             const path = require('path');
             
@@ -91,18 +90,14 @@ jobs:
                 const report = fs.readFileSync(reportPath, 'utf8');
                 reportContent += report;
               } else {
-                reportContent += 'Contract tests did not generate a report. This may be expected if services are not running.';
+                reportContent += 'Contract tests did not generate a report. Contract verification is incomplete.';
               }
             } catch (error) {
               reportContent += `Error reading report: ${error.message}`;
             }
             
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: reportContent
-            });
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, reportContent);
+          JS
 
   contract-schema-validation:
     runs-on: ubuntu-latest

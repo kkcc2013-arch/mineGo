@@ -1,0 +1,240 @@
+{
+  "date": "2026-10-25",
+  "baseCommit": "0637449993af160066f9f960a82f11368525b3e2",
+  "runtime": "Node.js24.22.1",
+  "result": "actual_payment_idempotency_once_only_settlement_byte_callbacks_audit_history_and_process_checks_pass_full_goal_open",
+  "sourceSha256": {
+    ".gitignore": "b7c86a9d17b2fd13413aceb23f27c39a16f202022f4d4f757193e8a314c18d25",
+    "backend/gateway/src/index.js": "8d055a6f7d64fcc096957ec0c7aa0e714855f8e41fdf38f4a85d8b7c186479d6",
+    "backend/package.json": "2e817aa9497cb863a01600e69ca5166d950f5c145aa2b7e7431c5a387b28f839",
+    "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
+    "backend/services/payment-service/src/index.js": "3d801ec9e2c236686626cd64a757ce988fd8268bb54848cd40b52d0df58270e9",
+    "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
+    "backend/services/payment-service/src/payment/protocol.js": "b0e260dab91b48d5f5a5fb1f1edbb89f37a5589f117f51442b556fc37defff7c",
+    "backend/services/payment-service/src/routes/payment.js": "45625d3e3dc1f3773f48bc4371dfcdd5df6f79c107475541c8f96a86243a17d2",
+    "backend/services/payment-service/src/routes/currency.js": "f312b6118c6306ec80c2d8512ec0e866c21d80bace070417917f08e215ba577e",
+    "backend/services/payment-service/src/handlers/orderTimeoutHandler.js": "2c7a03cde2f98eabc699a4e4697c72cfab8755571da1ae7956b4362226b5dd5e",
+    "backend/shared/DelayQueue.js": "db6e0ea81f5d47eaa86f9ae7a2276d1d2ffb1642cf2b8b9074831b4f55e32f84",
+    "backend/tests/unit/payment.test.js": "0bb4881f9683e4ef5b517c64d0bceb375f98f861b3b3223327af78f65411121e",
+    "backend/tests/unit/delay-queue.test.js": "0e6660333b07d281a113f2492bf49ee2836459540f62b7e1d9661ba435e553db",
+    "backend/tests/unit/mfa-client.test.js": "335a2cdb49ec6dd313cabc84f7b62e6b6a3542af9ceb31a6e2e0d015d2d77ebf",
+    "backend/tests/regression/payment-storage.test.js": "bcb839576f90589f9ef3956cd2b5a53202e62c12405a3d272903f24d32f6e2fc",
+    "backend/tests/regression/payment-migration.test.js": "6c176b36bc075d0caa0cf3280fdfa085c17a9b87a08333dbda098d00e9d2a555",
+    "backend/tests/regression/payment-native.test.js": "292daf13060d1bd79dac592580fa19eb314a7a003871851c8f8db9c62788911c",
+    "backend/tests/regression/currency-storage.test.js": "d830e2d74ee4eb2a3c2276c1d51db09ed12ebaf3f0590f681aa925c673481e7f",
+    "backend/tests/regression/jest.config.json": "723ed9a9717a90235c5e7af77fe5c7c37168582fb498e3e1657117ab233d4842",
+    "backend/tests/README.md": "8d3db5d8207450de4854b60d3ee5f72d3ebcc2281e459b925307f9a0f5a62833",
+    "database/pending/20261025_120000__payment_order_integrity.sql": "1be1bc35e9937e1ce4cc7233a9033381e1153df16f52791c8ded534a54a13a1a",
+    "database/pending/dependencies.json": "607895c1f3a0cabf898e2e7dd9642e0b373d53f8b24ca51f25830f8bdf5845b2",
+    "frontend/game-client/src/api/client.js": "8a33ee568983fe0014d0b07c2610902d985c1aed1f555b072e85cb26b0effb04",
+    ".github/workflows/payment-regression.yml": "1f4b9667a904bdf3880028a63fac6f74480916cd28bf2f305327041b2298c82c",
+    "docs/PAYMENT-INTEGRITY.md": "6fb70e12dae094c3c0addb6b304528562ffaf3705f95c5510dc4cafe466f749b"
+  },
+  "checks": [
+    {
+      "name": "payment-migration",
+      "exit": 0,
+      "logSha256": "9327b54a41ddd1bb44ee010b8d7b5ce80dcb798f37779b6c3d40f74764eaf8bd"
+    },
+    {
+      "name": "currency",
+      "exit": 0,
+      "logSha256": "499dd302ccae04dbb7b49535bf98ee0f46504a720e33fd05895e6c22dbe12795"
+    },
+    {
+      "name": "full-bootstrap",
+      "exit": 0,
+      "logSha256": "0f68d1a9c328679eadbb720d05fe410fe6f7a424c9b481a078c0fbb66bbfda38"
+    },
+    {
+      "name": "native-original",
+      "exit": 0,
+      "logSha256": "13488cc6613e52d10993a3bd361cd7f9d202bc1e723ed4554c85ebb3e3d425b0"
+    },
+    {
+      "name": "mfa-storage",
+      "exit": 0,
+      "logSha256": "6c456bc9eea1a94a61173ff618b2e29aa71df3b7f01e55dc1bb2402408da23be"
+    },
+    {
+      "name": "mfa-browser",
+      "exit": 0,
+      "logSha256": "dcc97012b9f72f6ba95eafe284c9b8015b83e49a1de44d1ceb9a1b48020d5635"
+    },
+    {
+      "name": "unit",
+      "exit": 0,
+      "logSha256": "cbaf70cb661f18a04bc06999bcaa8c9cad562610280dea6afa6c1972c094b363"
+    },
+    {
+      "name": "payment-core",
+      "exit": 0,
+      "logSha256": "579598d35735f02c393f36616b5b800a32012b19dbc7545d5c49063de50f3a37"
+    },
+    {
+      "name": "payment-report",
+      "exit": 0,
+      "logSha256": "e894ade1a559a4feadb2d1da9471e29a3b5dee2b056440cfa784f270204c6a62"
+    },
+    {
+      "name": "payment-native",
+      "exit": 0,
+      "logSha256": "fc7a80153bc453c9eab54a50ad381674446a577bd23a961d0ade5f7659379f85"
+    },
+    {
+      "name": "syntax",
+      "exit": 0,
+      "logSha256": "f228435ab2a4a22f672141f8365a5c2cf4892b7b92591ba875b7c650e84ae5ed"
+    },
+    {
+      "name": "audit-tools",
+      "exit": 0,
+      "logSha256": "bcc622a345847e5370f3c4974c4a3bac162f77d1117bdc48dbe6e769a039533d"
+    },
+    {
+      "name": "logging",
+      "exit": 0,
+      "logSha256": "5ae82e29eedca984b5670eb1c4bc7cdb0a5712db261a3aa014632a528820902e"
+    },
+    {
+      "name": "numbering",
+      "exit": 0,
+      "logSha256": "e6f6b5acb672914b421666a405b351676b766fa4977b3f147bdea0f48229f0d0"
+    },
+    {
+      "name": "health",
+      "exit": 0,
+      "logSha256": "935e0676b0fce53acc2777add185ce74fae012077e69989da4e74b1c80e4d49d"
+    },
+    {
+      "name": "workflow",
+      "exit": 0,
+      "logSha256": "25747650c8ab06817d4c32d1d870510c4b18057ad0179a912e7ea397ee343578"
+    }
+  ],
+  "unit": {
+    "total": 765,
+    "jestSuites": 27,
+    "jestTests": 473,
+    "purePaymentProtocolNodeTests": 6,
+    "apiClientNodeReportedTests": 11,
+    "delayQueueJestTests": 34,
+    "scope": "Actual protocol imports replace copied payment helpers; queue unit tests use real metrics registry and controlled Kafka transport. Main unit suite includes these checks; not every check is a real business/storage scenario."
+  },
+  "payment": {
+    "nodeReportedTests": 22,
+    "pureProtocolTests": 6,
+    "sqlHttpSubcases": 15,
+    "parentTest": 1,
+    "v8Coverage": {
+      "lines": 100.0,
+      "branches": 97.86,
+      "functions": 100.0
+    },
+    "nycCoverage": {
+      "statements": 98.46,
+      "branches": 94.97,
+      "functions": 100.0,
+      "lines": 100.0
+    },
+    "productionCoverageModules": 3,
+    "lineFunctionGate": 91,
+    "nycStatementGate": 91,
+    "branchGate": 80,
+    "htmlReport": "backend/coverage/payment/index.html",
+    "htmlSha256": "0f11caf7a48636ab278380593580247693c331bc27d2fe30678cedd51ccc10bc",
+    "lcovArtifact": "docs/benchmarks/payment-coverage-2026-10-25.lcov",
+    "lcovSha256": "f0cf30c60e23d06787c6da7b623a4a4b5183c693506170adcf8933d7e469cfea",
+    "scope": "Production protocol/store/router, canonical PostgreSQL/Redis and exact JSON/XML/form byte HMAC. Concurrent owner-key24h binding, SQL source despite cache loss/poison/disconnect, payload conflict, expiry without deadline extension, ownership, unique provider settlement/one credit/spend, failure-state refusal, actual minor/banning boundaries, audit rollback/decrypt, real timeout row, whitelist and guarded reversal. Coverage includes integration and does not accept original whole-service unit-only criterion."
+  },
+  "migration": {
+    "nodeReportedTests": 4,
+    "rawFiles": 87,
+    "originalRawFiles": 86,
+    "originalRawChanges": 0,
+    "newRawFiles": 1,
+    "repairManifestChanges": 0,
+    "dependencyManifestChange": "Only additive new payment dependencies",
+    "lockChanges": 0,
+    "scope": "Old UUID identity/OID/money/status/microseconds/views/FKs retained; old quantity unknownNULL, FAILED retained, CANCELLED/FULFILLED append only. Owner FK alias refuses before schema changes. Populated down refuses; empty down retains PostgreSQL enum labels. Full bootstrap3 and native full87 apply pass, including installation beside unrelated audit schema."
+  },
+  "native": {
+    "newNodeTests": 2,
+    "retainedUserGatewayNodeTests": 2,
+    "measurements": [
+      {
+        "pendingMigrations": 87,
+        "gatewayShutdownMs": 115.17702500000087,
+        "paymentShutdownMs": 281.33285799999976,
+        "scope": "Actual payment+gateway OS entry points, canonical full history, signed spaced JSON bytes through gateway without userJWT, SQL/Redis/Kafka/encrypted receipts and actual timeout consumer; other gateway peers alias payment fixture, no provider/liveAWS/capacity acceptance."
+      },
+      {
+        "nativeTwoGatewayCacheRecoveryMs": 38.81060499999876,
+        "scope": "real user-service HTTP bytes, two independent OS gateways, PostgreSQL CDC, Redis and independent L1 caches; functional fixture, not capacity acceptance"
+      },
+      {
+        "gatewaySignalShutdownMs": 607.1735079999999,
+        "userSignalShutdownElapsedMs": 5063.753375999999,
+        "scope": "actual native gateway/user processes, isolated PostgreSQL V1/V2/user/title/IP/partition/CDC schema, Redis and Kafka; other registry targets alias the actual user fixture"
+      },
+      {
+        "titleHttpLatencyMs": {
+          "samples": 50,
+          "median": 1.2355090000000928,
+          "p95": 1.491892000000007,
+          "maximum": 1.672128000000157
+        },
+        "scope": "isolated local service and database, warm sequential HTTP reads"
+      },
+      {
+        "shutdownElapsedMs": 5526.474075000001
+      }
+    ],
+    "fixture": {
+      "postgresNativePort": 55436,
+      "maxConnections": 40,
+      "sqlPort": 55434,
+      "maxConnectionsSql": 20,
+      "cpuPerPostgres": 1
+    },
+    "scope": "Actual OS payment+gateway, signed raw JSON/form without userJWT, public currencies/real conversion, actualKafka timeout handler/receipt and natural shutdown. Missing channel keys and productionKMS refuse before listener. Original user/two-gateway privacy/title/IP/cache/CDC/notification/audit/readiness/signal cases retained. Other peers alias owned fixtures; no all-service/capacity/productionSLO/provider/liveAWS claim."
+  },
+  "retainedMfa": {
+    "storageHttpNodeTests": 26,
+    "browserNodeTests": 6,
+    "productionModules": 7,
+    "coverage": {
+      "lines": 99.42,
+      "branches": 83.43,
+      "functions": 100
+    },
+    "lineFunctionGate": 90,
+    "scope": "Actual PostgreSQL/Redis/signed HTTP and actual game UI/service worker regression. No new payment MFA/risk-boundary acceptance."
+  },
+  "currencyStorageTests": 18,
+  "fullBootstrapTests": 3,
+  "syntaxFiles": 1480,
+  "auditTools": 12,
+  "developmentFindings": [
+    {
+      "finding": "Actual V1 enum lacks runtime CANCELLED/FULFILLED. Additive schema appends labels, retains FAILED and old wall-clock/money history; no source SQL rewrite.",
+      "logSha256": "9932bfdf0e721d2165f951b2bddb444a795f139fcf4a261ffe1f6c48aa0df822"
+    },
+    {
+      "finding": "Two clock_timestamp expressions differ by microseconds and correctly violate exact24h bound. Default expressions use stable statement time; runtime creation uses one clock CTE. Constraint/target unchanged."
+    },
+    {
+      "finding": "Fresh Kafka topic leader metadata raced consumer subscription; native process refused. Bounded retriable subscription wait plus owned connection cleanup added.",
+      "logSha256": "fcc7dd50c4443ffc0e7851d6e3c2037bd6267c9a7327c5cb797a051915422e7b"
+    },
+    {
+      "finding": "Actual metrics module has no incrementCounter/observeHistogram exports; old queue mocks invented them. Queue now uses actual registered counters/histograms and existing34-case suite enters main gate. Real timeout consumer changes actual owned row."
+    },
+    {
+      "finding": "Healthy native service used inline health-router creation unrecognized by unchanged static gate. Explicit named router mounting now passes both real HTTP and static registration.",
+      "logSha256": "0f7fc16d84d3f578cec65117a33b502c61eb9d31306a247110c04f2693bd9230"
+    }
+  ],
+  "limits": "All658 originals retained; REQ3/4 reopened, only619 verified. Original whole-payment-service unit-only>=90, all actual legal fulfillment/refund business commands, provider-native/prepay/receipt flows, legacy request adoption, complete minor policy, sensitive MFA/risk business boundaries, full queue scheduling/extensions/cancellation/retry/DLQ/capacity and all other original security/services/game/client/performance/operations acceptance remain open. Existing mock legacy integration app is not evidence; legacy integration/contract/performance/security failures remain. Prepay explicitlyproviderReadyfalse/payParamsnull, no fake params or financial/compliance audit claim. Current source CI pending.",
+  "execution": "Sequential nice10/UV2/Nodeconcurrency1/JestInBand; no Maven/CPU saturation/subagents/new requirements/recipient delivery/production cleanup/rekey/merge/deploy. All four owned test containers stopped and empty owned setup schema cleaned; unrelated container/performance environment untouched. Private MEMORY/Oct09 unstaged; draftPR6 only."
+}

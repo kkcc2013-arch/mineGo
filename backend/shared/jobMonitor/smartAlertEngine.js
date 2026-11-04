@@ -3,6 +3,9 @@
  * REQ-00538: 任务执行状态实时监控与智能告警系统
  */
 
+
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/jobMonitor/smartAlertEngine"), "shared/jobMonitor/smartAlertEngine");
 const { EventEmitter } = require('events');
 const Redis = require('ioredis');
 
@@ -119,7 +122,7 @@ class AlertChannel {
       case 'email':
         return this.sendEmail(alert);
       default:
-        console.warn(`[AlertChannel] Unknown channel type: ${this.type}`);
+        _consoleLogger.warn(`[AlertChannel] Unknown channel type: ${this.type}`);
     }
   }
 
@@ -131,14 +134,14 @@ class AlertChannel {
       low: '🟢'
     }[alert.severity] || '⚪';
 
-    console.log(`\n${emoji} [ALERT] ${alert.severity.toUpperCase()}`);
-    console.log(`   Job: ${alert.jobName} (${alert.jobId})`);
-    console.log(`   Type: ${alert.alertType}`);
-    console.log(`   Message: ${alert.message}`);
+    _consoleLogger.log(`\n${emoji} [ALERT] ${alert.severity.toUpperCase()}`);
+    _consoleLogger.log(`   Job: ${alert.jobName} (${alert.jobId})`);
+    _consoleLogger.log(`   Type: ${alert.alertType}`);
+    _consoleLogger.log(`   Message: ${alert.message}`);
     if (alert.suggestion) {
-      console.log(`   Suggestion: ${alert.suggestion}`);
+      _consoleLogger.log(`   Suggestion: ${alert.suggestion}`);
     }
-    console.log(`   Time: ${alert.timestamp}\n`);
+    _consoleLogger.log(`   Time: ${alert.timestamp}\n`);
   }
 
   async sendWebhook(alert) {
@@ -201,7 +204,7 @@ class AlertChannel {
 
   async sendEmail(alert) {
     // 简化实现，实际项目中应使用 nodemailer
-    console.log(`[Email] Would send to ${this.config.to}:`, alert);
+    _consoleLogger.log(`[Email] Would send to ${this.config.to}:`, alert);
     return true;
   }
 }
@@ -226,7 +229,7 @@ class SmartAlertEngine extends EventEmitter {
    */
   registerChannel(name, type, config) {
     this.channels.set(name, new AlertChannel(type, config));
-    console.log(`[SmartAlertEngine] Registered channel: ${name} (${type})`);
+    _consoleLogger.log(`[SmartAlertEngine] Registered channel: ${name} (${type})`);
   }
 
   /**
@@ -268,7 +271,7 @@ class SmartAlertEngine extends EventEmitter {
       
       // 噪音抑制检查
       if (await this.noiseSuppressor.shouldSuppress(alertKey)) {
-        console.log(`[SmartAlertEngine] Suppressed duplicate alert: ${alertKey}`);
+        _consoleLogger.log(`[SmartAlertEngine] Suppressed duplicate alert: ${alertKey}`);
         return;
       }
 
@@ -455,15 +458,15 @@ class SmartAlertEngine extends EventEmitter {
     for (const name of channelNames) {
       const channel = this.channels.get(name);
       if (!channel) {
-        console.warn(`[SmartAlertEngine] Channel not found: ${name}`);
+        _consoleLogger.warn(`[SmartAlertEngine] Channel not found: ${name}`);
         continue;
       }
 
       try {
         await channel.send(alert);
-        console.log(`[SmartAlertEngine] Alert sent via ${name}:`, alert.alertId);
+        _consoleLogger.log(`[SmartAlertEngine] Alert sent via ${name}:`, alert.alertId);
       } catch (error) {
-        console.error(`[SmartAlertEngine] Failed to send via ${name}:`, error.message);
+        _consoleLogger.error(`[SmartAlertEngine] Failed to send via ${name}:`, error.message);
         this.emit('sendError', { channel: name, alert, error });
       }
     }
@@ -481,7 +484,7 @@ class SmartAlertEngine extends EventEmitter {
    */
   async close() {
     await this.redis.quit();
-    console.log('[SmartAlertEngine] Closed');
+    _consoleLogger.log('[SmartAlertEngine] Closed');
   }
 }
 

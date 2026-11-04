@@ -1,0 +1,859 @@
+{
+  "observedDate": "2026-10-28",
+  "commit": "c4b5ca18bb8dba58b24e46ef1fb3a78f2e92ff21",
+  "runs": [
+    {
+      "name": "MFA factors, sessions and storage regression",
+      "id": 40250033974,
+      "number": 7,
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/40250033974",
+      "head": "c4b5ca18bb8dba58b24e46ef1fb3a78f2e92ff21",
+      "jobs": [
+        {
+          "id": 121339718913,
+          "name": "mfa-regression",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install declared backend dependencies",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify RFC reference vectors, production key refusal and facade ownership",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Enforce original 90 percent line and function coverage with actual storage and signed HTTP",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "E2E Tests",
+      "id": 40250033556,
+      "number": 137,
+      "status": "completed",
+      "conclusion": "cancelled",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/40250033556",
+      "head": "c4b5ca18bb8dba58b24e46ef1fb3a78f2e92ff21"
+    },
+    {
+      "name": "Security Scan",
+      "id": 40250033555,
+      "number": 433,
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/40250033555",
+      "head": "c4b5ca18bb8dba58b24e46ef1fb3a78f2e92ff21"
+    },
+    {
+      "name": "Dependency Check",
+      "id": 40250033520,
+      "number": 314,
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/40250033520",
+      "head": "c4b5ca18bb8dba58b24e46ef1fb3a78f2e92ff21"
+    },
+    {
+      "name": "Privacy route and storage regression",
+      "id": 40250033533,
+      "number": 47,
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/40250033533",
+      "head": "c4b5ca18bb8dba58b24e46ef1fb3a78f2e92ff21"
+    },
+    {
+      "name": "Title routes and storage regression",
+      "id": 40250033535,
+      "number": 44,
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/40250033535",
+      "head": "c4b5ca18bb8dba58b24e46ef1fb3a78f2e92ff21",
+      "jobs": [
+        {
+          "id": 121339716437,
+          "name": "title-regression",
+          "status": "completed",
+          "conclusion": "failure",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install dependencies",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify title unit failure and validation cases",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify actual routes, PostgreSQL concurrency, Redis and measured core coverage",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify actual IP appeals, CIDR access control and gateway aliases",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify durable CDC, real Redis and fenced streaming HTTP cache",
+              "status": "completed",
+              "conclusion": "failure"
+            },
+            {
+              "name": "Start isolated Kafka for the actual user-service process",
+              "status": "completed",
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Wait for Kafka metadata",
+              "status": "completed",
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Verify actual user-service startup, health dependencies, HTTP and shutdown",
+              "status": "completed",
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Verify native gateway startup failure, readiness, IP appeals and signal shutdown",
+              "status": "completed",
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Stop isolated Kafka",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Performance Regression Tests",
+      "id": 40250033574,
+      "number": 143,
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/40250033574",
+      "head": "c4b5ca18bb8dba58b24e46ef1fb3a78f2e92ff21"
+    },
+    {
+      "name": "MFA browser and offline credential regression",
+      "id": 40250033522,
+      "number": 3,
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/40250033522",
+      "head": "c4b5ca18bb8dba58b24e46ef1fb3a78f2e92ff21",
+      "jobs": [
+        {
+          "id": 121339716380,
+          "name": "mfa-client",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install declared backend dependencies",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install declared browser dependencies",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install matching Chromium",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify factor, cancellation and token boundaries",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Exercise actual game UI and service worker with real PostgreSQL and Redis",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Preserve screens without factors or tokens",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CI/CD Pipeline",
+      "id": 40250033526,
+      "number": 475,
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/40250033526",
+      "head": "c4b5ca18bb8dba58b24e46ef1fb3a78f2e92ff21",
+      "jobs": [
+        {
+          "id": 121339716421,
+          "name": "Battle regression and formula coverage",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run battle scenarios and enforce greater than 90% formula coverage",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 121339716628,
+          "name": "🧪 Lint + Unit Tests",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Setup Node.js 20",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install dependencies",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Syntax check all JS files",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify requirement inventory and audit tools",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Reject direct runtime console calls",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Check requirement numbering",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run unit tests",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify all services have health route",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Setup Node.js 20",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 121339861794,
+          "name": "🔒 Security Scan",
+          "status": "completed",
+          "conclusion": "skipped",
+          "steps": []
+        },
+        {
+          "id": 121339861989,
+          "name": "🐳 Build & Push Images",
+          "status": "completed",
+          "conclusion": "skipped",
+          "steps": []
+        },
+        {
+          "id": 121339862150,
+          "name": "🚀 Deploy to Staging",
+          "status": "completed",
+          "conclusion": "skipped",
+          "steps": []
+        },
+        {
+          "id": 121339862374,
+          "name": "🚢 Full Production Deploy",
+          "status": "completed",
+          "conclusion": "skipped",
+          "steps": []
+        },
+        {
+          "id": 121339862440,
+          "name": "🐤 Canary Deploy (5%)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "steps": []
+        }
+      ]
+    },
+    {
+      "name": "API Contract Tests",
+      "id": 40250033505,
+      "number": 104,
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/40250033505",
+      "head": "c4b5ca18bb8dba58b24e46ef1fb3a78f2e92ff21"
+    },
+    {
+      "name": "Contract Tests",
+      "id": 40250033581,
+      "number": 400,
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/40250033581",
+      "head": "c4b5ca18bb8dba58b24e46ef1fb3a78f2e92ff21"
+    },
+    {
+      "name": "Integration & E2E Tests",
+      "id": 40250033528,
+      "number": 450,
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/40250033528",
+      "head": "c4b5ca18bb8dba58b24e46ef1fb3a78f2e92ff21"
+    },
+    {
+      "name": "Payment integrity and actual process regression",
+      "id": 40250033545,
+      "number": 2,
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/40250033545",
+      "head": "c4b5ca18bb8dba58b24e46ef1fb3a78f2e92ff21",
+      "jobs": [
+        {
+          "id": 121339716371,
+          "name": "payment-integrity",
+          "status": "completed",
+          "conclusion": "failure",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install locked dependencies",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify retained payment history, owner identity and guarded rollback",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Enforce original greater-than90 source coverage with actual SQL, Redis and signed HTTP",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Generate HTML and LCOV for the exercised production payment modules",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Preserve actual coverage reports",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Start isolated Kafka",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Wait for real broker metadata",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Exercise actual payment and gateway entry points and Kafka timeout consumption",
+              "status": "completed",
+              "conclusion": "failure"
+            },
+            {
+              "name": "Stop owned Kafka",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "skipped"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Notification client and storage regression",
+      "id": 40250033614,
+      "number": 32,
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/40250033614",
+      "head": "c4b5ca18bb8dba58b24e46ef1fb3a78f2e92ff21"
+    },
+    {
+      "name": "Database migration regression",
+      "id": 40250033542,
+      "number": 37,
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/40250033542",
+      "head": "c4b5ca18bb8dba58b24e46ef1fb3a78f2e92ff21",
+      "jobs": [
+        {
+          "id": 121339716396,
+          "name": "migration-regression",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install declared backend dependencies",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Enable actual statement statistics in the isolated CI database",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Check actual SQL parsing and transaction ownership",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify canonical identity-only CDC storage and refusal of customized contracts",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify retained job history, atomic execution logging and original retention",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify isolated audit installation, retained cipher history and actual cleanup permissions",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify durable authenticated audit writes, rotation, refusal and actual KMS SDK protocol",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Check actual CLI checksums, concurrency, rollback and interrupted ownership",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify actual inventory catalog, UUID identities and data-preserving prerequisite rollback",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify inventory organization data, UUID teams, preferences and guarded legacy adoption",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify cosmetic UUID references, original catalog and retained purchase history",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify retained legacy deletion identities and accountable UUID erasure storage",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify retained canary history, actual rollout uniqueness and runtime boundaries",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify audit conversion, canonical partition history, concurrent IDs and data-preserving rollback",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify canonical partition maintenance, real statistics and protected operational routes",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify existing tiered data, modern progress, real rewards and authenticated achievement routes",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify actual notification history, preferences, signed APIs and live recipient sockets",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify UUID trainer bonds, affinity projections, positive/negative history and guarded rollback",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify gameplay catch identity, actual throw evidence and durable risk statistics",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify actual IV flags, ownership counts, generation and equipment SQL contracts",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify quest date indexes and actual mounted atomic daily reward claims",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify guarded title history upgrades and actual reward ranking parameters",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify preserved canonical moves, real TM transactions and signed damage simulations",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify actual voice schema, membership history and TURN expiry index preservation",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify preserved real orders, atomic rates, owned locks and signed currency routes",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify actual transaction isolation, deadlines, contention and owned pool cleanup",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify actual slow-query history, numeric ratios and live PostgreSQL execution helpers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify owned TLS query cancellation and refusal of an encryption downgrade",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Enforce original transaction throughput regression ceiling against published predecessor",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify complete fresh production schema, seeding and pending migration history",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Dependency Check",
+      "id": 40250031214,
+      "number": 313,
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/40250031214",
+      "head": "c4b5ca18bb8dba58b24e46ef1fb3a78f2e92ff21"
+    }
+  ],
+  "logs": [
+    {
+      "jobId": 121339716371,
+      "sha256": "c562f865d1dbc3e18c623752e4ab15ee471f18f7beea799e9472520208920c4e"
+    },
+    {
+      "jobId": 121339716437,
+      "sha256": "d4f37a377c894e8060c46c98d40ddb773b692bad8201efeca76281d87bfcff3c"
+    },
+    {
+      "jobId": 121339716396,
+      "sha256": "ed437ef0afc7752e884d2eee01742972cf8783a335fc281347c04b5d7bc90df2"
+    }
+  ],
+  "throughputArtifact": "docs/benchmarks/transaction-throughput-ci-c4b5ca1-2026-10-28.json",
+  "scope": "Exact c4b: main475/MFA7/browser3/migration37/privacy47/notification32/dependencies314 success. Full87 remote bootstrap passed. Payment2 migration/core/report success but native failed timeout consumption; title/native44 cache preparation failed and its later native process steps skipped. Legacy API104/contract400/performance143/integration450/security433 failed; E2E137 cancelled. No failure or skipped step accepted. Original -5 throughput ceiling retained; all eight measured hashes match, with prior positive/negative reports retained. No full performance or all658 acceptance."
+}

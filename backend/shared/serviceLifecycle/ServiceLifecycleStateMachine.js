@@ -1,6 +1,9 @@
 // backend/shared/serviceLifecycle/ServiceLifecycleStateMachine.js
 // 服务生命周期状态机
 'use strict';
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/serviceLifecycle/ServiceLifecycleStateMachine"), "shared/serviceLifecycle/ServiceLifecycleStateMachine");
+
 
 const EventEmitter = require('events');
 const { ServiceLifecycleState, STATE_TRANSITIONS, STATE_DESCRIPTIONS } = require('./ServiceLifecycleState');
@@ -93,7 +96,7 @@ class ServiceLifecycleStateMachine extends EventEmitter {
       try {
         await callback(metadata);
       } catch (error) {
-        console.error(`State transition callback failed for ${targetState}:`, error);
+        _consoleLogger.error(`State transition callback failed for ${targetState}:`, error);
         this.errorInfo = { error, metadata, timestamp: transitionTimestamp };
         await this.transitionTo(ServiceLifecycleState.ERROR, { 
           error: error.message,
@@ -157,7 +160,7 @@ class ServiceLifecycleStateMachine extends EventEmitter {
       });
     } catch (transitionError) {
       // 如果转换到 ERROR 状态失败，直接设置状态
-      console.error('Failed to transition to ERROR state:', transitionError);
+      _consoleLogger.error('Failed to transition to ERROR state:', transitionError);
       this.currentState = ServiceLifecycleState.ERROR;
       this.emit('state:error', {
         serviceName: this.serviceName,

@@ -8,9 +8,10 @@ const NotificationPlugin = require('../PluginInterface');
  * 用于游戏内实时推送（REQ-00026 已实现）
  */
 class WebSocketPlugin extends NotificationPlugin {
-  constructor(wss) {
+  constructor(wss, transport = null) {
     super();
     this.wss = wss;
+    this.transport = transport;
     this.connections = new Map(); // userId -> WebSocket
   }
 
@@ -29,6 +30,10 @@ class WebSocketPlugin extends NotificationPlugin {
   }
 
   async send(userId, payload, options = {}) {
+    if (this.transport) {
+      const sent = this.transport.sendNotificationToUser(userId, {...payload,eventType:payload.eventType||payload.type});
+      return sent ? {success:true,messageId:`notification-${payload.id}`} : {success:false,error:'User not connected'};
+    }
     const ws = this.connections.get(userId);
     
     if (!ws || ws.readyState !== 1) { // WebSocket.OPEN
@@ -36,13 +41,7 @@ class WebSocketPlugin extends NotificationPlugin {
     }
 
     try {
-      const message = JSON.stringify({
-        type: payload.type || 'notification',
-        title: payload.title,
-        body: payload.body,
-        data: payload.data || {},
-        timestamp: Date.now(),
-      });
+      const message = JSON.stringify({type:'NOTIFICATION',payload:{...payload,eventType:payload.eventType||payload.type,timestamp:payload.timestamp||new Date().toISOString()}});
 
       ws.send(message);
       
@@ -65,7 +64,7 @@ class WebSocketPlugin extends NotificationPlugin {
 
   async isEnabledForUser(userId) {
     // WebSocket 插件对用户始终启用（如果在线）
-    return this.connections.has(userId);
+    return this.transport ? this.transport.isUserConnected(userId) : this.connections.has(userId);
   }
 
   async getUserDeviceToken(userId) {
@@ -77,6 +76,7 @@ class WebSocketPlugin extends NotificationPlugin {
    * 检查用户是否在线
    */
   isUserOnline(userId) {
+    if (this.transport) return this.transport.isUserConnected(userId);
     const ws = this.connections.get(userId);
     return ws && ws.readyState === 1;
   }

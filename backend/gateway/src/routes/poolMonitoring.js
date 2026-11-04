@@ -6,9 +6,9 @@
 const express = require('express');
 const router = express.Router();
 const { getIntelligentPoolManager } = require('../../jobs/intelligentPoolManager');
-const { getPoolConfigCenter } = require('../../shared/poolConfigCenter');
-const { createLogger } = require('../../shared/logger');
-const { successResp, AppError } = require('../../shared/auth');
+const { getPoolConfigCenter } = require('../../../shared/poolConfigCenter');
+const { createLogger } = require('../../../shared/logger');
+const { successResp, AppError } = require('../../../shared/auth');
 
 const logger = createLogger('pool-monitoring-api');
 

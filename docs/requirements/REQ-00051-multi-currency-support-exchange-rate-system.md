@@ -7,7 +7,7 @@
 | 标题 | 多货币支持与汇率转换系统 |
 | 类别 | 国际化/本地化 |
 | 优先级 | P1 |
-| 状态 | done |
+| 状态 | in_progress |
 | 涉及服务 | payment-service、user-service、gateway、backend/shared |
 | 创建时间 | 2026-06-09 15:00 |
 
@@ -1522,3 +1522,45 @@ metrics.register({
 - [OpenExchangeRates API](https://openexchangerates.org/)
 - [European Central Bank Exchange Rates](https://www.ecb.europa.eu/stats/policy_and_exchange_rates/euro_reference_exchange_rates/)
 - [Unicode CLDR Currency Data](https://www.unicode.org/cldr/charts/latest/by_type/index.html)
+
+
+## 独立验收纠正（2026-10-14）
+
+原 done 声明重开，原10项验收与90%/80%/100ms/30分钟/15分钟阈值保持不变。
+实际生产只有 UUID orders，旧迁移 ALTER payment_orders 报42P01。独立 repair
+保留原始源哈希、订单 OID/金额分/币种/状态/幂等键、已有视图与外键；新增报价
+字段在历史订单中保持 NULL，不伪造历史美元换算。全部20货币和20价格种子保留。
+平行 payment_orders 与不兼容锁所有者布局拒绝采用，旧匿名锁不推断归属。
+
+实际 ExchangeRateService 已修复：原子更新当前报价/全部快照/UTC日历史；并发
+发布串行化；失败回滚且不发布缓存；缓存不越过真实报价有效期；不再生成开发
+伪汇率或未知对1:1；NUMERIC转换按目标币种精度舍入，保留精确字符串与日志；
+15分钟 UUID 所有者锁防跨用户/重复消费，支持调用方真实订单事务回滚。过期清理
+保留已消费锁的审计记录。三个 provider adapter 按响应声明的 base 解码交叉率；
+只在自有 HTTP 合同服务器验证，不宣称真实 provider 可用。真实 registry counters
+替代不存在的 metrics.increment，避免测试 mock 掩盖运行错误。
+
+路由提供 typed public读取/转换/GET+POST地区检测、签名私有偏好/锁、签名admin
+管理，拒绝伪admin字段/原型别名/错误类型与币种精度。两条现有 mount 均在 error
+middleware之前注册。storage suite实际18项（含父用例）通过，CLI/prerequisite17
+通过，原主unit686通过，JS语法1437通过。原 currency.test.js 尚未纳入主gate，
+其旧 mock/接口预期仍需修复，不能用686证明本需求80%覆盖率。
+
+真实 payment-service entry point 在生产配置模式、隔离PostGIS+Redis和仅本地
+fixture密钥下返回：两别名200/20货币/CNY价格6.00、签名偏好200、1.005USD转换
+1.01。3秒SIGTERM观察未自然退出；owned SIGKILL后确认终止并清理schema，诊断
+exit1。这不是完整依赖readiness/优雅生命周期验收，3秒不是新增阈值。
+
+V1/V2通过；原85 SQL源均不改，完整链现失败20260626_040000 statement1的 //
+头注释，整批回滚。完整链/升级/回滚、真实全币种checkout和可信provider签名/
+渠道币种能力、金额绑定、幂等/未成年人限制、实际30分钟调度与关闭、真实3来源/
+freshness/故障、所有操作审计、90%缓存/100ms测量、80%unit覆盖、gateway/客户端
+原流程仍待验收。旧多币种支付模块未存在，现有checkout仍固定CNY商品并使用mock
+预支付参数；coins_1200种子CNY108和当前checkout98不一致，必须统一真实定价与
+收费后才可接受，不把价格读取通过当作支付完成。详见docs/CURRENCIES.md。
+
+
+补充审计修正：原转换日志 from_amount 固定2位，不能保留1.005这样的输入。
+新增 nullable TEXT input_amount，保留经过数字格式验证的原始十进制字符串；
+旧日志不推断缺失输入，也不改写原金额列。真实SQL参数使用独立TEXT绑定，
+避免同一参数被NUMERIC/TEXT上下文推断冲突；0.10和1.005原输入保留已实际验证。

@@ -1,0 +1,8 @@
+{
+  "rootDir": "../..",
+  "testEnvironment": "node",
+  "testMatch": ["<rootDir>/tests/unit/mfa.test.js"],
+  "collectCoverageFrom": ["shared/mfaService.js"],
+  "coverageDirectory": "coverage/mfa-unit",
+  "coverageThreshold": {"global": {"lines": 90, "statements": 90, "functions": 90}}
+}

@@ -7,9 +7,9 @@
 
 const express = require('express');
 const router = express.Router();
-const auth = require('../shared/auth');
-const { db } = require('../shared/db');
-const logger = require('../shared/logger');
+const auth = require('../../../shared/auth');
+const { db } = require('../../../shared/db');
+const logger = require('../../../shared/logger');
 const dynamicTranslationManager = require('../../../shared/DynamicTranslationManager');
 const translationMetrics = require('../../../shared/translationMetrics');
 const { checkMissingTranslations, getCoverageReport } = require('../../../jobs/checkMissingTranslations');

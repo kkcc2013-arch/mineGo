@@ -2,6 +2,9 @@
 // REQ-00034: COPPA 合规与年龄验证服务
 
 'use strict';
+const {createLogger} = require('./logger');
+const logger = createLogger('ageVerification');
+
 
 const { query, transaction } = require('./db');
 const { getRedis } = require('./redis');
@@ -154,9 +157,7 @@ async function sendParentConsentEmail(userId, parentEmail, childNickname) {
   await logParentConsentAction(userId, parentEmail, 'sent');
   
   // 在生产环境中，这里应该调用邮件服务
-  logger.info({ module: 'COPPA', parentEmail, userId }, 'Parent consent email sent');
-  logger.debug({ module: 'COPPA', token }, 'Consent token');
-  logger.info({ module: 'COPPA', url: `${process.env.APP_URL || 'http://localhost:8080'}/auth/verify-parent-consent?token=${token}&action=approve` }, 'Approve URL');
+  logger.info({ module: 'COPPA', parentEmail, userId }, 'Parent consent request prepared');
   
   // 开发模式下返回令牌（生产环境不应返回）
   const devMode = process.env.NODE_ENV !== 'production';

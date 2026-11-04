@@ -15,6 +15,9 @@ INSERT INTO pokemon_species (id,name_zh,name_en,type1,type2,rarity,base_attack,b
 (8,  '卡咪龟',  'Wartortle', 'WATER',NULL,   'RARE',     126,155,153, 0.10,0.07, 100,9,  ARRAY['WATER'],       '/sprites/8.png',  '毛绒绒的耳朵和尾巴可以保持平衡'),
 (9,  '水箭龟',  'Blastoise', 'WATER',NULL,   'EPIC',     171,207,188, 0.05,0.05, NULL,NULL,ARRAY['WATER'],     '/sprites/9.png',  '背上的炮台可以发射强力水柱'),
 
+-- Stats for the missing evolution targets checked against the game-master snapshot:
+-- https://github.com/PokeMiners/game_masters/blob/8e227be44f288d34463e23bf04e9b564d3c16f79/latest/latest.json
+-- Rarity/catch rates/biomes are this game's sample balance settings.
 -- ICONIC
 (25, '皮卡丘',  'Pikachu',   'ELECTRIC',NULL,'RARE',    112,96, 111, 0.16,0.10, 50, 26, ARRAY['URBAN','FOREST'],'/sprites/25.png','两颊的红色电力袋会释放电流'),
 (26, '雷丘',    'Raichu',    'ELECTRIC',NULL,'EPIC',    193,151,155, 0.08,0.06, NULL,NULL,ARRAY['URBAN'],      '/sprites/26.png', '储存了大量电力，甚至能击倒大象'),
@@ -23,8 +26,12 @@ INSERT INTO pokemon_species (id,name_zh,name_en,type1,type2,rarity,base_attack,b
 (52, '喵喵',    'Meowth',    'NORMAL',NULL,  'COMMON',  92, 78, 120, 0.40,0.15, 50, 53, ARRAY['URBAN'],       '/sprites/52.png', '额头的金币是它的宝贝'),
 (53, '猫老大',  'Persian',   'NORMAL',NULL,  'UNCOMMON',150,136,163, 0.15,0.08, NULL,NULL,ARRAY['URBAN'],     '/sprites/53.png', '动作优雅迅捷，深受上流社会喜爱'),
 (54, '可达鸭',  'Psyduck',   'WATER', NULL,  'COMMON',  122,96, 130, 0.30,0.12, 50, 55, ARRAY['WATER'],       '/sprites/54.png', '总是头痛，头痛时反而能发挥超能力'),
+(55, '哥达鸭', 'Golduck', 'WATER',NULL,'UNCOMMON',191,162,190,0.15,0.08,NULL,NULL,ARRAY['WATER'],'/sprites/55.png','可达鸭的进化形态'),
 (74, '小拳石',  'Geodude',   'ROCK', 'GROUND','COMMON', 132,132,120, 0.40,0.12, 25, 75, ARRAY['MOUNTAIN'],    '/sprites/74.png', '半埋在地里，常被误踢而大发雷霆'),
+(75, '隆隆石','Graveler','ROCK','GROUND','UNCOMMON',164,164,146,0.15,0.08,100,76,ARRAY['MOUNTAIN'],'/sprites/75.png','小拳石的进化形态'),
+(76, '隆隆岩','Golem','ROCK','GROUND','EPIC',211,198,190,0.05,0.05,NULL,NULL,ARRAY['MOUNTAIN'],'/sprites/76.png','隆隆石的进化形态'),
 (79, '呆呆兽',  'Slowpoke',  'WATER','PSYCHIC','COMMON',109,98, 207, 0.40,0.10, 50, 80, ARRAY['WATER'],       '/sprites/79.png', '反应极慢，被咬了几秒后才知道'),
+(80, '呆壳兽','Slowbro','WATER','PSYCHIC','UNCOMMON',177,180,216,0.15,0.08,NULL,NULL,ARRAY['WATER'],'/sprites/80.png','呆呆兽的进化形态'),
 (94, '耿鬼',    'Gengar',    'GHOST','POISON','RARE',   261,149,155, 0.12,0.07, NULL,NULL,ARRAY['URBAN'],     '/sprites/94.png', '躲在阴暗处偷走人的体温'),
 (131,'巨拉多',  'Lapras',    'WATER','ICE',  'EPIC',    165,174,277, 0.06,0.04, NULL,NULL,ARRAY['WATER'],     '/sprites/131.png','温顺的大型精灵，可以背人渡海'),
 (132,'百变怪',  'Ditto',     'NORMAL',NULL,  'RARE',    91, 91, 134, 0.12,0.08, NULL,NULL,ARRAY['URBAN'],     '/sprites/132.png','可以变成任何物体，连细胞结构都能复制'),

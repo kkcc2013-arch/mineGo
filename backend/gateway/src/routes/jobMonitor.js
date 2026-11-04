@@ -3,6 +3,9 @@
  * REQ-00538: 任务执行状态实时监控与智能告警系统
  */
 
+
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("gateway/src/routes/jobMonitor"), "gateway/src/routes/jobMonitor");
 const express = require('express');
 const router = express.Router();
 const { JobStatusAggregator } = require('../../../shared/jobMonitor/jobStatusAggregator');
@@ -22,12 +25,12 @@ let trendAnalyzer = null;
 function initializeMonitor() {
   if (!aggregator) {
     aggregator = new JobStatusAggregator();
-    aggregator.start().catch(err => console.error('Failed to start aggregator:', err));
+    aggregator.start().catch(err => _consoleLogger.error('Failed to start aggregator:', err));
   }
 
   if (!executionLogger) {
     executionLogger = new JobExecutionLogger();
-    executionLogger.initialize().catch(err => console.error('Failed to initialize logger:', err));
+    executionLogger.initialize().catch(err => _consoleLogger.error('Failed to initialize logger:', err));
   }
 
   if (!healthChecker) {
@@ -58,7 +61,7 @@ router.get('/status', async (req, res) => {
       jobs: status
     });
   } catch (error) {
-    console.error('[JobMonitorAPI] Error getting status:', error);
+    _consoleLogger.error('[JobMonitorAPI] Error getting status:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -88,7 +91,7 @@ router.get('/:jobId/status', async (req, res) => {
       job: status
     });
   } catch (error) {
-    console.error('[JobMonitorAPI] Error getting job status:', error);
+    _consoleLogger.error('[JobMonitorAPI] Error getting job status:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -119,7 +122,7 @@ router.get('/:jobId/history', async (req, res) => {
       history
     });
   } catch (error) {
-    console.error('[JobMonitorAPI] Error getting history:', error);
+    _consoleLogger.error('[JobMonitorAPI] Error getting history:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -142,7 +145,7 @@ router.get('/:jobId/health', async (req, res) => {
       health
     });
   } catch (error) {
-    console.error('[JobMonitorAPI] Error getting health:', error);
+    _consoleLogger.error('[JobMonitorAPI] Error getting health:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -171,7 +174,7 @@ router.get('/:jobId/statistics', async (req, res) => {
       statistics
     });
   } catch (error) {
-    console.error('[JobMonitorAPI] Error getting statistics:', error);
+    _consoleLogger.error('[JobMonitorAPI] Error getting statistics:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -207,7 +210,7 @@ router.get('/:jobId/trend', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('[JobMonitorAPI] Error getting trend:', error);
+    _consoleLogger.error('[JobMonitorAPI] Error getting trend:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -229,7 +232,7 @@ router.get('/health-summary', async (req, res) => {
       summary
     });
   } catch (error) {
-    console.error('[JobMonitorAPI] Error getting health summary:', error);
+    _consoleLogger.error('[JobMonitorAPI] Error getting health summary:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -252,7 +255,7 @@ router.get('/zombies', async (req, res) => {
       zombies
     });
   } catch (error) {
-    console.error('[JobMonitorAPI] Error detecting zombies:', error);
+    _consoleLogger.error('[JobMonitorAPI] Error detecting zombies:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -276,7 +279,7 @@ router.get('/stale', async (req, res) => {
       stale
     });
   } catch (error) {
-    console.error('[JobMonitorAPI] Error detecting stale jobs:', error);
+    _consoleLogger.error('[JobMonitorAPI] Error detecting stale jobs:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -314,7 +317,7 @@ router.get('/alerts', async (req, res) => {
       alerts
     });
   } catch (error) {
-    console.error('[JobMonitorAPI] Error getting alerts:', error);
+    _consoleLogger.error('[JobMonitorAPI] Error getting alerts:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -331,7 +334,7 @@ router.post('/:jobId/restart', async (req, res) => {
     const { jobId } = req.params;
     // 实际重启逻辑需要根据任务调度系统实现
     // 这里仅记录操作
-    console.log(`[JobMonitorAPI] Restart requested for: ${jobId}`);
+    _consoleLogger.log(`[JobMonitorAPI] Restart requested for: ${jobId}`);
 
     res.json({
       success: true,
@@ -339,7 +342,7 @@ router.post('/:jobId/restart', async (req, res) => {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('[JobMonitorAPI] Error restarting job:', error);
+    _consoleLogger.error('[JobMonitorAPI] Error restarting job:', error);
     res.status(500).json({
       success: false,
       error: error.message
@@ -354,7 +357,7 @@ router.post('/:jobId/restart', async (req, res) => {
 router.post('/:jobId/skip', async (req, res) => {
   try {
     const { jobId } = req.params;
-    console.log(`[JobMonitorAPI] Skip requested for: ${jobId}`);
+    _consoleLogger.log(`[JobMonitorAPI] Skip requested for: ${jobId}`);
 
     res.json({
       success: true,
@@ -362,7 +365,7 @@ router.post('/:jobId/skip', async (req, res) => {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('[JobMonitorAPI] Error skipping job:', error);
+    _consoleLogger.error('[JobMonitorAPI] Error skipping job:', error);
     res.status(500).json({
       success: false,
       error: error.message

@@ -1,4 +1,7 @@
 'use strict';
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/threatDetection/ThreatDetectionEngine"), "shared/threatDetection/ThreatDetectionEngine");
+
 
 /**
  * 威胁检测引擎
@@ -212,7 +215,7 @@ class ThreatDetectionEngine {
       };
       
     } catch (error) {
-      console.error('[ThreatDetectionEngine] Detection error:', error);
+      _consoleLogger.error('[ThreatDetectionEngine] Detection error:', error);
       return {
         threatId: null,
         threatScore: 0,
@@ -243,7 +246,7 @@ class ThreatDetectionEngine {
           });
         }
       } catch (err) {
-        console.warn(`[ThreatDetectionEngine] Rule ${rule.id} error:`, err.message);
+        _consoleLogger.warn(`[ThreatDetectionEngine] Rule ${rule.id} error:`, err.message);
       }
     }
     
@@ -333,7 +336,7 @@ class ThreatDetectionEngine {
     };
     
     this.rules.push(normalizedRule);
-    console.log(`[ThreatDetectionEngine] Added rule: ${normalizedRule.id}`);
+    _consoleLogger.log(`[ThreatDetectionEngine] Added rule: ${normalizedRule.id}`);
   }
 
   /**
@@ -344,7 +347,7 @@ class ThreatDetectionEngine {
     const index = this.rules.findIndex(r => r.id === ruleId);
     if (index !== -1) {
       this.rules.splice(index, 1);
-      console.log(`[ThreatDetectionEngine] Removed rule: ${ruleId}`);
+      _consoleLogger.log(`[ThreatDetectionEngine] Removed rule: ${ruleId}`);
     }
   }
 

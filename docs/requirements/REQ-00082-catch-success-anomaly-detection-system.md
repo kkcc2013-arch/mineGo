@@ -3,7 +3,7 @@
 - **编号**：REQ-00082
 - **类别**：反作弊
 - **优先级**：P1
-- **状态**：new
+- **状态**：in_progress
 - **涉及服务/模块**：catch-service、gateway、backend/shared/anti-cheat.js、Redis、PostgreSQL
 - **创建时间**：2026-06-10 07:00
 - **依赖需求**：REQ-00010（GPS伪造检测）、REQ-00028（行为异常检测）
@@ -605,3 +605,24 @@ const metrics = {
 3. **用户留存影响**：作弊猖獗会导致正常玩家流失
 4. **现有系统缺口**：GPS/设备检测已实现，但捕捉环节仍无保护
 5. **技术可行性强**：基于现有反作弊基础设施，可快速实现
+
+
+## Independent storage review (2026-10-08)
+
+Started the existing requirement. The old risk schema conflicted with actual UUID
+gameplay sessions/throws. A whole original-source-bound repair preserves those records
+and gives risk requests distinct storage. Configuration seeds no longer masquerade as
+observed user statistics. Production recorder now requires real owned throw evidence
+for outcomes and commits telemetry/statistics/counters atomically; failures propagate.
+Replay/concurrency, exact numeric hourly counts/weighted expectations, historical-event
+buckets, nondecreasing latest time and loss-refusing rollback pass34 real cases.
+Full85 history reaches the later special-IV created_at conflict; it remains red.
+
+This is partial storage/recorder acceptance. Full native service/API/admin/auth wiring,
+secure mandatory integrity/nonce/location/inventory/device/item checks, real sliding
+windows/scoring/Bayesian policy, five registry metrics, client/reports, full coverage80%,
+<50ms/99.9%/90%/0.5% measured targets remain open. The historic review's file-existence
+approval and unmeasured claims are corrected in the required
+[current review](../review/REQ-00082-catch-success-anomaly-detection-review.md).
+See [catch guide](../CATCH-RISK.md), VERIFICATION.json and WORKLOG.md. No criterion is
+weakened and no complete requirement is independently accepted by these slices.

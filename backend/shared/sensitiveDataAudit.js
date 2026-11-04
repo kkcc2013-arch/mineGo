@@ -5,10 +5,9 @@
 
 'use strict';
 
-const { query } = require('./db');
 const { createLogger } = require('./logger');
-const { encryptAuditLog } = require('./auditLogEncrypted');
-const { maskEmail, maskPhone, maskIP } = require('./dataMasking');
+const encryptedAudit = require('./auditLogEncrypted');
+const { fail } = require('./audit/cryptoPrimitives');
 
 const logger = createLogger('sensitive-data-audit');
 
@@ -121,15 +120,12 @@ const SENSITIVE_ACCESS_RULES = {
  * @returns {Promise<string>} 日志 ID
  */
 async function logSensitiveDataAccess(params) {
+  if (!params || !Array.isArray(params.accessedFields) || !params.accessedFields.length || params.accessedFields.length > 100 || params.accessedFields.some(field => typeof field !== 'string' || !field.length || field.length > 100)) {
+    throw fail('AUDIT_INPUT_INVALID', 400);
+  }
   const {
-    userId,
-    accessedBy,
     resourceType,
-    resourceId,
     accessedFields,
-    accessReason,
-    ipAddress,
-    userAgent,
   } = params;
 
   // 检查是否需要记录
@@ -143,47 +139,9 @@ async function logSensitiveDataAccess(params) {
     return null;
   }
 
-  // 准备要加密的数据
-  const dataToEncrypt = {
-    ipAddress,
-    userAgent,
-    accessedFields,
-    accessReason,
-  };
-
-  // 加密敏感数据
-  const { encryptedData, iv, authTag, keyId } = await encryptAuditLog(dataToEncrypt);
-
-  // 写入数据库
-  const result = await query(
-    `INSERT INTO sensitive_data_access_logs (
-      user_id, accessed_by, resource_type, resource_id,
-      accessed_fields, access_reason,
-      encrypted_ip_address, encryption_key_id,
-      timestamp, retention_days
-    ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), 90)
-    RETURNING id`,
-    [
-      userId,
-      accessedBy,
-      resourceType,
-      resourceId,
-      accessedFields,
-      accessReason,
-      Buffer.from(encryptedData, 'hex'),
-      keyId,
-    ]
-  );
-
-  logger.info({
-    logId: result.rows[0].id,
-    userId,
-    accessedBy,
-    resourceType,
-    accessedFields,
-  }, 'Sensitive data access logged');
-
-  return result.rows[0].id;
+  // The store commits the complete authenticated envelope with its audit row.
+  // Never copy reason, field names, address or agent into plaintext columns/logs.
+  return encryptedAudit.writeSensitiveDataAccess(params);
 }
 
 /**
@@ -197,51 +155,7 @@ async function logSensitiveDataAccess(params) {
  * @returns {Promise<Array>} 访问记录列表
  */
 async function querySensitiveDataAccessLogs(params = {}, limit = 100) {
-  const { userId, accessedBy, startDate, endDate } = params;
-
-  const conditions = ['user_id = $1'];
-  const values = [userId];
-  let paramIndex = 2;
-
-  if (accessedBy) {
-    conditions.push(`accessed_by = $${paramIndex++}`);
-    values.push(accessedBy);
-  }
-
-  if (startDate) {
-    conditions.push(`timestamp >= $${paramIndex++}`);
-    values.push(startDate);
-  }
-
-  if (endDate) {
-    conditions.push(`timestamp <= $${paramIndex++}`);
-    values.push(endDate);
-  }
-
-  values.push(limit);
-
-  const result = await query(
-    `SELECT 
-      id, user_id, accessed_by, resource_type, resource_id,
-      accessed_fields, access_reason, timestamp, retention_days
-    FROM sensitive_data_access_logs
-    WHERE ${conditions.join(' AND ')}
-    ORDER BY timestamp DESC
-    LIMIT $${paramIndex}`,
-    values
-  );
-
-  return result.rows.map(row => ({
-    id: row.id,
-    userId: row.user_id,
-    accessedBy: row.accessed_by,
-    resourceType: row.resource_type,
-    resourceId: row.resource_id,
-    accessedFields: row.accessed_fields,
-    accessReason: row.access_reason,
-    timestamp: row.timestamp,
-    retentionDays: row.retention_days,
-  }));
+  return encryptedAudit.querySensitiveDataAccessLogs(params, limit);
 }
 
 /**
@@ -319,6 +233,7 @@ async function generateSensitiveAccessReport(params) {
   // 统计访问次数
   const stats = {
     totalAccesses: logs.length,
+    unavailableAccesses: logs.filter(log => log.error).length,
     byResourceType: {},
     byAccessor: {},
     byField: {},
@@ -332,7 +247,7 @@ async function generateSensitiveAccessReport(params) {
     stats.byAccessor[log.accessedBy] = (stats.byAccessor[log.accessedBy] || 0) + 1;
 
     // 按字段统计
-    log.accessedFields.forEach(field => {
+    (log.accessedFields || []).forEach(field => {
       stats.byField[field] = (stats.byField[field] || 0) + 1;
     });
   });
@@ -367,32 +282,31 @@ function sensitiveDataAccessMiddleware(options = {}) {
 
     res.json = async function(data) {
       try {
-        const accessedBy = req.user?.user_id || req.user?.id;
-        const userId = req.params?.id || req.body?.user_id;
+        const accessedBy = req.user?.sub || req.user?.user_id || req.user?.id;
+        const userId = req.params?.userId || req.params?.id || req.body?.user_id;
+        const accessedFields = sensitiveFields.filter(field => data && (
+          Object.hasOwn(data, field) || (data.data && Object.hasOwn(data.data, field))
+        ));
 
-        // 检查响应中是否包含敏感字段
-        const accessedFields = sensitiveFields.filter(field => {
-          return data && (data[field] || (data.data && data.data[field]));
-        });
-
-        if (accessedFields.length > 0 && userId && accessedBy) {
-          // 记录敏感数据访问
-          await logSensitiveDataAccess({
+        if (accessedFields.length > 0) {
+          if (!userId || !accessedBy) throw fail('AUDIT_SUBJECT_INVALID');
+          const logId = await logSensitiveDataAccess({
             userId,
             accessedBy,
             resourceType,
             resourceId: userId,
             accessedFields,
             accessReason: req.headers['x-access-reason'] || 'api_request',
-            ipAddress: req.ip || req.headers['x-forwarded-for'],
+            ipAddress: req.ip,
             userAgent: req.headers['user-agent'],
           });
+          if (!logId) throw fail('AUDIT_ACCESS_NOT_RECORDED');
         }
-
         return originalJson(data);
-      } catch (err) {
-        logger.error({ err }, 'Failed to log sensitive data access');
-        return originalJson(data);
+      } catch {
+        logger.error({ code: 'SENSITIVE_ACCESS_AUDIT_UNAVAILABLE' }, 'Sensitive access response withheld');
+        res.status(503);
+        return originalJson({ error: 'SENSITIVE_ACCESS_AUDIT_UNAVAILABLE' });
       }
     };
 

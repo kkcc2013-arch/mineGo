@@ -1,0 +1,165 @@
+{
+  "date": "2026-11-03",
+  "baseCommit": "2af2750248b99e8e91e144a4a3731bbd8f859ba4",
+  "result": "actual_snapshot_catalog_inventory_and_mfa_admin_review_verified_execution_open",
+  "sourceSha256": {
+    ".github/workflows/erasure-regression.yml": "1ab36faa6175869b8f00a809e7e00e897213bf3b4b5e276c1136eb7bceed5277",
+    "backend/package.json": "b890595cf94d244d052502010e9a3ad8ee76298bb1b11e43be9c57142e216d97",
+    "backend/services/user-service/src/routes/dataDeletion.js": "ad3ff9dc3e34b41b769675de1acdff70c4dc86745ef367ce0031f9c44990f130",
+    "backend/shared/erasure/ErasureRequestStore.js": "b43656f02d99c6e5a8bdade44d420aedfe917d3546f4a03850ca9e73f8035f97",
+    "backend/shared/erasure/ErasureResourcePlanner.js": "51d41fc7e0eb3b048ba30834bafe9557153d3a06f8a81a1e83b047a861089fc9",
+    "backend/tests/regression/erasure-request-storage.test.js": "d19ffe64aaecfbe251dba9176e7e717f86d86f0690aeda2a3d6832f2fbb1e332",
+    "backend/tests/regression/erasure-resource-plan-storage.test.js": "a14e4ef16c61d73bb54d59b5bcd266abd11ee48f597e79d90174ab7055138988",
+    "docs/DATA-ERASURE.md": "d25218be364afb55cf806b5343339efcd926a02496e49506890bcfadcaa56094",
+    "docs/requirements/COMPLETION-PLAN.md": "a8cfca9515049d8fea146a1e995fbc2ed242fd3dba32ae3bb41937435d0240b3",
+    "docs/requirements/WORKLOG.md": "53d246f7908f28a0282edf30479ded0d03b543def188e1591251a32e1426cbf9"
+  },
+  "checks": [
+    {
+      "name": "plan",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:erasure:plan"
+      ],
+      "exit": 0,
+      "logSha256": "585ccbb2596a8177d6449b8a0c2efef344fd0cb0a805e8424577b23e1cf4e727"
+    },
+    {
+      "name": "http",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:erasure:storage"
+      ],
+      "exit": 0,
+      "logSha256": "bba67e5ee4ad6a0743cd370fcc6e81831bd7ed0cee42244db4b17f13cc3a7d6d"
+    },
+    {
+      "name": "schema",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "backend/tests/regression/erasure-schema-storage.test.js"
+      ],
+      "exit": 0,
+      "logSha256": "524b8c283ac58219ea0645ca7c7af8dc620beb52d74d25aa76ea6220b3f7e915"
+    },
+    {
+      "name": "units",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:unit"
+      ],
+      "exit": 0,
+      "logSha256": "e89c6d15867594d679472f79567eb6529865ce76a4e0b5c2fbed5dcdf0c36877"
+    },
+    {
+      "name": "syntax",
+      "command": [
+        "npm",
+        "run",
+        "check:syntax"
+      ],
+      "exit": 0,
+      "logSha256": "e5efb76ae55117cf126425471e52862e3b1223169f3a4b758a5e46d07aa0b7bb"
+    },
+    {
+      "name": "tools",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "scripts/tests/check-health-routes.test.js",
+        "scripts/tests/check-js-syntax.test.js",
+        "scripts/tests/requirements-audit.test.js"
+      ],
+      "exit": 0,
+      "logSha256": "b9ee3434ce45b446d6482c7842301ef0010512432a5e7dff7d1c7ebae50ce52e"
+    },
+    {
+      "name": "logging",
+      "command": [
+        "npm",
+        "run",
+        "check:logging"
+      ],
+      "exit": 0,
+      "logSha256": "5ae82e29eedca984b5670eb1c4bc7cdb0a5712db261a3aa014632a528820902e"
+    },
+    {
+      "name": "battle-coverage",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:battle:coverage"
+      ],
+      "exit": 0,
+      "logSha256": "98bc3cf75a88678f1d81c0e989c47408c4b879b5f049638eaa869de5d796e470"
+    }
+  ],
+  "coverage": {
+    "inventoryIntegration": {
+      "lines": 100,
+      "branches": 95.79,
+      "functions": 100,
+      "gates": {
+        "lines": 90,
+        "functions": 90,
+        "branches": 80
+      }
+    },
+    "erasureHTTP": {
+      "lines": 99.62,
+      "branches": 88.07,
+      "functions": 98.57,
+      "gates": {
+        "lines": 90,
+        "functions": 90,
+        "branches": 80
+      }
+    },
+    "originalBattleFormulas": {
+      "lines": 100,
+      "branches": 100,
+      "functions": 100,
+      "gates": {
+        "lines": 91,
+        "functions": 91,
+        "branches": 91
+      }
+    }
+  },
+  "fixtureCatalog": {
+    "relations": 552,
+    "associationResources": 367,
+    "countedResources": 144,
+    "foreignKeys": 311,
+    "triggers": 109,
+    "executionReady": false,
+    "isolation": "repeatable read"
+  },
+  "fullMigrationCount": 87,
+  "priorCIArtifact": "docs/benchmarks/ci-2af2750-2026-11-03.json",
+  "negativeEvidence": [
+    {
+      "logSha256": "1ef75a407cd233376fc841b226a1e9549409df538737de2dd1cceb51ef61c070",
+      "result": "Initial genuine full-schema run exposed pg name[] driver representation causing an oddly-named user-FK field not to be identified. Query casts attname to text, preserving real SQL identity; final all9 cases pass at unchanged gates."
+    },
+    {
+      "logSha256": "a7fb4bdec66718c8fbe2084d6f7fb59ff3eb90d29d5feedc8673dd8557e2c40e",
+      "result": "Verification orchestration named a nonexistent logging checker; corrected to actual npm run check:logging and all actual scripts/tests. Corrected tools12/logging0 pass; no application behavior or threshold changed."
+    }
+  ],
+  "scope": "All658 original scope and criteria preserved. Actual mounted admin/current-session/erasure-admin plan review uses locked real owner/request and REPEATABLE READ, commits encrypted audit and advances review counter only after commit. Full87 plus adversarial fixtures; genuine per-subject UUID counts, quoted identifiers, canonical and unbound associations, foreign namespaces/cascades/triggers/rules/policies/inheritance, unknown RLS/privilege/view/FDW/legacy/embedded identities, snapshot consistency and changed catalog/function hashes. No row content/executable SQL/proposed policy accepted. Hash identifies observation, not authority. executionReady=false, no tasks or state/business deletion; actual executable category-complete operators/ownership/retention/external storage/worker/retry/outbox/delivery/signing/postaccount/UI/export/legal and other original APIs/services/client/security/performance/operations remain open. Original SQL/V1/V2/locks/manifests/all existing npm commands unchanged. Full units and original battle gate pass, preserving existing REQ619 acceptance rather than promoting another document. Scoped integration coverage is not wholeGDPR80 or whole security/unit-only acceptance."
+}

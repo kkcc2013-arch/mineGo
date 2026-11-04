@@ -1,0 +1,51 @@
+name: Notification client and storage regression
+on:
+  pull_request:
+    paths:
+      - 'frontend/game-client/src/components/MessageCenter*'
+      - 'frontend/game-client/src/game/NotificationManager.js'
+      - 'frontend/game-client/src/i18n/**'
+      - 'frontend/game-client/src/utils/unitSystem.js'
+      - 'frontend/game-client/package*.json'
+      - 'backend/services/user-service/src/notificationService.js'
+      - 'backend/services/user-service/src/routes/notifications.js'
+      - 'backend/services/user-service/src/routes/messageCenter.js'
+      - 'backend/shared/notification/**'
+      - 'backend/shared/NotificationWebSocket.js'
+      - 'backend/tests/regression/notification-client.test.js'
+      - 'database/pending/**'
+      - '.github/workflows/notification-client-regression.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  notification-client:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:15-3.4-alpine
+        env:
+          POSTGRES_DB: minego_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U test" --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: |
+            backend/package-lock.json
+            frontend/game-client/package-lock.json
+      - run: npm ci
+        working-directory: backend
+      - run: npm ci
+        working-directory: frontend/game-client
+      - run: npx playwright install --with-deps chromium
+        working-directory: frontend/game-client
+      - name: Exercise real browser component with actual stored history and authenticated endpoints
+        run: node --test backend/tests/regression/notification-client.test.js
+        env:
+          TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test

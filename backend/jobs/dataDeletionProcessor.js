@@ -1,241 +1,77 @@
-/**
- * REQ-00127: 用户数据删除请求管理系统
- * 定时任务处理器
- */
-
 'use strict';
 
-const cron = require('node-cron');
-const { DataDeletionService } = require('../shared/dataDeletionService');
-const logger = require('../shared/logger');
+const cron=require('node-cron');
+const logger=require('../shared/logger');
+const {getErasureTaskRunner}=require('../shared/erasure/ErasureTaskRunner');
+const {AppError}=require('../shared/auth');
 
-let db = null;
-let eventBus = null;
-let deletionService = null;
-
-/**
- * 初始化任务处理器
- */
-function init(dbConnection, eventBusInstance) {
-  db = dbConnection;
-  eventBus = eventBusInstance;
-  deletionService = new DataDeletionService(db, eventBus);
-}
-
-/**
- * 处理已批准的删除请求（30天延迟后执行）
- */
-async function processScheduledDeletions() {
-  logger.info('Processing scheduled data deletions');
-
-  try {
-    // 查找已批准且到达执行时间的请求
-    const result = await db.query(`
-      SELECT * FROM data_deletion_requests
-      WHERE status = 'approved'
-        AND approved_at < NOW() - INTERVAL '30 days'
-        AND processing_started_at IS NULL
-      ORDER BY approved_at ASC
-      LIMIT 10
-    `);
-
-    for (const request of result.rows) {
-      try {
-        await deletionService.executeDeletion(request.id);
-      } catch (error) {
-        logger.error('Failed to process deletion request', {
-          requestId: request.id,
-          error: error.message
-        });
+class ErasureProcessor {
+  constructor({runner=getErasureTaskRunner(),batchSize=10,ownsStore=false}={}) {
+    if(!Number.isSafeInteger(batchSize)||batchSize<1||batchSize>50)throw new TypeError('Invalid erasure batch size');
+    this.runner=runner;this.batchSize=batchSize;this.ownsStore=ownsStore;this.jobs=[];this.active=new Set();this.closed=false;this.busy=false;
+  }
+  async runDue({retryOnly=false}={}) {
+    if(typeof retryOnly!=='boolean')throw new TypeError('Invalid erasure retry selection');
+    if(this.closed)throw new AppError('ERASURE_WORKER_CLOSED','ERASURE_WORKER_CLOSED',503);
+    if(this.busy)return {overlap:true};
+    this.busy=true;
+    const operation=(async()=>{
+      const rows=(await this.runner.store.database.query(`SELECT r.id FROM data_erasure_requests r
+        WHERE r.status IN('approved','processing') AND r.execute_after<=clock_timestamp()
+        AND (($2::boolean AND r.status='processing' AND EXISTS(SELECT 1 FROM data_erasure_tasks t
+          WHERE t.request_id=r.id AND t.status='failed' AND t.retry_count<LEAST(t.max_retries,r.max_retries)))
+          OR (NOT $2::boolean AND NOT EXISTS(SELECT 1 FROM data_erasure_tasks t WHERE t.request_id=r.id AND t.status='failed')
+            AND (NOT EXISTS(SELECT 1 FROM data_erasure_tasks t WHERE t.request_id=r.id)
+              OR EXISTS(SELECT 1 FROM data_erasure_tasks t WHERE t.request_id=r.id AND t.status='pending'))))
+        ORDER BY r.execute_after,r.id LIMIT $1`,[this.batchSize,retryOnly])).rows;
+      const result={selected:rows.length,tasksCompletedObserved:0,completionBlocked:0,failed:0,requestsCompleted:0};
+      for(const row of rows) {
+        if(this.closed)break;
+        try {const progress=await this.runner.executeRequest(row.id);result.tasksCompletedObserved+=progress.tasks.filter(t=>t.status==='completed').length;result.completionBlocked++;}
+        catch(error){result.failed++;logger.warn('Erasure request requires retry or review',{requestId:row.id,code:error instanceof AppError?error.code:'ERASURE_WORKER_FAILED'});}
       }
-    }
-
-    logger.info('Scheduled deletions processed', {
-      count: result.rows.length
-    });
-  } catch (error) {
-    logger.error('Error processing scheduled deletions', {
-      error: error.message
-    });
+      return result;
+    })();
+    this.active.add(operation);
+    try{return await operation;}finally{this.active.delete(operation);this.busy=false;}
   }
-}
-
-/**
- * 重试失败的删除任务
- */
-async function retryFailedTasks() {
-  logger.info('Retrying failed deletion tasks');
-
-  try {
-    // 查找有失败任务且重试次数未超限的请求
-    const result = await db.query(`
-      SELECT DISTINCT r.* 
-      FROM data_deletion_requests r
-      JOIN data_deletion_tasks t ON t.request_id = r.id
-      WHERE r.status = 'processing'
-        AND t.status = 'failed'
-        AND t.retry_count < t.max_retries
-    `);
-
-    for (const request of result.rows) {
-      try {
-        await deletionService.executeDeletion(request.id);
-      } catch (error) {
-        logger.error('Failed to retry deletion', {
-          requestId: request.id,
-          error: error.message
-        });
+  async start() {
+    if(this.closed)throw new AppError('ERASURE_WORKER_CLOSED','ERASURE_WORKER_CLOSED',503);
+    if(this.jobs.length)return;
+    if(this.starting)return this.starting;
+    this.starting=(async()=>{
+      await this.runner.ready();
+      if(this.closed)throw new AppError('ERASURE_WORKER_CLOSED','ERASURE_WORKER_CLOSED',503);
+      for(const [name,expression,retryOnly] of [['erasure-due','0 * * * *',false],['erasure-retry','0 */6 * * *',true]]) {
+        const tick=()=>this.runDue({retryOnly}).catch(error=>logger.error('Erasure worker tick failed',{code:error instanceof AppError?error.code:'ERASURE_WORKER_FAILED'}));
+        this.jobs.push(cron.schedule(expression,tick,{name,noOverlap:true,timezone:'UTC'}));
       }
-    }
-
-    logger.info('Failed tasks retried', {
-      count: result.rows.length
-    });
-  } catch (error) {
-    logger.error('Error retrying failed tasks', {
-      error: error.message
-    });
+    })();
+    try{return await this.starting;}finally{this.starting=null;}
+  }
+  async stop() {
+    if(this.stopping)return this.stopping;
+    this.closed=true;
+    this.stopping=(async()=>{
+      const destroyed=await Promise.allSettled(this.jobs.splice(0).map(async job=>job.destroy()));
+      await Promise.allSettled([...this.active,...(this.starting?[this.starting]:[])]);
+      if(this.ownsStore)await this.runner.store.close();
+      const failures=destroyed.filter(r=>r.status==='rejected').map(r=>r.reason);
+      if(failures.length)throw new AggregateError(failures,'Erasure schedules did not all stop');
+    })();
+    return this.stopping;
   }
 }
-
-/**
- * 清理过期验证码
- */
-async function cleanupExpiredCodes() {
-  try {
-    const result = await db.query(`
-      UPDATE data_deletion_requests
-      SET status = 'cancelled'
-      WHERE status = 'pending'
-        AND verification_expires_at < NOW()
-    `);
-
-    if (result.rowCount > 0) {
-      logger.info('Expired verification codes cleaned', {
-        count: result.rowCount
-      });
-    }
-  } catch (error) {
-    logger.error('Error cleaning up expired codes', {
-      error: error.message
-    });
-  }
+let processor;
+function init(database) {
+  if(processor)throw new Error('Erasure processor is already initialized');
+  if(database){const {ErasureRequestStore}=require('../shared/erasure/ErasureRequestStore'),{ErasureTaskRunner}=require('../shared/erasure/ErasureTaskRunner');processor=new ErasureProcessor({runner:new ErasureTaskRunner({store:new ErasureRequestStore({database})}),ownsStore:true});}
+  else processor=new ErasureProcessor();
+  return processor;
 }
-
-/**
- * 发送即将过期提醒
- */
-async function sendExpirationReminders() {
-  try {
-    // 查找7天内即将过期的待审批请求
-    const result = await db.query(`
-      SELECT r.*, u.email, u.username
-      FROM data_deletion_requests r
-      JOIN users u ON r.user_id = u.id
-      WHERE r.status = 'approved'
-        AND r.approved_at < NOW() - INTERVAL '23 days'
-        AND r.approved_at >= NOW() - INTERVAL '30 days'
-        AND r.processing_started_at IS NULL
-    `);
-
-    for (const request of result.rows) {
-      // 发送提醒
-      if (eventBus) {
-        await eventBus.publish('notification.email', {
-          to: request.email,
-          template: 'deletion_reminder',
-          data: {
-            username: request.username,
-            daysLeft: 30 - Math.floor((Date.now() - new Date(request.approved_at).getTime()) / (1000 * 60 * 60 * 24))
-          }
-        });
-      }
-    }
-
-    if (result.rows.length > 0) {
-      logger.info('Expiration reminders sent', {
-        count: result.rows.length
-      });
-    }
-  } catch (error) {
-    logger.error('Error sending expiration reminders', {
-      error: error.message
-    });
-  }
-}
-
-/**
- * 生成每日统计报告
- */
-async function generateDailyReport() {
-  try {
-    const stats = await db.query(`
-      SELECT 
-        COUNT(*) FILTER (WHERE DATE(created_at) = CURRENT_DATE) as today_requests,
-        COUNT(*) FILTER (WHERE DATE(completed_at) = CURRENT_DATE) as today_completed,
-        COUNT(*) FILTER (WHERE status = 'pending') as pending_total,
-        COUNT(*) FILTER (WHERE status = 'approved') as approved_total,
-        COUNT(*) FILTER (WHERE status = 'processing') as processing_total
-      FROM data_deletion_requests
-    `);
-
-    const summary = stats.rows[0];
-
-    logger.info('Daily deletion report', summary);
-
-    // 发送到监控系统
-    if (eventBus) {
-      await eventBus.publish('metrics.report', {
-        type: 'data_deletion',
-        data: summary
-      });
-    }
-
-    return summary;
-  } catch (error) {
-    logger.error('Error generating daily report', {
-      error: error.message
-    });
-  }
-}
-
-/**
- * 启动定时任务
- */
-function start() {
-  // 每小时检查待执行的删除请求
-  cron.schedule('0 * * * *', processScheduledDeletions);
-
-  // 每6小时重试失败任务
-  cron.schedule('0 */6 * * *', retryFailedTasks);
-
-  // 每天清理过期验证码
-  cron.schedule('0 0 * * *', cleanupExpiredCodes);
-
-  // 每天发送即将过期提醒
-  cron.schedule('0 9 * * *', sendExpirationReminders);
-
-  // 每天生成统计报告
-  cron.schedule('0 8 * * *', generateDailyReport);
-
-  logger.info('Data deletion processor started');
-}
-
-/**
- * 停止所有定时任务
- */
-function stop() {
-  // node-cron 的任务会在进程退出时自动停止
-  logger.info('Data deletion processor stopped');
-}
-
-module.exports = {
-  init,
-  start,
-  stop,
-  processScheduledDeletions,
-  retryFailedTasks,
-  cleanupExpiredCodes,
-  sendExpirationReminders,
-  generateDailyReport
-};
+const instance=()=>processor||init();
+const start=()=>instance().start();
+const processScheduledDeletions=()=>instance().runDue();
+const retryFailedTasks=()=>instance().runDue({retryOnly:true});
+async function stop(){if(processor){const current=processor;processor=null;await current.stop();}require('../shared/erasure/ErasureTaskRunner').resetErasureTaskRunner();}
+module.exports={ErasureProcessor,init,start,stop,processScheduledDeletions,retryFailedTasks};

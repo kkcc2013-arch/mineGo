@@ -1,0 +1,46 @@
+{
+  "commit": "766ad986e599e9c8f5820d79bd6adc641bb988c3",
+  "run": 39179749635,
+  "job": 117829780788,
+  "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39179749635",
+  "result": "failed_runtime_fill_precondition",
+  "tests": 40,
+  "passed": 37,
+  "failedIncludingParent": 3,
+  "failure": "joined-source and following rollback setup expected disabled=undefined; actual cache read bypassed when another real invalidation advanced the generation",
+  "latency": {
+    "date": "2026-10-19",
+    "runtime": "v24.21.0",
+    "scope": "12 sequential real PostgreSQL writer operations through two independent CDC/cache clients, shared actual Redis and both L1 maps; measured from before UPDATE through observed removal, healthy isolated fixture only; no capacity/database-load acceptance",
+    "samplesMs": [
+      13.980371000000105,
+      9.19712400000003,
+      15.145301000000018,
+      8.387478999999985,
+      8.191450999999915,
+      8.255294999999933,
+      8.024967999999944,
+      8.21982899999989,
+      7.700160000000096,
+      8.429205000000138,
+      7.883284000000003,
+      8.427495000000135
+    ],
+    "maxMs": 15.145301000000018,
+    "originalGatesMs": {
+      "REQ00479": 100,
+      "REQ00523": 50
+    },
+    "sourceSha256": {
+      "backend/shared/cache/CoherentCache.js": "07679376b7eab5d0b51a3462a54055b99c979c2611629d1f1c7b235533efb978",
+      "backend/shared/cdc/CacheInvalidationCenter.js": "7a814123cf521701622cd8d93cc121b3ff9360695e90c0d63852f208642340ea",
+      "backend/shared/cdc/PgCDCListener.js": "e89725a3447e797376434f7fae4800ee1152da5bfa61db1c0f6fbb040982bf4e",
+      "backend/shared/cdc/ChangeToCacheMapper.js": "f700ff760db31d9aadcccb03ef087007ddce7e0a2ff6c1981c2185787951db8f",
+      "backend/shared/cdc/cache-rules.yml": "84660897aa4d95532fc8dfc713fa1160e0dae9c20acd15643f198622672c58cb",
+      "database/pending/repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "279e7b764797d2ad636f704c3e73c97c504a6077a7c1bc14aa39f30737c7b478",
+      "backend/tests/regression/cdc-cache-runtime.test.js": "efa8b7a7a148fd6a6626ba15f5c92aba5889935583e446a4b00483924b63deb9"
+    }
+  },
+  "logSha256": "6c6dbf21b7dbfda39208a532b599ebba2a3b7f62f8066a7c3106a5505dcb186a",
+  "scope": "No remote full-cache/native success claim. Native gateway step was skipped after the failing cache step; main464 separately passed. Original latency target is unchanged and its12 samples pass; passing latency does not waive the runtime test failure."
+}

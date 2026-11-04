@@ -1,0 +1,184 @@
+{
+  "date": "2026-10-20",
+  "baseCommit": "ac53b06ad0e9fad8c4387062cab0c22ee1c7791e",
+  "result": "common_audit_and_mounted_privacy_transactions_verified_full_security_and_gdpr_open",
+  "sourceSha256": {
+    "backend/shared/auditLog.js": "682bb711f0de81afa8f51d191f91a7f4897c96952862af922f1639361cfa6f78",
+    "backend/shared/auditLogEncrypted.js": "6db1529a78bbfa1d967b898ed453d314a290fdd58e95c2dc8b3cec9fc1d6fb44",
+    "backend/shared/audit/EncryptedAuditStore.js": "97bcf79057fc4af775c42e87a4a0eb5266253367de190232097b32cb2423c874",
+    "backend/shared/audit/cryptoPrimitives.js": "ac6df0883e6f92ac0db6dad5ae4707d2c31a835e06ff89cc4aced0c1e517af46",
+    "backend/shared/audit/KeyProviders.js": "e380a04f73ef5e8dea1eaa92165b2f5527e9a1527800eb03766ee38551624aa8",
+    "backend/shared/privacyPreferences.js": "b53545398ecaae442a160761d66626fce664f1f10461c49a193c147d7f2b84cf",
+    "backend/shared/ServiceLauncher.js": "82b01468aa0d028922dbd4eb7d32b7703c80c69f638ef0e4ee928473e60afa2a",
+    "backend/services/user-service/src/routes/privacy.js": "ce9bdca099991fab6397437c80bf16d38a26cc3283fe8265bf503404aa65efa6",
+    "backend/services/user-service/src/routes/gdpr.js": "5603ea37f1ab0df32b7d2bfa462f95c282fa8a2eae08f5b0e7a63bf9902f8266",
+    "backend/services/user-service/src/index.js": "e056828eb277b9587e07e5969bddf682fd52e86464544416d2a725b1ed442afd",
+    "backend/tests/regression/audit-crypto-storage.test.js": "fe9b9e29562df27d2fd7b1e2241e2b505faac17a6085c30f4b91a5734e9eef41",
+    "backend/tests/regression/audit-kms-wire.test.js": "11ca121f3f229022d33c9d469d2e7faf1d2aa3e5db807d2d7aaec91e22b5e9d3",
+    "backend/tests/regression/audit.jest.config.json": "92fe3f290a0908de7af7a05df26d3b9216ce36227d636808df14dc81691c4cde",
+    "backend/tests/regression/privacy-storage.test.js": "5e166b9018051b20b74988426d04e588823feb6f473600beeefe54b00041cc97",
+    "backend/tests/regression/privacy.jest.config.json": "cd80c47f4be46595f151bdf850571e7e0bd599d5bd2e9897550999b031b7e490",
+    "backend/tests/regression/user-startup.test.js": "35b5686bcc91ad43af74a1ab9dbbb5fc8e2b03decf1bd880a21aa5bae6a44ef8",
+    "backend/tests/regression/gateway-startup.test.js": "abdf7eb2e781ff2c52e242e4a872f2162f9cfc572dce73e769f53a9f6424ad06",
+    "backend/tests/unit/auditLog.test.js": "129d92b8c127d8cb0be99971b3c438560bb3d6714b9e91cdaf2e5d0f1008adf9",
+    "backend/tests/unit/privacy-preferences.test.js": "ff1e6f9920d3b003c3284bd353d6f8138482d8700652e2b750375e06e900eab1",
+    "backend/package.json": "71dd2cf8c73749526063a64a7ddf3613aad5331c78e986478b15ba044cbea440",
+    "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
+    ".github/workflows/migration-regression.yml": "caee01e35a7a08af9bf460c96c0ac5c12b7d57a0e54e951e1ff8c5f764347018",
+    "docs/AUDIT-ENCRYPTION.md": "6349bf32e90a9bb47c8cdc3c33a65be626db737f5c28924ed885272b5362f240",
+    "docs/SENSITIVE-AUDIT-STORAGE.md": "3d9f2b933a804a7831f51d818cccbb08f3d633e623e6890360d4a3694b2deddf"
+  },
+  "checks": [
+    {
+      "name": "native",
+      "exit": 0,
+      "logSha256": "31c9c08ea70f1cdd066aa7ec238a21c3db5a3aa76e8204ab865cf0b5d99735be"
+    },
+    {
+      "name": "crypto",
+      "exit": 0,
+      "logSha256": "d5cb9c55e5e1ffb331c5f8bba7d21407a61b0218205c00460c1c4d1712db166f"
+    },
+    {
+      "name": "battle-coverage",
+      "exit": 0,
+      "logSha256": "666fc9c86c17324ca2b4ec32ddba52d6cfc485be31edbbf8f0c720a32441525f"
+    },
+    {
+      "name": "unit",
+      "exit": 0,
+      "logSha256": "94188966470d9eea0d7853ec1bbdcfe62aff9ca3557874c04b85e2b1424620ca"
+    },
+    {
+      "name": "privacy-unit",
+      "exit": 0,
+      "logSha256": "75639286dcea0f1d44ac4c7a3bbfbb006bfce669b0f141fc954ac77732d7069d"
+    },
+    {
+      "name": "privacy-storage",
+      "exit": 0,
+      "logSha256": "cd9d74980a0740fbe628a1c55bd6f585dd9b1e09a0d08284e0d66bac9725eef0"
+    },
+    {
+      "name": "syntax",
+      "exit": 0,
+      "logSha256": "658e07f014e93099570d82d0304dda79e69c34e43c636adbc649be5a344111ba"
+    }
+  ],
+  "crypto": {
+    "nodeReportedTests": 21,
+    "skipped": 0,
+    "coverage": {
+      "cryptoPrimitives.js": {
+        "lines": 100.0,
+        "branches": 88.89,
+        "functions": 100.0
+      },
+      "EncryptedAuditStore.js": {
+        "lines": 98.12,
+        "branches": 88.39,
+        "functions": 92.5
+      },
+      "KeyProviders.js": {
+        "lines": 97.4,
+        "branches": 92.86,
+        "functions": 100.0
+      },
+      "auditLogEncrypted.js": {
+        "lines": 100.0,
+        "branches": 81.82,
+        "functions": 100.0
+      },
+      "all files": {
+        "lines": 98.21,
+        "branches": 89.56,
+        "functions": 95.52
+      }
+    },
+    "scope": "Three crypto modules plus auditLogEncrypted facade. >=90line/function gate retained; no >=90 branch or complete masking/MFA/permissions claim."
+  },
+  "commonUnit": {
+    "tests": 9,
+    "runtimeSeconds": 0.286,
+    "coverage": {
+      "statements": 96.96,
+      "branches": 96.84,
+      "functions": 93.75,
+      "lines": 98.7
+    },
+    "thresholds": {
+      "lines": 85,
+      "statements": 85,
+      "functions": 85
+    },
+    "scope": "Only auditLog.js. Dependencies isolated; does not prove all11 security modules."
+  },
+  "privacy": {
+    "nodeReportedStorageTests": 12,
+    "unitTests": 40,
+    "coverage": {
+      "lines": 91.78,
+      "statements": 89.57,
+      "branches": 78.94,
+      "functions": 100
+    },
+    "thresholds": {
+      "lines": 80,
+      "statements": 80,
+      "functions": 80
+    }
+  },
+  "native": {
+    "nodeReportedTests": 2,
+    "measurements": [
+      {
+        "nativeTwoGatewayCacheRecoveryMs": 45.45390899999984,
+        "scope": "real user-service HTTP bytes, two independent OS gateways, PostgreSQL CDC, Redis and independent L1 caches; functional fixture, not capacity acceptance"
+      },
+      {
+        "gatewaySignalShutdownMs": 706.9538479999974,
+        "userSignalShutdownElapsedMs": 5156.570138000003,
+        "scope": "actual native gateway/user processes, isolated PostgreSQL V1/V2/user/title/IP/partition/CDC schema, Redis and Kafka; other registry targets alias the actual user fixture"
+      },
+      {
+        "titleHttpLatencyMs": {
+          "samples": 50,
+          "median": 2.731127000000015,
+          "p95": 3.005349999999453,
+          "maximum": 3.0273499999993874
+        },
+        "scope": "isolated local service and database, warm sequential HTTP reads"
+      },
+      {
+        "shutdownElapsedMs": 5513.900807
+      }
+    ],
+    "scope": "Actual production user/gateway OS processes, owned PostGIS/Redis/Kafka. Native user policy/preference writes/decrypt/failed-write rollback and owner metadata route/limits. Two gateway cache/notification/IP/health/shutdown regressions retained. Other registry peers alias actual user fixture; not every service accepted."
+  },
+  "unitChecks": 733,
+  "jestSuiteBreakdown": {
+    "audit": {
+      "suites": 1,
+      "tests": 9
+    },
+    "existingRegression": {
+      "suites": 24,
+      "tests": 425
+    }
+  },
+  "battle": {
+    "tests": 133,
+    "formulaCoveragePercent": 100
+  },
+  "syntaxFiles": 1462,
+  "rawSqlChanges": 0,
+  "repairManifestChanges": 0,
+  "lockChanges": 0,
+  "developmentFindings": [
+    "Borrowed client test left a temporary NOT VALID rejection constraint behind; remove it in finally after proving rollback so the independent original partition conversion keeps its unchanged preconditions.",
+    "Full common logger source had plaintext SQL/PII application logs and silently successful log-only writes. New provider/DB errors return false with fixed code; privacy callers explicitly roll back.",
+    "Legacy tests mocked integer users/plaintext SQL and did not establish actual encrypted or transaction behavior. Common unit gate now runs in test:unit; actual PG/HTTP/native evidence stays separate."
+  ],
+  "limits": "REQ38/16/53/202 original criteria unchanged;202 done reopened. Common metadata helpers expose detailsUnavailable, not complete decrypt functionality. System service filter remains explicitly unsupported while encrypted; protect and complete query/decrypt with verified roles/admin server MFA. Other legacy positional callers/jobs/exports/deletion and ignored false responses, all-access coverage, masking/scanner/UI/liveAWS and all11security module targets/whole npmtest+CI/<30s remain open. Streaming code must record before bytes escape. No production cleanup/rekey/recipient/merge/deploy.",
+  "execution": "Heavy checks sequential/nice10/UV2/node concurrency1/Jest runInBand. NoMaven/CPU saturation. Owned Redis/Kafka stopped after native checks; unrelated containers untouched."
+}

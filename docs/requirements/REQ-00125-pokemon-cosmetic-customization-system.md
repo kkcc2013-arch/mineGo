@@ -7,7 +7,7 @@
 | 标题 | 精灵外观定制系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | new |
+| 状态 | in_progress |
 | 涉及服务 | pokemon-service、user-service、reward-service、gateway、game-client、database/migrations |
 | 创建时间 | 2026-06-11 19:30 |
 
@@ -1305,3 +1305,31 @@ module.exports = cosmeticsMetrics;
 - [Pokemon GO Avatar Customization](https://pokemongolive.com/post/avatar-customization/)
 - [Free-to-Play Cosmetic Monetization Best Practices](https://www.gamedeveloper.com/business/free-to-play-cosmetic-monetization-best-practices)
 - [GDPR Compliance for Virtual Goods](https://gdpr.eu/compliance/)
+
+
+## 2026-10-17 实际源码与存储契约复核
+
+已完整阅读原1307行需求。原15项验收与≥90%覆盖率不改，状态由new进入
+in_progress。代码示例不等于实际文件；当前搜索未发现cosmeticService、
+cosmetics路由、指标模块或CosmeticPanel，不能认定API/前端已实现。
+
+真实V1所有者/精灵ID均为UUID，既有repair仅修复3个用户字段，遗漏
+pokemon_instance_id，导致完整迁移第13句失败。绑定原始SQL校验和的修复
+现使用全部4个UUID引用并验证7处实际FK；旧身份不可猜测转换。5张表、
+已有数据/序列/OID/视图/FK/备注保留，原13个目录种子字段与新记录初始价
+保留；不以全局UPDATE重置运营者已有价格。旧统计和精确BIGINT收入保留，
+缺失的旧统计只从真实持有/装备记录推导可观察值，未知历史购买数/收入
+保持NULL，不补造0或用当前价格估算。新目录记录才初始化历史0。
+
+原错误与先前3引用修复均由真实PG失败/回滚证明；新存储套件执行真实
+V1/V2、所有种子字段对照、所有权/FK、旧资料/价格/预设/大整数收入/
+视图/序列/注释、未知结构拒绝和实际CLI原始/执行校验和。数据库JSON
+文本对照避免JS舍入64位收入；不模拟SQL成功。完整85源码链现通过本迁移，
+下一失败为20260630_050000第2句删除任务request_id外键身份不兼容，整个
+pending批次仍回滚；未略过文件或降低标准。
+
+真实用户余额为coins/premium_coins，示例使用缺失gems字段，须依真实付费
+资源契约集成，不能另造历史余额。实际服务/挂载路由/购买资源事务/所有权
+与槽位并发/预设原子性/过期清理/事件缓存指标/客户端资产与交互/≥90%
+单测和完整购买流程仍待实现。已有不同repair升级及完整数据保留逆向迁移
+仍未验证。见[外观存储说明](../COSMETICS.md)。

@@ -1,0 +1,8 @@
+{
+  "rootDir": "../..",
+  "testEnvironment": "node",
+  "testMatch": ["<rootDir>/tests/unit/auditLog.test.js"],
+  "collectCoverageFrom": ["shared/auditLog.js"],
+  "coverageDirectory": "coverage/audit",
+  "coverageThreshold": {"global": {"lines": 85, "statements": 85, "functions": 85}}
+}

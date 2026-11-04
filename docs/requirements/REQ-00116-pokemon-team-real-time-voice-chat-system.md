@@ -7,7 +7,7 @@
 | 标题 | 精灵团队实时语音聊天系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | done |
+| 状态 | in_progress |
 | 涉及服务 | gym-service、social-service、user-service、gateway、game-client、infrastructure/k8s |
 | 创建时间 | 2026-06-11 16:00 |
 
@@ -1738,3 +1738,27 @@ spec:
 - [coturn - TURN Server](https://github.com/coturn/coturn)
 - [Discord Voice Architecture](https://discord.com/blog/how-discord-scaled-elixir-to-5-000-000-concurrent-users)
 - [Opus Codec](https://opus-codec.org/)
+
+
+## 独立验收纠正（2026-10-13）
+
+旧 done 声明重开，原16项验收标准与数值阈值保持原样。真实完整迁移链在
+20260618_160000 的 TURN 索引失败：NOW() 不能用于部分索引谓词。源 SQL
+字节及 SHA256 保留，只调整已声明的独立 repair：用 (user_id, expires_at)
+和 revoked_at IS NULL 索引未撤销记录，当前时间过期条件必须在查询时求值。
+不把 NOW() 包装成 IMMUTABLE，也不删除过期/撤销审计记录来假造可用性。
+同名自定义索引明确拒绝，精确匹配的已有索引及其 operator 注释保持原 OID。
+
+voice-schema-storage.test.js 实际 PostGIS15 的6项检查通过：原始时间谓词真实
+报错并回滚；历史成员保留及在场唯一性；有效/过期/撤销/异用户 SQL 过滤与实际
+执行计划；已有表/记录/视图/外键/索引身份保留；自定义索引原子拒绝；实际 CLI
+原始/执行哈希和重跑核验。CLI/prerequisite17项复测通过。完整 V1/V2 通过，
+全85迁移链现失败于20260619_000000 statement17（重复分区函数返回类型冲突），
+仍整批回滚。没有跳过脚本，也没有验证语音服务可用性。
+
+代码审查仍发现：social-service 未挂载 voice 路由；信令用户身份返回随机占位值；
+TURN validateCredentials 忽略 revoked_at，并访问迁移中不存在的 used_count/
+last_used_at；路由未等待异步凭证且调用不存在的 getICEServerConfig；房间代码
+访问未建 room_type/status 等字段。原2-50人、P2P>95%、TURN>99.9%、延迟<150ms、
+覆盖率>80%、1000并发、完整房间权限/客户端/音频/场景/监控全部仍需实际验收。
+设备/真实TURN服务与授权环境输入在相关验收时需要，但独立本地工作继续。

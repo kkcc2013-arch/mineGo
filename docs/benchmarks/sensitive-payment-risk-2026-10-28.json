@@ -1,0 +1,194 @@
+{
+  "date": "2026-10-28",
+  "baseCommit": "85457de1618d42e7123707d24dcaaf56db348c9d",
+  "result": "actual_registered_session_payment_risk_and_cross_service_scoped_mfa_encrypted_audit_pass_corrected_source_ci_pending",
+  "sourceSha256": {
+    "backend/shared/riskVerifier.js": "fe0f2fa1cfd8654e42576b2cbea02369e274c8712cafa5d4252a35a81ab17c3c",
+    "backend/shared/ServiceLauncher.js": "3a40eb7c393de580ee67bb15402b848e36b306be610d13448e21c7c93b475749",
+    "backend/gateway/src/index.js": "c0eaf004700cc5d52e707f17e9eeb87d4181f737b161373b6205621803a9dd30",
+    "backend/gateway/src/proxy.js": "481e7d436b0747f0c75f489efb856aad3ab20b7f27c0067d168af6d53c1205cd",
+    "backend/gateway/src/middleware/mfaRequired.js": "13eb017acccaf406f598ab17af03dab2651a971b8cf34d50207cff348107ac67",
+    "backend/services/payment-service/src/index.js": "13723856daaef5debd9f0a25b004a17b57c83cb1febc4befbf167afa77c62992",
+    "backend/services/payment-service/src/routes/payment.js": "82af427dd5ec64fc4249ff274cb8bf550c6dd7fbcb3bbd7d76647a9dbe5eace2",
+    "backend/services/payment-service/src/payment/PaymentStore.js": "1339fb9688a2affaaed53d1ef6826d31a271817cb9a207f3aab977fd6a500962",
+    "backend/services/payment-service/src/payment/protocol.js": "b0e260dab91b48d5f5a5fb1f1edbb89f37a5589f117f51442b556fc37defff7c",
+    "backend/services/user-service/src/authSessionTokens.js": "6aef57a343e6cdfcaaa428f29e33c0b9b988c99cd64c9e6c0db21682db639008",
+    "backend/services/user-service/src/routes/auth.js": "15ba5f0d75ed987119b16f05e0790dd8d23d049b227d53d06a68751e96366bb9",
+    "backend/services/user-service/src/routes/mfa.js": "b7d70e0f09f302d0483e48f17ecebe728d5ad09708f284454417a98c4e0016ea",
+    "backend/shared/mfa/MFAStore.js": "ef79bb60130c23f958d416001c1ed315a5e258cee93af382dd87e4f6ee2e3bc2",
+    "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
+    "backend/shared/auditLog.js": "3c267301bbd107eef77dc39c6ed85cf36d0bda991f98758c5bd8dd263716c3be",
+    "backend/tests/regression/payment-native.test.js": "c1f9a58d6a5e3451f8ebf87612f5c7fe6893c0408096708dd21380459fd8d335",
+    "backend/tests/regression/payment-storage.test.js": "a61748804aba0a9fe34a02cc4d0e489749ceb9dc9e3de33c0493288b6ff5e369",
+    "backend/tests/regression/sensitive-risk-storage.test.js": "ff1f3cc741349e6cc0fd1862906c2cfb0bd98c30c6c26cd0b6116ca60a4b2e5b",
+    "backend/tests/unit/gateway-proxy.test.js": "0fe6de71ad60276705d8f6eaf3acb44ca9e8eeccf397fec731d7058536b9948d",
+    "backend/tests/unit/mfa-client.test.js": "25ce74b9b7d609082e880495444f62084450b987fb7926478d26dc435005f4f7",
+    "frontend/game-client/src/api/client.js": "82956912223bec6b541f8e4e0c98363f409aaf2d4296cede017d116412be1b76",
+    "backend/package.json": "07ff142adb474af953c987ae00190aed51b9a2893100269c7424430ccca48281",
+    "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
+    ".github/workflows/payment-regression.yml": "9518e4a5923ddeede76cef598b87bd75f6b29cedd17ca6713f5e18a71649e2b2",
+    "backend/tests/README.md": "0cf3d46a9c8ed9ecb40c94ac5e16a800461f9b270111e965197219165128f1f0",
+    "docs/SENSITIVE-OPERATION-RISK.md": "aacf3a3649d9345e48412dd4c1b0af6c1599e42250258225370fcc64e80a31df",
+    "docs/PAYMENT-INTEGRITY.md": "337adfdf4286294b866f44a94e5adf0bdc7dccc656d1591fbce49fbb9da53793"
+  },
+  "checks": [
+    {
+      "name": "risk",
+      "exit": 0,
+      "logSha256": "ce1e067dcd3f5ad65f8887f74760cef0ebf5f5adc8c9954c121435df5390f397",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:risk:storage"
+      ]
+    },
+    {
+      "name": "payment-core",
+      "exit": 0,
+      "logSha256": "0034aa98da7bc0e11680a071f81db4dc6dd66d952feae149f9ed3ebf54655011",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:payment:storage"
+      ]
+    },
+    {
+      "name": "payment-report",
+      "exit": 0,
+      "logSha256": "fb7acb617a013bd096990dd7c66ed1a8c2617dcb612f403c4b14b7da96978c93",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:payment:coverage"
+      ]
+    },
+    {
+      "name": "mfa",
+      "exit": 0,
+      "logSha256": "787a8ff1074bded79df987c5264f5847a828cfd18a538d4b3ee0b656aecbca63",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:mfa:storage"
+      ]
+    },
+    {
+      "name": "main-unit",
+      "exit": 0,
+      "logSha256": "d8a35e8c65846826151b67dae77d6c3b883e2dc2c1cb93f067009dd9c466618e",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:unit"
+      ]
+    },
+    {
+      "name": "native",
+      "exit": 0,
+      "logSha256": "a08a11b1fb1616fce3e9676441317de84c63146655f628fd686f71a691385b57",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "backend/tests/regression/payment-native.test.js",
+        "backend/tests/regression/user-startup.test.js",
+        "backend/tests/regression/gateway-startup.test.js"
+      ]
+    },
+    {
+      "name": "browser-correct-runtime",
+      "exit": 0,
+      "logSha256": "b726057323f5db013f52fbfb719cfb9cf310a88917295358ce976351302c9308"
+    },
+    {
+      "name": "syntax",
+      "exit": 0,
+      "logSha256": "711249354e9a92ef52e5039dd510d5bb20934cf5adeaf678d1a259ea07878100"
+    },
+    {
+      "name": "tools",
+      "exit": 0,
+      "logSha256": "69b320179980727e18f672098b5edb23d669274410c39a86e0e786028e34bfa4"
+    },
+    {
+      "name": "logging",
+      "exit": 0,
+      "logSha256": "ddc0301849846d3968cce009435bbee760c1cf2e610111fca3f65eb0d14c3843"
+    }
+  ],
+  "coverage": {
+    "riskIntegration": {
+      "lines": 96.88,
+      "branches": 88.52,
+      "functions": 100,
+      "gates": {
+        "lines": 91,
+        "functions": 90,
+        "branches": 80
+      }
+    },
+    "paymentCore": {
+      "lines": 100,
+      "branches": 97.02,
+      "functions": 100
+    },
+    "paymentNYC": {
+      "statements": 97.76,
+      "branches": 93.69,
+      "lines": 100,
+      "functions": 100,
+      "gates": {
+        "statements": 91,
+        "lines": 91,
+        "functions": 91,
+        "branches": 80
+      }
+    },
+    "canonicalMFA": {
+      "lines": 99.42,
+      "branches": 83.48,
+      "functions": 100,
+      "gates": {
+        "lines": 90,
+        "functions": 90
+      }
+    }
+  },
+  "native": {
+    "pendingMigrations": 87,
+    "gatewayShutdownMs": 264.3419589999994,
+    "paymentShutdownMs": 5035.585393000001,
+    "scope": "Actual payment+gateway OS entry points, canonical full history, signed spaced JSON bytes through gateway without userJWT, SQL/Redis/Kafka/encrypted receipts and actual timeout consumer; other gateway peers alias payment fixture, no provider/liveAWS/capacity acceptance."
+  },
+  "browser": {
+    "browser": "145.0.7632.6",
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "artifacts": "/tmp/minego-risk-browser-2026-10-28",
+    "scope": "Actual production HTML/API/MFA widgets/service worker and canonical PostgreSQL/Redis; primary SMS codes seeded in owned keys, no SMS delivery/authenticator-device/gameplay acceptance."
+  },
+  "negativeEvidence": [
+    {
+      "logSha256": "502deac140f34abb38ae723c6c2a79f4a64b52849ae6a845157219eb64ddaf25",
+      "result": "13pass2fail including parent: audit fixture incorrectly assumed resource_id rather than canonical entity_id; correction preserves real encrypted/trace assertions, no schema changes"
+    },
+    {
+      "logSha256": "85464c5a8e50da679f99ae8e6d141dbc2f5bcbbed6446c81c0dfbc871d9338ba",
+      "result": "Browser executable absent at Playwright default; no UI cases ran. Explicit existing Chrome145 path then passed actual6 without skipped tests."
+    }
+  ],
+  "priorCIArtifact": "docs/benchmarks/ci-85457de-2026-10-28.json",
+  "scope": "Server registrations/revocation/current MFA epoch and explicit completed-factor assurance; no first-factor epoch upgrade through refresh; registered refresh deadline independent of access expiry. Gateway checks session, service independently scores server policy before actual create/verify, with actual user HTTP-issued purpose/session/epoch/absolute5minute proofs. Score >=80 blocks validproof, >=50 requires factor, large servercatalog amount always requires it. Encrypted decisions precede business execution. Trust ingress explicit; proxy overwrites forwarding claims; client proof transient/no automatic payment replay. Real schema/Redis/HTTP integration coverage does not accept original unit-only90 or all-operation criteria. Physical trusted device/GeoIP are not proven by user-agent/IP comparison. All remaining original P0/P1/P2 sensitive APIs/method combinations/UI/security/provider/service/queue/performance/operations remain open; original87SQL/locks/criteria unchanged."
+}

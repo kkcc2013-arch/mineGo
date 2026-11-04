@@ -4,8 +4,8 @@
  */
 
 const { Pool } = require('pg');
-const { PartitionQueryHelper } = require('../../shared/partitionMiddleware');
-const logger = require('../../shared/logger');
+const { PartitionQueryHelper } = require('../../../../shared/partitionMiddleware');
+const logger = require('../../../../shared/logger');
 
 class CatchRecordRepository {
   constructor(pool = null) {

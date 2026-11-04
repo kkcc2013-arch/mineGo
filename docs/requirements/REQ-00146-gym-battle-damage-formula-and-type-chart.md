@@ -7,7 +7,7 @@
 | 标题 | 道馆战斗伤害公式与属性克制计算系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | done |
+| 状态 | in_progress |
 | 涉及服务 | gym-service、pokemon-service、backend/shared |
 | 创建时间 | 2026-06-12 07:00 |
 
@@ -239,7 +239,7 @@ module.exports = router;
 ### 4. 数据库迁移（添加技能属性字段）
 
 ```sql
--- database/pending/20260612_070000__add_damage_system.sql
+-- database/pending/20260615_221000__add_damage_system.sql
 
 -- 确保技能表有属性和威力字段
 ALTER TABLE moves 
@@ -402,7 +402,7 @@ process.exit(0);
 - `backend/shared/damageCalculator.js` (新增)
 - `backend/services/gym-service/src/routes/damage.js` (新增)
 - `backend/services/gym-service/src/index.js` (修改 - 挂载路由)
-- `database/pending/20260612_070000__add_damage_system.sql` (新增)
+- `database/pending/20260615_221000__add_damage_system.sql` (新增)
 - `backend/tests/unit/damage-calculator.test.js` (新增)
 
 ## 参考
@@ -411,3 +411,27 @@ process.exit(0);
 - 属性克制表: https://bulbapedia.bulbagarden.net/wiki/Type
 - REQ-00054: 道馆战斗系统
 - REQ-00037: 真实天气 API 集成与天气加成系统
+
+
+## Independent acceptance correction (2026-10-13)
+
+The old done declaration is reopened. The earlier route was mounted at /gym/damage,
+but the documented /api/v1/gym/battle/simulate path was missing; species/move queries
+used nonexistent name fields and a fabricated move fallback. Averages drew new random
+damage and crashed on immunity. The migration expected another schema and overwrote
+canonical power/type/energy settings.
+
+The implemented damageEngine is now used by the production route, with canonical species/
+move queries, strict scalar inputs and both mounted aliases. Missing rows are errors.
+Deterministic midpoint/range estimates handle immune/non-damaging moves and include
+critical effects.5 contract cases and58 original assertions pass;32 actual move/damage/
+TM transaction checks pass. The real gym process returns200 and multiplier0.5 at the
+documented path. It required SIGKILL after a3s SIGTERM wait; graceful lifecycle remains
+unverified. See [MOVE-DAMAGE.md](../MOVE-DAMAGE.md) for exact boundaries.
+
+The catalog repair preserves actual definitions and all24 later proposed defaults as
+configuration. Full85 history now fails voice-chat20260618_160000stmt18 mutable index
+predicate, and the whole pending batch rolls back. Complete history/native readiness/
+shutdown, live battle/raid engine integration and authoritative resolution of the
+requirement's GO-style wording versus its explicit classic2x/0-immunity matrix remain
+open. No acceptance command or original threshold has been removed or weakened.

@@ -5,6 +5,9 @@
  * @module backend/gateway/src/routes/cdn
  */
 'use strict';
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("gateway/src/routes/cdn"), "gateway/src/routes/cdn");
+
 
 const express = require('express');
 const router = express.Router();
@@ -182,7 +185,7 @@ router.post('/purge', async (req, res) => {
       data: result
     });
   } catch (error) {
-    console.error('[CDN API] Purge error:', error);
+    _consoleLogger.error('[CDN API] Purge error:', error);
     cdnPurgeOperations.inc({ result: 'error' });
     
     res.status(500).json({
@@ -351,7 +354,7 @@ router.post('/optimize', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('[CDN API] Optimize error:', error);
+    _consoleLogger.error('[CDN API] Optimize error:', error);
     res.status(500).json({
       code: 500002,
       message: 'Image optimization failed',
@@ -430,7 +433,7 @@ router.post('/responsive-images', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('[CDN API] Generate responsive images error:', error);
+    _consoleLogger.error('[CDN API] Generate responsive images error:', error);
     res.status(500).json({
       code: 500003,
       message: 'Failed to generate responsive images',

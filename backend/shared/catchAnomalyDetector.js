@@ -3,12 +3,22 @@
 'use strict';
 
 const crypto = require('crypto');
-const { query } = require('./db');
+const { query, getPool } = require('./db');
 const { getRedis, getJSON, setJSON } = require('./redis');
 const { createLogger } = require('./logger');
 const promClient = require('prom-client');
 
 const logger = createLogger('catch-anomaly');
+
+const UUID_PATTERN=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+function requireUuid(value,name) {
+  if(typeof value!=='string'||!UUID_PATTERN.test(value))throw new Error(`Invalid ${name}`);
+  return value.toLowerCase();
+}
+function text(value,name,max=64) {if(typeof value!=='string'||!value.length||value.length>max)throw new Error(`Invalid ${name}`);return value;}
+function number(value,name,min,max) {if(typeof value!=='number'||!Number.isFinite(value)||value<min||value>max)throw new Error(`Invalid ${name}`);return value;}
+function subject(value) {text(value,'Pokemon identity');return UUID_PATTERN.test(value)?value.toLowerCase():value;}
+function optionalNumber(value,name,min,max) {return value==null?null:number(value,name,min,max);}
 
 // ============================================================
 // 配置常量
@@ -103,6 +113,7 @@ const metrics = {
 // ============================================================
 
 class CatchSuccessRateAnalyzer {
+  constructor(options={}) {this.query=options.query||query;}
   /**
    * 计算预期成功率
    */
@@ -153,71 +164,41 @@ class CatchSuccessRateAnalyzer {
   /**
    * 获取用户历史捕捉统计
    */
-  async getUserCatchStats(userId, pokemonId, hours = 24) {
-    try {
-      const result = await query(`
-        SELECT 
-          SUM(attempt_count) as total_attempts,
-          SUM(success_count) as total_success,
-          AVG(expected_success_rate) as avg_expected_rate,
-          MAX(anomaly_score) as max_anomaly_score
-        FROM catch_success_stats
-        WHERE user_id = $1 
-          AND pokemon_id = $2
-          AND hour_timestamp > NOW() - INTERVAL '${hours} hours'
-      `, [userId, pokemonId]);
-
-      const row = result.rows[0];
-      const attempts = parseInt(row.total_attempts) || 0;
-      const success = parseInt(row.total_success) || 0;
-
-      return {
-        attempts,
-        success,
-        actualRate: attempts > 0 ? success / attempts : 0,
-        expectedRate: parseFloat(row.avg_expected_rate) || 0.1,
-        maxAnomalyScore: parseFloat(row.max_anomaly_score) || 0,
-      };
-    } catch (err) {
-      logger.error('Failed to get user catch stats', { userId, pokemonId, error: err.message });
-      return { attempts: 0, success: 0, actualRate: 0, expectedRate: 0.1, maxAnomalyScore: 0 };
-    }
+  async getUserCatchStats(userId,pokemonId,hours=24) {
+    userId=requireUuid(userId,'user identity');pokemonId=subject(pokemonId);
+    if(!Number.isInteger(hours)||hours<1||hours>8760)throw new Error('Invalid statistics interval');
+    const {rows:[row]}=await this.query(`SELECT COALESCE(SUM(attempt_count),0)::bigint AS total_attempts,
+      COALESCE(SUM(success_count),0)::bigint AS total_success,
+      SUM(expected_rate_sum)/NULLIF(SUM(attempt_count),0) AS avg_expected_rate,
+      MAX(anomaly_score) AS max_anomaly_score FROM catch_success_stats WHERE user_id=$1 AND pokemon_id=$2
+      AND hour_timestamp>NOW()-$3*INTERVAL '1 hour'`,[userId,pokemonId,hours]);
+    const attempts=Number(row.total_attempts),success=Number(row.total_success);
+    return {attempts,success,actualRate:attempts?success/attempts:null,
+      expectedRate:row.avg_expected_rate===null?null:Number(row.avg_expected_rate),
+      maxAnomalyScore:row.max_anomaly_score===null?null:Number(row.max_anomaly_score)};
   }
 
-  /**
-   * 记录捕捉统计
-   */
-  async recordCatchStats(userId, pokemonId, pokemonRarity, ballType, success, expectedRate) {
-    const hourTimestamp = new Date();
-    hourTimestamp.setMinutes(0, 0, 0);
-
-    try {
-      await query(`
-        INSERT INTO catch_success_stats (
-          user_id, pokemon_id, pokemon_rarity, ball_type,
-          attempt_count, success_count, expected_success_rate,
-          actual_success_rate, hour_timestamp
-        )
-        VALUES ($1, $2, $3, $4, 1, $5, $6, $5, $7)
-        ON CONFLICT DO NOTHING
-      `, [userId, pokemonId, pokemonRarity, ballType, success ? 1 : 0, expectedRate, hourTimestamp]);
-
-      // 更新统计
-      await query(`
-        UPDATE catch_success_stats
-        SET 
-          attempt_count = attempt_count + 1,
-          success_count = success_count + $1,
-          actual_success_rate = success_count::DECIMAL / attempt_count,
-          updated_at = NOW()
-        WHERE user_id = $2 
-          AND pokemon_id = $3
-          AND hour_timestamp = $4
-      `, [success ? 1 : 0, userId, pokemonId, hourTimestamp]);
-    } catch (err) {
-      logger.error('Failed to record catch stats', { userId, pokemonId, error: err.message });
-    }
+  async recordCatchStats(userId,pokemonId,pokemonRarity,ballType,success,expectedRate,auditId=null) {
+    userId=requireUuid(userId,'user identity');pokemonId=subject(pokemonId);text(pokemonRarity,'rarity',32);text(ballType,'ball type',32);
+    if(typeof success!=='boolean')throw new Error('Catch success must be an observed boolean');number(expectedRate,'expected probability',0,1);
+    if(auditId!==null)auditId=requireUuid(auditId,'audit identity');
+    const {rows:[row]}=await this.query(`WITH bucket AS(SELECT CASE WHEN $7::uuid IS NULL THEN date_trunc('hour',NOW())
+      ELSE(SELECT date_trunc('hour',catch_timestamp) AT TIME ZONE current_setting('TimeZone') FROM catch_risk_attempts
+        WHERE id=$7 AND user_id=$1::uuid AND pokemon_id=$2 AND pokemon_rarity=$3 AND ball_type=$4
+          AND actual_result IS NOT NULL AND (actual_result='success')=($5::integer=1) AND expected_success_rate=$6::numeric) END AS observed_hour)
+      INSERT INTO catch_success_stats(user_id,pokemon_id,pokemon_rarity,ball_type,
+      attempt_count,success_count,expected_rate_sum,expected_success_rate,actual_success_rate,hour_timestamp)
+      SELECT $1,$2,$3,$4,1,$5::integer,$6::numeric,$6::numeric,$5::integer::numeric,observed_hour FROM bucket WHERE observed_hour IS NOT NULL
+      ON CONFLICT(user_id,pokemon_id,pokemon_rarity,ball_type,hour_timestamp) DO UPDATE SET
+      attempt_count=catch_success_stats.attempt_count+1,success_count=catch_success_stats.success_count+EXCLUDED.success_count,
+      expected_rate_sum=catch_success_stats.expected_rate_sum+EXCLUDED.expected_rate_sum,
+      expected_success_rate=(catch_success_stats.expected_rate_sum+EXCLUDED.expected_rate_sum)/(catch_success_stats.attempt_count+1),
+      actual_success_rate=(catch_success_stats.success_count+EXCLUDED.success_count)::numeric/(catch_success_stats.attempt_count+1),
+      updated_at=NOW() RETURNING *`,[userId,pokemonId,pokemonRarity,ballType,success?1:0,expectedRate,auditId]);
+    if(!row)throw new Error('Hourly observation lacks matching owned audit evidence');
+    return row;
   }
+
 }
 
 // ============================================================
@@ -396,8 +377,9 @@ class BatchCatchDetector {
 // ============================================================
 
 class CatchRiskEngine {
-  constructor() {
-    this.rateAnalyzer = new CatchSuccessRateAnalyzer();
+  constructor(options={}) {
+    this.db=options.db||null;
+    this.rateAnalyzer = new CatchSuccessRateAnalyzer({query:options.db?.query.bind(options.db)});
     this.requestValidator = new CatchRequestValidator();
     this.batchDetector = new BatchCatchDetector();
   }
@@ -522,8 +504,8 @@ class CatchRiskEngine {
    */
   async checkDataIntegrity(userId, catchRequest) {
     return this.requestValidator.validateCatchRequest({
-      userId,
       ...catchRequest,
+      userId,
     });
   }
 
@@ -556,59 +538,53 @@ class CatchRiskEngine {
   /**
    * 记录捕捉会话
    */
-  async recordCatchSession(catchRequest, riskResult, actualResult) {
-    const sessionId = crypto.randomUUID();
-
+  async recordCatchSession(catchRequest,riskResult,actualResult=null) {
+    if(!catchRequest||typeof catchRequest!=='object'||Array.isArray(catchRequest)||!riskResult||typeof riskResult!=='object')throw new Error('Invalid catch risk record');
+    const userId=requireUuid(catchRequest.userId,'user identity');const pokemonId=subject(catchRequest.pokemonId);
+    const auditId=catchRequest.auditId===undefined?crypto.randomUUID():requireUuid(catchRequest.auditId,'audit identity');
+    const gameSessionId=catchRequest.gameSessionId==null?null:requireUuid(catchRequest.gameSessionId,'game session identity');
+    const throwId=catchRequest.throwId==null?null:requireUuid(catchRequest.throwId,'throw identity');
+    if(![null,'success','fail','escape'].includes(actualResult)||(actualResult!==null)!==(throwId!==null))throw new Error('Observed catch outcome requires actual gameplay throw evidence');
+    if(!['allow','warn','block'].includes(riskResult.action)||!['low','medium','high','critical'].includes(riskResult.riskLevel))throw new Error('Invalid catch risk decision');
+    number(riskResult.riskScore,'risk score',0,100);
+    const ballCount=optionalNumber(catchRequest.ballCount,'ball count',1,100),berries=optionalNumber(catchRequest.berries,'berries',0,2147483647);
+    if((ballCount!==null&&!Number.isInteger(ballCount))||(berries!==null&&!Number.isInteger(berries)))throw new Error('Invalid item quantity');
+    if(catchRequest.curveball!==undefined&&typeof catchRequest.curveball!=='boolean')throw new Error('Invalid curveball flag');
+    const lat=optionalNumber(catchRequest.location?.lat,'latitude',-90,90),lng=optionalNumber(catchRequest.location?.lng,'longitude',-180,180);
+    if((lat===null)!==(lng===null))throw new Error('Both location coordinates are required');
+    const probability=optionalNumber(riskResult.details?.successRate?.expectedRate,'expected probability',0,1);
+    const integrity=optionalNumber(riskResult.details?.integrity?.integrityScore,'integrity score',0,100);
+    const snapshot=JSON.stringify({request:{userId,pokemonId,gameSessionId,throwId,pokemonRarity:catchRequest.pokemonRarity,
+      ballType:catchRequest.ballType,ballCount,berries,throwType:catchRequest.throwType,curveball:catchRequest.curveball,
+      location:lat===null?null:{lat,lng},timestamp:catchRequest.timestamp,deviceFingerprint:catchRequest.deviceFingerprint,signature:catchRequest.signature},
+      risk:riskResult,actualResult});
+    if(Buffer.byteLength(snapshot)>65536)throw new Error('Catch risk snapshot exceeds storage limit');
+    const client=await (this.db||getPool()).connect();
     try {
-      await query(`
-        INSERT INTO catch_sessions (
-          session_id, user_id, pokemon_id, pokemon_rarity,
-          ball_type, ball_count_used, berries_used, throw_type, curveball,
-          expected_success_rate, actual_result, catch_timestamp,
-          location_lat, location_lng, device_fingerprint, request_signature,
-          data_integrity_score, risk_score, risk_level, action_taken
-        )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
-      `, [
-        sessionId,
-        catchRequest.userId,
-        catchRequest.pokemonId,
-        catchRequest.pokemonRarity,
-        catchRequest.ballType,
-        catchRequest.ballCount || 1,
-        catchRequest.berries || 0,
-        catchRequest.throwType || 'normal',
-        catchRequest.curveball || false,
-        riskResult.details?.successRate?.expectedRate || 0,
-        actualResult,
-        new Date(),
-        catchRequest.location?.lat,
-        catchRequest.location?.lng,
-        catchRequest.deviceFingerprint,
-        catchRequest.signature,
-        riskResult.details?.integrity?.integrityScore || 0,
-        riskResult.riskScore,
-        riskResult.riskLevel,
-        riskResult.action,
-      ]);
-
-      // 更新用户统计
-      await query(`
-        INSERT INTO user_catch_stats (user_id, total_catches, total_attempts, last_catch_at)
-        VALUES ($1, $2, 1, NOW())
-        ON CONFLICT (user_id) DO UPDATE SET
-          total_catches = user_catch_stats.total_catches + $2,
-          total_attempts = user_catch_stats.total_attempts + 1,
-          last_catch_at = NOW(),
-          updated_at = NOW()
-      `, [catchRequest.userId, actualResult === 'success' ? 1 : 0]);
-
-    } catch (err) {
-      logger.error('Failed to record catch session', { sessionId, error: err.message });
-    }
-
-    return sessionId;
+      await client.query('BEGIN');
+      const {rows:[stored]}=await client.query(`INSERT INTO catch_risk_attempts(id,user_id,pokemon_id,game_session_id,throw_id,
+        pokemon_rarity,ball_type,ball_count_used,berries_used,throw_type,curveball,expected_success_rate,actual_result,
+        location_lat,location_lng,device_fingerprint,request_signature,data_integrity_score,risk_score,risk_level,action_taken,request_snapshot)
+        VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22)
+        ON CONFLICT(id) DO NOTHING RETURNING *`,[auditId,userId,pokemonId,gameSessionId,throwId,catchRequest.pokemonRarity??null,
+        catchRequest.ballType??null,ballCount,berries,catchRequest.throwType??null,catchRequest.curveball??null,probability,actualResult,
+        lat,lng,catchRequest.deviceFingerprint??null,catchRequest.signature??null,integrity,riskResult.riskScore,riskResult.riskLevel,riskResult.action,snapshot]);
+      if(!stored) {
+        const {rows:[previous]}=await client.query('SELECT user_id=$2::uuid AND request_snapshot=$3::jsonb AS matches FROM catch_risk_attempts WHERE id=$1',[auditId,userId,snapshot]);
+        if(previous?.matches!==true)throw new Error('Catch risk audit identity conflicts with an existing record');
+        await client.query('COMMIT');return auditId;
+      }
+      const observed=stored.actual_result!==null,success=stored.actual_result==='success';
+      if(observed)await new CatchSuccessRateAnalyzer({query:client.query.bind(client)}).recordCatchStats(userId,pokemonId,stored.pokemon_rarity,stored.ball_type,success,Number(stored.expected_success_rate),stored.id);
+      await client.query(`INSERT INTO user_catch_stats(user_id,total_catches,total_attempts,risk_requests,last_catch_at,warning_count,blocked_count)
+        VALUES($1,$2,$3,1,(SELECT catch_timestamp FROM catch_risk_attempts WHERE id=$4),$5,$6) ON CONFLICT(user_id) DO UPDATE SET total_catches=user_catch_stats.total_catches+EXCLUDED.total_catches,
+        total_attempts=user_catch_stats.total_attempts+EXCLUDED.total_attempts,risk_requests=user_catch_stats.risk_requests+1,
+        last_catch_at=GREATEST(EXCLUDED.last_catch_at,user_catch_stats.last_catch_at),warning_count=user_catch_stats.warning_count+EXCLUDED.warning_count,
+        blocked_count=user_catch_stats.blocked_count+EXCLUDED.blocked_count,updated_at=NOW()`,[userId,success?1:0,observed?1:0,stored.id,riskResult.action==='warn'?1:0,riskResult.action==='block'?1:0]);
+      await client.query('COMMIT');return stored.id;
+    } catch(error) {await client.query('ROLLBACK');throw error;} finally {client.release();}
   }
+
 }
 
 // ============================================================

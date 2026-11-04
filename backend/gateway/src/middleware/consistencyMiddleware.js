@@ -1,8 +1,8 @@
 // backend/gateway/src/middleware/consistencyMiddleware.js
 'use strict';
 
-const { getReadWriteSplitManager } = require('../../shared/dbReadWriteSplit/ReadWriteSplitManager');
-const { createLogger } = require('../../shared/logger');
+const { getReadWriteSplitManager } = require('../../../shared/dbReadWriteSplit/ReadWriteSplitManager');
+const { createLogger } = require('../../../shared/logger');
 
 const logger = createLogger('consistency-middleware');
 

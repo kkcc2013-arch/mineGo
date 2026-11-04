@@ -21,7 +21,7 @@ const logger = createLogger('monitor-data-collector');
  * - 资源使用率（CPU、内存、连接池）
  */
 class MonitorDataCollector {
-  constructor(config) {
+  constructor(config = {}) {
     this.prometheusUrl = config.prometheusUrl || 'http://prometheus:9090';
     this.healthCheckUrl = config.healthCheckUrl || 'http://gateway:3000/health';
     this.services = config.services || [
@@ -156,22 +156,22 @@ class MonitorDataCollector {
       metrics.throughput = this.parsePrometheusValue(throughputResult);
       
       // 数据库连接池使用率
-      const dbPoolQuery = `(db_connection_pool_size{service="${service}"} - db_connection_pool_available{service="${service"}) / db_connection_pool_size{service="${service}"}`;
+      const dbPoolQuery = `(db_connection_pool_size{service="${service}"} - db_connection_pool_available{service="${service}"}) / db_connection_pool_size{service="${service}"}`;
       const dbPoolResult = await this.queryPrometheus(dbPoolQuery, endTimestamp);
       metrics.dbPoolUsage = this.parsePrometheusValue(dbPoolResult);
       
       // Redis 连接池使用率
-      const redisPoolQuery = `(redis_connection_pool_used{service="${service"} / redis_connection_pool_size{service="${service}"}`;
+      const redisPoolQuery = `redis_connection_pool_used{service="${service}"} / redis_connection_pool_size{service="${service}"}`;
       const redisPoolResult = await this.queryPrometheus(redisPoolQuery, endTimestamp);
       metrics.redisPoolUsage = this.parsePrometheusValue(redisPoolResult);
       
       // CPU 使用率
-      const cpuQuery = `process_cpu_usage{service="${service"}`;
+      const cpuQuery = `process_cpu_usage{service="${service}"}`;
       const cpuResult = await this.queryPrometheus(cpuQuery, endTimestamp);
       metrics.cpuUsage = this.parsePrometheusValue(cpuResult);
       
       // 内存使用率
-      const memoryQuery = `process_memory_usage_bytes{service="${service"} / process_memory_limit_bytes{service="${service"}`;
+      const memoryQuery = `process_memory_usage_bytes{service="${service}"} / process_memory_limit_bytes{service="${service}"}`;
       const memoryResult = await this.queryPrometheus(memoryQuery, endTimestamp);
       metrics.memoryUsage = this.parsePrometheusValue(memoryResult);
       

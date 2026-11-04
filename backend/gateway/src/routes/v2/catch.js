@@ -3,7 +3,7 @@
 'use strict';
 
 const express = require('express');
-const { createProxyMiddleware } = require('http-proxy-middleware');
+const { createProxyMiddleware } = require('../../proxy');
 const { createLogger } = require('@pmg/shared/logger');
 const { requireVersion } = require('../../middleware/apiVersion');
 

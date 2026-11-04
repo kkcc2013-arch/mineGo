@@ -3,7 +3,7 @@
 - **编号**：REQ-00091
 - **类别**：功能增强
 - **优先级**：P1
-- **状态**：new
+- **状态**：in_progress
 - **涉及服务/模块**：pokemon-service、user-service、reward-service、gateway、game-client、database/migrations
 - **创建时间**：2026-06-10 14:00
 - **依赖需求**：REQ-00047（精灵道具与背包管理系统）
@@ -327,3 +327,16 @@ activeEquipmentGauge: new Gauge({
 5. **对战平衡**：装备系统可以为弱势精灵提供额外加成，改善对战环境平衡
 
 虽然不是 P0 级别的核心功能，但对游戏体验和长期留存有重要影响，因此定为 P1。
+
+
+## Migration prerequisite review (2026-10-08)
+
+Started the existing requirement. Full history found invalid inline partial UNIQUE.
+Whole guarded repair uses PostgreSQL's exact original active-template partial index
+and canonical UUID lookup helper. Actual four-table/seed load, inactive/active uniqueness,
+UUID helper/stats and owner/Pokémon FKs are tested against real V1/PostGIS. Actual original
+catalog contains33 templates; minimum50 is not accepted or lowered. The rule is per
+active template, not complete one-per-type slot enforcement. All original API/ownership/
+resource/upgrades/sets/drop/shop/rewards/battle/client/metrics/coverage80%/40case criteria
+remain open. Full85 history now fails later at daily-quest :: syntax. See
+[storage boundary](../SPECIAL-IV.md), VERIFICATION.json and WORKLOG.md.

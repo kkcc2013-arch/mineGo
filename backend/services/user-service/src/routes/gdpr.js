@@ -9,6 +9,11 @@ const GDPRService = require('./gdprService');
 const { requireAuth } = require('../../../../shared/auth');
 const { auditLog, AuditActions } = require('../../../../shared/auditLog');
 const logger = require('../../../../shared/logger');
+const {RiskVerifier}=require('../../../../shared/riskVerifier');
+const {getErasureStore}=require('../../../../shared/erasure/ErasureRequestStore');
+const {ownerPolicy,readPolicy,respond}=require('./dataDeletion');
+const erasureRisk=new RiskVerifier();
+const erasureStore=getErasureStore();
 
 // 初始化服务
 let gdprService = null;
@@ -42,7 +47,7 @@ router.get('/privacy-policy', async (req, res) => {
  * GET /api/gdpr/export
  * 导出用户数据（GDPR 第 20 条：数据可携带权）
  */
-router.get('/export', requireAuth, async (req, res) => {
+router.get('/export', requireAuth, erasureRisk.middleware(()=>({operation:'user.data.export',scope:'export-data',mandatory:true})), async (req, res) => {
   try {
     const userId = req.user.id;
     
@@ -75,100 +80,29 @@ router.get('/export', requireAuth, async (req, res) => {
  * DELETE /api/gdpr/delete
  * 删除用户数据（GDPR 第 17 条：被遗忘权）
  */
-router.delete('/delete', requireAuth, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { confirmation } = req.body;
-    
-    // 验证确认
-    if (confirmation !== 'DELETE MY ACCOUNT') {
-      return res.status(400).json({
-        error: 'Please type "DELETE MY ACCOUNT" to confirm'
-      });
-    }
-    
-    // 请求删除
-    const result = await gdprService.requestDataDeletion(userId, {
-      reason: 'user_request',
-      req
-    });
-    
-    res.json(result);
-  } catch (err) {
-    logger.error({ err, userId: req.user?.id }, 'Data deletion request failed');
-    res.status(500).json({ error: 'Failed to request data deletion' });
-  }
-});
+router.delete('/delete', requireAuth, erasureRisk.middleware(ownerPolicy), respond(async(req,res)=>{
+  if(req.body?.confirmation!=='DELETE MY ACCOUNT')return res.status(400).json({success:false,code:'ERASURE_CONFIRMATION_REQUIRED'});
+  const data=await erasureStore.createRequest(req.user.sub,{requestType:'full',reason:'user_request',dataTypes:['all']});
+  res.status(202).json({success:true,data});
+}));
 
 /**
  * POST /api/gdpr/delete/confirm
  * 确认数据删除（通过邮件链接）
  */
-router.post('/delete/confirm', async (req, res) => {
-  try {
-    const { token } = req.body;
-    
-    // 查找删除请求
-    const result = await gdprService.db.query(`
-      SELECT id, user_id, status
-      FROM data_deletion_requests
-      WHERE confirmation_token = $1
-    `, [token]);
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Invalid confirmation token' });
-    }
-    
-    const request = result.rows[0];
-    
-    if (request.status !== 'pending') {
-      return res.status(400).json({ 
-        error: `Deletion already ${request.status}` 
-      });
-    }
-    
-    // 执行删除
-    await gdprService.executeDataDeletion(request.user_id, request.id);
-    
-    res.json({ 
-      success: true, 
-      message: 'Your data has been deleted.' 
-    });
-  } catch (err) {
-    logger.error({ err }, 'Data deletion confirmation failed');
-    res.status(500).json({ error: 'Failed to confirm data deletion' });
-  }
-});
+router.post('/delete/confirm', requireAuth, erasureRisk.middleware(ownerPolicy), respond(async(req,res)=>{
+  const data=await erasureStore.verifyRequest(req.user.sub,req.body?.requestId,req.body?.verificationCode??req.body?.token);
+  res.json({success:true,data});
+}));
 
 /**
  * GET /api/gdpr/status
  * 获取删除请求状态
  */
-router.get('/status', requireAuth, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    
-    const result = await gdprService.db.query(`
-      SELECT id, status, requested_at, completed_at
-      FROM data_deletion_requests
-      WHERE user_id = $1
-      ORDER BY requested_at DESC
-      LIMIT 1
-    `, [userId]);
-    
-    if (result.rows.length === 0) {
-      return res.json({ hasRequest: false });
-    }
-    
-    res.json({
-      hasRequest: true,
-      ...result.rows[0]
-    });
-  } catch (err) {
-    logger.error({ err }, 'Failed to get deletion status');
-    res.status(500).json({ error: 'Failed to get status' });
-  }
-});
+router.get('/status', requireAuth, erasureRisk.middleware(readPolicy), respond(async(req,res)=>{
+  const rows=await erasureStore.list(req.user.sub,{limit:1});
+  res.json({hasRequest:rows.length>0,...(rows[0]||{})});
+}));
 
 /**
  * POST /api/gdpr/consent
@@ -196,21 +130,10 @@ router.post('/consent', requireAuth, async (req, res) => {
  * POST /api/gdpr/withdraw
  * 撤回同意
  */
-router.post('/withdraw', requireAuth, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    
-    await gdprService.withdrawConsent(userId);
-    
-    res.json({ 
-      success: true,
-      message: 'Consent withdrawn. Your data will be deleted within 30 days.'
-    });
-  } catch (err) {
-    logger.error({ err }, 'Failed to withdraw consent');
-    res.status(500).json({ error: 'Failed to withdraw consent' });
-  }
-});
+router.post('/withdraw', requireAuth, erasureRisk.middleware(ownerPolicy), respond(async(req,res)=>{
+  const data=await erasureStore.withdrawConsent(req.user.sub);
+  res.status(202).json({success:true,data});
+}));
 
 /**
  * GET /api/gdpr/audit-logs
@@ -219,12 +142,15 @@ router.post('/withdraw', requireAuth, async (req, res) => {
 router.get('/audit-logs', requireAuth, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { limit = 100, action } = req.query;
+    const { limit = '100', action } = req.query;
+    if(typeof limit!=='string'||!/^([1-9][0-9]{0,3})$/.test(limit)||Number(limit)>1000||action!==undefined&&(typeof action!=='string'||!action.length||action.length>100)){
+      return res.status(400).json({error:'Invalid audit filters'});
+    }
     
-    const { getUserAuditLogs } = require('../../shared/auditLog');
+    const { getUserAuditLogs } = require('../../../../shared/auditLog');
     const logs = await getUserAuditLogs(
       userId,
-      { limit: parseInt(limit), action },
+      { limit: Number(limit), ...(action===undefined?{}:{action}) },
       gdprService.db
     );
     

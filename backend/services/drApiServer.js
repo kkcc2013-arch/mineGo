@@ -1,6 +1,9 @@
 // backend/services/drApiServer.js
 // 灾备管理 API 服务
 'use strict';
+const _consoleLogger = new (require("../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../shared/logger").createLogger("services/drApiServer"), "services/drApiServer");
+
 
 const express = require('express');
 const cors = require('cors');
@@ -195,7 +198,7 @@ module.exports = { app, start };
 if (require.main === module) {
   const port = parseInt(process.env.PORT) || 3002;
   start(port).catch(err => {
-    console.error('启动失败:', err);
+    _consoleLogger.error('启动失败:', err);
     process.exit(1);
   });
 }

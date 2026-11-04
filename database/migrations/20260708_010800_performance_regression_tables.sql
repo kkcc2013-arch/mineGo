@@ -77,16 +77,8 @@ COMMENT ON TABLE api_performance_alerts IS '性能退化告警记录表';
 COMMENT ON COLUMN api_performance_alerts.alert_type IS '告警类型: regression, degradation, baseline_stale';
 COMMENT ON COLUMN api_performance_alerts.severity IS '严重程度: critical, high, medium, low';
 
--- 4. 插入示例数据（仅用于演示）
-INSERT INTO api_performance_baselines (endpoint, avg_response_time, median_response_time, 
-  p90_response_time, p95_response_time, p99_response_time, error_rate, throughput, sample_count)
-VALUES 
-  ('GET /api/pokemon/list', 45.2, 38.5, 78.3, 95.6, 120.4, 0.002, 125.5, 100),
-  ('GET /api/location/nearby', 62.8, 55.0, 98.7, 125.3, 156.2, 0.001, 95.2, 100),
-  ('POST /api/catch/attempt', 85.4, 72.3, 125.6, 156.8, 198.5, 0.005, 78.4, 100),
-  ('GET /api/user/profile', 35.6, 30.2, 55.8, 68.9, 85.3, 0.001, 150.2, 100),
-  ('GET /api/gym/battle', 120.5, 105.2, 175.6, 205.3, 258.7, 0.003, 65.8, 100)
-ON CONFLICT (endpoint) DO NOTHING;
+-- Baselines must come from measured API results. Demonstration values are not
+-- inserted by migrations because they cannot establish a regression baseline.
 
 -- 5. 创建清理过期数据的函数
 CREATE OR REPLACE FUNCTION cleanup_old_performance_results(retention_days INTEGER DEFAULT 90)
@@ -158,8 +150,8 @@ BEGIN
   ORDER BY last_updated DESC
   LIMIT 1;
   
-  IF baseline_p95 IS NULL THEN
-    RETURN FALSE; -- 无基准线
+  IF baseline_p95 IS NULL OR baseline_p95 <= 0 THEN
+    RETURN NULL; -- 无有效基准线，不能声明通过
   END IF;
   
   RETURN (p_current_p95 - baseline_p95) / baseline_p95 > p_threshold;

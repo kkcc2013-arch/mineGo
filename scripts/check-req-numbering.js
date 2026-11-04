@@ -3,8 +3,8 @@
  * 需求编号唯一性检查
  *
  * 检查 docs/requirements/ 下的 REQ-XXXXX 编号是否重复。
- * 历史遗留的重复编号列入 KNOWN_DUPLICATES 豁免（待专项需求清理后移除），
- * 任何新增的重复编号都会导致非零退出码，阻断 CI。
+ * 任何重复编号都会导致非零退出码，阻断 CI。
+ * 2026-10-06 的历史编号迁移记录在 docs/requirements/NUMBER-MIGRATIONS.md。
  *
  * 用法: node scripts/check-req-numbering.js
  */
@@ -13,11 +13,6 @@
 
 const fs = require('fs');
 const path = require('path');
-
-// 历史遗留重复（2026-06-12 盘点），清理后请从此名单移除
-// REQ-00057: game-event-system 与 multi-factor-authentication 共用编号
-// REQ-00110: frontend-lazy-load 与 pokemon-bag-capacity 共用编号
-const KNOWN_DUPLICATES = new Set(['REQ-00057', 'REQ-00110']);
 
 const reqDir = path.join(__dirname, '..', 'docs', 'requirements');
 // REQ-XXXXX-IMPLEMENTATION.md 是需求的伴生实现文档，不算独立需求
@@ -33,22 +28,16 @@ for (const f of files) {
 }
 
 let newDuplicates = 0;
-let knownDuplicates = 0;
 
 for (const [num, list] of byNumber) {
   if (list.length <= 1) continue;
-  if (KNOWN_DUPLICATES.has(num)) {
-    knownDuplicates++;
-    console.warn(`[known-dup] ${num}: ${list.join(', ')}`);
-  } else {
-    newDuplicates++;
-    console.error(`[NEW DUPLICATE] ${num}: ${list.join(', ')}`);
-  }
+  newDuplicates++;
+  console.error(`[DUPLICATE] ${num}: ${list.join(', ')}`);
 }
 
 console.log(
   `\nChecked ${files.length} requirement files, ${byNumber.size} unique numbers, ` +
-    `${knownDuplicates} known duplicates (grandfathered), ${newDuplicates} new duplicates.`
+    `${newDuplicates} duplicates.`
 );
 
 if (newDuplicates > 0) {

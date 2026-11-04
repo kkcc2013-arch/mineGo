@@ -3,7 +3,7 @@
 - **编号**：REQ-00078
 - **类别**：运维/CICD
 - **优先级**：P1
-- **状态**：done
+- **状态**：in_progress
 - **涉及服务/模块**：gateway、所有微服务、infrastructure/k8s、.github/workflows、backend/shared
 - **创建时间**：2026-06-10 04:00
 - **依赖需求**：REQ-00006（K8s 滚动更新与回滚自动化）
@@ -1072,3 +1072,27 @@ module.exports = {
 - [ ] **历史记录**：所有操作（创建、调整、回滚）都有完整历史记录
 - [ ] **监控指标**：提供 Prometheus 指标用于监控金丝雀发布状态
 - [ ] **API 完
+
+## Independent acceptance audit (2026-10-18)
+
+Read all original1074 lines. The original document ends at an incomplete11th checkbox
+line; all11 original lines and5→25→50→100/seconds routing goals are preserved. Legacy
+done is withdrawn: the real gateway does not mount these routes/router or consume
+version selection in the upstream proxy. Real route loading fails missing requireAdmin,
+metric helper uses unsupported Counter.increment, event publication fails after
+persisting create/history, and no-data/all-error statistics become false healthy
+values. The shared database alias exists; an initial contrary test assumption was
+corrected, not treated as a production defect. No staging release/rollback claimed.
+
+The source-bound repeated-SQL prerequisite preserves earlier SERIAL rollout/history/
+snapshot data, IDs/sequences/views/FKs/comments/choices and original index. Add actual
+request logs and one-active-service partial uniqueness; ambiguous history is refused
+without dropping rows. Existing unknown creation time staysNULL; new default times
+and owned update function/trigger survive reruns and operator defaults.18 actual
+canary storage/CLI/runtime-boundary checks plus19 erasure checks pass sequentially,
+including real two-caller creation contention and NULL-safe missing-predicate guards.
+All85 raw SQL remain byte-identical; genuine CLI separates raw/executed checksums.
+Full history advances to partition20260707_060000 stmt6 size_bytes→size view conflict;
+whole pending transaction rolls back. Full runtime/HTTP/proxy/metrics/cache/promotion/
+rollback/workflow/staging/numerical/upgrade/reversal acceptance remains open. See
+[actual scope](../CANARY.md), VERIFICATION.json and continuing COMPLETION-PLAN.md.

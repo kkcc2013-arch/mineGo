@@ -7,6 +7,9 @@
  */
 
 'use strict';
+const _consoleLogger = new (require("./loggingUtils")).ConsoleMigrationHelper(
+  require("./logger").createLogger("shared/distributedLockMiddleware"), "shared/distributedLockMiddleware");
+
 
 const { getDistributedLock } = require('./distributedLock');
 
@@ -17,9 +20,9 @@ function getLogger() {
       logger = require('./logger').createLogger('lock-middleware');
     } catch (e) {
       logger = {
-        info: (obj, msg) => console.log(`[INFO] ${msg}`, obj),
-        warn: (obj, msg) => console.warn(`[WARN] ${msg}`, obj),
-        error: (obj, msg) => console.error(`[ERROR] ${msg}`, obj)
+        info: (obj, msg) => _consoleLogger.log(`[INFO] ${msg}`, obj),
+        warn: (obj, msg) => _consoleLogger.warn(`[WARN] ${msg}`, obj),
+        error: (obj, msg) => _consoleLogger.error(`[ERROR] ${msg}`, obj)
       };
     }
   }

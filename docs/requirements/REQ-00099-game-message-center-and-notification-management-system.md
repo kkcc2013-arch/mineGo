@@ -3,7 +3,7 @@
 - **编号**：REQ-00099
 - **类别**：前端体验
 - **优先级**：P1
-- **状态**：new
+- **状态**：in_progress
 - **涉及服务/模块**：game-client、frontend/components、user-service、gateway
 - **创建时间**：2026-06-11 01:40
 - **依赖需求**：REQ-00026（游戏内实时推送通知系统）
@@ -432,3 +432,14 @@ Stores:
 - 提升用户粘性和活跃度
 - 降低用户错过重要事件的风险
 - 提供完整的通知闭环体验（推送 → 查看 → 操作）
+
+
+## Acceptance review (2026-10-08)
+
+Moved new → in_progress. Production storage/routes and actual browser components now preserve numeric IDs, escape notification content, maintain read state and owner-isolated IndexedDB caches, filter offline categories and refresh authoritative badges. This component fixture is not the complete game app. Details/actions, all navigation/preferences UI, incremental/reconnect synchronization, accessibility, real virtualization/1000 messages/FPS60 and every numerical performance/survey target remain open.
+
+Evidence and remaining boundaries: [notification guide](../NOTIFICATIONS.md),
+VERIFICATION.json and WORKLOG.md. Local checks: notification storage35, Chromium10,
+native/business35, broader storage114 and unit623 pass. Full V1/V2 passes; all84
+pending migrations fail later at friendship pokemon_instance_id (atomic rollback).
+No full requirement or current CI completion is claimed.

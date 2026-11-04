@@ -6,7 +6,7 @@ const express = require('express');
 const router = express.Router();
 const LeaderboardService = require('../leaderboardService');
 const { requireAuth } = require('../../../../shared/auth');
-const logger = require('../../shared/logger');
+const logger = require('../../../../shared/logger');
 
 const leaderboardService = new LeaderboardService();
 

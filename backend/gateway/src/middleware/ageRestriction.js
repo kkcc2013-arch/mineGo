@@ -2,6 +2,9 @@
 // REQ-00034: 年龄限制中间件
 
 'use strict';
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("gateway/src/middleware/ageRestriction"), "gateway/src/middleware/ageRestriction");
+
 
 const { getAgeProfile, checkPlayTimeLimit, isMinor, isFeatureDisabled } = require('@pmg/shared/ageVerification');
 const { AppError } = require('@pmg/shared/auth');
@@ -42,7 +45,7 @@ async function checkPlayTimeLimitMiddleware(req, res, next) {
     const limitCheck = await checkPlayTimeLimit(req.user.id);
     
     if (!limitCheck.withinLimit) {
-      console.warn(`[COPPA] User ${req.user.id} exceeded daily play limit: ${limitCheck.currentMinutes}/${limitCheck.limitMinutes} minutes`);
+      _consoleLogger.warn(`[COPPA] User ${req.user.id} exceeded daily play limit: ${limitCheck.currentMinutes}/${limitCheck.limitMinutes} minutes`);
       
       throw new AppError(
         4031,
@@ -84,7 +87,7 @@ function checkFeatureRestriction(feature) {
       
       // 检查功能是否被禁用
       if (isFeatureDisabled(profile, feature)) {
-        console.warn(`[COPPA] User ${req.user.id} attempted to access disabled feature: ${feature}`);
+        _consoleLogger.warn(`[COPPA] User ${req.user.id} attempted to access disabled feature: ${feature}`);
         
         throw new AppError(
           4032,
@@ -125,7 +128,7 @@ async function checkLoginPermissionMiddleware(req, res, next) {
       const permission = await canUserLogin(req.user.id);
       
       if (!permission.canLogin) {
-        console.warn(`[COPPA] User ${req.user.id} login denied: ${permission.reason}`);
+        _consoleLogger.warn(`[COPPA] User ${req.user.id} login denied: ${permission.reason}`);
         
         throw new AppError(
           4033,
@@ -168,12 +171,12 @@ function trackPlayTimeMiddleware() {
             // 最少记录1分钟
             if (minutes > 0) {
               await recordPlayTime(req.user.id, minutes);
-              console.log(`[COPPA] Recorded ${minutes} min play time for user ${req.user.id}`);
+              _consoleLogger.log(`[COPPA] Recorded ${minutes} min play time for user ${req.user.id}`);
             }
           }
         }
       } catch (err) {
-        console.error('[COPPA] Failed to track play time:', err);
+        _consoleLogger.error('[COPPA] Failed to track play time:', err);
       }
     });
     

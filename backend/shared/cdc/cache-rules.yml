@@ -1,0 +1,89 @@
+version: 1
+rules:
+  users:
+    - 'api:profile:*/v1/users/{id}/profile*'
+    - 'api:profile:*user:{id}*'
+    - 'api:user-stats:*/v1/users/{id}/stats*'
+    - 'api:user-stats:*user:{id}*'
+    - 'api:friends:*'
+    - 'api:leaderboard:*'
+    - 'user:{id}'
+  pokemon_species:
+    - 'api:pokedex:*'
+    - 'api:pokemon-list:*'
+    - 'api:pokemon-detail:*'
+    - 'api:gym-detail:*'
+    - 'api:raids:*'
+    - 'pokemon:species:{id}'
+  pokemon_instances:
+    - 'api:profile:*/v1/users/{user_id}/profile*'
+    - 'api:profile:*user:{user_id}*'
+    - 'api:gym-detail:*'
+    - 'api:pokemon-list:*user:{user_id}*'
+    - 'api:pokemon-detail:*{id}*'
+    - 'api:user-stats:*user:{user_id}*'
+    - 'pokemon:{id}'
+    - 'stamina:{id}'
+  candy_inventory:
+    - 'api:pokedex:*user:{user_id}*'
+    - 'api:pokemon-list:*user:{user_id}*'
+    - 'api:user-stats:*user:{user_id}*'
+  pokedex_entries:
+    - 'api:pokedex:*user:{user_id}*'
+    - 'api:user-stats:*user:{user_id}*'
+  catch_records:
+    - 'api:pokemon-list:*user:{user_id}*'
+    - 'api:user-stats:*user:{user_id}*'
+  gyms:
+    - 'api:gyms-nearby:*'
+    - 'api:gym-detail:*{id}*'
+    - 'gym:{id}'
+  gym_defenders:
+    - 'api:gyms-nearby:*'
+    - 'api:gym-detail:*{gym_id}*'
+    - 'api:pokemon-list:*user:{user_id}*'
+    - 'api:user-stats:*user:{user_id}*'
+    - 'pokemon:{pokemon_id}'
+    - 'gym:{gym_id}'
+  raids:
+    - 'api:raids-nearby:*'
+    - 'api:raids:*{id}*'
+    - 'api:gym-detail:*{gym_id}*'
+  raid_participants:
+    - 'api:raids-nearby:*'
+    - 'api:raids:*{raid_id}*'
+    - 'api:user-stats:*user:{user_id}*'
+  friendships:
+    - 'api:friends:*user:{user_a}*'
+    - 'api:friends:*user:{user_b}*'
+    - 'api:user-stats:*user:{user_a}*'
+    - 'api:user-stats:*user:{user_b}*'
+  friend_gifts:
+    - 'api:friends:*user:{sender_id}*'
+    - 'api:friends:*user:{receiver_id}*'
+  pokemon_trades:
+    - 'api:pokemon-list:*user:{initiator_id}*'
+    - 'api:pokemon-list:*user:{receiver_id}*'
+    - 'api:user-stats:*user:{initiator_id}*'
+    - 'api:user-stats:*user:{receiver_id}*'
+    - 'pokemon:{offered_pokemon}'
+    - 'pokemon:{received_pokemon}'
+  items:
+    - 'api:items:*'
+    - 'api:inventory:*'
+    - 'item:{id}'
+    - 'items:all'
+  player_inventory:
+    - 'api:items:*user:{user_id}*'
+    - 'api:items:*/v1/users/{user_id}/items*'
+    - 'api:inventory:*user:{user_id}*'
+    - 'api:user-stats:*user:{user_id}*'
+  daily_quests:
+    - 'api:rewards:*user:{user_id}*'
+    - 'api:user-stats:*user:{user_id}*'
+  user_achievements:
+    - 'api:achievements:*user:{user_id}*'
+    - 'api:user-stats:*user:{user_id}*'
+  orders:
+    - 'api:payments:*user:{user_id}*'
+    - 'api:user-stats:*user:{user_id}*'

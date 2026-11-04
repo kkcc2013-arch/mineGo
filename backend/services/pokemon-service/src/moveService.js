@@ -7,6 +7,12 @@ const { query, transaction } = require('../../../shared/db');
 const logger = require('../../../shared/logger');
 
 class MoveService {
+  constructor({db = {query, transaction}} = {}) { this.db = db; }
+  async lockOwner(client,userId) {
+    if ((await client.query('SELECT id FROM users WHERE id=$1 FOR UPDATE',[userId])).rowCount !== 1) {
+      throw new Error('Pokemon not found or not owned by user');
+    }
+  }
   /**
    * 获取技能列表
    * @param {Object} filters - 筛选条件
@@ -32,14 +38,14 @@ class MoveService {
     }
     
     // 获取总数
-    const countResult = await query(sql.replace('SELECT *', 'SELECT COUNT(*)'), params);
+    const countResult = await this.db.query(sql.replace('SELECT *', 'SELECT COUNT(*)'), params);
     const total = parseInt(countResult.rows[0].count);
     
     // 获取分页数据
     params.push(limit, offset);
     sql += ` ORDER BY category, name_zh LIMIT $${params.length - 1} OFFSET $${params.length}`;
     
-    const result = await query(sql, params);
+    const result = await this.db.query(sql, params);
     
     return {
       moves: result.rows,
@@ -54,7 +60,7 @@ class MoveService {
    * @param {string} moveId - 技能ID
    */
   async getMoveById(moveId) {
-    const result = await query('SELECT * FROM moves WHERE id = $1', [moveId]);
+    const result = await this.db.query('SELECT * FROM moves WHERE id = $1', [moveId]);
     
     if (result.rows.length === 0) {
       return null;
@@ -70,7 +76,7 @@ class MoveService {
    */
   async getPokemonMoves(userId, pokemonInstanceId) {
     // 验证精灵所有权
-    const pokemonResult = await query(`
+    const pokemonResult = await this.db.query(`
       SELECT 
         pi.id,
         pi.species_id,
@@ -91,7 +97,7 @@ class MoveService {
     const pokemon = pokemonResult.rows[0];
     
     // 获取该种族可学习的技能
-    const learnsetResult = await query(`
+    const learnsetResult = await this.db.query(`
       SELECT 
         pm.move_id,
         pm.learn_method,
@@ -116,7 +122,7 @@ class MoveService {
     let learnedMovesDetails = [];
     
     if (allLearnedMoves.length > 0) {
-      const learnedResult = await query(`
+      const learnedResult = await this.db.query(`
         SELECT * FROM moves WHERE id = ANY($1)
       `, [allLearnedMoves]);
       learnedMovesDetails = learnedResult.rows;
@@ -150,13 +156,14 @@ class MoveService {
    * @param {string} [forgetMoveId] - 需要遗忘的技能ID
    */
   async learnMove(userId, pokemonInstanceId, tmId, forgetMoveId = null) {
-    return await transaction(async (client) => {
+    return await this.db.transaction(async (client) => {
+      await this.lockOwner(client,userId);
       // 1. 验证 TM 是否在玩家背包
       const tmResult = await client.query(`
         SELECT ti.*, tm.move_id, tm.is_elite
         FROM tm_inventory ti
         JOIN technical_machines tm ON ti.tm_id = tm.id
-        WHERE ti.user_id = $1 AND ti.tm_id = $2 AND ti.quantity > 0
+        WHERE ti.user_id = $1 AND ti.tm_id = $2 AND ti.quantity > 0 FOR UPDATE OF ti
       `, [userId, tmId]);
       
       if (tmResult.rows.length === 0) {
@@ -179,7 +186,7 @@ class MoveService {
       
       // 3. 验证精灵所有权
       const pokemonResult = await client.query(`
-        SELECT * FROM pokemon_instances WHERE id = $1 AND user_id = $2
+        SELECT * FROM pokemon_instances WHERE id = $1 AND user_id = $2 FOR UPDATE
       `, [pokemonInstanceId, userId]);
       
       if (pokemonResult.rows.length === 0) {
@@ -307,10 +314,11 @@ class MoveService {
    * @param {string} [chargeMoveId] - 蓄力技能ID
    */
   async switchMove(userId, pokemonInstanceId, fastMoveId = null, chargeMoveId = null) {
-    return await transaction(async (client) => {
+    return await this.db.transaction(async (client) => {
+      await this.lockOwner(client,userId);
       // 验证精灵所有权
       const pokemonResult = await client.query(`
-        SELECT * FROM pokemon_instances WHERE id = $1 AND user_id = $2
+        SELECT * FROM pokemon_instances WHERE id = $1 AND user_id = $2 FOR UPDATE
       `, [pokemonInstanceId, userId]);
       
       if (pokemonResult.rows.length === 0) {
@@ -374,10 +382,11 @@ class MoveService {
    * @param {string} moveId - 技能ID
    */
   async forgetMove(userId, pokemonInstanceId, moveId) {
-    return await transaction(async (client) => {
+    return await this.db.transaction(async (client) => {
+      await this.lockOwner(client,userId);
       // 验证精灵所有权
       const pokemonResult = await client.query(`
-        SELECT * FROM pokemon_instances WHERE id = $1 AND user_id = $2
+        SELECT * FROM pokemon_instances WHERE id = $1 AND user_id = $2 FOR UPDATE
       `, [pokemonInstanceId, userId]);
       
       if (pokemonResult.rows.length === 0) {
@@ -450,7 +459,7 @@ class MoveService {
    * @param {number} speciesId - 种族ID
    */
   async getSpeciesLearnset(speciesId) {
-    const result = await query(`
+    const result = await this.db.query(`
       SELECT 
         pm.move_id,
         pm.learn_method,
@@ -479,7 +488,7 @@ class MoveService {
    * @param {number} userId - 用户ID
    */
   async getTMInventory(userId) {
-    const result = await query(`
+    const result = await this.db.query(`
       SELECT 
         ti.tm_id,
         ti.quantity,
@@ -510,7 +519,7 @@ class MoveService {
    * @param {number} quantity - 数量
    */
   async addTMToInventory(userId, tmId, quantity = 1) {
-    await query(`
+    await this.db.query(`
       INSERT INTO tm_inventory (user_id, tm_id, quantity)
       VALUES ($1, $2, $3)
       ON CONFLICT (user_id, tm_id)
@@ -522,3 +531,4 @@ class MoveService {
 }
 
 module.exports = new MoveService();
+module.exports.MoveService = MoveService;

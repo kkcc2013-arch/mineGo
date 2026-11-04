@@ -6,6 +6,7 @@ const { query } = require('../../../../shared/db');
 const { requireAuth, AppError, successResp } = require('../../../../shared/auth');
 const { SUPPORTED_LANGUAGES, DEFAULT_LANGUAGE } = require('../../../../shared/i18n');
 
+function createUserRouter(query) {
 const router = express.Router();
 router.use(requireAuth);
 
@@ -22,7 +23,7 @@ router.get('/me', async (req, res, next) => {
         (SELECT COUNT(*)::int FROM pokedex_entries WHERE user_id = u.id AND caught_count > 0) AS pokedex_caught,
         (SELECT COUNT(*)::int FROM friendships WHERE user_a = u.id OR user_b = u.id) AS friend_count
       FROM users u WHERE u.id = $1
-    `, [req.user.sub]);
+    `, [req.user.id]);
 
     if (!rows[0]) throw new AppError(2003, '用户不存在', 404);
     res.json(successResp(rows[0]));
@@ -39,7 +40,7 @@ router.patch('/me', async (req, res, next) => {
     const data = schema.parse(req.body);
 
     if (data.nickname) {
-      const dup = await query('SELECT id FROM users WHERE nickname=$1 AND id<>$2', [data.nickname, req.user.sub]);
+      const dup = await query('SELECT id FROM users WHERE nickname=$1 AND id<>$2', [data.nickname, req.user.id]);
       if (dup.rows.length > 0) throw new AppError(2002, '昵称已被使用', 409);
     }
 
@@ -47,7 +48,7 @@ router.patch('/me', async (req, res, next) => {
     if (fields.length === 0) return res.json(successResp(null, '无需更新'));
 
     const setClause = fields.map((f, i) => `${f} = $${i + 1}`).join(', ');
-    const values    = [...Object.values(data), req.user.sub];
+    const values    = [...Object.values(data), req.user.id];
     await query(`UPDATE users SET ${setClause} WHERE id = $${fields.length + 1}`, values);
 
     res.json(successResp(null, '更新成功'));
@@ -59,7 +60,7 @@ router.post('/team', async (req, res, next) => {
   try {
     const { team } = z.object({ team: z.enum(['VALOR','MYSTIC','INSTINCT']) }).parse(req.body);
     const { rows: [user] } = await query(
-      'SELECT team, team_changed_at FROM users WHERE id = $1', [req.user.sub]
+      'SELECT team, team_changed_at FROM users WHERE id = $1', [req.user.id]
     );
 
     if (user.team === team) throw new AppError(2005, '已在该队伍', 400);
@@ -72,7 +73,7 @@ router.post('/team', async (req, res, next) => {
 
     await query(
       'UPDATE users SET team=$1, team_changed_at=NOW() WHERE id=$2',
-      [team, req.user.sub]
+      [team, req.user.id]
     );
     res.json(successResp({ team }, '加入队伍成功'));
   } catch (err) { next(err); }
@@ -98,7 +99,7 @@ router.get('/me/inventory', async (req, res, next) => {
       SELECT pokeball_count, greatball_count, ultraball_count, masterball_count,
              stardust, coins, premium_coins
       FROM users WHERE id = $1
-    `, [req.user.sub]);
+    `, [req.user.id]);
     res.json(successResp(inv));
   } catch (err) { next(err); }
 });
@@ -111,12 +112,12 @@ router.get('/me/quests', async (req, res, next) => {
       INSERT INTO daily_quests (user_id)
       VALUES ($1)
       ON CONFLICT (user_id, quest_date) DO NOTHING
-    `, [req.user.sub]);
+    `, [req.user.id]);
 
     const { rows: [quest] } = await query(`
       SELECT * FROM daily_quests
       WHERE user_id=$1 AND quest_date = CURRENT_DATE
-    `, [req.user.sub]);
+    `, [req.user.id]);
     res.json(successResp(quest));
   } catch (err) { next(err); }
 });
@@ -126,13 +127,13 @@ router.get('/me/achievements', async (req, res, next) => {
   try {
     const { rows } = await query(`
       SELECT ad.id, ad.name_zh, ad.category, ad.tiers,
-             COALESCE(ua.current_value, 0) AS current_value,
+             COALESCE((to_jsonb(ua)->>'progress')::double precision, ua.current_value, 0) AS current_value,
              COALESCE(ua.current_tier, 0) AS current_tier,
              ua.unlocked_at
       FROM achievement_definitions ad
       LEFT JOIN user_achievements ua ON ua.achievement_id = ad.id AND ua.user_id = $1
       ORDER BY ad.category, ad.id
-    `, [req.user.sub]);
+    `, [req.user.id]);
     res.json(successResp(rows));
   } catch (err) { next(err); }
 });
@@ -148,7 +149,7 @@ router.put('/me/language', async (req, res, next) => {
 
     await query(
       'UPDATE users SET language_preference = $1 WHERE id = $2',
-      [language, req.user.sub]
+      [language, req.user.id]
     );
 
     res.json(successResp({ language }, '语言偏好已更新'));
@@ -172,7 +173,7 @@ router.get('/me/language', async (req, res, next) => {
   try {
     const { rows: [user] } = await query(
       'SELECT language_preference FROM users WHERE id = $1',
-      [req.user.sub]
+      [req.user.id]
     );
 
     if (!user) {
@@ -198,7 +199,7 @@ router.put('/me/unit-system', async (req, res, next) => {
 
     await query(
       'UPDATE users SET unit_system = $1 WHERE id = $2',
-      [unitSystem, req.user.sub]
+      [unitSystem, req.user.id]
     );
 
     res.json(successResp({ unitSystem }, '单位制偏好已更新'));
@@ -222,7 +223,7 @@ router.get('/me/unit-system', async (req, res, next) => {
   try {
     const { rows: [user] } = await query(
       'SELECT unit_system, country FROM users WHERE id = $1',
-      [req.user.sub]
+      [req.user.id]
     );
 
     if (!user) {
@@ -249,7 +250,7 @@ router.get('/me/preferences', async (req, res, next) => {
   try {
     const { rows: [user] } = await query(
       'SELECT language_preference, unit_system, timezone, country FROM users WHERE id = $1',
-      [req.user.sub]
+      [req.user.id]
     );
 
     if (!user) {
@@ -274,4 +275,7 @@ router.get('/me/preferences', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-module.exports = router;
+return router;
+}
+module.exports = createUserRouter(query);
+module.exports.createUserRouter = createUserRouter;

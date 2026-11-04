@@ -6,9 +6,9 @@
 
 const express = require('express');
 const router = express.Router();
-const { canaryManager } = require('../../shared/canaryManager');
-const { db } = require('../../shared/db');
-const { logger } = require('../../shared/logger');
+const { canaryManager } = require('../../../shared/canaryManager');
+const { db } = require('../../../shared/db');
+const { logger } = require('../../../shared/logger');
 const { requireAdmin, requireAuth } = require('../middleware/auth');
 
 /**

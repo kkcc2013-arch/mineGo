@@ -3,6 +3,9 @@
  * REQ-00505: 插件生命周期管理与热插拔系统
  */
 
+
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/pluginSystem/PluginHotLoader"), "shared/pluginSystem/PluginHotLoader");
 const path = require('path');
 const fs = require('fs').promises;
 
@@ -46,7 +49,7 @@ class PluginHotLoader {
     
     this.pluginPaths.set(plugin.name, absolutePath);
     
-    console.log(`[PluginHotLoader] Loaded plugin: ${plugin.name} v${plugin.version} from ${absolutePath}`);
+    _consoleLogger.log(`[PluginHotLoader] Loaded plugin: ${plugin.name} v${plugin.version} from ${absolutePath}`);
     
     return plugin;
   }
@@ -69,7 +72,7 @@ class PluginHotLoader {
     const fsWatch = require('fs').watch;
     const watcher = fsWatch(pluginPath, async (eventType) => {
       if (eventType === 'change') {
-        console.log(`[PluginHotLoader] Detected change in ${pluginName}, reloading...`);
+        _consoleLogger.log(`[PluginHotLoader] Detected change in ${pluginName}, reloading...`);
         
         try {
           // 获取当前配置
@@ -82,18 +85,18 @@ class PluginHotLoader {
           await this.manager.initializePlugin(pluginName);
           await this.manager.startPlugin(pluginName);
           
-          console.log(`[PluginHotLoader] Plugin ${pluginName} reloaded successfully`);
+          _consoleLogger.log(`[PluginHotLoader] Plugin ${pluginName} reloaded successfully`);
           
           this.manager.emit('plugin:hot-reloaded', { name: pluginName });
         } catch (error) {
-          console.error(`[PluginHotLoader] Failed to reload ${pluginName}:`, error.message);
+          _consoleLogger.error(`[PluginHotLoader] Failed to reload ${pluginName}:`, error.message);
           this.manager.emit('plugin:reload-error', { name: pluginName, error });
         }
       }
     });
 
     this.watchers.set(pluginName, watcher);
-    console.log(`[PluginHotLoader] Enabled watch for ${pluginName}`);
+    _consoleLogger.log(`[PluginHotLoader] Enabled watch for ${pluginName}`);
   }
 
   /**
@@ -105,7 +108,7 @@ class PluginHotLoader {
     if (watcher) {
       watcher.close();
       this.watchers.delete(pluginName);
-      console.log(`[PluginHotLoader] Disabled watch for ${pluginName}`);
+      _consoleLogger.log(`[PluginHotLoader] Disabled watch for ${pluginName}`);
     }
   }
 
@@ -115,7 +118,7 @@ class PluginHotLoader {
   disableAllWatchers() {
     for (const [name, watcher] of this.watchers) {
       watcher.close();
-      console.log(`[PluginHotLoader] Disabled watch for ${name}`);
+      _consoleLogger.log(`[PluginHotLoader] Disabled watch for ${name}`);
     }
     this.watchers.clear();
   }
@@ -139,11 +142,11 @@ class PluginHotLoader {
         }
       }
 
-      console.log(`[PluginHotLoader] Scanned ${dirPath}, found ${plugins.length} plugin files`);
+      _consoleLogger.log(`[PluginHotLoader] Scanned ${dirPath}, found ${plugins.length} plugin files`);
       return plugins;
     } catch (error) {
       if (error.code === 'ENOENT') {
-        console.log(`[PluginHotLoader] Directory ${dirPath} not found`);
+        _consoleLogger.log(`[PluginHotLoader] Directory ${dirPath} not found`);
         return [];
       }
       throw error;

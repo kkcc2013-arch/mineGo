@@ -158,7 +158,8 @@ class JwtBlacklist {
       // Set TTL on the sessions hash
       multi.expire(`${BLACKLIST_USER_SESSIONS_PREFIX}${userId}`, 2592000); // 30 days
       
-      await multi.exec();
+      const results=await multi.exec();
+      if(!Array.isArray(results)||results.some(result=>result[0]))throw new Error('Session registration failed');
       
       logger.debug({ jti, userId }, 'Session registered');
       return true;

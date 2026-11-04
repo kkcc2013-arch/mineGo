@@ -43,6 +43,12 @@ async function main() {
       default: 'all',
       type: 'string'
     })
+    .option('base-url', {
+      describe: 'URL of the real test or staging API',
+      default: process.env.API_BASE_URL,
+      type: 'string',
+      demandOption: true
+    })
     .option('iterations', {
       alias: 'i',
       describe: 'Number of test iterations per endpoint',
@@ -72,6 +78,15 @@ async function main() {
       describe: 'Verbose output',
       default: false,
       type: 'boolean'
+    })
+    .check(argv => {
+      const url = new URL(argv.baseUrl);
+      if (!['http:', 'https:'].includes(url.protocol)) throw new Error('base-url must be HTTP or HTTPS');
+      for (const value of [argv.iterations, argv.concurrency]) {
+        if (!Number.isInteger(value) || value < 1) throw new Error('iterations and concurrency must be positive integers');
+      }
+      if (!Number.isFinite(argv.threshold) || argv.threshold < 0) throw new Error('threshold must be non-negative');
+      return true;
     })
     .help()
     .argv;
@@ -105,11 +120,14 @@ async function main() {
     // 确定要测试的端点
     let endpoints = DEFAULT_ENDPOINTS;
     if (argv.endpoints !== 'all') {
-      const specifiedEndpoints = argv.endpoints.split(',');
-      endpoints = DEFAULT_ENDPOINTS.filter(ep => 
-        specifiedEndpoints.includes(ep.path) || 
-        specifiedEndpoints.includes(`${ep.method} ${ep.path}`)
-      );
+      endpoints = argv.endpoints.split(',').map(value => {
+        const entry = value.trim();
+        const [method, path] = entry.startsWith('/') ? ['GET', entry] : entry.split(' ');
+        if (!/^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)$/.test(method) || !/^\/\S*$/.test(path || '')) {
+          throw new Error('Each endpoint must be an absolute path or METHOD /path');
+        }
+        return {method, path};
+      });
     }
 
     console.log(`\n测试端点数量: ${endpoints.length}`);
@@ -124,7 +142,8 @@ async function main() {
       
       const resultPromise = tester.runTest(endpointKey, {
         iterations: argv.iterations,
-        concurrency: argv.concurrency
+        concurrency: argv.concurrency,
+        baseUrl: argv.baseUrl
       }).then(result => {
         const status = result.passed ? '✅ 通过' : '❌ 失败';
         console.log(`  ${status}`);
@@ -207,14 +226,14 @@ async function main() {
       console.log('\n✅ 性能回归测试全部通过');
     }
 
-    process.exit(exitCode);
+    process.exitCode = exitCode;
 
   } catch (error) {
     console.error('\n❌ 测试执行失败:', error.message);
     if (argv.verbose) {
       console.error(error.stack);
     }
-    process.exit(1);
+    process.exitCode = 1;
   } finally {
     await db.end();
     redis.disconnect();
@@ -297,5 +316,5 @@ function generateMarkdownReport(results, config) {
 // 运行主程序
 main().catch(error => {
   console.error('Fatal error:', error);
-  process.exit(1);
+  process.exitCode = 1;
 });

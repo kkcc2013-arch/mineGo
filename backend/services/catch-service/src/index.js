@@ -1,6 +1,9 @@
 // catch-service/src/index.js
 // REQ-00169: 微服务启动器统一化 - 使用 ServiceFactory 重构
 'use strict';
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("services/catch-service/src/index"), "services/catch-service/src/index");
+
 
 const { ServiceFactory } = require('../../../shared/ServiceFactory');
 const { query, preparedQuery } = require('../../../shared/db');
@@ -456,7 +459,7 @@ async function main() {
 
 if (require.main === module) {
   main().catch(err => {
-    console.error('Failed to start catch-service:', err);
+    _consoleLogger.error('Failed to start catch-service:', err);
     process.exit(1);
   });
 }

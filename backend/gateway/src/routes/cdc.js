@@ -6,7 +6,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { getCacheInvalidationCenter } = require('../../shared/cdc');
+const { getCacheInvalidationCenter } = require('../../../shared/cdc');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 /**

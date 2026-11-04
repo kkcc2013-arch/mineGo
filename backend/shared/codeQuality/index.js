@@ -1,6 +1,9 @@
 // backend/shared/codeQuality/index.js
 // Code Quality module entry point
 'use strict';
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/codeQuality/index"), "shared/codeQuality/index");
+
 
 const CodeComplexityAnalyzer = require('./CodeComplexityAnalyzer');
 const RefactoringRecommender = require('./RefactoringRecommender');
@@ -33,11 +36,11 @@ class CodeQualityManager {
     const startTime = Date.now();
 
     // Step 1: Analyze code complexity
-    console.log('Analyzing code complexity...');
+    _consoleLogger.log('Analyzing code complexity...');
     const analysisResults = await this.analyzer.analyzeDirectory(dirPath, options);
 
     // Step 2: Generate refactoring recommendations
-    console.log('Generating refactoring recommendations...');
+    _consoleLogger.log('Generating refactoring recommendations...');
     const recommendations = await this.recommender.generateRecommendations(
       analysisResults,
       options.gitHistory || {},
@@ -46,7 +49,7 @@ class CodeQualityManager {
     );
 
     // Step 3: Calculate technical debt
-    console.log('Calculating technical debt...');
+    _consoleLogger.log('Calculating technical debt...');
     const debtScore = this.debtScorer.calculate(
       analysisResults,
       options.testCoverage || {}
@@ -55,7 +58,7 @@ class CodeQualityManager {
     // Step 4: Save to database if available
     let snapshotId = null;
     if (this.trendTracker && options.saveSnapshot !== false) {
-      console.log('Saving quality snapshot...');
+      _consoleLogger.log('Saving quality snapshot...');
       try {
         snapshotId = await this.trendTracker.saveSnapshot(
           analysisResults,
@@ -63,7 +66,7 @@ class CodeQualityManager {
           options.branch || 'main'
         );
       } catch (error) {
-        console.error('Failed to save snapshot:', error.message);
+        _consoleLogger.error('Failed to save snapshot:', error.message);
       }
     }
 

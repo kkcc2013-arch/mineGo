@@ -1,0 +1,18 @@
+{
+  "date": "2026-10-19",
+  "runtime": "Node.js24.19.0",
+  "result": "failed_original_50ms_gate",
+  "observedMs": 53.27328299999999,
+  "originalLimitMs": 50,
+  "scope": "Actual PostgreSQL writer operation to both independent L1 maps and actual Redis deletion; final repeated isolated fixture under native coverage. Other iterations not preserved in this failed assertion output; do not infer their values. No target waiver. Earlier positive report belongs to an earlier fixture/source revision.",
+  "sourceSha256": {
+    "backend/shared/cache/CoherentCache.js": "537f40cebccd1a3e1251da4cbaf9f8236136b85e9303b6997071f227eba40275",
+    "backend/shared/cdc/CacheInvalidationCenter.js": "a3f5d8ce069f8edb5c9b0749a16d3491e3a1cfce893709f0e01f9a387b994779",
+    "backend/shared/cdc/PgCDCListener.js": "e89725a3447e797376434f7fae4800ee1152da5bfa61db1c0f6fbb040982bf4e",
+    "backend/shared/cdc/ChangeToCacheMapper.js": "f700ff760db31d9aadcccb03ef087007ddce7e0a2ff6c1981c2185787951db8f",
+    "backend/shared/cdc/cache-rules.yml": "8db1b56a4b2d0ecb04bd0eed74ab1953ef0577581423d943231652ae5b673b53",
+    "database/pending/repairs/20260707_100000__cdc_triggers_for_cache_invalidation.sql": "279e7b764797d2ad636f704c3e73c97c504a6077a7c1bc14aa39f30737c7b478",
+    "backend/tests/regression/cdc-cache-runtime.test.js": "42dec16284e654d4f77e532f5e87f0b835c626bf74b5b2599b1d270f11e15ebe"
+  },
+  "logSha256": "2d33083127072df8f04836c614413a6e58f8fac531bd779298df1c4ba64d063e"
+}

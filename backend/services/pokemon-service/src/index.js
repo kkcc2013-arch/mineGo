@@ -1,6 +1,9 @@
 // pokemon-service/src/index.js
 // REQ-00211: 微服务样板代码统一初始化器 - 重构版本
 'use strict';
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("services/pokemon-service/src/index"), "services/pokemon-service/src/index");
+
 
 const { ServiceFactory } = require('../../../shared/ServiceFactory');
 const { query, transaction } = require('../../../shared/db');
@@ -468,12 +471,6 @@ async function main() {
       app.use('/training', require('./routes/trainingCamp'));
 
       // ═══════════════════════════════════════════════════════════
-      // REQ-00076: 成就系统
-      // ═══════════════════════════════════════════════════════════
-
-      app.use('/achievements', require('./routes/achievements'));
-
-      // ═══════════════════════════════════════════════════════════
       // REQ-00167: 本地化 API 端点
       // ═══════════════════════════════════════════════════════════
 
@@ -582,7 +579,7 @@ async function main() {
 
 // 启动服务
 main().catch(err => {
-  console.error('Failed to start pokemon-service:', err);
+  _consoleLogger.error('Failed to start pokemon-service:', err);
   process.exit(1);
 });
 

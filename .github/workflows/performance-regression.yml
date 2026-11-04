@@ -7,6 +7,9 @@ on:
     branches: [main]
   workflow_dispatch:
     inputs:
+      base_url:
+        description: 'URL of the running test or staging API'
+        required: true
       endpoints:
         description: 'API endpoints to test (comma-separated, or "all")'
         required: false
@@ -57,18 +60,11 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
       
       - name: Install dependencies
         run: npm ci
         working-directory: backend
-      
-      - name: Setup test database
-        run: |
-          npm run db:migrate:test
-          npm run db:seed:test
-        working-directory: backend
-        env:
-          DATABASE_URL: postgres://test:test123@localhost:5432/minego_test
       
       - name: Create performance tables
         run: |
@@ -76,6 +72,11 @@ jobs:
         env:
           PGPASSWORD: test123
       
+      - name: Require a live API target
+        run: test -n "$API_BASE_URL" || { echo '::error::Configure PERF_BASE_URL or supply the workflow base_url input. Live API performance has not been verified.'; exit 1; }
+        env:
+          API_BASE_URL: ${{ inputs.base_url || vars.PERF_BASE_URL }}
+
       - name: Run performance regression tests
         id: perf-test
         run: |
@@ -88,9 +89,10 @@ jobs:
           DATABASE_URL: postgres://test:test123@localhost:5432/minego_test
           REDIS_URL: redis://localhost:6379
           NODE_ENV: test
+          API_BASE_URL: ${{ inputs.base_url || vars.PERF_BASE_URL }}
       
       - name: Generate performance report
-        if: always()
+        if: always() && steps.perf-test.outcome != 'skipped'
         run: |
           node tests/regression/generate-performance-report.js
         working-directory: backend
@@ -107,24 +109,15 @@ jobs:
             backend/performance-report.md
           retention-days: 30
       
-      - name: Comment on PR (if regression detected)
-        if: failure() && github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            try {
-              const report = fs.readFileSync('backend/performance-report.md', 'utf8');
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: `## ⚠️ Performance Regression Detected\n\n${report}`
-              });
-            } catch (e) {
-              console.log('Report not found, skipping comment');
-            }
-      
+      - name: Publish performance summary
+        if: always()
+        run: |
+          if [ -f backend/test-results/performance/regression-report.md ]; then
+            cat backend/test-results/performance/regression-report.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Live API benchmark did not produce a report; performance is unverified.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Update baseline (on main branch push)
         if: success() && github.ref == 'refs/heads/main'
         run: |
@@ -134,31 +127,23 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           REDIS_URL: ${{ secrets.REDIS_URL }}
       
-      - name: Notify on Slack (if critical regression)
-        if: failure()
-        uses: slackapi/slack-github-action@v1.26.0
-        with:
-          payload: |
-            {
-              "text": "⚠️ Performance Regression Detected in ${{ github.repository }}",
-              "blocks": [
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*Performance Regression Alert*\n\nRepository: ${{ github.repository }}\nBranch: ${{ github.ref }}\nCommit: ${{ github.sha }}\n\nCheck the workflow for details: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                  }
-                }
-              ]
-            }
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
-
   # 单元测试任务
   unit-tests:
     runs-on: ubuntu-latest
-    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: minego_test
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+        ports: ['5432:5432']
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
       
@@ -167,23 +152,25 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
       
       - name: Install dependencies
         run: npm ci
         working-directory: backend
       
-      - name: Run unit tests
-        run: npm test -- tests/unit/performanceRegressionTester.test.js
+      - name: Run performance unit tests and enforce measured coverage
+        run: npm run test:performance:unit
         working-directory: backend
         env:
           NODE_ENV: test
-      
-      - name: Check test coverage
-        run: npm run coverage -- tests/unit/performanceRegressionTester.test.js
+
+      - name: Verify real performance storage and retention
+        run: npm run test:performance:storage
         working-directory: backend
         env:
-          NODE_ENV: test
-      
+          TEST_DATABASE_URL: postgres://test:test@localhost:5432/minego_test
+          TEST_REDIS_URL: redis://localhost:6379
+
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:

@@ -10,6 +10,8 @@ class MessageCenter {
   constructor(options = {}) {
     this.container = options.container || document.body;
     this.apiClient = options.apiClient;
+    this.userId = options.userId || null;
+    this.destroyed = false;
     this.onNavigate = options.onNavigate || (() => {});
     
     // 状态
@@ -24,11 +26,11 @@ class MessageCenter {
     // 配置
     this.tabs = [
       { key: 'all', label: '全部', icon: '📬' },
-      { key: 'RARE_SPAWN', label: '精灵', icon: '🐉' },
-      { key: 'RAID_STARTED', label: 'Raid', icon: '⚔️' },
-      { key: 'FRIEND_REQUEST', label: '好友', icon: '👥' },
-      { key: 'QUEST_COMPLETE', label: '奖励', icon: '✅' },
-      { key: 'SYSTEM', label: '系统', icon: '📢' },
+      { key: 'pokemon', label: '精灵', icon: '🐉' },
+      { key: 'raid', label: 'Raid', icon: '⚔️' },
+      { key: 'friend', label: '好友', icon: '👥' },
+      { key: 'reward', label: '奖励', icon: '✅' },
+      { key: 'system', label: '系统', icon: '📢' },
     ];
     
     // DOM 元素
@@ -38,11 +40,11 @@ class MessageCenter {
     
     // IndexedDB 缓存
     this.db = null;
-    this.dbName = 'PMG_Messages';
+    this.dbName = this.userId ? `PMG_Messages_${this.userId}` : null;
     this.dbVersion = 1;
     
     // 初始化
-    this.init();
+    this.ready = this.init();
   }
   
   /**
@@ -52,6 +54,7 @@ class MessageCenter {
     // 初始化 IndexedDB
     await this.initIndexedDB();
     
+    if (this.destroyed) { this.db?.close(); return; }
     // 创建 DOM 元素
     this.createElement();
     
@@ -68,6 +71,7 @@ class MessageCenter {
    * 初始化 IndexedDB
    */
   async initIndexedDB() {
+    if (!this.dbName) return;
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, this.dbVersion);
       
@@ -317,6 +321,7 @@ class MessageCenter {
       const response = await this.apiClient.get('/api/notifications', { params });
       
       if (response.success) {
+        if (this.userId && response.data.ownerId && response.data.ownerId !== this.userId) { this.notifications=[]; this.unreadCount=0; this.renderNotifications(); this.updateBadge(); throw new Error('Notification account changed'); }
         this.notifications = response.data.notifications;
         this.totalPages = response.data.pagination.totalPages;
         this.unreadCount = response.data.unreadCount;
@@ -332,12 +337,15 @@ class MessageCenter {
     } catch (error) {
       console.error('[MessageCenter] Load notifications error:', error);
       
+      if (error.message === 'Notification account changed') return;
       // 尝试从缓存加载
       const cached = await this.getCachedNotifications();
-      if (cached.length > 0) {
-        this.notifications = cached;
-        this.renderNotifications();
-      }
+      const categories={RARE_SPAWN:'pokemon',RAID_STARTED:'raid',GYM_UNDER_ATTACK:'raid',GYM_LOST:'raid',FRIEND_REQUEST:'friend',GIFT_RECEIVED:'friend',TRADE_REQUEST:'friend',QUEST_COMPLETE:'reward',SYSTEM:'system'};
+      const filtered=cached.filter(record=>this.currentTab==='all'||(record.category||categories[record.type])===this.currentTab)
+        .sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)||Number(b.id)-Number(a.id));
+      this.totalPages=Math.ceil(filtered.length/20);this.notifications=filtered.slice((this.currentPage-1)*20,this.currentPage*20);
+      this.unreadCount=cached.filter(record=>!record.isRead).length;
+      this.renderNotifications();this.updateBadge();this.updateMarkAllReadButton();
     } finally {
       this.isLoading = false;
       this.loadingElement.style.display = 'none';
@@ -347,6 +355,9 @@ class MessageCenter {
   /**
    * 渲染通知列表
    */
+  escapeHTML(value) {
+    return String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]));
+  }
   renderNotifications() {
     if (this.notifications.length === 0) {
       this.emptyElement.style.display = 'flex';
@@ -356,13 +367,13 @@ class MessageCenter {
     this.emptyElement.style.display = 'none';
     
     this.listElement.innerHTML = this.notifications.map(notification => `
-      <div class="notification-card ${notification.isRead ? 'read' : 'unread'}" data-id="${notification.id}">
+      <div class="notification-card ${notification.isRead ? 'read' : 'unread'}" data-id="${this.escapeHTML(notification.id)}">
         ${!notification.isRead ? '<div class="unread-dot"></div>' : ''}
-        <div class="notification-icon">${notification.icon}</div>
+        <div class="notification-icon">${this.escapeHTML(notification.icon)}</div>
         <div class="notification-content">
-          <div class="notification-title">${notification.title}</div>
-          <div class="notification-body">${notification.body}</div>
-          <div class="notification-time">${notification.timeAgo}</div>
+          <div class="notification-title">${this.escapeHTML(notification.title)}</div>
+          <div class="notification-body">${this.escapeHTML(notification.body)}</div>
+          <div class="notification-time">${this.escapeHTML(notification.timeAgo)}</div>
         </div>
         ${this.getActionButtons(notification)}
       </div>
@@ -423,7 +434,7 @@ class MessageCenter {
    * 处理通知点击
    */
   async handleNotificationClick(id) {
-    const notification = this.notifications.find(n => n.id === id);
+    const notification = this.notifications.find(n => String(n.id) === String(id));
     if (!notification) return;
     
     // 标记为已读
@@ -439,13 +450,13 @@ class MessageCenter {
    * 处理通知操作
    */
   async handleNotificationAction(id, action) {
-    const notification = this.notifications.find(n => n.id === id);
+    const notification = this.notifications.find(n => String(n.id) === String(id));
     if (!notification) return;
     
     switch (action) {
       case 'navigate':
         // 导航到地图位置
-        if (notification.data.lat && notification.data.lng) {
+        if (Number.isFinite(notification.data.lat) && Number.isFinite(notification.data.lng)) {
           this.close();
           this.onNavigate('map', {
             lat: notification.data.lat,
@@ -496,11 +507,12 @@ class MessageCenter {
       await this.apiClient.patch(`/api/notifications/${id}/read`);
       
       // 更新本地状态
-      const notification = this.notifications.find(n => n.id === id);
+      const notification = this.notifications.find(n => String(n.id) === String(id));
       if (notification) {
         notification.isRead = true;
       }
       
+      await this.cacheNotifications(this.notifications);
       // 更新 UI
       const card = this.listElement.querySelector(`[data-id="${id}"]`);
       if (card) {
@@ -526,7 +538,9 @@ class MessageCenter {
       
       // 更新本地状态
       this.notifications.forEach(n => n.isRead = true);
-      
+      const cached=await this.getCachedNotifications();
+      await this.cacheNotifications(cached.map(record=>({...record,isRead:true})));
+      await this.cacheNotifications(this.notifications);
       // 重新渲染
       this.renderNotifications();
       
@@ -547,7 +561,7 @@ class MessageCenter {
     
     try {
       await this.apiClient.post('/api/notifications/clear-read');
-      
+      await this.removeReadCache();
       // 重新加载
       await this.loadNotifications();
     } catch (error) {
@@ -678,18 +692,27 @@ class MessageCenter {
    */
   setupWebSocketListener() {
     // 监听新通知事件
-    document.addEventListener('notification:received', async (event) => {
+    this.notificationListener = async (event) => {
+      if (this.userId && event.detail.recipientId !== this.userId) return;
       const notification = event.detail;
       
-      // 更新未读数量
-      this.unreadCount++;
-      this.updateBadge();
+      // Read the authoritative count so replays and local reconnects cannot
+      // increment the badge twice for the same saved notification.
+      await this.loadUnreadCount();
       
       // 如果消息中心打开，刷新列表
       if (this.isOpen) {
         await this.loadNotifications();
       }
-    });
+    };
+    document.addEventListener('notification:received', this.notificationListener);
+  }
+  destroy() {
+    this.destroyed = true;
+    if (this.notificationListener) document.removeEventListener('notification:received', this.notificationListener);
+    this.db?.close();
+    this.element?.remove();
+    this.badgeElement?.parentElement?.remove();
   }
   
   /**
@@ -727,6 +750,15 @@ class MessageCenter {
   /**
    * 缓存通知到 IndexedDB
    */
+  async removeReadCache() {
+    if(!this.db)return;
+    await new Promise((resolve,reject)=>{
+      const transaction=this.db.transaction('notifications','readwrite');
+      const request=transaction.objectStore('notifications').openCursor();
+      request.onsuccess=()=>{const cursor=request.result;if(cursor){if(cursor.value.isRead===true)cursor.delete();cursor.continue();}};
+      transaction.oncomplete=resolve;transaction.onerror=()=>reject(transaction.error);
+    });
+  }
   async cacheNotifications(notifications) {
     if (!this.db) return;
     

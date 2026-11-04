@@ -3,6 +3,9 @@
  * 所有日志输出适配器必须实现此接口
  */
 'use strict';
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/logAdapters/ILogOutputAdapter"), "shared/logAdapters/ILogOutputAdapter");
+
 
 class ILogOutputAdapter {
   constructor(name) {
@@ -29,7 +32,7 @@ class ILogOutputAdapter {
     // 初始化缓冲区定时刷新
     if (config.buffer?.enabled) {
       this.flushTimer = setInterval(
-        () => this.flush().catch(err => console.error(`[${this.name}] Flush error:`, err)),
+        () => this.flush().catch(err => _consoleLogger.error(`[${this.name}] Flush error:`, err)),
         config.buffer.flushInterval || 5000
       );
     }
@@ -130,7 +133,7 @@ class ILogOutputAdapter {
     
     // 检查是否达到缓冲区上限
     if (this.buffer.length >= (this.config.buffer.maxSize || 1000)) {
-      this.flush().catch(err => console.error(`[${this.name}] Buffer overflow flush error:`, err));
+      this.flush().catch(err => _consoleLogger.error(`[${this.name}] Buffer overflow flush error:`, err));
     }
     
     return true;

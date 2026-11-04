@@ -3,7 +3,7 @@
 - **编号**：REQ-00200
 - **类别**：安全加固
 - **优先级**：P1
-- **状态**：new
+- **状态**：in_progress
 - **涉及服务/模块**：gateway、user-service、payment-service、social-service、backend/shared/riskVerifier.js、game-client
 - **创建时间**：2026-06-14 15:05
 - **依赖需求**：REQ-00057（MFA 系统）、REQ-00064（CAPTCHA 系统）

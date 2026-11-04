@@ -1,6 +1,4 @@
 /**
-const { createLogger } = require('./logger');
-const logger = createLogger('dependencyAnalyzer');
  * Dependency Analyzer - 微服务依赖关系分析器
  * 
  * 功能：
@@ -12,11 +10,15 @@ const logger = createLogger('dependencyAnalyzer');
  * @module DependencyAnalyzer
  */
 
+const { createLogger } = require('./logger');
+const logger = createLogger('dependency-analyzer');
+
 const fs = require('fs').promises;
 const path = require('path');
 
 class DependencyAnalyzer {
-  constructor() {
+  constructor({backendPath = path.resolve(__dirname, '..')} = {}) {
+    this.backendPath = backendPath;
     this.services = [
       'gateway',
       'user-service',
@@ -38,7 +40,10 @@ class DependencyAnalyzer {
    * 分析所有服务的依赖关系
    */
   async analyzeAll() {
-    logger.info({ module: 'DependencyAnalyzer] Starting dependency analysis...' }, 'DependencyAnalyzer] Starting dependency analysis... message');;
+    this.dependencies = [];
+    this.serviceDirs.clear();
+    this.eventTopics.clear();
+    logger.info('Starting dependency analysis');
     
     // 1. 发现服务目录
     await this.discoverServices();
@@ -54,13 +59,15 @@ class DependencyAnalyzer {
     // 4. 计算健康度评分
     const healthScores = this.calculateHealthScores();
     
-    logger.info({ module: 'DependencyAnalyzer] Analysis complete. Found ${this.dependencies.length} dependencies' }, 'DependencyAnalyzer] Analysis complete. Found ${this.dependencies.length} dependencies message');;
+    logger.info('Dependency analysis completed', {dependencies: this.dependencies.length});
     
     return {
       services: this.services,
+      analyzedServices: [...this.serviceDirs.keys()],
+      eventTopics: Object.fromEntries(this.eventTopics),
       dependencies: this.dependencies,
       cycles,
-      healthScores,
+      healthScores: Object.fromEntries(healthScores),
       startupOrder: this.getStartupOrder(),
       analyzedAt: new Date().toISOString()
     };
@@ -70,19 +77,19 @@ class DependencyAnalyzer {
    * 发现服务目录
    */
   async discoverServices() {
-    const backendPath = path.join(__dirname, '../../services');
+    const backendPath = this.backendPath;
     
     for (const service of this.services) {
-      const servicePath = path.join(backendPath, service.replace('-service', '-service'));
+      const servicePath = service === 'gateway' ? path.join(backendPath, 'gateway') : path.join(backendPath, 'services', service);
       try {
         await fs.access(servicePath);
         this.serviceDirs.set(service, servicePath);
       } catch (err) {
-        logger.warn({ module: 'DependencyAnalyzer] Service directory not found: ${service}' }, 'DependencyAnalyzer] Service directory not found: ${service} warning');;
+        throw new Error(`Service directory unavailable: ${servicePath}`, {cause: err});
       }
     }
     
-    logger.info({ module: 'DependencyAnalyzer] Found ${this.serviceDirs.size} service directories' }, 'DependencyAnalyzer] Found ${this.serviceDirs.size} service directories message');;
+    logger.info('Service directories discovered', {services: this.serviceDirs.size});
   }
 
   /**
@@ -92,7 +99,7 @@ class DependencyAnalyzer {
     const servicePath = this.serviceDirs.get(serviceName);
     if (!servicePath) return;
     
-    logger.info({ module: 'DependencyAnalyzer] Analyzing ${serviceName}...' }, 'DependencyAnalyzer] Analyzing ${serviceName}... message');;
+    logger.debug('Analyzing service', {serviceName});
     
     // 分析源码文件
     const srcPath = path.join(servicePath, 'src');
@@ -119,7 +126,7 @@ class DependencyAnalyzer {
         }
       }
     } catch (err) {
-      // 目录不存在，忽略
+      throw err;
     }
   }
 
@@ -142,7 +149,7 @@ class DependencyAnalyzer {
       // 4. 检测服务代理配置
       this.extractProxyConfig(content, serviceName, filePath);
     } catch (err) {
-      logger.warn({ module: 'DependencyAnalyzer] Failed to read file: ${filePath}' }, 'DependencyAnalyzer] Failed to read file: ${filePath} warning');;
+      throw new Error(`Failed to analyze ${filePath}`, {cause: err});
     }
   }
 
@@ -267,7 +274,7 @@ class DependencyAnalyzer {
         }
       }
     } catch (err) {
-      // package.json 不存在，忽略
+      if (err.code !== 'ENOENT') throw err;
     }
   }
 
@@ -413,34 +420,22 @@ class DependencyAnalyzer {
       visited.add(node);
       recursionStack.add(node);
       path.push(node);
-      
-      const neighbors = graph.get(node) || [];
-      for (const neighbor of neighbors) {
+      for (const neighbor of graph.get(node) || []) {
         if (!visited.has(neighbor)) {
-          const cycle = dfs(neighbor);
-          if (cycle) return cycle;
+          dfs(neighbor);
         } else if (recursionStack.has(neighbor)) {
-          // 找到环
           const cycleStart = path.indexOf(neighbor);
-          return path.slice(cycleStart).concat(neighbor);
+          const cycle = path.slice(cycleStart).concat(neighbor);
+          if (!cycles.some(existing => existing.join('|') === cycle.join('|'))) cycles.push(cycle);
         }
       }
-      
       recursionStack.delete(node);
       path.pop();
-      return null;
     };
-    
-    // 从每个未访问的节点开始
     for (const service of this.services) {
-      if (!visited.has(service)) {
-        const cycle = dfs(service);
-        if (cycle) {
-          cycles.push(cycle);
-        }
-      }
+      if (!visited.has(service)) dfs(service);
     }
-    
+
     return cycles;
   }
 

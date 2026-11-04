@@ -7,7 +7,7 @@
 | 标题 | 精灵道具与背包管理系统 |
 | 类别 | 功能增强 |
 | 优先级 | P1 |
-| 状态 | done |
+| 状态 | in_progress |
 | 涉及服务 | pokemon-service, reward-service, catch-service, social-service, gateway, game-client |
 | 创建时间 | 2026-06-09 09:00 |
 
@@ -1477,3 +1477,16 @@ const styles = StyleSheet.create({
 - [Pokémon GO Items](https://pokemon.fandom.com/wiki/Item)
 - [游戏道具系统设计模式](https://www.gameprogrammingpatterns.com/)
 - [PostgreSQL JSON 类型最佳实践](https://www.postgresql.org/docs/current/datatype-json.html)
+
+
+## 真实迁移验收复核（2026-10-08）
+
+真实 V1 schema 缺少 legacy 道具迁移假定已经存在的本地化 items 表，旧 done 声明
+重开。新增带对象所有权记录的 prerequisite，按显式依赖先执行；rollback 只删除
+本次创建且 OID 未变化的目录，保留既有目录数据。Legacy SQL 源文件与 hash 不改。
+
+带原始 hash 保护的 SQL 修复更正容量函数的 UUID 参数、命名默认字段、列/OUT 参数
+歧义、remaining 整数类型与正数量验证；清理过期行改为 DELETE，保留 quantity>0
+约束而不再写非法零值。真实 PostGIS 存储测试验证至少20道具、UUID 所有权、默认/
+超容量检查、过期清理、容量更新和外键/正数量拒绝；不是所有 HTTP/捕捉/奖励/
+交易/事件/缓存/前端行为的验收，完整需求仍 in_progress。

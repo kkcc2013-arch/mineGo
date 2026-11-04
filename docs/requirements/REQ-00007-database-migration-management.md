@@ -3,7 +3,7 @@
 - **编号**：REQ-00007
 - **类别**：数据库/数据治理
 - **优先级**：P1
-- **状态**：done
+- **状态**：in_progress
 - **涉及服务/模块**：database/migrations、backend/shared/db.js、所有微服务、CI/CD
 - **创建时间**：2026-06-05 03:00
 - **依赖需求**：无
@@ -207,3 +207,84 @@ MIGRATION_LOCK_TIMEOUT_MS=30000
 4. **阻塞后续需求**：后续很多需求涉及数据库变更（索引优化、新功能），需要迁移系统支持
 
 虽然不是 P0（核心功能已可用），但是是 P1 高优先级，应尽快实现。
+
+
+## 验收复核（2026-10-08）
+
+重新打开旧完成声明。标准仓库命令 node database/migrate.js status 在安装后端
+依赖的现有工作区中无法加载 pg。仅为诊断指定后端 NODE_PATH 后，实际 PostGIS15
+全 V1 schema 可以创建，但 V2 seed 违反 evolves_to=55 外键，事务回滚。79 个
+pending 迁移在 20260605_180000 的 species_id=25 外键失败，迁移事务回滚且新建
+历史/锁表不保留。失败后释放锁又访问已回滚的 migration_lock 表，报二次错误。
+
+CLI 的 try 成功分支还引用未定义 err，缺少 catch；已有 migrate.test.js 主要
+重演解析正则/模拟查询，没有实际调用生产 CLI 来发现以上问题。下一批修复
+真实工具及 fresh seed/migration 路径，保留旧迁移 checksum；并发锁、校验、
+回滚/CLI退出码、完整生产迁移和自动初始化仍需逐项实测。此处没有删除生产数据
+或执行生产迁移；所有探测只在新建的本地独立 PostGIS 容器中进行。
+
+
+## 实施进展（2026-10-08）
+
+CLI 现在从声明的后端安装加载 pg，捕获真实错误、设置退出码并自然关闭连接池。
+用事务级 advisory lock 替代过期行锁；等待超时可配置，所有待执行 SQL 和历史
+同事务提交/回滚。执行和撤销前验证全部已执行源文件，修改/丢失/重复编号都阻断。
+空回滚正确结束事务；SQL 分割支持函数体、嵌套注释、标准/转义字符串，外部
+事务包装交由 runner 统一持有，拒绝脚本中间提交。旧 pending 文件 checksum 不改。
+
+用户服务和网关启动先校验历史，AUTO_MIGRATE=true 时在监听前应用迁移；并发
+初始化只执行一次且关闭迁移连接池。真实核心 unit6、PostgreSQL/CLI10 通过，
+包括数据持久化、修改/丢失文件拒绝、回滚、并发、锁等待和中断连接后的恢复。
+杀死客户端后先核实它的服务器会话结束，未把观察超时当作锁已释放。现有用户/
+网关进程、全 unit619 和业务存储33 回归通过。共享测试扩展改由独立测试数据库
+持有并串行初始化，避免多进程创建/删除 uuid-ossp 的竞态。
+
+完整 V1+修复后的 V2 示例种子在实际 PostGIS15 中通过：32 种族、8 成就、5 补给站、
+3 道馆，进化引用完整。增加55/75/76/80，保留既有进化规则；基础属性核对固定
+游戏数据快照，样例稀有度/捕获率是项目平衡参数。全部79 pending 尚失败：道具
+迁移依赖未建立的 items 表。新增全历史 CI 门禁保留失败，不以工具 fixture 替代
+全量验收。完整迁移目录/多服务初始化/回滚仍待完成；说明见 DATABASE-MIGRATIONS.md。
+
+
+## 依赖、修复来源与执行历史（2026-10-08）
+
+新增 dependencies.json 显式声明先决条件，拓扑顺序允许较新 prerequisite 先于
+旧版本执行。循环/缺失/非法依赖阻断；历史记录 execution_order，rollback 按
+真实执行顺序，依赖内容 hash 防止事后重写。旧记录采用原有时间/版本顺序，
+保留原 source hash；没有证据的历史执行 hash 保持 NULL，不伪造。
+
+repairs.json 每项绑定完整原始文件 hash、可审阅的完整修复 SQL 和原因。原始
+文件不改；日志标明实际使用的修复。新记录分别校验原始内容、依赖和执行 SQL
+hash，拒绝修复文件/路径或原始内容失配。当前修复包括 V1 UUID 外键、PostgreSQL
+部分唯一索引、inet_ops、刷新权重精度/VALUES 逗号、道具容量/过期函数；保留
+其余 SQL 和所有合法数据。它们以真实规范 V1 UUID 为目标，不证明其它历史
+身份 schema 自动升级已完成。
+
+核心unit8、真实CLI13、实际prerequisite/库存2、业务storage33、native进程2
+通过；全unit621。原79脚本加2prerequisite共81仍全部纳入 gate；失败已推进到
+audit_logs普通表与分区脚本冲突，未降低原始验收。完整历史及回滚仍需继续。
+
+
+## 审计转换后的全历史边界（2026-10-08）
+
+新增 audit prerequisite，按依赖先于20260610_100000执行，原81个已发布源文件
+全部字节不变；当前82个 pending 均纳入 gate。完整绑定修复包含分区函数的实际
+父表/边界验证与 DEFAULT 行移动，以及 slow_query_history 中两处 MySQL 风格
+内嵌 INDEX 改为 PostgreSQL CREATE INDEX。原始语句/字段均保留。
+
+真实审计转换/五父表存储23、runner/prerequisite15、全unit621及业务storage/
+native35通过。V1+V2通过，全部82历史 gate 越过审计阶段，但成就迁移因既有
+user_achievements 缺少 completed 字段失败；四个用户外键已按 V1 UUID 修复。
+全历史事务回滚，不记录假成功。完整目录、成就跨服务合同、后续分区重复迁移、
+全历史回滚及其它服务初始化仍待完成；本需求保持 in_progress。
+
+
+## 成就先决合同后的历史边界（2026-10-08）
+
+第4个 prerequisite 桥接真实 V1 成就计数/定义与新目录；显式依赖让已有称号
+bootstrap 与成就桥接先于旧 consumer。原82个已发布 pending 文件字节不变，
+83个当前文件全部保留在 gate。实际成就/HTTP存储41、runner/prerequisite/
+审计38通过；V1+V2通过。完整历史越过成就阶段后失败于20260611_020000
+statement2 notification_type 缺失，全部 pending 事务回滚。下一步协调真实
+notification_history/message-center 合同及后续冲突；全历史和带新数据回滚
+依然未完成。

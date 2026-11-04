@@ -1,0 +1,255 @@
+{
+  "date": "2026-10-20",
+  "baseCommit": "b17ddee99e94c941fda30f89faae6f815915e186",
+  "result": "canonical_mfa_factors_and_sessions_local_pass_full_client_business_risk_requirements_open",
+  "sourceSha256": {
+    "backend/shared/mfa/MFAStore.js": "ef79bb60130c23f958d416001c1ed315a5e258cee93af382dd87e4f6ee2e3bc2",
+    "backend/shared/mfaService.js": "f488effa92f2e599e94e1434b5394a4d91835ed95b4e896d208e6cf662f8b6e8",
+    "backend/shared/auth.js": "f97ba49f230a9ac6b5c6ce51583b7f41a0178775d9da85cda47b1ddfd670dfe0",
+    "backend/shared/JwtBlacklist.js": "6749c600e8f5f8e2a52a3c19feddcc36a7614f89a7fcd351e99f5792958b545f",
+    "backend/gateway/src/middleware/mfaRequired.js": "896e8fa81c3dd8e39c2ad4a47515203c6bbd7ff8184f02a5a5889edd3314e003",
+    "backend/gateway/src/index.js": "5c1d79c7a02028f57f82101dbce83477ad24c493dd8428a4258315136fc450d3",
+    "backend/services/user-service/src/index.js": "03ec898d4a181ed78c6cf87afa926e2c3926236e4ae0c9fca6668427a179b734",
+    "backend/services/user-service/src/routes/mfa.js": "85c97f4d8c0641c5e366264f0e87f0645b001bdcb682a25c16b99735e069d79e",
+    "backend/services/user-service/src/routes/auth.js": "029a6d23d3a91eea263f0ece6ade96105a9f4d47f99c836285ad6294e18649ad",
+    "backend/services/user-service/src/authSessionTokens.js": "7044dd0b8e925a4149440a5c15f942abdc0f8aaa9d192ae251fe5bb5cad889a8",
+    "backend/shared/auditLog.js": "09d7c5a5dbb5809c2f0375063a5ac864ac6a640ed4c7a8feb95beb2655d2b41e",
+    "backend/shared/auditLogEncrypted.js": "6db1529a78bbfa1d967b898ed453d314a290fdd58e95c2dc8b3cec9fc1d6fb44",
+    "backend/shared/audit/EncryptedAuditStore.js": "97bcf79057fc4af775c42e87a4a0eb5266253367de190232097b32cb2423c874",
+    "backend/shared/audit/KeyProviders.js": "e380a04f73ef5e8dea1eaa92165b2f5527e9a1527800eb03766ee38551624aa8",
+    "backend/shared/audit/cryptoPrimitives.js": "ac6df0883e6f92ac0db6dad5ae4707d2c31a835e06ff89cc4aced0c1e517af46",
+    "backend/tests/unit/mfa.test.js": "6f20346e13fdb2cb0d8fdcc84b3fce54891993e994afc177d08278cb2f6b23c5",
+    "backend/tests/unit/mfa-primitives.test.js": "b8bc21558e189addcd8ab87384cbeef34e6763a61056c7a269a2b936e52c8ea5",
+    "backend/tests/regression/mfa.jest.config.json": "46e35a51ba45004a8be7ba10faf863bd2f8dc057ca15d08714c398282a299fdb",
+    "backend/tests/regression/mfa-storage.test.js": "b5c03b81bb109e83bc4557823efce65944965058734d904ad66b623500327eb3",
+    "backend/tests/regression/mfa-http-storage.test.js": "40b7a13f239df07f41c20510d045333dc27ce23972e97971610efec7aa7fc7f4",
+    "backend/tests/regression/audit-crypto-storage.test.js": "f8251c25953ac4af72d6a01b982ed4cb85e7a2ca2b1ebae2af958f8143f01f54",
+    "backend/tests/regression/audit-kms-wire.test.js": "11ca121f3f229022d33c9d469d2e7faf1d2aa3e5db807d2d7aaec91e22b5e9d3",
+    "backend/tests/regression/user-startup.test.js": "b1bee90313734f94a92bfd09571bbcaa01536606a6dbcc2a7a45233483ae23a9",
+    "backend/tests/regression/gateway-startup.test.js": "a7bae6b0c1385fb3265f515a589c6411be573fa7ac398805fc6fb11a075d1e01",
+    "backend/tests/regression/database-bootstrap.test.js": "24f6c63e874000cf7c2d806c4a17dccb29ba464b3e4393a88f1bb687f17828f1",
+    "backend/package.json": "5888d8f726b403ad0500417da6ac0ea87be2a330498c16ea4ea24dc0176b8b22",
+    "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
+    "database/pending/dependencies.json": "d6f6d5d4dd68f8bdffc1e887ecc753a64086e18a2aeb08c219a8166fcb20c953",
+    "database/pending/20260610_000000__add_mfa_system.sql": "652b95497f7f28727a4dc07f9469a8a6f5c51b3c4fb58917a2a8c071b4720a65",
+    "database/pending/20261020_120000__mfa_verification_state.sql": "16809f6325475ca2a9e39cf24f1805014c3b7851c2d7338be1eff3752097ca87",
+    ".github/workflows/title-regression.yml": "a14903c15f9c88ddb6a3d12b865e6865d4e791eca8d253a8032294b434a89bef",
+    ".github/workflows/mfa-regression.yml": "8eab2d99cd8a88ba8942111cf791a11aab84c80533287300fde9502bc0b9d7fb",
+    "docs/MFA-STATE.md": "97080225bdc363d3c99f029d5f71a4d6dc8c5d4727edb52cdc6513e752b336ca",
+    "docs/AUDIT-ENCRYPTION.md": "587425b7ba4183dccc8ad8d460cf7cc1fbad4ef48685c838a4e2cf7602c0b63c"
+  },
+  "checks": [
+    {
+      "name": "crypto",
+      "exit": 0,
+      "logSha256": "72007c972b5772e2ac921ef51d21922e3abb4ebd6c3bd38aefec96bd916b0916"
+    },
+    {
+      "name": "privacy-storage",
+      "exit": 0,
+      "logSha256": "c28bcffb0dbb64d960f6a17a0338b0bfdb7f64fcff855c80b5257317964ee765"
+    },
+    {
+      "name": "privacy-unit",
+      "exit": 0,
+      "logSha256": "f0be02718c96b5a8bfd196dd08d1a0e329d284753f405d6ad506122bc0707775"
+    },
+    {
+      "name": "battle-coverage",
+      "exit": 0,
+      "logSha256": "084272680de95f32fc1f133804147b5b8d15c6d8a22b4d56efe302203332a9b4"
+    },
+    {
+      "name": "unit",
+      "exit": 0,
+      "logSha256": "de3626ee3c17e6b76e1828c3bc070ef27dcf98d3a6376c2f08a1ea6e668816e5"
+    },
+    {
+      "name": "syntax",
+      "exit": 0,
+      "logSha256": "d18f739b618a499051e6f3e8be4aacc35d6993b8e2e3dff8d1e7b878bff479f9"
+    },
+    {
+      "name": "audit-tools",
+      "exit": 0,
+      "logSha256": "2f313c61ab26785824cf9ada55c6744a76d6c6aa5958cc320ce576dd7bd798db"
+    },
+    {
+      "name": "inventory",
+      "exit": 0,
+      "logSha256": "6a6ae63d675b21ba57d3c3c01691ddc30875014c87b05c0ae22841ae406b9e7d"
+    },
+    {
+      "name": "logging",
+      "exit": 0,
+      "logSha256": "ddc0301849846d3968cce009435bbee760c1cf2e610111fca3f65eb0d14c3843"
+    },
+    {
+      "name": "numbering",
+      "exit": 0,
+      "logSha256": "e6f6b5acb672914b421666a405b351676b766fa4977b3f147bdea0f48229f0d0"
+    },
+    {
+      "name": "health",
+      "exit": 0,
+      "logSha256": "935e0676b0fce53acc2777add185ce74fae012077e69989da4e74b1c80e4d49d"
+    },
+    {
+      "name": "mfa-syntax",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "mfa-mount",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "mfa-load",
+      "exit": 0,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "additionalPassedLogs": {
+    "final-storage": "f7d526edb9867ecb1378ff4f35ae35b0703239fda0a9a85c9723ef49600275ce",
+    "final-native": "3af0b58e4d57ebedff118c8afa1f58a0c19b6d9470cbecbadffd7d7dbeead920",
+    "full86-first": "b4e79ac75355f25e8638b72141ed0761b9edcc97e39ec47b36f46f3da90dc131",
+    "unit-first": "7ebe323c5f1221d9aa27e4f550f77493bf953ac69ab61359c7403f12c2f69a51"
+  },
+  "mfa": {
+    "nodeReportedStorageTests": 25,
+    "skipped": 0,
+    "coverage": {
+      "mfaRequired.js": {
+        "lines": 100.0,
+        "branches": 81.82,
+        "functions": 100.0
+      },
+      "authSessionTokens.js": {
+        "lines": 100.0,
+        "branches": 100.0,
+        "functions": 100.0
+      },
+      "mfa.js": {
+        "lines": 100.0,
+        "branches": 71.79,
+        "functions": 100.0
+      },
+      "MFAStore.js": {
+        "lines": 99.03,
+        "branches": 80.95,
+        "functions": 100.0
+      },
+      "mfaService.js": {
+        "lines": 100.0,
+        "branches": 100.0,
+        "functions": 100.0
+      },
+      "all files": {
+        "lines": 99.35,
+        "branches": 80.83,
+        "functions": 100.0
+      }
+    },
+    "lineFunctionThreshold": 90,
+    "facadeUnitTests": 5,
+    "facadeUnitCoveragePercent": 100,
+    "primitiveTests": 4,
+    "controlledValidWindows": 500,
+    "controlledAcceptedWindows": 500,
+    "controlledAcceptanceRate": 1,
+    "scope": "Five actual production MFA modules. Line/function90gate; branch coverage separately80.83, no90branch claim. Controlled RFC/window samples do not establish manual authenticator/device/network availability."
+  },
+  "audit": {
+    "nodeReportedTests": 22,
+    "coverage": {
+      "lines": 98.21,
+      "branches": 89.56,
+      "functions": 95.52
+    },
+    "scope": "Three crypto modules plus encrypted facade; actual new cross-process/database timezone metadata test; original90line/function gate."
+  },
+  "privacy": {
+    "nodeReportedStorageTests": 12,
+    "unitTests": 40,
+    "lineStatementFunctionGate": 80
+  },
+  "native": {
+    "nodeReportedTests": 2,
+    "measurements": [
+      {
+        "nativeTwoGatewayCacheRecoveryMs": 46.33647000000201,
+        "scope": "real user-service HTTP bytes, two independent OS gateways, PostgreSQL CDC, Redis and independent L1 caches; functional fixture, not capacity acceptance"
+      },
+      {
+        "gatewaySignalShutdownMs": 879.0463350000027,
+        "userSignalShutdownElapsedMs": 5870.352821999997,
+        "scope": "actual native gateway/user processes, isolated PostgreSQL V1/V2/user/title/IP/partition/CDC schema, Redis and Kafka; other registry targets alias the actual user fixture"
+      },
+      {
+        "titleHttpLatencyMs": {
+          "samples": 50,
+          "median": 2.5275629999996454,
+          "p95": 3.006962999999814,
+          "maximum": 3.7757349999992584
+        },
+        "scope": "isolated local service and database, warm sequential HTTP reads"
+      },
+      {
+        "shutdownElapsedMs": 5361.992269999999
+      }
+    ],
+    "scope": "Actual production gateway/user OS processes and PostgreSQL/Redis/Kafka. Real mounted MFA paths plus retained privacy/title/cache/CDC/notification/IP/health/signals; other registry peers alias actual user fixture."
+  },
+  "fullBootstrap": {
+    "nodeReportedTests": 3,
+    "rawFiles": 86,
+    "unchangedPriorRawFiles": 85,
+    "unrelatedAuditSchemaIsolation": true,
+    "scope": "Full fresh V1/V2 and all86 pending SQL under normal and unrelated-audit-schema installations. Additional actual MFA tests cover down/refusal/shadow/UUID retention."
+  },
+  "unitChecks": 742,
+  "jestSuiteBreakdown": {
+    "audit": {
+      "suites": 1,
+      "tests": 9
+    },
+    "mfa": {
+      "suites": 1,
+      "tests": 5
+    },
+    "existingRegression": {
+      "suites": 24,
+      "tests": 425
+    }
+  },
+  "battle": {
+    "tests": 133,
+    "formulaCoveragePercent": 100
+  },
+  "syntaxFiles": 1467,
+  "requirementCheckboxesPreserved": {
+    "REQ638": 10,
+    "REQ126": 4,
+    "REQ588": 4
+  },
+  "inventory": {
+    "done": 179,
+    "inProgress": 50,
+    "new": 429,
+    "total": 658,
+    "evidenceRecords": 46,
+    "independentlyVerified": 1
+  },
+  "rawPriorSqlChanges": 0,
+  "repairManifestChanges": 0,
+  "lockChanges": 0,
+  "developmentFindings": [
+    "Speakeasy generated URI omitted issuer; original assertion retained and explicit issuer/algorithm/digits/period appended.",
+    "Final review found wrong refresh revocation key; correct actual Redis key and negative HTTP checks retained.",
+    "Old pg Date interpretation lost legacy microseconds/introduced UTC suffix; failing original probe retained locally and exact wall-text selection passes across timezones.",
+    "Old MFA source has invalid logger/metrics imports, hardcoded master and missing users.mfa_enabled column; source review only, not measured old post-COMMIT failure."
+  ],
+  "limits": "Full original638/126/588 remain open. Exact test_token curl command correctly401, no accepted forged token/edited criterion. Complete seven-day trusted devices, frontend/client/GoogleAuthenticator scan, actual password/payment/asset business mounts, original fullunitcoverage/metrics/alerts/productimpact, canonical risk engine/cross-service/provider/encryptedrisklogs. Protected middleware adapter is not actual admin audit decrypt/filter. LiveAWS/IAM/keypolicy/CloudTrail and remaining658 external/manual/operations acceptance unproven. No recipient/production cleanup/rekey/merge/deploy.",
+  "execution": "Sequential nice10/UV2/Node concurrency1/JestInBand; noMaven/CPU saturation/subagents. Owned Redis/Kafka stopped after native checks; unrelated containers untouched. Current source CI pending."
+}

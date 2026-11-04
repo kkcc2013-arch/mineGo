@@ -3,8 +3,8 @@
 
 'use strict';
 
-const { createLogger } = require('../../shared/logger');
-const { getRedis, setJSON, getJSON } = require('../../shared/redis');
+const { createLogger } = require('../../../shared/logger');
+const { getRedis, setJSON, getJSON } = require('../../../shared/redis');
 const crypto = require('crypto');
 
 const logger = createLogger('client-integrity');
@@ -90,7 +90,7 @@ class ClientIntegrityMiddleware {
       );
       
       // 3. 计算综合风险评分
-      const riskScore = this._calculateIntegrityRiskScore(
+      const riskScore = await this._calculateIntegrityRiskScore(
         signatureValid,
         environmentRisk,
         deviceFingerprint
@@ -223,13 +223,13 @@ class ClientIntegrityMiddleware {
     }
     
     // 计算总分
-    const totalRisk = Object.values(riskFactors).reduce((sum, val) => sum + val, 0);
+    const totalRisk = Math.min(100, Object.values(riskFactors).reduce((sum, val) => sum + val, 0));
     
     // 确定风险等级
     let level = 'LOW';
-    if (totalRisk >= 100) level = 'CRITICAL';
-    else if (totalRisk >= 70) level = 'HIGH';
-    else if (totalRisk >= 40) level = 'MEDIUM';
+    if (totalRisk > 75) level = 'CRITICAL';
+    else if (totalRisk > 50) level = 'HIGH';
+    else if (totalRisk > 25) level = 'MEDIUM';
     
     return {
       factors: riskFactors,
@@ -261,7 +261,7 @@ class ClientIntegrityMiddleware {
   /**
    * 计算综合完整性风险评分
    */
-  _calculateIntegrityRiskScore(signature, environment, fingerprint) {
+  async _calculateIntegrityRiskScore(signature, environment, fingerprint) {
     // 签名权重：30%
     const signatureScore = signature.valid ? 0 : 80;
     

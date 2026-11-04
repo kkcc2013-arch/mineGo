@@ -1,0 +1,25 @@
+[hidden]{display:none!important}
+.auth-fields{display:flex;flex-direction:column;align-items:center;width:100%;max-width:340px}
+.mfa-panel{display:flex;flex-direction:column;gap:16px;width:100%;max-width:380px;text-align:left}
+.mfa-panel p{line-height:1.6;font-size:14px}
+.mfa-panel form{display:flex;flex-direction:column;gap:12px}
+.mfa-panel .btn{max-width:none}
+.mfa-panel img{align-self:center;max-width:100%;height:auto;background:white;border-radius:10px}
+.mfa-panel .form-group{max-width:none;margin:0}
+.mfa-secret{display:block;word-break:break-all;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--bg)}
+.mfa-error{color:#ffb4b4;line-height:1.5}
+.mfa-recovery-codes{display:grid;grid-template-columns:1fr 1fr;gap:10px;list-style:none;padding:0;font-family:monospace;font-size:16px}
+.mfa-recovery-codes li{padding:10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;text-align:center}
+.mfa-saved{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.5}
+.mfa-saved input{width:20px;height:20px;flex:none}
+.mfa-dialog{margin:auto;max-height:90dvh;width:min(420px,94vw);overflow:auto;border:1px solid var(--border);border-radius:14px;background:var(--surface);color:var(--text);padding:20px}
+.mfa-dialog::backdrop{background:rgba(0,0,0,.7)}
+.mfa-dialog>#mfa-settings-close{margin-bottom:20px}
+
+#mfa-login-controls{width:100%;max-width:380px}
+#login{overflow-y:auto}
+.mfa-panel .form-label{color:#b1b9c8}
+.mfa-panel .btn-primary{background:#245ec2;color:#fff}
+.mfa-panel button:focus-visible,.mfa-dialog>button:focus-visible{outline:2px solid #fff;outline-offset:3px}
+
+.mfa-panel .btn-outline,.mfa-dialog>#mfa-settings-close{color:var(--text)}

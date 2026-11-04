@@ -34,7 +34,7 @@ function gauge(name, help, labelNames = []) {
   return safeGauge({ name, help, labelNames });
 }
 function histogram(name, help, labelNames = [], buckets) {
-  return safeHistogram({ name, help, labelNames, buckets });
+  return safeHistogram({ name, help, labelNames, ...(buckets === undefined ? {} : { buckets }) });
 }
 
 // ============================================================

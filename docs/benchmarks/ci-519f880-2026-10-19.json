@@ -1,0 +1,486 @@
+{
+  "date": "2026-10-19",
+  "commit": "519f88039b561e0dbe0c800b9a2345200d6de93a",
+  "result": "three_dedicated_gates_pass",
+  "runs": [
+    {
+      "name": "CI/CD Pipeline",
+      "id": 39205897731,
+      "number": 465,
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39205897731",
+      "head": "519f88039b561e0dbe0c800b9a2345200d6de93a",
+      "jobs": [
+        {
+          "id": 117908550589,
+          "name": "\ud83e\uddea Lint + Unit Tests",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Setup Node.js 20",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install dependencies",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Syntax check all JS files",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify requirement inventory and audit tools",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Reject direct runtime console calls",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Check requirement numbering",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run unit tests",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify all services have health route",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Setup Node.js 20",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 117908550678,
+          "name": "Battle regression and formula coverage",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run battle scenarios and enforce greater than 90% formula coverage",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        },
+        {
+          "id": 117908748007,
+          "name": "\ud83d\udd12 Security Scan",
+          "status": "completed",
+          "conclusion": "skipped",
+          "steps": []
+        },
+        {
+          "id": 117908748138,
+          "name": "\ud83d\udc24 Canary Deploy (5%)",
+          "status": "completed",
+          "conclusion": "skipped",
+          "steps": []
+        },
+        {
+          "id": 117908748157,
+          "name": "\ud83d\udc33 Build & Push Images",
+          "status": "completed",
+          "conclusion": "skipped",
+          "steps": []
+        },
+        {
+          "id": 117908748443,
+          "name": "\ud83d\ude80 Deploy to Staging",
+          "status": "completed",
+          "conclusion": "skipped",
+          "steps": []
+        },
+        {
+          "id": 117908748633,
+          "name": "\ud83d\udea2 Full Production Deploy",
+          "status": "completed",
+          "conclusion": "skipped",
+          "steps": []
+        }
+      ]
+    },
+    {
+      "name": "Title routes and storage regression",
+      "id": 39205897769,
+      "number": 34,
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39205897769",
+      "head": "519f88039b561e0dbe0c800b9a2345200d6de93a",
+      "jobs": [
+        {
+          "id": 117908550436,
+          "name": "title-regression",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install dependencies",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify title unit failure and validation cases",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify actual routes, PostgreSQL concurrency, Redis and measured core coverage",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify actual IP appeals, CIDR access control and gateway aliases",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify durable CDC, real Redis and fenced streaming HTTP cache",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Start isolated Kafka for the actual user-service process",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Wait for Kafka metadata",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify actual user-service startup, health dependencies, HTTP and shutdown",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify native gateway startup failure, readiness, IP appeals and signal shutdown",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop isolated Kafka",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Database migration regression",
+      "id": 39205897816,
+      "number": 27,
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/39205897816",
+      "head": "519f88039b561e0dbe0c800b9a2345200d6de93a",
+      "jobs": [
+        {
+          "id": 117908550452,
+          "name": "migration-regression",
+          "status": "completed",
+          "conclusion": "success",
+          "steps": [
+            {
+              "name": "Set up job",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Initialize containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Install declared backend dependencies",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Enable actual statement statistics in the isolated CI database",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Check actual SQL parsing and transaction ownership",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify canonical identity-only CDC storage and refusal of customized contracts",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify retained job history, atomic execution logging and original retention",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Check actual CLI checksums, concurrency, rollback and interrupted ownership",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify actual inventory catalog, UUID identities and data-preserving prerequisite rollback",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify inventory organization data, UUID teams, preferences and guarded legacy adoption",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify cosmetic UUID references, original catalog and retained purchase history",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify retained legacy deletion identities and accountable UUID erasure storage",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify retained canary history, actual rollout uniqueness and runtime boundaries",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify audit conversion, canonical partition history, concurrent IDs and data-preserving rollback",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify canonical partition maintenance, real statistics and protected operational routes",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify existing tiered data, modern progress, real rewards and authenticated achievement routes",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify actual notification history, preferences, signed APIs and live recipient sockets",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify UUID trainer bonds, affinity projections, positive/negative history and guarded rollback",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify gameplay catch identity, actual throw evidence and durable risk statistics",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify actual IV flags, ownership counts, generation and equipment SQL contracts",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify quest date indexes and actual mounted atomic daily reward claims",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify guarded title history upgrades and actual reward ranking parameters",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify preserved canonical moves, real TM transactions and signed damage simulations",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify actual voice schema, membership history and TURN expiry index preservation",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify preserved real orders, atomic rates, owned locks and signed currency routes",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify actual transaction isolation, deadlines, contention and owned pool cleanup",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify actual slow-query history, numeric ratios and live PostgreSQL execution helpers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify owned TLS query cancellation and refusal of an encryption downgrade",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Enforce original transaction throughput regression ceiling against published predecessor",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Verify complete fresh production schema, seeding and pending migration history",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/setup-node@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Post Run actions/checkout@v4",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Stop containers",
+              "status": "completed",
+              "conclusion": "success"
+            },
+            {
+              "name": "Complete job",
+              "status": "completed",
+              "conclusion": "success"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "downloadedLogs": {
+    "117908550452": {
+      "sha256": "bdfaa8ad2b883790053ca96b4c55001af09a3318e63a9346bd1ecb8eaf1e1108"
+    },
+    "117908550436": {
+      "sha256": "efe465b45773f664c75d7e900fdbd734652ac03b947a94a23aeb3f4cba250010"
+    }
+  },
+  "scope": "Exact prior published source: main465, title/native34 and migration27 pass. Native log confirms actual gateway/user processes and cache41. Migration log confirms full fresh85 gate and job24/original80% logger gate; paired throughput artifact retains exact original-5% ceiling. Other legacy contract/security/API/integration/performance/E2E workflows and complete658 acceptance are not accepted by this report. New audit repair source CI still pending."
+}

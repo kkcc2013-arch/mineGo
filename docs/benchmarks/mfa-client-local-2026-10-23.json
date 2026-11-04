@@ -1,0 +1,182 @@
+{
+  "date": "2026-10-23",
+  "baseCommit": "4abdb825912a3d5e97d6532a6c6015596d50d5e0",
+  "result": "actual_game_mfa_client_storage_gateway_offline_boundaries_pass_full_goal_open",
+  "sourceSha256": {
+    "frontend/game-client/index.html": "cbee53edcbb8d641308a4d63ea048b3c269329120cf8fb3ca1141077cb645658",
+    "frontend/game-client/src/api/client.js": "648fc2c78e79402244fc8e4ea24874d1074b7ecfc7e4f9296706d6e10e86dc83",
+    "frontend/game-client/src/main.js": "3a0699afed0f1388e03ef287f817b2e2ec6b32d7bd9ce32d78d7313e92eb745e",
+    "frontend/game-client/src/components/MFASetup.js": "c813d3aa630237014c5e7a1839b67048642c144b9e61a0c0107d7151f294ee2c",
+    "frontend/game-client/src/components/MFAVerify.js": "9fc2ac91dc14a5869568788e043d6d9ea481c0338c65f235c8b48e58c03a31f0",
+    "frontend/game-client/src/components/mfaUi.js": "23a3f06c07e8261e01fd7a9a467f6a9aac3cb0d36f4131f425237f0c29d39566",
+    "frontend/game-client/src/styles/mfa.css": "6b35f9bc955d6cccfdebcd19edaf2adc0faff88ec3fc52da36ab643796eeaa65",
+    "frontend/game-client/sw.js": "ff14ad4afa056a4ae8a77b150f57415a1022b519db1e38210a7e4c75f1c76061",
+    "frontend/game-client/package.json": "aa41d55f80d83376dd765b0fae2594855a94c227695e8999adbb43fd112ee9ab",
+    "frontend/game-client/package-lock.json": "7f700cdab2c54920fe1623c61176e0937005b608759141975b8a84d4b38f07dd",
+    "backend/gateway/src/index.js": "16ad976f70427c50131369dfedf0106e274b79839eb0ba26ff287d4e9d8614e1",
+    "backend/tests/regression/gateway-startup.test.js": "ee52141cf7d803553dd5d67949b1ceb965afd6eda8d45a8435e1056bd3abf658",
+    "backend/tests/regression/user-startup.test.js": "f501bfcb3f6559e9f40f3b434d1f55c56a2e39a7dd33f605e15f1868aa068f78",
+    "backend/tests/regression/mfa-browser-storage.test.js": "89e74251add694837494094415b47d07eaa9e9cfddaa70ff7ef39febf8783db0",
+    "backend/tests/regression/mfa-http-storage.test.js": "97819be08374485412eb73904568f666c3a37e0b38e87e078c9b00e17d62d94c",
+    "backend/tests/regression/mfa-storage.test.js": "b5c03b81bb109e83bc4557823efce65944965058734d904ad66b623500327eb3",
+    "backend/tests/unit/mfa-client.test.js": "b73cc2326b28011ab03279bd8842c9a8245409b02e998704bcd47aca587ff5de",
+    "backend/package.json": "3fd4d788b7468700387af48486dd2929e1ebff5a9c9ba4cc78f254d6eff42ad3",
+    "backend/package-lock.json": "1bfbc2847daa39ee65d1b3f9f9f8e6734dbdb8f12958985cc172e6928b95ed5e",
+    ".github/workflows/mfa-client-regression.yml": "c6058109906220dc6c589ac720670cca9ecf69f9cf618097dba4157f078a220e",
+    "docs/MFA-STATE.md": "7894eaa54d6a3cea987f8257095cba579801dceea710c5b401d678e603cae999"
+  },
+  "checks": [
+    {
+      "name": "unit",
+      "exit": 0,
+      "logSha256": "93585b205f706f0acc2775f13fa78afc1bdb01a561daa11dbe699383eeee80f4"
+    },
+    {
+      "name": "browser",
+      "exit": 0,
+      "logSha256": "21bc1b02f31138fce5ff50e91957cf2856aaf838b92e55e1c6a167ba5535a52f"
+    },
+    {
+      "name": "mfa-http",
+      "exit": 0,
+      "logSha256": "affb78b3bf4dc76cee9a5df341ab26a2053e25fa7f9dc949e6909e0b8135756b"
+    },
+    {
+      "name": "numbering",
+      "exit": 0,
+      "logSha256": "e6f6b5acb672914b421666a405b351676b766fa4977b3f147bdea0f48229f0d0"
+    },
+    {
+      "name": "health",
+      "exit": 0,
+      "logSha256": "935e0676b0fce53acc2777add185ce74fae012077e69989da4e74b1c80e4d49d"
+    },
+    {
+      "name": "logging",
+      "exit": 0,
+      "logSha256": "5ae82e29eedca984b5670eb1c4bc7cdb0a5712db261a3aa014632a528820902e"
+    },
+    {
+      "name": "workflow",
+      "exit": 0,
+      "logSha256": "d6c692469e7f924850f9c9299d51de8864b5880fc944d9b4c94250e0ab9c190b"
+    },
+    {
+      "name": "syntax",
+      "exit": 0,
+      "logSha256": "3cff8b961a45a2193f5120cd985bfc19c9029e23ce5d3880de1d12d83f9d82f6"
+    },
+    {
+      "name": "audit-tools",
+      "exit": 0,
+      "logSha256": "9173c663f4c7f92a1d56116696102cb2d997162b0ae9c2cea8dd90475ed960ed"
+    },
+    {
+      "name": "native",
+      "exit": 0,
+      "logSha256": "6357cc9275cb7d5ce865047442e7c409408a4cbdc2cd6a3f8b4c9e243da80d8f"
+    }
+  ],
+  "unit": {
+    "total": 756,
+    "mfaClientNodeReportedTests": 10,
+    "purePolicyNodeReportedTests": 4,
+    "jestSuites": 26,
+    "jestTests": 439,
+    "scope": "Production API source imported unchanged; controlled fetch/browser-storage unit boundaries, no substitute for actual browser/storage check."
+  },
+  "browser": {
+    "nodeReportedTests": 6,
+    "version": "Chromium145.0.7632.6",
+    "playwrightLockedVersion": "1.63.0",
+    "viewports": [
+      {
+        "width": 390,
+        "height": 844
+      },
+      {
+        "width": 1280,
+        "height": 900
+      }
+    ],
+    "screens": [
+      {
+        "file": "docs/benchmarks/mfa-client-2026-10-23/mfa-login-mobile.png",
+        "sha256": "6a5b237b02810bda64ef1faa25dc056aab7db6a89892e397c8cd122d6efd8e5b",
+        "scope": "Actual auth-only fixture, no factor/token visible; visually inspected at390x844 or1280x900. Synthetic fixture identity/location, no gameplay acceptance."
+      },
+      {
+        "file": "docs/benchmarks/mfa-client-2026-10-23/mfa-enabled-mobile.png",
+        "sha256": "f802313dd9a007afef3cb0b76cb983a8d44a81e646ac86df049df49c44a19a51",
+        "scope": "Actual auth-only fixture, no factor/token visible; visually inspected at390x844 or1280x900. Synthetic fixture identity/location, no gameplay acceptance."
+      },
+      {
+        "file": "docs/benchmarks/mfa-client-2026-10-23/mfa-enabled-desktop.png",
+        "sha256": "058144a535885276adefa93e08f2d1d698b5b7458f64b15adf227f8212ba55d2",
+        "scope": "Actual auth-only fixture, no factor/token visible; visually inspected at390x844 or1280x900. Synthetic fixture identity/location, no gameplay acceptance."
+      }
+    ],
+    "scope": "Actual entry HTML/API/widgets/worker and production auth/MFA/user routers with canonicalV1+audit+MFA SQL and actualPostgreSQL/Redis. SMS codes seeded only in ownedRedis and externaloriginsblocked. Setup QR/manual secret and actualTOTP/enable, explicitdownload/8codes/ackclear, cancel, invalidfactoronce/no refresh, offlinefactornoqueue/network, actualrecoverylogin/consumedproofs, regen/disable, legacyqueuepurge/replay and poisonedcache refusal. No physicalGoogleAuthenticator/SMSdelivery/gameplay acceptance."
+  },
+  "mfaHttp": {
+    "nodeReportedTests": 26,
+    "productionModules": 7,
+    "coverage": {
+      "lines": 99.42,
+      "branches": 83.43,
+      "functions": 100
+    },
+    "lineFunctionThreshold": 90,
+    "scope": "Actual factor/session/admin/P0 PostgreSQL/Redis/signedHTTP; original90line/functiongate, no90branch/full security target claim."
+  },
+  "native": {
+    "nodeReportedTests": 2,
+    "measurements": [
+      {
+        "nativeTwoGatewayCacheRecoveryMs": 54.441452999999456,
+        "scope": "real user-service HTTP bytes, two independent OS gateways, PostgreSQL CDC, Redis and independent L1 caches; functional fixture, not capacity acceptance"
+      },
+      {
+        "gatewaySignalShutdownMs": 788.7534100000012,
+        "userSignalShutdownElapsedMs": 5763.070119,
+        "scope": "actual native gateway/user processes, isolated PostgreSQL V1/V2/user/title/IP/partition/CDC schema, Redis and Kafka; other registry targets alias the actual user fixture"
+      },
+      {
+        "titleHttpLatencyMs": {
+          "samples": 50,
+          "median": 2.369044000000031,
+          "p95": 3.139078000000154,
+          "maximum": 3.559610000000248
+        },
+        "scope": "isolated local service and database, warm sequential HTTP reads"
+      },
+      {
+        "shutdownElapsedMs": 5371.650495999999
+      }
+    ],
+    "postgresPort": 55436,
+    "maxConnections": 40,
+    "scope": "Same ownednative-only40connectionfixture from priorbatch. ActualOSuser+twogateways/PG/Redis/Kafka. Legacy/v1/auth primarychallenge+recovery returns actual signedsub/epoch, clientversion/platformpreflight, oldadmin/privacy/title/IP/cache/CDC/notification/health/shutdown retained. Otherpeersaliasuserfixture; no capacity/allservicecompletion."
+  },
+  "syntaxFiles": 1474,
+  "auditTools": 12,
+  "sql": {
+    "rawFiles": 86,
+    "rawChanges": 0,
+    "manifestChanges": 0,
+    "dependencyChanges": 0,
+    "lockChanges": 0,
+    "fullFreshLocalBootstrapThisBatch": false
+  },
+  "developmentFindings": [
+    {
+      "finding": "First-time SW controller replacement unconditionally reloaded an in-progress login; real first browser attempt failed before the production first-install fix.",
+      "logSha256": "4b4745c1272675de22461efdc4fd688d34d5b32a937844b74ab89ce6814df448"
+    },
+    {
+      "finding": "Private response decoding could finish after logout; source now checks epoch after JSON body and a targeted delayed-body unit case verifies refusal."
+    }
+  ],
+  "remaining": "Original658 unchanged/only619verified. Fullseven-daytrusteddevices, physicalGoogleAuthenticatorQR/manualinteroperability/SMSprovider, everysensitivepassword/payment/riskboundary, alladminprovisioning/governance/export, unstructured/custommask/scanner/allresponse/fullcombinedsecuritycoverage/liveAWS, encrypted/account-boundofflinebusinessqueue/fullPWAassets/registrationconsent/gameplay and remainingservices/performance/operations open. Legitimateaccess/refreshtokens stillfollow existinglocalStorageprotocol; no completeXSS/encryptedstorageclaim. Otherlegacyworkflowsred, current-sourceCIpending.",
+  "execution": "Sequentialnice10/UV2/Nodeconcurrency1/JestInBand; noMaven/CPUsaturation/subagents/newrequirements/messages/merge/deploy/productioncleanup/rekey. Ownednative40/Redis/Kafkastoppedafterchecks, unrelatedcontainersuntouched; sameDraftPR6only."
+}

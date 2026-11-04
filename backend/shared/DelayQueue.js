@@ -2,7 +2,9 @@
 
 const { Kafka } = require('kafkajs');
 const { createLogger } = require('./logger');
-const { incrementCounter, observeHistogram, gauge } = require('./metrics');
+const registryMetrics=require('./metrics');
+function incrementCounter(name,value,labels){const metric=registryMetrics.register.getSingleMetric(name)||registryMetrics.counter(name,name,Object.keys(labels));metric.inc(labels,value);}
+function observeHistogram(name,value,labels){const metric=registryMetrics.register.getSingleMetric(name)||registryMetrics.histogram(name,name,Object.keys(labels));metric.observe(labels,value);}
 
 const logger = createLogger('delay-queue');
 
@@ -68,7 +70,7 @@ class DelayQueue {
       idempotent: true,
     });
     
-    await this.producer.connect();
+    try{await this.producer.connect();}catch(error){await this.producer.disconnect().catch(()=>{});throw error;}
     this.isConnected = true;
     
     logger.info({ clientId: this.clientId }, 'DelayQueue connected');
@@ -268,22 +270,29 @@ class DelayQueue {
     
     const topic = options.topic || `${this.delayTopicPrefix}-ready`;
     
-    if (!this.consumers.has(topic)) {
+    const consumerKey = JSON.stringify([topic, taskType]);
+    if (!this.consumers.has(consumerKey)) {
       const consumer = this.kafka.consumer({
         groupId: `${this.clientId}-${taskType}`,
-        fromBeginning: false,
       });
       
-      await consumer.connect();
-      await consumer.subscribe({ topic, fromBeginning: false });
+      try{await consumer.connect();
+      for(let attempt=0;;attempt++){
+        // Resume committed offsets; a new group must also process existing tasks.
+        try{await consumer.subscribe({topic,fromBeginning:true});break;}catch(error){
+          if(!error.retriable||attempt>=4)throw error;
+          await new Promise(resolve=>setTimeout(resolve,200*(attempt+1)));
+        }
+      }
       
       await consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
-          await this._processMessage(message, handler);
+          await this._processMessage(message, handler, taskType);
         },
       });
       
-      this.consumers.set(topic, consumer);
+      this.consumers.set(consumerKey, consumer);
+      }catch(error){await consumer.disconnect().catch(()=>{});throw error;}
     }
     
     this.taskHandlers.set(taskType, handler);
@@ -294,8 +303,10 @@ class DelayQueue {
   /**
    * Process a task message
    */
-  async _processMessage(message, handler) {
+  async _processMessage(message, handler, expectedType) {
     const task = JSON.parse(message.value.toString());
+    // Each task type has its own durable group on a shared ready topic.
+    if (expectedType !== undefined && task.type !== expectedType) return;
     const startTime = Date.now();
     
     try {
@@ -456,7 +467,7 @@ class DelayQueue {
    */
   _emitDLQAlert(task, error) {
     // Integration with existing notification system
-    logger.alert({
+    logger.error({
       type: 'delay_queue_dlq',
       severity: 'high',
       taskId: task.id,

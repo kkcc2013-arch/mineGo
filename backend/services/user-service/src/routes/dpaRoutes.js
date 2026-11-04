@@ -2,6 +2,9 @@
 // REQ-00467: 第三方数据处理协议管理系统路由
 
 'use strict';
+const _consoleLogger = new (require("../../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../../shared/logger").createLogger("services/user-service/src/routes/dpaRoutes"), "services/user-service/src/routes/dpaRoutes");
+
 
 const express = require('express');
 const router = express.Router();
@@ -67,7 +70,7 @@ router.post('/vendors', authenticate, requireAdmin, async (req, res) => {
       data: vendor
     });
   } catch (error) {
-    console.error('注册供应商失败:', error);
+    _consoleLogger.error('注册供应商失败:', error);
     res.status(500).json({
       code: 500,
       message: '注册供应商失败: ' + error.message
@@ -95,7 +98,7 @@ router.get('/vendors', authenticate, async (req, res) => {
       total: vendors.length
     });
   } catch (error) {
-    console.error('获取供应商列表失败:', error);
+    _consoleLogger.error('获取供应商列表失败:', error);
     res.status(500).json({
       code: 500,
       message: '获取供应商列表失败'
@@ -124,7 +127,7 @@ router.get('/vendors/:id', authenticate, async (req, res) => {
       data: result[0]
     });
   } catch (error) {
-    console.error('获取供应商详情失败:', error);
+    _consoleLogger.error('获取供应商详情失败:', error);
     res.status(500).json({
       code: 500,
       message: '获取供应商详情失败'
@@ -183,7 +186,7 @@ router.post('/agreements/upload', authenticate, requireAdmin, upload.single('doc
       data: agreement
     });
   } catch (error) {
-    console.error('上传协议失败:', error);
+    _consoleLogger.error('上传协议失败:', error);
     res.status(500).json({
       code: 500,
       message: '上传协议失败: ' + error.message
@@ -220,7 +223,7 @@ router.post('/agreements/:id/approve', authenticate, requireAdmin, async (req, r
       data: agreement
     });
   } catch (error) {
-    console.error('审批协议失败:', error);
+    _consoleLogger.error('审批协议失败:', error);
     res.status(500).json({
       code: 500,
       message: '审批协议失败: ' + error.message
@@ -242,7 +245,7 @@ router.get('/agreements/:id', authenticate, async (req, res) => {
       data: agreement
     });
   } catch (error) {
-    console.error('获取协议详情失败:', error);
+    _consoleLogger.error('获取协议详情失败:', error);
     if (error.message === 'Agreement not found') {
       return res.status(404).json({
         code: 404,
@@ -270,7 +273,7 @@ router.get('/agreements/:id/document', authenticate, requireAdmin, async (req, r
     res.setHeader('Content-Disposition', `attachment; filename="dpa_${agreementId}.pdf"`);
     res.send(documentBuffer);
   } catch (error) {
-    console.error('下载协议文档失败:', error);
+    _consoleLogger.error('下载协议文档失败:', error);
     res.status(500).json({
       code: 500,
       message: '下载协议文档失败: ' + error.message
@@ -293,7 +296,7 @@ router.get('/compliance/report', authenticate, requireAdmin, async (req, res) =>
       data: report
     });
   } catch (error) {
-    console.error('生成合规报告失败:', error);
+    _consoleLogger.error('生成合规报告失败:', error);
     res.status(500).json({
       code: 500,
       message: '生成合规报告失败'
@@ -315,7 +318,7 @@ router.get('/compliance/expiring', authenticate, async (req, res) => {
       total: expiring.length
     });
   } catch (error) {
-    console.error('检查到期协议失败:', error);
+    _consoleLogger.error('检查到期协议失败:', error);
     res.status(500).json({
       code: 500,
       message: '检查到期协议失败'
@@ -339,7 +342,7 @@ router.get('/compliance/view', authenticate, async (req, res) => {
       total: result.rows.length
     });
   } catch (error) {
-    console.error('获取合规视图失败:', error);
+    _consoleLogger.error('获取合规视图失败:', error);
     res.status(500).json({
       code: 500,
       message: '获取合规视图失败'

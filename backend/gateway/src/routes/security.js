@@ -11,6 +11,9 @@
  * @module backend/gateway/src/routes/security
  */
 
+
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("gateway/src/routes/security"), "gateway/src/routes/security");
 const express = require('express');
 const crypto = require('crypto');
 const { getRedisClient } = require('@pmg/shared/cache');
@@ -65,7 +68,7 @@ try {
     })
   };
 } catch (e) {
-  console.warn('Prometheus metrics not available for security routes');
+  _consoleLogger.warn('Prometheus metrics not available for security routes');
 }
 
 /**

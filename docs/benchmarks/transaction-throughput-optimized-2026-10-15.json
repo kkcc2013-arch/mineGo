@@ -1,0 +1,66 @@
+{
+  "currentSourceSha256": {
+    "backend/shared/TransactionManager.js": "6d3b92bdedd8b639bff6888bf711b1189855a21e97f8e83a7fe059bf460ab41d",
+    "backend/shared/transactionManager.js": "04015c6fb573e724d96c0c2ad3cb1e75d1d5a7b6eb883fa2ea177e6969e67929",
+    "backend/shared/transactionMetrics.js": "2f1b5c96d9d5f1b53fbda06c1a6f6be1937cc547905415a112f1c3bd510d0711",
+    "backend/shared/pgDeadlock.js": "2afdcc6058b8160b05a8eaa6b83fbdfcb8cf89d3c07e3c9c54e713c3e4e10285",
+    "backend/shared/db.js": "b80e0211090fa352a1b76faefd30f90661d71ae97b63b0c06f9a2a69417e7eb4",
+    "database/sqlStatements.js": "600d9a6b08465b7440b670de43b69b736e8e649b6a9245e271a349bb97f37958",
+    "backend/tests/performance/transaction-throughput.js": "e53b7c9e2abfa47e82698ab353746c2c4adb123803108d6cdf1e6d5b7751fc83"
+  },
+  "baselineCommit": "43c6b148ccdba62f76af415927f2a86676feaa18",
+  "baselineSourceSha256": "91ab145fdba0a5cb9bd4ef75dc27c1c1f2f860924b3293072ec9603dc30aaaa9",
+  "method": "Alternating paired rounds; median paired throughput change; exact same V1 resource transfer and owned pool; both default metrics enabled",
+  "concurrency": 2,
+  "iterationsPerWorker": 200,
+  "rounds": 7,
+  "warmupPerWorker": 50,
+  "results": [
+    {
+      "round": 1,
+      "baselineTps": 159.9124024166247,
+      "currentTps": 170.29808189051235,
+      "changePercent": 6.494605369525708
+    },
+    {
+      "round": 2,
+      "baselineTps": 158.42692293567023,
+      "currentTps": 110.01254992916141,
+      "changePercent": -30.559435296340155
+    },
+    {
+      "round": 3,
+      "baselineTps": 161.55437206234657,
+      "currentTps": 156.31302480100194,
+      "changePercent": -3.2443239972000937
+    },
+    {
+      "round": 4,
+      "baselineTps": 156.72603310228664,
+      "currentTps": 165.60128151710902,
+      "changePercent": 5.662906307996707
+    },
+    {
+      "round": 5,
+      "baselineTps": 157.01954444566493,
+      "currentTps": 108.58742580130259,
+      "changePercent": -30.844643458459274
+    },
+    {
+      "round": 6,
+      "baselineTps": 171.37516020546275,
+      "currentTps": 170.1118268836989,
+      "changePercent": -0.7371741156940281
+    },
+    {
+      "round": 7,
+      "baselineTps": 170.750411556622,
+      "currentTps": 154.30789398656688,
+      "changePercent": -9.62956248254937
+    }
+  ],
+  "medianChangePercent": -3.2443239972000937,
+  "requiredMinimumChangePercent": -5,
+  "dataIntegrity": "all resource deltas exact",
+  "passed": true
+}

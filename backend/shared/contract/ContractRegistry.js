@@ -1,4 +1,7 @@
 'use strict';
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/contract/ContractRegistry"), "shared/contract/ContractRegistry");
+
 /**
  * ContractRegistry - 契约注册中心
  * 管理所有微服务的 API 契约
@@ -42,7 +45,7 @@ class ContractRegistry {
       version: contract.version
     });
 
-    console.log(`[ContractRegistry] Registered provider: ${serviceName} v${contract.version}`);
+    _consoleLogger.log(`[ContractRegistry] Registered provider: ${serviceName} v${contract.version}`);
     return this;
   }
 
@@ -70,7 +73,7 @@ class ContractRegistry {
       registeredAt: new Date()
     });
 
-    console.log(`[ContractRegistry] Registered consumer contract: ${key}`);
+    _consoleLogger.log(`[ContractRegistry] Registered consumer contract: ${key}`);
     return this;
   }
 
@@ -96,6 +99,9 @@ class ContractRegistry {
     if (!contract) {
       throw new Error(`No contract found for provider: ${providerName}`);
     }
+
+    if (typeof testRunner !== 'function') throw new Error('A real provider test runner is required');
+    if (contract.getAllEndpoints().length === 0) throw new Error('Provider contract contains no endpoints');
 
     const results = {
       provider: providerName,

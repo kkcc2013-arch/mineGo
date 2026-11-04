@@ -9,7 +9,7 @@
 
 'use strict';
 
-const { createLogger } = require('../../shared/logger');
+const { createLogger } = require('../../../shared/logger');
 
 const logger = createLogger('performance-baseline-manager');
 
@@ -95,10 +95,10 @@ class PerformanceBaselineManager {
           COUNT(*) as test_count
         FROM api_performance_test_results
         WHERE endpoint = $1
-          AND created_at > NOW() - INTERVAL '${days} days'
+          AND created_at > NOW() - ($2 * INTERVAL '1 day')
         GROUP BY DATE(created_at)
         ORDER BY date
-      `, [endpoint]);
+      `, [endpoint, days]);
       
       logger.debug('Performance trend fetched', { 
         endpoint, 
@@ -146,13 +146,13 @@ class PerformanceBaselineManager {
           metrics->>'avgResponseTime' as avg_response_time,
           metrics->>'p95ResponseTime' as p95_response_time
         FROM api_performance_test_results
-        WHERE created_at > NOW() - INTERVAL '${days} days'
+        WHERE created_at > NOW() - ($1 * INTERVAL '1 day')
           AND passed = false
       `;
       
-      const params = [];
+      const params = [days];
       if (endpoint) {
-        query += ' AND endpoint = $1';
+        query += ' AND endpoint = $2';
         params.push(endpoint);
       }
       
@@ -204,15 +204,15 @@ class PerformanceBaselineManager {
           last_updated = NOW()
       `, [
         endpoint,
-        baseline.avgResponseTime || baseline.avg_response_time,
-        baseline.medianResponseTime || baseline.median_response_time,
-        baseline.p90ResponseTime || baseline.p90_response_time,
-        baseline.p95ResponseTime || baseline.p95_response_time,
-        baseline.p99ResponseTime || baseline.p99_response_time,
-        baseline.errorRate || baseline.error_rate,
+        baseline.avgResponseTime ?? baseline.avg_response_time,
+        baseline.medianResponseTime ?? baseline.median_response_time,
+        baseline.p90ResponseTime ?? baseline.p90_response_time,
+        baseline.p95ResponseTime ?? baseline.p95_response_time,
+        baseline.p99ResponseTime ?? baseline.p99_response_time,
+        baseline.errorRate ?? baseline.error_rate,
         baseline.throughput,
-        baseline.samples || baseline.sample_count || 100,
-        baseline.stdDev || baseline.std_dev
+        baseline.samples ?? baseline.sample_count ?? 0,
+        baseline.stdDev ?? baseline.std_dev
       ]);
       
       // 清除缓存
@@ -242,16 +242,18 @@ class PerformanceBaselineManager {
    * @returns {Promise<Object>} 清理结果
    */
   async cleanupOldData(retentionDays = 90) {
+    if (!Number.isInteger(retentionDays) || retentionDays < 90) {
+      throw new Error('Performance data retention must be at least 90 days');
+    }
     logger.info('Cleaning up old test results', { retentionDays });
     
     try {
       const result = await this.db.query(`
         DELETE FROM api_performance_test_results
-        WHERE created_at < NOW() - INTERVAL '${retentionDays} days'
-        RETURNING COUNT(*) as deleted_count
-      `);
+        WHERE created_at < NOW() - ($1 * INTERVAL '1 day')
+      `, [retentionDays]);
       
-      const deleted = result.rows[0]?.deleted_count || 0;
+      const deleted = result.rowCount;
       
       logger.info('Cleanup completed', { deletedRecords: deleted });
       
@@ -352,7 +354,7 @@ class PerformanceBaselineManager {
         ];
         
         const rows = result.rows.map(row => 
-          headers.map(h => row[h] || '').join(',')
+          headers.map(h => '"' + String(row[h] ?? '').replace(/"/g, '""') + '"').join(',')
         );
         
         return [headers.join(','), ...rows].join('\n');

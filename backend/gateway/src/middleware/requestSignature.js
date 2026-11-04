@@ -9,6 +9,9 @@
  * @module backend/gateway/src/middleware/requestSignature
  */
 
+
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("gateway/src/middleware/requestSignature"), "gateway/src/middleware/requestSignature");
 const crypto = require('crypto');
 const { getRedisClient } = require('@pmg/shared/cache');
 const { executeQuery } = require('@pmg/shared/db');
@@ -66,7 +69,7 @@ try {
     })
   };
 } catch (e) {
-  console.warn('Prometheus metrics not available for requestSignature middleware');
+  _consoleLogger.warn('Prometheus metrics not available for requestSignature middleware');
 }
 
 /**

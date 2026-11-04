@@ -3,6 +3,9 @@
  * 提供微服务依赖关系查询接口
  */
 
+
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("gateway/src/routes/dependencies"), "gateway/src/routes/dependencies");
 const express = require('express');
 const router = express.Router();
 const { DependencyAnalyzer } = require('../../../shared/dependencyAnalyzer');
@@ -37,7 +40,7 @@ router.get('/', async (req, res) => {
       data: analysis
     });
   } catch (error) {
-    console.error('[Dependencies API] Error:', error);
+    _consoleLogger.error('[Dependencies API] Error:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to analyze dependencies',
@@ -66,7 +69,7 @@ router.get('/:service', async (req, res) => {
       data: serviceDeps
     });
   } catch (error) {
-    console.error('[Dependencies API] Error:', error);
+    _consoleLogger.error('[Dependencies API] Error:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to get service dependencies',
@@ -95,7 +98,7 @@ router.get('/cycles', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('[Dependencies API] Error:', error);
+    _consoleLogger.error('[Dependencies API] Error:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to detect cycles',
@@ -121,7 +124,7 @@ router.get('/startup-order', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('[Dependencies API] Error:', error);
+    _consoleLogger.error('[Dependencies API] Error:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to get startup order',
@@ -151,7 +154,7 @@ router.get('/graph', async (req, res) => {
     
     res.send(graph);
   } catch (error) {
-    console.error('[Dependencies API] Error:', error);
+    _consoleLogger.error('[Dependencies API] Error:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to generate dependency graph',
@@ -177,7 +180,7 @@ router.get('/impact/:service', async (req, res) => {
       data: impact
     });
   } catch (error) {
-    console.error('[Dependencies API] Error:', error);
+    _consoleLogger.error('[Dependencies API] Error:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to analyze impact',
@@ -207,7 +210,7 @@ router.post('/refresh', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('[Dependencies API] Error:', error);
+    _consoleLogger.error('[Dependencies API] Error:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to refresh analysis',

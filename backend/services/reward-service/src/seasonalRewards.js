@@ -3,6 +3,9 @@
  * 负责季节任务、商店、成就和奖励系统
  */
 
+
+const _consoleLogger = new (require("../../../shared/loggingUtils")).ConsoleMigrationHelper(
+  require("../../../shared/logger").createLogger("services/reward-service/src/seasonalRewards"), "services/reward-service/src/seasonalRewards");
 const { SeasonalEngine, SEASONS } = require('../../../shared/seasonalEngine');
 
 class SeasonalRewardManager {
@@ -98,7 +101,7 @@ class SeasonalRewardManager {
 
       return result.rows;
     } catch (error) {
-      console.error('[SeasonalRewardManager] Error getting quest progress:', error);
+      _consoleLogger.error('[SeasonalRewardManager] Error getting quest progress:', error);
       return [];
     }
   }
@@ -131,7 +134,7 @@ class SeasonalRewardManager {
         await this.markQuestComplete(userId, questId);
       }
     } catch (error) {
-      console.error('[SeasonalRewardManager] Error updating quest progress:', error);
+      _consoleLogger.error('[SeasonalRewardManager] Error updating quest progress:', error);
     }
   }
 
@@ -202,7 +205,7 @@ class SeasonalRewardManager {
 
       return { success: true, rewards };
     } catch (error) {
-      console.error('[SeasonalRewardManager] Error claiming reward:', error);
+      _consoleLogger.error('[SeasonalRewardManager] Error claiming reward:', error);
       return { success: false, error: error.message };
     }
   }
@@ -301,7 +304,7 @@ class SeasonalRewardManager {
 
       return { success: true, item, finalPrice };
     } catch (error) {
-      console.error('[SeasonalRewardManager] Error purchasing item:', error);
+      _consoleLogger.error('[SeasonalRewardManager] Error purchasing item:', error);
       return { success: false, error: error.message };
     }
   }
@@ -330,7 +333,7 @@ class SeasonalRewardManager {
         gym_battles: 0
       };
     } catch (error) {
-      console.error('[SeasonalRewardManager] Error getting progress:', error);
+      _consoleLogger.error('[SeasonalRewardManager] Error getting progress:', error);
       return null;
     }
   }
@@ -360,7 +363,7 @@ class SeasonalRewardManager {
         DO UPDATE SET ${field} = user_seasonal_progress.${field} + $4
       `, [userId, season, year, value]);
     } catch (error) {
-      console.error('[SeasonalRewardManager] Error tracking progress:', error);
+      _consoleLogger.error('[SeasonalRewardManager] Error tracking progress:', error);
     }
   }
 
@@ -391,7 +394,7 @@ class SeasonalRewardManager {
         seasonInfo: SEASONS[season]
       };
     } catch (error) {
-      console.error('[SeasonalRewardManager] Error generating report:', error);
+      _consoleLogger.error('[SeasonalRewardManager] Error generating report:', error);
       return null;
     }
   }

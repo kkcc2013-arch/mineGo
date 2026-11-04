@@ -39,6 +39,7 @@ const statementStats = new Map();
 
 let poolManager = null;
 let migrationsInitialized = false;
+let migrationsInitializationPromise = null;
 let statementsWarmedUp = false;
 
 /**
@@ -149,67 +150,32 @@ async function transaction(fn, options = {}) {
   const poolManager = getPoolManagerInstance();
   const pool = poolManager.getPool(serviceName);
   
-  // 如果提供了高级选项，使用 TransactionManager
-  if (options && Object.keys(options).length > 0) {
-    const { TransactionManager } = require('./TransactionManager');
-    const txManager = new TransactionManager(pool);
-    return txManager.execute(fn, options);
-  }
-  
-  // 向后兼容：简单的无参数事务
-  const client = await pool.connect();
-  
-  try {
-    await client.query('BEGIN');
-    const result = await fn(client);
-    await client.query('COMMIT');
-    return result;
-  } catch (err) {
-    await client.query('ROLLBACK');
-    throw err;
-  } finally {
-    client.release();
-  }
+  return require('./TransactionManager').getManager(pool).execute(fn, options);
 }
 
 /**
  * Initialize database migrations
  * Should be called once during application startup
  */
-async function initializeMigrations() {
-  if (migrationsInitialized) {
-    return;
-  }
-  
-  try {
-    // Import migration runner
-    const migratePath = path.join(__dirname, '..', '..', 'database', 'migrate.js');
-    const { verifyChecksums, runPendingMigrations } = require(migratePath);
-    
-    // Verify checksums of already executed migrations
-    const verifyResult = await verifyChecksums();
-    if (!verifyResult.valid) {
-      logger.error({ module: 'db' }, '[DB] Migration checksum verification failed!');;
-      for (const err of verifyResult.errors) {
-        logger.error({ module: 'db' }, `  ${err.version}: ${err.message}`);;
+function initializeMigrations() {
+  if (migrationsInitialized) return Promise.resolve();
+  if (migrationsInitializationPromise) return migrationsInitializationPromise;
+  migrationsInitializationPromise = (async () => {
+    const migrator = require(path.join(__dirname, '..', '..', 'database', 'migrate.js'));
+    try {
+      const result = await migrator.verifyChecksums();
+      if (!result.valid) throw new Error('Migration checksum verification failed');
+      if (process.env.AUTO_MIGRATE === 'true') {
+        const applied = await migrator.runPendingMigrations();
+        logger.info({ ran: applied.ran }, 'Database migrations applied');
       }
-      throw new Error('Migration checksum verification failed');
-    }
-    
-    logger.info({ module: 'DB] Migration checksums verified' }, 'DB] Migration checksums verified message');;
-    
-    // Run pending migrations if AUTO_MIGRATE is enabled
-    if (process.env.AUTO_MIGRATE === 'true') {
-      logger.info({ module: 'DB] Running pending migrations...' }, 'DB] Running pending migrations... message');;
-      const result = await runPendingMigrations();
-      logger.info({ module: 'DB] Migrations complete: ${result.ran} executed' }, 'DB] Migrations complete: ${result.ran} executed message');;
-    }
-    
-    migrationsInitialized = true;
-  } catch (err) {
-    logger.error({ module: 'DB] Migration initialization failed', error: err.message.message }, 'DB] Migration initialization failed error');;
-    throw err;
-  }
+      migrationsInitialized = true;
+    } catch (err) {
+      logger.error({ err }, 'Migration initialization failed');
+      throw err;
+    } finally { await migrator.closePool(); }
+  })().finally(() => { migrationsInitializationPromise = null; });
+  return migrationsInitializationPromise;
 }
 
 /**

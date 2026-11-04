@@ -8,6 +8,9 @@
  */
 
 'use strict';
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/kms/KeyVault"), "shared/kms/KeyVault");
+
 
 const crypto = require('crypto');
 const fs = require('fs');
@@ -21,7 +24,7 @@ class KeyVault {
     
     // 开发环境警告
     if (process.env.NODE_ENV !== 'production' && !process.env.MASTER_KEY) {
-      console.warn('[KeyVault] Warning: Using auto-generated master key. Set MASTER_KEY in production.');
+      _consoleLogger.warn('[KeyVault] Warning: Using auto-generated master key. Set MASTER_KEY in production.');
     }
   }
 
@@ -80,9 +83,9 @@ class KeyVault {
     
     try {
       fs.writeFileSync(keyFile, newKey, { mode: 0o600 });
-      console.log(`[KeyVault] Generated new master key, saved to ${keyFile}`);
+      _consoleLogger.log(`[KeyVault] Generated new master key, saved to ${keyFile}`);
     } catch (err) {
-      console.warn(`[KeyVault] Could not save master key file: ${err.message}`);
+      _consoleLogger.warn(`[KeyVault] Could not save master key file: ${err.message}`);
     }
     
     return newKey;

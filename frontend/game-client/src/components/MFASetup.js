@@ -1,514 +1,74 @@
-/**
- * REQ-00057: MFA 设置组件
- * 前端 MFA 管理界面
- */
+import {element,button,factorField,message} from './mfaUi.js';
 
-class MFASetup {
-  constructor(container) {
-    this.container = container;
-    this.state = {
-      step: 'status', // status, setup, verify, enabled
-      mfaStatus: null,
-      secret: null,
-      qrCodeDataUrl: null,
-      recoveryCodes: [],
-      verificationCode: '',
-      loading: false,
-      error: null
-    };
-
-    this.init();
+export class MFASetup {
+  constructor(container,api=window.pmgApi){
+    this.container=container;this.api=api;this.active=true;this.busy=false;this.error='';this.status=null;this.step='status';this.secret=null;this.qr=null;this.codes=[];this.urls=new Set();
+    this.logout=()=>this.destroy();window.addEventListener('pmg:logout',this.logout);
+    this.ready=this.load();
   }
-
-  async init() {
-    await this.loadMFAStatus();
-    this.render();
+  clearSecrets(){this.secret=this.qr=null;this.codes=[];for(const url of this.urls)URL.revokeObjectURL(url);this.urls.clear();}
+  async run(work){
+    if(!this.active||this.busy)return;this.busy=true;this.error='';this.abort=new AbortController();const timer=setTimeout(()=>this.abort.abort(),10000);this.render();
+    try{await work({signal:this.abort.signal});}catch(error){if(this.active)this.error=error.name==='AbortError'?'请求已取消，请重试':error.message||'暂时无法更新验证设置';}
+    finally{clearTimeout(timer);if(this.active){this.busy=false;this.render();}}
   }
-
-  /**
-   * 加载 MFA 状态
-   */
-  async loadMFAStatus() {
-    try {
-      const response = await fetch('/api/users/me/mfa', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        this.state.mfaStatus = data.data;
-        this.state.step = data.data.enabled ? 'enabled' : 'status';
-      }
-    } catch (error) {
-      console.error('Failed to load MFA status:', error);
-    }
-  }
-
-  /**
-   * 开始设置 MFA
-   */
-  async startSetup() {
-    this.state.loading = true;
-    this.state.error = null;
-    this.render();
-
-    try {
-      const response = await fetch('/api/users/me/mfa/setup', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        this.state.secret = data.data.secret;
-        this.state.qrCodeDataUrl = data.data.qrCodeDataUrl;
-        this.state.recoveryCodes = data.data.recoveryCodes;
-        this.state.step = 'setup';
-      } else {
-        this.state.error = data.message;
-      }
-    } catch (error) {
-      this.state.error = '设置失败，请稍后再试';
-    } finally {
-      this.state.loading = false;
-      this.render();
-    }
-  }
-
-  /**
-   * 验证并启用 MFA
-   */
-  async verifyAndEnable() {
-    if (!this.state.verificationCode || this.state.verificationCode.length !== 6) {
-      this.state.error = '请输入 6 位验证码';
-      this.render();
-      return;
-    }
-
-    this.state.loading = true;
-    this.state.error = null;
-    this.render();
-
-    try {
-      const response = await fetch('/api/users/me/mfa/enable', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ code: this.state.verificationCode })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        this.state.step = 'enabled';
-        this.state.mfaStatus = { enabled: true };
-        alert('MFA 启用成功！');
-      } else {
-        this.state.error = data.message;
-      }
-    } catch (error) {
-      this.state.error = '验证失败，请稍后再试';
-    } finally {
-      this.state.loading = false;
-      this.render();
-    }
-  }
-
-  /**
-   * 禁用 MFA
-   */
-  async disableMFA(code) {
-    if (!code) {
-      this.state.error = '请输入验证码或恢复码';
-      return false;
-    }
-
-    this.state.loading = true;
-
-    try {
-      const response = await fetch('/api/users/me/mfa/disable', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ code })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        this.state.step = 'status';
-        this.state.mfaStatus = { enabled: false };
-        this.render();
-        return true;
-      } else {
-        this.state.error = data.message;
-        this.render();
-        return false;
-      }
-    } catch (error) {
-      this.state.error = '禁用失败，请稍后再试';
-      this.render();
-      return false;
-    } finally {
-      this.state.loading = false;
-    }
-  }
-
-  /**
-   * 复制到剪贴板
-   */
-  copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(() => {
-      alert('已复制到剪贴板');
-    }).catch(() => {
-      // 降级方案
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      document.body.appendChild(textarea);
-      textarea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textarea);
-      alert('已复制到剪贴板');
+  async load(){return this.run(async opts=>{const status=await this.api.getMfaStatus(opts);if(this.active)this.status=status;});}
+  async setup(){
+    this.clearSecrets();return this.run(async opts=>{
+      const data=await this.api.setupMfa(opts);if(!this.active)return;
+      if(!/^[A-Z2-7]{32}$/.test(data.secret)||!/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(data.qrCodeDataUrl)||!this.validCodes(data.recoveryCodes))throw new Error('验证设置响应无效，请重试');
+      this.secret=data.secret;this.qr=data.qrCodeDataUrl;this.codes=[...data.recoveryCodes];this.step='setup';
     });
   }
-
-  /**
-   * 下载恢复码
-   */
-  downloadRecoveryCodes() {
-    const content = `mineGo MFA 恢复码
-生成时间: ${new Date().toLocaleString()}
-重要提示: 请妥善保管这些恢复码，每个恢复码只能使用一次
-
-${this.state.recoveryCodes.join('\n')}
-
-请将此文件保存在安全的地方`;
-
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `minego-recovery-codes-${Date.now()}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+  validCodes(codes){return Array.isArray(codes)&&codes.length===8&&new Set(codes).size===8&&codes.every(code=>/^[A-F0-9]{4}-[A-F0-9]{4}$/.test(code));}
+  async enable(code){
+    if(!/^\d{6}$/.test(code||'')){this.error='请输入六位验证器验证码';this.render();return;}
+    return this.run(async opts=>{await this.api.enableMfa(code,opts);if(!this.active)return;this.secret=this.qr=null;this.status={enabled:true,recoveryCodes:{remaining:8,total:8}};this.step='codes';});
   }
-
-  /**
-   * 渲染组件
-   */
-  render() {
-    if (!this.container) return;
-
-    this.container.innerHTML = `
-      <div class="mfa-setup-container">
-        <h2>多因素认证（MFA）</h2>
-        
-        ${this.renderContent()}
-        
-        ${this.state.error ? `
-          <div class="mfa-error" role="alert">
-            <span class="error-icon">⚠️</span>
-            ${this.state.error}
-          </div>
-        ` : ''}
-      </div>
-    `;
-
-    this.attachEventListeners();
+  async change(code,regenerate){
+    if(!/^(?:\d{6}|[A-Fa-f0-9]{4}-[A-Fa-f0-9]{4})$/.test(code||'')){this.error='请输入验证码或 XXXX-XXXX 格式的恢复码';this.render();return;}
+    return this.run(async opts=>{
+      const result=await (regenerate?this.api.regenerateMfaCodes(code,opts):this.api.disableMfa(code,opts));if(!this.active)return;
+      this.clearSecrets();
+      if(regenerate){if(!this.validCodes(result.recoveryCodes))throw new Error('恢复码响应无效，请重新读取状态');this.codes=[...result.recoveryCodes];this.step='codes';this.status={enabled:true,recoveryCodes:{remaining:8,total:8}};}
+      else{this.status={enabled:false};this.step='status';}
+    });
   }
-
-  /**
-   * 渲染内容
-   */
-  renderContent() {
-    switch (this.state.step) {
-      case 'status':
-        return this.renderStatusView();
-      case 'setup':
-        return this.renderSetupView();
-      case 'verify':
-        return this.renderVerifyView();
-      case 'enabled':
-        return this.renderEnabledView();
-      default:
-        return this.renderStatusView();
-    }
+  download(){
+    if(!this.codes.length)return;const url=URL.createObjectURL(new Blob(['mineGo 一次性恢复码\n请妥善保管，每个恢复码只能使用一次。\n\n'+this.codes.join('\n')],{type:'text/plain;charset=utf-8'}));this.urls.add(url);
+    const link=element('a');link.href=url;link.download='minego-recovery-codes.txt';document.body.append(link);link.click();link.remove();
   }
-
-  /**
-   * 状态视图
-   */
-  renderStatusView() {
-    return `
-      <div class="mfa-status-view">
-        <div class="status-icon ${this.state.mfaStatus?.enabled ? 'enabled' : 'disabled'}">
-          ${this.state.mfaStatus?.enabled ? '✅' : '❌'}
-        </div>
-        
-        <p class="status-text">
-          ${this.state.mfaStatus?.enabled 
-            ? 'MFA 已启用，您的账号受到额外保护' 
-            : 'MFA 未启用，建议启用以增强账号安全'}
-        </p>
-        
-        ${!this.state.mfaStatus?.enabled ? `
-          <button class="btn btn-primary" id="mfa-start-setup" ${this.state.loading ? 'disabled' : ''}>
-            ${this.state.loading ? '加载中...' : '启用 MFA'}
-          </button>
-        ` : ''}
-        
-        <div class="mfa-benefits">
-          <h3>启用 MFA 的好处</h3>
-          <ul>
-            <li>🔒 即使密码泄露，他人也无法登录您的账号</li>
-            <li>💰 保护您的支付安全和游戏资产</li>
-            <li>📊 符合 PCI-DSS 金融合规要求</li>
-            <li>🎮 行业标准安全措施</li>
-          </ul>
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * 设置视图
-   */
-  renderSetupView() {
-    return `
-      <div class="mfa-setup-view">
-        <div class="setup-steps">
-          <div class="step active">
-            <span class="step-number">1</span>
-            <span class="step-text">扫描二维码</span>
-          </div>
-          <div class="step">
-            <span class="step-number">2</span>
-            <span class="step-text">验证设置</span>
-          </div>
-          <div class="step">
-            <span class="step-number">3</span>
-            <span class="step-text">保存恢复码</span>
-          </div>
-        </div>
-
-        <div class="setup-content">
-          <div class="qr-code-section">
-            <h3>步骤 1: 扫描二维码</h3>
-            <p>使用 Google Authenticator、Microsoft Authenticator 或其他 TOTP 应用扫描以下二维码：</p>
-            
-            <div class="qr-code">
-              <img src="${this.state.qrCodeDataUrl}" alt="MFA QR Code" />
-            </div>
-            
-            <p class="manual-entry">
-              无法扫描？手动输入密钥：
-              <code class="secret-key">${this.state.secret}</code>
-              <button class="btn btn-small" id="copy-secret">复制</button>
-            </p>
-          </div>
-
-          <div class="recovery-codes-section">
-            <h3>步骤 2: 保存恢复码</h3>
-            <p class="warning">⚠️ 请将以下恢复码保存在安全的地方。如果您丢失了 MFA 设备，可以使用这些恢复码登录。每个恢复码只能使用一次。</p>
-            
-            <div class="recovery-codes">
-              ${this.state.recoveryCodes.map(code => `
-                <div class="recovery-code">${code}</div>
-              `).join('')}
-            </div>
-            
-            <button class="btn btn-secondary" id="download-recovery-codes">
-              📥 下载恢复码
-            </button>
-          </div>
-
-          <div class="verify-section">
-            <h3>步骤 3: 验证设置</h3>
-            <p>输入您的验证器应用显示的 6 位数字：</p>
-            
-            <div class="verify-input">
-              <input 
-                type="text" 
-                id="verification-code" 
-                maxlength="6" 
-                placeholder="000000"
-                autocomplete="one-time-code"
-                inputmode="numeric"
-                pattern="[0-9]{6}"
-              />
-              <button class="btn btn-primary" id="verify-mfa" ${this.state.loading ? 'disabled' : ''}>
-                ${this.state.loading ? '验证中...' : '验证并启用'}
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * 已启用视图
-   */
-  renderEnabledView() {
-    return `
-      <div class="mfa-enabled-view">
-        <div class="enabled-header">
-          <div class="status-icon enabled">✅</div>
-          <h3>MFA 已启用</h3>
-        </div>
-        
-        <div class="mfa-info">
-          ${this.state.mfaStatus?.recoveryCodesRemaining !== undefined ? `
-            <div class="recovery-codes-status">
-              <span class="label">剩余恢复码:</span>
-              <span class="value">${this.state.mfaStatus.recoveryCodesRemaining} / 8</span>
-              ${this.state.mfaStatus.recoveryCodesRemaining <= 2 ? `
-                <span class="warning">⚠️ 恢复码不足，建议重新生成</span>
-              ` : ''}
-            </div>
-          ` : ''}
-          
-          <div class="mfa-actions">
-            <button class="btn btn-secondary" id="regenerate-recovery-codes">
-              🔄 重新生成恢复码
-            </button>
-            <button class="btn btn-danger" id="disable-mfa">
-              ❌ 禁用 MFA
-            </button>
-          </div>
-        </div>
-        
-        <div class="mfa-notice">
-          <p>💡 提示：禁用 MFA 需要当前 MFA 验证</p>
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * 绑定事件监听器
-   */
-  attachEventListeners() {
-    // 开始设置按钮
-    const startBtn = document.getElementById('mfa-start-setup');
-    if (startBtn) {
-      startBtn.addEventListener('click', () => this.startSetup());
-    }
-
-    // 复制密钥按钮
-    const copyBtn = document.getElementById('copy-secret');
-    if (copyBtn) {
-      copyBtn.addEventListener('click', () => {
-        this.copyToClipboard(this.state.secret);
-      });
-    }
-
-    // 下载恢复码按钮
-    const downloadBtn = document.getElementById('download-recovery-codes');
-    if (downloadBtn) {
-      downloadBtn.addEventListener('click', () => {
-        this.downloadRecoveryCodes();
-      });
-    }
-
-    // 验证按钮
-    const verifyBtn = document.getElementById('verify-mfa');
-    if (verifyBtn) {
-      verifyBtn.addEventListener('click', () => {
-        this.state.verificationCode = document.getElementById('verification-code')?.value || '';
-        this.verifyAndEnable();
-      });
-    }
-
-    // 验证码输入框
-    const codeInput = document.getElementById('verification-code');
-    if (codeInput) {
-      codeInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          this.state.verificationCode = codeInput.value;
-          this.verifyAndEnable();
-        }
-      });
-
-      // 自动聚焦
-      codeInput.focus();
-    }
-
-    // 重新生成恢复码按钮
-    const regenerateBtn = document.getElementById('regenerate-recovery-codes');
-    if (regenerateBtn) {
-      regenerateBtn.addEventListener('click', () => {
-        const code = prompt('请输入当前 MFA 验证码或恢复码：');
-        if (code) {
-          this.regenerateRecoveryCodes(code);
-        }
-      });
-    }
-
-    // 禁用 MFA 按钮
-    const disableBtn = document.getElementById('disable-mfa');
-    if (disableBtn) {
-      disableBtn.addEventListener('click', () => {
-        const code = prompt('请输入当前 MFA 验证码或恢复码以禁用 MFA：');
-        if (code) {
-          this.disableMFA(code);
-        }
-      });
-    }
-  }
-
-  /**
-   * 重新生成恢复码
-   */
-  async regenerateRecoveryCodes(code) {
-    this.state.loading = true;
-    this.state.error = null;
-    this.render();
-
-    try {
-      const response = await fetch('/api/users/me/mfa/recovery-codes/regenerate', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ code })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        this.state.recoveryCodes = data.data.recoveryCodes;
-        alert('恢复码已重新生成！');
-        this.downloadRecoveryCodes();
-      } else {
-        this.state.error = data.message;
+  render(){
+    if(!this.active)return;
+    const root=element('section','','mfa-panel');root.setAttribute('aria-label','验证器设置');root.append(element('h2','账户二次验证'));
+    if(!this.status&&this.step==='status')root.append(element('p',this.busy?'正在读取账户状态…':'暂时无法读取账户验证状态'),button('重试',()=>this.load(),this.busy));
+    else if(this.step==='setup'){
+      root.append(element('p','使用验证器扫描二维码，或手动添加密钥。请勿向他人发送密钥。'));
+      const image=element('img');image.src=this.qr;image.alt='在验证器中添加此账户的二维码';image.width=image.height=240;root.append(image);
+      const secret=element('code',this.secret,'mfa-secret');secret.setAttribute('aria-label','手动设置密钥');root.append(secret);
+      root.append(element('p','输入验证器显示的六位验证码以确认设置。'));this.factorForm(root,false,'验证并启用',code=>this.enable(code));
+    }else if(this.step==='codes'){
+      root.append(element('p','验证已启用。恢复码只会显示本次，请保存到安全的地方。'));
+      const list=element('ul','','mfa-recovery-codes');list.setAttribute('aria-label','一次性恢复码');for(const code of this.codes)list.append(element('li',code));root.append(list);
+      root.append(button('下载恢复码',()=>this.download(),this.busy));
+      const label=element('label','','mfa-saved');const saved=element('input');saved.type='checkbox';label.append(saved,document.createTextNode('我已安全保存恢复码'));root.append(label);
+      const done=button('完成',()=>{this.clearSecrets();this.step='status';this.load();},true,'btn btn-primary');saved.addEventListener('change',()=>{done.disabled=!saved.checked;});root.append(done);
+    }else if(this.step==='regenerate'||this.step==='disable'){
+      const regenerate=this.step==='regenerate';root.append(element('p',regenerate?'重新生成后，旧恢复码将立即失效。':'关闭后，登录将不再需要二次验证。'));
+      this.factorForm(root,true,regenerate?'验证并重新生成':'验证并关闭',code=>this.change(code,regenerate));root.append(button('返回',()=>{this.step='status';this.error='';this.render();},this.busy));
+    }else{
+      root.append(element('p',this.status.requiresMigration?'此账户的旧版验证器需要管理员协助恢复。':this.status.enabled?'已启用：登录时需要验证器验证码或恢复码。':this.status.pending?'设置尚未完成，重新开始会替换此前的密钥和恢复码。':'尚未启用：您可以为登录增加验证步骤。'));
+      if(!this.status.requiresMigration){
+        if(this.status.enabled){root.append(element('p','剩余恢复码：'+(this.status.recoveryCodes?.remaining??'未知')));for(const [step,label]of [['regenerate','重新生成恢复码'],['disable','关闭二次验证']])root.append(button(label,()=>{this.step=step;this.error='';this.render();},this.busy));}
+        else root.append(button(this.status.pending?'重新开始设置':'设置验证器',()=>this.setup(),this.busy,'btn btn-primary'));
       }
-    } catch (error) {
-      this.state.error = '重新生成失败，请稍后再试';
-    } finally {
-      this.state.loading = false;
-      this.render();
     }
+    if(this.error)root.append(message(this.error));this.container.replaceChildren(root);
   }
+  factorForm(root,recovery,label,submit){
+    const form=element('form'),field=factorField(recovery);field.input.disabled=this.busy;form.append(field.group);
+    const action=element('button',this.busy?'正在验证…':label,'btn btn-primary');action.type='submit';action.disabled=this.busy;form.append(action);form.addEventListener('submit',event=>{event.preventDefault();submit(field.input.value.trim());});root.append(form);
+  }
+  destroy(){if(!this.active)return;this.active=false;this.abort?.abort();this.clearSecrets();window.removeEventListener('pmg:logout',this.logout);this.container.replaceChildren();}
 }
-
-// 导出
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = MFASetup;
-}
-
-// 全局注册
-if (typeof window !== 'undefined') {
-  window.MFASetup = MFASetup;
-}
+export default MFASetup;

@@ -7,7 +7,7 @@
 | 标题 | API 契约测试系统 |
 | 类别 | 测试覆盖 |
 | 优先级 | P1 |
-| 状态 | done |
+| 状态 | in_progress |
 | 涉及服务 | gateway、所有微服务、backend/tests/contract |
 | 创建时间 | 2026-06-10 16:00 |
 
@@ -918,3 +918,14 @@ module.exports = { ContractReportGenerator };
 - [Pact - Consumer Driven Contracts](https://docs.pact.io/)
 - [OpenAPI Specification](https://swagger.io/specification/)
 - [Spring Cloud Contract](https://spring.io/projects/spring-cloud-contract)
+
+
+## 2026-10-06 重新验收记录
+
+历史完成声明未通过实际运行：CLI 与被后续需求替换的运行器接口不兼容，工作流吞掉错误，注册中心没有执行器时直接通过。当前恢复为 `in_progress`。
+
+- CLI 使用 ProviderContractTestRunner 执行已有 Joi 契约，校验真实 HTTP 状态及响应，支持显式 body、headers、query、路径参数测试数据。
+- 改写请求必须有显式测试数据；缺少响应 Schema、路径参数、连接失败及空套件不能通过。
+- 注册中心必须提供真实执行回调；不再默认为全部成功。
+- 真实本地 HTTP 端点回归测试通过；`npm run test:regression` 还包含已有契约结构与兼容性单元测试。
+- CONTRACT_BASE_URL 和 CONTRACT_FIXTURES_PATH 需指向测试环境及测试数据文件。服务契约的旧路径与实际服务仍需逐项协调，当前没有宣称全部游戏 API 合约验收通过。

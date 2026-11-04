@@ -8,9 +8,10 @@
 
 const axios = require('axios');
 const crypto = require('crypto');
-const { query } = require('./db');
+const db = require('./db');
+const currencyFormatter = require('./currencyFormatter');
 const { createLogger } = require('./logger');
-const metrics = require('./metrics');
+const metrics = require('./currencyMetrics');
 
 const logger = createLogger('exchange-rate-service');
 
@@ -42,7 +43,12 @@ const RATE_VALIDITY_MS = 60 * 60 * 1000; // 1 hour
 const RATE_LOCK_DEFAULT_MINUTES = 15;
 
 class ExchangeRateService {
-  constructor() {
+  constructor({database = db, http = axios, now = Date.now, apiKeys = {}, providerUrls = {}} = {}) {
+    this.db = database;
+    this.http = http;
+    this.now = now;
+    this.apiKeys = apiKeys;
+    this.providerUrls = {...Object.fromEntries(Object.entries(SOURCES).map(([key,value])=>[key,value.url])),...providerUrls};
     this.cache = new Map();
     this.baseCurrency = 'USD';
   }
@@ -51,26 +57,27 @@ class ExchangeRateService {
    * Get current exchange rate with caching
    */
   async getRate(fromCurrency, toCurrency) {
+    this.validatePair(fromCurrency, toCurrency);
+    if (fromCurrency === toCurrency) return 1;
     const cacheKey = `${fromCurrency}_${toCurrency}`;
     const cached = this.cache.get(cacheKey);
 
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-      metrics.increment('exchange_rate.cache_hit');
+    if (cached && this.now() < cached.validUntil && this.now() - cached.timestamp < CACHE_TTL_MS) {
+      metrics.cacheHit.inc();
       return cached.rate;
     }
 
-    metrics.increment('exchange_rate.cache_miss');
+    metrics.cacheMiss.inc();
 
     // Try database first
-    const dbRate = await this.getRateFromDB(fromCurrency, toCurrency);
-    if (dbRate) {
-      this.cache.set(cacheKey, { rate: dbRate, timestamp: Date.now() });
-      return dbRate;
+    const quote = await this.getQuoteFromDB(fromCurrency, toCurrency);
+    if (quote) {
+      this.cache.set(cacheKey, {...quote, timestamp: this.now()});
+      return quote.rate;
     }
 
     // Fetch from external API
     const fetchedRate = await this.fetchRate(fromCurrency, toCurrency);
-    this.cache.set(cacheKey, { rate: fetchedRate, timestamp: Date.now() });
     return fetchedRate;
   }
 
@@ -78,8 +85,22 @@ class ExchangeRateService {
    * Get rate from database
    */
   async getRateFromDB(fromCurrency, toCurrency) {
-    try {
-      const result = await query(`
+    return (await this.getQuoteFromDB(fromCurrency, toCurrency))?.rate ?? null;
+  }
+
+  validatePair(from, to) {
+    if (!currencyFormatter.isSupported(from) || !currencyFormatter.isSupported(to)) throw new Error('Unsupported currency');
+  }
+
+  validateRate(rate) {
+    const value = Number(rate);
+    if (!Number.isFinite(value) || value <= 0 || value >= 1e10) throw new Error('Invalid exchange rate');
+    return value;
+  }
+
+  async getQuoteFromDB(fromCurrency, toCurrency) {
+      this.validatePair(fromCurrency, toCurrency);
+      const result = await this.db.query(`
         SELECT rate, valid_until
         FROM exchange_rates
         WHERE from_currency = $1
@@ -91,59 +112,20 @@ class ExchangeRateService {
       `, [fromCurrency, toCurrency]);
 
       if (result.rows.length > 0) {
-        return parseFloat(result.rows[0].rate);
+        const validUntil = new Date(result.rows[0].valid_until).getTime();
+        if (!Number.isFinite(validUntil) || validUntil <= this.now()) return null;
+        return {rate: this.validateRate(result.rows[0].rate),rateExact:result.rows[0].rate, validUntil};
       }
       return null;
-    } catch (error) {
-      logger.error('Failed to get rate from DB', { error: error.message, fromCurrency, toCurrency });
-      return null;
-    }
   }
 
   /**
    * Get multiple rates at once
    */
   async getRates(baseCurrency, targetCurrencies) {
+    if (!Array.isArray(targetCurrencies) || targetCurrencies.length > 20) throw new Error('Invalid target currencies');
     const rates = {};
-    const uncached = [];
-
-    // Check cache first
-    for (const currency of targetCurrencies) {
-      if (currency === baseCurrency) {
-        rates[currency] = 1;
-        continue;
-      }
-
-      const cacheKey = `${baseCurrency}_${currency}`;
-      const cached = this.cache.get(cacheKey);
-
-      if (cached && Date.now() - cached.timestamp < CACHE_TTL_MS) {
-        rates[currency] = cached.rate;
-      } else {
-        uncached.push(currency);
-      }
-    }
-
-    // Batch query DB for uncached
-    if (uncached.length > 0) {
-      const result = await query(`
-        SELECT to_currency, rate
-        FROM exchange_rates
-        WHERE from_currency = $1
-          AND to_currency = ANY($2)
-          AND is_current = true
-          AND valid_until > NOW()
-      `, [baseCurrency, uncached]);
-
-      for (const row of result.rows) {
-        rates[row.to_currency] = parseFloat(row.rate);
-        this.cache.set(`${baseCurrency}_${row.to_currency}`, {
-          rate: parseFloat(row.rate),
-          timestamp: Date.now()
-        });
-      }
-    }
-
+    for (const currency of new Set(targetCurrencies)) rates[currency] = await this.getRate(baseCurrency, currency);
     return rates;
   }
 
@@ -151,41 +133,30 @@ class ExchangeRateService {
    * Fetch rate from external API
    */
   async fetchRate(fromCurrency, toCurrency) {
+    this.validatePair(fromCurrency, toCurrency);
+    if (fromCurrency === toCurrency) return 1;
     const sources = Object.entries(SOURCES).sort((a, b) => a[1].priority - b[1].priority);
 
     for (const [key, source] of sources) {
-      const apiKey = process.env[source.apiKeyEnv];
-      if (!apiKey && process.env.NODE_ENV === 'production') {
-        continue; // Skip sources without API key in production
-      }
+      const apiKey = this.apiKeys[source.apiKeyEnv] ?? process.env[source.apiKeyEnv];
+      if (!apiKey) continue;
 
       try {
         const rate = await this.fetchFromSource(key, fromCurrency, toCurrency, apiKey);
-        if (rate) {
-          await this.saveRate(fromCurrency, toCurrency, rate, key);
-          metrics.increment('exchange_rate.fetch_success', { source: key });
-          return rate;
+        if (rate != null) {
+          this.validateRate(rate);
+          const saved = await this.saveRate(fromCurrency, toCurrency, rate, key);
+          metrics.fetchSuccess.inc({source:key});
+          return saved.rate;
         }
       } catch (error) {
         logger.warn('Failed to fetch from source', {
           source: key,
-          error: error.message,
           fromCurrency,
           toCurrency
         });
-        metrics.increment('exchange_rate.fetch_failure', { source: key });
+        metrics.fetchFailure.inc({source:key});
       }
-    }
-
-    // Fallback: return 1 if same currency or throw error
-    if (fromCurrency === toCurrency) {
-      return 1;
-    }
-
-    // Use mock rate for development
-    if (process.env.NODE_ENV !== 'production') {
-      logger.warn('Using mock exchange rate for development');
-      return this.getMockRate(fromCurrency, toCurrency);
     }
 
     throw new Error(`Failed to fetch exchange rate for ${fromCurrency}/${toCurrency}`);
@@ -208,121 +179,115 @@ class ExchangeRateService {
   }
 
   async fetchFromOER(from, to, apiKey) {
-    const response = await axios.get('https://openexchangerates.org/api/latest.json', {
-      params: { app_id: apiKey, base: from },
+    const response = await this.http.get(this.providerUrls.openexchangerates, {
+      params: { app_id: apiKey },
       timeout: 10000
     });
 
-    if (response.data?.rates?.[to]) {
-      return response.data.rates[to];
-    }
-    return null;
+    if (response.data?.error) throw new Error('Provider quote unavailable');
+    return this.tableQuote(response.data?.base, response.data?.rates, from, to);
   }
 
   async fetchFromFixer(from, to, apiKey) {
-    const response = await axios.get('https://data.fixer.io/api/latest', {
-      params: { access_key: apiKey, base: from, symbols: to },
+    const response = await this.http.get(this.providerUrls.fixer, {
+      params: { access_key: apiKey, symbols: `${from},${to}` },
       timeout: 10000
     });
 
-    if (response.data?.success && response.data?.rates?.[to]) {
-      return response.data.rates[to];
-    }
-    return null;
+    if (response.data?.success !== true) throw new Error('Provider quote unavailable');
+    return this.tableQuote(response.data.base,response.data.rates,from,to);
   }
 
   async fetchFromExchangeRateAPI(from, to, apiKey) {
-    const response = await axios.get(`https://v6.exchangerate-api.com/v6/${apiKey}/latest/${from}`, {
+    const response = await this.http.get(`${this.providerUrls.exchangerate}/${encodeURIComponent(apiKey)}/latest/${from}`, {
       timeout: 10000
     });
 
-    if (response.data?.result === 'success' && response.data?.conversion_rates?.[to]) {
-      return response.data.conversion_rates[to];
-    }
-    return null;
+    if (response.data?.result !== 'success') throw new Error('Provider quote unavailable');
+    return this.tableQuote(response.data.base_code,response.data.conversion_rates,from,to);
   }
 
-  /**
-   * Mock rates for development
-   */
-  getMockRate(from, to) {
-    const mockRates = {
-      'USD_EUR': 0.92,
-      'USD_GBP': 0.79,
-      'USD_JPY': 155.0,
-      'USD_CNY': 7.24,
-      'USD_KRW': 1380.0,
-      'USD_TWD': 32.5,
-      'USD_HKD': 7.82,
-      'USD_SGD': 1.35,
-      'USD_AUD': 1.53,
-      'USD_CAD': 1.37,
-      'EUR_USD': 1.09,
-      'GBP_USD': 1.27,
-      'JPY_USD': 0.0065,
-      'CNY_USD': 0.14
-    };
-
-    if (from === to) return 1;
-    return mockRates[`${from}_${to}`] || 1;
+  tableQuote(base, rates, from, to) {
+    this.validatePair(from,to);
+    if (!currencyFormatter.isSupported(base) || !rates || typeof rates!=='object' || Array.isArray(rates)) throw new Error('Invalid provider response');
+    const fromRate = from===base ? 1 : this.validateRate(Object.hasOwn(rates,from) ? rates[from] : undefined);
+    const toRate = to===base ? 1 : this.validateRate(Object.hasOwn(rates,to) ? rates[to] : undefined);
+    return this.validateRate(toRate/fromRate);
   }
 
   /**
    * Save rate to database
    */
   async saveRate(fromCurrency, toCurrency, rate, source) {
-    const validUntil = new Date(Date.now() + RATE_VALIDITY_MS);
-
-    try {
-      // Mark old rates as not current
-      await query(`
-        UPDATE exchange_rates
-        SET is_current = false
-        WHERE from_currency = $1 AND to_currency = $2
-      `, [fromCurrency, toCurrency]);
-
-      // Insert new rate
-      await query(`
-        INSERT INTO exchange_rates
-        (from_currency, to_currency, rate, source, fetched_at, valid_until, is_current)
-        VALUES ($1, $2, $3, $4, NOW(), $5, true)
-      `, [fromCurrency, toCurrency, rate, source, validUntil]);
-
-      logger.info('Exchange rate saved', { fromCurrency, toCurrency, rate, source, validUntil });
-    } catch (error) {
-      logger.error('Failed to save exchange rate', { error: error.message });
-    }
+    this.validatePair(fromCurrency, toCurrency);
+    if (fromCurrency === toCurrency) throw new Error('Same-currency quotes are unnecessary');
+    this.validateRate(rate);
+    if (typeof source !== 'string' || !/^[a-zA-Z0-9_-]{1,50}$/.test(source)) throw new Error('Invalid rate source');
+    const validUntil = new Date(this.now() + RATE_VALIDITY_MS);
+    const saved = await this.db.transaction(async client => {
+      await client.query("SELECT pg_advisory_xact_lock(hashtextextended(current_schema()||':currency:'||$1||':'||$2,0))", [fromCurrency, toCurrency]);
+      await client.query('UPDATE exchange_rates SET is_current=false WHERE from_currency=$1 AND to_currency=$2', [fromCurrency, toCurrency]);
+      const result = await client.query(`INSERT INTO exchange_rates(from_currency,to_currency,rate,source,fetched_at,valid_until,is_current)
+        VALUES($1,$2,$3,$4,NOW(),$5,true) RETURNING rate,valid_until`, [fromCurrency,toCurrency,rate,source,validUntil]);
+      const stored = result.rows[0];
+      await client.query(`INSERT INTO exchange_rate_history(from_currency,to_currency,rate,recorded_at,open_rate,close_rate,high_rate,low_rate)
+        VALUES($1,$2,$3,(NOW() AT TIME ZONE 'UTC')::date,$3,$3,$3,$3)
+        ON CONFLICT(from_currency,to_currency,recorded_at) DO UPDATE SET rate=EXCLUDED.rate,close_rate=EXCLUDED.rate,
+        high_rate=GREATEST(exchange_rate_history.high_rate,EXCLUDED.rate),low_rate=LEAST(exchange_rate_history.low_rate,EXCLUDED.rate)`,
+      [fromCurrency,toCurrency,stored.rate]);
+      return {rate:this.validateRate(stored.rate),rateExact:stored.rate,validUntil:new Date(stored.valid_until).getTime()};
+    });
+    this.cache.set(`${fromCurrency}_${toCurrency}`, {...saved,timestamp:this.now()});
+    return saved;
   }
 
   /**
    * Convert amount between currencies
    */
-  async convert(amount, fromCurrency, toCurrency) {
-    if (fromCurrency === toCurrency) {
-      return { convertedAmount: amount, rate: 1 };
+  async convert(amount, fromCurrency, toCurrency, {lockId,userId} = {}) {
+    this.validatePair(fromCurrency,toCurrency);
+    if (!['number','string'].includes(typeof amount) || !/^\d{1,16}(?:\.\d{1,10})?$/.test(String(amount)) || !Number.isFinite(Number(amount))) throw new Error('Invalid conversion amount');
+    let rateExact;
+    if (lockId) {
+      this.validateOwner(userId);
+      const lock = await this.db.query(`SELECT locked_rate FROM rate_locks WHERE lock_id=$1 AND user_id=$2
+        AND from_currency=$3 AND to_currency=$4 AND used=false AND expires_at>NOW()`,[lockId,userId,fromCurrency,toCurrency]);
+      if (!lock.rows.length) throw new Error('Rate lock not found, expired, or already used');
+      rateExact=lock.rows[0].locked_rate;
+    } else {
+      await this.getRate(fromCurrency,toCurrency);
+      rateExact=fromCurrency===toCurrency ? '1' : this.cache.get(`${fromCurrency}_${toCurrency}`)?.rateExact;
     }
-
-    const rate = await this.getRate(fromCurrency, toCurrency);
-    const convertedAmount = amount * rate;
-
-    return { convertedAmount, rate };
+    const rate=this.validateRate(rateExact);
+    if (rateExact == null) throw new Error('Durable quote is unavailable');
+    const places = currencyFormatter.getConfig(toCurrency).decimalPlaces;
+    const result = await this.db.query('SELECT ROUND($1::numeric*$2::numeric,$3) AS amount', [String(amount),rateExact,places]);
+    const amountExact = result.rows[0].amount;
+    const convertedAmount = Number(amountExact);
+    if (!Number.isFinite(convertedAmount) || convertedAmount*10**places > Number.MAX_SAFE_INTEGER) throw new Error('Conversion exceeds safe display range');
+    await this.db.query(`INSERT INTO currency_conversion_logs(from_currency,to_currency,from_amount,to_amount,rate,rate_source,conversion_type,rate_lock_id,user_id,input_amount)
+      VALUES($1,$2,$3,$4,$5,'stored','display',$6,$7,$8)`,[fromCurrency,toCurrency,String(amount),amountExact,rateExact,lockId??null,userId??null,String(amount)]);
+    metrics.conversion.inc({from:fromCurrency,to:toCurrency});
+    return {convertedAmount,amountExact,rate};
   }
 
   /**
    * Lock exchange rate for payment
    */
-  async lockRate(fromCurrency, toCurrency, durationMinutes = RATE_LOCK_DEFAULT_MINUTES) {
+  async lockRate(fromCurrency, toCurrency, durationMinutes = RATE_LOCK_DEFAULT_MINUTES, userId) {
+    this.validateOwner(userId);
+    if (!Number.isInteger(durationMinutes) || durationMinutes<1 || durationMinutes>15) throw new Error('Invalid lock duration');
     const rate = await this.getRate(fromCurrency, toCurrency);
     const lockId = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + durationMinutes * 60 * 1000);
+    const expiresAt = new Date(this.now() + durationMinutes * 60 * 1000);
 
-    await query(`
+    await this.db.query(`
       INSERT INTO rate_locks
-      (lock_id, from_currency, to_currency, locked_rate, expires_at)
-      VALUES ($1, $2, $3, $4, $5)
-    `, [lockId, fromCurrency, toCurrency, rate, expiresAt]);
+      (lock_id, from_currency, to_currency, locked_rate, expires_at, user_id)
+      VALUES ($1, $2, $3, $4, $5, $6)
+    `, [lockId, fromCurrency, toCurrency, fromCurrency===toCurrency ? '1' : this.cache.get(`${fromCurrency}_${toCurrency}`).rateExact, expiresAt,userId]);
 
-    metrics.increment('exchange_rate.lock_created', { from: fromCurrency, to: toCurrency });
+    metrics.lockCreated.inc({from:fromCurrency,to:toCurrency});
 
     return {
       lockId,
@@ -334,23 +299,29 @@ class ExchangeRateService {
   /**
    * Use locked rate for payment
    */
-  async useLockedRate(lockId, referenceType, referenceId) {
-    const result = await query(`
+  validateOwner(userId) {
+    if (typeof userId!=='string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId)) throw new Error('Authenticated owner required');
+  }
+
+  async useLockedRate(lockId, referenceType, referenceId, {userId,client=this.db} = {}) {
+    this.validateOwner(userId);
+    if (typeof lockId!=='string' || !/^[a-f0-9]{64}$/.test(lockId) || !['order','display','refund'].includes(referenceType) || typeof referenceId!=='string' || !referenceId.length || referenceId.length>100) throw new Error('Invalid rate lock reference');
+    const result = await client.query(`
       UPDATE rate_locks
       SET used = true,
           reference_type = $2,
           reference_id = $3
-      WHERE lock_id = $1
+      WHERE lock_id = $1 AND user_id=$4
         AND used = false
         AND expires_at > NOW()
       RETURNING from_currency, to_currency, locked_rate
-    `, [lockId, referenceType, referenceId]);
+    `, [lockId, referenceType, referenceId,userId]);
 
     if (result.rows.length === 0) {
       throw new Error('Rate lock not found, expired, or already used');
     }
 
-    metrics.increment('exchange_rate.lock_used');
+    if(client===this.db) metrics.lockUsed.inc();
 
     return {
       fromCurrency: result.rows[0].from_currency,
@@ -363,7 +334,7 @@ class ExchangeRateService {
    * Get supported currencies
    */
   async getSupportedCurrencies() {
-    const result = await query(`
+    const result = await this.db.query(`
       SELECT currency_code, currency_name, currency_symbol, decimal_places
       FROM supported_currencies
       WHERE is_active = true
@@ -412,9 +383,9 @@ class ExchangeRateService {
    * Clean up expired rate locks
    */
   async cleanupExpiredLocks() {
-    const result = await query(`
+    const result = await this.db.query(`
       DELETE FROM rate_locks
-      WHERE expires_at < NOW()
+      WHERE expires_at < NOW() AND used=false
       RETURNING id
     `);
 
@@ -428,3 +399,6 @@ class ExchangeRateService {
 
 // Export singleton
 module.exports = new ExchangeRateService();
+
+module.exports.ExchangeRateService = ExchangeRateService;
+module.exports.exchangeRateService = module.exports;

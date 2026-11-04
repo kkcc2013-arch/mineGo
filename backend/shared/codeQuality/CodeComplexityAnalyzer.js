@@ -1,6 +1,9 @@
 // backend/shared/codeQuality/CodeComplexityAnalyzer.js
 // Code complexity analysis engine for technical debt measurement
 'use strict';
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/codeQuality/CodeComplexityAnalyzer"), "shared/codeQuality/CodeComplexityAnalyzer");
+
 
 const fs = require('fs').promises;
 const path = require('path');
@@ -594,7 +597,7 @@ class CodeComplexityAnalyzer {
           }
         }
       } catch (error) {
-        console.error(`Error analyzing ${file}:`, error.message);
+        _consoleLogger.error(`Error analyzing ${file}:`, error.message);
       }
     }
 

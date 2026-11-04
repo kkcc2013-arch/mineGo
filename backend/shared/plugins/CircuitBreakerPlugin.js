@@ -3,6 +3,9 @@
  * REQ-00505: 插件生命周期管理与热插拔系统
  */
 
+
+const _consoleLogger = new (require("../loggingUtils")).ConsoleMigrationHelper(
+  require("../logger").createLogger("shared/plugins/CircuitBreakerPlugin"), "shared/plugins/CircuitBreakerPlugin");
 const BasePlugin = require('../pluginSystem/BasePlugin');
 const CircuitBreaker = require('../CircuitBreaker');
 
@@ -69,7 +72,7 @@ class CircuitBreakerPlugin extends BasePlugin {
   }
 
   log(message) {
-    console.log(message);
+    _consoleLogger.log(message);
   }
 }
 

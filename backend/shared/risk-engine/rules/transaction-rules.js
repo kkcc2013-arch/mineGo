@@ -1,5 +1,8 @@
 // shared/risk-engine/rules/transaction-rules.js - Transaction Risk Rules
 'use strict';
+const _consoleLogger = new (require("../../loggingUtils")).ConsoleMigrationHelper(
+  require("../../logger").createLogger("shared/risk-engine/rules/transaction-rules"), "shared/risk-engine/rules/transaction-rules");
+
 
 const TRANSACTION_RULES = {
   // High frequency trading
@@ -176,7 +179,7 @@ function evaluateTransactionRules(context) {
       }
     } catch (err) {
       // Condition evaluation error, skip
-      console.error(`Rule ${key} evaluation error:`, err.message);
+      _consoleLogger.error(`Rule ${key} evaluation error:`, err.message);
     }
   }
 
@@ -201,7 +204,7 @@ function evaluateRewardRules(context) {
         });
       }
     } catch (err) {
-      console.error(`Rule ${key} evaluation error:`, err.message);
+      _consoleLogger.error(`Rule ${key} evaluation error:`, err.message);
     }
   }
 
@@ -226,7 +229,7 @@ function evaluatePaymentRules(context) {
         });
       }
     } catch (err) {
-      console.error(`Rule ${key} evaluation error:`, err.message);
+      _consoleLogger.error(`Rule ${key} evaluation error:`, err.message);
     }
   }
 

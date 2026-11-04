@@ -1,0 +1,161 @@
+{
+  "date": "2026-11-04",
+  "commit": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+  "observedAt": "2026-11-04T03:22:26.637771+00:00",
+  "runs": [
+    {
+      "name": "Security Scan",
+      "id": 41602830064,
+      "run_number": 437,
+      "head_sha": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/41602830064"
+    },
+    {
+      "name": "Privacy route and storage regression",
+      "id": 41602830076,
+      "run_number": 51,
+      "head_sha": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/41602830076"
+    },
+    {
+      "name": "Integration & E2E Tests",
+      "id": 41602830105,
+      "run_number": 454,
+      "head_sha": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/41602830105"
+    },
+    {
+      "name": "UUID erasure request and protected workflow regression",
+      "id": 41602830138,
+      "run_number": 2,
+      "head_sha": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/41602830138"
+    },
+    {
+      "name": "Payment integrity and actual process regression",
+      "id": 41602830096,
+      "run_number": 6,
+      "head_sha": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/41602830096"
+    },
+    {
+      "name": "API Contract Tests",
+      "id": 41602830114,
+      "run_number": 108,
+      "head_sha": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/41602830114"
+    },
+    {
+      "name": "MFA browser and offline credential regression",
+      "id": 41602830048,
+      "run_number": 7,
+      "head_sha": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/41602830048"
+    },
+    {
+      "name": "CI/CD Pipeline",
+      "id": 41602830066,
+      "run_number": 479,
+      "head_sha": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/41602830066"
+    },
+    {
+      "name": "Notification client and storage regression",
+      "id": 41602830144,
+      "run_number": 36,
+      "head_sha": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/41602830144"
+    },
+    {
+      "name": "Performance Regression Tests",
+      "id": 41602830187,
+      "run_number": 147,
+      "head_sha": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/41602830187"
+    },
+    {
+      "name": "Database migration regression",
+      "id": 41602830005,
+      "run_number": 41,
+      "head_sha": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/41602830005"
+    },
+    {
+      "name": "E2E Tests",
+      "id": 41602830003,
+      "run_number": 141,
+      "head_sha": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "html_url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/41602830003"
+    },
+    {
+      "name": "Dependency Check",
+      "id": 41602829970,
+      "run_number": 322,
+      "head_sha": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/41602829970"
+    },
+    {
+      "name": "MFA factors, sessions and storage regression",
+      "id": 41602829949,
+      "run_number": 11,
+      "head_sha": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/41602829949"
+    },
+    {
+      "name": "Title routes and storage regression",
+      "id": 41602829948,
+      "run_number": 48,
+      "head_sha": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/41602829948"
+    },
+    {
+      "name": "Contract Tests",
+      "id": 41602830001,
+      "run_number": 404,
+      "head_sha": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+      "status": "completed",
+      "conclusion": "failure",
+      "html_url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/41602830001"
+    },
+    {
+      "name": "Dependency Check",
+      "id": 41602821029,
+      "run_number": 321,
+      "head_sha": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+      "status": "completed",
+      "conclusion": "success",
+      "html_url": "https://github.com/kkcc2013-arch/mineGo/actions/runs/41602821029"
+    }
+  ],
+  "scope": "Exact53b main479/native48/payment6/MFA11/browser7/migration41/erasure2/privacy51/notification36/dependency321-322 success. Legacy API108/contract404/integration454/performance147/security437 failure; E2E141 cancelled. All terminal at observation, no preferred rerun or threshold waiver. New task/worker source still needs CI; not complete658 or full privacy acceptance."
+}
