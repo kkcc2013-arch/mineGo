@@ -12,8 +12,6 @@ const http = require('node:http');
 const express = require('express');
 const {mountIpAppealProxy} = require('../../gateway/src/routes/ipAppealProxy');
 const {ensureStorageExtensions} = require('./storageSetup');
-const {parseMigrationFile}=require('../../../database/migrate');
-const {migrationStatements}=require('../../../database/sqlStatements');
 
 
 test('real user-service entry point starts against isolated PostgreSQL, Redis and Kafka and shuts down', {timeout:90000}, async () => {
@@ -32,7 +30,7 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
   await ensureStorageExtensions(admin);
   await admin.query(`CREATE SCHEMA ${schema}`);
   const fixture=new Pool({connectionString:process.env.TEST_DATABASE_URL,options:`-c search_path=${schema},public`});
-  let child;
+  let child,refused;
   let appealGateway, appealProxy;
   let logs='';
   const userId=crypto.randomUUID();
@@ -41,37 +39,43 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
   const auditNamespace='native-privacy-fixture';
   try{
     const initial=await fs.readFile(path.resolve(__dirname,'../../../database/migrations/V1__initial_schema.sql'),'utf8');
-    await fixture.query(initial.match(/CREATE TYPE team_enum[^;]*;/)[0]);
-    await fixture.query(initial.match(/CREATE TABLE users \([\s\S]*?\n\);/)[0]);
-    await fixture.query(initial.match(/CREATE TABLE audit_logs \([\s\S]*?\n\);/)[0]);
-    await fixture.query(initial.match(/CREATE TYPE order_status_enum[^;]*;/)[0]);
-    await fixture.query(initial.match(/CREATE TABLE orders \([\s\S]*?\n\);/)[0]);
-    for(const file of ['20260608_194800__add_sensitive_data_protection_tables.sql','repairs/20260608_200000__add_sensitive_data_audit_tables.sql','20261006_150000__privacy_preference_defaults_and_policy_fields.sql','20260610_000000__add_mfa_system.sql','20261020_120000__mfa_verification_state.sql','repairs/20260630_050000__add_data_deletion_request_tables.sql']){
-      const migration=parseMigrationFile(await fs.readFile(path.resolve(__dirname,'../../../database/pending',file),'utf8'));
-      for(const statement of migrationStatements(migration.up))await fixture.query(statement);
-    }
+    await fixture.query(initial);
+    await fixture.query(await fs.readFile(path.resolve(__dirname,'../../../database/seeds/V2__seed_data.sql'),'utf8'));
+    const migrationUrl=new URL(process.env.TEST_DATABASE_URL);migrationUrl.searchParams.set('options',`-c search_path=${schema},public`);
+    await require('node:util').promisify(require('node:child_process').execFile)(process.execPath,[path.resolve(__dirname,'../../../database/migrate.js'),'up'],{env:{...process.env,DATABASE_URL:migrationUrl.toString()},maxBuffer:4000000});
+    assert.equal((await fixture.query('SELECT count(*)::int AS n FROM schema_migrations')).rows[0].n,87);
     const policy=new(require('../../shared/privacyPreferences').PrivacyPolicyService)({query:fixture.query.bind(fixture)});
     await policy.createPolicyVersion('native-v1','2020-01-01',[],'fixture zh','fixture en','fixture ja');
+    const acceptedPolicy=(await policy.getCurrentPolicy()).version;assert.notEqual(acceptedPolicy,'native-v1','the full seeded current policy takes precedence over this older fixture');
     await fixture.query('INSERT INTO users(id,nickname) VALUES ($1,$2)',[userId,'startup-player']);
-    await fixture.query(await fs.readFile(path.resolve(__dirname,'../../../database/pending/20261007_120000__title_identity_compatibility.sql'),'utf8'));
-    await fixture.query(await fs.readFile(path.resolve(__dirname,'../../../database/pending/20261008_100000__ip_ban_index_compatibility.sql'),'utf8'));
-    for(const file of ['repairs/20260605_200000__add_notification_system_tables.sql','20260607_000000__add_push_notification_preferences.sql','20261008_160000__notification_history_contract.sql','repairs/20260611_020000__add_message_center_indexes.sql']){
-      const parsed=parseMigrationFile(await fs.readFile(path.resolve(__dirname,'../../../database/pending',file),'utf8'));
-      for(const statement of migrationStatements(parsed.up))await fixture.query(statement);
-    }
-
+    const client=await fixture.connect();let erasurePolicy;
+    try {
+      await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ');
+      const {ErasureResourcePlanner}=require('../../shared/erasure/ErasureResourcePlanner');
+      const inventory=await new ErasureResourcePlanner().inspect(client,{id:crypto.randomUUID(),user_id:userId,request_type:'full',requested_data_types:['all'],verified_at:null,approved_at:null,approval_status:'pending',execute_after:null});
+      erasurePolicy=JSON.stringify({version:'owned-native-v1',policyReference:'isolated native worker startup fixture; not production approval',catalogSha256:inventory.catalogSha256,resources:require('../../shared/erasure/ErasureTaskRunner').RESOURCES.map(r=>r.code)});
+    }finally{await client.query('ROLLBACK');client.release();}
     const redis=new URL(process.env.TEST_REDIS_URL);
     const database=new URL(process.env.TEST_DATABASE_URL);database.searchParams.set('options',`-c search_path=${schema},public`);
     const runner=`const service=require('./services/user-service/src/index');
-      service.start().then(()=>process.send({ready:true,port:service.server.address().port})).catch(()=>{});
-      process.on('message',async message=>{if(message==='stop'){try{await service.shutdown();process.send({stopped:true});process.disconnect();}catch(err){process.send({failed:err.message});process.exitCode=1;process.disconnect();}}});`;
-    child=spawn(process.execPath,['-e',runner],{cwd:path.resolve(__dirname,'../..'),env:{...process.env,
+      service.start().then(()=>process.send({ready:true,port:service.server.address().port,erasureSchedules:[...require('node-cron').getTasks().values()].filter(t=>t.name==='erasure-due'||t.name==='erasure-retry').length})).catch(()=>{});
+      process.on('message',async message=>{if(message==='stop'){try{await service.shutdown();process.send({stopped:true,erasureSchedules:[...require('node-cron').getTasks().values()].filter(t=>t.name==='erasure-due'||t.name==='erasure-retry').length});process.disconnect();}catch(err){process.send({failed:err.message});process.exitCode=1;process.disconnect();}}});`;
+    const childEnv={...process.env,
       EVENT_BUS_CLIENT_ID:'native-user-'+schema,DATABASE_URL:database.toString(),REDIS_HOST:redis.hostname,REDIS_PORT:redis.port||'6379',
       KAFKA_BROKERS:process.env.TEST_KAFKA_BROKERS,PORT:'0',LOG_LEVEL:'error',
       NODE_ENV:'test',AUDIT_MASTER_KEY_ID:'native-fixture',MASTER_ENCRYPTION_KEY:auditMaster.toString('hex'),AUDIT_MASTER_KEYS_JSON:'',AUDIT_KMS_KEY_ID:'',AUDIT_KEY_NAMESPACE:auditNamespace,
       MFA_MASTER_ENCRYPTION_KEY:mfaMaster.toString('hex'),MFA_MASTER_KEY_ID:'native-mfa',MFA_MASTER_KEYS_JSON:'',MFA_KMS_KEY_ID:'',MFA_KEY_NAMESPACE:'native-mfa',
+      ERASURE_WORKER_ENABLED:'true',ERASURE_RESOURCE_POLICY_JSON:erasurePolicy,
       JWT_ACCESS_SECRET:'user-startup-test-access',JWT_REFRESH_SECRET:'user-startup-test-refresh'
-    },stdio:['ignore','pipe','pipe','ipc']});
+    };
+    let refusalLogs='';
+    refused=spawn(process.execPath,['services/user-service/src/index.js'],{cwd:path.resolve(__dirname,'../..'),env:{...childEnv,ERASURE_RESOURCE_POLICY_JSON:''},stdio:['ignore','pipe','pipe']});
+    refused.stdout.on('data',chunk=>{refusalLogs=(refusalLogs+chunk).slice(-16000);});refused.stderr.on('data',chunk=>{refusalLogs=(refusalLogs+chunk).slice(-16000);});
+    const refusal=await new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('Missing-policy startup did not terminate')),15000);refused.once('error',reject);refused.once('exit',(code,signal)=>{clearTimeout(timer);resolve({code,signal});});});
+    assert.ok(!refusalLogs.includes(auditMaster.toString('hex'))&&!refusalLogs.includes(mfaMaster.toString('hex')));
+    assert.equal(refusal.code,1,refusalLogs);assert.match(refusalLogs,/ERASURE_RESOURCE_POLICY_REQUIRED/);refused=null;
+    assert.equal((await fixture.query('SELECT id FROM data_erasure_tasks')).rowCount,0);
+    child=spawn(process.execPath,['-e',runner],{cwd:path.resolve(__dirname,'../..'),env:childEnv,stdio:['ignore','pipe','pipe','ipc']});
     child.stdout.on('data',chunk=>{logs=(logs+chunk).slice(-16000);});child.stderr.on('data',chunk=>{logs=(logs+chunk).slice(-16000);});
     const ready=await new Promise((resolve,reject)=>{
       const timer=setTimeout(()=>reject(new Error(`User startup timeout: ${logs}`)),60000);
@@ -79,6 +83,7 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
       child.once('exit',exit);
       child.on('message',message=>{if(message.ready){clearTimeout(timer);child.removeListener('exit',exit);resolve(message);}});
     });
+    assert.equal(ready.erasureSchedules,2);
     const base=`http://127.0.0.1:${ready.port}`;
     const health=await fetch(base+'/health');const report=await health.json();
     assert.ok([200,503].includes(health.status));assert.equal(report.checks.database.status,'healthy');
@@ -103,7 +108,7 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
     const audit=new EncryptedAuditStore({pool:fixture,provider,namespace:auditNamespace,nodeEnv:'test'});
     try{
       const history=await audit.queryDecryptedAuditLogs({userId});
-      assert.ok(history.some(row=>row.action==='privacy_policy_accept'&&row.data.actionData.version==='native-v1'));
+      assert.ok(history.some(row=>row.action==='privacy_policy_accept'&&row.data.actionData.version===acceptedPolicy));
       assert.ok(history.some(row=>row.action==='privacy_preference_change'&&row.data.actionData.category==='marketing'&&row.data.actionData.collectable===true&&typeof row.data.ipAddress==='string'&&typeof row.data.userAgent==='string'));
       for(const row of(await fixture.query('SELECT details,ip_address,user_agent,encryption_auth_tag FROM audit_logs WHERE user_id=$1',[userId])).rows){assert.equal(row.details,null);assert.equal(row.ip_address,null);assert.equal(row.user_agent,null);assert.equal(row.encryption_auth_tag.length,32);}
     }finally{await audit.close();provider.close();}
@@ -127,7 +132,7 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
     const readerProofResponse=await fetch(base+'/users/me/mfa/step-up',{method:'POST',headers:{...readerHeaders,'Content-Type':'application/json'},body:JSON.stringify({code:mfaSetup.recoveryCodes[1],scope:'audit-read'})});assert.equal(readerProofResponse.status,200);readerHeaders['x-mfa-token']=(await readerProofResponse.json()).data.mfaToken;
     const target=(await fixture.query("SELECT id::text FROM audit_logs WHERE action='privacy_policy_accept' LIMIT 1")).rows[0].id;
     assert.equal((await fetch(base+'/admin/audit-logs/'+target+'/decrypt',{headers})).status,403);
-    const readAudit=await fetch(base+'/admin/audit-logs/'+target+'/decrypt',{headers:readerHeaders});assert.equal(readAudit.status,200);assert.equal(readAudit.headers.get('cache-control'),'no-store');assert.equal((await readAudit.json()).data.data.actionData.version,'native-v1');
+    const readAudit=await fetch(base+'/admin/audit-logs/'+target+'/decrypt',{headers:readerHeaders});assert.equal(readAudit.status,200);assert.equal(readAudit.headers.get('cache-control'),'no-store');assert.equal((await readAudit.json()).data.data.actionData.version,acceptedPolicy);
     assert.equal((await fixture.query("SELECT count(*)::int AS n FROM audit_logs WHERE action='admin_audit_decrypt'")).rows[0].n,1);
     const receipt=(await fixture.query("SELECT id::text FROM audit_logs WHERE action='admin_audit_decrypt' LIMIT 1")).rows[0].id;
     const receiptRead=await fetch(base+'/admin/audit-logs/'+receipt+'/decrypt',{headers:readerHeaders});assert.equal(receiptRead.status,200);assert.equal((await receiptRead.json()).data.data.requestId,'native-audit-context');
@@ -148,11 +153,13 @@ test('real user-service entry point starts against isolated PostgreSQL, Redis an
     console.log(JSON.stringify({titleHttpLatencyMs:{samples:durations.length,median:durations[25],p95:durations[47],maximum:durations[49]},scope:'isolated local service and database, warm sequential HTTP reads'}));
     assert.ok(durations[47]<50,'Local warm p95 title-query target must stay below 50ms');
     const closed=new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('Service did not terminate after shutdown')),15000);child.once('exit',(code,signal)=>{clearTimeout(timer);if(code===0)resolve();else reject(new Error(`Shutdown failed ${code}/${signal}: ${logs}`));});});
-    const shutdownStart=performance.now();child.send('stop');await closed;child=null;
-    console.log(JSON.stringify({shutdownElapsedMs:performance.now()-shutdownStart}));
+    let stopped;child.on('message',message=>{if(message.stopped)stopped=message;});
+    const shutdownStart=performance.now();child.send('stop');await closed;child=null;assert.equal(stopped.erasureSchedules,0);
+    console.log(JSON.stringify({shutdownElapsedMs:performance.now()-shutdownStart,erasureWorkerNative:{migrations:87,missingPolicyStartupExit:refusal.code,startedSchedules:ready.erasureSchedules,stoppedSchedules:stopped.erasureSchedules}}));
     await assert.rejects(fetch(base+'/health/live'));
   }finally{
     appealProxy?.close();if(appealGateway)await new Promise(resolve=>appealGateway.close(resolve));
+    if(refused&&refused.exitCode===null){const exited=new Promise(resolve=>refused.once('exit',resolve));refused.kill('SIGKILL');await exited;}
     if(child&&child.exitCode===null){const exited=new Promise(resolve=>child.once('exit',resolve));child.kill('SIGKILL');await exited;}
     auditMaster.fill(0);mfaMaster.fill(0);
     await fixture.end();await admin.query(`DROP SCHEMA ${schema} CASCADE`);await admin.end();

@@ -3,10 +3,11 @@ on:
   pull_request:
     paths:
       - 'backend/shared/**'
+      - 'backend/jobs/**'
       - 'backend/services/user-service/**'
       - 'backend/gateway/src/middleware/mfaRequired.js'
       - 'backend/gateway/src/index.js'
-      - 'backend/tests/regression/erasure-*.test.js'
+      - 'backend/tests/regression/erasure-*.js'
       - 'backend/package*.json'
       - 'database/**'
       - '.github/workflows/erasure-regression.yml'

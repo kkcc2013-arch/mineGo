@@ -3,7 +3,8 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),crypto=require('node:crypto');
 const fs=require('node:fs/promises'),path=require('node:path'),http=require('node:http');
 const {Pool}=require('pg'),speakeasy=require('speakeasy');
-const {parseMigrationFile}=require('../../../database/migrate'),{migrationStatements}=require('../../../database/sqlStatements');
+const {migrationStatements}=require('../../../database/sqlStatements');
+const run=require('node:util').promisify(require('node:child_process').execFile);
 const {ensureStorageExtensions}=require('./storageSetup');
 const root=path.resolve(__dirname,'../../..');
 
@@ -13,8 +14,9 @@ test('actual UUID erasure HTTP requests preserve legacy history, enforce owner/a
   const admin=new Pool({connectionString:process.env.TEST_DATABASE_URL,max:1});await ensureStorageExtensions(admin);await admin.query('CREATE SCHEMA '+schema);
   const url=new URL(process.env.TEST_DATABASE_URL);url.searchParams.set('options','-c search_path='+schema+',public');
   const pool=new Pool({connectionString:url.toString(),max:3});
-  const names=['NODE_ENV','DATABASE_URL','SERVICE_NAME','REDIS_URL','JWT_ACCESS_SECRET','JWT_REFRESH_SECRET','AUDIT_KMS_KEY_ID','MASTER_ENCRYPTION_KEY','AUDIT_MASTER_KEYS_JSON','AUDIT_MASTER_KEY_ID','AUDIT_KEY_NAMESPACE','MFA_KMS_KEY_ID','MFA_MASTER_ENCRYPTION_KEY','MFA_MASTER_KEYS_JSON','MFA_MASTER_KEY_ID','MFA_KEY_NAMESPACE','ERASURE_SIGNING_PUBLIC_KEYS_JSON'];
+  const names=['NODE_ENV','DATABASE_URL','SERVICE_NAME','REDIS_URL','JWT_ACCESS_SECRET','JWT_REFRESH_SECRET','AUDIT_KMS_KEY_ID','MASTER_ENCRYPTION_KEY','AUDIT_MASTER_KEYS_JSON','AUDIT_MASTER_KEY_ID','AUDIT_KEY_NAMESPACE','MFA_KMS_KEY_ID','MFA_MASTER_ENCRYPTION_KEY','MFA_MASTER_KEYS_JSON','MFA_MASTER_KEY_ID','MFA_KEY_NAMESPACE','ERASURE_SIGNING_PUBLIC_KEYS_JSON','ERASURE_RESOURCE_POLICY_JSON'];
   const before=Object.fromEntries(names.map(k=>[k,process.env[k]]));
+  delete process.env.ERASURE_RESOURCE_POLICY_JSON;
   const auditKey=crypto.randomBytes(32),mfaKey=crypto.randomBytes(32),signing=crypto.generateKeyPairSync('ed25519');
   const publicKeys=JSON.stringify({'owned-fixture-key':signing.publicKey.export({format:'pem',type:'spki'})});
   Object.assign(process.env,{NODE_ENV:'test',DATABASE_URL:url.toString(),SERVICE_NAME:schema,REDIS_URL:process.env.TEST_REDIS_URL,JWT_ACCESS_SECRET:'erasure-http-access-fixture',JWT_REFRESH_SECRET:'erasure-http-refresh-fixture',AUDIT_KMS_KEY_ID:'',MASTER_ENCRYPTION_KEY:auditKey.toString('hex'),AUDIT_MASTER_KEYS_JSON:'',AUDIT_MASTER_KEY_ID:'erasure-audit',AUDIT_KEY_NAMESPACE:schema,MFA_KMS_KEY_ID:'',MFA_MASTER_ENCRYPTION_KEY:mfaKey.toString('hex'),MFA_MASTER_KEYS_JSON:'',MFA_MASTER_KEY_ID:'erasure-mfa',MFA_KEY_NAMESPACE:schema,ERASURE_SIGNING_PUBLIC_KEYS_JSON:publicKeys});
@@ -61,10 +63,8 @@ test('actual UUID erasure HTTP requests preserve legacy history, enforce owner/a
     await pool.query("INSERT INTO data_deletion_requests(user_id,status,confirmation_token,error_message) VALUES(77,'failed','retained legacy token','retained failure')");
     await pool.query('CREATE VIEW retained_deletion_history AS SELECT * FROM data_deletion_requests');
     await pool.query('CREATE TABLE retained_deletion_reference(id integer REFERENCES data_deletion_requests(id))');await pool.query('INSERT INTO retained_deletion_reference SELECT id FROM data_deletion_requests');
-    for(const file of ['20260608_194800__add_sensitive_data_protection_tables.sql','repairs/20260608_200000__add_sensitive_data_audit_tables.sql','20260610_000000__add_mfa_system.sql','20261020_120000__mfa_verification_state.sql','repairs/20260630_050000__add_data_deletion_request_tables.sql']) {
-      const parsed=parseMigrationFile(await fs.readFile(path.join(root,'database/pending',file),'utf8'));
-      const client=await pool.connect();try{await client.query('BEGIN');for(const sql of migrationStatements(parsed.up))await client.query(sql);await client.query('COMMIT');}catch(error){await client.query('ROLLBACK');throw error;}finally{client.release();}
-    }
+    await run(process.execPath,[path.join(root,'database/migrate.js'),'up'],{cwd:root,env:{...process.env,DATABASE_URL:url.toString()},maxBuffer:4000000});
+    assert.equal((await pool.query('SELECT count(*)::int AS n FROM schema_migrations')).rows[0].n,87);
     await pool.query("INSERT INTO users(id,nickname) VALUES($1,'erasure owner'),($2,'erasure other'),($3,'erasure reviewer'),($4,'retained consent owner')",[owner,other,reviewer,legacyConsentOwner]);
     await pool.query("INSERT INTO user_consents(user_id,privacy_policy_version,terms_version,consented_at) VALUES($1,'legacy','legacy','2024-01-02'),($2,'current','current',clock_timestamp())",[legacyConsentOwner,owner]);
     await pool.query("INSERT INTO orders(user_id,idempotency_key,product_id,product_name,amount_fen,status) VALUES($1,$2,'coins_60','real owned financial history',600,'PAID')",[owner,crypto.randomUUID()]);
@@ -125,8 +125,8 @@ test('actual UUID erasure HTTP requests preserve legacy history, enforce owner/a
       assert.equal((await store.metrics.reviewed.get()).values[0].value,metricBefore+1);
     });
     await t.test('unconfigured resource execution never reports a deletion or mutates user/game/history rows',async()=>{
-      const beforeUsers=(await pool.query('SELECT id FROM users ORDER BY id')).rows;const response=await call('POST','/data-deletion/admin/requests/'+requestId+'/execute',{},reviewer,proof(reviewer));assert.equal(response.status,503);assert.equal(response.body.code,'ERASURE_RESOURCE_PLAN_REQUIRED');assert.deepEqual((await pool.query('SELECT id FROM users ORDER BY id')).rows,beforeUsers);assert.equal((await pool.query('SELECT status FROM data_erasure_requests WHERE id=$1',[requestId])).rows[0].status,'approved');
-      const facade=new(require('../../shared/dataDeletionService').DataDeletionService)(db);try{await assert.rejects(facade.executeDeletion(requestId),error=>error.code==='ERASURE_RESOURCE_PLAN_REQUIRED');await assert.rejects(facade.getRequest(requestId),error=>error.code==='ERASURE_ID_INVALID');}finally{await facade.close();}
+      const beforeUsers=(await pool.query('SELECT id FROM users ORDER BY id')).rows;const response=await call('POST','/data-deletion/admin/requests/'+requestId+'/execute',{},reviewer,proof(reviewer));assert.equal(response.status,503);assert.equal(response.body.code,'ERASURE_RESOURCE_POLICY_REQUIRED');assert.deepEqual((await pool.query('SELECT id FROM users ORDER BY id')).rows,beforeUsers);assert.equal((await pool.query('SELECT status FROM data_erasure_requests WHERE id=$1',[requestId])).rows[0].status,'approved');
+      const facade=new(require('../../shared/dataDeletionService').DataDeletionService)(db);try{await assert.rejects(facade.executeDeletion(requestId),error=>error.code==='ERASURE_RESOURCE_POLICY_REQUIRED');await assert.rejects(facade.getRequest(requestId),error=>error.code==='ERASURE_ID_INVALID');}finally{await facade.close();}
     });
     await t.test('owner cancellation is idempotent and preserves authenticated approval history',async()=>{
       const metricBefore=(await store.metrics.cancelled.get()).values[0].value;
@@ -189,6 +189,7 @@ test('actual UUID erasure HTTP requests preserve legacy history, enforce owner/a
       assert.equal((await pool.query('SELECT withdrawn_at FROM user_consents WHERE id=$1',[consent])).rows[0].withdrawn_at,null);
       await store.cancelRequest(owner,partial.id);const full=await store.withdrawConsent(owner);assert.equal(full.requestType,'full');assert.notEqual(full.id,partial.id);assert.ok((await pool.query('SELECT withdrawn_at FROM user_consents WHERE id=$1',[consent])).rows[0].withdrawn_at);
     });
+    await require('./erasure-task-scenarios')(t,{store,pool,db,owner,other,reviewer,call,proof});
   } finally {
     if(server){server.closeAllConnections();await new Promise(resolve=>server.close(resolve));}
     for(const key of ownedKeys)await r.del(key).catch(()=>{});

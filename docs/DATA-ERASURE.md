@@ -247,3 +247,112 @@ checks. Actual resource operators, category-complete ownership/retention policie
 external-storage/cache/backup removal, scheduler/retry/outbox/delivery, production
 signer/post-account receipt access, UI/export and full privacy/legal acceptance
 remain open. This discovery stage is a prerequisite to those original requirements.
+
+## 2026-11-04 — durable registered tasks and bounded UUID worker
+
+The canonical runner now prepares and executes fixed resource operations against
+actual `data_erasure_tasks`. The first registered resources are:
+
+- `user_inventory_preferences`
+- `user_notification_preferences`
+- `user_push_preferences`
+- `user_share_preferences`
+- `user_weather_preferences`
+- `user_auto_backup_config`
+
+This is registered PostgreSQL resource coverage, not complete preferences, any other
+category, an account erasure or legal acceptance. Even when every current task is
+completed, the parent remains `processing`, `processing_completed_at` stays empty,
+`completionReady` is false and this runner generates no certificate. Other personal
+resources, external notification subscriptions/caches/objects/backups, profile and
+financial/retained/shared data still require explicit operations and policy. A full
+request progresses through the registered resources; its remaining scope is neither
+dropped nor reported as erased. The standalone inventory is still an observation,
+not authorization to run SQL.
+
+Execution requires server configuration `ERASURE_RESOURCE_POLICY_JSON` with exactly
+`version`, `policyReference`, `catalogSha256` and `resources`. The reference must
+identify the operator's actual policy review, the digest must match the target
+catalog and the resource list must be exactly the six registered codes above.
+There is no default policy and no proposal/SQL/table-name override. Configuration
+key/list ordering does not change a plan's identity. No production policy was
+invented or installed by these regressions; their explicit policy references apply
+only to the owned sandbox fixtures. The deletion behavior of this initial operator
+version is erasure of the selected UUID owner's current preference rows after the
+request's actual approval/grace deadline. It does not infer legal retention approval
+from the proposal's example numbers or implement retention for other resources.
+
+The actual admin/current-session/`erasure-admin` MFA endpoints are:
+
+- `POST /data-deletion/admin/requests/:id/tasks` — prepare/idempotently read tasks.
+- `POST /data-deletion/admin/requests/:id/tasks/:taskId/execute` — execute one task.
+- `POST /data-deletion/admin/requests/:id/execute` — progress registered tasks.
+
+They accept an empty body. Client-supplied SQL, resource selection and other fields
+are rejected. Existing gateway aliases preserve these same boundaries. With no
+server policy, execution now returns `ERASURE_RESOURCE_POLICY_REQUIRED`; a mismatched
+catalog returns `ERASURE_POLICY_SCHEMA_MISMATCH`, without creating tasks or deleting
+rows. Unsupported request categories cannot create an empty successful plan.
+
+The plan version binds the code operator version, normalized policy, namespace,
+request/subject/intent, verification, approval and execute-after time. Each task must
+match the fixed code/category/service and the exact same-request dependency chain;
+substituted resources, cross-request dependencies and changed request intent refuse.
+Code never executes identifiers or instructions read from task rows. Targets must be
+ordinary local tables with a validated canonical `user_id -> users(id)` UUID FK,
+visible whole-table counts, no inheritance, no incoming references from any schema,
+no DELETE triggers and no rewrite rules. Target row-exclusive locks precede the
+catalog snapshot and remain through commit, preventing new target DDL/trigger/FK
+contracts during execution while permitting ordinary writers. The real regression
+blocks a concurrent CREATE TRIGGER until its owned lock timeout; it is not installed.
+
+Execution checks the absolute database-clock deadline, retains subject/request/task
+locks, writes running state and deletes only `WHERE user_id = <bound subject UUID>`.
+The actual driver row count, database timestamps/duration and encrypted audit receipt
+commit with the completed task. Repeated completed tasks return the stored result
+without repeating deletion or counters. Concurrent callers serialize or receive a
+retryable PostgreSQL serialization failure; they do not both delete/count the rows.
+
+A failed operation rolls back to a savepoint while the original locks remain held.
+Its sanitized failure/retry state and encrypted receipt then commit together. This
+avoids the race in which a separate failure transaction could overwrite another
+worker's successful result. Retry count records retries actually attempted: an
+initial failure has count0, then at most three retries by default (bounded by both
+request/task maxima). Exhaustion makes the request failed and removes it from
+automatic selection. Preflight rejection is not an attempted retry. An unavailable
+encrypted audit rolls back the delete, task/request transition and successful count;
+no plaintext error/payload or unaudited success is substituted. Completed-task,
+deleted-row and failure counters advance only after the corresponding commit.
+
+`backend/jobs/index.js` is wired to actual user-service initialization and shutdown.
+`ERASURE_WORKER_ENABLED` defaults to disabled; only literal `true` enables it, and
+startup validates the real policy/schema/operators before scheduling. The processor
+uses canonical UUID tables and the actual `execute_after` deadline. Hourly due work
+excludes failed tasks; the separate six-hour schedule selects eligible failed work.
+Local overlap is prevented and database locks protect independent workers. Results
+explicitly distinguish observed task progress and blocked overall completion; they
+never count a processing request as completed. Stop destroys only the owned cron
+handles, waits for startup and in-flight work and closes owned stores. It does not
+send reminders or notifications through an unconfigured event bus. The old processor's
+pretend sends, incompatible integer queries and timer-leaking stop were removed.
+Expiry/reminder/daily-report/delivery/outbox lifecycle remains unfinished.
+
+The actual HTTP regression now installs full V1/V2 and all87 unchanged migrations,
+while retaining legacy SERIAL rows/tokens/OIDs/FKs/view/sequence and unrelated consent
+history. Real registered-session/admin-purpose proofs guard preparation and execution.
+It tests owned-vs-other rows, live DELETE/INSERT-audit privilege faults using an owned
+limited PostgreSQL role, bounded retry recovery/exhaustion, tampered contracts and
+intent, dependency order, concurrent once-only completion/counters, no full-request
+certificate, actual scheduler selection/storage failure and a real row-lock wait
+that shutdown must drain. Original request/signature/consent checks remain.
+
+The real user-service native fixture also uses all87 migrations, refuses enabled
+startup without policy, registers two actual schedules with valid sandbox policy and
+releases both on normal shutdown. Original readiness, encryption/privacy/MFA/audit,
+IP appeal, title latency and shutdown checks remain at their original thresholds.
+The test reads the actual current seeded privacy-policy version rather than assuming
+its older custom version is the sole policy. Native startup/shutdown wiring and real
+component execution are distinct evidence; no production provider or complete native
+account-erasure workflow is claimed. Run the existing `test:erasure:storage` and
+`test:erasure:plan` commands with owned PostgreSQL/Redis, plus the native process
+regressions with Kafka. All original whole-feature/coverage/legal targets remain.

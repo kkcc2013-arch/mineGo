@@ -434,7 +434,7 @@
         "- [ ] 集成测试验证完整删除流程",
         "- [ ] 法律审核通过（隐私政策）"
       ],
-      "verificationStatus": "partial_actual_uuid_erasure_intake_and_mfa_boundaries_verified_full_privacy_export_execution_legal_open",
+      "verificationStatus": "partial_actual_uuid_erasure_and_registered_tasks_verified_full_privacy_export_resources_legal_open",
       "implementationReferences": [
         "backend/services/user-service/src/gdprService.js",
         "backend/services/user-service/src/routes/auth.js",
@@ -3873,9 +3873,8 @@
         "- [ ] 满足 GDPR 第17条\"被遗忘权\"要求",
         "- [ ] 满足 CCPA 第1798.105条\"删除权\"要求"
       ],
-      "verificationStatus": "partial_actual_uuid_workflow_and_schema_resource_review_verified_execution_delivery_full_acceptance_open",
+      "verificationStatus": "partial_actual_uuid_tasks_retry_and_worker_verified_complete_resources_delivery_receipt_acceptance_open",
       "implementationReferences": [
-        "backend/jobs/dataDeletionProcessor.js",
         "backend/services/user-service/src/index.js",
         "backend/shared/dataDeletionService.js",
         "database/migrations/20260614220000_data_deletion_request_system.sql",

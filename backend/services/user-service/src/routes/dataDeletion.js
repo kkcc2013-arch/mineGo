@@ -4,6 +4,7 @@ const express = require('express');
 const {requireAuth,requireAdmin,AppError} = require('../../../../shared/auth');
 const {RiskVerifier} = require('../../../../shared/riskVerifier');
 const {getErasureStore,identity} = require('../../../../shared/erasure/ErasureRequestStore');
+const {ErasureTaskRunner} = require('../../../../shared/erasure/ErasureTaskRunner');
 const ownerPolicy = () => ({operation:'user.account.delete',scope:'delete-account',mandatory:true});
 const readPolicy = () => ({operation:'user.erasure.read',scope:'delete-account',mandatory:false});
 const adminPolicy = () => ({operation:'admin.erasure.review',scope:'erasure-admin',mandatory:true});
@@ -21,7 +22,8 @@ function input(req) {
   if(!body||typeof body!=='object'||Array.isArray(body)||Object.keys(body).some(k=>!['requestType','reason','dataTypes'].includes(k)))throw new AppError('ERASURE_INPUT_INVALID','ERASURE_INPUT_INVALID',400);
   return body;
 }
-function createErasureRouter({store=getErasureStore(),risk=new RiskVerifier()}={}) {
+function emptyInput(req) {if(req.body!==undefined&&(!req.body||typeof req.body!=='object'||Array.isArray(req.body)||Object.keys(req.body).length))throw new AppError('ERASURE_INPUT_INVALID','ERASURE_INPUT_INVALID',400);}
+function createErasureRouter({store=getErasureStore(),risk=new RiskVerifier(),runner=new ErasureTaskRunner({store})}={}) {
   const router=express.Router();
   router.use(requireAuth,risk.middleware());
   router.post('/requests',risk.middleware(ownerPolicy),respond(async(req,res)=>res.status(201).json({success:true,data:await store.createRequest(req.user.sub,input(req))})));
@@ -38,9 +40,12 @@ function createErasureRouter({store=getErasureStore(),risk=new RiskVerifier()}={
   router.get('/admin/requests/:id/plan',respond(async(req,res)=>res.json({success:true,data:await store.planRequest(req.params.id,req.user.sub)})));
   router.post('/admin/requests/:id/approve',respond(async(req,res)=>res.json({success:true,data:await store.decide(req.params.id,req.user.sub,'approve')})));
   router.post('/admin/requests/:id/reject',respond(async(req,res)=>res.json({success:true,data:await store.decide(req.params.id,req.user.sub,'reject',req.body?.reason)})));
+  router.post('/admin/requests/:id/tasks',respond(async(req,res)=>{emptyInput(req);res.json({success:true,data:await runner.prepare(req.params.id,req.user.sub)});}));
+  router.post('/admin/requests/:id/tasks/:taskId/execute',respond(async(req,res)=>{emptyInput(req);res.status(202).json({success:true,data:await runner.executeTask(req.params.id,req.params.taskId,req.user.sub)});}));
   router.post('/admin/requests/:id/execute',respond(async(req,res)=>{
+    emptyInput(req);
     identity(req.params.id);await store.detail(req.user.sub,req.params.id,{admin:true});
-    throw new AppError('ERASURE_RESOURCE_PLAN_REQUIRED','ERASURE_RESOURCE_PLAN_REQUIRED',503);
+    res.status(202).json({success:true,data:await runner.executeRequest(req.params.id,req.user.sub)});
   }));
   router.get('/admin/certificates/:certificateNumber',respond(async(req,res)=>res.json({success:true,data:await store.certificate(req.user.sub,req.params.certificateNumber,{admin:true})})));
   return router;

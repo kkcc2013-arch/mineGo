@@ -1,0 +1,212 @@
+{
+  "date": "2026-11-04",
+  "baseCommit": "53b2a7e434a08eb6181eadbecd50d122bbf2f58b",
+  "runtime": "v24.22.1",
+  "result": "actual_registered_uuid_tasks_retry_audit_and_enabled_worker_lifecycle_verified_full_erasure_open",
+  "sourceSha256": {
+    ".github/workflows/erasure-regression.yml": "8e6cf7ae2241d560bced7d5b709a7cf98c1ec76c30ac33e2a3ab8ea726be28a9",
+    "backend/jobs/dataDeletionProcessor.js": "74f94f5c032bc07cd45dc00151e8f3ed5532fdff835403d1809d08242e0744a3",
+    "backend/jobs/index.js": "d64a9fe4799b0322ce1221711c30f798c1c136f87c3c961e34953b557b60a467",
+    "backend/package.json": "f2f56b8ed871cc90b6da3970087d8e9738f7351640933956ca396c2225ee9c78",
+    "backend/services/user-service/src/index.js": "f24d755df96a3dd67490938119f9b79136d6b288e87fc1015d30a8eb232621c6",
+    "backend/services/user-service/src/routes/dataDeletion.js": "a2cfb7d337d5bebc0552cfb493b9bac08b992e8b73ca55fcae64ffa442b98039",
+    "backend/shared/dataDeletionService.js": "0f0f71f76ced7580804c8cb5291b112d6a78aaa618eb755b483716623e478de1",
+    "backend/shared/erasure/ErasureTaskRunner.js": "97b4bd3e180105e3031df02a7f0325452dd26ff576ede76f8b52fd253d50a41b",
+    "backend/tests/regression/erasure-request-storage.test.js": "4ad6920535482390213d72b1ab78f53bdb71e826934f9ed466ebc05fd31b24eb",
+    "backend/tests/regression/erasure-task-scenarios.js": "3ecc9b7fa0344ffc76f9bc2edff4dddd3f2500ea7343fe23c0b1e316b7420345",
+    "backend/tests/regression/user-startup.test.js": "f594f550223e0e2dd3feb18f6b80752d64e08ec7c7a9a6507e2a3132a0d2e797",
+    "docs/DATA-ERASURE.md": "a9e5cd17d04cf1ad146852fdc681f4c30ef5cde98cf675e88e7010ce1c22d677",
+    "docs/requirements/COMPLETION-PLAN.md": "eb2bf4eb744c3e84594e50cc7de42958f50bffc3a86a0ad2e1691607615fc722",
+    "docs/requirements/WORKLOG.md": "53eb4d815ab26dc3039956859a0697d3fe697b58fcc9dc06c5719e61d3a635ba"
+  },
+  "checks": [
+    {
+      "name": "http",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:erasure:storage"
+      ],
+      "exit": 0,
+      "logSha256": "9bc75b3354c9156a48bff86f75918cad87c1bc1962fafc4ecc428031e364cda3"
+    },
+    {
+      "name": "plan",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:erasure:plan"
+      ],
+      "exit": 0,
+      "logSha256": "39bf3bca81611beeaaf8bb909d31586e0317dc1395670e442158d2296cfffeed"
+    },
+    {
+      "name": "schema",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "backend/tests/regression/erasure-schema-storage.test.js"
+      ],
+      "exit": 0,
+      "logSha256": "05de533118985f6570c9c003c69d2e7d52fcae0eaf1b4ade2d227144b2d5dbcf"
+    },
+    {
+      "name": "native",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "backend/tests/regression/user-startup.test.js",
+        "backend/tests/regression/gateway-startup.test.js",
+        "backend/tests/regression/payment-native.test.js"
+      ],
+      "exit": 0,
+      "logSha256": "738fc998a3275379f527ceb165c99b8ebe5ea89a2e20fb850c276190578cdede"
+    },
+    {
+      "name": "units",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:unit"
+      ],
+      "exit": 0,
+      "logSha256": "982620437a046e5de2649189589a6c16423617cf620bc31a044f5ea40c72e990"
+    },
+    {
+      "name": "battle",
+      "command": [
+        "npm",
+        "--prefix",
+        "backend",
+        "run",
+        "test:battle:coverage"
+      ],
+      "exit": 0,
+      "logSha256": "076da861656b6f3e4edf2d9c02c58ec02bf6d64b1958d8ae8b6ee0d90de00c10"
+    },
+    {
+      "name": "syntax",
+      "command": [
+        "npm",
+        "run",
+        "check:syntax"
+      ],
+      "exit": 0,
+      "logSha256": "56cd504af4b79263c1d3724163e402f4115ba6ae07678eac140aeffd19134682"
+    },
+    {
+      "name": "tools",
+      "command": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "scripts/tests/check-health-routes.test.js",
+        "scripts/tests/check-js-syntax.test.js",
+        "scripts/tests/requirements-audit.test.js"
+      ],
+      "exit": 0,
+      "logSha256": "2520871d797402e9de2f32e2c7d48219fa6741b8e54631ab3fd24f82136302ac"
+    },
+    {
+      "name": "logging",
+      "command": [
+        "npm",
+        "run",
+        "check:logging"
+      ],
+      "exit": 0,
+      "logSha256": "5ae82e29eedca984b5670eb1c4bc7cdb0a5712db261a3aa014632a528820902e"
+    }
+  ],
+  "coverage": {
+    "expandedErasureIntegration": {
+      "lines": 99.8,
+      "branches": 90.83,
+      "functions": 98.5,
+      "gates": {
+        "lines": 90,
+        "functions": 90,
+        "branches": 80
+      }
+    },
+    "taskRunner": {
+      "lines": 100,
+      "branches": 95.83,
+      "functions": 100
+    },
+    "processor": {
+      "lines": 100,
+      "branches": 85.96,
+      "functions": 94.74
+    },
+    "inventory": {
+      "lines": 100.0,
+      "branches": 95.79,
+      "functions": 100.0,
+      "gates": {
+        "lines": 90,
+        "functions": 90,
+        "branches": 80
+      }
+    },
+    "originalBattle": {
+      "lines": 100.0,
+      "branches": 100.0,
+      "functions": 100.0,
+      "gates": {
+        "lines": 91,
+        "functions": 91,
+        "branches": 91
+      }
+    }
+  },
+  "nativeUserWorker": {
+    "shutdownElapsedMs": 4833.098842000001,
+    "erasureWorkerNative": {
+      "migrations": 87,
+      "missingPolicyStartupExit": 1,
+      "startedSchedules": 2,
+      "stoppedSchedules": 0
+    }
+  },
+  "nativeTitleLatency": {
+    "samples": 50,
+    "median": 1.7162799999987328,
+    "p95": 2.69297700000061,
+    "maximum": 5.453473999999915
+  },
+  "nativePayment": {
+    "pendingMigrations": 87,
+    "gatewayShutdownMs": 361.79815100000087,
+    "paymentShutdownMs": 5291.960282,
+    "scope": "Actual payment+gateway OS entry points, canonical full history, signed spaced JSON bytes through gateway without userJWT, SQL/Redis/Kafka/encrypted receipts and actual timeout consumer; other gateway peers alias payment fixture, no provider/liveAWS/capacity acceptance."
+  },
+  "negativeEvidence": [
+    {
+      "logSha256": "d2ad6719bbd62e731944d027c9430967b74bdd96d983bc0a1206d9b7657dbf62",
+      "result": "Expanded genuine fixture failed unique nickname constraint; fixture identity made unique, authentic SQL/constraint retained."
+    },
+    {
+      "logSha256": "cc54641aa34675fa71dee0ee861fe781811b0bf427b62e3e7d5becd438c08f9a",
+      "result": "Next native-scheduler fixture collided with a preference row automatically created by the actual user trigger; fixture upsert corrected, production behavior/constraints retained."
+    },
+    {
+      "logSha256": "ab2cce64fe835c42cb479d032a106dc2515d558c42bb13989d9d463405e00170",
+      "result": "Native attempt terminally failed Kafka connection while owned broker was starting. Same broker confirmed ready by actual cluster metadata before rerun; no restart for observation timeout."
+    },
+    {
+      "logSha256": "415cb00c334131ee26db75ff4259066c7d14ce114a2f9e818f715a03499d3957",
+      "result": "Full migrations exposed old single-policy fixture assumption: seeded active policy takes precedence over its 2020 fixture. Assertions now bind actual current seeded policy; no policy rows/thresholds altered."
+    }
+  ],
+  "priorCIArtifact": "docs/benchmarks/ci-53b2a7e-2026-11-04.json",
+  "scope": "All658 original scope/criteria unchanged. Six fixed registered preference PostgreSQL resources only; actual UUID owner deletes/real rowCount/SQL timestamps/encrypted receipts and postcommit counters. Explicit server policy+catalog pin/operator/namespace/intent/approval/deadline task version; no client/task SQL, empty-body admin/current-session/erasure-admin MFA routes. Real limited-role DELETE/audit privilege faults, rollback/savepoints under retained locks, initial+3 bounded retries/exhaustion, dependency/intent/resource/contract tampering, concurrent idempotency, actual DDL lock timeout/no trigger, owned-vs-other/account/financial preservation. Hourly due scan excludes failures, sixhour retries separate, real callbacks/DB failure/overlap/drain/owned schedule teardown. Actual user native full87 startup without policy exits1, valid sandbox2schedules, normalshutdown0; original titleP95<50 and existing privacy/MFA/encrypted audit/IP checks retained. Legacy SERIAL history/consent/OIDs/FKs/view/sequence unchanged. No provider/recipient messages or production policy approval; no whole-category/account completion: processing/completionReady=false/no generated certificate. All other registered/retained/shared/external/cache/object/backup resources, expiry/reminder/report/outbox/delivery, production signer/postaccount/UI/export/legal, all other original APIs/services/client/security/performance/operations and final658 remain open. All original database sources/locks/manifests and non-erasure npm commands/targets unchanged; erasure coverage inputs broadened at original90/90/80. Complete units and original battle133/100 at91 retain prior REQ619 acceptance; no new promotion. New-source CI pending."
+}

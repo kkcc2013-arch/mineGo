@@ -2958,3 +2958,101 @@ production signing/post-account receipts/UI/export/legal scope remain open. Cont
 all remaining original services/P0/client/security/performance/operations and final
 658audit. No Maven, CPU saturation, subagents, new requirement, recipient/provider
 message, production cleanup/rekey, merge or deployment was performed.
+
+## 2026-11-04 — registered UUID task execution, retries and actual worker lifecycle
+
+The previous continuation produced the real task-runner/processor changes and25
+passing storage/HTTP cases in the worktree; it is classified as progress. This turn
+continued that batch, verified authoritative state after the environment date/restart,
+finished original service wiring and checks and prepared source-hashed publication.
+All658 originals remain in scope. No requirement/acceptance box/target was changed.
+
+Exact53b2a7e remote main479/native48/payment6/MFA11/browser7/migration41/erasure2/
+privacy51/notification36/dependency321-322 pass. Legacy API108/contract404/integration454/
+performance147/security437 fail; E2E141 cancelled. All were terminal in the recorded
+observation; no original failure is waived or run restarted solely for a polling
+failure. Current task-source CI remains required after publication on draftPR6.
+
+Actual ErasureTaskRunner creates canonical durable UUID tasks for six registered
+preference resources, bound to normalized server policy/catalog digest/operator
+version/namespace/request/subject/intent/verification/approval/deadline. All six
+resource IDs are fixed in code. No SQL/query/table configuration is executed from
+client or task rows; metadata/dependency substitutions and intent changes refuse.
+Admin/current-session/erasure-admin MFA protects task preparation/single/bulk execution;
+those APIs accept empty bodies only. Missing/invalid policy or mismatched schema
+refuses without data mutation. Preflight requires ordinary local UUID-owner tables,
+validated users FK, no incoming FK/inheritance/DELETE trigger/rule/RLS/unknown count.
+Row-exclusive target locks block concurrent target DDL throughout the snapshot/task.
+
+Deadline and same-request dependencies are checked against actual storage. Each delete
+uses the bound actual user UUID and commits real rowCount/database timestamps/duration,
+completed-task state and encrypted audit receipt together. Failures roll back to a
+savepoint under the same original user/request/task locks and atomically record a
+sanitized failure/retry receipt. A separate failure transaction was rejected during
+implementation because it would race other workers. Initial failure count0 plus at
+most3retries is enforced by task/request maxima; exhausted requests fail and leave
+automatic selection. Audit unavailability rolls back deletion and state/counters.
+Counters advance only after actual commits. Repeated/concurrent execution cannot
+repeat a completed delete or its counters; competing snapshots may legitimately
+receive PostgreSQL40001 and can retry against current state.
+
+The original legacy processor's incompatible SERIAL queries, pretend notification
+sends and timer-leaking stop were replaced. New jobs/index is wired to actual user
+initialization and both shutdown paths. Worker is off by default; literaltrue requires
+actual policy/schema/operator readiness. Hourly due work excludes failed tasks; the
+six-hour schedule independently selects eligible failures. Local overlap is blocked;
+independent workers use database locks. Only owned cron handles are destroyed; startup/
+inflight work is drained and owned stores closed. Errors do not become successful
+processed counts. Expiry/reminder/daily-report/delivery/outbox lifecycle remains open.
+
+Six resources are PostgreSQL progress, not complete preferences/category/account
+coverage. The parent remains processing/completionReady=false even after every current
+task completes; this runner never fills processing_completed_at or generates a certificate.
+Remaining data/types are not removed from the original request. Actual operators for
+all other resources, retention/legal approval, external/cached/object/backup data,
+production signer/post-account access, complete UI/export/notification and all other
+original requirement criteria remain unfinished. The fixture policy is sandbox-only;
+no production policy/retention approval or external delivery was invented or installed.
+
+The HTTP regression now applies real V1/V2/all87 migrations and retains all old
+nonce/approval/read/consent/crypto/legacy preservation cases. Additional actual25-case
+coverage proves owned-vs-other rows, live DELETE/audit INSERT privilege faults on a
+new owned limited role, dependency/resource/intent/catalog tampering, six real owned
+row deletions, unchanged other-owner/preferences/users/financial history, no automatic
+certificate, bounded retry recovery/exhaustion and concurrent idempotent counts.
+A row-lock wait is confirmed through pg_stat_activity; stopping waits for it to finish.
+A concurrent CREATE DELETE TRIGGER times out behind the held target lock and leaves
+no trigger. Actual cron startup is deduplicated, callbacks run, database errors are
+reported, future/exhausted work is skipped and all owned schedules are removed.
+
+The original user native fixture was upgraded from selected table fragments to real
+V1/V2/all87 source. Enabled startup without policy actually exits1 and creates no tasks;
+valid sandbox policy starts2 schedules and normal shutdown leaves0. All original
+readiness/privacy/encrypted audit/MFA/IP-appeal/title/latency/shutdown checks remain.
+Full-seed privacy version is read from actual current-policy storage, retaining the
+older fixture version instead of wrongly asserting it is the sole current policy.
+Final native title50samples median1.7162799999987328ms/p952.69297700000061ms remain
+below the original50ms p95 ceiling; shutdown4833.098842ms is a functional fixture,
+not a production SLO claim. Native component execution and enabled process wiring
+are separate evidence, not complete production/account-erasure acceptance.
+
+Negative evidence retained: first expanded task fixture reused a unique nickname;
+next scheduler fixture duplicated a preference row automatically created by the real
+user trigger. Fixed fixture uniqueness/upserts, not authentic constraints. First Nov4
+native attempt finished with a Kafka connection failure while the broker was still
+starting; confirmed that same broker via real cluster metadata and reran after ready,
+without restarting the broker for an observation timeout. Next full-native attempt
+exposed the old one-policy fixture assumption; exact current seeded version is now
+asserted. Original source SQL and acceptance thresholds remain untouched.
+
+Final exact-source sequential nice10/UV2 checks all exit0/no skipped Node cases:
+HTTP25 expanded99.80line90.83branch98.50function at original90/90/80 (runner100/95.83/100,
+worker100/85.96/94.74); inventory9/full87 at100/95.79/100; SQL19; native4 includes real
+enabled user/default gateway/payment/full87; complete main units (27Jest477 plus all
+original Node/custom checks); original battle133 at100all with91gates; syntax1489;
+alltools12; direct-runtime logging0. Read-only erasure workflow includes jobs/helper
+paths and the same sequential real storage/HTTP/plan commands. Only erasure coverage
+inputs expanded; all existing targets and other npm commands remain unchanged. All87
+SQL/V1/V2/lockfiles/dependency/repair manifests match53b. Existing REQ619 acceptance
+is retained with actual original battle evidence; no additional requirement promoted.
+Still176declared done54progress428new=658,50evidence records/only619verified.

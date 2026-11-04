@@ -154,6 +154,7 @@ const service = new ServiceLauncher({
   onInitialize: async (app) => {
     await db.initializeMigrations();
     await require('../../../shared/erasure/ErasureRequestStore').getErasureStore().ready();
+    await require('../../../jobs').startErasureJobs();
     if(process.env.NODE_ENV==='production')await require('../../../shared/mfaService').ready();
     app.locals.db = db;
     const trustedIngress=process.env.USER_SERVICE_TRUST_PROXY||process.env.SERVICE_TRUST_PROXY;
@@ -237,9 +238,11 @@ const service = new ServiceLauncher({
     require('../../../shared/notification/NotificationManager').getNotificationManager().registerPlugin(new Plugin(notificationWs,transport));
   },
   onBeforeShutdown: async () => {
+    await require('../../../jobs').stopErasureJobs();
     if(notificationWs){for(const client of notificationWs.clients)client.terminate();await new Promise((resolve,reject)=>notificationWs.close(error=>error?reject(error):resolve()));notificationWs=null;}
   },
   onShutdown: async () => {
+    await require('../../../jobs').stopErasureJobs();
     healthChecker?.stopPeriodicCheck();
     const mfaCleanup=await Promise.allSettled([require('../../../shared/mfaService').closeMFA(),require('../../../shared/erasure/ErasureRequestStore').closeErasureStore()]);
     const results = await Promise.allSettled([
